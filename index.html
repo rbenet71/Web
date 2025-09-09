@@ -2285,6 +2285,28 @@ window.addEventListener('load', function() {
 
 
     <script type="text/javascript">
+	
+			function openTab(tabId) {
+			// Ocultar todas
+			document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+			// Mostrar la seleccionada
+			document.getElementById(tabId).classList.add('active');
+			// Guardar en localStorage
+			localStorage.setItem("tabActiva", tabId);
+		}
+
+		// Restaurar al recargar
+		window.onload = function() {
+			let tabGuardada = localStorage.getItem("tabActiva") || "tab1"; // por defecto tab1
+			openTab(tabGuardada);
+		}
+
+		// Refrescar cada 30s
+		setTimeout(() => {
+			location.reload(true);
+		}, 30000);
+	
+	
         // Función para actualizar la fecha y hora
         function updateDateTime() {
             const now = new Date();
