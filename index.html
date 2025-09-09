@@ -54,9 +54,10 @@
                style="padding: 10px; width: 300px; border: 2px solid #ddd; border-radius: 5px; margin-right: 10px;">
     </div>
     
-    <!-- Navegación de pestañas -->
+    <!-- Navegación de pestañas - DARRERES ARRIBADES PRIMERA -->
     <div class="tabs">
-        <button class="tablink active" onclick="openTab('tab-all', this)">Scratch</button>
+        <button class="tablink active" onclick="openTab('tab-darreres', this)">Darreres Arribades</button>
+        <button class="tablink" onclick="openTab('tab-all', this)">Scratch</button>
         <button class="tablink" onclick="openTab('tab-alevi', this)">Alevi</button>
         <button class="tablink" onclick="openTab('tab-benjami', this)">Benjami</button>
         <button class="tablink" onclick="openTab('tab-femina_alevi', this)">Femina Alevi</button>
@@ -65,24 +66,27 @@
         <button class="tablink" onclick="openTab('tab-femina_principant', this)">Femina Principant</button>
         <button class="tablink" onclick="openTab('tab-pre_benjamin', this)">Pre Benjamin</button>
         <button class="tablink" onclick="openTab('tab-principiant', this)">Principiant</button>
-        <button class="tablink" onclick="openTab('tab-additional', this)">Darreres Arribades</button>
     </div>
     <div class="tabcontent-container">
-        <div id="tab-additional" class="tabcontent">
-            <h3>Darreres Arribades</h3>
-<table id="tableAdditional" class="sortable-table">
+        <div id="tab-darreres" class="tabcontent" style="display:block;">
+            <h3>📋 Darreres Arribades</h3>
+<table id="tableDarreres" class="sortable-table">
     <thead>
         <tr>
-            <th onclick="sortTable('tableAdditional', 0)" style="cursor: pointer;">
-                Campo 1
+            <th onclick="sortTable('tableDarreres', 0)" style="cursor: pointer;">
+                Dorsal
                 <span style="margin-left: 5px;">↕️</span>
             </th>
-            <th onclick="sortTable('tableAdditional', 1)" style="cursor: pointer;">
-                Campo 2
+            <th onclick="sortTable('tableDarreres', 1)" style="cursor: pointer;">
+                Nombre
                 <span style="margin-left: 5px;">↕️</span>
             </th>
-            <th onclick="sortTable('tableAdditional', 2)" style="cursor: pointer;">
-                Campo 3
+            <th onclick="sortTable('tableDarreres', 2)" style="cursor: pointer;">
+                Tiempo
+                <span style="margin-left: 5px;">↕️</span>
+            </th>
+            <th onclick="sortTable('tableDarreres', 3)" style="cursor: pointer;">
+                Categoría
                 <span style="margin-left: 5px;">↕️</span>
             </th>
         </tr>
@@ -104,9 +108,13 @@
             <td>Info Z</td>
         </tr>
     </tbody>
-</table>        </div>
-        <div id="tab-all" class="tabcontent" style="display:block;">
-            <h3>Tots els Participants</h3>
+</table>
+    <div id="no-results-tableDarreres" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
+        <div id="tab-all" class="tabcontent">
+            <h3>🏁 Scratch - Tots els Participants</h3>
 <table id="tableAll" class="sortable-table">
     <thead>
         <tr>
@@ -694,9 +702,13 @@
             <td></td>
         </tr>
     </tbody>
-</table>        </div>
+</table>
+    <div id="no-results-tableAll" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
         <div id="tab-alevi" class="tabcontent">
-            <h3>Categoría: Alevi</h3>
+            <h3>🏅 Categoria: Alevi</h3>
 <table id="tablealevi" class="sortable-table">
     <thead>
         <tr>
@@ -816,9 +828,13 @@
             <td></td>
         </tr>
     </tbody>
-</table>        </div>
+</table>
+    <div id="no-results-tablealevi" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
         <div id="tab-benjami" class="tabcontent">
-            <h3>Categoría: Benjami</h3>
+            <h3>🏅 Categoria: Benjami</h3>
 <table id="tablebenjami" class="sortable-table">
     <thead>
         <tr>
@@ -974,9 +990,13 @@
             <td></td>
         </tr>
     </tbody>
-</table>        </div>
+</table>
+    <div id="no-results-tablebenjami" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
         <div id="tab-femina_alevi" class="tabcontent">
-            <h3>Categoría: Femina Alevi</h3>
+            <h3>🏅 Categoria: Femina Alevi</h3>
 <table id="tablefemina_alevi" class="sortable-table">
     <thead>
         <tr>
@@ -1048,9 +1068,13 @@
             <td></td>
         </tr>
     </tbody>
-</table>        </div>
+</table>
+    <div id="no-results-tablefemina_alevi" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
         <div id="tab-femina_benjami" class="tabcontent">
-            <h3>Categoría: Femina Benjami</h3>
+            <h3>🏅 Categoria: Femina Benjami</h3>
 <table id="tablefemina_benjami" class="sortable-table">
     <thead>
         <tr>
@@ -1134,9 +1158,13 @@
             <td></td>
         </tr>
     </tbody>
-</table>        </div>
+</table>
+    <div id="no-results-tablefemina_benjami" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
         <div id="tab-femina_prebenjamin" class="tabcontent">
-            <h3>Categoría: Femina Prebenjamin</h3>
+            <h3>🏅 Categoria: Femina Prebenjamin</h3>
 <table id="tablefemina_prebenjamin" class="sortable-table">
     <thead>
         <tr>
@@ -1208,9 +1236,13 @@
             <td></td>
         </tr>
     </tbody>
-</table>        </div>
+</table>
+    <div id="no-results-tablefemina_prebenjamin" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
         <div id="tab-femina_principant" class="tabcontent">
-            <h3>Categoría: Femina Principant</h3>
+            <h3>🏅 Categoria: Femina Principant</h3>
 <table id="tablefemina_principant" class="sortable-table">
     <thead>
         <tr>
@@ -1294,9 +1326,13 @@
             <td></td>
         </tr>
     </tbody>
-</table>        </div>
+</table>
+    <div id="no-results-tablefemina_principant" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
         <div id="tab-pre_benjamin" class="tabcontent">
-            <h3>Categoría: Pre Benjamin</h3>
+            <h3>🏅 Categoria: Pre Benjamin</h3>
 <table id="tablepre_benjamin" class="sortable-table">
     <thead>
         <tr>
@@ -1452,9 +1488,13 @@
             <td></td>
         </tr>
     </tbody>
-</table>        </div>
+</table>
+    <div id="no-results-tablepre_benjamin" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
         <div id="tab-principiant" class="tabcontent">
-            <h3>Categoría: Principiant</h3>
+            <h3>🏅 Categoria: Principiant</h3>
 <table id="tableprincipiant" class="sortable-table">
     <thead>
         <tr>
@@ -1634,7 +1674,11 @@
             <td></td>
         </tr>
     </tbody>
-</table>        </div>
+</table>
+    <div id="no-results-tableprincipiant" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
     </div>
 </div>
 
@@ -1660,6 +1704,11 @@ function openTab(tabName, element) {
     // Mostrar la pestaña seleccionada y activar el botón
     document.getElementById(tabName).style.display = "block";
     element.classList.add("active");
+    
+    // Forzar redibujado de tablas para evitar problemas de visualización
+    setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+    }, 50);
 }
 
 // Función para filtrar todas las tablas
@@ -1669,6 +1718,8 @@ function filterAllTables() {
     
     tables.forEach(table => {
         const rows = table.querySelectorAll("tbody tr");
+        let visibleCount = 0;
+        
         rows.forEach(row => {
             let found = false;
             const cells = row.querySelectorAll("td");
@@ -1681,13 +1732,23 @@ function filterAllTables() {
             }
             
             row.style.display = found ? "" : "none";
+            if (found) visibleCount++;
         });
+        
+        // Mostrar mensaje si no hay resultados
+        const tableContainer = table.closest('.tabcontent');
+        const noResults = tableContainer.querySelector('.no-results');
+        if (noResults) {
+            noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
     });
 }
 
 // Función de ordenamiento para tablas
 function sortTable(tableId, column) {
     const table = document.getElementById(tableId);
+    if (!table) return;
+    
     const tbody = table.querySelector("tbody");
     const rows = Array.from(tbody.querySelectorAll("tr"));
     const header = table.querySelectorAll("th")[column];
@@ -1719,15 +1780,34 @@ function sortTable(tableId, column) {
     
     // Actualizar indicadores
     table.querySelectorAll("th").forEach(th => {
-        th.querySelector("span").textContent = "↕️";
+        if (th.querySelector("span")) {
+            th.querySelector("span").textContent = "↕️";
+        }
     });
-    header.querySelector("span").textContent = isAscending ? "⬇️" : "⬆️";
+    if (header.querySelector("span")) {
+        header.querySelector("span").textContent = isAscending ? "⬇️" : "⬆️";
+    }
 }
 
-// Inicializar primera pestaña como activa
+// Inicializar con Darreres Arribades activa
 window.addEventListener('load', function() {
-    document.querySelector('.tablink.active').click();
+    // Ya está activa por defecto, pero forzamos visualización
+    document.getElementById('tab-darreres').style.display = 'block';
+    document.querySelector('[onclick="openTab('tab-darreres', this)"]').classList.add('active');
+    
+    // Asegurar que todas las tablas estén inicializadas
+    setTimeout(initializeAllTables, 100);
 });
+
+function initializeAllTables() {
+    // Inicializar todas las tablas si es necesario
+    const tables = document.querySelectorAll('.sortable-table');
+    tables.forEach(table => {
+        if (table.offsetParent !== null) { // Solo si la tabla es visible
+            // Aquí puedes añadir inicializaciones adicionales
+        }
+    });
+}
 </script>
 
 <style>
@@ -1735,6 +1815,8 @@ window.addEventListener('load', function() {
 .tabs {
     border-bottom: 2px solid #667eea;
     margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .tablink {
@@ -1746,16 +1828,24 @@ window.addEventListener('load', function() {
     margin-right: 5px;
     border-radius: 5px 5px 0 0;
     transition: all 0.3s ease;
+    flex-shrink: 0;
 }
 
 .tablink:hover {
     background-color: #e9ecef;
+    transform: translateY(-2px);
 }
 
 .tablink.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
     color: white;
     font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Estilo especial para Darreres Arribades */
+.tablink:first-child.active {
+    background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
 }
 
 .tabcontent-container {
@@ -1763,6 +1853,7 @@ window.addEventListener('load', function() {
     border-top: none;
     padding: 20px;
     border-radius: 0 0 5px 5px;
+    min-height: 400px;
 }
 
 .tabcontent {
@@ -1770,8 +1861,8 @@ window.addEventListener('load', function() {
 }
 
 @keyframes fadeEffect {
-    from {opacity: 0;}
-    to {opacity: 1;}
+    from {opacity: 0; transform: translateY(10px);}
+    to {opacity: 1; transform: translateY(0);}
 }
 
 /* Estilos para tablas */
@@ -1779,6 +1870,7 @@ window.addEventListener('load', function() {
     width: 100%;
     border-collapse: collapse;
     margin-top: 15px;
+    font-size: 14px;
 }
 
 .sortable-table th {
@@ -1788,6 +1880,7 @@ window.addEventListener('load', function() {
     text-align: left;
     cursor: pointer;
     position: relative;
+    font-weight: bold;
 }
 
 .sortable-table th:hover {
@@ -1795,8 +1888,8 @@ window.addEventListener('load', function() {
 }
 
 .sortable-table td {
-    padding: 8px;
-    border-bottom: 1px solid #ddd;
+    padding: 10px;
+    border-bottom: 1px solid #e9ecef;
 }
 
 .sortable-table tr:nth-child(even) {
@@ -1804,7 +1897,36 @@ window.addEventListener('load', function() {
 }
 
 .sortable-table tr:hover {
-    background-color: #e9ecef;
+    background-color: #e3f2fd;
+    transition: background-color 0.2s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tabs {
+        flex-direction: column;
+    }
+    
+    .tablink {
+        margin-right: 0;
+        margin-bottom: 5px;
+        border-radius: 5px;
+    }
+    
+    .tabcontent-container {
+        padding: 10px;
+    }
+    
+    .sortable-table {
+        font-size: 12px;
+    }
+}
+
+.no-results {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+    font-style: italic;
 }
 </style>
     
