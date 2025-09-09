@@ -47,16 +47,17 @@
      <h3 id="classificacio_dorsal">CLASSIFICACIÓ GENERAL</h3>
      
 <div style="margin: 20px 0;">
-    <!-- Controles de búsqueda -->
+    <!-- Search controls -->
     <div style="margin-bottom: 15px;">
         <input type="text" id="globalSearch" onkeyup="filterAllTables()" 
-               placeholder="Buscar en todas las tablas..." 
+               placeholder="Cerca a totes les taules..." 
                style="padding: 10px; width: 300px; border: 2px solid #ddd; border-radius: 5px; margin-right: 10px;">
     </div>
     
-    <!-- Navegación de pestañas -->
+    <!-- Tab navigation - LATEST ARRIVALS FIRST -->
     <div class="tabs">
-        <button class="tablink active" onclick="openTab('tab-all', this)">Scratch</button>
+        <button class="tablink active" onclick="openTab('tab-darreres', this)">Darreres Arribades</button>
+        <button class="tablink" onclick="openTab('tab-scratch', this)">Scratch</button>
         <button class="tablink" onclick="openTab('tab-alevi', this)">Alevi</button>
         <button class="tablink" onclick="openTab('tab-benjami', this)">Benjami</button>
         <button class="tablink" onclick="openTab('tab-femina_alevi', this)">Femina Alevi</button>
@@ -65,88 +66,105 @@
         <button class="tablink" onclick="openTab('tab-femina_principant', this)">Femina Principant</button>
         <button class="tablink" onclick="openTab('tab-pre_benjamin', this)">Pre Benjamin</button>
         <button class="tablink" onclick="openTab('tab-principiant', this)">Principiant</button>
-        <button class="tablink" onclick="openTab('tab-additional', this)">Darreres Arribades</button>
     </div>
     <div class="tabcontent-container">
-        <div id="tab-additional" class="tabcontent">
-            <h3>Darreres Arribades</h3>
-<table id="tableAdditional" class="sortable-table">
+        <div id="tab-darreres" class="tabcontent" style="display:block;">
+            <h3>🚴 Darreres Arribades</h3>
+<table id="tableDarreres" class="sortable-table">
     <thead>
         <tr>
-            <th onclick="sortTable('tableAdditional', 0)" style="cursor: pointer;">
-                Campo 1
+            <th onclick="sortTable('tableDarreres', 0)" style="cursor: pointer;">
+                Dorsal
                 <span style="margin-left: 5px;">↕️</span>
             </th>
-            <th onclick="sortTable('tableAdditional', 1)" style="cursor: pointer;">
-                Campo 2
+            <th onclick="sortTable('tableDarreres', 1)" style="cursor: pointer;">
+                Nom
                 <span style="margin-left: 5px;">↕️</span>
             </th>
-            <th onclick="sortTable('tableAdditional', 2)" style="cursor: pointer;">
-                Campo 3
+            <th onclick="sortTable('tableDarreres', 2)" style="cursor: pointer;">
+                Cognom
+                <span style="margin-left: 5px;">↕️</span>
+            </th>
+            <th onclick="sortTable('tableDarreres', 3)" style="cursor: pointer;">
+                Temps
+                <span style="margin-left: 5px;">↕️</span>
+            </th>
+            <th onclick="sortTable('tableDarreres', 4)" style="cursor: pointer;">
+                Categoria
                 <span style="margin-left: 5px;">↕️</span>
             </th>
         </tr>
     </thead>
     <tbody>
         <tr>
-            <td>Dato 1</td>
-            <td>Valor A</td>
-            <td>Info X</td>
+            <td align='right'>101</td>
+            <td>Maria</td>
+            <td>Garcia</td>
+            <td>1:23.45</td>
+            <td>FEM</td>
         </tr>
         <tr>
-            <td>Dato 2</td>
-            <td>Valor B</td>
-            <td>Info Y</td>
+            <td align='right'>205</td>
+            <td>Joan</td>
+            <td>Martí</td>
+            <td>1:24.12</td>
+            <td>ELI</td>
         </tr>
         <tr>
-            <td>Dato 3</td>
-            <td>Valor C</td>
-            <td>Info Z</td>
+            <td align='right'>178</td>
+            <td>Anna</td>
+            <td>López</td>
+            <td>1:25.67</td>
+            <td>JUN</td>
         </tr>
     </tbody>
-</table>        </div>
-        <div id="tab-all" class="tabcontent" style="display:block;">
-            <h3>Tots els Participants</h3>
-<table id="tableAll" class="sortable-table">
+</table>
+    <div id="no-results-tableDarreres" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
+        <div id="tab-scratch" class="tabcontent">
+            <h3>🏁 Scratch - Tots els Participants</h3>
+<table id="tableScratch" class="sortable-table">
     <thead>
         <tr>
-            <th onclick="sortTable('tableAll', 0)" style="cursor: pointer;">
+            <th onclick="sortTable('tableScratch', 0)" style="cursor: pointer;">
                 Clas
                 <span style="margin-left: 5px;">↕️</span>
             </th>
-            <th onclick="sortTable('tableAll', 1)" style="cursor: pointer;">
+            <th onclick="sortTable('tableScratch', 1)" style="cursor: pointer;">
                 Nom
                 <span style="margin-left: 5px;">↕️</span>
             </th>
-            <th onclick="sortTable('tableAll', 2)" style="cursor: pointer;">
+            <th onclick="sortTable('tableScratch', 2)" style="cursor: pointer;">
                 Cognom
                 <span style="margin-left: 5px;">↕️</span>
             </th>
-            <th onclick="sortTable('tableAll', 3)" style="cursor: pointer;">
+            <th onclick="sortTable('tableScratch', 3)" style="cursor: pointer;">
                 Dorsal
                 <span style="margin-left: 5px;">↕️</span>
             </th>
-            <th onclick="sortTable('tableAll', 4)" style="cursor: pointer;">
+            <th onclick="sortTable('tableScratch', 4)" style="cursor: pointer;">
                 Categoria
                 <span style="margin-left: 5px;">↕️</span>
             </th>
-            <th onclick="sortTable('tableAll', 5)" style="cursor: pointer;">
+            <th onclick="sortTable('tableScratch', 5)" style="cursor: pointer;">
                 Clas. Categ.
                 <span style="margin-left: 5px;">↕️</span>
             </th>
-            <th onclick="sortTable('tableAll', 6)" style="cursor: pointer;">
+            <th onclick="sortTable('tableScratch', 6)" style="cursor: pointer;">
                 Temps Final
                 <span style="margin-left: 5px;">↕️</span>
             </th>
-            <th onclick="sortTable('tableAll', 7)" style="cursor: pointer;">
+            <th onclick="sortTable('tableScratch', 7)" style="cursor: pointer;">
                 Maniga 1
                 <span style="margin-left: 5px;">↕️</span>
             </th>
-            <th onclick="sortTable('tableAll', 8)" style="cursor: pointer;">
+            <th onclick="sortTable('tableScratch', 8)" style="cursor: pointer;">
                 Maniga 2
                 <span style="margin-left: 5px;">↕️</span>
             </th>
-            <th onclick="sortTable('tableAll', 9)" style="cursor: pointer;">
+            <th onclick="sortTable('tableScratch', 9)" style="cursor: pointer;">
                 Maniga 3
                 <span style="margin-left: 5px;">↕️</span>
             </th>
@@ -694,9 +712,13 @@
             <td></td>
         </tr>
     </tbody>
-</table>        </div>
+</table>
+    <div id="no-results-tableScratch" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
         <div id="tab-alevi" class="tabcontent">
-            <h3>Categoría: Alevi</h3>
+            <h3>🏅 Categoria: Alevi</h3>
 <table id="tablealevi" class="sortable-table">
     <thead>
         <tr>
@@ -816,9 +838,13 @@
             <td></td>
         </tr>
     </tbody>
-</table>        </div>
+</table>
+    <div id="no-results-tablealevi" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
         <div id="tab-benjami" class="tabcontent">
-            <h3>Categoría: Benjami</h3>
+            <h3>🏅 Categoria: Benjami</h3>
 <table id="tablebenjami" class="sortable-table">
     <thead>
         <tr>
@@ -974,9 +1000,13 @@
             <td></td>
         </tr>
     </tbody>
-</table>        </div>
+</table>
+    <div id="no-results-tablebenjami" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
         <div id="tab-femina_alevi" class="tabcontent">
-            <h3>Categoría: Femina Alevi</h3>
+            <h3>🏅 Categoria: Femina Alevi</h3>
 <table id="tablefemina_alevi" class="sortable-table">
     <thead>
         <tr>
@@ -1048,9 +1078,13 @@
             <td></td>
         </tr>
     </tbody>
-</table>        </div>
+</table>
+    <div id="no-results-tablefemina_alevi" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
         <div id="tab-femina_benjami" class="tabcontent">
-            <h3>Categoría: Femina Benjami</h3>
+            <h3>🏅 Categoria: Femina Benjami</h3>
 <table id="tablefemina_benjami" class="sortable-table">
     <thead>
         <tr>
@@ -1134,9 +1168,13 @@
             <td></td>
         </tr>
     </tbody>
-</table>        </div>
+</table>
+    <div id="no-results-tablefemina_benjami" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
         <div id="tab-femina_prebenjamin" class="tabcontent">
-            <h3>Categoría: Femina Prebenjamin</h3>
+            <h3>🏅 Categoria: Femina Prebenjamin</h3>
 <table id="tablefemina_prebenjamin" class="sortable-table">
     <thead>
         <tr>
@@ -1208,9 +1246,13 @@
             <td></td>
         </tr>
     </tbody>
-</table>        </div>
+</table>
+    <div id="no-results-tablefemina_prebenjamin" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
         <div id="tab-femina_principant" class="tabcontent">
-            <h3>Categoría: Femina Principant</h3>
+            <h3>🏅 Categoria: Femina Principant</h3>
 <table id="tablefemina_principant" class="sortable-table">
     <thead>
         <tr>
@@ -1294,9 +1336,13 @@
             <td></td>
         </tr>
     </tbody>
-</table>        </div>
+</table>
+    <div id="no-results-tablefemina_principant" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
         <div id="tab-pre_benjamin" class="tabcontent">
-            <h3>Categoría: Pre Benjamin</h3>
+            <h3>🏅 Categoria: Pre Benjamin</h3>
 <table id="tablepre_benjamin" class="sortable-table">
     <thead>
         <tr>
@@ -1452,9 +1498,13 @@
             <td></td>
         </tr>
     </tbody>
-</table>        </div>
+</table>
+    <div id="no-results-tablepre_benjamin" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
         <div id="tab-principiant" class="tabcontent">
-            <h3>Categoría: Principiant</h3>
+            <h3>🏅 Categoria: Principiant</h3>
 <table id="tableprincipiant" class="sortable-table">
     <thead>
         <tr>
@@ -1634,41 +1684,52 @@
             <td></td>
         </tr>
     </tbody>
-</table>        </div>
+</table>
+    <div id="no-results-tableprincipiant" class="no-results" style="display: none;">
+        <p>🔍 No s'han trobat resultats per a la cerca actual</p>
+    </div>
+            </div>
     </div>
 </div>
 
 <script>
-// Datos para las tablas
-const allData = [[1, "Miguel", "Perez", 2, "Alevi", 1, "21\"723", "22\"566", "21\"723", ""], [2, "Nil", "Marin", 11, "Principiant", 1, "21\"980", "22\"313", "21\"980", ""], [3, "Adria", "Tortosa", 3, "Alevi", 2, "22\"002", "22\"002", "22\"157", ""], [4, "Abel", "Recordà", 119, "Principiant", 2, "22\"635", "25\"356", "22\"635", ""], [5, "Marti", "Dalmases", 9, "Alevi", 3, "22\"689", "22\"689", "22\"959", ""], [6, "Oriol", "López", 8, "Alevi", 4, "23\"561", "30\"883", "23\"561", ""], [7, "Leo", "Rodríguez", 20, "Benjami", 1, "23\"671", "23\"671", "23\"833", ""], [8, "Èric", "Carulla", 83, "Principiant", 3, "24\"417", "25\"037", "24\"417", ""], [9, "Joel", "Duarte", 76, "Principiant", 4, "24\"456", "24\"456", "24\"961", ""], [10, "Guillem", "Poma", 169, "Principiant", 5, "24\"710", "24\"710", "24\"826", ""], [11, "Irene", "Salguero", 30, "Femina Alevi", 1, "24\"866", "25\"004", "24\"866", ""], [12, "Axel", "Rojas", 81, "Principiant", 6, "24\"945", "26\"007", "24\"945", ""], [13, "Pol", "Perez", 100, "Alevi", 5, "24\"954", "24\"973", "24\"954", ""], [14, "Alan", "Pérez", 79, "Principiant", 7, "25\"459", "25\"459", "25\"995", ""], [15, "Chloe", "Torra", 33, "Femina Benjami", 1, "26\"247", "26\"772", "26\"247", ""], [16, "David", "Rafart", 153, "Alevi", 6, "26\"373", "26\"373", "26\"654", ""], [17, "Ines", "Perez", 37, "Femina Principant", 1, "26\"450", "26\"450", "26\"553", ""], [18, "Liam", "Ariño", 15, "Benjami", 2, "26\"602", "26\"768", "26\"602", ""], [19, "Ares", "Peña", 150, "Principiant", 8, "26\"699", "26\"699", "26\"883", ""], [20, "Andreu", "Domenech", 147, "Principiant", 9, "27\"048", "27\"048", "27\"180", ""], [21, "Axel", "Benito", 152, "Benjami", 3, "27\"123", "27\"123", "27\"451", ""], [22, "Kylian", "Gargallo", 16, "Benjami", 4, "27\"281", "27\"281", "27\"302", ""], [23, "Enzo", "Avilés", 19, "Benjami", 5, "27\"351", "27\"351", "27\"990", ""], [24, "Adam", "Robles", 78, "Principiant", 10, "27\"876", "28\"051", "27\"876", ""], [25, "Paul", "Guillet", 164, "Benjami", 6, "27\"979", "27\"979", "28\"612", ""], [26, "Jordi", "Fernandez", 67, "Pre Benjamin", 1, "28\"161", "28\"161", "30\"374", ""], [27, "Martí", "Morales", 168, "Pre Benjamin", 2, "28\"322", "28\"322", "28\"641", ""], [28, "Aran", "Castro", 160, "Principiant", 11, "28\"836", "28\"836", "29\"542", ""], [29, "Ines", "Perez", 101, "Femina Alevi", 2, "29\"503", "30\"249", "29\"503", ""], [30, "Ferran", "Domenech", 12, "Benjami", 7, "30\"028", "30\"028", "30\"352", ""], [31, "Luka", "Miralles", 165, "Benjami", 8, "30\"218", "30\"218", "30\"427", ""], [32, "Héctor", "Rodríguez", 70, "Pre Benjamin", 3, "30\"313", "30\"313", "30\"593", ""], [33, "Pol", "Calvo", 155, "Benjami", 9, "30\"504", "30\"883", "30\"504", ""], [34, "Gael", "Garcia", 148, "Pre Benjamin", 4, "30\"820", "30\"820", "31\"166", ""], [35, "Max", "Herrero", 72, "Pre Benjamin", 5, "31\"272", "31\"401", "31\"272", ""], [36, "Triana", "Montero", 140, "Femina Principant", 2, "31\"860", "31\"860", "32\"141", ""], [37, "Anna", "Marin", 113, "Femina Principant", 3, "33\"025", "33\"155", "33\"025", ""], [38, "Eduard", "Hernandez", 68, "Pre Benjamin", 6, "33\"093", "33\"093", "33\"341", ""], [39, "Roger", "Fernandez", 163, "Pre Benjamin", 7, "35\"449", "35\"449", "35\"582", ""], [40, "Ariadna", "Tortosa", 36, "Femina Prebenjamin", 1, "35\"485", "35\"485", "36\"902", ""], [41, "Lucas", "Santacruz Da", 115, "Pre Benjamin", 8, "35\"791", "35\"791", "35\"878", ""], [42, "Aina", "Marín", 139, "Femina Benjami", 2, "39\"154", "39\"917", "39\"154", ""], [43, "Sol", "Fernandez-Escalante", 157, "Femina Prebenjamin", 2, "40\"016", "42\"387", "40\"016", ""], [44, "Bernat", "Puigventós", 158, "Pre Benjamin", 9, "43\"996", "43\"996", "", ""], [45, "Naia", "Rafart", 159, "Femina Benjami", 3, "44\"999", "54\"089", "44\"999", ""]];
-const categorias = ["Alevi", "Benjami", "Femina Alevi", "Femina Benjami", "Femina Prebenjamin", "Femina Principant", "Pre Benjamin", "Principiant"];
+// Data for tables
+const mainData = [[1, "Miguel", "Perez", 2, "Alevi", 1, "21\"723", "22\"566", "21\"723", ""], [2, "Nil", "Marin", 11, "Principiant", 1, "21\"980", "22\"313", "21\"980", ""], [3, "Adria", "Tortosa", 3, "Alevi", 2, "22\"002", "22\"002", "22\"157", ""], [4, "Abel", "Recordà", 119, "Principiant", 2, "22\"635", "25\"356", "22\"635", ""], [5, "Marti", "Dalmases", 9, "Alevi", 3, "22\"689", "22\"689", "22\"959", ""], [6, "Oriol", "López", 8, "Alevi", 4, "23\"561", "30\"883", "23\"561", ""], [7, "Leo", "Rodríguez", 20, "Benjami", 1, "23\"671", "23\"671", "23\"833", ""], [8, "Èric", "Carulla", 83, "Principiant", 3, "24\"417", "25\"037", "24\"417", ""], [9, "Joel", "Duarte", 76, "Principiant", 4, "24\"456", "24\"456", "24\"961", ""], [10, "Guillem", "Poma", 169, "Principiant", 5, "24\"710", "24\"710", "24\"826", ""], [11, "Irene", "Salguero", 30, "Femina Alevi", 1, "24\"866", "25\"004", "24\"866", ""], [12, "Axel", "Rojas", 81, "Principiant", 6, "24\"945", "26\"007", "24\"945", ""], [13, "Pol", "Perez", 100, "Alevi", 5, "24\"954", "24\"973", "24\"954", ""], [14, "Alan", "Pérez", 79, "Principiant", 7, "25\"459", "25\"459", "25\"995", ""], [15, "Chloe", "Torra", 33, "Femina Benjami", 1, "26\"247", "26\"772", "26\"247", ""], [16, "David", "Rafart", 153, "Alevi", 6, "26\"373", "26\"373", "26\"654", ""], [17, "Ines", "Perez", 37, "Femina Principant", 1, "26\"450", "26\"450", "26\"553", ""], [18, "Liam", "Ariño", 15, "Benjami", 2, "26\"602", "26\"768", "26\"602", ""], [19, "Ares", "Peña", 150, "Principiant", 8, "26\"699", "26\"699", "26\"883", ""], [20, "Andreu", "Domenech", 147, "Principiant", 9, "27\"048", "27\"048", "27\"180", ""], [21, "Axel", "Benito", 152, "Benjami", 3, "27\"123", "27\"123", "27\"451", ""], [22, "Kylian", "Gargallo", 16, "Benjami", 4, "27\"281", "27\"281", "27\"302", ""], [23, "Enzo", "Avilés", 19, "Benjami", 5, "27\"351", "27\"351", "27\"990", ""], [24, "Adam", "Robles", 78, "Principiant", 10, "27\"876", "28\"051", "27\"876", ""], [25, "Paul", "Guillet", 164, "Benjami", 6, "27\"979", "27\"979", "28\"612", ""], [26, "Jordi", "Fernandez", 67, "Pre Benjamin", 1, "28\"161", "28\"161", "30\"374", ""], [27, "Martí", "Morales", 168, "Pre Benjamin", 2, "28\"322", "28\"322", "28\"641", ""], [28, "Aran", "Castro", 160, "Principiant", 11, "28\"836", "28\"836", "29\"542", ""], [29, "Ines", "Perez", 101, "Femina Alevi", 2, "29\"503", "30\"249", "29\"503", ""], [30, "Ferran", "Domenech", 12, "Benjami", 7, "30\"028", "30\"028", "30\"352", ""], [31, "Luka", "Miralles", 165, "Benjami", 8, "30\"218", "30\"218", "30\"427", ""], [32, "Héctor", "Rodríguez", 70, "Pre Benjamin", 3, "30\"313", "30\"313", "30\"593", ""], [33, "Pol", "Calvo", 155, "Benjami", 9, "30\"504", "30\"883", "30\"504", ""], [34, "Gael", "Garcia", 148, "Pre Benjamin", 4, "30\"820", "30\"820", "31\"166", ""], [35, "Max", "Herrero", 72, "Pre Benjamin", 5, "31\"272", "31\"401", "31\"272", ""], [36, "Triana", "Montero", 140, "Femina Principant", 2, "31\"860", "31\"860", "32\"141", ""], [37, "Anna", "Marin", 113, "Femina Principant", 3, "33\"025", "33\"155", "33\"025", ""], [38, "Eduard", "Hernandez", 68, "Pre Benjamin", 6, "33\"093", "33\"093", "33\"341", ""], [39, "Roger", "Fernandez", 163, "Pre Benjamin", 7, "35\"449", "35\"449", "35\"582", ""], [40, "Ariadna", "Tortosa", 36, "Femina Prebenjamin", 1, "35\"485", "35\"485", "36\"902", ""], [41, "Lucas", "Santacruz Da", 115, "Pre Benjamin", 8, "35\"791", "35\"791", "35\"878", ""], [42, "Aina", "Marín", 139, "Femina Benjami", 2, "39\"154", "39\"917", "39\"154", ""], [43, "Sol", "Fernandez-Escalante", 157, "Femina Prebenjamin", 2, "40\"016", "42\"387", "40\"016", ""], [44, "Bernat", "Puigventós", 158, "Pre Benjamin", 9, "43\"996", "43\"996", "", ""], [45, "Naia", "Rafart", 159, "Femina Benjami", 3, "44\"999", "54\"089", "44\"999", ""]];
+const categories = ["Alevi", "Benjami", "Femina Alevi", "Femina Benjami", "Femina Prebenjamin", "Femina Principant", "Pre Benjamin", "Principiant"];
 
-// Función para cambiar pestañas
+// Function to switch tabs
 function openTab(tabName, element) {
-    // Ocultar todos los contenidos de pestañas
+    // Hide all tab contents
     const tabcontents = document.getElementsByClassName("tabcontent");
     for (let i = 0; i < tabcontents.length; i++) {
         tabcontents[i].style.display = "none";
     }
     
-    // Desactivar todos los botones
+    // Deactivate all buttons
     const tablinks = document.getElementsByClassName("tablink");
     for (let i = 0; i < tablinks.length; i++) {
         tablinks[i].classList.remove("active");
     }
     
-    // Mostrar la pestaña seleccionada y activar el botón
+    // Show selected tab and activate button
     document.getElementById(tabName).style.display = "block";
     element.classList.add("active");
+    
+    // Force table redraw to avoid display issues
+    setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+    }, 50);
 }
 
-// Función para filtrar todas las tablas
+// Function to filter all tables
 function filterAllTables() {
     const filter = document.getElementById("globalSearch").value.toLowerCase();
     const tables = document.querySelectorAll(".sortable-table");
     
     tables.forEach(table => {
         const rows = table.querySelectorAll("tbody tr");
+        let visibleCount = 0;
+        
         rows.forEach(row => {
             let found = false;
             const cells = row.querySelectorAll("td");
@@ -1681,13 +1742,23 @@ function filterAllTables() {
             }
             
             row.style.display = found ? "" : "none";
+            if (found) visibleCount++;
         });
+        
+        // Show message if no results
+        const tableContainer = table.closest('.tabcontent');
+        const noResults = tableContainer.querySelector('.no-results');
+        if (noResults) {
+            noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
     });
 }
 
-// Función de ordenamiento para tablas
+// Sorting function for tables
 function sortTable(tableId, column) {
     const table = document.getElementById(tableId);
+    if (!table) return;
+    
     const tbody = table.querySelector("tbody");
     const rows = Array.from(tbody.querySelectorAll("tr"));
     const header = table.querySelectorAll("th")[column];
@@ -1717,24 +1788,45 @@ function sortTable(tableId, column) {
     
     rows.forEach(row => tbody.appendChild(row));
     
-    // Actualizar indicadores
+    // Update sort indicators
     table.querySelectorAll("th").forEach(th => {
-        th.querySelector("span").textContent = "↕️";
+        if (th.querySelector("span")) {
+            th.querySelector("span").textContent = "↕️";
+        }
     });
-    header.querySelector("span").textContent = isAscending ? "⬇️" : "⬆️";
+    if (header.querySelector("span")) {
+        header.querySelector("span").textContent = isAscending ? "⬇️" : "⬆️";
+    }
 }
 
-// Inicializar primera pestaña como activa
+// Initialize with Latest Arrivals active
 window.addEventListener('load', function() {
-    document.querySelector('.tablink.active').click();
+    // Already active by default, but ensure display
+    document.getElementById('tab-darreres').style.display = 'block';
+    document.querySelector('[onclick="openTab('tab-darreres', this)"]').classList.add('active');
+    
+    // Ensure all tables are initialized
+    setTimeout(initializeAllTables, 100);
 });
+
+function initializeAllTables() {
+    // Initialize all tables if needed
+    const tables = document.querySelectorAll('.sortable-table');
+    tables.forEach(table => {
+        if (table.offsetParent !== null) { // Only if table is visible
+            // Add additional initializations here
+        }
+    });
+}
 </script>
 
 <style>
-/* Estilos para pestañas */
+/* Tab styles */
 .tabs {
     border-bottom: 2px solid #667eea;
     margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .tablink {
@@ -1746,16 +1838,19 @@ window.addEventListener('load', function() {
     margin-right: 5px;
     border-radius: 5px 5px 0 0;
     transition: all 0.3s ease;
+    flex-shrink: 0;
 }
 
 .tablink:hover {
     background-color: #e9ecef;
+    transform: translateY(-2px);
 }
 
 .tablink.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
     color: white;
     font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 .tabcontent-container {
@@ -1763,6 +1858,7 @@ window.addEventListener('load', function() {
     border-top: none;
     padding: 20px;
     border-radius: 0 0 5px 5px;
+    min-height: 400px;
 }
 
 .tabcontent {
@@ -1770,15 +1866,16 @@ window.addEventListener('load', function() {
 }
 
 @keyframes fadeEffect {
-    from {opacity: 0;}
-    to {opacity: 1;}
+    from {opacity: 0; transform: translateY(10px);}
+    to {opacity: 1; transform: translateY(0);}
 }
 
-/* Estilos para tablas */
+/* Table styles */
 .sortable-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 15px;
+    font-size: 14px;
 }
 
 .sortable-table th {
@@ -1788,6 +1885,7 @@ window.addEventListener('load', function() {
     text-align: left;
     cursor: pointer;
     position: relative;
+    font-weight: bold;
 }
 
 .sortable-table th:hover {
@@ -1795,8 +1893,8 @@ window.addEventListener('load', function() {
 }
 
 .sortable-table td {
-    padding: 8px;
-    border-bottom: 1px solid #ddd;
+    padding: 10px;
+    border-bottom: 1px solid #e9ecef;
 }
 
 .sortable-table tr:nth-child(even) {
@@ -1804,7 +1902,36 @@ window.addEventListener('load', function() {
 }
 
 .sortable-table tr:hover {
-    background-color: #e9ecef;
+    background-color: #e3f2fd;
+    transition: background-color 0.2s ease;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .tabs {
+        flex-direction: column;
+    }
+    
+    .tablink {
+        margin-right: 0;
+        margin-bottom: 5px;
+        border-radius: 5px;
+    }
+    
+    .tabcontent-container {
+        padding: 10px;
+    }
+    
+    .sortable-table {
+        font-size: 12px;
+    }
+}
+
+.no-results {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+    font-style: italic;
 }
 </style>
     
