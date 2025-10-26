@@ -110,19 +110,19 @@ li span.partial {
 </style>
 </head>
 <body>
-<h1>Cronómetro</h1>
+<h1>⏱ Cronómetro</h1>
 <div id="status"></div>
 <div id="display">0:00:00.000</div>
 
 <!-- Botón Vuelta grande -->
 <div class="controls">
-  <button id="lapBtn">Vuelta</button>
+  <button id="lapBtn">⏱ Vuelta</button>
 </div>
 
-<!-- Botones Iniciar/Pausar y Reiniciar -->
+<!-- Botones Iniciar/Continuar-Pausar y Reiniciar -->
 <div class="controls">
-  <button id="startStopBtn" style="flex:1;">Iniciar</button>
-  <button id="resetBtn" style="flex:1;">Reiniciar</button>
+  <button id="startStopBtn" style="flex:1;">⏵ Iniciar</button>
+  <button id="resetBtn" style="flex:1;">🔄 Reiniciar</button>
 </div>
 
 <!-- Lista de vueltas -->
@@ -144,7 +144,7 @@ li span.partial {
 
 <!-- Exportar CSV -->
 <div class="bottom-controls">
-  <button id="exportBtn">Exportar vueltas (CSV)</button>
+  <button id="exportBtn">💾 Exportar vueltas (CSV)</button>
 </div>
 
 <script>
@@ -183,6 +183,7 @@ function loadState(){
   renderLaps();
   updateDisplay();
   updateStatus();
+  updateStartButtonText();
   if(running){
     const now=Date.now();
     const delta=now-startTime+elapsedTime;
@@ -200,6 +201,11 @@ function updateStatus(){
   status.style.color=running?'var(--led-run)':'var(--led-stop)';
 }
 
+function updateStartButtonText(){
+  if(running) startStopBtn.textContent = `⏸ Pausar`;
+  else startStopBtn.textContent = elapsedTime>0 ? `⏵ Continuar` : `⏵ Iniciar`;
+}
+
 function start(){
   running=true;
   startTime=Date.now()-elapsedTime;
@@ -212,7 +218,7 @@ function start(){
   }
   clearInterval(timerInterval);
   timerInterval=setInterval(()=>{elapsedTime=Date.now()-startTime; updateDisplay(); saveState();},10);
-  startStopBtn.textContent='Pausar';
+  updateStartButtonText();
   updateStatus();
   saveState();
 }
@@ -220,12 +226,12 @@ function start(){
 function pause(){
   running=false;
   clearInterval(timerInterval);
-  startStopBtn.textContent='Iniciar';
+  updateStartButtonText();
   updateStatus();
   saveState();
 }
 
-function startStop(){running?pause():start();}
+function startStop(){ running ? pause() : start(); }
 
 function reset(){
   if(!confirm("¿Estás seguro de que quieres reiniciar el tiempo y borrar todas las vueltas?")) return;
@@ -235,7 +241,6 @@ function reset(){
   renderLaps();
   updateDisplay();
   updateStatus();
-  // Guardamos estado sin borrar la hora de inicio
   saveState();
 }
 
@@ -269,6 +274,7 @@ function setStartTime(){
     if(diff<0) diff+=24*3600*1000;
     elapsedTime=diff;
     updateDisplay();
+    updateStartButtonText();
     saveState();
   }
 }
@@ -286,6 +292,7 @@ function setElapsedTime(){
   const ss=String(start.getSeconds()).padStart(2,'0');
   startTimeInput.value=`${hh}:${mm}:${ss}`;
   startTime=Date.now()-elapsedTime;
+  updateStartButtonText();
   saveState();
 }
 
@@ -299,9 +306,8 @@ function exportCSV(){
   link.click();
 }
 
-// Nueva función parseTimeMs que soporta cualquier formato h:m:s.ms, m:s.ms, s.ms
 function parseTimeMs(str){
-  const parts = str.split(':'); // divide por ':'
+  const parts = str.split(':');
   let h=0, m=0, s=0, ms=0;
 
   if(parts.length === 3){
@@ -327,7 +333,6 @@ function parseTimeMs(str){
   return ((h*3600)+(m*60)+s)*1000 + ms;
 }
 
-// Formatea tiempo sin ceros innecesarios, mostrando milisegundos
 function formatTimeMs(ms){
   let totalSeconds = Math.floor(ms/1000);
   const milliseconds = ms % 1000;
@@ -354,6 +359,7 @@ exportBtn.addEventListener('click',exportCSV);
 
 loadState();
 updateStatus();
+updateStartButtonText();
 </script>
 </body>
 </html>
