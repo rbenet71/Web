@@ -125,7 +125,7 @@ li span.partial {
   <button id="resetBtn" style="flex:1;">Reiniciar</button>
 </div>
 
-<!-- Lista de vueltas (después de botones, antes de fijar tiempo) -->
+<!-- Lista de vueltas -->
 <ul id="laps"></ul>
 
 <!-- Hora de inicio -->
@@ -304,16 +304,20 @@ function parseTimeMs(str){
 }
 
 function formatTimeMs(ms){
-  const totalSeconds = Math.floor(ms/1000);
+  let totalSeconds = Math.floor(ms/1000);
+  const milliseconds = ms % 1000;
+
   const h = Math.floor(totalSeconds/3600);
-  const m = Math.floor((totalSeconds%3600)/60);
-  const s = totalSeconds%60;
-  const msPart = ms%1000;
-  const hStr = h>0?h+':':'';
-  const mStr = (h>0 && m<10)?'0'+m:m;
-  const sStr = s<10?'0'+s:s;
-  const msStr = '.'+String(msPart).padStart(3,'0');
-  return `${hStr}${mStr}:${sStr}${msStr}`;
+  totalSeconds %= 3600;
+  const m = Math.floor(totalSeconds/60);
+  const s = totalSeconds % 60;
+
+  let timeStr = '';
+  if(h>0) timeStr += h + ':';
+  if(h>0 || m>0) timeStr += m + ':';
+  timeStr += s + '.' + String(milliseconds).padStart(3,'0');
+
+  return timeStr;
 }
 
 startStopBtn.addEventListener('click',startStop);
