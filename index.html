@@ -118,6 +118,9 @@ li {
   <button id="resetBtn" style="flex:1;">Reiniciar</button>
 </div>
 
+<!-- Lista de vueltas (ahora aparecerá aquí, antes de “fijar tiempo”) -->
+<ul id="laps"></ul>
+
 <!-- Hora de inicio -->
 <div style="margin-top:10px; width:100%;">
   <label>Hora de inicio: </label>
@@ -132,9 +135,6 @@ li {
   <button id="setElapsedBtn">Aplicar tiempo</button>
 </div>
 
-<!-- Lista de vueltas -->
-<ul id="laps"></ul>
-
 <!-- Exportar CSV -->
 <div class="bottom-controls">
   <button id="exportBtn">Exportar vueltas (CSV)</button>
@@ -145,6 +145,7 @@ let startTime = 0;
 let elapsedTime = 0;
 let timerInterval;
 let running = false;
+const lapTimes = [];
 
 const display = document.getElementById('display');
 const startStopBtn = document.getElementById('startStopBtn');
@@ -159,7 +160,7 @@ const setElapsedInput = document.getElementById('setElapsedInput');
 const setElapsedBtn = document.getElementById('setElapsedBtn');
 
 function saveState(){
-  const state = { startTime, elapsedTime, running, laps:Array.from(laps.children).map(li=>li.textContent)};
+  const state = { startTime, elapsedTime, running, laps: lapTimes };
   localStorage.setItem('cronometroState', JSON.stringify(state));
 }
 
@@ -170,8 +171,9 @@ function loadState(){
   startTime=state.startTime;
   elapsedTime=state.elapsedTime;
   running=state.running;
-  laps.innerHTML='';
-  state.laps.forEach(text=>{const li=document.createElement('li');li.textContent=text;laps.appendChild(li);});
+  lapTimes.length=0;
+  state.laps.forEach(t=>lapTimes.push(t));
+  renderLaps();
   updateDisplay();
   updateStatus();
   if(running){
@@ -207,7 +209,7 @@ function start(){
     startTimeInput.value=`${hh}:${mm}:${ss}`;
   }
   clearInterval(timerInterval);
-  timerInterval=setInterval(()=>{elapsedTime=Date.now()-startTime;updateDisplay();saveState();},10);
+  timerInterval=setInterval(()=>{elapsedTime=Date.now()-startTime; updateDisplay(); saveState();},10);
   startStopBtn.textContent='Pausar';
   updateStatus();
   saveState();
@@ -226,7 +228,8 @@ function startStop(){running?pause():start();}
 function reset(){
   pause();
   elapsedTime=0;
-  laps.innerHTML='';
+  lapTimes.length=0;
+  renderLaps();
   updateDisplay();
   updateStatus();
   localStorage.removeItem('cronometroState');
@@ -235,10 +238,20 @@ function reset(){
 
 function addLap(){
   if(!running) return;
-  const li=document.createElement('li');
-  li.textContent=display.textContent;
-  laps.prepend(li);
+  let prevTime = lapTimes.length ? parseTime(lapTimes[0].split(' | ')[0]) : 0;
+  let partial = elapsedTime - prevTime;
+  lapTimes.unshift(`${formatTime(elapsedTime)} | ${formatTime(partial)}`);
+  renderLaps();
   saveState();
+}
+
+function renderLaps(){
+  laps.innerHTML='';
+  lapTimes.forEach(t=>{
+    const li=document.createElement('li');
+    li.textContent=t;
+    laps.appendChild(li);
+  });
 }
 
 function setStartTime(){
@@ -273,13 +286,26 @@ function setElapsedTime(){
 }
 
 function exportCSV(){
-  const lapTimes=Array.from(laps.children).map(li=>li.textContent);
   if(lapTimes.length===0){alert("No hay vueltas para exportar."); return;}
-  const csv="data:text/csv;charset=utf-8,"+["Nº,Vuelta"].join(",")+"\n"+lapTimes.map((t,i)=>`${i+1},${t}`).join("\n");
+  const csv="data:text/csv;charset=utf-8,"+["Nº,Tiempo total,Tiempo parcial"].join(",")+"\n"+
+            lapTimes.map((t,i)=>`${i+1},${t.replace(' | ',',')}`).join("\n");
   const link=document.createElement('a');
   link.href=encodeURI(csv);
   link.download='vueltas.csv';
   link.click();
+}
+
+function parseTime(str){
+  const [h,m,s]=str.split(':').map(Number);
+  return ((h*3600)+(m*60)+s)*1000;
+}
+
+function formatTime(ms){
+  const time=new Date(ms);
+  const h=String(time.getUTCHours()).padStart(2,'0');
+  const m=String(time.getUTCMinutes()).padStart(2,'0');
+  const s=String(time.getUTCSeconds()).padStart(2,'0');
+  return `${h}:${m}:${s}`;
 }
 
 startStopBtn.addEventListener('click',startStop);
