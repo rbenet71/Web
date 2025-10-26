@@ -12,6 +12,7 @@
   --accent: #0ff;
   --led-run: #0f0;
   --led-stop: #f00;
+  --partial: #aaa;
 }
 @media (prefers-color-scheme: light) {
   :root {
@@ -19,6 +20,7 @@
     --text: #111;
     --panel: #ddd;
     --accent: #0077ff;
+    --partial: #555;
   }
 }
 body {
@@ -96,6 +98,11 @@ ul {
 li {
   border-bottom: 1px solid #333;
   padding: 5px 0;
+  display: flex;
+  justify-content: space-between;
+}
+li span.partial {
+  color: var(--partial);
 }
 .bottom-controls {
   margin-top: 15px;
@@ -105,7 +112,7 @@ li {
 <body>
 <h1>Cronómetro</h1>
 <div id="status"></div>
-<div id="display">00:00:00.000</div>
+<div id="display">0:00:00.000</div>
 
 <!-- Botón Vuelta grande -->
 <div class="controls">
@@ -118,7 +125,7 @@ li {
   <button id="resetBtn" style="flex:1;">Reiniciar</button>
 </div>
 
-<!-- Lista de vueltas (ahora aparecerá aquí, antes de “fijar tiempo”) -->
+<!-- Lista de vueltas (después de botones, antes de fijar tiempo) -->
 <ul id="laps"></ul>
 
 <!-- Hora de inicio -->
@@ -185,12 +192,7 @@ function loadState(){
 }
 
 function updateDisplay(){
-  const time=new Date(elapsedTime);
-  const h=String(time.getUTCHours()).padStart(2,'0');
-  const m=String(time.getUTCMinutes()).padStart(2,'0');
-  const s=String(time.getUTCSeconds()).padStart(2,'0');
-  const ms=String(time.getUTCMilliseconds()).padStart(3,'0');
-  display.textContent=`${h}:${m}:${s}.${ms}`;
+  display.textContent=formatTimeMs(elapsedTime);
 }
 
 function updateStatus(){
@@ -238,9 +240,9 @@ function reset(){
 
 function addLap(){
   if(!running) return;
-  let prevTime = lapTimes.length ? parseTime(lapTimes[0].split(' | ')[0]) : 0;
-  let partial = elapsedTime - prevTime;
-  lapTimes.unshift(`${formatTime(elapsedTime)} | ${formatTime(partial)}`);
+  let prev = lapTimes.length ? parseTimeMs(lapTimes[0].split(' | ')[0]) : 0;
+  let partial = elapsedTime - prev;
+  lapTimes.unshift(`${formatTimeMs(elapsedTime)} | ${formatTimeMs(partial)}`);
   renderLaps();
   saveState();
 }
@@ -248,8 +250,9 @@ function addLap(){
 function renderLaps(){
   laps.innerHTML='';
   lapTimes.forEach(t=>{
+    const [total, partial] = t.split(' | ');
     const li=document.createElement('li');
-    li.textContent=t;
+    li.innerHTML=`<span class="total">${total}</span> <span class="partial">${partial}</span>`;
     laps.appendChild(li);
   });
 }
@@ -295,17 +298,22 @@ function exportCSV(){
   link.click();
 }
 
-function parseTime(str){
-  const [h,m,s]=str.split(':').map(Number);
-  return ((h*3600)+(m*60)+s)*1000;
+function parseTimeMs(str){
+  const parts = str.split(':').map(Number);
+  return ((parts[0]*3600)+(parts[1]*60)+parts[2])*1000 + (str.includes('.')?Number('0.'+str.split('.')[1])*1000:0);
 }
 
-function formatTime(ms){
-  const time=new Date(ms);
-  const h=String(time.getUTCHours()).padStart(2,'0');
-  const m=String(time.getUTCMinutes()).padStart(2,'0');
-  const s=String(time.getUTCSeconds()).padStart(2,'0');
-  return `${h}:${m}:${s}`;
+function formatTimeMs(ms){
+  const totalSeconds = Math.floor(ms/1000);
+  const h = Math.floor(totalSeconds/3600);
+  const m = Math.floor((totalSeconds%3600)/60);
+  const s = totalSeconds%60;
+  const msPart = ms%1000;
+  const hStr = h>0?h+':':'';
+  const mStr = (h>0 && m<10)?'0'+m:m;
+  const sStr = s<10?'0'+s:s;
+  const msStr = '.'+String(msPart).padStart(3,'0');
+  return `${hStr}${mStr}:${sStr}${msStr}`;
 }
 
 startStopBtn.addEventListener('click',startStop);
