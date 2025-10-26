@@ -70,7 +70,7 @@
       background: var(--accent);
       color: #000;
     }
-    input[type="time"] {
+    input[type="time"], input[type="text"] {
       font-size: 1rem;
       padding: 5px 10px;
       border-radius: 5px;
@@ -114,6 +114,12 @@
     <button id="setStartBtn">Fijar</button>
   </div>
 
+  <div style="margin-top:10px;">
+    <label>Tiempo del cronómetro (hh:mm:ss): </label>
+    <input type="text" id="setElapsedInput" placeholder="00:00:00">
+    <button id="setElapsedBtn">Aplicar tiempo</button>
+  </div>
+
   <ul id="laps"></ul>
 
   <div class="bottom-controls">
@@ -135,6 +141,8 @@
     const laps = document.getElementById('laps');
     const status = document.getElementById('status');
     const exportBtn = document.getElementById('exportBtn');
+    const setElapsedInput = document.getElementById('setElapsedInput');
+    const setElapsedBtn = document.getElementById('setElapsedBtn');
 
     function saveState() {
       const state = {
@@ -200,6 +208,7 @@
         const s = String(now.getSeconds()).padStart(2, '0');
         startTimeInput.value = `${h}:${m}:${s}`;
       }
+      clearInterval(timerInterval);
       timerInterval = setInterval(() => {
         elapsedTime = Date.now() - startTime;
         updateDisplay();
@@ -240,7 +249,6 @@
       saveState();
     }
 
-    // ✅ Fijar hora manual calcula el tiempo transcurrido desde esa hora hasta ahora
     function setStartTime() {
       const value = startTimeInput.value;
       if (value) {
@@ -248,13 +256,35 @@
         const now = new Date();
         const target = new Date();
         target.setHours(h, m, s || 0, 0);
-
         let diff = now - target;
-        if (diff < 0) diff += 24 * 3600 * 1000; // Si la hora es de ayer
+        if (diff < 0) diff += 24 * 3600 * 1000; 
         elapsedTime = diff;
         updateDisplay();
         saveState();
       }
+    }
+
+    // ✅ Nueva función: establecer manualmente el tiempo del cronómetro
+    function setElapsedTime() {
+      const value = setElapsedInput.value.trim();
+      if (!value.match(/^\d{2}:\d{2}:\d{2}$/)) {
+        alert("Formato inválido. Usa hh:mm:ss");
+        return;
+      }
+      const [h, m, s] = value.split(':').map(Number);
+      elapsedTime = ((h * 3600) + (m * 60) + s) * 1000;
+      updateDisplay();
+
+      // Calcular la hora de inicio en base al tiempo actual
+      const now = new Date();
+      const start = new Date(now - elapsedTime);
+      const hh = String(start.getHours()).padStart(2, '0');
+      const mm = String(start.getMinutes()).padStart(2, '0');
+      const ss = String(start.getSeconds()).padStart(2, '0');
+      startTimeInput.value = `${hh}:${mm}:${ss}`;
+      startTime = Date.now() - elapsedTime;
+
+      saveState();
     }
 
     function exportCSV() {
@@ -276,6 +306,7 @@
     resetBtn.addEventListener('click', reset);
     lapBtn.addEventListener('click', addLap);
     setStartBtn.addEventListener('click', setStartTime);
+    setElapsedBtn.addEventListener('click', setElapsedTime);
     exportBtn.addEventListener('click', exportCSV);
 
     loadState();
