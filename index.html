@@ -1,316 +1,296 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cronómetro Web Persistente</title>
-  <style>
-    :root {
-      --bg: #111;
-      --text: #eee;
-      --panel: #222;
-      --accent: #0ff;
-      --led-run: #0f0;
-      --led-stop: #f00;
-    }
-    @media (prefers-color-scheme: light) {
-      :root {
-        --bg: #f5f5f5;
-        --text: #111;
-        --panel: #ddd;
-        --accent: #0077ff;
-      }
-    }
-    body {
-      font-family: Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      transition: background 0.3s, color 0.3s;
-    }
-    h1 {
-      margin-bottom: 20px;
-      color: var(--accent);
-      text-shadow: 0 0 10px var(--accent);
-    }
-    #status {
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      margin-bottom: 10px;
-      box-shadow: 0 0 10px currentColor;
-    }
-    #display {
-      font-size: 3rem;
-      margin-bottom: 20px;
-    }
-    .controls {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background: var(--panel);
-      color: var(--text);
-      transition: 0.2s;
-    }
-    button:hover {
-      background: var(--accent);
-      color: #000;
-    }
-    input[type="time"], input[type="text"] {
-      font-size: 1rem;
-      padding: 5px 10px;
-      border-radius: 5px;
-      border: 1px solid #555;
-      background: var(--panel);
-      color: var(--text);
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-      width: 250px;
-      text-align: left;
-      max-height: 200px;
-      overflow-y: auto;
-      border-top: 1px solid #333;
-      margin-top: 10px;
-    }
-    li {
-      border-bottom: 1px solid #333;
-      padding: 5px 0;
-    }
-    .bottom-controls {
-      margin-top: 15px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cronómetro Web Persistente</title>
+<style>
+:root {
+  --bg: #111;
+  --text: #eee;
+  --panel: #222;
+  --accent: #0ff;
+  --led-run: #0f0;
+  --led-stop: #f00;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f5f5f5;
+    --text: #111;
+    --panel: #ddd;
+    --accent: #0077ff;
+  }
+}
+body {
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px;
+  margin: 0;
+  transition: background 0.3s, color 0.3s;
+}
+h1 {
+  margin-bottom: 15px;
+  color: var(--accent);
+  text-shadow: 0 0 10px var(--accent);
+}
+#status {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  box-shadow: 0 0 10px currentColor;
+}
+#display {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  text-align: center;
+}
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+.controls button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: var(--panel);
+  color: var(--text);
+  transition: 0.2s;
+}
+.controls button:hover {
+  background: var(--accent);
+  color: #000;
+}
+#lapBtn {
+  width: 100%;
+  font-size: 1.5rem;
+  padding: 15px;
+}
+input[type="time"], input[type="text"] {
+  font-size: 1rem;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #555;
+  background: var(--panel);
+  color: var(--text);
+  margin-right:5px;
+}
+ul {
+  list-style: none;
+  padding: 0;
+  width: 90%;
+  max-height: 250px;
+  overflow-y: auto;
+  border-top: 1px solid #333;
+  margin-top: 15px;
+}
+li {
+  border-bottom: 1px solid #333;
+  padding: 5px 0;
+}
+.bottom-controls {
+  margin-top: 15px;
+}
+</style>
 </head>
 <body>
-  <h1>Cronómetro</h1>
-  <div id="status"></div>
-  <div id="display">00:00:00.000</div>
+<h1>Cronómetro</h1>
+<div id="status"></div>
+<div id="display">00:00:00.000</div>
 
-  <div class="controls">
-    <button id="startStopBtn">Iniciar</button>
-    <button id="lapBtn">Vuelta</button>
-    <button id="resetBtn">Reiniciar</button>
-  </div>
+<!-- Botón Vuelta grande -->
+<div class="controls">
+  <button id="lapBtn">Vuelta</button>
+</div>
 
-  <div>
-    <label>Hora de inicio: </label>
-    <input type="time" id="startTimeInput" step="1">
-    <button id="setStartBtn">Fijar</button>
-  </div>
+<!-- Botones Iniciar/Pausar y Reiniciar -->
+<div class="controls">
+  <button id="startStopBtn" style="flex:1;">Iniciar</button>
+  <button id="resetBtn" style="flex:1;">Reiniciar</button>
+</div>
 
-  <div style="margin-top:10px;">
-    <label>Tiempo del cronómetro (hh:mm:ss): </label>
-    <input type="text" id="setElapsedInput" placeholder="00:00:00">
-    <button id="setElapsedBtn">Aplicar tiempo</button>
-  </div>
+<!-- Hora de inicio -->
+<div style="margin-top:10px; width:100%;">
+  <label>Hora de inicio: </label>
+  <input type="time" id="startTimeInput" step="1">
+  <button id="setStartBtn">Fijar</button>
+</div>
 
-  <ul id="laps"></ul>
+<!-- Fijar tiempo manual -->
+<div style="margin-top:10px; width:100%;">
+  <label>Tiempo del cronómetro (hh:mm:ss): </label>
+  <input type="text" id="setElapsedInput" placeholder="00:00:00">
+  <button id="setElapsedBtn">Aplicar tiempo</button>
+</div>
 
-  <div class="bottom-controls">
-    <button id="exportBtn">Exportar vueltas (CSV)</button>
-  </div>
+<!-- Lista de vueltas -->
+<ul id="laps"></ul>
 
-  <script>
-    let startTime = 0;
-    let elapsedTime = 0;
-    let timerInterval;
-    let running = false;
+<!-- Exportar CSV -->
+<div class="bottom-controls">
+  <button id="exportBtn">Exportar vueltas (CSV)</button>
+</div>
 
-    const display = document.getElementById('display');
-    const startStopBtn = document.getElementById('startStopBtn');
-    const lapBtn = document.getElementById('lapBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const startTimeInput = document.getElementById('startTimeInput');
-    const setStartBtn = document.getElementById('setStartBtn');
-    const laps = document.getElementById('laps');
-    const status = document.getElementById('status');
-    const exportBtn = document.getElementById('exportBtn');
-    const setElapsedInput = document.getElementById('setElapsedInput');
-    const setElapsedBtn = document.getElementById('setElapsedBtn');
+<script>
+let startTime = 0;
+let elapsedTime = 0;
+let timerInterval;
+let running = false;
 
-    function saveState() {
-      const state = {
-        startTime,
-        elapsedTime,
-        running,
-        laps: Array.from(laps.children).map(li => li.textContent)
-      };
-      localStorage.setItem('cronometroState', JSON.stringify(state));
-    }
+const display = document.getElementById('display');
+const startStopBtn = document.getElementById('startStopBtn');
+const lapBtn = document.getElementById('lapBtn');
+const resetBtn = document.getElementById('resetBtn');
+const startTimeInput = document.getElementById('startTimeInput');
+const setStartBtn = document.getElementById('setStartBtn');
+const laps = document.getElementById('laps');
+const status = document.getElementById('status');
+const exportBtn = document.getElementById('exportBtn');
+const setElapsedInput = document.getElementById('setElapsedInput');
+const setElapsedBtn = document.getElementById('setElapsedBtn');
 
-    function loadState() {
-      const saved = localStorage.getItem('cronometroState');
-      if (!saved) return;
-      const state = JSON.parse(saved);
-      startTime = state.startTime;
-      elapsedTime = state.elapsedTime;
-      running = state.running;
-      laps.innerHTML = '';
-      state.laps.forEach(text => {
-        const li = document.createElement('li');
-        li.textContent = text;
-        laps.appendChild(li);
-      });
-      updateDisplay();
-      updateStatus();
+function saveState(){
+  const state = { startTime, elapsedTime, running, laps:Array.from(laps.children).map(li=>li.textContent)};
+  localStorage.setItem('cronometroState', JSON.stringify(state));
+}
 
-      if (running) {
-        const now = Date.now();
-        const delta = now - startTime + elapsedTime;
-        startTime = now - delta;
-        start();
-      }
-    }
+function loadState(){
+  const saved = localStorage.getItem('cronometroState');
+  if(!saved) return;
+  const state = JSON.parse(saved);
+  startTime=state.startTime;
+  elapsedTime=state.elapsedTime;
+  running=state.running;
+  laps.innerHTML='';
+  state.laps.forEach(text=>{const li=document.createElement('li');li.textContent=text;laps.appendChild(li);});
+  updateDisplay();
+  updateStatus();
+  if(running){
+    const now=Date.now();
+    const delta=now-startTime+elapsedTime;
+    startTime=now-delta;
+    start();
+  }
+}
 
-    function updateDisplay() {
-      const time = new Date(elapsedTime);
-      const hours = String(time.getUTCHours()).padStart(2, '0');
-      const minutes = String(time.getUTCMinutes()).padStart(2, '0');
-      const seconds = String(time.getUTCSeconds()).padStart(2, '0');
-      const milliseconds = String(time.getUTCMilliseconds()).padStart(3, '0');
-      display.textContent = `${hours}:${minutes}:${seconds}.${milliseconds}`;
-    }
+function updateDisplay(){
+  const time=new Date(elapsedTime);
+  const h=String(time.getUTCHours()).padStart(2,'0');
+  const m=String(time.getUTCMinutes()).padStart(2,'0');
+  const s=String(time.getUTCSeconds()).padStart(2,'0');
+  const ms=String(time.getUTCMilliseconds()).padStart(3,'0');
+  display.textContent=`${h}:${m}:${s}.${ms}`;
+}
 
-    function updateStatus() {
-      if (running) {
-        status.style.background = 'var(--led-run)';
-        status.style.color = 'var(--led-run)';
-      } else {
-        status.style.background = 'var(--led-stop)';
-        status.style.color = 'var(--led-stop)';
-      }
-    }
+function updateStatus(){
+  status.style.background=running?'var(--led-run)':'var(--led-stop)';
+  status.style.color=running?'var(--led-run)':'var(--led-stop)';
+}
 
-    function start() {
-      running = true;
-      startTime = Date.now() - elapsedTime;
-      // Si no hay hora en el campo, poner la hora actual
-      if (!startTimeInput.value) {
-        const now = new Date();
-        const h = String(now.getHours()).padStart(2, '0');
-        const m = String(now.getMinutes()).padStart(2, '0');
-        const s = String(now.getSeconds()).padStart(2, '0');
-        startTimeInput.value = `${h}:${m}:${s}`;
-      }
-      clearInterval(timerInterval);
-      timerInterval = setInterval(() => {
-        elapsedTime = Date.now() - startTime;
-        updateDisplay();
-        saveState();
-      }, 10);
-      startStopBtn.textContent = 'Pausar';
-      updateStatus();
-      saveState();
-    }
+function start(){
+  running=true;
+  startTime=Date.now()-elapsedTime;
+  if(!startTimeInput.value){
+    const now=new Date();
+    const hh=String(now.getHours()).padStart(2,'0');
+    const mm=String(now.getMinutes()).padStart(2,'0');
+    const ss=String(now.getSeconds()).padStart(2,'0');
+    startTimeInput.value=`${hh}:${mm}:${ss}`;
+  }
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{elapsedTime=Date.now()-startTime;updateDisplay();saveState();},10);
+  startStopBtn.textContent='Pausar';
+  updateStatus();
+  saveState();
+}
 
-    function pause() {
-      running = false;
-      clearInterval(timerInterval);
-      startStopBtn.textContent = 'Iniciar';
-      updateStatus();
-      saveState();
-    }
+function pause(){
+  running=false;
+  clearInterval(timerInterval);
+  startStopBtn.textContent='Iniciar';
+  updateStatus();
+  saveState();
+}
 
-    function startStop() {
-      running ? pause() : start();
-    }
+function startStop(){running?pause():start();}
 
-    function reset() {
-      pause();
-      elapsedTime = 0;
-      laps.innerHTML = '';
-      updateDisplay();
-      updateStatus();
-      localStorage.removeItem('cronometroState');
-      startTimeInput.value = '';
-    }
+function reset(){
+  pause();
+  elapsedTime=0;
+  laps.innerHTML='';
+  updateDisplay();
+  updateStatus();
+  localStorage.removeItem('cronometroState');
+  startTimeInput.value='';
+}
 
-    function addLap() {
-      if (!running) return;
-      const li = document.createElement('li');
-      li.textContent = display.textContent;
-      laps.prepend(li);
-      saveState();
-    }
+function addLap(){
+  if(!running) return;
+  const li=document.createElement('li');
+  li.textContent=display.textContent;
+  laps.prepend(li);
+  saveState();
+}
 
-    function setStartTime() {
-      const value = startTimeInput.value;
-      if (value) {
-        const [h, m, s] = value.split(':').map(Number);
-        const now = new Date();
-        const target = new Date();
-        target.setHours(h, m, s || 0, 0);
-        let diff = now - target;
-        if (diff < 0) diff += 24 * 3600 * 1000; 
-        elapsedTime = diff;
-        updateDisplay();
-        saveState();
-      }
-    }
+function setStartTime(){
+  const value=startTimeInput.value;
+  if(value){
+    const [h,m,s]=value.split(':').map(Number);
+    const now=new Date();
+    const target=new Date();
+    target.setHours(h,m,s||0,0);
+    let diff=now-target;
+    if(diff<0) diff+=24*3600*1000;
+    elapsedTime=diff;
+    updateDisplay();
+    saveState();
+  }
+}
 
-    // ✅ Nueva función: establecer manualmente el tiempo del cronómetro
-    function setElapsedTime() {
-      const value = setElapsedInput.value.trim();
-      if (!value.match(/^\d{2}:\d{2}:\d{2}$/)) {
-        alert("Formato inválido. Usa hh:mm:ss");
-        return;
-      }
-      const [h, m, s] = value.split(':').map(Number);
-      elapsedTime = ((h * 3600) + (m * 60) + s) * 1000;
-      updateDisplay();
+function setElapsedTime(){
+  const value=setElapsedInput.value.trim();
+  if(!value.match(/^\d{2}:\d{2}:\d{2}$/)){alert("Formato inválido. Usa hh:mm:ss"); return;}
+  const [h,m,s]=value.split(':').map(Number);
+  elapsedTime=((h*3600)+(m*60)+s)*1000;
+  updateDisplay();
+  const now=new Date();
+  const start=new Date(now-elapsedTime);
+  const hh=String(start.getHours()).padStart(2,'0');
+  const mm=String(start.getMinutes()).padStart(2,'0');
+  const ss=String(start.getSeconds()).padStart(2,'0');
+  startTimeInput.value=`${hh}:${mm}:${ss}`;
+  startTime=Date.now()-elapsedTime;
+  saveState();
+}
 
-      // Calcular la hora de inicio en base al tiempo actual
-      const now = new Date();
-      const start = new Date(now - elapsedTime);
-      const hh = String(start.getHours()).padStart(2, '0');
-      const mm = String(start.getMinutes()).padStart(2, '0');
-      const ss = String(start.getSeconds()).padStart(2, '0');
-      startTimeInput.value = `${hh}:${mm}:${ss}`;
-      startTime = Date.now() - elapsedTime;
+function exportCSV(){
+  const lapTimes=Array.from(laps.children).map(li=>li.textContent);
+  if(lapTimes.length===0){alert("No hay vueltas para exportar."); return;}
+  const csv="data:text/csv;charset=utf-8,"+["Nº,Vuelta"].join(",")+"\n"+lapTimes.map((t,i)=>`${i+1},${t}`).join("\n");
+  const link=document.createElement('a');
+  link.href=encodeURI(csv);
+  link.download='vueltas.csv';
+  link.click();
+}
 
-      saveState();
-    }
+startStopBtn.addEventListener('click',startStop);
+resetBtn.addEventListener('click',reset);
+lapBtn.addEventListener('click',addLap);
+setStartBtn.addEventListener('click',setStartTime);
+setElapsedBtn.addEventListener('click',setElapsedTime);
+exportBtn.addEventListener('click',exportCSV);
 
-    function exportCSV() {
-      const lapTimes = Array.from(laps.children).map(li => li.textContent);
-      if (lapTimes.length === 0) {
-        alert("No hay vueltas para exportar.");
-        return;
-      }
-      const csv = "data:text/csv;charset=utf-8," + 
-                  ["Nº,Vuelta"].join(",") + "\n" + 
-                  lapTimes.map((t, i) => `${i + 1},${t}`).join("\n");
-      const link = document.createElement('a');
-      link.href = encodeURI(csv);
-      link.download = 'vueltas.csv';
-      link.click();
-    }
-
-    startStopBtn.addEventListener('click', startStop);
-    resetBtn.addEventListener('click', reset);
-    lapBtn.addEventListener('click', addLap);
-    setStartBtn.addEventListener('click', setStartTime);
-    setElapsedBtn.addEventListener('click', setElapsedTime);
-    exportBtn.addEventListener('click', exportCSV);
-
-    loadState();
-    updateStatus();
-  </script>
+loadState();
+updateStatus();
+</script>
 </body>
 </html>
