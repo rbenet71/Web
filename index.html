@@ -13,7 +13,6 @@
       --led-run: #0f0;
       --led-stop: #f00;
     }
-
     @media (prefers-color-scheme: light) {
       :root {
         --bg: #f5f5f5;
@@ -22,7 +21,6 @@
         --accent: #0077ff;
       }
     }
-
     body {
       font-family: Arial, sans-serif;
       background: var(--bg);
@@ -35,13 +33,11 @@
       margin: 0;
       transition: background 0.3s, color 0.3s;
     }
-
     h1 {
       margin-bottom: 20px;
       color: var(--accent);
       text-shadow: 0 0 10px var(--accent);
     }
-
     #status {
       width: 15px;
       height: 15px;
@@ -49,12 +45,10 @@
       margin-bottom: 10px;
       box-shadow: 0 0 10px currentColor;
     }
-
     #display {
       font-size: 3rem;
       margin-bottom: 20px;
     }
-
     .controls {
       display: flex;
       gap: 10px;
@@ -62,7 +56,6 @@
       flex-wrap: wrap;
       justify-content: center;
     }
-
     button {
       padding: 10px 20px;
       font-size: 1rem;
@@ -73,12 +66,10 @@
       color: var(--text);
       transition: 0.2s;
     }
-
     button:hover {
       background: var(--accent);
       color: #000;
     }
-
     input[type="time"] {
       font-size: 1rem;
       padding: 5px 10px;
@@ -87,7 +78,6 @@
       background: var(--panel);
       color: var(--text);
     }
-
     ul {
       list-style: none;
       padding: 0;
@@ -98,12 +88,10 @@
       border-top: 1px solid #333;
       margin-top: 10px;
     }
-
     li {
       border-bottom: 1px solid #333;
       padding: 5px 0;
     }
-
     .bottom-controls {
       margin-top: 15px;
     }
@@ -204,6 +192,14 @@
     function start() {
       running = true;
       startTime = Date.now() - elapsedTime;
+      // Si no hay hora en el campo, poner la hora actual
+      if (!startTimeInput.value) {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
+        startTimeInput.value = `${h}:${m}:${s}`;
+      }
       timerInterval = setInterval(() => {
         elapsedTime = Date.now() - startTime;
         updateDisplay();
@@ -233,6 +229,7 @@
       updateDisplay();
       updateStatus();
       localStorage.removeItem('cronometroState');
+      startTimeInput.value = '';
     }
 
     function addLap() {
@@ -243,11 +240,18 @@
       saveState();
     }
 
+    // ✅ Fijar hora manual calcula el tiempo transcurrido desde esa hora hasta ahora
     function setStartTime() {
       const value = startTimeInput.value;
       if (value) {
         const [h, m, s] = value.split(':').map(Number);
-        elapsedTime = ((h * 3600) + (m * 60) + (s || 0)) * 1000;
+        const now = new Date();
+        const target = new Date();
+        target.setHours(h, m, s || 0, 0);
+
+        let diff = now - target;
+        if (diff < 0) diff += 24 * 3600 * 1000; // Si la hora es de ayer
+        elapsedTime = diff;
         updateDisplay();
         saveState();
       }
