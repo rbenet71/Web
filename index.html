@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cronómetro Web Persistente</title>
+<title>Cronómetro Web Ciclismo (by Robert Benet)</title>
 <style>
 :root {
   --bg: #111;
@@ -51,12 +51,15 @@ h1 {
   font-size: 3rem;
   margin-bottom: 15px;
   text-align: center;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
 }
 .controls {
   display: flex;
   gap: 10px;
   margin-bottom: 10px;
   width: 100%;
+  max-width: 500px;
 }
 .controls button {
   padding: 10px 20px;
@@ -66,77 +69,263 @@ h1 {
   cursor: pointer;
   background: var(--panel);
   color: var(--text);
-  transition: 0.2s;
+  transition: all 0.2s;
+  flex: 1;
 }
 .controls button:hover {
   background: var(--accent);
   color: #000;
+  transform: translateY(-2px);
+}
+.controls button:active {
+  transform: translateY(0);
 }
 #lapBtn {
   width: 100%;
   font-size: 1.5rem;
   padding: 15px;
+  max-width: 500px;
+  transition: all 0.1s;
 }
-input[type="time"], input[type="text"] {
+input[type="time"], input[type="text"], input[type="number"] {
   font-size: 1rem;
-  padding: 5px 10px;
+  padding: 8px 12px;
   border-radius: 5px;
   border: 1px solid #555;
   background: var(--panel);
   color: var(--text);
-  margin-right:5px;
+  margin-right: 5px;
+  width: 150px;
+  transition: border-color 0.3s;
+}
+input:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 ul {
   list-style: none;
   padding: 0;
   width: 90%;
-  max-height: 250px;
+  max-width: 500px;
+  max-height: 200px;
   overflow-y: auto;
   border-top: 1px solid #333;
-  margin-top: 15px;
+  margin: 15px 0;
+  border-radius: 5px;
+  background: var(--panel);
 }
 li {
   border-bottom: 1px solid #333;
-  padding: 5px 0;
+  padding: 8px 12px;
   display: flex;
   justify-content: space-between;
+  transition: background 0.2s;
+}
+li:nth-child(odd) {
+  background: rgba(255,255,255,0.05);
+}
+li:first-child {
+  font-weight: bold;
+  color: var(--accent);
 }
 li span.partial {
   color: var(--partial);
 }
 .bottom-controls {
   margin-top: 15px;
+  width: 100%;
+  max-width: 500px;
+}
+.help-text {
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: var(--partial);
+  text-align: center;
+}
+.input-group {
+  margin-top: 10px;
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.input-group label {
+  min-width: 180px;
+}
+.lap-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.lap-time {
+  font-weight: bold;
+}
+.lap-details {
+  font-size: 0.8rem;
+  color: var(--partial);
+  margin-top: 2px;
+}
+.start-time-display {
+  margin-top: 5px;
+  font-size: 0.9rem;
+  color: var(--accent);
+  text-align: center;
+  font-family: 'Courier New', monospace;
+}
+.dorsal-assignment {
+  margin-top: 15px;
+  width: 100%;
+  max-width: 500px;
+}
+.dorsal-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid #333;
+}
+.dorsal-number {
+  font-weight: bold;
+  color: var(--accent);
+  min-width: 60px;
+}
+.dorsal-time {
+  font-family: 'Courier New', monospace;
+  flex-grow: 1;
+  text-align: center;
+}
+.dorsal-actions {
+  display: flex;
+  gap: 5px;
+}
+.tabs {
+  display: flex;
+  margin-bottom: 10px;
+  width: 100%;
+  max-width: 500px;
+}
+.tab {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  background: var(--panel);
+  cursor: pointer;
+  border: 1px solid #333;
+  border-bottom: none;
+  border-radius: 5px 5px 0 0;
+}
+.tab.active {
+  background: var(--accent);
+  color: #000;
+  font-weight: bold;
+}
+.tab-content {
+  width: 100%;
+  max-width: 500px;
+}
+.dorsal-input-container {
+  position: relative;
+  display: inline-block;
+}
+.dorsal-input {
+  width: 120px;
+  padding: 4px 8px;
+  font-size: 0.9rem;
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  background: var(--bg);
+  color: var(--text);
+}
+.dorsal-save-btn {
+  margin-left: 5px;
+  padding: 4px 8px;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.dorsal-cancel-btn {
+  margin-left: 2px;
+  padding: 4px 8px;
+  background: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.lap-dorsal {
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+  transition: background 0.2s;
+}
+.lap-dorsal:hover {
+  background: rgba(0, 255, 255, 0.2);
+}
+.lap-dorsal.assigned {
+  background: rgba(0, 255, 255, 0.3);
+  font-weight: bold;
 }
 </style>
 </head>
 <body>
-<h1>⏱ Cronómetro</h1>
+<h1>⏱ Cronómetro Ciclismo</h1>
 <div id="status"></div>
-<div id="display">0:00:00.000</div>
+<div id="display">0"000</div>
 
-<!-- Botón Vuelta grande -->
+<!-- Botón Paso grande -->
 <div class="controls">
-  <button id="lapBtn">⏱ Vuelta</button>
+  <button id="lapBtn">⏱ Corte</button>
 </div>
 
-<!-- Botones Iniciar/Continuar-Pausar y Reiniciar -->
+<!-- Lista de cortes (AHORA AQUÍ - después del botón Corte) -->
+<ul id="laps"></ul>
+
+<!-- Botones Iniciar/Continuar-Pausar y Reiniciar (AHORA DESPUÉS de los cortes) -->
 <div class="controls">
   <button id="startStopBtn" style="flex:1;">⏵ Iniciar</button>
   <button id="resetBtn" style="flex:1;">🔄 Reiniciar</button>
 </div>
 
-<!-- Lista de vueltas -->
-<ul id="laps"></ul>
+<!-- Pestañas -->
+<div class="tabs">
+  <div class="tab active" data-tab="cortes">Cortes</div>
+  <div class="tab" data-tab="dorsales">Dorsales</div>
+</div>
+
+<!-- Contenido de pestañas -->
+<div class="tab-content">
+  <!-- Gestión de dorsales -->
+  <div id="dorsalesContent" style="display: none;">
+    <div class="help-text" style="margin-bottom: 10px;">
+      Haz clic en cualquier tiempo para asignar dorsales (múltiples separados por comas)
+    </div>
+    
+    <div class="dorsal-assignment" id="dorsalList">
+      <!-- Los dorsales asignados aparecerán aquí -->
+    </div>
+  </div>
+</div>
 
 <!-- Hora de inicio -->
-<div style="margin-top:10px; width:100%;">
+<div class="input-group">
   <label>Hora de inicio: </label>
   <input type="time" id="startTimeInput" step="1">
   <button id="setStartBtn">Fijar</button>
 </div>
 
+<!-- Mostrar hora de salida -->
+<div class="start-time-display" id="startTimeDisplay">
+  Hora de salida: No establecida
+</div>
+
 <!-- Fijar tiempo manual -->
-<div style="margin-top:10px; width:100%;">
+<div class="input-group">
   <label>Tiempo del cronómetro (hh:mm:ss): </label>
   <input type="text" id="setElapsedInput" placeholder="00:00:00">
   <button id="setElapsedBtn">Aplicar tiempo</button>
@@ -144,7 +333,12 @@ li span.partial {
 
 <!-- Exportar CSV -->
 <div class="bottom-controls">
-  <button id="exportBtn">💾 Exportar vueltas (CSV)</button>
+  <button id="exportBtn">💾 Exportar Cortes (CSV)</button>
+  <button id="exportDorsalesBtn">💾 Exportar Dorsales (CSV)</button>
+</div>
+
+<div class="help-text">
+  Atajos: Espacio (Iniciar/Pausar) | L (Corte) | Ctrl+R (Reiniciar) | Haz clic en tiempos para asignar dorsales
 </div>
 
 <script>
@@ -152,7 +346,11 @@ let startTime = 0;
 let elapsedTime = 0;
 let timerInterval;
 let running = false;
-const lapTimes = [];
+let lapTimes = [];
+let startTimeValue = ""; // Almacena la hora de inicio/salida
+let startTimeInSeconds = 0; // Almacena la hora de salida en segundos desde medianoche
+let dorsalAssignments = {}; // Almacena las asignaciones de dorsales: { dorsal: [lapIndex1, lapIndex2, ...] }
+let editingLapIndex = null; // Índice del corte que se está editando
 
 const display = document.getElementById('display');
 const startStopBtn = document.getElementById('startStopBtn');
@@ -165,201 +363,525 @@ const status = document.getElementById('status');
 const exportBtn = document.getElementById('exportBtn');
 const setElapsedInput = document.getElementById('setElapsedInput');
 const setElapsedBtn = document.getElementById('setElapsedBtn');
+const startTimeDisplay = document.getElementById('startTimeDisplay');
+const dorsalList = document.getElementById('dorsalList');
+const exportDorsalesBtn = document.getElementById('exportDorsalesBtn');
 
-function saveState(){
-  const state = { startTime, elapsedTime, running, laps: lapTimes };
-  localStorage.setItem('cronometroState', JSON.stringify(state));
+// Cargar datos guardados al iniciar
+loadFromStorage();
+
+function formatTime(ms){
+  let totalSeconds = Math.floor(ms / 1000);
+  const milliseconds = ms % 1000;
+  const seconds = totalSeconds % 60;
+  const minutes = Math.floor(totalSeconds / 60) % 60;
+  const hours = Math.floor(totalSeconds / 3600);
+
+  let str = '';
+  if(hours > 0) str += hours + ':';
+  if(hours > 0 || minutes > 0) str += String(minutes).padStart(hours>0?2:1,'0') + "'";
+  str += String(seconds).padStart(2,'0') + '"' + String(milliseconds).padStart(3,'0');
+  return str;
 }
 
-function loadState(){
-  const saved = localStorage.getItem('cronometroState');
-  if(!saved) return;
-  const state = JSON.parse(saved);
-  startTime=state.startTime;
-  elapsedTime=state.elapsedTime;
-  running=state.running;
-  lapTimes.length=0;
-  state.laps.forEach(t=>lapTimes.push(t));
-  renderLaps();
-  updateDisplay();
-  updateStatus();
-  updateStartButtonText();
-  if(running){
-    const now=Date.now();
-    const delta=now-startTime+elapsedTime;
-    startTime=now-delta;
-    start();
-  }
+function formatHoraExacta(date){
+  const h = String(date.getHours()).padStart(2,'0');
+  const m = String(date.getMinutes()).padStart(2,'0');
+  const s = String(date.getSeconds()).padStart(2,'0');
+  const ms = String(date.getMilliseconds()).padStart(3,'0');
+  return `${h}:${m}:${s}.${ms}`;
+}
+
+function formatHoraSalida(date){
+  const h = String(date.getHours()).padStart(2,'0');
+  const m = String(date.getMinutes()).padStart(2,'0');
+  const s = String(date.getSeconds()).padStart(2,'0');
+  const ms = String(date.getMilliseconds()).padStart(3,'0');
+  return `${h}:${m}:${s}.${ms}`;
+}
+
+function horaToSeconds(horaStr) {
+  // Convierte formato HH:MM:SS.mmm a segundos desde medianoche
+  const parts = horaStr.split(':');
+  const h = parseInt(parts[0]);
+  const m = parseInt(parts[1]);
+  const sParts = parts[2].split('.');
+  const s = parseInt(sParts[0]);
+  const ms = parseInt(sParts[1] || 0);
+  
+  return (h * 3600) + (m * 60) + s + (ms / 1000);
+}
+
+function msToSeconds(ms) {
+  return (ms / 1000).toFixed(3);
 }
 
 function updateDisplay(){
-  display.textContent=formatTimeMs(elapsedTime);
+  display.textContent = formatTime(elapsedTime);
 }
 
-function updateStatus(){
-  status.style.background=running?'var(--led-run)':'var(--led-stop)';
-  status.style.color=running?'var(--led-run)':'var(--led-stop)';
-}
-
-function updateStartButtonText(){
-  if(running) startStopBtn.textContent = `⏸ Pausar`;
-  else startStopBtn.textContent = elapsedTime>0 ? `⏵ Continuar` : `⏵ Iniciar`;
+function updateStartTimeDisplay() {
+  if (startTimeValue) {
+    startTimeDisplay.textContent = `Hora de salida: ${startTimeValue}`;
+  } else {
+    startTimeDisplay.textContent = 'Hora de salida: No establecida';
+  }
 }
 
 function start(){
-  running=true;
-  startTime=Date.now()-elapsedTime;
-  if(!startTimeInput.value){
-    const now=new Date();
-    const hh=String(now.getHours()).padStart(2,'0');
-    const mm=String(now.getMinutes()).padStart(2,'0');
-    const ss=String(now.getSeconds()).padStart(2,'0');
-    startTimeInput.value=`${hh}:${mm}:${ss}`;
+  if(!running){
+    startTime = Date.now() - elapsedTime;
+    timerInterval = setInterval(()=>{
+      elapsedTime = Date.now() - startTime;
+      updateDisplay();
+      saveToStorage(); // Guardar cada actualización
+    },10);
+    running = true;
+    startStopBtn.textContent = '⏸ Pausar';
+    status.style.color = 'var(--led-run)';
+    
+    // Establecer hora de inicio automáticamente si no está establecida
+    if (!startTimeValue) {
+      const now = new Date();
+      startTimeInput.value = now.toTimeString().split(' ')[0];
+      startTimeValue = formatHoraSalida(now); // Usar formato con milésimas
+      startTimeInSeconds = horaToSeconds(startTimeValue);
+      updateStartTimeDisplay();
+    }
+  } else {
+    clearInterval(timerInterval);
+    running = false;
+    startStopBtn.textContent = '⏵ Continuar';
+    status.style.color = 'var(--led-stop)';
   }
-  clearInterval(timerInterval);
-  timerInterval=setInterval(()=>{elapsedTime=Date.now()-startTime; updateDisplay(); saveState();},10);
-  updateStartButtonText();
-  updateStatus();
-  saveState();
+  saveToStorage();
 }
-
-function pause(){
-  running=false;
-  clearInterval(timerInterval);
-  updateStartButtonText();
-  updateStatus();
-  saveState();
-}
-
-function startStop(){ running ? pause() : start(); }
 
 function reset(){
-  if(!confirm("¿Estás seguro de que quieres reiniciar el tiempo y borrar todas las vueltas?")) return;
-  pause();
-  elapsedTime = 0;
-  lapTimes.length = 0;
-  renderLaps();
-  updateDisplay();
-  updateStatus();
-  saveState();
+  if(confirm('¿Seguro que quieres reiniciar y borrar todos los cortes y dorsales?')){
+    clearInterval(timerInterval);
+    elapsedTime = 0;
+    running = false;
+    lapTimes = [];
+    startTimeValue = "";
+    startTimeInSeconds = 0;
+    dorsalAssignments = {};
+    editingLapIndex = null;
+    updateDisplay();
+    laps.innerHTML = '';
+    startStopBtn.textContent = '⏵ Iniciar';
+    status.style.color = 'var(--led-stop)';
+    startTimeInput.value = "";
+    updateStartTimeDisplay();
+    renderDorsalList();
+    localStorage.removeItem('cronometroCortes');
+    localStorage.removeItem('cronometroTiempo');
+    localStorage.removeItem('cronometroRunning');
+    localStorage.removeItem('cronometroStartTime');
+    localStorage.removeItem('cronometroStartTimeSeconds');
+    localStorage.removeItem('cronometroDorsales');
+  }
 }
 
-function addLap(){
-  if(!running) return;
-  let prev = lapTimes.length ? parseTimeMs(lapTimes[0].split(' | ')[0]) : 0;
-  let partial = elapsedTime - prev;
-  lapTimes.unshift(`${formatTimeMs(elapsedTime)} | ${formatTimeMs(partial)}`);
+function lap(){
+  if(!running) {
+    // Feedback visual cuando no está corriendo
+    lapBtn.style.backgroundColor = '#ff4444';
+    setTimeout(() => {
+      lapBtn.style.backgroundColor = '';
+    }, 200);
+    return;
+  }
+  
+  // Pequeña animación
+  lapBtn.style.transform = 'scale(0.95)';
+  setTimeout(() => {
+    lapBtn.style.transform = 'scale(1)';
+  }, 100);
+  
+  const lapTime = elapsedTime;
+  const now = new Date();
+  const horaExacta = formatHoraExacta(now);
+  const segundos = msToSeconds(lapTime);
+  const tiempoLlegadaSegundos = startTimeInSeconds + parseFloat(segundos);
+  
+  lapTimes.push({
+    timeMs: lapTime, 
+    total: formatTime(lapTime), 
+    hora: horaExacta,
+    segundos: segundos,
+    tiempoSalidaSegundos: startTimeInSeconds,
+    tiempoLlegadaSegundos: tiempoLlegadaSegundos.toFixed(3),
+    dorsales: [] // Array para múltiples dorsales
+  });
+  
   renderLaps();
-  saveState();
+  saveToStorage();
+  
+  // Scroll automático a nuevos cortes
+  laps.scrollTop = 0;
 }
 
-function renderLaps(){
-  laps.innerHTML='';
-  lapTimes.forEach(t=>{
-    const [total, partial] = t.split(' | ');
-    const li=document.createElement('li');
-    li.innerHTML=`<span class="total">${total}</span> <span class="partial">${partial}</span>`;
-    laps.appendChild(li);
+function startEditingDorsal(lapIndex){
+  editingLapIndex = lapIndex;
+  renderLaps();
+}
+
+function saveDorsales(lapIndex, dorsalInput){
+  const dorsalesStr = dorsalInput.value.trim();
+  
+  if(dorsalesStr === '') {
+    // Si está vacío, eliminar todos los dorsales de este corte
+    removeAllDorsalsFromLap(lapIndex);
+    editingLapIndex = null;
+    renderLaps();
+    renderDorsalList();
+    saveToStorage();
+    return;
+  }
+  
+  // Separar dorsales por comas y limpiar
+  const dorsales = dorsalesStr.split(',')
+    .map(d => d.trim())
+    .filter(d => d !== '');
+  
+  if(dorsales.length === 0) {
+    alert('Introduce al menos un dorsal válido.');
+    return;
+  }
+  
+  // Validar que todos los dorsales sean números
+  for(const dorsal of dorsales) {
+    if(isNaN(dorsal) || dorsal === '') {
+      alert(`"${dorsal}" no es un dorsal válido. Solo se permiten números.`);
+      return;
+    }
+  }
+  
+  // Actualizar el corte con los nuevos dorsales
+  lapTimes[lapIndex].dorsales = dorsales;
+  
+  // Actualizar asignaciones globales
+  updateDorsalAssignments();
+  
+  editingLapIndex = null;
+  renderLaps();
+  renderDorsalList();
+  saveToStorage();
+}
+
+function cancelEditing(){
+  editingLapIndex = null;
+  renderLaps();
+}
+
+function removeAllDorsalsFromLap(lapIndex){
+  lapTimes[lapIndex].dorsales = [];
+  updateDorsalAssignments();
+}
+
+function updateDorsalAssignments(){
+  // Reconstruir las asignaciones globales desde los cortes
+  dorsalAssignments = {};
+  
+  lapTimes.forEach((lap, lapIndex) => {
+    lap.dorsales.forEach(dorsal => {
+      if(!dorsalAssignments[dorsal]) {
+        dorsalAssignments[dorsal] = [];
+      }
+      if(!dorsalAssignments[dorsal].includes(lapIndex)) {
+        dorsalAssignments[dorsal].push(lapIndex);
+      }
+    });
   });
 }
 
-function setStartTime(){
-  const value=startTimeInput.value;
-  if(value){
-    const [h,m,s]=value.split(':').map(Number);
-    const now=new Date();
-    const target=new Date();
-    target.setHours(h,m,s||0,0);
-    let diff=now-target;
-    if(diff<0) diff+=24*3600*1000;
-    elapsedTime=diff;
-    updateDisplay();
-    updateStartButtonText();
-    saveState();
+function renderLaps(){
+  laps.innerHTML = lapTimes.slice().reverse().map((lap, i) => {
+    const lapIndex = lapTimes.length - i - 1;
+    const isEditing = editingLapIndex === lapIndex;
+    
+    let dorsalDisplay;
+    if(isEditing) {
+      const currentDorsales = lap.dorsales.join(', ');
+      dorsalDisplay = `
+        <div class="dorsal-input-container">
+          <input type="text" 
+                 class="dorsal-input" 
+                 value="${currentDorsales}" 
+                 placeholder="1, 5, 12..."
+                 onkeypress="if(event.key==='Enter') saveDorsales(${lapIndex}, this)">
+          <button class="dorsal-save-btn" onclick="saveDorsales(${lapIndex}, this.previousElementSibling)">✓</button>
+          <button class="dorsal-cancel-btn" onclick="cancelEditing()">✕</button>
+        </div>
+      `;
+    } else {
+      const dorsalText = lap.dorsales.length > 0 
+        ? `Dorsales: ${lap.dorsales.join(', ')}`
+        : 'Haz clic para asignar dorsales';
+      
+      dorsalDisplay = `
+        <span class="lap-dorsal ${lap.dorsales.length > 0 ? 'assigned' : ''}" 
+              onclick="startEditingDorsal(${lapIndex})">
+          ${dorsalText}
+        </span>
+      `;
+    }
+    
+    return `<li>
+      <span>Corte ${lapTimes.length - i}</span>
+      <div class="lap-info">
+        <span class="lap-time">${lap.total}</span>
+        <span class="lap-details">${lap.segundos}s | ${dorsalDisplay}</span>
+      </div>
+    </li>`;
+  }).join('');
+}
+
+function renderDorsalList(){
+  dorsalList.innerHTML = '';
+  
+  // Obtener todos los dorsales únicos
+  const dorsales = Object.keys(dorsalAssignments).sort((a, b) => parseInt(a) - parseInt(b));
+  
+  if(dorsales.length === 0) {
+    dorsalList.innerHTML = '<div style="text-align: center; color: var(--partial); padding: 20px;">No hay dorsales asignados</div>';
+    return;
+  }
+  
+  dorsales.forEach(dorsal => {
+    const lapIndices = dorsalAssignments[dorsal];
+    const tiempos = lapIndices.map(index => lapTimes[index]);
+    
+    const dorsalElement = document.createElement('div');
+    dorsalElement.className = 'dorsal-item';
+    
+    let tiemposHTML = tiempos.map((lap, i) => 
+      `Vuelta ${i + 1}: ${lap.total}`
+    ).join(' | ');
+    
+    dorsalElement.innerHTML = `
+      <div class="dorsal-number">Dorsal ${dorsal}</div>
+      <div class="dorsal-time">${tiemposHTML}</div>
+      <div class="dorsal-actions">
+        <button onclick="removeDorsal(${dorsal})" style="background: #ff4444; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">✕</button>
+      </div>
+    `;
+    
+    dorsalList.appendChild(dorsalElement);
+  });
+}
+
+function removeDorsal(dorsal){
+  if(confirm(`¿Eliminar todas las asignaciones del dorsal ${dorsal}?`)){
+    // Quitar el dorsal de todos los cortes
+    lapTimes.forEach(lap => {
+      lap.dorsales = lap.dorsales.filter(d => d != dorsal);
+    });
+    
+    // Actualizar asignaciones globales
+    updateDorsalAssignments();
+    
+    // Actualizar visualizaciones
+    renderLaps();
+    renderDorsalList();
+    saveToStorage();
   }
 }
 
-function setElapsedTime(){
-  const value=setElapsedInput.value.trim();
-  if(!value.match(/^\d{2}:\d{2}:\d{2}$/)){alert("Formato inválido. Usa hh:mm:ss"); return;}
-  const [h,m,s]=value.split(':').map(Number);
-  elapsedTime=((h*3600)+(m*60)+s)*1000;
+function setStart(){
+  if(!startTimeInput.value) return;
+  const [h,m,s] = startTimeInput.value.split(':').map(Number);
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, s);
+  startTime = start.getTime();
+  elapsedTime = Date.now() - startTime;
+  startTimeValue = formatHoraSalida(start); // Usar formato con milésimas
+  startTimeInSeconds = horaToSeconds(startTimeValue);
   updateDisplay();
-  const now=new Date();
-  const start=new Date(now-elapsedTime);
-  const hh=String(start.getHours()).padStart(2,'0');
-  const mm=String(start.getMinutes()).padStart(2,'0');
-  const ss=String(start.getSeconds()).padStart(2,'0');
-  startTimeInput.value=`${hh}:${mm}:${ss}`;
-  startTime=Date.now()-elapsedTime;
-  updateStartButtonText();
-  saveState();
+  updateStartTimeDisplay();
+  saveToStorage();
+}
+
+function setElapsed(){
+  const input = setElapsedInput.value.trim();
+  const timeRegex = /^(\d{1,2}):([0-5]?\d):([0-5]?\d)$/;
+  
+  if(!timeRegex.test(input)) {
+    alert('Formato inválido. Use: hh:mm:ss (ej: 01:23:45)');
+    return;
+  }
+  
+  const parts = input.split(':').map(Number);
+  const ms = ((parts[0]*3600)+(parts[1]*60)+parts[2])*1000;
+  
+  if(ms < 0) {
+    alert('El tiempo no puede ser negativo');
+    return;
+  }
+  
+  elapsedTime = ms;
+  startTime = Date.now() - ms;
+  const startDate = new Date(startTime);
+  startTimeInput.value = startDate.toTimeString().split(' ')[0];
+  startTimeValue = formatHoraSalida(startDate); // Usar formato con milésimas
+  startTimeInSeconds = horaToSeconds(startTimeValue);
+  updateDisplay();
+  updateStartTimeDisplay();
+  saveToStorage();
+  
+  // Feedback visual
+  setElapsedInput.style.borderColor = '#0f0';
+  setTimeout(() => {
+    setElapsedInput.style.borderColor = '';
+  }, 1000);
 }
 
 function exportCSV(){
-  if(lapTimes.length===0){alert("No hay vueltas para exportar."); return;}
-  const csv="data:text/csv;charset=utf-8,"+["Nº,Tiempo total,Tiempo parcial"].join(",")+"\n"+
-            lapTimes.map((t,i)=>`${i+1},${t.replace(' | ',',')}`).join("\n");
-  const link=document.createElement('a');
-  link.href=encodeURI(csv);
-  link.download='vueltas.csv';
+  if(lapTimes.length === 0){
+    alert('No hay cortes para exportar.');
+    return;
+  }
+
+  let csv = 'Corte #;Tiempo;Tiempo (segundos);Hora exacta;Hora salida;Tiempo salida (segundos);Tiempo llegada (segundos);Dorsales\n';
+  lapTimes.forEach((lap, index) => {
+    csv += `${index + 1};${lap.total};${lap.segundos};${lap.hora};${startTimeValue || "No establecida"};${lap.tiempoSalidaSegundos};${lap.tiempoLlegadaSegundos};${lap.dorsales.join(', ') || ""}\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `cortes_ciclismo_${new Date().toISOString().split('T')[0]}.csv`;
   link.click();
 }
 
-function parseTimeMs(str){
-  const parts = str.split(':');
-  let h=0, m=0, s=0, ms=0;
-
-  if(parts.length === 3){
-    h = Number(parts[0]);
-    m = Number(parts[1]);
-    if(parts[2].includes('.')){
-      [s, ms] = parts[2].split('.').map(Number);
-      ms = ms || 0;
-    } else s = Number(parts[2]);
-  } else if(parts.length === 2){
-    m = Number(parts[0]);
-    if(parts[1].includes('.')){
-      [s, ms] = parts[1].split('.').map(Number);
-      ms = ms || 0;
-    } else s = Number(parts[1]);
-  } else if(parts.length === 1){
-    if(parts[0].includes('.')){
-      [s, ms] = parts[0].split('.').map(Number);
-      ms = ms || 0;
-    } else s = Number(parts[0]);
+function exportDorsalesCSV(){
+  if(Object.keys(dorsalAssignments).length === 0){
+    alert('No hay dorsales asignados para exportar.');
+    return;
   }
 
-  return ((h*3600)+(m*60)+s)*1000 + ms;
+  let csv = 'Dorsal;Vuelta;Tiempo;Tiempo (segundos);Hora exacta\n';
+  
+  Object.keys(dorsalAssignments).sort((a, b) => parseInt(a) - parseInt(b)).forEach(dorsal => {
+    const lapIndices = dorsalAssignments[dorsal];
+    lapIndices.forEach((lapIndex, vueltaIndex) => {
+      const lap = lapTimes[lapIndex];
+      csv += `${dorsal};${vueltaIndex + 1};${lap.total};${lap.segundos};${lap.hora}\n`;
+    });
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `dorsales_ciclismo_${new Date().toISOString().split('T')[0]}.csv`;
+  link.click();
 }
 
-function formatTimeMs(ms){
-  let totalSeconds = Math.floor(ms/1000);
-  const milliseconds = ms % 1000;
-
-  const h = Math.floor(totalSeconds/3600);
-  totalSeconds %= 3600;
-  const m = Math.floor(totalSeconds/60);
-  const s = totalSeconds % 60;
-
-  let timeStr = '';
-  if(h>0) timeStr += h + ':';
-  if(h>0 || m>0) timeStr += m + ':';
-  timeStr += s + '.' + String(milliseconds).padStart(3,'0');
-
-  return timeStr;
+// Guardar cortes en localStorage
+function saveToStorage() {
+  localStorage.setItem('cronometroCortes', JSON.stringify(lapTimes));
+  localStorage.setItem('cronometroTiempo', elapsedTime);
+  localStorage.setItem('cronometroRunning', running);
+  localStorage.setItem('cronometroStartTime', startTimeValue);
+  localStorage.setItem('cronometroStartTimeSeconds', startTimeInSeconds);
+  localStorage.setItem('cronometroDorsales', JSON.stringify(dorsalAssignments));
 }
 
-startStopBtn.addEventListener('click',startStop);
-resetBtn.addEventListener('click',reset);
-lapBtn.addEventListener('click',addLap);
-setStartBtn.addEventListener('click',setStartTime);
-setElapsedBtn.addEventListener('click',setElapsedTime);
-exportBtn.addEventListener('click',exportCSV);
+function loadFromStorage() {
+  const savedLaps = localStorage.getItem('cronometroCortes');
+  const savedTime = localStorage.getItem('cronometroTiempo');
+  const savedRunning = localStorage.getItem('cronometroRunning');
+  const savedStartTime = localStorage.getItem('cronometroStartTime');
+  const savedStartTimeSeconds = localStorage.getItem('cronometroStartTimeSeconds');
+  const savedDorsales = localStorage.getItem('cronometroDorsales');
+  
+  if(savedLaps) {
+    lapTimes = JSON.parse(savedLaps);
+    // Asegurar que todos los cortes tengan el campo dorsales
+    lapTimes.forEach(lap => {
+      if(!lap.dorsales) {
+        lap.dorsales = [];
+      }
+    });
+  }
+  if(savedTime) elapsedTime = Number(savedTime);
+  if(savedRunning) running = JSON.parse(savedRunning);
+  if(savedStartTime) {
+    startTimeValue = savedStartTime;
+    // Convertir la hora guardada al formato de input time
+    const timeParts = savedStartTime.split(':');
+    if (timeParts.length >= 2) {
+      startTimeInput.value = `${timeParts[0]}:${timeParts[1]}:${timeParts[2] ? timeParts[2].split('.')[0] : '00'}`;
+    }
+  }
+  if(savedStartTimeSeconds) {
+    startTimeInSeconds = parseFloat(savedStartTimeSeconds);
+  }
+  if(savedDorsales) {
+    dorsalAssignments = JSON.parse(savedDorsales);
+  } else {
+    // Si no hay dorsales guardados, reconstruir desde los cortes
+    updateDorsalAssignments();
+  }
+  
+  if(running) {
+    startTime = Date.now() - elapsedTime;
+    start();
+  } else {
+    updateDisplay();
+    renderLaps();
+  }
+  
+  // Actualizar estado visual
+  status.style.color = running ? 'var(--led-run)' : 'var(--led-stop)';
+  startStopBtn.textContent = running ? '⏸ Pausar' : '⏵ Iniciar';
+  updateStartTimeDisplay();
+  renderDorsalList();
+}
 
-loadState();
-updateStatus();
-updateStartButtonText();
+// Navegación por pestañas
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    // Remover clase active de todas las pestañas
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    // Añadir clase active a la pestaña clickeada
+    tab.classList.add('active');
+    
+    // Mostrar contenido correspondiente
+    const tabName = tab.getAttribute('data-tab');
+    if(tabName === 'cortes') {
+      document.getElementById('laps').style.display = 'block';
+      document.getElementById('dorsalesContent').style.display = 'none';
+    } else if(tabName === 'dorsales') {
+      document.getElementById('laps').style.display = 'none';
+      document.getElementById('dorsalesContent').style.display = 'block';
+    }
+  });
+});
+
+// Atajos de teclado
+document.addEventListener('keydown', (e) => {
+  if(e.code === 'Space') {
+    e.preventDefault();
+    startStopBtn.click();
+  } else if(e.code === 'KeyL') {
+    e.preventDefault();
+    lapBtn.click();
+  } else if(e.code === 'KeyR' && e.ctrlKey) {
+    e.preventDefault();
+    resetBtn.click();
+  }
+});
+
+// Event listeners
+startStopBtn.addEventListener('click', start);
+resetBtn.addEventListener('click', reset);
+lapBtn.addEventListener('click', lap);
+setStartBtn.addEventListener('click', setStart);
+setElapsedBtn.addEventListener('click', setElapsed);
+exportBtn.addEventListener('click', exportCSV);
+exportDorsalesBtn.addEventListener('click', exportDorsalesCSV);
 </script>
 </body>
 </html>
