@@ -228,14 +228,15 @@ function pause(){
 function startStop(){running?pause():start();}
 
 function reset(){
+  if(!confirm("¿Estás seguro de que quieres reiniciar el tiempo y borrar todas las vueltas?")) return;
   pause();
-  elapsedTime=0;
-  lapTimes.length=0;
+  elapsedTime = 0;
+  lapTimes.length = 0;
   renderLaps();
   updateDisplay();
   updateStatus();
-  localStorage.removeItem('cronometroState');
-  startTimeInput.value='';
+  // Guardamos estado sin borrar la hora de inicio
+  saveState();
 }
 
 function addLap(){
