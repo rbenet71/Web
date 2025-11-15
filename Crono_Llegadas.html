@@ -501,7 +501,7 @@ h1 {
   <!-- Header -->
   <div class="header">
     <h1>CRONO LLEGADAS</h1>
-    <div class="subtitle">SISTEMA DE CRONOMETRAJE DIGITAL</div>
+    <div class="subtitle">CRONO PARA LLEGADAS</div>
   </div>
 
   <!-- Pantalla LCD -->
@@ -623,514 +623,522 @@ const startTimeDisplay = document.getElementById('startTimeDisplay');
 const dorsalList = document.getElementById('dorsalList');
 const exportDorsalesBtn = document.getElementById('exportDorsalesBtn');
 
-// Cargar datos guardados al iniciar
-loadFromStorage();
+// Inicializar
+init();
+
+function init() {
+    loadFromStorage();
+    setupEventListeners();
+    updateDisplay();
+}
+
+function setupEventListeners() {
+    startStopBtn.addEventListener('click', start);
+    resetBtn.addEventListener('click', reset);
+    lapBtn.addEventListener('click', lap);
+    setStartBtn.addEventListener('click', setStart);
+    setElapsedBtn.addEventListener('click', setElapsed);
+    exportBtn.addEventListener('click', exportCSV);
+    exportDorsalesBtn.addEventListener('click', exportDorsalesCSV);
+
+    // Navegación por pestañas
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            const tabName = tab.getAttribute('data-tab');
+            if(tabName === 'config') {
+                document.getElementById('configContent').style.display = 'block';
+                document.getElementById('dorsalesContent').style.display = 'none';
+            } else if(tabName === 'dorsales') {
+                document.getElementById('configContent').style.display = 'none';
+                document.getElementById('dorsalesContent').style.display = 'block';
+            }
+        });
+    });
+
+    // Atajos de teclado
+    document.addEventListener('keydown', (e) => {
+        if(e.code === 'Space') {
+            e.preventDefault();
+            startStopBtn.click();
+        } else if(e.code === 'KeyL') {
+            e.preventDefault();
+            lapBtn.click();
+        } else if(e.code === 'KeyR' && e.ctrlKey) {
+            e.preventDefault();
+            resetBtn.click();
+        }
+    });
+}
 
 // Funciones de formato
 function formatTime(ms){
-  let totalSeconds = Math.floor(ms / 1000);
-  const milliseconds = ms % 1000;
-  const seconds = totalSeconds % 60;
-  const minutes = Math.floor(totalSeconds / 60) % 60;
-  const hours = Math.floor(totalSeconds / 3600);
+    let totalSeconds = Math.floor(ms / 1000);
+    const milliseconds = ms % 1000;
+    const seconds = totalSeconds % 60;
+    const minutes = Math.floor(totalSeconds / 60) % 60;
+    const hours = Math.floor(totalSeconds / 3600);
 
-  return {
-    hours: hours.toString().padStart(2, '0'),
-    minutes: minutes.toString().padStart(2, '0'),
-    seconds: seconds.toString().padStart(2, '0'),
-    milliseconds: milliseconds.toString().padStart(3, '0')
-  };
+    return {
+        hours: hours.toString().padStart(2, '0'),
+        minutes: minutes.toString().padStart(2, '0'),
+        seconds: seconds.toString().padStart(2, '0'),
+        milliseconds: milliseconds.toString().padStart(3, '0')
+    };
 }
 
 function formatHoraExacta(date){
-  const h = String(date.getHours()).padStart(2,'0');
-  const m = String(date.getMinutes()).padStart(2,'0');
-  const s = String(date.getSeconds()).padStart(2,'0');
-  const ms = String(date.getMilliseconds()).padStart(3,'0');
-  return `${h}:${m}:${s}.${ms}`;
+    const h = String(date.getHours()).padStart(2,'0');
+    const m = String(date.getMinutes()).padStart(2,'0');
+    const s = String(date.getSeconds()).padStart(2,'0');
+    const ms = String(date.getMilliseconds()).padStart(3,'0');
+    return `${h}:${m}:${s}.${ms}`;
 }
 
 function formatHoraSalida(date){
-  const h = String(date.getHours()).padStart(2,'0');
-  const m = String(date.getMinutes()).padStart(2,'0');
-  const s = String(date.getSeconds()).padStart(2,'0');
-  const ms = String(date.getMilliseconds()).padStart(3,'0');
-  return `${h}:${m}:${s}.${ms}`;
+    const h = String(date.getHours()).padStart(2,'0');
+    const m = String(date.getMinutes()).padStart(2,'0');
+    const s = String(date.getSeconds()).padStart(2,'0');
+    const ms = String(date.getMilliseconds()).padStart(3,'0');
+    return `${h}:${m}:${s}.${ms}`;
 }
 
 function horaToSeconds(horaStr) {
-  const parts = horaStr.split(':');
-  const h = parseInt(parts[0]);
-  const m = parseInt(parts[1]);
-  const sParts = parts[2].split('.');
-  const s = parseInt(sParts[0]);
-  const ms = parseInt(sParts[1] || 0);
-  return (h * 3600) + (m * 60) + s + (ms / 1000);
+    const parts = horaStr.split(':');
+    const h = parseInt(parts[0]);
+    const m = parseInt(parts[1]);
+    const sParts = parts[2].split('.');
+    const s = parseInt(sParts[0]);
+    const ms = parseInt(sParts[1] || 0);
+    return (h * 3600) + (m * 60) + s + (ms / 1000);
 }
 
 function msToSeconds(ms) {
-  return (ms / 1000).toFixed(3);
+    return (ms / 1000).toFixed(3);
 }
 
 function updateDisplay(){
-  const time = formatTime(elapsedTime);
-  const digits = display.querySelectorAll('.digit');
-  
-  // Actualizar horas, minutos, segundos
-  digits[0].textContent = time.hours[0];
-  digits[1].textContent = time.hours[1];
-  digits[3].textContent = time.minutes[0];
-  digits[4].textContent = time.minutes[1];
-  digits[6].textContent = time.seconds[0];
-  digits[7].textContent = time.seconds[1];
-  digits[8].textContent = time.milliseconds[0];
+    const time = formatTime(elapsedTime);
+    const digits = display.querySelectorAll('.digit');
+    
+    if (digits.length >= 9) {
+        digits[0].textContent = time.hours[0];
+        digits[1].textContent = time.hours[1];
+        digits[3].textContent = time.minutes[0];
+        digits[4].textContent = time.minutes[1];
+        digits[6].textContent = time.seconds[0];
+        digits[7].textContent = time.seconds[1];
+        digits[8].textContent = time.milliseconds[0];
+    }
 }
 
 function updateStartTimeDisplay() {
-  if (startTimeValue) {
-    startTimeDisplay.textContent = `HORA SALIDA: ${startTimeValue}`;
-  } else {
-    startTimeDisplay.textContent = 'HORA SALIDA: --:--:--.---';
-  }
+    if (startTimeValue) {
+        startTimeDisplay.textContent = `HORA SALIDA: ${startTimeValue}`;
+    } else {
+        startTimeDisplay.textContent = 'HORA SALIDA: --:--:--.---';
+    }
 }
 
 function start(){
-  if(!running){
-    startTime = Date.now() - elapsedTime;
-    timerInterval = setInterval(()=>{
-      elapsedTime = Date.now() - startTime;
-      updateDisplay();
-      saveToStorage();
-    },10);
-    running = true;
-    startStopBtn.textContent = '⏸ PAUSAR';
-    startStopBtn.className = 'btn-secondary btn-stop';
-    status.className = 'status-led running';
-    
-    if (!startTimeValue) {
-      const now = new Date();
-      startTimeInput.value = now.toTimeString().split(' ')[0];
-      startTimeValue = formatHoraSalida(now);
-      startTimeInSeconds = horaToSeconds(startTimeValue);
-      updateStartTimeDisplay();
+    if(!running){
+        startTime = Date.now() - elapsedTime;
+        timerInterval = setInterval(() => {
+            elapsedTime = Date.now() - startTime;
+            updateDisplay();
+            saveToStorage();
+        }, 10);
+        running = true;
+        startStopBtn.textContent = '⏸ PAUSAR';
+        startStopBtn.className = 'btn-secondary btn-stop';
+        status.className = 'status-led running';
+        
+        if (!startTimeValue) {
+            const now = new Date();
+            startTimeInput.value = now.toTimeString().split(' ')[0];
+            startTimeValue = formatHoraSalida(now);
+            startTimeInSeconds = horaToSeconds(startTimeValue);
+            updateStartTimeDisplay();
+        }
+    } else {
+        clearInterval(timerInterval);
+        running = false;
+        startStopBtn.textContent = '⏵ INICIAR';
+        startStopBtn.className = 'btn-secondary btn-start';
+        status.className = 'status-led';
     }
-  } else {
-    clearInterval(timerInterval);
-    running = false;
-    startStopBtn.textContent = '⏵ INICIAR';
-    startStopBtn.className = 'btn-secondary btn-start';
-    status.className = 'status-led';
-  }
-  saveToStorage();
+    saveToStorage();
 }
 
 function reset(){
-  if(confirm('¿Seguro que quieres reiniciar y borrar todos los registros?')){
-    clearInterval(timerInterval);
-    elapsedTime = 0;
-    running = false;
-    lapTimes = [];
-    startTimeValue = "";
-    startTimeInSeconds = 0;
-    dorsalAssignments = {};
-    editingLapIndex = null;
-    updateDisplay();
-    laps.innerHTML = '';
-    startStopBtn.textContent = '⏵ INICIAR';
-    startStopBtn.className = 'btn-secondary btn-start';
-    status.className = 'status-led';
-    startTimeInput.value = "";
-    updateStartTimeDisplay();
-    renderDorsalList();
-    localStorage.removeItem('cronoLlegadasCortes');
-    localStorage.removeItem('cronoLlegadasTiempo');
-    localStorage.removeItem('cronoLlegadasRunning');
-    localStorage.removeItem('cronoLlegadasStartTime');
-    localStorage.removeItem('cronoLlegadasStartTimeSeconds');
-    localStorage.removeItem('cronoLlegadasDorsales');
-  }
+    if(confirm('¿Seguro que quieres reiniciar y borrar todos los registros?')){
+        clearInterval(timerInterval);
+        elapsedTime = 0;
+        running = false;
+        lapTimes = [];
+        startTimeValue = "";
+        startTimeInSeconds = 0;
+        dorsalAssignments = {};
+        editingLapIndex = null;
+        updateDisplay();
+        laps.innerHTML = '';
+        startStopBtn.textContent = '⏵ INICIAR';
+        startStopBtn.className = 'btn-secondary btn-start';
+        status.className = 'status-led';
+        startTimeInput.value = "";
+        updateStartTimeDisplay();
+        renderDorsalList();
+        localStorage.removeItem('cronoLlegadasCortes');
+        localStorage.removeItem('cronoLlegadasTiempo');
+        localStorage.removeItem('cronoLlegadasRunning');
+        localStorage.removeItem('cronoLlegadasStartTime');
+        localStorage.removeItem('cronoLlegadasStartTimeSeconds');
+        localStorage.removeItem('cronoLlegadasDorsales');
+    }
 }
 
 function lap(){
-  if(!running) {
-    lapBtn.style.backgroundColor = '#ff4444';
+    if(!running) {
+        lapBtn.style.backgroundColor = '#ff4444';
+        setTimeout(() => {
+            lapBtn.style.backgroundColor = '';
+        }, 200);
+        return;
+    }
+    
+    lapBtn.style.transform = 'scale(0.95)';
     setTimeout(() => {
-      lapBtn.style.backgroundColor = '';
-    }, 200);
-    return;
-  }
-  
-  lapBtn.style.transform = 'scale(0.95)';
-  setTimeout(() => {
-    lapBtn.style.transform = 'scale(1)';
-  }, 100);
-  
-  const lapTime = elapsedTime;
-  const now = new Date();
-  const horaExacta = formatHoraExacta(now);
-  const segundos = msToSeconds(lapTime);
-  const tiempoLlegadaSegundos = startTimeInSeconds + parseFloat(segundos);
-  
-  lapTimes.push({
-    timeMs: lapTime, 
-    total: formatTimeDisplay(lapTime), 
-    hora: horaExacta,
-    segundos: segundos,
-    tiempoSalidaSegundos: startTimeInSeconds,
-    tiempoLlegadaSegundos: tiempoLlegadaSegundos.toFixed(3),
-    dorsales: []
-  });
-  
-  renderLaps();
-  saveToStorage();
-  laps.scrollTop = laps.scrollHeight;
+        lapBtn.style.transform = 'scale(1)';
+    }, 100);
+    
+    const lapTime = elapsedTime;
+    const now = new Date();
+    const horaExacta = formatHoraExacta(now);
+    const segundos = msToSeconds(lapTime);
+    const tiempoLlegadaSegundos = startTimeInSeconds + parseFloat(segundos);
+    
+    lapTimes.push({
+        timeMs: lapTime, 
+        total: formatTimeDisplay(lapTime), 
+        hora: horaExacta,
+        segundos: segundos,
+        tiempoSalidaSegundos: startTimeInSeconds,
+        tiempoLlegadaSegundos: tiempoLlegadaSegundos.toFixed(3),
+        dorsales: []
+    });
+    
+    renderLaps();
+    saveToStorage();
+    laps.scrollTop = laps.scrollHeight;
 }
 
 function formatTimeDisplay(ms) {
-  const time = formatTime(ms);
-  return `${time.hours}:${time.minutes}:${time.seconds}"${time.milliseconds}`;
+    const time = formatTime(ms);
+    return `${time.hours}:${time.minutes}:${time.seconds}"${time.milliseconds}`;
 }
 
 function startEditingDorsal(lapIndex){
-  editingLapIndex = lapIndex;
-  renderLaps();
+    editingLapIndex = lapIndex;
+    renderLaps();
 }
 
 function saveDorsales(lapIndex, dorsalInput){
-  const dorsalesStr = dorsalInput.value.trim();
-  
-  if(dorsalesStr === '') {
-    removeAllDorsalsFromLap(lapIndex);
+    const dorsalesStr = dorsalInput.value.trim();
+    
+    if(dorsalesStr === '') {
+        removeAllDorsalsFromLap(lapIndex);
+        editingLapIndex = null;
+        renderLaps();
+        renderDorsalList();
+        saveToStorage();
+        return;
+    }
+    
+    const dorsales = dorsalesStr.split(',')
+        .map(d => d.trim())
+        .filter(d => d !== '');
+    
+    if(dorsales.length === 0) {
+        alert('Introduce al menos un dorsal válido.');
+        return;
+    }
+    
+    for(const dorsal of dorsales) {
+        if(isNaN(dorsal) || dorsal === '') {
+            alert(`"${dorsal}" no es un dorsal válido. Solo se permiten números.`);
+            return;
+        }
+    }
+    
+    lapTimes[lapIndex].dorsales = dorsales;
+    updateDorsalAssignments();
+    
     editingLapIndex = null;
     renderLaps();
     renderDorsalList();
     saveToStorage();
-    return;
-  }
-  
-  const dorsales = dorsalesStr.split(',')
-    .map(d => d.trim())
-    .filter(d => d !== '');
-  
-  if(dorsales.length === 0) {
-    alert('Introduce al menos un dorsal válido.');
-    return;
-  }
-  
-  for(const dorsal of dorsales) {
-    if(isNaN(dorsal) || dorsal === '') {
-      alert(`"${dorsal}" no es un dorsal válido. Solo se permiten números.`);
-      return;
-    }
-  }
-  
-  lapTimes[lapIndex].dorsales = dorsales;
-  updateDorsalAssignments();
-  
-  editingLapIndex = null;
-  renderLaps();
-  renderDorsalList();
-  saveToStorage();
 }
 
 function cancelEditing(){
-  editingLapIndex = null;
-  renderLaps();
+    editingLapIndex = null;
+    renderLaps();
 }
 
 function removeAllDorsalsFromLap(lapIndex){
-  lapTimes[lapIndex].dorsales = [];
-  updateDorsalAssignments();
+    lapTimes[lapIndex].dorsales = [];
+    updateDorsalAssignments();
 }
 
 function updateDorsalAssignments(){
-  dorsalAssignments = {};
-  
-  lapTimes.forEach((lap, lapIndex) => {
-    lap.dorsales.forEach(dorsal => {
-      if(!dorsalAssignments[dorsal]) {
-        dorsalAssignments[dorsal] = [];
-      }
-      if(!dorsalAssignments[dorsal].includes(lapIndex)) {
-        dorsalAssignments[dorsal].push(lapIndex);
-      }
+    dorsalAssignments = {};
+    
+    lapTimes.forEach((lap, lapIndex) => {
+        lap.dorsales.forEach(dorsal => {
+            if(!dorsalAssignments[dorsal]) {
+                dorsalAssignments[dorsal] = [];
+            }
+            if(!dorsalAssignments[dorsal].includes(lapIndex)) {
+                dorsalAssignments[dorsal].push(lapIndex);
+            }
+        });
     });
-  });
 }
 
 function renderLaps(){
-  laps.innerHTML = lapTimes.slice().reverse().map((lap, i) => {
-    const lapIndex = lapTimes.length - i - 1;
-    const isEditing = editingLapIndex === lapIndex;
-    
-    let dorsalDisplay;
-    if(isEditing) {
-      const currentDorsales = lap.dorsales.join(', ');
-      dorsalDisplay = `
-        <div class="dorsal-input-container">
-          <input type="text" 
-                 class="dorsal-input" 
-                 value="${currentDorsales}" 
-                 placeholder="1, 5, 12..."
-                 onkeypress="if(event.key==='Enter') saveDorsales(${lapIndex}, this)">
-          <button class="dorsal-save-btn" onclick="saveDorsales(${lapIndex}, this.previousElementSibling)">✓</button>
-          <button class="dorsal-cancel-btn" onclick="cancelEditing()">✕</button>
-        </div>
-      `;
-    } else {
-      const dorsalText = lap.dorsales.length > 0 
-        ? lap.dorsales.join(', ')
-        : 'Asignar';
-      
-      dorsalDisplay = `
-        <span class="lap-dorsal ${lap.dorsales.length > 0 ? 'assigned' : ''}" 
-              onclick="startEditingDorsal(${lapIndex})">
-          ${dorsalText}
-        </span>
-      `;
-    }
-    
-    return `
-      <div class="lap-item">
-        <div class="lap-number">#${lapTimes.length - i}</div>
-        <div class="lap-time">${lap.total}</div>
-        ${dorsalDisplay}
-      </div>
-    `;
-  }).join('');
+    laps.innerHTML = lapTimes.slice().reverse().map((lap, i) => {
+        const lapIndex = lapTimes.length - i - 1;
+        const isEditing = editingLapIndex === lapIndex;
+        
+        let dorsalDisplay;
+        if(isEditing) {
+            const currentDorsales = lap.dorsales.join(', ');
+            dorsalDisplay = `
+                <div class="dorsal-input-container">
+                    <input type="text" 
+                           class="dorsal-input" 
+                           value="${currentDorsales}" 
+                           placeholder="1, 5, 12..."
+                           onkeypress="if(event.key==='Enter') saveDorsales(${lapIndex}, this)">
+                    <button class="dorsal-save-btn" onclick="saveDorsales(${lapIndex}, this.previousElementSibling)">✓</button>
+                    <button class="dorsal-cancel-btn" onclick="cancelEditing()">✕</button>
+                </div>
+            `;
+        } else {
+            const dorsalText = lap.dorsales.length > 0 
+                ? lap.dorsales.join(', ')
+                : 'Asignar';
+            
+            dorsalDisplay = `
+                <span class="lap-dorsal ${lap.dorsales.length > 0 ? 'assigned' : ''}" 
+                      onclick="startEditingDorsal(${lapIndex})">
+                    ${dorsalText}
+                </span>
+            `;
+        }
+        
+        return `
+            <div class="lap-item">
+                <div class="lap-number">#${lapTimes.length - i}</div>
+                <div class="lap-time">${lap.total}</div>
+                ${dorsalDisplay}
+            </div>
+        `;
+    }).join('');
 }
 
 function renderDorsalList(){
-  dorsalList.innerHTML = '';
-  
-  const dorsales = Object.keys(dorsalAssignments).sort((a, b) => parseInt(a) - parseInt(b));
-  
-  if(dorsales.length === 0) {
-    dorsalList.innerHTML = '<div style="text-align: center; color: var(--accent); padding: 20px;">No hay dorsales asignados</div>';
-    return;
-  }
-  
-  dorsales.forEach(dorsal => {
-    const lapIndices = dorsalAssignments[dorsal];
-    const tiempos = lapIndices.map(index => lapTimes[index]);
+    dorsalList.innerHTML = '';
     
-    const dorsalElement = document.createElement('div');
-    dorsalElement.className = 'dorsal-item';
+    const dorsales = Object.keys(dorsalAssignments).sort((a, b) => parseInt(a) - parseInt(b));
     
-    let tiemposHTML = tiempos.map((lap, i) => 
-      `Vuelta ${i + 1}: ${lap.total}`
-    ).join(' | ');
+    if(dorsales.length === 0) {
+        dorsalList.innerHTML = '<div style="text-align: center; color: var(--accent); padding: 20px;">No hay dorsales asignados</div>';
+        return;
+    }
     
-    dorsalElement.innerHTML = `
-      <div class="dorsal-number">Dorsal ${dorsal}</div>
-      <div class="dorsal-times">${tiemposHTML}</div>
-      <div class="dorsal-actions">
-        <button class="btn-small" onclick="removeDorsal(${dorsal})">✕</button>
-      </div>
-    `;
-    
-    dorsalList.appendChild(dorsalElement);
-  });
+    dorsales.forEach(dorsal => {
+        const lapIndices = dorsalAssignments[dorsal];
+        const tiempos = lapIndices.map(index => lapTimes[index]);
+        
+        const dorsalElement = document.createElement('div');
+        dorsalElement.className = 'dorsal-item';
+        
+        let tiemposHTML = tiempos.map((lap, i) => 
+            `Vuelta ${i + 1}: ${lap.total}`
+        ).join(' | ');
+        
+        dorsalElement.innerHTML = `
+            <div class="dorsal-number">Dorsal ${dorsal}</div>
+            <div class="dorsal-times">${tiemposHTML}</div>
+            <div class="dorsal-actions">
+                <button class="btn-small" onclick="removeDorsal('${dorsal}')">✕</button>
+            </div>
+        `;
+        
+        dorsalList.appendChild(dorsalElement);
+    });
 }
 
 function removeDorsal(dorsal){
-  if(confirm(`¿Eliminar todas las asignaciones del dorsal ${dorsal}?`)){
-    lapTimes.forEach(lap => {
-      lap.dorsales = lap.dorsales.filter(d => d != dorsal);
-    });
-    
-    updateDorsalAssignments();
-    renderLaps();
-    renderDorsalList();
-    saveToStorage();
-  }
+    if(confirm(`¿Eliminar todas las asignaciones del dorsal ${dorsal}?`)){
+        lapTimes.forEach(lap => {
+            lap.dorsales = lap.dorsales.filter(d => d != dorsal);
+        });
+        
+        updateDorsalAssignments();
+        renderLaps();
+        renderDorsalList();
+        saveToStorage();
+    }
 }
 
 function setStart(){
-  if(!startTimeInput.value) return;
-  const [h,m,s] = startTimeInput.value.split(':').map(Number);
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, s);
-  startTime = start.getTime();
-  elapsedTime = Date.now() - startTime;
-  startTimeValue = formatHoraSalida(start);
-  startTimeInSeconds = horaToSeconds(startTimeValue);
-  updateDisplay();
-  updateStartTimeDisplay();
-  saveToStorage();
+    if(!startTimeInput.value) return;
+    const [h,m,s] = startTimeInput.value.split(':').map(Number);
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, s);
+    startTime = start.getTime();
+    elapsedTime = Date.now() - startTime;
+    startTimeValue = formatHoraSalida(start);
+    startTimeInSeconds = horaToSeconds(startTimeValue);
+    updateDisplay();
+    updateStartTimeDisplay();
+    saveToStorage();
 }
 
 function setElapsed(){
-  const input = setElapsedInput.value.trim();
-  const timeRegex = /^(\d{1,2}):([0-5]?\d):([0-5]?\d)$/;
-  
-  if(!timeRegex.test(input)) {
-    alert('Formato inválido. Use: hh:mm:ss (ej: 01:23:45)');
-    return;
-  }
-  
-  const parts = input.split(':').map(Number);
-  const ms = ((parts[0]*3600)+(parts[1]*60)+parts[2])*1000;
-  
-  if(ms < 0) {
-    alert('El tiempo no puede ser negativo');
-    return;
-  }
-  
-  elapsedTime = ms;
-  startTime = Date.now() - ms;
-  const startDate = new Date(startTime);
-  startTimeInput.value = startDate.toTimeString().split(' ')[0];
-  startTimeValue = formatHoraSalida(startDate);
-  startTimeInSeconds = horaToSeconds(startTimeValue);
-  updateDisplay();
-  updateStartTimeDisplay();
-  saveToStorage();
-  
-  setElapsedInput.style.borderColor = '#0f0';
-  setTimeout(() => {
-    setElapsedInput.style.borderColor = '';
-  }, 1000);
+    const input = setElapsedInput.value.trim();
+    const timeRegex = /^(\d{1,2}):([0-5]?\d):([0-5]?\d)$/;
+    
+    if(!timeRegex.test(input)) {
+        alert('Formato inválido. Use: hh:mm:ss (ej: 01:23:45)');
+        return;
+    }
+    
+    const parts = input.split(':').map(Number);
+    const ms = ((parts[0]*3600)+(parts[1]*60)+parts[2])*1000;
+    
+    if(ms < 0) {
+        alert('El tiempo no puede ser negativo');
+        return;
+    }
+    
+    elapsedTime = ms;
+    startTime = Date.now() - ms;
+    const startDate = new Date(startTime);
+    startTimeInput.value = startDate.toTimeString().split(' ')[0];
+    startTimeValue = formatHoraSalida(startDate);
+    startTimeInSeconds = horaToSeconds(startTimeValue);
+    updateDisplay();
+    updateStartTimeDisplay();
+    saveToStorage();
+    
+    setElapsedInput.style.borderColor = '#0f0';
+    setTimeout(() => {
+        setElapsedInput.style.borderColor = '';
+    }, 1000);
 }
 
 function exportCSV(){
-  if(lapTimes.length === 0){
-    alert('No hay llegadas para exportar.');
-    return;
-  }
+    if(lapTimes.length === 0){
+        alert('No hay llegadas para exportar.');
+        return;
+    }
 
-  let csv = 'Llegada #;Tiempo;Tiempo (segundos);Hora exacta;Hora salida;Tiempo salida (segundos);Tiempo llegada (segundos);Dorsales\n';
-  lapTimes.forEach((lap, index) => {
-    csv += `${index + 1};${lap.total};${lap.segundos};${lap.hora};${startTimeValue || "No establecida"};${lap.tiempoSalidaSegundos};${lap.tiempoLlegadaSegundos};${lap.dorsales.join(', ') || ""}\n`;
-  });
+    let csv = 'Llegada #;Tiempo;Tiempo (segundos);Hora exacta;Hora salida;Tiempo salida (segundos);Tiempo llegada (segundos);Dorsales\n';
+    lapTimes.forEach((lap, index) => {
+        csv += `${index + 1};${lap.total};${lap.segundos};${lap.hora};${startTimeValue || "No establecida"};${lap.tiempoSalidaSegundos};${lap.tiempoLlegadaSegundos};${lap.dorsales.join(', ') || ""}\n`;
+    });
 
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `llegadas_ciclismo_${new Date().toISOString().split('T')[0]}.csv`;
-  link.click();
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `llegadas_ciclismo_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
 }
 
 function exportDorsalesCSV(){
-  if(Object.keys(dorsalAssignments).length === 0){
-    alert('No hay dorsales asignados para exportar.');
-    return;
-  }
+    if(Object.keys(dorsalAssignments).length === 0){
+        alert('No hay dorsales asignados para exportar.');
+        return;
+    }
 
-  let csv = 'Dorsal;Vuelta;Tiempo;Tiempo (segundos);Hora exacta\n';
-  
-  Object.keys(dorsalAssignments).sort((a, b) => parseInt(a) - parseInt(b)).forEach(dorsal => {
-    const lapIndices = dorsalAssignments[dorsal];
-    lapIndices.forEach((lapIndex, vueltaIndex) => {
-      const lap = lapTimes[lapIndex];
-      csv += `${dorsal};${vueltaIndex + 1};${lap.total};${lap.segundos};${lap.hora}\n`;
+    let csv = 'Dorsal;Vuelta;Tiempo;Tiempo (segundos);Hora exacta\n';
+    
+    Object.keys(dorsalAssignments).sort((a, b) => parseInt(a) - parseInt(b)).forEach(dorsal => {
+        const lapIndices = dorsalAssignments[dorsal];
+        lapIndices.forEach((lapIndex, vueltaIndex) => {
+            const lap = lapTimes[lapIndex];
+            csv += `${dorsal};${vueltaIndex + 1};${lap.total};${lap.segundos};${lap.hora}\n`;
+        });
     });
-  });
 
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `dorsales_ciclismo_${new Date().toISOString().split('T')[0]}.csv`;
-  link.click();
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `dorsales_ciclismo_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
 }
 
 function saveToStorage() {
-  localStorage.setItem('cronoLlegadasCortes', JSON.stringify(lapTimes));
-  localStorage.setItem('cronoLlegadasTiempo', elapsedTime);
-  localStorage.setItem('cronoLlegadasRunning', running);
-  localStorage.setItem('cronoLlegadasStartTime', startTimeValue);
-  localStorage.setItem('cronoLlegadasStartTimeSeconds', startTimeInSeconds);
-  localStorage.setItem('cronoLlegadasDorsales', JSON.stringify(dorsalAssignments));
+    localStorage.setItem('cronoLlegadasCortes', JSON.stringify(lapTimes));
+    localStorage.setItem('cronoLlegadasTiempo', elapsedTime);
+    localStorage.setItem('cronoLlegadasRunning', running);
+    localStorage.setItem('cronoLlegadasStartTime', startTimeValue);
+    localStorage.setItem('cronoLlegadasStartTimeSeconds', startTimeInSeconds);
+    localStorage.setItem('cronoLlegadasDorsales', JSON.stringify(dorsalAssignments));
 }
 
 function loadFromStorage() {
-  const savedLaps = localStorage.getItem('cronoLlegadasCortes');
-  const savedTime = localStorage.getItem('cronoLlegadasTiempo');
-  const savedRunning = localStorage.getItem('cronoLlegadasRunning');
-  const savedStartTime = localStorage.getItem('cronoLlegadasStartTime');
-  const savedStartTimeSeconds = localStorage.getItem('cronoLlegadasStartTimeSeconds');
-  const savedDorsales = localStorage.getItem('cronoLlegadasDorsales');
-  
-  if(savedLaps) {
-    lapTimes = JSON.parse(savedLaps);
-    lapTimes.forEach(lap => {
-      if(!lap.dorsales) {
-        lap.dorsales = [];
-      }
-    });
-  }
-  if(savedTime) elapsedTime = Number(savedTime);
-  if(savedRunning) running = JSON.parse(savedRunning);
-  if(savedStartTime) {
-    startTimeValue = savedStartTime;
-    const timeParts = savedStartTime.split(':');
-    if (timeParts.length >= 2) {
-      startTimeInput.value = `${timeParts[0]}:${timeParts[1]}:${timeParts[2] ? timeParts[2].split('.')[0] : '00'}`;
-    }
-  }
-  if(savedStartTimeSeconds) {
-    startTimeInSeconds = parseFloat(savedStartTimeSeconds);
-  }
-  if(savedDorsales) {
-    dorsalAssignments = JSON.parse(savedDorsales);
-  } else {
-    updateDorsalAssignments();
-  }
-  
-  if(running) {
-    startTime = Date.now() - elapsedTime;
-    start();
-  } else {
-    updateDisplay();
-    renderLaps();
-  }
-  
-  status.className = running ? 'status-led running' : 'status-led';
-  startStopBtn.textContent = running ? '⏸ PAUSAR' : '⏵ INICIAR';
-  startStopBtn.className = running ? 'btn-secondary btn-stop' : 'btn-secondary btn-start';
-  updateStartTimeDisplay();
-  renderDorsalList();
-}
-
-// Navegación por pestañas
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
+    const savedLaps = localStorage.getItem('cronoLlegadasCortes');
+    const savedTime = localStorage.getItem('cronoLlegadasTiempo');
+    const savedRunning = localStorage.getItem('cronoLlegadasRunning');
+    const savedStartTime = localStorage.getItem('cronoLlegadasStartTime');
+    const savedStartTimeSeconds = localStorage.getItem('cronoLlegadasStartTimeSeconds');
+    const savedDorsales = localStorage.getItem('cronoLlegadasDorsales');
     
-    const tabName = tab.getAttribute('data-tab');
-    if(tabName === 'config') {
-      document.getElementById('configContent').style.display = 'block';
-      document.getElementById('dorsalesContent').style.display = 'none';
-    } else if(tabName === 'dorsales') {
-      document.getElementById('configContent').style.display = 'none';
-      document.getElementById('dorsalesContent').style.display = 'block';
+    if(savedLaps) {
+        lapTimes = JSON.parse(savedLaps);
+        lapTimes.forEach(lap => {
+            if(!lap.dorsales) {
+                lap.dorsales = [];
+            }
+        });
     }
-  });
-});
-
-// Atajos de teclado
-document.addEventListener('keydown', (e) => {
-  if(e.code === 'Space') {
-    e.preventDefault();
-    startStopBtn.click();
-  } else if(e.code === 'KeyL') {
-    e.preventDefault();
-    lapBtn.click();
-  } else if(e.code === 'KeyR' && e.ctrlKey) {
-    e.preventDefault();
-    resetBtn.click();
-  }
-});
-
-// Event listeners
-startStopBtn.addEventListener('click', start);
-resetBtn.addEventListener('click', reset);
-lapBtn.addEventListener('click', lap);
-setStartBtn.addEventListener('click', setStart);
-setElapsedBtn.addEventListener('click', setElapsed);
-exportBtn.addEventListener('click', exportCSV);
-exportDorsalesBtn.addEventListener('click', exportDorsalesCSV);
+    if(savedTime) elapsedTime = Number(savedTime);
+    if(savedRunning) running = JSON.parse(savedRunning);
+    if(savedStartTime) {
+        startTimeValue = savedStartTime;
+        const timeParts = savedStartTime.split(':');
+        if (timeParts.length >= 2) {
+            startTimeInput.value = `${timeParts[0]}:${timeParts[1]}:${timeParts[2] ? timeParts[2].split('.')[0] : '00'}`;
+        }
+    }
+    if(savedStartTimeSeconds) {
+        startTimeInSeconds = parseFloat(savedStartTimeSeconds);
+    }
+    if(savedDorsales) {
+        dorsalAssignments = JSON.parse(savedDorsales);
+    } else {
+        updateDorsalAssignments();
+    }
+    
+    if(running) {
+        startTime = Date.now() - elapsedTime;
+        start();
+    } else {
+        updateDisplay();
+        renderLaps();
+    }
+    
+    status.className = running ? 'status-led running' : 'status-led';
+    startStopBtn.textContent = running ? '⏸ PAUSAR' : '⏵ INICIAR';
+    startStopBtn.className = running ? 'btn-secondary btn-stop' : 'btn-secondary btn-start';
+    updateStartTimeDisplay();
+    renderDorsalList();
+}
 </script>
 </body>
 </html>
