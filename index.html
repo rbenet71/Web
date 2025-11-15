@@ -304,10 +304,10 @@
                 <h2 id="arbitro-title">Aplicaciones de Árbitro</h2>
                 <p id="arbitro-desc">Selecciona una de las aplicaciones disponibles:</p>
                 <div class="button-grid">
-                    <button class="app-button crono-llegadas" onclick="openApp('Crono_Llegadas.html')">
+                    <a href="Crono_Llegadas.html" class="app-button crono-llegadas">
                         <i class="fas fa-stopwatch"></i>
                         <span id="btn-crono-llegadas">Crono Llegadas</span>
-                    </button>
+                    </a>
                     <button class="app-button crono-tops" onclick="openApp('crono-tops.html')">
                         <i class="fas fa-tachometer-alt"></i>
                         <span id="btn-crono-tops">Crono Tops</span>
@@ -452,7 +452,7 @@
             });
         });
 
-        // Función para abrir aplicaciones (simulada)
+        // Función para abrir aplicaciones (simulada para los otros botones)
         function openApp(url) {
             alert(`En una implementación real, se abriría: ${url}`);
             // En una implementación real, usarías:
