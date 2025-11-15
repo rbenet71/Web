@@ -120,7 +120,7 @@ h1 {
 .digital-display {
   display: flex;
   align-items: center;
-  font-family: 'Segment7', monospace;
+  font-family: 'Courier New', monospace;
   font-size: 4rem;
   color: var(--lcd-digit-on);
   text-shadow: 0 0 10px var(--lcd-glow);
@@ -446,14 +446,6 @@ h1 {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-}
-
-/* Fuente digital */
-@font-face {
-  font-family: 'Segment7';
-  src: url('data:font/woff2;base64,d09GMgABAAAAA...') format('woff2');
-  font-weight: normal;
-  font-style: italic;
 }
 
 /* Scrollbar personalizado */
@@ -808,7 +800,6 @@ function saveDorsales(lapIndex, dorsalInput){
   const dorsalesStr = dorsalInput.value.trim();
   
   if(dorsalesStr === '') {
-    // Si está vacío, eliminar todos los dorsales de este corte
     removeAllDorsalsFromLap(lapIndex);
     editingLapIndex = null;
     renderLaps();
@@ -817,7 +808,6 @@ function saveDorsales(lapIndex, dorsalInput){
     return;
   }
   
-  // Separar dorsales por comas y limpiar
   const dorsales = dorsalesStr.split(',')
     .map(d => d.trim())
     .filter(d => d !== '');
@@ -827,7 +817,6 @@ function saveDorsales(lapIndex, dorsalInput){
     return;
   }
   
-  // Validar que todos los dorsales sean números
   for(const dorsal of dorsales) {
     if(isNaN(dorsal) || dorsal === '') {
       alert(`"${dorsal}" no es un dorsal válido. Solo se permiten números.`);
@@ -835,10 +824,7 @@ function saveDorsales(lapIndex, dorsalInput){
     }
   }
   
-  // Actualizar el corte con los nuevos dorsales
   lapTimes[lapIndex].dorsales = dorsales;
-  
-  // Actualizar asignaciones globales
   updateDorsalAssignments();
   
   editingLapIndex = null;
@@ -858,7 +844,6 @@ function removeAllDorsalsFromLap(lapIndex){
 }
 
 function updateDorsalAssignments(){
-  // Reconstruir las asignaciones globales desde los cortes
   dorsalAssignments = {};
   
   lapTimes.forEach((lap, lapIndex) => {
@@ -894,8 +879,8 @@ function renderLaps(){
       `;
     } else {
       const dorsalText = lap.dorsales.length > 0 
-        ? `Dorsales: ${lap.dorsales.join(', ')}`
-        : 'Haz clic para asignar dorsales';
+        ? lap.dorsales.join(', ')
+        : 'Asignar';
       
       dorsalDisplay = `
         <span class="lap-dorsal ${lap.dorsales.length > 0 ? 'assigned' : ''}" 
@@ -905,24 +890,23 @@ function renderLaps(){
       `;
     }
     
-    return `<li>
-      <span>Corte ${lapTimes.length - i}</span>
-      <div class="lap-info">
-        <span class="lap-time">${lap.total}</span>
-        <span class="lap-details">${lap.segundos}s | ${dorsalDisplay}</span>
+    return `
+      <div class="lap-item">
+        <div class="lap-number">#${lapTimes.length - i}</div>
+        <div class="lap-time">${lap.total}</div>
+        ${dorsalDisplay}
       </div>
-    </li>`;
+    `;
   }).join('');
 }
 
 function renderDorsalList(){
   dorsalList.innerHTML = '';
   
-  // Obtener todos los dorsales únicos
   const dorsales = Object.keys(dorsalAssignments).sort((a, b) => parseInt(a) - parseInt(b));
   
   if(dorsales.length === 0) {
-    dorsalList.innerHTML = '<div style="text-align: center; color: var(--partial); padding: 20px;">No hay dorsales asignados</div>';
+    dorsalList.innerHTML = '<div style="text-align: center; color: var(--accent); padding: 20px;">No hay dorsales asignados</div>';
     return;
   }
   
@@ -939,9 +923,9 @@ function renderDorsalList(){
     
     dorsalElement.innerHTML = `
       <div class="dorsal-number">Dorsal ${dorsal}</div>
-      <div class="dorsal-time">${tiemposHTML}</div>
+      <div class="dorsal-times">${tiemposHTML}</div>
       <div class="dorsal-actions">
-        <button onclick="removeDorsal(${dorsal})" style="background: #ff4444; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">✕</button>
+        <button class="btn-small" onclick="removeDorsal(${dorsal})">✕</button>
       </div>
     `;
     
@@ -951,15 +935,11 @@ function renderDorsalList(){
 
 function removeDorsal(dorsal){
   if(confirm(`¿Eliminar todas las asignaciones del dorsal ${dorsal}?`)){
-    // Quitar el dorsal de todos los cortes
     lapTimes.forEach(lap => {
       lap.dorsales = lap.dorsales.filter(d => d != dorsal);
     });
     
-    // Actualizar asignaciones globales
     updateDorsalAssignments();
-    
-    // Actualizar visualizaciones
     renderLaps();
     renderDorsalList();
     saveToStorage();
@@ -973,7 +953,7 @@ function setStart(){
   const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, s);
   startTime = start.getTime();
   elapsedTime = Date.now() - startTime;
-  startTimeValue = formatHoraSalida(start); // Usar formato con milésimas
+  startTimeValue = formatHoraSalida(start);
   startTimeInSeconds = horaToSeconds(startTimeValue);
   updateDisplay();
   updateStartTimeDisplay();
@@ -1001,13 +981,12 @@ function setElapsed(){
   startTime = Date.now() - ms;
   const startDate = new Date(startTime);
   startTimeInput.value = startDate.toTimeString().split(' ')[0];
-  startTimeValue = formatHoraSalida(startDate); // Usar formato con milésimas
+  startTimeValue = formatHoraSalida(startDate);
   startTimeInSeconds = horaToSeconds(startTimeValue);
   updateDisplay();
   updateStartTimeDisplay();
   saveToStorage();
   
-  // Feedback visual
   setElapsedInput.style.borderColor = '#0f0';
   setTimeout(() => {
     setElapsedInput.style.borderColor = '';
@@ -1016,11 +995,11 @@ function setElapsed(){
 
 function exportCSV(){
   if(lapTimes.length === 0){
-    alert('No hay cortes para exportar.');
+    alert('No hay llegadas para exportar.');
     return;
   }
 
-  let csv = 'Corte #;Tiempo;Tiempo (segundos);Hora exacta;Hora salida;Tiempo salida (segundos);Tiempo llegada (segundos);Dorsales\n';
+  let csv = 'Llegada #;Tiempo;Tiempo (segundos);Hora exacta;Hora salida;Tiempo salida (segundos);Tiempo llegada (segundos);Dorsales\n';
   lapTimes.forEach((lap, index) => {
     csv += `${index + 1};${lap.total};${lap.segundos};${lap.hora};${startTimeValue || "No establecida"};${lap.tiempoSalidaSegundos};${lap.tiempoLlegadaSegundos};${lap.dorsales.join(', ') || ""}\n`;
   });
@@ -1028,7 +1007,7 @@ function exportCSV(){
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
-  link.download = `cortes_ciclismo_${new Date().toISOString().split('T')[0]}.csv`;
+  link.download = `llegadas_ciclismo_${new Date().toISOString().split('T')[0]}.csv`;
   link.click();
 }
 
@@ -1055,27 +1034,25 @@ function exportDorsalesCSV(){
   link.click();
 }
 
-// Guardar cortes en localStorage
 function saveToStorage() {
-  localStorage.setItem('cronometroCortes', JSON.stringify(lapTimes));
-  localStorage.setItem('cronometroTiempo', elapsedTime);
-  localStorage.setItem('cronometroRunning', running);
-  localStorage.setItem('cronometroStartTime', startTimeValue);
-  localStorage.setItem('cronometroStartTimeSeconds', startTimeInSeconds);
-  localStorage.setItem('cronometroDorsales', JSON.stringify(dorsalAssignments));
+  localStorage.setItem('cronoLlegadasCortes', JSON.stringify(lapTimes));
+  localStorage.setItem('cronoLlegadasTiempo', elapsedTime);
+  localStorage.setItem('cronoLlegadasRunning', running);
+  localStorage.setItem('cronoLlegadasStartTime', startTimeValue);
+  localStorage.setItem('cronoLlegadasStartTimeSeconds', startTimeInSeconds);
+  localStorage.setItem('cronoLlegadasDorsales', JSON.stringify(dorsalAssignments));
 }
 
 function loadFromStorage() {
-  const savedLaps = localStorage.getItem('cronometroCortes');
-  const savedTime = localStorage.getItem('cronometroTiempo');
-  const savedRunning = localStorage.getItem('cronometroRunning');
-  const savedStartTime = localStorage.getItem('cronometroStartTime');
-  const savedStartTimeSeconds = localStorage.getItem('cronometroStartTimeSeconds');
-  const savedDorsales = localStorage.getItem('cronometroDorsales');
+  const savedLaps = localStorage.getItem('cronoLlegadasCortes');
+  const savedTime = localStorage.getItem('cronoLlegadasTiempo');
+  const savedRunning = localStorage.getItem('cronoLlegadasRunning');
+  const savedStartTime = localStorage.getItem('cronoLlegadasStartTime');
+  const savedStartTimeSeconds = localStorage.getItem('cronoLlegadasStartTimeSeconds');
+  const savedDorsales = localStorage.getItem('cronoLlegadasDorsales');
   
   if(savedLaps) {
     lapTimes = JSON.parse(savedLaps);
-    // Asegurar que todos los cortes tengan el campo dorsales
     lapTimes.forEach(lap => {
       if(!lap.dorsales) {
         lap.dorsales = [];
@@ -1086,7 +1063,6 @@ function loadFromStorage() {
   if(savedRunning) running = JSON.parse(savedRunning);
   if(savedStartTime) {
     startTimeValue = savedStartTime;
-    // Convertir la hora guardada al formato de input time
     const timeParts = savedStartTime.split(':');
     if (timeParts.length >= 2) {
       startTimeInput.value = `${timeParts[0]}:${timeParts[1]}:${timeParts[2] ? timeParts[2].split('.')[0] : '00'}`;
@@ -1098,7 +1074,6 @@ function loadFromStorage() {
   if(savedDorsales) {
     dorsalAssignments = JSON.parse(savedDorsales);
   } else {
-    // Si no hay dorsales guardados, reconstruir desde los cortes
     updateDorsalAssignments();
   }
   
@@ -1110,9 +1085,9 @@ function loadFromStorage() {
     renderLaps();
   }
   
-  // Actualizar estado visual
-  status.style.color = running ? 'var(--led-run)' : 'var(--led-stop)';
-  startStopBtn.textContent = running ? '⏸ Pausar' : '⏵ Iniciar';
+  status.className = running ? 'status-led running' : 'status-led';
+  startStopBtn.textContent = running ? '⏸ PAUSAR' : '⏵ INICIAR';
+  startStopBtn.className = running ? 'btn-secondary btn-stop' : 'btn-secondary btn-start';
   updateStartTimeDisplay();
   renderDorsalList();
 }
@@ -1120,18 +1095,15 @@ function loadFromStorage() {
 // Navegación por pestañas
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
-    // Remover clase active de todas las pestañas
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    // Añadir clase active a la pestaña clickeada
     tab.classList.add('active');
     
-    // Mostrar contenido correspondiente
     const tabName = tab.getAttribute('data-tab');
-    if(tabName === 'cortes') {
-      document.getElementById('laps').style.display = 'block';
+    if(tabName === 'config') {
+      document.getElementById('configContent').style.display = 'block';
       document.getElementById('dorsalesContent').style.display = 'none';
     } else if(tabName === 'dorsales') {
-      document.getElementById('laps').style.display = 'none';
+      document.getElementById('configContent').style.display = 'none';
       document.getElementById('dorsalesContent').style.display = 'block';
     }
   });
