@@ -203,6 +203,7 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
+            text-decoration: none;
         }
 
         .app-button:hover {
@@ -304,22 +305,22 @@
                 <h2 id="arbitro-title">Aplicaciones de Árbitro</h2>
                 <p id="arbitro-desc">Selecciona una de las aplicaciones disponibles:</p>
                 <div class="button-grid">
-                    <a href="Crono_Llegadas.html" class="app-button crono-llegadas">
+                    <a href="Crono_Llegadas.html" target="_blank" class="app-button crono-llegadas">
                         <i class="fas fa-stopwatch"></i>
                         <span id="btn-crono-llegadas">Crono Llegadas</span>
                     </a>
-                    <button class="app-button crono-tops" onclick="openApp('crono-tops.html')">
+                    <a href="Crono_Tops.html" target="_blank" class="app-button crono-tops">
                         <i class="fas fa-tachometer-alt"></i>
                         <span id="btn-crono-tops">Crono Tops</span>
-                    </button>
-                    <button class="app-button reloj-cri" onclick="openApp('reloj-cri.html')">
+                    </a>
+                    <a href="Reloj_CRI.html" target="_blank" class="app-button reloj-cri">
                         <i class="fas fa-clock"></i>
                         <span id="btn-reloj-cri">Reloj CRI</span>
-                    </button>
-                    <button class="app-button salidas-cri" onclick="openApp('salidas-cri.html')">
+                    </a>
+                    <a href="Salidas_CRI.html" target="_blank" class="app-button salidas-cri">
                         <i class="fas fa-flag-checkered"></i>
                         <span id="btn-salidas-cri">Salidas CRI</span>
-                    </button>
+                    </a>
                 </div>
             </div>
 
@@ -327,12 +328,32 @@
             <div class="tab-content" id="ciclismo-content">
                 <h2 id="ciclismo-title">Aplicaciones de Ciclismo</h2>
                 <p id="ciclismo-desc">Próximamente más aplicaciones de ciclismo...</p>
+                <div class="button-grid">
+                    <a href="#" class="app-button" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+                        <i class="fas fa-bicycle"></i>
+                        <span>Próximamente</span>
+                    </a>
+                    <a href="#" class="app-button" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+                        <i class="fas fa-bicycle"></i>
+                        <span>Próximamente</span>
+                    </a>
+                </div>
             </div>
 
             <!-- Contenido de Genéricas -->
             <div class="tab-content" id="genericas-content">
                 <h2 id="genericas-title">Aplicaciones Genéricas</h2>
                 <p id="genericas-desc">Próximamente aplicaciones genéricas...</p>
+                <div class="button-grid">
+                    <a href="#" class="app-button" style="background: linear-gradient(135deg, #f39c12, #e67e22);">
+                        <i class="fas fa-calculator"></i>
+                        <span>Próximamente</span>
+                    </a>
+                    <a href="#" class="app-button" style="background: linear-gradient(135deg, #f39c12, #e67e22);">
+                        <i class="fas fa-list"></i>
+                        <span>Próximamente</span>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -451,15 +472,6 @@
                 document.getElementById(`${tabId}-content`).classList.add('active');
             });
         });
-
-        // Función para abrir aplicaciones (simulada para los otros botones)
-        function openApp(url) {
-            alert(`En una implementación real, se abriría: ${url}`);
-            // En una implementación real, usarías:
-            // window.location.href = url;
-            // o
-            // window.open(url, '_blank');
-        }
     </script>
 </body>
 </html>
