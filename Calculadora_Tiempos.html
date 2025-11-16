@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Tiempos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .calculator {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        label {
+            font-weight: bold;
+            text-align: left;
+        }
+        
+        input {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .result {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background-color: white;
+            color: #e67e22;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .back-btn {
+            margin-top: 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .back-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        @media (max-width: 600px) {
+            .calculator {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora de Tiempos</h1>
+        <div class="calculator">
+            <div class="input-group">
+                <label for="time1">Tiempo 1 (mm:ss.ms):</label>
+                <input type="text" id="time1" placeholder="00:00.00">
+            </div>
+            <div class="input-group">
+                <label for="time2">Tiempo 2 (mm:ss.ms):</label>
+                <input type="text" id="time2" placeholder="00:00.00">
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button id="sumBtn">Sumar Tiempos</button>
+            <button id="diffBtn">Diferencia</button>
+            <button id="avgBtn">Promedio</button>
+        </div>
+        
+        <div class="result" id="result">Resultado: --:--.--</div>
+        
+        <a href="index.html" class="back-btn">Volver al Inicio</a>
+    </div>
+
+    <script>
+        const time1Input = document.getElementById('time1');
+        const time2Input = document.getElementById('time2');
+        const sumBtn = document.getElementById('sumBtn');
+        const diffBtn = document.getElementById('diffBtn');
+        const avgBtn = document.getElementById('avgBtn');
+        const resultDiv = document.getElementById('result');
+        
+        // Convertir tiempo en formato mm:ss.ms a milisegundos
+        function timeToMs(timeStr) {
+            const parts = timeStr.split(':');
+            if (parts.length !== 2) return 0;
+            
+            const minutes = parseInt(parts[0]) || 0;
+            const secondsParts = parts[1].split('.');
+            const seconds = parseInt(secondsParts[0]) || 0;
+            const milliseconds = parseInt(secondsParts[1]) || 0;
+            
+            return (minutes * 60 + seconds) * 1000 + milliseconds * 10;
+        }
+        
+        // Convertir milisegundos a formato mm:ss.ms
+        function msToTime(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            const milliseconds = Math.floor((ms % 1000) / 10);
+            
+            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
+        }
+        
+        function calculateSum() {
+            const time1 = timeToMs(time1Input.value);
+            const time2 = timeToMs(time2Input.value);
+            
+            if (time1 === 0 || time2 === 0) {
+                resultDiv.textContent = 'Por favor, introduce tiempos válidos';
+                return;
+            }
+            
+            const sum = time1 + time2;
+            resultDiv.textContent = `Suma: ${msToTime(sum)}`;
+        }
+        
+        function calculateDifference() {
+            const time1 = timeToMs(time1Input.value);
+            const time2 = timeToMs(time2Input.value);
+            
+            if (time1 === 0 || time2 === 0) {
+                resultDiv.textContent = 'Por favor, introduce tiempos válidos';
+                return;
+            }
+            
+            const diff = Math.abs(time1 - time2);
+            resultDiv.textContent = `Diferencia: ${msToTime(diff)}`;
+        }
+        
+        function calculateAverage() {
+            const time1 = timeToMs(time1Input.value);
+            const time2 = timeToMs(time2Input.value);
+            
+            if (time1 === 0 || time2 === 0) {
+                resultDiv.textContent = 'Por favor, introduce tiempos válidos';
+                return;
+            }
+            
+            const avg = (time1 + time2) / 2;
+            resultDiv.textContent = `Promedio: ${msToTime(avg)}`;
+        }
+        
+        sumBtn.addEventListener('click', calculateSum);
+        diffBtn.addEventListener('click', calculateDifference);
+        avgBtn.addEventListener('click', calculateAverage);
+    </script>
+</body>
+</html>
