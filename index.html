@@ -109,18 +109,66 @@
             display: inline-block;
             background-size: cover;
             border-radius: 2px;
+            border: 1px solid rgba(0,0,0,0.1);
         }
 
+        /* Bandera España - Rojo y Amarillo */
         .flag-es {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="#C60B1E"/><rect width="3" height="1" fill="#FFC400"/></svg>');
+            background: 
+                linear-gradient(to bottom, 
+                    #C60B1E 0%, #C60B1E 25%, 
+                    #FFC400 25%, #FFC400 75%, 
+                    #C60B1E 75%, #C60B1E 100%);
         }
 
+        /* Bandera Cataluña - Amarillo y Rojo */
         .flag-ca {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 14"><path fill="#FCDD09" d="M0 0h21v14H0z"/><path fill="#DA121A" d="M5 0h4v14H5zM12 0h4v14h-4z"/></svg>');
+            background: 
+                linear-gradient(to bottom, 
+                    #FCDD09 0%, #FCDD09 20%, 
+                    #DA121A 20%, #DA121A 40%, 
+                    #FCDD09 40%, #FCDD09 60%, 
+                    #DA121A 60%, #DA121A 80%, 
+                    #FCDD09 80%, #FCDD09 100%);
         }
 
+        /* Bandera Reino Unido - Azul, Blanco y Rojo */
         .flag-en {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30"><clipPath id="s"><path d="M0,0 v30 h60 v-30 z"/></clipPath><clipPath id="t"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath><g clip-path="url(#s)"><path d="M0,0 v30 h60 v-30 z" fill="#012169"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#t)" stroke="#C8102E" stroke-width="4"/><path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/><path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/></g></svg>');
+            background-color: #012169;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flag-en::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                /* Cruz roja */
+                linear-gradient(to right, transparent 40%, #C8102E 40%, #C8102E 60%, transparent 60%),
+                linear-gradient(to bottom, transparent 40%, #C8102E 40%, #C8102E 60%, transparent 60%),
+                /* Cruz blanca */
+                linear-gradient(to right, transparent 42%, white 42%, white 58%, transparent 58%),
+                linear-gradient(to bottom, transparent 42%, white 42%, white 58%, transparent 58%);
+        }
+
+        .flag-en::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                /* Aspas rojas */
+                linear-gradient(45deg, transparent 45%, #C8102E 45%, #C8102E 55%, transparent 55%),
+                linear-gradient(-45deg, transparent 45%, #C8102E 45%, #C8102E 55%, transparent 55%),
+                /* Aspas blancas */
+                linear-gradient(45deg, transparent 47%, white 47%, white 53%, transparent 53%),
+                linear-gradient(-45deg, transparent 47%, white 47%, white 53%, transparent 53%);
         }
 
         .container {
