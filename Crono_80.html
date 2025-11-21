@@ -119,7 +119,6 @@
         
         .lcd-segment.active {
             opacity: 1;
-            box-shadow: 0 0 10px #0f0;
         }
         
         .segment-a { top: 8px; left: 8px; right: 8px; height: 8px; }
@@ -187,6 +186,11 @@
         
         .btn-new-race {
             background-color: #9b59b6;
+            color: white;
+        }
+        
+        .btn-delete-race {
+            background-color: #e74c3c;
             color: white;
         }
         
@@ -350,6 +354,7 @@
                 <option value="">-- Seleccionar Carrera --</option>
             </select>
             <button class="btn-new-race" id="btn-new-race">Nueva Carrera</button>
+            <button class="btn-delete-race" id="btn-delete-race">Eliminar Carrera</button>
         </div>
         
         <div class="chrono-display" id="chrono-display">
@@ -464,6 +469,30 @@
         </div>
     </div>
 
+    <!-- Modal para eliminar carrera -->
+    <div class="modal" id="delete-race-modal">
+        <div class="modal-content">
+            <h3 id="delete-race-modal-title">Eliminar Carrera</h3>
+            <p id="delete-race-modal-text">¿Estás seguro de que quieres eliminar esta carrera? Esta acción no se puede deshacer.</p>
+            <div class="modal-buttons">
+                <button class="btn-reset" id="cancel-delete-race">Cancelar</button>
+                <button class="btn-delete-race" id="confirm-delete-race">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para parar cronómetro -->
+    <div class="modal" id="stop-chrono-modal">
+        <div class="modal-content">
+            <h3 id="stop-chrono-modal-title">Parar Cronómetro</h3>
+            <p id="stop-chrono-modal-text">¿Estás seguro de que quieres parar el cronómetro?</p>
+            <div class="modal-buttons">
+                <button class="btn-reset" id="cancel-stop-chrono">Cancelar</button>
+                <button class="btn-start" id="confirm-stop-chrono">Parar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Variables globales
         let startTime = 0;
@@ -490,6 +519,7 @@
                 resetChrono: "Reiniciar Cronómetro",
                 exportExcel: "Exportar a Excel",
                 newRace: "Nueva Carrera",
+                deleteRace: "Eliminar Carrera",
                 currentLap: "Vuelta Actual",
                 firstLapTime: "Tiempo Primera Vuelta",
                 cutoffTime: "Tiempo Límite Actual",
@@ -513,7 +543,11 @@
                 calculationFormula: "Tiempo vuelta actual + 80% primera vuelta",
                 selectRace: "Seleccionar Carrera",
                 newRaceTitle: "Nueva Carrera",
-                raceNameLabel: "Nombre de la Carrera"
+                raceNameLabel: "Nombre de la Carrera",
+                deleteRaceTitle: "Eliminar Carrera",
+                deleteRaceText: "¿Estás seguro de que quieres eliminar esta carrera? Esta acción no se puede deshacer.",
+                stopChronoTitle: "Parar Cronómetro",
+                stopChronoText: "¿Estás seguro de que quieres parar el cronómetro?"
             },
             ca: {
                 appTitle: "Cronòmetre Control 80%",
@@ -524,6 +558,7 @@
                 resetChrono: "Reiniciar Cronòmetre",
                 exportExcel: "Exportar a Excel",
                 newRace: "Nova Cursa",
+                deleteRace: "Eliminar Cursa",
                 currentLap: "Volta Actual",
                 firstLapTime: "Temps Primera Volta",
                 cutoffTime: "Temps Límit Actual",
@@ -547,7 +582,11 @@
                 calculationFormula: "Temps volta actual + 80% primera volta",
                 selectRace: "Seleccionar Cursa",
                 newRaceTitle: "Nova Cursa",
-                raceNameLabel: "Nom de la Cursa"
+                raceNameLabel: "Nom de la Cursa",
+                deleteRaceTitle: "Eliminar Cursa",
+                deleteRaceText: "Estàs segur que vols eliminar aquesta cursa? Aquesta acció no es pot desfer.",
+                stopChronoTitle: "Aturar Cronòmetre",
+                stopChronoText: "Estàs segur que vols aturar el cronòmetre?"
             },
             en: {
                 appTitle: "80% Control Chronometer",
@@ -558,6 +597,7 @@
                 resetChrono: "Reset Chronometer",
                 exportExcel: "Export to Excel",
                 newRace: "New Race",
+                deleteRace: "Delete Race",
                 currentLap: "Current Lap",
                 firstLapTime: "First Lap Time",
                 cutoffTime: "Current Cutoff Time",
@@ -581,7 +621,11 @@
                 calculationFormula: "Current lap time + 80% first lap",
                 selectRace: "Select Race",
                 newRaceTitle: "New Race",
-                raceNameLabel: "Race Name"
+                raceNameLabel: "Race Name",
+                deleteRaceTitle: "Delete Race",
+                deleteRaceText: "Are you sure you want to delete this race? This action cannot be undone.",
+                stopChronoTitle: "Stop Chronometer",
+                stopChronoText: "Are you sure you want to stop the chronometer?"
             }
         };
         
@@ -593,6 +637,7 @@
         const btnReset = document.getElementById('btn-reset');
         const btnExport = document.getElementById('btn-export');
         const btnNewRace = document.getElementById('btn-new-race');
+        const btnDeleteRace = document.getElementById('btn-delete-race');
         const raceSelector = document.getElementById('race-selector');
         const currentLapElement = document.getElementById('current-lap');
         const firstLapTimeElement = document.getElementById('first-lap-time');
@@ -603,6 +648,8 @@
         const resetModal = document.getElementById('reset-modal');
         const timeModal = document.getElementById('time-modal');
         const newRaceModal = document.getElementById('new-race-modal');
+        const deleteRaceModal = document.getElementById('delete-race-modal');
+        const stopChronoModal = document.getElementById('stop-chrono-modal');
         const dorsalInput = document.getElementById('dorsal-input');
         const raceNameInput = document.getElementById('race-name-input');
         const flags = document.querySelectorAll('.flag');
@@ -625,6 +672,7 @@
             btnReset.addEventListener('click', openResetModal);
             btnExport.addEventListener('click', exportToExcel);
             btnNewRace.addEventListener('click', openNewRaceModal);
+            btnDeleteRace.addEventListener('click', openDeleteRaceModal);
             raceSelector.addEventListener('change', loadRace);
             
             document.getElementById('cancel-withdraw').addEventListener('click', closeWithdrawModal);
@@ -635,6 +683,10 @@
             document.getElementById('confirm-time').addEventListener('click', confirmTime);
             document.getElementById('cancel-new-race').addEventListener('click', closeNewRaceModal);
             document.getElementById('confirm-new-race').addEventListener('click', confirmNewRace);
+            document.getElementById('cancel-delete-race').addEventListener('click', closeDeleteRaceModal);
+            document.getElementById('confirm-delete-race').addEventListener('click', confirmDeleteRace);
+            document.getElementById('cancel-stop-chrono').addEventListener('click', closeStopChronoModal);
+            document.getElementById('confirm-stop-chrono').addEventListener('click', confirmStopChrono);
             
             // Cambio de idioma
             flags.forEach(flag => {
@@ -712,6 +764,55 @@
             closeNewRaceModal();
         }
         
+        function openDeleteRaceModal() {
+            if (!currentRaceId) {
+                alert("Primero debes seleccionar una carrera.");
+                return;
+            }
+            deleteRaceModal.style.display = 'flex';
+        }
+        
+        function closeDeleteRaceModal() {
+            deleteRaceModal.style.display = 'none';
+        }
+        
+        function confirmDeleteRace() {
+            if (currentRaceId && races[currentRaceId]) {
+                delete races[currentRaceId];
+                saveRaces();
+                updateRaceSelector();
+                currentRaceId = null;
+                resetRaceState();
+            }
+            closeDeleteRaceModal();
+        }
+        
+        function resetRaceState() {
+            isRunning = false;
+            clearInterval(intervalId);
+            startTime = 0;
+            currentTime = 0;
+            firstLapTime = null;
+            currentLap = 1;
+            currentLapTimes = {};
+            cutoffTime = null;
+            withdrawnRiders = [];
+            
+            updateDisplay();
+            updateLCDDisplay();
+            currentLapElement.textContent = currentLap;
+            firstLapTimeElement.textContent = '--:--:--';
+            cutoffTimeElement.textContent = '--:--:--';
+            withdrawnCountElement.textContent = '0';
+            riderListElement.innerHTML = '';
+            chronoDisplay.classList.remove('danger');
+            
+            firstLapInfo.style.display = 'none';
+            cutoffInfo.style.display = 'none';
+            
+            btnStart.textContent = translations[currentLanguage].startChrono;
+        }
+        
         function loadRace(raceId) {
             if (typeof raceId === 'object') {
                 raceId = raceSelector.value;
@@ -762,7 +863,9 @@
             
             updateWithdrawnList();
             btnStart.textContent = translations[currentLanguage].startChrono;
-            chronoDisplay.classList.remove('danger');
+            
+            // Verificar estado del cronómetro
+            checkCutoffStatus();
             
             // Parar cualquier intervalo en ejecución
             clearInterval(intervalId);
@@ -783,7 +886,7 @@
             saveRaces();
         }
         
-        // Display LCD
+        // Display LCD - CORREGIDO
         function createLCDDisplay() {
             chronoDisplay.innerHTML = '';
             
@@ -855,15 +958,15 @@
             const segments = digitElement.querySelectorAll('.lcd-segment');
             segments.forEach(segment => segment.classList.remove('active'));
             
-            // Activate segments based on digit
+            // Activate segments based on digit - CORREGIDO
             const segmentMap = {
                 0: ['a', 'b', 'c', 'd', 'e', 'f'],
                 1: ['b', 'c'],
-                2: ['a', 'b', 'g', 'e', 'd'],
+                2: ['a', 'b', 'd', 'e', 'g'],
                 3: ['a', 'b', 'c', 'd', 'g'],
-                4: ['f', 'g', 'b', 'c'],
-                5: ['a', 'f', 'g', 'c', 'd'],
-                6: ['a', 'f', 'g', 'e', 'c', 'd'],
+                4: ['b', 'c', 'f', 'g'],
+                5: ['a', 'c', 'd', 'f', 'g'],
+                6: ['a', 'c', 'd', 'e', 'f', 'g'],
                 7: ['a', 'b', 'c'],
                 8: ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
                 9: ['a', 'b', 'c', 'd', 'f', 'g']
@@ -884,10 +987,8 @@
             }
             
             if (isRunning) {
-                // Parar
-                isRunning = false;
-                clearInterval(intervalId);
-                btnStart.textContent = translations[currentLanguage].startChrono;
+                // Preguntar antes de parar
+                openStopChronoModal();
             } else {
                 // Iniciar
                 if (startTime === 0) {
@@ -898,8 +999,25 @@
                 isRunning = true;
                 intervalId = setInterval(updateChrono, 10);
                 btnStart.textContent = translations[currentLanguage].stopChrono;
+                saveCurrentRaceState();
             }
+        }
+        
+        function openStopChronoModal() {
+            stopChronoModal.style.display = 'flex';
+        }
+        
+        function closeStopChronoModal() {
+            stopChronoModal.style.display = 'none';
+        }
+        
+        function confirmStopChrono() {
+            // Parar
+            isRunning = false;
+            clearInterval(intervalId);
+            btnStart.textContent = translations[currentLanguage].startChrono;
             saveCurrentRaceState();
+            closeStopChronoModal();
         }
         
         function updateChrono() {
@@ -907,7 +1025,13 @@
             updateDisplay();
             updateLCDDisplay();
             
-            // Comprobar si estamos en zona de corte (solo si tenemos primera vuelta)
+            // Comprobar si estamos en zona de corte
+            checkCutoffStatus();
+            
+            saveCurrentRaceState();
+        }
+        
+        function checkCutoffStatus() {
             if (firstLapTime && currentLapTimes[currentLap]) {
                 const currentCutoffTime = currentLapTimes[currentLap] + (firstLapTime * 0.8);
                 
@@ -917,8 +1041,6 @@
                     chronoDisplay.classList.remove('danger');
                 }
             }
-            
-            saveCurrentRaceState();
         }
         
         function updateDisplay() {
@@ -1136,7 +1258,7 @@
             saveCurrentRaceState();
         }
         
-        // Función para exportar a Excel
+        // Función para exportar a Excel - CORREGIDO
         function exportToExcel() {
             if (!currentRaceId) {
                 alert("Primero debes crear o seleccionar una carrera.");
@@ -1148,23 +1270,23 @@
                 return;
             }
             
-            // Crear contenido CSV
+            // Crear contenido CSV con separador ;
             let csvContent = "data:text/csv;charset=utf-8,";
             
             // Encabezados
-            csvContent += `${translations[currentLanguage].order},Dorsal,${translations[currentLanguage].lap},${translations[currentLanguage].time}\n`;
+            csvContent += `${translations[currentLanguage].order};Dorsal;${translations[currentLanguage].lap};${translations[currentLanguage].time}\n`;
             
-            // Ordenar por vuelta (descendente) y luego por orden
+            // Ordenar: por vuelta descendente, luego por tiempo ascendente dentro de cada vuelta
             const sortedRiders = [...withdrawnRiders].sort((a, b) => {
                 if (a.lap !== b.lap) {
-                    return b.lap - a.lap;
+                    return b.lap - a.lap; // Vueltas descendentes
                 }
-                return b.order - a.order;
+                return a.time - b.time; // Tiempos ascendentes dentro de la misma vuelta
             });
             
             // Datos
             sortedRiders.forEach(rider => {
-                csvContent += `${rider.order},${rider.dorsal},${rider.lap},${rider.formattedTime}\n`;
+                csvContent += `${rider.order};${rider.dorsal};${rider.lap};${rider.formattedTime}\n`;
             });
             
             // Crear enlace de descarga
@@ -1201,6 +1323,7 @@
             document.getElementById('btn-reset').textContent = translations[lang].resetChrono;
             document.getElementById('btn-export').textContent = translations[lang].exportExcel;
             document.getElementById('btn-new-race').textContent = translations[lang].newRace;
+            document.getElementById('btn-delete-race').textContent = translations[lang].deleteRace;
             document.getElementById('current-lap-title').textContent = translations[lang].currentLap;
             document.getElementById('first-lap-time-title').textContent = translations[lang].firstLapTime;
             document.getElementById('cutoff-time-title').textContent = translations[lang].cutoffTime;
@@ -1224,6 +1347,14 @@
             document.getElementById('race-name-label').textContent = translations[lang].raceNameLabel;
             document.getElementById('cancel-new-race').textContent = translations[lang].cancel;
             document.getElementById('confirm-new-race').textContent = translations[lang].confirm;
+            document.getElementById('delete-race-modal-title').textContent = translations[lang].deleteRaceTitle;
+            document.getElementById('delete-race-modal-text').textContent = translations[lang].deleteRaceText;
+            document.getElementById('cancel-delete-race').textContent = translations[lang].cancel;
+            document.getElementById('confirm-delete-race').textContent = translations[lang].confirm;
+            document.getElementById('stop-chrono-modal-title').textContent = translations[lang].stopChronoTitle;
+            document.getElementById('stop-chrono-modal-text').textContent = translations[lang].stopChronoText;
+            document.getElementById('cancel-stop-chrono').textContent = translations[lang].cancel;
+            document.getElementById('confirm-stop-chrono').textContent = translations[lang].confirm;
             
             // Actualizar selector de carreras
             const firstOption = raceSelector.querySelector('option');
