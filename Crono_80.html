@@ -125,6 +125,10 @@
             text-align: center;
             position: relative;
             overflow: hidden;
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .chrono-display::before {
@@ -242,6 +246,13 @@
             color: white;
         }
         
+        .btn-remove {
+            background-color: var(--danger-color);
+            color: white;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+        
         .info-panel {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -279,18 +290,43 @@
             font-size: 0.9rem;
         }
         
-        .withdrawn-riders, .lap-times {
+        .tabs-container {
             background-color: white;
-            padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .tabs-header {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .tab-button.active {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
             max-height: 400px;
             overflow-y: auto;
         }
         
-        .withdrawn-riders h3, .lap-times h3 {
-            margin-bottom: 15px;
-            color: var(--primary-color);
+        .tab-content.active {
+            display: block;
         }
         
         .rider-list, .lap-list {
@@ -302,6 +338,7 @@
             border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
         
         .rider-item:last-child, .lap-item:last-child {
@@ -459,18 +496,21 @@
             </div>
         </div>
         
-        <div class="lap-times">
-            <h3 id="lap-times-title">Tiempos del Primer Corredor por Vuelta</h3>
-            <ul class="lap-list" id="lap-list">
-                <!-- Aquí se mostrarán los tiempos por vuelta -->
-            </ul>
-        </div>
-        
-        <div class="withdrawn-riders">
-            <h3 id="withdrawn-list-title">Lista de Retirados</h3>
-            <ul class="rider-list" id="rider-list">
-                <!-- Aquí se mostrarán los corredores retirados -->
-            </ul>
+        <div class="tabs-container">
+            <div class="tabs-header">
+                <button class="tab-button active" data-tab="withdrawn-tab" id="withdrawn-tab-button">Lista de Retirados</button>
+                <button class="tab-button" data-tab="lap-times-tab" id="lap-times-tab-button">Tiempos del Primer Corredor</button>
+            </div>
+            <div class="tab-content active" id="withdrawn-tab">
+                <ul class="rider-list" id="rider-list">
+                    <!-- Aquí se mostrarán los corredores retirados -->
+                </ul>
+            </div>
+            <div class="tab-content" id="lap-times-tab">
+                <ul class="lap-list" id="lap-list">
+                    <!-- Aquí se mostrarán los tiempos por vuelta -->
+                </ul>
+            </div>
         </div>
         
         <div class="race-start-time">
@@ -665,7 +705,8 @@
                 stopChronoText: "¿Estás seguro de que quieres parar el cronómetro?",
                 editFirstLapTitle: "Modificar Tiempo Primera Vuelta",
                 startTimeLabel: "Hora de Salida:",
-                lapTimesTitle: "Tiempos del Primer Corredor por Vuelta"
+                lapTimesTitle: "Tiempos del Primer Corredor por Vuelta",
+                removeLap: "Eliminar"
             },
             ca: {
                 appTitle: "Cronòmetre Control 80%",
@@ -709,7 +750,8 @@
                 stopChronoText: "Estàs segur que vols aturar el cronòmetre?",
                 editFirstLapTitle: "Modificar Temps Primera Volta",
                 startTimeLabel: "Hora de Sortida:",
-                lapTimesTitle: "Temps del Primer Corredor per Volta"
+                lapTimesTitle: "Temps del Primer Corredor per Volta",
+                removeLap: "Eliminar"
             },
             en: {
                 appTitle: "80% Control Chronometer",
@@ -753,7 +795,8 @@
                 stopChronoText: "Are you sure you want to stop the chronometer?",
                 editFirstLapTitle: "Modify First Lap Time",
                 startTimeLabel: "Start Time:",
-                lapTimesTitle: "First Rider Lap Times"
+                lapTimesTitle: "First Rider Lap Times",
+                removeLap: "Remove"
             }
         };
         
@@ -779,6 +822,10 @@
         const firstLapInfo = document.getElementById('first-lap-info');
         const eightyPercentTime = document.getElementById('eighty-percent-time');
         const raceStartTimeElement = document.getElementById('race-start-time');
+        const withdrawnTabButton = document.getElementById('withdrawn-tab-button');
+        const lapTimesTabButton = document.getElementById('lap-times-tab-button');
+        const withdrawnTab = document.getElementById('withdrawn-tab');
+        const lapTimesTab = document.getElementById('lap-times-tab');
         
         // Modales
         const withdrawModal = document.getElementById('withdraw-modal');
@@ -806,6 +853,10 @@
             btnDeleteRace.addEventListener('click', openDeleteRaceModal);
             btnEditFirstLap.addEventListener('click', openEditFirstLapModal);
             raceSelector.addEventListener('change', loadRace);
+            
+            // Event listeners para pestañas
+            withdrawnTabButton.addEventListener('click', () => switchTab('withdrawn-tab'));
+            lapTimesTabButton.addEventListener('click', () => switchTab('lap-times-tab'));
             
             // Event listeners para modales
             setupModalEvents();
@@ -998,7 +1049,7 @@
             const seconds = parseInt(document.getElementById('seconds-input').value) || 0;
             
             if (timeModalMode === 'start') {
-                // Hora de salida: calcular diferencia con hora actual
+                // Hora de salida: establecer la hora de inicio de la carrera
                 const now = new Date();
                 const targetDate = new Date();
                 targetDate.setHours(hours, minutes, seconds, 0);
@@ -1008,13 +1059,15 @@
                     targetDate.setDate(targetDate.getDate() + 1);
                 }
                 
-                const timeUntilStart = targetDate - now;
-                currentTime = -timeUntilStart;
                 raceStartTime = targetDate;
                 
-                // Si el cronómetro está corriendo, ajustamos el startTime
+                // Si el cronómetro está corriendo, ajustamos el tiempo actual
                 if (isRunning) {
+                    currentTime = Date.now() - targetDate.getTime();
                     startTime = Date.now() - currentTime;
+                } else {
+                    // Si no está corriendo, mostramos la hora de salida
+                    currentTime = 0;
                 }
             } else {
                 // Tiempo manual
@@ -1263,18 +1316,6 @@
         }
         
         function formatDisplayTime(time) {
-            // Si el tiempo es negativo (cuenta regresiva)
-            if (time < 0) {
-                const absTime = Math.abs(time);
-                const totalSeconds = Math.floor(absTime / 1000);
-                const hours = Math.floor(totalSeconds / 3600);
-                const minutes = Math.floor((totalSeconds % 3600) / 60);
-                const seconds = totalSeconds % 60;
-                const milliseconds = Math.floor((absTime % 1000) / 10);
-                
-                return `-${minutes.toString().padStart(2, '0')}'${seconds.toString().padStart(2, '0')}"${milliseconds.toString().padStart(2, '0')}`;
-            }
-            
             const totalSeconds = Math.floor(time / 1000);
             const hours = Math.floor(totalSeconds / 3600);
             const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -1311,10 +1352,8 @@
                 const currentCutoffTime = currentLapTimes[currentLap] + (firstLapTime * 0.8);
                 
                 if (currentTime > currentCutoffTime) {
-                    chronoDisplay.classList.add('danger');
                     lcdTime.classList.add('over-limit');
                 } else {
-                    chronoDisplay.classList.remove('danger');
                     lcdTime.classList.remove('over-limit');
                 }
                 
@@ -1345,6 +1384,35 @@
                 
                 // Verificar inmediatamente el estado de corte
                 checkCutoffStatus();
+                saveCurrentRaceState();
+            }
+        }
+        
+        function removeLap(lapNumber) {
+            if (confirm("¿Estás seguro de que quieres eliminar esta vuelta? Se recalcularán las vueltas siguientes.")) {
+                // Eliminar la vuelta y todas las siguientes
+                for (let i = lapNumber; i <= currentLap; i++) {
+                    delete currentLapTimes[i];
+                }
+                
+                // Recalcular la vuelta actual
+                currentLap = lapNumber;
+                currentLapElement.textContent = currentLap;
+                
+                // Si eliminamos la primera vuelta, también eliminamos el tiempo de primera vuelta
+                if (lapNumber === 1) {
+                    firstLapTime = null;
+                    firstLapTimeElement.textContent = '--:--:--';
+                    firstLapInfo.style.display = 'none';
+                }
+                
+                // Actualizar la lista de tiempos
+                updateLapTimesList();
+                
+                // Actualizar el tiempo límite
+                updateCutoffTime();
+                checkCutoffStatus();
+                
                 saveCurrentRaceState();
             }
         }
@@ -1396,10 +1464,19 @@
                     li.innerHTML = `
                         <span>${translations[currentLanguage].lap} ${lap}</span>
                         <span>${formatDisplayTime(currentLapTimes[lap])}</span>
+                        <button class="btn-remove remove-lap" data-lap="${lap}">${translations[currentLanguage].removeLap}</button>
                     `;
                     lapListElement.appendChild(li);
                 }
             }
+            
+            // Añadir event listeners a los botones de eliminar
+            document.querySelectorAll('.remove-lap').forEach(button => {
+                button.addEventListener('click', function() {
+                    const lapNumber = parseInt(this.getAttribute('data-lap'));
+                    removeLap(lapNumber);
+                });
+            });
         }
         
         function updateRaceStartTimeDisplay() {
@@ -1409,6 +1486,20 @@
             } else {
                 raceStartTimeElement.textContent = '--:--:--';
             }
+        }
+        
+        function switchTab(tabId) {
+            // Desactivar todas las pestañas
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Activar la pestaña seleccionada
+            document.getElementById(`${tabId}-button`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
         }
         
         // Función para exportar a Excel
@@ -1474,7 +1565,8 @@
             document.getElementById('first-lap-time-title').textContent = translations[lang].firstLapTime;
             document.getElementById('cutoff-time-title').textContent = translations[lang].cutoffTime;
             document.getElementById('withdrawn-count-title').textContent = translations[lang].withdrawnCount;
-            document.getElementById('withdrawn-list-title').textContent = translations[lang].withdrawnList;
+            document.getElementById('withdrawn-tab-button').textContent = translations[lang].withdrawnList;
+            document.getElementById('lap-times-tab-button').textContent = translations[lang].lapTimesTitle;
             document.getElementById('withdraw-modal-title').textContent = translations[lang].withdrawModalTitle;
             document.getElementById('withdraw-dorsal-label').textContent = translations[lang].dorsalLabel;
             document.getElementById('cancel-withdraw').textContent = translations[lang].cancel;
@@ -1508,7 +1600,6 @@
             document.getElementById('cancel-edit-first-lap').textContent = translations[lang].cancel;
             document.getElementById('confirm-edit-first-lap').textContent = translations[lang].confirm;
             document.getElementById('start-time-label').textContent = translations[lang].startTimeLabel;
-            document.getElementById('lap-times-title').textContent = translations[lang].lapTimesTitle;
             
             updateRaceStartTimeDisplay();
             updateWithdrawnList();
