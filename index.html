@@ -287,6 +287,10 @@
             background: linear-gradient(135deg, #f39c12, #e67e22);
         }
 
+        .app-button.crono-80 {
+            background: linear-gradient(135deg, #16a085, #1abc9c);
+        }
+
         footer {
             text-align: center;
             margin-top: 40px;
@@ -381,6 +385,10 @@
                         <i class="fas fa-calculator"></i>
                         <span id="btn-calculadora-tiempos">Calculadora de Tiempos</span>
                     </a>
+                    <a href="Crono_80.html" target="_blank" class="app-button crono-80">
+                        <i class="fas fa-percentage"></i>
+                        <span id="btn-crono-80">Cronómetro 80%</span>
+                    </a>
                 </div>
             </div>
 
@@ -405,11 +413,11 @@
                 <h2 id="genericas-title">Aplicaciones Genéricas</h2>
                 <p id="genericas-desc">Próximamente aplicaciones genéricas...</p>
                 <div class="button-grid">
-                    <a href="#" class="app-button" style="background: linear-gradient(135deg, #16a085, #1abc9c);">
+                    <a href="#" class="app-button" style="background: linear-gradient(135deg, #7f8c8d, #95a5a6);">
                         <i class="fas fa-tools"></i>
                         <span>Próximamente</span>
                     </a>
-                    <a href="#" class="app-button" style="background: linear-gradient(135deg, #16a085, #1abc9c);">
+                    <a href="#" class="app-button" style="background: linear-gradient(135deg, #7f8c8d, #95a5a6);">
                         <i class="fas fa-list"></i>
                         <span>Próximamente</span>
                     </a>
@@ -441,6 +449,7 @@
                 btnRelojCri: "Reloj CRI",
                 btnSalidasCri: "Salidas CRI",
                 btnCalculadoraTiempos: "Calculadora de Tiempos",
+                btnCrono80: "Cronómetro 80%",
                 footer: "© 2023 Aplicaciones Web Roberto Benet - Todos los derechos reservados"
             },
             ca: {
@@ -459,6 +468,7 @@
                 btnRelojCri: "Rellotge CRI",
                 btnSalidasCri: "Sortides CRI",
                 btnCalculadoraTiempos: "Calculadora de Temps",
+                btnCrono80: "Cronòmetre 80%",
                 footer: "© 2023 Aplicacions Web Roberto Benet - Tots els drets reservats"
             },
             en: {
@@ -477,6 +487,7 @@
                 btnRelojCri: "CRI Clock",
                 btnSalidasCri: "CRI Starts",
                 btnCalculadoraTiempos: "Time Calculator",
+                btnCrono80: "80% Timer",
                 footer: "© 2023 Roberto Benet Web Applications - All rights reserved"
             }
         };
@@ -512,6 +523,7 @@
                 document.getElementById('btn-reloj-cri').textContent = translations[lang].btnRelojCri;
                 document.getElementById('btn-salidas-cri').textContent = translations[lang].btnSalidasCri;
                 document.getElementById('btn-calculadora-tiempos').textContent = translations[lang].btnCalculadoraTiempos;
+                document.getElementById('btn-crono-80').textContent = translations[lang].btnCrono80;
                 
                 document.getElementById('footer-text').textContent = translations[lang].footer;
             });
