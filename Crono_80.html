@@ -62,9 +62,24 @@
             border: 2px solid var(--secondary-color);
         }
         
+        .flag-catalunya {
+            background: linear-gradient(
+                to bottom,
+                #ffcd00 0%, #ffcd00 10%,
+                #da121a 10%, #da121a 20%,
+                #ffcd00 20%, #ffcd00 30%,
+                #da121a 30%, #da121a 40%,
+                #ffcd00 40%, #ffcd00 50%,
+                #da121a 50%, #da121a 60%,
+                #ffcd00 60%, #ffcd00 70%,
+                #da121a 70%, #da121a 80%,
+                #ffcd00 80%, #ffcd00 90%,
+                #da121a 90%, #da121a 100%
+            );
+        }
+        
         .chrono-display {
-            background-color: #333;
-            color: #0f0;
+            background-color: #1a1a1a;
             text-align: center;
             padding: 20px;
             border-radius: 10px;
@@ -73,8 +88,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 5px;
-            height: 100px;
+            gap: 8px;
+            height: 120px;
         }
         
         .chrono-display.warning {
@@ -88,38 +103,40 @@
         .lcd-digit {
             display: inline-block;
             position: relative;
-            width: 40px;
-            height: 70px;
-            background-color: #1a1a1a;
-            border-radius: 5px;
-            margin: 0 2px;
+            width: 50px;
+            height: 80px;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            margin: 0 3px;
         }
         
         .lcd-segment {
             position: absolute;
             background-color: #0f0;
-            border-radius: 2px;
+            border-radius: 3px;
             opacity: 0.15;
         }
         
         .lcd-segment.active {
             opacity: 1;
+            box-shadow: 0 0 10px #0f0;
         }
         
-        .segment-a { top: 5px; left: 5px; right: 5px; height: 6px; }
-        .segment-b { top: 5px; right: 5px; width: 6px; height: 29px; }
-        .segment-c { bottom: 5px; right: 5px; width: 6px; height: 29px; }
-        .segment-d { bottom: 5px; left: 5px; right: 5px; height: 6px; }
-        .segment-e { bottom: 5px; left: 5px; width: 6px; height: 29px; }
-        .segment-f { top: 5px; left: 5px; width: 6px; height: 29px; }
-        .segment-g { top: 50%; left: 5px; right: 5px; height: 6px; transform: translateY(-50%); }
+        .segment-a { top: 8px; left: 8px; right: 8px; height: 8px; }
+        .segment-b { top: 8px; right: 8px; width: 8px; height: 32px; }
+        .segment-c { bottom: 8px; right: 8px; width: 8px; height: 32px; }
+        .segment-d { bottom: 8px; left: 8px; right: 8px; height: 8px; }
+        .segment-e { bottom: 8px; left: 8px; width: 8px; height: 32px; }
+        .segment-f { top: 8px; left: 8px; width: 8px; height: 32px; }
+        .segment-g { top: 50%; left: 8px; right: 8px; height: 8px; transform: translateY(-50%); }
         
         .colon {
             display: inline-block;
-            margin: 0 5px;
+            margin: 0 8px;
             color: #0f0;
-            font-size: 3rem;
-            line-height: 70px;
+            font-size: 3.5rem;
+            line-height: 80px;
+            font-weight: bold;
         }
         
         .controls {
@@ -294,17 +311,17 @@
         
         @media (max-width: 768px) {
             .chrono-display {
-                height: 80px;
+                height: 100px;
             }
             
             .lcd-digit {
-                width: 30px;
-                height: 50px;
+                width: 35px;
+                height: 60px;
             }
             
             .colon {
-                font-size: 2rem;
-                line-height: 50px;
+                font-size: 2.5rem;
+                line-height: 60px;
             }
             
             .controls {
@@ -323,7 +340,7 @@
             <h1 id="app-title">Cronómetro Control 80%</h1>
             <div class="language-selector">
                 <img src="https://flagcdn.com/w40/es.png" class="flag active" id="flag-es" data-lang="es">
-                <img src="https://flagcdn.com/w40/ad.png" class="flag" id="flag-ca" data-lang="ca">
+                <div class="flag flag-catalunya" id="flag-ca" data-lang="ca"></div>
                 <img src="https://flagcdn.com/w40/gb.png" class="flag" id="flag-en" data-lang="en">
             </div>
         </header>
@@ -365,7 +382,7 @@
                 <p id="cutoff-time">--:--:--</p>
                 <div class="calculation-info" id="cutoff-info" style="display: none;">
                     <strong id="cutoff-calculation-label">Cálculo:</strong><br>
-                    <span id="cutoff-calculation">Primera vuelta + 80%</span>
+                    <span id="cutoff-calculation">Tiempo vuelta actual + 80% primera vuelta</span>
                 </div>
             </div>
             <div class="info-card">
@@ -455,6 +472,7 @@
         let intervalId = null;
         let firstLapTime = null;
         let currentLap = 1;
+        let currentLapTimes = {}; // Almacena tiempos por vuelta
         let cutoffTime = null;
         let withdrawnRiders = [];
         let currentLanguage = 'es';
@@ -492,7 +510,7 @@
                 order: "Orden",
                 eightyPercent: "80% de este tiempo:",
                 cutoffCalculation: "Cálculo:",
-                calculationFormula: "Primera vuelta + 80%",
+                calculationFormula: "Tiempo vuelta actual + 80% primera vuelta",
                 selectRace: "Seleccionar Carrera",
                 newRaceTitle: "Nueva Carrera",
                 raceNameLabel: "Nombre de la Carrera"
@@ -526,7 +544,7 @@
                 order: "Ordre",
                 eightyPercent: "80% d'aquest temps:",
                 cutoffCalculation: "Càlcul:",
-                calculationFormula: "Primera volta + 80%",
+                calculationFormula: "Temps volta actual + 80% primera volta",
                 selectRace: "Seleccionar Cursa",
                 newRaceTitle: "Nova Cursa",
                 raceNameLabel: "Nom de la Cursa"
@@ -560,7 +578,7 @@
                 order: "Order",
                 eightyPercent: "80% of this time:",
                 cutoffCalculation: "Calculation:",
-                calculationFormula: "First lap + 80%",
+                calculationFormula: "Current lap time + 80% first lap",
                 selectRace: "Select Race",
                 newRaceTitle: "New Race",
                 raceNameLabel: "Race Name"
@@ -586,6 +604,7 @@
         const timeModal = document.getElementById('time-modal');
         const newRaceModal = document.getElementById('new-race-modal');
         const dorsalInput = document.getElementById('dorsal-input');
+        const raceNameInput = document.getElementById('race-name-input');
         const flags = document.querySelectorAll('.flag');
         const firstLapInfo = document.getElementById('first-lap-info');
         const eightyPercentTime = document.getElementById('eighty-percent-time');
@@ -649,14 +668,17 @@
                 const option = document.createElement('option');
                 option.value = raceId;
                 option.textContent = races[raceId].name;
+                if (raceId === currentRaceId) {
+                    option.selected = true;
+                }
                 raceSelector.appendChild(option);
             }
         }
         
         function openNewRaceModal() {
             newRaceModal.style.display = 'flex';
-            document.getElementById('race-name-input').value = '';
-            document.getElementById('race-name-input').focus();
+            raceNameInput.value = '';
+            raceNameInput.focus();
         }
         
         function closeNewRaceModal() {
@@ -664,7 +686,7 @@
         }
         
         function confirmNewRace() {
-            const raceName = document.getElementById('race-name-input').value.trim();
+            const raceName = raceNameInput.value.trim();
             if (!raceName) {
                 alert("Por favor, introduce un nombre para la carrera.");
                 return;
@@ -678,6 +700,7 @@
                 isRunning: false,
                 firstLapTime: null,
                 currentLap: 1,
+                currentLapTimes: {},
                 cutoffTime: null,
                 withdrawnRiders: [],
                 createdAt: new Date().toISOString()
@@ -697,20 +720,23 @@
             if (!raceId) return;
             
             // Guardar estado actual si hay una carrera cargada
-            if (currentRaceId) {
+            if (currentRaceId && races[currentRaceId]) {
                 saveCurrentRaceState();
             }
             
             currentRaceId = raceId;
             const race = races[raceId];
             
+            if (!race) return;
+            
             // Cargar datos de la carrera
-            startTime = race.startTime;
-            currentTime = race.currentTime;
+            startTime = race.startTime || 0;
+            currentTime = race.currentTime || 0;
             isRunning = false; // Siempre cargamos parado
-            firstLapTime = race.firstLapTime;
-            currentLap = race.currentLap;
-            cutoffTime = race.cutoffTime;
+            firstLapTime = race.firstLapTime || null;
+            currentLap = race.currentLap || 1;
+            currentLapTimes = race.currentLapTimes || {};
+            cutoffTime = race.cutoffTime || null;
             withdrawnRiders = race.withdrawnRiders || [];
             
             // Actualizar interfaz
@@ -718,7 +744,10 @@
             updateLCDDisplay();
             currentLapElement.textContent = currentLap;
             firstLapTimeElement.textContent = firstLapTime ? formatTime(firstLapTime) : '--:--:--';
-            cutoffTimeElement.textContent = cutoffTime ? formatTime(cutoffTime) : '--:--:--';
+            
+            // Calcular tiempo límite actual
+            updateCutoffTime();
+            
             withdrawnCountElement.textContent = withdrawnRiders.length;
             
             // Mostrar/ocultar información de cálculo
@@ -740,13 +769,14 @@
         }
         
         function saveCurrentRaceState() {
-            if (!currentRaceId) return;
+            if (!currentRaceId || !races[currentRaceId]) return;
             
             races[currentRaceId].startTime = startTime;
             races[currentRaceId].currentTime = currentTime;
             races[currentRaceId].isRunning = isRunning;
             races[currentRaceId].firstLapTime = firstLapTime;
             races[currentRaceId].currentLap = currentLap;
+            races[currentRaceId].currentLapTimes = currentLapTimes;
             races[currentRaceId].cutoffTime = cutoffTime;
             races[currentRaceId].withdrawnRiders = withdrawnRiders;
             
@@ -878,8 +908,8 @@
             updateLCDDisplay();
             
             // Comprobar si estamos en zona de corte (solo si tenemos primera vuelta)
-            if (firstLapTime) {
-                const currentCutoffTime = firstLapTime + (firstLapTime * 0.8);
+            if (firstLapTime && currentLapTimes[currentLap]) {
+                const currentCutoffTime = currentLapTimes[currentLap] + (firstLapTime * 0.8);
                 
                 if (currentTime > currentCutoffTime) {
                     chronoDisplay.classList.add('danger');
@@ -902,7 +932,10 @@
             }
             
             if (currentTime > 0) {
-                // Solo calculamos el 80% si es la primera vuelta
+                // Guardar tiempo de esta vuelta
+                currentLapTimes[currentLap] = currentTime;
+                
+                // Si es la primera vuelta, guardar el tiempo base
                 if (currentLap === 1) {
                     firstLapTime = currentTime;
                     
@@ -914,17 +947,27 @@
                     eightyPercentTime.textContent = formatTime(eightyPercent);
                     
                     cutoffInfo.style.display = 'block';
-                    cutoffCalculation.textContent = translations[currentLanguage].calculationFormula;
                     
                     // Actualizar displays
                     firstLapTimeElement.textContent = formatTime(firstLapTime);
                 }
                 
-                // Incrementar vuelta (siempre)
+                // Calcular tiempo límite para esta vuelta
+                updateCutoffTime();
+                
+                // Incrementar vuelta
                 currentLap++;
                 currentLapElement.textContent = currentLap;
                 
                 saveCurrentRaceState();
+            }
+        }
+        
+        function updateCutoffTime() {
+            if (firstLapTime && currentLapTimes[currentLap]) {
+                // Tiempo límite = tiempo de esta vuelta + 80% del tiempo de la primera vuelta
+                cutoffTime = currentLapTimes[currentLap] + (firstLapTime * 0.8);
+                cutoffTimeElement.textContent = formatTime(cutoffTime);
             }
         }
         
@@ -944,8 +987,198 @@
             }
         }
         
-        // Resto de funciones permanecen igual (retirar corredores, reiniciar, exportar, etc.)
-        // ... (las funciones de modales, retiro de corredores, etc. se mantienen igual)
+        // Funciones para retirar corredores
+        function openWithdrawModal() {
+            if (!currentRaceId) {
+                alert("Primero debes crear o seleccionar una carrera.");
+                return;
+            }
+            
+            if (!isRunning) {
+                alert("El cronómetro debe estar en funcionamiento para retirar corredores.");
+                return;
+            }
+            
+            if (!firstLapTime) {
+                alert("Primero debes registrar el tiempo del primer corredor en la primera vuelta.");
+                return;
+            }
+            
+            withdrawModal.style.display = 'flex';
+            dorsalInput.value = '';
+            dorsalInput.focus();
+        }
+        
+        function closeWithdrawModal() {
+            withdrawModal.style.display = 'none';
+        }
+        
+        function confirmWithdraw() {
+            const dorsalText = dorsalInput.value.trim();
+            if (!dorsalText) {
+                alert("Por favor, introduce al menos un número de dorsal.");
+                return;
+            }
+            
+            const dorsals = dorsalText.split(',').map(d => d.trim()).filter(d => d !== '');
+            
+            dorsals.forEach(dorsal => {
+                withdrawnRiders.push({
+                    dorsal: dorsal,
+                    lap: currentLap,
+                    time: currentTime,
+                    order: withdrawnRiders.length + 1,
+                    formattedTime: formatTime(currentTime)
+                });
+            });
+            
+            updateWithdrawnList();
+            closeWithdrawModal();
+            saveCurrentRaceState();
+        }
+        
+        function updateWithdrawnList() {
+            withdrawnCountElement.textContent = withdrawnRiders.length;
+            
+            // Ordenar por vuelta (descendente) y luego por orden
+            const sortedRiders = [...withdrawnRiders].sort((a, b) => {
+                if (a.lap !== b.lap) {
+                    return b.lap - a.lap;
+                }
+                return b.order - a.order;
+            });
+            
+            riderListElement.innerHTML = '';
+            sortedRiders.forEach(rider => {
+                const li = document.createElement('li');
+                li.className = 'rider-item';
+                li.innerHTML = `
+                    <span>Dorsal: ${rider.dorsal}</span>
+                    <span>${translations[currentLanguage].lap}: ${rider.lap}</span>
+                    <span>${translations[currentLanguage].time}: ${rider.formattedTime}</span>
+                `;
+                riderListElement.appendChild(li);
+            });
+        }
+        
+        // Funciones para reiniciar
+        function openResetModal() {
+            resetModal.style.display = 'flex';
+        }
+        
+        function closeResetModal() {
+            resetModal.style.display = 'none';
+        }
+        
+        function confirmReset() {
+            // Reiniciar todo
+            isRunning = false;
+            clearInterval(intervalId);
+            startTime = 0;
+            currentTime = 0;
+            firstLapTime = null;
+            currentLap = 1;
+            currentLapTimes = {};
+            cutoffTime = null;
+            withdrawnRiders = [];
+            
+            // Actualizar displays
+            updateDisplay();
+            updateLCDDisplay();
+            currentLapElement.textContent = currentLap;
+            firstLapTimeElement.textContent = '--:--:--';
+            cutoffTimeElement.textContent = '--:--:--';
+            withdrawnCountElement.textContent = '0';
+            riderListElement.innerHTML = '';
+            chronoDisplay.classList.remove('danger');
+            
+            // Ocultar información de cálculo
+            firstLapInfo.style.display = 'none';
+            cutoffInfo.style.display = 'none';
+            
+            btnStart.textContent = translations[currentLanguage].startChrono;
+            
+            saveCurrentRaceState();
+            closeResetModal();
+        }
+        
+        // Funciones para configurar tiempo manual
+        function openTimeModal() {
+            timeModal.style.display = 'flex';
+            
+            // Establecer valores actuales
+            const time = new Date(currentTime);
+            document.getElementById('hours-input').value = time.getUTCHours();
+            document.getElementById('minutes-input').value = time.getUTCMinutes();
+            document.getElementById('seconds-input').value = time.getUTCSeconds();
+        }
+        
+        function closeTimeModal() {
+            timeModal.style.display = 'none';
+        }
+        
+        function confirmTime() {
+            const hours = parseInt(document.getElementById('hours-input').value) || 0;
+            const minutes = parseInt(document.getElementById('minutes-input').value) || 0;
+            const seconds = parseInt(document.getElementById('seconds-input').value) || 0;
+            
+            // Calcular tiempo en milisegundos
+            currentTime = (hours * 3600 + minutes * 60 + seconds) * 1000;
+            
+            // Si el cronómetro está corriendo, ajustar startTime
+            if (isRunning) {
+                startTime = Date.now() - currentTime;
+            }
+            
+            updateDisplay();
+            updateLCDDisplay();
+            closeTimeModal();
+            saveCurrentRaceState();
+        }
+        
+        // Función para exportar a Excel
+        function exportToExcel() {
+            if (!currentRaceId) {
+                alert("Primero debes crear o seleccionar una carrera.");
+                return;
+            }
+            
+            if (withdrawnRiders.length === 0) {
+                alert("No hay corredores retirados para exportar.");
+                return;
+            }
+            
+            // Crear contenido CSV
+            let csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Encabezados
+            csvContent += `${translations[currentLanguage].order},Dorsal,${translations[currentLanguage].lap},${translations[currentLanguage].time}\n`;
+            
+            // Ordenar por vuelta (descendente) y luego por orden
+            const sortedRiders = [...withdrawnRiders].sort((a, b) => {
+                if (a.lap !== b.lap) {
+                    return b.lap - a.lap;
+                }
+                return b.order - a.order;
+            });
+            
+            // Datos
+            sortedRiders.forEach(rider => {
+                csvContent += `${rider.order},${rider.dorsal},${rider.lap},${rider.formattedTime}\n`;
+            });
+            
+            // Crear enlace de descarga
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            const raceName = races[currentRaceId].name.replace(/[^a-z0-9]/gi, '_');
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `${raceName}_retirados_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            
+            // Descargar
+            link.click();
+            document.body.removeChild(link);
+        }
         
         // Función para cambiar idioma
         function updateLanguage(lang) {
@@ -993,7 +1226,10 @@
             document.getElementById('confirm-new-race').textContent = translations[lang].confirm;
             
             // Actualizar selector de carreras
-            raceSelector.querySelector('option').textContent = '-- ' + translations[lang].selectRace + ' --';
+            const firstOption = raceSelector.querySelector('option');
+            if (firstOption) {
+                firstOption.textContent = '-- ' + translations[lang].selectRace + ' --';
+            }
             
             // Actualizar textos de cálculo
             if (firstLapInfo.style.display !== 'none') {
@@ -1005,9 +1241,6 @@
             // Actualizar lista de retirados
             updateWithdrawnList();
         }
-
-        // Las funciones restantes (openWithdrawModal, confirmWithdraw, etc.) se mantienen igual
-        // Solo necesitan llamar a saveCurrentRaceState() cuando modifiquen datos
     </script>
 </body>
 </html>
