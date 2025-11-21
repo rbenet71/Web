@@ -78,26 +78,55 @@
             );
         }
         
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chrono-section {
+            display: flex;
+            gap: 20px;
+            align-items: start;
+        }
+        
         .chrono-display {
             background-color: #1a1a1a;
             text-align: center;
             padding: 20px;
             border-radius: 10px;
-            margin-bottom: 20px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 8px;
             height: 120px;
-        }
-        
-        .chrono-display.warning {
-            background-color: #ffcc00;
+            flex: 1;
         }
         
         .chrono-display.danger {
             background-color: var(--danger-color);
+        }
+        
+        .current-lap-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .current-lap-card h3 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        
+        .current-lap-card p {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--secondary-color);
         }
         
         .lcd-digit {
@@ -138,11 +167,15 @@
             font-weight: bold;
         }
         
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        .controls-section {
+            display: flex;
+            flex-direction: column;
             gap: 15px;
-            margin-bottom: 20px;
+        }
+        
+        .control-row {
+            display: flex;
+            gap: 10px;
         }
         
         button {
@@ -152,6 +185,7 @@
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
+            flex: 1;
         }
         
         button:hover {
@@ -213,6 +247,11 @@
             color: var(--primary-color);
         }
         
+        .info-card p {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
         .withdrawn-riders {
             background-color: white;
             padding: 15px;
@@ -240,6 +279,12 @@
         
         .rider-item:last-child {
             border-bottom: none;
+        }
+        
+        .race-management {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
         }
         
         .modal {
@@ -299,21 +344,11 @@
             flex: 1;
         }
         
-        .calculation-info {
-            background-color: #e8f4fd;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-            font-size: 0.9rem;
-        }
-        
-        .race-management {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
         @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+            
             .chrono-display {
                 height: 100px;
             }
@@ -328,8 +363,8 @@
                 line-height: 60px;
             }
             
-            .controls {
-                grid-template-columns: 1fr;
+            .control-row {
+                flex-direction: column;
             }
             
             .race-management {
@@ -357,50 +392,51 @@
             <button class="btn-delete-race" id="btn-delete-race">Eliminar Carrera</button>
         </div>
         
-        <div class="chrono-display" id="chrono-display">
-            <!-- Los dígitos LCD se generarán dinámicamente -->
-        </div>
-        
-        <div class="controls">
-            <button class="btn-start" id="btn-start">Iniciar Cronómetro</button>
-            <button class="btn-first" id="btn-first">Paso Primer Corredor</button>
-            <button class="btn-withdraw" id="btn-withdraw">Retirar Corredor</button>
-            <button class="btn-reset" id="btn-reset">Reiniciar Cronómetro</button>
-            <button class="btn-export" id="btn-export">Exportar a Excel</button>
-        </div>
-        
-        <div class="info-panel">
-            <div class="info-card">
-                <h3 id="current-lap-title">Vuelta Actual</h3>
-                <p id="current-lap">1</p>
-            </div>
-            <div class="info-card">
-                <h3 id="first-lap-time-title">Tiempo Primera Vuelta</h3>
-                <p id="first-lap-time">--:--:--</p>
-                <div class="calculation-info" id="first-lap-info" style="display: none;">
-                    <strong id="eighty-percent-label">80% de este tiempo:</strong><br>
-                    <span id="eighty-percent-time">--:--:--</span>
+        <div class="main-layout">
+            <div class="left-column">
+                <div class="chrono-section">
+                    <div class="chrono-display" id="chrono-display">
+                        <!-- Los dígitos LCD se generarán dinámicamente -->
+                    </div>
+                    <div class="current-lap-card">
+                        <h3 id="current-lap-title">Vuelta Actual</h3>
+                        <p id="current-lap">1</p>
+                    </div>
+                </div>
+                
+                <div class="control-row">
+                    <button class="btn-first" id="btn-first">Paso Primer Corredor</button>
+                    <button class="btn-withdraw" id="btn-withdraw">Retirar Corredor</button>
+                </div>
+                
+                <div class="info-panel">
+                    <div class="info-card">
+                        <h3 id="first-lap-time-title">Tiempo Primera Vuelta</h3>
+                        <p id="first-lap-time">--:--:--</p>
+                    </div>
+                    <div class="info-card">
+                        <h3 id="cutoff-time-title">Tiempo Límite Actual</h3>
+                        <p id="cutoff-time">--:--:--</p>
+                    </div>
+                    <div class="info-card">
+                        <h3 id="withdrawn-count-title">Corredores Retirados</h3>
+                        <p id="withdrawn-count">0</p>
+                    </div>
+                </div>
+                
+                <div class="withdrawn-riders">
+                    <h3 id="withdrawn-list-title">Lista de Retirados</h3>
+                    <ul class="rider-list" id="rider-list">
+                        <!-- Aquí se mostrarán los corredores retirados -->
+                    </ul>
                 </div>
             </div>
-            <div class="info-card">
-                <h3 id="cutoff-time-title">Tiempo Límite Actual</h3>
-                <p id="cutoff-time">--:--:--</p>
-                <div class="calculation-info" id="cutoff-info" style="display: none;">
-                    <strong id="cutoff-calculation-label">Cálculo:</strong><br>
-                    <span id="cutoff-calculation">Tiempo vuelta actual + 80% primera vuelta</span>
-                </div>
+            
+            <div class="controls-section">
+                <button class="btn-export" id="btn-export">Exportar a Excel</button>
+                <button class="btn-start" id="btn-start">Iniciar Cronómetro</button>
+                <button class="btn-reset" id="btn-reset">Reiniciar Cronómetro</button>
             </div>
-            <div class="info-card">
-                <h3 id="withdrawn-count-title">Corredores Retirados</h3>
-                <p id="withdrawn-count">0</p>
-            </div>
-        </div>
-        
-        <div class="withdrawn-riders">
-            <h3 id="withdrawn-list-title">Lista de Retirados</h3>
-            <ul class="rider-list" id="rider-list">
-                <!-- Aquí se mostrarán los corredores retirados -->
-            </ul>
         </div>
     </div>
     
@@ -538,9 +574,6 @@
                 lap: "Vuelta",
                 time: "Tiempo",
                 order: "Orden",
-                eightyPercent: "80% de este tiempo:",
-                cutoffCalculation: "Cálculo:",
-                calculationFormula: "Tiempo vuelta actual + 80% primera vuelta",
                 selectRace: "Seleccionar Carrera",
                 newRaceTitle: "Nueva Carrera",
                 raceNameLabel: "Nombre de la Carrera",
@@ -577,9 +610,6 @@
                 lap: "Volta",
                 time: "Temps",
                 order: "Ordre",
-                eightyPercent: "80% d'aquest temps:",
-                cutoffCalculation: "Càlcul:",
-                calculationFormula: "Temps volta actual + 80% primera volta",
                 selectRace: "Seleccionar Cursa",
                 newRaceTitle: "Nova Cursa",
                 raceNameLabel: "Nom de la Cursa",
@@ -616,9 +646,6 @@
                 lap: "Lap",
                 time: "Time",
                 order: "Order",
-                eightyPercent: "80% of this time:",
-                cutoffCalculation: "Calculation:",
-                calculationFormula: "Current lap time + 80% first lap",
                 selectRace: "Select Race",
                 newRaceTitle: "New Race",
                 raceNameLabel: "Race Name",
@@ -653,10 +680,6 @@
         const dorsalInput = document.getElementById('dorsal-input');
         const raceNameInput = document.getElementById('race-name-input');
         const flags = document.querySelectorAll('.flag');
-        const firstLapInfo = document.getElementById('first-lap-info');
-        const eightyPercentTime = document.getElementById('eighty-percent-time');
-        const cutoffInfo = document.getElementById('cutoff-info');
-        const cutoffCalculation = document.getElementById('cutoff-calculation');
         
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
@@ -807,9 +830,6 @@
             riderListElement.innerHTML = '';
             chronoDisplay.classList.remove('danger');
             
-            firstLapInfo.style.display = 'none';
-            cutoffInfo.style.display = 'none';
-            
             btnStart.textContent = translations[currentLanguage].startChrono;
         }
         
@@ -851,16 +871,6 @@
             
             withdrawnCountElement.textContent = withdrawnRiders.length;
             
-            // Mostrar/ocultar información de cálculo
-            if (firstLapTime) {
-                firstLapInfo.style.display = 'block';
-                eightyPercentTime.textContent = formatTime(firstLapTime * 0.8);
-                cutoffInfo.style.display = 'block';
-            } else {
-                firstLapInfo.style.display = 'none';
-                cutoffInfo.style.display = 'none';
-            }
-            
             updateWithdrawnList();
             btnStart.textContent = translations[currentLanguage].startChrono;
             
@@ -886,7 +896,7 @@
             saveRaces();
         }
         
-        // Display LCD - CORREGIDO
+        // Display LCD
         function createLCDDisplay() {
             chronoDisplay.innerHTML = '';
             
@@ -1060,17 +1070,6 @@
                 // Si es la primera vuelta, guardar el tiempo base
                 if (currentLap === 1) {
                     firstLapTime = currentTime;
-                    
-                    // Calcular el 80% del tiempo de la primera vuelta
-                    const eightyPercent = firstLapTime * 0.8;
-                    
-                    // Mostrar información del cálculo
-                    firstLapInfo.style.display = 'block';
-                    eightyPercentTime.textContent = formatTime(eightyPercent);
-                    
-                    cutoffInfo.style.display = 'block';
-                    
-                    // Actualizar displays
                     firstLapTimeElement.textContent = formatTime(firstLapTime);
                 }
                 
@@ -1214,10 +1213,6 @@
             riderListElement.innerHTML = '';
             chronoDisplay.classList.remove('danger');
             
-            // Ocultar información de cálculo
-            firstLapInfo.style.display = 'none';
-            cutoffInfo.style.display = 'none';
-            
             btnStart.textContent = translations[currentLanguage].startChrono;
             
             saveCurrentRaceState();
@@ -1258,7 +1253,7 @@
             saveCurrentRaceState();
         }
         
-        // Función para exportar a Excel - CORREGIDO
+        // Función para exportar a Excel
         function exportToExcel() {
             if (!currentRaceId) {
                 alert("Primero debes crear o seleccionar una carrera.");
@@ -1360,13 +1355,6 @@
             const firstOption = raceSelector.querySelector('option');
             if (firstOption) {
                 firstOption.textContent = '-- ' + translations[lang].selectRace + ' --';
-            }
-            
-            // Actualizar textos de cálculo
-            if (firstLapInfo.style.display !== 'none') {
-                document.getElementById('eighty-percent-label').textContent = translations[lang].eightyPercent;
-                document.getElementById('cutoff-calculation-label').textContent = translations[lang].cutoffCalculation;
-                cutoffCalculation.textContent = translations[lang].calculationFormula;
             }
             
             // Actualizar lista de retirados
