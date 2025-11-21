@@ -129,6 +129,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            transition: all 0.3s ease;
         }
         
         .chrono-display::before {
@@ -142,9 +146,10 @@
             pointer-events: none;
         }
         
-        .chrono-display.danger {
+        .chrono-display.over-limit {
             background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             border-color: #c0392b;
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.7);
         }
         
         .lcd-time {
@@ -157,8 +162,8 @@
         }
         
         .lcd-time.over-limit {
-            color: #ff0000;
-            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
         }
         
         .chrono-controls {
@@ -706,7 +711,8 @@
                 editFirstLapTitle: "Modificar Tiempo Primera Vuelta",
                 startTimeLabel: "Hora de Salida:",
                 lapTimesTitle: "Tiempos del Primer Corredor por Vuelta",
-                removeLap: "Eliminar"
+                removeLap: "Eliminar",
+                confirmRemoveLap: "¿Estás seguro de que quieres eliminar esta vuelta? Se recalcularán las vueltas siguientes."
             },
             ca: {
                 appTitle: "Cronòmetre Control 80%",
@@ -751,7 +757,8 @@
                 editFirstLapTitle: "Modificar Temps Primera Volta",
                 startTimeLabel: "Hora de Sortida:",
                 lapTimesTitle: "Temps del Primer Corredor per Volta",
-                removeLap: "Eliminar"
+                removeLap: "Eliminar",
+                confirmRemoveLap: "Estàs segur que vols eliminar aquesta volta? Es recalcularan les voltes següents."
             },
             en: {
                 appTitle: "80% Control Chronometer",
@@ -796,7 +803,8 @@
                 editFirstLapTitle: "Modify First Lap Time",
                 startTimeLabel: "Start Time:",
                 lapTimesTitle: "First Rider Lap Times",
-                removeLap: "Remove"
+                removeLap: "Remove",
+                confirmRemoveLap: "Are you sure you want to remove this lap? The following laps will be recalculated."
             }
         };
         
@@ -838,9 +846,21 @@
         
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
+            // Cargar idioma guardado
+            const savedLanguage = localStorage.getItem('bttLanguage');
+            if (savedLanguage) {
+                currentLanguage = savedLanguage;
+            }
+            
             loadRaces();
-            updateLanguage('es');
+            updateLanguage(currentLanguage);
             updateDisplay();
+            
+            // Cargar última carrera utilizada
+            const lastRaceId = localStorage.getItem('bttLastRace');
+            if (lastRaceId && races[lastRaceId]) {
+                loadRace(lastRaceId);
+            }
             
             // Event listeners para botones principales
             btnStart.addEventListener('click', toggleChrono);
@@ -866,6 +886,8 @@
                 flag.addEventListener('click', function() {
                     const lang = this.getAttribute('data-lang');
                     updateLanguage(lang);
+                    // Guardar idioma seleccionado
+                    localStorage.setItem('bttLanguage', lang);
                 });
             });
             
@@ -1033,7 +1055,7 @@
             withdrawnCountElement.textContent = '0';
             riderListElement.innerHTML = '';
             lapListElement.innerHTML = '';
-            chronoDisplay.classList.remove('danger');
+            chronoDisplay.classList.remove('over-limit');
             lcdTime.classList.remove('over-limit');
             firstLapInfo.style.display = 'none';
             btnStart.textContent = translations[currentLanguage].startChrono;
@@ -1061,16 +1083,15 @@
                 
                 raceStartTime = targetDate;
                 
-                // Si el cronómetro está corriendo, ajustamos el tiempo actual
+                // Actualizar el tiempo actual basado en la hora de salida
+                updateCurrentTimeFromStartTime();
+                
+                // Si el cronómetro está corriendo, ajustamos el startTime
                 if (isRunning) {
-                    currentTime = Date.now() - targetDate.getTime();
                     startTime = Date.now() - currentTime;
-                } else {
-                    // Si no está corriendo, mostramos la hora de salida
-                    currentTime = 0;
                 }
             } else {
-                // Tiempo manual
+                // Tiempo manual - establecer el tiempo actual directamente
                 currentTime = (hours * 3600 + minutes * 60 + seconds) * 1000;
                 
                 // Si el cronómetro está corriendo, ajustamos el startTime
@@ -1120,6 +1141,7 @@
                 updateRaceSelector();
                 currentRaceId = null;
                 resetRaceState();
+                localStorage.removeItem('bttLastRace');
             }
             closeDeleteRaceModal();
         }
@@ -1234,6 +1256,9 @@
             updateRaceStartTimeDisplay();
             
             clearInterval(intervalId);
+            
+            // Guardar última carrera utilizada
+            localStorage.setItem('bttLastRace', currentRaceId);
         }
         
         function saveCurrentRaceState() {
@@ -1271,7 +1296,7 @@
             withdrawnCountElement.textContent = '0';
             riderListElement.innerHTML = '';
             lapListElement.innerHTML = '';
-            chronoDisplay.classList.remove('danger');
+            chronoDisplay.classList.remove('over-limit');
             lcdTime.classList.remove('over-limit');
             firstLapInfo.style.display = 'none';
             btnStart.textContent = translations[currentLanguage].startChrono;
@@ -1305,10 +1330,28 @@
         }
         
         function updateChrono() {
-            currentTime = Date.now() - startTime;
+            // Si tenemos una hora de salida, calcular el tiempo basado en ella
+            if (raceStartTime) {
+                updateCurrentTimeFromStartTime();
+            } else {
+                currentTime = Date.now() - startTime;
+            }
+            
             updateDisplay();
             checkCutoffStatus();
             saveCurrentRaceState();
+        }
+        
+        function updateCurrentTimeFromStartTime() {
+            if (raceStartTime) {
+                const now = new Date();
+                currentTime = now - raceStartTime;
+                
+                // Si el cronómetro está corriendo, ajustar startTime para mantener la consistencia
+                if (isRunning) {
+                    startTime = Date.now() - currentTime;
+                }
+            }
         }
         
         function updateDisplay() {
@@ -1316,6 +1359,11 @@
         }
         
         function formatDisplayTime(time) {
+            // Si el tiempo es negativo (cuenta regresiva), mostrar 0
+            if (time < 0) {
+                return "00'00\"000";
+            }
+            
             const totalSeconds = Math.floor(time / 1000);
             const hours = Math.floor(totalSeconds / 3600);
             const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -1352,8 +1400,10 @@
                 const currentCutoffTime = currentLapTimes[currentLap] + (firstLapTime * 0.8);
                 
                 if (currentTime > currentCutoffTime) {
+                    chronoDisplay.classList.add('over-limit');
                     lcdTime.classList.add('over-limit');
                 } else {
+                    chronoDisplay.classList.remove('over-limit');
                     lcdTime.classList.remove('over-limit');
                 }
                 
@@ -1389,11 +1439,15 @@
         }
         
         function removeLap(lapNumber) {
-            if (confirm("¿Estás seguro de que quieres eliminar esta vuelta? Se recalcularán las vueltas siguientes.")) {
-                // Eliminar la vuelta y todas las siguientes
-                for (let i = lapNumber; i <= currentLap; i++) {
-                    delete currentLapTimes[i];
+            if (confirm(translations[currentLanguage].confirmRemoveLap)) {
+                // Solo permitir eliminar la última vuelta
+                if (lapNumber !== currentLap - 1) {
+                    alert("Solo puedes eliminar la última vuelta registrada.");
+                    return;
                 }
+                
+                // Eliminar la vuelta
+                delete currentLapTimes[lapNumber];
                 
                 // Recalcular la vuelta actual
                 currentLap = lapNumber;
@@ -1461,10 +1515,15 @@
                 if (currentLapTimes[lap]) {
                     const li = document.createElement('li');
                     li.className = 'lap-item';
+                    
+                    // Solo mostrar botón de eliminar en la última vuelta
+                    const removeButton = (lap === currentLap - 1) ? 
+                        `<button class="btn-remove remove-lap" data-lap="${lap}">${translations[currentLanguage].removeLap}</button>` : '';
+                    
                     li.innerHTML = `
                         <span>${translations[currentLanguage].lap} ${lap}</span>
                         <span>${formatDisplayTime(currentLapTimes[lap])}</span>
-                        <button class="btn-remove remove-lap" data-lap="${lap}">${translations[currentLanguage].removeLap}</button>
+                        ${removeButton}
                     `;
                     lapListElement.appendChild(li);
                 }
@@ -1509,12 +1568,10 @@
                 return;
             }
             
-            if (withdrawnRiders.length === 0) {
-                alert("No hay corredores retirados para exportar.");
-                return;
-            }
-            
             let csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Hoja 1: Corredores retirados
+            csvContent += "CORREDORES RETIRADOS\n";
             csvContent += `${translations[currentLanguage].order};Dorsal;${translations[currentLanguage].lap};${translations[currentLanguage].time}\n`;
             
             const sortedRiders = [...withdrawnRiders].sort((a, b) => {
@@ -1528,11 +1585,24 @@
                 csvContent += `${rider.order};${rider.dorsal};${rider.lap};${formatExportTime(rider.time)}\n`;
             });
             
+            // Hoja 2: Tiempos del primer corredor
+            csvContent += "\nTIEMPOS DEL PRIMER CORREDOR\n";
+            csvContent += `${translations[currentLanguage].lap};${translations[currentLanguage].time}\n`;
+            
+            // Ordenar por tiempo (no por número de vuelta)
+            const sortedLaps = Object.entries(currentLapTimes)
+                .sort((a, b) => a[1] - b[1])
+                .map(([lap, time]) => ({ lap, time }));
+            
+            sortedLaps.forEach(lap => {
+                csvContent += `${lap.lap};${formatExportTime(lap.time)}\n`;
+            });
+            
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             const raceName = races[currentRaceId].name.replace(/[^a-z0-9]/gi, '_');
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `${raceName}_retirados_${new Date().toISOString().slice(0,10)}.csv`);
+            link.setAttribute("download", `${raceName}_datos_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
