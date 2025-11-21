@@ -148,10 +148,6 @@
             font-size: 4rem;
             font-weight: 900;
             color: #00ff00;
-            text-shadow: 
-                0 0 10px #00ff00,
-                0 0 20px #00ff00,
-                0 0 30px #00ff00;
             letter-spacing: 3px;
             line-height: 1;
         }
@@ -166,6 +162,13 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+        }
+        
+        .bottom-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
         }
         
         button {
@@ -380,7 +383,7 @@
                 font-size: 2.5rem;
             }
             
-            .chrono-controls, .main-controls {
+            .chrono-controls, .main-controls, .bottom-controls {
                 flex-direction: column;
             }
             
@@ -419,14 +422,10 @@
             </div>
         </div>
         
-        <div class="chrono-controls">
-            <button class="btn-start" id="btn-start">Iniciar Cronómetro</button>
-            <button class="btn-set-time" id="btn-set-time">Fijar Hora Crono</button>
-        </div>
-        
         <div class="main-controls">
             <button class="btn-first" id="btn-first">Paso Primer Corredor</button>
             <button class="btn-withdraw" id="btn-withdraw">Retirar Corredor</button>
+            <button class="btn-set-time" id="btn-set-time">Fijar Tiempo Crono</button>
         </div>
         
         <div class="info-panel">
@@ -459,12 +458,13 @@
         </div>
         
         <div class="race-start-time">
-            <strong id="start-time-label">Hora de inicio de carrera:</strong>
+            <strong id="start-time-label">Hora de Salida:</strong>
             <span id="race-start-time">--:--:--</span>
         </div>
         
-        <div style="text-align: center; margin-top: 20px;">
+        <div class="bottom-controls">
             <button class="btn-export" id="btn-export">Exportar a Excel</button>
+            <button class="btn-start" id="btn-start">Iniciar Cronómetro</button>
             <button class="btn-reset" id="btn-reset">Reiniciar Cronómetro</button>
         </div>
     </div>
@@ -496,13 +496,13 @@
         </div>
     </div>
     
-    <!-- Modal para configurar tiempo manual -->
+    <!-- Modal para configurar tiempo -->
     <div class="modal" id="time-modal">
         <div class="modal-content">
-            <h3 id="time-modal-title">Configurar Tiempo del Cronómetro</h3>
+            <h3 id="time-modal-title">Fijar Tiempo del Cronómetro</h3>
             <div class="time-option-buttons">
                 <button class="btn-set-time" id="set-start-time">Hora de Salida</button>
-                <button class="btn-set-time" id="set-manual-time">Tiempo Manual</button>
+                <button class="btn-set-time" id="set-manual-time">Tiempo de Crono</button>
             </div>
             <div id="time-inputs-section">
                 <div class="form-group">
@@ -602,7 +602,7 @@
         let currentRaceId = null;
         let races = {};
         let raceStartTime = null;
-        let timeModalMode = 'start'; // 'start' o 'manual'
+        let timeModalMode = 'start';
         
         // Textos en diferentes idiomas
         const translations = {
@@ -610,7 +610,7 @@
                 appTitle: "Cronómetro Control 80%",
                 startChrono: "Iniciar Cronómetro",
                 stopChrono: "Parar Cronómetro",
-                setTime: "Fijar Hora Crono",
+                setTime: "Fijar Tiempo Crono",
                 firstRider: "Paso Primer Corredor",
                 withdrawRider: "Retirar Corredor",
                 resetChrono: "Reiniciar Cronómetro",
@@ -628,9 +628,9 @@
                 confirm: "Confirmar",
                 resetModalTitle: "Confirmar Reinicio",
                 resetModalText: "¿Estás seguro de que quieres reiniciar el cronómetro? Se perderán todos los datos.",
-                timeModalTitle: "Configurar Tiempo del Cronómetro",
+                timeModalTitle: "Fijar Tiempo del Cronómetro",
                 setStartTime: "Hora de Salida",
-                setManualTime: "Tiempo Manual",
+                setManualTime: "Tiempo de Crono",
                 hoursLabel: "Horas",
                 minutesLabel: "Minutos",
                 secondsLabel: "Segundos",
@@ -646,13 +646,13 @@
                 stopChronoTitle: "Parar Cronómetro",
                 stopChronoText: "¿Estás seguro de que quieres parar el cronómetro?",
                 editFirstLapTitle: "Modificar Tiempo Primera Vuelta",
-                startTimeLabel: "Hora de inicio de carrera:"
+                startTimeLabel: "Hora de Salida:"
             },
             ca: {
                 appTitle: "Cronòmetre Control 80%",
                 startChrono: "Iniciar Cronòmetre",
                 stopChrono: "Aturar Cronòmetre",
-                setTime: "Fixar Hora Crono",
+                setTime: "Fixar Temps Crono",
                 firstRider: "Pas Primer Corredor",
                 withdrawRider: "Retirar Corredor",
                 resetChrono: "Reiniciar Cronòmetre",
@@ -670,9 +670,9 @@
                 confirm: "Confirmar",
                 resetModalTitle: "Confirmar Reinici",
                 resetModalText: "Estàs segur que vols reiniciar el cronòmetre? Es perdran totes les dades.",
-                timeModalTitle: "Configurar Temps del Cronòmetre",
+                timeModalTitle: "Fixar Temps del Cronòmetre",
                 setStartTime: "Hora de Sortida",
-                setManualTime: "Temps Manual",
+                setManualTime: "Temps de Crono",
                 hoursLabel: "Hores",
                 minutesLabel: "Minuts",
                 secondsLabel: "Segons",
@@ -688,7 +688,7 @@
                 stopChronoTitle: "Aturar Cronòmetre",
                 stopChronoText: "Estàs segur que vols aturar el cronòmetre?",
                 editFirstLapTitle: "Modificar Temps Primera Volta",
-                startTimeLabel: "Hora d'inici de cursa:"
+                startTimeLabel: "Hora de Sortida:"
             },
             en: {
                 appTitle: "80% Control Chronometer",
@@ -714,7 +714,7 @@
                 resetModalText: "Are you sure you want to reset the chronometer? All data will be lost.",
                 timeModalTitle: "Set Chronometer Time",
                 setStartTime: "Start Time",
-                setManualTime: "Manual Time",
+                setManualTime: "Chrono Time",
                 hoursLabel: "Hours",
                 minutesLabel: "Minutes",
                 secondsLabel: "Seconds",
@@ -730,7 +730,7 @@
                 stopChronoTitle: "Stop Chronometer",
                 stopChronoText: "Are you sure you want to stop the chronometer?",
                 editFirstLapTitle: "Modify First Lap Time",
-                startTimeLabel: "Race start time:"
+                startTimeLabel: "Start Time:"
             }
         };
         
@@ -786,7 +786,7 @@
             // Event listeners para modales
             setupModalEvents();
             
-            // Cambio de idioma
+            // Cambio de idioma - CORREGIDO
             document.querySelectorAll('.flag').forEach(flag => {
                 flag.addEventListener('click', function() {
                     const lang = this.getAttribute('data-lang');
@@ -1056,6 +1056,7 @@
             firstLapTimeElement.textContent = formatDisplayTime(firstLapTime);
             updateEightyPercentTime();
             updateCutoffTime();
+            checkCutoffStatus(); // Verificar estado después de modificar
             saveCurrentRaceState();
             closeEditFirstLapModal();
         }
@@ -1074,9 +1075,6 @@
             document.getElementById('minutes-input').value = 0;
             document.getElementById('seconds-input').value = 0;
         }
-        
-        // Resto de funciones (loadRaces, saveRaces, updateRaceSelector, etc.)
-        // ... (estas funciones se mantienen igual que en el código anterior)
         
         // Gestión de carreras
         function loadRaces() {
@@ -1138,6 +1136,10 @@
             updateCutoffTime();
             updateEightyPercentTime();
             withdrawnCountElement.textContent = withdrawnRiders.length;
+            
+            if (firstLapTime) {
+                firstLapInfo.style.display = 'block';
+            }
             
             updateWithdrawnList();
             btnStart.textContent = translations[currentLanguage].startChrono;
@@ -1377,10 +1379,11 @@
             document.body.removeChild(link);
         }
         
-        // Función para cambiar idioma
+        // Función para cambiar idioma - CORREGIDA
         function updateLanguage(lang) {
             currentLanguage = lang;
             
+            // Actualizar banderas activas
             document.querySelectorAll('.flag').forEach(flag => {
                 if (flag.getAttribute('data-lang') === lang) {
                     flag.classList.add('active');
@@ -1391,12 +1394,29 @@
             
             // Actualizar todos los textos
             Object.keys(translations[lang]).forEach(key => {
-                const elements = document.querySelectorAll(`[id*="${key}"]`);
+                const elements = document.querySelectorAll(`[id$="-${key}"]`);
                 elements.forEach(element => {
                     if (element.tagName === 'INPUT' && element.type !== 'button') return;
                     element.textContent = translations[lang][key];
                 });
+                
+                // También buscar elementos por id exacto
+                const exactElement = document.getElementById(key);
+                if (exactElement && !(exactElement.tagName === 'INPUT' && exactElement.type !== 'button')) {
+                    exactElement.textContent = translations[lang][key];
+                }
             });
+            
+            // Actualizar textos específicos
+            document.getElementById('app-title').textContent = translations[lang].appTitle;
+            document.getElementById('btn-start').textContent = isRunning ? translations[lang].stopChrono : translations[lang].startChrono;
+            document.getElementById('btn-set-time').textContent = translations[lang].setTime;
+            document.getElementById('btn-first').textContent = translations[lang].firstRider;
+            document.getElementById('btn-withdraw').textContent = translations[lang].withdrawRider;
+            document.getElementById('btn-reset').textContent = translations[lang].resetChrono;
+            document.getElementById('btn-export').textContent = translations[lang].exportExcel;
+            document.getElementById('btn-new-race').textContent = translations[lang].newRace;
+            document.getElementById('btn-delete-race').textContent = translations[lang].deleteRace;
             
             updateRaceStartTimeDisplay();
             updateWithdrawnList();
