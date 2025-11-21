@@ -146,12 +146,6 @@
             pointer-events: none;
         }
         
-        .chrono-display.over-limit {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            border-color: #c0392b;
-            box-shadow: 0 0 20px rgba(231, 76, 60, 0.7);
-        }
-        
         .lcd-time {
             font-family: 'Orbitron', monospace;
             font-size: 4rem;
@@ -161,9 +155,16 @@
             line-height: 1;
         }
         
-        .lcd-time.over-limit {
-            color: #ffffff;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        .cutoff-warning {
+            text-align: center;
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: rgba(231, 76, 60, 0.1);
+            border-radius: 5px;
+            display: none;
         }
         
         .chrono-controls {
@@ -256,6 +257,7 @@
             color: white;
             padding: 6px 12px;
             font-size: 0.8rem;
+            cursor: pointer;
         }
         
         .info-panel {
@@ -474,6 +476,8 @@
             </div>
         </div>
         
+        <div class="cutoff-warning" id="cutoff-warning">ELIMINAR CORREDOR</div>
+        
         <div class="main-controls">
             <button class="btn-first" id="btn-first">Paso Primer Corredor</button>
             <button class="btn-withdraw" id="btn-withdraw">Retirar Corredor</button>
@@ -665,6 +669,7 @@
         let races = {};
         let raceStartTime = null;
         let timeModalMode = 'start';
+        let isOverCutoff = false;
         
         // Textos en diferentes idiomas
         const translations = {
@@ -712,7 +717,8 @@
                 startTimeLabel: "Hora de Salida:",
                 lapTimesTitle: "Tiempos del Primer Corredor por Vuelta",
                 removeLap: "Eliminar",
-                confirmRemoveLap: "¿Estás seguro de que quieres eliminar esta vuelta? Se recalcularán las vueltas siguientes."
+                confirmRemoveLap: "¿Estás seguro de que quieres eliminar esta vuelta? Se recalcularán las vueltas siguientes.",
+                cutoffWarning: "ELIMINAR CORREDOR"
             },
             ca: {
                 appTitle: "Cronòmetre Control 80%",
@@ -758,7 +764,8 @@
                 startTimeLabel: "Hora de Sortida:",
                 lapTimesTitle: "Temps del Primer Corredor per Volta",
                 removeLap: "Eliminar",
-                confirmRemoveLap: "Estàs segur que vols eliminar aquesta volta? Es recalcularan les voltes següents."
+                confirmRemoveLap: "Estàs segur que vols eliminar aquesta volta? Es recalcularan les voltes següents.",
+                cutoffWarning: "ELIMINAR CORREDOR"
             },
             en: {
                 appTitle: "80% Control Chronometer",
@@ -804,7 +811,8 @@
                 startTimeLabel: "Start Time:",
                 lapTimesTitle: "First Rider Lap Times",
                 removeLap: "Remove",
-                confirmRemoveLap: "Are you sure you want to remove this lap? The following laps will be recalculated."
+                confirmRemoveLap: "Are you sure you want to remove this lap? The following laps will be recalculated.",
+                cutoffWarning: "ELIMINATE RIDER"
             }
         };
         
@@ -834,6 +842,7 @@
         const lapTimesTabButton = document.getElementById('lap-times-tab-button');
         const withdrawnTab = document.getElementById('withdrawn-tab');
         const lapTimesTab = document.getElementById('lap-times-tab');
+        const cutoffWarning = document.getElementById('cutoff-warning');
         
         // Modales
         const withdrawModal = document.getElementById('withdraw-modal');
@@ -860,6 +869,7 @@
             const lastRaceId = localStorage.getItem('bttLastRace');
             if (lastRaceId && races[lastRaceId]) {
                 loadRace(lastRaceId);
+                raceSelector.value = lastRaceId;
             }
             
             // Event listeners para botones principales
@@ -1047,6 +1057,7 @@
             cutoffTime = null;
             withdrawnRiders = [];
             raceStartTime = null;
+            isOverCutoff = false;
             
             updateDisplay();
             currentLapElement.textContent = currentLap;
@@ -1055,11 +1066,10 @@
             withdrawnCountElement.textContent = '0';
             riderListElement.innerHTML = '';
             lapListElement.innerHTML = '';
-            chronoDisplay.classList.remove('over-limit');
-            lcdTime.classList.remove('over-limit');
             firstLapInfo.style.display = 'none';
             btnStart.textContent = translations[currentLanguage].startChrono;
             updateRaceStartTimeDisplay();
+            cutoffWarning.style.display = 'none';
             
             saveCurrentRaceState();
             closeResetModal();
@@ -1288,6 +1298,7 @@
             cutoffTime = null;
             withdrawnRiders = [];
             raceStartTime = null;
+            isOverCutoff = false;
             
             updateDisplay();
             currentLapElement.textContent = currentLap;
@@ -1296,11 +1307,10 @@
             withdrawnCountElement.textContent = '0';
             riderListElement.innerHTML = '';
             lapListElement.innerHTML = '';
-            chronoDisplay.classList.remove('over-limit');
-            lcdTime.classList.remove('over-limit');
             firstLapInfo.style.display = 'none';
             btnStart.textContent = translations[currentLanguage].startChrono;
             updateRaceStartTimeDisplay();
+            cutoffWarning.style.display = 'none';
         }
         
         // Funciones del cronómetro
@@ -1400,11 +1410,11 @@
                 const currentCutoffTime = currentLapTimes[currentLap] + (firstLapTime * 0.8);
                 
                 if (currentTime > currentCutoffTime) {
-                    chronoDisplay.classList.add('over-limit');
-                    lcdTime.classList.add('over-limit');
+                    isOverCutoff = true;
+                    cutoffWarning.style.display = 'block';
                 } else {
-                    chronoDisplay.classList.remove('over-limit');
-                    lcdTime.classList.remove('over-limit');
+                    isOverCutoff = false;
+                    cutoffWarning.style.display = 'none';
                 }
                 
                 cutoffTimeElement.textContent = formatDisplayTime(currentCutoffTime);
@@ -1431,6 +1441,10 @@
                 updateLapTimesList();
                 currentLap++;
                 currentLapElement.textContent = currentLap;
+                
+                // Ocultar el mensaje de advertencia cuando pasa el primer corredor
+                cutoffWarning.style.display = 'none';
+                isOverCutoff = false;
                 
                 // Verificar inmediatamente el estado de corte
                 checkCutoffStatus();
@@ -1670,6 +1684,7 @@
             document.getElementById('cancel-edit-first-lap').textContent = translations[lang].cancel;
             document.getElementById('confirm-edit-first-lap').textContent = translations[lang].confirm;
             document.getElementById('start-time-label').textContent = translations[lang].startTimeLabel;
+            document.getElementById('cutoff-warning').textContent = translations[lang].cutoffWarning;
             
             updateRaceStartTimeDisplay();
             updateWithdrawnList();
