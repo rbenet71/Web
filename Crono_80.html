@@ -232,6 +232,11 @@
             font-size: 0.8rem;
         }
         
+        .btn-modify {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
         .info-panel {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -425,7 +430,6 @@
         <div class="main-controls">
             <button class="btn-first" id="btn-first">Paso Primer Corredor</button>
             <button class="btn-withdraw" id="btn-withdraw">Retirar Corredor</button>
-            <button class="btn-set-time" id="btn-set-time">Fijar Tiempo Crono</button>
         </div>
         
         <div class="info-panel">
@@ -465,6 +469,7 @@
         <div class="bottom-controls">
             <button class="btn-export" id="btn-export">Exportar a Excel</button>
             <button class="btn-start" id="btn-start">Iniciar Cronómetro</button>
+            <button class="btn-set-time" id="btn-set-time">Fijar Tiempo Crono</button>
             <button class="btn-reset" id="btn-reset">Reiniciar Cronómetro</button>
         </div>
     </div>
@@ -501,8 +506,8 @@
         <div class="modal-content">
             <h3 id="time-modal-title">Fijar Tiempo del Cronómetro</h3>
             <div class="time-option-buttons">
-                <button class="btn-set-time" id="set-start-time">Hora de Salida</button>
-                <button class="btn-set-time" id="set-manual-time">Tiempo de Crono</button>
+                <button class="btn-set-time" id="set-start-time">Hora Salida</button>
+                <button class="btn-set-time" id="set-manual-time">Hora Crono</button>
             </div>
             <div id="time-inputs-section">
                 <div class="form-group">
@@ -520,7 +525,7 @@
             </div>
             <div class="modal-buttons">
                 <button class="btn-reset" id="cancel-time">Cancelar</button>
-                <button class="btn-start" id="confirm-time">Confirmar</button>
+                <button class="btn-modify" id="confirm-time">Modificar</button>
             </div>
         </div>
     </div>
@@ -582,7 +587,7 @@
             </div>
             <div class="modal-buttons">
                 <button class="btn-reset" id="cancel-edit-first-lap">Cancelar</button>
-                <button class="btn-start" id="confirm-edit-first-lap">Confirmar</button>
+                <button class="btn-modify" id="confirm-edit-first-lap">Modificar</button>
             </div>
         </div>
     </div>
@@ -626,11 +631,12 @@
                 dorsalLabel: "Número(s) de Dorsal (separados por comas)",
                 cancel: "Cancelar",
                 confirm: "Confirmar",
+                modify: "Modificar",
                 resetModalTitle: "Confirmar Reinicio",
                 resetModalText: "¿Estás seguro de que quieres reiniciar el cronómetro? Se perderán todos los datos.",
                 timeModalTitle: "Fijar Tiempo del Cronómetro",
-                setStartTime: "Hora de Salida",
-                setManualTime: "Tiempo de Crono",
+                setStartTime: "Hora Salida",
+                setManualTime: "Hora Crono",
                 hoursLabel: "Horas",
                 minutesLabel: "Minutos",
                 secondsLabel: "Segundos",
@@ -668,11 +674,12 @@
                 dorsalLabel: "Número(s) de Dorsal (separats per comes)",
                 cancel: "Cancel·lar",
                 confirm: "Confirmar",
+                modify: "Modificar",
                 resetModalTitle: "Confirmar Reinici",
                 resetModalText: "Estàs segur que vols reiniciar el cronòmetre? Es perdran totes les dades.",
                 timeModalTitle: "Fixar Temps del Cronòmetre",
-                setStartTime: "Hora de Sortida",
-                setManualTime: "Temps de Crono",
+                setStartTime: "Hora Sortida",
+                setManualTime: "Hora Crono",
                 hoursLabel: "Hores",
                 minutesLabel: "Minuts",
                 secondsLabel: "Segons",
@@ -710,6 +717,7 @@
                 dorsalLabel: "Dorsal Number(s) (separated by commas)",
                 cancel: "Cancel",
                 confirm: "Confirm",
+                modify: "Modify",
                 resetModalTitle: "Confirm Reset",
                 resetModalText: "Are you sure you want to reset the chronometer? All data will be lost.",
                 timeModalTitle: "Set Chronometer Time",
@@ -786,7 +794,7 @@
             // Event listeners para modales
             setupModalEvents();
             
-            // Cambio de idioma - CORREGIDO
+            // Cambio de idioma
             document.querySelectorAll('.flag').forEach(flag => {
                 flag.addEventListener('click', function() {
                     const lang = this.getAttribute('data-lang');
@@ -1263,6 +1271,8 @@
             if (firstLapTime && currentLapTimes[currentLap]) {
                 const currentCutoffTime = currentLapTimes[currentLap] + (firstLapTime * 0.8);
                 
+                console.log('Current Time:', currentTime, 'Cutoff Time:', currentCutoffTime);
+                
                 if (currentTime > currentCutoffTime) {
                     chronoDisplay.classList.add('danger');
                 } else {
@@ -1293,6 +1303,8 @@
                 currentLap++;
                 currentLapElement.textContent = currentLap;
                 
+                // Verificar inmediatamente el estado de corte
+                checkCutoffStatus();
                 saveCurrentRaceState();
             }
         }
@@ -1379,7 +1391,7 @@
             document.body.removeChild(link);
         }
         
-        // Función para cambiar idioma - CORREGIDA
+        // Función para cambiar idioma
         function updateLanguage(lang) {
             currentLanguage = lang;
             
@@ -1393,21 +1405,6 @@
             });
             
             // Actualizar todos los textos
-            Object.keys(translations[lang]).forEach(key => {
-                const elements = document.querySelectorAll(`[id$="-${key}"]`);
-                elements.forEach(element => {
-                    if (element.tagName === 'INPUT' && element.type !== 'button') return;
-                    element.textContent = translations[lang][key];
-                });
-                
-                // También buscar elementos por id exacto
-                const exactElement = document.getElementById(key);
-                if (exactElement && !(exactElement.tagName === 'INPUT' && exactElement.type !== 'button')) {
-                    exactElement.textContent = translations[lang][key];
-                }
-            });
-            
-            // Actualizar textos específicos
             document.getElementById('app-title').textContent = translations[lang].appTitle;
             document.getElementById('btn-start').textContent = isRunning ? translations[lang].stopChrono : translations[lang].startChrono;
             document.getElementById('btn-set-time').textContent = translations[lang].setTime;
@@ -1417,6 +1414,9 @@
             document.getElementById('btn-export').textContent = translations[lang].exportExcel;
             document.getElementById('btn-new-race').textContent = translations[lang].newRace;
             document.getElementById('btn-delete-race').textContent = translations[lang].deleteRace;
+            document.getElementById('set-start-time').textContent = translations[lang].setStartTime;
+            document.getElementById('set-manual-time').textContent = translations[lang].setManualTime;
+            document.getElementById('confirm-time').textContent = translations[lang].modify;
             
             updateRaceStartTimeDisplay();
             updateWithdrawnList();
