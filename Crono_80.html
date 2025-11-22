@@ -6,7 +6,6 @@
     <title>Cronómetro Control 80% - BTT/Ciclo-cross</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        /* Estilos existentes se mantienen igual */
         :root {
             --primary-color: #2c3e50;
             --secondary-color: #3498db;
@@ -1102,11 +1101,23 @@
                 
                 raceStartTime = targetDate;
                 
-                // Actualizar el tiempo actual basado en la hora de salida
-                updateCurrentTimeFromStartTime();
+                // CALCULAR EL TIEMPO ACTUAL basado en la nueva hora de inicio
+                const currentNow = new Date();
+                currentTime = Math.max(0, currentNow - raceStartTime); // Asegurar que no sea negativo
                 
-                // Si el cronómetro está corriendo, ajustamos el startTime
-                if (isRunning) {
+                console.log("Nueva hora de inicio:", raceStartTime);
+                console.log("Hora actual:", currentNow);
+                console.log("Tiempo calculado:", currentTime);
+                
+                // Activar el cronómetro automáticamente cuando se fija la hora de inicio
+                if (!isRunning) {
+                    isRunning = true;
+                    startTime = Date.now() - currentTime;
+                    intervalId = setInterval(updateChrono, 10);
+                    btnStart.textContent = translations[currentLanguage].stopChrono;
+                    console.log("Cronómetro activado automáticamente");
+                } else {
+                    // Si ya estaba corriendo, ajustamos el startTime
                     startTime = Date.now() - currentTime;
                 }
             } else {
@@ -1118,8 +1129,14 @@
                 const now = new Date();
                 raceStartTime = new Date(now.getTime() - currentTime);
                 
-                // Si el cronómetro está corriendo, ajustamos el startTime para que continúe desde el nuevo tiempo
-                if (isRunning) {
+                // Activar el cronómetro automáticamente cuando se fija un tiempo manual
+                if (!isRunning) {
+                    isRunning = true;
+                    startTime = Date.now() - currentTime;
+                    intervalId = setInterval(updateChrono, 10);
+                    btnStart.textContent = translations[currentLanguage].stopChrono;
+                } else {
+                    // Si ya estaba corriendo, ajustamos el startTime
                     startTime = Date.now() - currentTime;
                 }
             }
@@ -1356,7 +1373,8 @@
         function updateChrono() {
             // Si tenemos una hora de salida, calcular el tiempo basado en ella
             if (raceStartTime) {
-                updateCurrentTimeFromStartTime();
+                const now = new Date();
+                currentTime = Math.max(0, now - raceStartTime); // Asegurar que no sea negativo
             } else {
                 currentTime = Date.now() - startTime;
             }
@@ -1369,7 +1387,7 @@
         function updateCurrentTimeFromStartTime() {
             if (raceStartTime) {
                 const now = new Date();
-                currentTime = now - raceStartTime;
+                currentTime = Math.max(0, now - raceStartTime); // Asegurar que no sea negativo
                 
                 // Si el cronómetro está corriendo, ajustar startTime para mantener la consistencia
                 if (isRunning) {
