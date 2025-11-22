@@ -1094,19 +1094,20 @@
                 const targetDate = new Date();
                 targetDate.setHours(hours, minutes, seconds, 0);
                 
-                // Si la hora objetivo ya pasó hoy, asumimos que es para mañana
-                if (targetDate <= now) {
-                    targetDate.setDate(targetDate.getDate() + 1);
+                // CORRECCIÓN: Si la hora objetivo ya pasó hoy, NO asumimos que es para mañana
+                // En su lugar, usamos la hora actual como referencia para el cronómetro
+                if (targetDate > now) {
+                    // Si la hora de inicio es futura, calcular diferencia
+                    raceStartTime = targetDate;
+                    currentTime = 0; // El cronómetro empezará desde 0
+                } else {
+                    // Si la hora de inicio ya pasó, calcular el tiempo transcurrido
+                    raceStartTime = targetDate;
+                    currentTime = now - targetDate;
                 }
                 
-                raceStartTime = targetDate;
-                
-                // CALCULAR EL TIEMPO ACTUAL basado en la nueva hora de inicio
-                const currentNow = new Date();
-                currentTime = Math.max(0, currentNow - raceStartTime); // Asegurar que no sea negativo
-                
                 console.log("Nueva hora de inicio:", raceStartTime);
-                console.log("Hora actual:", currentNow);
+                console.log("Hora actual:", now);
                 console.log("Tiempo calculado:", currentTime);
                 
                 // Activar el cronómetro automáticamente cuando se fija la hora de inicio
@@ -1212,9 +1213,19 @@
         function setStartTimeMode() {
             timeModalMode = 'start';
             const now = new Date();
-            document.getElementById('hours-input').value = now.getHours();
-            document.getElementById('minutes-input').value = now.getMinutes();
-            document.getElementById('seconds-input').value = now.getSeconds();
+            
+            // Si ya hay una hora de inicio configurada, mostrarla
+            if (raceStartTime) {
+                const startTimeDate = new Date(raceStartTime);
+                document.getElementById('hours-input').value = startTimeDate.getHours();
+                document.getElementById('minutes-input').value = startTimeDate.getMinutes();
+                document.getElementById('seconds-input').value = startTimeDate.getSeconds();
+            } else {
+                // Si no hay hora de inicio, mostrar la hora actual
+                document.getElementById('hours-input').value = now.getHours();
+                document.getElementById('minutes-input').value = now.getMinutes();
+                document.getElementById('seconds-input').value = now.getSeconds();
+            }
         }
         
         function setManualTimeMode() {
@@ -1374,7 +1385,15 @@
             // Si tenemos una hora de salida, calcular el tiempo basado en ella
             if (raceStartTime) {
                 const now = new Date();
-                currentTime = Math.max(0, now - raceStartTime); // Asegurar que no sea negativo
+                const timeDiff = now - raceStartTime;
+                
+                // Solo actualizar currentTime si la carrera ya ha comenzado (timeDiff >= 0)
+                if (timeDiff >= 0) {
+                    currentTime = timeDiff;
+                } else {
+                    // Si la carrera aún no ha comenzado, mantener el tiempo en 0
+                    currentTime = 0;
+                }
             } else {
                 currentTime = Date.now() - startTime;
             }
@@ -1382,18 +1401,6 @@
             updateDisplay();
             checkCutoffStatus();
             saveCurrentRaceState();
-        }
-        
-        function updateCurrentTimeFromStartTime() {
-            if (raceStartTime) {
-                const now = new Date();
-                currentTime = Math.max(0, now - raceStartTime); // Asegurar que no sea negativo
-                
-                // Si el cronómetro está corriendo, ajustar startTime para mantener la consistencia
-                if (isRunning) {
-                    startTime = Date.now() - currentTime;
-                }
-            }
         }
         
         function updateDisplay() {
