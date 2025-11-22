@@ -1506,6 +1506,11 @@
                 // Eliminar la vuelta
                 delete currentLapTimes[lapNumber];
                 
+                // ACTUALIZAR currentLap para que sea la última vuelta registrada + 1
+                const newLastLap = Math.max(...Object.keys(currentLapTimes).map(Number), 0);
+                currentLap = newLastLap + 1;
+                currentLapElement.textContent = currentLap;
+                
                 // Si eliminamos la primera vuelta, también eliminamos el tiempo de primera vuelta
                 if (lapNumber === 1) {
                     firstLapTime = null;
