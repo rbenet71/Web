@@ -6,6 +6,7 @@
     <title>Cronómetro Control 80% - BTT/Ciclo-cross</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
+        /* Estilos existentes se mantienen igual */
         :root {
             --primary-color: #2c3e50;
             --secondary-color: #3498db;
@@ -1110,9 +1111,14 @@
                 }
             } else {
                 // Tiempo manual - establecer el tiempo actual directamente
-                currentTime = (hours * 3600 + minutes * 60 + seconds) * 1000;
+                const newTime = (hours * 3600 + minutes * 60 + seconds) * 1000;
+                currentTime = newTime;
                 
-                // Si el cronómetro está corriendo, ajustamos el startTime
+                // Recalcular la raceStartTime para que el tiempo del cronómetro sea la diferencia entre ahora y la nueva hora de inicio
+                const now = new Date();
+                raceStartTime = new Date(now.getTime() - currentTime);
+                
+                // Si el cronómetro está corriendo, ajustamos el startTime para que continúe desde el nuevo tiempo
                 if (isRunning) {
                     startTime = Date.now() - currentTime;
                 }
