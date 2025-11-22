@@ -1477,7 +1477,10 @@
                 }
                 
                 updateCutoffTime();
+                
+                // ACTUALIZAR LA LISTA ANTES de incrementar currentLap
                 updateLapTimesList();
+                
                 currentLap++;
                 currentLapElement.textContent = currentLap;
                 
@@ -1493,18 +1496,15 @@
         
         function removeLap(lapNumber) {
             if (confirm(translations[currentLanguage].confirmRemoveLap)) {
-                // Solo permitir eliminar la última vuelta
-                if (lapNumber !== currentLap - 1) {
+                // Solo permitir eliminar la última vuelta registrada
+                const lastLapWithTime = Math.max(...Object.keys(currentLapTimes).map(Number));
+                if (lapNumber !== lastLapWithTime) {
                     alert("Solo puedes eliminar la última vuelta registrada.");
                     return;
                 }
                 
                 // Eliminar la vuelta
                 delete currentLapTimes[lapNumber];
-                
-                // Recalcular la vuelta actual
-                currentLap = lapNumber;
-                currentLapElement.textContent = currentLap;
                 
                 // Si eliminamos la primera vuelta, también eliminamos el tiempo de primera vuelta
                 if (lapNumber === 1) {
@@ -1564,13 +1564,16 @@
         function updateLapTimesList() {
             lapListElement.innerHTML = '';
             
-            for (let lap = 1; lap < currentLap; lap++) {
+            // Cambiar de lap < currentLap a lap <= currentLap para incluir la vuelta actual
+            for (let lap = 1; lap <= currentLap; lap++) {
                 if (currentLapTimes[lap]) {
                     const li = document.createElement('li');
                     li.className = 'lap-item';
                     
-                    // Solo mostrar botón de eliminar en la última vuelta
-                    const removeButton = (lap === currentLap - 1) ? 
+                    // Solo mostrar botón de eliminar en la última vuelta registrada
+                    // Cambiar la condición para que sea la última vuelta que tiene tiempo registrado
+                    const lastLapWithTime = Math.max(...Object.keys(currentLapTimes).map(Number));
+                    const removeButton = (lap === lastLapWithTime) ? 
                         `<button class="btn-remove remove-lap" data-lap="${lap}">${translations[currentLanguage].removeLap}</button>` : '';
                     
                     li.innerHTML = `
