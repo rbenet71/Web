@@ -266,6 +266,20 @@
             padding: 6px 12px;
             font-size: 0.8rem;
             cursor: pointer;
+            touch-action: manipulation;
+        }
+        
+        .remove-lap {
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        
+        /* Mejorar la apariencia en hover para PC */
+        @media (hover: hover) {
+            .btn-remove:hover {
+                background-color: #c0392b;
+                transform: scale(1.05);
+            }
         }
         
         .info-panel {
@@ -1497,7 +1511,13 @@
         function removeLap(lapNumber) {
             if (confirm(translations[currentLanguage].confirmRemoveLap)) {
                 // Solo permitir eliminar la última vuelta registrada
-                const lastLapWithTime = Math.max(...Object.keys(currentLapTimes).map(Number));
+                const lapsWithTime = Object.keys(currentLapTimes).map(Number);
+                if (lapsWithTime.length === 0) {
+                    alert("No hay vueltas para eliminar.");
+                    return;
+                }
+                
+                const lastLapWithTime = Math.max(...lapsWithTime);
                 if (lapNumber !== lastLapWithTime) {
                     alert("Solo puedes eliminar la última vuelta registrada.");
                     return;
@@ -1507,7 +1527,8 @@
                 delete currentLapTimes[lapNumber];
                 
                 // ACTUALIZAR currentLap para que sea la última vuelta registrada + 1
-                const newLastLap = Math.max(...Object.keys(currentLapTimes).map(Number), 0);
+                const newLapsWithTime = Object.keys(currentLapTimes).map(Number);
+                const newLastLap = newLapsWithTime.length > 0 ? Math.max(...newLapsWithTime) : 0;
                 currentLap = newLastLap + 1;
                 currentLapElement.textContent = currentLap;
                 
@@ -1576,7 +1597,6 @@
                     li.className = 'lap-item';
                     
                     // Solo mostrar botón de eliminar en la última vuelta registrada
-                    // Cambiar la condición para que sea la última vuelta que tiene tiempo registrado
                     const lastLapWithTime = Math.max(...Object.keys(currentLapTimes).map(Number));
                     const removeButton = (lap === lastLapWithTime) ? 
                         `<button class="btn-remove remove-lap" data-lap="${lap}">${translations[currentLanguage].removeLap}</button>` : '';
@@ -1590,9 +1610,25 @@
                 }
             }
             
-            // Añadir event listeners a los botones de eliminar
+            // Añadir event listeners a los botones de eliminar - MEJORADO
             document.querySelectorAll('.remove-lap').forEach(button => {
-                button.addEventListener('click', function() {
+                // Remover event listeners existentes para evitar duplicados
+                button.replaceWith(button.cloneNode(true));
+            });
+            
+            // Añadir nuevos event listeners
+            document.querySelectorAll('.remove-lap').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const lapNumber = parseInt(this.getAttribute('data-lap'));
+                    removeLap(lapNumber);
+                });
+                
+                // También añadir event listener para touchstart en dispositivos táctiles
+                button.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     const lapNumber = parseInt(this.getAttribute('data-lap'));
                     removeLap(lapNumber);
                 });
