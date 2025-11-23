@@ -1,0 +1,35 @@
+Quiero hacer una calculadora de tiempos, pensada para Carreras de bicicletas en formato web (JavaScript).
+
+La idea es hacer un diseño Como una calculadora normal, esto es:
+
+Display para 3 líneas con scroll para poder ver todas las 20 últimas  operaciones realizadas 
+Una fila con botones (tipo unidades): Hora Minuto Segundo Decimal
+Otra fila de memoria: M+ Mc Mr 
+Otra fila de operaciones: + - * % (%+) =
+Y los números del 0 al 9, borrar y la coma para decimal, 
+
+Si el usuario no indica nada, las operaciones de hacen en base decimal.
+
+Si el usuario utiliza los botones de hora, minutos y segundos, lo convierte en segundos y a partir de ahí calcula el resultado.
+Los tiempos de han de mostrar en este formato 1:01’20”386
+Las operaciones se mostrarán en una línea por ejemplo: 1’20”+2’40”=4’00”
+
+El resultado de operaciones de tiempo se mostrará el tiempo en formato tiempo y entre paréntesis ese tiempo en segundos.
+
+Si utiliza la opción %+ lo que hay que hacer es al tiempo introducido añadir ese porcentaje. 1’00”%+10=1’06” (66”)
+
+Al entrar tiempos que se refleje así  1h 2m 3s
+Ocultar milésimas cuando son 000
+E — Atajos de teclado avanzados
+Por ejemplo:
+•	H = Hora
+•	M = Minuto
+•	S = Segundo
+•	% = porcentaje
+•	Ctrl+Z = deshacer última operación
+
+G — Tema claro / oscuro con cambio automático
+
+-------------
+Calculo Promedio
+CAlculo numero de vueltas

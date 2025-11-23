@@ -218,17 +218,17 @@
             <button data-number="7">7</button>
             <button data-number="8">8</button>
             <button data-number="9">9</button>
-            <button class="operation-btn" data-operation="-">-</button>
+            <button class="operation-btn" data-operation="%+">%+</button>
             
             <button data-number="4">4</button>
             <button data-number="5">5</button>
             <button data-number="6">6</button>
-            <button class="operation-btn" data-operation="+">+</button>
+            <button class="operation-btn" data-operation="-">-</button>
             
             <button data-number="1">1</button>
             <button data-number="2">2</button>
             <button data-number="3">3</button>
-            <button class="operation-btn" data-operation="%+">%+</button>
+            <button class="operation-btn" data-operation="+">+</button>
             
             <button class="zero-btn" data-number="0">0</button>
             <button data-decimal>.</button>
@@ -246,6 +246,7 @@
                 this.operation = null;
                 this.mode = 'decimal';
                 this.memory = 0;
+                this.memoryMode = 'decimal';
                 this.history = [];
                 this.waitingForNewInput = false;
                 
@@ -257,6 +258,7 @@
                 };
                 this.currentNumber = '';
                 this.isBuildingTime = false;
+                this.operationMode = 'decimal';
                 
                 this.initializeElements();
                 this.attachEventListeners();
@@ -433,19 +435,22 @@
                     this.calculate();
                 }
                 
-                // Convertir tiempo a segundos para operaciones
+                // Guardar el modo actual al iniciar la operación
+                this.operationMode = this.mode;
+                
+                // Convertir tiempo a segundos para operaciones, pero mantener el formato para display
                 if (this.mode === 'time') {
                     const seconds = this.getTimeInSeconds();
-                    this.currentInput = seconds.toString();
-                    this.resetTimeInput();
+                    this.previousInput = seconds.toString(); // Guardar en segundos para cálculo
+                    this.currentInput = this.formatTimeInput(); // Mantener formato para display
+                } else {
+                    this.previousInput = this.currentInput;
                 }
                 
                 this.operation = op;
-                this.previousInput = this.currentInput;
                 this.waitingForNewInput = true;
                 
-                // Limpiar la línea de operación después de pulsar la operación
-                this.currentOperationElement.textContent = '';
+                // Mostrar la operación en curso
                 this.updateDisplay();
             }
             
@@ -453,7 +458,15 @@
                 if (!this.operation || this.waitingForNewInput) return;
                 
                 let prev = this.parseTimeToSeconds(this.previousInput);
-                let current = this.parseTimeToSeconds(this.currentInput);
+                let current;
+                
+                // Si estamos en modo tiempo, convertir el input actual a segundos
+                if (this.mode === 'time') {
+                    current = this.getTimeInSeconds();
+                } else {
+                    current = this.parseTimeToSeconds(this.currentInput);
+                }
+                
                 let result;
                 let operationString = '';
                 
@@ -479,7 +492,7 @@
                         operationString = `${this.formatTimeForOperation(this.previousInput)} ÷ ${this.formatTimeForOperation(this.currentInput)}`;
                         break;
                     case '%':
-                        result = prev % current;
+                        result = prev * (current / 100);
                         operationString = `${this.formatTimeForOperation(this.previousInput)} % ${this.formatTimeForOperation(this.currentInput)}`;
                         break;
                     case '%+':
@@ -494,7 +507,8 @@
                 let displayResult;
                 let historyResult;
                 
-                if (this.mode === 'time') {
+                // Usar el modo de la operación para formatear el resultado
+                if (this.operationMode === 'time') {
                     displayResult = this.formatTime(result);
                     historyResult = `${operationString} = ${displayResult} (${Math.round(result)}s)`;
                 } else {
@@ -507,6 +521,7 @@
                 this.operation = null;
                 this.previousInput = '';
                 this.waitingForNewInput = true;
+                this.resetTimeInput(); // Resetear el tiempo input después del cálculo
                 this.updateDisplay();
             }
             
@@ -552,14 +567,30 @@
             handleMemory(memoryOp) {
                 switch (memoryOp) {
                     case 'm+':
-                        this.memory += parseFloat(this.currentInput);
+                        // CORRECCIÓN: Sumar a la memoria sin resetear la entrada actual
+                        const currentValue = this.parseTimeToSeconds(this.currentInput);
+                        this.memory += currentValue;
+                        this.memoryMode = this.mode;
+                        
+                        // Añadir al historial la operación de memoria
+                        this.addToHistory(`M+ (${this.formatTimeForOperation(this.currentInput)}) = ${this.formatTime(this.memory)}`);
+                        
+                        // NO resetear waitingForNewInput para poder seguir introduciendo números
                         break;
                     case 'mc':
                         this.memory = 0;
+                        this.memoryMode = 'decimal';
+                        this.addToHistory('MC (Memoria limpiada)');
                         break;
                     case 'mr':
-                        this.currentInput = this.memory.toString();
+                        // CORRECCIÓN: Recuperar formateando según el modo actual
+                        if (this.mode === 'time') {
+                            this.currentInput = this.formatTime(this.memory);
+                        } else {
+                            this.currentInput = this.memory.toString();
+                        }
                         this.waitingForNewInput = true;
+                        this.addToHistory(`MR = ${this.formatTimeForOperation(this.currentInput)}`);
                         break;
                 }
                 this.updateDisplay();
@@ -579,10 +610,12 @@
                     this.decimalBtn.classList.add('active');
                     this.mode = 'decimal';
                     this.modeIndicatorElement.textContent = 'Modo: Decimal';
+                    this.operationMode = 'decimal';
                 } else if (clearType === 'ce') {
                     this.currentInput = '0';
                     this.currentNumber = '';
                     this.isBuildingTime = false;
+                    this.resetTimeInput();
                 }
                 this.updateDisplay();
             }
@@ -596,15 +629,12 @@
                 let parts = [];
                 if (hours > 0) {
                     parts.push(hours + 'h');
-                    // Si hay horas, siempre mostrar minutos y segundos (aunque sean 0)
                     parts.push(minutes.toString().padStart(2, '0') + 'm');
                     parts.push(seconds.toString().padStart(2, '0') + 's');
                 } else if (minutes > 0) {
-                    // Si hay minutos pero no horas, mostrar minutos y segundos
                     parts.push(minutes + 'm');
                     parts.push(seconds.toString().padStart(2, '0') + 's');
                 } else {
-                    // Si solo hay segundos, mostrar solo segundos
                     parts.push(seconds + 's');
                 }
                 
@@ -620,11 +650,9 @@
             }
             
             updateDisplay() {
-                // En la línea de entrada actual, mostrar solo el formato de tiempo sin segundos
                 this.currentInputElement.textContent = this.currentInput;
                 
-                // En la línea de operación, mostrar solo durante la entrada, no después de pulsar operación
-                if (this.operation && !this.waitingForNewInput) {
+                if (this.operation && this.previousInput) {
                     this.currentOperationElement.textContent = 
                         `${this.formatTimeForOperation(this.previousInput)} ${this.operation}`;
                 } else {
