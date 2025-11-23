@@ -221,6 +221,7 @@
             gap: 10px;
             justify-content: center;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
         
         button {
@@ -302,7 +303,6 @@
             background-color: var(--secondary-color);
             color: white;
             padding: 8px 16px;
-            margin-top: 10px;
         }
         
         .remove-lap {
@@ -758,6 +758,8 @@
             <button class="btn-start" id="btn-start">Iniciar Cronómetro</button>
             <button class="btn-set-time" id="btn-set-time">Fijar Tiempo Crono</button>
             <button class="btn-reset" id="btn-reset">Reiniciar Cronómetro</button>
+            <!-- Botón de ayuda movido aquí, después de Reiniciar Cronómetro -->
+            <button class="btn-help" id="btn-help">Ayuda</button>
         </div>
 
         <!-- Footer con copyright, contador de visitas y botón de ayuda -->
@@ -769,7 +771,6 @@
                 </a>
                 <span class="visit-counter" id="visit-counter">0 visitas</span>
             </p>
-            <button class="btn-help" id="btn-help-footer">Ayuda</button>
         </footer>
     </div>
     
@@ -1210,6 +1211,7 @@
         const btnNewRace = document.getElementById('btn-new-race');
         const btnDeleteRace = document.getElementById('btn-delete-race');
         const btnEditFirstLap = document.getElementById('btn-edit-first-lap');
+        const btnHelp = document.getElementById('btn-help'); // Nuevo botón de ayuda
         const raceSelector = document.getElementById('race-selector');
         const currentLapElement = document.getElementById('current-lap');
         const firstLapTimeElement = document.getElementById('first-lap-time');
@@ -1228,7 +1230,6 @@
         const millisecondsToggle = document.getElementById('milliseconds-toggle');
         const millisecondsLabel = document.getElementById('milliseconds-label');
         const helpIconHeader = document.getElementById('help-icon-header');
-        const btnHelpFooter = document.getElementById('btn-help-footer');
         const helpModal = document.getElementById('help-modal');
         const helpModalTitle = document.getElementById('help-modal-title');
         const closeHelp = document.getElementById('close-help');
@@ -1303,6 +1304,7 @@
             btnNewRace.addEventListener('click', openNewRaceModal);
             btnDeleteRace.addEventListener('click', openDeleteRaceModal);
             btnEditFirstLap.addEventListener('click', openEditFirstLapModal);
+            btnHelp.addEventListener('click', openHelpModal); // Nuevo evento para el botón de ayuda
             raceSelector.addEventListener('change', loadRace);
             
             // Event listener para el interruptor de milésimas
@@ -1317,7 +1319,6 @@
             
             // Event listeners para ayuda
             helpIconHeader.addEventListener('click', openHelpModal);
-            btnHelpFooter.addEventListener('click', openHelpModal);
             closeHelp.addEventListener('click', closeHelpModal);
             downloadHelp.addEventListener('click', downloadHelpFile);
             
