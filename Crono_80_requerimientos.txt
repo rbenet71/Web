@@ -185,9 +185,13 @@ el boton eleminar tiempo corredor funciona en el movil pero no en el pc. ok
 al final de la página quiero poner el texot del copyright: 2025 copyright Roberto Benet - rbenet71@gmail.com y que tenga un hipervinculo que lleve a https://rbenet71.github.io/Web/ ok
 
 
+opcion crono con o sin milesimas ok
+
 -----------------------------
 
 Al recargar la página el crono se para y no queda en movimiento
+
+Quitar el Contador de corredores retirados, y poner el numero de corredores retirado en el titulo de la pestaña Corredores Retirados y entre parentesis
 
 ---------------------
 
@@ -195,11 +199,8 @@ cuando el tiempo del cronmetro supere Tiempo Límite Actual el fondo del crono e
 
 que al lado Tiempo Primera Vuelta haya tambien un lapiz que nos lleve a la opción de modificar este tiempo y al hacerlo volver a calcular cual es el 80%
 
-
-se puede poner al lado del texto de copyright un numero que sea el numero de personas que han visitado esta pàgina?
+se puede poner al lado del texto de copyright un numero que sea el numero de personas que han visitado esta pàgina? no funciona, siempre es 1
 
 ayuda
-
-opcion crono con o sin milesimas
 
 estar actualizado sobre los cambios realizados- Actualizaciones deja tu email y comentarios y que me envie un email con ese contacto y comentario

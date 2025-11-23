@@ -1804,7 +1804,7 @@
             
             startTime = race.startTime || 0;
             currentTime = race.currentTime || 0;
-            isRunning = false;
+            isRunning = race.isRunning || false; // CORRECCIÓN: Restaurar el estado de ejecución
             firstLapTime = race.firstLapTime || null;
             currentLap = race.currentLap || 1;
             currentLapTimes = race.currentLapTimes || {};
@@ -1826,12 +1826,39 @@
             
             updateWithdrawnList();
             updateLapTimesList();
-            btnStart.textContent = translations[currentLanguage].startChrono;
+            
+            // CORRECCIÓN: Restaurar el estado del botón según si está corriendo o no
+            btnStart.textContent = isRunning ? translations[currentLanguage].stopChrono : translations[currentLanguage].startChrono;
             
             checkCutoffStatus();
             updateRaceStartTimeDisplay();
             
             clearInterval(intervalId);
+            
+            // CORRECCIÓN: Si el cronómetro estaba en ejecución, reiniciar el intervalo
+            if (isRunning) {
+                // Si tenemos una hora de inicio de carrera, calcular el tiempo basado en ella
+                if (raceStartTime) {
+                    const now = new Date();
+                    const timeDiff = now - new Date(raceStartTime);
+                    
+                    // Solo actualizar currentTime si la carrera ya ha comenzado (timeDiff >= 0)
+                    if (timeDiff >= 0) {
+                        currentTime = timeDiff;
+                    } else {
+                        // Si la carrera aún no ha comenzado, mantener el tiempo en 0
+                        currentTime = 0;
+                    }
+                    
+                    // Actualizar el display inmediatamente
+                    updateDisplay();
+                } else {
+                    // Si no tenemos hora de inicio, usar el método normal
+                    startTime = Date.now() - currentTime;
+                }
+                
+                intervalId = setInterval(updateChrono, 10);
+            }
             
             // Guardar última carrera utilizada
             localStorage.setItem('bttLastRace', currentRaceId);
@@ -1842,7 +1869,7 @@
             
             races[currentRaceId].startTime = startTime;
             races[currentRaceId].currentTime = currentTime;
-            races[currentRaceId].isRunning = isRunning;
+            races[currentRaceId].isRunning = isRunning; // CORRECCIÓN: Guardar el estado de ejecución
             races[currentRaceId].firstLapTime = firstLapTime;
             races[currentRaceId].currentLap = currentLap;
             races[currentRaceId].currentLapTimes = currentLapTimes;
