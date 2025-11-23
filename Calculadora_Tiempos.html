@@ -567,7 +567,7 @@
             handleMemory(memoryOp) {
                 switch (memoryOp) {
                     case 'm+':
-                        // CORRECCIÓN: Sumar a la memoria sin resetear la entrada actual
+                        // CORRECCIÓN: Sumar a la memoria y preparar para nueva entrada
                         const currentValue = this.parseTimeToSeconds(this.currentInput);
                         this.memory += currentValue;
                         this.memoryMode = this.mode;
@@ -575,7 +575,12 @@
                         // Añadir al historial la operación de memoria
                         this.addToHistory(`M+ (${this.formatTimeForOperation(this.currentInput)}) = ${this.formatTime(this.memory)}`);
                         
-                        // NO resetear waitingForNewInput para poder seguir introduciendo números
+                        // CORRECCIÓN: Preparar para nueva entrada (como una operación)
+                        this.waitingForNewInput = true;
+                        this.currentNumber = '';
+                        this.isBuildingTime = false;
+                        this.resetTimeInput();
+                        this.currentInput = '0';
                         break;
                     case 'mc':
                         this.memory = 0;
@@ -590,6 +595,9 @@
                             this.currentInput = this.memory.toString();
                         }
                         this.waitingForNewInput = true;
+                        this.currentNumber = '';
+                        this.isBuildingTime = false;
+                        this.resetTimeInput();
                         this.addToHistory(`MR = ${this.formatTimeForOperation(this.currentInput)}`);
                         break;
                 }
