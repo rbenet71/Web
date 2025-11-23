@@ -703,15 +703,12 @@
                 <h3 id="cutoff-time-title">Tiempo Límite Actual</h3>
                 <p id="cutoff-time">--:--:--</p>
             </div>
-            <div class="info-card">
-                <h3 id="withdrawn-count-title">Corredores Retirados</h3>
-                <p id="withdrawn-count">0</p>
-            </div>
+            <!-- SE HA ELIMINADO LA TARJETA DE CORREDORES RETIRADOS -->
         </div>
         
         <div class="tabs-container">
             <div class="tabs-header">
-                <button class="tab-button active" data-tab="withdrawn-tab" id="withdrawn-tab-button">Lista de Retirados</button>
+                <button class="tab-button active" data-tab="withdrawn-tab" id="withdrawn-tab-button">Lista de Retirados (0)</button>
                 <button class="tab-button" data-tab="lap-times-tab" id="lap-times-tab-button">Tiempos del Primer Corredor</button>
             </div>
             <div class="tab-content active" id="withdrawn-tab">
@@ -1121,7 +1118,6 @@
         const currentLapElement = document.getElementById('current-lap');
         const firstLapTimeElement = document.getElementById('first-lap-time');
         const cutoffTimeElement = document.getElementById('cutoff-time');
-        const withdrawnCountElement = document.getElementById('withdrawn-count');
         const riderListElement = document.getElementById('rider-list');
         const lapListElement = document.getElementById('lap-list');
         const firstLapInfo = document.getElementById('first-lap-info');
@@ -1479,7 +1475,6 @@
             currentLapElement.textContent = currentLap;
             firstLapTimeElement.textContent = '--:--:--';
             cutoffTimeElement.textContent = '--:--:--';
-            withdrawnCountElement.textContent = '0';
             riderListElement.innerHTML = '';
             lapListElement.innerHTML = '';
             firstLapInfo.style.display = 'none';
@@ -1818,7 +1813,6 @@
             
             updateCutoffTime();
             updateEightyPercentTime();
-            withdrawnCountElement.textContent = withdrawnRiders.length;
             
             if (firstLapTime) {
                 firstLapInfo.style.display = 'block';
@@ -1897,7 +1891,6 @@
             currentLapElement.textContent = currentLap;
             firstLapTimeElement.textContent = '--:--:--';
             cutoffTimeElement.textContent = '--:--:--';
-            withdrawnCountElement.textContent = '0';
             riderListElement.innerHTML = '';
             lapListElement.innerHTML = '';
             firstLapInfo.style.display = 'none';
@@ -2121,7 +2114,8 @@
         }
         
         function updateWithdrawnList() {
-            withdrawnCountElement.textContent = withdrawnRiders.length;
+            // Actualizar el título de la pestaña con el número de corredores retirados
+            withdrawnTabButton.textContent = `${translations[currentLanguage].withdrawnList} (${withdrawnRiders.length})`;
             
             const sortedRiders = [...withdrawnRiders].sort((a, b) => {
                 if (a.lap !== b.lap) {
@@ -2350,8 +2344,7 @@
             document.getElementById('current-lap-title').textContent = translations[lang].currentLap;
             document.getElementById('first-lap-time-title').textContent = translations[lang].firstLapTime;
             document.getElementById('cutoff-time-title').textContent = translations[lang].cutoffTime;
-            document.getElementById('withdrawn-count-title').textContent = translations[lang].withdrawnCount;
-            document.getElementById('withdrawn-tab-button').textContent = translations[lang].withdrawnList;
+            document.getElementById('withdrawn-tab-button').textContent = `${translations[lang].withdrawnList} (${withdrawnRiders.length})`;
             document.getElementById('lap-times-tab-button').textContent = translations[lang].lapTimesTitle;
             document.getElementById('withdraw-modal-title').textContent = translations[lang].withdrawModalTitle;
             document.getElementById('withdraw-dorsal-label').textContent = translations[lang].dorsalLabel;
