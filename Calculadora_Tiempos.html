@@ -265,11 +265,114 @@
             background-color: #27ae60;
             color: white;
         }
+        
+        /* Nuevos estilos para el header */
+        .calculator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .language-selector {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        
+        .flag {
+            width: 25px;
+            height: 17px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+            border: 1px solid #ccc;
+        }
+        
+        .flag.active {
+            opacity: 1;
+            border: 2px solid #3498db;
+        }
+        
+        .flag-catalunya {
+            background: linear-gradient(
+                to bottom,
+                #ffcd00 0%, #ffcd00 10%,
+                #da121a 10%, #da121a 20%,
+                #ffcd00 20%, #ffcd00 30%,
+                #da121a 30%, #da121a 40%,
+                #ffcd00 40%, #ffcd00 50%,
+                #da121a 50%, #da121a 60%,
+                #ffcd00 60%, #ffcd00 70%,
+                #da121a 70%, #da121a 80%,
+                #ffcd00 80%, #ffcd00 90%,
+                #da121a 90%, #da121a 100%
+            );
+        }
+        
+        .help-icon {
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #3498db;
+            margin-left: 5px;
+            transition: all 0.3s;
+        }
+        
+        .help-icon:hover {
+            transform: scale(1.1);
+            color: #2c3e50;
+        }
+        
+        /* Footer */
+        .calculator-footer {
+            text-align: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #34495e;
+            color: #95a5a6;
+            font-size: 12px;
+        }
+        
+        .calculator-footer a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .calculator-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .visit-counter {
+            margin-left: 10px;
+            padding: 2px 8px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .btn-help {
+            background-color: #3498db;
+            color: white;
+            padding: 8px 16px;
+            margin-top: 10px;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
     <div class="calculator">
-        <div class="title">Calculadora de Tiempos</div>
+        <div class="calculator-header">
+            <div class="title">Calculadora de Tiempos</div>
+            <div class="language-selector">
+                <img src="https://flagcdn.com/w40/es.png" class="flag active" id="flag-es" data-lang="es">
+                <div class="flag flag-catalunya" id="flag-ca" data-lang="ca"></div>
+                <img src="https://flagcdn.com/w40/gb.png" class="flag" id="flag-en" data-lang="en">
+                <span class="help-icon" id="help-icon-header" title="Ayuda">❓</span>
+            </div>
+        </div>
         
         <div class="display">
             <div class="current-operation" id="currentOperation"></div>
@@ -319,6 +422,18 @@
             <button class="special-btn" id="averageBtn">Cálculo Promedio</button>
             <button class="special-btn" id="lapsBtn">Número de Vueltas</button>
         </div>
+        
+        <button class="btn-help" id="btn-help">Ayuda</button>
+        
+        <div class="calculator-footer">
+            <p>
+                2025 Copyright 
+                <a href="https://rbenet71.github.io/Web/" target="_blank">
+                    Roberto Benet - rbenet71@gmail.com
+                </a>
+                <span class="visit-counter" id="visit-counter">0 visitas</span>
+            </p>
+        </div>
     </div>
 
     <!-- Modal para Cálculo de Promedio -->
@@ -348,6 +463,152 @@
     </div>
 
     <script>
+        // Variables globales para el sistema de idiomas
+        let currentLanguage = 'es';
+        
+        // Textos en diferentes idiomas
+        const translations = {
+            es: {
+                appTitle: "Calculadora de Tiempos",
+                modeDecimal: "Modo: Decimal",
+                modeTime: "Modo: Tiempo",
+                averageCalc: "Cálculo Promedio",
+                lapsCalc: "Número de Vueltas",
+                helpButton: "Ayuda",
+                averageModalTitle: "Cálculo de Promedio (km/h)",
+                distancePlaceholder: "Distancia en km",
+                timePlaceholder: "Tiempo (ej: 1h 30m 45s)",
+                lapsModalTitle: "Cálculo de Número de Vueltas",
+                lapTimePlaceholder: "Tiempo por vuelta (ej: 5m 30s)",
+                targetTimePlaceholder: "Tiempo objetivo (ej: 1h 30m)",
+                cancelButton: "Cancelar",
+                calculateButton: "Calcular",
+                hourButton: "Hora",
+                minuteButton: "Minuto",
+                secondButton: "Segundo",
+                decimalButton: "Decimal",
+                copyright: "2025 Copyright",
+                copyrightLink: "Roberto Benet - rbenet71@gmail.com",
+                visits: "visitas"
+            },
+            ca: {
+                appTitle: "Calculadora de Temps",
+                modeDecimal: "Mode: Decimal",
+                modeTime: "Mode: Temps",
+                averageCalc: "Càlcul Promig",
+                lapsCalc: "Nombre de Voltes",
+                helpButton: "Ajuda",
+                averageModalTitle: "Càlcul de Promig (km/h)",
+                distancePlaceholder: "Distància en km",
+                timePlaceholder: "Temps (ex: 1h 30m 45s)",
+                lapsModalTitle: "Càlcul de Nombre de Voltes",
+                lapTimePlaceholder: "Temps per volta (ex: 5m 30s)",
+                targetTimePlaceholder: "Temps objectiu (ex: 1h 30m)",
+                cancelButton: "Cancel·lar",
+                calculateButton: "Calcular",
+                hourButton: "Hora",
+                minuteButton: "Minut",
+                secondButton: "Segon",
+                decimalButton: "Decimal",
+                copyright: "2025 Copyright",
+                copyrightLink: "Roberto Benet - rbenet71@gmail.com",
+                visits: "visites"
+            },
+            en: {
+                appTitle: "Time Calculator",
+                modeDecimal: "Mode: Decimal",
+                modeTime: "Mode: Time",
+                averageCalc: "Average Calculation",
+                lapsCalc: "Number of Laps",
+                helpButton: "Help",
+                averageModalTitle: "Average Calculation (km/h)",
+                distancePlaceholder: "Distance in km",
+                timePlaceholder: "Time (ex: 1h 30m 45s)",
+                lapsModalTitle: "Number of Laps Calculation",
+                lapTimePlaceholder: "Time per lap (ex: 5m 30s)",
+                targetTimePlaceholder: "Target time (ex: 1h 30m)",
+                cancelButton: "Cancel",
+                calculateButton: "Calculate",
+                hourButton: "Hour",
+                minuteButton: "Minute",
+                secondButton: "Second",
+                decimalButton: "Decimal",
+                copyright: "2025 Copyright",
+                copyrightLink: "Roberto Benet - rbenet71@gmail.com",
+                visits: "visits"
+            }
+        };
+
+        // Función para actualizar idioma
+        function updateLanguage(lang) {
+            currentLanguage = lang;
+            
+            // Actualizar textos
+            document.querySelector('.title').textContent = translations[lang].appTitle;
+            document.getElementById('modeIndicator').textContent = translations[lang].modeDecimal;
+            document.getElementById('averageBtn').textContent = translations[lang].averageCalc;
+            document.getElementById('lapsBtn').textContent = translations[lang].lapsCalc;
+            document.getElementById('btn-help').textContent = translations[lang].helpButton;
+            
+            // Actualizar textos de modales
+            document.querySelector('#averageModal .modal-title').textContent = translations[lang].averageModalTitle;
+            document.getElementById('distanceInput').placeholder = translations[lang].distancePlaceholder;
+            document.getElementById('timeInput').placeholder = translations[lang].timePlaceholder;
+            document.getElementById('cancelAverage').textContent = translations[lang].cancelButton;
+            document.getElementById('calculateAverage').textContent = translations[lang].calculateButton;
+            
+            document.querySelector('#lapsModal .modal-title').textContent = translations[lang].lapsModalTitle;
+            document.getElementById('lapTimeInput').placeholder = translations[lang].lapTimePlaceholder;
+            document.getElementById('targetTimeInput').placeholder = translations[lang].targetTimePlaceholder;
+            document.getElementById('cancelLaps').textContent = translations[lang].cancelButton;
+            document.getElementById('calculateLaps').textContent = translations[lang].calculateButton;
+            
+            // Actualizar botones de unidad
+            document.getElementById('hourBtn').textContent = translations[lang].hourButton;
+            document.getElementById('minuteBtn').textContent = translations[lang].minuteButton;
+            document.getElementById('secondBtn').textContent = translations[lang].secondButton;
+            document.getElementById('decimalBtn').textContent = translations[lang].decimalButton;
+            
+            // Actualizar footer
+            document.querySelector('.calculator-footer p').innerHTML = 
+                translations[lang].copyright + 
+                ' <a href="https://rbenet71.github.io/Web/" target="_blank">' +
+                translations[lang].copyrightLink + 
+                '</a> <span class="visit-counter" id="visit-counter">' + 
+                getVisitCount() + ' ' + translations[lang].visits + '</span>';
+            
+            // Actualizar banderas activas
+            document.querySelectorAll('.flag').forEach(flag => {
+                flag.classList.remove('active');
+            });
+            document.getElementById('flag-' + lang).classList.add('active');
+        }
+        
+        // Función para abrir el archivo de ayuda
+        function openHelpFile() {
+            window.open('https://rbenet71.github.io/Web/Calculadora_Tiempos_Ayuda.txt', '_blank');
+        }
+        
+        // Función para el contador de visitas
+        function updateVisitCounter() {
+            const today = new Date().toDateString();
+            const lastVisit = localStorage.getItem('timeCalcLastVisit');
+            let visitCount = parseInt(localStorage.getItem('timeCalcVisitCount')) || 0;
+            
+            // Solo contar una visita por día por usuario
+            if (lastVisit !== today) {
+                visitCount++;
+                localStorage.setItem('timeCalcVisitCount', visitCount);
+                localStorage.setItem('timeCalcLastVisit', today);
+            }
+            
+            return visitCount;
+        }
+        
+        function getVisitCount() {
+            return parseInt(localStorage.getItem('timeCalcVisitCount')) || 0;
+        }
+
         class TimeCalculator {
             constructor() {
                 this.currentInput = '0';
@@ -453,6 +714,20 @@
                 
                 document.getElementById('calculateLaps').addEventListener('click', () => {
                     this.calculateLaps();
+                });
+                
+                // Eventos para ayuda
+                document.getElementById('btn-help').addEventListener('click', openHelpFile);
+                document.getElementById('help-icon-header').addEventListener('click', openHelpFile);
+                
+                // Eventos para cambio de idioma
+                document.querySelectorAll('.flag').forEach(flag => {
+                    flag.addEventListener('click', function() {
+                        const lang = this.getAttribute('data-lang');
+                        updateLanguage(lang);
+                        // Guardar idioma seleccionado
+                        localStorage.setItem('timeCalcLanguage', lang);
+                    });
                 });
                 
                 // Cerrar modales al hacer clic fuera
@@ -577,7 +852,7 @@
                 
                 if (unit === 'decimal') {
                     this.mode = 'decimal';
-                    this.modeIndicatorElement.textContent = 'Modo: Decimal';
+                    this.modeIndicatorElement.textContent = translations[currentLanguage].modeDecimal;
                     this.decimalBtn.classList.add('active');
                     this.currentInput = '0';
                     this.currentNumber = '';
@@ -585,7 +860,7 @@
                     this.resetTimeInput();
                 } else {
                     this.mode = 'time';
-                    this.modeIndicatorElement.textContent = `Modo: Tiempo`;
+                    this.modeIndicatorElement.textContent = translations[currentLanguage].modeTime;
                     
                     // Activar el botón correspondiente
                     document.getElementById(unit + 'Btn').classList.add('active');
@@ -904,7 +1179,7 @@
                     this.secondBtn.classList.remove('active');
                     this.decimalBtn.classList.add('active');
                     this.mode = 'decimal';
-                    this.modeIndicatorElement.textContent = 'Modo: Decimal';
+                    this.modeIndicatorElement.textContent = translations[currentLanguage].modeDecimal;
                     this.operationMode = 'decimal';
                     this.lastResult = null;
                     this.currentOperationElement.textContent = '';
@@ -966,6 +1241,19 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Cargar idioma guardado
+            const savedLanguage = localStorage.getItem('timeCalcLanguage');
+            if (savedLanguage) {
+                currentLanguage = savedLanguage;
+            }
+            
+            // Inicializar contador de visitas
+            updateVisitCounter();
+            
+            // Actualizar idioma
+            updateLanguage(currentLanguage);
+            
+            // Inicializar calculadora
             new TimeCalculator();
         });
     </script>
