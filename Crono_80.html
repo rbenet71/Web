@@ -471,6 +471,10 @@
             opacity: 1;
         }
         
+        .lap-selector {
+            margin-bottom: 15px;
+        }
+        
         @media (max-width: 768px) {
             .chrono-section {
                 flex-direction: column;
@@ -700,6 +704,14 @@
     <div class="modal" id="edit-lap-time-modal">
         <div class="modal-content">
             <h3 id="edit-lap-time-title">Modificar Tiempo de Vuelta</h3>
+            <div class="lap-selector">
+                <div class="form-group">
+                    <label for="edit-lap-number-input">Número de Vuelta</label>
+                    <select id="edit-lap-number-input">
+                        <!-- Las opciones se llenarán dinámicamente -->
+                    </select>
+                </div>
+            </div>
             <div class="form-group">
                 <label for="edit-lap-minutes-input">Minutos</label>
                 <input type="number" id="edit-lap-minutes-input" min="0" max="59" value="0">
@@ -1105,6 +1117,23 @@
             currentEditingLap = lapNumber;
             editLapTimeModal.style.display = 'flex';
             
+            // Llenar el selector de vueltas con las vueltas disponibles
+            const lapSelector = document.getElementById('edit-lap-number-input');
+            lapSelector.innerHTML = '';
+            
+            // Obtener todas las vueltas que tienen tiempo registrado
+            const lapsWithTime = Object.keys(currentLapTimes).map(Number).sort((a, b) => a - b);
+            
+            lapsWithTime.forEach(lap => {
+                const option = document.createElement('option');
+                option.value = lap;
+                option.textContent = `${translations[currentLanguage].lap} ${lap}`;
+                if (lap === lapNumber) {
+                    option.selected = true;
+                }
+                lapSelector.appendChild(option);
+            });
+            
             // Rellenar con el tiempo actual de la vuelta
             const lapTime = currentLapTimes[lapNumber];
             const totalSeconds = Math.floor(lapTime / 1000);
@@ -1297,6 +1326,8 @@
             
             firstLapTime = (minutes * 60000) + (seconds * 1000) + milliseconds;
             firstLapTimeElement.textContent = formatDisplayTime(firstLapTime);
+            
+            // Recalcular automáticamente el 80%
             updateEightyPercentTime();
             updateCutoffTime();
             checkCutoffStatus(); // Verificar estado después de modificar
@@ -1310,15 +1341,54 @@
             const milliseconds = parseInt(document.getElementById('edit-lap-milliseconds-input').value) || 0;
             
             const newLapTime = (minutes * 60000) + (seconds * 1000) + milliseconds;
+            const newLapNumber = parseInt(document.getElementById('edit-lap-number-input').value);
             
             if (currentEditingLap !== null) {
-                currentLapTimes[currentEditingLap] = newLapTime;
+                // Si el número de vuelta cambió, necesitamos mover el tiempo a la nueva vuelta
+                if (newLapNumber !== currentEditingLap) {
+                    // Eliminar el tiempo de la vuelta original
+                    delete currentLapTimes[currentEditingLap];
+                    
+                    // Asignar el tiempo a la nueva vuelta
+                    currentLapTimes[newLapNumber] = newLapTime;
+                    
+                    // Si estamos moviendo la primera vuelta, actualizar firstLapTime
+                    if (currentEditingLap === 1) {
+                        firstLapTime = null;
+                        firstLapTimeElement.textContent = '--:--:--';
+                        firstLapInfo.style.display = 'none';
+                        
+                        // Si la nueva vuelta es la 1, establecer como primera vuelta
+                        if (newLapNumber === 1) {
+                            firstLapTime = newLapTime;
+                            firstLapTimeElement.textContent = formatDisplayTime(firstLapTime);
+                            firstLapInfo.style.display = 'block';
+                            updateEightyPercentTime();
+                        }
+                    } else if (newLapNumber === 1) {
+                        // Si movemos una vuelta que no era la 1 a la posición 1
+                        firstLapTime = newLapTime;
+                        firstLapTimeElement.textContent = formatDisplayTime(firstLapTime);
+                        firstLapInfo.style.display = 'block';
+                        updateEightyPercentTime();
+                    }
+                } else {
+                    // Si el número de vuelta no cambió, solo actualizar el tiempo
+                    currentLapTimes[currentEditingLap] = newLapTime;
+                    
+                    // Si es la primera vuelta, actualizar firstLapTime también
+                    if (currentEditingLap === 1) {
+                        firstLapTime = newLapTime;
+                        firstLapTimeElement.textContent = formatDisplayTime(firstLapTime);
+                        updateEightyPercentTime();
+                    }
+                }
                 
-                // Si es la primera vuelta, actualizar firstLapTime también
-                if (currentEditingLap === 1) {
-                    firstLapTime = newLapTime;
-                    firstLapTimeElement.textContent = formatDisplayTime(firstLapTime);
-                    updateEightyPercentTime();
+                // Actualizar currentLap si es necesario
+                const maxLapWithTime = Math.max(...Object.keys(currentLapTimes).map(Number));
+                if (currentLap <= maxLapWithTime) {
+                    currentLap = maxLapWithTime + 1;
+                    currentLapElement.textContent = currentLap;
                 }
                 
                 updateCutoffTime();

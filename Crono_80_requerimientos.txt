@@ -1,0 +1,194 @@
+quiero hacer un cronometro web que me permitar controlar la zona del 80% en carreras en cricuito de BTT o Ciclo-cross.
+
+En esta zona se han de retirar y anotar tiempo, vuelta y orden, los corredores que hayan pasado a más del 80% del tiempo del primer corredor cuando hizo la primera vuelta, en cada vuelta.
+
+el cronometro deberá poder estar en 3 idiomas, castellano, catalan e inles. será un despleable y con la bandera de cada pais.
+
+Por tanto yo quiero crear un cronometro, en tres idiomas que le pueda fijar el tiempo actual de carrera ya sea iniciando manualmente el arranca, o fijando la hora a la que se salió o fijando manualmente el tiempo actual de carrera.
+
+este crono tendrá que contar las veces que el primero de la carrera ha pasado y memorizar su tiempo.
+
+en la primera vuelta memorizaremos ese tiempo que podremos modificar.
+
+en cada vuelta, después de pasar el primero, cuando el haga más del 80% del tiempo del primer corredor en la primera vuelta el fondo del crono se pondrá rojo.
+
+Habrá un boton que dira retirar corredor, memorizará el tiempo y dejará que el usuario pueda tranquilamente introducir el dorsal o dorsales que se han hecho retirar. si hay mas de un dorsal se separara con una coma.
+
+al final deberemos poder crear un excel con todos los retirados. El orden deberá ser el que se haya retirado en la vuelta superior y dentro de la vuelta por orden que se han retirado.
+
+para mi han de haber los siguientes botones:
+
+Arrancar Crono
+Paso primer corredor
+Retirar Corredor
+Reiniciar Crono (con una pregunta de confirmación previa antes de hacerlo)
+
+Una zona con scroll en el que se vayan viendo los corredores con tiempo vuelta que se han ido retirando.
+
+la manera de mostrar los tiempos es:
+
+20"385
+1'20"385
+1:01'20"385
+
+Los digitos del crono han de mostrar los numeros tipicos de LCD, o sea el que el 8 es un rectangulo con una ralla en medio y con fondo gris
+
+Me gustaria que se mostrase siempre cual es el 80% del tiempo del primer corredor en la primera vuelta.
+
+Varios detalles:
+
+me gustaria que el programa estubiese preparado para almacenar los datos por cada carrera que se controle. Por tanto deberiamos poder crear carreras y que quede almacenado en local y luega se puedan volver a ver todos los datos.
+
+la bandera de los paises estan mal hechas.
+
+los digitos del crono no tienen el caracter de los muy antiguas calculadoras, que son aquellas que el 8 es un rectagulo con una ralla en medio.
+
+hay un problema y es que cada vez que pasa el primer corredor vuelves a calcular el tiempo del 80%, solo se ha de calcular cuando estamos en la primera vuelta, lo estas haciendo ahora cada vuetla.
+
+
+los numeros del crono no se ven bien, no se forman cuadrados, la raya del medio para arribar y para abajo se estira un poco y hace que los numeros se vean mal.
+
+El tiempo limite actual esta mal. hay que sumar el tiempo del primer cuando paso por la vuelta actual, mas el 80% del tiempo de la primera vuelta de ese corredor.
+
+en lugar de mostrar en pantalla todo el codigo puedes crear un archivo para que solo tenga que descargarlo y sea mas rapido
+
+
+el efecto fluor hacer que los numeros se vean mal. Los numeros, 2,4,5,6 y 9 se forman mal. ok
+
+Si apretamos el boton para crono deberia preguntar si estamos seguros si lo queremos parar. ok
+
+deberia haber la opcion de borrar la carrera y antes de hacerlo que nos pregunte si estamos seguros. ok
+
+
+
+cuando creas el excel que los datos esten separados por ; en lugar de , ok
+
+el orden del excel es inverso por vuelta y ascedente por tiempo dentro de cada vuelta ok
+
+
+quita este texto: "Cálculo: Tiempo vuelta actual + 80% primera vuelta"
+
+el orden de los elementos deberia ser:
+
+Carrera
+display crono a su lado vuelta actual
+Paso primer corredor
+retirar corredor
+tiempo primera vuelta
+tiempo limite actual
+corredores retirados
+lista de retirados
+exportar excel 
+para crono
+reiniciar crono
+nueva carrera
+eliminar carrera
+
+
+
+utiliza la tipo Overtime LCD para mostrar los digitos del crono
+
+la vuelta actual ponlo a la izquierda del crono.
+
+cuando muestres el tiempo del corredor en la primera vuelta muestra también cuanto es el 80% de ese tiempo.
+
+el tiempo como se muestra en el crono esta mal:
+
+si el tiempo es menor a 60 segundos
+
+1"385
+
+si el tiempo es mayor de 60 y menor de 3600 segundos
+
+1'01"385
+
+si es mayor de 3600 segundos
+
+2:01'01"385
+
+ha de haber otro boton despues de iniciar crono, que se fijar hora de crono.
+para ello nos preguntará si queremos fijar la hora de salida o poner la hora manual del crono.
+
+abajo del todo se pondrá la hora del dia a la que se inició la carrera.
+
+el tiempo del primer corredor en la primera vuelta se tiene que poder modificar y al hacerlo se ha de volver a calcular el 80% (la manera de hacerlo un boton pequeño al lado que transmita que se va a modificar9
+
+El crono no se pone en fondo rojo cuando ya se ha superado el tiempo limite para echar un corredor, o sea el tiempo limite actual.
+
+
+Quita el efecto fluor al tiempo del cronometro. ok 
+
+el boton iniciar crono ponlo despues de exportar excel. ok
+
+el que llamas tiempo no funciona, y le deberias llamar fijar tiempo crono y deberia hacer la pregunta de fijar por hora de salida o por tiempo de crono. ok
+
+La parte que muestra la hora de salida, ha de poner "Hora de Salida" y no tiempo como pone ahora. ok
+
+ha desaparecido el cuadro que decia el tiempo del primer corredor en la primera vuelta y cuanto es el 80%, ok 
+
+tambien falta la parte que decial el tiempo limite actual .ok 
+
+
+los botones de idioma no funcionan ok 
+
+---
+boton fijar tiempo crono ponlo después de para cronometro. ok 
+
+en fijar tiempo todo los botones pone tiempo el primer boton deberia decir Hora salida, el siguiente Hora Crono, el boton rojo cancelar y el verde modificar. ok 
+
+El crono no se pone en fondo rojo cuando ya se ha superado el tiempo limite para echar un corredor, o sea el tiempo limite actual.
+
+---
+
+No todos los textos estan traducidos por ejemplo tiempo limite actual ok 
+
+despues de los corredores retirados que haya un listado con todos los tiempos del primer corredor al hacer cada vuelta
+
+
+
+que lista de retirados y tiempos del primer corredor sea una pestaña que veamos uno u otro. ok
+
+
+que por defecto se habra con los datos de la ultima carrera utilizada y este como seleccionada en la lista desplegable de carreras ok 
+
+----
+
+el cuadro negro alrededor del tiempo se esta redimensionando constantemente y creo un efecto feo. haz un tamaño fijo. ok 
+
+posibilidad de eliminar un paso del primer corredor y que se recalculen vueltas.
+en el listado de tiempos del primer corredor se muestran con 2 vueltas de diferencia, si estamos en la vuelta 3 muestra la 1 y la 2. el boton de eliminar no funciona. antes de eliminar que pregunte al usuario si lo quiere hacer
+
+
+
+memoriza el idioma seleccionado y cada vez que vuelve a cargarse la aplicacion que lo mire y fije ese idioma. ok 
+
+en exportar que se exporte los tiempos del primer corredor en otra pestaña y por orden de tiempo.
+
+----------------
+
+
+solo se ha de poder eliminar el ultimo tiempo del primer corredor. si ha pasado 4 veces solo la vuelta 4, si se elimna la 4 entonces se podra eliminar la 3. ok
+
+
+
+
+
+
+
+---
+
+te he pedido los siguientes cambios muchas veces y no los solucionas
+
+cuando el tiempo del cronmetro supere Tiempo Límite Actual el fondo del crono en lugar de ser negro que sea rojo (NUNCA ESTAS RESOLVIENDO ESTO) ya que no lo puedes hacer pon un texto debajo del crono que diga elimanar corredor, cuando vuelva a pasar el primer corredor elimina este texto
+
+
+el boton eleminar tiempo corredor funciona en el movil pero no en el pc.
+
+
+al pulsar paso del primer corredor se ha de actualizar inmediatamente la pestaña de tiempos del primer corredor. siempre se muestra con una vuelta de retraso.
+
+cuando modificamos la hora de salida el crono no muestra el tiempo correcto, ahora sale con un signo menos y esta haciendo una cuenta atras. Recuerda que la hora del cronometro siempre tiene que ser la diferencia entre la hora de salida y la hora actual del sistema. por tanto si por ejemplo se fija la hora del crono se ha de actualizar tambien esta hora.
+
+al fijar nueva hora de salida el crono se para y queda en 00
+
+quitaste la opcion de modificar el tiempo de la primera vuelta del primer corredor. antes habia un lapiz al lado del tiempo
