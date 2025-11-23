@@ -164,31 +164,42 @@ memoriza el idioma seleccionado y cada vez que vuelve a cargarse la aplicacion q
 
 en exportar que se exporte los tiempos del primer corredor en otra pestaña y por orden de tiempo.
 
-----------------
-
 
 solo se ha de poder eliminar el ultimo tiempo del primer corredor. si ha pasado 4 veces solo la vuelta 4, si se elimna la 4 entonces se podra eliminar la 3. ok
 
 
+al pulsar paso del primer corredor se ha de actualizar inmediatamente la pestaña de tiempos del primer corredor. siempre se muestra con una vuelta de retraso. ok
+
+cuando modificamos la hora de salida el crono no muestra el tiempo correcto, ahora sale con un signo menos y esta haciendo una cuenta atras. Recuerda que la hora del cronometro siempre tiene que ser la diferencia entre la hora de salida y la hora actual del sistema. por tanto si por ejemplo se fija la hora del crono se ha de actualizar tambien esta hora. ok
+
+al fijar nueva hora de salida el crono se para y queda en 00 ok
+
+cuando se entra en la opcion de modificar el tiempo del primer corredor, que ademas del tiempo se pueda modificar la vuelta. ok
+
+que se pueda modificar el tiempo y la vuelta en la lista de corredores retirados. ok
+
+confirmar antes de borrar el tiempo del paso del primer corredor ok
+
+el boton eleminar tiempo corredor funciona en el movil pero no en el pc. ok
+
+al final de la página quiero poner el texot del copyright: 2025 copyright Roberto Benet - rbenet71@gmail.com y que tenga un hipervinculo que lleve a https://rbenet71.github.io/Web/ ok
 
 
+-----------------------------
+
+Al recargar la página el crono se para y no queda en movimiento
+
+---------------------
+
+cuando el tiempo del cronmetro supere Tiempo Límite Actual el fondo del crono en lugar de ser negro que sea rojo ya que no lo puedes hacer pon un texto debajo del crono que diga elimanar corredor, cuando vuelva a pasar el primer corredor elimina este texto
+
+que al lado Tiempo Primera Vuelta haya tambien un lapiz que nos lleve a la opción de modificar este tiempo y al hacerlo volver a calcular cual es el 80%
 
 
+se puede poner al lado del texto de copyright un numero que sea el numero de personas que han visitado esta pàgina?
 
----
+ayuda
 
-te he pedido los siguientes cambios muchas veces y no los solucionas
+opcion crono con o sin milesimas
 
-cuando el tiempo del cronmetro supere Tiempo Límite Actual el fondo del crono en lugar de ser negro que sea rojo (NUNCA ESTAS RESOLVIENDO ESTO) ya que no lo puedes hacer pon un texto debajo del crono que diga elimanar corredor, cuando vuelva a pasar el primer corredor elimina este texto
-
-
-el boton eleminar tiempo corredor funciona en el movil pero no en el pc.
-
-
-al pulsar paso del primer corredor se ha de actualizar inmediatamente la pestaña de tiempos del primer corredor. siempre se muestra con una vuelta de retraso.
-
-cuando modificamos la hora de salida el crono no muestra el tiempo correcto, ahora sale con un signo menos y esta haciendo una cuenta atras. Recuerda que la hora del cronometro siempre tiene que ser la diferencia entre la hora de salida y la hora actual del sistema. por tanto si por ejemplo se fija la hora del crono se ha de actualizar tambien esta hora.
-
-al fijar nueva hora de salida el crono se para y queda en 00
-
-quitaste la opcion de modificar el tiempo de la primera vuelta del primer corredor. antes habia un lapiz al lado del tiempo
+estar actualizado sobre los cambios realizados- Actualizaciones deja tu email y comentarios y que me envie un email con ese contacto y comentario

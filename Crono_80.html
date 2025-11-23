@@ -523,6 +523,16 @@
             text-decoration: underline;
         }
         
+        .visit-counter {
+            margin-left: 10px;
+            padding: 2px 8px;
+            background-color: var(--secondary-color);
+            color: white;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
         @media (max-width: 768px) {
             .chrono-section {
                 flex-direction: column;
@@ -553,6 +563,15 @@
             
             .rider-actions {
                 align-self: flex-end;
+            }
+            
+            .footer {
+                font-size: 0.9rem;
+            }
+            
+            .visit-counter {
+                display: block;
+                margin: 5px 0 0 0;
             }
         }
     </style>
@@ -644,13 +663,14 @@
             <button class="btn-reset" id="btn-reset">Reiniciar Cronómetro</button>
         </div>
 
-        <!-- Footer con copyright -->
+        <!-- Footer con copyright y contador de visitas -->
         <footer class="footer">
             <p>
                 2025 Copyright 
                 <a href="https://rbenet71.github.io/Web/" target="_blank">
                     Roberto Benet - rbenet71@gmail.com
                 </a>
+                <span class="visit-counter" id="visit-counter">0 visitas</span>
             </p>
         </footer>
     </div>
@@ -1033,6 +1053,7 @@
         const withdrawnTab = document.getElementById('withdrawn-tab');
         const lapTimesTab = document.getElementById('lap-times-tab');
         const cutoffWarning = document.getElementById('cutoff-warning');
+        const visitCounterElement = document.getElementById('visit-counter');
         
         // Modales
         const withdrawModal = document.getElementById('withdraw-modal');
@@ -1044,6 +1065,25 @@
         const editFirstLapModal = document.getElementById('edit-first-lap-modal');
         const editLapTimeModal = document.getElementById('edit-lap-time-modal');
         const editWithdrawnModal = document.getElementById('edit-withdrawn-modal');
+        
+        // =============================================
+        // CONTADOR DE VISITAS MEJORADO
+        // =============================================
+        function updateVisitCounter() {
+            const today = new Date().toDateString();
+            const lastVisit = localStorage.getItem('bttLastVisit');
+            let visitCount = parseInt(localStorage.getItem('bttVisitCount')) || 0;
+            
+            // Solo contar una visita por día por usuario
+            if (lastVisit !== today) {
+                visitCount++;
+                localStorage.setItem('bttVisitCount', visitCount);
+                localStorage.setItem('bttLastVisit', today);
+            }
+            
+            // Actualizar el display
+            visitCounterElement.textContent = visitCount + ' visitas';
+        }
         
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
@@ -1063,6 +1103,9 @@
                 loadRace(lastRaceId);
                 raceSelector.value = lastRaceId;
             }
+            
+            // Inicializar contador de visitas
+            updateVisitCounter();
             
             // Event listeners para botones principales
             btnStart.addEventListener('click', toggleChrono);
