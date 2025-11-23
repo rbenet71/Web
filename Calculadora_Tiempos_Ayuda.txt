@@ -1,0 +1,265 @@
+# Archivo de Ayuda - Calculadora de Tiempos para Ciclismo
+
+## Español
+
+### Calculadora de Tiempos para Ciclismo - Manual de Uso
+
+#### Descripción General
+Esta calculadora especializada está diseñada específicamente para ciclistas, permitiendo realizar cálculos de tiempos, promedios y vueltas de manera eficiente. Combina funcionalidades de calculadora estándar con operaciones específicas para deportes de resistencia.
+
+#### Modos de Operación
+
+**1. Modo Decimal**
+- Funciona como una calculadora convencional
+- Ideal para cálculos matemáticos básicos
+- Los resultados se muestran en formato numérico
+
+**2. Modo Tiempo**
+- Especializado para trabajar con horas, minutos y segundos
+- Permite introducir tiempos en formato natural (ej: 1h 30m 45s)
+- Los resultados se muestran en formato de tiempo legible
+
+#### Funciones Principales
+
+**Botones de Unidad de Tiempo:**
+- **Hora**: Establece el modo para introducir horas
+- **Minuto**: Establece el modo para introducir minutos  
+- **Segundo**: Establece el modo para introducir segundos
+- **Decimal**: Cambia al modo calculadora convencional
+
+**Operaciones Básicas:**
+- **+** (Suma): Suma dos tiempos o valores
+- **-** (Resta): Resta tiempos o valores
+- **×** (Multiplicación): Multiplica por un factor
+- **÷** (División): Divide por un valor
+- **%** (Porcentaje): Calcula el porcentaje de un tiempo
+- **%+** (Incremento porcentual): Aumenta un tiempo en un porcentaje
+
+**Funciones de Memoria:**
+- **M+**: Suma el valor actual a la memoria
+- **MR**: Recupera el valor almacenado en memoria
+- **MC**: Limpia la memoria
+
+**Botones Especiales:**
+- **Cálculo Promedio**: Calcula la velocidad promedio en km/h
+- **Número de Vueltas**: Calcula cuántas vueltas caben en un tiempo objetivo
+
+#### Ejemplos de Uso
+
+**Cálculo de Tiempo Total:**
+```
+1h 30m + 45m 30s = 2h 15m 30s
+```
+
+**Cálculo de Velocidad Promedio:**
+```
+Distancia: 50 km
+Tiempo: 2h 15m
+Resultado: 22.22 km/h
+```
+
+**Cálculo de Vueltas:**
+```
+Tiempo por vuelta: 8m 30s
+Tiempo objetivo: 2h 30m
+Resultado: 17 vueltas
+```
+
+**Incremento Porcentual:**
+```
+Tiempo base: 1h 20m
+Incremento: 10% (%+)
+Resultado: 1h 28m
+```
+
+#### Consejos Prácticos
+
+1. **Para sumar tiempos**: Usa el modo tiempo y ve alternando entre horas, minutos y segundos
+2. **Para cálculos complejos**: Combina el modo decimal con funciones de memoria
+3. **Para entrenamientos**: Usa la función de número de vueltas para planificar sesiones
+4. **Para análisis de rendimiento**: Utiliza el cálculo de promedio para evaluar ritmos
+
+#### Características Avanzadas
+
+- **Historial de operaciones**: Mantiene un registro de los últimos cálculos
+- **Multilingüe**: Disponible en español, catalán e inglés
+- **Persistencia**: Recuerda tu idioma preferido entre sesiones
+- **Responsive**: Funciona en dispositivos móviles y desktop
+
+---
+
+## Català
+
+### Calculadora de Temps per a Ciclisme - Manual d'Ús
+
+#### Descripció General
+Aquesta calculadora especialitzada està dissenyada específicament per a ciclistes, permetent realitzar càlculs de temps, mitjanes i voltes de manera eficient. Combina funcionalitats de calculadora estàndard amb operacions específiques per a esports de resistència.
+
+#### Modes d'Operació
+
+**1. Mode Decimal**
+- Funciona com una calculadora convencional
+- Ideal per a càlculs matemàtics bàsics
+- Els resultats es mostren en format numèric
+
+**2. Mode Temps**
+- Especialitzat per treballar amb hores, minuts i segons
+- Permet introduir temps en format natural (ex: 1h 30m 45s)
+- Els resultats es mostren en format de temps llegible
+
+#### Funcions Principals
+
+**Botons d'Unitat de Temps:**
+- **Hora**: Estableix el mode per introduir hores
+- **Minut**: Estableix el mode per introduir minuts
+- **Segon**: Estableix el mode per introduir segons
+- **Decimal**: Canvia al mode calculadora convencional
+
+**Operacions Bàsiques:**
+- **+** (Suma): Suma dos temps o valors
+- **-** (Resta): Resta temps o valors
+- **×** (Multiplicació): Multiplica per un factor
+- **÷** (Divisió): Divideix per un valor
+- **%** (Percentatge): Calcula el percentatge d'un temps
+- **%+** (Increment percentual): Augmenta un temps en un percentatge
+
+**Funcions de Memòria:**
+- **M+**: Suma el valor actual a la memòria
+- **MR**: Recupera el valor emmagatzemat a la memòria
+- **MC**: Neteja la memòria
+
+**Botons Especials:**
+- **Càlcul Promig**: Calcula la velocitat mitjana en km/h
+- **Nombre de Voltes**: Calcula quantes voltes caben en un temps objectiu
+
+#### Exemples d'Ús
+
+**Càlcul de Temps Total:**
+```
+1h 30m + 45m 30s = 2h 15m 30s
+```
+
+**Càlcul de Velocitat Mitjana:**
+```
+Distància: 50 km
+Temps: 2h 15m
+Resultat: 22.22 km/h
+```
+
+**Càlcul de Voltes:**
+```
+Temps per volta: 8m 30s
+Temps objectiu: 2h 30m
+Resultat: 17 voltes
+```
+
+**Increment Percentual:**
+```
+Temps base: 1h 20m
+Increment: 10% (%+)
+Resultat: 1h 28m
+```
+
+#### Consells Pràctics
+
+1. **Per sumar temps**: Utilitza el mode temps i ves alternant entre hores, minuts i segons
+2. **Per càlculs complexos**: Combina el mode decimal amb funcions de memòria
+3. **Per entrenaments**: Utilitza la funció de nombre de voltes per planificar sessions
+4. **Per anàlisi de rendiment**: Utilitza el càlcul de mitjana per avaluar ritmes
+
+#### Característiques Avançades
+
+- **Historial d'operacions**: Manté un registre dels últims càlculs
+- **Multilingüe**: Disponible en espanyol, català i anglès
+- **Persistència**: Recorda la teva llengua preferida entre sessions
+- **Responsive**: Funciona en dispositius mòbils i ordinadors
+
+---
+
+## English
+
+### Time Calculator for Cycling - User Manual
+
+#### Overview
+This specialized calculator is specifically designed for cyclists, allowing efficient calculations of times, averages, and laps. It combines standard calculator functionalities with specific operations for endurance sports.
+
+#### Operation Modes
+
+**1. Decimal Mode**
+- Works as a conventional calculator
+- Ideal for basic mathematical calculations
+- Results are displayed in numerical format
+
+**2. Time Mode**
+- Specialized for working with hours, minutes, and seconds
+- Allows input of times in natural format (ex: 1h 30m 45s)
+- Results are displayed in readable time format
+
+#### Main Functions
+
+**Time Unit Buttons:**
+- **Hour**: Sets mode for entering hours
+- **Minute**: Sets mode for entering minutes
+- **Second**: Sets mode for entering seconds
+- **Decimal**: Switches to conventional calculator mode
+
+**Basic Operations:**
+- **+** (Addition): Adds two times or values
+- **-** (Subtraction): Subtracts times or values
+- **×** (Multiplication): Multiplies by a factor
+- **÷** (Division): Divides by a value
+- **%** (Percentage): Calculates percentage of a time
+- **%+** (Percentage increase): Increases a time by a percentage
+
+**Memory Functions:**
+- **M+**: Adds current value to memory
+- **MR**: Recalls value stored in memory
+- **MC**: Clears memory
+
+**Special Buttons:**
+- **Average Calculation**: Calculates average speed in km/h
+- **Number of Laps**: Calculates how many laps fit in a target time
+
+#### Usage Examples
+
+**Total Time Calculation:**
+```
+1h 30m + 45m 30s = 2h 15m 30s
+```
+
+**Average Speed Calculation:**
+```
+Distance: 50 km
+Time: 2h 15m
+Result: 22.22 km/h
+```
+
+**Lap Calculation:**
+```
+Time per lap: 8m 30s
+Target time: 2h 30m
+Result: 17 laps
+```
+
+**Percentage Increase:**
+```
+Base time: 1h 20m
+Increase: 10% (%+)
+Result: 1h 28m
+```
+
+#### Practical Tips
+
+1. **For adding times**: Use time mode and alternate between hours, minutes, and seconds
+2. **For complex calculations**: Combine decimal mode with memory functions
+3. **For training**: Use the lap count function to plan sessions
+4. **For performance analysis**: Use average calculation to evaluate paces
+
+#### Advanced Features
+
+- **Operation history**: Keeps a record of recent calculations
+- **Multilingual**: Available in Spanish, Catalan, and English
+- **Persistence**: Remembers your preferred language between sessions
+- **Responsive**: Works on mobile devices and desktop computers
+
+---
