@@ -701,6 +701,10 @@
         <div class="modal-content">
             <h3 id="edit-lap-time-title">Modificar Tiempo de Vuelta</h3>
             <div class="form-group">
+                <label for="edit-lap-number-input">Número de Vuelta</label>
+                <input type="number" id="edit-lap-number-input" min="1" value="1">
+            </div>
+            <div class="form-group">
                 <label for="edit-lap-minutes-input">Minutos</label>
                 <input type="number" id="edit-lap-minutes-input" min="0" max="59" value="0">
             </div>
@@ -786,7 +790,8 @@
                 removeLap: "Eliminar",
                 confirmRemoveLap: "¿Estás seguro de que quieres eliminar esta vuelta? Se recalcularán las vueltas siguientes.",
                 cutoffWarning: "ELIMINAR CORREDOR",
-                editLapTimeTitle: "Modificar Tiempo de Vuelta"
+                editLapTimeTitle: "Modificar Tiempo de Vuelta",
+                lapNumberLabel: "Número de Vuelta"
             },
             ca: {
                 appTitle: "Cronòmetre Control 80%",
@@ -834,7 +839,8 @@
                 removeLap: "Eliminar",
                 confirmRemoveLap: "Estàs segur que vols eliminar aquesta volta? Es recalcularan les voltes següents.",
                 cutoffWarning: "ELIMINAR CORREDOR",
-                editLapTimeTitle: "Modificar Temps de Volta"
+                editLapTimeTitle: "Modificar Temps de Volta",
+                lapNumberLabel: "Número de Volta"
             },
             en: {
                 appTitle: "80% Control Chronometer",
@@ -882,7 +888,8 @@
                 removeLap: "Remove",
                 confirmRemoveLap: "Are you sure you want to remove this lap? The following laps will be recalculated.",
                 cutoffWarning: "ELIMINATE RIDER",
-                editLapTimeTitle: "Modify Lap Time"
+                editLapTimeTitle: "Modify Lap Time",
+                lapNumberLabel: "Lap Number"
             }
         };
         
@@ -1112,6 +1119,7 @@
             const seconds = totalSeconds % 60;
             const milliseconds = Math.floor((lapTime % 1000));
             
+            document.getElementById('edit-lap-number-input').value = lapNumber;
             document.getElementById('edit-lap-minutes-input').value = minutes;
             document.getElementById('edit-lap-seconds-input').value = seconds;
             document.getElementById('edit-lap-milliseconds-input').value = milliseconds;
@@ -1305,6 +1313,7 @@
         }
         
         function confirmEditLapTime() {
+            const newLapNumber = parseInt(document.getElementById('edit-lap-number-input').value) || 1;
             const minutes = parseInt(document.getElementById('edit-lap-minutes-input').value) || 0;
             const seconds = parseInt(document.getElementById('edit-lap-seconds-input').value) || 0;
             const milliseconds = parseInt(document.getElementById('edit-lap-milliseconds-input').value) || 0;
@@ -1312,14 +1321,24 @@
             const newLapTime = (minutes * 60000) + (seconds * 1000) + milliseconds;
             
             if (currentEditingLap !== null) {
-                currentLapTimes[currentEditingLap] = newLapTime;
+                // Eliminar el tiempo de la vuelta original
+                delete currentLapTimes[currentEditingLap];
                 
-                // Si es la primera vuelta, actualizar firstLapTime también
-                if (currentEditingLap === 1) {
+                // Guardar el tiempo con el nuevo número de vuelta
+                currentLapTimes[newLapNumber] = newLapTime;
+                
+                // Si estamos modificando la primera vuelta o la nueva vuelta es la 1, actualizar firstLapTime
+                if (currentEditingLap === 1 || newLapNumber === 1) {
                     firstLapTime = newLapTime;
                     firstLapTimeElement.textContent = formatDisplayTime(firstLapTime);
                     updateEightyPercentTime();
                 }
+                
+                // Recalcular currentLap para que sea la última vuelta + 1
+                const lapsWithTime = Object.keys(currentLapTimes).map(Number);
+                const maxLap = lapsWithTime.length > 0 ? Math.max(...lapsWithTime) : 0;
+                currentLap = maxLap + 1;
+                currentLapElement.textContent = currentLap;
                 
                 updateCutoffTime();
                 updateLapTimesList();
@@ -1902,6 +1921,7 @@
             document.getElementById('start-time-label').textContent = translations[lang].startTimeLabel;
             document.getElementById('cutoff-warning').textContent = translations[lang].cutoffWarning;
             document.getElementById('edit-lap-time-title').textContent = translations[lang].editLapTimeTitle;
+            document.getElementById('edit-lap-number-label').textContent = translations[lang].lapNumberLabel;
             
             updateRaceStartTimeDisplay();
             updateWithdrawnList();
