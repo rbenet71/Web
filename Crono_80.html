@@ -135,6 +135,11 @@
             transition: all 0.3s ease;
         }
         
+        .chrono-display.over-cutoff {
+            background: linear-gradient(135deg, #5a1a1a 0%, #8b2d2d 100%);
+            border: 8px solid #e74c3c;
+        }
+        
         .chrono-display::before {
             content: '';
             position: absolute;
@@ -153,6 +158,10 @@
             color: #00ff00;
             letter-spacing: 3px;
             line-height: 1;
+        }
+        
+        .chrono-display.over-cutoff .lcd-time {
+            color: #ff6b6b;
         }
         
         .cutoff-warning {
@@ -450,6 +459,18 @@
             flex: 1;
         }
         
+        .edit-icon {
+            cursor: pointer;
+            margin-left: 10px;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+            font-size: 1rem;
+        }
+        
+        .edit-icon:hover {
+            opacity: 1;
+        }
+        
         @media (max-width: 768px) {
             .chrono-section {
                 flex-direction: column;
@@ -675,6 +696,29 @@
         </div>
     </div>
 
+    <!-- Modal para editar tiempo de vuelta específico -->
+    <div class="modal" id="edit-lap-time-modal">
+        <div class="modal-content">
+            <h3 id="edit-lap-time-title">Modificar Tiempo de Vuelta</h3>
+            <div class="form-group">
+                <label for="edit-lap-minutes-input">Minutos</label>
+                <input type="number" id="edit-lap-minutes-input" min="0" max="59" value="0">
+            </div>
+            <div class="form-group">
+                <label for="edit-lap-seconds-input">Segundos</label>
+                <input type="number" id="edit-lap-seconds-input" min="0" max="59" value="0">
+            </div>
+            <div class="form-group">
+                <label for="edit-lap-milliseconds-input">Milisegundos</label>
+                <input type="number" id="edit-lap-milliseconds-input" min="0" max="999" value="0">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-reset" id="cancel-edit-lap-time">Cancelar</button>
+                <button class="btn-modify" id="confirm-edit-lap-time">Modificar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Variables globales
         let startTime = 0;
@@ -692,6 +736,7 @@
         let raceStartTime = null;
         let timeModalMode = 'start';
         let isOverCutoff = false;
+        let currentEditingLap = null;
         
         // Textos en diferentes idiomas
         const translations = {
@@ -740,7 +785,8 @@
                 lapTimesTitle: "Tiempos del Primer Corredor por Vuelta",
                 removeLap: "Eliminar",
                 confirmRemoveLap: "¿Estás seguro de que quieres eliminar esta vuelta? Se recalcularán las vueltas siguientes.",
-                cutoffWarning: "ELIMINAR CORREDOR"
+                cutoffWarning: "ELIMINAR CORREDOR",
+                editLapTimeTitle: "Modificar Tiempo de Vuelta"
             },
             ca: {
                 appTitle: "Cronòmetre Control 80%",
@@ -787,7 +833,8 @@
                 lapTimesTitle: "Temps del Primer Corredor per Volta",
                 removeLap: "Eliminar",
                 confirmRemoveLap: "Estàs segur que vols eliminar aquesta volta? Es recalcularan les voltes següents.",
-                cutoffWarning: "ELIMINAR CORREDOR"
+                cutoffWarning: "ELIMINAR CORREDOR",
+                editLapTimeTitle: "Modificar Temps de Volta"
             },
             en: {
                 appTitle: "80% Control Chronometer",
@@ -834,7 +881,8 @@
                 lapTimesTitle: "First Rider Lap Times",
                 removeLap: "Remove",
                 confirmRemoveLap: "Are you sure you want to remove this lap? The following laps will be recalculated.",
-                cutoffWarning: "ELIMINATE RIDER"
+                cutoffWarning: "ELIMINATE RIDER",
+                editLapTimeTitle: "Modify Lap Time"
             }
         };
         
@@ -874,6 +922,7 @@
         const deleteRaceModal = document.getElementById('delete-race-modal');
         const stopChronoModal = document.getElementById('stop-chrono-modal');
         const editFirstLapModal = document.getElementById('edit-first-lap-modal');
+        const editLapTimeModal = document.getElementById('edit-lap-time-modal');
         
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
@@ -957,6 +1006,10 @@
             // Modal editar primera vuelta
             document.getElementById('cancel-edit-first-lap').addEventListener('click', closeEditFirstLapModal);
             document.getElementById('confirm-edit-first-lap').addEventListener('click', confirmEditFirstLap);
+            
+            // Modal editar tiempo de vuelta específico
+            document.getElementById('cancel-edit-lap-time').addEventListener('click', closeEditLapTimeModal);
+            document.getElementById('confirm-edit-lap-time').addEventListener('click', confirmEditLapTime);
         }
         
         // Funciones para abrir/cerrar modales
@@ -1043,6 +1096,32 @@
             editFirstLapModal.style.display = 'none';
         }
         
+        function openEditLapTimeModal(lapNumber) {
+            if (!currentLapTimes[lapNumber]) {
+                alert("No hay tiempo registrado para esta vuelta.");
+                return;
+            }
+            
+            currentEditingLap = lapNumber;
+            editLapTimeModal.style.display = 'flex';
+            
+            // Rellenar con el tiempo actual de la vuelta
+            const lapTime = currentLapTimes[lapNumber];
+            const totalSeconds = Math.floor(lapTime / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            const milliseconds = Math.floor((lapTime % 1000));
+            
+            document.getElementById('edit-lap-minutes-input').value = minutes;
+            document.getElementById('edit-lap-seconds-input').value = seconds;
+            document.getElementById('edit-lap-milliseconds-input').value = milliseconds;
+        }
+        
+        function closeEditLapTimeModal() {
+            editLapTimeModal.style.display = 'none';
+            currentEditingLap = null;
+        }
+        
         // Funciones de confirmación de modales
         function confirmWithdraw() {
             const dorsalText = document.getElementById('dorsal-input').value.trim();
@@ -1092,6 +1171,7 @@
             btnStart.textContent = translations[currentLanguage].startChrono;
             updateRaceStartTimeDisplay();
             cutoffWarning.style.display = 'none';
+            chronoDisplay.classList.remove('over-cutoff');
             
             saveCurrentRaceState();
             closeResetModal();
@@ -1222,6 +1302,32 @@
             checkCutoffStatus(); // Verificar estado después de modificar
             saveCurrentRaceState();
             closeEditFirstLapModal();
+        }
+        
+        function confirmEditLapTime() {
+            const minutes = parseInt(document.getElementById('edit-lap-minutes-input').value) || 0;
+            const seconds = parseInt(document.getElementById('edit-lap-seconds-input').value) || 0;
+            const milliseconds = parseInt(document.getElementById('edit-lap-milliseconds-input').value) || 0;
+            
+            const newLapTime = (minutes * 60000) + (seconds * 1000) + milliseconds;
+            
+            if (currentEditingLap !== null) {
+                currentLapTimes[currentEditingLap] = newLapTime;
+                
+                // Si es la primera vuelta, actualizar firstLapTime también
+                if (currentEditingLap === 1) {
+                    firstLapTime = newLapTime;
+                    firstLapTimeElement.textContent = formatDisplayTime(firstLapTime);
+                    updateEightyPercentTime();
+                }
+                
+                updateCutoffTime();
+                updateLapTimesList();
+                checkCutoffStatus();
+                saveCurrentRaceState();
+            }
+            
+            closeEditLapTimeModal();
         }
         
         function setStartTimeMode() {
@@ -1367,6 +1473,7 @@
             btnStart.textContent = translations[currentLanguage].startChrono;
             updateRaceStartTimeDisplay();
             cutoffWarning.style.display = 'none';
+            chronoDisplay.classList.remove('over-cutoff');
         }
         
         // Funciones del cronómetro
@@ -1465,12 +1572,17 @@
                 if (currentTime > currentCutoffTime) {
                     isOverCutoff = true;
                     cutoffWarning.style.display = 'block';
+                    chronoDisplay.classList.add('over-cutoff');
                 } else {
                     isOverCutoff = false;
                     cutoffWarning.style.display = 'none';
+                    chronoDisplay.classList.remove('over-cutoff');
                 }
                 
                 cutoffTimeElement.textContent = formatDisplayTime(currentCutoffTime);
+            } else {
+                cutoffWarning.style.display = 'none';
+                chronoDisplay.classList.remove('over-cutoff');
             }
         }
         
@@ -1500,6 +1612,7 @@
                 
                 // Ocultar el mensaje de advertencia cuando pasa el primer corredor
                 cutoffWarning.style.display = 'none';
+                chronoDisplay.classList.remove('over-cutoff');
                 isOverCutoff = false;
                 
                 // Verificar inmediatamente el estado de corte
@@ -1601,9 +1714,12 @@
                     const removeButton = (lap === lastLapWithTime) ? 
                         `<button class="btn-remove remove-lap" data-lap="${lap}">${translations[currentLanguage].removeLap}</button>` : '';
                     
+                    // Añadir icono de edición para cada vuelta
+                    const editIcon = `<span class="edit-icon" data-lap="${lap}">✏️</span>`;
+                    
                     li.innerHTML = `
                         <span>${translations[currentLanguage].lap} ${lap}</span>
-                        <span>${formatDisplayTime(currentLapTimes[lap])}</span>
+                        <span>${formatDisplayTime(currentLapTimes[lap])} ${editIcon}</span>
                         ${removeButton}
                     `;
                     lapListElement.appendChild(li);
@@ -1616,7 +1732,7 @@
                 button.replaceWith(button.cloneNode(true));
             });
             
-            // Añadir nuevos event listeners
+            // Añadir nuevos event listeners para botones de eliminar
             document.querySelectorAll('.remove-lap').forEach(button => {
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -1631,6 +1747,23 @@
                     e.stopPropagation();
                     const lapNumber = parseInt(this.getAttribute('data-lap'));
                     removeLap(lapNumber);
+                });
+            });
+            
+            // Añadir event listeners para iconos de edición
+            document.querySelectorAll('.edit-icon').forEach(icon => {
+                icon.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const lapNumber = parseInt(this.getAttribute('data-lap'));
+                    openEditLapTimeModal(lapNumber);
+                });
+                
+                icon.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const lapNumber = parseInt(this.getAttribute('data-lap'));
+                    openEditLapTimeModal(lapNumber);
                 });
             });
         }
@@ -1768,6 +1901,7 @@
             document.getElementById('confirm-edit-first-lap').textContent = translations[lang].confirm;
             document.getElementById('start-time-label').textContent = translations[lang].startTimeLabel;
             document.getElementById('cutoff-warning').textContent = translations[lang].cutoffWarning;
+            document.getElementById('edit-lap-time-title').textContent = translations[lang].editLapTimeTitle;
             
             updateRaceStartTimeDisplay();
             updateWithdrawnList();
