@@ -27,12 +27,16 @@
             background-color: #f5f7fa;
             color: var(--dark-color);
             line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
+            flex: 1;
         }
         
         header {
@@ -500,6 +504,25 @@
             background-color: var(--danger-color);
         }
         
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            color: var(--dark-color);
+            background-color: white;
+        }
+        
+        .footer a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
         @media (max-width: 768px) {
             .chrono-section {
                 flex-direction: column;
@@ -620,6 +643,16 @@
             <button class="btn-set-time" id="btn-set-time">Fijar Tiempo Crono</button>
             <button class="btn-reset" id="btn-reset">Reiniciar Cronómetro</button>
         </div>
+
+        <!-- Footer con copyright -->
+        <footer class="footer">
+            <p>
+                2025 Copyright 
+                <a href="https://rbenet71.github.io/Web/" target="_blank">
+                    Roberto Benet - rbenet71@gmail.com
+                </a>
+            </p>
+        </footer>
     </div>
     
     <!-- Modal para retirar corredor -->
