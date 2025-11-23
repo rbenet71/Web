@@ -1,1 +1,51 @@
-Este es la explicación de como funciona la aplicació
+========================================
+
+¿CÓMO FUNCIONA ESTA APLICACIÓN?
+--------------------------------
+El Cronómetro Control 80% está diseñado para gestionar carreras de BTT o Ciclo-cross aplicando la regla del 80% para determinar qué corredores deben ser eliminados.
+
+FUNCIONALIDADES PRINCIPALES:
+----------------------------
+• Gestión de Carreras: Puedes crear múltiples carreras y cambiar entre ellas
+• Cronómetro: Controla el tiempo de la carrera con precisión de milésimas
+• Control del 80%: Calcula automáticamente el tiempo límite para cada vuelta
+• Gestión de Corredores: Registra corredores retirados y sus tiempos
+• Exportación: Guarda los datos en formato Excel para su análisis
+
+PASOS BÁSICOS DE USO:
+---------------------
+1. Crear una carrera: Haz clic en "Nueva Carrera" y asigna un nombre
+2. Iniciar el cronómetro: Pulsa "Iniciar Cronómetro" cuando comience la carrera
+3. Registrar primera vuelta: Cuando el primer corredor complete la primera vuelta, pulsa "Paso Primer Corredor"
+4. Control de tiempos: El sistema calculará automáticamente el 80% del tiempo de la primera vuelta
+5. Retirar corredores: Usa "Retirar Corredor" para eliminar corredores que no cumplan con el tiempo límite
+6. Exportar datos: Al finalizar, exporta los resultados con "Exportar a Excel"
+
+CARACTERÍSTICAS AVANZADAS:
+--------------------------
+• Multidioma: Disponible en Español, Catalán e Inglés
+• Milésimas: Puedes activar/desactivar la visualización de milésimas
+• Edición de tiempos: Todos los tiempos registrados son editables
+• Persistencia: Los datos se guardan automáticamente en tu navegador
+• Responsive: Funciona en dispositivos móviles y de escritorio
+
+REGLAS DEL 80% EXPLICADA:
+-------------------------
+En cada vuelta posterior a la primera, los corredores deben completar la vuelta en un tiempo menor o igual al 80% del tiempo que tardó el primer corredor en la primera vuelta. Los que no cumplan esta condición deben ser retirados de la carrera.
+
+FÓRMULA: Tiempo Límite = Tiempo Primera Vuelta × 0.8
+
+CONSEJOS:
+---------
+• Usa el doble clic en el cronómetro para ajustar manualmente el tiempo
+• Puedes editar cualquier tiempo registrado haciendo clic en el icono ✏️
+• La aplicación funciona sin conexión a internet una vez cargada
+• Los datos se mantienen aunque cierres el navegador
+
+PARA MÁS INFORMACIÓN O SOPORTE:
+-------------------------------
+Contacta con: rbenet71@gmail.com
+Visita: https://rbenet71.github.io/Web/
+
+----------------------------------------
+© 2025 Roberto Benet - Todos los derechos reservados
