@@ -533,6 +533,60 @@
             font-weight: bold;
         }
         
+        /* Estilos para el interruptor de milésimas */
+        .milliseconds-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: var(--secondary-color);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
         @media (max-width: 768px) {
             .chrono-section {
                 flex-direction: column;
@@ -603,6 +657,15 @@
             <div class="chrono-display" id="chrono-display">
                 <div class="lcd-time" id="lcd-time">00'00"000</div>
             </div>
+        </div>
+        
+        <!-- Interruptor para mostrar/ocultar milésimas -->
+        <div class="milliseconds-toggle">
+            <span id="milliseconds-label">Mostrar Milésimas</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="milliseconds-toggle" checked>
+                <span class="toggle-slider"></span>
+            </label>
         </div>
         
         <div class="cutoff-warning" id="cutoff-warning">ELIMINAR CORREDOR</div>
@@ -874,6 +937,7 @@
         let isOverCutoff = false;
         let currentEditingLap = null;
         let currentEditingRiderIndex = null;
+        let showMilliseconds = true; // Nueva variable para controlar las milésimas
         
         // Textos en diferentes idiomas
         const translations = {
@@ -924,7 +988,8 @@
                 confirmRemoveLap: "¿Estás seguro de que quieres eliminar esta vuelta? Se recalcularán las vueltas siguientes.",
                 cutoffWarning: "ELIMINAR CORREDOR",
                 editLapTimeTitle: "Modificar Tiempo de Vuelta",
-                editWithdrawnTitle: "Modificar Corredor Retirado"
+                editWithdrawnTitle: "Modificar Corredor Retirado",
+                millisecondsLabel: "Mostrar Milésimas"
             },
             ca: {
                 appTitle: "Cronòmetre Control 80%",
@@ -973,7 +1038,8 @@
                 confirmRemoveLap: "Estàs segur que vols eliminar aquesta volta? Es recalcularan les voltes següents.",
                 cutoffWarning: "ELIMINAR CORREDOR",
                 editLapTimeTitle: "Modificar Temps de Volta",
-                editWithdrawnTitle: "Modificar Corredor Retirat"
+                editWithdrawnTitle: "Modificar Corredor Retirat",
+                millisecondsLabel: "Mostrar Mil·lèsimes"
             },
             en: {
                 appTitle: "80% Control Chronometer",
@@ -1022,7 +1088,8 @@
                 confirmRemoveLap: "Are you sure you want to remove this lap? The following laps will be recalculated.",
                 cutoffWarning: "ELIMINATE RIDER",
                 editLapTimeTitle: "Modify Lap Time",
-                editWithdrawnTitle: "Modify Withdrawn Rider"
+                editWithdrawnTitle: "Modify Withdrawn Rider",
+                millisecondsLabel: "Show Milliseconds"
             }
         };
         
@@ -1054,6 +1121,8 @@
         const lapTimesTab = document.getElementById('lap-times-tab');
         const cutoffWarning = document.getElementById('cutoff-warning');
         const visitCounterElement = document.getElementById('visit-counter');
+        const millisecondsToggle = document.getElementById('milliseconds-toggle');
+        const millisecondsLabel = document.getElementById('milliseconds-label');
         
         // Modales
         const withdrawModal = document.getElementById('withdraw-modal');
@@ -1093,6 +1162,13 @@
                 currentLanguage = savedLanguage;
             }
             
+            // Cargar configuración de milésimas
+            const savedMillisecondsSetting = localStorage.getItem('bttShowMilliseconds');
+            if (savedMillisecondsSetting !== null) {
+                showMilliseconds = savedMillisecondsSetting === 'true';
+                millisecondsToggle.checked = showMilliseconds;
+            }
+            
             loadRaces();
             updateLanguage(currentLanguage);
             updateDisplay();
@@ -1119,6 +1195,9 @@
             btnEditFirstLap.addEventListener('click', openEditFirstLapModal);
             raceSelector.addEventListener('change', loadRace);
             
+            // Event listener para el interruptor de milésimas
+            millisecondsToggle.addEventListener('change', toggleMilliseconds);
+            
             // Event listeners para pestañas
             withdrawnTabButton.addEventListener('click', () => switchTab('withdrawn-tab'));
             lapTimesTabButton.addEventListener('click', () => switchTab('lap-times-tab'));
@@ -1139,6 +1218,15 @@
             // Doble clic en el cronómetro para configurar tiempo manual
             chronoDisplay.addEventListener('dblclick', openTimeModal);
         });
+        
+        // Función para alternar la visualización de milésimas
+        function toggleMilliseconds() {
+            showMilliseconds = millisecondsToggle.checked;
+            localStorage.setItem('bttShowMilliseconds', showMilliseconds);
+            updateDisplay();
+            updateLapTimesList();
+            updateWithdrawnList();
+        }
         
         function setupModalEvents() {
             // Modal retirar corredor
@@ -1845,11 +1933,23 @@
             const milliseconds = Math.floor((time % 1000) / 10);
             
             if (hours > 0) {
-                return `${hours}:${minutes.toString().padStart(2, '0')}'${seconds.toString().padStart(2, '0')}"${milliseconds.toString().padStart(2, '0')}`;
+                if (showMilliseconds) {
+                    return `${hours}:${minutes.toString().padStart(2, '0')}'${seconds.toString().padStart(2, '0')}"${milliseconds.toString().padStart(2, '0')}`;
+                } else {
+                    return `${hours}:${minutes.toString().padStart(2, '0')}'${seconds.toString().padStart(2, '0')}"`;
+                }
             } else if (minutes > 0) {
-                return `${minutes}'${seconds.toString().padStart(2, '0')}"${milliseconds.toString().padStart(3, '0')}`;
+                if (showMilliseconds) {
+                    return `${minutes}'${seconds.toString().padStart(2, '0')}"${milliseconds.toString().padStart(3, '0')}`;
+                } else {
+                    return `${minutes}'${seconds.toString().padStart(2, '0')}"`;
+                }
             } else {
-                return `${seconds}"${milliseconds.toString().padStart(3, '0')}`;
+                if (showMilliseconds) {
+                    return `${seconds}"${milliseconds.toString().padStart(3, '0')}`;
+                } else {
+                    return `${seconds}"`;
+                }
             }
         }
         
@@ -2250,6 +2350,7 @@
             document.getElementById('cutoff-warning').textContent = translations[lang].cutoffWarning;
             document.getElementById('edit-lap-time-title').textContent = translations[lang].editLapTimeTitle;
             document.getElementById('edit-withdrawn-title').textContent = translations[lang].editWithdrawnTitle;
+            document.getElementById('milliseconds-label').textContent = translations[lang].millisecondsLabel;
             
             updateRaceStartTimeDisplay();
             updateWithdrawnList();
