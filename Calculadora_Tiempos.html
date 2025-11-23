@@ -26,10 +26,9 @@
             border-radius: 12px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
             width: 100%;
-            max-width: 300px;
+            max-width: 320px;
             padding: 20px;
             color: white;
-            transform: scale(0.8);
         }
         
         .display {
@@ -81,6 +80,7 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
+            margin-bottom: 10px;
         }
         
         button {
@@ -150,6 +150,14 @@
             background-color: #9b59b6;
         }
         
+        .special-btn {
+            background-color: #16a085;
+        }
+        
+        .special-btn:hover {
+            background-color: #1abc9c;
+        }
+        
         .zero-btn {
             grid-column: span 2;
         }
@@ -160,6 +168,13 @@
             margin-top: 12px;
             text-align: center;
             font-weight: bold;
+        }
+        
+        .special-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
         }
         
         .title {
@@ -186,6 +201,69 @@
         
         .history::-webkit-scrollbar-thumb:hover {
             background: #95a5a6;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: #2c3e50;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-title {
+            text-align: center;
+            margin-bottom: 15px;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #34495e;
+            background-color: #1a252f;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .modal-cancel {
+            background-color: #7f8c8d;
+            color: white;
+        }
+        
+        .modal-calculate {
+            background-color: #27ae60;
+            color: white;
         }
     </style>
 </head>
@@ -236,6 +314,37 @@
         </div>
         
         <div class="mode-indicator" id="modeIndicator">Modo: Decimal</div>
+        
+        <div class="special-buttons">
+            <button class="special-btn" id="averageBtn">Cálculo Promedio</button>
+            <button class="special-btn" id="lapsBtn">Número de Vueltas</button>
+        </div>
+    </div>
+
+    <!-- Modal para Cálculo de Promedio -->
+    <div class="modal" id="averageModal">
+        <div class="modal-content">
+            <div class="modal-title">Cálculo de Promedio (km/h)</div>
+            <input type="number" class="modal-input" id="distanceInput" placeholder="Distancia en km" step="0.1">
+            <input type="text" class="modal-input" id="timeInput" placeholder="Tiempo (ej: 1h 30m 45s)">
+            <div class="modal-buttons">
+                <button class="modal-btn modal-cancel" id="cancelAverage">Cancelar</button>
+                <button class="modal-btn modal-calculate" id="calculateAverage">Calcular</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Cálculo de Vueltas -->
+    <div class="modal" id="lapsModal">
+        <div class="modal-content">
+            <div class="modal-title">Cálculo de Número de Vueltas</div>
+            <input type="text" class="modal-input" id="lapTimeInput" placeholder="Tiempo por vuelta (ej: 5m 30s)">
+            <input type="text" class="modal-input" id="targetTimeInput" placeholder="Tiempo objetivo (ej: 1h 30m)">
+            <div class="modal-buttons">
+                <button class="modal-btn modal-cancel" id="cancelLaps">Cancelar</button>
+                <button class="modal-btn modal-calculate" id="calculateLaps">Calcular</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -260,6 +369,10 @@
                 this.isBuildingTime = false;
                 this.operationMode = 'decimal';
                 this.lastResult = null;
+                
+                // Modales
+                this.averageModal = document.getElementById('averageModal');
+                this.lapsModal = document.getElementById('lapsModal');
                 
                 this.initializeElements();
                 this.attachEventListeners();
@@ -315,6 +428,114 @@
                         this.handleClear(button.getAttribute('data-clear'));
                     });
                 });
+                
+                // Eventos para botones especiales
+                document.getElementById('averageBtn').addEventListener('click', () => {
+                    this.showAverageModal();
+                });
+                
+                document.getElementById('lapsBtn').addEventListener('click', () => {
+                    this.showLapsModal();
+                });
+                
+                // Eventos para modales
+                document.getElementById('cancelAverage').addEventListener('click', () => {
+                    this.hideAverageModal();
+                });
+                
+                document.getElementById('calculateAverage').addEventListener('click', () => {
+                    this.calculateAverage();
+                });
+                
+                document.getElementById('cancelLaps').addEventListener('click', () => {
+                    this.hideLapsModal();
+                });
+                
+                document.getElementById('calculateLaps').addEventListener('click', () => {
+                    this.calculateLaps();
+                });
+                
+                // Cerrar modales al hacer clic fuera
+                window.addEventListener('click', (e) => {
+                    if (e.target === this.averageModal) {
+                        this.hideAverageModal();
+                    }
+                    if (e.target === this.lapsModal) {
+                        this.hideLapsModal();
+                    }
+                });
+            }
+            
+            showAverageModal() {
+                document.getElementById('distanceInput').value = '';
+                document.getElementById('timeInput').value = '';
+                this.averageModal.style.display = 'flex';
+            }
+            
+            hideAverageModal() {
+                this.averageModal.style.display = 'none';
+            }
+            
+            showLapsModal() {
+                document.getElementById('lapTimeInput').value = '';
+                document.getElementById('targetTimeInput').value = '';
+                this.lapsModal.style.display = 'flex';
+            }
+            
+            hideLapsModal() {
+                this.lapsModal.style.display = 'none';
+            }
+            
+            calculateAverage() {
+                const distance = parseFloat(document.getElementById('distanceInput').value);
+                const timeStr = document.getElementById('timeInput').value;
+                
+                if (!distance || !timeStr) {
+                    alert('Por favor, complete todos los campos');
+                    return;
+                }
+                
+                const timeInSeconds = this.parseTimeToSeconds(timeStr);
+                const timeInHours = timeInSeconds / 3600;
+                const average = distance / timeInHours;
+                
+                this.addToHistory(`Promedio: ${distance}km / ${this.formatTime(timeInSeconds)} = ${average.toFixed(2)} km/h`);
+                this.currentInput = average.toFixed(2);
+                this.waitingForNewInput = true;
+                this.updateDisplay();
+                this.hideAverageModal();
+            }
+            
+            calculateLaps() {
+                const lapTimeStr = document.getElementById('lapTimeInput').value;
+                const targetTimeStr = document.getElementById('targetTimeInput').value;
+                
+                if (!lapTimeStr || !targetTimeStr) {
+                    alert('Por favor, complete todos los campos');
+                    return;
+                }
+                
+                const lapTimeInSeconds = this.parseTimeToSeconds(lapTimeStr);
+                const targetTimeInSeconds = this.parseTimeToSeconds(targetTimeStr);
+                
+                if (lapTimeInSeconds === 0) {
+                    alert('El tiempo por vuelta no puede ser cero');
+                    return;
+                }
+                
+                const exactLaps = targetTimeInSeconds / lapTimeInSeconds;
+                let roundedLaps = Math.floor(exactLaps);
+                
+                // Si la parte decimal es mayor o igual a 0.5, redondear hacia arriba
+                if (exactLaps - roundedLaps >= 0.5) {
+                    roundedLaps = Math.ceil(exactLaps);
+                }
+                
+                this.addToHistory(`Vueltas: ${this.formatTime(targetTimeInSeconds)} / ${this.formatTime(lapTimeInSeconds)} = ${roundedLaps} vueltas`);
+                this.currentInput = roundedLaps.toString();
+                this.waitingForNewInput = true;
+                this.updateDisplay();
+                this.hideLapsModal();
             }
             
             inputNumber(number) {
@@ -448,7 +669,7 @@
                 // Guardar el modo actual al iniciar la operación
                 this.operationMode = this.mode;
                 
-                // CORRECCIÓN: Limpiar la línea de entrada actual después de pulsar una operación
+                // Limpiar la línea de entrada actual después de pulsar una operación
                 if (this.mode === 'time') {
                     const seconds = this.getTimeInSeconds();
                     this.previousInput = seconds.toString(); // Guardar en segundos para cálculo
