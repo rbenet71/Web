@@ -187,17 +187,23 @@ al final de la página quiero poner el texot del copyright: 2025 copyright Rober
 
 opcion crono con o sin milesimas ok
 
+Quitar el Contador de corredores retirados, y poner el numero de corredores retirado en el titulo de la pestaña Corredores Retirados y entre parentesis
+
+
+Para acceder a este fichero pondremos un interrogante al lado de las banderas de los idiomas y al final de la página pondremos un boton con el texto ayuda.ok
+
 -----------------------------
 
-Al recargar la página el crono se para y no queda en movimiento
+quiero ayudar al usuario a saber como funciona la aplicación, es por ello que en un fichero de texto llamado https://rbenet71.github.io/Web/Crono_80_Ayuda.txt explicaré como funciona la aplicación.
 
-Quitar el Contador de corredores retirados, y poner el numero de corredores retirado en el titulo de la pestaña Corredores Retirados y entre parentesis
 
 ---------------------
 
 cuando el tiempo del cronmetro supere Tiempo Límite Actual el fondo del crono en lugar de ser negro que sea rojo ya que no lo puedes hacer pon un texto debajo del crono que diga elimanar corredor, cuando vuelva a pasar el primer corredor elimina este texto
 
 que al lado Tiempo Primera Vuelta haya tambien un lapiz que nos lleve a la opción de modificar este tiempo y al hacerlo volver a calcular cual es el 80%
+
+Al recargar la página el crono se para y no queda en movimiento
 
 se puede poner al lado del texto de copyright un numero que sea el numero de personas que han visitado esta pàgina? no funciona, siempre es 1
 
