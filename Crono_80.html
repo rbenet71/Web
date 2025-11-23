@@ -954,64 +954,6 @@
         </div>
     </div>
 
-    <!-- Modal de ayuda -->
-    <div class="modal" id="help-modal">
-        <div class="modal-content">
-            <h3 id="help-modal-title">Ayuda - Cronómetro Control 80%</h3>
-            <div id="help-content" style="max-height: 60vh; overflow-y: auto;">
-                <h4>¿Cómo funciona esta aplicación?</h4>
-                <p>El Cronómetro Control 80% está diseñado para gestionar carreras de BTT o Ciclo-cross aplicando la regla del 80% para determinar qué corredores deben ser eliminados.</p>
-                
-                <h4>Funcionalidades principales:</h4>
-                <ul>
-                    <li><strong>Gestión de Carreras:</strong> Puedes crear múltiples carreras y cambiar entre ellas</li>
-                    <li><strong>Cronómetro:</strong> Controla el tiempo de la carrera con precisión de milésimas</li>
-                    <li><strong>Control del 80%:</strong> Calcula automáticamente el tiempo límite para cada vuelta</li>
-                    <li><strong>Gestión de Corredores:</strong> Registra corredores retirados y sus tiempos</li>
-                    <li><strong>Exportación:</strong> Guarda los datos en formato Excel para su análisis</li>
-                </ul>
-                
-                <h4>Pasos básicos de uso:</h4>
-                <ol>
-                    <li><strong>Crear una carrera:</strong> Haz clic en "Nueva Carrera" y asigna un nombre</li>
-                    <li><strong>Iniciar el cronómetro:</strong> Pulsa "Iniciar Cronómetro" cuando comience la carrera</li>
-                    <li><strong>Registrar primera vuelta:</strong> Cuando el primer corredor complete la primera vuelta, pulsa "Paso Primer Corredor"</li>
-                    <li><strong>Control de tiempos:</strong> El sistema calculará automáticamente el 80% del tiempo de la primera vuelta</li>
-                    <li><strong>Retirar corredores:</strong> Usa "Retirar Corredor" para eliminar corredores que no cumplan con el tiempo límite</li>
-                    <li><strong>Exportar datos:</strong> Al finalizar, exporta los resultados con "Exportar a Excel"</li>
-                </ol>
-                
-                <h4>Características avanzadas:</h4>
-                <ul>
-                    <li><strong>Multidioma:</strong> Disponible en Español, Catalán e Inglés</li>
-                    <li><strong>Milésimas:</strong> Puedes activar/desactivar la visualización de milésimas</li>
-                    <li><strong>Edición de tiempos:</strong> Todos los tiempos registrados son editables</li>
-                    <li><strong>Persistencia:</strong> Los datos se guardan automáticamente en tu navegador</li>
-                    <li><strong>Responsive:</strong> Funciona en dispositivos móviles y de escritorio</li>
-                </ul>
-                
-                <h4>Regla del 80% explicada:</h4>
-                <p>En cada vuelta posterior a la primera, los corredores deben completar la vuelta en un tiempo menor o igual al 80% del tiempo que tardó el primer corredor en la primera vuelta. Los que no cumplan esta condición deben ser retirados de la carrera.</p>
-                
-                <p><strong>Fórmula:</strong> Tiempo Límite = Tiempo Primera Vuelta × 0.8</p>
-                
-                <h4>Consejos:</h4>
-                <ul>
-                    <li>Usa el doble clic en el cronómetro para ajustar manualmente el tiempo</li>
-                    <li>Puedes editar cualquier tiempo registrado haciendo clic en el icono ✏️</li>
-                    <li>La aplicación funciona sin conexión a internet una vez cargada</li>
-                    <li>Los datos se mantienen aunque cierres el navegador</li>
-                </ul>
-                
-                <p>Para más información o soporte, contacta con: <a href="mailto:rbenet71@gmail.com">rbenet71@gmail.com</a></p>
-            </div>
-            <div class="modal-buttons">
-                <button class="btn-reset" id="close-help">Cerrar</button>
-                <button class="btn-export" id="download-help">Abrir Ayuda Completa</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         // Variables globales
         let startTime = 0;
@@ -1084,10 +1026,7 @@
                 editLapTimeTitle: "Modificar Tiempo de Vuelta",
                 editWithdrawnTitle: "Modificar Corredor Retirado",
                 millisecondsLabel: "Mostrar Milésimas",
-                helpButton: "Ayuda",
-                helpTitle: "Ayuda - Cronómetro Control 80%",
-                closeHelp: "Cerrar",
-                downloadHelp: "Abrir Ayuda Completa"
+                helpButton: "Ayuda"
             },
             ca: {
                 appTitle: "Cronòmetre Control 80%",
@@ -1138,10 +1077,7 @@
                 editLapTimeTitle: "Modificar Temps de Volta",
                 editWithdrawnTitle: "Modificar Corredor Retirat",
                 millisecondsLabel: "Mostrar Mil·lèsimes",
-                helpButton: "Ajuda",
-                helpTitle: "Ajuda - Cronòmetre Control 80%",
-                closeHelp: "Tancar",
-                downloadHelp: "Obrir Ajuda Completa"
+                helpButton: "Ajuda"
             },
             en: {
                 appTitle: "80% Control Chronometer",
@@ -1192,10 +1128,7 @@
                 editLapTimeTitle: "Modify Lap Time",
                 editWithdrawnTitle: "Modify Withdrawn Rider",
                 millisecondsLabel: "Show Milliseconds",
-                helpButton: "Help",
-                helpTitle: "Help - 80% Control Chronometer",
-                closeHelp: "Close",
-                downloadHelp: "Open Complete Help"
+                helpButton: "Help"
             }
         };
         
@@ -1230,10 +1163,6 @@
         const millisecondsToggle = document.getElementById('milliseconds-toggle');
         const millisecondsLabel = document.getElementById('milliseconds-label');
         const helpIconHeader = document.getElementById('help-icon-header');
-        const helpModal = document.getElementById('help-modal');
-        const helpModalTitle = document.getElementById('help-modal-title');
-        const closeHelp = document.getElementById('close-help');
-        const downloadHelp = document.getElementById('download-help');
         
         // Modales
         const withdrawModal = document.getElementById('withdraw-modal');
@@ -1304,7 +1233,7 @@
             btnNewRace.addEventListener('click', openNewRaceModal);
             btnDeleteRace.addEventListener('click', openDeleteRaceModal);
             btnEditFirstLap.addEventListener('click', openEditFirstLapModal);
-            btnHelp.addEventListener('click', openHelpModal); // Nuevo evento para el botón de ayuda
+            btnHelp.addEventListener('click', openHelpFile);
             raceSelector.addEventListener('change', loadRace);
             
             // Event listener para el interruptor de milésimas
@@ -1318,9 +1247,7 @@
             setupModalEvents();
             
             // Event listeners para ayuda
-            helpIconHeader.addEventListener('click', openHelpModal);
-            closeHelp.addEventListener('click', closeHelpModal);
-            downloadHelp.addEventListener('click', downloadHelpFile);
+            helpIconHeader.addEventListener('click', openHelpFile);
             
             // Cambio de idioma
             document.querySelectorAll('.flag').forEach(flag => {
@@ -1337,15 +1264,7 @@
         });
         
         // Funciones de ayuda
-        function openHelpModal() {
-            helpModal.style.display = 'flex';
-        }
-        
-        function closeHelpModal() {
-            helpModal.style.display = 'none';
-        }
-        
-        function downloadHelpFile() {
+        function openHelpFile() {
             // Abrir el archivo de ayuda desde GitHub en una nueva pestaña
             window.open('https://rbenet71.github.io/Web/Crono_80_Ayuda.txt', '_blank');
         }
@@ -2215,9 +2134,6 @@
             document.getElementById('cancel-edit-withdrawn').textContent = translations[lang].cancel;
             document.getElementById('confirm-edit-withdrawn').textContent = translations[lang].modify;
             document.getElementById('milliseconds-label').textContent = translations[lang].millisecondsLabel;
-            document.getElementById('help-modal-title').textContent = translations[lang].helpTitle;
-            document.getElementById('close-help').textContent = translations[lang].closeHelp;
-            document.getElementById('download-help').textContent = translations[lang].downloadHelp;
             
             // Actualizar banderas activas
             document.querySelectorAll('.flag').forEach(flag => {

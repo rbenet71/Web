@@ -189,13 +189,14 @@ opcion crono con o sin milesimas ok
 
 Quitar el Contador de corredores retirados, y poner el numero de corredores retirado en el titulo de la pestaña Corredores Retirados y entre parentesis
 
+quiero ayudar al usuario a saber como funciona la aplicación, es por ello que en un fichero de texto llamado https://rbenet71.github.io/Web/Crono_80_Ayuda.txt explicaré como funciona la aplicación.
 
 Para acceder a este fichero pondremos un interrogante al lado de las banderas de los idiomas y al final de la página pondremos un boton con el texto ayuda.ok
 
 -----------------------------
 
-quiero ayudar al usuario a saber como funciona la aplicación, es por ello que en un fichero de texto llamado https://rbenet71.github.io/Web/Crono_80_Ayuda.txt explicaré como funciona la aplicación.
 
+quiero que al clickar al interrogante o al boton ayuda se abra el archicvo  https://rbenet71.github.io/Web/Crono_80_Ayuda.txt 
 
 ---------------------
 
@@ -207,6 +208,6 @@ Al recargar la página el crono se para y no queda en movimiento
 
 se puede poner al lado del texto de copyright un numero que sea el numero de personas que han visitado esta pàgina? no funciona, siempre es 1
 
-ayuda
-
 estar actualizado sobre los cambios realizados- Actualizaciones deja tu email y comentarios y que me envie un email con ese contacto y comentario
+
+ayuda por idiomas
