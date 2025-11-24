@@ -206,19 +206,20 @@ solo se de poder borrar el ultimo paso del primer corredor ok
 eliminar por Retirar ok
 
 activar la funciona de varios idiomas ok 
+
+Quiero añadir un botón despues de Retirar corredor, que sea DNF-Retirado, y que haga lo mismo que Retirar Corredor pero poner como vuelta la 0. ok
+
+
+Al crear el excel que el caracter de separacion sea el ;, el boton de otro color que no se ve ahora, y que la exportación sea en UTF-8 y ordenado descendete por vuelta y luego ascendete de tiempo
+
 -----------------------------
 
 
-Al recargar la página el crono se para y no queda en movimiento
 
 ---------------------
 
 
-
-corredores retirados
-
-
-
+Al recargar la página el crono se para y no queda en movimiento
 
 se puede poner al lado del texto de copyright un numero que sea el numero de personas que han visitado esta pàgina? no funciona, siempre es 1
 

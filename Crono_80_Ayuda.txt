@@ -1,51 +1,676 @@
-========================================
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayuda Cronómetro Control 80%</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(44, 62, 80, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+        
+        .language-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .lang-btn {
+            background: #34495e;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .lang-btn:hover {
+            background: #3498db;
+            transform: translateY(-2px);
+        }
+        
+        .lang-btn.active {
+            background: #3498db;
+        }
+        
+        .content {
+            display: none;
+        }
+        
+        .content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h2 {
+            color: #3498db;
+            margin: 30px 0 15px 0;
+            font-size: 1.8rem;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #2ecc71;
+            margin: 20px 0 10px 0;
+            font-size: 1.4rem;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: rgba(52, 73, 94, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #2ecc71;
+        }
+        
+        .feature-card h4 {
+            color: #2ecc71;
+            margin-bottom: 10px;
+        }
+        
+        .step-box {
+            background: rgba(52, 73, 94, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: #f39c12;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .tip-box {
+            background: rgba(155, 89, 182, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #9b59b6;
+        }
+        
+        .tip-box h4 {
+            color: #9b59b6;
+            margin-bottom: 10px;
+        }
+        
+        .app-install {
+            background: rgba(46, 204, 113, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2ecc71;
+        }
+        
+        .app-install h3 {
+            color: #2ecc71;
+        }
+        
+        .platform {
+            margin: 15px 0;
+        }
+        
+        .platform h4 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .back-button {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .back-button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .language-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .lang-btn {
+                width: 200px;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 id="main-title">Ayuda Cronómetro Control 80%</h1>
+            <div class="language-selector">
+                <button class="lang-btn active" data-lang="es">Español</button>
+                <button class="lang-btn" data-lang="ca">Català</button>
+                <button class="lang-btn" data-lang="en">English</button>
+            </div>
+        </header>
 
-¿CÓMO FUNCIONA ESTA APLICACIÓN?
---------------------------------
-El Cronómetro Control 80% está diseñado para gestionar carreras de BTT o Ciclo-cross aplicando la regla del 80% para determinar qué corredores deben ser eliminados.
+        <!-- Contenido Español -->
+        <div class="content active" id="content-es">
+            <h2>Descripción General</h2>
+            <p>El Cronómetro Control 80% es una herramienta diseñada para carreras de BTT y Ciclo-cross que implementa la regla del 80% para determinar cuándo un corredor debe ser retirado de la competición.</p>
 
-FUNCIONALIDADES PRINCIPALES:
-----------------------------
-• Gestión de Carreras: Puedes crear múltiples carreras y cambiar entre ellas
-• Cronómetro: Controla el tiempo de la carrera con precisión de milésimas
-• Control del 80%: Calcula automáticamente el tiempo límite para cada vuelta
-• Gestión de Corredores: Registra corredores retirados y sus tiempos
-• Exportación: Guarda los datos en formato Excel para su análisis
+            <h2>Funcionalidades Principales</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Gestión de Carreras</h4>
+                    <ul>
+                        <li><strong>Nueva Carrera:</strong> Crear una nueva carrera con nombre personalizado</li>
+                        <li><strong>Seleccionar Carrera:</strong> Cambiar entre diferentes carreras guardadas</li>
+                        <li><strong>Eliminar Carrera:</strong> Borrar una carrera existente</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Control del Cronómetro</h4>
+                    <ul>
+                        <li><strong>Iniciar/Parar:</strong> Controlar el cronómetro principal</li>
+                        <li><strong>Fijar Tiempo:</strong> Establecer manualmente la hora de salida o el tiempo actual</li>
+                        <li><strong>Reiniciar:</strong> Restablecer completamente el cronómetro y todos los datos</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Registro de Vueltas</h4>
+                    <ul>
+                        <li><strong>Paso Primer Corredor:</strong> Registrar el tiempo de cada vuelta del líder</li>
+                        <li><strong>Vuelta Actual:</strong> Muestra el número de vuelta en curso</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Control de Corredores</h4>
+                    <ul>
+                        <li><strong>Retirar Corredor:</strong> Marcar corredores como retirados en la vuelta actual</li>
+                        <li><strong>DNF-Retirado:</strong> Marcar corredores como No Finalizaron (vuelta 0)</li>
+                    </ul>
+                </div>
+            </div>
 
-PASOS BÁSICOS DE USO:
----------------------
-1. Crear una carrera: Haz clic en "Nueva Carrera" y asigna un nombre
-2. Iniciar el cronómetro: Pulsa "Iniciar Cronómetro" cuando comience la carrera
-3. Registrar primera vuelta: Cuando el primer corredor complete la primera vuelta, pulsa "Paso Primer Corredor"
-4. Control de tiempos: El sistema calculará automáticamente el 80% del tiempo de la primera vuelta
-5. Retirar corredores: Usa "Retirar Corredor" para eliminar corredores que no cumplan con el tiempo límite
-6. Exportar datos: Al finalizar, exporta los resultados con "Exportar a Excel"
+            <h2>Cómo Usar</h2>
+            
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Configurar la Carrera</strong>
+                <p>Crear una nueva carrera o seleccionar una existente. Iniciar el cronómetro cuando comience la carrera.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Registrar la Primera Vuelta</strong>
+                <p>Presionar "Paso Primer Corredor" cuando el líder complete la primera vuelta. Este tiempo establece la base para el cálculo del 80%.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Seguimiento Continuo</strong>
+                <p>Registrar cada vuelta subsiguiente del líder. El sistema calcula automáticamente el tiempo límite para cada vuelta.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Control de Retirados</strong>
+                <p>Usar "Retirar Corredor" para corredores que abandonan durante la carrera. Usar "DNF-Retirado" para corredores que no finalizan.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
+                <strong>Exportar Resultados</strong>
+                <p>Al finalizar, exportar los datos para análisis posterior.</p>
+            </div>
 
-CARACTERÍSTICAS AVANZADAS:
---------------------------
-• Multidioma: Disponible en Español, Catalán e Inglés
-• Milésimas: Puedes activar/desactivar la visualización de milésimas
-• Edición de tiempos: Todos los tiempos registrados son editables
-• Persistencia: Los datos se guardan automáticamente en tu navegador
-• Responsive: Funciona en dispositivos móviles y de escritorio
+            <h2>Regla del 80%</h2>
+            <p>El sistema calcula el tiempo límite para cada vuelta sumando:</p>
+            <ul>
+                <li>Tiempo de la última vuelta registrada del líder</li>
+                <li>80% del tiempo de la primera vuelta</li>
+            </ul>
+            <p>Cuando un corredor supera este tiempo límite, debe ser retirado de la competición.</p>
 
-REGLAS DEL 80% EXPLICADA:
--------------------------
-En cada vuelta posterior a la primera, los corredores deben completar la vuelta en un tiempo menor o igual al 80% del tiempo que tardó el primer corredor en la primera vuelta. Los que no cumplan esta condición deben ser retirados de la carrera.
+            <h2>Características Avanzadas</h2>
+            <ul>
+                <li><strong>Edición de Tiempos:</strong> Modificar tiempos de vueltas y corredores retirados</li>
+                <li><strong>Idiomas:</strong> Soporte para Español, Catalán e Inglés</li>
+                <li><strong>Persistencia:</strong> Los datos se guardan automáticamente</li>
+                <li><strong>Responsive:</strong> Funciona en dispositivos móviles y desktop</li>
+            </ul>
 
-FÓRMULA: Tiempo Límite = Tiempo Primera Vuelta × 0.8
+            <div class="tip-box">
+                <h4>Atajos</h4>
+                <ul>
+                    <li><strong>Doble clic</strong> en el display del cronómetro: Abrir modal para fijar tiempo</li>
+                    <li><strong>Icono de ayuda:</strong> Acceso rápido a este documento de ayuda</li>
+                </ul>
+            </div>
 
-CONSEJOS:
----------
-• Usa el doble clic en el cronómetro para ajustar manualmente el tiempo
-• Puedes editar cualquier tiempo registrado haciendo clic en el icono ✏️
-• La aplicación funciona sin conexión a internet una vez cargada
-• Los datos se mantienen aunque cierres el navegador
+            <h2>Instalación como App en el Móvil</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>Para iPhone/iOS:</h4>
+                    <ol>
+                        <li>Abrir Safari y navegar a la página del cronómetro</li>
+                        <li>Tocar el icono de compartir (cuadrado con flecha hacia arriba)</li>
+                        <li>Desplazarse hacia abajo y seleccionar "Añadir a pantalla de inicio"</li>
+                        <li>Personalizar el nombre si se desea y tocar "Añadir"</li>
+                        <li>La app aparecerá en la pantalla de inicio como una aplicación nativa</li>
+                    </ol>
+                </div>
+                
+                <div class="platform">
+                    <h4>Para Android:</h4>
+                    <ol>
+                        <li>Abrir Chrome y navegar a la página del cronómetro</li>
+                        <li>Tocar el menú de tres puntos en la esquina superior derecha</li>
+                        <li>Seleccionar "Añadir a pantalla de inicio"</li>
+                        <li>Personalizar el nombre si se desea y tocar "Añadir"</li>
+                        <li>La app aparecerá en la pantalla de inicio como una aplicación nativa</li>
+                    </ol>
+                </div>
+                
+                <h3>Ventajas de instalarla como App:</h3>
+                <ul>
+                    <li>Acceso rápido directo desde la pantalla de inicio</li>
+                    <li>Funciona sin conexión a internet después de la primera carga</li>
+                    <li>Interfaz similar a una aplicación nativa</li>
+                    <li>No requiere descarga desde tiendas de aplicaciones</li>
+                </ul>
+            </div>
 
-PARA MÁS INFORMACIÓN O SOPORTE:
--------------------------------
-Contacta con: rbenet71@gmail.com
-Visita: https://rbenet71.github.io/Web/
+            <a href="Crono_80.html" class="back-button">Volver al Cronómetro</a>
+        </div>
 
-----------------------------------------
-© 2025 Roberto Benet - Todos los derechos reservados
+        <!-- Contenido Català -->
+        <div class="content" id="content-ca">
+            <h2>Descripció General</h2>
+            <p>El Cronòmetre Control 80% és una eina dissenyada per a curses de BTT i Ciclo-cross que implementa la regla del 80% per determinar quan un corredor ha de ser retirat de la competició.</p>
+
+            <h2>Funcionalitats Principals</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Gestió de Curses</h4>
+                    <ul>
+                        <li><strong>Nova Cursa:</strong> Crear una nova cursa amb nom personalitzat</li>
+                        <li><strong>Seleccionar Cursa:</strong> Canviar entre diferents curses guardades</li>
+                        <li><strong>Eliminar Cursa:</strong> Esborrar una cursa existent</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Control del Cronòmetre</h4>
+                    <ul>
+                        <li><strong>Iniciar/Aturar:</strong> Controlar el cronòmetre principal</li>
+                        <li><strong>Fixar Temps:</strong> Establir manualment l'hora de sortida o el temps actual</li>
+                        <li><strong>Reiniciar:</strong> Restablir completament el cronòmetre i totes les dades</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Registre de Voltes</h4>
+                    <ul>
+                        <li><strong>Pas Primer Corredor:</strong> Registrar el temps de cada volta del líder</li>
+                        <li><strong>Volta Actual:</strong> Mostra el número de volta en curs</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Control de Corredors</h4>
+                    <ul>
+                        <li><strong>Retirar Corredor:</strong> Marcar corredors com a retirats en la volta actual</li>
+                        <li><strong>DNF-Retirat:</strong> Marcar corredors com a No Finalitzaren (volta 0)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Com Utilitzar-ho</h2>
+            
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Configurar la Cursa</strong>
+                <p>Crear una nova cursa o seleccionar una existent. Iniciar el cronòmetre quan comenci la cursa.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Registrar la Primera Volta</strong>
+                <p>Prémer "Pas Primer Corredor" quan el líder completi la primera volta. Aquest temps estableix la base per al càlcul del 80%.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Seguiment Continu</strong>
+                <p>Registrar cada volta subssegüent del líder. El sistema calcula automàticament el temps límit per a cada volta.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Control de Retirats</strong>
+                <p>Utilitzar "Retirar Corredor" per a corredors que abandonen durant la cursa. Utilitzar "DNF-Retirat" per a corredors que no finalitzen.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
+                <strong>Exportar Resultats</strong>
+                <p>Al finalitzar, exportar les dades per a anàlisi posterior.</p>
+            </div>
+
+            <h2>Regla del 80%</h2>
+            <p>El sistema calcula el temps límit per a cada volta sumant:</p>
+            <ul>
+                <li>Temps de l'última volta registrada del líder</li>
+                <li>80% del temps de la primera volta</li>
+            </ul>
+            <p>Quan un corredor supera aquest temps límit, ha de ser retirat de la competició.</p>
+
+            <h2>Característiques Avançades</h2>
+            <ul>
+                <li><strong>Edició de Temps:</strong> Modificar temps de voltes i corredors retirats</li>
+                <li><strong>Idiomes:</strong> Suport per a Espanyol, Català i Anglès</li>
+                <li><strong>Persistència:</strong> Les dades es guarden automàticament</li>
+                <li><strong>Responsive:</strong> Funciona en dispositius mòbils i desktop</li>
+            </ul>
+
+            <div class="tip-box">
+                <h4>Dreceres</h4>
+                <ul>
+                    <li><strong>Doble clic</strong> en el display del cronòmetre: Obrir modal per a fixar temps</li>
+                    <li><strong>Icona d'ajuda:</strong> Accés ràpid a aquest document d'ajuda</li>
+                </ul>
+            </div>
+
+            <h2>Instal·lació com a App al Mòbil</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>Per a iPhone/iOS:</h4>
+                    <ol>
+                        <li>Obri Safari i navegar a la pàgina del cronòmetre</li>
+                        <li>Toqui la icona de compartir (quadrat amb fletxa cap amunt)</li>
+                        <li>Desplaçar-se cap avall i seleccionar "Afegir a pantalla d'inici"</li>
+                        <li>Personalitzar el nom si es desitja i tocar "Afegir"</li>
+                        <li>L'app apareixerà a la pantalla d'inici com una aplicació nativa</li>
+                    </ol>
+                </div>
+                
+                <div class="platform">
+                    <h4>Per a Android:</h4>
+                    <ol>
+                        <li>Obri Chrome i navegar a la pàgina del cronòmetre</li>
+                        <li>Toqui el menú de tres punts a la cantonada superior dreta</li>
+                        <li>Seleccionar "Afegir a pantalla d'inici"</li>
+                        <li>Personalitzar el nom si es desitja i tocar "Afegir"</li>
+                        <li>L'app apareixerà a la pantalla d'inici com una aplicació nativa</li>
+                    </ol>
+                </div>
+                
+                <h3>Avantatges d'instal·lar-la com a App:</h3>
+                <ul>
+                    <li>Accés ràpid directe des de la pantalla d'inici</li>
+                    <li>Funciona sense connexió a internet després de la primera càrrega</li>
+                    <li>Interfície similar a una aplicació nativa</li>
+                    <li>No requereix descàrrega des de botigues d'aplicacions</li>
+                </ul>
+            </div>
+
+            <a href="Crono_80.html" class="back-button">Tornar al Cronòmetre</a>
+        </div>
+
+        <!-- Contenido English -->
+        <div class="content" id="content-en">
+            <h2>General Description</h2>
+            <p>The Stopwatch 80% Control is a tool designed for MTB and Cyclo-cross races that implements the 80% rule to determine when a rider should be withdrawn from the competition.</p>
+
+            <h2>Main Features</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Race Management</h4>
+                    <ul>
+                        <li><strong>New Race:</strong> Create a new race with custom name</li>
+                        <li><strong>Select Race:</strong> Switch between different saved races</li>
+                        <li><strong>Delete Race:</strong> Delete an existing race</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Stopwatch Control</h4>
+                    <ul>
+                        <li><strong>Start/Stop:</strong> Control the main stopwatch</li>
+                        <li><strong>Set Time:</strong> Manually set start time or current time</li>
+                        <li><strong>Reset:</strong> Completely reset the stopwatch and all data</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Lap Recording</h4>
+                    <ul>
+                        <li><strong>First Rider Pass:</strong> Record the time of each lap by the leader</li>
+                        <li><strong>Current Lap:</strong> Shows the current lap number</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Rider Control</h4>
+                    <ul>
+                        <li><strong>Withdraw Rider:</strong> Mark riders as withdrawn in the current lap</li>
+                        <li><strong>DNF-Withdrawn:</strong> Mark riders as Did Not Finish (lap 0)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>How to Use</h2>
+            
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Set Up the Race</strong>
+                <p>Create a new race or select an existing one. Start the stopwatch when the race begins.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Record First Lap</strong>
+                <p>Press "First Rider Pass" when the leader completes the first lap. This time sets the base for the 80% calculation.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Continuous Tracking</strong>
+                <p>Record each subsequent lap by the leader. The system automatically calculates the cutoff time for each lap.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Withdrawn Riders Control</strong>
+                <p>Use "Withdraw Rider" for riders who abandon during the race. Use "DNF-Withdrawn" for riders who do not finish.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
+                <strong>Export Results</strong>
+                <p>When finished, export data for later analysis.</p>
+            </div>
+
+            <h2>80% Rule</h2>
+            <p>The system calculates the cutoff time for each lap by adding:</p>
+            <ul>
+                <li>Time of the last recorded lap by the leader</li>
+                <li>80% of the first lap time</li>
+            </ul>
+            <p>When a rider exceeds this cutoff time, they must be withdrawn from the competition.</p>
+
+            <h2>Advanced Features</h2>
+            <ul>
+                <li><strong>Time Editing:</strong> Modify lap times and withdrawn riders' times</li>
+                <li><strong>Languages:</strong> Support for Spanish, Catalan and English</li>
+                <li><strong>Persistence:</strong> Data is automatically saved</li>
+                <li><strong>Responsive:</strong> Works on mobile devices and desktop</li>
+            </ul>
+
+            <div class="tip-box">
+                <h4>Shortcuts</h4>
+                <ul>
+                    <li><strong>Double click</strong> on the stopwatch display: Open modal to set time</li>
+                    <li><strong>Help icon:</strong> Quick access to this help document</li>
+                </ul>
+            </div>
+
+            <h2>Installation as Mobile App</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>For iPhone/iOS:</h4>
+                    <ol>
+                        <li>Open Safari and navigate to the stopwatch page</li>
+                        <li>Tap the share icon (square with upward arrow)</li>
+                        <li>Scroll down and select "Add to Home Screen"</li>
+                        <li>Customize the name if desired and tap "Add"</li>
+                        <li>The app will appear on the home screen like a native app</li>
+                    </ol>
+                </div>
+                
+                <div class="platform">
+                    <h4>For Android:</h4>
+                    <ol>
+                        <li>Open Chrome and navigate to the stopwatch page</li>
+                        <li>Tap the three-dot menu in the upper right corner</li>
+                        <li>Select "Add to Home Screen"</li>
+                        <li>Customize the name if desired and tap "Add"</li>
+                        <li>The app will appear on the home screen like a native app</li>
+                    </ol>
+                </div>
+                
+                <h3>Advantages of Installing as App:</h3>
+                <ul>
+                    <li>Quick access directly from home screen</li>
+                    <li>Works offline after first load</li>
+                    <li>Interface similar to native app</li>
+                    <li>No download required from app stores</li>
+                </ul>
+            </div>
+
+            <a href="Crono_80.html" class="back-button">Back to Stopwatch</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const langButtons = document.querySelectorAll('.lang-btn');
+            const contents = document.querySelectorAll('.content');
+            const mainTitle = document.getElementById('main-title');
+            
+            const titles = {
+                'es': 'Ayuda Cronómetro Control 80%',
+                'ca': 'Ajuda Cronòmetre Control 80%',
+                'en': 'Stopwatch 80% Control Help'
+            };
+            
+            langButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    
+                    // Actualizar botones activos
+                    langButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Actualizar contenido visible
+                    contents.forEach(content => content.classList.remove('active'));
+                    document.getElementById(`content-${lang}`).classList.add('active');
+                    
+                    // Actualizar título
+                    mainTitle.textContent = titles[lang];
+                });
+            });
+        });
+    </script>
+</body>
+</html>
