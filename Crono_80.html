@@ -709,7 +709,7 @@
             </div>
         </div>
         
-        <div class="cutoff-warning" id="cutoff-warning">ELIMINAR CORREDOR</div>
+        <div class="cutoff-warning" id="cutoff-warning">RETIRAR CORREDOR</div>
         
         <div class="main-controls">
             <button class="btn-first" id="btn-first">Paso Primer Corredor</button>
@@ -732,8 +732,8 @@
                 <h3 id="cutoff-time-title">Tiempo Límite Actual</h3>
                 <p id="cutoff-time">--:--:--</p>
                 <div class="calculation-info" id="cutoff-info" style="display: none;">
-                    <strong>Último paso:</strong> <span id="last-lap-time">--:--:--</span><br>
-                    <strong>+ 80% primera vuelta:</strong> <span id="eighty-percent-cutoff">--:--:--</span>
+                    <strong id="last-lap-label">Último paso:</strong> <span id="last-lap-time">--:--:--</span><br>
+                    <strong id="eighty-percent-cutoff-label">+ 80% primera vuelta:</strong> <span id="eighty-percent-cutoff">--:--:--</span>
                 </div>
             </div>
         </div>
@@ -766,8 +766,8 @@
 
         <footer class="footer">
             <p>
-                2025 Copyright 
-                <a href="https://rbenet71.github.io/Web/" target="_blank">
+                <span id="copyright-text">2025 Copyright</span>
+                <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
                     Roberto Benet - rbenet71@gmail.com
                 </a>
                 <span class="visit-counter" id="visit-counter">0 visitas</span>
@@ -949,6 +949,223 @@
     </div>
 
     <script>
+        // Variables globales para el sistema de idiomas
+        let currentLanguage = 'es';
+        
+        // Textos en diferentes idiomas
+        const translations = {
+            es: {
+                appTitle: "Cronómetro Control 80%",
+                currentLapTitle: "Vuelta Actual",
+                firstLapTimeTitle: "Tiempo Primera Vuelta",
+                cutoffTimeTitle: "Tiempo Límite Actual",
+                startTimeLabel: "Hora de Salida:",
+                cutoffWarning: "RETIRAR CORREDOR",
+                millisecondsLabel: "Mostrar Milésimas",
+                withdrawnTab: "Lista de Retirados",
+                lapTimesTab: "Tiempos del Primer Corredor",
+                eightyPercentLabel: "80% de este tiempo:",
+                lastLapLabel: "Último paso:",
+                eightyPercentCutoffLabel: "+ 80% primera vuelta:",
+                
+                // Botones
+                startButton: "Iniciar Cronómetro",
+                stopButton: "Parar Cronómetro",
+                setTimeButton: "Fijar Tiempo Crono",
+                firstRiderButton: "Paso Primer Corredor",
+                withdrawButton: "Retirar Corredor",
+                resetButton: "Reiniciar Cronómetro",
+                exportButton: "Exportar a Excel",
+                newRaceButton: "Nueva Carrera",
+                deleteRaceButton: "Eliminar Carrera",
+                helpButton: "Ayuda",
+                
+                // Modales
+                withdrawModalTitle: "Retirar Corredor",
+                withdrawDorsalLabel: "Número(s) de Dorsal (separados por comas)",
+                resetModalTitle: "Confirmar Reinicio",
+                resetModalText: "¿Estás seguro de que quieres reiniciar el cronómetro? Se perderán todos los datos.",
+                timeModalTitle: "Fijar Tiempo del Cronómetro",
+                timeHoursLabel: "Horas",
+                timeMinutesLabel: "Minutos",
+                timeSecondsLabel: "Segundos",
+                newRaceModalTitle: "Nueva Carrera",
+                raceNameLabel: "Nombre de la Carrera",
+                deleteRaceModalTitle: "Eliminar Carrera",
+                deleteRaceModalText: "¿Estás seguro de que quieres eliminar esta carrera? Esta acción no se puede deshacer.",
+                stopChronoModalTitle: "Parar Cronómetro",
+                stopChronoModalText: "¿Estás seguro de que quieres parar el cronómetro?",
+                editFirstLapTitle: "Modificar Tiempo Primera Vuelta",
+                editLapTimeTitle: "Editar Tiempo de Vuelta",
+                editRiderTitle: "Editar Corredor Retirado",
+                
+                // Botones modales
+                cancelButton: "Cancelar",
+                confirmButton: "Confirmar",
+                modifyButton: "Modificar",
+                createButton: "Crear Carrera",
+                
+                // Mensajes
+                noRaceSelected: "Debe seleccionar una carrera primero",
+                chronoNotRunning: "El cronómetro debe estar en marcha para registrar vueltas",
+                dorsalRequired: "El número de dorsal es obligatorio",
+                noLapsToDelete: "No hay vueltas para eliminar",
+                onlyLastLap: "Solo se puede eliminar la última vuelta registrada",
+                confirmDeleteLap: "¿Estás seguro de que quieres eliminar esta vuelta?",
+                confirmDeleteRider: "¿Estás seguro de que quieres eliminar este corredor de la lista de retirados?",
+                
+                // Footer
+                copyright: "2025 Copyright",
+                copyrightLink: "Roberto Benet - rbenet71@gmail.com",
+                visits: "visitas",
+                
+                // Selector de carrera
+                selectRace: "-- Seleccionar Carrera --",
+                raceNamePlaceholder: "Ej: BTT Montaña 2024",
+                dorsalPlaceholder: "Ej: 123, 456, 789"
+            },
+            ca: {
+                appTitle: "Cronòmetre Control 80%",
+                currentLapTitle: "Volta Actual",
+                firstLapTimeTitle: "Temps Primera Volta",
+                cutoffTimeTitle: "Temps Límit Actual",
+                startTimeLabel: "Hora de Sortida:",
+                cutoffWarning: "RETIRAR CORREDOR",
+                millisecondsLabel: "Mostrar Mil·lèsimes",
+                withdrawnTab: "Llista de Retirats",
+                lapTimesTab: "Temps del Primer Corredor",
+                eightyPercentLabel: "80% d'aquest temps:",
+                lastLapLabel: "Darrer pas:",
+                eightyPercentCutoffLabel: "+ 80% primera volta:",
+                
+                // Botones
+                startButton: "Iniciar Cronòmetre",
+                stopButton: "Aturar Cronòmetre",
+                setTimeButton: "Fixar Temps Crono",
+                firstRiderButton: "Pas Primer Corredor",
+                withdrawButton: "Retirar Corredor",
+                resetButton: "Reiniciar Cronòmetre",
+                exportButton: "Exportar a Excel",
+                newRaceButton: "Nova Cursa",
+                deleteRaceButton: "Eliminar Cursa",
+                helpButton: "Ajuda",
+                
+                // Modales
+                withdrawModalTitle: "Retirar Corredor",
+                withdrawDorsalLabel: "Número(s) de Dorsal (separats per comes)",
+                resetModalTitle: "Confirmar Reinici",
+                resetModalText: "¿Estàs segur que vols reiniciar el cronòmetre? Es perdran totes les dades.",
+                timeModalTitle: "Fixar Temps del Cronòmetre",
+                timeHoursLabel: "Hores",
+                timeMinutesLabel: "Minuts",
+                timeSecondsLabel: "Segons",
+                newRaceModalTitle: "Nova Cursa",
+                raceNameLabel: "Nom de la Cursa",
+                deleteRaceModalTitle: "Eliminar Cursa",
+                deleteRaceModalText: "¿Estàs segur que vols eliminar aquesta cursa? Aquesta acció no es pot desfer.",
+                stopChronoModalTitle: "Aturar Cronòmetre",
+                stopChronoModalText: "¿Estàs segur que vols aturar el cronòmetre?",
+                editFirstLapTitle: "Modificar Temps Primera Volta",
+                editLapTimeTitle: "Editar Temps de Volta",
+                editRiderTitle: "Editar Corredor Retirat",
+                
+                // Botones modales
+                cancelButton: "Cancel·lar",
+                confirmButton: "Confirmar",
+                modifyButton: "Modificar",
+                createButton: "Crear Cursa",
+                
+                // Mensajes
+                noRaceSelected: "Ha de seleccionar una cursa primer",
+                chronoNotRunning: "El cronòmetre ha d'estar en marxa per registrar voltes",
+                dorsalRequired: "El número de dorsal és obligatori",
+                noLapsToDelete: "No hi ha voltes per eliminar",
+                onlyLastLap: "Només es pot eliminar l'última volta registrada",
+                confirmDeleteLap: "¿Estàs segur que vols eliminar aquesta volta?",
+                confirmDeleteRider: "¿Estàs segur que vols eliminar aquest corredor de la llista de retirats?",
+                
+                // Footer
+                copyright: "2025 Copyright",
+                copyrightLink: "Roberto Benet - rbenet71@gmail.com",
+                visits: "visites",
+                
+                // Selector de carrera
+                selectRace: "-- Seleccionar Cursa --",
+                raceNamePlaceholder: "Ex: BTT Muntanya 2024",
+                dorsalPlaceholder: "Ex: 123, 456, 789"
+            },
+            en: {
+                appTitle: "Stopwatch 80% Control",
+                currentLapTitle: "Current Lap",
+                firstLapTimeTitle: "First Lap Time",
+                cutoffTimeTitle: "Current Cutoff Time",
+                startTimeLabel: "Start Time:",
+                cutoffWarning: "WITHDRAW RIDER",
+                millisecondsLabel: "Show Milliseconds",
+                withdrawnTab: "Withdrawn Riders List",
+                lapTimesTab: "First Rider Times",
+                eightyPercentLabel: "80% of this time:",
+                lastLapLabel: "Last pass:",
+                eightyPercentCutoffLabel: "+ 80% first lap:",
+                
+                // Botones
+                startButton: "Start Stopwatch",
+                stopButton: "Stop Stopwatch",
+                setTimeButton: "Set Stopwatch Time",
+                firstRiderButton: "First Rider Pass",
+                withdrawButton: "Withdraw Rider",
+                resetButton: "Reset Stopwatch",
+                exportButton: "Export to Excel",
+                newRaceButton: "New Race",
+                deleteRaceButton: "Delete Race",
+                helpButton: "Help",
+                
+                // Modales
+                withdrawModalTitle: "Withdraw Rider",
+                withdrawDorsalLabel: "Bib Number(s) (separated by commas)",
+                resetModalTitle: "Confirm Reset",
+                resetModalText: "Are you sure you want to reset the stopwatch? All data will be lost.",
+                timeModalTitle: "Set Stopwatch Time",
+                timeHoursLabel: "Hours",
+                timeMinutesLabel: "Minutes",
+                timeSecondsLabel: "Seconds",
+                newRaceModalTitle: "New Race",
+                raceNameLabel: "Race Name",
+                deleteRaceModalTitle: "Delete Race",
+                deleteRaceModalText: "Are you sure you want to delete this race? This action cannot be undone.",
+                stopChronoModalTitle: "Stop Stopwatch",
+                stopChronoModalText: "Are you sure you want to stop the stopwatch?",
+                editFirstLapTitle: "Modify First Lap Time",
+                editLapTimeTitle: "Edit Lap Time",
+                editRiderTitle: "Edit Withdrawn Rider",
+                
+                // Botones modales
+                cancelButton: "Cancel",
+                confirmButton: "Confirm",
+                modifyButton: "Modify",
+                createButton: "Create Race",
+                
+                // Mensajes
+                noRaceSelected: "You must select a race first",
+                chronoNotRunning: "The stopwatch must be running to record laps",
+                dorsalRequired: "Bib number is required",
+                noLapsToDelete: "There are no laps to delete",
+                onlyLastLap: "Only the last recorded lap can be deleted",
+                confirmDeleteLap: "Are you sure you want to delete this lap?",
+                confirmDeleteRider: "Are you sure you want to remove this rider from the withdrawn list?",
+                
+                // Footer
+                copyright: "2025 Copyright",
+                copyrightLink: "Roberto Benet - rbenet71@gmail.com",
+                visits: "visits",
+                
+                // Selector de carrera
+                selectRace: "-- Select Race --",
+                raceNamePlaceholder: "Ex: MTB Mountain 2024",
+                dorsalPlaceholder: "Ex: 123, 456, 789"
+            }
+        };
+
         // Variables globales
         let startTime = 0;
         let currentTime = 0;
@@ -959,7 +1176,6 @@
         let currentLapTimes = {};
         let cutoffTime = null;
         let withdrawnRiders = [];
-        let currentLanguage = 'es';
         let currentRaceId = null;
         let races = {};
         let raceStartTime = null;
@@ -1013,6 +1229,101 @@
         const editLapTimeModal = document.getElementById('edit-lap-time-modal');
         const editRiderModal = document.getElementById('edit-rider-modal');
 
+        // Función para actualizar idioma
+        function updateLanguage(lang) {
+            currentLanguage = lang;
+            const t = translations[lang];
+            
+            // Actualizar textos principales
+            document.getElementById('app-title').textContent = t.appTitle;
+            document.getElementById('current-lap-title').textContent = t.currentLapTitle;
+            document.getElementById('first-lap-time-title').textContent = t.firstLapTimeTitle;
+            document.getElementById('cutoff-time-title').textContent = t.cutoffTimeTitle;
+            document.getElementById('start-time-label').textContent = t.startTimeLabel;
+            document.getElementById('cutoff-warning').textContent = t.cutoffWarning;
+            document.getElementById('milliseconds-label').textContent = t.millisecondsLabel;
+            document.getElementById('eighty-percent-label').textContent = t.eightyPercentLabel;
+            document.getElementById('last-lap-label').textContent = t.lastLapLabel;
+            document.getElementById('eighty-percent-cutoff-label').textContent = t.eightyPercentCutoffLabel;
+            
+            // Actualizar botones
+            btnStart.textContent = isRunning ? t.stopButton : t.startButton;
+            btnSetTime.textContent = t.setTimeButton;
+            btnFirst.textContent = t.firstRiderButton;
+            btnWithdraw.textContent = t.withdrawButton;
+            btnReset.textContent = t.resetButton;
+            btnExport.textContent = t.exportButton;
+            btnNewRace.textContent = t.newRaceButton;
+            btnDeleteRace.textContent = t.deleteRaceButton;
+            btnHelp.textContent = t.helpButton;
+            
+            // Actualizar pestañas
+            updateTabCounts();
+            
+            // Actualizar modales
+            document.getElementById('withdraw-modal-title').textContent = t.withdrawModalTitle;
+            document.getElementById('withdraw-dorsal-label').textContent = t.withdrawDorsalLabel;
+            document.getElementById('reset-modal-title').textContent = t.resetModalTitle;
+            document.getElementById('reset-modal-text').textContent = t.resetModalText;
+            document.getElementById('time-modal-title').textContent = t.timeModalTitle;
+            document.getElementById('time-hours-label').textContent = t.timeHoursLabel;
+            document.getElementById('time-minutes-label').textContent = t.timeMinutesLabel;
+            document.getElementById('time-seconds-label').textContent = t.timeSecondsLabel;
+            document.getElementById('new-race-modal-title').textContent = t.newRaceModalTitle;
+            document.getElementById('race-name-label').textContent = t.raceNameLabel;
+            document.getElementById('delete-race-modal-title').textContent = t.deleteRaceModalTitle;
+            document.getElementById('delete-race-modal-text').textContent = t.deleteRaceModalText;
+            document.getElementById('stop-chrono-modal-title').textContent = t.stopChronoModalTitle;
+            document.getElementById('stop-chrono-modal-text').textContent = t.stopChronoModalText;
+            document.getElementById('edit-first-lap-title').textContent = t.editFirstLapTitle;
+            document.getElementById('edit-lap-time-title').textContent = t.editLapTimeTitle;
+            document.getElementById('edit-rider-title').textContent = t.editRiderTitle;
+            
+            // Actualizar botones de modales
+            document.getElementById('cancel-withdraw').textContent = t.cancelButton;
+            document.getElementById('confirm-withdraw').textContent = t.confirmButton;
+            document.getElementById('cancel-reset').textContent = t.cancelButton;
+            document.getElementById('confirm-reset').textContent = t.confirmButton;
+            document.getElementById('cancel-time').textContent = t.cancelButton;
+            document.getElementById('confirm-time').textContent = t.modifyButton;
+            document.getElementById('cancel-new-race').textContent = t.cancelButton;
+            document.getElementById('confirm-new-race').textContent = t.createButton;
+            document.getElementById('cancel-delete-race').textContent = t.cancelButton;
+            document.getElementById('confirm-delete-race').textContent = t.confirmButton;
+            document.getElementById('cancel-stop-chrono').textContent = t.cancelButton;
+            document.getElementById('confirm-stop-chrono').textContent = t.confirmButton;
+            document.getElementById('cancel-edit-first-lap').textContent = t.cancelButton;
+            document.getElementById('confirm-edit-first-lap').textContent = t.modifyButton;
+            document.getElementById('cancel-edit-lap-time').textContent = t.cancelButton;
+            document.getElementById('confirm-edit-lap-time').textContent = t.modifyButton;
+            document.getElementById('cancel-edit-rider').textContent = t.cancelButton;
+            document.getElementById('confirm-edit-rider').textContent = t.modifyButton;
+            
+            // Actualizar placeholders
+            document.getElementById('race-name-input').placeholder = t.raceNamePlaceholder;
+            document.getElementById('dorsal-input').placeholder = t.dorsalPlaceholder;
+            
+            // Actualizar selector de carrera
+            const firstOption = raceSelector.querySelector('option');
+            if (firstOption) {
+                firstOption.textContent = t.selectRace;
+            }
+            
+            // Actualizar footer
+            document.getElementById('copyright-text').textContent = t.copyright;
+            document.getElementById('copyright-link').textContent = t.copyrightLink;
+            updateVisitCounter();
+            
+            // Actualizar banderas activas
+            document.querySelectorAll('.flag').forEach(flag => {
+                flag.classList.remove('active');
+            });
+            document.getElementById('flag-' + lang).classList.add('active');
+            
+            // Guardar idioma seleccionado
+            localStorage.setItem('bttLanguage', lang);
+        }
+
         // Función para verificar si hay una carrera seleccionada
         function isRaceSelected() {
             return currentRaceId !== null && races[currentRaceId] !== undefined;
@@ -1052,12 +1363,12 @@
         // Función para registrar vueltas
         function recordLap() {
             if (!isRaceSelected()) {
-                alert('Debe seleccionar una carrera primero');
+                alert(translations[currentLanguage].noRaceSelected);
                 return;
             }
             
             if (currentTime === 0) {
-                alert('El cronómetro debe estar en marcha para registrar vueltas');
+                alert(translations[currentLanguage].chronoNotRunning);
                 return;
             }
             
@@ -1087,7 +1398,7 @@
                 localStorage.setItem('bttLastVisit', today);
             }
             
-            visitCounterElement.textContent = visitCount + ' visitas';
+            visitCounterElement.textContent = visitCount + ' ' + translations[currentLanguage].visits;
         }
 
         // Inicialización
@@ -1124,6 +1435,9 @@
             
             updateVisitCounter();
             
+            // Actualizar idioma inicial
+            updateLanguage(currentLanguage);
+            
             // Event listeners
             btnStart.addEventListener('click', toggleChrono);
             btnSetTime.addEventListener('click', openTimeModal);
@@ -1150,7 +1464,6 @@
                 flag.addEventListener('click', function() {
                     const lang = this.getAttribute('data-lang');
                     updateLanguage(lang);
-                    localStorage.setItem('bttLanguage', lang);
                 });
             });
         });
@@ -1207,7 +1520,7 @@
         }
 
         function updateRaceSelector() {
-            raceSelector.innerHTML = '<option value="">-- Seleccionar Carrera --</option>';
+            raceSelector.innerHTML = '<option value="">' + translations[currentLanguage].selectRace + '</option>';
             for (const id in races) {
                 const option = document.createElement('option');
                 option.value = id;
@@ -1242,7 +1555,7 @@
                     clearInterval(intervalId);
                     intervalId = null;
                 }
-                btnStart.textContent = 'Iniciar Cronómetro';
+                btnStart.textContent = translations[currentLanguage].startButton;
                 return;
             }
             
@@ -1271,7 +1584,7 @@
             if (isRunning) {
                 startChrono();
             } else {
-                btnStart.textContent = 'Iniciar Cronómetro';
+                btnStart.textContent = translations[currentLanguage].startButton;
                 if (intervalId) {
                     clearInterval(intervalId);
                     intervalId = null;
@@ -1305,7 +1618,7 @@
         // Funciones del cronómetro
         function toggleChrono() {
             if (!isRaceSelected()) {
-                alert('Debe seleccionar una carrera primero');
+                alert(translations[currentLanguage].noRaceSelected);
                 return;
             }
             
@@ -1330,7 +1643,7 @@
             }
             
             isRunning = true;
-            btnStart.textContent = 'Parar Cronómetro';
+            btnStart.textContent = translations[currentLanguage].stopButton;
             intervalId = setInterval(updateChrono, 10);
             saveCurrentRace();
         }
@@ -1340,7 +1653,7 @@
             
             isRunning = false;
             clearInterval(intervalId);
-            btnStart.textContent = 'Iniciar Cronómetro';
+            btnStart.textContent = translations[currentLanguage].startButton;
             saveCurrentRace();
         }
 
@@ -1451,7 +1764,7 @@
         // Funciones para editar tiempos de vuelta
         function openEditLapTimeModal(lapNumber) {
             if (!isRaceSelected()) {
-                alert('Debe seleccionar una carrera primero');
+                alert(translations[currentLanguage].noRaceSelected);
                 return;
             }
             
@@ -1500,7 +1813,7 @@
         // Funciones para editar corredores retirados
         function openEditRiderModal(riderIndex) {
             if (!isRaceSelected()) {
-                alert('Debe seleccionar una carrera primero');
+                alert(translations[currentLanguage].noRaceSelected);
                 return;
             }
             
@@ -1534,7 +1847,7 @@
             const milliseconds = parseInt(document.getElementById('edit-rider-milliseconds-input').value) || 0;
             
             if (!dorsal) {
-                alert('El número de dorsal es obligatorio');
+                alert(translations[currentLanguage].dorsalRequired);
                 return;
             }
             
@@ -1558,8 +1871,6 @@
             
             const lapNumbers = Object.keys(currentLapTimes).map(Number);
             const lastLapNumber = lapNumbers.length > 0 ? Math.max(...lapNumbers) : 0;
-            
-            console.log('Actualizando lista de vueltas:', currentLapTimes, 'Última:', lastLapNumber);
             
             for (const lap in currentLapTimes) {
                 const lapNum = parseInt(lap);
@@ -1599,7 +1910,6 @@
                     removeButton.textContent = '🗑️';
                     removeButton.title = 'Eliminar última vuelta';
                     removeButton.addEventListener('click', function() {
-                        console.log('Botón eliminar clickeado para vuelta:', lapNum);
                         removeLap(lapNum);
                     });
                     lapActions.appendChild(removeButton);
@@ -1628,28 +1938,25 @@
 
         function removeLap(lapNumber) {
             if (!isRaceSelected()) {
-                alert('No hay carrera seleccionada');
+                alert(translations[currentLanguage].noRaceSelected);
                 return;
             }
-            
-            console.log('Eliminando vuelta:', lapNumber);
-            console.log('Vueltas antes:', currentLapTimes);
             
             const lapNumbers = Object.keys(currentLapTimes).map(Number);
             
             if (lapNumbers.length === 0) {
-                alert('No hay vueltas para eliminar');
+                alert(translations[currentLanguage].noLapsToDelete);
                 return;
             }
             
             const lastLapNumber = Math.max(...lapNumbers);
             
             if (lapNumber !== lastLapNumber) {
-                alert('Solo se puede eliminar la última vuelta registrada (Vuelta ' + lastLapNumber + ')');
+                alert(translations[currentLanguage].onlyLastLap.replace('{0}', lastLapNumber));
                 return;
             }
             
-            if (!confirm(`¿Estás seguro de que quieres eliminar la Vuelta ${lapNumber}?`)) {
+            if (!confirm(translations[currentLanguage].confirmDeleteLap)) {
                 return;
             }
             
@@ -1672,9 +1979,6 @@
                     firstLapTime = null;
                 }
             }
-            
-            console.log('Vueltas después:', currentLapTimes);
-            console.log('Nueva vuelta actual:', currentLap);
             
             updateDisplay();
             updateLapTimesList();
@@ -1724,7 +2028,7 @@
                 removeButton.textContent = '🗑️';
                 removeButton.title = 'Eliminar corredor retirado';
                 removeButton.addEventListener('click', function() {
-                    if (confirm('¿Estás seguro de que quieres eliminar este corredor de la lista de retirados?')) {
+                    if (confirm(translations[currentLanguage].confirmDeleteRider)) {
                         withdrawnRiders.splice(index, 1);
                         updateWithdrawnList();
                         updateTabCounts();
@@ -1739,7 +2043,9 @@
         }
 
         function updateTabCounts() {
-            withdrawnTabButton.textContent = 'Lista de Retirados (' + withdrawnRiders.length + ')';
+            const t = translations[currentLanguage];
+            withdrawnTabButton.textContent = t.withdrawnTab + ' (' + withdrawnRiders.length + ')';
+            lapTimesTabButton.textContent = t.lapTimesTab;
         }
 
         // Funciones de pestañas
@@ -1759,7 +2065,7 @@
         // Funciones de modales existentes
         function openWithdrawModal() {
             if (!isRaceSelected()) {
-                alert('Debe seleccionar una carrera primero');
+                alert(translations[currentLanguage].noRaceSelected);
                 return;
             }
             withdrawModal.style.display = 'flex';
@@ -1795,7 +2101,7 @@
 
         function openResetModal() {
             if (!isRaceSelected()) {
-                alert('Debe seleccionar una carrera primero');
+                alert(translations[currentLanguage].noRaceSelected);
                 return;
             }
             resetModal.style.display = 'flex';
@@ -1829,7 +2135,7 @@
 
         function openTimeModal() {
             if (!isRaceSelected()) {
-                alert('Debe seleccionar una carrera primero');
+                alert(translations[currentLanguage].noRaceSelected);
                 return;
             }
             timeModal.style.display = 'flex';
@@ -1960,7 +2266,7 @@
 
         function openEditFirstLapModal() {
             if (!isRaceSelected()) {
-                alert('Debe seleccionar una carrera primero');
+                alert(translations[currentLanguage].noRaceSelected);
                 return;
             }
             if (!firstLapTime) return;
@@ -1999,21 +2305,22 @@
         // Función de exportación
         function exportToExcel() {
             if (!isRaceSelected()) {
-                alert('Debe seleccionar una carrera primero');
+                alert(translations[currentLanguage].noRaceSelected);
                 return;
             }
             
             let csvContent = "data:text/csv;charset=utf-8,";
+            const t = translations[currentLanguage];
             
-            csvContent += "Carrera," + (races[currentRaceId]?.name || "Sin nombre") + "\n";
+            csvContent += t.raceNameLabel + "," + (races[currentRaceId]?.name || "Sin nombre") + "\n";
             csvContent += "Hora de exportación," + new Date().toLocaleString() + "\n\n";
             
             csvContent += "INFORMACIÓN DE LA CARRERA\n";
-            csvContent += "Hora de salida," + (raceStartTime ? new Date(raceStartTime).toLocaleTimeString() : "No establecida") + "\n";
+            csvContent += t.startTimeLabel + "," + (raceStartTime ? new Date(raceStartTime).toLocaleTimeString() : "No establecida") + "\n";
             csvContent += "Tiempo actual," + formatTime(currentTime, true) + "\n";
-            csvContent += "Vuelta actual," + currentLap + "\n";
-            csvContent += "Tiempo primera vuelta," + (firstLapTime ? formatTime(firstLapTime, true) : "No registrada") + "\n";
-            csvContent += "Tiempo límite (80%)," + (cutoffTime ? formatTime(cutoffTime, true) : "No calculado") + "\n\n";
+            csvContent += t.currentLapTitle + "," + currentLap + "\n";
+            csvContent += t.firstLapTimeTitle + "," + (firstLapTime ? formatTime(firstLapTime, true) : "No registrada") + "\n";
+            csvContent += t.cutoffTimeTitle + "," + (cutoffTime ? formatTime(cutoffTime, true) : "No calculado") + "\n\n";
             
             csvContent += "TIEMPOS POR VUELTA - PRIMER CORREDOR\n";
             csvContent += "Vuelta,Tiempo\n";
@@ -2038,38 +2345,6 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-        }
-
-        // Función para actualizar idioma
-        function updateLanguage(lang) {
-            currentLanguage = lang;
-            
-            document.getElementById('app-title').textContent = 'Cronómetro Control 80%';
-            document.getElementById('btn-start').textContent = isRunning ? 'Parar Cronómetro' : 'Iniciar Cronómetro';
-            document.getElementById('btn-set-time').textContent = 'Fijar Tiempo Crono';
-            document.getElementById('btn-first').textContent = 'Paso Primer Corredor';
-            document.getElementById('btn-withdraw').textContent = 'Retirar Corredor';
-            document.getElementById('btn-reset').textContent = 'Reiniciar Cronómetro';
-            document.getElementById('btn-export').textContent = 'Exportar a Excel';
-            document.getElementById('btn-new-race').textContent = 'Nueva Carrera';
-            document.getElementById('btn-delete-race').textContent = 'Eliminar Carrera';
-            document.getElementById('btn-help').textContent = 'Ayuda';
-            document.getElementById('current-lap-title').textContent = 'Vuelta Actual';
-            document.getElementById('first-lap-time-title').textContent = 'Tiempo Primera Vuelta';
-            document.getElementById('cutoff-time-title').textContent = 'Tiempo Límite Actual';
-            document.getElementById('withdrawn-tab-button').textContent = 'Lista de Retirados (' + withdrawnRiders.length + ')';
-            document.getElementById('lap-times-tab-button').textContent = 'Tiempos del Primer Corredor';
-            document.getElementById('start-time-label').textContent = 'Hora de Salida:';
-            document.getElementById('cutoff-warning').textContent = 'ELIMINAR CORREDOR';
-            document.getElementById('milliseconds-label').textContent = 'Mostrar Milésimas';
-            
-            document.querySelectorAll('.flag').forEach(flag => {
-                flag.classList.remove('active');
-            });
-            document.getElementById('flag-' + lang).classList.add('active');
-            
-            updateLapTimesList();
-            updateWithdrawnList();
         }
     </script>
 </body>
