@@ -273,7 +273,7 @@
         }
         
         .btn-dnf {
-            background-color: #d35400;
+            background-color: #9b59b6;
         }
         
         .btn-reset {
@@ -2380,50 +2380,82 @@
             saveCurrentRace();
         }
 
-        // Función de exportación
+        // Función de exportación mejorada
         function exportToExcel() {
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
                 return;
             }
             
-            let csvContent = "data:text/csv;charset=utf-8,";
+            // Crear contenido CSV con separador ; y codificación UTF-8
+            let csvContent = "\uFEFF"; // BOM para UTF-8
             const t = translations[currentLanguage];
             
-            csvContent += t.raceNameLabel + "," + (races[currentRaceId]?.name || "Sin nombre") + "\n";
-            csvContent += "Hora de exportación," + new Date().toLocaleString() + "\n\n";
+            // Información de la carrera
+            csvContent += t.raceNameLabel + ";" + (races[currentRaceId]?.name || "Sin nombre") + "\n";
+            csvContent += "Hora de exportación;" + new Date().toLocaleString() + "\n\n";
             
             csvContent += "INFORMACIÓN DE LA CARRERA\n";
-            csvContent += t.startTimeLabel + "," + (raceStartTime ? new Date(raceStartTime).toLocaleTimeString() : "No establecida") + "\n";
-            csvContent += "Tiempo actual," + formatTime(currentTime, true) + "\n";
-            csvContent += t.currentLapTitle + "," + currentLap + "\n";
-            csvContent += t.firstLapTimeTitle + "," + (firstLapTime ? formatTime(firstLapTime, true) : "No registrada") + "\n";
-            csvContent += t.cutoffTimeTitle + "," + (cutoffTime ? formatTime(cutoffTime, true) : "No calculado") + "\n\n";
+            csvContent += t.startTimeLabel + ";" + (raceStartTime ? new Date(raceStartTime).toLocaleTimeString() : "No establecida") + "\n";
+            csvContent += "Tiempo actual;" + formatTime(currentTime, true) + "\n";
+            csvContent += t.currentLapTitle + ";" + currentLap + "\n";
+            csvContent += t.firstLapTimeTitle + ";" + (firstLapTime ? formatTime(firstLapTime, true) : "No registrada") + "\n";
+            csvContent += t.cutoffTimeTitle + ";" + (cutoffTime ? formatTime(cutoffTime, true) : "No calculado") + "\n\n";
             
+            // Tiempos por vuelta - ordenados descendente por vuelta y ascendente por tiempo
             csvContent += "TIEMPOS POR VUELTA - PRIMER CORREDOR\n";
-            csvContent += "Vuelta,Tiempo\n";
+            csvContent += "Vuelta;Tiempo\n";
             
-            for (const lap in currentLapTimes) {
-                csvContent += lap + "," + formatTime(currentLapTimes[lap], true) + "\n";
-            }
+            // Convertir currentLapTimes a array y ordenar
+            const lapTimesArray = Object.entries(currentLapTimes).map(([lap, time]) => ({
+                lap: parseInt(lap),
+                time: time
+            }));
+            
+            // Ordenar descendente por vuelta y ascendente por tiempo
+            lapTimesArray.sort((a, b) => {
+                if (a.lap !== b.lap) {
+                    return b.lap - a.lap; // Descendente por vuelta
+                } else {
+                    return a.time - b.time; // Ascendente por tiempo
+                }
+            });
+            
+            // Añadir vueltas ordenadas al CSV
+            lapTimesArray.forEach(item => {
+                csvContent += item.lap + ";" + formatTime(item.time, true) + "\n";
+            });
             
             csvContent += "\n";
             
+            // Corredores retirados - ordenados descendente por vuelta y ascendente por tiempo
             csvContent += "CORREDORES RETIRADOS\n";
-            csvContent += "Dorsal,Vuelta retirada,Tiempo retirada,Hora retirada\n";
+            csvContent += "Dorsal;Vuelta retirada;Tiempo retirada;Hora retirada\n";
             
-            withdrawnRiders.forEach(rider => {
-                const lapText = rider.lap === 0 ? "DNF" : rider.lap;
-                csvContent += rider.dorsal + "," + lapText + "," + formatTime(rider.time, true) + "," + new Date(rider.withdrawalTime).toLocaleTimeString() + "\n";
+            // Ordenar corredores retirados
+            const sortedWithdrawnRiders = [...withdrawnRiders].sort((a, b) => {
+                if (a.lap !== b.lap) {
+                    return b.lap - a.lap; // Descendente por vuelta
+                } else {
+                    return a.time - b.time; // Ascendente por tiempo
+                }
             });
             
-            const encodedUri = encodeURI(csvContent);
+            sortedWithdrawnRiders.forEach(rider => {
+                const lapText = rider.lap === 0 ? "DNF" : rider.lap;
+                csvContent += rider.dorsal + ";" + lapText + ";" + formatTime(rider.time, true) + ";" + new Date(rider.withdrawalTime).toLocaleTimeString() + "\n";
+            });
+            
+            // Crear y descargar el archivo
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
             link.setAttribute("download", "carrera_btt_" + new Date().toISOString().slice(0, 10) + ".csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         }
     </script>
 </body>
