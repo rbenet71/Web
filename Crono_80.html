@@ -245,6 +245,17 @@
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
         
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        button:disabled:hover {
+            background-color: #34495e;
+            transform: none;
+        }
+        
         .btn-start {
             background-color: var(--success-color);
         }
@@ -930,6 +941,26 @@
         const stopChronoModal = document.getElementById('stop-chrono-modal');
         const editFirstLapModal = document.getElementById('edit-first-lap-modal');
 
+        // Función para verificar si hay una carrera seleccionada
+        function isRaceSelected() {
+            return currentRaceId !== null && races[currentRaceId] !== undefined;
+        }
+
+        // Función para actualizar el estado de los botones según si hay carrera seleccionada
+        function updateButtonsState() {
+            const hasRace = isRaceSelected();
+            
+            // Deshabilitar botones si no hay carrera seleccionada
+            btnStart.disabled = !hasRace;
+            btnSetTime.disabled = !hasRace;
+            btnFirst.disabled = !hasRace;
+            btnWithdraw.disabled = !hasRace;
+            btnReset.disabled = !hasRace;
+            btnExport.disabled = !hasRace;
+            btnDeleteRace.disabled = !hasRace;
+            btnEditFirstLap.disabled = !hasRace;
+        }
+
         // Función para calcular el tiempo límite
         function calculateCutoffTime() {
             if (!firstLapTime) return null;
@@ -948,6 +979,11 @@
 
         // Función para registrar vueltas
         function recordLap() {
+            if (!isRaceSelected()) {
+                alert('Debe seleccionar una carrera primero');
+                return;
+            }
+            
             if (currentTime === 0) {
                 alert('El cronómetro debe estar en marcha para registrar vueltas');
                 return;
@@ -999,10 +1035,19 @@
             loadRaces();
             updateDisplay();
             
+            // Cargar la última carrera usada
             const lastRaceId = localStorage.getItem('bttLastRace');
             if (lastRaceId && races[lastRaceId]) {
                 loadRace(lastRaceId);
                 raceSelector.value = lastRaceId;
+            } else if (Object.keys(races).length > 0) {
+                // Cargar la primera carrera si existe
+                const firstRaceId = Object.keys(races)[0];
+                loadRace(firstRaceId);
+                raceSelector.value = firstRaceId;
+            } else {
+                // No hay carreras, actualizar estado de botones
+                updateButtonsState();
             }
             
             updateVisitCounter();
@@ -1018,7 +1063,9 @@
             btnDeleteRace.addEventListener('click', openDeleteRaceModal);
             btnEditFirstLap.addEventListener('click', openEditFirstLapModal);
             btnHelp.addEventListener('click', openHelpFile);
-            raceSelector.addEventListener('change', loadRace);
+            raceSelector.addEventListener('change', function() {
+                loadRace(this.value);
+            });
             millisecondsToggle.addEventListener('change', toggleMilliseconds);
             withdrawnTabButton.addEventListener('click', () => switchTab('withdrawn-tab'));
             lapTimesTabButton.addEventListener('click', () => switchTab('lap-times-tab'));
@@ -1046,6 +1093,7 @@
             updateDisplay();
             updateLapTimesList();
             updateWithdrawnList();
+            saveCurrentRace();
         }
 
         function setupModalEvents() {
@@ -1091,7 +1139,35 @@
         }
 
         function loadRace(raceId) {
-            if (!raceId) return;
+            if (!raceId) {
+                // No hay carrera seleccionada, resetear todo
+                currentRaceId = null;
+                startTime = 0;
+                currentTime = 0;
+                isRunning = false;
+                firstLapTime = null;
+                currentLap = 1;
+                currentLapTimes = {};
+                cutoffTime = null;
+                withdrawnRiders = [];
+                raceStartTime = null;
+                isOverCutoff = false;
+                
+                updateDisplay();
+                updateLapTimesList();
+                updateWithdrawnList();
+                updateTabCounts();
+                updateRaceStartTime();
+                updateButtonsState();
+                
+                if (intervalId) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                }
+                btnStart.textContent = 'Iniciar Cronómetro';
+                return;
+            }
+            
             const race = races[raceId];
             if (!race) return;
             
@@ -1111,11 +1187,20 @@
             updateLapTimesList();
             updateWithdrawnList();
             updateTabCounts();
+            updateRaceStartTime();
+            updateButtonsState();
             
             if (isRunning) {
                 startChrono();
+            } else {
+                btnStart.textContent = 'Iniciar Cronómetro';
+                if (intervalId) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                }
             }
             
+            // Guardar como última carrera seleccionada
             localStorage.setItem('bttLastRace', raceId);
         }
 
@@ -1141,6 +1226,11 @@
 
         // Funciones del cronómetro
         function toggleChrono() {
+            if (!isRaceSelected()) {
+                alert('Debe seleccionar una carrera primero');
+                return;
+            }
+            
             if (isRunning) {
                 openStopChronoModal();
             } else {
@@ -1149,7 +1239,7 @@
         }
 
         function startChrono() {
-            if (isRunning) return;
+            if (!isRaceSelected() || isRunning) return;
             
             if (startTime === 0) {
                 startTime = Date.now() - currentTime;
@@ -1186,12 +1276,14 @@
                     isOverCutoff = true;
                     chronoDisplay.classList.add('over-cutoff');
                     cutoffWarning.style.display = 'block';
+                    saveCurrentRace();
                 }
             } else {
                 if (isOverCutoff) {
                     isOverCutoff = false;
                     chronoDisplay.classList.remove('over-cutoff');
                     cutoffWarning.style.display = 'none';
+                    saveCurrentRace();
                 }
             }
         }
@@ -1325,6 +1417,8 @@
         }
 
         function removeLap(lapNumber) {
+            if (!isRaceSelected()) return;
+            
             delete currentLapTimes[lapNumber];
             
             const newLapTimes = {};
@@ -1353,6 +1447,10 @@
 
         // Funciones de gestión de corredores retirados
         function openWithdrawModal() {
+            if (!isRaceSelected()) {
+                alert('Debe seleccionar una carrera primero');
+                return;
+            }
             withdrawModal.style.display = 'flex';
         }
 
@@ -1362,6 +1460,8 @@
         }
 
         function confirmWithdraw() {
+            if (!isRaceSelected()) return;
+            
             const dorsalInput = document.getElementById('dorsal-input').value.trim();
             if (!dorsalInput) return;
             
@@ -1453,6 +1553,10 @@
 
         // Funciones de modales
         function openResetModal() {
+            if (!isRaceSelected()) {
+                alert('Debe seleccionar una carrera primero');
+                return;
+            }
             resetModal.style.display = 'flex';
         }
 
@@ -1461,6 +1565,8 @@
         }
 
         function confirmReset() {
+            if (!isRaceSelected()) return;
+            
             stopChrono();
             startTime = 0;
             currentTime = 0;
@@ -1481,6 +1587,10 @@
         }
 
         function openTimeModal() {
+            if (!isRaceSelected()) {
+                alert('Debe seleccionar una carrera primero');
+                return;
+            }
             timeModal.style.display = 'flex';
             timeModalMode = 'manual';
             
@@ -1503,6 +1613,8 @@
         }
 
         function confirmTime() {
+            if (!isRaceSelected()) return;
+            
             const hours = parseInt(document.getElementById('hours-input').value) || 0;
             const minutes = parseInt(document.getElementById('minutes-input').value) || 0;
             const seconds = parseInt(document.getElementById('seconds-input').value) || 0;
@@ -1555,7 +1667,9 @@
             
             saveRaces();
             updateRaceSelector();
+            // Cargar la nueva carrera automáticamente
             loadRace(raceId);
+            raceSelector.value = raceId;
             closeNewRaceModal();
         }
 
@@ -1577,30 +1691,20 @@
             
             const raceIds = Object.keys(races);
             if (raceIds.length > 0) {
+                // Cargar la primera carrera disponible
                 loadRace(raceIds[0]);
+                raceSelector.value = raceIds[0];
             } else {
-                currentRaceId = null;
-                startTime = 0;
-                currentTime = 0;
-                isRunning = false;
-                firstLapTime = null;
-                currentLap = 1;
-                currentLapTimes = {};
-                cutoffTime = null;
-                withdrawnRiders = [];
-                raceStartTime = null;
-                isOverCutoff = false;
-                
-                updateDisplay();
-                updateLapTimesList();
-                updateWithdrawnList();
-                updateTabCounts();
+                // No hay más carreras
+                loadRace(null); // Esto reseteará todo
+                raceSelector.value = '';
             }
             
             closeDeleteRaceModal();
         }
 
         function openStopChronoModal() {
+            if (!isRaceSelected()) return;
             stopChronoModal.style.display = 'flex';
         }
 
@@ -1614,6 +1718,10 @@
         }
 
         function openEditFirstLapModal() {
+            if (!isRaceSelected()) {
+                alert('Debe seleccionar una carrera primero');
+                return;
+            }
             if (!firstLapTime) return;
             
             const time = new Date(firstLapTime);
@@ -1629,6 +1737,8 @@
         }
 
         function confirmEditFirstLap() {
+            if (!isRaceSelected()) return;
+            
             const minutes = parseInt(document.getElementById('edit-minutes-input').value) || 0;
             const seconds = parseInt(document.getElementById('edit-seconds-input').value) || 0;
             const milliseconds = parseInt(document.getElementById('edit-milliseconds-input').value) || 0;
@@ -1647,6 +1757,11 @@
 
         // Función de exportación
         function exportToExcel() {
+            if (!isRaceSelected()) {
+                alert('Debe seleccionar una carrera primero');
+                return;
+            }
+            
             let csvContent = "data:text/csv;charset=utf-8,";
             
             csvContent += "Carrera," + (races[currentRaceId]?.name || "Sin nombre") + "\n";
