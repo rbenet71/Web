@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayuda Cronómetro de Llegadas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(44, 62, 80, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+        
+        .language-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .lang-btn {
+            background: #34495e;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .lang-btn:hover {
+            background: #3498db;
+            transform: translateY(-2px);
+        }
+        
+        .lang-btn.active {
+            background: #3498db;
+        }
+        
+        .content {
+            display: none;
+        }
+        
+        .content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h2 {
+            color: #3498db;
+            margin: 30px 0 15px 0;
+            font-size: 1.8rem;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #2ecc71;
+            margin: 20px 0 10px 0;
+            font-size: 1.4rem;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: rgba(52, 73, 94, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #2ecc71;
+        }
+        
+        .feature-card h4 {
+            color: #2ecc71;
+            margin-bottom: 10px;
+        }
+        
+        .step-box {
+            background: rgba(52, 73, 94, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: #f39c12;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .tip-box {
+            background: rgba(155, 89, 182, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #9b59b6;
+        }
+        
+        .tip-box h4 {
+            color: #9b59b6;
+            margin-bottom: 10px;
+        }
+        
+        .app-install {
+            background: rgba(46, 204, 113, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2ecc71;
+        }
+        
+        .app-install h3 {
+            color: #2ecc71;
+        }
+        
+        .platform {
+            margin: 15px 0;
+        }
+        
+        .platform h4 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .back-button {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .back-button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .language-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .lang-btn {
+                width: 200px;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 id="main-title">Ayuda Cronómetro de Llegadas</h1>
+            <div class="language-selector">
+                <button class="lang-btn active" data-lang="es">Español</button>
+                <button class="lang-btn" data-lang="ca">Català</button>
+                <button class="lang-btn" data-lang="en">English</button>
+            </div>
+        </header>
+
+        <!-- Contenido Español -->
+        <div class="content active" id="content-es">
+            <h2>Descripción General</h2>
+            <p>El Cronómetro de Llegadas es una herramienta especializada para cronometrar carreras de ciclismo, especialmente útil para eventos donde es necesario registrar los tiempos de llegada de múltiples corredores y asignar dorsales a cada tiempo registrado.</p>
+
+            <h2>Funcionalidades Principales</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Control del Cronómetro</h4>
+                    <ul>
+                        <li><strong>Iniciar/Pausar:</strong> Control completo del cronómetro principal</li>
+                        <li><strong>Registro de Cortes:</strong> Registrar tiempos de llegada con un solo clic</li>
+                        <li><strong>Reiniciar:</strong> Restablecer completamente el cronómetro y todos los datos</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Gestión de Tiempos</h4>
+                    <ul>
+                        <li><strong>Hora de Salida:</strong> Establecer y mostrar la hora exacta de inicio</li>
+                        <li><strong>Ajuste Manual:</strong> Fijar manualmente el tiempo del cronómetro</li>
+                        <li><strong>Persistencia:</strong> Los datos se guardan automáticamente</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Asignación de Dorsales</h4>
+                    <ul>
+                        <li><strong>Asignación Múltiple:</strong> Asignar múltiples dorsales a un mismo tiempo</li>
+                        <li><strong>Gestión Visual:</strong> Lista organizada de dorsales asignados</li>
+                        <li><strong>Edición Flexible:</strong> Modificar o eliminar asignaciones fácilmente</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Exportación de Datos</h4>
+                    <ul>
+                        <li><strong>Exportar Cortes:</strong> Generar archivo CSV con todos los tiempos</li>
+                        <li><strong>Exportar Dorsales:</strong> Archivo CSV específico para asignaciones</li>
+                        <li><strong>Formato Estándar:</strong> Compatible con Excel y otras aplicaciones</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Cómo Usar</h2>
+            
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Configurar Hora de Salida</strong>
+                <p>Establece la hora exacta de inicio de la carrera usando el campo "Hora de inicio" o deja que se establezca automáticamente al iniciar el cronómetro.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Iniciar el Cronómetro</strong>
+                <p>Haz clic en "Iniciar" para comenzar el cronómetro cuando dé comienzo la carrera.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Registrar Llegadas</strong>
+                <p>Cada vez que un corredor o grupo de corredores llegue a meta, haz clic en "Corte" para registrar el tiempo actual.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Asignar Dorsales</strong>
+                <p>Haz clic en cualquier tiempo registrado para asignar los números de dorsal correspondientes. Puedes asignar múltiples dorsales separados por comas.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
+                <strong>Exportar Resultados</strong>
+                <p>Al finalizar la carrera, exporta los datos para su análisis posterior usando los botones de exportación.</p>
+            </div>
+
+            <h2>Gestión de Cortes y Dorsales</h2>
+            <p>El sistema organiza los tiempos registrados en una lista donde puedes:</p>
+            <ul>
+                <li>Ver todos los cortes registrados en orden cronológico inverso (los más recientes primero)</li>
+                <li>Asignar dorsales haciendo clic en el texto "Haz clic para asignar dorsales"</li>
+                <li>Introducir múltiples dorsales separados por comas (ej: 15, 23, 47)</li>
+                <li>Ver una lista separada con todos los dorsales asignados en la pestaña "Dorsales"</li>
+                <li>Eliminar asignaciones de dorsales individuales</li>
+            </ul>
+
+            <h2>Características Avanzadas</h2>
+            <ul>
+                <li><strong>Idiomas:</strong> Soporte para Español, Catalán e Inglés</li>
+                <li><strong>Persistencia:</strong> Los datos se guardan automáticamente en el navegador</li>
+                <li><strong>Responsive:</strong> Funciona en dispositivos móviles y desktop</li>
+                <li><strong>Atajos de Teclado:</strong> Control rápido sin usar el ratón</li>
+                <li><strong>Información Completa:</strong> Incluye hora exacta, segundos con milésimas y cálculos de tiempo de llegada</li>
+            </ul>
+
+            <div class="tip-box">
+                <h4>Atajos de Teclado</h4>
+                <ul>
+                    <li><strong>Barra Espaciadora:</strong> Iniciar/Pausar el cronómetro</li>
+                    <li><strong>Tecla L:</strong> Registrar un nuevo corte (llegada)</li>
+                    <li><strong>Ctrl + R:</strong> Reiniciar el cronómetro</li>
+                    <li><strong>Doble clic en dorsales:</strong> Editar asignaciones rápidamente</li>
+                </ul>
+            </div>
+
+            <h2>Información Técnica Incluida</h2>
+            <p>Cada corte registrado contiene la siguiente información:</p>
+            <ul>
+                <li><strong>Tiempo de cronómetro:</strong> Formato legible (minutos'segundos"milésimas)</li>
+                <li><strong>Tiempo en segundos:</strong> Valor numérico preciso con tres decimales</li>
+                <li><strong>Hora exacta:</strong> Hora real del sistema cuando se registró el corte</li>
+                <li><strong>Tiempo de salida:</strong> Hora de inicio en segundos desde medianoche</li>
+                <li><strong>Tiempo de llegada:</strong> Hora exacta de llegada en segundos desde medianoche</li>
+            </ul>
+
+            <h2>Instalación como App en el Móvil</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>Para iPhone/iOS:</h4>
+                    <ol>
+                        <li>Abrir Safari y navegar a la página del cronómetro</li>
+                        <li>Tocar el icono de compartir (cuadrado con flecha hacia arriba)</li>
+                        <li>Desplazarse hacia abajo y seleccionar "Añadir a pantalla de inicio"</li>
+                        <li>Personalizar el nombre si se desea y tocar "Añadir"</li>
+                        <li>La app aparecerá en la pantalla de inicio como una aplicación nativa</li>
+                    </ol>
+                </div>
+                
+                <div class="platform">
+                    <h4>Para Android:</h4>
+                    <ol>
+                        <li>Abrir Chrome y navegar a la página del cronómetro</li>
+                        <li>Tocar el menú de tres puntos en la esquina superior derecha</li>
+                        <li>Seleccionar "Añadir a pantalla de inicio"</li>
+                        <li>Personalizar el nombre si se desea y tocar "Añadir"</li>
+                        <li>La app aparecerá en la pantalla de inicio como una aplicación nativa</li>
+                    </ol>
+                </div>
+                
+                <h3>Ventajas de instalarla como App:</h3>
+                <ul>
+                    <li>Acceso rápido directo desde la pantalla de inicio</li>
+                    <li>Funciona sin conexión a internet después de la primera carga</li>
+                    <li>Interfaz similar a una aplicación nativa</li>
+                    <li>No requiere descarga desde tiendas de aplicaciones</li>
+                </ul>
+            </div>
+
+            <a href="Crono_Llegadas.html" class="back-button">Volver al Cronómetro</a>
+        </div>
+
+        <!-- Contenido Català -->
+        <div class="content" id="content-ca">
+            <h2>Descripció General</h2>
+            <p>El Cronòmetre d'Arribades és una eina especialitzada per a cronometrar curses de ciclisme, especialment útil per a esdeveniments on cal registrar els temps d'arribada de múltiples corredors i assignar dorsals a cada temps registrat.</p>
+
+            <h2>Funcionalitats Principals</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Control del Cronòmetre</h4>
+                    <ul>
+                        <li><strong>Iniciar/Pausar:</strong> Control complet del cronòmetre principal</li>
+                        <li><strong>Registre de Talls:</strong> Registrar temps d'arribada amb un sol clic</li>
+                        <li><strong>Reiniciar:</strong> Restablir completament el cronòmetre i totes les dades</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Gestió de Temps</h4>
+                    <ul>
+                        <li><strong>Hora de Sortida:</strong> Establir i mostrar l'hora exacta d'inici</li>
+                        <li><strong>Ajust Manual:</strong> Fixar manualment el temps del cronòmetre</li>
+                        <li><strong>Persistència:</strong> Les dades es guarden automàticament</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Assignació de Dorsals</h4>
+                    <ul>
+                        <li><strong>Assignació Múltiple:</strong> Assignar múltiples dorsals a un mateix temps</li>
+                        <li><strong>Gestió Visual:</strong> Llista organitzada de dorsals assignats</li>
+                        <li><strong>Edició Flexible:</strong> Modificar o eliminar assignacions fàcilment</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Exportació de Dades</h4>
+                    <ul>
+                        <li><strong>Exportar Talls:</strong> Generar fitxer CSV amb tots els temps</li>
+                        <li><strong>Exportar Dorsals:</strong> Fitxer CSV específic per a assignacions</li>
+                        <li><strong>Format Estàndard:</strong> Compatible amb Excel i altres aplicacions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Com Utilitzar-ho</h2>
+            
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Configurar Hora de Sortida</strong>
+                <p>Estableix l'hora exacta d'inici de la cursa utilitzant el camp "Hora d'inici" o deixa que s'estableixi automàticament en iniciar el cronòmetre.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Iniciar el Cronòmetre</strong>
+                <p>Fes clic a "Iniciar" per començar el cronòmetre quan doni començament la cursa.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Registrar Arribades</strong>
+                <p>Cada vegada que un corredor o grup de corredors arribi a meta, fes clic a "Tall" per registrar el temps actual.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Assignar Dorsals</strong>
+                <p>Fes clic en qualsevol temps registrat per assignar els números de dorsal corresponents. Pots assignar múltiples dorsals separats per comes.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
+                <strong>Exportar Resultats</strong>
+                <p>En finalitzar la cursa, exporta les dades per al seu anàlisi posterior utilitzant els botons d'exportació.</p>
+            </div>
+
+            <h2>Gestió de Talls i Dorsals</h2>
+            <p>El sistema organitza els temps registrats en una llista on pots:</p>
+            <ul>
+                <li>Veure tots els talls registrats en ordre cronològic invers (els més recents primer)</li>
+                <li>Assignar dorsals fent clic en el text "Fes clic per assignar dorsals"</li>
+                <li>Introduir múltiples dorsals separats per comes (ex: 15, 23, 47)</li>
+                <li>Veure una llista separada amb tots els dorsals assignats a la pestanya "Dorsals"</li>
+                <li>Eliminar assignacions de dorsals individuals</li>
+            </ul>
+
+            <h2>Característiques Avançades</h2>
+            <ul>
+                <li><strong>Idiomes:</strong> Suport per a Espanyol, Català i Anglès</li>
+                <li><strong>Persistència:</strong> Les dades es guarden automàticament al navegador</li>
+                <li><strong>Responsive:</strong> Funciona en dispositius mòbils i desktop</li>
+                <li><strong>Dreceres de Teclat:</strong> Control ràpid sense usar el ratolí</li>
+                <li><strong>Informació Completa:</strong> Inclou hora exacta, segons amb mil·lèsimes i càlculs de temps d'arribada</li>
+            </ul>
+
+            <div class="tip-box">
+                <h4>Dreceres de Teclat</h4>
+                <ul>
+                    <li><strong>Barra d'Espai:</strong> Iniciar/Pausar el cronòmetre</li>
+                    <li><strong>Tecla L:</strong> Registrar un nou tall (arribada)</li>
+                    <li><strong>Ctrl + R:</strong> Reiniciar el cronòmetre</li>
+                    <li><strong>Doble clic a dorsals:</strong> Editar assignacions ràpidament</li>
+                </ul>
+            </div>
+
+            <h2>Informació Tècnica Inclosa</h2>
+            <p>Cada tall registrat conté la següent informació:</p>
+            <ul>
+                <li><strong>Temps de cronòmetre:</strong> Format llegible (minuts'segons"mil·lèsimes)</li>
+                <li><strong>Temps en segons:</strong> Valor numèric precís amb tres decimals</li>
+                <li><strong>Hora exacta:</strong> Hora real del sistema quan es va registrar el tall</li>
+                <li><strong>Temps de sortida:</strong> Hora d'inici en segons des de mitjanit</li>
+                <li><strong>Temps d'arribada:</strong> Hora exacta d'arribada en segons des de mitjanit</li>
+            </ul>
+
+            <h2>Instal·lació com a App al Mòbil</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>Per a iPhone/iOS:</h4>
+                    <ol>
+                        <li>Obri Safari i navegar a la pàgina del cronòmetre</li>
+                        <li>Toqui la icona de compartir (quadrat amb fletxa cap amunt)</li>
+                        <li>Desplaçar-se cap avall i seleccionar "Afegir a pantalla d'inici"</li>
+                        <li>Personalitzar el nom si es desitja i tocar "Afegir"</li>
+                        <li>L'app apareixerà a la pantalla d'inici com una aplicació nativa</li>
+                    </ol>
+                </div>
+                
+                <div class="platform">
+                    <h4>Per a Android:</h4>
+                    <ol>
+                        <li>Obri Chrome i navegar a la pàgina del cronòmetre</li>
+                        <li>Toqui el menú de tres punts a la cantonada superior dreta</li>
+                        <li>Seleccionar "Afegir a pantalla d'inici"</li>
+                        <li>Personalitzar el nom si es desitja i tocar "Afegir"</li>
+                        <li>L'app apareixerà a la pantalla d'inici com una aplicació nativa</li>
+                    </ol>
+                </div>
+                
+                <h3>Avantatges d'instal·lar-la com a App:</h3>
+                <ul>
+                    <li>Accés ràpid directe des de la pantalla d'inici</li>
+                    <li>Funciona sense connexió a internet després de la primera càrrega</li>
+                    <li>Interfície similar a una aplicació nativa</li>
+                    <li>No requereix descàrrega des de botigues d'aplicacions</li>
+                </ul>
+            </div>
+
+            <a href="Crono_Llegadas.html" class="back-button">Tornar al Cronòmetre</a>
+        </div>
+
+        <!-- Contenido English -->
+        <div class="content" id="content-en">
+            <h2>General Description</h2>
+            <p>The Arrivals Stopwatch is a specialized tool for timing cycling races, especially useful for events where it's necessary to record finish times of multiple riders and assign bib numbers to each recorded time.</p>
+
+            <h2>Main Features</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Stopwatch Control</h4>
+                    <ul>
+                        <li><strong>Start/Pause:</strong> Full control of the main stopwatch</li>
+                        <li><strong>Lap Recording:</strong> Record finish times with a single click</li>
+                        <li><strong>Reset:</strong> Completely reset the stopwatch and all data</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Time Management</h4>
+                    <ul>
+                        <li><strong>Start Time:</strong> Set and display the exact start time</li>
+                        <li><strong>Manual Adjustment:</strong> Manually set the stopwatch time</li>
+                        <li><strong>Persistence:</strong> Data is automatically saved</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Bib Number Assignment</h4>
+                    <ul>
+                        <li><strong>Multiple Assignment:</strong> Assign multiple bibs to the same time</li>
+                        <li><strong>Visual Management:</strong> Organized list of assigned bibs</li>
+                        <li><strong>Flexible Editing:</strong> Easily modify or remove assignments</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Data Export</h4>
+                    <ul>
+                        <li><strong>Export Laps:</strong> Generate CSV file with all times</li>
+                        <li><strong>Export Bibs:</strong> Specific CSV file for assignments</li>
+                        <li><strong>Standard Format:</strong> Compatible with Excel and other applications</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>How to Use</h2>
+            
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Set Start Time</strong>
+                <p>Set the exact start time of the race using the "Start time" field or let it be set automatically when starting the stopwatch.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Start the Stopwatch</strong>
+                <p>Click "Start" to begin the stopwatch when the race starts.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Record Finishes</strong>
+                <p>Each time a rider or group of riders finishes, click "Lap" to record the current time.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Assign Bib Numbers</strong>
+                <p>Click on any recorded time to assign the corresponding bib numbers. You can assign multiple bibs separated by commas.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
+                <strong>Export Results</strong>
+                <p>When the race finishes, export the data for later analysis using the export buttons.</p>
+            </div>
+
+            <h2>Lap and Bib Management</h2>
+            <p>The system organizes recorded times in a list where you can:</p>
+            <ul>
+                <li>View all recorded laps in reverse chronological order (most recent first)</li>
+                <li>Assign bibs by clicking on the "Click to assign bibs" text</li>
+                <li>Enter multiple bibs separated by commas (eg: 15, 23, 47)</li>
+                <li>View a separate list with all assigned bibs in the "Bibs" tab</li>
+                <li>Delete individual bib assignments</li>
+            </ul>
+
+            <h2>Advanced Features</h2>
+            <ul>
+                <li><strong>Languages:</strong> Support for Spanish, Catalan and English</li>
+                <li><strong>Persistence:</strong> Data is automatically saved in the browser</li>
+                <li><strong>Responsive:</strong> Works on mobile devices and desktop</li>
+                <li><strong>Keyboard Shortcuts:</strong> Quick control without using the mouse</li>
+                <li><strong>Complete Information:</strong> Includes exact time, seconds with milliseconds and arrival time calculations</li>
+            </ul>
+
+            <div class="tip-box">
+                <h4>Keyboard Shortcuts</h4>
+                <ul>
+                    <li><strong>Spacebar:</strong> Start/Pause the stopwatch</li>
+                    <li><strong>L Key:</strong> Record a new lap (finish)</li>
+                    <li><strong>Ctrl + R:</strong> Reset the stopwatch</li>
+                    <li><strong>Double click on bibs:</strong> Quickly edit assignments</li>
+                </ul>
+            </div>
+
+            <h2>Technical Information Included</h2>
+            <p>Each recorded lap contains the following information:</p>
+            <ul>
+                <li><strong>Stopwatch time:</strong> Readable format (minutes'seconds"milliseconds)</li>
+                <li><strong>Time in seconds:</strong> Precise numerical value with three decimals</li>
+                <li><strong>Exact time:</strong> Real system time when the lap was recorded</li>
+                <li><strong>Start time:</strong> Start time in seconds since midnight</li>
+                <li><strong>Finish time:</strong> Exact finish time in seconds since midnight</li>
+            </ul>
+
+            <h2>Installation as Mobile App</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>For iPhone/iOS:</h4>
+                    <ol>
+                        <li>Open Safari and navigate to the stopwatch page</li>
+                        <li>Tap the share icon (square with upward arrow)</li>
+                        <li>Scroll down and select "Add to Home Screen"</li>
+                        <li>Customize the name if desired and tap "Add"</li>
+                        <li>The app will appear on the home screen like a native app</li>
+                    </ol>
+                </div>
+                
+                <div class="platform">
+                    <h4>For Android:</h4>
+                    <ol>
+                        <li>Open Chrome and navigate to the stopwatch page</li>
+                        <li>Tap the three-dot menu in the upper right corner</li>
+                        <li>Select "Add to Home Screen"</li>
+                        <li>Customize the name if desired and tap "Add"</li>
+                        <li>The app will appear on the home screen like a native app</li>
+                    </ol>
+                </div>
+                
+                <h3>Advantages of Installing as App:</h3>
+                <ul>
+                    <li>Quick access directly from home screen</li>
+                    <li>Works offline after first load</li>
+                    <li>Interface similar to native app</li>
+                    <li>No download required from app stores</li>
+                </ul>
+            </div>
+
+            <a href="Crono_Llegadas.html" class="back-button">Back to Stopwatch</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const langButtons = document.querySelectorAll('.lang-btn');
+            const contents = document.querySelectorAll('.content');
+            const mainTitle = document.getElementById('main-title');
+            
+            const titles = {
+                'es': 'Ayuda Cronómetro de Llegadas',
+                'ca': 'Ajuda Cronòmetre d\'Arribades',
+                'en': 'Arrivals Stopwatch Help'
+            };
+            
+            langButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    
+                    // Actualizar botones activos
+                    langButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Actualizar contenido visible
+                    contents.forEach(content => content.classList.remove('active'));
+                    document.getElementById(`content-${lang}`).classList.add('active');
+                    
+                    // Actualizar título
+                    mainTitle.textContent = titles[lang];
+                });
+            });
+        });
+    </script>
+</body>
+</html>
