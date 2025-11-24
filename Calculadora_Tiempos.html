@@ -975,11 +975,23 @@
                 let prev = this.parseTimeToSeconds(this.previousInput);
                 let current;
                 
-                // Si estamos en modo tiempo, convertir el input actual a segundos
-                if (this.mode === 'time') {
-                    current = this.getTimeInSeconds();
+                // Para operaciones de porcentaje, SIEMPRE tratar el valor actual como número decimal
+                if (this.operation === '%' || this.operation === '%+') {
+                    // En operaciones de porcentaje, el valor actual debe ser un número, no tiempo
+                    if (this.mode === 'time') {
+                        // Si estamos en modo tiempo, tomar el número actual como valor decimal
+                        current = parseFloat(this.currentNumber || this.currentInput);
+                        if (isNaN(current)) current = 0;
+                    } else {
+                        current = parseFloat(this.currentInput);
+                    }
                 } else {
-                    current = this.parseTimeToSeconds(this.currentInput);
+                    // Para otras operaciones, usar la lógica normal
+                    if (this.mode === 'time') {
+                        current = this.getTimeInSeconds();
+                    } else {
+                        current = this.parseTimeToSeconds(this.currentInput);
+                    }
                 }
                 
                 let result;
@@ -1008,44 +1020,39 @@
                         break;
                     case '%':
                         result = prev * (current / 100);
-                        operationString = `${this.formatTimeForOperation(this.previousInput)} % ${this.formatTimeForOperation(this.currentInput)}`;
+                        operationString = `${this.formatTimeForOperation(this.previousInput)} % ${current}`;
                         break;
                     case '%+':
                         result = prev * (1 + current / 100);
-                        operationString = `${this.formatTimeForOperation(this.previousInput)} %+ ${this.formatTimeForOperation(this.currentInput)}`;
+                        operationString = `${this.formatTimeForOperation(this.previousInput)} %+ ${current}`;
                         break;
                     default:
                         return;
                 }
                 
-                // Formatear resultado
+                // Resto del código permanece igual...
                 let displayResult;
                 let historyResult;
                 
-                // Usar el modo de la operación para formatear el resultado
                 if (this.operationMode === 'time') {
                     displayResult = this.formatTime(result);
-                    // Mostrar conversión a segundos para cada elemento
-                    historyResult = `${this.formatTimeForHistory(this.previousInput)} + ${this.formatTimeForHistory(this.currentInput)} = ${displayResult} (${Math.round(result)}s)`;
+                    historyResult = `${operationString} = ${displayResult}`;
                 } else {
                     displayResult = result.toString();
-                    historyResult = `${this.formatTimeForOperation(this.previousInput)} + ${this.formatTimeForOperation(this.currentInput)} = ${displayResult}`;
+                    historyResult = `${operationString} = ${displayResult}`;
                 }
                 
                 this.currentInput = displayResult;
                 this.addToHistory(historyResult);
                 
-                // Guardar el resultado para operaciones posteriores
                 this.lastResult = result;
-                
                 this.operation = null;
                 this.previousInput = '';
                 this.waitingForNewInput = true;
                 this.resetTimeInput();
-                this.currentOperationElement.textContent = ''; // Limpiar línea de operación
+                this.currentOperationElement.textContent = '';
                 this.updateDisplay();
-            }
-            
+            }            
             parseTimeToSeconds(timeStr) {
                 if (typeof timeStr === 'number') return timeStr;
                 

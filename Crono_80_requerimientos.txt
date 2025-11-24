@@ -193,10 +193,12 @@ quiero ayudar al usuario a saber como funciona la aplicación, es por ello que e
 
 Para acceder a este fichero pondremos un interrogante al lado de las banderas de los idiomas y al final de la página pondremos un boton con el texto ayuda.ok
 
+quiero que al clickar al interrogante o al boton ayuda se abra el archicvo  https://rbenet71.github.io/Web/Crono_80_Ayuda.txt  ok 
+
 -----------------------------
 
 
-quiero que al clickar al interrogante o al boton ayuda se abra el archicvo  https://rbenet71.github.io/Web/Crono_80_Ayuda.txt 
+
 
 ---------------------
 
