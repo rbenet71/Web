@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayuda Calculadora de Tiempos - Ciclismo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(44, 62, 80, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+        
+        .language-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .lang-btn {
+            background: #34495e;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .lang-btn:hover {
+            background: #3498db;
+            transform: translateY(-2px);
+        }
+        
+        .lang-btn.active {
+            background: #3498db;
+        }
+        
+        .content {
+            display: none;
+        }
+        
+        .content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h2 {
+            color: #3498db;
+            margin: 30px 0 15px 0;
+            font-size: 1.8rem;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #2ecc71;
+            margin: 20px 0 10px 0;
+            font-size: 1.4rem;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: rgba(52, 73, 94, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #2ecc71;
+        }
+        
+        .feature-card h4 {
+            color: #2ecc71;
+            margin-bottom: 10px;
+        }
+        
+        .step-box {
+            background: rgba(52, 73, 94, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: #f39c12;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .tip-box {
+            background: rgba(155, 89, 182, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #9b59b6;
+        }
+        
+        .tip-box h4 {
+            color: #9b59b6;
+            margin-bottom: 10px;
+        }
+        
+        .app-install {
+            background: rgba(46, 204, 113, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2ecc71;
+        }
+        
+        .app-install h3 {
+            color: #2ecc71;
+        }
+        
+        .platform {
+            margin: 15px 0;
+        }
+        
+        .platform h4 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .back-button {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .back-button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .language-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .lang-btn {
+                width: 200px;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 id="main-title">Ayuda Calculadora de Tiempos - Ciclismo</h1>
+            <div class="language-selector">
+                <button class="lang-btn active" data-lang="es">Español</button>
+                <button class="lang-btn" data-lang="ca">Català</button>
+                <button class="lang-btn" data-lang="en">English</button>
+            </div>
+        </header>
+
+        <!-- Contenido Español -->
+        <div class="content active" id="content-es">
+            <h2>Descripción General</h2>
+            <p>La Calculadora de Tiempos para Ciclismo es una herramienta especializada diseñada para ciclistas y entrenadores que necesitan realizar cálculos precisos de tiempos, promedios y vueltas. Combina funcionalidades de calculadora estándar con operaciones específicas para deportes de resistencia.</p>
+
+            <h2>Funcionalidades Principales</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Modos de Operación</h4>
+                    <ul>
+                        <li><strong>Modo Decimal:</strong> Funciona como una calculadora convencional para cálculos matemáticos básicos</li>
+                        <li><strong>Modo Tiempo:</strong> Especializado para trabajar con horas, minutos y segundos en formato natural</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Operaciones Básicas</h4>
+                    <ul>
+                        <li><strong>Suma y Resta:</strong> Operaciones con tiempos y valores</li>
+                        <li><strong>Multiplicación y División:</strong> Cálculos con factores y valores</li>
+                        <li><strong>Porcentajes:</strong> Cálculo de porcentajes e incrementos porcentuales</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Funciones de Memoria</h4>
+                    <ul>
+                        <li><strong>M+:</strong> Suma el valor actual a la memoria</li>
+                        <li><strong>MR:</strong> Recupera el valor almacenado en memoria</li>
+                        <li><strong>MC:</strong> Limpia la memoria</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Cálculos Especializados</h4>
+                    <ul>
+                        <li><strong>Cálculo de Promedio:</strong> Calcula velocidad promedio en km/h</li>
+                        <li><strong>Número de Vueltas:</strong> Calcula cuántas vueltas caben en un tiempo objetivo</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Cómo Usar</h2>
+            
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Seleccionar Modo</strong>
+                <p>Elige entre Modo Decimal para cálculos matemáticos básicos o Modo Tiempo para trabajar con horas, minutos y segundos.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Introducir Valores</strong>
+                <p>En Modo Tiempo, utiliza los botones de Hora, Minuto y Segundo para introducir tiempos en formato natural (ej: 1h 30m 45s).</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Realizar Operaciones</strong>
+                <p>Utiliza los botones de operación (+, -, ×, ÷, %, %+) para realizar cálculos. Los resultados se mostrarán en el formato correspondiente.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Usar Funciones Especiales</strong>
+                <p>Accede a los cálculos especializados como Promedio y Número de Vueltas para análisis de rendimiento y planificación de entrenamientos.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
+                <strong>Gestionar Memoria</strong>
+                <p>Utiliza las funciones de memoria (M+, MR, MC) para almacenar y recuperar valores durante cálculos complejos.</p>
+            </div>
+
+            <h2>Ejemplos de Uso</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Cálculo de Tiempo Total</h4>
+                    <p><strong>Ejemplo:</strong> 1h 30m + 45m 30s = 2h 15m 30s</p>
+                    <p>Suma diferentes segmentos de tiempo para obtener el tiempo total de una ruta o entrenamiento.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Cálculo de Velocidad Promedio</h4>
+                    <p><strong>Ejemplo:</strong> Distancia: 50 km, Tiempo: 2h 15m → Resultado: 22.22 km/h</p>
+                    <p>Calcula la velocidad promedio basada en distancia recorrida y tiempo empleado.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Cálculo de Vueltas</h4>
+                    <p><strong>Ejemplo:</strong> Tiempo por vuelta: 8m 30s, Tiempo objetivo: 2h 30m → Resultado: 17 vueltas</p>
+                    <p>Determina cuántas vueltas completas puedes realizar dentro de un tiempo límite.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Incremento Porcentual</h4>
+                    <p><strong>Ejemplo:</strong> Tiempo base: 1h 20m, Incremento: 10% (%+) → Resultado: 1h 28m</p>
+                    <p>Aplica incrementos porcentuales a tiempos base para planificar mejoras.</p>
+                </div>
+            </div>
+
+            <h2>Características Avanzadas</h2>
+            <ul>
+                <li><strong>Historial de Operaciones:</strong> Mantiene un registro de los últimos cálculos realizados</li>
+                <li><strong>Idiomas:</strong> Soporte para Español, Catalán e Inglés</li>
+                <li><strong>Persistencia:</strong> Recuerda el idioma seleccionado y el contador de visitas</li>
+                <li><strong>Responsive:</strong> Funciona en dispositivos móviles y desktop</li>
+                <li><strong>Instalable:</strong> Puede instalarse como aplicación en dispositivos móviles</li>
+            </ul>
+
+            <div class="tip-box">
+                <h4>Consejos Prácticos</h4>
+                <ul>
+                    <li>Para sumar tiempos, usa el modo tiempo y alterna entre horas, minutos y segundos</li>
+                    <li>Para cálculos complejos, combina el modo decimal con funciones de memoria</li>
+                    <li>Usa la función de número de vueltas para planificar sesiones de entrenamiento</li>
+                    <li>Utiliza el cálculo de promedio para evaluar ritmos y rendimiento</li>
+                </ul>
+            </div>
+
+            <h2>Instalación como App en el Móvil</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>Para iPhone/iOS:</h4>
+                    <ol>
+                        <li>Abrir Safari y navegar a la página de la calculadora</li>
+                        <li>Tocar el icono de compartir (cuadrado con flecha hacia arriba)</li>
+                        <li>Desplazarse hacia abajo y seleccionar "Añadir a pantalla de inicio"</li>
+                        <li>Personalizar el nombre si se desea y tocar "Añadir"</li>
+                        <li>La app aparecerá en la pantalla de inicio como una aplicación nativa</li>
+                    </ol>
+                </div>
+                
+                <div class="platform">
+                    <h4>Para Android:</h4>
+                    <ol>
+                        <li>Abrir Chrome y navegar a la página de la calculadora</li>
+                        <li>Tocar el menú de tres puntos en la esquina superior derecha</li>
+                        <li>Seleccionar "Añadir a pantalla de inicio"</li>
+                        <li>Personalizar el nombre si se desea y tocar "Añadir"</li>
+                        <li>La app aparecerá en la pantalla de inicio como una aplicación nativa</li>
+                    </ol>
+                </div>
+                
+                <h3>Ventajas de instalarla como App:</h3>
+                <ul>
+                    <li>Acceso rápido directo desde la pantalla de inicio</li>
+                    <li>Funciona sin conexión a internet después de la primera carga</li>
+                    <li>Interfaz similar a una aplicación nativa</li>
+                    <li>No requiere descarga desde tiendas de aplicaciones</li>
+                </ul>
+            </div>
+
+            <a href="Calculadora_Tiempos.html" class="back-button">Volver a la Calculadora</a>
+        </div>
+
+        <!-- Contenido Català -->
+        <div class="content" id="content-ca">
+            <h2>Descripció General</h2>
+            <p>La Calculadora de Temps per a Ciclisme és una eina especialitzada dissenyada per a ciclistes i entrenadors que necessiten realitzar càlculs precisos de temps, mitjanes i voltes. Combina funcionalitats de calculadora estàndard amb operacions específiques per a esports de resistència.</p>
+
+            <h2>Funcionalitats Principals</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Modes d'Operació</h4>
+                    <ul>
+                        <li><strong>Mode Decimal:</strong> Funciona com una calculadora convencional per a càlculs matemàtics bàsics</li>
+                        <li><strong>Mode Temps:</strong> Especialitzat per treballar amb hores, minuts i segons en format natural</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Operacions Bàsiques</h4>
+                    <ul>
+                        <li><strong>Suma i Resta:</strong> Operacions amb temps i valors</li>
+                        <li><strong>Multiplicació i Divisió:</strong> Càlculs amb factors i valors</li>
+                        <li><strong>Percentatges:</strong> Càlcul de percentatges i increments percentuals</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Funcions de Memòria</h4>
+                    <ul>
+                        <li><strong>M+:</strong> Suma el valor actual a la memòria</li>
+                        <li><strong>MR:</strong> Recupera el valor emmagatzemat a la memòria</li>
+                        <li><strong>MC:</strong> Neteja la memòria</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Càlculs Especialitzats</h4>
+                    <ul>
+                        <li><strong>Càlcul de Promig:</strong> Calcula velocitat mitjana en km/h</li>
+                        <li><strong>Nombre de Voltes:</strong> Calcula quantes voltes caben en un temps objectiu</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Com Utilitzar-ho</h2>
+            
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Seleccionar Mode</strong>
+                <p>Tria entre Mode Decimal per a càlculs matemàtics bàsics o Mode Temps per a treballar amb hores, minuts i segons.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Introduir Valors</strong>
+                <p>En Mode Temps, utilitza els botons d'Hora, Minut i Segon per introduir temps en format natural (ex: 1h 30m 45s).</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Realitzar Operacions</strong>
+                <p>Utilitza els botons d'operació (+, -, ×, ÷, %, %+) per realitzar càlculs. Els resultats es mostraran en el format corresponent.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Utilitzar Funcions Especials</strong>
+                <p>Accedeix als càlculs especialitzats com Promig i Nombre de Voltes per a anàlisi de rendiment i planificació d'entrenaments.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
+                <strong>Gestionar Memòria</strong>
+                <p>Utilitza les funcions de memòria (M+, MR, MC) per emmagatzemar i recuperar valors durant càlculs complexos.</p>
+            </div>
+
+            <h2>Exemples d'Ús</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Càlcul de Temps Total</h4>
+                    <p><strong>Exemple:</strong> 1h 30m + 45m 30s = 2h 15m 30s</p>
+                    <p>Suma diferents segments de temps per obtenir el temps total d'una ruta o entrenament.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Càlcul de Velocitat Mitjana</h4>
+                    <p><strong>Exemple:</strong> Distància: 50 km, Temps: 2h 15m → Resultat: 22.22 km/h</p>
+                    <p>Calcula la velocitat mitjana basada en distància recorreguda i temps emprat.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Càlcul de Voltes</h4>
+                    <p><strong>Exemple:</strong> Temps per volta: 8m 30s, Temps objectiu: 2h 30m → Resultat: 17 voltes</p>
+                    <p>Determina quantes voltes completes pots realitzar dins d'un temps límit.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Increment Percentual</h4>
+                    <p><strong>Exemple:</strong> Temps base: 1h 20m, Increment: 10% (%+) → Resultat: 1h 28m</p>
+                    <p>Aplica increments percentuals a temps base per planificar millores.</p>
+                </div>
+            </div>
+
+            <h2>Característiques Avançades</h2>
+            <ul>
+                <li><strong>Historial d'Operacions:</strong> Manté un registre dels últims càlculs realitzats</li>
+                <li><strong>Idiomes:</strong> Suport per a Espanyol, Català i Anglès</li>
+                <li><strong>Persistència:</strong> Recorda l'idioma seleccionat i el comptador de visites</li>
+                <li><strong>Responsive:</strong> Funciona en dispositius mòbils i ordinadors</li>
+                <li><strong>Instal·lable:</strong> Es pot instal·lar com a aplicació en dispositius mòbils</li>
+            </ul>
+
+            <div class="tip-box">
+                <h4>Consells Pràctics</h4>
+                <ul>
+                    <li>Per sumar temps, utilitza el mode temps i alterna entre hores, minuts i segons</li>
+                    <li>Per càlculs complexos, combina el mode decimal amb funcions de memòria</li>
+                    <li>Utilitza la funció de nombre de voltes per planificar sessions d'entrenament</li>
+                    <li>Utilitza el càlcul de mitjana per avaluar ritmes i rendiment</li>
+                </ul>
+            </div>
+
+            <h2>Instal·lació com a App al Mòbil</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>Per a iPhone/iOS:</h4>
+                    <ol>
+                        <li>Obri Safari i navegar a la pàgina de la calculadora</li>
+                        <li>Toqui la icona de compartir (quadrat amb fletxa cap amunt)</li>
+                        <li>Desplaçar-se cap avall i seleccionar "Afegir a pantalla d'inici"</li>
+                        <li>Personalitzar el nom si es desitja i tocar "Afegir"</li>
+                        <li>L'app apareixerà a la pantalla d'inici com una aplicació nativa</li>
+                    </ol>
+                </div>
+                
+                <div class="platform">
+                    <h4>Per a Android:</h4>
+                    <ol>
+                        <li>Obri Chrome i navegar a la pàgina de la calculadora</li>
+                        <li>Toqui el menú de tres punts a la cantonada superior dreta</li>
+                        <li>Seleccionar "Afegir a pantalla d'inici"</li>
+                        <li>Personalitzar el nom si es desitja i tocar "Afegir"</li>
+                        <li>L'app apareixerà a la pantalla d'inici com una aplicació nativa</li>
+                    </ol>
+                </div>
+                
+                <h3>Avantatges d'instal·lar-la com a App:</h3>
+                <ul>
+                    <li>Accés ràpid directe des de la pantalla d'inici</li>
+                    <li>Funciona sense connexió a internet després de la primera càrrega</li>
+                    <li>Interfície similar a una aplicació nativa</li>
+                    <li>No requereix descàrrega des de botigues d'aplicacions</li>
+                </ul>
+            </div>
+
+            <a href="Calculadora_Tiempos.html" class="back-button">Tornar a la Calculadora</a>
+        </div>
+
+        <!-- Contenido English -->
+        <div class="content" id="content-en">
+            <h2>General Description</h2>
+            <p>The Time Calculator for Cycling is a specialized tool designed for cyclists and coaches who need to perform precise calculations of times, averages, and laps. It combines standard calculator functionalities with specific operations for endurance sports.</p>
+
+            <h2>Main Features</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Operation Modes</h4>
+                    <ul>
+                        <li><strong>Decimal Mode:</strong> Works as a conventional calculator for basic mathematical calculations</li>
+                        <li><strong>Time Mode:</strong> Specialized for working with hours, minutes, and seconds in natural format</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Basic Operations</h4>
+                    <ul>
+                        <li><strong>Addition and Subtraction:</strong> Operations with times and values</li>
+                        <li><strong>Multiplication and Division:</strong> Calculations with factors and values</li>
+                        <li><strong>Percentages:</strong> Calculation of percentages and percentage increases</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Memory Functions</h4>
+                    <ul>
+                        <li><strong>M+:</strong> Adds current value to memory</li>
+                        <li><strong>MR:</strong> Recalls value stored in memory</li>
+                        <li><strong>MC:</strong> Clears memory</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Specialized Calculations</h4>
+                    <ul>
+                        <li><strong>Average Calculation:</strong> Calculates average speed in km/h</li>
+                        <li><strong>Number of Laps:</strong> Calculates how many laps fit in a target time</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>How to Use</h2>
+            
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Select Mode</strong>
+                <p>Choose between Decimal Mode for basic mathematical calculations or Time Mode to work with hours, minutes, and seconds.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Enter Values</strong>
+                <p>In Time Mode, use the Hour, Minute, and Second buttons to enter times in natural format (ex: 1h 30m 45s).</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Perform Operations</strong>
+                <p>Use the operation buttons (+, -, ×, ÷, %, %+) to perform calculations. Results will be displayed in the appropriate format.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Use Special Functions</strong>
+                <p>Access specialized calculations like Average and Number of Laps for performance analysis and training planning.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
+                <strong>Manage Memory</strong>
+                <p>Use memory functions (M+, MR, MC) to store and retrieve values during complex calculations.</p>
+            </div>
+
+            <h2>Usage Examples</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Total Time Calculation</h4>
+                    <p><strong>Example:</strong> 1h 30m + 45m 30s = 2h 15m 30s</p>
+                    <p>Add different time segments to get the total time of a route or training session.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Average Speed Calculation</h4>
+                    <p><strong>Example:</strong> Distance: 50 km, Time: 2h 15m → Result: 22.22 km/h</p>
+                    <p>Calculate average speed based on distance covered and time spent.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Lap Calculation</h4>
+                    <p><strong>Example:</strong> Time per lap: 8m 30s, Target time: 2h 30m → Result: 17 laps</p>
+                    <p>Determine how many complete laps you can perform within a time limit.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Percentage Increase</h4>
+                    <p><strong>Example:</strong> Base time: 1h 20m, Increase: 10% (%+) → Result: 1h 28m</p>
+                    <p>Apply percentage increases to base times to plan improvements.</p>
+                </div>
+            </div>
+
+            <h2>Advanced Features</h2>
+            <ul>
+                <li><strong>Operation History:</strong> Keeps a record of recent calculations performed</li>
+                <li><strong>Languages:</strong> Support for Spanish, Catalan and English</li>
+                <li><strong>Persistence:</strong> Remembers selected language and visit counter</li>
+                <li><strong>Responsive:</strong> Works on mobile devices and desktop computers</li>
+                <li><strong>Installable:</strong> Can be installed as an app on mobile devices</li>
+            </ul>
+
+            <div class="tip-box">
+                <h4>Practical Tips</h4>
+                <ul>
+                    <li>To add times, use time mode and alternate between hours, minutes, and seconds</li>
+                    <li>For complex calculations, combine decimal mode with memory functions</li>
+                    <li>Use the lap count function to plan training sessions</li>
+                    <li>Use average calculation to evaluate paces and performance</li>
+                </ul>
+            </div>
+
+            <h2>Installation as Mobile App</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>For iPhone/iOS:</h4>
+                    <ol>
+                        <li>Open Safari and navigate to the calculator page</li>
+                        <li>Tap the share icon (square with upward arrow)</li>
+                        <li>Scroll down and select "Add to Home Screen"</li>
+                        <li>Customize the name if desired and tap "Add"</li>
+                        <li>The app will appear on the home screen like a native app</li>
+                    </ol>
+                </div>
+                
+                <div class="platform">
+                    <h4>For Android:</h4>
+                    <ol>
+                        <li>Open Chrome and navigate to the calculator page</li>
+                        <li>Tap the three-dot menu in the upper right corner</li>
+                        <li>Select "Add to Home Screen"</li>
+                        <li>Customize the name if desired and tap "Add"</li>
+                        <li>The app will appear on the home screen like a native app</li>
+                    </ol>
+                </div>
+                
+                <h3>Advantages of Installing as App:</h3>
+                <ul>
+                    <li>Quick access directly from home screen</li>
+                    <li>Works offline after first load</li>
+                    <li>Interface similar to native app</li>
+                    <li>No download required from app stores</li>
+                </ul>
+            </div>
+
+            <a href="Calculadora_Tiempos.html" class="back-button">Back to Calculator</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const langButtons = document.querySelectorAll('.lang-btn');
+            const contents = document.querySelectorAll('.content');
+            const mainTitle = document.getElementById('main-title');
+            
+            const titles = {
+                'es': 'Ayuda Calculadora de Tiempos - Ciclismo',
+                'ca': 'Ajuda Calculadora de Temps - Ciclisme',
+                'en': 'Time Calculator Help - Cycling'
+            };
+            
+            langButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    
+                    // Actualizar botones activos
+                    langButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Actualizar contenido visible
+                    contents.forEach(content => content.classList.remove('active'));
+                    document.getElementById(`content-${lang}`).classList.add('active');
+                    
+                    // Actualizar título
+                    mainTitle.textContent = titles[lang];
+                });
+            });
+        });
+    </script>
+</body>
+</html>

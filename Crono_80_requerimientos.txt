@@ -212,6 +212,8 @@ Quiero añadir un botón despues de Retirar corredor, que sea DNF-Retirado, y qu
 
 Al crear el excel que el caracter de separacion sea el ;, el boton de otro color que no se ve ahora, y que la exportación sea en UTF-8 y ordenado descendete por vuelta y luego ascendete de tiempo
 
+ayuda por idiomas
+
 -----------------------------
 
 
@@ -225,4 +227,3 @@ se puede poner al lado del texto de copyright un numero que sea el numero de per
 
 estar actualizado sobre los cambios realizados- Actualizaciones deja tu email y comentarios y que me envie un email con ese contacto y comentario
 
-ayuda por idiomas
