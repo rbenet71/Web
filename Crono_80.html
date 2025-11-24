@@ -272,6 +272,10 @@
             background-color: var(--warning-color);
         }
         
+        .btn-dnf {
+            background-color: #d35400;
+        }
+        
         .btn-reset {
             background-color: var(--danger-color);
         }
@@ -714,6 +718,7 @@
         <div class="main-controls">
             <button class="btn-first" id="btn-first">Paso Primer Corredor</button>
             <button class="btn-withdraw" id="btn-withdraw">Retirar Corredor</button>
+            <button class="btn-dnf" id="btn-dnf">DNF-Retirado</button>
         </div>
         
         <div class="info-panel">
@@ -786,6 +791,21 @@
             <div class="modal-buttons">
                 <button class="btn-reset" id="cancel-withdraw">Cancelar</button>
                 <button class="btn-withdraw" id="confirm-withdraw">Confirmar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Nuevo modal para DNF -->
+    <div class="modal" id="dnf-modal">
+        <div class="modal-content">
+            <h3 id="dnf-modal-title">DNF - Retirado</h3>
+            <div class="form-group">
+                <label id="dnf-dorsal-label" for="dnf-dorsal-input">Número(s) de Dorsal (separados por comas)</label>
+                <input type="text" id="dnf-dorsal-input" placeholder="Ej: 123, 456, 789">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-reset" id="cancel-dnf">Cancelar</button>
+                <button class="btn-dnf" id="confirm-dnf">Confirmar</button>
             </div>
         </div>
     </div>
@@ -974,6 +994,7 @@
                 setTimeButton: "Fijar Tiempo Crono",
                 firstRiderButton: "Paso Primer Corredor",
                 withdrawButton: "Retirar Corredor",
+                dnfButton: "DNF-Retirado",
                 resetButton: "Reiniciar Cronómetro",
                 exportButton: "Exportar a Excel",
                 newRaceButton: "Nueva Carrera",
@@ -983,6 +1004,8 @@
                 // Modales
                 withdrawModalTitle: "Retirar Corredor",
                 withdrawDorsalLabel: "Número(s) de Dorsal (separados por comas)",
+                dnfModalTitle: "DNF - Retirado",
+                dnfDorsalLabel: "Número(s) de Dorsal (separados por comas)",
                 resetModalTitle: "Confirmar Reinicio",
                 resetModalText: "¿Estás seguro de que quieres reiniciar el cronómetro? Se perderán todos los datos.",
                 timeModalTitle: "Fijar Tiempo del Cronómetro",
@@ -1044,6 +1067,7 @@
                 setTimeButton: "Fixar Temps Crono",
                 firstRiderButton: "Pas Primer Corredor",
                 withdrawButton: "Retirar Corredor",
+                dnfButton: "DNF-Retirat",
                 resetButton: "Reiniciar Cronòmetre",
                 exportButton: "Exportar a Excel",
                 newRaceButton: "Nova Cursa",
@@ -1053,6 +1077,8 @@
                 // Modales
                 withdrawModalTitle: "Retirar Corredor",
                 withdrawDorsalLabel: "Número(s) de Dorsal (separats per comes)",
+                dnfModalTitle: "DNF - Retirat",
+                dnfDorsalLabel: "Número(s) de Dorsal (separats per comes)",
                 resetModalTitle: "Confirmar Reinici",
                 resetModalText: "¿Estàs segur que vols reiniciar el cronòmetre? Es perdran totes les dades.",
                 timeModalTitle: "Fixar Temps del Cronòmetre",
@@ -1114,6 +1140,7 @@
                 setTimeButton: "Set Stopwatch Time",
                 firstRiderButton: "First Rider Pass",
                 withdrawButton: "Withdraw Rider",
+                dnfButton: "DNF-Withdrawn",
                 resetButton: "Reset Stopwatch",
                 exportButton: "Export to Excel",
                 newRaceButton: "New Race",
@@ -1123,6 +1150,8 @@
                 // Modales
                 withdrawModalTitle: "Withdraw Rider",
                 withdrawDorsalLabel: "Bib Number(s) (separated by commas)",
+                dnfModalTitle: "DNF - Withdrawn",
+                dnfDorsalLabel: "Bib Number(s) (separated by commas)",
                 resetModalTitle: "Confirm Reset",
                 resetModalText: "Are you sure you want to reset the stopwatch? All data will be lost.",
                 timeModalTitle: "Set Stopwatch Time",
@@ -1192,6 +1221,7 @@
         const btnSetTime = document.getElementById('btn-set-time');
         const btnFirst = document.getElementById('btn-first');
         const btnWithdraw = document.getElementById('btn-withdraw');
+        const btnDnf = document.getElementById('btn-dnf');
         const btnReset = document.getElementById('btn-reset');
         const btnExport = document.getElementById('btn-export');
         const btnNewRace = document.getElementById('btn-new-race');
@@ -1220,6 +1250,7 @@
         
         // Modales
         const withdrawModal = document.getElementById('withdraw-modal');
+        const dnfModal = document.getElementById('dnf-modal');
         const resetModal = document.getElementById('reset-modal');
         const timeModal = document.getElementById('time-modal');
         const newRaceModal = document.getElementById('new-race-modal');
@@ -1251,6 +1282,7 @@
             btnSetTime.textContent = t.setTimeButton;
             btnFirst.textContent = t.firstRiderButton;
             btnWithdraw.textContent = t.withdrawButton;
+            btnDnf.textContent = t.dnfButton;
             btnReset.textContent = t.resetButton;
             btnExport.textContent = t.exportButton;
             btnNewRace.textContent = t.newRaceButton;
@@ -1263,6 +1295,8 @@
             // Actualizar modales
             document.getElementById('withdraw-modal-title').textContent = t.withdrawModalTitle;
             document.getElementById('withdraw-dorsal-label').textContent = t.withdrawDorsalLabel;
+            document.getElementById('dnf-modal-title').textContent = t.dnfModalTitle;
+            document.getElementById('dnf-dorsal-label').textContent = t.dnfDorsalLabel;
             document.getElementById('reset-modal-title').textContent = t.resetModalTitle;
             document.getElementById('reset-modal-text').textContent = t.resetModalText;
             document.getElementById('time-modal-title').textContent = t.timeModalTitle;
@@ -1282,6 +1316,8 @@
             // Actualizar botones de modales
             document.getElementById('cancel-withdraw').textContent = t.cancelButton;
             document.getElementById('confirm-withdraw').textContent = t.confirmButton;
+            document.getElementById('cancel-dnf').textContent = t.cancelButton;
+            document.getElementById('confirm-dnf').textContent = t.confirmButton;
             document.getElementById('cancel-reset').textContent = t.cancelButton;
             document.getElementById('confirm-reset').textContent = t.confirmButton;
             document.getElementById('cancel-time').textContent = t.cancelButton;
@@ -1302,6 +1338,7 @@
             // Actualizar placeholders
             document.getElementById('race-name-input').placeholder = t.raceNamePlaceholder;
             document.getElementById('dorsal-input').placeholder = t.dorsalPlaceholder;
+            document.getElementById('dnf-dorsal-input').placeholder = t.dorsalPlaceholder;
             
             // Actualizar selector de carrera
             const firstOption = raceSelector.querySelector('option');
@@ -1338,6 +1375,7 @@
             btnSetTime.disabled = !hasRace;
             btnFirst.disabled = !hasRace;
             btnWithdraw.disabled = !hasRace;
+            btnDnf.disabled = !hasRace;
             btnReset.disabled = !hasRace;
             btnExport.disabled = !hasRace;
             btnDeleteRace.disabled = !hasRace;
@@ -1443,6 +1481,7 @@
             btnSetTime.addEventListener('click', openTimeModal);
             btnFirst.addEventListener('click', recordLap);
             btnWithdraw.addEventListener('click', openWithdrawModal);
+            btnDnf.addEventListener('click', openDnfModal);
             btnReset.addEventListener('click', openResetModal);
             btnExport.addEventListener('click', exportToExcel);
             btnNewRace.addEventListener('click', openNewRaceModal);
@@ -1484,6 +1523,8 @@
         function setupModalEvents() {
             document.getElementById('cancel-withdraw').addEventListener('click', closeWithdrawModal);
             document.getElementById('confirm-withdraw').addEventListener('click', confirmWithdraw);
+            document.getElementById('cancel-dnf').addEventListener('click', closeDnfModal);
+            document.getElementById('confirm-dnf').addEventListener('click', confirmDnf);
             document.getElementById('cancel-reset').addEventListener('click', closeResetModal);
             document.getElementById('confirm-reset').addEventListener('click', confirmReset);
             document.getElementById('cancel-time').addEventListener('click', closeTimeModal);
@@ -2002,7 +2043,7 @@
                 riderInfo.appendChild(dorsal);
                 
                 const lap = document.createElement('span');
-                lap.textContent = 'Vuelta ' + rider.lap;
+                lap.textContent = rider.lap === 0 ? 'DNF' : 'Vuelta ' + rider.lap;
                 riderInfo.appendChild(lap);
                 
                 const time = document.createElement('span');
@@ -2096,6 +2137,43 @@
             updateWithdrawnList();
             updateTabCounts();
             closeWithdrawModal();
+            saveCurrentRace();
+        }
+
+        // Funciones para DNF
+        function openDnfModal() {
+            if (!isRaceSelected()) {
+                alert(translations[currentLanguage].noRaceSelected);
+                return;
+            }
+            dnfModal.style.display = 'flex';
+        }
+
+        function closeDnfModal() {
+            dnfModal.style.display = 'none';
+            document.getElementById('dnf-dorsal-input').value = '';
+        }
+
+        function confirmDnf() {
+            if (!isRaceSelected()) return;
+            
+            const dorsalInput = document.getElementById('dnf-dorsal-input').value.trim();
+            if (!dorsalInput) return;
+            
+            const dorsals = dorsalInput.split(',').map(d => d.trim()).filter(d => d);
+            
+            dorsals.forEach(dorsal => {
+                withdrawnRiders.push({
+                    dorsal: dorsal,
+                    lap: 0, // Vuelta 0 para DNF
+                    time: currentTime,
+                    withdrawalTime: new Date()
+                });
+            });
+            
+            updateWithdrawnList();
+            updateTabCounts();
+            closeDnfModal();
             saveCurrentRace();
         }
 
@@ -2335,7 +2413,8 @@
             csvContent += "Dorsal,Vuelta retirada,Tiempo retirada,Hora retirada\n";
             
             withdrawnRiders.forEach(rider => {
-                csvContent += rider.dorsal + "," + rider.lap + "," + formatTime(rider.time, true) + "," + new Date(rider.withdrawalTime).toLocaleTimeString() + "\n";
+                const lapText = rider.lap === 0 ? "DNF" : rider.lap;
+                csvContent += rider.dorsal + "," + lapText + "," + formatTime(rider.time, true) + "," + new Date(rider.withdrawalTime).toLocaleTimeString() + "\n";
             });
             
             const encodedUri = encodeURI(csvContent);

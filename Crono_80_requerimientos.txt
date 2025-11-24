@@ -198,17 +198,27 @@ quiero que al clickar al interrogante o al boton ayuda se abra el archicvo  http
 cuando el tiempo del cronmetro supere Tiempo Límite Actual el fondo del crono en lugar de ser negro que sea rojo ya que no lo puedes hacer pon un texto debajo del crono que diga elimanar corredor, cuando vuelva a pasar el primer corredor elimina este texto ok 
 
 que al lado Tiempo Primera Vuelta haya tambien un lapiz que nos lleve a la opción de modificar este tiempo y al hacerlo volver a calcular cual es el 80% ok
+
+Ahora hay que arreglar otro detalle en tiempos del primer corredor y lista de retirados hay un lapiz para editar los tiempos y vuelta pero al pulsar no hace nada ok
+
+solo se de poder borrar el ultimo paso del primer corredor ok
+
+eliminar por Retirar ok
+
+activar la funciona de varios idiomas ok 
 -----------------------------
 
 
-
+Al recargar la página el crono se para y no queda en movimiento
 
 ---------------------
 
 
 
+corredores retirados
 
-Al recargar la página el crono se para y no queda en movimiento
+
+
 
 se puede poner al lado del texto de copyright un numero que sea el numero de personas que han visitado esta pàgina? no funciona, siempre es 1
 
