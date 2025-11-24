@@ -621,6 +621,15 @@
             transform: translateX(26px);
         }
         
+        .edit-time-inputs {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .edit-time-inputs .form-group {
+            flex: 1;
+        }
+        
         @media (max-width: 768px) {
             .chrono-section {
                 flex-direction: column;
@@ -766,7 +775,7 @@
         </footer>
     </div>
     
-    <!-- Modales -->
+    <!-- Modales existentes -->
     <div class="modal" id="withdraw-modal">
         <div class="modal-content">
             <h3 id="withdraw-modal-title">Retirar Corredor</h3>
@@ -878,6 +887,67 @@
         </div>
     </div>
 
+    <!-- Nuevos modales para edición -->
+    <div class="modal" id="edit-lap-time-modal">
+        <div class="modal-content">
+            <h3 id="edit-lap-time-title">Editar Tiempo de Vuelta</h3>
+            <div class="form-group">
+                <label for="edit-lap-number-input">Número de Vuelta</label>
+                <input type="number" id="edit-lap-number-input" min="1" value="1" readonly>
+            </div>
+            <div class="edit-time-inputs">
+                <div class="form-group">
+                    <label for="edit-lap-minutes-input">Minutos</label>
+                    <input type="number" id="edit-lap-minutes-input" min="0" max="59" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="edit-lap-seconds-input">Segundos</label>
+                    <input type="number" id="edit-lap-seconds-input" min="0" max="59" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="edit-lap-milliseconds-input">Milisegundos</label>
+                    <input type="number" id="edit-lap-milliseconds-input" min="0" max="999" value="0">
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-reset" id="cancel-edit-lap-time">Cancelar</button>
+                <button class="btn-modify" id="confirm-edit-lap-time">Modificar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="edit-rider-modal">
+        <div class="modal-content">
+            <h3 id="edit-rider-title">Editar Corredor Retirado</h3>
+            <div class="form-group">
+                <label for="edit-rider-dorsal-input">Número de Dorsal</label>
+                <input type="text" id="edit-rider-dorsal-input">
+            </div>
+            <div class="form-group">
+                <label for="edit-rider-lap-input">Vuelta de Retirada</label>
+                <input type="number" id="edit-rider-lap-input" min="1" value="1">
+            </div>
+            <div class="edit-time-inputs">
+                <div class="form-group">
+                    <label for="edit-rider-minutes-input">Minutos</label>
+                    <input type="number" id="edit-rider-minutes-input" min="0" max="59" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="edit-rider-seconds-input">Segundos</label>
+                    <input type="number" id="edit-rider-seconds-input" min="0" max="59" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="edit-rider-milliseconds-input">Milisegundos</label>
+                    <input type="number" id="edit-rider-milliseconds-input" min="0" max="999" value="0">
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-reset" id="cancel-edit-rider">Cancelar</button>
+                <button class="btn-modify" id="confirm-edit-rider">Modificar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Variables globales
         let startTime = 0;
@@ -940,6 +1010,8 @@
         const deleteRaceModal = document.getElementById('delete-race-modal');
         const stopChronoModal = document.getElementById('stop-chrono-modal');
         const editFirstLapModal = document.getElementById('edit-first-lap-modal');
+        const editLapTimeModal = document.getElementById('edit-lap-time-modal');
+        const editRiderModal = document.getElementById('edit-rider-modal');
 
         // Función para verificar si hay una carrera seleccionada
         function isRaceSelected() {
@@ -1113,6 +1185,12 @@
             document.getElementById('confirm-stop-chrono').addEventListener('click', confirmStopChrono);
             document.getElementById('cancel-edit-first-lap').addEventListener('click', closeEditFirstLapModal);
             document.getElementById('confirm-edit-first-lap').addEventListener('click', confirmEditFirstLap);
+            
+            // Nuevos event listeners para edición
+            document.getElementById('cancel-edit-lap-time').addEventListener('click', closeEditLapTimeModal);
+            document.getElementById('confirm-edit-lap-time').addEventListener('click', confirmEditLapTime);
+            document.getElementById('cancel-edit-rider').addEventListener('click', closeEditRiderModal);
+            document.getElementById('confirm-edit-rider').addEventListener('click', confirmEditRider);
         }
 
         // Funciones para cargar y gestionar carreras
@@ -1370,6 +1448,111 @@
             }
         }
 
+        // Funciones para editar tiempos de vuelta
+        function openEditLapTimeModal(lapNumber) {
+            if (!isRaceSelected()) {
+                alert('Debe seleccionar una carrera primero');
+                return;
+            }
+            
+            const lapTime = currentLapTimes[lapNumber];
+            if (!lapTime) return;
+            
+            currentEditingLap = lapNumber;
+            
+            const time = new Date(lapTime);
+            document.getElementById('edit-lap-number-input').value = lapNumber;
+            document.getElementById('edit-lap-minutes-input').value = time.getUTCMinutes();
+            document.getElementById('edit-lap-seconds-input').value = time.getUTCSeconds();
+            document.getElementById('edit-lap-milliseconds-input').value = time.getUTCMilliseconds();
+            
+            editLapTimeModal.style.display = 'flex';
+        }
+
+        function closeEditLapTimeModal() {
+            editLapTimeModal.style.display = 'none';
+            currentEditingLap = null;
+        }
+
+        function confirmEditLapTime() {
+            if (!isRaceSelected() || !currentEditingLap) return;
+            
+            const minutes = parseInt(document.getElementById('edit-lap-minutes-input').value) || 0;
+            const seconds = parseInt(document.getElementById('edit-lap-seconds-input').value) || 0;
+            const milliseconds = parseInt(document.getElementById('edit-lap-milliseconds-input').value) || 0;
+            
+            const newTime = (minutes * 60 + seconds) * 1000 + milliseconds;
+            
+            // Actualizar el tiempo de la vuelta
+            currentLapTimes[currentEditingLap] = newTime;
+            
+            // Si es la primera vuelta, actualizar firstLapTime
+            if (currentEditingLap === 1) {
+                firstLapTime = newTime;
+            }
+            
+            updateDisplay();
+            updateLapTimesList();
+            closeEditLapTimeModal();
+            saveCurrentRace();
+        }
+
+        // Funciones para editar corredores retirados
+        function openEditRiderModal(riderIndex) {
+            if (!isRaceSelected()) {
+                alert('Debe seleccionar una carrera primero');
+                return;
+            }
+            
+            const rider = withdrawnRiders[riderIndex];
+            if (!rider) return;
+            
+            currentEditingRiderIndex = riderIndex;
+            
+            const time = new Date(rider.time);
+            document.getElementById('edit-rider-dorsal-input').value = rider.dorsal;
+            document.getElementById('edit-rider-lap-input').value = rider.lap;
+            document.getElementById('edit-rider-minutes-input').value = time.getUTCMinutes();
+            document.getElementById('edit-rider-seconds-input').value = time.getUTCSeconds();
+            document.getElementById('edit-rider-milliseconds-input').value = time.getUTCMilliseconds();
+            
+            editRiderModal.style.display = 'flex';
+        }
+
+        function closeEditRiderModal() {
+            editRiderModal.style.display = 'none';
+            currentEditingRiderIndex = null;
+        }
+
+        function confirmEditRider() {
+            if (!isRaceSelected() || currentEditingRiderIndex === null) return;
+            
+            const dorsal = document.getElementById('edit-rider-dorsal-input').value.trim();
+            const lap = parseInt(document.getElementById('edit-rider-lap-input').value) || 1;
+            const minutes = parseInt(document.getElementById('edit-rider-minutes-input').value) || 0;
+            const seconds = parseInt(document.getElementById('edit-rider-seconds-input').value) || 0;
+            const milliseconds = parseInt(document.getElementById('edit-rider-milliseconds-input').value) || 0;
+            
+            if (!dorsal) {
+                alert('El número de dorsal es obligatorio');
+                return;
+            }
+            
+            const newTime = (minutes * 60 + seconds) * 1000 + milliseconds;
+            
+            // Actualizar el corredor
+            withdrawnRiders[currentEditingRiderIndex] = {
+                dorsal: dorsal,
+                lap: lap,
+                time: newTime,
+                withdrawalTime: withdrawnRiders[currentEditingRiderIndex].withdrawalTime // Mantener la hora original
+            };
+            
+            updateWithdrawnList();
+            closeEditRiderModal();
+            saveCurrentRace();
+        }
+
         function updateLapTimesList() {
             lapListElement.innerHTML = '';
             
@@ -1396,14 +1579,16 @@
                 const editButton = document.createElement('button');
                 editButton.className = 'btn-edit-rider';
                 editButton.textContent = '✏️';
+                editButton.title = 'Editar tiempo de vuelta';
                 editButton.addEventListener('click', function() {
-                    // Función para editar tiempo de vuelta
+                    openEditLapTimeModal(parseInt(lap));
                 });
                 lapActions.appendChild(editButton);
                 
                 const removeButton = document.createElement('button');
                 removeButton.className = 'btn-remove-rider';
                 removeButton.textContent = '🗑️';
+                removeButton.title = 'Eliminar vuelta';
                 removeButton.addEventListener('click', function() {
                     if (confirm('¿Estás seguro de que quieres eliminar esta vuelta?')) {
                         removeLap(parseInt(lap));
@@ -1445,7 +1630,83 @@
             saveCurrentRace();
         }
 
-        // Funciones de gestión de corredores retirados
+        function updateWithdrawnList() {
+            riderListElement.innerHTML = '';
+            
+            withdrawnRiders.forEach((rider, index) => {
+                const li = document.createElement('li');
+                li.className = 'rider-item';
+                
+                const riderInfo = document.createElement('div');
+                riderInfo.className = 'rider-info';
+                
+                const dorsal = document.createElement('span');
+                dorsal.textContent = 'Dorsal ' + rider.dorsal;
+                riderInfo.appendChild(dorsal);
+                
+                const lap = document.createElement('span');
+                lap.textContent = 'Vuelta ' + rider.lap;
+                riderInfo.appendChild(lap);
+                
+                const time = document.createElement('span');
+                time.textContent = formatTime(rider.time, showMilliseconds);
+                riderInfo.appendChild(time);
+                
+                li.appendChild(riderInfo);
+                
+                const riderActions = document.createElement('div');
+                riderActions.className = 'rider-actions';
+                
+                const editButton = document.createElement('button');
+                editButton.className = 'btn-edit-rider';
+                editButton.textContent = '✏️';
+                editButton.title = 'Editar corredor retirado';
+                editButton.addEventListener('click', function() {
+                    openEditRiderModal(index);
+                });
+                riderActions.appendChild(editButton);
+                
+                const removeButton = document.createElement('button');
+                removeButton.className = 'btn-remove-rider';
+                removeButton.textContent = '🗑️';
+                removeButton.title = 'Eliminar corredor retirado';
+                removeButton.addEventListener('click', function() {
+                    if (confirm('¿Estás seguro de que quieres eliminar este corredor de la lista de retirados?')) {
+                        withdrawnRiders.splice(index, 1);
+                        updateWithdrawnList();
+                        updateTabCounts();
+                        saveCurrentRace();
+                    }
+                });
+                riderActions.appendChild(removeButton);
+                
+                li.appendChild(riderActions);
+                riderListElement.appendChild(li);
+            });
+        }
+
+        function updateTabCounts() {
+            withdrawnTabButton.textContent = 'Lista de Retirados (' + withdrawnRiders.length + ')';
+        }
+
+        // Funciones de pestañas
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+        }
+
+        // El resto de funciones existentes (openWithdrawModal, confirmWithdraw, etc.) se mantienen igual
+        // ... [Todas las demás funciones del código anterior]
+
+        // Funciones de modales existentes
         function openWithdrawModal() {
             if (!isRaceSelected()) {
                 alert('Debe seleccionar una carrera primero');
@@ -1482,76 +1743,6 @@
             saveCurrentRace();
         }
 
-        function updateWithdrawnList() {
-            riderListElement.innerHTML = '';
-            
-            withdrawnRiders.forEach((rider, index) => {
-                const li = document.createElement('li');
-                li.className = 'rider-item';
-                
-                const riderInfo = document.createElement('div');
-                riderInfo.className = 'rider-info';
-                
-                const dorsal = document.createElement('span');
-                dorsal.textContent = 'Dorsal ' + rider.dorsal;
-                riderInfo.appendChild(dorsal);
-                
-                const lap = document.createElement('span');
-                lap.textContent = 'Vuelta ' + rider.lap;
-                riderInfo.appendChild(lap);
-                
-                const time = document.createElement('span');
-                time.textContent = formatTime(rider.time, showMilliseconds);
-                riderInfo.appendChild(time);
-                
-                li.appendChild(riderInfo);
-                
-                const riderActions = document.createElement('div');
-                riderActions.className = 'rider-actions';
-                
-                const editButton = document.createElement('button');
-                editButton.className = 'btn-edit-rider';
-                editButton.textContent = '✏️';
-                editButton.addEventListener('click', function() {
-                    // Función para editar corredor retirado
-                });
-                riderActions.appendChild(editButton);
-                
-                const removeButton = document.createElement('button');
-                removeButton.className = 'btn-remove-rider';
-                removeButton.textContent = '🗑️';
-                removeButton.addEventListener('click', function() {
-                    withdrawnRiders.splice(index, 1);
-                    updateWithdrawnList();
-                    updateTabCounts();
-                    saveCurrentRace();
-                });
-                riderActions.appendChild(removeButton);
-                
-                li.appendChild(riderActions);
-                riderListElement.appendChild(li);
-            });
-        }
-
-        function updateTabCounts() {
-            withdrawnTabButton.textContent = 'Lista de Retirados (' + withdrawnRiders.length + ')';
-        }
-
-        // Funciones de pestañas
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.classList.remove('active');
-            });
-            
-            document.getElementById(tabId).classList.add('active');
-            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
-        }
-
-        // Funciones de modales
         function openResetModal() {
             if (!isRaceSelected()) {
                 alert('Debe seleccionar una carrera primero');

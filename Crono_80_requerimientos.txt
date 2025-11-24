@@ -195,6 +195,9 @@ Para acceder a este fichero pondremos un interrogante al lado de las banderas de
 
 quiero que al clickar al interrogante o al boton ayuda se abra el archicvo  https://rbenet71.github.io/Web/Crono_80_Ayuda.txt  ok 
 
+cuando el tiempo del cronmetro supere Tiempo Límite Actual el fondo del crono en lugar de ser negro que sea rojo ya que no lo puedes hacer pon un texto debajo del crono que diga elimanar corredor, cuando vuelva a pasar el primer corredor elimina este texto ok 
+
+que al lado Tiempo Primera Vuelta haya tambien un lapiz que nos lleve a la opción de modificar este tiempo y al hacerlo volver a calcular cual es el 80% ok
 -----------------------------
 
 
@@ -202,9 +205,8 @@ quiero que al clickar al interrogante o al boton ayuda se abra el archicvo  http
 
 ---------------------
 
-cuando el tiempo del cronmetro supere Tiempo Límite Actual el fondo del crono en lugar de ser negro que sea rojo ya que no lo puedes hacer pon un texto debajo del crono que diga elimanar corredor, cuando vuelva a pasar el primer corredor elimina este texto
 
-que al lado Tiempo Primera Vuelta haya tambien un lapiz que nos lleve a la opción de modificar este tiempo y al hacerlo volver a calcular cual es el 80%
+
 
 Al recargar la página el crono se para y no queda en movimiento
 
