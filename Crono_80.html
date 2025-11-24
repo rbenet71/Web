@@ -1556,7 +1556,13 @@
         function updateLapTimesList() {
             lapListElement.innerHTML = '';
             
+            const lapNumbers = Object.keys(currentLapTimes).map(Number);
+            const lastLapNumber = lapNumbers.length > 0 ? Math.max(...lapNumbers) : 0;
+            
+            console.log('Actualizando lista de vueltas:', currentLapTimes, 'Última:', lastLapNumber);
+            
             for (const lap in currentLapTimes) {
+                const lapNum = parseInt(lap);
                 const li = document.createElement('li');
                 li.className = 'lap-item';
                 
@@ -1576,58 +1582,105 @@
                 const lapActions = document.createElement('div');
                 lapActions.className = 'rider-actions';
                 
+                // Botón editar
                 const editButton = document.createElement('button');
                 editButton.className = 'btn-edit-rider';
                 editButton.textContent = '✏️';
                 editButton.title = 'Editar tiempo de vuelta';
                 editButton.addEventListener('click', function() {
-                    openEditLapTimeModal(parseInt(lap));
+                    openEditLapTimeModal(lapNum);
                 });
                 lapActions.appendChild(editButton);
                 
-                const removeButton = document.createElement('button');
-                removeButton.className = 'btn-remove-rider';
-                removeButton.textContent = '🗑️';
-                removeButton.title = 'Eliminar vuelta';
-                removeButton.addEventListener('click', function() {
-                    if (confirm('¿Estás seguro de que quieres eliminar esta vuelta?')) {
-                        removeLap(parseInt(lap));
-                    }
-                });
-                lapActions.appendChild(removeButton);
+                // Botón eliminar - solo para la última vuelta
+                if (lapNum === lastLapNumber && lapNumbers.length > 0) {
+                    const removeButton = document.createElement('button');
+                    removeButton.className = 'btn-remove-rider';
+                    removeButton.textContent = '🗑️';
+                    removeButton.title = 'Eliminar última vuelta';
+                    removeButton.addEventListener('click', function() {
+                        console.log('Botón eliminar clickeado para vuelta:', lapNum);
+                        removeLap(lapNum);
+                    });
+                    lapActions.appendChild(removeButton);
+                } else {
+                    // Espacio para mantener alineación
+                    const emptySpace = document.createElement('span');
+                    emptySpace.style.width = '28px';
+                    emptySpace.style.display = 'inline-block';
+                    lapActions.appendChild(emptySpace);
+                }
                 
                 li.appendChild(lapActions);
+                lapListElement.appendChild(li);
+            }
+            
+            // Mensaje si no hay vueltas
+            if (lapNumbers.length === 0) {
+                const li = document.createElement('li');
+                li.className = 'lap-item';
+                li.textContent = 'No hay vueltas registradas';
+                li.style.textAlign = 'center';
+                li.style.color = '#95a5a6';
                 lapListElement.appendChild(li);
             }
         }
 
         function removeLap(lapNumber) {
-            if (!isRaceSelected()) return;
+            if (!isRaceSelected()) {
+                alert('No hay carrera seleccionada');
+                return;
+            }
             
+            console.log('Eliminando vuelta:', lapNumber);
+            console.log('Vueltas antes:', currentLapTimes);
+            
+            const lapNumbers = Object.keys(currentLapTimes).map(Number);
+            
+            if (lapNumbers.length === 0) {
+                alert('No hay vueltas para eliminar');
+                return;
+            }
+            
+            const lastLapNumber = Math.max(...lapNumbers);
+            
+            if (lapNumber !== lastLapNumber) {
+                alert('Solo se puede eliminar la última vuelta registrada (Vuelta ' + lastLapNumber + ')');
+                return;
+            }
+            
+            if (!confirm(`¿Estás seguro de que quieres eliminar la Vuelta ${lapNumber}?`)) {
+                return;
+            }
+            
+            // Eliminar la vuelta
             delete currentLapTimes[lapNumber];
             
-            const newLapTimes = {};
-            let newLap = 1;
-            
-            for (let i = 1; i <= currentLap; i++) {
-                if (currentLapTimes[i] && i !== lapNumber) {
-                    newLapTimes[newLap] = currentLapTimes[i];
-                    newLap++;
+            // Actualizar currentLap
+            const remainingLaps = Object.keys(currentLapTimes).map(Number);
+            if (remainingLaps.length === 0) {
+                currentLap = 1;
+                firstLapTime = null;
+            } else {
+                currentLap = Math.max(...remainingLaps) + 1;
+                
+                // Si eliminamos la vuelta 1, actualizar firstLapTime con la nueva primera vuelta
+                if (lapNumber === 1 && remainingLaps.length > 0) {
+                    const newFirstLap = Math.min(...remainingLaps);
+                    firstLapTime = currentLapTimes[newFirstLap];
+                } else if (lapNumber === 1) {
+                    firstLapTime = null;
                 }
             }
             
-            currentLapTimes = newLapTimes;
-            currentLap = Math.max(1, Object.keys(currentLapTimes).length + 1);
-            
-            if (lapNumber === 1 && currentLapTimes[1]) {
-                firstLapTime = currentLapTimes[1];
-            } else if (lapNumber === 1) {
-                firstLapTime = null;
-            }
+            console.log('Vueltas después:', currentLapTimes);
+            console.log('Nueva vuelta actual:', currentLap);
             
             updateDisplay();
             updateLapTimesList();
             saveCurrentRace();
+            
+            alert(`Vuelta ${lapNumber} eliminada correctamente`);
         }
 
         function updateWithdrawnList() {
@@ -1702,9 +1755,6 @@
             document.getElementById(tabId).classList.add('active');
             document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
         }
-
-        // El resto de funciones existentes (openWithdrawModal, confirmWithdraw, etc.) se mantienen igual
-        // ... [Todas las demás funciones del código anterior]
 
         // Funciones de modales existentes
         function openWithdrawModal() {
