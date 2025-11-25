@@ -29,6 +29,31 @@
 	<link rel="manifest" href="https://rbenet71.github.io/Web/Crono_Llegadas_manifest.json">
 	
 	
+	
+	<!-- Iconos para la aplicación -->
+	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png">
+	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png">
+
+	<!-- Iconos para PWA -->
+	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
+	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
+	<link rel="icon" type="image/png" sizes="192x192" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
+	<link rel="icon" type="image/png" sizes="512x512" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
+	<link rel="apple-touch-icon" sizes="192x192" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
+	<meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
+
+	<!-- Configuración para PWA (Progressive Web App) -->
+	<meta name="theme-color" content="#2c3e50">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="Crono Llegadas">
+	<meta name="msapplication-TileColor" content="#2c3e50">
+	<meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png">
+
+	<!-- Manifest para PWA -->
+	<link rel="manifest" href="https://rbenet71.github.io/Web/Crono_Llegadas_manifest.json">
+	
+	
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -1752,6 +1777,18 @@
             }
             
             closeDeleteRaceModal();
+        }
+		if ('serviceWorker' in navigator) {
+		  window.addEventListener('load', function() {
+			navigator.serviceWorker.register('./Crono_Llegadas_sw.js')
+			  .then(function(registration) {
+				console.log('Service Worker Crono Llegadas registrado con éxito:', registration.scope);
+			  })
+			  .catch(function(error) {
+				console.log('Error al registrar el Service Worker Crono Llegadas:', error);
+			  });
+		  });
+		}
         }
 		if ('serviceWorker' in navigator) {
 		  window.addEventListener('load', function() {
