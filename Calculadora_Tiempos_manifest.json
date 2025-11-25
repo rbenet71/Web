@@ -9,12 +9,12 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "Calculadora_Tiempos_192x192.png",
+      "src": "https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "Calculadora_Tiempos_512x512.png",
+      "src": "https://rbenet71.github.io/Web/Calculadora_Tiempos_512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
