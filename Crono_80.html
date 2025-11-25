@@ -633,6 +633,34 @@
         .edit-time-inputs .form-group {
             flex: 1;
         }
+
+        /* Nuevos estilos para controles de sonido */
+        .sound-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 10px;
+            padding: 8px 15px;
+            background-color: #1a252f;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .sound-toggle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .sound-icon {
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+        
+        .sound-icon.muted {
+            opacity: 0.5;
+        }
         
         @media (max-width: 768px) {
             .chrono-section {
@@ -672,6 +700,12 @@
             .rider-actions {
                 align-self: flex-end;
             }
+
+            .sound-controls {
+                margin-left: 0;
+                margin-top: 10px;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -700,6 +734,14 @@
                     <input type="checkbox" id="milliseconds-toggle" checked>
                     <span class="toggle-slider"></span>
                 </label>
+            </div>
+            
+            <!-- Nuevo control de sonido -->
+            <div class="sound-controls">
+                <div class="sound-toggle" id="sound-toggle">
+                    <span class="sound-icon" id="sound-icon">🔊</span>
+                    <span id="sound-label">Sonido</span>
+                </div>
             </div>
         </div>
         
@@ -1213,6 +1255,8 @@
         let currentEditingLap = null;
         let currentEditingRiderIndex = null;
         let showMilliseconds = true;
+        let soundEnabled = true;
+        let cutoffSoundPlayed = false;
 
         // Elementos DOM
         const chronoDisplay = document.getElementById('chrono-display');
@@ -1247,6 +1291,9 @@
         const millisecondsToggle = document.getElementById('milliseconds-toggle');
         const millisecondsLabel = document.getElementById('milliseconds-label');
         const helpIconHeader = document.getElementById('help-icon-header');
+        const soundToggle = document.getElementById('sound-toggle');
+        const soundIcon = document.getElementById('sound-icon');
+        const soundLabel = document.getElementById('sound-label');
         
         // Modales
         const withdrawModal = document.getElementById('withdraw-modal');
@@ -1259,6 +1306,117 @@
         const editFirstLapModal = document.getElementById('edit-first-lap-modal');
         const editLapTimeModal = document.getElementById('edit-lap-time-modal');
         const editRiderModal = document.getElementById('edit-rider-modal');
+
+        // Funciones de sonido
+        function playButtonSound() {
+            if (!soundEnabled) return;
+            
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (error) {
+                console.log('Audio no disponible:', error);
+            }
+        }
+        
+        function playWithdrawSound() {
+            if (!soundEnabled) return;
+            
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 200;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (error) {
+                console.log('Audio no disponible:', error);
+            }
+        }
+        
+        function playCutoffReachedSound() {
+            if (!soundEnabled) return;
+            
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // Sonido grave más intenso y largo
+                oscillator.frequency.value = 150;
+                oscillator.type = 'sawtooth';
+                
+                // Configurar volumen - más fuerte al inicio
+                gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                // Mantener el sonido por 3 segundos con fade out
+                gainNode.gain.exponentialRampToValueAtTime(0.4, audioContext.currentTime + 1.0);
+                gainNode.gain.exponentialRampToValueAtTime(0.3, audioContext.currentTime + 2.0);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 3.0);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 3.0);
+                
+            } catch (error) {
+                console.log('Audio no disponible:', error);
+            }
+        }
+        
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('bttSoundEnabled', soundEnabled);
+            updateSoundIcon();
+            
+            if (soundEnabled) {
+                playButtonSound();
+            }
+        }
+        
+        function updateSoundIcon() {
+            if (soundEnabled) {
+                soundIcon.textContent = '🔊';
+                soundIcon.classList.remove('muted');
+                soundLabel.textContent = 'Sonido';
+            } else {
+                soundIcon.textContent = '🔇';
+                soundIcon.classList.add('muted');
+                soundLabel.textContent = 'Silencio';
+            }
+        }
+
+        function initSounds() {
+            const savedSoundSetting = localStorage.getItem('bttSoundEnabled');
+            if (savedSoundSetting !== null) {
+                soundEnabled = savedSoundSetting === 'true';
+                updateSoundIcon();
+            }
+            
+            soundToggle.addEventListener('click', toggleSound);
+        }
 
         // Función para actualizar idioma
         function updateLanguage(lang) {
@@ -1400,6 +1558,8 @@
 
         // Función para registrar vueltas
         function recordLap() {
+            playButtonSound();
+            
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
                 return;
@@ -1475,6 +1635,9 @@
             
             // Actualizar idioma inicial
             updateLanguage(currentLanguage);
+            
+            // Inicializar sonidos
+            initSounds();
             
             // Event listeners
             btnStart.addEventListener('click', toggleChrono);
@@ -1584,6 +1747,7 @@
                 withdrawnRiders = [];
                 raceStartTime = null;
                 isOverCutoff = false;
+                cutoffSoundPlayed = false;
                 
                 updateDisplay();
                 updateLapTimesList();
@@ -1614,6 +1778,7 @@
             withdrawnRiders = race.withdrawnRiders || [];
             raceStartTime = race.raceStartTime || null;
             isOverCutoff = race.isOverCutoff || false;
+            cutoffSoundPlayed = false;
             
             updateDisplay();
             updateLapTimesList();
@@ -1658,6 +1823,8 @@
 
         // Funciones del cronómetro
         function toggleChrono() {
+            playButtonSound();
+            
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
                 return;
@@ -1708,6 +1875,13 @@
                     isOverCutoff = true;
                     chronoDisplay.classList.add('over-cutoff');
                     cutoffWarning.style.display = 'block';
+                    
+                    // Reproducir sonido solo la primera vez que se alcanza el límite
+                    if (!cutoffSoundPlayed) {
+                        playCutoffReachedSound();
+                        cutoffSoundPlayed = true;
+                    }
+                    
                     saveCurrentRace();
                 }
             } else {
@@ -1715,6 +1889,8 @@
                     isOverCutoff = false;
                     chronoDisplay.classList.remove('over-cutoff');
                     cutoffWarning.style.display = 'none';
+                    // Resetear la bandera cuando se sale del estado de límite
+                    cutoffSoundPlayed = false;
                     saveCurrentRace();
                 }
             }
@@ -1829,6 +2005,8 @@
         }
 
         function confirmEditLapTime() {
+            playButtonSound();
+            
             if (!isRaceSelected() || !currentEditingLap) return;
             
             const minutes = parseInt(document.getElementById('edit-lap-minutes-input').value) || 0;
@@ -1879,6 +2057,8 @@
         }
 
         function confirmEditRider() {
+            playButtonSound();
+            
             if (!isRaceSelected() || currentEditingRiderIndex === null) return;
             
             const dorsal = document.getElementById('edit-rider-dorsal-input').value.trim();
@@ -2108,6 +2288,7 @@
 				riderListElement.appendChild(li);
 			}
 		}
+        
         function updateTabCounts() {
             const t = translations[currentLanguage];
             withdrawnTabButton.textContent = t.withdrawnTab + ' (' + withdrawnRiders.length + ')';
@@ -2130,6 +2311,8 @@
 
         // Funciones de modales existentes
         function openWithdrawModal() {
+            playButtonSound();
+            
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
                 return;
@@ -2143,6 +2326,8 @@
         }
 
         function confirmWithdraw() {
+            playWithdrawSound();
+            
             if (!isRaceSelected()) return;
             
             const dorsalInput = document.getElementById('dorsal-input').value.trim();
@@ -2167,6 +2352,8 @@
 
         // Funciones para DNF
         function openDnfModal() {
+            playButtonSound();
+            
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
                 return;
@@ -2180,6 +2367,8 @@
         }
 
         function confirmDnf() {
+            playWithdrawSound();
+            
             if (!isRaceSelected()) return;
             
             const dorsalInput = document.getElementById('dnf-dorsal-input').value.trim();
@@ -2203,6 +2392,8 @@
         }
 
         function openResetModal() {
+            playButtonSound();
+            
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
                 return;
@@ -2215,6 +2406,8 @@
         }
 
         function confirmReset() {
+            playButtonSound();
+            
             if (!isRaceSelected()) return;
             
             stopChrono();
@@ -2227,6 +2420,7 @@
             withdrawnRiders = [];
             raceStartTime = null;
             isOverCutoff = false;
+            cutoffSoundPlayed = false;
             
             updateDisplay();
             updateLapTimesList();
@@ -2237,6 +2431,8 @@
         }
 
         function openTimeModal() {
+            playButtonSound();
+            
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
                 return;
@@ -2263,6 +2459,8 @@
         }
 
         function confirmTime() {
+            playButtonSound();
+            
             if (!isRaceSelected()) return;
             
             const hours = parseInt(document.getElementById('hours-input').value) || 0;
@@ -2288,6 +2486,8 @@
         }
 
         function openNewRaceModal() {
+            playButtonSound();
+            
             newRaceModal.style.display = 'flex';
             document.getElementById('race-name-input').value = '';
         }
@@ -2297,6 +2497,8 @@
         }
 
         function confirmNewRace() {
+            playButtonSound();
+            
             const raceName = document.getElementById('race-name-input').value.trim();
             if (!raceName) return;
             
@@ -2324,6 +2526,8 @@
         }
 
         function openDeleteRaceModal() {
+            playButtonSound();
+            
             if (!currentRaceId) return;
             deleteRaceModal.style.display = 'flex';
         }
@@ -2333,6 +2537,8 @@
         }
 
         function confirmDeleteRace() {
+            playButtonSound();
+            
             if (!currentRaceId) return;
             
             delete races[currentRaceId];
@@ -2354,6 +2560,8 @@
         }
 
         function openStopChronoModal() {
+            playButtonSound();
+            
             if (!isRaceSelected()) return;
             stopChronoModal.style.display = 'flex';
         }
@@ -2363,11 +2571,15 @@
         }
 
         function confirmStopChrono() {
+            playButtonSound();
+            
             stopChrono();
             closeStopChronoModal();
         }
 
         function openEditFirstLapModal() {
+            playButtonSound();
+            
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
                 return;
@@ -2387,6 +2599,8 @@
         }
 
         function confirmEditFirstLap() {
+            playButtonSound();
+            
             if (!isRaceSelected()) return;
             
             const minutes = parseInt(document.getElementById('edit-minutes-input').value) || 0;
@@ -2407,6 +2621,8 @@
 
         // Función de exportación mejorada
         function exportToExcel() {
+            playButtonSound();
+            
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
                 return;
