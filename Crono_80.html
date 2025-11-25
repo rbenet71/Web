@@ -684,6 +684,31 @@
         .sound-icon.muted {
             opacity: 0.5;
         }
+
+        /* Estilos para el historial de horas de inicio */
+        .start-time-item {
+            padding: 8px;
+            margin: 4px 0;
+            background-color: #2c3e50;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-left: 3px solid var(--secondary-color);
+        }
+        
+        .start-time-item:hover {
+            background-color: #34495e;
+        }
+        
+        .start-time-item .time-display {
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .start-time-item .date-display {
+            font-size: 0.8rem;
+            color: #95a5a6;
+        }
         
         @media (max-width: 768px) {
             .chrono-section {
@@ -893,6 +918,13 @@
                 <button class="btn-set-time" id="set-start-time">Hora Salida</button>
                 <button class="btn-set-time" id="set-manual-time">Hora Crono</button>
             </div>
+            
+            <!-- Nueva sección para historial de horas de inicio -->
+            <div class="form-group" id="start-times-history-section">
+                <label>Horas de inicio anteriores:</label>
+                <div id="start-times-list" style="max-height: 150px; overflow-y: auto; border: 1px solid #34495e; border-radius: 4px; padding: 8px; background-color: #1a252f;"></div>
+            </div>
+            
             <div id="time-inputs-section">
                 <div class="form-group">
                     <label id="time-hours-label" for="hours-input">Horas</label>
@@ -1110,7 +1142,11 @@
                 // Selector de carrera
                 selectRace: "-- Seleccionar Carrera --",
                 raceNamePlaceholder: "Ej: BTT Montaña 2024",
-                dorsalPlaceholder: "Ej: 123, 456, 789"
+                dorsalPlaceholder: "Ej: 123, 456, 789",
+                
+                // Historial de horas de inicio
+                startTimesHistory: "Horas de inicio anteriores:",
+                noStartTimes: "No hay horas de inicio guardadas"
             },
             ca: {
                 appTitle: "Cronòmetre Control 80%",
@@ -1183,7 +1219,11 @@
                 // Selector de carrera
                 selectRace: "-- Seleccionar Cursa --",
                 raceNamePlaceholder: "Ex: BTT Muntanya 2024",
-                dorsalPlaceholder: "Ex: 123, 456, 789"
+                dorsalPlaceholder: "Ex: 123, 456, 789",
+                
+                // Historial de horas de inicio
+                startTimesHistory: "Hores d'inici anteriors:",
+                noStartTimes: "No hi ha hores d'inici guardades"
             },
             en: {
                 appTitle: "Stopwatch 80% Control",
@@ -1256,7 +1296,11 @@
                 // Selector de carrera
                 selectRace: "-- Select Race --",
                 raceNamePlaceholder: "Ex: MTB Mountain 2024",
-                dorsalPlaceholder: "Ex: 123, 456, 789"
+                dorsalPlaceholder: "Ex: 123, 456, 789",
+                
+                // Historial de horas de inicio
+                startTimesHistory: "Previous Start Times:",
+                noStartTimes: "No start times saved"
             }
         };
 
@@ -1280,6 +1324,7 @@
         let showMilliseconds = true;
         let soundEnabled = true;
         let cutoffSoundPlayed = false;
+        let raceStartTimesHistory = {};
 
         // Elementos DOM
         const chronoDisplay = document.getElementById('chrono-display');
@@ -1538,6 +1583,12 @@
             });
             document.getElementById('flag-' + lang).classList.add('active');
             
+            // Actualizar historial de horas de inicio
+            const startTimesLabel = document.querySelector('#start-times-history-section label');
+            if (startTimesLabel) {
+                startTimesLabel.textContent = t.startTimesHistory;
+            }
+            
             // Guardar idioma seleccionado
             localStorage.setItem('bttLanguage', lang);
         }
@@ -1622,6 +1673,99 @@
             visitCounterElement.textContent = visitCount + ' ' + translations[currentLanguage].visits;
         }
 
+        // Funciones para el historial de horas de inicio
+        function cleanupOldStartTimes() {
+            const tenDaysAgo = Date.now() - (10 * 24 * 60 * 60 * 1000);
+            
+            for (const raceId in raceStartTimesHistory) {
+                raceStartTimesHistory[raceId] = raceStartTimesHistory[raceId].filter(entry => 
+                    entry.timestamp > tenDaysAgo
+                );
+                
+                // Si no quedan entradas, eliminar la carrera del historial
+                if (raceStartTimesHistory[raceId].length === 0) {
+                    delete raceStartTimesHistory[raceId];
+                }
+            }
+            
+            saveStartTimesHistory();
+        }
+
+        function saveStartTimesHistory() {
+            localStorage.setItem('bttRaceStartTimesHistory', JSON.stringify(raceStartTimesHistory));
+        }
+
+        function updateStartTimesList() {
+            const listElement = document.getElementById('start-times-list');
+            if (!listElement) return;
+            
+            listElement.innerHTML = '';
+            
+            const raceHistory = raceStartTimesHistory[currentRaceId] || [];
+            
+            if (raceHistory.length === 0) {
+                listElement.innerHTML = '<div style="text-align: center; color: #95a5a6; padding: 10px;">' + translations[currentLanguage].noStartTimes + '</div>';
+                return;
+            }
+            
+            // Ordenar por timestamp descendente (más reciente primero)
+            raceHistory.sort((a, b) => b.timestamp - a.timestamp);
+            
+            raceHistory.forEach((entry, index) => {
+                const startTime = new Date(entry.startTime);
+                const timeString = startTime.toLocaleTimeString();
+                const dateString = startTime.toLocaleDateString();
+                
+                const timeItem = document.createElement('div');
+                timeItem.className = 'start-time-item';
+                timeItem.innerHTML = `
+                    <div class="time-display">${timeString}</div>
+                    <div class="date-display">${dateString}</div>
+                `;
+                
+                timeItem.addEventListener('click', function() {
+                    // Calcular el tiempo transcurrido desde esa hora de inicio
+                    const now = new Date();
+                    const startDateTime = new Date(entry.startTime);
+                    const timeDiff = now.getTime() - startDateTime.getTime();
+                    
+                    // Establecer el tiempo actual
+                    currentTime = timeDiff;
+                    
+                    // Si el cronómetro no estaba en marcha, iniciarlo automáticamente
+                    if (!isRunning) {
+                        startChronoFromHistory();
+                    } else {
+                        // Si ya estaba en marcha, actualizar el startTime
+                        startTime = Date.now() - currentTime;
+                    }
+                    
+                    // Establecer la hora de inicio actual
+                    raceStartTime = startDateTime;
+                    updateRaceStartTime();
+                    updateDisplay();
+                    
+                    closeTimeModal();
+                    saveCurrentRace();
+                    
+                    playButtonSound();
+                });
+                
+                listElement.appendChild(timeItem);
+            });
+        }
+
+        // Función para iniciar el cronómetro desde el historial
+        function startChronoFromHistory() {
+            if (!isRaceSelected() || isRunning) return;
+            
+            startTime = Date.now() - currentTime;
+            isRunning = true;
+            btnStart.textContent = translations[currentLanguage].stopButton;
+            intervalId = setInterval(updateChrono, 10);
+            saveCurrentRace();
+        }
+
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
             // Cargar configuración
@@ -1634,6 +1778,14 @@
             if (savedMillisecondsSetting !== null) {
                 showMilliseconds = savedMillisecondsSetting === 'true';
                 millisecondsToggle.checked = showMilliseconds;
+            }
+            
+            // Cargar historial de horas de inicio
+            const savedHistory = localStorage.getItem('bttRaceStartTimesHistory');
+            if (savedHistory) {
+                raceStartTimesHistory = JSON.parse(savedHistory);
+                // Limpiar entradas antiguas (más de 10 días)
+                cleanupOldStartTimes();
             }
             
             loadRaces();
@@ -1867,6 +2019,20 @@
                 startTime = Date.now() - currentTime;
                 if (!raceStartTime) {
                     raceStartTime = new Date();
+                    
+                    // Guardar en el historial
+                    if (!raceStartTimesHistory[currentRaceId]) {
+                        raceStartTimesHistory[currentRaceId] = [];
+                    }
+                    
+                    raceStartTimesHistory[currentRaceId].push({
+                        timestamp: Date.now(),
+                        startTime: raceStartTime.toISOString(),
+                        displayTime: raceStartTime.toLocaleTimeString()
+                    });
+                    
+                    saveStartTimesHistory();
+                    
                     updateRaceStartTime();
                 }
             } else {
@@ -2252,7 +2418,7 @@
 			
 			sortedWithdrawnRiders.forEach((rider, index) => {
 				const li = document.createElement('li');
-				li.className = 'rider-item';
+			 li.className = 'rider-item';
 				
 				const riderInfo = document.createElement('div');
 				riderInfo.className = 'rider-info';
@@ -2463,10 +2629,20 @@
             timeModal.style.display = 'flex';
             timeModalMode = 'manual';
             
-            const time = new Date(currentTime);
-            document.getElementById('hours-input').value = time.getUTCHours();
-            document.getElementById('minutes-input').value = time.getUTCMinutes();
-            document.getElementById('seconds-input').value = time.getUTCSeconds();
+            // Resetear campos a cero cuando se abre el modal en modo "Hora Crono"
+            if (timeModalMode === 'manual') {
+                document.getElementById('hours-input').value = 0;
+                document.getElementById('minutes-input').value = 0;
+                document.getElementById('seconds-input').value = 0;
+            } else {
+                const time = new Date(currentTime);
+                document.getElementById('hours-input').value = time.getUTCHours();
+                document.getElementById('minutes-input').value = time.getUTCMinutes();
+                document.getElementById('seconds-input').value = time.getUTCSeconds();
+            }
+            
+            // Actualizar la lista de horas de inicio
+            updateStartTimesList();
         }
 
         function closeTimeModal() {
@@ -2475,10 +2651,19 @@
 
         function setStartTimeMode() {
             timeModalMode = 'start';
+            // Mostrar el tiempo actual cuando se cambia a modo "Hora Salida"
+            const time = new Date(currentTime);
+            document.getElementById('hours-input').value = time.getUTCHours();
+            document.getElementById('minutes-input').value = time.getUTCMinutes();
+            document.getElementById('seconds-input').value = time.getUTCSeconds();
         }
 
         function setManualTimeMode() {
             timeModalMode = 'manual';
+            // Resetear campos a cero cuando se cambia a modo "Hora Crono"
+            document.getElementById('hours-input').value = 0;
+            document.getElementById('minutes-input').value = 0;
+            document.getElementById('seconds-input').value = 0;
         }
 
         function confirmTime() {
@@ -2496,6 +2681,11 @@
                 const now = new Date();
                 raceStartTime = new Date(now.getTime() - newTime);
                 updateRaceStartTime();
+                
+                // Si el cronómetro no estaba en marcha, iniciarlo automáticamente
+                if (!isRunning) {
+                    startChrono();
+                }
             } else {
                 currentTime = newTime;
                 if (isRunning) {
