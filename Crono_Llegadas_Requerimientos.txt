@@ -1,0 +1,23 @@
+quiero que en Crono de llegadas Aprovechar de crono_80 la forma de aplicar/planteamiento:
+
+varios idiomas
+el copyright
+el boton ayuda https://rbenet71.github.io/Web/Crono_Llegadas_Ayuda.html 
+la ayuda en html
+contador de visitas
+El planteamiento grafico
+La Forma
+
+
+-----------------
+
+El nombre es Cronometro para Llegadas
+Copiar la gestion de carreras del crono_80 
+Tiene que haber tres pestañas:
+
+Cortes y debajo los cortes de tiempo
+Dorsales y debajo los dorsales
+Parametros y dentro La parte de hora inicio, tiempo del cronometro y aplicat tiempo
+activacion o desactivacion milesimas
+
+Y despues la opcion de exportacion y el boton de ayuda

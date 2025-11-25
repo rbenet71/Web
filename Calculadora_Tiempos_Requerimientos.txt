@@ -30,6 +30,9 @@ Por ejemplo:
 
 G — Tema claro / oscuro con cambio automático
 
--------------
 Calculo Promedio
 CAlculo numero de vueltas
+
+Poner el texto de si estamos en modo decimal o tiempo en la parte superior izquierda del display en letra pequeña
+
+---------------------

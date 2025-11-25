@@ -4,6 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cronómetro Control 80% - BTT/Ciclo-cross</title>
+	
+	<!-- Iconos para la aplicación -->
+	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_80_192x192.png">
+	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_80_192x192.png">
+
+	<!-- Iconos para PWA -->
+	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_80_192x192.png?v=2">
+	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_80_192x192.png?v=2">
+	<link rel="icon" type="image/png" sizes="192x192" href="https://rbenet71.github.io/Web/Crono_80_192x192.png?v=2">
+	<link rel="icon" type="image/png" sizes="512x512" href="https://rbenet71.github.io/Web/Crono_80_192x192.png?v=2">
+	<link rel="apple-touch-icon" sizes="192x192" href="https://rbenet71.github.io/Web/Crono_80_192x192.png?v=2">
+	<meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Crono_80_192x192.png?v=2">
+
+	<!-- Configuración para PWA (Progressive Web App) -->
+	<meta name="theme-color" content="#2c3e50">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="Crono 80%">
+	<meta name="msapplication-TileColor" content="#2c3e50">
+	<meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Crono_80_192x192.png">
+
+	<!-- Manifest para PWA -->
+	<link rel="manifest" href="https://rbenet71.github.io/Web/Crono_80_manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -633,6 +656,59 @@
         .edit-time-inputs .form-group {
             flex: 1;
         }
+
+        /* Nuevos estilos para controles de sonido */
+        .sound-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 10px;
+            padding: 8px 15px;
+            background-color: #1a252f;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .sound-toggle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .sound-icon {
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+        
+        .sound-icon.muted {
+            opacity: 0.5;
+        }
+
+        /* Estilos para el historial de horas de inicio */
+        .start-time-item {
+            padding: 8px;
+            margin: 4px 0;
+            background-color: #2c3e50;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-left: 3px solid var(--secondary-color);
+        }
+        
+        .start-time-item:hover {
+            background-color: #34495e;
+        }
+        
+        .start-time-item .time-display {
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .start-time-item .date-display {
+            font-size: 0.8rem;
+            color: #95a5a6;
+        }
         
         @media (max-width: 768px) {
             .chrono-section {
@@ -672,6 +748,12 @@
             .rider-actions {
                 align-self: flex-end;
             }
+
+            .sound-controls {
+                margin-left: 0;
+                margin-top: 10px;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -700,6 +782,14 @@
                     <input type="checkbox" id="milliseconds-toggle" checked>
                     <span class="toggle-slider"></span>
                 </label>
+            </div>
+            
+            <!-- Nuevo control de sonido -->
+            <div class="sound-controls">
+                <div class="sound-toggle" id="sound-toggle">
+                    <span class="sound-icon" id="sound-icon">🔊</span>
+                    <span id="sound-label">Sonido</span>
+                </div>
             </div>
         </div>
         
@@ -828,6 +918,13 @@
                 <button class="btn-set-time" id="set-start-time">Hora Salida</button>
                 <button class="btn-set-time" id="set-manual-time">Hora Crono</button>
             </div>
+            
+            <!-- Nueva sección para historial de horas de inicio -->
+            <div class="form-group" id="start-times-history-section">
+                <label>Horas de inicio anteriores:</label>
+                <div id="start-times-list" style="max-height: 150px; overflow-y: auto; border: 1px solid #34495e; border-radius: 4px; padding: 8px; background-color: #1a252f;"></div>
+            </div>
+            
             <div id="time-inputs-section">
                 <div class="form-group">
                     <label id="time-hours-label" for="hours-input">Horas</label>
@@ -1045,7 +1142,11 @@
                 // Selector de carrera
                 selectRace: "-- Seleccionar Carrera --",
                 raceNamePlaceholder: "Ej: BTT Montaña 2024",
-                dorsalPlaceholder: "Ej: 123, 456, 789"
+                dorsalPlaceholder: "Ej: 123, 456, 789",
+                
+                // Historial de horas de inicio
+                startTimesHistory: "Horas de inicio anteriores:",
+                noStartTimes: "No hay horas de inicio guardadas"
             },
             ca: {
                 appTitle: "Cronòmetre Control 80%",
@@ -1118,7 +1219,11 @@
                 // Selector de carrera
                 selectRace: "-- Seleccionar Cursa --",
                 raceNamePlaceholder: "Ex: BTT Muntanya 2024",
-                dorsalPlaceholder: "Ex: 123, 456, 789"
+                dorsalPlaceholder: "Ex: 123, 456, 789",
+                
+                // Historial de horas de inicio
+                startTimesHistory: "Hores d'inici anteriors:",
+                noStartTimes: "No hi ha hores d'inici guardades"
             },
             en: {
                 appTitle: "Stopwatch 80% Control",
@@ -1191,7 +1296,11 @@
                 // Selector de carrera
                 selectRace: "-- Select Race --",
                 raceNamePlaceholder: "Ex: MTB Mountain 2024",
-                dorsalPlaceholder: "Ex: 123, 456, 789"
+                dorsalPlaceholder: "Ex: 123, 456, 789",
+                
+                // Historial de horas de inicio
+                startTimesHistory: "Previous Start Times:",
+                noStartTimes: "No start times saved"
             }
         };
 
@@ -1213,6 +1322,9 @@
         let currentEditingLap = null;
         let currentEditingRiderIndex = null;
         let showMilliseconds = true;
+        let soundEnabled = true;
+        let cutoffSoundPlayed = false;
+        let raceStartTimesHistory = {};
 
         // Elementos DOM
         const chronoDisplay = document.getElementById('chrono-display');
@@ -1247,6 +1359,9 @@
         const millisecondsToggle = document.getElementById('milliseconds-toggle');
         const millisecondsLabel = document.getElementById('milliseconds-label');
         const helpIconHeader = document.getElementById('help-icon-header');
+        const soundToggle = document.getElementById('sound-toggle');
+        const soundIcon = document.getElementById('sound-icon');
+        const soundLabel = document.getElementById('sound-label');
         
         // Modales
         const withdrawModal = document.getElementById('withdraw-modal');
@@ -1259,6 +1374,117 @@
         const editFirstLapModal = document.getElementById('edit-first-lap-modal');
         const editLapTimeModal = document.getElementById('edit-lap-time-modal');
         const editRiderModal = document.getElementById('edit-rider-modal');
+
+        // Funciones de sonido
+        function playButtonSound() {
+            if (!soundEnabled) return;
+            
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (error) {
+                console.log('Audio no disponible:', error);
+            }
+        }
+        
+        function playWithdrawSound() {
+            if (!soundEnabled) return;
+            
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 200;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (error) {
+                console.log('Audio no disponible:', error);
+            }
+        }
+        
+        function playCutoffReachedSound() {
+            if (!soundEnabled) return;
+            
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // Sonido grave más intenso y largo
+                oscillator.frequency.value = 150;
+                oscillator.type = 'sawtooth';
+                
+                // Configurar volumen - más fuerte al inicio
+                gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                // Mantener el sonido por 3 segundos con fade out
+                gainNode.gain.exponentialRampToValueAtTime(0.4, audioContext.currentTime + 1.0);
+                gainNode.gain.exponentialRampToValueAtTime(0.3, audioContext.currentTime + 2.0);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 3.0);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 3.0);
+                
+            } catch (error) {
+                console.log('Audio no disponible:', error);
+            }
+        }
+        
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('bttSoundEnabled', soundEnabled);
+            updateSoundIcon();
+            
+            if (soundEnabled) {
+                playButtonSound();
+            }
+        }
+        
+        function updateSoundIcon() {
+            if (soundEnabled) {
+                soundIcon.textContent = '🔊';
+                soundIcon.classList.remove('muted');
+                soundLabel.textContent = 'Sonido';
+            } else {
+                soundIcon.textContent = '🔇';
+                soundIcon.classList.add('muted');
+                soundLabel.textContent = 'Silencio';
+            }
+        }
+
+        function initSounds() {
+            const savedSoundSetting = localStorage.getItem('bttSoundEnabled');
+            if (savedSoundSetting !== null) {
+                soundEnabled = savedSoundSetting === 'true';
+                updateSoundIcon();
+            }
+            
+            soundToggle.addEventListener('click', toggleSound);
+        }
 
         // Función para actualizar idioma
         function updateLanguage(lang) {
@@ -1357,6 +1583,12 @@
             });
             document.getElementById('flag-' + lang).classList.add('active');
             
+            // Actualizar historial de horas de inicio
+            const startTimesLabel = document.querySelector('#start-times-history-section label');
+            if (startTimesLabel) {
+                startTimesLabel.textContent = t.startTimesHistory;
+            }
+            
             // Guardar idioma seleccionado
             localStorage.setItem('bttLanguage', lang);
         }
@@ -1400,6 +1632,8 @@
 
         // Función para registrar vueltas
         function recordLap() {
+            playButtonSound();
+            
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
                 return;
@@ -1439,6 +1673,99 @@
             visitCounterElement.textContent = visitCount + ' ' + translations[currentLanguage].visits;
         }
 
+        // Funciones para el historial de horas de inicio
+        function cleanupOldStartTimes() {
+            const tenDaysAgo = Date.now() - (10 * 24 * 60 * 60 * 1000);
+            
+            for (const raceId in raceStartTimesHistory) {
+                raceStartTimesHistory[raceId] = raceStartTimesHistory[raceId].filter(entry => 
+                    entry.timestamp > tenDaysAgo
+                );
+                
+                // Si no quedan entradas, eliminar la carrera del historial
+                if (raceStartTimesHistory[raceId].length === 0) {
+                    delete raceStartTimesHistory[raceId];
+                }
+            }
+            
+            saveStartTimesHistory();
+        }
+
+        function saveStartTimesHistory() {
+            localStorage.setItem('bttRaceStartTimesHistory', JSON.stringify(raceStartTimesHistory));
+        }
+
+        function updateStartTimesList() {
+            const listElement = document.getElementById('start-times-list');
+            if (!listElement) return;
+            
+            listElement.innerHTML = '';
+            
+            const raceHistory = raceStartTimesHistory[currentRaceId] || [];
+            
+            if (raceHistory.length === 0) {
+                listElement.innerHTML = '<div style="text-align: center; color: #95a5a6; padding: 10px;">' + translations[currentLanguage].noStartTimes + '</div>';
+                return;
+            }
+            
+            // Ordenar por timestamp descendente (más reciente primero)
+            raceHistory.sort((a, b) => b.timestamp - a.timestamp);
+            
+            raceHistory.forEach((entry, index) => {
+                const startTime = new Date(entry.startTime);
+                const timeString = startTime.toLocaleTimeString();
+                const dateString = startTime.toLocaleDateString();
+                
+                const timeItem = document.createElement('div');
+                timeItem.className = 'start-time-item';
+                timeItem.innerHTML = `
+                    <div class="time-display">${timeString}</div>
+                    <div class="date-display">${dateString}</div>
+                `;
+                
+                timeItem.addEventListener('click', function() {
+                    // Calcular el tiempo transcurrido desde esa hora de inicio
+                    const now = new Date();
+                    const startDateTime = new Date(entry.startTime);
+                    const timeDiff = now.getTime() - startDateTime.getTime();
+                    
+                    // Establecer el tiempo actual
+                    currentTime = timeDiff;
+                    
+                    // Si el cronómetro no estaba en marcha, iniciarlo automáticamente
+                    if (!isRunning) {
+                        startChronoFromHistory();
+                    } else {
+                        // Si ya estaba en marcha, actualizar el startTime
+                        startTime = Date.now() - currentTime;
+                    }
+                    
+                    // Establecer la hora de inicio actual
+                    raceStartTime = startDateTime;
+                    updateRaceStartTime();
+                    updateDisplay();
+                    
+                    closeTimeModal();
+                    saveCurrentRace();
+                    
+                    playButtonSound();
+                });
+                
+                listElement.appendChild(timeItem);
+            });
+        }
+
+        // Función para iniciar el cronómetro desde el historial
+        function startChronoFromHistory() {
+            if (!isRaceSelected() || isRunning) return;
+            
+            startTime = Date.now() - currentTime;
+            isRunning = true;
+            btnStart.textContent = translations[currentLanguage].stopButton;
+            intervalId = setInterval(updateChrono, 10);
+            saveCurrentRace();
+        }
+
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
             // Cargar configuración
@@ -1451,6 +1778,14 @@
             if (savedMillisecondsSetting !== null) {
                 showMilliseconds = savedMillisecondsSetting === 'true';
                 millisecondsToggle.checked = showMilliseconds;
+            }
+            
+            // Cargar historial de horas de inicio
+            const savedHistory = localStorage.getItem('bttRaceStartTimesHistory');
+            if (savedHistory) {
+                raceStartTimesHistory = JSON.parse(savedHistory);
+                // Limpiar entradas antiguas (más de 10 días)
+                cleanupOldStartTimes();
             }
             
             loadRaces();
@@ -1475,6 +1810,9 @@
             
             // Actualizar idioma inicial
             updateLanguage(currentLanguage);
+            
+            // Inicializar sonidos
+            initSounds();
             
             // Event listeners
             btnStart.addEventListener('click', toggleChrono);
@@ -1584,6 +1922,7 @@
                 withdrawnRiders = [];
                 raceStartTime = null;
                 isOverCutoff = false;
+                cutoffSoundPlayed = false;
                 
                 updateDisplay();
                 updateLapTimesList();
@@ -1614,6 +1953,7 @@
             withdrawnRiders = race.withdrawnRiders || [];
             raceStartTime = race.raceStartTime || null;
             isOverCutoff = race.isOverCutoff || false;
+            cutoffSoundPlayed = false;
             
             updateDisplay();
             updateLapTimesList();
@@ -1658,6 +1998,8 @@
 
         // Funciones del cronómetro
         function toggleChrono() {
+            playButtonSound();
+            
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
                 return;
@@ -1677,6 +2019,20 @@
                 startTime = Date.now() - currentTime;
                 if (!raceStartTime) {
                     raceStartTime = new Date();
+                    
+                    // Guardar en el historial
+                    if (!raceStartTimesHistory[currentRaceId]) {
+                        raceStartTimesHistory[currentRaceId] = [];
+                    }
+                    
+                    raceStartTimesHistory[currentRaceId].push({
+                        timestamp: Date.now(),
+                        startTime: raceStartTime.toISOString(),
+                        displayTime: raceStartTime.toLocaleTimeString()
+                    });
+                    
+                    saveStartTimesHistory();
+                    
                     updateRaceStartTime();
                 }
             } else {
@@ -1708,6 +2064,13 @@
                     isOverCutoff = true;
                     chronoDisplay.classList.add('over-cutoff');
                     cutoffWarning.style.display = 'block';
+                    
+                    // Reproducir sonido solo la primera vez que se alcanza el límite
+                    if (!cutoffSoundPlayed) {
+                        playCutoffReachedSound();
+                        cutoffSoundPlayed = true;
+                    }
+                    
                     saveCurrentRace();
                 }
             } else {
@@ -1715,6 +2078,8 @@
                     isOverCutoff = false;
                     chronoDisplay.classList.remove('over-cutoff');
                     cutoffWarning.style.display = 'none';
+                    // Resetear la bandera cuando se sale del estado de límite
+                    cutoffSoundPlayed = false;
                     saveCurrentRace();
                 }
             }
@@ -1829,6 +2194,8 @@
         }
 
         function confirmEditLapTime() {
+            playButtonSound();
+            
             if (!isRaceSelected() || !currentEditingLap) return;
             
             const minutes = parseInt(document.getElementById('edit-lap-minutes-input').value) || 0;
@@ -1879,6 +2246,8 @@
         }
 
         function confirmEditRider() {
+            playButtonSound();
+            
             if (!isRaceSelected() || currentEditingRiderIndex === null) return;
             
             const dorsal = document.getElementById('edit-rider-dorsal-input').value.trim();
@@ -2028,61 +2397,87 @@
             alert(`Vuelta ${lapNumber} eliminada correctamente`);
         }
 
-        function updateWithdrawnList() {
-            riderListElement.innerHTML = '';
-            
-            withdrawnRiders.forEach((rider, index) => {
-                const li = document.createElement('li');
-                li.className = 'rider-item';
-                
-                const riderInfo = document.createElement('div');
-                riderInfo.className = 'rider-info';
-                
-                const dorsal = document.createElement('span');
-                dorsal.textContent = 'Dorsal ' + rider.dorsal;
-                riderInfo.appendChild(dorsal);
-                
-                const lap = document.createElement('span');
-                lap.textContent = rider.lap === 0 ? 'DNF' : 'Vuelta ' + rider.lap;
-                riderInfo.appendChild(lap);
-                
-                const time = document.createElement('span');
-                time.textContent = formatTime(rider.time, showMilliseconds);
-                riderInfo.appendChild(time);
-                
-                li.appendChild(riderInfo);
-                
-                const riderActions = document.createElement('div');
-                riderActions.className = 'rider-actions';
-                
-                const editButton = document.createElement('button');
-                editButton.className = 'btn-edit-rider';
-                editButton.textContent = '✏️';
-                editButton.title = 'Editar corredor retirado';
-                editButton.addEventListener('click', function() {
-                    openEditRiderModal(index);
-                });
-                riderActions.appendChild(editButton);
-                
-                const removeButton = document.createElement('button');
-                removeButton.className = 'btn-remove-rider';
-                removeButton.textContent = '🗑️';
-                removeButton.title = 'Eliminar corredor retirado';
-                removeButton.addEventListener('click', function() {
-                    if (confirm(translations[currentLanguage].confirmDeleteRider)) {
-                        withdrawnRiders.splice(index, 1);
-                        updateWithdrawnList();
-                        updateTabCounts();
-                        saveCurrentRace();
-                    }
-                });
-                riderActions.appendChild(removeButton);
-                
-                li.appendChild(riderActions);
-                riderListElement.appendChild(li);
-            });
-        }
-
+		function updateWithdrawnList() {
+			riderListElement.innerHTML = '';
+			
+			// Ordenar los corredores retirados según los criterios especificados
+			const sortedWithdrawnRiders = [...withdrawnRiders].sort((a, b) => {
+				// 1. Los DNF (vuelta 0) van al final
+				if (a.lap === 0 && b.lap !== 0) return 1;
+				if (a.lap !== 0 && b.lap === 0) return -1;
+				if (a.lap === 0 && b.lap === 0) return a.time - b.time; // Si ambos son DNF, ordenar por tiempo
+				
+				// 2. Ordenar por vuelta descendente (mayor vuelta primero)
+				if (a.lap !== b.lap) {
+					return b.lap - a.lap;
+				}
+				
+				// 3. Dentro de la misma vuelta, ordenar por tiempo ascendente (menor tiempo primero)
+				return a.time - b.time;
+			});
+			
+			sortedWithdrawnRiders.forEach((rider, index) => {
+				const li = document.createElement('li');
+			 li.className = 'rider-item';
+				
+				const riderInfo = document.createElement('div');
+				riderInfo.className = 'rider-info';
+				
+				const dorsal = document.createElement('span');
+				dorsal.textContent = 'Dorsal ' + rider.dorsal;
+				riderInfo.appendChild(dorsal);
+				
+				const lap = document.createElement('span');
+				lap.textContent = rider.lap === 0 ? 'DNF' : 'Vuelta ' + rider.lap;
+				riderInfo.appendChild(lap);
+				
+				const time = document.createElement('span');
+				time.textContent = formatTime(rider.time, showMilliseconds);
+				riderInfo.appendChild(time);
+				
+				li.appendChild(riderInfo);
+				
+				const riderActions = document.createElement('div');
+				riderActions.className = 'rider-actions';
+				
+				const editButton = document.createElement('button');
+				editButton.className = 'btn-edit-rider';
+				editButton.textContent = '✏️';
+				editButton.title = 'Editar corredor retirado';
+				editButton.addEventListener('click', function() {
+					openEditRiderModal(index);
+				});
+				riderActions.appendChild(editButton);
+				
+				const removeButton = document.createElement('button');
+				removeButton.className = 'btn-remove-rider';
+				removeButton.textContent = '🗑️';
+				removeButton.title = 'Eliminar corredor retirado';
+				removeButton.addEventListener('click', function() {
+					if (confirm(translations[currentLanguage].confirmDeleteRider)) {
+						withdrawnRiders.splice(index, 1);
+						updateWithdrawnList();
+						updateTabCounts();
+						saveCurrentRace();
+					}
+				});
+				riderActions.appendChild(removeButton);
+				
+				li.appendChild(riderActions);
+				riderListElement.appendChild(li);
+			});
+			
+			// Mensaje si no hay corredores retirados
+			if (withdrawnRiders.length === 0) {
+				const li = document.createElement('li');
+				li.className = 'rider-item';
+				li.textContent = 'No hay corredores retirados';
+				li.style.textAlign = 'center';
+				li.style.color = '#95a5a6';
+				riderListElement.appendChild(li);
+			}
+		}
+        
         function updateTabCounts() {
             const t = translations[currentLanguage];
             withdrawnTabButton.textContent = t.withdrawnTab + ' (' + withdrawnRiders.length + ')';
@@ -2105,6 +2500,8 @@
 
         // Funciones de modales existentes
         function openWithdrawModal() {
+            playButtonSound();
+            
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
                 return;
@@ -2118,6 +2515,8 @@
         }
 
         function confirmWithdraw() {
+            playWithdrawSound();
+            
             if (!isRaceSelected()) return;
             
             const dorsalInput = document.getElementById('dorsal-input').value.trim();
@@ -2142,6 +2541,8 @@
 
         // Funciones para DNF
         function openDnfModal() {
+            playButtonSound();
+            
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
                 return;
@@ -2155,6 +2556,8 @@
         }
 
         function confirmDnf() {
+            playWithdrawSound();
+            
             if (!isRaceSelected()) return;
             
             const dorsalInput = document.getElementById('dnf-dorsal-input').value.trim();
@@ -2178,6 +2581,8 @@
         }
 
         function openResetModal() {
+            playButtonSound();
+            
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
                 return;
@@ -2190,6 +2595,8 @@
         }
 
         function confirmReset() {
+            playButtonSound();
+            
             if (!isRaceSelected()) return;
             
             stopChrono();
@@ -2202,6 +2609,7 @@
             withdrawnRiders = [];
             raceStartTime = null;
             isOverCutoff = false;
+            cutoffSoundPlayed = false;
             
             updateDisplay();
             updateLapTimesList();
@@ -2212,6 +2620,8 @@
         }
 
         function openTimeModal() {
+            playButtonSound();
+            
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
                 return;
@@ -2219,10 +2629,20 @@
             timeModal.style.display = 'flex';
             timeModalMode = 'manual';
             
-            const time = new Date(currentTime);
-            document.getElementById('hours-input').value = time.getUTCHours();
-            document.getElementById('minutes-input').value = time.getUTCMinutes();
-            document.getElementById('seconds-input').value = time.getUTCSeconds();
+            // Resetear campos a cero cuando se abre el modal en modo "Hora Crono"
+            if (timeModalMode === 'manual') {
+                document.getElementById('hours-input').value = 0;
+                document.getElementById('minutes-input').value = 0;
+                document.getElementById('seconds-input').value = 0;
+            } else {
+                const time = new Date(currentTime);
+                document.getElementById('hours-input').value = time.getUTCHours();
+                document.getElementById('minutes-input').value = time.getUTCMinutes();
+                document.getElementById('seconds-input').value = time.getUTCSeconds();
+            }
+            
+            // Actualizar la lista de horas de inicio
+            updateStartTimesList();
         }
 
         function closeTimeModal() {
@@ -2231,13 +2651,24 @@
 
         function setStartTimeMode() {
             timeModalMode = 'start';
+            // Mostrar el tiempo actual cuando se cambia a modo "Hora Salida"
+            const time = new Date(currentTime);
+            document.getElementById('hours-input').value = time.getUTCHours();
+            document.getElementById('minutes-input').value = time.getUTCMinutes();
+            document.getElementById('seconds-input').value = time.getUTCSeconds();
         }
 
         function setManualTimeMode() {
             timeModalMode = 'manual';
+            // Resetear campos a cero cuando se cambia a modo "Hora Crono"
+            document.getElementById('hours-input').value = 0;
+            document.getElementById('minutes-input').value = 0;
+            document.getElementById('seconds-input').value = 0;
         }
 
         function confirmTime() {
+            playButtonSound();
+            
             if (!isRaceSelected()) return;
             
             const hours = parseInt(document.getElementById('hours-input').value) || 0;
@@ -2250,6 +2681,11 @@
                 const now = new Date();
                 raceStartTime = new Date(now.getTime() - newTime);
                 updateRaceStartTime();
+                
+                // Si el cronómetro no estaba en marcha, iniciarlo automáticamente
+                if (!isRunning) {
+                    startChrono();
+                }
             } else {
                 currentTime = newTime;
                 if (isRunning) {
@@ -2263,6 +2699,8 @@
         }
 
         function openNewRaceModal() {
+            playButtonSound();
+            
             newRaceModal.style.display = 'flex';
             document.getElementById('race-name-input').value = '';
         }
@@ -2272,6 +2710,8 @@
         }
 
         function confirmNewRace() {
+            playButtonSound();
+            
             const raceName = document.getElementById('race-name-input').value.trim();
             if (!raceName) return;
             
@@ -2299,6 +2739,8 @@
         }
 
         function openDeleteRaceModal() {
+            playButtonSound();
+            
             if (!currentRaceId) return;
             deleteRaceModal.style.display = 'flex';
         }
@@ -2308,6 +2750,8 @@
         }
 
         function confirmDeleteRace() {
+            playButtonSound();
+            
             if (!currentRaceId) return;
             
             delete races[currentRaceId];
@@ -2329,6 +2773,8 @@
         }
 
         function openStopChronoModal() {
+            playButtonSound();
+            
             if (!isRaceSelected()) return;
             stopChronoModal.style.display = 'flex';
         }
@@ -2338,11 +2784,15 @@
         }
 
         function confirmStopChrono() {
+            playButtonSound();
+            
             stopChrono();
             closeStopChronoModal();
         }
 
         function openEditFirstLapModal() {
+            playButtonSound();
+            
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
                 return;
@@ -2362,6 +2812,8 @@
         }
 
         function confirmEditFirstLap() {
+            playButtonSound();
+            
             if (!isRaceSelected()) return;
             
             const minutes = parseInt(document.getElementById('edit-minutes-input').value) || 0;
@@ -2382,6 +2834,8 @@
 
         // Función de exportación mejorada
         function exportToExcel() {
+            playButtonSound();
+            
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
                 return;
@@ -2457,6 +2911,18 @@
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
         }
+		// Registro del Service Worker para PWA
+		if ('serviceWorker' in navigator) {
+		  window.addEventListener('load', function() {
+			navigator.serviceWorker.register('https://rbenet71.github.io/Web/Crono_80_sw.js')
+			  .then(function(registration) {
+				console.log('ServiceWorker registrado con éxito: ', registration.scope);
+			  })
+			  .catch(function(error) {
+				console.log('Error al registrar ServiceWorker: ', error);
+			  });
+		  });
+		}
     </script>
 </body>
 </html>

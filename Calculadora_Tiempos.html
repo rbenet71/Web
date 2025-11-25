@@ -4,6 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Tiempos - Ciclismo</title>
+
+	<!-- Iconos para la aplicación -->
+	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png">
+	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png">
+
+	<!-- Iconos para PWA -->
+	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2">
+	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2">
+	<link rel="icon" type="image/png" sizes="192x192" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2">
+	<link rel="icon" type="image/png" sizes="512x512" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2">
+	<link rel="apple-touch-icon" sizes="192x192" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2">
+	<meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2">
+	
+	<!-- Configuración para PWA (Progressive Web App) -->
+	<meta name="theme-color" content="#2c3e50">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="Crono 80%">
+	<meta name="msapplication-TileColor" content="#2c3e50">
+	<meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Calculadora_Tiempos.png">
+
+	<!-- Manifest para PWA -->
+	<link rel="manifest" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_manifest.json">
     <style>
         * {
             box-sizing: border-box;
@@ -41,6 +64,7 @@
             display: flex;
             flex-direction: column;
             box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+            position: relative; /* Añadido para posicionar el indicador de modo */
         }
         
         .current-operation {
@@ -160,14 +184,6 @@
         
         .zero-btn {
             grid-column: span 2;
-        }
-        
-        .mode-indicator {
-            color: #2ecc71;
-            font-size: 10px; /* Reducido de 13px */
-            margin-top: 10px;
-            text-align: center;
-            font-weight: bold;
         }
         
         .special-buttons {
@@ -362,6 +378,16 @@
             width: 100%;
             font-size: 11px;
         }
+        
+        /* Nuevos estilos para el indicador de modo en el display */
+        .display-mode-indicator {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            font-size: 9px;
+            color: #7f8c8d;
+            font-weight: normal;
+        }
     </style>
 </head>
 <body>
@@ -377,6 +403,7 @@
         </div>
         
         <div class="display">
+            <div class="display-mode-indicator" id="displayModeIndicator">Modo: Decimal</div>
             <div class="current-operation" id="currentOperation"></div>
             <div class="current-input" id="currentInput">0</div>
             <div class="history" id="history"></div>
@@ -417,8 +444,6 @@
             <button data-decimal>.</button>
             <button class="equals-btn" data-equals>=</button>
         </div>
-        
-        <div class="mode-indicator" id="modeIndicator">Modo: Decimal</div>
         
         <div class="special-buttons">
             <button class="special-btn" id="averageBtn">Cálculo Promedio</button>
@@ -547,7 +572,7 @@
             
             // Actualizar textos
             document.querySelector('.title').textContent = translations[lang].appTitle;
-            document.getElementById('modeIndicator').textContent = translations[lang].modeDecimal;
+            document.getElementById('displayModeIndicator').textContent = translations[lang].modeDecimal;
             document.getElementById('averageBtn').textContent = translations[lang].averageCalc;
             document.getElementById('lapsBtn').textContent = translations[lang].lapsCalc;
             document.getElementById('btn-help').textContent = translations[lang].helpButton;
@@ -646,7 +671,7 @@
                 this.currentInputElement = document.getElementById('currentInput');
                 this.currentOperationElement = document.getElementById('currentOperation');
                 this.historyElement = document.getElementById('history');
-                this.modeIndicatorElement = document.getElementById('modeIndicator');
+                this.displayModeIndicator = document.getElementById('displayModeIndicator');
                 this.hourBtn = document.getElementById('hourBtn');
                 this.minuteBtn = document.getElementById('minuteBtn');
                 this.secondBtn = document.getElementById('secondBtn');
@@ -854,7 +879,7 @@
                 
                 if (unit === 'decimal') {
                     this.mode = 'decimal';
-                    this.modeIndicatorElement.textContent = translations[currentLanguage].modeDecimal;
+                    this.displayModeIndicator.textContent = translations[currentLanguage].modeDecimal;
                     this.decimalBtn.classList.add('active');
                     this.currentInput = '0';
                     this.currentNumber = '';
@@ -862,7 +887,7 @@
                     this.resetTimeInput();
                 } else {
                     this.mode = 'time';
-                    this.modeIndicatorElement.textContent = translations[currentLanguage].modeTime;
+                    this.displayModeIndicator.textContent = translations[currentLanguage].modeTime;
                     
                     // Activar el botón correspondiente
                     document.getElementById(unit + 'Btn').classList.add('active');
@@ -1188,7 +1213,7 @@
                     this.secondBtn.classList.remove('active');
                     this.decimalBtn.classList.add('active');
                     this.mode = 'decimal';
-                    this.modeIndicatorElement.textContent = translations[currentLanguage].modeDecimal;
+                    this.displayModeIndicator.textContent = translations[currentLanguage].modeDecimal;
                     this.operationMode = 'decimal';
                     this.lastResult = null;
                     this.currentOperationElement.textContent = '';
@@ -1265,6 +1290,18 @@
             // Inicializar calculadora
             new TimeCalculator();
         });
+		// Registrar el Service Worker
+		if ('serviceWorker' in navigator) {
+		  window.addEventListener('load', function() {
+			navigator.serviceWorker.register('./Calculadora_Tiempos_sw.js')
+			  .then(function(registration) {
+				console.log('Service Worker registrado con éxito:', registration.scope);
+			  })
+			  .catch(function(error) {
+				console.log('Error al registrar el Service Worker:', error);
+			  });
+		  });
+		}
     </script>
 </body>
 </html>

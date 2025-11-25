@@ -214,16 +214,27 @@ Al crear el excel que el caracter de separacion sea el ;, el boton de otro color
 
 ayuda por idiomas
 
+
+En la pestaña de Lista de Retirados que los datos se ordenen de la misma forma que cuando se exporta en excel, primero el que tenga la vuelta mas alta, dentro de la vuelta el que tenga menor tiempo y al final de todo los DNF ok 
+
+Sonido en los botones y al sacar gente ok
+
+Podemos hacer que funcione el PWA del crono 80 como esta configurado en calculadora de tiempos, teniendo en cuenta que los nombres de los ficheros seguiran el esquema Crono_80_192x192.png
+
+Por cada carrera, cada vez que se inicie el crono, se ha de almacenar la hora en que se inicio, de tal forma cuando el usuario utilice la opción de Fijar Tiempo de Crono por la hora de salida le aparezca también un listado de horas de inicio.
+El motivo es que si por cualquier motivo por error borra los datos pueda volver a arrancar el crono con la hora que se hizo antes de borrar. Estos tiempos de inicio no se deberián borrar al reiniciar la carrera, sino 10 dias desde que se inicio.
+
+
 -----------------------------
 
 
-
 ---------------------
-
 
 Al recargar la página el crono se para y no queda en movimiento
 
 se puede poner al lado del texto de copyright un numero que sea el numero de personas que han visitado esta pàgina? no funciona, siempre es 1
 
 estar actualizado sobre los cambios realizados- Actualizaciones deja tu email y comentarios y que me envie un email con ese contacto y comentario
+
+hacer que se agregue automaticamente como icono en tu telefono
 
