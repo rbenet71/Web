@@ -1,0 +1,20 @@
+{
+  "name": "Cronómetro para Llegadas",
+  "short_name": "Crono Llegadas",
+  "icons": [
+    {
+      "src": "https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/Web/Crono_Llegadas.html",
+  "display": "standalone",
+  "theme_color": "#2c3e50",
+  "background_color": "#1a2a6c"
+}
