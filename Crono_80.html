@@ -2028,61 +2028,86 @@
             alert(`Vuelta ${lapNumber} eliminada correctamente`);
         }
 
-        function updateWithdrawnList() {
-            riderListElement.innerHTML = '';
-            
-            withdrawnRiders.forEach((rider, index) => {
-                const li = document.createElement('li');
-                li.className = 'rider-item';
-                
-                const riderInfo = document.createElement('div');
-                riderInfo.className = 'rider-info';
-                
-                const dorsal = document.createElement('span');
-                dorsal.textContent = 'Dorsal ' + rider.dorsal;
-                riderInfo.appendChild(dorsal);
-                
-                const lap = document.createElement('span');
-                lap.textContent = rider.lap === 0 ? 'DNF' : 'Vuelta ' + rider.lap;
-                riderInfo.appendChild(lap);
-                
-                const time = document.createElement('span');
-                time.textContent = formatTime(rider.time, showMilliseconds);
-                riderInfo.appendChild(time);
-                
-                li.appendChild(riderInfo);
-                
-                const riderActions = document.createElement('div');
-                riderActions.className = 'rider-actions';
-                
-                const editButton = document.createElement('button');
-                editButton.className = 'btn-edit-rider';
-                editButton.textContent = '✏️';
-                editButton.title = 'Editar corredor retirado';
-                editButton.addEventListener('click', function() {
-                    openEditRiderModal(index);
-                });
-                riderActions.appendChild(editButton);
-                
-                const removeButton = document.createElement('button');
-                removeButton.className = 'btn-remove-rider';
-                removeButton.textContent = '🗑️';
-                removeButton.title = 'Eliminar corredor retirado';
-                removeButton.addEventListener('click', function() {
-                    if (confirm(translations[currentLanguage].confirmDeleteRider)) {
-                        withdrawnRiders.splice(index, 1);
-                        updateWithdrawnList();
-                        updateTabCounts();
-                        saveCurrentRace();
-                    }
-                });
-                riderActions.appendChild(removeButton);
-                
-                li.appendChild(riderActions);
-                riderListElement.appendChild(li);
-            });
-        }
-
+		function updateWithdrawnList() {
+			riderListElement.innerHTML = '';
+			
+			// Ordenar los corredores retirados según los criterios especificados
+			const sortedWithdrawnRiders = [...withdrawnRiders].sort((a, b) => {
+				// 1. Los DNF (vuelta 0) van al final
+				if (a.lap === 0 && b.lap !== 0) return 1;
+				if (a.lap !== 0 && b.lap === 0) return -1;
+				if (a.lap === 0 && b.lap === 0) return a.time - b.time; // Si ambos son DNF, ordenar por tiempo
+				
+				// 2. Ordenar por vuelta descendente (mayor vuelta primero)
+				if (a.lap !== b.lap) {
+					return b.lap - a.lap;
+				}
+				
+				// 3. Dentro de la misma vuelta, ordenar por tiempo ascendente (menor tiempo primero)
+				return a.time - b.time;
+			});
+			
+			sortedWithdrawnRiders.forEach((rider, index) => {
+				const li = document.createElement('li');
+				li.className = 'rider-item';
+				
+				const riderInfo = document.createElement('div');
+				riderInfo.className = 'rider-info';
+				
+				const dorsal = document.createElement('span');
+				dorsal.textContent = 'Dorsal ' + rider.dorsal;
+				riderInfo.appendChild(dorsal);
+				
+				const lap = document.createElement('span');
+				lap.textContent = rider.lap === 0 ? 'DNF' : 'Vuelta ' + rider.lap;
+				riderInfo.appendChild(lap);
+				
+				const time = document.createElement('span');
+				time.textContent = formatTime(rider.time, showMilliseconds);
+				riderInfo.appendChild(time);
+				
+				li.appendChild(riderInfo);
+				
+				const riderActions = document.createElement('div');
+				riderActions.className = 'rider-actions';
+				
+				const editButton = document.createElement('button');
+				editButton.className = 'btn-edit-rider';
+				editButton.textContent = '✏️';
+				editButton.title = 'Editar corredor retirado';
+				editButton.addEventListener('click', function() {
+					openEditRiderModal(index);
+				});
+				riderActions.appendChild(editButton);
+				
+				const removeButton = document.createElement('button');
+				removeButton.className = 'btn-remove-rider';
+				removeButton.textContent = '🗑️';
+				removeButton.title = 'Eliminar corredor retirado';
+				removeButton.addEventListener('click', function() {
+					if (confirm(translations[currentLanguage].confirmDeleteRider)) {
+						withdrawnRiders.splice(index, 1);
+						updateWithdrawnList();
+						updateTabCounts();
+						saveCurrentRace();
+					}
+				});
+				riderActions.appendChild(removeButton);
+				
+				li.appendChild(riderActions);
+				riderListElement.appendChild(li);
+			});
+			
+			// Mensaje si no hay corredores retirados
+			if (withdrawnRiders.length === 0) {
+				const li = document.createElement('li');
+				li.className = 'rider-item';
+				li.textContent = 'No hay corredores retirados';
+				li.style.textAlign = 'center';
+				li.style.color = '#95a5a6';
+				riderListElement.appendChild(li);
+			}
+		}
         function updateTabCounts() {
             const t = translations[currentLanguage];
             withdrawnTabButton.textContent = t.withdrawnTab + ' (' + withdrawnRiders.length + ')';
