@@ -1,8 +1,8 @@
 // Calculadora_Tiempos_sw.js
 // Service Worker para la Calculadora de Tiempos de Ciclismo
-// Versión: 1.1 - CON ACTUALIZACIONES AUTOMÁTICAS
+// Versión: 1.1 - CON ÁMBITO ESPECÍFICO
 
-const CACHE_NAME = 'calculadora-tiempos-v1.1'; // ¡CAMBIAR CON CADA ACTUALIZACIÓN!
+const CACHE_NAME = 'calculadora-tiempos-v1.1';
 const urlsToCache = [
   './Calculadora_Tiempos.html',
   './Calculadora_Tiempos_manifest.json',
@@ -14,17 +14,16 @@ const urlsToCache = [
 
 // Instalación del Service Worker
 self.addEventListener('install', event => {
-  console.log('Service Worker: Instalando versión 1.1...');
+  console.log('Service Worker Calculadora: Instalando versión 1.1...');
   
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Service Worker: Almacenando en caché los archivos');
+        console.log('Service Worker Calculadora: Almacenando en caché los archivos');
         return cache.addAll(urlsToCache);
       })
       .then(() => {
-        console.log('Service Worker: Todos los recursos han sido almacenados en caché');
-        // Fuerza que este SW se active inmediatamente
+        console.log('Service Worker Calculadora: Todos los recursos han sido almacenados en caché');
         return self.skipWaiting();
       })
   );
@@ -32,30 +31,34 @@ self.addEventListener('install', event => {
 
 // Activación del Service Worker - LIMPIA CACHÉ ANTIGUA
 self.addEventListener('activate', event => {
-  console.log('Service Worker: Activado - versión 1.1');
+  console.log('Service Worker Calculadora: Activado - versión 1.1');
   
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cache => {
-          // Elimina TODAS las cachés antiguas
-          if (cache !== CACHE_NAME) {
-            console.log('Service Worker: Eliminando caché antigua:', cache);
+          // Elimina solo cachés antiguas de Calculadora
+          if (cache !== CACHE_NAME && cache.startsWith('calculadora-tiempos-')) {
+            console.log('Service Worker Calculadora: Eliminando caché antigua:', cache);
             return caches.delete(cache);
           }
         })
       );
     }).then(() => {
-      console.log('Service Worker: Ahora controla todos los clientes');
-      // Toma el control inmediato de todas las pestañas
+      console.log('Service Worker Calculadora: Ahora controla todos los clientes');
       return self.clients.claim();
     })
   );
 });
 
-// ESTRATEGIA DE CACHE: Network First para HTML, Cache First para recursos
+// ESTRATEGIA DE CACHE: Solo manejar requests de Calculadora
 self.addEventListener('fetch', event => {
   const request = event.request;
+  
+  // Solo manejar requests de Calculadora_Tiempos
+  if (!request.url.includes('Calculadora_Tiempos')) {
+    return; // Dejar que el navegador maneje otros requests
+  }
   
   // Para el archivo HTML principal, usa Network First
   if (request.url.includes('Calculadora_Tiempos.html') || 
@@ -101,10 +104,10 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// MANEJO DE ACTUALIZACIONES - NUEVO CÓDIGO
+// MANEJO DE ACTUALIZACIONES
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('Service Worker: Saltando espera por mensaje de la app');
+    console.log('Service Worker Calculadora: Saltando espera por mensaje de la app');
     self.skipWaiting();
   }
 });
@@ -116,7 +119,8 @@ self.addEventListener('activate', event => {
       clients.forEach(client => {
         client.postMessage({
           type: 'SW_UPDATED',
-          version: '1.1'
+          version: '1.1',
+          app: 'Calculadora_Tiempos'
         });
       });
     })

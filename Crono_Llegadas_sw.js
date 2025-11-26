@@ -72,3 +72,26 @@ self.addEventListener('fetch', event => {
       })
   );
 });
+
+// Manejo de actualizaciones
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('Service Worker Llegadas: Saltando espera por mensaje de la app');
+    self.skipWaiting();
+  }
+});
+
+// Notificar actualizaciones
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    self.clients.matchAll().then(clients => {
+      clients.forEach(client => {
+        client.postMessage({
+          type: 'SW_UPDATED',
+          version: '1.2',
+          app: 'Crono_Llegadas'
+        });
+      });
+    })
+  );
+});

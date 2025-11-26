@@ -1753,18 +1753,19 @@
             
             closeDeleteRaceModal();
         }
-		if ('serviceWorker' in navigator) {
-		  window.addEventListener('load', function() {
-			navigator.serviceWorker.register('./Crono_Llegadas_sw.js')
-			  .then(function(registration) {
-				console.log('Service Worker Crono Llegadas registrado con éxito:', registration.scope);
-			  })
-			  .catch(function(error) {
-				console.log('Error al registrar el Service Worker Crono Llegadas:', error);
-			  });
-		  });
-		}
-
+        // Registro específico para Llegadas
+        if ('serviceWorker' in navigator) {
+        // Solo registrar para Crono Llegadas
+        if (window.location.href.includes('Crono_Llegadas')) {
+            navigator.serviceWorker.register('./Crono_Llegadas_sw.js')
+            .then(function(registration) {
+                console.log('ServiceWorker Crono Llegadas registrado: ', registration.scope);
+            })
+            .catch(function(error) {
+                console.log('Error al registrar ServiceWorker Crono Llegadas: ', error);
+            });
+        }
+        }
 
         // Función para forzar actualización
         function forceUpdate() {

@@ -1291,33 +1291,19 @@
             new TimeCalculator();
         });
 		// Registrar el Service Worker
-		if ('serviceWorker' in navigator) {
-		  navigator.serviceWorker.register('./Calculadora_Tiempos_sw.js')
-		    .then(registration => {
-		      console.log('Service Worker registrado:', registration);
-		      
-		      // Verificar actualizaciones periódicamente
-		      setInterval(() => {
-		        registration.update();
-		      }, 60 * 60 * 1000); // Cada hora
-		      
-		      // Escuchar actualizaciones del Service Worker
-		      registration.addEventListener('updatefound', () => {
-		        const newWorker = registration.installing;
-		        console.log('Nueva versión del Service Worker encontrada!');
-		        
-		        newWorker.addEventListener('statechange', () => {
-		          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-		            // ¡Nueva versión disponible!
-		            showUpdateNotification();
-		          }
-		        });
-		      });
-		    })
-		    .catch(error => {
-		      console.log('Error registrando Service Worker:', error);
-		    });
-		}
+        // Registro específico para Calculadora
+        if ('serviceWorker' in navigator) {
+        // Solo registrar para Calculadora_Tiempos
+        if (window.location.href.includes('Calculadora_Tiempos')) {
+            navigator.serviceWorker.register('./Calculadora_Tiempos_sw.js')
+            .then(function(registration) {
+                console.log('ServiceWorker Calculadora registrado: ', registration.scope);
+            })
+            .catch(function(error) {
+                console.log('Error al registrar ServiceWorker Calculadora: ', error);
+            });
+        }
+        }
 		// Escuchar mensajes del Service Worker
 		navigator.serviceWorker.addEventListener('message', event => {
 		  if (event.data && event.data.type === 'SW_UPDATED') {

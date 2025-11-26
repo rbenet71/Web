@@ -60,7 +60,32 @@ self.addEventListener('fetch', function(event) {
           return fetchResponse;
         }).catch(function(error) {
           console.log('Fetch failed:', error);
+          // Si falla, intentar servir desde cache incluso para errores
+          return caches.match(event.request);
         });
       })
+  );
+});
+
+// Manejo de actualizaciones
+self.addEventListener('message', function(event) {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('Service Worker Crono 80: Saltando espera');
+    self.skipWaiting();
+  }
+});
+
+// Notificar actualizaciones a las pestañas
+self.addEventListener('activate', function(event) {
+  event.waitUntil(
+    self.clients.matchAll().then(function(clients) {
+      clients.forEach(function(client) {
+        client.postMessage({
+          type: 'SW_UPDATED',
+          version: '1.2',
+          app: 'Crono_80'
+        });
+      });
+    })
   );
 });
