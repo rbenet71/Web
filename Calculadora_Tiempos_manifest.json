@@ -1,6 +1,8 @@
 {
   "name": "Calculadora de Tiempos",
   "short_name": "CronoCalc",
+  "version": "1.1",
+  "start_url": "/Web/Calculadora_Tiempos.html?v=1.1",
   "icons": [
     {
       "src": "https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2",
@@ -13,7 +15,6 @@
       "type": "image/png"
     }
   ],
-  "start_url": "/Web/Calculadora_Tiempos.html",
   "display": "standalone",
   "theme_color": "#2c3e50",
   "background_color": "#1a2a6c"
