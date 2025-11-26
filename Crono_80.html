@@ -2282,8 +2282,17 @@
             const lapNumbers = Object.keys(currentLapTimes).map(Number);
             const lastLapNumber = lapNumbers.length > 0 ? Math.max(...lapNumbers) : 0;
             
-            for (const lap in currentLapTimes) {
-                const lapNum = parseInt(lap);
+            // Crear array de vueltas y ordenar por tiempo descendente
+            const lapTimesArray = Object.entries(currentLapTimes).map(([lap, time]) => ({
+                lap: parseInt(lap),
+                time: time
+            }));
+            
+            // ORDENAR POR TIEMPO DESCENDENTE (de mayor a menor tiempo)
+            lapTimesArray.sort((a, b) => b.time - a.time);
+            
+            // Mostrar las vueltas ordenadas por tiempo descendente
+            lapTimesArray.forEach(item => {
                 const li = document.createElement('li');
                 li.className = 'lap-item';
                 
@@ -2291,11 +2300,11 @@
                 lapInfo.className = 'rider-info';
                 
                 const lapNumber = document.createElement('span');
-                lapNumber.textContent = 'Vuelta ' + lap;
+                lapNumber.textContent = 'Vuelta ' + item.lap;
                 lapInfo.appendChild(lapNumber);
                 
                 const lapTime = document.createElement('span');
-                lapTime.textContent = formatTime(currentLapTimes[lap], showMilliseconds);
+                lapTime.textContent = formatTime(item.time, showMilliseconds);
                 lapInfo.appendChild(lapTime);
                 
                 li.appendChild(lapInfo);
@@ -2309,18 +2318,18 @@
                 editButton.textContent = '✏️';
                 editButton.title = 'Editar tiempo de vuelta';
                 editButton.addEventListener('click', function() {
-                    openEditLapTimeModal(lapNum);
+                    openEditLapTimeModal(item.lap);
                 });
                 lapActions.appendChild(editButton);
                 
-                // Botón eliminar - solo para la última vuelta
-                if (lapNum === lastLapNumber && lapNumbers.length > 0) {
+                // Botón eliminar - solo para la última vuelta (por número, no por tiempo)
+                if (item.lap === lastLapNumber && lapNumbers.length > 0) {
                     const removeButton = document.createElement('button');
                     removeButton.className = 'btn-remove-rider';
                     removeButton.textContent = '🗑️';
                     removeButton.title = 'Eliminar última vuelta';
                     removeButton.addEventListener('click', function() {
-                        removeLap(lapNum);
+                        removeLap(item.lap);
                     });
                     lapActions.appendChild(removeButton);
                 } else {
@@ -2333,7 +2342,7 @@
                 
                 li.appendChild(lapActions);
                 lapListElement.appendChild(li);
-            }
+            });
             
             // Mensaje si no hay vueltas
             if (lapNumbers.length === 0) {
@@ -2345,7 +2354,6 @@
                 lapListElement.appendChild(li);
             }
         }
-
         function removeLap(lapNumber) {
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
