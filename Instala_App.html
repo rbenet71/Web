@@ -71,16 +71,12 @@
             color: white;
         }
         
-        .chrome-btn {
-            background: linear-gradient(135deg, #4285F4, #34A853);
-            color: white;
-        }
-        
         .status-message {
             margin-top: 20px;
             padding: 15px;
             border-radius: 10px;
             font-weight: 500;
+            text-align: left;
         }
         
         .success {
@@ -89,17 +85,17 @@
             border: 1px solid #c3e6cb;
         }
         
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
         }
         
         .hidden {
             display: none;
         }
         
-        .redirect-message {
+        .auto-share-message {
             background: #fff3cd;
             color: #856404;
             border: 1px solid #ffeaa7;
@@ -113,14 +109,32 @@
             font-size: 18px;
             color: #007AFF;
         }
+        
+        .instructions {
+            background: #e7f3ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: left;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 id="pageTitle">Instalar App</h1>
         
-        <div class="redirect-message hidden" id="redirectMessage">
-            <p>Redirigiendo a Chrome...</p>
+        <div class="auto-share-message hidden" id="autoShareMessage">
+            <p>Abriendo menú de compartir...</p>
             <p class="countdown" id="countdown">3</p>
         </div>
         
@@ -128,37 +142,48 @@
             <span id="buttonText">Instalar App</span>
         </button>
         
-        <button class="install-btn chrome-btn hidden" id="openChromeButton">
-            <span>🔗 Abrir en Chrome</span>
-        </button>
-        
         <div class="status-message hidden" id="statusMessage"></div>
+        
+        <div class="instructions hidden" id="instructions">
+            <h3>📱 Cómo instalar en iOS:</h3>
+            <ol>
+                <li>Toca el botón compartir <strong>📤</strong> en la barra inferior</li>
+                <li>Desplázate hacia abajo y selecciona <strong>"Añadir a Pantalla de Inicio"</strong></li>
+                <li>Pulsa <strong>"Añadir"</strong> en la esquina superior derecha</li>
+                <li>¡Listo! La app aparecerá en tu pantalla de inicio</li>
+            </ol>
+        </div>
     </div>
 
     <script>
         class AppInstaller {
             constructor() {
                 this.installButton = document.getElementById('installButton');
-                this.openChromeButton = document.getElementById('openChromeButton');
                 this.statusMessage = document.getElementById('statusMessage');
-                this.redirectMessage = document.getElementById('redirectMessage');
+                this.autoShareMessage = document.getElementById('autoShareMessage');
                 this.countdownElement = document.getElementById('countdown');
                 this.pageTitle = document.getElementById('pageTitle');
+                this.instructions = document.getElementById('instructions');
                 this.deferredPrompt = null;
                 this.isIOS = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
-                this.isChrome = /chrome|chromium|crios/.test(navigator.userAgent.toLowerCase());
-                this.isSafari = /safari/.test(navigator.userAgent.toLowerCase()) && !this.isChrome;
+                this.isStandalone = window.navigator.standalone;
                 
                 this.init();
             }
             
             init() {
+                // Verificar si ya está instalado como PWA
+                if (this.isStandalone) {
+                    this.showAlreadyInstalled();
+                    return;
+                }
+                
                 this.detectPlatform();
                 this.setupEventListeners();
                 
-                // Si es Safari en iOS, iniciar redirección automática
-                if (this.isIOS && this.isSafari) {
-                    this.startAutoRedirect();
+                // En iOS, iniciar automáticamente el proceso de instalación
+                if (this.isIOS) {
+                    this.startAutoInstall();
                 }
             }
             
@@ -166,11 +191,7 @@
                 const ua = navigator.userAgent.toLowerCase();
                 
                 if (this.isIOS) {
-                    if (this.isChrome) {
-                        this.setupIOSChrome();
-                    } else if (this.isSafari) {
-                        this.setupIOSChromeRedirect();
-                    }
+                    this.setupIOS();
                 } else if (/android/.test(ua)) {
                     this.setupAndroid();
                 } else if (/windows/.test(ua)) {
@@ -180,19 +201,12 @@
                 }
             }
             
-            setupIOSChrome() {
-                this.pageTitle.textContent = 'Instalar en Chrome (iOS)';
+            setupIOS() {
+                this.pageTitle.textContent = 'Añadir a Pantalla de Inicio';
                 this.installButton.classList.add('ios-btn');
                 this.installButton.innerHTML = '📱 Añadir a Pantalla de Inicio';
                 this.installButton.classList.remove('hidden');
-                this.showMessage('✅ Compatible con Chrome en iOS', true);
-            }
-            
-            setupIOSChromeRedirect() {
-                this.pageTitle.textContent = 'Abrir en Chrome';
-                this.installButton.classList.add('hidden');
-                this.openChromeButton.classList.remove('hidden');
-                this.showMessage('🔗 Esta función requiere Google Chrome', true);
+                this.instructions.classList.remove('hidden');
             }
             
             setupAndroid() {
@@ -222,57 +236,57 @@
                 this.installButton.addEventListener('click', () => {
                     this.attemptInstall();
                 });
-                
-                this.openChromeButton.addEventListener('click', () => {
-                    this.redirectToChrome();
-                });
             }
             
-            startAutoRedirect() {
-                let countdown = 3;
-                this.redirectMessage.classList.remove('hidden');
+            startAutoInstall() {
+                // Mostrar cuenta regresiva y luego abrir el menú de compartir
+                let countdown = 2;
+                this.autoShareMessage.classList.remove('hidden');
                 
                 const countdownInterval = setInterval(() => {
                     this.countdownElement.textContent = countdown;
-                    countdown--;
                     
-                    if (countdown < 0) {
+                    if (countdown <= 0) {
                         clearInterval(countdownInterval);
-                        this.redirectToChrome();
+                        this.autoShareMessage.classList.add('hidden');
+                        this.openShareMenu();
                     }
+                    countdown--;
                 }, 1000);
             }
             
-            redirectToChrome() {
-                const currentUrl = encodeURIComponent(window.location.href);
-                const chromeUrl = `googlechromes://${window.location.host}${window.location.pathname}${window.location.search}`;
-                const universalUrl = `googlechrome://${window.location.host}${window.location.pathname}${window.location.search}`;
-                
-                // Intentar diferentes esquemas de URL para Chrome
-                window.location.href = chromeUrl;
-                
-                // Fallback: si no se abre Chrome, mostrar instrucciones
-                setTimeout(() => {
-                    if (!document.hidden) {
-                        this.showChromeInstructions();
+            async openShareMenu() {
+                if (navigator.share) {
+                    try {
+                        // Usar la Web Share API para abrir el menú nativo de compartir
+                        await navigator.share({
+                            title: document.title,
+                            text: 'Instalar esta app en mi dispositivo',
+                            url: window.location.href
+                        });
+                        
+                        this.showMessage('✅ Ahora selecciona "Añadir a Pantalla de Inicio" en el menú', true);
+                        
+                    } catch (error) {
+                        if (error.name !== 'AbortError') {
+                            this.showManualInstructions();
+                        }
                     }
-                }, 1000);
+                } else {
+                    // Fallback para navegadores sin Web Share API
+                    this.showManualInstructions();
+                }
             }
             
-            showChromeInstructions() {
-                this.showMessage(`
-                    📱 Para instalar esta app:
-                    <br>1. Abre Google Chrome
-                    <br>2. Navega a esta página
-                    <br>3. Toca el botón "Añadir a Pantalla de Inicio"
-                `, true);
+            showManualInstructions() {
+                this.showMessage('📱 Toca el botón compartir (📤) en Safari/Chrome y selecciona "Añadir a Pantalla de Inicio"', true);
             }
             
             async attemptInstall() {
                 const ua = navigator.userAgent.toLowerCase();
                 
-                if (this.isIOS && this.isChrome) {
-                    this.installIOSChrome();
+                if (this.isIOS) {
+                    this.openShareMenu();
                 } else if (/android/.test(ua)) {
                     this.installAndroid();
                 } else if (/windows/.test(ua)) {
@@ -280,28 +294,6 @@
                 } else {
                     this.installGeneric();
                 }
-            }
-            
-            installIOSChrome() {
-                if (navigator.share) {
-                    navigator.share({
-                        title: 'Instalar App',
-                        text: 'Añade esta app a tu pantalla de inicio',
-                        url: window.location.href
-                    })
-                    .then(() => {
-                        this.showMessage('✅ Ahora selecciona "Añadir a pantalla de inicio"', true);
-                    })
-                    .catch(() => {
-                        this.showManualChromeInstructions();
-                    });
-                } else {
-                    this.showManualChromeInstructions();
-                }
-            }
-            
-            showManualChromeInstructions() {
-                this.showMessage('📱 En Chrome: Menú → "Añadir a pantalla de inicio"', true);
             }
             
             async installAndroid() {
@@ -319,7 +311,7 @@
                         this.showMessage('❌ Error en la instalación', false);
                     }
                 } else {
-                    this.showMessage('🔧 Tu navegador soporta instalación PWA', true);
+                    this.showMessage('🔧 Tu navegador soporta instalación PWA. Actualiza la página.', true);
                 }
             }
             
@@ -343,16 +335,30 @@ IDList=`;
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                this.showMessage('✅ Archivo de acceso directo descargado', true);
+                this.showMessage('✅ Archivo de acceso directo descargado. Ábrelo para crear el acceso directo en tu escritorio.', true);
             }
             
             installGeneric() {
-                this.showMessage('⭐ Usa el menú de tu navegador para instalar', true);
+                if (navigator.share) {
+                    navigator.share({
+                        title: document.title,
+                        text: 'Instalar esta app',
+                        url: window.location.href
+                    });
+                } else {
+                    this.showMessage('⭐ Usa el menú de tu navegador para crear un acceso directo', true);
+                }
+            }
+            
+            showAlreadyInstalled() {
+                this.pageTitle.textContent = 'App Instalada';
+                this.installButton.style.display = 'none';
+                this.showMessage('✅ Esta app ya está instalada en tu dispositivo', true);
             }
             
             showMessage(message, isSuccess) {
-                this.statusMessage.innerHTML = message;
-                this.statusMessage.className = `status-message ${isSuccess ? 'success' : 'error'}`;
+                this.statusMessage.textContent = message;
+                this.statusMessage.className = `status-message ${isSuccess ? 'success' : 'info'}`;
                 this.statusMessage.classList.remove('hidden');
                 
                 setTimeout(() => {
