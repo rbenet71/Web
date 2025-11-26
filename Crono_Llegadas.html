@@ -1764,18 +1764,7 @@
 			  });
 		  });
 		}
-        // Función para verificar actualizaciones
-        function checkForUpdates() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.ready.then(registration => {
-                    registration.update().then(() => {
-                        console.log('Verificación de actualización completada');
-                    }).catch(error => {
-                        console.log('Error al verificar actualización:', error);
-                    });
-                });
-            }
-        }
+
 
         // Función para forzar actualización
         function forceUpdate() {
@@ -1898,7 +1887,18 @@
                 }
             }, 10000);
         }
-		
+		// Función para verificar actualizaciones
+        function checkForUpdates() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.update().then(() => {
+                        console.log('Verificación de actualización completada');
+                    }).catch(error => {
+                        console.log('Error al verificar actualización:', error);
+                    });
+                });
+            }
+        }
     </script>
 </body>
 </html>
