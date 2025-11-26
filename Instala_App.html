@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instalar App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .device-icon {
+            font-size: 80px;
+            margin: 20px 0;
+        }
+        
+        .install-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin: 15px 0;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .ios-btn {
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            color: white;
+        }
+        
+        .android-btn {
+            background: linear-gradient(135deg, #34A853, #0F9D58);
+            color: white;
+        }
+        
+        .windows-btn {
+            background: linear-gradient(135deg, #0078D7, #00BCF2);
+            color: white;
+        }
+        
+        .install-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .install-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-icon {
+            margin-right: 10px;
+            font-size: 24px;
+        }
+        
+        .instructions {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+            text-align: left;
+            display: none;
+        }
+        
+        .instructions h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .platform-info {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #7f8c8d;
+            padding: 10px;
+            background: #f1f2f6;
+            border-radius: 8px;
+        }
+        
+        @media (max-width: 500px) {
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .install-btn {
+                padding: 12px 25px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Instalar Mi App</h1>
+        <p class="subtitle">Añade un acceso directo a tu dispositivo</p>
+        
+        <div class="device-icon" id="deviceIcon">📱</div>
+        
+        <button class="install-btn" id="installButton">
+            <span class="btn-icon" id="buttonIcon">📱</span>
+            <span id="buttonText">Instalar App</span>
+        </button>
+        
+        <div class="instructions" id="instructions">
+            <h3 id="instructionsTitle">Instrucciones de instalación</h3>
+            <ol id="instructionsList">
+                <!-- Las instrucciones se llenarán dinámicamente -->
+            </ol>
+        </div>
+        
+        <div class="platform-info">
+            Plataforma detectada: <span id="platformInfo">Detectando...</span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const installButton = document.getElementById('installButton');
+            const instructions = document.getElementById('instructions');
+            const instructionsList = document.getElementById('instructionsList');
+            const instructionsTitle = document.getElementById('instructionsTitle');
+            const platformInfo = document.getElementById('platformInfo');
+            const deviceIcon = document.getElementById('deviceIcon');
+            const buttonIcon = document.getElementById('buttonIcon');
+            const buttonText = document.getElementById('buttonText');
+            
+            // Detectar la plataforma
+            function detectPlatform() {
+                const userAgent = navigator.userAgent.toLowerCase();
+                
+                if (/iphone|ipad|ipod/.test(userAgent)) {
+                    return 'iOS';
+                } else if (/android/.test(userAgent)) {
+                    return 'Android';
+                } else if (/windows/.test(userAgent)) {
+                    return 'Windows';
+                } else if (/mac/.test(userAgent)) {
+                    return 'macOS';
+                } else {
+                    return 'Otro';
+                }
+            }
+            
+            const platform = detectPlatform();
+            platformInfo.textContent = platform;
+            
+            // Configurar según la plataforma
+            switch(platform) {
+                case 'iOS':
+                    setupIOS();
+                    break;
+                case 'Android':
+                    setupAndroid();
+                    break;
+                case 'Windows':
+                    setupWindows();
+                    break;
+                case 'macOS':
+                    setupMacOS();
+                    break;
+                default:
+                    setupDefault();
+            }
+            
+            function setupIOS() {
+                deviceIcon.textContent = '📱';
+                buttonIcon.textContent = '📱';
+                buttonText.textContent = 'Añadir a Pantalla de Inicio';
+                installButton.classList.add('ios-btn');
+                
+                installButton.addEventListener('click', function() {
+                    instructionsTitle.textContent = 'Instalar en iPhone/iPad';
+                    instructionsList.innerHTML = `
+                        <li>Toca el botón compartir <span style="font-size: 20px; margin: 0 5px;">📤</span> en la parte inferior</li>
+                        <li>Desplázate y selecciona "Añadir a Pantalla de Inicio"</li>
+                        <li>Pulsa "Añadir" en la esquina superior derecha</li>
+                        <li>¡Listo! La app aparecerá en tu pantalla de inicio</li>
+                    `;
+                    instructions.style.display = 'block';
+                });
+            }
+            
+            function setupAndroid() {
+                deviceIcon.textContent = '🤖';
+                buttonIcon.textContent = '🤖';
+                buttonText.textContent = 'Instalar App';
+                installButton.classList.add('android-btn');
+                
+                // Para Android, intentamos usar la API de instalación de PWA
+                let deferredPrompt;
+                
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                });
+                
+                installButton.addEventListener('click', async function() {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        
+                        if (outcome === 'accepted') {
+                            instructionsTitle.textContent = '¡App instalada!';
+                            instructionsList.innerHTML = `
+                                <li>La aplicación se ha instalado correctamente en tu dispositivo Android</li>
+                                <li>Puedes encontrarla en tu pantalla de inicio o en el cajón de aplicaciones</li>
+                            `;
+                        } else {
+                            showManualAndroidInstructions();
+                        }
+                        
+                        deferredPrompt = null;
+                    } else {
+                        showManualAndroidInstructions();
+                    }
+                    
+                    instructions.style.display = 'block';
+                });
+                
+                function showManualAndroidInstructions() {
+                    instructionsTitle.textContent = 'Instalar en Android';
+                    instructionsList.innerHTML = `
+                        <li>Toca el menú de opciones (tres puntos) en la esquina superior derecha</li>
+                        <li>Selecciona "Añadir a pantalla de inicio" o "Instalar app"</li>
+                        <li>Confirma la instalación en el diálogo que aparece</li>
+                        <li>¡Listo! La app se añadirá a tu pantalla de inicio</li>
+                    `;
+                }
+            }
+            
+            function setupWindows() {
+                deviceIcon.textContent = '💻';
+                buttonIcon.textContent = '💻';
+                buttonText.textContent = 'Crear Acceso Directo';
+                installButton.classList.add('windows-btn');
+                
+                installButton.addEventListener('click', function() {
+                    instructionsTitle.textContent = 'Crear acceso directo en Windows';
+                    instructionsList.innerHTML = `
+                        <li>Haz clic en el menú de Chrome (tres puntos) en la esquina superior derecha</li>
+                        <li>Ve a "Más herramientas" y selecciona "Crear acceso directo"</li>
+                        <li>Confirma el nombre y marca la opción "Abrir como ventana" si lo deseas</li>
+                        <li>Haz clic en "Crear" y el acceso directo aparecerá en tu escritorio</li>
+                    `;
+                    instructions.style.display = 'block';
+                    
+                    // Intentar crear el acceso directo automáticamente
+                    if (window.chrome && 'app' in window.chrome) {
+                        try {
+                            window.chrome.app.install('', function() {
+                                console.log('Acceso directo creado');
+                            }, function(error) {
+                                console.log('Error creando acceso directo:', error);
+                            });
+                        } catch(e) {
+                            console.log('No se pudo crear el acceso directo automáticamente');
+                        }
+                    }
+                });
+            }
+            
+            function setupMacOS() {
+                deviceIcon.textContent = '🍎';
+                buttonIcon.textContent = '🍎';
+                buttonText.textContent = 'Añadir al Dock';
+                installButton.classList.add('ios-btn');
+                
+                installButton.addEventListener('click', function() {
+                    instructionsTitle.textContent = 'Añadir al Dock en macOS';
+                    instructionsList.innerHTML = `
+                        <li>Abre Safari y navega a esta página</li>
+                        <li>Haz clic en "Compartir" en la barra de herramientas</li>
+                        <li>Selecciona "Añadir a pantalla de inicio" o "Añadir al Dock"</li>
+                        <li>Confirma el nombre y haz clic en "Añadir"</li>
+                    `;
+                    instructions.style.display = 'block';
+                });
+            }
+            
+            function setupDefault() {
+                deviceIcon.textContent = '🌐';
+                buttonIcon.textContent = '🌐';
+                buttonText.textContent = 'Crear Acceso Directo';
+                installButton.classList.add('windows-btn');
+                
+                installButton.addEventListener('click', function() {
+                    instructionsTitle.textContent = 'Crear acceso directo';
+                    instructionsList.innerHTML = `
+                        <li>En la mayoría de navegadores, puedes usar el menú de opciones (tres puntos o líneas)</li>
+                        <li>Busca la opción "Crear acceso directo" o "Añadir a pantalla de inicio"</li>
+                        <li>Sigue las instrucciones específicas de tu navegador</li>
+                        <li>El acceso directo se creará en tu dispositivo</li>
+                    `;
+                    instructions.style.display = 'block';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
