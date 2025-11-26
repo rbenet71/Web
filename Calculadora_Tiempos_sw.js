@@ -1,10 +1,9 @@
 // Calculadora_Tiempos_sw.js
 // Service Worker para la Calculadora de Tiempos de Ciclismo
-// Versión: 1.0
+// Versión: 1.1 - CON ACTUALIZACIONES AUTOMÁTICAS
 
-const CACHE_NAME = 'calculadora-tiempos-v1.0';
+const CACHE_NAME = 'calculadora-tiempos-v1.1'; // ¡CAMBIAR CON CADA ACTUALIZACIÓN!
 const urlsToCache = [
-  './',
   './Calculadora_Tiempos.html',
   './Calculadora_Tiempos_manifest.json',
   'https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png',
@@ -15,7 +14,7 @@ const urlsToCache = [
 
 // Instalación del Service Worker
 self.addEventListener('install', event => {
-  console.log('Service Worker: Instalando...');
+  console.log('Service Worker: Instalando versión 1.1...');
   
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -25,188 +24,101 @@ self.addEventListener('install', event => {
       })
       .then(() => {
         console.log('Service Worker: Todos los recursos han sido almacenados en caché');
+        // Fuerza que este SW se active inmediatamente
         return self.skipWaiting();
-      })
-      .catch(error => {
-        console.error('Service Worker: Error durante la instalación:', error);
       })
   );
 });
 
-// Activación del Service Worker
+// Activación del Service Worker - LIMPIA CACHÉ ANTIGUA
 self.addEventListener('activate', event => {
-  console.log('Service Worker: Activado');
+  console.log('Service Worker: Activado - versión 1.1');
   
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cache => {
+          // Elimina TODAS las cachés antiguas
           if (cache !== CACHE_NAME) {
-            console.log('Service Worker: Limpiando caché antigua:', cache);
+            console.log('Service Worker: Eliminando caché antigua:', cache);
             return caches.delete(cache);
           }
         })
       );
     }).then(() => {
       console.log('Service Worker: Ahora controla todos los clientes');
+      // Toma el control inmediato de todas las pestañas
       return self.clients.claim();
     })
   );
 });
 
-// Interceptar solicitudes de fetch
+// ESTRATEGIA DE CACHE: Network First para HTML, Cache First para recursos
 self.addEventListener('fetch', event => {
-  // Excluir solicitudes de analytics o APIs externas que no queremos cachear
-  if (event.request.url.includes('google-analytics') || 
-      event.request.url.includes('googletagmanager') ||
-      event.request.url.includes('api.')) {
+  const request = event.request;
+  
+  // Para el archivo HTML principal, usa Network First
+  if (request.url.includes('Calculadora_Tiempos.html') || 
+      request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          // Actualiza la caché con la nueva versión
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME)
+            .then(cache => cache.put(request, responseClone));
+          return response;
+        })
+        .catch(() => {
+          // Si no hay conexión, sirve desde caché
+          return caches.match(request);
+        })
+    );
     return;
   }
-
+  
+  // Para recursos estáticos (CSS, JS, imágenes), usa Cache First
   event.respondWith(
-    caches.match(event.request)
+    caches.match(request)
       .then(response => {
-        // Devuelve la respuesta en caché si existe
+        // Devuelve desde caché si existe
         if (response) {
-          console.log('Service Worker: Sirviendo desde caché:', event.request.url);
           return response;
         }
-
-        // Si no está en caché, haz la solicitud a la red
-        return fetch(event.request)
+        
+        // Si no está en caché, busca en la red
+        return fetch(request)
           .then(response => {
-            // Verifica si la respuesta es válida
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
+            // Almacena en caché para próximas veces
+            if (response.status === 200) {
+              const responseClone = response.clone();
+              caches.open(CACHE_NAME)
+                .then(cache => cache.put(request, responseClone));
             }
-
-            // Clona la respuesta para almacenarla en caché
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                // Almacena la nueva respuesta en caché
-                cache.put(event.request, responseToCache);
-                console.log('Service Worker: Nuevo recurso almacenado en caché:', event.request.url);
-              });
-
             return response;
-          })
-          .catch(error => {
-            console.error('Service Worker: Error en fetch:', error);
-            
-            // Para solicitudes de navegación, devuelve la página principal offline
-            if (event.request.mode === 'navigate') {
-              return caches.match('./Calculadora_Tiempos.html');
-            }
-            
-            // Puedes devolver una página offline personalizada aquí si lo deseas
-            return new Response('Conexión no disponible', {
-              status: 408,
-              statusText: 'Conexión no disponible'
-            });
           });
       })
   );
 });
 
-// Manejar mensajes desde la aplicación
+// MANEJO DE ACTUALIZACIONES - NUEVO CÓDIGO
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('Service Worker: Saltando espera por mensaje de la app');
     self.skipWaiting();
   }
 });
 
-// Manejar sincronización en segundo plano
-self.addEventListener('sync', event => {
-  console.log('Service Worker: Sincronización en segundo plano:', event.tag);
-  
-  if (event.tag === 'background-sync') {
-    event.waitUntil(doBackgroundSync());
-  }
-});
-
-// Función para sincronización en segundo plano
-function doBackgroundSync() {
-  return new Promise((resolve, reject) => {
-    // Aquí puedes agregar lógica para sincronizar datos
-    // cuando se recupere la conexión
-    console.log('Service Worker: Realizando sincronización en segundo plano');
-    resolve();
-  });
-}
-
-// Manejar notificaciones push
-self.addEventListener('push', event => {
-  console.log('Service Worker: Notificación push recibida');
-  
-  if (!event.data) return;
-
-  const data = event.data.json();
-  const options = {
-    body: data.body || 'Nueva actualización disponible',
-    icon: 'https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png',
-    badge: 'https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png',
-    vibrate: [100, 50, 100],
-    data: {
-      url: data.url || './'
-    },
-    actions: [
-      {
-        action: 'open',
-        title: 'Abrir aplicación'
-      },
-      {
-        action: 'close',
-        title: 'Cerrar'
-      }
-    ]
-  };
-
+// Notificar a todas las pestañas cuando hay una actualización
+self.addEventListener('activate', event => {
   event.waitUntil(
-    self.registration.showNotification(data.title || 'Calculadora de Tiempos', options)
-  );
-});
-
-// Manejar clics en notificaciones
-self.addEventListener('notificationclick', event => {
-  console.log('Service Worker: Notificación clickeada');
-
-  event.notification.close();
-
-  if (event.action === 'close') {
-    return;
-  }
-
-  event.waitUntil(
-    clients.matchAll({ type: 'window' }).then(windowClients => {
-      // Verifica si ya hay una ventana abierta
-      for (let client of windowClients) {
-        if (client.url === self.location.origin && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      
-      // Si no hay ventanas abiertas, abre una nueva
-      if (clients.openWindow) {
-        return clients.openWindow(event.notification.data.url || './');
-      }
+    self.clients.matchAll().then(clients => {
+      clients.forEach(client => {
+        client.postMessage({
+          type: 'SW_UPDATED',
+          version: '1.1'
+        });
+      });
     })
   );
-});
-
-// Manejar instalación de la PWA
-self.addEventListener('appinstalled', event => {
-  console.log('Calculadora de Tiempos instalada correctamente');
-  
-  // Aquí puedes enviar analytics o realizar otras acciones post-instalación
-});
-
-// Manejo de errores global del Service Worker
-self.addEventListener('error', event => {
-  console.error('Service Worker Error:', event.error);
-});
-
-self.addEventListener('unhandledrejection', event => {
-  console.error('Service Worker Unhandled Rejection:', event.reason);
 });

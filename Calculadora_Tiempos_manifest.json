@@ -1,6 +1,14 @@
 {
   "name": "Calculadora de Tiempos",
+  "version": "1.3",
   "short_name": "CronoCalc",
+  "description": "Calculadora pensada para sumar tiempos",
+  "start_url": "/Web/Calculadora_Tiempos.html?v=1.1",
+  "display": "standalone",
+  "theme_color": "#2c3e50",
+  "background_color": "#1a2a6c"
+  "orientation": "portrait",
+  "scope": "/Web/",
   "icons": [
     {
       "src": "https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2",
@@ -8,13 +16,9 @@
       "type": "image/png"
     },
     {
-      "src": "https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2",
+      "src": "https://rbenet71.github.io/Web/Calculadora_Tiempos_512x512.png?v=2",
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "start_url": "/Web/Calculadora_Tiempos.html",
-  "display": "standalone",
-  "theme_color": "#2c3e50",
-  "background_color": "#1a2a6c"
+  ]
 }

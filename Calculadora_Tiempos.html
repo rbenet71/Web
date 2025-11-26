@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Tiempos - Ciclismo</title>
+    <title>Calculadora de Tiempos - Ciclismo V1</title>
 
 	<!-- Iconos para la aplicación -->
 	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png">
@@ -1292,16 +1292,105 @@
         });
 		// Registrar el Service Worker
 		if ('serviceWorker' in navigator) {
-		  window.addEventListener('load', function() {
-			navigator.serviceWorker.register('./Calculadora_Tiempos_sw.js')
-			  .then(function(registration) {
-				console.log('Service Worker registrado con éxito:', registration.scope);
-			  })
-			  .catch(function(error) {
-				console.log('Error al registrar el Service Worker:', error);
-			  });
-		  });
+		  navigator.serviceWorker.register('./Calculadora_Tiempos_sw.js')
+		    .then(registration => {
+		      console.log('Service Worker registrado:', registration);
+		      
+		      // Verificar actualizaciones periódicamente
+		      setInterval(() => {
+		        registration.update();
+		      }, 60 * 60 * 1000); // Cada hora
+		      
+		      // Escuchar actualizaciones del Service Worker
+		      registration.addEventListener('updatefound', () => {
+		        const newWorker = registration.installing;
+		        console.log('Nueva versión del Service Worker encontrada!');
+		        
+		        newWorker.addEventListener('statechange', () => {
+		          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+		            // ¡Nueva versión disponible!
+		            showUpdateNotification();
+		          }
+		        });
+		      });
+		    })
+		    .catch(error => {
+		      console.log('Error registrando Service Worker:', error);
+		    });
 		}
+		// Escuchar mensajes del Service Worker
+		navigator.serviceWorker.addEventListener('message', event => {
+		  if (event.data && event.data.type === 'SW_UPDATED') {
+		    console.log('Service Worker actualizado a versión:', event.data.version);
+		    showUpdateNotification();
+		  }
+		});
+		
+		// Mostrar notificación de actualización
+		function showUpdateNotification() {
+		  if (confirm('¡Hay una nueva versión disponible! ¿Quieres actualizar ahora?')) {
+		    // Forzar la actualización
+		    if ('serviceWorker' in navigator) {
+		      navigator.serviceWorker.ready.then(registration => {
+		        // Enviar mensaje al SW para que se active
+		        registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
+		        
+		        // Recargar la página después de un breve delay
+		        setTimeout(() => {
+		          window.location.reload();
+		        }, 500);
+		      });
+		    } else {
+		      window.location.reload();
+		    }
+		  }
+		}
+		
+		// Verificar actualización al cargar la página
+		window.addEventListener('load', () => {
+		  if ('serviceWorker' in navigator) {
+		    navigator.serviceWorker.ready.then(registration => {
+		      if (registration.waiting) {
+		        // Hay una actualización esperando
+		        showUpdateNotification();
+		      }
+		    });
+		  }
+		});
+		// Botón manual para buscar actualizaciones (opcional)
+		function addUpdateButton() {
+		  const updateBtn = document.createElement('button');
+		  updateBtn.textContent = '🔄 Buscar Actualizaciones';
+		  updateBtn.style.cssText = `
+		    position: fixed;
+		    bottom: 10px;
+		    right: 10px;
+		    z-index: 1000;
+		    padding: 8px 12px;
+		    background: #3498db;
+		    color: white;
+		    border: none;
+		    border-radius: 5px;
+		    cursor: pointer;
+		    font-size: 12px;
+		  `;
+		  updateBtn.onclick = checkForUpdates;
+		  document.body.appendChild(updateBtn);
+		}
+		
+		function checkForUpdates() {
+		  if ('serviceWorker' in navigator) {
+		    navigator.serviceWorker.ready.then(registration => {
+		      registration.update().then(() => {
+		        alert('Búsqueda de actualizaciones completada');
+		      });
+		    });
+		  } else {
+		    alert('Service Worker no disponible');
+		  }
+		}
+
+
     </script>
 </body>
 </html>

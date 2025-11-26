@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instalar App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .device-icon {
+            font-size: 80px;
+            margin: 20px 0;
+        }
+        
+        .install-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin: 15px 0;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .ios-btn {
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            color: white;
+        }
+        
+        .android-btn {
+            background: linear-gradient(135deg, #34A853, #0F9D58);
+            color: white;
+        }
+        
+        .windows-btn {
+            background: linear-gradient(135deg, #0078D7, #00BCF2);
+            color: white;
+        }
+        
+        .ios-instructions {
+            background: #f0f8ff;
+            border: 2px dashed #007AFF;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+            text-align: left;
+        }
+        
+        .ios-steps {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 15px 0;
+        }
+        
+        .step {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .step-number {
+            background: #007AFF;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+        }
+        
+        .step-text {
+            font-size: 12px;
+            color: #333;
+        }
+        
+        .arrow {
+            font-size: 20px;
+            color: #007AFF;
+            margin: 0 10px;
+        }
+        
+        .status-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 500px) {
+            .container {
+                padding: 25px;
+            }
+            
+            .ios-steps {
+                flex-direction: column;
+            }
+            
+            .arrow {
+                transform: rotate(90deg);
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Instalar App</h1>
+        <p class="subtitle">Añade un acceso directo a tu dispositivo</p>
+        
+        <div class="device-icon" id="deviceIcon">📱</div>
+        
+        <button class="install-btn" id="installButton">
+            <span id="buttonText">Instalar App</span>
+        </button>
+        
+        <div class="ios-instructions" id="iosInstructions">
+            <h3>📱 Para instalar en iOS:</h3>
+            <div class="ios-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">Toca el botón<br>compartir</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">Desplázate y selecciona<br>"Añadir a Pantalla de Inicio"</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">Pulsa "Añadir"<br>para confirmar</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-message hidden" id="statusMessage"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const installButton = document.getElementById('installButton');
+            const statusMessage = document.getElementById('statusMessage');
+            const iosInstructions = document.getElementById('iosInstructions');
+            const deviceIcon = document.getElementById('deviceIcon');
+            const buttonText = document.getElementById('buttonText');
+            
+            let deferredPrompt;
+
+            // Detectar plataforma
+            function detectPlatform() {
+                const userAgent = navigator.userAgent.toLowerCase();
+                
+                if (/iphone|ipad|ipod/.test(userAgent)) {
+                    return 'iOS';
+                } else if (/android/.test(userAgent)) {
+                    return 'Android';
+                } else if (/windows/.test(userAgent)) {
+                    return 'Windows';
+                } else {
+                    return 'Other';
+                }
+            }
+
+            const platform = detectPlatform();
+
+            // Configurar según la plataforma
+            function setupPlatform() {
+                switch(platform) {
+                    case 'iOS':
+                        setupIOS();
+                        break;
+                    case 'Android':
+                        setupAndroid();
+                        break;
+                    case 'Windows':
+                        setupWindows();
+                        break;
+                    default:
+                        setupOther();
+                }
+            }
+
+            function setupIOS() {
+                deviceIcon.textContent = '📱';
+                buttonText.textContent = 'Abrir Menú de Compartir';
+                installButton.classList.add('ios-btn');
+                iosInstructions.classList.remove('hidden');
+            }
+
+            function setupAndroid() {
+                deviceIcon.textContent = '🤖';
+                buttonText.textContent = 'Instalar App';
+                installButton.classList.add('android-btn');
+                iosInstructions.classList.add('hidden');
+
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                });
+            }
+
+            function setupWindows() {
+                deviceIcon.textContent = '💻';
+                buttonText.textContent = 'Crear Acceso Directo';
+                installButton.classList.add('windows-btn');
+                iosInstructions.classList.add('hidden');
+            }
+
+            function setupOther() {
+                deviceIcon.textContent = '🌐';
+                buttonText.textContent = 'Instalar App';
+                installButton.classList.add('ios-btn');
+                iosInstructions.classList.add('hidden');
+            }
+
+            // Manejar instalación
+            async function handleInstall() {
+                switch(platform) {
+                    case 'iOS':
+                        showIOSGuide();
+                        break;
+                    case 'Android':
+                        installAndroid();
+                        break;
+                    case 'Windows':
+                        installWindows();
+                        break;
+                    default:
+                        installOther();
+                }
+            }
+
+            function showIOSGuide() {
+                // En iOS, no podemos abrir el menú específico automáticamente
+                // Pero podemos guiar al usuario y forzar que aparezca la barra de Safari
+                statusMessage.textContent = '✅ Ahora toca el botón compartir (📤) en la barra de Safari y selecciona "Añadir a Pantalla de Inicio"';
+                statusMessage.className = 'status-message success';
+                statusMessage.classList.remove('hidden');
+                
+                // Forzar scroll para que aparezca la barra de navegación de Safari
+                setTimeout(() => {
+                    window.scrollTo(0, 0);
+                }, 100);
+                
+                // Intentar mostrar un mensaje que guíe al usuario
+                setTimeout(() => {
+                    if (navigator.share) {
+                        // Como fallback, ofrecer el share normal
+                        navigator.share({
+                            title: document.title,
+                            text: 'Instalar esta app',
+                            url: window.location.href
+                        }).catch(() => {
+                            // El usuario canceló el share
+                        });
+                    }
+                }, 1500);
+            }
+
+            async function installAndroid() {
+                if (deferredPrompt) {
+                    try {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        
+                        if (outcome === 'accepted') {
+                            showStatus('✅ App instalada correctamente', true);
+                            installButton.style.display = 'none';
+                        }
+                        deferredPrompt = null;
+                    } catch (error) {
+                        showStatus('❌ Error en la instalación', false);
+                    }
+                } else {
+                    showStatus('🔧 Tu navegador soporta instalación PWA', true);
+                }
+            }
+
+            function installWindows() {
+                const urlContent = `[InternetShortcut]
+URL=${window.location.href}
+IconIndex=0
+IDList=`;
+                
+                const blob = new Blob([urlContent], { type: 'application/internet-shortcut' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${document.title}.url`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showStatus('✅ Archivo de acceso directo descargado', true);
+            }
+
+            function installOther() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: document.title,
+                        text: 'Instalar esta app',
+                        url: window.location.href
+                    });
+                } else {
+                    showStatus('⭐ Usa el menú de tu navegador para crear un acceso directo', true);
+                }
+            }
+
+            function showStatus(message, isSuccess) {
+                statusMessage.textContent = message;
+                statusMessage.className = `status-message ${isSuccess ? 'success' : ''}`;
+                statusMessage.classList.remove('hidden');
+            }
+
+            // Inicializar
+            setupPlatform();
+            installButton.addEventListener('click', handleInstall);
+        });
+    </script>
+</body>
+</html>
