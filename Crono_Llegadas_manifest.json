@@ -3,12 +3,12 @@
   "short_name": "Crono Llegadas",
   "version": "1.3",
   "description": "Cronómetro para Llegadas de Competiciones",
-  "start_url": "/Web/Crono_Llegadas.html",
+  "start_url": "https://rbenet71.github.io/Web/Crono_Llegadas.html",
   "display": "standalone",
   "background_color": "#1a2a6c",
   "theme_color": "#2c3e50",
   "orientation": "portrait",
-  "scope": "/Web/",
+  "scope": "/Web/Crono_Llegadas.html",
   "icons": [
     {
       "src": "https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png",
