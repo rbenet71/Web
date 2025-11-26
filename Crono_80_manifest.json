@@ -10,12 +10,12 @@
   "scope": "/Web/",
   "icons": [
     {
-      "src": "https://rbenet71.github.io/Web/Crono_80_192x192.png",
+      "src": "https://rbenet71.github.io/Web/Crono_80_192x192.png?v=1.1",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://rbenet71.github.io/Web/Crono_80_192x192.png",
+      "src": "https://rbenet71.github.io/Web/Crono_80_192x192.png?v=1.1",
       "sizes": "512x512",
       "type": "image/png"
     }
