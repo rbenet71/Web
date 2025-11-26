@@ -35,8 +35,19 @@
         
         h1 {
             color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 24px;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .device-icon {
+            font-size: 80px;
+            margin: 20px 0;
         }
         
         .install-btn {
@@ -71,6 +82,16 @@
             color: white;
         }
         
+        .install-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-icon {
+            margin-right: 10px;
+            font-size: 24px;
+        }
+        
         .status-message {
             margin-top: 20px;
             padding: 15px;
@@ -94,179 +115,234 @@
             display: none;
         }
         
-        .loading {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
+        .instructions {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+            text-align: left;
+        }
+        
+        .instructions h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 id="pageTitle">Instalar App</h1>
+        <h1>Instalar App</h1>
+        <p class="subtitle">Añade un acceso directo a tu dispositivo</p>
         
-        <div class="loading hidden" id="loadingMessage">
-            Abriendo menú de compartir...
-        </div>
+        <div class="device-icon" id="deviceIcon">📱</div>
         
-        <button class="install-btn hidden" id="installButton">
+        <button class="install-btn" id="installButton">
+            <span class="btn-icon" id="buttonIcon">📱</span>
             <span id="buttonText">Instalar App</span>
         </button>
         
         <div class="status-message hidden" id="statusMessage"></div>
+        
+        <div class="instructions" id="instructions">
+            <h3 id="instructionsTitle">Instrucciones de instalación</h3>
+            <ol id="instructionsList">
+                <!-- Las instrucciones se llenarán dinámicamente -->
+            </ol>
+        </div>
     </div>
 
     <script>
-        class AppInstaller {
-            constructor() {
-                this.installButton = document.getElementById('installButton');
-                this.statusMessage = document.getElementById('statusMessage');
-                this.loadingMessage = document.getElementById('loadingMessage');
-                this.pageTitle = document.getElementById('pageTitle');
-                this.deferredPrompt = null;
-                this.isIOS = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
-                this.isStandalone = window.navigator.standalone;
-                
-                this.init();
-            }
+        document.addEventListener('DOMContentLoaded', function() {
+            const installButton = document.getElementById('installButton');
+            const statusMessage = document.getElementById('statusMessage');
+            const instructions = document.getElementById('instructions');
+            const instructionsList = document.getElementById('instructionsList');
+            const instructionsTitle = document.getElementById('instructionsTitle');
+            const deviceIcon = document.getElementById('deviceIcon');
+            const buttonIcon = document.getElementById('buttonIcon');
+            const buttonText = document.getElementById('buttonText');
             
-            init() {
-                // Verificar si ya está instalado como PWA
-                if (this.isStandalone) {
-                    this.showAlreadyInstalled();
-                    return;
-                }
+            let deferredPrompt;
+            let platform;
+
+            // Detectar la plataforma
+            function detectPlatform() {
+                const userAgent = navigator.userAgent.toLowerCase();
                 
-                this.detectPlatform();
-                this.setupEventListeners();
-                
-                // En iOS, iniciar automáticamente el proceso de instalación
-                if (this.isIOS) {
-                    this.openShareMenu();
-                }
-            }
-            
-            detectPlatform() {
-                const ua = navigator.userAgent.toLowerCase();
-                
-                if (this.isIOS) {
-                    this.setupIOS();
-                } else if (/android/.test(ua)) {
-                    this.setupAndroid();
-                } else if (/windows/.test(ua)) {
-                    this.setupWindows();
+                if (/iphone|ipad|ipod/.test(userAgent)) {
+                    return 'iOS';
+                } else if (/android/.test(userAgent)) {
+                    return 'Android';
+                } else if (/windows/.test(userAgent)) {
+                    return 'Windows';
                 } else {
-                    this.setupGeneric();
+                    return 'Other';
                 }
             }
-            
-            setupIOS() {
-                this.pageTitle.textContent = 'Añadir a Pantalla de Inicio';
-                this.installButton.classList.add('ios-btn');
-                this.installButton.innerHTML = '📱 Abrir Menú de Compartir';
-                this.installButton.classList.remove('hidden');
-            }
-            
-            setupAndroid() {
-                this.installButton.classList.add('android-btn');
-                this.installButton.innerHTML = '🤖 Instalar App';
-                this.installButton.classList.remove('hidden');
+
+            // Mostrar mensaje de estado
+            function showStatus(message, isSuccess) {
+                statusMessage.textContent = message;
+                statusMessage.className = `status-message ${isSuccess ? 'success' : 'info'}`;
+                statusMessage.classList.remove('hidden');
                 
+                setTimeout(() => {
+                    statusMessage.classList.add('hidden');
+                }, 4000);
+            }
+
+            // Configurar según la plataforma
+            function setupPlatform() {
+                platform = detectPlatform();
+                
+                switch(platform) {
+                    case 'iOS':
+                        setupIOS();
+                        break;
+                    case 'Android':
+                        setupAndroid();
+                        break;
+                    case 'Windows':
+                        setupWindows();
+                        break;
+                    default:
+                        setupOther();
+                }
+            }
+
+            function setupIOS() {
+                deviceIcon.textContent = '📱';
+                buttonIcon.textContent = '📱';
+                buttonText.textContent = 'Añadir a Pantalla de Inicio';
+                installButton.classList.add('ios-btn');
+                
+                instructionsTitle.textContent = 'Instalar en iPhone/iPad';
+                instructionsList.innerHTML = `
+                    <li>Toca el botón "Añadir a Pantalla de Inicio" arriba</li>
+                    <li>Se abrirá el menú de compartir</li>
+                    <li>Desplázate y selecciona <strong>"Añadir a Pantalla de Inicio"</strong></li>
+                    <li>Pulsa <strong>"Añadir"</strong> para confirmar</li>
+                `;
+            }
+
+            function setupAndroid() {
+                deviceIcon.textContent = '🤖';
+                buttonIcon.textContent = '🤖';
+                buttonText.textContent = 'Instalar App';
+                installButton.classList.add('android-btn');
+                
+                instructionsTitle.textContent = 'Instalar en Android';
+                instructionsList.innerHTML = `
+                    <li>Toca el botón "Instalar App" arriba</li>
+                    <li>Se instalará automáticamente como app PWA</li>
+                    <li>La app aparecerá en tu pantalla de inicio</li>
+                `;
+
+                // Escuchar evento de instalación PWA
                 window.addEventListener('beforeinstallprompt', (e) => {
                     e.preventDefault();
-                    this.deferredPrompt = e;
+                    deferredPrompt = e;
                 });
             }
-            
-            setupWindows() {
-                this.installButton.classList.add('windows-btn');
-                this.installButton.innerHTML = '💻 Crear Acceso Directo';
-                this.installButton.classList.remove('hidden');
-            }
-            
-            setupGeneric() {
-                this.installButton.classList.add('ios-btn');
-                this.installButton.innerHTML = '🌐 Instalar App';
-                this.installButton.classList.remove('hidden');
-            }
-            
-            setupEventListeners() {
-                this.installButton.addEventListener('click', () => {
-                    this.attemptInstall();
-                });
-            }
-            
-            async openShareMenu() {
-                this.loadingMessage.classList.remove('hidden');
+
+            function setupWindows() {
+                deviceIcon.textContent = '💻';
+                buttonIcon.textContent = '💻';
+                buttonText.textContent = 'Crear Acceso Directo';
+                installButton.classList.add('windows-btn');
                 
-                // Pequeño delay para asegurar que la UI se actualice
-                await new Promise(resolve => setTimeout(resolve, 100));
+                instructionsTitle.textContent = 'Crear Acceso Directo en Windows';
+                instructionsList.innerHTML = `
+                    <li>Toca el botón "Crear Acceso Directo" arriba</li>
+                    <li>Se descargará un archivo .url</li>
+                    <li>Ábrelo para crear el acceso directo en tu escritorio</li>
+                `;
+            }
+
+            function setupOther() {
+                deviceIcon.textContent = '🌐';
+                buttonIcon.textContent = '🌐';
+                buttonText.textContent = 'Instalar App';
+                installButton.classList.add('ios-btn');
                 
+                instructionsTitle.textContent = 'Instalar App';
+                instructionsList.innerHTML = `
+                    <li>Toca el botón "Instalar App" arriba</li>
+                    <li>Sigue las instrucciones de tu navegador</li>
+                `;
+            }
+
+            // Manejar la instalación
+            async function handleInstall() {
+                switch(platform) {
+                    case 'iOS':
+                        installIOS();
+                        break;
+                    case 'Android':
+                        installAndroid();
+                        break;
+                    case 'Windows':
+                        installWindows();
+                        break;
+                    default:
+                        installOther();
+                }
+            }
+
+            function installIOS() {
                 if (navigator.share) {
-                    try {
-                        // Usar la Web Share API para abrir el menú nativo de compartir
-                        await navigator.share({
-                            title: document.title,
-                            text: 'Instalar esta app en mi dispositivo',
-                            url: window.location.href
-                        });
-                        
-                        this.loadingMessage.classList.add('hidden');
-                        this.showMessage('✅ Ahora selecciona "Añadir a Pantalla de Inicio" en el menú', true);
-                        
-                    } catch (error) {
-                        this.loadingMessage.classList.add('hidden');
+                    // Usar Web Share API para abrir el menú de compartir
+                    navigator.share({
+                        title: document.title,
+                        text: 'Instalar esta app en mi pantalla de inicio',
+                        url: window.location.href
+                    })
+                    .then(() => {
+                        showStatus('✅ Ahora selecciona "Añadir a Pantalla de Inicio"', true);
+                    })
+                    .catch((error) => {
                         if (error.name !== 'AbortError') {
-                            this.showMessage('❌ No se pudo abrir el menú de compartir. Toca el botón para intentarlo manualmente.', false);
+                            showStatus('❌ No se pudo abrir el menú de compartir', false);
                         }
-                    }
+                    });
                 } else {
-                    this.loadingMessage.classList.add('hidden');
-                    this.showMessage('❌ Tu navegador no soporta la función de compartir automática. Toca el botón para instrucciones.', false);
+                    showStatus('❌ Tu navegador no soporta esta función', false);
                 }
             }
-            
-            async attemptInstall() {
-                const ua = navigator.userAgent.toLowerCase();
-                
-                if (this.isIOS) {
-                    this.openShareMenu();
-                } else if (/android/.test(ua)) {
-                    this.installAndroid();
-                } else if (/windows/.test(ua)) {
-                    this.installWindows();
-                } else {
-                    this.installGeneric();
-                }
-            }
-            
-            async installAndroid() {
-                if (this.deferredPrompt) {
+
+            async function installAndroid() {
+                if (deferredPrompt) {
                     try {
-                        this.deferredPrompt.prompt();
-                        const { outcome } = await this.deferredPrompt.userChoice;
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
                         
                         if (outcome === 'accepted') {
-                            this.showMessage('✅ App instalada correctamente', true);
-                            this.installButton.style.display = 'none';
+                            showStatus('✅ App instalada correctamente', true);
+                            installButton.style.display = 'none';
+                        } else {
+                            showStatus('Instalación cancelada', false);
                         }
-                        this.deferredPrompt = null;
+                        deferredPrompt = null;
                     } catch (error) {
-                        this.showMessage('❌ Error en la instalación', false);
+                        showStatus('❌ Error en la instalación', false);
                     }
                 } else {
-                    this.showMessage('🔧 Tu navegador soporta instalación PWA. Actualiza la página.', true);
+                    showStatus('🔧 Tu navegador soporta instalación PWA', true);
                 }
             }
-            
-            installWindows() {
-                this.createDesktopShortcut();
-            }
-            
-            createDesktopShortcut() {
+
+            function installWindows() {
+                // Crear y descargar archivo .url para acceso directo
                 const urlContent = `[InternetShortcut]
 URL=${window.location.href}
 IconIndex=0
@@ -282,10 +358,10 @@ IDList=`;
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                this.showMessage('✅ Archivo de acceso directo descargado. Ábrelo para crear el acceso directo en tu escritorio.', true);
+                showStatus('✅ Archivo de acceso directo descargado', true);
             }
-            
-            installGeneric() {
+
+            function installOther() {
                 if (navigator.share) {
                     navigator.share({
                         title: document.title,
@@ -293,30 +369,18 @@ IDList=`;
                         url: window.location.href
                     });
                 } else {
-                    this.showMessage('⭐ Usa el menú de tu navegador para crear un acceso directo', true);
+                    showStatus('⭐ Usa el menú de tu navegador para crear un acceso directo', true);
                 }
             }
-            
-            showAlreadyInstalled() {
-                this.pageTitle.textContent = 'App Instalada';
-                this.installButton.style.display = 'none';
-                this.showMessage('✅ Esta app ya está instalada en tu dispositivo', true);
-            }
-            
-            showMessage(message, isSuccess) {
-                this.statusMessage.textContent = message;
-                this.statusMessage.className = `status-message ${isSuccess ? 'success' : 'info'}`;
-                this.statusMessage.classList.remove('hidden');
+
+            // Inicializar
+            function init() {
+                setupPlatform();
                 
-                setTimeout(() => {
-                    this.statusMessage.classList.add('hidden');
-                }, 5000);
+                installButton.addEventListener('click', handleInstall);
             }
-        }
-        
-        // Inicializar
-        document.addEventListener('DOMContentLoaded', () => {
-            new AppInstaller();
+
+            init();
         });
     </script>
 </body>
