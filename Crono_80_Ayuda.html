@@ -3,19 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronómetro Control 80% - BTT/Ciclo-cross</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>Ayuda Cronómetro Control 80%</title>
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --danger-color: #e74c3c;
-            --success-color: #2ecc71;
-            --warning-color: #f39c12;
-            --light-color: #ecf0f1;
-            --dark-color: #34495e;
-        }
-        
         * {
             margin: 0;
             padding: 0;
@@ -25,652 +14,213 @@
         
         body {
             background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 12px;
             color: white;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
         }
         
         .container {
-            background-color: #2c3e50;
-            border-radius: 10px;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
-            width: 100%;
-            max-width: 800px;
-            padding: 16px;
-            color: white;
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(44, 62, 80, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
         
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #34495e;
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #3498db;
         }
         
         .language-selector {
             display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .flag {
-            width: 25px;
-            height: 17px;
-            cursor: pointer;
-            opacity: 0.6;
-            transition: opacity 0.3s;
-            border: 1px solid #ccc;
-        }
-        
-        .flag.active {
-            opacity: 1;
-            border: 2px solid var(--secondary-color);
-        }
-        
-        .flag-catalunya {
-            background: linear-gradient(
-                to bottom,
-                #ffcd00 0%, #ffcd00 10%,
-                #da121a 10%, #da121a 20%,
-                #ffcd00 20%, #ffcd00 30%,
-                #da121a 30%, #da121a 40%,
-                #ffcd00 40%, #ffcd00 50%,
-                #da121a 50%, #da121a 60%,
-                #ffcd00 60%, #ffcd00 70%,
-                #da121a 70%, #da121a 80%,
-                #ffcd00 80%, #ffcd00 90%,
-                #da121a 90%, #da121a 100%
-            );
-        }
-        
-        .help-icon {
-            font-size: 1.2rem;
-            cursor: pointer;
-            color: var(--secondary-color);
-            margin-left: 10px;
-            transition: all 0.3s;
-        }
-        
-        .help-icon:hover {
-            transform: scale(1.1);
-            color: var(--primary-color);
-        }
-        
-        .race-management {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        
-        .chrono-section {
-            display: flex;
-            align-items: center;
+            justify-content: center;
             gap: 20px;
-            margin-bottom: 10px;
+            margin: 20px 0;
         }
         
-        .current-lap-card {
-            background-color: #1a252f;
-            padding: 15px 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            min-width: 120px;
-            text-align: center;
-            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
-        }
-        
-        .current-lap-card h3 {
-            margin-bottom: 10px;
-            color: #ecf0f1;
-            font-size: 0.9rem;
-        }
-        
-        .current-lap-card p {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--secondary-color);
-        }
-        
-        .chrono-display {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            border: 8px solid #333;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 
-                0 0 20px rgba(0,0,0,0.5),
-                inset 0 0 20px rgba(0,0,0,0.3);
-            flex: 1;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            min-height: 180px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            transition: all 0.3s ease;
-        }
-        
-        .chrono-display.over-cutoff {
-            background: linear-gradient(135deg, #5a1a1a 0%, #8b2d2d 100%);
-            border: 8px solid #e74c3c;
-        }
-        
-        .chrono-display::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.05) 50%, transparent 70%);
-            pointer-events: none;
-        }
-        
-        .lcd-time {
-            font-family: 'Orbitron', monospace;
-            font-size: 4rem;
-            font-weight: 900;
-            color: #00ff00;
-            letter-spacing: 3px;
-            line-height: 1;
-        }
-        
-        .chrono-display.over-cutoff .lcd-time {
-            color: #ff6b6b;
-        }
-        
-        .cutoff-warning {
-            text-align: center;
-            color: #e74c3c;
-            font-weight: bold;
-            font-size: 1.5rem;
-            margin: 10px 0 20px 0;
-            padding: 15px;
-            background-color: rgba(231, 76, 60, 0.1);
-            border-radius: 8px;
-            border: 2px solid #e74c3c;
-            display: none;
-            animation: pulse 1s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-        
-        .main-controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .bottom-controls {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        
-        button {
-            background-color: #34495e;
+        .lang-btn {
+            background: #34495e;
             border: none;
+            color: white;
+            padding: 10px 20px;
             border-radius: 5px;
-            color: white;
-            font-size: 14px;
-            padding: 12px 20px;
             cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+            font-weight: bold;
         }
         
-        button:hover {
-            background-color: #4a6583;
-            transform: translateY(-1px);
+        .lang-btn:hover {
+            background: #3498db;
+            transform: translateY(-2px);
         }
         
-        button:active {
-            transform: translateY(1px);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        .lang-btn.active {
+            background: #3498db;
         }
         
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
+        .content {
+            display: none;
         }
         
-        button:disabled:hover {
-            background-color: #34495e;
-            transform: none;
+        .content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
         }
         
-        .btn-start {
-            background-color: var(--success-color);
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        .btn-set-time {
-            background-color: #8e44ad;
+        h2 {
+            color: #3498db;
+            margin: 30px 0 15px 0;
+            font-size: 1.8rem;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
         }
         
-        .btn-first {
-            background-color: var(--secondary-color);
+        h3 {
+            color: #2ecc71;
+            margin: 20px 0 10px 0;
+            font-size: 1.4rem;
         }
         
-        .btn-withdraw {
-            background-color: var(--warning-color);
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
         }
         
-        .btn-dnf {
-            background-color: #9b59b6;
+        ul, ol {
+            margin: 15px 0 15px 30px;
         }
         
-        .btn-reset {
-            background-color: var(--danger-color);
+        li {
+            margin-bottom: 8px;
         }
         
-        .btn-export {
-            background-color: var(--primary-color);
-        }
-        
-        .btn-new-race {
-            background-color: #9b59b6;
-        }
-        
-        .btn-delete-race {
-            background-color: #e74c3c;
-        }
-        
-        .btn-edit {
-            background-color: #95a5a6;
-            color: white;
-            padding: 6px 12px;
-            font-size: 0.8rem;
-        }
-        
-        .btn-modify {
-            background-color: var(--success-color);
-        }
-        
-        .btn-remove {
-            background-color: var(--danger-color);
-            color: white;
-            padding: 6px 12px;
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-        
-        .btn-help {
-            background-color: var(--secondary-color);
-            color: white;
-            padding: 8px 16px;
-        }
-        
-        .info-panel {
+        .feature-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
-            margin-bottom: 20px;
+            margin: 20px 0;
         }
         
-        .info-card {
-            background-color: #1a252f;
+        .feature-card {
+            background: rgba(52, 73, 94, 0.7);
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            position: relative;
-            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+            border-left: 4px solid #2ecc71;
         }
         
-        .info-card h3 {
-            margin-bottom: 15px;
-            color: #ecf0f1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .info-card p {
-            font-size: 1.4rem;
-            font-weight: bold;
+        .feature-card h4 {
+            color: #2ecc71;
             margin-bottom: 10px;
-            color: #ecf0f1;
         }
         
-        .calculation-info {
-            background-color: #34495e;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-            font-size: 0.9rem;
-            color: #ecf0f1;
-        }
-        
-        .tabs-container {
-            background-color: #1a252f;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            overflow: hidden;
-            margin-bottom: 20px;
-            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
-        }
-        
-        .tabs-header {
-            display: flex;
-            border-bottom: 1px solid #34495e;
-        }
-        
-        .tab-button {
-            flex: 1;
+        .step-box {
+            background: rgba(52, 73, 94, 0.7);
             padding: 15px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            color: white;
-        }
-        
-        .tab-button.active {
-            background-color: var(--secondary-color);
-            color: white;
-        }
-        
-        .tab-content {
-            display: none;
-            padding: 20px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .rider-list, .lap-list {
-            list-style-type: none;
-        }
-        
-        .rider-item, .lap-item {
-            padding: 10px;
-            border-bottom: 1px solid #34495e;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-        }
-        
-        .rider-item:last-child, .lap-item:last-child {
-            border-bottom: none;
-        }
-        
-        .race-start-time {
-            text-align: center;
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #1a252f;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+            margin: 15px 0;
+            border-left: 4px solid #f39c12;
         }
         
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.7);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        .modal-content {
-            background-color: #2c3e50;
-            padding: 20px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
-        }
-        
-        .modal h3 {
-            margin-bottom: 15px;
-            color: white;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: white;
-        }
-        
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #34495e;
-            border-radius: 4px;
-            background-color: #1a252f;
-            color: white;
-        }
-        
-        .time-inputs {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .time-inputs input {
-            flex: 1;
-        }
-        
-        .time-option-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .time-option-buttons button {
-            flex: 1;
-        }
-        
-        .edit-icon {
-            cursor: pointer;
-            margin-left: 10px;
-            opacity: 0.6;
-            transition: opacity 0.3s;
-            font-size: 1rem;
-        }
-        
-        .edit-icon:hover {
-            opacity: 1;
-        }
-        
-        .lap-selector {
-            margin-bottom: 15px;
-        }
-        
-        .rider-info {
-            display: flex;
-            gap: 15px;
-            flex: 1;
-        }
-        
-        .rider-actions {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .btn-edit-rider, .btn-remove-rider {
-            background-color: var(--secondary-color);
-            color: white;
-            padding: 4px 8px;
-            font-size: 0.7rem;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        
-        .btn-remove-rider {
-            background-color: var(--danger-color);
-        }
-        
-        .footer {
-            text-align: center;
-            margin-top: 40px;
-            padding: 20px;
-            border-top: 1px solid #34495e;
-            color: #95a5a6;
-            background-color: #2c3e50;
-        }
-        
-        .footer a {
-            color: var(--secondary-color);
-            text-decoration: none;
-            font-weight: bold;
-        }
-        
-        .footer a:hover {
-            text-decoration: underline;
-        }
-        
-        .visit-counter {
-            margin-left: 10px;
-            padding: 2px 8px;
-            background-color: var(--secondary-color);
-            color: white;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        
-        .milliseconds-toggle {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-left: 10px;
-            padding: 8px 15px;
-            background-color: #1a252f;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .toggle-switch {
-            position: relative;
+        .step-number {
             display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-        
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
-        }
-        
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
+            background: #f39c12;
+            color: white;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
         }
         
-        input:checked + .toggle-slider {
-            background-color: var(--secondary-color);
+        .tip-box {
+            background: rgba(155, 89, 182, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #9b59b6;
         }
         
-        input:checked + .toggle-slider:before {
-            transform: translateX(26px);
+        .tip-box h4 {
+            color: #9b59b6;
+            margin-bottom: 10px;
         }
         
-        .edit-time-inputs {
-            display: flex;
-            gap: 10px;
+        .app-install {
+            background: rgba(46, 204, 113, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2ecc71;
         }
         
-        .edit-time-inputs .form-group {
-            flex: 1;
+        .app-install h3 {
+            color: #2ecc71;
+        }
+        
+        .platform {
+            margin: 15px 0;
+        }
+        
+        .platform h4 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .back-button {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .back-button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
         }
         
         @media (max-width: 768px) {
-            .chrono-section {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .language-selector {
                 flex-direction: column;
+                align-items: center;
             }
             
-            .lcd-time {
-                font-size: 2.5rem;
+            .lang-btn {
+                width: 200px;
             }
             
-            .main-controls, .bottom-controls {
-                flex-direction: column;
-            }
-            
-            .race-management {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .milliseconds-toggle {
-                margin-left: 0;
-                margin-top: 10px;
-                justify-content: center;
-            }
-            
-            .rider-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
-            }
-            
-            .rider-info {
-                width: 100%;
-                justify-content: space-between;
-            }
-            
-            .rider-actions {
-                align-self: flex-end;
+            .feature-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -678,1785 +228,449 @@
 <body>
     <div class="container">
         <header>
-            <h1 id="app-title">Cronómetro Control 80%</h1>
+            <h1 id="main-title">Ayuda Cronómetro Control 80%</h1>
             <div class="language-selector">
-                <img src="https://flagcdn.com/w40/es.png" class="flag active" id="flag-es" data-lang="es">
-                <div class="flag flag-catalunya" id="flag-ca" data-lang="ca"></div>
-                <img src="https://flagcdn.com/w40/gb.png" class="flag" id="flag-en" data-lang="en">
-                <span class="help-icon" id="help-icon-header" title="Ayuda">❓</span>
+                <button class="lang-btn active" data-lang="es">Español</button>
+                <button class="lang-btn" data-lang="ca">Català</button>
+                <button class="lang-btn" data-lang="en">English</button>
             </div>
         </header>
-        
-        <div class="race-management">
-            <select id="race-selector">
-                <option value="">-- Seleccionar Carrera --</option>
-            </select>
-            <button class="btn-new-race" id="btn-new-race">Nueva Carrera</button>
-            <button class="btn-delete-race" id="btn-delete-race">Eliminar Carrera</button>
+
+        <!-- Contenido Español -->
+        <div class="content active" id="content-es">
+            <h2>Descripción General</h2>
+            <p>El Cronómetro Control 80% es una herramienta diseñada para carreras de BTT y Ciclo-cross que implementa la regla del 80% para determinar cuándo un corredor debe ser retirado de la competición.</p>
+
+            <h2>Funcionalidades Principales</h2>
             
-            <div class="milliseconds-toggle">
-                <span id="milliseconds-label">Mostrar Milésimas</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="milliseconds-toggle" checked>
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-        </div>
-        
-        <div class="chrono-section">
-            <div class="current-lap-card">
-                <h3 id="current-lap-title">Vuelta Actual</h3>
-                <p id="current-lap">1</p>
-            </div>
-            <div class="chrono-display" id="chrono-display">
-                <div class="lcd-time" id="lcd-time">00:00'00"000</div>
-            </div>
-        </div>
-        
-        <div class="cutoff-warning" id="cutoff-warning">RETIRAR CORREDOR</div>
-        
-        <div class="main-controls">
-            <button class="btn-first" id="btn-first">Paso Primer Corredor</button>
-            <button class="btn-withdraw" id="btn-withdraw">Retirar Corredor</button>
-            <button class="btn-dnf" id="btn-dnf">DNF-Retirado</button>
-        </div>
-        
-        <div class="info-panel">
-            <div class="info-card">
-                <h3 id="first-lap-time-title">
-                    Tiempo Primera Vuelta
-                    <button class="btn-edit" id="btn-edit-first-lap">✏️</button>
-                </h3>
-                <p id="first-lap-time">--:--:--</p>
-                <div class="calculation-info" id="first-lap-info" style="display: none;">
-                    <strong id="eighty-percent-label">80% de este tiempo:</strong><br>
-                    <span id="eighty-percent-time">--:--:--</span>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Gestión de Carreras</h4>
+                    <ul>
+                        <li><strong>Nueva Carrera:</strong> Crear una nueva carrera con nombre personalizado</li>
+                        <li><strong>Seleccionar Carrera:</strong> Cambiar entre diferentes carreras guardadas</li>
+                        <li><strong>Eliminar Carrera:</strong> Borrar una carrera existente</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Control del Cronómetro</h4>
+                    <ul>
+                        <li><strong>Iniciar/Parar:</strong> Controlar el cronómetro principal</li>
+                        <li><strong>Fijar Tiempo:</strong> Establecer manualmente la hora de salida o el tiempo actual</li>
+                        <li><strong>Reiniciar:</strong> Restablecer completamente el cronómetro y todos los datos</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Registro de Vueltas</h4>
+                    <ul>
+                        <li><strong>Paso Primer Corredor:</strong> Registrar el tiempo de cada vuelta del líder</li>
+                        <li><strong>Vuelta Actual:</strong> Muestra el número de vuelta en curso</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Control de Corredores</h4>
+                    <ul>
+                        <li><strong>Retirar Corredor:</strong> Marcar corredores como retirados en la vuelta actual</li>
+                        <li><strong>DNF-Retirado:</strong> Marcar corredores como No Finalizaron (vuelta 0)</li>
+                    </ul>
                 </div>
             </div>
-            <div class="info-card">
-                <h3 id="cutoff-time-title">Tiempo Límite Actual</h3>
-                <p id="cutoff-time">--:--:--</p>
-                <div class="calculation-info" id="cutoff-info" style="display: none;">
-                    <strong id="last-lap-label">Último paso:</strong> <span id="last-lap-time">--:--:--</span><br>
-                    <strong id="eighty-percent-cutoff-label">+ 80% primera vuelta:</strong> <span id="eighty-percent-cutoff">--:--:--</span>
+
+            <h2>Cómo Usar</h2>
+            
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Configurar la Carrera</strong>
+                <p>Crear una nueva carrera o seleccionar una existente. Iniciar el cronómetro cuando comience la carrera.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Registrar la Primera Vuelta</strong>
+                <p>Presionar "Paso Primer Corredor" cuando el líder complete la primera vuelta. Este tiempo establece la base para el cálculo del 80%.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Seguimiento Continuo</strong>
+                <p>Registrar cada vuelta subsiguiente del líder. El sistema calcula automáticamente el tiempo límite para cada vuelta.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Control de Retirados</strong>
+                <p>Usar "Retirar Corredor" para corredores que abandonan durante la carrera. Usar "DNF-Retirado" para corredores que no finalizan.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
+                <strong>Exportar Resultados</strong>
+                <p>Al finalizar, exportar los datos para análisis posterior.</p>
+            </div>
+
+            <h2>Regla del 80%</h2>
+            <p>El sistema calcula el tiempo límite para cada vuelta sumando:</p>
+            <ul>
+                <li>Tiempo de la última vuelta registrada del líder</li>
+                <li>80% del tiempo de la primera vuelta</li>
+            </ul>
+            <p>Cuando un corredor supera este tiempo límite, debe ser retirado de la competición.</p>
+
+            <h2>Características Avanzadas</h2>
+            <ul>
+                <li><strong>Edición de Tiempos:</strong> Modificar tiempos de vueltas y corredores retirados</li>
+                <li><strong>Idiomas:</strong> Soporte para Español, Catalán e Inglés</li>
+                <li><strong>Persistencia:</strong> Los datos se guardan automáticamente</li>
+                <li><strong>Responsive:</strong> Funciona en dispositivos móviles y desktop</li>
+            </ul>
+
+            <div class="tip-box">
+                <h4>Atajos</h4>
+                <ul>
+                    <li><strong>Doble clic</strong> en el display del cronómetro: Abrir modal para fijar tiempo</li>
+                    <li><strong>Icono de ayuda:</strong> Acceso rápido a este documento de ayuda</li>
+                </ul>
+            </div>
+
+            <h2>Instalación como App en el Móvil</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>Para iPhone/iOS:</h4>
+                    <ol>
+                        <li>Abrir Safari y navegar a la página del cronómetro</li>
+                        <li>Tocar el icono de compartir (cuadrado con flecha hacia arriba)</li>
+                        <li>Desplazarse hacia abajo y seleccionar "Añadir a pantalla de inicio"</li>
+                        <li>Personalizar el nombre si se desea y tocar "Añadir"</li>
+                        <li>La app aparecerá en la pantalla de inicio como una aplicación nativa</li>
+                    </ol>
                 </div>
+                
+                <div class="platform">
+                    <h4>Para Android:</h4>
+                    <ol>
+                        <li>Abrir Chrome y navegar a la página del cronómetro</li>
+                        <li>Tocar el menú de tres puntos en la esquina superior derecha</li>
+                        <li>Seleccionar "Añadir a pantalla de inicio"</li>
+                        <li>Personalizar el nombre si se desea y tocar "Añadir"</li>
+                        <li>La app aparecerá en la pantalla de inicio como una aplicación nativa</li>
+                    </ol>
+                </div>
+                
+                <h3>Ventajas de instalarla como App:</h3>
+                <ul>
+                    <li>Acceso rápido directo desde la pantalla de inicio</li>
+                    <li>Funciona sin conexión a internet después de la primera carga</li>
+                    <li>Interfaz similar a una aplicación nativa</li>
+                    <li>No requiere descarga desde tiendas de aplicaciones</li>
+                </ul>
             </div>
-        </div>
-        
-        <div class="tabs-container">
-            <div class="tabs-header">
-                <button class="tab-button active" data-tab="withdrawn-tab" id="withdrawn-tab-button">Lista de Retirados (0)</button>
-                <button class="tab-button" data-tab="lap-times-tab" id="lap-times-tab-button">Tiempos del Primer Corredor</button>
-            </div>
-            <div class="tab-content active" id="withdrawn-tab">
-                <ul class="rider-list" id="rider-list"></ul>
-            </div>
-            <div class="tab-content" id="lap-times-tab">
-                <ul class="lap-list" id="lap-list"></ul>
-            </div>
-        </div>
-        
-        <div class="race-start-time">
-            <strong id="start-time-label">Hora de Salida:</strong>
-            <span id="race-start-time">--:--:--</span>
-        </div>
-        
-        <div class="bottom-controls">
-            <button class="btn-export" id="btn-export">Exportar a Excel</button>
-            <button class="btn-start" id="btn-start">Iniciar Cronómetro</button>
-            <button class="btn-set-time" id="btn-set-time">Fijar Tiempo Crono</button>
-            <button class="btn-reset" id="btn-reset">Reiniciar Cronómetro</button>
-            <button class="btn-help" id="btn-help">Ayuda</button>
+
+            <a href="Crono_80.html" class="back-button">Volver al Cronómetro</a>
         </div>
 
-        <footer class="footer">
-            <p>
-                <span id="copyright-text">2025 Copyright</span>
-                <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                    Roberto Benet - rbenet71@gmail.com
-                </a>
-                <span class="visit-counter" id="visit-counter">0 visitas</span>
-            </p>
-        </footer>
-    </div>
-    
-    <!-- Modales existentes -->
-    <div class="modal" id="withdraw-modal">
-        <div class="modal-content">
-            <h3 id="withdraw-modal-title">Retirar Corredor</h3>
-            <div class="form-group">
-                <label id="withdraw-dorsal-label" for="dorsal-input">Número(s) de Dorsal (separados por comas)</label>
-                <input type="text" id="dorsal-input" placeholder="Ej: 123, 456, 789">
-            </div>
-            <div class="modal-buttons">
-                <button class="btn-reset" id="cancel-withdraw">Cancelar</button>
-                <button class="btn-withdraw" id="confirm-withdraw">Confirmar</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Nuevo modal para DNF -->
-    <div class="modal" id="dnf-modal">
-        <div class="modal-content">
-            <h3 id="dnf-modal-title">DNF - Retirado</h3>
-            <div class="form-group">
-                <label id="dnf-dorsal-label" for="dnf-dorsal-input">Número(s) de Dorsal (separados por comas)</label>
-                <input type="text" id="dnf-dorsal-input" placeholder="Ej: 123, 456, 789">
-            </div>
-            <div class="modal-buttons">
-                <button class="btn-reset" id="cancel-dnf">Cancelar</button>
-                <button class="btn-dnf" id="confirm-dnf">Confirmar</button>
-            </div>
-        </div>
-    </div>
-    
-    <div class="modal" id="reset-modal">
-        <div class="modal-content">
-            <h3 id="reset-modal-title">Confirmar Reinicio</h3>
-            <p id="reset-modal-text">¿Estás seguro de que quieres reiniciar el cronómetro? Se perderán todos los datos.</p>
-            <div class="modal-buttons">
-                <button class="btn-reset" id="cancel-reset">Cancelar</button>
-                <button class="btn-start" id="confirm-reset">Confirmar</button>
-            </div>
-        </div>
-    </div>
-    
-    <div class="modal" id="time-modal">
-        <div class="modal-content">
-            <h3 id="time-modal-title">Fijar Tiempo del Cronómetro</h3>
-            <div class="time-option-buttons">
-                <button class="btn-set-time" id="set-start-time">Hora Salida</button>
-                <button class="btn-set-time" id="set-manual-time">Hora Crono</button>
-            </div>
-            <div id="time-inputs-section">
-                <div class="form-group">
-                    <label id="time-hours-label" for="hours-input">Horas</label>
-                    <input type="number" id="hours-input" min="0" max="23" value="0">
-                </div>
-                <div class="form-group">
-                    <label id="time-minutes-label" for="minutes-input">Minutos</label>
-                    <input type="number" id="minutes-input" min="0" max="59" value="0">
-                </div>
-                <div class="form-group">
-                    <label id="time-seconds-label" for="seconds-input">Segundos</label>
-                    <input type="number" id="seconds-input" min="0" max="59" value="0">
-                </div>
-            </div>
-            <div class="modal-buttons">
-                <button class="btn-reset" id="cancel-time">Cancelar</button>
-                <button class="btn-modify" id="confirm-time">Modificar</button>
-            </div>
-        </div>
-    </div>
-    
-    <div class="modal" id="new-race-modal">
-        <div class="modal-content">
-            <h3 id="new-race-modal-title">Nueva Carrera</h3>
-            <div class="form-group">
-                <label id="race-name-label" for="race-name-input">Nombre de la Carrera</label>
-                <input type="text" id="race-name-input" placeholder="Ej: BTT Montaña 2024">
-            </div>
-            <div class="modal-buttons">
-                <button class="btn-reset" id="cancel-new-race">Cancelar</button>
-                <button class="btn-new-race" id="confirm-new-race">Crear Carrera</button>
-            </div>
-        </div>
-    </div>
+        <!-- Contenido Català -->
+        <div class="content" id="content-ca">
+            <h2>Descripció General</h2>
+            <p>El Cronòmetre Control 80% és una eina dissenyada per a curses de BTT i Ciclo-cross que implementa la regla del 80% per determinar quan un corredor ha de ser retirat de la competició.</p>
 
-    <div class="modal" id="delete-race-modal">
-        <div class="modal-content">
-            <h3 id="delete-race-modal-title">Eliminar Carrera</h3>
-            <p id="delete-race-modal-text">¿Estás seguro de que quieres eliminar esta carrera? Esta acción no se puede deshacer.</p>
-            <div class="modal-buttons">
-                <button class="btn-reset" id="cancel-delete-race">Cancelar</button>
-                <button class="btn-delete-race" id="confirm-delete-race">Eliminar</button>
+            <h2>Funcionalitats Principals</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Gestió de Curses</h4>
+                    <ul>
+                        <li><strong>Nova Cursa:</strong> Crear una nova cursa amb nom personalitzat</li>
+                        <li><strong>Seleccionar Cursa:</strong> Canviar entre diferents curses guardades</li>
+                        <li><strong>Eliminar Cursa:</strong> Esborrar una cursa existent</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Control del Cronòmetre</h4>
+                    <ul>
+                        <li><strong>Iniciar/Aturar:</strong> Controlar el cronòmetre principal</li>
+                        <li><strong>Fixar Temps:</strong> Establir manualment l'hora de sortida o el temps actual</li>
+                        <li><strong>Reiniciar:</strong> Restablir completament el cronòmetre i totes les dades</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Registre de Voltes</h4>
+                    <ul>
+                        <li><strong>Pas Primer Corredor:</strong> Registrar el temps de cada volta del líder</li>
+                        <li><strong>Volta Actual:</strong> Mostra el número de volta en curs</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Control de Corredors</h4>
+                    <ul>
+                        <li><strong>Retirar Corredor:</strong> Marcar corredors com a retirats en la volta actual</li>
+                        <li><strong>DNF-Retirat:</strong> Marcar corredors com a No Finalitzaren (volta 0)</li>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <div class="modal" id="stop-chrono-modal">
-        <div class="modal-content">
-            <h3 id="stop-chrono-modal-title">Parar Cronómetro</h3>
-            <p id="stop-chrono-modal-text">¿Estás seguro de que quieres parar el cronómetro?</p>
-            <div class="modal-buttons">
-                <button class="btn-reset" id="cancel-stop-chrono">Cancelar</button>
-                <button class="btn-start" id="confirm-stop-chrono">Parar</button>
+            <h2>Com Utilitzar-ho</h2>
+            
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Configurar la Cursa</strong>
+                <p>Crear una nova cursa o seleccionar una existent. Iniciar el cronòmetre quan comenci la cursa.</p>
             </div>
-        </div>
-    </div>
+            
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Registrar la Primera Volta</strong>
+                <p>Prémer "Pas Primer Corredor" quan el líder completi la primera volta. Aquest temps estableix la base per al càlcul del 80%.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Seguiment Continu</strong>
+                <p>Registrar cada volta subssegüent del líder. El sistema calcula automàticament el temps límit per a cada volta.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Control de Retirats</strong>
+                <p>Utilitzar "Retirar Corredor" per a corredors que abandonen durant la cursa. Utilitzar "DNF-Retirat" per a corredors que no finalitzen.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
+                <strong>Exportar Resultats</strong>
+                <p>Al finalitzar, exportar les dades per a anàlisi posterior.</p>
+            </div>
 
-    <div class="modal" id="edit-first-lap-modal">
-        <div class="modal-content">
-            <h3 id="edit-first-lap-title">Modificar Tiempo Primera Vuelta</h3>
-            <div class="form-group">
-                <label for="edit-minutes-input">Minutos</label>
-                <input type="number" id="edit-minutes-input" min="0" max="59" value="0">
-            </div>
-            <div class="form-group">
-                <label for="edit-seconds-input">Segundos</label>
-                <input type="number" id="edit-seconds-input" min="0" max="59" value="0">
-            </div>
-            <div class="form-group">
-                <label for="edit-milliseconds-input">Milisegundos</label>
-                <input type="number" id="edit-milliseconds-input" min="0" max="999" value="0">
-            </div>
-            <div class="modal-buttons">
-                <button class="btn-reset" id="cancel-edit-first-lap">Cancelar</button>
-                <button class="btn-modify" id="confirm-edit-first-lap">Modificar</button>
-            </div>
-        </div>
-    </div>
+            <h2>Regla del 80%</h2>
+            <p>El sistema calcula el temps límit per a cada volta sumant:</p>
+            <ul>
+                <li>Temps de l'última volta registrada del líder</li>
+                <li>80% del temps de la primera volta</li>
+            </ul>
+            <p>Quan un corredor supera aquest temps límit, ha de ser retirat de la competició.</p>
 
-    <!-- Nuevos modales para edición -->
-    <div class="modal" id="edit-lap-time-modal">
-        <div class="modal-content">
-            <h3 id="edit-lap-time-title">Editar Tiempo de Vuelta</h3>
-            <div class="form-group">
-                <label for="edit-lap-number-input">Número de Vuelta</label>
-                <input type="number" id="edit-lap-number-input" min="1" value="1" readonly>
-            </div>
-            <div class="edit-time-inputs">
-                <div class="form-group">
-                    <label for="edit-lap-minutes-input">Minutos</label>
-                    <input type="number" id="edit-lap-minutes-input" min="0" max="59" value="0">
-                </div>
-                <div class="form-group">
-                    <label for="edit-lap-seconds-input">Segundos</label>
-                    <input type="number" id="edit-lap-seconds-input" min="0" max="59" value="0">
-                </div>
-                <div class="form-group">
-                    <label for="edit-lap-milliseconds-input">Milisegundos</label>
-                    <input type="number" id="edit-lap-milliseconds-input" min="0" max="999" value="0">
-                </div>
-            </div>
-            <div class="modal-buttons">
-                <button class="btn-reset" id="cancel-edit-lap-time">Cancelar</button>
-                <button class="btn-modify" id="confirm-edit-lap-time">Modificar</button>
-            </div>
-        </div>
-    </div>
+            <h2>Característiques Avançades</h2>
+            <ul>
+                <li><strong>Edició de Temps:</strong> Modificar temps de voltes i corredors retirats</li>
+                <li><strong>Idiomes:</strong> Suport per a Espanyol, Català i Anglès</li>
+                <li><strong>Persistència:</strong> Les dades es guarden automàticament</li>
+                <li><strong>Responsive:</strong> Funciona en dispositius mòbils i desktop</li>
+            </ul>
 
-    <div class="modal" id="edit-rider-modal">
-        <div class="modal-content">
-            <h3 id="edit-rider-title">Editar Corredor Retirado</h3>
-            <div class="form-group">
-                <label for="edit-rider-dorsal-input">Número de Dorsal</label>
-                <input type="text" id="edit-rider-dorsal-input">
+            <div class="tip-box">
+                <h4>Dreceres</h4>
+                <ul>
+                    <li><strong>Doble clic</strong> en el display del cronòmetre: Obrir modal per a fixar temps</li>
+                    <li><strong>Icona d'ajuda:</strong> Accés ràpid a aquest document d'ajuda</li>
+                </ul>
             </div>
-            <div class="form-group">
-                <label for="edit-rider-lap-input">Vuelta de Retirada</label>
-                <input type="number" id="edit-rider-lap-input" min="1" value="1">
-            </div>
-            <div class="edit-time-inputs">
-                <div class="form-group">
-                    <label for="edit-rider-minutes-input">Minutos</label>
-                    <input type="number" id="edit-rider-minutes-input" min="0" max="59" value="0">
+
+            <h2>Instal·lació com a App al Mòbil</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>Per a iPhone/iOS:</h4>
+                    <ol>
+                        <li>Obri Safari i navegar a la pàgina del cronòmetre</li>
+                        <li>Toqui la icona de compartir (quadrat amb fletxa cap amunt)</li>
+                        <li>Desplaçar-se cap avall i seleccionar "Afegir a pantalla d'inici"</li>
+                        <li>Personalitzar el nom si es desitja i tocar "Afegir"</li>
+                        <li>L'app apareixerà a la pantalla d'inici com una aplicació nativa</li>
+                    </ol>
                 </div>
-                <div class="form-group">
-                    <label for="edit-rider-seconds-input">Segundos</label>
-                    <input type="number" id="edit-rider-seconds-input" min="0" max="59" value="0">
+                
+                <div class="platform">
+                    <h4>Per a Android:</h4>
+                    <ol>
+                        <li>Obri Chrome i navegar a la pàgina del cronòmetre</li>
+                        <li>Toqui el menú de tres punts a la cantonada superior dreta</li>
+                        <li>Seleccionar "Afegir a pantalla d'inici"</li>
+                        <li>Personalitzar el nom si es desitja i tocar "Afegir"</li>
+                        <li>L'app apareixerà a la pantalla d'inici com una aplicació nativa</li>
+                    </ol>
                 </div>
-                <div class="form-group">
-                    <label for="edit-rider-milliseconds-input">Milisegundos</label>
-                    <input type="number" id="edit-rider-milliseconds-input" min="0" max="999" value="0">
+                
+                <h3>Avantatges d'instal·lar-la com a App:</h3>
+                <ul>
+                    <li>Accés ràpid directe des de la pantalla d'inici</li>
+                    <li>Funciona sense connexió a internet després de la primera càrrega</li>
+                    <li>Interfície similar a una aplicació nativa</li>
+                    <li>No requereix descàrrega des de botigues d'aplicacions</li>
+                </ul>
+            </div>
+
+            <a href="Crono_80.html" class="back-button">Tornar al Cronòmetre</a>
+        </div>
+
+        <!-- Contenido English -->
+        <div class="content" id="content-en">
+            <h2>General Description</h2>
+            <p>The Stopwatch 80% Control is a tool designed for MTB and Cyclo-cross races that implements the 80% rule to determine when a rider should be withdrawn from the competition.</p>
+
+            <h2>Main Features</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Race Management</h4>
+                    <ul>
+                        <li><strong>New Race:</strong> Create a new race with custom name</li>
+                        <li><strong>Select Race:</strong> Switch between different saved races</li>
+                        <li><strong>Delete Race:</strong> Delete an existing race</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Stopwatch Control</h4>
+                    <ul>
+                        <li><strong>Start/Stop:</strong> Control the main stopwatch</li>
+                        <li><strong>Set Time:</strong> Manually set start time or current time</li>
+                        <li><strong>Reset:</strong> Completely reset the stopwatch and all data</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Lap Recording</h4>
+                    <ul>
+                        <li><strong>First Rider Pass:</strong> Record the time of each lap by the leader</li>
+                        <li><strong>Current Lap:</strong> Shows the current lap number</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Rider Control</h4>
+                    <ul>
+                        <li><strong>Withdraw Rider:</strong> Mark riders as withdrawn in the current lap</li>
+                        <li><strong>DNF-Withdrawn:</strong> Mark riders as Did Not Finish (lap 0)</li>
+                    </ul>
                 </div>
             </div>
-            <div class="modal-buttons">
-                <button class="btn-reset" id="cancel-edit-rider">Cancelar</button>
-                <button class="btn-modify" id="confirm-edit-rider">Modificar</button>
+
+            <h2>How to Use</h2>
+            
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Set Up the Race</strong>
+                <p>Create a new race or select an existing one. Start the stopwatch when the race begins.</p>
             </div>
+            
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Record First Lap</strong>
+                <p>Press "First Rider Pass" when the leader completes the first lap. This time sets the base for the 80% calculation.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Continuous Tracking</strong>
+                <p>Record each subsequent lap by the leader. The system automatically calculates the cutoff time for each lap.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Withdrawn Riders Control</strong>
+                <p>Use "Withdraw Rider" for riders who abandon during the race. Use "DNF-Withdrawn" for riders who do not finish.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
+                <strong>Export Results</strong>
+                <p>When finished, export data for later analysis.</p>
+            </div>
+
+            <h2>80% Rule</h2>
+            <p>The system calculates the cutoff time for each lap by adding:</p>
+            <ul>
+                <li>Time of the last recorded lap by the leader</li>
+                <li>80% of the first lap time</li>
+            </ul>
+            <p>When a rider exceeds this cutoff time, they must be withdrawn from the competition.</p>
+
+            <h2>Advanced Features</h2>
+            <ul>
+                <li><strong>Time Editing:</strong> Modify lap times and withdrawn riders' times</li>
+                <li><strong>Languages:</strong> Support for Spanish, Catalan and English</li>
+                <li><strong>Persistence:</strong> Data is automatically saved</li>
+                <li><strong>Responsive:</strong> Works on mobile devices and desktop</li>
+            </ul>
+
+            <div class="tip-box">
+                <h4>Shortcuts</h4>
+                <ul>
+                    <li><strong>Double click</strong> on the stopwatch display: Open modal to set time</li>
+                    <li><strong>Help icon:</strong> Quick access to this help document</li>
+                </ul>
+            </div>
+
+            <h2>Installation as Mobile App</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>For iPhone/iOS:</h4>
+                    <ol>
+                        <li>Open Safari and navigate to the stopwatch page</li>
+                        <li>Tap the share icon (square with upward arrow)</li>
+                        <li>Scroll down and select "Add to Home Screen"</li>
+                        <li>Customize the name if desired and tap "Add"</li>
+                        <li>The app will appear on the home screen like a native app</li>
+                    </ol>
+                </div>
+                
+                <div class="platform">
+                    <h4>For Android:</h4>
+                    <ol>
+                        <li>Open Chrome and navigate to the stopwatch page</li>
+                        <li>Tap the three-dot menu in the upper right corner</li>
+                        <li>Select "Add to Home Screen"</li>
+                        <li>Customize the name if desired and tap "Add"</li>
+                        <li>The app will appear on the home screen like a native app</li>
+                    </ol>
+                </div>
+                
+                <h3>Advantages of Installing as App:</h3>
+                <ul>
+                    <li>Quick access directly from home screen</li>
+                    <li>Works offline after first load</li>
+                    <li>Interface similar to native app</li>
+                    <li>No download required from app stores</li>
+                </ul>
+            </div>
+
+            <a href="Crono_80.html" class="back-button">Back to Stopwatch</a>
         </div>
     </div>
 
     <script>
-        // Variables globales para el sistema de idiomas
-        let currentLanguage = 'es';
-        
-        // Textos en diferentes idiomas
-        const translations = {
-            es: {
-                appTitle: "Cronómetro Control 80%",
-                currentLapTitle: "Vuelta Actual",
-                firstLapTimeTitle: "Tiempo Primera Vuelta",
-                cutoffTimeTitle: "Tiempo Límite Actual",
-                startTimeLabel: "Hora de Salida:",
-                cutoffWarning: "RETIRAR CORREDOR",
-                millisecondsLabel: "Mostrar Milésimas",
-                withdrawnTab: "Lista de Retirados",
-                lapTimesTab: "Tiempos del Primer Corredor",
-                eightyPercentLabel: "80% de este tiempo:",
-                lastLapLabel: "Último paso:",
-                eightyPercentCutoffLabel: "+ 80% primera vuelta:",
-                
-                // Botones
-                startButton: "Iniciar Cronómetro",
-                stopButton: "Parar Cronómetro",
-                setTimeButton: "Fijar Tiempo Crono",
-                firstRiderButton: "Paso Primer Corredor",
-                withdrawButton: "Retirar Corredor",
-                dnfButton: "DNF-Retirado",
-                resetButton: "Reiniciar Cronómetro",
-                exportButton: "Exportar a Excel",
-                newRaceButton: "Nueva Carrera",
-                deleteRaceButton: "Eliminar Carrera",
-                helpButton: "Ayuda",
-                
-                // Modales
-                withdrawModalTitle: "Retirar Corredor",
-                withdrawDorsalLabel: "Número(s) de Dorsal (separados por comas)",
-                dnfModalTitle: "DNF - Retirado",
-                dnfDorsalLabel: "Número(s) de Dorsal (separados por comas)",
-                resetModalTitle: "Confirmar Reinicio",
-                resetModalText: "¿Estás seguro de que quieres reiniciar el cronómetro? Se perderán todos los datos.",
-                timeModalTitle: "Fijar Tiempo del Cronómetro",
-                timeHoursLabel: "Horas",
-                timeMinutesLabel: "Minutos",
-                timeSecondsLabel: "Segundos",
-                newRaceModalTitle: "Nueva Carrera",
-                raceNameLabel: "Nombre de la Carrera",
-                deleteRaceModalTitle: "Eliminar Carrera",
-                deleteRaceModalText: "¿Estás seguro de que quieres eliminar esta carrera? Esta acción no se puede deshacer.",
-                stopChronoModalTitle: "Parar Cronómetro",
-                stopChronoModalText: "¿Estás seguro de que quieres parar el cronómetro?",
-                editFirstLapTitle: "Modificar Tiempo Primera Vuelta",
-                editLapTimeTitle: "Editar Tiempo de Vuelta",
-                editRiderTitle: "Editar Corredor Retirado",
-                
-                // Botones modales
-                cancelButton: "Cancelar",
-                confirmButton: "Confirmar",
-                modifyButton: "Modificar",
-                createButton: "Crear Carrera",
-                
-                // Mensajes
-                noRaceSelected: "Debe seleccionar una carrera primero",
-                chronoNotRunning: "El cronómetro debe estar en marcha para registrar vueltas",
-                dorsalRequired: "El número de dorsal es obligatorio",
-                noLapsToDelete: "No hay vueltas para eliminar",
-                onlyLastLap: "Solo se puede eliminar la última vuelta registrada",
-                confirmDeleteLap: "¿Estás seguro de que quieres eliminar esta vuelta?",
-                confirmDeleteRider: "¿Estás seguro de que quieres eliminar este corredor de la lista de retirados?",
-                
-                // Footer
-                copyright: "2025 Copyright",
-                copyrightLink: "Roberto Benet - rbenet71@gmail.com",
-                visits: "visitas",
-                
-                // Selector de carrera
-                selectRace: "-- Seleccionar Carrera --",
-                raceNamePlaceholder: "Ej: BTT Montaña 2024",
-                dorsalPlaceholder: "Ej: 123, 456, 789"
-            },
-            ca: {
-                appTitle: "Cronòmetre Control 80%",
-                currentLapTitle: "Volta Actual",
-                firstLapTimeTitle: "Temps Primera Volta",
-                cutoffTimeTitle: "Temps Límit Actual",
-                startTimeLabel: "Hora de Sortida:",
-                cutoffWarning: "RETIRAR CORREDOR",
-                millisecondsLabel: "Mostrar Mil·lèsimes",
-                withdrawnTab: "Llista de Retirats",
-                lapTimesTab: "Temps del Primer Corredor",
-                eightyPercentLabel: "80% d'aquest temps:",
-                lastLapLabel: "Darrer pas:",
-                eightyPercentCutoffLabel: "+ 80% primera volta:",
-                
-                // Botones
-                startButton: "Iniciar Cronòmetre",
-                stopButton: "Aturar Cronòmetre",
-                setTimeButton: "Fixar Temps Crono",
-                firstRiderButton: "Pas Primer Corredor",
-                withdrawButton: "Retirar Corredor",
-                dnfButton: "DNF-Retirat",
-                resetButton: "Reiniciar Cronòmetre",
-                exportButton: "Exportar a Excel",
-                newRaceButton: "Nova Cursa",
-                deleteRaceButton: "Eliminar Cursa",
-                helpButton: "Ajuda",
-                
-                // Modales
-                withdrawModalTitle: "Retirar Corredor",
-                withdrawDorsalLabel: "Número(s) de Dorsal (separats per comes)",
-                dnfModalTitle: "DNF - Retirat",
-                dnfDorsalLabel: "Número(s) de Dorsal (separats per comes)",
-                resetModalTitle: "Confirmar Reinici",
-                resetModalText: "¿Estàs segur que vols reiniciar el cronòmetre? Es perdran totes les dades.",
-                timeModalTitle: "Fixar Temps del Cronòmetre",
-                timeHoursLabel: "Hores",
-                timeMinutesLabel: "Minuts",
-                timeSecondsLabel: "Segons",
-                newRaceModalTitle: "Nova Cursa",
-                raceNameLabel: "Nom de la Cursa",
-                deleteRaceModalTitle: "Eliminar Cursa",
-                deleteRaceModalText: "¿Estàs segur que vols eliminar aquesta cursa? Aquesta acció no es pot desfer.",
-                stopChronoModalTitle: "Aturar Cronòmetre",
-                stopChronoModalText: "¿Estàs segur que vols aturar el cronòmetre?",
-                editFirstLapTitle: "Modificar Temps Primera Volta",
-                editLapTimeTitle: "Editar Temps de Volta",
-                editRiderTitle: "Editar Corredor Retirat",
-                
-                // Botones modales
-                cancelButton: "Cancel·lar",
-                confirmButton: "Confirmar",
-                modifyButton: "Modificar",
-                createButton: "Crear Cursa",
-                
-                // Mensajes
-                noRaceSelected: "Ha de seleccionar una cursa primer",
-                chronoNotRunning: "El cronòmetre ha d'estar en marxa per registrar voltes",
-                dorsalRequired: "El número de dorsal és obligatori",
-                noLapsToDelete: "No hi ha voltes per eliminar",
-                onlyLastLap: "Només es pot eliminar l'última volta registrada",
-                confirmDeleteLap: "¿Estàs segur que vols eliminar aquesta volta?",
-                confirmDeleteRider: "¿Estàs segur que vols eliminar aquest corredor de la llista de retirats?",
-                
-                // Footer
-                copyright: "2025 Copyright",
-                copyrightLink: "Roberto Benet - rbenet71@gmail.com",
-                visits: "visites",
-                
-                // Selector de carrera
-                selectRace: "-- Seleccionar Cursa --",
-                raceNamePlaceholder: "Ex: BTT Muntanya 2024",
-                dorsalPlaceholder: "Ex: 123, 456, 789"
-            },
-            en: {
-                appTitle: "Stopwatch 80% Control",
-                currentLapTitle: "Current Lap",
-                firstLapTimeTitle: "First Lap Time",
-                cutoffTimeTitle: "Current Cutoff Time",
-                startTimeLabel: "Start Time:",
-                cutoffWarning: "WITHDRAW RIDER",
-                millisecondsLabel: "Show Milliseconds",
-                withdrawnTab: "Withdrawn Riders List",
-                lapTimesTab: "First Rider Times",
-                eightyPercentLabel: "80% of this time:",
-                lastLapLabel: "Last pass:",
-                eightyPercentCutoffLabel: "+ 80% first lap:",
-                
-                // Botones
-                startButton: "Start Stopwatch",
-                stopButton: "Stop Stopwatch",
-                setTimeButton: "Set Stopwatch Time",
-                firstRiderButton: "First Rider Pass",
-                withdrawButton: "Withdraw Rider",
-                dnfButton: "DNF-Withdrawn",
-                resetButton: "Reset Stopwatch",
-                exportButton: "Export to Excel",
-                newRaceButton: "New Race",
-                deleteRaceButton: "Delete Race",
-                helpButton: "Help",
-                
-                // Modales
-                withdrawModalTitle: "Withdraw Rider",
-                withdrawDorsalLabel: "Bib Number(s) (separated by commas)",
-                dnfModalTitle: "DNF - Withdrawn",
-                dnfDorsalLabel: "Bib Number(s) (separated by commas)",
-                resetModalTitle: "Confirm Reset",
-                resetModalText: "Are you sure you want to reset the stopwatch? All data will be lost.",
-                timeModalTitle: "Set Stopwatch Time",
-                timeHoursLabel: "Hours",
-                timeMinutesLabel: "Minutes",
-                timeSecondsLabel: "Seconds",
-                newRaceModalTitle: "New Race",
-                raceNameLabel: "Race Name",
-                deleteRaceModalTitle: "Delete Race",
-                deleteRaceModalText: "Are you sure you want to delete this race? This action cannot be undone.",
-                stopChronoModalTitle: "Stop Stopwatch",
-                stopChronoModalText: "Are you sure you want to stop the stopwatch?",
-                editFirstLapTitle: "Modify First Lap Time",
-                editLapTimeTitle: "Edit Lap Time",
-                editRiderTitle: "Edit Withdrawn Rider",
-                
-                // Botones modales
-                cancelButton: "Cancel",
-                confirmButton: "Confirm",
-                modifyButton: "Modify",
-                createButton: "Create Race",
-                
-                // Mensajes
-                noRaceSelected: "You must select a race first",
-                chronoNotRunning: "The stopwatch must be running to record laps",
-                dorsalRequired: "Bib number is required",
-                noLapsToDelete: "There are no laps to delete",
-                onlyLastLap: "Only the last recorded lap can be deleted",
-                confirmDeleteLap: "Are you sure you want to delete this lap?",
-                confirmDeleteRider: "Are you sure you want to remove this rider from the withdrawn list?",
-                
-                // Footer
-                copyright: "2025 Copyright",
-                copyrightLink: "Roberto Benet - rbenet71@gmail.com",
-                visits: "visits",
-                
-                // Selector de carrera
-                selectRace: "-- Select Race --",
-                raceNamePlaceholder: "Ex: MTB Mountain 2024",
-                dorsalPlaceholder: "Ex: 123, 456, 789"
-            }
-        };
-
-        // Variables globales
-        let startTime = 0;
-        let currentTime = 0;
-        let isRunning = false;
-        let intervalId = null;
-        let firstLapTime = null;
-        let currentLap = 1;
-        let currentLapTimes = {};
-        let cutoffTime = null;
-        let withdrawnRiders = [];
-        let currentRaceId = null;
-        let races = {};
-        let raceStartTime = null;
-        let timeModalMode = 'start';
-        let isOverCutoff = false;
-        let currentEditingLap = null;
-        let currentEditingRiderIndex = null;
-        let showMilliseconds = true;
-
-        // Elementos DOM
-        const chronoDisplay = document.getElementById('chrono-display');
-        const lcdTime = document.getElementById('lcd-time');
-        const btnStart = document.getElementById('btn-start');
-        const btnSetTime = document.getElementById('btn-set-time');
-        const btnFirst = document.getElementById('btn-first');
-        const btnWithdraw = document.getElementById('btn-withdraw');
-        const btnDnf = document.getElementById('btn-dnf');
-        const btnReset = document.getElementById('btn-reset');
-        const btnExport = document.getElementById('btn-export');
-        const btnNewRace = document.getElementById('btn-new-race');
-        const btnDeleteRace = document.getElementById('btn-delete-race');
-        const btnEditFirstLap = document.getElementById('btn-edit-first-lap');
-        const btnHelp = document.getElementById('btn-help');
-        const raceSelector = document.getElementById('race-selector');
-        const currentLapElement = document.getElementById('current-lap');
-        const firstLapTimeElement = document.getElementById('first-lap-time');
-        const cutoffTimeElement = document.getElementById('cutoff-time');
-        const riderListElement = document.getElementById('rider-list');
-        const lapListElement = document.getElementById('lap-list');
-        const firstLapInfo = document.getElementById('first-lap-info');
-        const eightyPercentTime = document.getElementById('eighty-percent-time');
-        const cutoffInfo = document.getElementById('cutoff-info');
-        const lastLapTimeElement = document.getElementById('last-lap-time');
-        const eightyPercentCutoffElement = document.getElementById('eighty-percent-cutoff');
-        const raceStartTimeElement = document.getElementById('race-start-time');
-        const withdrawnTabButton = document.getElementById('withdrawn-tab-button');
-        const lapTimesTabButton = document.getElementById('lap-times-tab-button');
-        const cutoffWarning = document.getElementById('cutoff-warning');
-        const visitCounterElement = document.getElementById('visit-counter');
-        const millisecondsToggle = document.getElementById('milliseconds-toggle');
-        const millisecondsLabel = document.getElementById('milliseconds-label');
-        const helpIconHeader = document.getElementById('help-icon-header');
-        
-        // Modales
-        const withdrawModal = document.getElementById('withdraw-modal');
-        const dnfModal = document.getElementById('dnf-modal');
-        const resetModal = document.getElementById('reset-modal');
-        const timeModal = document.getElementById('time-modal');
-        const newRaceModal = document.getElementById('new-race-modal');
-        const deleteRaceModal = document.getElementById('delete-race-modal');
-        const stopChronoModal = document.getElementById('stop-chrono-modal');
-        const editFirstLapModal = document.getElementById('edit-first-lap-modal');
-        const editLapTimeModal = document.getElementById('edit-lap-time-modal');
-        const editRiderModal = document.getElementById('edit-rider-modal');
-
-        // Función para actualizar idioma
-        function updateLanguage(lang) {
-            currentLanguage = lang;
-            const t = translations[lang];
-            
-            // Actualizar textos principales
-            document.getElementById('app-title').textContent = t.appTitle;
-            document.getElementById('current-lap-title').textContent = t.currentLapTitle;
-            document.getElementById('first-lap-time-title').textContent = t.firstLapTimeTitle;
-            document.getElementById('cutoff-time-title').textContent = t.cutoffTimeTitle;
-            document.getElementById('start-time-label').textContent = t.startTimeLabel;
-            document.getElementById('cutoff-warning').textContent = t.cutoffWarning;
-            document.getElementById('milliseconds-label').textContent = t.millisecondsLabel;
-            document.getElementById('eighty-percent-label').textContent = t.eightyPercentLabel;
-            document.getElementById('last-lap-label').textContent = t.lastLapLabel;
-            document.getElementById('eighty-percent-cutoff-label').textContent = t.eightyPercentCutoffLabel;
-            
-            // Actualizar botones
-            btnStart.textContent = isRunning ? t.stopButton : t.startButton;
-            btnSetTime.textContent = t.setTimeButton;
-            btnFirst.textContent = t.firstRiderButton;
-            btnWithdraw.textContent = t.withdrawButton;
-            btnDnf.textContent = t.dnfButton;
-            btnReset.textContent = t.resetButton;
-            btnExport.textContent = t.exportButton;
-            btnNewRace.textContent = t.newRaceButton;
-            btnDeleteRace.textContent = t.deleteRaceButton;
-            btnHelp.textContent = t.helpButton;
-            
-            // Actualizar pestañas
-            updateTabCounts();
-            
-            // Actualizar modales
-            document.getElementById('withdraw-modal-title').textContent = t.withdrawModalTitle;
-            document.getElementById('withdraw-dorsal-label').textContent = t.withdrawDorsalLabel;
-            document.getElementById('dnf-modal-title').textContent = t.dnfModalTitle;
-            document.getElementById('dnf-dorsal-label').textContent = t.dnfDorsalLabel;
-            document.getElementById('reset-modal-title').textContent = t.resetModalTitle;
-            document.getElementById('reset-modal-text').textContent = t.resetModalText;
-            document.getElementById('time-modal-title').textContent = t.timeModalTitle;
-            document.getElementById('time-hours-label').textContent = t.timeHoursLabel;
-            document.getElementById('time-minutes-label').textContent = t.timeMinutesLabel;
-            document.getElementById('time-seconds-label').textContent = t.timeSecondsLabel;
-            document.getElementById('new-race-modal-title').textContent = t.newRaceModalTitle;
-            document.getElementById('race-name-label').textContent = t.raceNameLabel;
-            document.getElementById('delete-race-modal-title').textContent = t.deleteRaceModalTitle;
-            document.getElementById('delete-race-modal-text').textContent = t.deleteRaceModalText;
-            document.getElementById('stop-chrono-modal-title').textContent = t.stopChronoModalTitle;
-            document.getElementById('stop-chrono-modal-text').textContent = t.stopChronoModalText;
-            document.getElementById('edit-first-lap-title').textContent = t.editFirstLapTitle;
-            document.getElementById('edit-lap-time-title').textContent = t.editLapTimeTitle;
-            document.getElementById('edit-rider-title').textContent = t.editRiderTitle;
-            
-            // Actualizar botones de modales
-            document.getElementById('cancel-withdraw').textContent = t.cancelButton;
-            document.getElementById('confirm-withdraw').textContent = t.confirmButton;
-            document.getElementById('cancel-dnf').textContent = t.cancelButton;
-            document.getElementById('confirm-dnf').textContent = t.confirmButton;
-            document.getElementById('cancel-reset').textContent = t.cancelButton;
-            document.getElementById('confirm-reset').textContent = t.confirmButton;
-            document.getElementById('cancel-time').textContent = t.cancelButton;
-            document.getElementById('confirm-time').textContent = t.modifyButton;
-            document.getElementById('cancel-new-race').textContent = t.cancelButton;
-            document.getElementById('confirm-new-race').textContent = t.createButton;
-            document.getElementById('cancel-delete-race').textContent = t.cancelButton;
-            document.getElementById('confirm-delete-race').textContent = t.confirmButton;
-            document.getElementById('cancel-stop-chrono').textContent = t.cancelButton;
-            document.getElementById('confirm-stop-chrono').textContent = t.confirmButton;
-            document.getElementById('cancel-edit-first-lap').textContent = t.cancelButton;
-            document.getElementById('confirm-edit-first-lap').textContent = t.modifyButton;
-            document.getElementById('cancel-edit-lap-time').textContent = t.cancelButton;
-            document.getElementById('confirm-edit-lap-time').textContent = t.modifyButton;
-            document.getElementById('cancel-edit-rider').textContent = t.cancelButton;
-            document.getElementById('confirm-edit-rider').textContent = t.modifyButton;
-            
-            // Actualizar placeholders
-            document.getElementById('race-name-input').placeholder = t.raceNamePlaceholder;
-            document.getElementById('dorsal-input').placeholder = t.dorsalPlaceholder;
-            document.getElementById('dnf-dorsal-input').placeholder = t.dorsalPlaceholder;
-            
-            // Actualizar selector de carrera
-            const firstOption = raceSelector.querySelector('option');
-            if (firstOption) {
-                firstOption.textContent = t.selectRace;
-            }
-            
-            // Actualizar footer
-            document.getElementById('copyright-text').textContent = t.copyright;
-            document.getElementById('copyright-link').textContent = t.copyrightLink;
-            updateVisitCounter();
-            
-            // Actualizar banderas activas
-            document.querySelectorAll('.flag').forEach(flag => {
-                flag.classList.remove('active');
-            });
-            document.getElementById('flag-' + lang).classList.add('active');
-            
-            // Guardar idioma seleccionado
-            localStorage.setItem('bttLanguage', lang);
-        }
-
-        // Función para verificar si hay una carrera seleccionada
-        function isRaceSelected() {
-            return currentRaceId !== null && races[currentRaceId] !== undefined;
-        }
-
-        // Función para actualizar el estado de los botones según si hay carrera seleccionada
-        function updateButtonsState() {
-            const hasRace = isRaceSelected();
-            
-            // Deshabilitar botones si no hay carrera seleccionada
-            btnStart.disabled = !hasRace;
-            btnSetTime.disabled = !hasRace;
-            btnFirst.disabled = !hasRace;
-            btnWithdraw.disabled = !hasRace;
-            btnDnf.disabled = !hasRace;
-            btnReset.disabled = !hasRace;
-            btnExport.disabled = !hasRace;
-            btnDeleteRace.disabled = !hasRace;
-            btnEditFirstLap.disabled = !hasRace;
-        }
-
-        // Función para calcular el tiempo límite
-        function calculateCutoffTime() {
-            if (!firstLapTime) return null;
-            
-            const lapNumbers = Object.keys(currentLapTimes).map(Number);
-            if (lapNumbers.length === 0) return null;
-            
-            const lastLapNumber = Math.max(...lapNumbers);
-            const lastLapTime = currentLapTimes[lastLapNumber];
-            
-            if (!lastLapTime) return null;
-            
-            const eightyPercentOfFirstLap = firstLapTime * 0.8;
-            return lastLapTime + eightyPercentOfFirstLap;
-        }
-
-        // Función para registrar vueltas
-        function recordLap() {
-            if (!isRaceSelected()) {
-                alert(translations[currentLanguage].noRaceSelected);
-                return;
-            }
-            
-            if (currentTime === 0) {
-                alert(translations[currentLanguage].chronoNotRunning);
-                return;
-            }
-            
-            if (currentLap === 1) {
-                firstLapTime = currentTime;
-                currentLapTimes[1] = currentTime;
-                currentLap = 2;
-            } else {
-                currentLapTimes[currentLap] = currentTime;
-                currentLap++;
-            }
-            
-            updateDisplay();
-            updateLapTimesList();
-            saveCurrentRace();
-        }
-
-        // Contador de visitas
-        function updateVisitCounter() {
-            const today = new Date().toDateString();
-            const lastVisit = localStorage.getItem('bttLastVisit');
-            let visitCount = parseInt(localStorage.getItem('bttVisitCount')) || 0;
-            
-            if (lastVisit !== today) {
-                visitCount++;
-                localStorage.setItem('bttVisitCount', visitCount);
-                localStorage.setItem('bttLastVisit', today);
-            }
-            
-            visitCounterElement.textContent = visitCount + ' ' + translations[currentLanguage].visits;
-        }
-
-        // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
-            // Cargar configuración
-            const savedLanguage = localStorage.getItem('bttLanguage');
-            if (savedLanguage) {
-                currentLanguage = savedLanguage;
-            }
+            const langButtons = document.querySelectorAll('.lang-btn');
+            const contents = document.querySelectorAll('.content');
+            const mainTitle = document.getElementById('main-title');
             
-            const savedMillisecondsSetting = localStorage.getItem('bttShowMilliseconds');
-            if (savedMillisecondsSetting !== null) {
-                showMilliseconds = savedMillisecondsSetting === 'true';
-                millisecondsToggle.checked = showMilliseconds;
-            }
+            const titles = {
+                'es': 'Ayuda Cronómetro Control 80%',
+                'ca': 'Ajuda Cronòmetre Control 80%',
+                'en': 'Stopwatch 80% Control Help'
+            };
             
-            loadRaces();
-            updateDisplay();
-            
-            // Cargar la última carrera usada
-            const lastRaceId = localStorage.getItem('bttLastRace');
-            if (lastRaceId && races[lastRaceId]) {
-                loadRace(lastRaceId);
-                raceSelector.value = lastRaceId;
-            } else if (Object.keys(races).length > 0) {
-                // Cargar la primera carrera si existe
-                const firstRaceId = Object.keys(races)[0];
-                loadRace(firstRaceId);
-                raceSelector.value = firstRaceId;
-            } else {
-                // No hay carreras, actualizar estado de botones
-                updateButtonsState();
-            }
-            
-            updateVisitCounter();
-            
-            // Actualizar idioma inicial
-            updateLanguage(currentLanguage);
-            
-            // Event listeners
-            btnStart.addEventListener('click', toggleChrono);
-            btnSetTime.addEventListener('click', openTimeModal);
-            btnFirst.addEventListener('click', recordLap);
-            btnWithdraw.addEventListener('click', openWithdrawModal);
-            btnDnf.addEventListener('click', openDnfModal);
-            btnReset.addEventListener('click', openResetModal);
-            btnExport.addEventListener('click', exportToExcel);
-            btnNewRace.addEventListener('click', openNewRaceModal);
-            btnDeleteRace.addEventListener('click', openDeleteRaceModal);
-            btnEditFirstLap.addEventListener('click', openEditFirstLapModal);
-            btnHelp.addEventListener('click', openHelpFile);
-            raceSelector.addEventListener('change', function() {
-                loadRace(this.value);
-            });
-            millisecondsToggle.addEventListener('change', toggleMilliseconds);
-            withdrawnTabButton.addEventListener('click', () => switchTab('withdrawn-tab'));
-            lapTimesTabButton.addEventListener('click', () => switchTab('lap-times-tab'));
-            helpIconHeader.addEventListener('click', openHelpFile);
-            chronoDisplay.addEventListener('dblclick', openTimeModal);
-            
-            setupModalEvents();
-            
-            document.querySelectorAll('.flag').forEach(flag => {
-                flag.addEventListener('click', function() {
+            langButtons.forEach(button => {
+                button.addEventListener('click', function() {
                     const lang = this.getAttribute('data-lang');
-                    updateLanguage(lang);
+                    
+                    // Actualizar botones activos
+                    langButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Actualizar contenido visible
+                    contents.forEach(content => content.classList.remove('active'));
+                    document.getElementById(`content-${lang}`).classList.add('active');
+                    
+                    // Actualizar título
+                    mainTitle.textContent = titles[lang];
                 });
             });
         });
-
-        function openHelpFile() {
-            window.open('https://rbenet71.github.io/Web/Crono_80_Ayuda.html', '_blank');
-        }
-
-        function toggleMilliseconds() {
-            showMilliseconds = millisecondsToggle.checked;
-            localStorage.setItem('bttShowMilliseconds', showMilliseconds);
-            updateDisplay();
-            updateLapTimesList();
-            updateWithdrawnList();
-            saveCurrentRace();
-        }
-
-        function setupModalEvents() {
-            document.getElementById('cancel-withdraw').addEventListener('click', closeWithdrawModal);
-            document.getElementById('confirm-withdraw').addEventListener('click', confirmWithdraw);
-            document.getElementById('cancel-dnf').addEventListener('click', closeDnfModal);
-            document.getElementById('confirm-dnf').addEventListener('click', confirmDnf);
-            document.getElementById('cancel-reset').addEventListener('click', closeResetModal);
-            document.getElementById('confirm-reset').addEventListener('click', confirmReset);
-            document.getElementById('cancel-time').addEventListener('click', closeTimeModal);
-            document.getElementById('confirm-time').addEventListener('click', confirmTime);
-            document.getElementById('set-start-time').addEventListener('click', setStartTimeMode);
-            document.getElementById('set-manual-time').addEventListener('click', setManualTimeMode);
-            document.getElementById('cancel-new-race').addEventListener('click', closeNewRaceModal);
-            document.getElementById('confirm-new-race').addEventListener('click', confirmNewRace);
-            document.getElementById('cancel-delete-race').addEventListener('click', closeDeleteRaceModal);
-            document.getElementById('confirm-delete-race').addEventListener('click', confirmDeleteRace);
-            document.getElementById('cancel-stop-chrono').addEventListener('click', closeStopChronoModal);
-            document.getElementById('confirm-stop-chrono').addEventListener('click', confirmStopChrono);
-            document.getElementById('cancel-edit-first-lap').addEventListener('click', closeEditFirstLapModal);
-            document.getElementById('confirm-edit-first-lap').addEventListener('click', confirmEditFirstLap);
-            
-            // Nuevos event listeners para edición
-            document.getElementById('cancel-edit-lap-time').addEventListener('click', closeEditLapTimeModal);
-            document.getElementById('confirm-edit-lap-time').addEventListener('click', confirmEditLapTime);
-            document.getElementById('cancel-edit-rider').addEventListener('click', closeEditRiderModal);
-            document.getElementById('confirm-edit-rider').addEventListener('click', confirmEditRider);
-        }
-
-        // Funciones para cargar y gestionar carreras
-        function loadRaces() {
-            const savedRaces = localStorage.getItem('bttRaces');
-            if (savedRaces) {
-                races = JSON.parse(savedRaces);
-                updateRaceSelector();
-            }
-        }
-
-        function saveRaces() {
-            localStorage.setItem('bttRaces', JSON.stringify(races));
-        }
-
-        function updateRaceSelector() {
-            raceSelector.innerHTML = '<option value="">' + translations[currentLanguage].selectRace + '</option>';
-            for (const id in races) {
-                const option = document.createElement('option');
-                option.value = id;
-                option.textContent = races[id].name;
-                raceSelector.appendChild(option);
-            }
-        }
-
-        function loadRace(raceId) {
-            if (!raceId) {
-                // No hay carrera seleccionada, resetear todo
-                currentRaceId = null;
-                startTime = 0;
-                currentTime = 0;
-                isRunning = false;
-                firstLapTime = null;
-                currentLap = 1;
-                currentLapTimes = {};
-                cutoffTime = null;
-                withdrawnRiders = [];
-                raceStartTime = null;
-                isOverCutoff = false;
-                
-                updateDisplay();
-                updateLapTimesList();
-                updateWithdrawnList();
-                updateTabCounts();
-                updateRaceStartTime();
-                updateButtonsState();
-                
-                if (intervalId) {
-                    clearInterval(intervalId);
-                    intervalId = null;
-                }
-                btnStart.textContent = translations[currentLanguage].startButton;
-                return;
-            }
-            
-            const race = races[raceId];
-            if (!race) return;
-            
-            currentRaceId = raceId;
-            startTime = race.startTime || 0;
-            currentTime = race.currentTime || 0;
-            isRunning = race.isRunning || false;
-            firstLapTime = race.firstLapTime || null;
-            currentLap = race.currentLap || 1;
-            currentLapTimes = race.currentLapTimes || {};
-            cutoffTime = race.cutoffTime || null;
-            withdrawnRiders = race.withdrawnRiders || [];
-            raceStartTime = race.raceStartTime || null;
-            isOverCutoff = race.isOverCutoff || false;
-            
-            updateDisplay();
-            updateLapTimesList();
-            updateWithdrawnList();
-            updateTabCounts();
-            updateRaceStartTime();
-            updateButtonsState();
-            
-            if (isRunning) {
-                startChrono();
-            } else {
-                btnStart.textContent = translations[currentLanguage].startButton;
-                if (intervalId) {
-                    clearInterval(intervalId);
-                    intervalId = null;
-                }
-            }
-            
-            // Guardar como última carrera seleccionada
-            localStorage.setItem('bttLastRace', raceId);
-        }
-
-        function saveCurrentRace() {
-            if (!currentRaceId) return;
-            
-            races[currentRaceId] = {
-                name: races[currentRaceId].name,
-                startTime: startTime,
-                currentTime: currentTime,
-                isRunning: isRunning,
-                firstLapTime: firstLapTime,
-                currentLap: currentLap,
-                currentLapTimes: currentLapTimes,
-                cutoffTime: cutoffTime,
-                withdrawnRiders: withdrawnRiders,
-                raceStartTime: raceStartTime,
-                isOverCutoff: isOverCutoff
-            };
-            
-            saveRaces();
-        }
-
-        // Funciones del cronómetro
-        function toggleChrono() {
-            if (!isRaceSelected()) {
-                alert(translations[currentLanguage].noRaceSelected);
-                return;
-            }
-            
-            if (isRunning) {
-                openStopChronoModal();
-            } else {
-                startChrono();
-            }
-        }
-
-        function startChrono() {
-            if (!isRaceSelected() || isRunning) return;
-            
-            if (startTime === 0) {
-                startTime = Date.now() - currentTime;
-                if (!raceStartTime) {
-                    raceStartTime = new Date();
-                    updateRaceStartTime();
-                }
-            } else {
-                startTime = Date.now() - currentTime;
-            }
-            
-            isRunning = true;
-            btnStart.textContent = translations[currentLanguage].stopButton;
-            intervalId = setInterval(updateChrono, 10);
-            saveCurrentRace();
-        }
-
-        function stopChrono() {
-            if (!isRunning) return;
-            
-            isRunning = false;
-            clearInterval(intervalId);
-            btnStart.textContent = translations[currentLanguage].startButton;
-            saveCurrentRace();
-        }
-
-        function updateChrono() {
-            currentTime = Date.now() - startTime;
-            updateDisplay();
-            
-            cutoffTime = calculateCutoffTime();
-            if (cutoffTime && currentTime > cutoffTime) {
-                if (!isOverCutoff) {
-                    isOverCutoff = true;
-                    chronoDisplay.classList.add('over-cutoff');
-                    cutoffWarning.style.display = 'block';
-                    saveCurrentRace();
-                }
-            } else {
-                if (isOverCutoff) {
-                    isOverCutoff = false;
-                    chronoDisplay.classList.remove('over-cutoff');
-                    cutoffWarning.style.display = 'none';
-                    saveCurrentRace();
-                }
-            }
-        }
-
-        function updateDisplay() {
-            const time = new Date(currentTime);
-            const hours = time.getUTCHours();
-            const minutes = time.getUTCMinutes();
-            const seconds = time.getUTCSeconds();
-            const milliseconds = time.getUTCMilliseconds();
-            
-            if (showMilliseconds) {
-                lcdTime.textContent = 
-                    (hours > 0 ? hours.toString().padStart(2, '0') + ':' : '') +
-                    minutes.toString().padStart(2, '0') + "'" +
-                    seconds.toString().padStart(2, '0') + '"' +
-                    milliseconds.toString().padStart(3, '0');
-            } else {
-                lcdTime.textContent = 
-                    (hours > 0 ? hours.toString().padStart(2, '0') + ':' : '') +
-                    minutes.toString().padStart(2, '0') + "'" +
-                    seconds.toString().padStart(2, '0') + '"';
-            }
-            
-            currentLapElement.textContent = currentLap;
-            
-            if (firstLapTime) {
-                firstLapTimeElement.textContent = formatTime(firstLapTime, showMilliseconds);
-                firstLapInfo.style.display = 'block';
-                eightyPercentTime.textContent = formatTime(firstLapTime * 0.8, showMilliseconds);
-            } else {
-                firstLapTimeElement.textContent = '--:--:--';
-                firstLapInfo.style.display = 'none';
-            }
-            
-            cutoffTime = calculateCutoffTime();
-            if (cutoffTime) {
-                cutoffTimeElement.textContent = formatTime(cutoffTime, showMilliseconds);
-                cutoffInfo.style.display = 'block';
-                
-                const lapNumbers = Object.keys(currentLapTimes).map(Number);
-                if (lapNumbers.length > 0) {
-                    const lastLapNumber = Math.max(...lapNumbers);
-                    const lastLapTime = currentLapTimes[lastLapNumber];
-                    const eightyPercentOfFirstLap = firstLapTime * 0.8;
-                    
-                    lastLapTimeElement.textContent = formatTime(lastLapTime, showMilliseconds);
-                    eightyPercentCutoffElement.textContent = formatTime(eightyPercentOfFirstLap, showMilliseconds);
-                }
-            } else {
-                cutoffTimeElement.textContent = '--:--:--';
-                cutoffInfo.style.display = 'none';
-            }
-        }
-
-        function formatTime(milliseconds, showMs = true) {
-            const time = new Date(milliseconds);
-            const hours = time.getUTCHours();
-            const minutes = time.getUTCMinutes();
-            const seconds = time.getUTCSeconds();
-            const ms = time.getUTCMilliseconds();
-            
-            if (showMs) {
-                return (hours > 0 ? hours.toString().padStart(2, '0') + ':' : '') +
-                       minutes.toString().padStart(2, '0') + "'" +
-                       seconds.toString().padStart(2, '0') + '"' +
-                       ms.toString().padStart(3, '0');
-            } else {
-                return (hours > 0 ? hours.toString().padStart(2, '0') + ':' : '') +
-                       minutes.toString().padStart(2, '0') + "'" +
-                       seconds.toString().padStart(2, '0') + '"';
-            }
-        }
-
-        function updateRaceStartTime() {
-            if (raceStartTime) {
-                const time = new Date(raceStartTime);
-                raceStartTimeElement.textContent = 
-                    time.getHours().toString().padStart(2, '0') + ':' +
-                    time.getMinutes().toString().padStart(2, '0') + ':' +
-                    time.getSeconds().toString().padStart(2, '0');
-            } else {
-                raceStartTimeElement.textContent = '--:--:--';
-            }
-        }
-
-        // Funciones para editar tiempos de vuelta
-        function openEditLapTimeModal(lapNumber) {
-            if (!isRaceSelected()) {
-                alert(translations[currentLanguage].noRaceSelected);
-                return;
-            }
-            
-            const lapTime = currentLapTimes[lapNumber];
-            if (!lapTime) return;
-            
-            currentEditingLap = lapNumber;
-            
-            const time = new Date(lapTime);
-            document.getElementById('edit-lap-number-input').value = lapNumber;
-            document.getElementById('edit-lap-minutes-input').value = time.getUTCMinutes();
-            document.getElementById('edit-lap-seconds-input').value = time.getUTCSeconds();
-            document.getElementById('edit-lap-milliseconds-input').value = time.getUTCMilliseconds();
-            
-            editLapTimeModal.style.display = 'flex';
-        }
-
-        function closeEditLapTimeModal() {
-            editLapTimeModal.style.display = 'none';
-            currentEditingLap = null;
-        }
-
-        function confirmEditLapTime() {
-            if (!isRaceSelected() || !currentEditingLap) return;
-            
-            const minutes = parseInt(document.getElementById('edit-lap-minutes-input').value) || 0;
-            const seconds = parseInt(document.getElementById('edit-lap-seconds-input').value) || 0;
-            const milliseconds = parseInt(document.getElementById('edit-lap-milliseconds-input').value) || 0;
-            
-            const newTime = (minutes * 60 + seconds) * 1000 + milliseconds;
-            
-            // Actualizar el tiempo de la vuelta
-            currentLapTimes[currentEditingLap] = newTime;
-            
-            // Si es la primera vuelta, actualizar firstLapTime
-            if (currentEditingLap === 1) {
-                firstLapTime = newTime;
-            }
-            
-            updateDisplay();
-            updateLapTimesList();
-            closeEditLapTimeModal();
-            saveCurrentRace();
-        }
-
-        // Funciones para editar corredores retirados
-        function openEditRiderModal(riderIndex) {
-            if (!isRaceSelected()) {
-                alert(translations[currentLanguage].noRaceSelected);
-                return;
-            }
-            
-            const rider = withdrawnRiders[riderIndex];
-            if (!rider) return;
-            
-            currentEditingRiderIndex = riderIndex;
-            
-            const time = new Date(rider.time);
-            document.getElementById('edit-rider-dorsal-input').value = rider.dorsal;
-            document.getElementById('edit-rider-lap-input').value = rider.lap;
-            document.getElementById('edit-rider-minutes-input').value = time.getUTCMinutes();
-            document.getElementById('edit-rider-seconds-input').value = time.getUTCSeconds();
-            document.getElementById('edit-rider-milliseconds-input').value = time.getUTCMilliseconds();
-            
-            editRiderModal.style.display = 'flex';
-        }
-
-        function closeEditRiderModal() {
-            editRiderModal.style.display = 'none';
-            currentEditingRiderIndex = null;
-        }
-
-        function confirmEditRider() {
-            if (!isRaceSelected() || currentEditingRiderIndex === null) return;
-            
-            const dorsal = document.getElementById('edit-rider-dorsal-input').value.trim();
-            const lap = parseInt(document.getElementById('edit-rider-lap-input').value) || 1;
-            const minutes = parseInt(document.getElementById('edit-rider-minutes-input').value) || 0;
-            const seconds = parseInt(document.getElementById('edit-rider-seconds-input').value) || 0;
-            const milliseconds = parseInt(document.getElementById('edit-rider-milliseconds-input').value) || 0;
-            
-            if (!dorsal) {
-                alert(translations[currentLanguage].dorsalRequired);
-                return;
-            }
-            
-            const newTime = (minutes * 60 + seconds) * 1000 + milliseconds;
-            
-            // Actualizar el corredor
-            withdrawnRiders[currentEditingRiderIndex] = {
-                dorsal: dorsal,
-                lap: lap,
-                time: newTime,
-                withdrawalTime: withdrawnRiders[currentEditingRiderIndex].withdrawalTime // Mantener la hora original
-            };
-            
-            updateWithdrawnList();
-            closeEditRiderModal();
-            saveCurrentRace();
-        }
-
-        function updateLapTimesList() {
-            lapListElement.innerHTML = '';
-            
-            const lapNumbers = Object.keys(currentLapTimes).map(Number);
-            const lastLapNumber = lapNumbers.length > 0 ? Math.max(...lapNumbers) : 0;
-            
-            for (const lap in currentLapTimes) {
-                const lapNum = parseInt(lap);
-                const li = document.createElement('li');
-                li.className = 'lap-item';
-                
-                const lapInfo = document.createElement('div');
-                lapInfo.className = 'rider-info';
-                
-                const lapNumber = document.createElement('span');
-                lapNumber.textContent = 'Vuelta ' + lap;
-                lapInfo.appendChild(lapNumber);
-                
-                const lapTime = document.createElement('span');
-                lapTime.textContent = formatTime(currentLapTimes[lap], showMilliseconds);
-                lapInfo.appendChild(lapTime);
-                
-                li.appendChild(lapInfo);
-                
-                const lapActions = document.createElement('div');
-                lapActions.className = 'rider-actions';
-                
-                // Botón editar
-                const editButton = document.createElement('button');
-                editButton.className = 'btn-edit-rider';
-                editButton.textContent = '✏️';
-                editButton.title = 'Editar tiempo de vuelta';
-                editButton.addEventListener('click', function() {
-                    openEditLapTimeModal(lapNum);
-                });
-                lapActions.appendChild(editButton);
-                
-                // Botón eliminar - solo para la última vuelta
-                if (lapNum === lastLapNumber && lapNumbers.length > 0) {
-                    const removeButton = document.createElement('button');
-                    removeButton.className = 'btn-remove-rider';
-                    removeButton.textContent = '🗑️';
-                    removeButton.title = 'Eliminar última vuelta';
-                    removeButton.addEventListener('click', function() {
-                        removeLap(lapNum);
-                    });
-                    lapActions.appendChild(removeButton);
-                } else {
-                    // Espacio para mantener alineación
-                    const emptySpace = document.createElement('span');
-                    emptySpace.style.width = '28px';
-                    emptySpace.style.display = 'inline-block';
-                    lapActions.appendChild(emptySpace);
-                }
-                
-                li.appendChild(lapActions);
-                lapListElement.appendChild(li);
-            }
-            
-            // Mensaje si no hay vueltas
-            if (lapNumbers.length === 0) {
-                const li = document.createElement('li');
-                li.className = 'lap-item';
-                li.textContent = 'No hay vueltas registradas';
-                li.style.textAlign = 'center';
-                li.style.color = '#95a5a6';
-                lapListElement.appendChild(li);
-            }
-        }
-
-        function removeLap(lapNumber) {
-            if (!isRaceSelected()) {
-                alert(translations[currentLanguage].noRaceSelected);
-                return;
-            }
-            
-            const lapNumbers = Object.keys(currentLapTimes).map(Number);
-            
-            if (lapNumbers.length === 0) {
-                alert(translations[currentLanguage].noLapsToDelete);
-                return;
-            }
-            
-            const lastLapNumber = Math.max(...lapNumbers);
-            
-            if (lapNumber !== lastLapNumber) {
-                alert(translations[currentLanguage].onlyLastLap.replace('{0}', lastLapNumber));
-                return;
-            }
-            
-            if (!confirm(translations[currentLanguage].confirmDeleteLap)) {
-                return;
-            }
-            
-            // Eliminar la vuelta
-            delete currentLapTimes[lapNumber];
-            
-            // Actualizar currentLap
-            const remainingLaps = Object.keys(currentLapTimes).map(Number);
-            if (remainingLaps.length === 0) {
-                currentLap = 1;
-                firstLapTime = null;
-            } else {
-                currentLap = Math.max(...remainingLaps) + 1;
-                
-                // Si eliminamos la vuelta 1, actualizar firstLapTime con la nueva primera vuelta
-                if (lapNumber === 1 && remainingLaps.length > 0) {
-                    const newFirstLap = Math.min(...remainingLaps);
-                    firstLapTime = currentLapTimes[newFirstLap];
-                } else if (lapNumber === 1) {
-                    firstLapTime = null;
-                }
-            }
-            
-            updateDisplay();
-            updateLapTimesList();
-            saveCurrentRace();
-            
-            alert(`Vuelta ${lapNumber} eliminada correctamente`);
-        }
-
-        function updateWithdrawnList() {
-            riderListElement.innerHTML = '';
-            
-            withdrawnRiders.forEach((rider, index) => {
-                const li = document.createElement('li');
-                li.className = 'rider-item';
-                
-                const riderInfo = document.createElement('div');
-                riderInfo.className = 'rider-info';
-                
-                const dorsal = document.createElement('span');
-                dorsal.textContent = 'Dorsal ' + rider.dorsal;
-                riderInfo.appendChild(dorsal);
-                
-                const lap = document.createElement('span');
-                lap.textContent = rider.lap === 0 ? 'DNF' : 'Vuelta ' + rider.lap;
-                riderInfo.appendChild(lap);
-                
-                const time = document.createElement('span');
-                time.textContent = formatTime(rider.time, showMilliseconds);
-                riderInfo.appendChild(time);
-                
-                li.appendChild(riderInfo);
-                
-                const riderActions = document.createElement('div');
-                riderActions.className = 'rider-actions';
-                
-                const editButton = document.createElement('button');
-                editButton.className = 'btn-edit-rider';
-                editButton.textContent = '✏️';
-                editButton.title = 'Editar corredor retirado';
-                editButton.addEventListener('click', function() {
-                    openEditRiderModal(index);
-                });
-                riderActions.appendChild(editButton);
-                
-                const removeButton = document.createElement('button');
-                removeButton.className = 'btn-remove-rider';
-                removeButton.textContent = '🗑️';
-                removeButton.title = 'Eliminar corredor retirado';
-                removeButton.addEventListener('click', function() {
-                    if (confirm(translations[currentLanguage].confirmDeleteRider)) {
-                        withdrawnRiders.splice(index, 1);
-                        updateWithdrawnList();
-                        updateTabCounts();
-                        saveCurrentRace();
-                    }
-                });
-                riderActions.appendChild(removeButton);
-                
-                li.appendChild(riderActions);
-                riderListElement.appendChild(li);
-            });
-        }
-
-        function updateTabCounts() {
-            const t = translations[currentLanguage];
-            withdrawnTabButton.textContent = t.withdrawnTab + ' (' + withdrawnRiders.length + ')';
-            lapTimesTabButton.textContent = t.lapTimesTab;
-        }
-
-        // Funciones de pestañas
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.classList.remove('active');
-            });
-            
-            document.getElementById(tabId).classList.add('active');
-            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
-        }
-
-        // Funciones de modales existentes
-        function openWithdrawModal() {
-            if (!isRaceSelected()) {
-                alert(translations[currentLanguage].noRaceSelected);
-                return;
-            }
-            withdrawModal.style.display = 'flex';
-        }
-
-        function closeWithdrawModal() {
-            withdrawModal.style.display = 'none';
-            document.getElementById('dorsal-input').value = '';
-        }
-
-        function confirmWithdraw() {
-            if (!isRaceSelected()) return;
-            
-            const dorsalInput = document.getElementById('dorsal-input').value.trim();
-            if (!dorsalInput) return;
-            
-            const dorsals = dorsalInput.split(',').map(d => d.trim()).filter(d => d);
-            
-            dorsals.forEach(dorsal => {
-                withdrawnRiders.push({
-                    dorsal: dorsal,
-                    lap: currentLap,
-                    time: currentTime,
-                    withdrawalTime: new Date()
-                });
-            });
-            
-            updateWithdrawnList();
-            updateTabCounts();
-            closeWithdrawModal();
-            saveCurrentRace();
-        }
-
-        // Funciones para DNF
-        function openDnfModal() {
-            if (!isRaceSelected()) {
-                alert(translations[currentLanguage].noRaceSelected);
-                return;
-            }
-            dnfModal.style.display = 'flex';
-        }
-
-        function closeDnfModal() {
-            dnfModal.style.display = 'none';
-            document.getElementById('dnf-dorsal-input').value = '';
-        }
-
-        function confirmDnf() {
-            if (!isRaceSelected()) return;
-            
-            const dorsalInput = document.getElementById('dnf-dorsal-input').value.trim();
-            if (!dorsalInput) return;
-            
-            const dorsals = dorsalInput.split(',').map(d => d.trim()).filter(d => d);
-            
-            dorsals.forEach(dorsal => {
-                withdrawnRiders.push({
-                    dorsal: dorsal,
-                    lap: 0, // Vuelta 0 para DNF
-                    time: currentTime,
-                    withdrawalTime: new Date()
-                });
-            });
-            
-            updateWithdrawnList();
-            updateTabCounts();
-            closeDnfModal();
-            saveCurrentRace();
-        }
-
-        function openResetModal() {
-            if (!isRaceSelected()) {
-                alert(translations[currentLanguage].noRaceSelected);
-                return;
-            }
-            resetModal.style.display = 'flex';
-        }
-
-        function closeResetModal() {
-            resetModal.style.display = 'none';
-        }
-
-        function confirmReset() {
-            if (!isRaceSelected()) return;
-            
-            stopChrono();
-            startTime = 0;
-            currentTime = 0;
-            firstLapTime = null;
-            currentLap = 1;
-            currentLapTimes = {};
-            cutoffTime = null;
-            withdrawnRiders = [];
-            raceStartTime = null;
-            isOverCutoff = false;
-            
-            updateDisplay();
-            updateLapTimesList();
-            updateWithdrawnList();
-            updateTabCounts();
-            closeResetModal();
-            saveCurrentRace();
-        }
-
-        function openTimeModal() {
-            if (!isRaceSelected()) {
-                alert(translations[currentLanguage].noRaceSelected);
-                return;
-            }
-            timeModal.style.display = 'flex';
-            timeModalMode = 'manual';
-            
-            const time = new Date(currentTime);
-            document.getElementById('hours-input').value = time.getUTCHours();
-            document.getElementById('minutes-input').value = time.getUTCMinutes();
-            document.getElementById('seconds-input').value = time.getUTCSeconds();
-        }
-
-        function closeTimeModal() {
-            timeModal.style.display = 'none';
-        }
-
-        function setStartTimeMode() {
-            timeModalMode = 'start';
-        }
-
-        function setManualTimeMode() {
-            timeModalMode = 'manual';
-        }
-
-        function confirmTime() {
-            if (!isRaceSelected()) return;
-            
-            const hours = parseInt(document.getElementById('hours-input').value) || 0;
-            const minutes = parseInt(document.getElementById('minutes-input').value) || 0;
-            const seconds = parseInt(document.getElementById('seconds-input').value) || 0;
-            
-            const newTime = (hours * 3600 + minutes * 60 + seconds) * 1000;
-            
-            if (timeModalMode === 'start') {
-                const now = new Date();
-                raceStartTime = new Date(now.getTime() - newTime);
-                updateRaceStartTime();
-            } else {
-                currentTime = newTime;
-                if (isRunning) {
-                    startTime = Date.now() - currentTime;
-                }
-                updateDisplay();
-            }
-            
-            closeTimeModal();
-            saveCurrentRace();
-        }
-
-        function openNewRaceModal() {
-            newRaceModal.style.display = 'flex';
-            document.getElementById('race-name-input').value = '';
-        }
-
-        function closeNewRaceModal() {
-            newRaceModal.style.display = 'none';
-        }
-
-        function confirmNewRace() {
-            const raceName = document.getElementById('race-name-input').value.trim();
-            if (!raceName) return;
-            
-            const raceId = 'race_' + Date.now();
-            races[raceId] = {
-                name: raceName,
-                startTime: 0,
-                currentTime: 0,
-                isRunning: false,
-                firstLapTime: null,
-                currentLap: 1,
-                currentLapTimes: {},
-                cutoffTime: null,
-                withdrawnRiders: [],
-                raceStartTime: null,
-                isOverCutoff: false
-            };
-            
-            saveRaces();
-            updateRaceSelector();
-            // Cargar la nueva carrera automáticamente
-            loadRace(raceId);
-            raceSelector.value = raceId;
-            closeNewRaceModal();
-        }
-
-        function openDeleteRaceModal() {
-            if (!currentRaceId) return;
-            deleteRaceModal.style.display = 'flex';
-        }
-
-        function closeDeleteRaceModal() {
-            deleteRaceModal.style.display = 'none';
-        }
-
-        function confirmDeleteRace() {
-            if (!currentRaceId) return;
-            
-            delete races[currentRaceId];
-            saveRaces();
-            updateRaceSelector();
-            
-            const raceIds = Object.keys(races);
-            if (raceIds.length > 0) {
-                // Cargar la primera carrera disponible
-                loadRace(raceIds[0]);
-                raceSelector.value = raceIds[0];
-            } else {
-                // No hay más carreras
-                loadRace(null); // Esto reseteará todo
-                raceSelector.value = '';
-            }
-            
-            closeDeleteRaceModal();
-        }
-
-        function openStopChronoModal() {
-            if (!isRaceSelected()) return;
-            stopChronoModal.style.display = 'flex';
-        }
-
-        function closeStopChronoModal() {
-            stopChronoModal.style.display = 'none';
-        }
-
-        function confirmStopChrono() {
-            stopChrono();
-            closeStopChronoModal();
-        }
-
-        function openEditFirstLapModal() {
-            if (!isRaceSelected()) {
-                alert(translations[currentLanguage].noRaceSelected);
-                return;
-            }
-            if (!firstLapTime) return;
-            
-            const time = new Date(firstLapTime);
-            document.getElementById('edit-minutes-input').value = time.getUTCMinutes();
-            document.getElementById('edit-seconds-input').value = time.getUTCSeconds();
-            document.getElementById('edit-milliseconds-input').value = time.getUTCMilliseconds();
-            
-            editFirstLapModal.style.display = 'flex';
-        }
-
-        function closeEditFirstLapModal() {
-            editFirstLapModal.style.display = 'none';
-        }
-
-        function confirmEditFirstLap() {
-            if (!isRaceSelected()) return;
-            
-            const minutes = parseInt(document.getElementById('edit-minutes-input').value) || 0;
-            const seconds = parseInt(document.getElementById('edit-seconds-input').value) || 0;
-            const milliseconds = parseInt(document.getElementById('edit-milliseconds-input').value) || 0;
-            
-            firstLapTime = (minutes * 60 + seconds) * 1000 + milliseconds;
-            
-            if (currentLapTimes[1]) {
-                currentLapTimes[1] = firstLapTime;
-            }
-            
-            updateDisplay();
-            updateLapTimesList();
-            closeEditFirstLapModal();
-            saveCurrentRace();
-        }
-
-        // Función de exportación mejorada
-        function exportToExcel() {
-            if (!isRaceSelected()) {
-                alert(translations[currentLanguage].noRaceSelected);
-                return;
-            }
-            
-            // Crear contenido CSV con separador ; y codificación UTF-8
-            let csvContent = "\uFEFF"; // BOM para UTF-8
-            const t = translations[currentLanguage];
-            
-            // Información de la carrera
-            csvContent += t.raceNameLabel + ";" + (races[currentRaceId]?.name || "Sin nombre") + "\n";
-            csvContent += "Hora de exportación;" + new Date().toLocaleString() + "\n\n";
-            
-            csvContent += "INFORMACIÓN DE LA CARRERA\n";
-            csvContent += t.startTimeLabel + ";" + (raceStartTime ? new Date(raceStartTime).toLocaleTimeString() : "No establecida") + "\n";
-            csvContent += "Tiempo actual;" + formatTime(currentTime, true) + "\n";
-            csvContent += t.currentLapTitle + ";" + currentLap + "\n";
-            csvContent += t.firstLapTimeTitle + ";" + (firstLapTime ? formatTime(firstLapTime, true) : "No registrada") + "\n";
-            csvContent += t.cutoffTimeTitle + ";" + (cutoffTime ? formatTime(cutoffTime, true) : "No calculado") + "\n\n";
-            
-            // Tiempos por vuelta - ordenados descendente por vuelta y ascendente por tiempo
-            csvContent += "TIEMPOS POR VUELTA - PRIMER CORREDOR\n";
-            csvContent += "Vuelta;Tiempo\n";
-            
-            // Convertir currentLapTimes a array y ordenar
-            const lapTimesArray = Object.entries(currentLapTimes).map(([lap, time]) => ({
-                lap: parseInt(lap),
-                time: time
-            }));
-            
-            // Ordenar descendente por vuelta y ascendente por tiempo
-            lapTimesArray.sort((a, b) => {
-                if (a.lap !== b.lap) {
-                    return b.lap - a.lap; // Descendente por vuelta
-                } else {
-                    return a.time - b.time; // Ascendente por tiempo
-                }
-            });
-            
-            // Añadir vueltas ordenadas al CSV
-            lapTimesArray.forEach(item => {
-                csvContent += item.lap + ";" + formatTime(item.time, true) + "\n";
-            });
-            
-            csvContent += "\n";
-            
-            // Corredores retirados - ordenados descendente por vuelta y ascendente por tiempo
-            csvContent += "CORREDORES RETIRADOS\n";
-            csvContent += "Dorsal;Vuelta retirada;Tiempo retirada;Hora retirada\n";
-            
-            // Ordenar corredores retirados
-            const sortedWithdrawnRiders = [...withdrawnRiders].sort((a, b) => {
-                if (a.lap !== b.lap) {
-                    return b.lap - a.lap; // Descendente por vuelta
-                } else {
-                    return a.time - b.time; // Ascendente por tiempo
-                }
-            });
-            
-            sortedWithdrawnRiders.forEach(rider => {
-                const lapText = rider.lap === 0 ? "DNF" : rider.lap;
-                csvContent += rider.dorsal + ";" + lapText + ";" + formatTime(rider.time, true) + ";" + new Date(rider.withdrawalTime).toLocaleTimeString() + "\n";
-            });
-            
-            // Crear y descargar el archivo
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", "carrera_btt_" + new Date().toISOString().slice(0, 10) + ".csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }
     </script>
 </body>
 </html>
