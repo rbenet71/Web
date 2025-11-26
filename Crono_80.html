@@ -2931,6 +2931,140 @@
 			  });
 		  });
 		}
+		        // Función para verificar actualizaciones
+        function checkForUpdates() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.update().then(() => {
+                        console.log('Verificación de actualización completada');
+                    }).catch(error => {
+                        console.log('Error al verificar actualización:', error);
+                    });
+                });
+            }
+        }
+
+        // Función para forzar actualización
+        function forceUpdate() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(registration => {
+                    // Enviar mensaje al SW para saltar la espera
+                    if (registration.waiting) {
+                        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                        
+                        // Recargar la página después de la actualización
+                        registration.waiting.addEventListener('statechange', function() {
+                            if (registration.waiting.state === 'activated') {
+                                window.location.reload();
+                            }
+                        });
+                    }
+                });
+            }
+        }
+
+        // Verificar actualizaciones periódicamente
+        function setupAutoUpdate() {
+            // Verificar actualizaciones cada 30 minutos
+            setInterval(checkForUpdates, 30 * 60 * 1000);
+            
+            // También verificar cuando la app gana el foco
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    checkForUpdates();
+                }
+            });
+            
+            // Escuchar cambios en el Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.addEventListener('controllerchange', function() {
+                    console.log('Service Worker actualizado, recargando página...');
+                    window.location.reload();
+                });
+            }
+        }
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            // ... (código de inicialización existente)
+
+            // Configurar actualización automática
+            setupAutoUpdate();
+            
+            // Verificar actualización inmediatamente después de cargar
+            setTimeout(checkForUpdates, 5000);
+            
+            // Registrar el Service Worker con mejor control de actualizaciones
+            registerServiceWorker();
+        });
+
+        // Función mejorada para registrar el Service Worker
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('https://rbenet71.github.io/Web/Crono_80_sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registrado con éxito: ', registration.scope);
+                        
+                        // Escuchar actualizaciones del Service Worker
+                        registration.addEventListener('updatefound', function() {
+                            const newWorker = registration.installing;
+                            console.log('Nueva versión del Service Worker encontrada:', newWorker);
+                            
+                            newWorker.addEventListener('statechange', function() {
+                                if (newWorker.state === 'installed') {
+                                    if (navigator.serviceWorker.controller) {
+                                        // Nueva versión disponible
+                                        console.log('Nueva versión disponible, actualizando...');
+                                        showUpdateNotification();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(function(error) {
+                        console.log('Error al registrar ServiceWorker: ', error);
+                    });
+
+                // Escuchar cambios de controlador
+                navigator.serviceWorker.addEventListener('controllerchange', function() {
+                    console.log('Controlador del Service Worker cambiado - recargando');
+                    window.location.reload();
+                });
+            }
+        }
+
+        // Mostrar notificación de actualización
+        function showUpdateNotification() {
+            // Crear una notificación sutil en la interfaz
+            const updateNotification = document.createElement('div');
+            updateNotification.style.cssText = `
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                background: #2ecc71;
+                color: white;
+                padding: 10px 15px;
+                border-radius: 5px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                z-index: 10000;
+                cursor: pointer;
+                font-size: 14px;
+            `;
+            updateNotification.textContent = 'Nueva versión disponible. Click para actualizar.';
+            updateNotification.addEventListener('click', function() {
+                forceUpdate();
+                this.remove();
+            });
+            
+            document.body.appendChild(updateNotification);
+            
+            // Auto-eliminar después de 10 segundos
+            setTimeout(() => {
+                if (updateNotification.parentNode) {
+                    updateNotification.remove();
+                }
+            }, 10000);
+        }
     </script>
 </body>
 </html>
