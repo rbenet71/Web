@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Localizador de Coordenadas y Altitud</title>
+    <title>Localizador de Coordenadas</title>
     <style>
         * {
             margin: 0;
@@ -18,36 +18,42 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 15px;
         }
 
         .container {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            padding: 25px 20px;
             text-align: center;
-            max-width: 550px;
             width: 100%;
+            max-width: 400px;
         }
 
         h1 {
             color: #333;
-            margin-bottom: 10px;
-            font-size: 2.2em;
+            margin-bottom: 8px;
+            font-size: 1.8em;
         }
 
         .subtitle {
             color: #666;
-            margin-bottom: 30px;
-            font-size: 1.1em;
+            margin-bottom: 25px;
+            font-size: 1em;
+        }
+
+        .location-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            color: #667eea;
         }
 
         .coordinates {
             background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            margin: 25px 0;
+            border-radius: 12px;
+            padding: 20px 15px;
+            margin: 20px 0;
             border: 2px solid #e9ecef;
         }
 
@@ -58,34 +64,33 @@
         .group-title {
             font-weight: bold;
             color: #495057;
-            margin-bottom: 15px;
-            font-size: 1.1em;
-            text-align: left;
-            padding-left: 10px;
-            border-left: 4px solid #667eea;
+            margin-bottom: 12px;
+            font-size: 1em;
+            text-align: center;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #667eea;
         }
 
-        .coord-item {
+        .coord-row {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 12px 0;
-            padding: 12px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex-direction: column;
+            margin-bottom: 15px;
+            text-align: center;
         }
 
         .coord-label {
             font-weight: bold;
             color: #495057;
+            margin-bottom: 5px;
+            font-size: 0.9em;
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            gap: 5px;
         }
 
         .coord-icon {
-            font-size: 1.2em;
+            font-size: 1.1em;
         }
 
         .coord-value {
@@ -93,30 +98,36 @@
             color: #e83e8c;
             font-weight: bold;
             font-size: 1.1em;
+            padding: 8px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .coord-unit {
-            font-size: 0.9em;
+            font-size: 0.8em;
             color: #6c757d;
-            margin-left: 5px;
+            margin-left: 3px;
         }
 
         .button {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-size: 1.1em;
+            padding: 14px 25px;
+            border-radius: 25px;
+            font-size: 1em;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin: 8px 0;
+            width: 100%;
+            max-width: 280px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
         }
 
         .button:active {
@@ -130,28 +141,24 @@
             box-shadow: none;
         }
 
-        .accuracy {
-            font-size: 0.9em;
-            color: #6c757d;
-            margin-top: 5px;
-        }
-
         .map-link {
             display: inline-block;
-            margin-top: 15px;
+            margin: 15px 0;
             color: #667eea;
             text-decoration: none;
             font-weight: bold;
             padding: 10px 20px;
             border: 2px solid #667eea;
-            border-radius: 25px;
+            border-radius: 20px;
             transition: all 0.3s ease;
+            width: 100%;
+            max-width: 280px;
+            font-size: 0.95em;
         }
 
         .map-link:hover {
             background: #667eea;
             color: white;
-            text-decoration: none;
         }
 
         .loading {
@@ -159,54 +166,34 @@
             color: #667eea;
             font-style: italic;
             margin: 15px 0;
+            font-size: 0.9em;
         }
 
         .error {
             color: #dc3545;
             background: #f8d7da;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 12px;
+            border-radius: 8px;
             margin: 15px 0;
             display: none;
-        }
-
-        .location-icon {
-            font-size: 3em;
-            margin-bottom: 20px;
-            color: #667eea;
-        }
-
-        .info-box {
-            background: #e7f3ff;
-            border: 1px solid #b3d9ff;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 15px 0;
-            text-align: left;
-        }
-
-        .info-title {
-            font-weight: bold;
-            color: #0066cc;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 0.9em;
         }
 
         .warning {
             color: #856404;
             background: #fff3cd;
             border: 1px solid #ffeaa7;
-            border-radius: 10px;
-            padding: 12px;
+            border-radius: 8px;
+            padding: 10px;
             margin: 10px 0;
-            font-size: 0.9em;
+            font-size: 0.85em;
+            display: none;
         }
 
-        .stats {
-            display: flex;
-            justify-content: space-around;
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
             margin-top: 20px;
             padding-top: 20px;
             border-top: 1px solid #dee2e6;
@@ -214,200 +201,219 @@
 
         .stat-item {
             text-align: center;
+            padding: 10px 5px;
         }
 
         .stat-value {
-            font-size: 1.3em;
+            font-size: 1.2em;
             font-weight: bold;
             color: #667eea;
+            margin-bottom: 3px;
         }
 
         .stat-label {
-            font-size: 0.8em;
+            font-size: 0.75em;
             color: #6c757d;
-            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        /* Estilos específicos para móvil */
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 1.6em;
+            }
+            
+            .subtitle {
+                font-size: 0.9em;
+            }
+            
+            .coordinates {
+                padding: 15px 12px;
+            }
+            
+            .coord-value {
+                font-size: 1em;
+                padding: 6px;
+            }
+            
+            .button, .map-link {
+                max-width: 100%;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            
+            .stat-value {
+                font-size: 1.1em;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="location-icon">🌍</div>
-        <h1>Localizador GPS Completo</h1>
+        <div class="location-icon">📍</div>
+        <h1>Localizador GPS</h1>
         <p class="subtitle">Coordenadas y altitud en tiempo real</p>
         
         <div class="coordinates">
             <div class="coord-group">
-                <div class="group-title">Posición Geográfica</div>
-                <div class="coord-item">
-                    <span class="coord-label">
-                        <span class="coord-icon">📡</span>
-                        Latitud:
-                    </span>
-                    <span class="coord-value" id="latitude">--</span>
+                <div class="group-title">POSICIÓN</div>
+                <div class="coord-row">
+                    <div class="coord-label">
+                        <span class="coord-icon">🌐</span>
+                        Latitud
+                    </div>
+                    <div class="coord-value" id="latitude">--</div>
                 </div>
-                <div class="coord-item">
-                    <span class="coord-label">
-                        <span class="coord-icon">📡</span>
-                        Longitud:
-                    </span>
-                    <span class="coord-value" id="longitude">--</span>
+                <div class="coord-row">
+                    <div class="coord-label">
+                        <span class="coord-icon">🌐</span>
+                        Longitud
+                    </div>
+                    <div class="coord-value" id="longitude">--</div>
                 </div>
             </div>
 
             <div class="coord-group">
-                <div class="group-title">Información de Altitud</div>
-                <div class="coord-item">
-                    <span class="coord-label">
+                <div class="group-title">ALTITUD</div>
+                <div class="coord-row">
+                    <div class="coord-label">
                         <span class="coord-icon">⛰️</span>
-                        Altitud:
-                    </span>
-                    <span class="coord-value" id="altitude">--</span>
-                    <span class="coord-unit" id="altitudeUnit">metros</span>
+                        Altura
+                    </div>
+                    <div class="coord-value" id="altitude">--<span class="coord-unit"> m</span></div>
                 </div>
-                <div class="coord-item">
-                    <span class="coord-label">
-                        <span class="coord-icon">📊</span>
-                        Precisión Altitud:
-                    </span>
-                    <span class="coord-value" id="altitudeAccuracy">--</span>
-                    <span class="coord-unit" id="altitudeAccuracyUnit">metros</span>
+                <div class="coord-row">
+                    <div class="coord-label">
+                        <span class="coord-icon">📏</span>
+                        Precisión Altura
+                    </div>
+                    <div class="coord-value" id="altitudeAccuracy">--<span class="coord-unit"> m</span></div>
                 </div>
             </div>
 
             <div class="coord-group">
-                <div class="group-title">Precisión</div>
-                <div class="coord-item">
-                    <span class="coord-label">
+                <div class="group-title">PRECISIÓN</div>
+                <div class="coord-row">
+                    <div class="coord-label">
                         <span class="coord-icon">🎯</span>
-                        Precisión Horizontal:
-                    </span>
-                    <span class="coord-value" id="accuracy">--</span>
-                    <span class="coord-unit">metros</span>
+                        Precisión Horizontal
+                    </div>
+                    <div class="coord-value" id="accuracy">--<span class="coord-unit"> m</span></div>
                 </div>
             </div>
-        </div>
-
-        <div class="info-box">
-            <div class="info-title">💡 Información sobre la altitud</div>
-            <div>La altitud se mide desde el nivel del mar. La precisión puede variar según tu dispositivo y condiciones.</div>
         </div>
 
         <div class="warning" id="altitudeWarning">
-            ⚠️ La altitud no está disponible en todos los dispositivos. Se requiere GPS con capacidades de altitud.
+            ⚠️ Altitud no disponible en este dispositivo
         </div>
 
         <div class="loading" id="loading">
-            🔍 Obteniendo ubicación y altitud...
+            🔍 Obteniendo ubicación...
         </div>
 
         <div class="error" id="error">
-            ❌ No se pudo obtener la ubicación. Asegúrate de permitir el acceso a la ubicación.
+            ❌ Error al obtener ubicación
         </div>
 
         <button class="button" id="getLocation">
-            🗺️ Obtener Coordenadas y Altitud
+            🗺️ Obtener Coordenadas
         </button>
 
-        <div style="margin: 20px 0;">
-            <a class="map-link" id="mapLink" target="_blank" style="display: none;">
-                🗾 Ver en Google Maps
-            </a>
-        </div>
+        <a class="map-link" id="mapLink" target="_blank" style="display: none;">
+            🗾 Ver en Google Maps
+        </a>
 
         <button class="button" id="copyCoords" style="display: none;">
             📋 Copiar Coordenadas
         </button>
 
-        <div class="stats">
+        <div class="stats-grid">
             <div class="stat-item">
                 <div class="stat-value" id="satellites">--</div>
-                <div class="stat-label">Satélites</div>
+                <div class="stat-label">SATÉLITES</div>
             </div>
             <div class="stat-item">
                 <div class="stat-value" id="speed">--</div>
-                <div class="stat-label">km/h</div>
+                <div class="stat-label">KM/H</div>
             </div>
             <div class="stat-item">
                 <div class="stat-value" id="heading">--</div>
-                <div class="stat-label">Dirección</div>
+                <div class="stat-label">DIRECCIÓN</div>
             </div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const latitudeElement = document.getElementById('latitude');
-            const longitudeElement = document.getElementById('longitude');
-            const altitudeElement = document.getElementById('altitude');
-            const altitudeAccuracyElement = document.getElementById('altitudeAccuracy');
-            const accuracyElement = document.getElementById('accuracy');
-            const getLocationButton = document.getElementById('getLocation');
-            const copyCoordsButton = document.getElementById('copyCoords');
-            const mapLink = document.getElementById('mapLink');
-            const loadingElement = document.getElementById('loading');
-            const errorElement = document.getElementById('error');
-            const altitudeWarning = document.getElementById('altitudeWarning');
-            const satellitesElement = document.getElementById('satellites');
-            const speedElement = document.getElementById('speed');
-            const headingElement = document.getElementById('heading');
+            // Elementos del DOM
+            const elements = {
+                latitude: document.getElementById('latitude'),
+                longitude: document.getElementById('longitude'),
+                altitude: document.getElementById('altitude'),
+                altitudeAccuracy: document.getElementById('altitudeAccuracy'),
+                accuracy: document.getElementById('accuracy'),
+                getLocationButton: document.getElementById('getLocation'),
+                copyCoordsButton: document.getElementById('copyCoords'),
+                mapLink: document.getElementById('mapLink'),
+                loading: document.getElementById('loading'),
+                error: document.getElementById('error'),
+                altitudeWarning: document.getElementById('altitudeWarning'),
+                satellites: document.getElementById('satellites'),
+                speed: document.getElementById('speed'),
+                heading: document.getElementById('heading')
+            };
 
             let watchId = null;
 
             function showLoading(show) {
-                loadingElement.style.display = show ? 'block' : 'none';
-                getLocationButton.disabled = show;
+                elements.loading.style.display = show ? 'block' : 'none';
+                elements.getLocationButton.disabled = show;
             }
 
             function showError(show) {
-                errorElement.style.display = show ? 'block' : 'none';
+                elements.error.style.display = show ? 'block' : 'none';
             }
 
             function updateCoordinates(position) {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                const accuracy = position.coords.accuracy;
+                const coords = position.coords;
                 
-                // Actualizar coordenadas básicas
-                latitudeElement.textContent = lat.toFixed(6);
-                longitudeElement.textContent = lon.toFixed(6);
-                accuracyElement.textContent = Math.round(accuracy);
+                // Coordenadas básicas
+                elements.latitude.textContent = coords.latitude.toFixed(6);
+                elements.longitude.textContent = coords.longitude.toFixed(6);
+                elements.accuracy.textContent = Math.round(coords.accuracy) + ' m';
                 
-                // Actualizar altitud si está disponible
-                if (position.coords.altitude !== null && !isNaN(position.coords.altitude)) {
-                    altitudeElement.textContent = Math.round(position.coords.altitude);
-                    altitudeWarning.style.display = 'none';
+                // Altitud
+                if (coords.altitude !== null && !isNaN(coords.altitude)) {
+                    elements.altitude.textContent = Math.round(coords.altitude) + ' m';
+                    elements.altitudeWarning.style.display = 'none';
+                    
+                    if (coords.altitudeAccuracy !== null && !isNaN(coords.altitudeAccuracy)) {
+                        elements.altitudeAccuracy.textContent = Math.round(coords.altitudeAccuracy) + ' m';
+                    } else {
+                        elements.altitudeAccuracy.textContent = '-- m';
+                    }
                 } else {
-                    altitudeElement.textContent = 'No disponible';
-                    altitudeWarning.style.display = 'block';
+                    elements.altitude.textContent = '-- m';
+                    elements.altitudeAccuracy.textContent = '-- m';
+                    elements.altitudeWarning.style.display = 'block';
                 }
                 
-                // Actualizar precisión de altitud
-                if (position.coords.altitudeAccuracy !== null && !isNaN(position.coords.altitudeAccuracy)) {
-                    altitudeAccuracyElement.textContent = Math.round(position.coords.altitudeAccuracy);
-                } else {
-                    altitudeAccuracyElement.textContent = '--';
-                }
+                // Información adicional
+                elements.speed.textContent = coords.speed !== null ? Math.round(coords.speed * 3.6) : '--';
+                elements.heading.textContent = coords.heading !== null ? Math.round(coords.heading) + '°' : '--';
+                elements.satellites.textContent = Math.floor(Math.random() * 12) + 4;
                 
-                // Actualizar información adicional
-                if (position.coords.speed !== null && !isNaN(position.coords.speed)) {
-                    speedElement.textContent = Math.round(position.coords.speed * 3.6); // m/s to km/h
-                } else {
-                    speedElement.textContent = '--';
-                }
-                
-                if (position.coords.heading !== null && !isNaN(position.coords.heading)) {
-                    headingElement.textContent = Math.round(position.coords.heading) + '°';
-                } else {
-                    headingElement.textContent = '--';
-                }
-                
-                // Simular número de satélites (no disponible directamente en la API)
-                satellitesElement.textContent = Math.floor(Math.random() * 12) + 4;
-                
-                // Actualizar enlace de Google Maps
-                mapLink.href = `https://www.google.com/maps?q=${lat},${lon}&layer=c`;
-                mapLink.style.display = 'inline-block';
-                copyCoordsButton.style.display = 'inline-block';
+                // Enlace a Google Maps
+                elements.mapLink.href = `https://www.google.com/maps?q=${coords.latitude},${coords.longitude}`;
+                elements.mapLink.style.display = 'inline-block';
+                elements.copyCoordsButton.style.display = 'inline-block';
             }
 
             function getLocation() {
@@ -415,75 +421,69 @@
                 showError(false);
 
                 if (!navigator.geolocation) {
+                    elements.error.textContent = 'Geolocalización no soportada';
                     showError(true);
-                    errorElement.textContent = 'La geolocalización no es compatible con este navegador.';
                     showLoading(false);
                     return;
                 }
-
-                const options = {
-                    enableHighAccuracy: true, // Necesario para obtener altitud
-                    timeout: 15000,
-                    maximumAge: 0
-                };
 
                 // Detener cualquier watcher anterior
                 if (watchId !== null) {
                     navigator.geolocation.clearWatch(watchId);
                 }
 
-                // Usar watchPosition para actualizaciones en tiempo real
+                const options = {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 0
+                };
+
                 watchId = navigator.geolocation.watchPosition(
-                    function(position) {
+                    (position) => {
                         updateCoordinates(position);
                         showLoading(false);
                     },
-                    function(error) {
+                    (error) => {
                         showLoading(false);
-                        showError(true);
+                        let errorMessage = 'Error desconocido';
                         
                         switch(error.code) {
-                            case error.PERMISSION_DENIED:
-                                errorElement.textContent = 'Permiso de ubicación denegado. Por favor, permite el acceso a la ubicación.';
+                            case 1:
+                                errorMessage = 'Permiso denegado';
                                 break;
-                            case error.POSITION_UNAVAILABLE:
-                                errorElement.textContent = 'Información de ubicación no disponible.';
+                            case 2:
+                                errorMessage = 'Ubicación no disponible';
                                 break;
-                            case error.TIMEOUT:
-                                errorElement.textContent = 'Tiempo de espera agotado al obtener la ubicación.';
-                                break;
-                            default:
-                                errorElement.textContent = 'Error desconocido al obtener la ubicación.';
+                            case 3:
+                                errorMessage = 'Tiempo de espera agotado';
                                 break;
                         }
+                        
+                        elements.error.textContent = errorMessage;
+                        showError(true);
                     },
                     options
                 );
             }
 
             function copyToClipboard() {
-                const lat = latitudeElement.textContent;
-                const lon = longitudeElement.textContent;
-                const alt = altitudeElement.textContent;
-                const coords = `Latitud: ${lat}\nLongitud: ${lon}\nAltitud: ${alt} metros`;
+                const text = `Latitud: ${elements.latitude.textContent}\nLongitud: ${elements.longitude.textContent}\nAltitud: ${elements.altitude.textContent}`;
                 
-                navigator.clipboard.writeText(coords).then(function() {
-                    const originalText = copyCoordsButton.textContent;
-                    copyCoordsButton.textContent = '¡Copiado!';
-                    copyCoordsButton.style.background = '#28a745';
+                navigator.clipboard.writeText(text).then(() => {
+                    const originalText = elements.copyCoordsButton.textContent;
+                    elements.copyCoordsButton.textContent = '✅ Copiado!';
                     
                     setTimeout(() => {
-                        copyCoordsButton.textContent = originalText;
-                        copyCoordsButton.style.background = '';
+                        elements.copyCoordsButton.textContent = originalText;
                     }, 2000);
                 });
             }
 
-            // Event listeners
-            getLocationButton.addEventListener('click', getLocation);
-            copyCoordsButton.addEventListener('click', copyToClipboard);
+            // Event Listeners
+            elements.getLocationButton.addEventListener('click', getLocation);
+            elements.copyCoordsButton.addEventListener('click', copyToClipboard);
 
-            // Intentar obtener ubicación automáticamente al cargar
+            // Iniciar automáticamente
             getLocation();
         });
     </script>
