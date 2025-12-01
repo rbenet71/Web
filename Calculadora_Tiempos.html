@@ -514,8 +514,6 @@
                 minuteButton: "Minuto",
                 secondButton: "Segundo",
                 decimalButton: "Decimal",
-                copyright: "2025 Copyright",
-                copyrightLink: "Roberto Benet - rbenet71@gmail.com",
                 visits: "visitas"
             },
             ca: {
@@ -537,8 +535,6 @@
                 minuteButton: "Minut",
                 secondButton: "Segon",
                 decimalButton: "Decimal",
-                copyright: "2025 Copyright",
-                copyrightLink: "Roberto Benet - rbenet71@gmail.com",
                 visits: "visites"
             },
             en: {
@@ -560,8 +556,6 @@
                 minuteButton: "Minute",
                 secondButton: "Second",
                 decimalButton: "Decimal",
-                copyright: "2025 Copyright",
-                copyrightLink: "Roberto Benet - rbenet71@gmail.com",
                 visits: "visits"
             }
         };
@@ -597,12 +591,7 @@
             document.getElementById('decimalBtn').textContent = translations[lang].decimalButton;
             
             // Actualizar footer
-            document.querySelector('.calculator-footer p').innerHTML = 
-                translations[lang].copyright + 
-                ' <a href="https://rbenet71.github.io/Web/" target="_blank">' +
-                translations[lang].copyrightLink + 
-                '</a> <span class="visit-counter" id="visit-counter">' + 
-                getVisitCount() + ' ' + translations[lang].visits + '</span>';
+            getVisitCount();
             
             // Actualizar banderas activas
             document.querySelectorAll('.flag').forEach(flag => {
