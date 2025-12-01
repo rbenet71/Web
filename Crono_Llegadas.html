@@ -1720,19 +1720,6 @@
             
             closeDeleteRaceModal();
         }
-        // Registro específico para Llegadas
-        if ('serviceWorker' in navigator) {
-        // Solo registrar para Crono Llegadas
-        if (window.location.href.includes('Crono_Llegadas')) {
-            navigator.serviceWorker.register('./Crono_Llegadas_sw.js')
-            .then(function(registration) {
-                console.log('ServiceWorker Crono Llegadas registrado: ', registration.scope);
-            })
-            .catch(function(error) {
-                console.log('Error al registrar ServiceWorker Crono Llegadas: ', error);
-            });
-        }
-        }
 
         // Función para forzar actualización
         function forceUpdate() {
@@ -1791,7 +1778,7 @@
         // Función mejorada para registrar el Service Worker
         function registerServiceWorker() {
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('https://rbenet71.github.io/Web/Crono_Llegadas_sw.js')
+                navigator.serviceWorker.register('https://rbenet71.github.io/Web/unified-sw.js')
                     .then(function(registration) {
                         console.log('ServiceWorker registrado con éxito: ', registration.scope);
                         

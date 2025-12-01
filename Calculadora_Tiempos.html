@@ -1683,7 +1683,7 @@ IDList=`;
         if ('serviceWorker' in navigator) {
         // Solo registrar para Calculadora_Tiempos
         if (window.location.href.includes('Calculadora_Tiempos')) {
-            navigator.serviceWorker.register('./Calculadora_Tiempos_sw.js')
+            navigator.serviceWorker.register('/Web/unified-sw.js')
             .then(function(registration) {
                 console.log('ServiceWorker Calculadora registrado: ', registration.scope);
             })

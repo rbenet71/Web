@@ -3202,20 +3202,7 @@
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
         }
-		// Registro del Service Worker para PWA
-        // Registro específico para Crono 80
-        if ('serviceWorker' in navigator) {
-        // Solo registrar para Crono 80
-        if (window.location.href.includes('Crono_80')) {
-            navigator.serviceWorker.register('./Crono_80_sw.js')
-            .then(function(registration) {
-                console.log('ServiceWorker Crono 80 registrado: ', registration.scope);
-            })
-            .catch(function(error) {
-                console.log('Error al registrar ServiceWorker Crono 80: ', error);
-            });
-        }
-        }
+
 		// Función para verificar actualizaciones
         function checkForUpdates() {
             if ('serviceWorker' in navigator) {
@@ -3286,7 +3273,7 @@
         // Función mejorada para registrar el Service Worker
         function registerServiceWorker() {
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('https://rbenet71.github.io/Web/Crono_80_sw.js')
+                navigator.serviceWorker.register('https://rbenet71.github.io/Web/unified-sw.js')
                     .then(function(registration) {
                         console.log('ServiceWorker registrado con éxito: ', registration.scope);
                         

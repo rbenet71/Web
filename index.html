@@ -1043,7 +1043,7 @@ if ('serviceWorker' in navigator) {
         window.location.pathname.endsWith('index.html') ||
         !window.location.pathname.includes('Calculadora_Tiempos')) {
         
-        navigator.serviceWorker.register('./index_sw.js')
+        navigator.serviceWorker.register('/Web/unified-sw.js')
         .then(function(registration) {
             console.log('ServiceWorker Index registrado: ', registration.scope);
             
