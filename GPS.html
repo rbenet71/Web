@@ -375,6 +375,39 @@
             color: #495057;
         }
 
+        /* Pie de página */
+        .calculator-footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+            color: #6c757d;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+        
+        .calculator-footer p {
+            margin-bottom: 5px;
+        }
+        
+        .calculator-footer #copyright-text {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .calculator-footer #copyright-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 9px;
+        }
+        
+        .calculator-footer #copyright-link:hover {
+            text-decoration: underline;
+        }
+
         /* Estilos específicos para móvil */
         @media (max-width: 480px) {
             .container {
@@ -414,6 +447,16 @@
             
             .stat-value {
                 font-size: 1.1em;
+            }
+            
+            .calculator-footer {
+                font-size: 9px;
+                margin-top: 15px;
+                padding-top: 10px;
+            }
+            
+            .calculator-footer #copyright-link {
+                font-size: 8px;
             }
         }
     </style>
@@ -518,6 +561,16 @@
                 <div class="stat-value" id="heading">--</div>
                 <div class="stat-label">DIRECCIÓN</div>
             </div>
+        </div>
+
+        <!-- Pie de página -->
+        <div class="calculator-footer">
+            <p>
+                <span id="copyright-text">© 2025 - Aplicaciones Web Roberto Benet - Todos los derechos reservados</span>
+                <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
+                    Roberto Benet - rbenet71@gmail.com - V_01_12_2025
+                </a>
+            </p>
         </div>
     </div>
 
