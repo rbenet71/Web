@@ -14,7 +14,7 @@
 
     gtag('config', 'G-CV925PMBQV');
     </script>
-    
+
 	<!-- Iconos para la aplicación -->
 	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png">
 	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png">
@@ -370,16 +370,6 @@
             text-decoration: underline;
         }
         
-        .visit-counter {
-            margin-left: 8px;
-            padding: 2px 6px;
-            background-color: #3498db;
-            color: white;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            font-weight: bold;
-        }
-        
         .btn-help {
             background-color: #3498db;
             color: white;
@@ -472,7 +462,6 @@
                 <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
                     Roberto Benet - rbenet71@gmail.com - V_01_12_2025
                 </a>
-                <span class="visit-counter" id="visit-counter">0 visitas</span>
             </p>
         </div>
     </div>
@@ -528,7 +517,6 @@
                 minuteButton: "Minuto",
                 secondButton: "Segundo",
                 decimalButton: "Decimal",
-                visits: "visitas"
             },
             ca: {
                 appTitle: "Calculadora de Temps",
@@ -549,7 +537,6 @@
                 minuteButton: "Minut",
                 secondButton: "Segon",
                 decimalButton: "Decimal",
-                visits: "visites"
             },
             en: {
                 appTitle: "Time Calculator",
@@ -570,7 +557,6 @@
                 minuteButton: "Minute",
                 secondButton: "Second",
                 decimalButton: "Decimal",
-                visits: "visits"
             }
         };
 
@@ -604,9 +590,6 @@
             document.getElementById('secondBtn').textContent = translations[lang].secondButton;
             document.getElementById('decimalBtn').textContent = translations[lang].decimalButton;
             
-            // Actualizar footer
-            getVisitCount();
-            
             // Actualizar banderas activas
             document.querySelectorAll('.flag').forEach(flag => {
                 flag.classList.remove('active');
@@ -619,26 +602,6 @@
             window.open('https://rbenet71.github.io/Web/Calculadora_Tiempos_Ayuda.html', '_blank');
         }
         
-        // Función para el contador de visitas
-        function updateVisitCounter() {
-            const today = new Date().toDateString();
-            const lastVisit = localStorage.getItem('timeCalcLastVisit');
-            let visitCount = parseInt(localStorage.getItem('timeCalcVisitCount')) || 0;
-            
-            // Solo contar una visita por día por usuario
-            if (lastVisit !== today) {
-                visitCount++;
-                localStorage.setItem('timeCalcVisitCount', visitCount);
-                localStorage.setItem('timeCalcLastVisit', today);
-            }
-            
-            return visitCount;
-        }
-        
-        function getVisitCount() {
-            return parseInt(localStorage.getItem('timeCalcVisitCount')) || 0;
-        }
-
         class TimeCalculator {
             constructor() {
                 this.currentInput = '0';
@@ -1283,10 +1246,7 @@
             if (savedLanguage) {
                 currentLanguage = savedLanguage;
             }
-            
-            // Inicializar contador de visitas
-            updateVisitCounter();
-            
+
             // Actualizar idioma
             updateLanguage(currentLanguage);
             

@@ -592,15 +592,6 @@
             text-decoration: underline;
         }
         
-        .visit-counter {
-            margin-left: 10px;
-            padding: 2px 8px;
-            background-color: var(--secondary-color);
-            color: white;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
         
         .milliseconds-toggle {
             display: flex;
@@ -926,7 +917,6 @@
                 <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
                     Roberto Benet - rbenet71@gmail.com - V_01_12_2025
                 </a>
-                <span class="visit-counter" id="visit-counter">0 visitas</span>
             </p>
         </footer>
     </div>
@@ -1254,8 +1244,6 @@
                 confirmDeleteLap: "¿Estás seguro de que quieres eliminar esta vuelta?",
                 confirmDeleteRider: "¿Estás seguro de que quieres eliminar este corredor de la lista de retirados?",
                 
-                // Footer
-                visits: "visitas",
                 
                 // Selector de carrera
                 selectRace: "-- Seleccionar Carrera --",
@@ -1343,10 +1331,7 @@
                 onlyLastLap: "Només es pot eliminar l'última volta registrada",
                 confirmDeleteLap: "¿Estàs segur que vols eliminar aquesta volta?",
                 confirmDeleteRider: "¿Estàs segur que vols eliminar aquest corredor de la llista de retirats?",
-                
-                // Footer
-                visits: "visites",
-                
+                               
                 // Selector de carrera
                 selectRace: "-- Seleccionar Cursa --",
                 raceNamePlaceholder: "Ex: BTT Muntanya 2024",
@@ -1433,10 +1418,7 @@
                 onlyLastLap: "Only the last recorded lap can be deleted",
                 confirmDeleteLap: "Are you sure you want to delete this lap?",
                 confirmDeleteRider: "Are you sure you want to remove this rider from the withdrawn list?",
-                
-                // Footer
-                visits: "visits",
-                
+
                 // Selector de carrera
                 selectRace: "-- Select Race --",
                 raceNamePlaceholder: "Ex: MTB Mountain 2024",
@@ -1501,7 +1483,6 @@
         const withdrawnTabButton = document.getElementById('withdrawn-tab-button');
         const lapTimesTabButton = document.getElementById('lap-times-tab-button');
         const cutoffWarning = document.getElementById('cutoff-warning');
-        const visitCounterElement = document.getElementById('visit-counter');
         const millisecondsToggle = document.getElementById('milliseconds-toggle');
         const millisecondsLabel = document.getElementById('milliseconds-label');
         const helpIconHeader = document.getElementById('help-icon-header');
@@ -1749,9 +1730,6 @@
                 firstOption.textContent = t.selectRace;
             }
             
-            // Actualizar footer
-            updateVisitCounter();
-            
             // Actualizar banderas activas
             document.querySelectorAll('.flag').forEach(flag => {
                 flag.classList.remove('active');
@@ -1843,21 +1821,6 @@
             updateDisplay();
             updateLapTimesList();
             saveCurrentRace();
-        }
-
-        // Contador de visitas
-        function updateVisitCounter() {
-            const today = new Date().toDateString();
-            const lastVisit = localStorage.getItem('bttLastVisit');
-            let visitCount = parseInt(localStorage.getItem('bttVisitCount')) || 0;
-            
-            if (lastVisit !== today) {
-                visitCount++;
-                localStorage.setItem('bttVisitCount', visitCount);
-                localStorage.setItem('bttLastVisit', today);
-            }
-            
-            visitCounterElement.textContent = visitCount + ' ' + translations[currentLanguage].visits;
         }
 
         // Funciones para el historial de horas de inicio
@@ -1992,8 +1955,6 @@
                 // No hay carreras, actualizar estado de botones
                 updateButtonsState();
             }
-            
-            updateVisitCounter();
             
             // Actualizar idioma inicial
             updateLanguage(currentLanguage);

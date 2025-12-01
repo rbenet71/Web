@@ -14,7 +14,7 @@
 
     gtag('config', 'G-CV925PMBQV');
     </script>
-    
+
 	<!-- Iconos para la aplicación -->
 	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png">
 	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png">
@@ -514,16 +514,6 @@
             text-decoration: underline;
         }
         
-        .visit-counter {
-            margin-left: 10px;
-            padding: 2px 8px;
-            background-color: var(--secondary-color);
-            color: white;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        
         /* Estilos para modales */
         .modal {
             display: none;
@@ -718,7 +708,6 @@
                 <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
                     Roberto Benet - rbenet71@gmail.com - V_01_12_2025
                 </a>
-                <span class="visit-counter" id="visit-counter">0 visitas</span>
             </p>
         </footer>
     </div>
@@ -787,7 +776,6 @@
                 cancelButton: "Cancelar",
                 confirmButton: "Confirmar",
                 createButton: "Crear Carrera",
-                visits: "visitas"
             },
             ca: {
                 appTitle: "Cronòmetre per Arribades",
@@ -821,7 +809,6 @@
                 cancelButton: "Cancel·lar",
                 confirmButton: "Confirmar",
                 createButton: "Crear Cursa",
-                visits: "visites"
             },
             en: {
                 appTitle: "Finish Line Stopwatch",
@@ -855,7 +842,6 @@
                 cancelButton: "Cancel",
                 confirmButton: "Confirm",
                 createButton: "Create Race",
-                visits: "visits"
             }
         };
 
@@ -897,7 +883,6 @@
         const cortesTabButton = document.getElementById('cortes-tab-button');
         const dorsalesTabButton = document.getElementById('dorsales-tab-button');
         const parametrosTabButton = document.getElementById('parametros-tab-button');
-        const visitCounterElement = document.getElementById('visit-counter');
         
         // Modales
         const newRaceModal = document.getElementById('new-race-modal');
@@ -954,9 +939,6 @@
             // Actualizar placeholders
             document.getElementById('race-name-input').placeholder = t.raceNamePlaceholder;
             
-            // Actualizar footer
-            updateVisitCounter();
-            
             // Actualizar banderas activas
             document.querySelectorAll('.flag').forEach(flag => {
                 flag.classList.remove('active');
@@ -983,21 +965,6 @@
             btnExport.disabled = !hasRace;
             btnExportDorsales.disabled = !hasRace;
             btnDeleteRace.disabled = !hasRace;
-        }
-
-        // Contador de visitas
-        function updateVisitCounter() {
-            const today = new Date().toDateString();
-            const lastVisit = localStorage.getItem('llegadasLastVisit');
-            let visitCount = parseInt(localStorage.getItem('llegadasVisitCount')) || 0;
-            
-            if (lastVisit !== today) {
-                visitCount++;
-                localStorage.setItem('llegadasVisitCount', visitCount);
-                localStorage.setItem('llegadasLastVisit', today);
-            }
-            
-            visitCounterElement.textContent = visitCount + ' ' + translations[currentLanguage].visits;
         }
 
         // Inicialización
@@ -1031,8 +998,6 @@
                 // No hay carreras, actualizar estado de botones
                 updateButtonsState();
             }
-            
-            updateVisitCounter();
             
             // Actualizar idioma inicial
             updateLanguage(currentLanguage);
