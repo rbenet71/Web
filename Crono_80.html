@@ -4,29 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cronómetro Control 80% - BTT/Ciclo-cross</title>
-	
-	<!-- Iconos para la aplicación -->
-	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_80_192x192.png">
-	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_80_192x192.png">
+    
+    <!-- Iconos para la aplicación -->
+    <link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_80_192x192.png">
+    <link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_80_192x192.png">
 
-	<!-- Iconos para PWA -->
-	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_80_192x192.png?v=2">
-	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_80_192x192.png?v=2">
-	<link rel="icon" type="image/png" sizes="192x192" href="https://rbenet71.github.io/Web/Crono_80_192x192.png?v=2">
-	<link rel="icon" type="image/png" sizes="512x512" href="https://rbenet71.github.io/Web/Crono_80_192x192.png?v=2">
-	<link rel="apple-touch-icon" sizes="192x192" href="https://rbenet71.github.io/Web/Crono_80_192x192.png?v=2">
-	<meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Crono_80_192x192.png?v=2">
+    <!-- Iconos para PWA -->
+    <link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_80_192x192.png?v=2">
+    <link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_80_192x192.png?v=2">
+    <link rel="icon" type="image/png" sizes="192x192" href="https://rbenet71.github.io/Web/Crono_80_192x192.png?v=2">
+    <link rel="icon" type="image/png" sizes="512x512" href="https://rbenet71.github.io/Web/Crono_80_192x192.png?v=2">
+    <link rel="apple-touch-icon" sizes="192x192" href="https://rbenet71.github.io/Web/Crono_80_192x192.png?v=2">
+    <meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Crono_80_192x192.png?v=2">
 
-	<!-- Configuración para PWA (Progressive Web App) -->
-	<meta name="theme-color" content="#2c3e50">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-	<meta name="apple-mobile-web-app-title" content="Crono 80%">
-	<meta name="msapplication-TileColor" content="#2c3e50">
-	<meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Crono_80_192x192.png">
+    <!-- Configuración para PWA (Progressive Web App) -->
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Crono 80%">
+    <meta name="msapplication-TileColor" content="#2c3e50">
+    <meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Crono_80_192x192.png">
 
-	<!-- Manifest para PWA -->
-	<link rel="manifest" href="https://rbenet71.github.io/Web/Crono_80_manifest.json">
+    <!-- Manifest para PWA -->
+    <link rel="manifest" href="https://rbenet71.github.io/Web/Crono_80_manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -710,6 +710,57 @@
             color: #95a5a6;
         }
         
+        /* Estilos para opciones de reanudación - CORREGIDO: display: block en lugar de none */
+        .resume-options {
+            display: block; /* CAMBIADO DE none A block */
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #1a252f;
+            border-radius: 8px;
+            border: 1px solid #34495e;
+        }
+        
+        .resume-option {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #2c3e50;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .resume-option:hover {
+            background-color: #34495e;
+            border-color: var(--secondary-color);
+        }
+        
+        .resume-option.active {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .option-title {
+            font-weight: bold;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .option-description {
+            font-size: 0.85rem;
+            color: #95a5a6;
+        }
+        
+        .mode-description {
+            margin: 10px 0 15px 0;
+            padding: 10px;
+            background-color: #1a252f;
+            border-radius: 5px;
+            border-left: 3px solid var(--secondary-color);
+            font-size: 0.9rem;
+            color: #ecf0f1;
+        }
+        
         @media (max-width: 768px) {
             .chrono-section {
                 flex-direction: column;
@@ -911,37 +962,81 @@
         </div>
     </div>
     
+    <!-- Modal de tiempo REORGANIZADO -->
     <div class="modal" id="time-modal">
         <div class="modal-content">
             <h3 id="time-modal-title">Fijar Tiempo del Cronómetro</h3>
             <div class="time-option-buttons">
-                <button class="btn-set-time" id="set-start-time">Hora Salida</button>
-                <button class="btn-set-time" id="set-manual-time">Hora Crono</button>
+                <button class="btn-set-time active" id="set-chrono-time">Por Hora de Crono</button>
+                <button class="btn-set-time" id="set-start-time">Por Hora de Inicio</button>
             </div>
             
-            <!-- Nueva sección para historial de horas de inicio -->
-            <div class="form-group" id="start-times-history-section">
-                <label>Horas de inicio anteriores:</label>
-                <div id="start-times-list" style="max-height: 150px; overflow-y: auto; border: 1px solid #34495e; border-radius: 4px; padding: 8px; background-color: #1a252f;"></div>
+            <!-- Descripción del modo actual -->
+            <div class="mode-description" id="mode-description">
+                Establece el tiempo actual del cronómetro. Indica qué tiempo quieres que muestre el cronómetro en este momento.
             </div>
             
-            <div id="time-inputs-section">
-                <div class="form-group">
-                    <label id="time-hours-label" for="hours-input">Horas</label>
-                    <input type="number" id="hours-input" min="0" max="23" value="0">
-                </div>
-                <div class="form-group">
-                    <label id="time-minutes-label" for="minutes-input">Minutos</label>
-                    <input type="number" id="minutes-input" min="0" max="59" value="0">
-                </div>
-                <div class="form-group">
-                    <label id="time-seconds-label" for="seconds-input">Segundos</label>
-                    <input type="number" id="seconds-input" min="0" max="59" value="0">
+            <!-- Sección para tiempo del cronómetro (MODO POR DEFECTO) -->
+            <div id="chrono-time-section">
+                <div class="time-inputs">
+                    <div class="form-group">
+                        <label id="chrono-hours-label" for="chrono-hours-input">Horas</label>
+                        <input type="number" id="chrono-hours-input" min="0" max="23" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label id="chrono-minutes-label" for="chrono-minutes-input">Minutos</label>
+                        <input type="number" id="chrono-minutes-input" min="0" max="59" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label id="chrono-seconds-label" for="chrono-seconds-input">Segundos</label>
+                        <input type="number" id="chrono-seconds-input" min="0" max="59" value="0">
+                    </div>
                 </div>
             </div>
+            
+            <!-- Sección para hora de inicio con opciones de reanudación (OCULTA POR DEFECTO) -->
+            <div id="start-time-section" style="display: none;">
+                <div class="form-group">
+                    <label id="start-time-label-modal" for="start-time-input">Hora de inicio de la carrera:</label>
+                    <input type="time" id="start-time-input">
+                </div>
+                
+                <!-- Historial de horas de inicio (SOLO para modo "Por Hora de Inicio") -->
+                <div class="form-group" id="start-times-history-section">
+                    <label>Horas de inicio anteriores:</label>
+                    <div id="start-times-list" style="max-height: 150px; overflow-y: auto; border: 1px solid #34495e; border-radius: 4px; padding: 8px; background-color: #1a252f;"></div>
+                </div>
+            </div>
+            
             <div class="modal-buttons">
                 <button class="btn-reset" id="cancel-time">Cancelar</button>
                 <button class="btn-modify" id="confirm-time">Modificar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- NUEVO MODAL PARA OPCIONES DE REANUDACIÓN -->
+    <div class="modal" id="resume-options-modal">
+        <div class="modal-content">
+            <h3 id="resume-options-title">¿Cómo quieres reanudar el cronómetro?</h3>
+            <div class="mode-description">
+                El cronómetro fue detenido anteriormente. Elige cómo quieres continuar:
+            </div>
+            
+            <div class="resume-options" id="resume-options-list">
+                <div class="resume-option active" data-option="original">
+                    <div class="option-title">Calcular desde hora original</div>
+                    <div class="option-description">Calcula el tiempo transcurrido desde la hora de inicio original de la carrera</div>
+                </div>
+                <div class="resume-option" data-option="current">
+                    <div class="option-title">Continuar tiempo actual</div>
+                    <div class="option-description">Mantiene el tiempo actual del cronómetro y continúa desde ahí</div>
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn-reset" id="cancel-resume">Cancelar</button>
+                <button class="btn-start" id="confirm-resume">Iniciar</button>
             </div>
         </div>
     </div>
@@ -1085,6 +1180,25 @@
                 lastLapLabel: "Último paso:",
                 eightyPercentCutoffLabel: "+ 80% primera vuelta:",
                 
+                // Opciones de reanudación
+                resumeOptionsTitle: "¿Cómo quieres reanudar el cronómetro?",
+                resumeOptionsDescription: "El cronómetro fue detenido anteriormente. Elige cómo quieres continuar:",
+                resumeOptionOriginal: "Calcular desde hora original",
+                resumeOptionCurrent: "Continuar tiempo actual",
+                resumeOriginalDesc: "Calcula el tiempo transcurrido desde la hora de inicio original de la carrera",
+                resumeCurrentDesc: "Mantiene el tiempo actual del cronómetro y continúa desde ahí",
+                
+                // Modal de tiempo
+                timeModalTitle: "Fijar Tiempo del Cronómetro",
+                chronoTimeMode: "Por Hora de Crono",
+                startTimeMode: "Por Hora de Inicio",
+                chronoTimeDescription: "Establece el tiempo actual del cronómetro. Indica qué tiempo quieres que muestre el cronómetro en este momento.",
+                startTimeDescription: "Establece la hora de inicio de la carrera. El cronómetro calculará automáticamente el tiempo transcurrido desde esa hora.",
+                chronoHoursLabel: "Horas",
+                chronoMinutesLabel: "Minutos",
+                chronoSecondsLabel: "Segundos",
+                startTimeLabelModal: "Hora de inicio de la carrera:",
+                
                 // Botones
                 startButton: "Iniciar Cronómetro",
                 stopButton: "Parar Cronómetro",
@@ -1105,10 +1219,6 @@
                 dnfDorsalLabel: "Número(s) de Dorsal (separados por comas)",
                 resetModalTitle: "Confirmar Reinicio",
                 resetModalText: "¿Estás seguro de que quieres reiniciar el cronómetro? Se perderán todos los datos.",
-                timeModalTitle: "Fijar Tiempo del Cronómetro",
-                timeHoursLabel: "Horas",
-                timeMinutesLabel: "Minutos",
-                timeSecondsLabel: "Segundos",
                 newRaceModalTitle: "Nueva Carrera",
                 raceNameLabel: "Nombre de la Carrera",
                 deleteRaceModalTitle: "Eliminar Carrera",
@@ -1162,6 +1272,25 @@
                 lastLapLabel: "Darrer pas:",
                 eightyPercentCutoffLabel: "+ 80% primera volta:",
                 
+                // Opciones de reanudación
+                resumeOptionsTitle: "¿Com vols reprendre el cronòmetre?",
+                resumeOptionsDescription: "El cronòmetre va ser aturat anteriorment. Tria com vols continuar:",
+                resumeOptionOriginal: "Calcular des de hora original",
+                resumeOptionCurrent: "Continuar temps actual",
+                resumeOriginalDesc: "Calcula el temps transcorregut des de l'hora d'inici original de la cursa",
+                resumeCurrentDesc: "Manté el temps actual del cronòmetre i continua des d'aquí",
+                
+                // Modal de tiempo
+                timeModalTitle: "Fixar Temps del Cronòmetre",
+                chronoTimeMode: "Per Hora de Crono",
+                startTimeMode: "Per Hora d'Inici",
+                chronoTimeDescription: "Estableix el temps actual del cronòmetre. Indica quin temps vols que mostri el cronòmetre en aquest moment.",
+                startTimeDescription: "Estableix l'hora d'inici de la cursa. El cronòmetre calcularà automàticament el temps transcorregut des d'aquesta hora.",
+                chronoHoursLabel: "Hores",
+                chronoMinutesLabel: "Minuts",
+                chronoSecondsLabel: "Segons",
+                startTimeLabelModal: "Hora d'inici de la cursa:",
+                
                 // Botones
                 startButton: "Iniciar Cronòmetre",
                 stopButton: "Aturar Cronòmetre",
@@ -1182,10 +1311,6 @@
                 dnfDorsalLabel: "Número(s) de Dorsal (separats per comes)",
                 resetModalTitle: "Confirmar Reinici",
                 resetModalText: "¿Estàs segur que vols reiniciar el cronòmetre? Es perdran totes les dades.",
-                timeModalTitle: "Fixar Temps del Cronòmetre",
-                timeHoursLabel: "Hores",
-                timeMinutesLabel: "Minuts",
-                timeSecondsLabel: "Segons",
                 newRaceModalTitle: "Nova Cursa",
                 raceNameLabel: "Nom de la Cursa",
                 deleteRaceModalTitle: "Eliminar Cursa",
@@ -1239,6 +1364,25 @@
                 lastLapLabel: "Last pass:",
                 eightyPercentCutoffLabel: "+ 80% first lap:",
                 
+                // Opciones de reanudación
+                resumeOptionsTitle: "How do you want to resume the stopwatch?",
+                resumeOptionsDescription: "The stopwatch was previously stopped. Choose how you want to continue:",
+                resumeOptionOriginal: "Calculate from original time",
+                resumeOptionCurrent: "Continue current time",
+                resumeOriginalDesc: "Calculates elapsed time from the original start time of the race",
+                resumeCurrentDesc: "Keeps the current stopwatch time and continues from there",
+                
+                // Modal de tiempo
+                timeModalTitle: "Set Stopwatch Time",
+                chronoTimeMode: "By Stopwatch Time",
+                startTimeMode: "By Start Time",
+                chronoTimeDescription: "Sets the current stopwatch time. Indicate what time you want the stopwatch to show right now.",
+                startTimeDescription: "Sets the race start time. The stopwatch will automatically calculate the elapsed time from that time.",
+                chronoHoursLabel: "Hours",
+                chronoMinutesLabel: "Minutes",
+                chronoSecondsLabel: "Seconds",
+                startTimeLabelModal: "Race start time:",
+                
                 // Botones
                 startButton: "Start Stopwatch",
                 stopButton: "Stop Stopwatch",
@@ -1259,10 +1403,6 @@
                 dnfDorsalLabel: "Bib Number(s) (separated by commas)",
                 resetModalTitle: "Confirm Reset",
                 resetModalText: "Are you sure you want to reset the stopwatch? All data will be lost.",
-                timeModalTitle: "Set Stopwatch Time",
-                timeHoursLabel: "Hours",
-                timeMinutesLabel: "Minutes",
-                timeSecondsLabel: "Seconds",
                 newRaceModalTitle: "New Race",
                 raceNameLabel: "Race Name",
                 deleteRaceModalTitle: "Delete Race",
@@ -1317,7 +1457,7 @@
         let currentRaceId = null;
         let races = {};
         let raceStartTime = null;
-        let timeModalMode = 'start';
+        let timeModalMode = 'chrono'; // 'chrono' o 'start'
         let isOverCutoff = false;
         let currentEditingLap = null;
         let currentEditingRiderIndex = null;
@@ -1325,6 +1465,8 @@
         let soundEnabled = true;
         let cutoffSoundPlayed = false;
         let raceStartTimesHistory = {};
+        let resumeOption = 'original'; // 'original' o 'current'
+        let wasPreviouslyStopped = false; // Nueva variable para controlar si el crono fue detenido
 
         // Elementos DOM
         const chronoDisplay = document.getElementById('chrono-display');
@@ -1374,6 +1516,7 @@
         const editFirstLapModal = document.getElementById('edit-first-lap-modal');
         const editLapTimeModal = document.getElementById('edit-lap-time-modal');
         const editRiderModal = document.getElementById('edit-rider-modal');
+        const resumeOptionsModal = document.getElementById('resume-options-modal'); // Nuevo modal
 
         // Funciones de sonido
         function playButtonSound() {
@@ -1503,6 +1646,36 @@
             document.getElementById('last-lap-label').textContent = t.lastLapLabel;
             document.getElementById('eighty-percent-cutoff-label').textContent = t.eightyPercentCutoffLabel;
             
+            // Actualizar modal de tiempo
+            document.getElementById('time-modal-title').textContent = t.timeModalTitle;
+            document.getElementById('set-chrono-time').textContent = t.chronoTimeMode;
+            document.getElementById('set-start-time').textContent = t.startTimeMode;
+            document.getElementById('chrono-hours-label').textContent = t.chronoHoursLabel;
+            document.getElementById('chrono-minutes-label').textContent = t.chronoMinutesLabel;
+            document.getElementById('chrono-seconds-label').textContent = t.chronoSecondsLabel;
+            document.getElementById('start-time-label-modal').textContent = t.startTimeLabelModal;
+            
+            // Actualizar modal de opciones de reanudación
+            document.getElementById('resume-options-title').textContent = t.resumeOptionsTitle;
+            document.querySelector('#resume-options-modal .mode-description').textContent = t.resumeOptionsDescription;
+            
+            // Actualizar opciones de reanudación
+            document.querySelectorAll('.resume-option[data-option="original"] .option-title').forEach(el => {
+                el.textContent = t.resumeOptionOriginal;
+            });
+            document.querySelectorAll('.resume-option[data-option="original"] .option-description').forEach(el => {
+                el.textContent = t.resumeOriginalDesc;
+            });
+            document.querySelectorAll('.resume-option[data-option="current"] .option-title').forEach(el => {
+                el.textContent = t.resumeOptionCurrent;
+            });
+            document.querySelectorAll('.resume-option[data-option="current"] .option-description').forEach(el => {
+                el.textContent = t.resumeCurrentDesc;
+            });
+            
+            // Actualizar descripción según el modo actual
+            updateModeDescription();
+            
             // Actualizar botones
             btnStart.textContent = isRunning ? t.stopButton : t.startButton;
             btnSetTime.textContent = t.setTimeButton;
@@ -1525,10 +1698,6 @@
             document.getElementById('dnf-dorsal-label').textContent = t.dnfDorsalLabel;
             document.getElementById('reset-modal-title').textContent = t.resetModalTitle;
             document.getElementById('reset-modal-text').textContent = t.resetModalText;
-            document.getElementById('time-modal-title').textContent = t.timeModalTitle;
-            document.getElementById('time-hours-label').textContent = t.timeHoursLabel;
-            document.getElementById('time-minutes-label').textContent = t.timeMinutesLabel;
-            document.getElementById('time-seconds-label').textContent = t.timeSecondsLabel;
             document.getElementById('new-race-modal-title').textContent = t.newRaceModalTitle;
             document.getElementById('race-name-label').textContent = t.raceNameLabel;
             document.getElementById('delete-race-modal-title').textContent = t.deleteRaceModalTitle;
@@ -1561,6 +1730,10 @@
             document.getElementById('cancel-edit-rider').textContent = t.cancelButton;
             document.getElementById('confirm-edit-rider').textContent = t.modifyButton;
             
+            // Actualizar botones del modal de reanudación
+            document.getElementById('cancel-resume').textContent = t.cancelButton;
+            document.getElementById('confirm-resume').textContent = t.startButton;
+            
             // Actualizar placeholders
             document.getElementById('race-name-input').placeholder = t.raceNamePlaceholder;
             document.getElementById('dorsal-input').placeholder = t.dorsalPlaceholder;
@@ -1591,6 +1764,18 @@
             
             // Guardar idioma seleccionado
             localStorage.setItem('bttLanguage', lang);
+        }
+
+        // Función para actualizar la descripción del modo
+        function updateModeDescription() {
+            const t = translations[currentLanguage];
+            const descriptionElement = document.getElementById('mode-description');
+            
+            if (timeModalMode === 'chrono') {
+                descriptionElement.textContent = t.chronoTimeDescription;
+            } else {
+                descriptionElement.textContent = t.startTimeDescription;
+            }
         }
 
         // Función para verificar si hay una carrera seleccionada
@@ -1867,8 +2052,8 @@
             document.getElementById('confirm-reset').addEventListener('click', confirmReset);
             document.getElementById('cancel-time').addEventListener('click', closeTimeModal);
             document.getElementById('confirm-time').addEventListener('click', confirmTime);
+            document.getElementById('set-chrono-time').addEventListener('click', setChronoTimeMode);
             document.getElementById('set-start-time').addEventListener('click', setStartTimeMode);
-            document.getElementById('set-manual-time').addEventListener('click', setManualTimeMode);
             document.getElementById('cancel-new-race').addEventListener('click', closeNewRaceModal);
             document.getElementById('confirm-new-race').addEventListener('click', confirmNewRace);
             document.getElementById('cancel-delete-race').addEventListener('click', closeDeleteRaceModal);
@@ -1883,6 +2068,21 @@
             document.getElementById('confirm-edit-lap-time').addEventListener('click', confirmEditLapTime);
             document.getElementById('cancel-edit-rider').addEventListener('click', closeEditRiderModal);
             document.getElementById('confirm-edit-rider').addEventListener('click', confirmEditRider);
+            
+            // Event listeners para el modal de opciones de reanudación
+            document.getElementById('cancel-resume').addEventListener('click', closeResumeOptionsModal);
+            document.getElementById('confirm-resume').addEventListener('click', confirmResume);
+            
+            // Event listeners para las opciones de reanudación
+            document.querySelectorAll('.resume-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    resumeOption = this.getAttribute('data-option');
+                    document.querySelectorAll('.resume-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
         }
 
         // Funciones para cargar y gestionar carreras
@@ -1923,6 +2123,8 @@
                 raceStartTime = null;
                 isOverCutoff = false;
                 cutoffSoundPlayed = false;
+                resumeOption = 'original';
+                wasPreviouslyStopped = false;
                 
                 updateDisplay();
                 updateLapTimesList();
@@ -1954,6 +2156,8 @@
             raceStartTime = race.raceStartTime || null;
             isOverCutoff = race.isOverCutoff || false;
             cutoffSoundPlayed = false;
+            resumeOption = 'original';
+            wasPreviouslyStopped = race.wasPreviouslyStopped || false;
             
             updateDisplay();
             updateLapTimesList();
@@ -1990,7 +2194,8 @@
                 cutoffTime: cutoffTime,
                 withdrawnRiders: withdrawnRiders,
                 raceStartTime: raceStartTime,
-                isOverCutoff: isOverCutoff
+                isOverCutoff: isOverCutoff,
+                wasPreviouslyStopped: wasPreviouslyStopped
             };
             
             saveRaces();
@@ -2006,9 +2211,17 @@
             }
             
             if (isRunning) {
+                // Si está en marcha, mostrar modal de parar
                 openStopChronoModal();
             } else {
-                startChrono();
+                // Si está parado, verificar si fue detenido anteriormente
+                if (wasPreviouslyStopped && raceStartTime && currentTime > 0) {
+                    // Mostrar opciones de reanudación
+                    openResumeOptionsModal();
+                } else {
+                    // Inicio normal
+                    startChrono();
+                }
             }
         }
 
@@ -2040,6 +2253,7 @@
             }
             
             isRunning = true;
+            wasPreviouslyStopped = false; // Resetear la bandera
             btnStart.textContent = translations[currentLanguage].stopButton;
             intervalId = setInterval(updateChrono, 10);
             saveCurrentRace();
@@ -2049,6 +2263,7 @@
             if (!isRunning) return;
             
             isRunning = false;
+            wasPreviouslyStopped = true; // Marcar que fue detenido
             clearInterval(intervalId);
             btnStart.textContent = translations[currentLanguage].startButton;
             saveCurrentRace();
@@ -2467,6 +2682,7 @@
 						updateWithdrawnList();
 						updateTabCounts();
 						saveCurrentRace();
+						playButtonSound();
 					}
 				});
 				riderActions.appendChild(removeButton);
@@ -2618,6 +2834,8 @@
             raceStartTime = null;
             isOverCutoff = false;
             cutoffSoundPlayed = false;
+            resumeOption = 'original';
+            wasPreviouslyStopped = false;
             
             updateDisplay();
             updateLapTimesList();
@@ -2627,6 +2845,7 @@
             saveCurrentRace();
         }
 
+        // Funciones del modal de tiempo
         function openTimeModal() {
             playButtonSound();
             
@@ -2634,44 +2853,61 @@
                 alert(translations[currentLanguage].noRaceSelected);
                 return;
             }
+            
             timeModal.style.display = 'flex';
-            timeModalMode = 'manual';
+            timeModalMode = 'chrono'; // Modo por defecto: Por Hora de Crono
             
-            // Resetear campos a cero cuando se abre el modal en modo "Hora Crono"
-            if (timeModalMode === 'manual') {
-                document.getElementById('hours-input').value = 0;
-                document.getElementById('minutes-input').value = 0;
-                document.getElementById('seconds-input').value = 0;
-            } else {
-                const time = new Date(currentTime);
-                document.getElementById('hours-input').value = time.getUTCHours();
-                document.getElementById('minutes-input').value = time.getUTCMinutes();
-                document.getElementById('seconds-input').value = time.getUTCSeconds();
-            }
+            // Establecer valores iniciales
+            const time = new Date(currentTime);
+            document.getElementById('chrono-hours-input').value = time.getUTCHours();
+            document.getElementById('chrono-minutes-input').value = time.getUTCMinutes();
+            document.getElementById('chrono-seconds-input').value = time.getUTCSeconds();
             
-            // Actualizar la lista de horas de inicio
-            updateStartTimesList();
+            // Establecer hora actual en el campo de hora de inicio
+            const now = new Date();
+            const currentHours = String(now.getHours()).padStart(2, '0');
+            const currentMinutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('start-time-input').value = `${currentHours}:${currentMinutes}`;
+            
+            // Configurar interfaz inicial (modo "Por Hora de Crono")
+            setChronoTimeMode();
         }
 
         function closeTimeModal() {
             timeModal.style.display = 'none';
         }
 
-        function setStartTimeMode() {
-            timeModalMode = 'start';
-            // Mostrar el tiempo actual cuando se cambia a modo "Hora Salida"
-            const time = new Date(currentTime);
-            document.getElementById('hours-input').value = time.getUTCHours();
-            document.getElementById('minutes-input').value = time.getUTCMinutes();
-            document.getElementById('seconds-input').value = time.getUTCSeconds();
+        function setChronoTimeMode() {
+            timeModalMode = 'chrono';
+            
+            // Actualizar botones activos
+            document.getElementById('set-chrono-time').classList.add('active');
+            document.getElementById('set-start-time').classList.remove('active');
+            
+            // Mostrar/ocultar secciones
+            document.getElementById('chrono-time-section').style.display = 'block';
+            document.getElementById('start-time-section').style.display = 'none';
+            
+            // Actualizar descripción
+            updateModeDescription();
         }
 
-        function setManualTimeMode() {
-            timeModalMode = 'manual';
-            // Resetear campos a cero cuando se cambia a modo "Hora Crono"
-            document.getElementById('hours-input').value = 0;
-            document.getElementById('minutes-input').value = 0;
-            document.getElementById('seconds-input').value = 0;
+        function setStartTimeMode() {
+            timeModalMode = 'start';
+            
+            // Actualizar botones activos
+            document.getElementById('set-chrono-time').classList.remove('active');
+            document.getElementById('set-start-time').classList.add('active');
+            
+            // Mostrar/ocultar secciones
+            document.getElementById('chrono-time-section').style.display = 'none';
+            document.getElementById('start-time-section').style.display = 'block';
+            
+            // Actualizar lista de historial
+            updateStartTimesList();
+            
+            // Actualizar descripción
+            updateModeDescription();
         }
 
         function confirmTime() {
@@ -2679,31 +2915,114 @@
             
             if (!isRaceSelected()) return;
             
-            const hours = parseInt(document.getElementById('hours-input').value) || 0;
-            const minutes = parseInt(document.getElementById('minutes-input').value) || 0;
-            const seconds = parseInt(document.getElementById('seconds-input').value) || 0;
-            
-            const newTime = (hours * 3600 + minutes * 60 + seconds) * 1000;
-            
-            if (timeModalMode === 'start') {
-                const now = new Date();
-                raceStartTime = new Date(now.getTime() - newTime);
-                updateRaceStartTime();
+            if (timeModalMode === 'chrono') {
+                // Modo "Por Hora de Crono"
+                const hours = parseInt(document.getElementById('chrono-hours-input').value) || 0;
+                const minutes = parseInt(document.getElementById('chrono-minutes-input').value) || 0;
+                const seconds = parseInt(document.getElementById('chrono-seconds-input').value) || 0;
                 
-                // Si el cronómetro no estaba en marcha, iniciarlo automáticamente
-                if (!isRunning) {
-                    startChrono();
-                }
-            } else {
+                const newTime = (hours * 3600 + minutes * 60 + seconds) * 1000;
+                
                 currentTime = newTime;
                 if (isRunning) {
                     startTime = Date.now() - currentTime;
                 }
-                updateDisplay();
+                
+            } else {
+                // Modo "Por Hora de Inicio"
+                const startTimeValue = document.getElementById('start-time-input').value;
+                if (!startTimeValue) {
+                    alert("Por favor, establece una hora de inicio");
+                    return;
+                }
+                
+                const [hours, minutes] = startTimeValue.split(':');
+                const now = new Date();
+                const startDateTime = new Date();
+                startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+                
+                // Si la hora de inicio es posterior a la hora actual, asumimos que es del día anterior
+                if (startDateTime.getTime() > now.getTime()) {
+                    startDateTime.setDate(startDateTime.getDate() - 1);
+                }
+                
+                // Calcular el tiempo transcurrido desde la hora de inicio
+                const calculatedTime = now.getTime() - startDateTime.getTime();
+                
+                // Establecer el tiempo calculado
+                currentTime = calculatedTime;
+                
+                if (isRunning) {
+                    startTime = Date.now() - currentTime;
+                } else {
+                    // Si no estaba en marcha, guardar la hora de inicio
+                    raceStartTime = startDateTime;
+                    updateRaceStartTime();
+                    
+                    // Iniciar el cronómetro automáticamente
+                    startChrono();
+                }
+                
+                // Guardar en el historial
+                if (!raceStartTimesHistory[currentRaceId]) {
+                    raceStartTimesHistory[currentRaceId] = [];
+                }
+                
+                raceStartTimesHistory[currentRaceId].push({
+                    timestamp: Date.now(),
+                    startTime: raceStartTime.toISOString(),
+                    displayTime: raceStartTime.toLocaleTimeString()
+                });
+                
+                saveStartTimesHistory();
             }
             
+            updateDisplay();
             closeTimeModal();
             saveCurrentRace();
+        }
+
+        // Funciones del modal de opciones de reanudación
+        function openResumeOptionsModal() {
+            playButtonSound();
+            
+            // Resetear opciones a la opción por defecto
+            resumeOption = 'original';
+            document.querySelectorAll('.resume-option').forEach(option => {
+                option.classList.remove('active');
+                if (option.getAttribute('data-option') === resumeOption) {
+                    option.classList.add('active');
+                }
+            });
+            
+            // Asegurar que las opciones sean visibles
+            const resumeOptionsElement = document.getElementById('resume-options-list');
+            if (resumeOptionsElement) {
+                resumeOptionsElement.style.display = 'block';
+            }
+            
+            resumeOptionsModal.style.display = 'flex';
+        }
+
+        function closeResumeOptionsModal() {
+            resumeOptionsModal.style.display = 'none';
+        }
+
+        function confirmResume() {
+            playButtonSound();
+            
+            if (resumeOption === 'original') {
+                // Calcular desde hora original
+                if (raceStartTime) {
+                    const now = new Date();
+                    const timeDiff = now.getTime() - raceStartTime.getTime();
+                    currentTime = timeDiff;
+                }
+            }
+            // Si es 'current', mantenemos el currentTime actual
+            
+            startChrono();
+            closeResumeOptionsModal();
         }
 
         function openNewRaceModal() {
@@ -2735,7 +3054,8 @@
                 cutoffTime: null,
                 withdrawnRiders: [],
                 raceStartTime: null,
-                isOverCutoff: false
+                isOverCutoff: false,
+                wasPreviouslyStopped: false
             };
             
             saveRaces();
