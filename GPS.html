@@ -3,10 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <link rel="icon" type="image/png" href="GPS.png">
-    <link rel="apple-touch-icon" href="GPS.png">
-    
     <title>Localizador de Coordenadas</title>
     <style>
         * {
@@ -48,9 +44,35 @@
         }
 
         .location-icon {
-            font-size: 2.5em;
-            margin-bottom: 15px;
-            color: #667eea;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .location-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Si no se carga la imagen, mostrar un emoji como fallback */
+        .location-icon::before {
+            content: "📍";
+            font-size: 3em;
+            display: none;
+        }
+
+        .location-icon img:not([src]), 
+        .location-icon img[src=""] {
+            display: none;
+        }
+
+        .location-icon img:not([src]) + .location-icon::before,
+        .location-icon img[src=""] + .location-icon::before {
+            display: block;
         }
 
         .coordinates {
@@ -235,6 +257,11 @@
                 font-size: 0.9em;
             }
             
+            .location-icon {
+                width: 70px;
+                height: 70px;
+            }
+            
             .coordinates {
                 padding: 15px 12px;
             }
@@ -261,7 +288,11 @@
 </head>
 <body>
     <div class="container">
-        <div class="location-icon">📍</div>
+        <!-- Icono cambiado a imagen GPS.png -->
+        <div class="location-icon">
+            <img src="GPS.png" alt="Icono GPS" onerror="this.style.display='none'">
+        </div>
+        
         <h1>Localizador GPS</h1>
         <p class="subtitle">Coordenadas y altitud en tiempo real</p>
         
@@ -352,16 +383,8 @@
                 <div class="stat-label">DIRECCIÓN</div>
             </div>
         </div>
-
-            <footer style="text-align:center; margin-top:20px; color:#444; font-size:0.8em;">
-    © 2025 - Aplicaciones Web Roberto Benet - Todos los derechos reservados  
-    <br>GPS - V_01_12_2025
-    </footer>
-
     </div>
-    
 
-    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Elementos del DOM
@@ -495,11 +518,19 @@
             elements.getLocationButton.addEventListener('click', getLocation);
             elements.copyCoordsButton.addEventListener('click', copyToClipboard);
 
+            // Manejar fallo de carga de imagen
+            const gpsImage = document.querySelector('.location-icon img');
+            if (gpsImage) {
+                gpsImage.onerror = function() {
+                    this.style.display = 'none';
+                    const locationIcon = document.querySelector('.location-icon');
+                    locationIcon.innerHTML = '<span style="font-size: 3em;">📍</span>';
+                };
+            }
+
             // Iniciar automáticamente
             getLocation();
         });
     </script>
-
-
 </body>
 </html>
