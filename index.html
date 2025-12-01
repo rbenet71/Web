@@ -1036,6 +1036,242 @@ IDList=`;
             // Inicializar instalador de app
             window.appInstaller = new AppInstaller();
         });
+// Registro del Service Worker para index.html
+if ('serviceWorker' in navigator) {
+    // Solo registrar para la página principal
+    if (window.location.pathname.endsWith('/') || 
+        window.location.pathname.endsWith('index.html') ||
+        !window.location.pathname.includes('Calculadora_Tiempos')) {
+        
+        navigator.serviceWorker.register('./index_sw.js')
+        .then(function(registration) {
+            console.log('ServiceWorker Index registrado: ', registration.scope);
+            
+            // Verificar si hay actualizaciones disponibles
+            registration.addEventListener('updatefound', () => {
+                console.log('Nueva versión del Service Worker encontrada');
+                showUpdateNotificationIndex();
+            });
+        })
+        .catch(function(error) {
+            console.log('Error al registrar ServiceWorker Index: ', error);
+        });
+    }
+}
+
+// Escuchar mensajes del Service Worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data && event.data.type === 'SW_UPDATED') {
+            console.log('Service Worker Index actualizado a versión:', event.data.version);
+            showUpdateNotificationIndex();
+        }
+    });
+}
+
+// Mostrar notificación de actualización para index.html
+function showUpdateNotificationIndex() {
+    // Crear o mostrar notificación
+    if (!document.getElementById('update-notification-index')) {
+        const notification = document.createElement('div');
+        notification.id = 'update-notification-index';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 10000;
+            max-width: 300px;
+            animation: slideIn 0.3s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        `;
+        
+        notification.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <i class="fas fa-sync-alt" style="font-size: 1.2rem;"></i>
+                <strong style="font-size: 0.9rem;">¡Nueva versión disponible!</strong>
+            </div>
+            <p style="margin-bottom: 10px; font-size: 0.8rem;">
+                Hay una nueva versión de la aplicación. ¿Quieres actualizar?
+            </p>
+            <div style="display: flex; gap: 10px;">
+                <button id="update-now-index" style="
+                    background: white;
+                    color: #3498db;
+                    border: none;
+                    padding: 8px 15px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    font-size: 0.8rem;
+                    flex: 1;
+                ">
+                    Actualizar ahora
+                </button>
+                <button id="update-later-index" style="
+                    background: transparent;
+                    color: white;
+                    border: 1px solid white;
+                    padding: 8px 15px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 0.8rem;
+                    flex: 1;
+                ">
+                    Más tarde
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Animación CSS para la notificación
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Event listeners para los botones
+        document.getElementById('update-now-index').addEventListener('click', () => {
+            updateIndexApp();
+        });
+        
+        document.getElementById('update-later-index').addEventListener('click', () => {
+            notification.style.display = 'none';
+        });
+    }
+}
+
+// Función para actualizar la aplicación index
+function updateIndexApp() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(registration => {
+            // Enviar mensaje al SW para que se active
+            if (registration.waiting) {
+                registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+            
+            // Recargar la página después de un breve delay
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
+        });
+    } else {
+        window.location.reload();
+    }
+}
+
+// Verificar actualización al cargar la página
+window.addEventListener('load', () => {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(registration => {
+            if (registration.waiting) {
+                // Hay una actualización esperando
+                setTimeout(() => {
+                    showUpdateNotificationIndex();
+                }, 1000);
+            }
+        });
+    }
+});
+
+// Opcional: Añadir botón manual para buscar actualizaciones
+function addUpdateButtonToIndex() {
+    if (!document.getElementById('manual-update-btn')) {
+        const updateBtn = document.createElement('button');
+        updateBtn.id = 'manual-update-btn';
+        updateBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Buscar Actualizaciones';
+        updateBtn.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 10px 15px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        `;
+        updateBtn.onmouseover = () => {
+            updateBtn.style.transform = 'translateY(-3px)';
+            updateBtn.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.3)';
+        };
+        updateBtn.onmouseout = () => {
+            updateBtn.style.transform = 'translateY(0)';
+            updateBtn.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+        };
+        updateBtn.onclick = checkForUpdatesIndex;
+        document.body.appendChild(updateBtn);
+    }
+}
+
+    function checkForUpdatesIndex() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(registration => {
+                registration.update().then(() => {
+                    // Mostrar mensaje de éxito
+                    const successMsg = document.createElement('div');
+                    successMsg.textContent = '✓ Búsqueda de actualizaciones completada';
+                    successMsg.style.cssText = `
+                        position: fixed;
+                        bottom: 80px;
+                        right: 20px;
+                        background: #2ecc71;
+                        color: white;
+                        padding: 10px 15px;
+                        border-radius: 5px;
+                        z-index: 1000;
+                        font-size: 14px;
+                        animation: fadeInOut 3s ease;
+                    `;
+                    document.body.appendChild(successMsg);
+                    
+                    // Crear animación CSS
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        @keyframes fadeInOut {
+                            0% { opacity: 0; transform: translateY(10px); }
+                            20% { opacity: 1; transform: translateY(0); }
+                            80% { opacity: 1; transform: translateY(0); }
+                            100% { opacity: 0; transform: translateY(10px); }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                    
+                    setTimeout(() => {
+                        successMsg.remove();
+                        style.remove();
+                    }, 3000);
+                });
+            });
+        } else {
+            alert('Service Worker no disponible');
+        }
+    }
+
+    // Añadir el botón de actualización manual después de que el DOM esté cargado
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            addUpdateButtonToIndex();
+        }, 2000);
+    });
+
     </script>
 </body>
 </html>
