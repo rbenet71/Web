@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Localizador de Coordenadas</title>
+    
+    <!-- Configuración para PWA (Progressive Web App) -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Localizador GPS">
+    <meta name="msapplication-TileColor" content="#667eea">
+    
+    <!-- Manifest para PWA -->
+    <link rel="manifest" href="GPS_manifest.json">
+
     <style>
         * {
             margin: 0;
@@ -243,6 +254,118 @@
             font-weight: 600;
         }
 
+        /* Botón de instalación */
+        .install-btn {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 8px 0;
+            width: 100%;
+            max-width: 280px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .install-btn:hover {
+            background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Estilos para el modal de instalación */
+        .install-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .install-modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .install-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .install-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            min-height: 40px;
+        }
+        
+        .install-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .install-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .install-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .install-modal-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            min-width: 100px;
+        }
+        
+        .install-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .install-secondary {
+            background-color: #7f8c8d;
+            color: white;
+        }
+        
+        .install-instructions {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            font-size: 10px;
+            text-align: left;
+            border: 1px solid #e9ecef;
+        }
+        
+        .install-instructions h4 {
+            margin-bottom: 5px;
+            color: #495057;
+        }
+
         /* Estilos específicos para móvil */
         @media (max-width: 480px) {
             .container {
@@ -271,7 +394,7 @@
                 padding: 6px;
             }
             
-            .button, .map-link {
+            .button, .map-link, .install-btn {
                 max-width: 100%;
             }
             
@@ -369,6 +492,10 @@
             📋 Copiar Coordenadas
         </button>
 
+        <button class="install-btn" id="btn-install">
+            📱 Instalar App
+        </button>
+
         <div class="stats-grid">
             <div class="stat-item">
                 <div class="stat-value" id="satellites">--</div>
@@ -385,9 +512,260 @@
         </div>
     </div>
 
+    <!-- Modal para Instalación -->
+    <div class="install-modal" id="installModal">
+        <div class="install-modal-content">
+            <div class="install-icon" id="installIcon">📱</div>
+            <div class="install-message" id="installMessage"></div>
+            <div class="install-buttons">
+                <button class="install-modal-btn install-primary" id="installActionBtn">Instalar</button>
+                <button class="install-modal-btn install-secondary" id="installCancelBtn">Cerrar</button>
+            </div>
+            <div class="install-instructions" id="installInstructions">
+                <h4 id="instructionsTitle">Instrucciones de instalación</h4>
+                <div id="instructionsList">
+                    <!-- Las instrucciones se llenarán dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Sistema de instalación de app (copiado de la calculadora)
+        class AppInstaller {
+            constructor() {
+                this.installModal = document.getElementById('installModal');
+                this.installIcon = document.getElementById('installIcon');
+                this.installMessage = document.getElementById('installMessage');
+                this.installActionBtn = document.getElementById('installActionBtn');
+                this.installCancelBtn = document.getElementById('installCancelBtn');
+                this.instructionsTitle = document.getElementById('instructionsTitle');
+                this.instructionsList = document.getElementById('instructionsList');
+                
+                this.deferredPrompt = null;
+                this.platform = this.detectPlatform();
+                
+                this.initialize();
+            }
+            
+            initialize() {
+                this.attachEventListeners();
+                this.setupForPlatform();
+            }
+            
+            detectPlatform() {
+                const userAgent = navigator.userAgent.toLowerCase();
+                
+                if (/iphone|ipad|ipod/.test(userAgent)) {
+                    return 'iOS';
+                } else if (/android/.test(userAgent)) {
+                    return 'Android';
+                } else if (/windows/.test(userAgent)) {
+                    return 'Windows';
+                } else {
+                    return 'Other';
+                }
+            }
+            
+            setupForPlatform() {
+                switch(this.platform) {
+                    case 'iOS':
+                        this.setupIOS();
+                        break;
+                    case 'Android':
+                        this.setupAndroid();
+                        break;
+                    case 'Windows':
+                        this.setupWindows();
+                        break;
+                    default:
+                        this.setupOther();
+                }
+            }
+            
+            setupIOS() {
+                this.installIcon.textContent = '📱';
+                this.installActionBtn.textContent = 'Instalar';
+                this.instructionsTitle.textContent = 'Instalar en iPhone/iPad';
+                this.instructionsList.innerHTML = `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Se abrirá el menú de compartir</li>
+                    <li>Desplázate y selecciona <strong>"Añadir a Pantalla de Inicio"</strong></li>
+                    <li>Pulsa <strong>"Añadir"</strong> para confirmar</li>
+                </ol>`;
+            }
+            
+            setupAndroid() {
+                this.installIcon.textContent = '🤖';
+                this.installActionBtn.textContent = 'Instalar';
+                this.instructionsTitle.textContent = 'Instalar en Android';
+                this.instructionsList.innerHTML = `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Se instalará automáticamente como app PWA</li>
+                    <li>La app aparecerá en tu pantalla de inicio</li>
+                </ol>`;
+                
+                // Escuchar evento de instalación PWA
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    this.deferredPrompt = e;
+                });
+            }
+            
+            setupWindows() {
+                this.installIcon.textContent = '💻';
+                this.installActionBtn.textContent = 'Instalar';
+                this.instructionsTitle.textContent = 'Crear Acceso Directo en Windows';
+                this.instructionsList.innerHTML = `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Se descargará un archivo .url</li>
+                    <li>Ábrelo para crear el acceso directo en tu escritorio</li>
+                </ol>`;
+            }
+            
+            setupOther() {
+                this.installIcon.textContent = '🌐';
+                this.installActionBtn.textContent = 'Instalar';
+                this.instructionsTitle.textContent = 'Instalar App';
+                this.instructionsList.innerHTML = `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Sigue las instrucciones de tu navegador</li>
+                </ol>`;
+            }
+            
+            attachEventListeners() {
+                // Botón para abrir modal de instalación
+                document.getElementById('btn-install').addEventListener('click', () => {
+                    this.showInstallModal();
+                });
+                
+                // Botones del modal
+                this.installActionBtn.addEventListener('click', () => {
+                    this.handleInstall();
+                });
+                
+                this.installCancelBtn.addEventListener('click', () => {
+                    this.hideInstallModal();
+                });
+                
+                // Cerrar modal al hacer clic fuera
+                window.addEventListener('click', (e) => {
+                    if (e.target === this.installModal) {
+                        this.hideInstallModal();
+                    }
+                });
+            }
+            
+            showInstallModal() {
+                this.installModal.style.display = 'flex';
+                this.showMessage('Añade un acceso directo a tu dispositivo', true);
+            }
+            
+            hideInstallModal() {
+                this.installModal.style.display = 'none';
+            }
+            
+            showMessage(message, isInfo = true) {
+                this.installMessage.textContent = message;
+                this.installMessage.className = `install-message ${isInfo ? 'install-info' : 'install-success'}`;
+            }
+            
+            async handleInstall() {
+                switch(this.platform) {
+                    case 'iOS':
+                        this.installIOS();
+                        break;
+                    case 'Android':
+                        await this.installAndroid();
+                        break;
+                    case 'Windows':
+                        this.installWindows();
+                        break;
+                    default:
+                        this.installOther();
+                }
+            }
+            
+            installIOS() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: document.title,
+                        text: 'Instalar esta app en mi pantalla de inicio',
+                        url: window.location.href
+                    })
+                    .then(() => {
+                        this.showMessage('✅ Ahora selecciona "Añadir a Pantalla de Inicio"', false);
+                    })
+                    .catch((error) => {
+                        if (error.name !== 'AbortError') {
+                            this.showMessage('❌ No se pudo abrir el menú de compartir', true);
+                        }
+                    });
+                } else {
+                    this.showMessage('❌ Tu navegador no soporta esta función', true);
+                }
+            }
+            
+            async installAndroid() {
+                if (this.deferredPrompt) {
+                    try {
+                        this.deferredPrompt.prompt();
+                        const { outcome } = await this.deferredPrompt.userChoice;
+                        
+                        if (outcome === 'accepted') {
+                            this.showMessage('✅ App instalada correctamente', false);
+                            this.installActionBtn.style.display = 'none';
+                        } else {
+                            this.showMessage('Instalación cancelada', true);
+                        }
+                        this.deferredPrompt = null;
+                    } catch (error) {
+                        this.showMessage('❌ Error en la instalación', true);
+                    }
+                } else {
+                    this.showMessage('🔧 Tu navegador soporta instalación PWA', false);
+                }
+            }
+            
+            installWindows() {
+                // Crear y descargar archivo .url para acceso directo
+                const urlContent = `[InternetShortcut]
+URL=${window.location.href}
+IconIndex=0
+IDList=`;
+                
+                const blob = new Blob([urlContent], { type: 'application/internet-shortcut' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${document.title}.url`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.showMessage('✅ Archivo de acceso directo descargado', false);
+            }
+            
+            installOther() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: document.title,
+                        text: 'Instalar esta app',
+                        url: window.location.href
+                    });
+                } else {
+                    this.showMessage('⭐ Usa el menú de tu navegador para crear un acceso directo', false);
+                }
+            }
+        }
+
+        // Sistema GPS (código existente)
         document.addEventListener('DOMContentLoaded', function() {
-            // Elementos del DOM
+            // Inicializar instalador de app
+            new AppInstaller();
+            
+            // Elementos del DOM para GPS
             const elements = {
                 latitude: document.getElementById('latitude'),
                 longitude: document.getElementById('longitude'),
@@ -514,7 +892,7 @@
                 });
             }
 
-            // Event Listeners
+            // Event Listeners para GPS
             elements.getLocationButton.addEventListener('click', getLocation);
             elements.copyCoordsButton.addEventListener('click', copyToClipboard);
 
