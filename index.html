@@ -184,6 +184,127 @@
                 linear-gradient(-45deg, transparent 47%, white 47%, white 53%, transparent 53%);
         }
 
+        /* Botón de instalación móvil */
+        .mobile-install-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .install-app-btn {
+            background-color: #9b59b6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .install-app-btn:hover {
+            background-color: #8e44ad;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Modal de instalación */
+        .install-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .install-modal-content {
+            background-color: #2c3e50;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .install-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #3498db;
+        }
+
+        .install-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            min-height: 40px;
+            background-color: #34495e;
+            color: #ecf0f1;
+        }
+
+        .install-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .install-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .install-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .install-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            min-width: 100px;
+        }
+
+        .install-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .install-secondary {
+            background-color: #7f8c8d;
+            color: white;
+        }
+
+        .install-instructions {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #34495e;
+            border-radius: 5px;
+            font-size: 10px;
+            text-align: left;
+            color: #ecf0f1;
+        }
+
+        .install-instructions h4 {
+            margin-bottom: 5px;
+            color: #ecf0f1;
+        }
+
         .container {
             max-width: 1200px;
             margin: 30px auto;
@@ -330,12 +451,26 @@
                 display: flex;
                 justify-content: center;
             }
+            
+            .mobile-install-btn {
+                position: static;
+                margin-top: 15px;
+            }
         }
     </style>
 </head>
 <body>
     <header>
         <h1 id="main-title">Aplicaciones Web Roberto Benet</h1>
+        
+        <!-- Botón de instalación móvil -->
+        <div class="mobile-install-btn">
+            <button class="install-app-btn" id="mobile-install-btn">
+                <i class="fas fa-download"></i>
+                <span id="install-btn-text">Instalar App</span>
+            </button>
+        </div>
+        
         <div class="language-selector">
             <div class="language-dropdown">
                 <button class="dropdown-btn">
@@ -435,7 +570,25 @@
         </div>
     </div>
 
-    <footer class="footer">
+    <!-- Modal de instalación -->
+    <div class="install-modal" id="installModal">
+        <div class="install-modal-content">
+            <div class="install-icon" id="installIcon">📱</div>
+            <div class="install-message" id="installMessage"></div>
+            <div class="install-buttons">
+                <button class="install-btn install-primary" id="installActionBtn">Instalar</button>
+                <button class="install-btn install-secondary" id="installCancelBtn">Cerrar</button>
+            </div>
+            <div class="install-instructions" id="installInstructions">
+                <h4 id="instructionsTitle">Instrucciones de instalación</h4>
+                <div id="instructionsList">
+                    <!-- Las instrucciones se llenarán dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
         <p>
             <span id="copyright-text">© 2025 - Aplicaciones Web Roberto Benet - Todos los derechos reservados</span>
             <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
@@ -443,7 +596,6 @@
             </a>
         </p>
     </footer>
-
 
     <script>
         // Textos en diferentes idiomas
@@ -465,7 +617,36 @@
                 btnSalidasCri: "Salidas CRI",
                 btnCalculadoraTiempos: "Calculadora de Tiempos",
                 btnCrono80: "Cronómetro 80%",
-                footer: "© 2023 Aplicaciones Web Roberto Benet - Todos los derechos reservados"
+                installButton: "Instalar App",
+                installTitle: "Instalar App",
+                installSubtitle: "Añade un acceso directo a tu dispositivo",
+                installAction: "Instalar",
+                installClose: "Cerrar",
+                iosInstructionsTitle: "Instalar en iPhone/iPad",
+                iosInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Se abrirá el menú de compartir</li>
+                    <li>Desplázate y selecciona <strong>"Añadir a Pantalla de Inicio"</strong></li>
+                    <li>Pulsa <strong>"Añadir"</strong> para confirmar</li>
+                </ol>`,
+                androidInstructionsTitle: "Instalar en Android",
+                androidInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Se instalará automáticamente como app PWA</li>
+                    <li>La app aparecerá en tu pantalla de inicio</li>
+                </ol>`,
+                windowsInstructionsTitle: "Crear Acceso Directo en Windows",
+                windowsInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Se descargará un archivo .url</li>
+                    <li>Ábrelo para crear el acceso directo en tu escritorio</li>
+                </ol>`,
+                otherInstructionsTitle: "Instalar App",
+                otherInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Sigue las instrucciones de tu navegador</li>
+                </ol>`,
+                footer: "© 2025 Aplicaciones Web Roberto Benet - Todos los derechos reservados"
             },
             ca: {
                 title: "Aplicacions Web Roberto Benet",
@@ -484,7 +665,36 @@
                 btnSalidasCri: "Sortides CRI",
                 btnCalculadoraTiempos: "Calculadora de Temps",
                 btnCrono80: "Cronòmetre 80%",
-                footer: "© 2023 Aplicacions Web Roberto Benet - Tots els drets reservats"
+                installButton: "Instal·lar App",
+                installTitle: "Instal·lar App",
+                installSubtitle: "Afegeix un accés directe al teu dispositiu",
+                installAction: "Instal·lar",
+                installClose: "Tancar",
+                iosInstructionsTitle: "Instal·lar a iPhone/iPad",
+                iosInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botó "Instal·lar"</li>
+                    <li>S'obrirà el menú de compartir</li>
+                    <li>Desplaça't i selecciona <strong>"Afegeix a la pantalla d'inici"</strong></li>
+                    <li>Prem <strong>"Afegeix"</strong> per confirmar</li>
+                </ol>`,
+                androidInstructionsTitle: "Instal·lar a Android",
+                androidInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botó "Instal·lar"</li>
+                    <li>S'instal·larà automàticament com a app PWA</li>
+                    <li>L'app apareixerà a la teva pantalla d'inici</li>
+                </ol>`,
+                windowsInstructionsTitle: "Crear Accés Directe a Windows",
+                windowsInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botó "Instal·lar"</li>
+                    <li>Es descarregarà un arxiu .url</li>
+                    <li>Obre'l per crear l'accés directe al teu escriptori</li>
+                </ol>`,
+                otherInstructionsTitle: "Instal·lar App",
+                otherInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botó "Instal·lar"</li>
+                    <li>Segueix les instruccions del teu navegador</li>
+                </ol>`,
+                footer: "© 2025 Aplicacions Web Roberto Benet - Tots els drets reservats"
             },
             en: {
                 title: "Roberto Benet Web Applications",
@@ -503,9 +713,258 @@
                 btnSalidasCri: "CRI Starts",
                 btnCalculadoraTiempos: "Time Calculator",
                 btnCrono80: "80% Timer",
-                footer: "© 2023 Roberto Benet Web Applications - All rights reserved"
+                installButton: "Install App",
+                installTitle: "Install App",
+                installSubtitle: "Add a shortcut to your device",
+                installAction: "Install",
+                installClose: "Close",
+                iosInstructionsTitle: "Install on iPhone/iPad",
+                iosInstructions: `<ol style="padding-left: 15px;">
+                    <li>Tap the "Install" button</li>
+                    <li>The share menu will open</li>
+                    <li>Scroll and select <strong>"Add to Home Screen"</strong></li>
+                    <li>Tap <strong>"Add"</strong> to confirm</li>
+                </ol>`,
+                androidInstructionsTitle: "Install on Android",
+                androidInstructions: `<ol style="padding-left: 15px;">
+                    <li>Tap the "Install" button</li>
+                    <li>It will automatically install as a PWA</li>
+                    <li>The app will appear on your home screen</li>
+                </ol>`,
+                windowsInstructionsTitle: "Create Shortcut on Windows",
+                windowsInstructions: `<ol style="padding-left: 15px;">
+                    <li>Tap the "Install" button</li>
+                    <li>A .url file will be downloaded</li>
+                    <li>Open it to create the shortcut on your desktop</li>
+                </ol>`,
+                otherInstructionsTitle: "Install App",
+                otherInstructions: `<ol style="padding-left: 15px;">
+                    <li>Tap the "Install" button</li>
+                    <li>Follow your browser instructions</li>
+                </ol>`,
+                footer: "© 2025 Roberto Benet Web Applications - All rights reserved"
             }
         };
+
+        // Sistema de instalación de app
+        class AppInstaller {
+            constructor() {
+                this.installModal = document.getElementById('installModal');
+                this.installIcon = document.getElementById('installIcon');
+                this.installMessage = document.getElementById('installMessage');
+                this.installActionBtn = document.getElementById('installActionBtn');
+                this.installCancelBtn = document.getElementById('installCancelBtn');
+                this.instructionsTitle = document.getElementById('instructionsTitle');
+                this.instructionsList = document.getElementById('instructionsList');
+                
+                this.deferredPrompt = null;
+                this.platform = this.detectPlatform();
+                this.currentLanguage = 'es';
+                
+                this.initialize();
+            }
+            
+            initialize() {
+                this.attachEventListeners();
+                this.setupForPlatform();
+            }
+            
+            detectPlatform() {
+                const userAgent = navigator.userAgent.toLowerCase();
+                
+                if (/iphone|ipad|ipod/.test(userAgent)) {
+                    return 'iOS';
+                } else if (/android/.test(userAgent)) {
+                    return 'Android';
+                } else if (/windows/.test(userAgent)) {
+                    return 'Windows';
+                } else {
+                    return 'Other';
+                }
+            }
+            
+            setupForPlatform() {
+                switch(this.platform) {
+                    case 'iOS':
+                        this.setupIOS();
+                        break;
+                    case 'Android':
+                        this.setupAndroid();
+                        break;
+                    case 'Windows':
+                        this.setupWindows();
+                        break;
+                    default:
+                        this.setupOther();
+                }
+            }
+            
+            setupIOS() {
+                this.installIcon.textContent = '📱';
+                this.installActionBtn.textContent = translations[this.currentLanguage].installAction;
+                this.instructionsTitle.textContent = translations[this.currentLanguage].iosInstructionsTitle;
+                this.instructionsList.innerHTML = translations[this.currentLanguage].iosInstructions;
+            }
+            
+            setupAndroid() {
+                this.installIcon.textContent = '🤖';
+                this.installActionBtn.textContent = translations[this.currentLanguage].installAction;
+                this.instructionsTitle.textContent = translations[this.currentLanguage].androidInstructionsTitle;
+                this.instructionsList.innerHTML = translations[this.currentLanguage].androidInstructions;
+                
+                // Escuchar evento de instalación PWA
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    this.deferredPrompt = e;
+                });
+            }
+            
+            setupWindows() {
+                this.installIcon.textContent = '💻';
+                this.installActionBtn.textContent = translations[this.currentLanguage].installAction;
+                this.instructionsTitle.textContent = translations[this.currentLanguage].windowsInstructionsTitle;
+                this.instructionsList.innerHTML = translations[this.currentLanguage].windowsInstructions;
+            }
+            
+            setupOther() {
+                this.installIcon.textContent = '🌐';
+                this.installActionBtn.textContent = translations[this.currentLanguage].installAction;
+                this.instructionsTitle.textContent = translations[this.currentLanguage].otherInstructionsTitle;
+                this.instructionsList.innerHTML = translations[this.currentLanguage].otherInstructions;
+            }
+            
+            attachEventListeners() {
+                // Botón para abrir modal de instalación
+                document.getElementById('mobile-install-btn').addEventListener('click', () => {
+                    this.showInstallModal();
+                });
+                
+                // Botones del modal
+                this.installActionBtn.addEventListener('click', () => {
+                    this.handleInstall();
+                });
+                
+                this.installCancelBtn.addEventListener('click', () => {
+                    this.hideInstallModal();
+                });
+                
+                // Cerrar modal al hacer clic fuera
+                window.addEventListener('click', (e) => {
+                    if (e.target === this.installModal) {
+                        this.hideInstallModal();
+                    }
+                });
+            }
+            
+            showInstallModal() {
+                this.installModal.style.display = 'flex';
+                this.showMessage(translations[this.currentLanguage].installSubtitle, true);
+            }
+            
+            hideInstallModal() {
+                this.installModal.style.display = 'none';
+            }
+            
+            showMessage(message, isInfo = true) {
+                this.installMessage.textContent = message;
+                this.installMessage.className = `install-message ${isInfo ? '' : 'install-success'}`;
+            }
+            
+            async handleInstall() {
+                switch(this.platform) {
+                    case 'iOS':
+                        this.installIOS();
+                        break;
+                    case 'Android':
+                        await this.installAndroid();
+                        break;
+                    case 'Windows':
+                        this.installWindows();
+                        break;
+                    default:
+                        this.installOther();
+                }
+            }
+            
+            installIOS() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: document.title,
+                        text: 'Instalar esta app en mi pantalla de inicio',
+                        url: window.location.href
+                    })
+                    .then(() => {
+                        this.showMessage('✅ Ahora selecciona "Añadir a Pantalla de Inicio"', false);
+                    })
+                    .catch((error) => {
+                        if (error.name !== 'AbortError') {
+                            this.showMessage('❌ No se pudo abrir el menú de compartir', true);
+                        }
+                    });
+                } else {
+                    this.showMessage('❌ Tu navegador no soporta esta función', true);
+                }
+            }
+            
+            async installAndroid() {
+                if (this.deferredPrompt) {
+                    try {
+                        this.deferredPrompt.prompt();
+                        const { outcome } = await this.deferredPrompt.userChoice;
+                        
+                        if (outcome === 'accepted') {
+                            this.showMessage('✅ App instalada correctamente', false);
+                            this.installActionBtn.style.display = 'none';
+                        } else {
+                            this.showMessage('Instalación cancelada', true);
+                        }
+                        this.deferredPrompt = null;
+                    } catch (error) {
+                        this.showMessage('❌ Error en la instalación', true);
+                    }
+                } else {
+                    this.showMessage('🔧 Tu navegador soporta instalación PWA', false);
+                }
+            }
+            
+            installWindows() {
+                // Crear y descargar archivo .url para acceso directo
+                const urlContent = `[InternetShortcut]
+URL=${window.location.href}
+IconIndex=0
+IDList=`;
+                
+                const blob = new Blob([urlContent], { type: 'application/internet-shortcut' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${document.title}.url`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.showMessage('✅ Archivo de acceso directo descargado', false);
+            }
+            
+            installOther() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: document.title,
+                        text: 'Instalar esta app',
+                        url: window.location.href
+                    });
+                } else {
+                    this.showMessage('⭐ Usa el menú de tu navegador para crear un acceso directo', false);
+                }
+            }
+            
+            updateLanguage(lang) {
+                this.currentLanguage = lang;
+                this.setupForPlatform();
+                document.getElementById('install-btn-text').textContent = translations[lang].installButton;
+            }
+        }
 
         // Cambiar idioma
         document.querySelectorAll('.dropdown-content a').forEach(link => {
@@ -540,7 +999,12 @@
                 document.getElementById('btn-calculadora-tiempos').textContent = translations[lang].btnCalculadoraTiempos;
                 document.getElementById('btn-crono-80').textContent = translations[lang].btnCrono80;
                 
-                document.getElementById('footer-text').textContent = translations[lang].footer;
+                document.getElementById('copyright-text').textContent = translations[lang].footer;
+                
+                // Actualizar el instalador con el nuevo idioma
+                if (window.appInstaller) {
+                    window.appInstaller.updateLanguage(lang);
+                }
             });
         });
 
@@ -562,6 +1026,12 @@
                 });
                 document.getElementById(`${tabId}-content`).classList.add('active');
             });
+        });
+
+        // Inicializar el instalador de app cuando el DOM esté cargado
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar instalador de app
+            window.appInstaller = new AppInstaller();
         });
     </script>
 </body>
