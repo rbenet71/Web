@@ -9,7 +9,7 @@ El planteamiento grafico
 La Forma
 
 
------------------
+
 
 El nombre es Cronometro para Llegadas
 Copiar la gestion de carreras del crono_80 
@@ -21,3 +21,9 @@ Parametros y dentro La parte de hora inicio, tiempo del cronometro y aplicat tie
 activacion o desactivacion milesimas
 
 Y despues la opcion de exportacion y el boton de ayuda
+
+-----------------
+
+Fijar hora de inicio arreglar
+Mejorar la pestaña parametros con cierre de control
+Mostrar hora de cierre de control y modificar color texto cuando se supere

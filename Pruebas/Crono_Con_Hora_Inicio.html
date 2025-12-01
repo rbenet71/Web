@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronómetro con Opciones de Reanudación</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.2rem;
+        }
+        
+        .input-section {
+            margin-bottom: 25px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        input[type="time"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="time"]:focus {
+            border-color: #4a90e2;
+            outline: none;
+        }
+        
+        .timer-display {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #333;
+            margin: 25px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            letter-spacing: 2px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-width: 120px;
+        }
+        
+        #startBtn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        #startBtn:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+        
+        #pauseBtn {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        #pauseBtn:hover {
+            background-color: #e68900;
+            transform: translateY(-2px);
+        }
+        
+        #resetBtn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        #resetBtn:hover {
+            background-color: #d32f2f;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            color: #666666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .status {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: #555;
+            font-weight: 500;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+        
+        .status.running {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .status.paused {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .modal h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .modal p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-btn.continue {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .modal-btn.original {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        .modal-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .timer-display {
+                font-size: 3rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            button {
+                width: 100%;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cronómetro con Opciones</h1>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="startTime">Hora de inicio:</label>
+                <input type="time" id="startTime">
+            </div>
+        </div>
+        
+        <div class="timer-display" id="timer">00:00:00</div>
+        
+        <div class="controls">
+            <button id="startBtn">Iniciar</button>
+            <button id="pauseBtn" disabled>Pausar</button>
+            <button id="resetBtn" disabled>Reiniciar</button>
+        </div>
+        
+        <div class="status" id="status">Listo para comenzar</div>
+    </div>
+
+    <!-- Modal para elegir opción de reanudación -->
+    <div class="modal" id="resumeModal">
+        <div class="modal-content">
+            <h3>¿Cómo quieres continuar?</h3>
+            <p>Elige cómo quieres reanudar el cronómetro:</p>
+            <div class="modal-buttons">
+                <button class="modal-btn continue" id="continueTime">Continuar con tiempo acumulado</button>
+                <button class="modal-btn original" id="originalTime">Calcular desde hora original</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const startTimeInput = document.getElementById('startTime');
+            const timerDisplay = document.getElementById('timer');
+            const startBtn = document.getElementById('startBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const statusText = document.getElementById('status');
+            const resumeModal = document.getElementById('resumeModal');
+            const continueTimeBtn = document.getElementById('continueTime');
+            const originalTimeBtn = document.getElementById('originalTime');
+            
+            let originalStartTime = null;
+            let timerInterval = null;
+            let isRunning = false;
+            let isPaused = false;
+            let elapsedTimeAtPause = 0;
+            let pauseStartTime = null;
+            
+            // Establecer la hora actual como valor predeterminado
+            const now = new Date();
+            const currentHours = String(now.getHours()).padStart(2, '0');
+            const currentMinutes = String(now.getMinutes()).padStart(2, '0');
+            startTimeInput.value = `${currentHours}:${currentMinutes}`;
+            
+            function updateTimer() {
+                if (!originalStartTime) return;
+                
+                const currentTime = new Date().getTime();
+                let elapsedTime = 0;
+                
+                if (isPaused) {
+                    // Si está pausado, usar el tiempo acumulado hasta la pausa
+                    elapsedTime = elapsedTimeAtPause;
+                } else {
+                    // Calcular tiempo desde la hora original de inicio
+                    const [startHours, startMinutes] = originalStartTime.split(':');
+                    const startDateTime = new Date();
+                    startDateTime.setHours(parseInt(startHours), parseInt(startMinutes), 0, 0);
+                    
+                    // Si la hora de inicio es posterior a la hora actual, asumimos que es del día anterior
+                    if (startDateTime.getTime() > currentTime) {
+                        startDateTime.setDate(startDateTime.getDate() - 1);
+                    }
+                    
+                    elapsedTime = currentTime - startDateTime.getTime();
+                }
+                
+                // Calcular horas, minutos y segundos
+                const totalSeconds = Math.floor(elapsedTime / 1000);
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+                
+                // Actualizar el display
+                timerDisplay.textContent = 
+                    `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+            
+            function startTimer() {
+                if (isRunning) return;
+                
+                if (isPaused) {
+                    // Si estaba pausado, mostrar el modal para elegir opción
+                    resumeModal.style.display = 'flex';
+                    return;
+                }
+                
+                // Inicio normal
+                originalStartTime = startTimeInput.value;
+                if (!originalStartTime) {
+                    alert('Por favor, establece una hora de inicio');
+                    return;
+                }
+                
+                startTimerExecution();
+            }
+            
+            function startTimerExecution() {
+                isRunning = true;
+                isPaused = false;
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                resetBtn.disabled = false;
+                startTimeInput.disabled = true;
+                statusText.textContent = 'Cronómetro en ejecución';
+                statusText.className = 'status running';
+                
+                // Actualizar inmediatamente y luego cada segundo
+                updateTimer();
+                timerInterval = setInterval(updateTimer, 1000);
+            }
+            
+            function pauseTimer() {
+                if (!isRunning) return;
+                
+                isRunning = false;
+                isPaused = true;
+                clearInterval(timerInterval);
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                statusText.textContent = 'Cronómetro pausado';
+                statusText.className = 'status paused';
+                
+                // Guardar el tiempo acumulado hasta el momento de la pausa
+                const currentTime = new Date().getTime();
+                const [startHours, startMinutes] = originalStartTime.split(':');
+                const startDateTime = new Date();
+                startDateTime.setHours(parseInt(startHours), parseInt(startMinutes), 0, 0);
+                
+                if (startDateTime.getTime() > currentTime) {
+                    startDateTime.setDate(startDateTime.getDate() - 1);
+                }
+                
+                elapsedTimeAtPause = currentTime - startDateTime.getTime();
+                pauseStartTime = currentTime;
+            }
+            
+            function continueWithAccumulatedTime() {
+                // Continuar con el tiempo acumulado (no recalcular desde el inicio original)
+                isPaused = false;
+                startTimerExecution();
+                resumeModal.style.display = 'none';
+            }
+            
+            function calculateFromOriginalTime() {
+                // Recalcular desde la hora original (ignorar el tiempo de pausa)
+                isPaused = false;
+                startTimerExecution();
+                resumeModal.style.display = 'none';
+            }
+            
+            function resetTimer() {
+                isRunning = false;
+                isPaused = false;
+                clearInterval(timerInterval);
+                originalStartTime = null;
+                elapsedTimeAtPause = 0;
+                pauseStartTime = null;
+                timerDisplay.textContent = '00:00:00';
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                resetBtn.disabled = true;
+                startTimeInput.disabled = false;
+                statusText.textContent = 'Listo para comenzar';
+                statusText.className = 'status';
+                
+                // Restablecer la hora actual
+                const now = new Date();
+                const currentHours = String(now.getHours()).padStart(2, '0');
+                const currentMinutes = String(now.getMinutes()).padStart(2, '0');
+                startTimeInput.value = `${currentHours}:${currentMinutes}`;
+            }
+            
+            // Event listeners
+            startBtn.addEventListener('click', startTimer);
+            pauseBtn.addEventListener('click', pauseTimer);
+            resetBtn.addEventListener('click', resetTimer);
+            continueTimeBtn.addEventListener('click', continueWithAccumulatedTime);
+            originalTimeBtn.addEventListener('click', calculateFromOriginalTime);
+            
+            // Cerrar modal si se hace clic fuera del contenido
+            resumeModal.addEventListener('click', function(e) {
+                if (e.target === resumeModal) {
+                    resumeModal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

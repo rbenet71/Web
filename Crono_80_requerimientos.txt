@@ -224,12 +224,15 @@ Podemos hacer que funcione el PWA del crono 80 como esta configurado en calculad
 Por cada carrera, cada vez que se inicie el crono, se ha de almacenar la hora en que se inicio, de tal forma cuando el usuario utilice la opción de Fijar Tiempo de Crono por la hora de salida le aparezca también un listado de horas de inicio.
 El motivo es que si por cualquier motivo por error borra los datos pueda volver a arrancar el crono con la hora que se hizo antes de borrar. Estos tiempos de inicio no se deberián borrar al reiniciar la carrera, sino 10 dias desde que se inicio.
 
+Tiempos de paso del primer corredor por orden inverso de tiempo ok
 
 -----------------------------
 
-Tiempos de paso del primer corredor por orden inverso de tiempo
+
 
 ---------------------
+
+Al pasar por botones desactivados que aparezca el texto "Selecciona o Crea una Carrera para Empezar"
 
 Al recargar la página el crono se para y no queda en movimiento
 
@@ -237,5 +240,10 @@ se puede poner al lado del texto de copyright un numero que sea el numero de per
 
 estar actualizado sobre los cambios realizados- Actualizaciones deja tu email y comentarios y que me envie un email con ese contacto y comentario
 
-hacer que se agregue automaticamente como icono en tu telefono
 
+
+
+************
+Descartado
+hacer que se agregue automaticamente como icono en tu telefono
+https://rbenet71.github.io/Web/Instala_App.html
