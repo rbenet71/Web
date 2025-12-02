@@ -713,6 +713,7 @@
                 <img src="https://flagcdn.com/w40/es.png" class="flag active" id="flag-es" data-lang="es">
                 <div class="flag flag-catalunya" id="flag-ca" data-lang="ca"></div>
                 <img src="https://flagcdn.com/w40/gb.png" class="flag" id="flag-en" data-lang="en">
+                <img src="https://flagcdn.com/w40/fr.png" class="flag" id="flag-fr" data-lang="fr">
                 <span class="help-icon" id="help-icon-header" title="Ayuda">❓</span>
             </div>
         </div>
@@ -873,7 +874,7 @@
         // Variables globales para el sistema de idiomas
         let currentLanguage = 'es';
         
-        // Textos en diferentes idiomas (ampliados con textos de sugerencias)
+        // Textos en diferentes idiomas (ampliados con textos de sugerencias y francés)
         const translations = {
             es: {
                 appTitle: "Calculadora de Tiempos",
@@ -1072,6 +1073,72 @@
                 enterEmail: "Enter your email",
                 enterCity: "Write your city",
                 cityExamples: "Madrid, Barcelona, Valencia, etc."
+            },
+            fr: {
+                appTitle: "Calculateur de Temps",
+                modeDecimal: "Mode: Décimal",
+                modeTime: "Mode: Temps",
+                averageCalc: "Calcul Moyenne",
+                lapsCalc: "Nombre de Tours",
+                helpButton: "Aide",
+                installButton: "Installer App",
+                suggestionsButton: "Mises à jour/Suggestions",
+                averageModalTitle: "Calcul de Moyenne (km/h)",
+                distancePlaceholder: "Distance en km",
+                timePlaceholder: "Temps (ex: 1h 30m 45s)",
+                lapsModalTitle: "Calcul du Nombre de Tours",
+                lapTimePlaceholder: "Temps par tour (ex: 5m 30s)",
+                targetTimePlaceholder: "Temps cible (ex: 1h 30m)",
+                cancelButton: "Annuler",
+                calculateButton: "Calculer",
+                hourButton: "Heure",
+                minuteButton: "Minute",
+                secondButton: "Seconde",
+                decimalButton: "Décimal",
+                installTitle: "Installer l'App",
+                installSubtitle: "Ajoutez un raccourci à votre appareil",
+                installAction: "Installer",
+                installClose: "Fermer",
+                iosInstructionsTitle: "Installer sur iPhone/iPad",
+                iosInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Le menu de partage s'ouvrira</li>
+                    <li>Faites défiler et sélectionnez <strong>"Ajouter à l'écran d'accueil"</strong></li>
+                    <li>Appuyez sur <strong>"Ajouter"</strong> pour confirmer</li>
+                </ol>`,
+                androidInstructionsTitle: "Installer sur Android",
+                androidInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Il s'installera automatiquement en tant qu'application PWA</li>
+                    <li>L'application apparaîtra sur votre écran d'accueil</li>
+                </ol>`,
+                windowsInstructionsTitle: "Créer un Raccourci sur Windows",
+                windowsInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Un fichier .url sera téléchargé</li>
+                    <li>Ouvrez-le pour créer le raccourci sur votre bureau</li>
+                </ol>`,
+                otherInstructionsTitle: "Installer l'App",
+                otherInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Suivez les instructions de votre navigateur</li>
+                </ol>`,
+                // Textos para sugerencias
+                suggestionsTitle: "Calculateur de Temps",
+                suggestionsSubtitle: "Envoyez vos commentaires",
+                emailLabel: "Fournissez votre email pour rester informé des mises à jour",
+                cityLabel: "Ville",
+                suggestionLabel: "Suggestions pour améliorer l'application",
+                programLabel: "Programme",
+                submitButton: "📤 Envoyer",
+                sendingText: "Envoi en cours...",
+                successMessage: "✅ Envoyé avec succès",
+                errorMessage: "❌ Erreur d'envoi",
+                invalidEmail: "Email non valide",
+                invalidCity: "Ville non valide",
+                enterEmail: "Entrez votre email",
+                enterCity: "Écrivez votre ville",
+                cityExamples: "Paris, Lyon, Marseille, etc."
             }
         };
 
@@ -1267,19 +1334,28 @@
                 if (navigator.share) {
                     navigator.share({
                         title: document.title,
-                        text: 'Instalar esta app en mi pantalla de inicio',
+                        text: translations[currentLanguage].installSubtitle,
                         url: window.location.href
                     })
                     .then(() => {
-                        this.showMessage('✅ Ahora selecciona "Añadir a Pantalla de Inicio"', false);
+                        this.showMessage('✅ ' + (currentLanguage === 'fr' ? 'Sélectionnez maintenant "Ajouter à l\'écran d\'accueil"' : 
+                                               currentLanguage === 'en' ? 'Now select "Add to Home Screen"' :
+                                               currentLanguage === 'ca' ? 'Ara selecciona "Afegeix a la pantalla d\'inici"' :
+                                               'Ahora selecciona "Añadir a Pantalla de Inicio"'), false);
                     })
                     .catch((error) => {
                         if (error.name !== 'AbortError') {
-                            this.showMessage('❌ No se pudo abrir el menú de compartir', true);
+                            this.showMessage('❌ ' + (currentLanguage === 'fr' ? 'Impossible d\'ouvrir le menu de partage' :
+                                               currentLanguage === 'en' ? 'Could not open share menu' :
+                                               currentLanguage === 'ca' ? 'No s\'ha pogut obrir el menú de compartir' :
+                                               'No se pudo abrir el menú de compartir'), true);
                         }
                     });
                 } else {
-                    this.showMessage('❌ Tu navegador no soporta esta función', true);
+                    this.showMessage('❌ ' + (currentLanguage === 'fr' ? 'Votre navigateur ne supporte pas cette fonction' :
+                                           currentLanguage === 'en' ? 'Your browser does not support this function' :
+                                           currentLanguage === 'ca' ? 'El teu navegador no suporta aquesta funció' :
+                                           'Tu navegador no soporta esta función'), true);
                 }
             }
             
@@ -1290,17 +1366,29 @@
                         const { outcome } = await this.deferredPrompt.userChoice;
                         
                         if (outcome === 'accepted') {
-                            this.showMessage('✅ App instalada correctamente', false);
+                            this.showMessage('✅ ' + (currentLanguage === 'fr' ? 'App installée avec succès' :
+                                                   currentLanguage === 'en' ? 'App installed successfully' :
+                                                   currentLanguage === 'ca' ? 'App instal·lada correctament' :
+                                                   'App instalada correctamente'), false);
                             this.installActionBtn.style.display = 'none';
                         } else {
-                            this.showMessage('Instalación cancelada', true);
+                            this.showMessage(currentLanguage === 'fr' ? 'Installation annulée' :
+                                            currentLanguage === 'en' ? 'Installation cancelled' :
+                                            currentLanguage === 'ca' ? 'Instal·lació cancel·lada' :
+                                            'Instalación cancelada', true);
                         }
                         this.deferredPrompt = null;
                     } catch (error) {
-                        this.showMessage('❌ Error en la instalación', true);
+                        this.showMessage('❌ ' + (currentLanguage === 'fr' ? 'Erreur d\'installation' :
+                                               currentLanguage === 'en' ? 'Installation error' :
+                                               currentLanguage === 'ca' ? 'Error en la instal·lació' :
+                                               'Error en la instalación'), true);
                     }
                 } else {
-                    this.showMessage('🔧 Tu navegador soporta instalación PWA', false);
+                    this.showMessage('🔧 ' + (currentLanguage === 'fr' ? 'Votre navigateur supporte l\'installation PWA' :
+                                           currentLanguage === 'en' ? 'Your browser supports PWA installation' :
+                                           currentLanguage === 'ca' ? 'El teu navegador suporta instal·lació PWA' :
+                                           'Tu navegador soporta instalación PWA'), false);
                 }
             }
             
@@ -1321,18 +1409,24 @@ IDList=`;
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                this.showMessage('✅ Archivo de acceso directo descargado', false);
+                this.showMessage('✅ ' + (currentLanguage === 'fr' ? 'Fichier de raccourci téléchargé' :
+                                       currentLanguage === 'en' ? 'Shortcut file downloaded' :
+                                       currentLanguage === 'ca' ? 'Arxiu d\'accés directe descarregat' :
+                                       'Archivo de acceso directo descargado'), false);
             }
             
             installOther() {
                 if (navigator.share) {
                     navigator.share({
                         title: document.title,
-                        text: 'Instalar esta app',
+                        text: translations[currentLanguage].installSubtitle,
                         url: window.location.href
                     });
                 } else {
-                    this.showMessage('⭐ Usa el menú de tu navegador para crear un acceso directo', false);
+                    this.showMessage('⭐ ' + (currentLanguage === 'fr' ? 'Utilisez le menu de votre navigateur pour créer un raccourci' :
+                                           currentLanguage === 'en' ? 'Use your browser menu to create a shortcut' :
+                                           currentLanguage === 'ca' ? 'Utilitza el menú del teu navegador per crear un accés directe' :
+                                           'Usa el menú de tu navegador para crear un acceso directo'), false);
                 }
             }
         }
@@ -1441,10 +1535,19 @@ IDList=`;
                 
                 // Actualizar placeholders
                 this.emailInput.placeholder = "tu@email.com";
-                this.cityInput.placeholder = lang === 'en' ? "Ex: Madrid" : lang === 'ca' ? "Ex: Madrid" : "Ej: Madrid";
-                this.suggestionInput.placeholder = lang === 'en' ? "Your ideas to improve the app..." : 
-                                                  lang === 'ca' ? "Les teves idees per millorar l'app..." : 
-                                                  "Tus ideas para mejorar la app...";
+                if (lang === 'en') {
+                    this.cityInput.placeholder = "Ex: Madrid";
+                    this.suggestionInput.placeholder = "Your ideas to improve the app...";
+                } else if (lang === 'ca') {
+                    this.cityInput.placeholder = "Ex: Madrid";
+                    this.suggestionInput.placeholder = "Les teves idees per millorar l'app...";
+                } else if (lang === 'fr') {
+                    this.cityInput.placeholder = "Ex: Paris";
+                    this.suggestionInput.placeholder = "Vos idées pour améliorer l'application...";
+                } else {
+                    this.cityInput.placeholder = "Ej: Madrid";
+                    this.suggestionInput.placeholder = "Tus ideas para mejorar la app...";
+                }
             }
             
             getCurrentDate() {
@@ -1482,7 +1585,7 @@ IDList=`;
             isValidCity(city) {
                 if (!city) return false;
                 city = city.trim();
-                return city.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]+$/.test(city);
+                return city.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛçÇ\s\-]+$/.test(city);
             }
             
             formatCity(city) {
@@ -1729,7 +1832,10 @@ IDList=`;
                 const timeStr = document.getElementById('timeInput').value;
                 
                 if (!distance || !timeStr) {
-                    alert('Por favor, complete todos los campos');
+                    alert(currentLanguage === 'fr' ? 'Veuillez remplir tous les champs' :
+                          currentLanguage === 'en' ? 'Please fill in all fields' :
+                          currentLanguage === 'ca' ? 'Si us plau, ompliu tots els camps' :
+                          'Por favor, complete todos los campos');
                     return;
                 }
                 
@@ -1737,7 +1843,7 @@ IDList=`;
                 const timeInHours = timeInSeconds / 3600;
                 const average = distance / timeInHours;
                 
-                this.addToHistory(`Promedio: ${distance}km / ${this.formatTime(timeInSeconds)} = ${average.toFixed(2)} km/h`);
+                this.addToHistory(`${translations[currentLanguage].averageCalc}: ${distance}km / ${this.formatTime(timeInSeconds)} = ${average.toFixed(2)} km/h`);
                 this.currentInput = average.toFixed(2);
                 this.waitingForNewInput = true;
                 this.updateDisplay();
@@ -1749,7 +1855,10 @@ IDList=`;
                 const targetTimeStr = document.getElementById('targetTimeInput').value;
                 
                 if (!lapTimeStr || !targetTimeStr) {
-                    alert('Por favor, complete todos los campos');
+                    alert(currentLanguage === 'fr' ? 'Veuillez remplir tous les champs' :
+                          currentLanguage === 'en' ? 'Please fill in all fields' :
+                          currentLanguage === 'ca' ? 'Si us plau, ompliu tots els camps' :
+                          'Por favor, complete todos los campos');
                     return;
                 }
                 
@@ -1757,7 +1866,10 @@ IDList=`;
                 const targetTimeInSeconds = this.parseTimeToSeconds(targetTimeStr);
                 
                 if (lapTimeInSeconds === 0) {
-                    alert('El tiempo por vuelta no puede ser cero');
+                    alert(currentLanguage === 'fr' ? 'Le temps par tour ne peut pas être zéro' :
+                          currentLanguage === 'en' ? 'Time per lap cannot be zero' :
+                          currentLanguage === 'ca' ? 'El temps per volta no pot ser zero' :
+                          'El tiempo por vuelta no puede ser cero');
                     return;
                 }
                 
@@ -1769,7 +1881,7 @@ IDList=`;
                     roundedLaps = Math.ceil(exactLaps);
                 }
                 
-                this.addToHistory(`Vueltas: ${this.formatTime(targetTimeInSeconds)} / ${this.formatTime(lapTimeInSeconds)} = ${roundedLaps} vueltas`);
+                this.addToHistory(`${translations[currentLanguage].lapsCalc}: ${this.formatTime(targetTimeInSeconds)} / ${this.formatTime(lapTimeInSeconds)} = ${roundedLaps} ${currentLanguage === 'fr' ? 'tours' : currentLanguage === 'en' ? 'laps' : currentLanguage === 'ca' ? 'voltes' : 'vueltas'}`);
                 this.currentInput = roundedLaps.toString();
                 this.waitingForNewInput = true;
                 this.updateDisplay();
@@ -1973,7 +2085,10 @@ IDList=`;
                         break;
                     case '/':
                         if (current === 0) {
-                            alert("Error: División por cero");
+                            alert(currentLanguage === 'fr' ? "Erreur: Division par zéro" :
+                                  currentLanguage === 'en' ? "Error: Division by zero" :
+                                  currentLanguage === 'ca' ? "Error: Divisió per zero" :
+                                  "Error: División por cero");
                             return;
                         }
                         result = prev / current;
@@ -2231,7 +2346,11 @@ IDList=`;
             
             // Mostrar mensaje informativo después de un tiempo
             setTimeout(() => {
-                window.suggestionsSystem.showMessage('Comparte tus ideas para mejorar la calculadora', 'info');
+                const message = currentLanguage === 'fr' ? 'Partagez vos idées pour améliorer la calculatrice' :
+                              currentLanguage === 'en' ? 'Share your ideas to improve the calculator' :
+                              currentLanguage === 'ca' ? 'Comparteix les teves idees per millorar la calculadora' :
+                              'Comparte tus ideas para mejorar la calculadora';
+                window.suggestionsSystem.showMessage(message, 'info');
             }, 1000);
         });
 		// Registrar el Service Worker
@@ -2258,7 +2377,12 @@ IDList=`;
 		
 		// Mostrar notificación de actualización
 		function showUpdateNotification() {
-		  if (confirm('¡Hay una nueva versión disponible! ¿Quieres actualizar ahora?')) {
+		  const message = currentLanguage === 'fr' ? '¡Hay una nueva versión disponible! ¿Quieres actualizar ahora?' :
+                        currentLanguage === 'en' ? 'There is a new version available! Do you want to update now?' :
+                        currentLanguage === 'ca' ? '¡Hi ha una nova versió disponible! Vols actualitzar ara?' :
+                        '¡Hay una nueva versión disponible! ¿Quieres actualizar ahora?';
+		  
+		  if (confirm(message)) {
 		    // Forzar la actualización
 		    if ('serviceWorker' in navigator) {
 		      navigator.serviceWorker.ready.then(registration => {
@@ -2290,7 +2414,10 @@ IDList=`;
 		// Botón manual para buscar actualizaciones (opcional)
 		function addUpdateButton() {
 		  const updateBtn = document.createElement('button');
-		  updateBtn.textContent = '🔄 Buscar Actualizaciones';
+		  updateBtn.textContent = currentLanguage === 'fr' ? '🔄 Rechercher des mises à jour' :
+                                currentLanguage === 'en' ? '🔄 Check for Updates' :
+                                currentLanguage === 'ca' ? '🔄 Buscar Actualitzacions' :
+                                '🔄 Buscar Actualizaciones';
 		  updateBtn.style.cssText = `
 		    position: fixed;
 		    bottom: 10px;
@@ -2312,11 +2439,17 @@ IDList=`;
 		  if ('serviceWorker' in navigator) {
 		    navigator.serviceWorker.ready.then(registration => {
 		      registration.update().then(() => {
-		        alert('Búsqueda de actualizaciones completada');
+		        alert(currentLanguage === 'fr' ? 'Recherche de mises à jour terminée' :
+                    currentLanguage === 'en' ? 'Update check completed' :
+                    currentLanguage === 'ca' ? 'Cerca d\'actualitzacions completada' :
+                    'Búsqueda de actualizaciones completada');
 		      });
 		    });
 		  } else {
-		    alert('Service Worker no disponible');
+		    alert(currentLanguage === 'fr' ? 'Service Worker non disponible' :
+                currentLanguage === 'en' ? 'Service Worker not available' :
+                currentLanguage === 'ca' ? 'Service Worker no disponible' :
+                'Service Worker no disponible');
 		  }
 		}
 
