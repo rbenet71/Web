@@ -320,12 +320,16 @@
             font-size: 0.9rem;
         }
 
-        /* Botón de instalación en el footer */
-        .footer-install-btn {
+        /* Botones en el footer */
+        .footer-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
             margin: 20px 0 30px 0;
+            flex-wrap: wrap;
         }
 
-        .install-app-btn {
+        .install-app-btn, .suggestions-btn {
             background-color: #9b59b6;
             color: white;
             border: none;
@@ -341,13 +345,23 @@
             font-size: 1rem;
         }
 
+        .suggestions-btn {
+            background-color: #3498db;
+        }
+
         .install-app-btn:hover {
             background-color: #8e44ad;
             transform: translateY(-3px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
 
-        .install-app-btn i {
+        .suggestions-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .install-app-btn i, .suggestions-btn i {
             font-size: 1.2rem;
         }
 
@@ -444,6 +458,201 @@
             color: #ecf0f1;
         }
 
+        /* Modal de sugerencias */
+        .suggestions-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .suggestions-modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .suggestions-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .suggestions-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.8rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .suggestions-title {
+            color: #333;
+            font-size: 1.4rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .suggestions-subtitle {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .suggestions-input, .suggestions-textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .suggestions-input:focus, .suggestions-textarea:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+
+        .suggestions-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .required::after {
+            content: " *";
+            color: #f44336;
+        }
+
+        .prefilled-field {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            padding: 0.8rem;
+            border-radius: 8px;
+            color: #2196F3;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .suggestions-btn-modal {
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            color: white;
+            border: none;
+            padding: 0.9rem;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+        }
+
+        .suggestions-btn-modal:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+
+        .suggestions-btn-modal:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .spinner {
+            border: 3px solid rgba(33, 150, 243, 0.2);
+            border-top: 3px solid #2196F3;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 1000;
+            max-width: 280px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .message.success {
+            background: #4CAF50;
+        }
+
+        .message.error {
+            background: #f44336;
+        }
+
+        .message.info {
+            background: #2196F3;
+        }
+
+        .hint {
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+        }
+
+        .city-examples {
+            color: #666;
+            font-size: 0.75rem;
+            margin-top: 0.4rem;
+            font-style: italic;
+        }
+
         @media (max-width: 768px) {
             .tabs {
                 flex-direction: column;
@@ -467,9 +676,14 @@
                 justify-content: center;
             }
             
-            .install-app-btn {
+            .install-app-btn, .suggestions-btn {
                 padding: 10px 20px;
                 font-size: 0.9rem;
+            }
+            
+            .footer-buttons {
+                flex-direction: column;
+                align-items: center;
             }
             
             .app-button i,
@@ -553,7 +767,7 @@
             <!-- Contenido de Ciclismo -->
             <div class="tab-content" id="ciclismo-content">
                 <h2 id="ciclismo-title">Aplicaciones de Ciclismo</h2>
-                <p id="ciclismo-desc">Próximamente más aplicaciones de ciclismo...</p>
+                <p id="ciclismo-desc"></p>
                 <div class="button-grid">
                     <a href="GPS.html" class="app-button" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
                         <img src="GPS.png" class="icon-image" alt="GPS">
@@ -585,11 +799,15 @@
         </div>
     </div>
 
-    <!-- Botón de instalación en el footer -->
-    <div class="footer-install-btn">
+    <!-- Botones en el footer -->
+    <div class="footer-buttons">
         <button class="install-app-btn" id="install-btn">
             <i class="fas fa-download"></i>
             <span id="install-btn-text">Instalar App</span>
+        </button>
+        <button class="suggestions-btn" id="suggestions-btn">
+            <i class="fas fa-comment-medical"></i>
+            <span id="suggestions-btn-text">Actualizaciones/Sugerencias</span>
         </button>
     </div>
 
@@ -620,6 +838,53 @@
         </div>
     </div>
 
+    <!-- Modal de sugerencias -->
+    <div class="suggestions-modal" id="suggestionsModal">
+        <div class="suggestions-modal-content">
+            <div class="suggestions-header">
+                <div class="suggestions-icon">
+                    📱
+                </div>
+                <h1 class="suggestions-title">App Roberto</h1>
+                <p class="suggestions-subtitle">Envía tus comentarios</p>
+            </div>
+            
+            <form id="suggestionForm">
+                <div class="form-group">
+                    <label for="email" class="required">Facilítanos tu email para mantenerte informado de las actualizaciones</label>
+                    <input type="email" id="email" class="suggestions-input" placeholder="tu@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="city" class="required">Ciudad</label>
+                    <input type="text" id="city" class="suggestions-input" placeholder="Ej: Madrid" required>
+                    <div class="city-examples">Madrid, Barcelona, Valencia, etc.</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="suggestion">Sugerencias para mejorar la aplicación</label>
+                    <textarea id="suggestion" class="suggestions-textarea" placeholder="Tus ideas para mejorar la app..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Programa</label>
+                    <div class="prefilled-field">App Roberto</div>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Enviando...</p>
+                </div>
+                
+                <button type="button" id="submitBtn" class="suggestions-btn-modal">
+                    📤 Enviar
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="message" class="message"></div>
+
     <script>
         // Textos en diferentes idiomas
         const translations = {
@@ -645,6 +910,22 @@
                 installSubtitle: "Añade un acceso directo a tu dispositivo",
                 installAction: "Instalar",
                 installClose: "Cerrar",
+                suggestionsButton: "Actualizaciones/Sugerencias",
+                suggestionsTitle: "App Roberto",
+                suggestionsSubtitle: "Envía tus comentarios",
+                emailLabel: "Facilítanos tu email para mantenerte informado de las actualizaciones",
+                cityLabel: "Ciudad",
+                suggestionLabel: "Sugerencias para mejorar la aplicación",
+                programLabel: "Programa",
+                submitButton: "📤 Enviar",
+                sendingText: "Enviando...",
+                successMessage: "✅ Enviado correctamente",
+                errorMessage: "❌ Error al enviar",
+                invalidEmail: "Email no válido",
+                invalidCity: "Ciudad no válida",
+                enterEmail: "Ingresa tu email",
+                enterCity: "Escribe tu ciudad",
+                cityExamples: "Madrid, Barcelona, Valencia, etc.",
                 iosInstructionsTitle: "Instalar en iPhone/iPad",
                 iosInstructions: `<ol style="padding-left: 15px;">
                     <li>Toca el botón "Instalar"</li>
@@ -693,6 +974,22 @@
                 installSubtitle: "Afegeix un accés directe al teu dispositiu",
                 installAction: "Instal·lar",
                 installClose: "Tancar",
+                suggestionsButton: "Actualitzacions/Suggeriments",
+                suggestionsTitle: "App Roberto",
+                suggestionsSubtitle: "Envia els teus comentaris",
+                emailLabel: "Facilita'ns el teu email per mantenir-te informat de les actualitzacions",
+                cityLabel: "Ciutat",
+                suggestionLabel: "Suggeriments per millorar l'aplicació",
+                programLabel: "Programa",
+                submitButton: "📤 Enviar",
+                sendingText: "Enviant...",
+                successMessage: "✅ Enviat correctament",
+                errorMessage: "❌ Error en enviar",
+                invalidEmail: "Email no vàlid",
+                invalidCity: "Ciutat no vàlida",
+                enterEmail: "Introdueix el teu email",
+                enterCity: "Escriu la teva ciutat",
+                cityExamples: "Madrid, Barcelona, València, etc.",
                 iosInstructionsTitle: "Instal·lar a iPhone/iPad",
                 iosInstructions: `<ol style="padding-left: 15px;">
                     <li>Toca el botó "Instal·lar"</li>
@@ -741,6 +1038,22 @@
                 installSubtitle: "Add a shortcut to your device",
                 installAction: "Install",
                 installClose: "Close",
+                suggestionsButton: "Updates/Suggestions",
+                suggestionsTitle: "App Roberto",
+                suggestionsSubtitle: "Send your comments",
+                emailLabel: "Provide your email to stay informed about updates",
+                cityLabel: "City",
+                suggestionLabel: "Suggestions to improve the application",
+                programLabel: "Program",
+                submitButton: "📤 Send",
+                sendingText: "Sending...",
+                successMessage: "✅ Sent successfully",
+                errorMessage: "❌ Error sending",
+                invalidEmail: "Invalid email",
+                invalidCity: "Invalid city",
+                enterEmail: "Enter your email",
+                enterCity: "Write your city",
+                cityExamples: "Madrid, Barcelona, Valencia, etc.",
                 iosInstructionsTitle: "Install on iPhone/iPad",
                 iosInstructions: `<ol style="padding-left: 15px;">
                     <li>Tap the "Install" button</li>
@@ -986,6 +1299,238 @@ IDList=`;
                 this.currentLanguage = lang;
                 this.setupForPlatform();
                 document.getElementById('install-btn-text').textContent = translations[lang].installButton;
+                document.getElementById('suggestions-btn-text').textContent = translations[lang].suggestionsButton;
+            }
+        }
+
+        // Sistema de sugerencias
+        class SuggestionsSystem {
+            constructor() {
+                this.modal = document.getElementById('suggestionsModal');
+                this.submitBtn = document.getElementById('submitBtn');
+                this.loading = document.getElementById('loading');
+                this.message = document.getElementById('message');
+                this.emailInput = document.getElementById('email');
+                this.cityInput = document.getElementById('city');
+                this.suggestionInput = document.getElementById('suggestion');
+                this.currentLanguage = 'es';
+                
+                // Configuración del formulario
+                this.FORM_ENDPOINT = "https://docs.google.com/forms/d/e/1FAIpQLSeLeD6lAmBweVOubmEqydUONe6mutpQLlFSU_zKfHEhjhZVLg/formResponse";
+                this.FIELD_IDS = {
+                    email: "entry.1597282778",
+                    ciudad: "entry.1552097675",
+                    sugerencia: "entry.48109616",
+                    programa: "entry.1706983066",
+                    fecha: "entry.1734009197",
+                    hora: "entry.686693357"
+                };
+                
+                this.initialize();
+            }
+            
+            initialize() {
+                this.attachEventListeners();
+            }
+            
+            attachEventListeners() {
+                // Botón para abrir modal de sugerencias
+                document.getElementById('suggestions-btn').addEventListener('click', () => {
+                    this.showModal();
+                });
+                
+                // Botón de enviar
+                this.submitBtn.addEventListener('click', () => {
+                    this.submitForm();
+                });
+                
+                // Cerrar modal al hacer clic fuera
+                window.addEventListener('click', (e) => {
+                    if (e.target === this.modal) {
+                        this.hideModal();
+                    }
+                });
+                
+                // Atajos de teclado
+                this.suggestionInput.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 'Enter') {
+                        this.submitForm();
+                    }
+                });
+                
+                this.cityInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.suggestionInput.focus();
+                    }
+                });
+                
+                this.emailInput.addEventListener('blur', () => {
+                    if (this.emailInput.value && !this.isValidEmail(this.emailInput.value)) {
+                        this.emailInput.style.borderColor = '#f44336';
+                    } else {
+                        this.emailInput.style.borderColor = '#e0e0e0';
+                    }
+                });
+                
+                this.cityInput.addEventListener('blur', () => {
+                    if (this.cityInput.value.trim()) {
+                        this.cityInput.value = this.formatCity(this.cityInput.value);
+                    }
+                });
+            }
+            
+            showModal() {
+                this.modal.style.display = 'flex';
+                this.updateTexts();
+            }
+            
+            hideModal() {
+                this.modal.style.display = 'none';
+            }
+            
+            updateTexts() {
+                const lang = this.currentLanguage;
+                document.querySelector('.suggestions-title').textContent = translations[lang].suggestionsTitle;
+                document.querySelector('.suggestions-subtitle').textContent = translations[lang].suggestionsSubtitle;
+                document.querySelector('label[for="email"]').innerHTML = translations[lang].emailLabel + '<span class="required"></span>';
+                document.querySelector('label[for="city"]').innerHTML = translations[lang].cityLabel + '<span class="required"></span>';
+                document.querySelector('label[for="suggestion"]').textContent = translations[lang].suggestionLabel;
+                document.querySelector('.form-group:nth-child(4) label').textContent = translations[lang].programLabel;
+                this.submitBtn.textContent = translations[lang].submitButton;
+                document.querySelector('#loading p').textContent = translations[lang].sendingText;
+                document.querySelector('.city-examples').textContent = translations[lang].cityExamples;
+                
+                // Actualizar placeholders
+                this.emailInput.placeholder = "tu@email.com";
+                this.cityInput.placeholder = lang === 'en' ? "Ex: Madrid" : lang === 'ca' ? "Ex: Madrid" : "Ej: Madrid";
+                this.suggestionInput.placeholder = lang === 'en' ? "Your ideas to improve the app..." : 
+                                                  lang === 'ca' ? "Les teves idees per millorar l'app..." : 
+                                                  "Tus ideas para mejorar la app...";
+            }
+            
+            getCurrentDate() {
+                const now = new Date();
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const year = now.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+            
+            getCurrentTime() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                return `${hours}:${minutes}:${seconds}`;
+            }
+            
+            showMessage(text, type = 'success') {
+                this.message.textContent = text;
+                this.message.className = `message ${type}`;
+                this.message.style.display = 'block';
+                
+                setTimeout(() => {
+                    this.message.style.display = 'none';
+                }, 4000);
+            }
+            
+            isValidEmail(email) {
+                if (!email) return false;
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
+            
+            isValidCity(city) {
+                if (!city) return false;
+                city = city.trim();
+                return city.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]+$/.test(city);
+            }
+            
+            formatCity(city) {
+                if (!city) return '';
+                return city.trim().replace(/\b\w/g, char => char.toUpperCase());
+            }
+            
+            async submitForm() {
+                const email = this.emailInput.value.trim();
+                let city = this.cityInput.value.trim();
+                const suggestion = this.suggestionInput.value.trim();
+                
+                const fecha = this.getCurrentDate();
+                const hora = this.getCurrentTime();
+                
+                // Validaciones
+                if (!email) {
+                    this.showMessage(translations[this.currentLanguage].enterEmail, 'error');
+                    this.emailInput.focus();
+                    return;
+                }
+                
+                if (!this.isValidEmail(email)) {
+                    this.showMessage(translations[this.currentLanguage].invalidEmail, 'error');
+                    this.emailInput.focus();
+                    return;
+                }
+                
+                if (!city) {
+                    this.showMessage(translations[this.currentLanguage].enterCity, 'error');
+                    this.cityInput.focus();
+                    return;
+                }
+                
+                if (!this.isValidCity(city)) {
+                    this.showMessage(translations[this.currentLanguage].invalidCity, 'error');
+                    this.cityInput.focus();
+                    return;
+                }
+                
+                city = this.formatCity(city);
+                
+                // Mostrar carga
+                this.submitBtn.disabled = true;
+                this.loading.style.display = 'block';
+                
+                try {
+                    const formData = new FormData();
+                    
+                    formData.append(this.FIELD_IDS.email, email);
+                    formData.append(this.FIELD_IDS.ciudad, city);
+                    formData.append(this.FIELD_IDS.sugerencia, suggestion || "(sin sugerencia)");
+                    formData.append(this.FIELD_IDS.programa, "App Roberto");
+                    formData.append(this.FIELD_IDS.fecha, fecha);
+                    formData.append(this.FIELD_IDS.hora, hora);
+                    
+                    await fetch(this.FORM_ENDPOINT, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: formData
+                    });
+                    
+                    this.showMessage(translations[this.currentLanguage].successMessage, 'success');
+                    
+                    // Limpiar campos
+                    this.emailInput.value = '';
+                    this.cityInput.value = '';
+                    this.suggestionInput.value = '';
+                    
+                    // Cerrar modal después de un tiempo
+                    setTimeout(() => {
+                        this.hideModal();
+                    }, 1500);
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.showMessage(translations[this.currentLanguage].errorMessage, 'error');
+                } finally {
+                    this.submitBtn.disabled = false;
+                    this.loading.style.display = 'none';
+                }
+            }
+            
+            updateLanguage(lang) {
+                this.currentLanguage = lang;
+                this.updateTexts();
             }
         }
 
@@ -1023,10 +1568,16 @@ IDList=`;
                 document.getElementById('btn-crono-80').textContent = translations[lang].btnCrono80;
                 
                 document.getElementById('copyright-text').textContent = translations[lang].footer;
+                document.getElementById('suggestions-btn-text').textContent = translations[lang].suggestionsButton;
                 
                 // Actualizar el instalador con el nuevo idioma
                 if (window.appInstaller) {
                     window.appInstaller.updateLanguage(lang);
+                }
+                
+                // Actualizar el sistema de sugerencias con el nuevo idioma
+                if (window.suggestionsSystem) {
+                    window.suggestionsSystem.updateLanguage(lang);
                 }
             });
         });
@@ -1051,10 +1602,18 @@ IDList=`;
             });
         });
 
-        // Inicializar el instalador de app cuando el DOM esté cargado
+        // Inicializar sistemas cuando el DOM esté cargado
         document.addEventListener('DOMContentLoaded', () => {
             // Inicializar instalador de app
             window.appInstaller = new AppInstaller();
+            
+            // Inicializar sistema de sugerencias
+            window.suggestionsSystem = new SuggestionsSystem();
+            
+            // Mostrar mensaje informativo después de un tiempo
+            setTimeout(() => {
+                window.suggestionsSystem.showMessage('Comparte tus ideas para mejorar la app', 'info');
+            }, 800);
         });
         
         // Registro del Service Worker para index.html
@@ -1184,7 +1743,7 @@ IDList=`;
                     setTimeout(() => {
                         window.location.reload();
                     }, 500);
-                });
+            });
             } else {
                 window.location.reload();
             }
