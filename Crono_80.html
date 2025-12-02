@@ -85,10 +85,36 @@
             border-bottom: 1px solid #34495e;
         }
         
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .app-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border: 2px solid var(--secondary-color);
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
         .language-selector {
             display: flex;
             gap: 10px;
             align-items: center;
+            margin-top: 10px;
+            justify-content: center;
+            padding: 8px;
+            background-color: #1a252f;
+            border-radius: 5px;
         }
         
         .flag {
@@ -922,20 +948,32 @@
                 margin-top: 10px;
                 justify-content: center;
             }
+            
+            .language-selector {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1 id="app-title">Cronómetro Control 80%</h1>
-            <div class="language-selector">
-                <img src="https://flagcdn.com/w40/es.png" class="flag active" id="flag-es" data-lang="es">
-                <div class="flag flag-catalunya" id="flag-ca" data-lang="ca"></div>
-                <img src="https://flagcdn.com/w40/gb.png" class="flag" id="flag-en" data-lang="en">
+            <div class="header-left">
+                <img src="https://rbenet71.github.io/Web/Crono_80_192x192.png" alt="App Icon" class="app-icon">
+                <h1 id="app-title">Cronómetro Control 80%</h1>
+            </div>
+            <div class="header-right">
                 <span class="help-icon" id="help-icon-header" title="Ayuda">❓</span>
             </div>
         </header>
+        
+        <div class="language-selector">
+            <img src="https://flagcdn.com/w40/es.png" class="flag active" id="flag-es" data-lang="es" title="Español">
+            <div class="flag flag-catalunya" id="flag-ca" data-lang="ca" title="Català"></div>
+            <img src="https://flagcdn.com/w40/gb.png" class="flag" id="flag-en" data-lang="en" title="English">
+            <img src="https://flagcdn.com/w40/fr.png" class="flag" id="flag-fr" data-lang="fr" title="Français">
+        </div>
         
         <div class="race-management">
             <select id="race-selector">
@@ -1434,7 +1472,11 @@
                 invalidCity: "Ciudad no válida",
                 enterEmail: "Ingresa tu email",
                 enterCity: "Escribe tu ciudad",
-                cityExamples: "Madrid, Barcelona, Valencia, etc."
+                cityExamples: "Madrid, Barcelona, Valencia, etc.",
+                
+                // Sonido
+                soundLabel: "Sonido",
+                soundOff: "Silencio"
             },
             ca: {
                 appTitle: "Cronòmetre Control 80%",
@@ -1539,7 +1581,11 @@
                 invalidCity: "Ciutat no vàlida",
                 enterEmail: "Introdueix el teu email",
                 enterCity: "Escriu la teva ciutat",
-                cityExamples: "Madrid, Barcelona, València, etc."
+                cityExamples: "Madrid, Barcelona, València, etc.",
+                
+                // Sonido
+                soundLabel: "So",
+                soundOff: "Silenci"
             },
             en: {
                 appTitle: "Stopwatch 80% Control",
@@ -1644,7 +1690,120 @@
                 invalidCity: "Invalid city",
                 enterEmail: "Enter your email",
                 enterCity: "Write your city",
-                cityExamples: "Madrid, Barcelona, Valencia, etc."
+                cityExamples: "Madrid, Barcelona, Valencia, etc.",
+                
+                // Sonido
+                soundLabel: "Sound",
+                soundOff: "Mute"
+            },
+            fr: {
+                appTitle: "Chronomètre Contrôle 80%",
+                currentLapTitle: "Tour Actuel",
+                firstLapTimeTitle: "Temps Premier Tour",
+                cutoffTimeTitle: "Temps Limite Actuel",
+                startTimeLabel: "Heure de Départ:",
+                cutoffWarning: "RETIRER COUREUR",
+                millisecondsLabel: "Afficher Millisecondes",
+                withdrawnTab: "Liste des Abandons",
+                lapTimesTab: "Temps du Premier Coureur",
+                eightyPercentLabel: "80% de ce temps:",
+                lastLapLabel: "Dernier passage:",
+                eightyPercentCutoffLabel: "+ 80% premier tour:",
+                
+                // Opciones de reanudación
+                resumeOptionsTitle: "Comment voulez-vous reprendre le chronomètre?",
+                resumeOptionsDescription: "Le chronomètre a été arrêté précédemment. Choisissez comment vous voulez continuer:",
+                resumeOptionOriginal: "Calculer depuis l'heure originale",
+                resumeOptionCurrent: "Continuer le temps actuel",
+                resumeOriginalDesc: "Calcule le temps écoulé depuis l'heure de départ originale de la course",
+                resumeCurrentDesc: "Conserve le temps actuel du chronomètre et continue depuis là",
+                
+                // Modal de tiempo
+                timeModalTitle: "Définir le Temps du Chronomètre",
+                chronoTimeMode: "Par Heure du Chrono",
+                startTimeMode: "Par Heure de Départ",
+                chronoTimeDescription: "Définit le temps actuel du chronomètre. Indiquez quel temps vous voulez que le chronomètre affiche maintenant.",
+                startTimeDescription: "Définit l'heure de départ de la course. Le chronomètre calculera automatiquement le temps écoulé depuis cette heure.",
+                chronoHoursLabel: "Heures",
+                chronoMinutesLabel: "Minutes",
+                chronoSecondsLabel: "Secondes",
+                startTimeLabelModal: "Heure de départ de la course:",
+                
+                // Botones
+                startButton: "Démarrer Chronomètre",
+                stopButton: "Arrêter Chronomètre",
+                setTimeButton: "Définir Temps Chrono",
+                firstRiderButton: "Passage Premier Coureur",
+                withdrawButton: "Retirer Coureur",
+                dnfButton: "DNF-Abandon",
+                resetButton: "Réinitialiser Chronomètre",
+                exportButton: "Exporter vers Excel",
+                newRaceButton: "Nouvelle Course",
+                deleteRaceButton: "Supprimer Course",
+                helpButton: "Aide",
+                suggestionsButton: "Mises à jour/Suggestions",
+                
+                // Modales
+                withdrawModalTitle: "Retirer Coureur",
+                withdrawDorsalLabel: "Numéro(s) de Dossard (séparés par des virgules)",
+                dnfModalTitle: "DNF - Abandon",
+                dnfDorsalLabel: "Numéro(s) de Dossard (séparés par des virgules)",
+                resetModalTitle: "Confirmer Réinitialisation",
+                resetModalText: "Êtes-vous sûr de vouloir réinitialiser le chronomètre? Toutes les données seront perdues.",
+                newRaceModalTitle: "Nouvelle Course",
+                raceNameLabel: "Nom de la Course",
+                deleteRaceModalTitle: "Supprimer Course",
+                deleteRaceModalText: "Êtes-vous sûr de vouloir supprimer cette course? Cette action ne peut pas être annulée.",
+                stopChronoModalTitle: "Arrêter Chronomètre",
+                stopChronoModalText: "Êtes-vous sûr de vouloir arrêter le chronomètre?",
+                editFirstLapTitle: "Modifier Temps Premier Tour",
+                editLapTimeTitle: "Modifier Temps de Tour",
+                editRiderTitle: "Modifier Coureur Abandonné",
+                
+                // Botones modales
+                cancelButton: "Annuler",
+                confirmButton: "Confirmer",
+                modifyButton: "Modifier",
+                createButton: "Créer Course",
+                
+                // Mensajes
+                noRaceSelected: "Vous devez d'abord sélectionner une course",
+                chronoNotRunning: "Le chronomètre doit être en marche pour enregistrer des tours",
+                dorsalRequired: "Le numéro de dossard est obligatoire",
+                noLapsToDelete: "Il n'y a pas de tours à supprimer",
+                onlyLastLap: "Seul le dernier tour enregistré peut être supprimé",
+                confirmDeleteLap: "Êtes-vous sûr de vouloir supprimer ce tour?",
+                confirmDeleteRider: "Êtes-vous sûr de vouloir retirer ce coureur de la liste des abandons?",
+
+                // Selector de carrera
+                selectRace: "-- Sélectionner Course --",
+                raceNamePlaceholder: "Ex: VTT Montagne 2024",
+                dorsalPlaceholder: "Ex: 123, 456, 789",
+                
+                // Historial de horas de inicio
+                startTimesHistory: "Heures de départ précédentes:",
+                noStartTimes: "Aucune heure de départ enregistrée",
+                
+                // Textos para sugerencias
+                suggestionsTitle: "Chronomètre Contrôle 80%",
+                suggestionsSubtitle: "Envoyez vos commentaires",
+                emailLabel: "Fournissez votre email pour rester informé des mises à jour",
+                cityLabel: "Ville",
+                suggestionLabel: "Suggestions pour améliorer l'application",
+                programLabel: "Programme",
+                submitButton: "Envoyer",
+                sendingText: "Envoi en cours...",
+                successMessage: "✅ Envoyé avec succès",
+                errorMessage: "❌ Erreur d'envoi",
+                invalidEmail: "Email non valide",
+                invalidCity: "Ville non valide",
+                enterEmail: "Entrez votre email",
+                enterCity: "Écrivez votre ville",
+                cityExamples: "Madrid, Barcelone, Valence, etc.",
+                
+                // Sonido
+                soundLabel: "Son",
+                soundOff: "Silencieux"
             }
         };
 
@@ -1813,14 +1972,15 @@
         }
         
         function updateSoundIcon() {
+            const t = translations[currentLanguage];
             if (soundEnabled) {
                 soundIcon.textContent = '🔊';
                 soundIcon.classList.remove('muted');
-                soundLabel.textContent = 'Sonido';
+                soundLabel.textContent = t.soundLabel;
             } else {
                 soundIcon.textContent = '🔇';
                 soundIcon.classList.add('muted');
-                soundLabel.textContent = 'Silencio';
+                soundLabel.textContent = t.soundOff;
             }
         }
 
@@ -1915,11 +2075,13 @@
             if (cityInput) {
                 cityInput.placeholder = currentLanguage === 'en' ? "Ex: Madrid" : 
                                         currentLanguage === 'ca' ? "Ex: Madrid" : 
+                                        currentLanguage === 'fr' ? "Ex: Madrid" :
                                         "Ej: Madrid";
             }
             if (suggestionText) {
                 suggestionText.placeholder = currentLanguage === 'en' ? "Your ideas to improve the app..." : 
                                             currentLanguage === 'ca' ? "Les teves idees per millorar l'app..." : 
+                                            currentLanguage === 'fr' ? "Vos idées pour améliorer l'app..." :
                                             "Tus ideas para mejorar la app...";
             }
         }
@@ -2126,14 +2288,27 @@
             document.getElementById('confirm-stop-chrono').textContent = t.confirmButton;
             document.getElementById('cancel-edit-first-lap').textContent = t.cancelButton;
             document.getElementById('confirm-edit-first-lap').textContent = t.modifyButton;
+            
+            // Nuevos event listeners para edición
             document.getElementById('cancel-edit-lap-time').textContent = t.cancelButton;
             document.getElementById('confirm-edit-lap-time').textContent = t.modifyButton;
             document.getElementById('cancel-edit-rider').textContent = t.cancelButton;
             document.getElementById('confirm-edit-rider').textContent = t.modifyButton;
             
-            // Actualizar botones del modal de reanudación
+            // Event listeners para el modal de opciones de reanudación
             document.getElementById('cancel-resume').textContent = t.cancelButton;
             document.getElementById('confirm-resume').textContent = t.startButton;
+            
+            // Event listeners para las opciones de reanudación
+            document.querySelectorAll('.resume-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    resumeOption = this.getAttribute('data-option');
+                    document.querySelectorAll('.resume-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
             
             // Actualizar botones del modal de sugerencias
             const cancelSuggestionsBtn = document.getElementById('cancel-suggestions');
@@ -2166,6 +2341,9 @@
             
             // Actualizar textos de sugerencias
             updateSuggestionsTexts();
+            
+            // Actualizar sonido
+            updateSoundIcon();
             
             // Guardar idioma seleccionado
             localStorage.setItem('bttLanguage', lang);
@@ -2339,141 +2517,6 @@
             btnStart.textContent = translations[currentLanguage].stopButton;
             intervalId = setInterval(updateChrono, 10);
             saveCurrentRace();
-        }
-
-        // Inicialización
-        document.addEventListener('DOMContentLoaded', function() {
-            // Cargar configuración
-            const savedLanguage = localStorage.getItem('bttLanguage');
-            if (savedLanguage) {
-                currentLanguage = savedLanguage;
-            }
-            
-            const savedMillisecondsSetting = localStorage.getItem('bttShowMilliseconds');
-            if (savedMillisecondsSetting !== null) {
-                showMilliseconds = savedMillisecondsSetting === 'true';
-                millisecondsToggle.checked = showMilliseconds;
-            }
-            
-            // Cargar historial de horas de inicio
-            const savedHistory = localStorage.getItem('bttRaceStartTimesHistory');
-            if (savedHistory) {
-                raceStartTimesHistory = JSON.parse(savedHistory);
-                // Limpiar entradas antiguas (más de 10 días)
-                cleanupOldStartTimes();
-            }
-            
-            loadRaces();
-            updateDisplay();
-            
-            // Cargar la última carrera usada
-            const lastRaceId = localStorage.getItem('bttLastRace');
-            if (lastRaceId && races[lastRaceId]) {
-                loadRace(lastRaceId);
-                raceSelector.value = lastRaceId;
-            } else if (Object.keys(races).length > 0) {
-                // Cargar la primera carrera si existe
-                const firstRaceId = Object.keys(races)[0];
-                loadRace(firstRaceId);
-                raceSelector.value = firstRaceId;
-            } else {
-                // No hay carreras, actualizar estado de botones
-                updateButtonsState();
-            }
-            
-            // Actualizar idioma inicial
-            updateLanguage(currentLanguage);
-            
-            // Inicializar sonidos
-            initSounds();
-            
-            // Inicializar sistema de sugerencias
-            initializeSuggestionsSystem();
-            
-            // Event listeners
-            btnStart.addEventListener('click', toggleChrono);
-            btnSetTime.addEventListener('click', openTimeModal);
-            btnFirst.addEventListener('click', recordLap);
-            btnWithdraw.addEventListener('click', openWithdrawModal);
-            btnDnf.addEventListener('click', openDnfModal);
-            btnReset.addEventListener('click', openResetModal);
-            btnExport.addEventListener('click', exportToExcel);
-            btnNewRace.addEventListener('click', openNewRaceModal);
-            btnDeleteRace.addEventListener('click', openDeleteRaceModal);
-            btnEditFirstLap.addEventListener('click', openEditFirstLapModal);
-            btnHelp.addEventListener('click', openHelpFile);
-            raceSelector.addEventListener('change', function() {
-                loadRace(this.value);
-            });
-            millisecondsToggle.addEventListener('change', toggleMilliseconds);
-            withdrawnTabButton.addEventListener('click', () => switchTab('withdrawn-tab'));
-            lapTimesTabButton.addEventListener('click', () => switchTab('lap-times-tab'));
-            helpIconHeader.addEventListener('click', openHelpFile);
-            chronoDisplay.addEventListener('dblclick', openTimeModal);
-            
-            setupModalEvents();
-            
-            document.querySelectorAll('.flag').forEach(flag => {
-                flag.addEventListener('click', function() {
-                    const lang = this.getAttribute('data-lang');
-                    updateLanguage(lang);
-                });
-            });
-        });
-
-        function openHelpFile() {
-            window.open('https://rbenet71.github.io/Web/Crono_80_Ayuda.html', '_blank');
-        }
-
-        function toggleMilliseconds() {
-            showMilliseconds = millisecondsToggle.checked;
-            localStorage.setItem('bttShowMilliseconds', showMilliseconds);
-            updateDisplay();
-            updateLapTimesList();
-            updateWithdrawnList();
-            saveCurrentRace();
-        }
-
-        function setupModalEvents() {
-            document.getElementById('cancel-withdraw').addEventListener('click', closeWithdrawModal);
-            document.getElementById('confirm-withdraw').addEventListener('click', confirmWithdraw);
-            document.getElementById('cancel-dnf').addEventListener('click', closeDnfModal);
-            document.getElementById('confirm-dnf').addEventListener('click', confirmDnf);
-            document.getElementById('cancel-reset').addEventListener('click', closeResetModal);
-            document.getElementById('confirm-reset').addEventListener('click', confirmReset);
-            document.getElementById('cancel-time').addEventListener('click', closeTimeModal);
-            document.getElementById('confirm-time').addEventListener('click', confirmTime);
-            document.getElementById('set-chrono-time').addEventListener('click', setChronoTimeMode);
-            document.getElementById('set-start-time').addEventListener('click', setStartTimeMode);
-            document.getElementById('cancel-new-race').addEventListener('click', closeNewRaceModal);
-            document.getElementById('confirm-new-race').addEventListener('click', confirmNewRace);
-            document.getElementById('cancel-delete-race').addEventListener('click', closeDeleteRaceModal);
-            document.getElementById('confirm-delete-race').addEventListener('click', confirmDeleteRace);
-            document.getElementById('cancel-stop-chrono').addEventListener('click', closeStopChronoModal);
-            document.getElementById('confirm-stop-chrono').addEventListener('click', confirmStopChrono);
-            document.getElementById('cancel-edit-first-lap').addEventListener('click', closeEditFirstLapModal);
-            document.getElementById('confirm-edit-first-lap').addEventListener('click', confirmEditFirstLap);
-            
-            // Nuevos event listeners para edición
-            document.getElementById('cancel-edit-lap-time').addEventListener('click', closeEditLapTimeModal);
-            document.getElementById('confirm-edit-lap-time').addEventListener('click', confirmEditLapTime);
-            document.getElementById('cancel-edit-rider').addEventListener('click', closeEditRiderModal);
-            document.getElementById('confirm-edit-rider').addEventListener('click', confirmEditRider);
-            
-            // Event listeners para el modal de opciones de reanudación
-            document.getElementById('cancel-resume').addEventListener('click', closeResumeOptionsModal);
-            document.getElementById('confirm-resume').addEventListener('click', confirmResume);
-            
-            // Event listeners para las opciones de reanudación
-            document.querySelectorAll('.resume-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    resumeOption = this.getAttribute('data-option');
-                    document.querySelectorAll('.resume-option').forEach(opt => {
-                        opt.classList.remove('active');
-                    });
-                    this.classList.add('active');
-                });
-            });
         }
 
         // Funciones para cargar y gestionar carreras
@@ -3632,6 +3675,61 @@
             URL.revokeObjectURL(url);
         }
 
+        function openHelpFile() {
+            window.open('https://rbenet71.github.io/Web/Crono_80_Ayuda.html', '_blank');
+        }
+
+        function toggleMilliseconds() {
+            showMilliseconds = millisecondsToggle.checked;
+            localStorage.setItem('bttShowMilliseconds', showMilliseconds);
+            updateDisplay();
+            updateLapTimesList();
+            updateWithdrawnList();
+            saveCurrentRace();
+        }
+
+        function setupModalEvents() {
+            document.getElementById('cancel-withdraw').addEventListener('click', closeWithdrawModal);
+            document.getElementById('confirm-withdraw').addEventListener('click', confirmWithdraw);
+            document.getElementById('cancel-dnf').addEventListener('click', closeDnfModal);
+            document.getElementById('confirm-dnf').addEventListener('click', confirmDnf);
+            document.getElementById('cancel-reset').addEventListener('click', closeResetModal);
+            document.getElementById('confirm-reset').addEventListener('click', confirmReset);
+            document.getElementById('cancel-time').addEventListener('click', closeTimeModal);
+            document.getElementById('confirm-time').addEventListener('click', confirmTime);
+            document.getElementById('set-chrono-time').addEventListener('click', setChronoTimeMode);
+            document.getElementById('set-start-time').addEventListener('click', setStartTimeMode);
+            document.getElementById('cancel-new-race').addEventListener('click', closeNewRaceModal);
+            document.getElementById('confirm-new-race').addEventListener('click', confirmNewRace);
+            document.getElementById('cancel-delete-race').addEventListener('click', closeDeleteRaceModal);
+            document.getElementById('confirm-delete-race').addEventListener('click', confirmDeleteRace);
+            document.getElementById('cancel-stop-chrono').addEventListener('click', closeStopChronoModal);
+            document.getElementById('confirm-stop-chrono').addEventListener('click', confirmStopChrono);
+            document.getElementById('cancel-edit-first-lap').addEventListener('click', closeEditFirstLapModal);
+            document.getElementById('confirm-edit-first-lap').addEventListener('click', confirmEditFirstLap);
+            
+            // Nuevos event listeners para edición
+            document.getElementById('cancel-edit-lap-time').addEventListener('click', closeEditLapTimeModal);
+            document.getElementById('confirm-edit-lap-time').addEventListener('click', confirmEditLapTime);
+            document.getElementById('cancel-edit-rider').addEventListener('click', closeEditRiderModal);
+            document.getElementById('confirm-edit-rider').addEventListener('click', confirmEditRider);
+            
+            // Event listeners para el modal de opciones de reanudación
+            document.getElementById('cancel-resume').addEventListener('click', closeResumeOptionsModal);
+            document.getElementById('confirm-resume').addEventListener('click', confirmResume);
+            
+            // Event listeners para las opciones de reanudación
+            document.querySelectorAll('.resume-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    resumeOption = this.getAttribute('data-option');
+                    document.querySelectorAll('.resume-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
+        }
+
         // Función para verificar actualizaciones
         function checkForUpdates() {
             if ('serviceWorker' in navigator) {
@@ -3755,6 +3853,83 @@
 
         // Inicialización final
         document.addEventListener('DOMContentLoaded', function() {
+            // Cargar configuración
+            const savedLanguage = localStorage.getItem('bttLanguage');
+            if (savedLanguage) {
+                currentLanguage = savedLanguage;
+            }
+            
+            const savedMillisecondsSetting = localStorage.getItem('bttShowMilliseconds');
+            if (savedMillisecondsSetting !== null) {
+                showMilliseconds = savedMillisecondsSetting === 'true';
+                millisecondsToggle.checked = showMilliseconds;
+            }
+            
+            // Cargar historial de horas de inicio
+            const savedHistory = localStorage.getItem('bttRaceStartTimesHistory');
+            if (savedHistory) {
+                raceStartTimesHistory = JSON.parse(savedHistory);
+                // Limpiar entradas antiguas (más de 10 días)
+                cleanupOldStartTimes();
+            }
+            
+            loadRaces();
+            updateDisplay();
+            
+            // Cargar la última carrera usada
+            const lastRaceId = localStorage.getItem('bttLastRace');
+            if (lastRaceId && races[lastRaceId]) {
+                loadRace(lastRaceId);
+                raceSelector.value = lastRaceId;
+            } else if (Object.keys(races).length > 0) {
+                // Cargar la primera carrera si existe
+                const firstRaceId = Object.keys(races)[0];
+                loadRace(firstRaceId);
+                raceSelector.value = firstRaceId;
+            } else {
+                // No hay carreras, actualizar estado de botones
+                updateButtonsState();
+            }
+            
+            // Actualizar idioma inicial
+            updateLanguage(currentLanguage);
+            
+            // Inicializar sonidos
+            initSounds();
+            
+            // Inicializar sistema de sugerencias
+            initializeSuggestionsSystem();
+            
+            // Event listeners
+            btnStart.addEventListener('click', toggleChrono);
+            btnSetTime.addEventListener('click', openTimeModal);
+            btnFirst.addEventListener('click', recordLap);
+            btnWithdraw.addEventListener('click', openWithdrawModal);
+            btnDnf.addEventListener('click', openDnfModal);
+            btnReset.addEventListener('click', openResetModal);
+            btnExport.addEventListener('click', exportToExcel);
+            btnNewRace.addEventListener('click', openNewRaceModal);
+            btnDeleteRace.addEventListener('click', openDeleteRaceModal);
+            btnEditFirstLap.addEventListener('click', openEditFirstLapModal);
+            btnHelp.addEventListener('click', openHelpFile);
+            raceSelector.addEventListener('change', function() {
+                loadRace(this.value);
+            });
+            millisecondsToggle.addEventListener('change', toggleMilliseconds);
+            withdrawnTabButton.addEventListener('click', () => switchTab('withdrawn-tab'));
+            lapTimesTabButton.addEventListener('click', () => switchTab('lap-times-tab'));
+            helpIconHeader.addEventListener('click', openHelpFile);
+            chronoDisplay.addEventListener('dblclick', openTimeModal);
+            
+            setupModalEvents();
+            
+            document.querySelectorAll('.flag').forEach(flag => {
+                flag.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    updateLanguage(lang);
+                });
+            });
+            
             // Configurar actualización automática
             setupAutoUpdate();
             
