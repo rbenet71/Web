@@ -47,6 +47,7 @@
             justify-content: center;
             gap: 20px;
             margin: 20px 0;
+            flex-wrap: wrap;
         }
         
         .lang-btn {
@@ -58,6 +59,7 @@
             cursor: pointer;
             transition: all 0.3s;
             font-weight: bold;
+            min-width: 120px;
         }
         
         .lang-btn:hover {
@@ -201,6 +203,41 @@
             transform: translateY(-2px);
         }
         
+        .author-note {
+            background: rgba(41, 128, 185, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border-left: 4px solid #3498db;
+            font-style: italic;
+        }
+        
+        .author-note h4 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .start-methods {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border: 2px solid #3498db;
+        }
+        
+        .start-method {
+            background: rgba(44, 62, 80, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .start-method h4 {
+            color: #f39c12;
+            margin-bottom: 10px;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -233,13 +270,19 @@
                 <button class="lang-btn active" data-lang="es">Español</button>
                 <button class="lang-btn" data-lang="ca">Català</button>
                 <button class="lang-btn" data-lang="en">English</button>
+                <button class="lang-btn" data-lang="fr">Français</button>
             </div>
         </header>
 
         <!-- Contenido Español -->
         <div class="content active" id="content-es">
+            <div class="author-note">
+                <h4>Nota del Autor</h4>
+                <p>Esta aplicación la ha desarrollado Roberto Benet, comisario del comité catalán, para que cualquier árbitro la pueda utilizar en carreras de ciclismo de forma gratuita. Estoy abierto a cualquier tipo de mejora o implementación de nuevas funciones.</p>
+            </div>
+
             <h2>Descripción General</h2>
-            <p>El Cronómetro Control 80% es una herramienta diseñada para carreras de BTT y Ciclo-cross que implementa la regla del 80% para determinar cuándo un corredor debe ser retirado de la competición.</p>
+            <p>El Cronómetro Control 80% es una herramienta profesional diseñada para carreras de BTT y Ciclo-cross que implementa la regla del 80% para determinar cuándo un corredor debe ser retirado de la competición.</p>
 
             <h2>Funcionalidades Principales</h2>
             
@@ -250,15 +293,17 @@
                         <li><strong>Nueva Carrera:</strong> Crear una nueva carrera con nombre personalizado</li>
                         <li><strong>Seleccionar Carrera:</strong> Cambiar entre diferentes carreras guardadas</li>
                         <li><strong>Eliminar Carrera:</strong> Borrar una carrera existente</li>
+                        <li><strong>Persistencia Automática:</strong> Los datos se guardan automáticamente</li>
                     </ul>
                 </div>
                 
                 <div class="feature-card">
                     <h4>Control del Cronómetro</h4>
                     <ul>
-                        <li><strong>Iniciar/Parar:</strong> Controlar el cronómetro principal</li>
+                        <li><strong>Iniciar/Parar:</strong> Controlar el cronómetro principal con opciones de reanudación</li>
                         <li><strong>Fijar Tiempo:</strong> Establecer manualmente la hora de salida o el tiempo actual</li>
                         <li><strong>Reiniciar:</strong> Restablecer completamente el cronómetro y todos los datos</li>
+                        <li><strong>Historial de Horas:</strong> Acceso rápido a horas de inicio anteriores</li>
                     </ul>
                 </div>
                 
@@ -267,6 +312,8 @@
                     <ul>
                         <li><strong>Paso Primer Corredor:</strong> Registrar el tiempo de cada vuelta del líder</li>
                         <li><strong>Vuelta Actual:</strong> Muestra el número de vuelta en curso</li>
+                        <li><strong>Edición de Tiempos:</strong> Modificar tiempos de vueltas registradas</li>
+                        <li><strong>Eliminar Vueltas:</strong> Borrar la última vuelta registrada</li>
                     </ul>
                 </div>
                 
@@ -275,7 +322,35 @@
                     <ul>
                         <li><strong>Retirar Corredor:</strong> Marcar corredores como retirados en la vuelta actual</li>
                         <li><strong>DNF-Retirado:</strong> Marcar corredores como No Finalizaron (vuelta 0)</li>
+                        <li><strong>Edición de Retirados:</strong> Modificar datos de corredores retirados</li>
+                        <li><strong>Ordenación Automática:</strong> Los retirados se ordenan por vuelta y tiempo</li>
                     </ul>
+                </div>
+            </div>
+
+            <h2>TRES FORMAS DE PONER EN MARCHA EL CRONÓMETRO</h2>
+            
+            <div class="start-methods">
+                <div class="start-method">
+                    <h4>1. Pulsando "Iniciar Cronómetro"</h4>
+                    <p><strong>Cuando usar:</strong> Para una carrera que comienza en este momento.</p>
+                    <p><strong>Proceso:</strong> Simplemente pulsa el botón "Iniciar Cronómetro" cuando dé la salida la carrera. El sistema registrará automáticamente la hora actual como hora de inicio.</p>
+                    <p><strong>Ventaja:</strong> La forma más rápida y sencilla de empezar.</p>
+                </div>
+                
+                <div class="start-method">
+                    <h4>2. Fijando el Tiempo del Cronómetro</h4>
+                    <p><strong>Cuando usar:</strong> Cuando necesitas establecer un tiempo específico de cronómetro (ej: 1h 30m 15s).</p>
+                    <p><strong>Proceso:</strong> Pulsa "Fijar Tiempo Crono" y selecciona la opción "Por Hora de Crono". Introduce las horas, minutos y segundos deseados.</p>
+                    <p><strong>Ventaja:</strong> Útil para reanudar una carrera después de una parada o para establecer tiempos específicos.</p>
+                </div>
+                
+                <div class="start-method">
+                    <h4>3. Fijando la Hora de Inicio</h4>
+                    <p><strong>Cuando usar:</strong> Cuando conoces la hora exacta de salida de la carrera.</p>
+                    <p><strong>Proceso:</strong> Pulsa "Fijar Tiempo Crono" y selecciona "Por Hora de Inicio". Introduce la hora exacta de salida. El sistema calculará automáticamente el tiempo transcurrido.</p>
+                    <p><strong>Ventaja:</strong> Perfecto cuando la carrera ya ha comenzado y quieres sincronizar el cronómetro con la hora real de salida.</p>
+                    <p><strong>Extra:</strong> Accede al historial de horas de inicio anteriores para seleccionar rápidamente horas usadas en carreras previas.</p>
                 </div>
             </div>
 
@@ -284,7 +359,7 @@
             <div class="step-box">
                 <span class="step-number">1</span>
                 <strong>Configurar la Carrera</strong>
-                <p>Crear una nueva carrera o seleccionar una existente. Iniciar el cronómetro cuando comience la carrera.</p>
+                <p>Crear una nueva carrera o seleccionar una existente. Escoger una de las tres formas de iniciar el cronómetro según tus necesidades.</p>
             </div>
             
             <div class="step-box">
@@ -308,7 +383,47 @@
             <div class="step-box">
                 <span class="step-number">5</span>
                 <strong>Exportar Resultados</strong>
-                <p>Al finalizar, exportar los datos para análisis posterior.</p>
+                <p>Al finalizar, exportar los datos para análisis posterior en formato CSV compatible con Excel.</p>
+            </div>
+
+            <h2>Funciones del Programa</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Sistema de Sonido</h4>
+                    <ul>
+                        <li><strong>Sonidos de Confirmación:</strong> Feedback auditivo para cada acción</li>
+                        <li><strong>Alarma de Límite:</strong> Sonido especial cuando se alcanza el tiempo límite</li>
+                        <li><strong>Control de Volumen:</strong> Activar/desactivar sonidos según necesidad</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Personalización Visual</h4>
+                    <ul>
+                        <li><strong>Mostrar/Ocultar Milésimas:</strong> Adaptar precisión según necesidades</li>
+                        <li><strong>Cambio de Idioma:</strong> Español, Catalán, Inglés y Francés</li>
+                        <li><strong>Indicador Visual:</strong> Cambio de color al superar el límite</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Opciones de Reanudación</h4>
+                    <ul>
+                        <li><strong>Reanudar desde Original:</strong> Calcula desde hora inicial de carrera</li>
+                        <li><strong>Continuar Tiempo Actual:</strong> Mantiene tiempo al pausar/reanudar</li>
+                        <li><strong>Modal de Elección:</strong> Interfaz intuitiva para seleccionar modo</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Sistema de Sugerencias</h4>
+                    <ul>
+                        <li><strong>Envío de Comentarios:</strong> Formulario integrado para mejoras</li>
+                        <li><strong>Notificaciones de Actualizaciones:</strong> Mantente informado de nuevas versiones</li>
+                        <li><strong>Comunicación Directa:</strong> Contacto directo con el desarrollador</li>
+                    </ul>
+                </div>
             </div>
 
             <h2>Regla del 80%</h2>
@@ -321,17 +436,24 @@
 
             <h2>Características Avanzadas</h2>
             <ul>
-                <li><strong>Edición de Tiempos:</strong> Modificar tiempos de vueltas y corredores retirados</li>
-                <li><strong>Idiomas:</strong> Soporte para Español, Catalán e Inglés</li>
-                <li><strong>Persistencia:</strong> Los datos se guardan automáticamente</li>
-                <li><strong>Responsive:</strong> Funciona en dispositivos móviles y desktop</li>
+                <li><strong>Edición Avanzada:</strong> Modificar tiempos de vueltas y corredores retirados</li>
+                <li><strong>Idiomas:</strong> Soporte completo para Español, Catalán, Inglés y Francés</li>
+                <li><strong>Responsive:</strong> Funciona en dispositivos móvils y desktop</li>
+                <li><strong>Exportación Mejorada:</strong> CSV con todos los datos de la carrera</li>
+                <li><strong>Ordenación Inteligente:</strong> Los retirados se ordenan automáticamente</li>
+                <li><strong>Persistencia Mejorada:</strong> Guardado automático en múltiples situaciones</li>
+                <li><strong>Historial de Horas:</strong> Acceso a horas de inicio de carreras anteriores</li>
             </ul>
 
             <div class="tip-box">
-                <h4>Atajos</h4>
+                <h4>Atajos y Consejos</h4>
                 <ul>
                     <li><strong>Doble clic</strong> en el display del cronómetro: Abrir modal para fijar tiempo</li>
-                    <li><strong>Icono de ayuda:</strong> Acceso rápido a este documento de ayuda</li>
+                    <li><strong>Icono de ayuda (❓):</strong> Acceso rápido a este documento de ayuda</li>
+                    <li><strong>Botón "Actualizaciones/Sugerencias":</strong> Envía tus ideas para mejorar la app</li>
+                    <li><strong>Historial de Horas:</strong> En el modal de tiempo, accede a horas anteriores</li>
+                    <li><strong>Sonido de Alerta:</strong> Escucharás un sonido grave cuando se alcance el límite del 80%</li>
+                    <li><strong>Opciones de Reanudación:</strong> Si paras el cronómetro, al reiniciar te preguntará cómo quieres continuar</li>
                 </ul>
             </div>
 
@@ -365,6 +487,21 @@
                     <li>Funciona sin conexión a internet después de la primera carga</li>
                     <li>Interfaz similar a una aplicación nativa</li>
                     <li>No requiere descarga desde tiendas de aplicaciones</li>
+                    <li>Notificaciones de actualizaciones automáticas</li>
+                </ul>
+            </div>
+
+            <h2>Consejos para Árbitros</h2>
+            <div class="tip-box">
+                <h4>Mejores Prácticas</h4>
+                <ul>
+                    <li>Configurar la carrera con suficiente antelación</li>
+                    <li>Probar el sistema antes de la competición real</li>
+                    <li>Utilizar el historial de horas para carreras con múltiples salidas</li>
+                    <li>Exportar los datos inmediatamente después de cada carrera</li>
+                    <li>Enviar sugerencias si encuentras algo que mejorar</li>
+                    <li>Elegir el método de inicio adecuado según la situación</li>
+                    <li>Utilizar "Fijar Hora de Inicio" para sincronizar con relojes oficiales</li>
                 </ul>
             </div>
 
@@ -373,8 +510,13 @@
 
         <!-- Contenido Català -->
         <div class="content" id="content-ca">
+            <div class="author-note">
+                <h4>Nota de l'Autor</h4>
+                <p>Aquesta aplicació l'ha desenvolupada Roberto Benet, comissari del comitè català, perquè qualsevol àrbitre la pugui utilitzar en curses de ciclisme de forma gratuïta. Estic obert a qualsevol tipus de millora o implementació de noves funcions.</p>
+            </div>
+
             <h2>Descripció General</h2>
-            <p>El Cronòmetre Control 80% és una eina dissenyada per a curses de BTT i Ciclo-cross que implementa la regla del 80% per determinar quan un corredor ha de ser retirat de la competició.</p>
+            <p>El Cronòmetre Control 80% és una eina professional dissenyada per a curses de BTT i Ciclo-cross que implementa la regla del 80% per determinar quan un corredor ha de ser retirat de la competició.</p>
 
             <h2>Funcionalitats Principals</h2>
             
@@ -385,15 +527,17 @@
                         <li><strong>Nova Cursa:</strong> Crear una nova cursa amb nom personalitzat</li>
                         <li><strong>Seleccionar Cursa:</strong> Canviar entre diferents curses guardades</li>
                         <li><strong>Eliminar Cursa:</strong> Esborrar una cursa existent</li>
+                        <li><strong>Persistència Automàtica:</strong> Les dades es guarden automàticament</li>
                     </ul>
                 </div>
                 
                 <div class="feature-card">
                     <h4>Control del Cronòmetre</h4>
                     <ul>
-                        <li><strong>Iniciar/Aturar:</strong> Controlar el cronòmetre principal</li>
+                        <li><strong>Iniciar/Aturar:</strong> Controlar el cronòmetre principal amb opcions de represa</li>
                         <li><strong>Fixar Temps:</strong> Establir manualment l'hora de sortida o el temps actual</li>
                         <li><strong>Reiniciar:</strong> Restablir completament el cronòmetre i totes les dades</li>
+                        <li><strong>Historial d'Hores:</strong> Accés ràpid a hores d'inici anteriors</li>
                     </ul>
                 </div>
                 
@@ -402,6 +546,8 @@
                     <ul>
                         <li><strong>Pas Primer Corredor:</strong> Registrar el temps de cada volta del líder</li>
                         <li><strong>Volta Actual:</strong> Mostra el número de volta en curs</li>
+                        <li><strong>Edició de Temps:</strong> Modificar temps de voltes registrades</li>
+                        <li><strong>Eliminar Voltes:</strong> Esborrar l'última volta registrada</li>
                     </ul>
                 </div>
                 
@@ -410,7 +556,35 @@
                     <ul>
                         <li><strong>Retirar Corredor:</strong> Marcar corredors com a retirats en la volta actual</li>
                         <li><strong>DNF-Retirat:</strong> Marcar corredors com a No Finalitzaren (volta 0)</li>
+                        <li><strong>Edició de Retirats:</strong> Modificar dades de corredors retirats</li>
+                        <li><strong>Ordenació Automàtica:</strong> Els retirats s'ordenen per volta i temps</li>
                     </ul>
+                </div>
+            </div>
+
+            <h2>TRES FORMAS DE POSAR EN MARXA EL CRONÒMETRE</h2>
+            
+            <div class="start-methods">
+                <div class="start-method">
+                    <h4>1. Prement "Iniciar Cronòmetre"</h4>
+                    <p><strong>Quan utilitzar:</strong> Per a una cursa que comença en aquest moment.</p>
+                    <p><strong>Procés:</strong> Simplement prem el botó "Iniciar Cronòmetre" quan doni la sortida la cursa. El sistema registrarà automàticament l'hora actual com a hora d'inici.</p>
+                    <p><strong>Avantatge:</strong> La forma més ràpida i senzilla de començar.</p>
+                </div>
+                
+                <div class="start-method">
+                    <h4>2. Fixant el Temps del Cronòmetre</h4>
+                    <p><strong>Quan utilitzar:</strong> Quan necessites establir un temps específic de cronòmetre (ex: 1h 30m 15s).</p>
+                    <p><strong>Procés:</strong> Prem "Fixar Temps Crono" i selecciona l'opció "Per Hora de Crono". Introdueix les hores, minuts i segons desitjats.</p>
+                    <p><strong>Avantatge:</strong> Útil per reprendre una cursa després d'una aturada o per establir temps específics.</p>
+                </div>
+                
+                <div class="start-method">
+                    <h4>3. Fixant l'Hora d'Inici</h4>
+                    <p><strong>Quan utilitzar:</strong> Quan coneixes l'hora exacta de sortida de la cursa.</p>
+                    <p><strong>Procés:</strong> Prem "Fixar Temps Crono" i selecciona "Per Hora d'Inici". Introdueix l'hora exacta de sortida. El sistema calcularà automàticament el temps transcorregut.</p>
+                    <p><strong>Avantatge:</strong> Perfecte quan la cursa ja ha començat i vols sincronitzar el cronòmetre amb l'hora real de sortida.</p>
+                    <p><strong>Extra:</strong> Accedeix a l'historial d'hores d'inici anteriors per seleccionar ràpidament hores utilitzades en curses prèvies.</p>
                 </div>
             </div>
 
@@ -419,7 +593,7 @@
             <div class="step-box">
                 <span class="step-number">1</span>
                 <strong>Configurar la Cursa</strong>
-                <p>Crear una nova cursa o seleccionar una existent. Iniciar el cronòmetre quan comenci la cursa.</p>
+                <p>Crear una nova cursa o seleccionar una existent. Escollir una de les tres formes d'iniciar el cronòmetre segons les teves necessitats.</p>
             </div>
             
             <div class="step-box">
@@ -443,7 +617,47 @@
             <div class="step-box">
                 <span class="step-number">5</span>
                 <strong>Exportar Resultats</strong>
-                <p>Al finalitzar, exportar les dades per a anàlisi posterior.</p>
+                <p>Al finalitzar, exportar les dades per a anàlisi posterior en format CSV compatible amb Excel.</p>
+            </div>
+
+            <h2>Funcions del Programa</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Sistema de So</h4>
+                    <ul>
+                        <li><strong>Sons de Confirmació:</strong> Feedback auditiu per a cada acció</li>
+                        <li><strong>Alarma de Límit:</strong> So especial quan s'aconsegueix el temps límit</li>
+                        <li><strong>Control de Volum:</strong> Activar/desactivar sons segons necessitat</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Personalització Visual</h4>
+                    <ul>
+                        <li><strong>Mostrar/Amagar Mil·lèsimes:</strong> Adaptar precisió segons necessitats</li>
+                        <li><strong>Canvi d'Idioma:</strong> Espanyol, Català, Anglès i Francès</li>
+                        <li><strong>Indicador Visual:</strong> Canvi de color en superar el límit</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Opcions de Represa</h4>
+                    <ul>
+                        <li><strong>Reprendre des d'Original:</strong> Calcula des de hora inicial de cursa</li>
+                        <li><strong>Continuar Temps Actual:</strong> Manté temps en pausar/reprendre</li>
+                        <li><strong>Modal d'Elecció:</strong> Interfície intuïtiva per seleccionar mode</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Sistema de Suggeriments</h4>
+                    <ul>
+                        <li><strong>Enviament de Comentaris:</strong> Formulari integrat per a millores</li>
+                        <li><strong>Notificacions d'Actualitzacions:</strong> Mantingues informat de noves versions</li>
+                        <li><strong>Comunicació Directa:</strong> Contacte directe amb el desenvolupador</li>
+                    </ul>
+                </div>
             </div>
 
             <h2>Regla del 80%</h2>
@@ -456,17 +670,24 @@
 
             <h2>Característiques Avançades</h2>
             <ul>
-                <li><strong>Edició de Temps:</strong> Modificar temps de voltes i corredors retirats</li>
-                <li><strong>Idiomes:</strong> Suport per a Espanyol, Català i Anglès</li>
-                <li><strong>Persistència:</strong> Les dades es guarden automàticament</li>
+                <li><strong>Edició Avançada:</strong> Modificar temps de voltes i corredors retirats</li>
+                <li><strong>Idiomes:</strong> Suport complet per a Espanyol, Català, Anglès i Francès</li>
                 <li><strong>Responsive:</strong> Funciona en dispositius mòbils i desktop</li>
+                <li><strong>Exportació Millorada:</strong> CSV amb totes les dades de la cursa</li>
+                <li><strong>Ordenació Intel·ligent:</strong> Els retirats s'ordenen automàticament</li>
+                <li><strong>Persistència Millorada:</strong> Guardat automàtic en múltiples situacions</li>
+                <li><strong>Historial d'Hores:</strong> Accés a hores d'inici de curses anteriors</li>
             </ul>
 
             <div class="tip-box">
-                <h4>Dreceres</h4>
+                <h4>Dreceres i Consells</h4>
                 <ul>
                     <li><strong>Doble clic</strong> en el display del cronòmetre: Obrir modal per a fixar temps</li>
-                    <li><strong>Icona d'ajuda:</strong> Accés ràpid a aquest document d'ajuda</li>
+                    <li><strong>Icona d'ajuda (❓):</strong> Accés ràpid a aquest document d'ajuda</li>
+                    <li><strong>Botó "Actualitzacions/Suggeriments":</strong> Envia les teves idees per millorar l'app</li>
+                    <li><strong>Historial d'Hores:</strong> En el modal de temps, accedeix a hores anteriors</li>
+                    <li><strong>So d'Alerta:</strong> Escoltaràs un so greu quan s'aconsegueixi el límit del 80%</li>
+                    <li><strong>Opcions de Represa:</strong> Si atures el cronòmetre, en reiniciar et preguntarà com vols continuar</li>
                 </ul>
             </div>
 
@@ -500,6 +721,21 @@
                     <li>Funciona sense connexió a internet després de la primera càrrega</li>
                     <li>Interfície similar a una aplicació nativa</li>
                     <li>No requereix descàrrega des de botigues d'aplicacions</li>
+                    <li>Notificacions d'actualitzacions automàtiques</li>
+                </ul>
+            </div>
+
+            <h2>Consells per a Àrbitres</h2>
+            <div class="tip-box">
+                <h4>Millors Pràctiques</h4>
+                <ul>
+                    <li>Configurar la cursa amb suficient antelació</li>
+                    <li>Provar el sistema abans de la competició real</li>
+                    <li>Utilitzar l'historial d'hores per a curses amb múltiples sortides</li>
+                    <li>Exportar les dades immediatament després de cada cursa</li>
+                    <li>Enviar suggeriments si trobes alguna cosa a millorar</li>
+                    <li>Escollir el mètode d'inici adequat segons la situació</li>
+                    <li>Utilitzar "Fixar Hora d'Inici" per sincronitzar amb rellotges oficials</li>
                 </ul>
             </div>
 
@@ -508,8 +744,13 @@
 
         <!-- Contenido English -->
         <div class="content" id="content-en">
+            <div class="author-note">
+                <h4>Author's Note</h4>
+                <p>This application has been developed by Roberto Benet, commissioner of the Catalan committee, so that any referee can use it in cycling races for free. I'm open to any type of improvement or implementation of new features.</p>
+            </div>
+
             <h2>General Description</h2>
-            <p>The Stopwatch 80% Control is a tool designed for MTB and Cyclo-cross races that implements the 80% rule to determine when a rider should be withdrawn from the competition.</p>
+            <p>The Stopwatch 80% Control is a professional tool designed for MTB and Cyclo-cross races that implements the 80% rule to determine when a rider should be withdrawn from the competition.</p>
 
             <h2>Main Features</h2>
             
@@ -520,32 +761,64 @@
                         <li><strong>New Race:</strong> Create a new race with custom name</li>
                         <li><strong>Select Race:</strong> Switch between different saved races</li>
                         <li><strong>Delete Race:</strong> Delete an existing race</li>
+                        <li><strong>Automatic Persistence:</strong> Data is automatically saved</li>
                     </ul>
                 </div>
                 
                 <div class="feature-card">
                     <h4>Stopwatch Control</h4>
                     <ul>
-                        <li><strong>Start/Stop:</strong> Control the main stopwatch</li>
+                        <li><strong>Start/Stop:</strong> Control main stopwatch with resume options</li>
                         <li><strong>Set Time:</strong> Manually set start time or current time</li>
-                        <li><strong>Reset:</strong> Completely reset the stopwatch and all data</li>
+                        <li><strong>Reset:</strong> Completely reset stopwatch and all data</li>
+                        <li><strong>Time History:</strong> Quick access to previous start times</li>
                     </ul>
                 </div>
                 
                 <div class="feature-card">
                     <h4>Lap Recording</h4>
                     <ul>
-                        <li><strong>First Rider Pass:</strong> Record the time of each lap by the leader</li>
-                        <li><strong>Current Lap:</strong> Shows the current lap number</li>
+                        <li><strong>First Rider Pass:</strong> Record time of each lap by the leader</li>
+                        <li><strong>Current Lap:</strong> Shows current lap number</li>
+                        <li><strong>Time Editing:</strong> Modify recorded lap times</li>
+                        <li><strong>Delete Laps:</strong> Remove last recorded lap</li>
                     </ul>
                 </div>
                 
                 <div class="feature-card">
                     <h4>Rider Control</h4>
                     <ul>
-                        <li><strong>Withdraw Rider:</strong> Mark riders as withdrawn in the current lap</li>
+                        <li><strong>Withdraw Rider:</strong> Mark riders as withdrawn in current lap</li>
                         <li><strong>DNF-Withdrawn:</strong> Mark riders as Did Not Finish (lap 0)</li>
+                        <li><strong>Editing Withdrawn:</strong> Modify data of withdrawn riders</li>
+                        <li><strong>Automatic Sorting:</strong> Withdrawn riders sorted by lap and time</li>
                     </ul>
+                </div>
+            </div>
+
+            <h2>THREE WAYS TO START THE STOPWATCH</h2>
+            
+            <div class="start-methods">
+                <div class="start-method">
+                    <h4>1. Pressing "Start Stopwatch"</h4>
+                    <p><strong>When to use:</strong> For a race starting right now.</p>
+                    <p><strong>Process:</strong> Simply press the "Start Stopwatch" button when the race starts. The system will automatically record the current time as start time.</p>
+                    <p><strong>Advantage:</strong> The fastest and simplest way to start.</p>
+                </div>
+                
+                <div class="start-method">
+                    <h4>2. Setting Stopwatch Time</h4>
+                    <p><strong>When to use:</strong> When you need to set a specific stopwatch time (eg: 1h 30m 15s).</p>
+                    <p><strong>Process:</strong> Press "Set Stopwatch Time" and select "By Stopwatch Time" option. Enter desired hours, minutes and seconds.</p>
+                    <p><strong>Advantage:</strong> Useful to resume a race after a stop or to set specific times.</p>
+                </div>
+                
+                <div class="start-method">
+                    <h4>3. Setting Start Time</h4>
+                    <p><strong>When to use:</strong> When you know the exact race start time.</p>
+                    <p><strong>Process:</strong> Press "Set Stopwatch Time" and select "By Start Time". Enter exact start time. System will automatically calculate elapsed time.</p>
+                    <p><strong>Advantage:</strong> Perfect when race has already started and you want to sync stopwatch with actual start time.</p>
+                    <p><strong>Extra:</strong> Access previous start times history to quickly select times used in previous races.</p>
                 </div>
             </div>
 
@@ -554,35 +827,75 @@
             <div class="step-box">
                 <span class="step-number">1</span>
                 <strong>Set Up the Race</strong>
-                <p>Create a new race or select an existing one. Start the stopwatch when the race begins.</p>
+                <p>Create a new race or select an existing one. Choose one of the three ways to start the stopwatch according to your needs.</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">2</span>
                 <strong>Record First Lap</strong>
-                <p>Press "First Rider Pass" when the leader completes the first lap. This time sets the base for the 80% calculation.</p>
+                <p>Press "First Rider Pass" when leader completes first lap. This time sets the base for 80% calculation.</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">3</span>
                 <strong>Continuous Tracking</strong>
-                <p>Record each subsequent lap by the leader. The system automatically calculates the cutoff time for each lap.</p>
+                <p>Record each subsequent lap by leader. System automatically calculates cutoff time for each lap.</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">4</span>
                 <strong>Withdrawn Riders Control</strong>
-                <p>Use "Withdraw Rider" for riders who abandon during the race. Use "DNF-Withdrawn" for riders who do not finish.</p>
+                <p>Use "Withdraw Rider" for riders who abandon during race. Use "DNF-Withdrawn" for riders who do not finish.</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">5</span>
                 <strong>Export Results</strong>
-                <p>When finished, export data for later analysis.</p>
+                <p>When finished, export data for later analysis in CSV format compatible with Excel.</p>
+            </div>
+
+            <h2>Program Features</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Sound System</h4>
+                    <ul>
+                        <li><strong>Confirmation Sounds:</strong> Audio feedback for each action</li>
+                        <li><strong>Limit Alarm:</strong> Special sound when cutoff time is reached</li>
+                        <li><strong>Volume Control:</strong> Activate/deactivate sounds as needed</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Visual Customization</h4>
+                    <ul>
+                        <li><strong>Show/Hide Milliseconds:</strong> Adjust precision as needed</li>
+                        <li><strong>Language Change:</strong> Spanish, Catalan, English and French</li>
+                        <li><strong>Visual Indicator:</strong> Color change when exceeding limit</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Resume Options</h4>
+                    <ul>
+                        <li><strong>Resume from Original:</strong> Calculate from initial race time</li>
+                        <li><strong>Continue Current Time:</strong> Maintain time when pausing/resuming</li>
+                        <li><strong>Choice Modal:</strong> Intuitive interface to select mode</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Suggestion System</h4>
+                    <ul>
+                        <li><strong>Feedback Submission:</strong> Integrated form for improvements</li>
+                        <li><strong>Update Notifications:</strong> Stay informed about new versions</li>
+                        <li><strong>Direct Communication:</strong> Direct contact with developer</li>
+                    </ul>
+                </div>
             </div>
 
             <h2>80% Rule</h2>
-            <p>The system calculates the cutoff time for each lap by adding:</p>
+            <p>The system calculates cutoff time for each lap by adding:</p>
             <ul>
                 <li>Time of the last recorded lap by the leader</li>
                 <li>80% of the first lap time</li>
@@ -591,17 +904,24 @@
 
             <h2>Advanced Features</h2>
             <ul>
-                <li><strong>Time Editing:</strong> Modify lap times and withdrawn riders' times</li>
-                <li><strong>Languages:</strong> Support for Spanish, Catalan and English</li>
-                <li><strong>Persistence:</strong> Data is automatically saved</li>
+                <li><strong>Advanced Editing:</strong> Modify lap times and withdrawn riders' times</li>
+                <li><strong>Languages:</strong> Full support for Spanish, Catalan, English and French</li>
                 <li><strong>Responsive:</strong> Works on mobile devices and desktop</li>
+                <li><strong>Improved Export:</strong> CSV with all race data</li>
+                <li><strong>Smart Sorting:</strong> Withdrawn riders sorted automatically</li>
+                <li><strong>Enhanced Persistence:</strong> Automatic saving in multiple situations</li>
+                <li><strong>Time History:</strong> Access to start times from previous races</li>
             </ul>
 
             <div class="tip-box">
-                <h4>Shortcuts</h4>
+                <h4>Shortcuts and Tips</h4>
                 <ul>
-                    <li><strong>Double click</strong> on the stopwatch display: Open modal to set time</li>
-                    <li><strong>Help icon:</strong> Quick access to this help document</li>
+                    <li><strong>Double click</strong> on stopwatch display: Open modal to set time</li>
+                    <li><strong>Help icon (❓):</strong> Quick access to this help document</li>
+                    <li><strong>"Updates/Suggestions" button:</strong> Send your ideas to improve app</li>
+                    <li><strong>Time History:</strong> In time modal, access previous times</li>
+                    <li><strong>Alert Sound:</strong> You'll hear a deep sound when 80% limit is reached</li>
+                    <li><strong>Resume Options:</strong> If you stop stopwatch, when restarting it will ask how you want to continue</li>
                 </ul>
             </div>
 
@@ -610,22 +930,22 @@
                 <div class="platform">
                     <h4>For iPhone/iOS:</h4>
                     <ol>
-                        <li>Open Safari and navigate to the stopwatch page</li>
-                        <li>Tap the share icon (square with upward arrow)</li>
+                        <li>Open Safari and navigate to stopwatch page</li>
+                        <li>Tap share icon (square with upward arrow)</li>
                         <li>Scroll down and select "Add to Home Screen"</li>
-                        <li>Customize the name if desired and tap "Add"</li>
-                        <li>The app will appear on the home screen like a native app</li>
+                        <li>Customize name if desired and tap "Add"</li>
+                        <li>App will appear on home screen like native app</li>
                     </ol>
                 </div>
                 
                 <div class="platform">
                     <h4>For Android:</h4>
                     <ol>
-                        <li>Open Chrome and navigate to the stopwatch page</li>
-                        <li>Tap the three-dot menu in the upper right corner</li>
+                        <li>Open Chrome and navigate to stopwatch page</li>
+                        <li>Tap three-dot menu in upper right corner</li>
                         <li>Select "Add to Home Screen"</li>
-                        <li>Customize the name if desired and tap "Add"</li>
-                        <li>The app will appear on the home screen like a native app</li>
+                        <li>Customize name if desired and tap "Add"</li>
+                        <li>App will appear on home screen like native app</li>
                     </ol>
                 </div>
                 
@@ -635,10 +955,259 @@
                     <li>Works offline after first load</li>
                     <li>Interface similar to native app</li>
                     <li>No download required from app stores</li>
+                    <li>Automatic update notifications</li>
+                </ul>
+            </div>
+
+            <h2>Tips for Referees</h2>
+            <div class="tip-box">
+                <h4>Best Practices</h4>
+                <ul>
+                    <li>Set up race with sufficient advance</li>
+                    <li>Test system before actual competition</li>
+                    <li>Use time history for races with multiple starts</li>
+                    <li>Export data immediately after each race</li>
+                    <li>Send suggestions if you find something to improve</li>
+                    <li>Choose appropriate start method according to situation</li>
+                    <li>Use "Set Start Time" to sync with official clocks</li>
                 </ul>
             </div>
 
             <a href="Crono_80.html" class="back-button">Back to Stopwatch</a>
+        </div>
+
+        <!-- Contenido Français -->
+        <div class="content" id="content-fr">
+            <div class="author-note">
+                <h4>Note de l'Auteur</h4>
+                <p>Cette application a été développée par Roberto Benet, commissaire du comité catalan, pour que tout arbitre puisse l'utiliser dans les courses de cyclisme gratuitement. Je suis ouvert à tout type d'amélioration ou d'implémentation de nouvelles fonctionnalités.</p>
+            </div>
+
+            <h2>Description Générale</h2>
+            <p>Le Chronomètre Contrôle 80% est un outil professionnel conçu pour les courses de VTT et de Cyclo-cross qui met en œuvre la règle des 80% pour déterminer quand un coureur doit être retiré de la compétition.</p>
+
+            <h2>Fonctionnalités Principales</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Gestion des Courses</h4>
+                    <ul>
+                        <li><strong>Nouvelle Course:</strong> Créer une nouvelle course avec nom personnalisé</li>
+                        <li><strong>Sélectionner Course:</strong> Changer entre différentes courses sauvegardées</li>
+                        <li><strong>Supprimer Course:</strong> Effacer une course existante</li>
+                        <li><strong>Persistance Automatique:</strong> Les données sont automatiquement sauvegardées</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Contrôle du Chronomètre</h4>
+                    <ul>
+                        <li><strong>Démarrer/Arrêter:</strong> Contrôler le chronomètre principal avec options de reprise</li>
+                        <li><strong>Fixer le Temps:</strong> Définir manuellement l'heure de départ ou le temps actuel</li>
+                        <li><strong>Réinitialiser:</strong> Réinitialiser complètement le chronomètre et toutes les données</li>
+                        <li><strong>Historique des Heures:</strong> Accès rapide aux heures de départ précédentes</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Enregistrement des Tours</h4>
+                    <ul>
+                        <li><strong>Passage Premier Coureur:</strong> Enregistrer le temps de chaque tour du leader</li>
+                        <li><strong>Tour Actuel:</strong> Affiche le numéro du tour en cours</li>
+                        <li><strong>Édition des Temps:</strong> Modifier les temps des tours enregistrés</li>
+                        <li><strong>Supprimer les Tours:</strong> Effacer le dernier tour enregistré</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Contrôle des Coureurs</h4>
+                    <ul>
+                        <li><strong>Retirer Coureur:</strong> Marquer les coureurs comme retirés dans le tour actuel</li>
+                        <li><strong>DNF-Retiré:</strong> Marquer les coureurs comme N'ont Pas Terminé (tour 0)</li>
+                        <li><strong>Édition des Retirés:</strong> Modifier les données des coureurs retirés</li>
+                        <li><strong>Tri Automatique:</strong> Les retirés sont triés par tour et temps</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>TROIS FAÇONS DE DÉMARRER LE CHRONOMÈTRE</h2>
+            
+            <div class="start-methods">
+                <div class="start-method">
+                    <h4>1. En Appuyant sur "Démarrer Chronomètre"</h4>
+                    <p><strong>Quand l'utiliser:</strong> Pour une course qui commence maintenant.</p>
+                    <p><strong>Processus:</strong> Appuyez simplement sur le bouton "Démarrer Chronomètre" lorsque la course démarre. Le système enregistrera automatiquement l'heure actuelle comme heure de départ.</p>
+                    <p><strong>Avantage:</strong> La manière la plus rapide et simple de commencer.</p>
+                </div>
+                
+                <div class="start-method">
+                    <h4>2. En Fixant le Temps du Chronomètre</h4>
+                    <p><strong>Quand l'utiliser:</strong> Lorsque vous devez définir un temps spécifique du chronomètre (ex: 1h 30m 15s).</p>
+                    <p><strong>Processus:</strong> Appuyez sur "Fixer Temps Chrono" et sélectionnez l'option "Par Heure de Chrono". Entrez les heures, minutes et secondes souhaitées.</p>
+                    <p><strong>Avantage:</strong> Utile pour reprendre une course après un arrêt ou pour définir des temps spécifiques.</p>
+                </div>
+                
+                <div class="start-method">
+                    <h4>3. En Fixant l'Heure de Départ</h4>
+                    <p><strong>Quand l'utiliser:</strong> Lorsque vous connaissez l'heure exacte de départ de la course.</p>
+                    <p><strong>Processus:</strong> Appuyez sur "Fixer Temps Chrono" et sélectionnez "Par Heure de Départ". Entrez l'heure exacte de départ. Le système calculera automatiquement le temps écoulé.</p>
+                    <p><strong>Avantage:</strong> Parfait lorsque la course a déjà commencé et que vous voulez synchroniser le chronomètre avec l'heure réelle de départ.</p>
+                    <p><strong>Extra:</strong> Accédez à l'historique des heures de départ précédentes pour sélectionner rapidement les heures utilisées dans les courses précédentes.</p>
+                </div>
+            </div>
+
+            <h2>Comment Utiliser</h2>
+            
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Configurer la Course</strong>
+                <p>Créer une nouvelle course ou sélectionner une existante. Choisissez l'une des trois façons de démarrer le chronomètre selon vos besoins.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Enregistrer le Premier Tour</strong>
+                <p>Appuyer sur "Passage Premier Coureur" lorsque le leader termine le premier tour. Ce temps établit la base pour le calcul des 80%.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Suivi Continu</strong>
+                <p>Enregistrer chaque tour subséquent du leader. Le système calcule automatiquement le temps limite pour chaque tour.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Contrôle des Retirés</strong>
+                <p>Utiliser "Retirer Coureur" pour les coureurs qui abandonnent pendant la course. Utiliser "DNF-Retiré" pour les coureurs qui ne terminent pas.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
+                <strong>Exporter les Résultats</strong>
+                <p>À la fin, exporter les données pour analyse ultérieure au format CSV compatible avec Excel.</p>
+            </div>
+
+            <h2>Fonctions du Programme</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Système Sonore</h4>
+                    <ul>
+                        <li><strong>Sons de Confirmation:</strong> Retour audio pour chaque action</li>
+                        <li><strong>Alarme de Limite:</strong> Son spécial lorsque la limite de temps est atteinte</li>
+                        <li><strong>Contrôle du Volume:</strong> Activer/désactiver les sons selon les besoins</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Personnalisation Visuelle</h4>
+                    <ul>
+                        <li><strong>Afficher/Masquer les Millisecondes:</strong> Ajuster la précision selon les besoins</li>
+                        <li><strong>Changement de Langue:</strong> Espagnol, Catalan, Anglais et Français</li>
+                        <li><strong>Indicateur Visuel:</strong> Changement de couleur lors du dépassement de la limite</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Options de Reprise</h4>
+                    <ul>
+                        <li><strong>Reprendre depuis l'Original:</strong> Calcule depuis l'heure initiale de la course</li>
+                        <li><strong>Continuer le Temps Actuel:</strong> Maintient le temps lors de la pause/reprise</li>
+                        <li><strong>Modal de Choix:</strong> Interface intuitive pour sélectionner le mode</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Système de Suggestions</h4>
+                    <ul>
+                        <li><strong>Envoi de Commentaires:</strong> Formulaire intégré pour les améliorations</li>
+                        <li><strong>Notifications de Mises à Jour:</strong> Restez informé des nouvelles versions</li>
+                        <li><strong>Communication Directe:</strong> Contact direct avec le développeur</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Règle des 80%</h2>
+            <p>Le système calcule le temps limite pour chaque tour en ajoutant:</p>
+            <ul>
+                <li>Temps du dernier tour enregistré du leader</li>
+                <li>80% du temps du premier tour</li>
+            </ul>
+            <p>Lorsqu'un coureur dépasse ce temps limite, il doit être retiré de la compétition.</p>
+
+            <h2>Caractéristiques Avancées</h2>
+            <ul>
+                <li><strong>Édition Avancée:</strong> Modifier les temps des tours et des coureurs retirés</li>
+                <li><strong>Langues:</strong> Support complet pour l'Espagnol, le Catalan, l'Anglais et le Français</li>
+                <li><strong>Responsive:</strong> Fonctionne sur appareils mobiles et desktop</li>
+                <li><strong>Exportation Améliorée:</strong> CSV avec toutes les données de la course</li>
+                <li><strong>Tri Intelligent:</strong> Les retirés sont triés automatiquement</li>
+                <li><strong>Persistance Améliorée:</strong> Sauvegarde automatique dans multiples situations</li>
+                <li><strong>Historique des Heures:</strong> Accès aux heures de départ des courses précédentes</li>
+            </ul>
+
+            <div class="tip-box">
+                <h4>Raccourcis et Conseils</h4>
+                <ul>
+                    <li><strong>Double clic</strong> sur l'affichage du chronomètre: Ouvrir le modal pour fixer le temps</li>
+                    <li><strong>Icône d'aide (❓):</strong> Accès rapide à ce document d'aide</li>
+                    <li><strong>Bouton "Mises à Jour/Suggestions":</strong> Envoyez vos idées pour améliorer l'app</li>
+                    <li><strong>Historique des Heures:</strong> Dans le modal de temps, accédez aux heures précédentes</li>
+                    <li><strong>Son d'Alerte:</strong> Vous entendrez un son grave lorsque la limite des 80% est atteinte</li>
+                    <li><strong>Options de Reprise:</strong> Si vous arrêtez le chronomètre, au redémarrage il vous demandera comment vous voulez continuer</li>
+                </ul>
+            </div>
+
+            <h2>Installation comme Application Mobile</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>Pour iPhone/iOS:</h4>
+                    <ol>
+                        <li>Ouvrir Safari et naviguer vers la page du chronomètre</li>
+                        <li>Toucher l'icône de partage (carré avec flèche vers le haut)</li>
+                        <li>Défiler vers le bas et sélectionner "Ajouter à l'écran d'accueil"</li>
+                        <li>Personnaliser le nom si désiré et toucher "Ajouter"</li>
+                        <li>L'app apparaîtra sur l'écran d'accueil comme une application native</li>
+                    </ol>
+                </div>
+                
+                <div class="platform">
+                    <h4>Pour Android:</h4>
+                    <ol>
+                        <li>Ouvrir Chrome et naviguer vers la page du chronomètre</li>
+                        <li>Toucher le menu à trois points dans le coin supérieur droit</li>
+                        <li>Sélectionner "Ajouter à l'écran d'accueil"</li>
+                        <li>Personnaliser le nom si désiré et toucher "Ajouter"</li>
+                        <li>L'app apparaîtra sur l'écran d'accueil comme une application native</li>
+                    </ol>
+                </div>
+                
+                <h3>Avantages de l'installer comme Application:</h3>
+                <ul>
+                    <li>Accès rapide directement depuis l'écran d'accueil</li>
+                    <li>Fonctionne sans connexion internet après le premier chargement</li>
+                    <li>Interface similaire à une application native</li>
+                    <li>Aucun téléchargement requis depuis les magasins d'applications</li>
+                    <li>Notifications automatiques des mises à jour</li>
+                </ul>
+            </div>
+
+            <h2>Conseils pour les Arbitres</h2>
+            <div class="tip-box">
+                <h4>Meilleures Pratiques</h4>
+                <ul>
+                    <li>Configurer la course avec suffisamment d'avance</li>
+                    <li>Tester le système avant la compétition réelle</li>
+                    <li>Utiliser l'historique des heures pour les courses avec départs multiples</li>
+                    <li>Exporter les données immédiatement après chaque course</li>
+                    <li>Envoyer des suggestions si vous trouvez quelque chose à améliorer</li>
+                    <li>Choisir la méthode de démarrage appropriée selon la situation</li>
+                    <li>Utiliser "Fixer l'Heure de Départ" pour synchroniser avec les horloges officielles</li>
+                </ul>
+            </div>
+
+            <a href="Crono_80.html" class="back-button">Retour au Chronomètre</a>
         </div>
     </div>
 
@@ -651,7 +1220,8 @@
             const titles = {
                 'es': 'Ayuda Cronómetro Control 80%',
                 'ca': 'Ajuda Cronòmetre Control 80%',
-                'en': 'Stopwatch 80% Control Help'
+                'en': 'Stopwatch 80% Control Help',
+                'fr': 'Aide Chronomètre Contrôle 80%'
             };
             
             langButtons.forEach(button => {

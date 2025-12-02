@@ -33,6 +33,22 @@ G — Tema claro / oscuro con cambio automático
 Calculo Promedio
 CAlculo numero de vueltas
 
-Poner el texto de si estamos en modo decimal o tiempo en la parte superior izquierda del display en letra pequeña
+debajo del tipo de modo quiero añadir dos botones:
 
----------------------
+Calculo promedio, le preguntamos al usuario los km y el tiempo hacemos la division y mostramos el promedio km/h
+
+Calculo Número de Vueltas, preguntamos tiempo por vuelta y tiempo objetivo, y debemos saber cuantas vueltas han de dar para llegar a ese tiempo, si la division da decimal, por encima de .5 subimos una vuelta
+
+
+quiero que en calculadora de tiempos Aprovechar de crono_80 la forma de aplicar/planteamiento:
+
+varios idiomas
+el copyright
+el boton ayuda https://rbenet71.github.io/Web/Calculadora_Tiempos_Ayuda.txt 
+contador de visitas
+
+Al lado de ayuda quiero un boton que se llame Actualizaciones y lo que quiero conseguir es que el usuario me envie un email con comentarios.
+Deberiamos informarle que si quiere estar informado de las actualizaciones de la aplicación nos deje su email yy sus comentarios.
+Lo ideal es que automaticamente se me enviase un email a rbenet71@gmail.com con el titulo Actualizaciones Calculadora de Tiempos y en el cuerpo los comentarios de la persona.
+
+-----------
