@@ -81,10 +81,61 @@
         header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             margin-bottom: 20px;
             padding-bottom: 15px;
             border-bottom: 1px solid #34495e;
+            flex-wrap: wrap;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .app-icon-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: contain;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: 2px solid var(--secondary-color);
+        }
+        
+        .header-titles {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        
+        .app-main-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .languages-section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+            margin-left: 20px;
+        }
+        
+        .languages-label {
+            font-size: 0.9rem;
+            color: #95a5a6;
+            font-weight: 500;
         }
         
         .language-selector {
@@ -94,17 +145,25 @@
         }
         
         .flag {
-            width: 25px;
-            height: 17px;
+            width: 30px;
+            height: 20px;
             cursor: pointer;
             opacity: 0.6;
-            transition: opacity 0.3s;
+            transition: all 0.3s;
             border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        
+        .flag:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
         }
         
         .flag.active {
             opacity: 1;
             border: 2px solid var(--secondary-color);
+            transform: scale(1.1);
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
         }
         
         .flag-catalunya {
@@ -127,8 +186,9 @@
             font-size: 1.2rem;
             cursor: pointer;
             color: var(--secondary-color);
-            margin-left: 10px;
+            margin-left: 15px;
             transition: all 0.3s;
+            align-self: center;
         }
         
         .help-icon:hover {
@@ -812,17 +872,81 @@
             .parameter-group label {
                 min-width: auto;
             }
+            
+            header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .header-left {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                min-width: auto;
+            }
+            
+            .app-icon {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .app-main-title {
+                font-size: 1.5rem;
+            }
+            
+            .languages-section {
+                margin-left: 0;
+                align-items: center;
+            }
+            
+            .language-selector {
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .app-icon {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .app-main-title {
+                font-size: 1.3rem;
+            }
+            
+            .languages-label {
+                font-size: 0.8rem;
+            }
+            
+            .flag {
+                width: 25px;
+                height: 17px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1 id="app-title">Cronómetro para Llegadas</h1>
-            <div class="language-selector">
-                <img src="https://flagcdn.com/w40/es.png" class="flag active" id="flag-es" data-lang="es">
-                <div class="flag flag-catalunya" id="flag-ca" data-lang="ca"></div>
-                <img src="https://flagcdn.com/w40/gb.png" class="flag" id="flag-en" data-lang="en">
+            <div class="header-left">
+                <div class="app-icon-container">
+                    <img src="https://rbenet71.github.io/Web/Crono_Llegadas_512x512.png" alt="Cronómetro para Llegadas" class="app-icon">
+                </div>
+                <div class="header-titles">
+                    <h1 class="app-main-title" id="app-title">Cronómetro para Llegadas</h1>
+                </div>
+            </div>
+            
+            <div class="languages-section">
+                <div class="languages-label">Idioma / Language</div>
+                <div class="language-selector">
+                    <img src="https://flagcdn.com/w40/es.png" class="flag active" id="flag-es" data-lang="es">
+                    <div class="flag flag-catalunya" id="flag-ca" data-lang="ca"></div>
+                    <img src="https://flagcdn.com/w40/gb.png" class="flag" id="flag-en" data-lang="en">
+                    <img src="https://flagcdn.com/w40/fr.png" class="flag" id="flag-fr" data-lang="fr">
+                </div>
                 <span class="help-icon" id="help-icon-header" title="Ayuda">❓</span>
             </div>
         </header>
@@ -1007,6 +1131,7 @@
         const translations = {
             es: {
                 appTitle: "Cronómetro para Llegadas",
+                languagesLabel: "Idioma / Language",
                 startButton: "⏵ Iniciar",
                 stopButton: "⏸ Pausar",
                 continueButton: "⏵ Continuar",
@@ -1057,6 +1182,7 @@
             },
             ca: {
                 appTitle: "Cronòmetre per Arribades",
+                languagesLabel: "Idioma / Language",
                 startButton: "⏵ Iniciar",
                 stopButton: "⏸ Pausar",
                 continueButton: "⏵ Continuar",
@@ -1107,6 +1233,7 @@
             },
             en: {
                 appTitle: "Finish Line Stopwatch",
+                languagesLabel: "Idioma / Language",
                 startButton: "⏵ Start",
                 stopButton: "⏸ Pause",
                 continueButton: "⏵ Continue",
@@ -1154,6 +1281,57 @@
                 enterEmail: "Enter your email",
                 enterCity: "Write your city",
                 cityExamples: "Madrid, Barcelona, Valencia, etc."
+            },
+            fr: {
+                appTitle: "Chronomètre d'Arrivée",
+                languagesLabel: "Idioma / Language",
+                startButton: "⏵ Démarrer",
+                stopButton: "⏸ Pause",
+                continueButton: "⏵ Continuer",
+                resetButton: "🔄 Réinitialiser",
+                lapButton: "⏱ Tour",
+                helpButton: "Aide",
+                exportCutsButton: "💾 Exporter Tours (CSV)",
+                exportDorsalsButton: "💾 Exporter Dossards (CSV)",
+                setStartTimeButton: "Définir",
+                setTimeButton: "Appliquer temps",
+                startTimeLabel: "Heure de départ:",
+                timeLabel: "Temps du chronomètre (hh:mm:ss):",
+                startTimeDisplay: "Heure de départ:",
+                notSet: "Non définie",
+                cutsTab: "Tours",
+                dorsalsTab: "Dossards",
+                parametersTab: "Paramètres",
+                assignHelp: "Cliquez sur n'importe quel temps pour attribuer des numéros de dossard (plusieurs séparés par des virgules)",
+                millisecondsLabel: "Afficher Millisecondes",
+                newRaceButton: "Nouvelle Course",
+                deleteRaceButton: "Supprimer Course",
+                selectRace: "-- Sélectionner Course --",
+                raceNamePlaceholder: "Ex: VTT Montagne 2024",
+                newRaceModalTitle: "Nouvelle Course",
+                raceNameLabel: "Nom de la Course",
+                deleteRaceModalTitle: "Supprimer Course",
+                deleteRaceModalText: "Êtes-vous sûr de vouloir supprimer cette course ? Cette action ne peut pas être annulée.",
+                cancelButton: "Annuler",
+                confirmButton: "Confirmer",
+                createButton: "Créer Course",
+                suggestionsButton: "Mises à jour/Suggestions",
+                // Textos para sugerencias
+                suggestionsTitle: "Chronomètre d'Arrivée",
+                suggestionsSubtitle: "Envoyez vos commentaires",
+                emailLabel: "Fournissez votre email pour rester informé des mises à jour",
+                cityLabel: "Ville",
+                suggestionLabel: "Suggestions pour améliorer l'application",
+                programLabel: "Programme",
+                submitButton: "📤 Envoyer",
+                sendingText: "Envoi en cours...",
+                successMessage: "✅ Envoyé avec succès",
+                errorMessage: "❌ Erreur d'envoi",
+                invalidEmail: "Email non valide",
+                invalidCity: "Ville non valide",
+                enterEmail: "Entrez votre email",
+                enterCity: "Écrivez votre ville",
+                cityExamples: "Madrid, Barcelona, Valencia, etc."
             }
         };
 
@@ -1196,6 +1374,7 @@
         const cortesTabButton = document.getElementById('cortes-tab-button');
         const dorsalesTabButton = document.getElementById('dorsales-tab-button');
         const parametrosTabButton = document.getElementById('parametros-tab-button');
+        const languagesLabel = document.querySelector('.languages-label');
         
         // Modales
         const newRaceModal = document.getElementById('new-race-modal');
@@ -1208,6 +1387,7 @@
             
             // Actualizar textos principales
             document.getElementById('app-title').textContent = t.appTitle;
+            languagesLabel.textContent = t.languagesLabel;
             btnStart.textContent = isRunning ? t.stopButton : t.startButton;
             btnLap.textContent = t.lapButton;
             btnReset.textContent = t.resetButton;
@@ -1257,7 +1437,10 @@
             document.querySelectorAll('.flag').forEach(flag => {
                 flag.classList.remove('active');
             });
-            document.getElementById('flag-' + lang).classList.add('active');
+            const flagElement = document.getElementById('flag-' + lang);
+            if (flagElement) {
+                flagElement.classList.add('active');
+            }
             
             // Guardar idioma seleccionado
             localStorage.setItem('llegadasLanguage', lang);
@@ -1372,9 +1555,10 @@
                 
                 // Actualizar placeholders
                 this.emailInput.placeholder = "tu@email.com";
-                this.cityInput.placeholder = lang === 'en' ? "Ex: Madrid" : lang === 'ca' ? "Ex: Madrid" : "Ej: Madrid";
+                this.cityInput.placeholder = lang === 'en' ? "Ex: Madrid" : lang === 'ca' ? "Ex: Madrid" : lang === 'fr' ? "Ex: Madrid" : "Ej: Madrid";
                 this.suggestionInput.placeholder = lang === 'en' ? "Your ideas to improve the app..." : 
                                                   lang === 'ca' ? "Les teves idees per millorar l'app..." : 
+                                                  lang === 'fr' ? "Vos idées pour améliorer l'application..." :
                                                   "Tus ideas para mejorar la app...";
             }
             
@@ -1413,7 +1597,7 @@
             isValidCity(city) {
                 if (!city) return false;
                 city = city.trim();
-                return city.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]+$/.test(city);
+                return city.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑàâäçéèêëîïôöùûüÿæœ\s\-]+$/.test(city);
             }
             
             formatCity(city) {
