@@ -346,8 +346,6 @@
         
         .btn-help {
             background-color: var(--secondary-color);
-            color: white;
-            padding: 8px 16px;
         }
         
         .info-panel {
@@ -592,7 +590,6 @@
             text-decoration: underline;
         }
         
-        
         .milliseconds-toggle {
             display: flex;
             align-items: center;
@@ -762,6 +759,125 @@
             color: #ecf0f1;
         }
         
+        /* Estilos para el botón de sugerencias */
+        .btn-suggestions {
+            background-color: #8e44ad;
+            color: white;
+            padding: 12px 20px;
+            margin-top: 10px;
+            width: 100%;
+            max-width: 200px;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+        
+        .btn-suggestions:hover {
+            background-color: #9b59b6;
+        }
+
+        /* Estilos para el modal de sugerencias - adaptados al estilo del crono */
+        #suggestions-modal .modal-content {
+            max-width: 500px;
+            padding: 20px;
+            background-color: #2c3e50;
+            border-radius: 8px;
+            color: white;
+        }
+
+        .suggestions-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .suggestions-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .suggestions-title {
+            color: #ecf0f1;
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+
+        .suggestions-subtitle {
+            color: #95a5a6;
+            font-size: 0.9rem;
+        }
+
+        .suggestions-input, .suggestions-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #34495e;
+            border-radius: 4px;
+            background-color: #1a252f;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+        }
+
+        .suggestions-input:focus, .suggestions-textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .suggestions-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .prefilled-field {
+            background: #34495e;
+            border: 1px solid #2c3e50;
+            padding: 10px;
+            border-radius: 4px;
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .spinner {
+            border: 3px solid rgba(52, 152, 219, 0.2);
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .city-examples {
+            color: #95a5a6;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+        
         @media (max-width: 768px) {
             .chrono-section {
                 flex-direction: column;
@@ -911,11 +1027,14 @@
             <button class="btn-help" id="btn-help">Ayuda</button>
         </div>
 
+        <!-- Botón de sugerencias -->
+        <button class="btn-suggestions" id="btn-suggestions">Actualizaciones/Sugerencias</button>
+
         <footer class="footer">
             <p>
                 <span id="copyright-text">2025 © Copyright</span>
                 <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                    Roberto Benet - rbenet71@gmail.com - V_01_12_2025
+                    Roberto Benet - rbenet71@gmail.com - V_02_12_2025
                 </a>
             </p>
         </footer>
@@ -1160,6 +1279,52 @@
         </div>
     </div>
 
+    <!-- Modal de sugerencias (nuevo) -->
+    <div class="modal" id="suggestions-modal">
+        <div class="modal-content">
+            <div class="suggestions-header">
+                <div class="suggestions-icon">
+                    📱
+                </div>
+                <h1 class="suggestions-title" id="suggestions-title">Cronómetro Control 80%</h1>
+                <p class="suggestions-subtitle" id="suggestions-subtitle">Envía tus comentarios</p>
+            </div>
+            
+            <form id="suggestion-form">
+                <div class="form-group">
+                    <label for="email-suggestions" class="required" id="email-label">Facilítanos tu email para mantenerte informado de las actualizaciones</label>
+                    <input type="email" id="email-suggestions" class="suggestions-input" placeholder="tu@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="city-suggestions" class="required" id="city-label">Ciudad</label>
+                    <input type="text" id="city-suggestions" class="suggestions-input" placeholder="Ej: Madrid" required>
+                    <div class="city-examples" id="city-examples">Madrid, Barcelona, Valencia, etc.</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="suggestion-text" id="suggestion-label">Sugerencias para mejorar la aplicación</label>
+                    <textarea id="suggestion-text" class="suggestions-textarea" placeholder="Tus ideas para mejorar la app..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label id="program-label">Programa</label>
+                    <div class="prefilled-field">Crono 80%</div>
+                </div>
+                
+                <div class="loading" id="loading-suggestions">
+                    <div class="spinner"></div>
+                    <p id="loading-text">Enviando...</p>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button class="btn-reset" type="button" id="cancel-suggestions">Cancelar</button>
+                    <button class="btn-modify" type="button" id="submit-suggestions">Enviar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         // Variables globales para el sistema de idiomas
         let currentLanguage = 'es';
@@ -1211,6 +1376,7 @@
                 newRaceButton: "Nueva Carrera",
                 deleteRaceButton: "Eliminar Carrera",
                 helpButton: "Ayuda",
+                suggestionsButton: "Actualizaciones/Sugerencias",
                 
                 // Modales
                 withdrawModalTitle: "Retirar Corredor",
@@ -1244,7 +1410,6 @@
                 confirmDeleteLap: "¿Estás seguro de que quieres eliminar esta vuelta?",
                 confirmDeleteRider: "¿Estás seguro de que quieres eliminar este corredor de la lista de retirados?",
                 
-                
                 // Selector de carrera
                 selectRace: "-- Seleccionar Carrera --",
                 raceNamePlaceholder: "Ej: BTT Montaña 2024",
@@ -1252,7 +1417,24 @@
                 
                 // Historial de horas de inicio
                 startTimesHistory: "Horas de inicio anteriores:",
-                noStartTimes: "No hay horas de inicio guardadas"
+                noStartTimes: "No hay horas de inicio guardadas",
+                
+                // Textos para sugerencias
+                suggestionsTitle: "Cronómetro Control 80%",
+                suggestionsSubtitle: "Envía tus comentarios",
+                emailLabel: "Facilítanos tu email para mantenerte informado de las actualizaciones",
+                cityLabel: "Ciudad",
+                suggestionLabel: "Sugerencias para mejorar la aplicación",
+                programLabel: "Programa",
+                submitButton: "Enviar",
+                sendingText: "Enviando...",
+                successMessage: "✅ Enviado correctamente",
+                errorMessage: "❌ Error al enviar",
+                invalidEmail: "Email no válido",
+                invalidCity: "Ciudad no válida",
+                enterEmail: "Ingresa tu email",
+                enterCity: "Escribe tu ciudad",
+                cityExamples: "Madrid, Barcelona, Valencia, etc."
             },
             ca: {
                 appTitle: "Cronòmetre Control 80%",
@@ -1299,6 +1481,7 @@
                 newRaceButton: "Nova Cursa",
                 deleteRaceButton: "Eliminar Cursa",
                 helpButton: "Ajuda",
+                suggestionsButton: "Actualitzacions/Suggeriments",
                 
                 // Modales
                 withdrawModalTitle: "Retirar Corredor",
@@ -1339,7 +1522,24 @@
                 
                 // Historial de horas de inicio
                 startTimesHistory: "Hores d'inici anteriors:",
-                noStartTimes: "No hi ha hores d'inici guardades"
+                noStartTimes: "No hi ha hores d'inici guardades",
+                
+                // Textos para sugerencias
+                suggestionsTitle: "Cronòmetre Control 80%",
+                suggestionsSubtitle: "Envia els teus comentaris",
+                emailLabel: "Facilita'ns el teu email per mantenir-te informat de les actualitzacions",
+                cityLabel: "Ciutat",
+                suggestionLabel: "Suggeriments per millorar l'aplicació",
+                programLabel: "Programa",
+                submitButton: "Enviar",
+                sendingText: "Enviant...",
+                successMessage: "✅ Enviat correctament",
+                errorMessage: "❌ Error en enviar",
+                invalidEmail: "Email no vàlid",
+                invalidCity: "Ciutat no vàlida",
+                enterEmail: "Introdueix el teu email",
+                enterCity: "Escriu la teva ciutat",
+                cityExamples: "Madrid, Barcelona, València, etc."
             },
             en: {
                 appTitle: "Stopwatch 80% Control",
@@ -1386,6 +1586,7 @@
                 newRaceButton: "New Race",
                 deleteRaceButton: "Delete Race",
                 helpButton: "Help",
+                suggestionsButton: "Updates/Suggestions",
                 
                 // Modales
                 withdrawModalTitle: "Withdraw Rider",
@@ -1426,7 +1627,24 @@
                 
                 // Historial de horas de inicio
                 startTimesHistory: "Previous Start Times:",
-                noStartTimes: "No start times saved"
+                noStartTimes: "No start times saved",
+                
+                // Textos para sugerencias
+                suggestionsTitle: "Stopwatch 80% Control",
+                suggestionsSubtitle: "Send your comments",
+                emailLabel: "Provide your email to stay informed about updates",
+                cityLabel: "City",
+                suggestionLabel: "Suggestions to improve the application",
+                programLabel: "Program",
+                submitButton: "Send",
+                sendingText: "Sending...",
+                successMessage: "✅ Sent successfully",
+                errorMessage: "❌ Error sending",
+                invalidEmail: "Invalid email",
+                invalidCity: "Invalid city",
+                enterEmail: "Enter your email",
+                enterCity: "Write your city",
+                cityExamples: "Madrid, Barcelona, Valencia, etc."
             }
         };
 
@@ -1468,6 +1686,7 @@
         const btnDeleteRace = document.getElementById('btn-delete-race');
         const btnEditFirstLap = document.getElementById('btn-edit-first-lap');
         const btnHelp = document.getElementById('btn-help');
+        const btnSuggestions = document.getElementById('btn-suggestions');
         const raceSelector = document.getElementById('race-selector');
         const currentLapElement = document.getElementById('current-lap');
         const firstLapTimeElement = document.getElementById('first-lap-time');
@@ -1501,7 +1720,8 @@
         const editFirstLapModal = document.getElementById('edit-first-lap-modal');
         const editLapTimeModal = document.getElementById('edit-lap-time-modal');
         const editRiderModal = document.getElementById('edit-rider-modal');
-        const resumeOptionsModal = document.getElementById('resume-options-modal'); // Nuevo modal
+        const resumeOptionsModal = document.getElementById('resume-options-modal');
+        const suggestionsModal = document.getElementById('suggestions-modal');
 
         // Funciones de sonido
         function playButtonSound() {
@@ -1614,6 +1834,201 @@
             soundToggle.addEventListener('click', toggleSound);
         }
 
+        // Sistema de sugerencias
+        function initializeSuggestionsSystem() {
+            // Configurar botón de sugerencias
+            if (btnSuggestions) {
+                btnSuggestions.addEventListener('click', openSuggestionsModal);
+            }
+            
+            // Configurar eventos del modal
+            const cancelBtn = document.getElementById('cancel-suggestions');
+            const submitBtn = document.getElementById('submit-suggestions');
+            
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', closeSuggestionsModal);
+            }
+            
+            if (submitBtn) {
+                submitBtn.addEventListener('click', submitSuggestion);
+            }
+            
+            // Cerrar modal al hacer clic fuera
+            window.addEventListener('click', (e) => {
+                if (e.target === suggestionsModal) {
+                    closeSuggestionsModal();
+                }
+            });
+        }
+
+        function openSuggestionsModal() {
+            playButtonSound();
+            
+            // Actualizar textos según idioma
+            updateSuggestionsTexts();
+            
+            // Limpiar campos
+            document.getElementById('email-suggestions').value = '';
+            document.getElementById('city-suggestions').value = '';
+            document.getElementById('suggestion-text').value = '';
+            
+            suggestionsModal.style.display = 'flex';
+        }
+
+        function closeSuggestionsModal() {
+            suggestionsModal.style.display = 'none';
+        }
+
+        function updateSuggestionsTexts() {
+            const t = translations[currentLanguage];
+            
+            // Actualizar botón
+            if (btnSuggestions) btnSuggestions.textContent = t.suggestionsButton;
+            
+            // Actualizar modal
+            const suggestionsTitle = document.getElementById('suggestions-title');
+            const suggestionsSubtitle = document.getElementById('suggestions-subtitle');
+            const emailLabel = document.getElementById('email-label');
+            const cityLabel = document.getElementById('city-label');
+            const suggestionLabel = document.getElementById('suggestion-label');
+            const programLabel = document.getElementById('program-label');
+            const submitBtn = document.getElementById('submit-suggestions');
+            const loadingText = document.getElementById('loading-text');
+            const cityExamples = document.getElementById('city-examples');
+            
+            if (suggestionsTitle) suggestionsTitle.textContent = t.suggestionsTitle;
+            if (suggestionsSubtitle) suggestionsSubtitle.textContent = t.suggestionsSubtitle;
+            if (emailLabel) emailLabel.innerHTML = t.emailLabel + '<span class="required"> *</span>';
+            if (cityLabel) cityLabel.innerHTML = t.cityLabel + '<span class="required"> *</span>';
+            if (suggestionLabel) suggestionLabel.textContent = t.suggestionLabel;
+            if (programLabel) programLabel.textContent = t.programLabel;
+            if (submitBtn) submitBtn.textContent = t.submitButton;
+            if (loadingText) loadingText.textContent = t.sendingText;
+            if (cityExamples) cityExamples.textContent = t.cityExamples;
+            
+            // Actualizar placeholders
+            const emailInput = document.getElementById('email-suggestions');
+            const cityInput = document.getElementById('city-suggestions');
+            const suggestionText = document.getElementById('suggestion-text');
+            
+            if (emailInput) emailInput.placeholder = "tu@email.com";
+            if (cityInput) {
+                cityInput.placeholder = currentLanguage === 'en' ? "Ex: Madrid" : 
+                                        currentLanguage === 'ca' ? "Ex: Madrid" : 
+                                        "Ej: Madrid";
+            }
+            if (suggestionText) {
+                suggestionText.placeholder = currentLanguage === 'en' ? "Your ideas to improve the app..." : 
+                                            currentLanguage === 'ca' ? "Les teves idees per millorar l'app..." : 
+                                            "Tus ideas para mejorar la app...";
+            }
+        }
+
+        async function submitSuggestion() {
+            playButtonSound();
+            
+            const email = document.getElementById('email-suggestions').value.trim();
+            let city = document.getElementById('city-suggestions').value.trim();
+            const suggestion = document.getElementById('suggestion-text').value.trim();
+            
+            const t = translations[currentLanguage];
+            
+            // Validaciones
+            if (!email) {
+                alert(t.enterEmail);
+                document.getElementById('email-suggestions').focus();
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                alert(t.invalidEmail);
+                document.getElementById('email-suggestions').focus();
+                return;
+            }
+            
+            if (!city) {
+                alert(t.enterCity);
+                document.getElementById('city-suggestions').focus();
+                return;
+            }
+            
+            if (!isValidCity(city)) {
+                alert(t.invalidCity);
+                document.getElementById('city-suggestions').focus();
+                return;
+            }
+            
+            city = formatCity(city);
+            
+            // Configuración del formulario Google
+            const FORM_ENDPOINT = "https://docs.google.com/forms/d/e/1FAIpQLSeLeD6lAmBweVOubmEqydUONe6mutpQLlFSU_zKfHEhjhZVLg/formResponse";
+            const FIELD_IDS = {
+                email: "entry.1597282778",
+                ciudad: "entry.1552097675",
+                sugerencia: "entry.48109616",
+                programa: "entry.1706983066",
+                fecha: "entry.1734009197",
+                hora: "entry.686693357"
+            };
+            
+            // Mostrar carga
+            const submitBtn = document.getElementById('submit-suggestions');
+            const loading = document.getElementById('loading-suggestions');
+            submitBtn.disabled = true;
+            if (loading) loading.style.display = 'block';
+            
+            try {
+                const formData = new FormData();
+                
+                // Fecha y hora actual
+                const now = new Date();
+                const fecha = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+                const hora = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+                
+                formData.append(FIELD_IDS.email, email);
+                formData.append(FIELD_IDS.ciudad, city);
+                formData.append(FIELD_IDS.sugerencia, suggestion || "(sin sugerencia)");
+                formData.append(FIELD_IDS.programa, "Crono 80%"); // IMPORTANTE: Nombre del programa
+                formData.append(FIELD_IDS.fecha, fecha);
+                formData.append(FIELD_IDS.hora, hora);
+                
+                // Enviar a Google Forms (no-cors para evitar problemas CORS)
+                await fetch(FORM_ENDPOINT, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                });
+                
+                alert(t.successMessage);
+                closeSuggestionsModal();
+                
+            } catch (error) {
+                console.error('Error al enviar sugerencia:', error);
+                alert(t.errorMessage);
+            } finally {
+                submitBtn.disabled = false;
+                if (loading) loading.style.display = 'none';
+            }
+        }
+
+        // Funciones auxiliares para sugerencias
+        function isValidEmail(email) {
+            if (!email) return false;
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function isValidCity(city) {
+            if (!city) return false;
+            city = city.trim();
+            return city.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]+$/.test(city);
+        }
+
+        function formatCity(city) {
+            if (!city) return '';
+            return city.trim().replace(/\b\w/g, char => char.toUpperCase());
+        }
+
         // Función para actualizar idioma
         function updateLanguage(lang) {
             currentLanguage = lang;
@@ -1672,6 +2087,7 @@
             btnNewRace.textContent = t.newRaceButton;
             btnDeleteRace.textContent = t.deleteRaceButton;
             btnHelp.textContent = t.helpButton;
+            if (btnSuggestions) btnSuggestions.textContent = t.suggestionsButton;
             
             // Actualizar pestañas
             updateTabCounts();
@@ -1719,6 +2135,12 @@
             document.getElementById('cancel-resume').textContent = t.cancelButton;
             document.getElementById('confirm-resume').textContent = t.startButton;
             
+            // Actualizar botones del modal de sugerencias
+            const cancelSuggestionsBtn = document.getElementById('cancel-suggestions');
+            const submitSuggestionsBtn = document.getElementById('submit-suggestions');
+            if (cancelSuggestionsBtn) cancelSuggestionsBtn.textContent = t.cancelButton;
+            if (submitSuggestionsBtn) submitSuggestionsBtn.textContent = t.submitButton;
+            
             // Actualizar placeholders
             document.getElementById('race-name-input').placeholder = t.raceNamePlaceholder;
             document.getElementById('dorsal-input').placeholder = t.dorsalPlaceholder;
@@ -1741,6 +2163,9 @@
             if (startTimesLabel) {
                 startTimesLabel.textContent = t.startTimesHistory;
             }
+            
+            // Actualizar textos de sugerencias
+            updateSuggestionsTexts();
             
             // Guardar idioma seleccionado
             localStorage.setItem('bttLanguage', lang);
@@ -1961,6 +2386,9 @@
             
             // Inicializar sonidos
             initSounds();
+            
+            // Inicializar sistema de sugerencias
+            initializeSuggestionsSystem();
             
             // Event listeners
             btnStart.addEventListener('click', toggleChrono);
@@ -2532,6 +2960,7 @@
                 lapListElement.appendChild(li);
             }
         }
+        
         function removeLap(lapNumber) {
             if (!isRaceSelected()) {
                 alert(translations[currentLanguage].noRaceSelected);
@@ -2583,87 +3012,87 @@
             alert(`Vuelta ${lapNumber} eliminada correctamente`);
         }
 
-		function updateWithdrawnList() {
-			riderListElement.innerHTML = '';
-			
-			// Ordenar los corredores retirados según los criterios especificados
-			const sortedWithdrawnRiders = [...withdrawnRiders].sort((a, b) => {
-				// 1. Los DNF (vuelta 0) van al final
-				if (a.lap === 0 && b.lap !== 0) return 1;
-				if (a.lap !== 0 && b.lap === 0) return -1;
-				if (a.lap === 0 && b.lap === 0) return a.time - b.time; // Si ambos son DNF, ordenar por tiempo
-				
-				// 2. Ordenar por vuelta descendente (mayor vuelta primero)
-				if (a.lap !== b.lap) {
-					return b.lap - a.lap;
-				}
-				
-				// 3. Dentro de la misma vuelta, ordenar por tiempo ascendente (menor tiempo primero)
-				return a.time - b.time;
-			});
-			
-			sortedWithdrawnRiders.forEach((rider, index) => {
-				const li = document.createElement('li');
-			 li.className = 'rider-item';
-				
-				const riderInfo = document.createElement('div');
-				riderInfo.className = 'rider-info';
-				
-				const dorsal = document.createElement('span');
-				dorsal.textContent = 'Dorsal ' + rider.dorsal;
-				riderInfo.appendChild(dorsal);
-				
-				const lap = document.createElement('span');
-				lap.textContent = rider.lap === 0 ? 'DNF' : 'Vuelta ' + rider.lap;
-				riderInfo.appendChild(lap);
-				
-				const time = document.createElement('span');
-				time.textContent = formatTime(rider.time, showMilliseconds);
-				riderInfo.appendChild(time);
-				
-				li.appendChild(riderInfo);
-				
-				const riderActions = document.createElement('div');
-				riderActions.className = 'rider-actions';
-				
-				const editButton = document.createElement('button');
-				editButton.className = 'btn-edit-rider';
-				editButton.textContent = '✏️';
-				editButton.title = 'Editar corredor retirado';
-				editButton.addEventListener('click', function() {
-					openEditRiderModal(index);
-				});
-				riderActions.appendChild(editButton);
-				
-				const removeButton = document.createElement('button');
-				removeButton.className = 'btn-remove-rider';
-				removeButton.textContent = '🗑️';
-				removeButton.title = 'Eliminar corredor retirado';
-				removeButton.addEventListener('click', function() {
-					if (confirm(translations[currentLanguage].confirmDeleteRider)) {
-						withdrawnRiders.splice(index, 1);
-						updateWithdrawnList();
-						updateTabCounts();
-						saveCurrentRace();
-						playButtonSound();
-					}
-				});
-				riderActions.appendChild(removeButton);
-				
-				li.appendChild(riderActions);
-				riderListElement.appendChild(li);
-			});
-			
-			// Mensaje si no hay corredores retirados
-			if (withdrawnRiders.length === 0) {
-				const li = document.createElement('li');
-				li.className = 'rider-item';
-				li.textContent = 'No hay corredores retirados';
-				li.style.textAlign = 'center';
-				li.style.color = '#95a5a6';
-				riderListElement.appendChild(li);
-			}
-		}
+        function updateWithdrawnList() {
+            riderListElement.innerHTML = '';
+            
+            // Ordenar los corredores retirados según los criterios especificados
+            const sortedWithdrawnRiders = [...withdrawnRiders].sort((a, b) => {
+                // 1. Los DNF (vuelta 0) van al final
+                if (a.lap === 0 && b.lap !== 0) return 1;
+                if (a.lap !== 0 && b.lap === 0) return -1;
+                if (a.lap === 0 && b.lap === 0) return a.time - b.time; // Si ambos son DNF, ordenar por tiempo
+                
+                // 2. Ordenar por vuelta descendente (mayor vuelta primero)
+                if (a.lap !== b.lap) {
+                    return b.lap - a.lap;
+                }
+                
+                // 3. Dentro de la misma vuelta, ordenar por tiempo ascendente (menor tiempo primero)
+                return a.time - b.time;
+            });
+            
+            sortedWithdrawnRiders.forEach((rider, index) => {
+                const li = document.createElement('li');
+                li.className = 'rider-item';
+                
+                const riderInfo = document.createElement('div');
+                riderInfo.className = 'rider-info';
+                
+                const dorsal = document.createElement('span');
+                dorsal.textContent = 'Dorsal ' + rider.dorsal;
+                riderInfo.appendChild(dorsal);
+                
+                const lap = document.createElement('span');
+                lap.textContent = rider.lap === 0 ? 'DNF' : 'Vuelta ' + rider.lap;
+                riderInfo.appendChild(lap);
+                
+                const time = document.createElement('span');
+                time.textContent = formatTime(rider.time, showMilliseconds);
+                riderInfo.appendChild(time);
+                
+                li.appendChild(riderInfo);
+                
+                const riderActions = document.createElement('div');
+                riderActions.className = 'rider-actions';
+                
+                const editButton = document.createElement('button');
+                editButton.className = 'btn-edit-rider';
+                editButton.textContent = '✏️';
+                editButton.title = 'Editar corredor retirado';
+                editButton.addEventListener('click', function() {
+                    openEditRiderModal(index);
+                });
+                riderActions.appendChild(editButton);
+                
+                const removeButton = document.createElement('button');
+                removeButton.className = 'btn-remove-rider';
+                removeButton.textContent = '🗑️';
+                removeButton.title = 'Eliminar corredor retirado';
+                removeButton.addEventListener('click', function() {
+                    if (confirm(translations[currentLanguage].confirmDeleteRider)) {
+                        withdrawnRiders.splice(index, 1);
+                        updateWithdrawnList();
+                        updateTabCounts();
+                        saveCurrentRace();
+                        playButtonSound();
+                    }
+                });
+                riderActions.appendChild(removeButton);
+                
+                li.appendChild(riderActions);
+                riderListElement.appendChild(li);
+            });
+            
+            // Mensaje si no hay corredores retirados
+            if (withdrawnRiders.length === 0) {
+                const li = document.createElement('li');
+                li.className = 'rider-item';
+                li.textContent = 'No hay corredores retirados';
+                li.style.textAlign = 'center';
+                li.style.color = '#95a5a6';
+                riderListElement.appendChild(li);
+            }
+        }
         
         function updateTabCounts() {
             const t = translations[currentLanguage];
@@ -3203,7 +3632,7 @@
             URL.revokeObjectURL(url);
         }
 
-		// Función para verificar actualizaciones
+        // Función para verificar actualizaciones
         function checkForUpdates() {
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.ready.then(registration => {
@@ -3255,20 +3684,6 @@
                 });
             }
         }
-
-        // Inicialización
-        document.addEventListener('DOMContentLoaded', function() {
-            // ... (código de inicialización existente)
-
-            // Configurar actualización automática
-            setupAutoUpdate();
-            
-            // Verificar actualización inmediatamente después de cargar
-            setTimeout(checkForUpdates, 5000);
-            
-            // Registrar el Service Worker con mejor control de actualizaciones
-            registerServiceWorker();
-        });
 
         // Función mejorada para registrar el Service Worker
         function registerServiceWorker() {
@@ -3337,6 +3752,18 @@
                 }
             }, 10000);
         }
+
+        // Inicialización final
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar actualización automática
+            setupAutoUpdate();
+            
+            // Verificar actualización inmediatamente después de cargar
+            setTimeout(checkForUpdates, 5000);
+            
+            // Registrar el Service Worker
+            registerServiceWorker();
+        });
     </script>
 </body>
 </html>
