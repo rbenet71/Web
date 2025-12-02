@@ -388,8 +388,21 @@
             font-size: 11px;
         }
         
+        .btn-suggestions {
+            background-color: #3498db;
+            color: white;
+            padding: 6px 13px;
+            margin-top: 8px;
+            width: 100%;
+            font-size: 11px;
+        }
+        
         .btn-install:hover {
             background-color: #8e44ad;
+        }
+        
+        .btn-suggestions:hover {
+            background-color: #2980b9;
         }
         
         /* Nuevos estilos para el indicador de modo en el display */
@@ -490,6 +503,201 @@
             margin-bottom: 5px;
             color: #ecf0f1;
         }
+        
+        /* Modal de sugerencias (nuevo) */
+        .suggestions-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .suggestions-modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .suggestions-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .suggestions-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.8rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .suggestions-title {
+            color: #333;
+            font-size: 1.4rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .suggestions-subtitle {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .suggestions-input, .suggestions-textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        .suggestions-input:focus, .suggestions-textarea:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+        
+        .suggestions-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #f44336;
+        }
+        
+        .prefilled-field {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            padding: 0.8rem;
+            border-radius: 8px;
+            color: #2196F3;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+        
+        .suggestions-btn-modal {
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            color: white;
+            border: none;
+            padding: 0.9rem;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+        }
+        
+        .suggestions-btn-modal:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+        
+        .suggestions-btn-modal:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            text-align: center;
+            margin: 1rem 0;
+            display: none;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(33, 150, 243, 0.2);
+            border-top: 3px solid #2196F3;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 1000;
+            max-width: 280px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .message.success {
+            background: #4CAF50;
+        }
+        
+        .message.error {
+            background: #f44336;
+        }
+        
+        .message.info {
+            background: #2196F3;
+        }
+        
+        .hint {
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+        }
+        
+        .city-examples {
+            color: #666;
+            font-size: 0.75rem;
+            margin-top: 0.4rem;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -558,6 +766,7 @@
         
         <button class="btn-help" id="btn-help">Ayuda</button>
         <button class="btn-install" id="btn-install">Instalar App</button>
+        <button class="btn-suggestions" id="btn-suggestions">Actualizaciones/Sugerencias</button>
         
         <div class="calculator-footer">
             <p>
@@ -613,11 +822,58 @@
         </div>
     </div>
 
+    <!-- Modal de sugerencias (nuevo) -->
+    <div class="suggestions-modal" id="suggestionsModal">
+        <div class="suggestions-modal-content">
+            <div class="suggestions-header">
+                <div class="suggestions-icon">
+                    📱
+                </div>
+                <h1 class="suggestions-title" id="suggestions-title">Calculadora de Tiempos</h1>
+                <p class="suggestions-subtitle" id="suggestions-subtitle">Envía tus comentarios</p>
+            </div>
+            
+            <form id="suggestionForm">
+                <div class="form-group">
+                    <label for="email-suggestions" class="required" id="email-label">Facilítanos tu email para mantenerte informado de las actualizaciones</label>
+                    <input type="email" id="email-suggestions" class="suggestions-input" placeholder="tu@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="city-suggestions" class="required" id="city-label">Ciudad</label>
+                    <input type="text" id="city-suggestions" class="suggestions-input" placeholder="Ej: Madrid" required>
+                    <div class="city-examples" id="city-examples">Madrid, Barcelona, Valencia, etc.</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="suggestion-text" id="suggestion-label">Sugerencias para mejorar la aplicación</label>
+                    <textarea id="suggestion-text" class="suggestions-textarea" placeholder="Tus ideas para mejorar la app..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label id="program-label">Programa</label>
+                    <div class="prefilled-field">Calculadora de Tiempos</div>
+                </div>
+                
+                <div class="loading" id="loading-suggestions">
+                    <div class="spinner"></div>
+                    <p id="loading-text">Enviando...</p>
+                </div>
+                
+                <button type="button" id="submitBtn-suggestions" class="suggestions-btn-modal">
+                    📤 Enviar
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="message" class="message"></div>
+
     <script>
         // Variables globales para el sistema de idiomas
         let currentLanguage = 'es';
         
-        // Textos en diferentes idiomas
+        // Textos en diferentes idiomas (ampliados con textos de sugerencias)
         const translations = {
             es: {
                 appTitle: "Calculadora de Tiempos",
@@ -627,6 +883,7 @@
                 lapsCalc: "Número de Vueltas",
                 helpButton: "Ayuda",
                 installButton: "Instalar App",
+                suggestionsButton: "Actualizaciones/Sugerencias",
                 averageModalTitle: "Cálculo de Promedio (km/h)",
                 distancePlaceholder: "Distancia en km",
                 timePlaceholder: "Tiempo (ej: 1h 30m 45s)",
@@ -666,7 +923,23 @@
                 otherInstructions: `<ol style="padding-left: 15px;">
                     <li>Toca el botón "Instalar"</li>
                     <li>Sigue las instrucciones de tu navegador</li>
-                </ol>`
+                </ol>`,
+                // Textos para sugerencias
+                suggestionsTitle: "Calculadora de Tiempos",
+                suggestionsSubtitle: "Envía tus comentarios",
+                emailLabel: "Facilítanos tu email para mantenerte informado de las actualizaciones",
+                cityLabel: "Ciudad",
+                suggestionLabel: "Sugerencias para mejorar la aplicación",
+                programLabel: "Programa",
+                submitButton: "📤 Enviar",
+                sendingText: "Enviando...",
+                successMessage: "✅ Enviado correctamente",
+                errorMessage: "❌ Error al enviar",
+                invalidEmail: "Email no válido",
+                invalidCity: "Ciudad no válida",
+                enterEmail: "Ingresa tu email",
+                enterCity: "Escribe tu ciudad",
+                cityExamples: "Madrid, Barcelona, Valencia, etc."
             },
             ca: {
                 appTitle: "Calculadora de Temps",
@@ -676,6 +949,7 @@
                 lapsCalc: "Nombre de Voltes",
                 helpButton: "Ajuda",
                 installButton: "Instal·lar App",
+                suggestionsButton: "Actualitzacions/Suggeriments",
                 averageModalTitle: "Càlcul de Promig (km/h)",
                 distancePlaceholder: "Distància en km",
                 timePlaceholder: "Temps (ex: 1h 30m 45s)",
@@ -715,7 +989,23 @@
                 otherInstructions: `<ol style="padding-left: 15px;">
                     <li>Toca el botó "Instal·lar"</li>
                     <li>Segueix les instruccions del teu navegador</li>
-                </ol>`
+                </ol>`,
+                // Textos para sugerencias
+                suggestionsTitle: "Calculadora de Temps",
+                suggestionsSubtitle: "Envia els teus comentaris",
+                emailLabel: "Facilita'ns el teu email per mantenir-te informat de les actualitzacions",
+                cityLabel: "Ciutat",
+                suggestionLabel: "Suggeriments per millorar l'aplicació",
+                programLabel: "Programa",
+                submitButton: "📤 Enviar",
+                sendingText: "Enviant...",
+                successMessage: "✅ Enviat correctament",
+                errorMessage: "❌ Error en enviar",
+                invalidEmail: "Email no vàlid",
+                invalidCity: "Ciutat no vàlida",
+                enterEmail: "Introdueix el teu email",
+                enterCity: "Escriu la teva ciutat",
+                cityExamples: "Madrid, Barcelona, València, etc."
             },
             en: {
                 appTitle: "Time Calculator",
@@ -725,6 +1015,7 @@
                 lapsCalc: "Number of Laps",
                 helpButton: "Help",
                 installButton: "Install App",
+                suggestionsButton: "Updates/Suggestions",
                 averageModalTitle: "Average Calculation (km/h)",
                 distancePlaceholder: "Distance in km",
                 timePlaceholder: "Time (ex: 1h 30m 45s)",
@@ -764,7 +1055,23 @@
                 otherInstructions: `<ol style="padding-left: 15px;">
                     <li>Tap the "Install" button</li>
                     <li>Follow your browser instructions</li>
-                </ol>`
+                </ol>`,
+                // Textos para sugerencias
+                suggestionsTitle: "Time Calculator",
+                suggestionsSubtitle: "Send your comments",
+                emailLabel: "Provide your email to stay informed about updates",
+                cityLabel: "City",
+                suggestionLabel: "Suggestions to improve the application",
+                programLabel: "Program",
+                submitButton: "📤 Send",
+                sendingText: "Sending...",
+                successMessage: "✅ Sent successfully",
+                errorMessage: "❌ Error sending",
+                invalidEmail: "Invalid email",
+                invalidCity: "Invalid city",
+                enterEmail: "Enter your email",
+                enterCity: "Write your city",
+                cityExamples: "Madrid, Barcelona, Valencia, etc."
             }
         };
 
@@ -779,6 +1086,7 @@
             document.getElementById('lapsBtn').textContent = translations[lang].lapsCalc;
             document.getElementById('btn-help').textContent = translations[lang].helpButton;
             document.getElementById('btn-install').textContent = translations[lang].installButton;
+            document.getElementById('btn-suggestions').textContent = translations[lang].suggestionsButton;
             
             // Actualizar textos de modales
             document.querySelector('#averageModal .modal-title').textContent = translations[lang].averageModalTitle;
@@ -804,6 +1112,11 @@
                 flag.classList.remove('active');
             });
             document.getElementById('flag-' + lang).classList.add('active');
+            
+            // Actualizar textos de sugerencias
+            if (window.suggestionsSystem) {
+                window.suggestionsSystem.updateLanguage(lang);
+            }
         }
         
         // Función para abrir el archivo de ayuda
@@ -1021,6 +1334,241 @@ IDList=`;
                 } else {
                     this.showMessage('⭐ Usa el menú de tu navegador para crear un acceso directo', false);
                 }
+            }
+        }
+        
+        // Sistema de sugerencias
+        class SuggestionsSystem {
+            constructor() {
+                this.modal = document.getElementById('suggestionsModal');
+                this.submitBtn = document.getElementById('submitBtn-suggestions');
+                this.loading = document.getElementById('loading-suggestions');
+                this.message = document.getElementById('message');
+                this.emailInput = document.getElementById('email-suggestions');
+                this.cityInput = document.getElementById('city-suggestions');
+                this.suggestionInput = document.getElementById('suggestion-text');
+                this.currentLanguage = 'es';
+                
+                // Configuración del formulario
+                this.FORM_ENDPOINT = "https://docs.google.com/forms/d/e/1FAIpQLSeLeD6lAmBweVOubmEqydUONe6mutpQLlFSU_zKfHEhjhZVLg/formResponse";
+                this.FIELD_IDS = {
+                    email: "entry.1597282778",
+                    ciudad: "entry.1552097675",
+                    sugerencia: "entry.48109616",
+                    programa: "entry.1706983066",
+                    fecha: "entry.1734009197",
+                    hora: "entry.686693357"
+                };
+                
+                this.initialize();
+            }
+            
+            initialize() {
+                this.attachEventListeners();
+            }
+            
+            attachEventListeners() {
+                // Botón para abrir modal de sugerencias
+                document.getElementById('btn-suggestions').addEventListener('click', () => {
+                    this.showModal();
+                });
+                
+                // Botón de enviar
+                this.submitBtn.addEventListener('click', () => {
+                    this.submitForm();
+                });
+                
+                // Cerrar modal al hacer clic fuera
+                window.addEventListener('click', (e) => {
+                    if (e.target === this.modal) {
+                        this.hideModal();
+                    }
+                });
+                
+                // Atajos de teclado
+                this.suggestionInput.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 'Enter') {
+                        this.submitForm();
+                    }
+                });
+                
+                this.cityInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.suggestionInput.focus();
+                    }
+                });
+                
+                this.emailInput.addEventListener('blur', () => {
+                    if (this.emailInput.value && !this.isValidEmail(this.emailInput.value)) {
+                        this.emailInput.style.borderColor = '#f44336';
+                    } else {
+                        this.emailInput.style.borderColor = '#e0e0e0';
+                    }
+                });
+                
+                this.cityInput.addEventListener('blur', () => {
+                    if (this.cityInput.value.trim()) {
+                        this.cityInput.value = this.formatCity(this.cityInput.value);
+                    }
+                });
+            }
+            
+            showModal() {
+                this.modal.style.display = 'flex';
+                this.updateTexts();
+                // Limpiar campos al abrir
+                this.emailInput.value = '';
+                this.cityInput.value = '';
+                this.suggestionInput.value = '';
+            }
+            
+            hideModal() {
+                this.modal.style.display = 'none';
+            }
+            
+            updateTexts() {
+                const lang = this.currentLanguage;
+                document.getElementById('suggestions-title').textContent = translations[lang].suggestionsTitle;
+                document.getElementById('suggestions-subtitle').textContent = translations[lang].suggestionsSubtitle;
+                document.getElementById('email-label').innerHTML = translations[lang].emailLabel + '<span class="required"></span>';
+                document.getElementById('city-label').innerHTML = translations[lang].cityLabel + '<span class="required"></span>';
+                document.getElementById('suggestion-label').textContent = translations[lang].suggestionLabel;
+                document.getElementById('program-label').textContent = translations[lang].programLabel;
+                this.submitBtn.textContent = translations[lang].submitButton;
+                document.getElementById('loading-text').textContent = translations[lang].sendingText;
+                document.getElementById('city-examples').textContent = translations[lang].cityExamples;
+                
+                // Actualizar placeholders
+                this.emailInput.placeholder = "tu@email.com";
+                this.cityInput.placeholder = lang === 'en' ? "Ex: Madrid" : lang === 'ca' ? "Ex: Madrid" : "Ej: Madrid";
+                this.suggestionInput.placeholder = lang === 'en' ? "Your ideas to improve the app..." : 
+                                                  lang === 'ca' ? "Les teves idees per millorar l'app..." : 
+                                                  "Tus ideas para mejorar la app...";
+            }
+            
+            getCurrentDate() {
+                const now = new Date();
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const year = now.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+            
+            getCurrentTime() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                return `${hours}:${minutes}:${seconds}`;
+            }
+            
+            showMessage(text, type = 'success') {
+                this.message.textContent = text;
+                this.message.className = `message ${type}`;
+                this.message.style.display = 'block';
+                
+                setTimeout(() => {
+                    this.message.style.display = 'none';
+                }, 4000);
+            }
+            
+            isValidEmail(email) {
+                if (!email) return false;
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
+            
+            isValidCity(city) {
+                if (!city) return false;
+                city = city.trim();
+                return city.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]+$/.test(city);
+            }
+            
+            formatCity(city) {
+                if (!city) return '';
+                return city.trim().replace(/\b\w/g, char => char.toUpperCase());
+            }
+            
+            async submitForm() {
+                const email = this.emailInput.value.trim();
+                let city = this.cityInput.value.trim();
+                const suggestion = this.suggestionInput.value.trim();
+                
+                const fecha = this.getCurrentDate();
+                const hora = this.getCurrentTime();
+                
+                // Validaciones
+                if (!email) {
+                    this.showMessage(translations[this.currentLanguage].enterEmail, 'error');
+                    this.emailInput.focus();
+                    return;
+                }
+                
+                if (!this.isValidEmail(email)) {
+                    this.showMessage(translations[this.currentLanguage].invalidEmail, 'error');
+                    this.emailInput.focus();
+                    return;
+                }
+                
+                if (!city) {
+                    this.showMessage(translations[this.currentLanguage].enterCity, 'error');
+                    this.cityInput.focus();
+                    return;
+                }
+                
+                if (!this.isValidCity(city)) {
+                    this.showMessage(translations[this.currentLanguage].invalidCity, 'error');
+                    this.cityInput.focus();
+                    return;
+                }
+                
+                city = this.formatCity(city);
+                
+                // Mostrar carga
+                this.submitBtn.disabled = true;
+                this.loading.style.display = 'block';
+                
+                try {
+                    const formData = new FormData();
+                    
+                    formData.append(this.FIELD_IDS.email, email);
+                    formData.append(this.FIELD_IDS.ciudad, city);
+                    formData.append(this.FIELD_IDS.sugerencia, suggestion || "(sin sugerencia)");
+                    formData.append(this.FIELD_IDS.programa, "Calculadora de Tiempos"); // CAMBIADO A "Calculadora de Tiempos"
+                    formData.append(this.FIELD_IDS.fecha, fecha);
+                    formData.append(this.FIELD_IDS.hora, hora);
+                    
+                    await fetch(this.FORM_ENDPOINT, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: formData
+                    });
+                    
+                    this.showMessage(translations[this.currentLanguage].successMessage, 'success');
+                    
+                    // Limpiar campos
+                    this.emailInput.value = '';
+                    this.cityInput.value = '';
+                    this.suggestionInput.value = '';
+                    
+                    // Cerrar modal después de un tiempo
+                    setTimeout(() => {
+                        this.hideModal();
+                    }, 1500);
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.showMessage(translations[this.currentLanguage].errorMessage, 'error');
+                } finally {
+                    this.submitBtn.disabled = false;
+                    this.loading.style.display = 'none';
+                }
+            }
+            
+            updateLanguage(lang) {
+                this.currentLanguage = lang;
+                this.updateTexts();
             }
         }
         
@@ -1677,6 +2225,14 @@ IDList=`;
             
             // Inicializar instalador de app
             new AppInstaller();
+            
+            // Inicializar sistema de sugerencias
+            window.suggestionsSystem = new SuggestionsSystem();
+            
+            // Mostrar mensaje informativo después de un tiempo
+            setTimeout(() => {
+                window.suggestionsSystem.showMessage('Comparte tus ideas para mejorar la calculadora', 'info');
+            }, 1000);
         });
 		// Registrar el Service Worker
         // Registro específico para Calculadora
