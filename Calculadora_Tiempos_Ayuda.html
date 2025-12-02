@@ -201,6 +201,32 @@
             transform: translateY(-2px);
         }
         
+        .intro-box {
+            background: rgba(231, 76, 60, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .intro-box p {
+            font-style: italic;
+            color: #ecf0f1;
+        }
+        
+        .other-feature {
+            background: rgba(52, 152, 219, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #3498db;
+        }
+        
+        .other-feature h4 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -238,8 +264,12 @@
 
         <!-- Contenido Español -->
         <div class="content active" id="content-es">
+            <div class="intro-box">
+                <p><strong>Esta aplicación ha sido desarrollada por Roberto Benet, comisario del comité catalán, para que cualquier árbitro pueda utilizarla en carreras de ciclismo de forma gratuita. Estoy abierto a cualquier tipo de mejora o implementación de nuevas funciones.</strong></p>
+            </div>
+
             <h2>Descripción General</h2>
-            <p>La Calculadora de Tiempos para Ciclismo es una herramienta especializada diseñada para ciclistas y entrenadores que necesitan realizar cálculos precisos de tiempos, promedios y vueltas. Combina funcionalidades de calculadora estándar con operaciones específicas para deportes de resistencia.</p>
+            <p>La Calculadora de Tiempos para Ciclismo es una herramienta especializada diseñada específicamente para árbitros, comisarios y oficiales de carreras ciclistas. Permite realizar cálculos precisos de tiempos, promedios, vueltas y operaciones específicas necesarias durante el desarrollo de competiciones ciclistas.</p>
 
             <h2>Funcionalidades Principales</h2>
             
@@ -253,142 +283,166 @@
                 </div>
                 
                 <div class="feature-card">
-                    <h4>Operaciones Básicas</h4>
+                    <h4>Operaciones Específicas para Carreras</h4>
                     <ul>
-                        <li><strong>Suma y Resta:</strong> Operaciones con tiempos y valores</li>
-                        <li><strong>Multiplicación y División:</strong> Cálculos con factores y valores</li>
-                        <li><strong>Porcentajes:</strong> Cálculo de porcentajes e incrementos porcentuales</li>
+                        <li><strong>Suma y Resta de Tiempos:</strong> Para calcular tiempos parciales y totales</li>
+                        <li><strong>Cálculo de Promedio:</strong> Velocidad media en km/h (ideal para controles de tiempo)</li>
+                        <li><strong>Número de Vueltas:</strong> Calcula vueltas completas en función del tiempo por vuelta</li>
+                        <li><strong>Incrementos Porcentuales:</strong> Para cálculos de tiempos límite y márgenes</li>
                     </ul>
                 </div>
                 
                 <div class="feature-card">
-                    <h4>Funciones de Memoria</h4>
+                    <h4>Funciones de Memoria Avanzadas</h4>
                     <ul>
-                        <li><strong>M+:</strong> Suma el valor actual a la memoria</li>
+                        <li><strong>M+:</strong> Suma el valor actual a la memoria (conserva formato tiempo/decimal)</li>
                         <li><strong>MR:</strong> Recupera el valor almacenado en memoria</li>
-                        <li><strong>MC:</strong> Limpia la memoria</li>
+                        <li><strong>MC:</strong> Limpia completamente la memoria</li>
                     </ul>
                 </div>
                 
                 <div class="feature-card">
-                    <h4>Cálculos Especializados</h4>
+                    <h4>Herramientas para Árbitros</h4>
                     <ul>
-                        <li><strong>Cálculo de Promedio:</strong> Calcula velocidad promedio en km/h</li>
-                        <li><strong>Número de Vueltas:</strong> Calcula cuántas vueltas caben en un tiempo objetivo</li>
+                        <li><strong>Historial de operaciones:</strong> Guarda los últimos 3 cálculos</li>
+                        <li><strong>Multilenguaje:</strong> Español, Catalán e Inglés</li>
+                        <li><strong>Interfaz optimizada:</strong> Diseñada para uso rápido en competiciones</li>
+                        <li><strong>Persistencia:</strong> Guarda preferencias de idioma</li>
                     </ul>
                 </div>
             </div>
 
-            <h2>Cómo Usar</h2>
+            <h2>Otras Funciones Disponibles</h2>
+            
+            <div class="other-feature">
+                <h4>Sistema de Sugerencias Integrado</h4>
+                <p><strong>Acceso:</strong> Botón "Actualizaciones/Sugerencias"</p>
+                <p><strong>Funcionalidad:</strong> Permite enviar sugerencias, reportar errores o proponer mejoras directamente desde la aplicación. Los datos se envían a un formulario de Google Forms para su evaluación.</p>
+                <p><strong>Campos requeridos:</strong> Email y Ciudad (para segmentación geográfica de sugerencias)</p>
+            </div>
+            
+            <div class="other-feature">
+                <h4>Sistema de Instalación Avanzado</h4>
+                <p><strong>Acceso:</strong> Botón "Instalar App"</p>
+                <p><strong>Funcionalidad:</strong> Guía paso a paso para instalar la aplicación como PWA (Progressive Web App) en diferentes dispositivos:</p>
+                <ul>
+                    <li><strong>iOS:</strong> Instrucciones específicas para iPhone/iPad</li>
+                    <li><strong>Android:</strong> Instalación automática como PWA</li>
+                    <li><strong>Windows:</strong> Descarga de acceso directo .url</li>
+                </ul>
+            </div>
+            
+            <div class="other-feature">
+                <h4>Funcionamiento Offline</h4>
+                <p><strong>Ventajas:</strong> Una vez instalada, la aplicación funciona sin conexión a internet</p>
+                <p><strong>Actualizaciones automáticas:</strong> El sistema detecta nuevas versiones y las instala automáticamente</p>
+                <p><strong>Rendimiento mejorado:</strong> Carga más rápida y experiencia de usuario fluida</p>
+            </div>
+
+            <h2>Cómo Usar en Competiciones</h2>
             
             <div class="step-box">
                 <span class="step-number">1</span>
-                <strong>Seleccionar Modo</strong>
-                <p>Elige entre Modo Decimal para cálculos matemáticos básicos o Modo Tiempo para trabajar con horas, minutos y segundos.</p>
+                <strong>Cálculo de Tiempos Parciales</strong>
+                <p><strong>Uso:</strong> En controles de paso, suma los tiempos de diferentes corredores o equipos</p>
+                <p><strong>Ejemplo:</strong> Tiempo líder + diferencia = tiempo de cada corredor</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">2</span>
-                <strong>Introducir Valores</strong>
-                <p>En Modo Tiempo, utiliza los botones de Hora, Minuto y Segundo para introducir tiempos en formato natural (ej: 1h 30m 45s).</p>
+                <strong>Cálculo de Velocidad Media</strong>
+                <p><strong>Uso:</strong> Verificar si los corredores mantienen el ritmo establecido</p>
+                <p><strong>Ejemplo:</strong> Distancia 25km, Tiempo 35m 42s → Velocidad media: 42.15 km/h</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">3</span>
-                <strong>Realizar Operaciones</strong>
-                <p>Utiliza los botones de operación (+, -, ×, ÷, %, %+) para realizar cálculos. Los resultados se mostrarán en el formato correspondiente.</p>
+                <strong>Cálculo de Vueltas en Circuitos</strong>
+                <p><strong>Uso:</strong> Determinar cuántas vueltas completarán los corredores en el tiempo disponible</p>
+                <p><strong>Ejemplo:</strong> Tiempo por vuelta: 4m 15s, Tiempo carrera: 2h → 28 vueltas completas</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">4</span>
-                <strong>Usar Funciones Especiales</strong>
-                <p>Accede a los cálculos especializados como Promedio y Número de Vueltas para análisis de rendimiento y planificación de entrenamientos.</p>
+                <strong>Márgenes de Tiempo</strong>
+                <p><strong>Uso:</strong> Calcular tiempos límite y márgenes permitidos</p>
+                <p><strong>Ejemplo:</strong> Tiempo referencia + 10% = tiempo máximo permitido</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">5</span>
-                <strong>Gestionar Memoria</strong>
-                <p>Utiliza las funciones de memoria (M+, MR, MC) para almacenar y recuperar valores durante cálculos complejos.</p>
+                <strong>Uso de Memoria en Cálculos Complejos</strong>
+                <p><strong>Uso:</strong> Almacenar tiempos intermedios durante cálculos de etapas multi-segmento</p>
+                <p><strong>Ejemplo:</strong> Guardar tiempo de ascenso, luego sumar tiempo de descenso</p>
             </div>
 
-            <h2>Ejemplos de Uso</h2>
-            
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <h4>Cálculo de Tiempo Total</h4>
-                    <p><strong>Ejemplo:</strong> 1h 30m + 45m 30s = 2h 15m 30s</p>
-                    <p>Suma diferentes segmentos de tiempo para obtener el tiempo total de una ruta o entrenamiento.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <h4>Cálculo de Velocidad Promedio</h4>
-                    <p><strong>Ejemplo:</strong> Distancia: 50 km, Tiempo: 2h 15m → Resultado: 22.22 km/h</p>
-                    <p>Calcula la velocidad promedio basada en distancia recorrida y tiempo empleado.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <h4>Cálculo de Vueltas</h4>
-                    <p><strong>Ejemplo:</strong> Tiempo por vuelta: 8m 30s, Tiempo objetivo: 2h 30m → Resultado: 17 vueltas</p>
-                    <p>Determina cuántas vueltas completas puedes realizar dentro de un tiempo límite.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <h4>Incremento Porcentual</h4>
-                    <p><strong>Ejemplo:</strong> Tiempo base: 1h 20m, Incremento: 10% (%+) → Resultado: 1h 28m</p>
-                    <p>Aplica incrementos porcentuales a tiempos base para planificar mejoras.</p>
-                </div>
-            </div>
-
-            <h2>Características Avanzadas</h2>
+            <h2>Características Técnicas</h2>
             <ul>
-                <li><strong>Historial de Operaciones:</strong> Mantiene un registro de los últimos cálculos realizados</li>
-                <li><strong>Idiomas:</strong> Soporte para Español, Catalán e Inglés</li>
-                <li><strong>Persistencia:</strong> Recuerda el idioma seleccionado y el contador de visitas</li>
-                <li><strong>Responsive:</strong> Funciona en dispositivos móviles y desktop</li>
-                <li><strong>Instalable:</strong> Puede instalarse como aplicación en dispositivos móviles</li>
+                <li><strong>Progressive Web App (PWA):</strong> Instalable como aplicación nativa</li>
+                <li><strong>Funcionamiento offline:</strong> Una vez instalada, no requiere internet</li>
+                <li><strong>Actualizaciones automáticas:</strong> Detecta e instala nuevas versiones</li>
+                <li><strong>Multiplataforma:</strong> Funciona en iOS, Android, Windows, macOS</li>
+                <li><strong>Alto rendimiento:</strong> Optimizada para uso rápido en competiciones</li>
+                <li><strong>Diseño responsive:</strong> Adaptable a móviles, tablets y ordenadores</li>
+                <li><strong>Sistema de feedback:</strong> Canal directo para sugerencias de árbitros</li>
             </ul>
 
             <div class="tip-box">
-                <h4>Consejos Prácticos</h4>
+                <h4>Consejos para Árbitros</h4>
                 <ul>
-                    <li>Para sumar tiempos, usa el modo tiempo y alterna entre horas, minutos y segundos</li>
-                    <li>Para cálculos complejos, combina el modo decimal con funciones de memoria</li>
-                    <li>Usa la función de número de vueltas para planificar sesiones de entrenamiento</li>
-                    <li>Utiliza el cálculo de promedio para evaluar ritmos y rendimiento</li>
+                    <li><strong>Antes de la carrera:</strong> Instala la app en tu móvil para uso offline</li>
+                    <li><strong>Durante la carrera:</strong> Usa la memoria para cálculos complejos</li>
+                    <li><strong>Para controles de tiempo:</strong> Utiliza la función de promedio</li>
+                    <li><strong>En circuitos:</strong> Configura el cálculo de vueltas al inicio</li>
+                    <li><strong>Comunicación:</strong> Usa el mismo idioma que el panel de árbitros</li>
+                    <li><strong>Verificación:</strong> Siempre verifica cálculos importantes 2 veces</li>
                 </ul>
             </div>
 
-            <h2>Instalación como App en el Móvil</h2>
+            <h2>Instalación como App</h2>
             <div class="app-install">
                 <div class="platform">
                     <h4>Para iPhone/iOS:</h4>
                     <ol>
-                        <li>Abrir Safari y navegar a la página de la calculadora</li>
+                        <li>Abrir Safari y navegar a la calculadora</li>
                         <li>Tocar el icono de compartir (cuadrado con flecha hacia arriba)</li>
-                        <li>Desplazarse hacia abajo y seleccionar "Añadir a pantalla de inicio"</li>
-                        <li>Personalizar el nombre si se desea y tocar "Añadir"</li>
-                        <li>La app aparecerá en la pantalla de inicio como una aplicación nativa</li>
+                        <li>Desplazarse y seleccionar "Añadir a pantalla de inicio"</li>
+                        <li>Personalizar el nombre y tocar "Añadir"</li>
+                        <li>La app aparecerá en la pantalla de inicio</li>
                     </ol>
                 </div>
                 
                 <div class="platform">
                     <h4>Para Android:</h4>
                     <ol>
-                        <li>Abrir Chrome y navegar a la página de la calculadora</li>
-                        <li>Tocar el menú de tres puntos en la esquina superior derecha</li>
-                        <li>Seleccionar "Añadir a pantalla de inicio"</li>
-                        <li>Personalizar el nombre si se desea y tocar "Añadir"</li>
-                        <li>La app aparecerá en la pantalla de inicio como una aplicación nativa</li>
+                        <li>Abrir Chrome y navegar a la calculadora</li>
+                        <li>Tocar el menú de tres puntos (esquina superior derecha)</li>
+                        <li>Seleccionar "Instalar app" o "Añadir a pantalla de inicio"</li>
+                        <li>Seguir las instrucciones del navegador</li>
+                        <li>La app se instalará automáticamente</li>
                     </ol>
                 </div>
                 
-                <h3>Ventajas de instalarla como App:</h3>
+                <h3>Ventajas de la instalación:</h3>
                 <ul>
-                    <li>Acceso rápido directo desde la pantalla de inicio</li>
-                    <li>Funciona sin conexión a internet después de la primera carga</li>
-                    <li>Interfaz similar a una aplicación nativa</li>
-                    <li>No requiere descarga desde tiendas de aplicaciones</li>
+                    <li><strong>Acceso inmediato:</strong> Icono directo en pantalla de inicio</li>
+                    <li><strong>Funciona sin internet:</strong> Esencial en zonas sin cobertura</li>
+                    <li><strong>Actualizaciones automáticas:</strong> Siempre tendrás la última versión</li>
+                    <li><strong>Mayor velocidad:</strong> Carga instantánea como app nativa</li>
+                    <li><strong>Notificaciones:</strong> Recibe avisos de nuevas funciones</li>
                 </ul>
+            </div>
+
+            <div class="tip-box">
+                <h4>Contribuir al Proyecto</h4>
+                <p>Esta aplicación es gratuita y de código abierto. Si eres árbitro o comisario y tienes ideas para mejorarla:</p>
+                <ol>
+                    <li>Usa el botón "Actualizaciones/Sugerencias" en la calculadora</li>
+                    <li>Describe la función que necesitas</li>
+                    <li>Explica en qué tipo de carrera la usarías</li>
+                    <li>Incluye tu email para que pueda contactarte</li>
+                </ol>
+                <p><strong>Todas las sugerencias serán consideradas para futuras versiones.</strong></p>
             </div>
 
             <a href="Calculadora_Tiempos.html" class="back-button">Volver a la Calculadora</a>
@@ -396,8 +450,12 @@
 
         <!-- Contenido Català -->
         <div class="content" id="content-ca">
+            <div class="intro-box">
+                <p><strong>Aquesta aplicació ha estat desenvolupada per Roberto Benet, comissari del comitè català, perquè qualsevol àrbitre la pugui utilitzar en curses de ciclisme de forma gratuïta. Estic obert a qualsevol tipus de millora o implementació de noves funcions.</strong></p>
+            </div>
+
             <h2>Descripció General</h2>
-            <p>La Calculadora de Temps per a Ciclisme és una eina especialitzada dissenyada per a ciclistes i entrenadors que necessiten realitzar càlculs precisos de temps, mitjanes i voltes. Combina funcionalitats de calculadora estàndard amb operacions específiques per a esports de resistència.</p>
+            <p>La Calculadora de Temps per a Ciclisme és una eina especialitzada dissenyada específicament per a àrbitres, comissaris i oficials de curses ciclistes. Permet realitzar càlculs precisos de temps, mitjanes, voltes i operacions específiques necessàries durant el desenvolupament de competicions ciclistes.</p>
 
             <h2>Funcionalitats Principals</h2>
             
@@ -411,142 +469,166 @@
                 </div>
                 
                 <div class="feature-card">
-                    <h4>Operacions Bàsiques</h4>
+                    <h4>Operacions Específiques per a Curses</h4>
                     <ul>
-                        <li><strong>Suma i Resta:</strong> Operacions amb temps i valors</li>
-                        <li><strong>Multiplicació i Divisió:</strong> Càlculs amb factors i valors</li>
-                        <li><strong>Percentatges:</strong> Càlcul de percentatges i increments percentuals</li>
+                        <li><strong>Suma i Resta de Temps:</strong> Per calcular temps parcials i totals</li>
+                        <li><strong>Càlcul de Mitjana:</strong> Velocitat mitjana en km/h (ideal per a controls de temps)</li>
+                        <li><strong>Nombre de Voltes:</strong> Calcula voltes completes en funció del temps per volta</li>
+                        <li><strong>Increments Percentuals:</strong> Per a càlculs de temps límit i marges</li>
                     </ul>
                 </div>
                 
                 <div class="feature-card">
-                    <h4>Funcions de Memòria</h4>
+                    <h4>Funcions de Memòria Avançades</h4>
                     <ul>
-                        <li><strong>M+:</strong> Suma el valor actual a la memòria</li>
+                        <li><strong>M+:</strong> Suma el valor actual a la memòria (conserva format temps/decimal)</li>
                         <li><strong>MR:</strong> Recupera el valor emmagatzemat a la memòria</li>
-                        <li><strong>MC:</strong> Neteja la memòria</li>
+                        <li><strong>MC:</strong> Neteja completament la memòria</li>
                     </ul>
                 </div>
                 
                 <div class="feature-card">
-                    <h4>Càlculs Especialitzats</h4>
+                    <h4>Eines per a Àrbitres</h4>
                     <ul>
-                        <li><strong>Càlcul de Promig:</strong> Calcula velocitat mitjana en km/h</li>
-                        <li><strong>Nombre de Voltes:</strong> Calcula quantes voltes caben en un temps objectiu</li>
+                        <li><strong>Historial d'operacions:</strong> Guarda els últims 3 càlculs</li>
+                        <li><strong>Multilingüe:</strong> Espanyol, Català i Anglès</li>
+                        <li><strong>Interfície optimitzada:</strong> Dissenyada per a ús ràpid en competicions</li>
+                        <li><strong>Persistència:</strong> Guarda preferències d'idioma</li>
                     </ul>
                 </div>
             </div>
 
-            <h2>Com Utilitzar-ho</h2>
+            <h2>Altres Funcions Disponibles</h2>
+            
+            <div class="other-feature">
+                <h4>Sistema de Suggeriments Integrat</h4>
+                <p><strong>Accés:</strong> Botó "Actualitzacions/Suggeriments"</p>
+                <p><strong>Funcionalitat:</strong> Permet enviar suggeriments, reportar errors o proposar millores directament des de l'aplicació. Les dades s'envien a un formulari de Google Forms per a la seva avaluació.</p>
+                <p><strong>Camps requerits:</strong> Email i Ciutat (per a segmentació geogràfica de suggeriments)</p>
+            </div>
+            
+            <div class="other-feature">
+                <h4>Sistema d'Instal·lació Avançat</h4>
+                <p><strong>Accés:</strong> Botó "Instal·lar App"</p>
+                <p><strong>Funcionalitat:</strong> Guia pas a pas per instal·lar l'aplicació com a PWA (Progressive Web App) en diferents dispositius:</p>
+                <ul>
+                    <li><strong>iOS:</strong> Instruccions específiques per a iPhone/iPad</li>
+                    <li><strong>Android:</strong> Instal·lació automàtica com a PWA</li>
+                    <li><strong>Windows:</strong> Descàrrega d'accés directe .url</li>
+                </ul>
+            </div>
+            
+            <div class="other-feature">
+                <h4>Funcionament Offline</h4>
+                <p><strong>Avantatges:</strong> Un cop instal·lada, l'aplicació funciona sense connexió a internet</p>
+                <p><strong>Actualitzacions automàtiques:</strong> El sistema detecta noves versions i les instal·la automàticament</p>
+                <p><strong>Rendiment millorat:</strong> Càrrega més ràpida i experiència d'usuari fluida</p>
+            </div>
+
+            <h2>Com Utilitzar en Competicions</h2>
             
             <div class="step-box">
                 <span class="step-number">1</span>
-                <strong>Seleccionar Mode</strong>
-                <p>Tria entre Mode Decimal per a càlculs matemàtics bàsics o Mode Temps per a treballar amb hores, minuts i segons.</p>
+                <strong>Càlcul de Temps Parcials</strong>
+                <p><strong>Ús:</strong> En controls de pas, suma els temps de diferents corredors o equips</p>
+                <p><strong>Exemple:</strong> Temps líder + diferència = temps de cada corredor</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">2</span>
-                <strong>Introduir Valors</strong>
-                <p>En Mode Temps, utilitza els botons d'Hora, Minut i Segon per introduir temps en format natural (ex: 1h 30m 45s).</p>
+                <strong>Càlcul de Velocitat Mitjana</strong>
+                <p><strong>Ús:</strong> Verificar si els corredors mantenen el ritme establert</p>
+                <p><strong>Exemple:</strong> Distància 25km, Temps 35m 42s → Velocitat mitjana: 42.15 km/h</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">3</span>
-                <strong>Realitzar Operacions</strong>
-                <p>Utilitza els botons d'operació (+, -, ×, ÷, %, %+) per realitzar càlculs. Els resultats es mostraran en el format corresponent.</p>
+                <strong>Càlcul de Voltes en Circuits</strong>
+                <p><strong>Ús:</strong> Determinar quantes voltes completaran els corredors en el temps disponible</p>
+                <p><strong>Exemple:</strong> Temps per volta: 4m 15s, Temps cursa: 2h → 28 voltes completes</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">4</span>
-                <strong>Utilitzar Funcions Especials</strong>
-                <p>Accedeix als càlculs especialitzats com Promig i Nombre de Voltes per a anàlisi de rendiment i planificació d'entrenaments.</p>
+                <strong>Marges de Temps</strong>
+                <p><strong>Ús:</strong> Calcular temps límit i marges permesos</p>
+                <p><strong>Exemple:</strong> Temps referència + 10% = temps màxim permès</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">5</span>
-                <strong>Gestionar Memòria</strong>
-                <p>Utilitza les funcions de memòria (M+, MR, MC) per emmagatzemar i recuperar valors durant càlculs complexos.</p>
+                <strong>Ús de Memòria en Càlculs Complexos</strong>
+                <p><strong>Ús:</strong> Emmagatzemar temps intermedis durant càlculs d'etapes multi-segment</p>
+                <p><strong>Exemple:</strong> Guardar temps d'ascens, després sumar temps de descens</p>
             </div>
 
-            <h2>Exemples d'Ús</h2>
-            
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <h4>Càlcul de Temps Total</h4>
-                    <p><strong>Exemple:</strong> 1h 30m + 45m 30s = 2h 15m 30s</p>
-                    <p>Suma diferents segments de temps per obtenir el temps total d'una ruta o entrenament.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <h4>Càlcul de Velocitat Mitjana</h4>
-                    <p><strong>Exemple:</strong> Distància: 50 km, Temps: 2h 15m → Resultat: 22.22 km/h</p>
-                    <p>Calcula la velocitat mitjana basada en distància recorreguda i temps emprat.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <h4>Càlcul de Voltes</h4>
-                    <p><strong>Exemple:</strong> Temps per volta: 8m 30s, Temps objectiu: 2h 30m → Resultat: 17 voltes</p>
-                    <p>Determina quantes voltes completes pots realitzar dins d'un temps límit.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <h4>Increment Percentual</h4>
-                    <p><strong>Exemple:</strong> Temps base: 1h 20m, Increment: 10% (%+) → Resultat: 1h 28m</p>
-                    <p>Aplica increments percentuals a temps base per planificar millores.</p>
-                </div>
-            </div>
-
-            <h2>Característiques Avançades</h2>
+            <h2>Característiques Tècniques</h2>
             <ul>
-                <li><strong>Historial d'Operacions:</strong> Manté un registre dels últims càlculs realitzats</li>
-                <li><strong>Idiomes:</strong> Suport per a Espanyol, Català i Anglès</li>
-                <li><strong>Persistència:</strong> Recorda l'idioma seleccionat i el comptador de visites</li>
-                <li><strong>Responsive:</strong> Funciona en dispositius mòbils i ordinadors</li>
-                <li><strong>Instal·lable:</strong> Es pot instal·lar com a aplicació en dispositius mòbils</li>
+                <li><strong>Progressive Web App (PWA):</strong> Instal·lable com a aplicació nativa</li>
+                <li><strong>Funcionament offline:</strong> Un cop instal·lada, no requereix internet</li>
+                <li><strong>Actualitzacions automàtiques:</strong> Detecta i instal·la noves versions</li>
+                <li><strong>Multiplataforma:</strong> Funciona en iOS, Android, Windows, macOS</li>
+                <li><strong>Alt rendiment:</strong> Optimitzada per a ús ràpid en competicions</li>
+                <li><strong>Disseny responsive:</strong> Adaptable a mòbils, tablets i ordinadors</li>
+                <li><strong>Sistema de feedback:</strong> Canal directe per a suggeriments d'àrbitres</li>
             </ul>
 
             <div class="tip-box">
-                <h4>Consells Pràctics</h4>
+                <h4>Consells per a Àrbitres</h4>
                 <ul>
-                    <li>Per sumar temps, utilitza el mode temps i alterna entre hores, minuts i segons</li>
-                    <li>Per càlculs complexos, combina el mode decimal amb funcions de memòria</li>
-                    <li>Utilitza la funció de nombre de voltes per planificar sessions d'entrenament</li>
-                    <li>Utilitza el càlcul de mitjana per avaluar ritmes i rendiment</li>
+                    <li><strong>Abans de la cursa:</strong> Instal·la l'app al teu mòbil per a ús offline</li>
+                    <li><strong>Durant la cursa:</strong> Utilitza la memòria per a càlculs complexos</li>
+                    <li><strong>Per a controls de temps:</strong> Utilitza la funció de mitjana</li>
+                    <li><strong>En circuits:</strong> Configura el càlcul de voltes a l'inici</li>
+                    <li><strong>Comunicació:</strong> Utilitza el mateix idioma que el tauler d'àrbitres</li>
+                    <li><strong>Verificació:</strong> Sempre verifica càlculs importants 2 vegades</li>
                 </ul>
             </div>
 
-            <h2>Instal·lació com a App al Mòbil</h2>
+            <h2>Instal·lació com a App</h2>
             <div class="app-install">
                 <div class="platform">
                     <h4>Per a iPhone/iOS:</h4>
                     <ol>
-                        <li>Obri Safari i navegar a la pàgina de la calculadora</li>
+                        <li>Obrir Safari i navegar a la calculadora</li>
                         <li>Toqui la icona de compartir (quadrat amb fletxa cap amunt)</li>
-                        <li>Desplaçar-se cap avall i seleccionar "Afegir a pantalla d'inici"</li>
-                        <li>Personalitzar el nom si es desitja i tocar "Afegir"</li>
-                        <li>L'app apareixerà a la pantalla d'inici com una aplicació nativa</li>
+                        <li>Desplaçar-se i seleccionar "Afegir a pantalla d'inici"</li>
+                        <li>Personalitzar el nom i tocar "Afegir"</li>
+                        <li>L'app apareixerà a la pantalla d'inici</li>
                     </ol>
                 </div>
                 
                 <div class="platform">
                     <h4>Per a Android:</h4>
                     <ol>
-                        <li>Obri Chrome i navegar a la pàgina de la calculadora</li>
-                        <li>Toqui el menú de tres punts a la cantonada superior dreta</li>
-                        <li>Seleccionar "Afegir a pantalla d'inici"</li>
-                        <li>Personalitzar el nom si es desitja i tocar "Afegir"</li>
-                        <li>L'app apareixerà a la pantalla d'inici com una aplicació nativa</li>
+                        <li>Obrir Chrome i navegar a la calculadora</li>
+                        <li>Toqui el menú de tres punts (cantonada superior dreta)</li>
+                        <li>Seleccionar "Instal·lar app" o "Afegir a pantalla d'inici"</li>
+                        <li>Seguir les instruccions del navegador</li>
+                        <li>L'app s'instal·larà automàticament</li>
                     </ol>
                 </div>
                 
-                <h3>Avantatges d'instal·lar-la com a App:</h3>
+                <h3>Avantatges de la instal·lació:</h3>
                 <ul>
-                    <li>Accés ràpid directe des de la pantalla d'inici</li>
-                    <li>Funciona sense connexió a internet després de la primera càrrega</li>
-                    <li>Interfície similar a una aplicació nativa</li>
-                    <li>No requereix descàrrega des de botigues d'aplicacions</li>
+                    <li><strong>Accés immediat:</strong> Icona directa a pantalla d'inici</li>
+                    <li><strong>Funciona sense internet:</strong> Essencial en zones sense cobertura</li>
+                    <li><strong>Actualitzacions automàtiques:</strong> Sempre tindràs l'última versió</li>
+                    <li><strong>Major velocitat:</strong> Càrrega instantània com a app nativa</li>
+                    <li><strong>Notificacions:</strong> Rep avisos de noves funcions</li>
                 </ul>
+            </div>
+
+            <div class="tip-box">
+                <h4>Contribuir al Projecte</h4>
+                <p>Aquesta aplicació és gratuïta i de codi obert. Si ets àrbitre o comissari i tens idees per millorar-la:</p>
+                <ol>
+                    <li>Utilitza el botó "Actualitzacions/Suggeriments" a la calculadora</li>
+                    <li>Descriu la funció que necessites</li>
+                    <li>Explica en quin tipus de cursa la utilitzaries</li>
+                    <li>Inclou el teu email perquè pugui contactar-te</li>
+                </ol>
+                <p><strong>Tots els suggeriments seran considerats per a futures versions.</strong></p>
             </div>
 
             <a href="Calculadora_Tiempos.html" class="back-button">Tornar a la Calculadora</a>
@@ -554,8 +636,12 @@
 
         <!-- Contenido English -->
         <div class="content" id="content-en">
+            <div class="intro-box">
+                <p><strong>This application has been developed by Roberto Benet, commissioner of the Catalan committee, so that any referee can use it in cycling races free of charge. I am open to any type of improvement or implementation of new features.</strong></p>
+            </div>
+
             <h2>General Description</h2>
-            <p>The Time Calculator for Cycling is a specialized tool designed for cyclists and coaches who need to perform precise calculations of times, averages, and laps. It combines standard calculator functionalities with specific operations for endurance sports.</p>
+            <p>The Time Calculator for Cycling is a specialized tool designed specifically for referees, commissioners and race officials. It allows precise calculations of times, averages, laps and specific operations needed during cycling competitions.</p>
 
             <h2>Main Features</h2>
             
@@ -564,147 +650,171 @@
                     <h4>Operation Modes</h4>
                     <ul>
                         <li><strong>Decimal Mode:</strong> Works as a conventional calculator for basic mathematical calculations</li>
-                        <li><strong>Time Mode:</strong> Specialized for working with hours, minutes, and seconds in natural format</li>
+                        <li><strong>Time Mode:</strong> Specialized for working with hours, minutes and seconds in natural format</li>
                     </ul>
                 </div>
                 
                 <div class="feature-card">
-                    <h4>Basic Operations</h4>
+                    <h4>Race-Specific Operations</h4>
                     <ul>
-                        <li><strong>Addition and Subtraction:</strong> Operations with times and values</li>
-                        <li><strong>Multiplication and Division:</strong> Calculations with factors and values</li>
-                        <li><strong>Percentages:</strong> Calculation of percentages and percentage increases</li>
+                        <li><strong>Time Addition/Subtraction:</strong> For calculating partial and total times</li>
+                        <li><strong>Average Calculation:</strong> Average speed in km/h (ideal for time controls)</li>
+                        <li><strong>Number of Laps:</strong> Calculates complete laps based on lap time</li>
+                        <li><strong>Percentage Increases:</strong> For time limit and margin calculations</li>
                     </ul>
                 </div>
                 
                 <div class="feature-card">
-                    <h4>Memory Functions</h4>
+                    <h4>Advanced Memory Functions</h4>
                     <ul>
-                        <li><strong>M+:</strong> Adds current value to memory</li>
+                        <li><strong>M+:</strong> Adds current value to memory (preserves time/decimal format)</li>
                         <li><strong>MR:</strong> Recalls value stored in memory</li>
-                        <li><strong>MC:</strong> Clears memory</li>
+                        <li><strong>MC:</strong> Completely clears memory</li>
                     </ul>
                 </div>
                 
                 <div class="feature-card">
-                    <h4>Specialized Calculations</h4>
+                    <h4>Tools for Referees</h4>
                     <ul>
-                        <li><strong>Average Calculation:</strong> Calculates average speed in km/h</li>
-                        <li><strong>Number of Laps:</strong> Calculates how many laps fit in a target time</li>
+                        <li><strong>Operation history:</strong> Saves last 3 calculations</li>
+                        <li><strong>Multilingual:</strong> Spanish, Catalan and English</li>
+                        <li><strong>Optimized interface:</strong> Designed for fast use in competitions</li>
+                        <li><strong>Persistence:</strong> Saves language preferences</li>
                     </ul>
                 </div>
             </div>
 
-            <h2>How to Use</h2>
+            <h2>Other Available Features</h2>
+            
+            <div class="other-feature">
+                <h4>Integrated Suggestions System</h4>
+                <p><strong>Access:</strong> "Updates/Suggestions" button</p>
+                <p><strong>Functionality:</strong> Allows sending suggestions, reporting errors or proposing improvements directly from the application. Data is sent to a Google Form for evaluation.</p>
+                <p><strong>Required fields:</strong> Email and City (for geographical segmentation of suggestions)</p>
+            </div>
+            
+            <div class="other-feature">
+                <h4>Advanced Installation System</h4>
+                <p><strong>Access:</strong> "Install App" button</p>
+                <p><strong>Functionality:</strong> Step-by-step guide to install the application as PWA (Progressive Web App) on different devices:</p>
+                <ul>
+                    <li><strong>iOS:</strong> Specific instructions for iPhone/iPad</li>
+                    <li><strong>Android:</strong> Automatic installation as PWA</li>
+                    <li><strong>Windows:</strong> .url shortcut download</li>
+                </ul>
+            </div>
+            
+            <div class="other-feature">
+                <h4>Offline Operation</h4>
+                <p><strong>Advantages:</strong> Once installed, the application works without internet connection</p>
+                <p><strong>Automatic updates:</strong> The system detects and installs new versions</p>
+                <p><strong>Improved performance:</strong> Faster loading and smooth user experience</p>
+            </div>
+
+            <h2>How to Use in Competitions</h2>
             
             <div class="step-box">
                 <span class="step-number">1</span>
-                <strong>Select Mode</strong>
-                <p>Choose between Decimal Mode for basic mathematical calculations or Time Mode to work with hours, minutes, and seconds.</p>
+                <strong>Partial Time Calculation</strong>
+                <p><strong>Use:</strong> At checkpoints, add times of different riders or teams</p>
+                <p><strong>Example:</strong> Leader time + difference = each rider's time</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">2</span>
-                <strong>Enter Values</strong>
-                <p>In Time Mode, use the Hour, Minute, and Second buttons to enter times in natural format (ex: 1h 30m 45s).</p>
+                <strong>Average Speed Calculation</strong>
+                <p><strong>Use:</strong> Verify if riders maintain established pace</p>
+                <p><strong>Example:</strong> Distance 25km, Time 35m 42s → Average speed: 42.15 km/h</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">3</span>
-                <strong>Perform Operations</strong>
-                <p>Use the operation buttons (+, -, ×, ÷, %, %+) to perform calculations. Results will be displayed in the appropriate format.</p>
+                <strong>Circuit Lap Calculation</strong>
+                <p><strong>Use:</strong> Determine how many laps riders will complete in available time</p>
+                <p><strong>Example:</strong> Lap time: 4m 15s, Race time: 2h → 28 complete laps</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">4</span>
-                <strong>Use Special Functions</strong>
-                <p>Access specialized calculations like Average and Number of Laps for performance analysis and training planning.</p>
+                <strong>Time Margins</strong>
+                <p><strong>Use:</strong> Calculate time limits and allowed margins</p>
+                <p><strong>Example:</strong> Reference time + 10% = maximum allowed time</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">5</span>
-                <strong>Manage Memory</strong>
-                <p>Use memory functions (M+, MR, MC) to store and retrieve values during complex calculations.</p>
+                <strong>Memory Use in Complex Calculations</strong>
+                <p><strong>Use:</strong> Store intermediate times during multi-segment stage calculations</p>
+                <p><strong>Example:</strong> Save climb time, then add descent time</p>
             </div>
 
-            <h2>Usage Examples</h2>
-            
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <h4>Total Time Calculation</h4>
-                    <p><strong>Example:</strong> 1h 30m + 45m 30s = 2h 15m 30s</p>
-                    <p>Add different time segments to get the total time of a route or training session.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <h4>Average Speed Calculation</h4>
-                    <p><strong>Example:</strong> Distance: 50 km, Time: 2h 15m → Result: 22.22 km/h</p>
-                    <p>Calculate average speed based on distance covered and time spent.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <h4>Lap Calculation</h4>
-                    <p><strong>Example:</strong> Time per lap: 8m 30s, Target time: 2h 30m → Result: 17 laps</p>
-                    <p>Determine how many complete laps you can perform within a time limit.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <h4>Percentage Increase</h4>
-                    <p><strong>Example:</strong> Base time: 1h 20m, Increase: 10% (%+) → Result: 1h 28m</p>
-                    <p>Apply percentage increases to base times to plan improvements.</p>
-                </div>
-            </div>
-
-            <h2>Advanced Features</h2>
+            <h2>Technical Features</h2>
             <ul>
-                <li><strong>Operation History:</strong> Keeps a record of recent calculations performed</li>
-                <li><strong>Languages:</strong> Support for Spanish, Catalan and English</li>
-                <li><strong>Persistence:</strong> Remembers selected language and visit counter</li>
-                <li><strong>Responsive:</strong> Works on mobile devices and desktop computers</li>
-                <li><strong>Installable:</strong> Can be installed as an app on mobile devices</li>
+                <li><strong>Progressive Web App (PWA):</strong> Installable as native application</li>
+                <li><strong>Offline operation:</strong> Once installed, doesn't require internet</li>
+                <li><strong>Automatic updates:</strong> Detects and installs new versions</li>
+                <li><strong>Cross-platform:</strong> Works on iOS, Android, Windows, macOS</li>
+                <li><strong>High performance:</strong> Optimized for fast use in competitions</li>
+                <li><strong>Responsive design:</strong> Adaptable to mobiles, tablets and computers</li>
+                <li><strong>Feedback system:</strong> Direct channel for referee suggestions</li>
             </ul>
 
             <div class="tip-box">
-                <h4>Practical Tips</h4>
+                <h4>Tips for Referees</h4>
                 <ul>
-                    <li>To add times, use time mode and alternate between hours, minutes, and seconds</li>
-                    <li>For complex calculations, combine decimal mode with memory functions</li>
-                    <li>Use the lap count function to plan training sessions</li>
-                    <li>Use average calculation to evaluate paces and performance</li>
+                    <li><strong>Before race:</strong> Install app on your mobile for offline use</li>
+                    <li><strong>During race:</strong> Use memory for complex calculations</li>
+                    <li><strong>For time controls:</strong> Use average function</li>
+                    <li><strong>In circuits:</strong> Configure lap calculation at start</li>
+                    <li><strong>Communication:</strong> Use same language as referee panel</li>
+                    <li><strong>Verification:</strong> Always verify important calculations twice</li>
                 </ul>
             </div>
 
-            <h2>Installation as Mobile App</h2>
+            <h2>Installation as App</h2>
             <div class="app-install">
                 <div class="platform">
                     <h4>For iPhone/iOS:</h4>
                     <ol>
-                        <li>Open Safari and navigate to the calculator page</li>
-                        <li>Tap the share icon (square with upward arrow)</li>
-                        <li>Scroll down and select "Add to Home Screen"</li>
-                        <li>Customize the name if desired and tap "Add"</li>
-                        <li>The app will appear on the home screen like a native app</li>
+                        <li>Open Safari and navigate to calculator</li>
+                        <li>Tap share icon (square with upward arrow)</li>
+                        <li>Scroll and select "Add to Home Screen"</li>
+                        <li>Customize name and tap "Add"</li>
+                        <li>App will appear on home screen</li>
                     </ol>
                 </div>
                 
                 <div class="platform">
                     <h4>For Android:</h4>
                     <ol>
-                        <li>Open Chrome and navigate to the calculator page</li>
-                        <li>Tap the three-dot menu in the upper right corner</li>
-                        <li>Select "Add to Home Screen"</li>
-                        <li>Customize the name if desired and tap "Add"</li>
-                        <li>The app will appear on the home screen like a native app</li>
+                        <li>Open Chrome and navigate to calculator</li>
+                        <li>Tap three-dot menu (upper right corner)</li>
+                        <li>Select "Install app" or "Add to Home Screen"</li>
+                        <li>Follow browser instructions</li>
+                        <li>App will install automatically</li>
                     </ol>
                 </div>
                 
-                <h3>Advantages of Installing as App:</h3>
+                <h3>Installation advantages:</h3>
                 <ul>
-                    <li>Quick access directly from home screen</li>
-                    <li>Works offline after first load</li>
-                    <li>Interface similar to native app</li>
-                    <li>No download required from app stores</li>
+                    <li><strong>Immediate access:</strong> Direct icon on home screen</li>
+                    <li><strong>Works without internet:</strong> Essential in areas without coverage</li>
+                    <li><strong>Automatic updates:</strong> You'll always have latest version</li>
+                    <li><strong>Higher speed:</strong> Instant loading as native app</li>
+                    <li><strong>Notifications:</strong> Receive alerts about new features</li>
                 </ul>
+            </div>
+
+            <div class="tip-box">
+                <h4>Contribute to the Project</h4>
+                <p>This application is free and open source. If you're a referee or commissioner and have ideas to improve it:</p>
+                <ol>
+                    <li>Use the "Updates/Suggestions" button in the calculator</li>
+                    <li>Describe the feature you need</li>
+                    <li>Explain in what type of race you would use it</li>
+                    <li>Include your email so I can contact you</li>
+                </ol>
+                <p><strong>All suggestions will be considered for future versions.</strong></p>
             </div>
 
             <a href="Calculadora_Tiempos.html" class="back-button">Back to Calculator</a>
