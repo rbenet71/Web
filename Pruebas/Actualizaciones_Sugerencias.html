@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Envía tu Sugerencia - Aplicación Roberto</title>
+    <meta name="theme-color" content="#2196F3">
+    <link rel="manifest" href="./manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .app-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 1.8rem;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 1.6rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        .label-hint {
+            color: #666;
+            font-size: 0.85rem;
+            font-weight: normal;
+            margin-left: 0.3rem;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #f44336;
+        }
+        
+        .prefilled-field {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            color: #2196F3;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            color: white;
+            border: none;
+            padding: 1rem;
+            width: 100%;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            text-align: center;
+            margin: 1rem 0;
+            display: none;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(33, 150, 243, 0.2);
+            border-top: 3px solid #2196F3;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 1000;
+            max-width: 300px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .message.success {
+            background: #4CAF50;
+            border-left: 5px solid #2E7D32;
+        }
+        
+        .message.error {
+            background: #f44336;
+            border-left: 5px solid #c62828;
+        }
+        
+        .message.info {
+            background: #2196F3;
+            border-left: 5px solid #0D47A1;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f0f0f0;
+            color: #888;
+            font-size: 0.85rem;
+        }
+        
+        .hint {
+            color: #666;
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+        }
+        
+        .city-examples {
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="app-icon">
+                📱
+            </div>
+            <h1>Aplicación Roberto</h1>
+            <p class="subtitle">Comparte tus sugerencias y comentarios</p>
+        </div>
+        
+        <form id="suggestionForm">
+            <!-- Campo 1: Email (obligatorio según tu formulario) -->
+            <div class="form-group">
+                <label for="email" class="required">Correo electrónico</label>
+                <input type="email" id="email" placeholder="tucorreo@ejemplo.com" required>
+                <div class="hint">Usaremos este email solo para responder tu sugerencia si es necesario</div>
+            </div>
+            
+            <!-- Campo 2: Ciudad (texto libre) -->
+            <div class="form-group">
+                <label for="city" class="required">Ciudad</label>
+                <input type="text" id="city" placeholder="Ej: Madrid, Barcelona, Valencia..." required>
+                <div class="hint">Escribe el nombre de tu ciudad o localidad</div>
+                <div class="city-examples">Ejemplos: Madrid, Barcelona, Valencia, Sevilla, Zaragoza, Bilbao, etc.</div>
+            </div>
+            
+            <!-- Campo 3: Sugerencia -->
+            <div class="form-group">
+                <label for="suggestion" class="required">Tu sugerencia</label>
+                <textarea id="suggestion" placeholder="Describe tu sugerencia, problema o idea de mejora..." required></textarea>
+                <div class="hint">Sé específico para que podamos entender mejor tu sugerencia</div>
+            </div>
+            
+            <!-- Campo 4: Programa (prellenado automáticamente) -->
+            <div class="form-group">
+                <label>Programa</label>
+                <div class="prefilled-field">Aplicación Roberto</div>
+                <div class="hint">Este campo se envía automáticamente con cada sugerencia</div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Enviando sugerencia...</p>
+            </div>
+            
+            <button type="button" id="submitBtn" class="btn">
+                <span style="font-size: 1.2rem;">📤</span>
+                Enviar sugerencia
+            </button>
+        </form>
+        
+        <footer>
+            <p>Los datos se envían directamente al formulario de Google</p>
+            <p style="margin-top: 0.3rem; font-size: 0.8rem;">Versión 1.0 • PWA optimizada</p>
+        </footer>
+    </div>
+    
+    <div id="message" class="message"></div>
+    
+    <script>
+        // ============================================
+        // CONFIGURACIÓN CON TUS IDs REALES
+        // ORDEN: Email → Ciudad → Sugerencia → Programa
+        // ============================================
+        
+        // ENDPOINT de tu formulario de Google
+        const FORM_ENDPOINT = "https://docs.google.com/forms/d/e/1FAIpQLSeLeD6lAmBweVOubmEqydUONe6mutpQLlFSU_zKfHEhjhZVLg/formResponse";
+        
+        // IDs de los campos EN EL ORDEN CORRECTO:
+        const FIELD_IDS = {
+            // Campo 1: Email (primer campo del formulario)
+            email: "entry.1597282778",
+            
+            // Campo 2: Ciudad (segundo campo del formulario) - TEXTO LIBRE
+            ciudad: "entry.1552097675",
+            
+            // Campo 3: Sugerencia (tercer campo del formulario)
+            sugerencia: "entry.48109616",
+            
+            // Campo 4: Programa (cuarto campo del formulario) - SIEMPRE "Aplicación Roberto"
+            programa: "entry.1706983066"
+        };
+        
+        // ============================================
+        // VARIABLES Y ELEMENTOS DEL DOM
+        // ============================================
+        
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const message = document.getElementById('message');
+        const emailInput = document.getElementById('email');
+        const cityInput = document.getElementById('city');
+        const suggestionInput = document.getElementById('suggestion');
+        
+        // ============================================
+        // FUNCIONES UTILITARIAS
+        // ============================================
+        
+        // Mostrar mensaje de feedback
+        function showMessage(text, type = 'success') {
+            message.textContent = text;
+            message.className = `message ${type}`;
+            message.style.display = 'block';
+            
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Validar email
+        function isValidEmail(email) {
+            if (!email) return false;
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        // Validar ciudad (texto libre)
+        function isValidCity(city) {
+            if (!city) return false;
+            // Eliminar espacios extras y validar que tenga al menos 2 caracteres
+            city = city.trim();
+            return city.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]+$/.test(city);
+        }
+        
+        // Formatear ciudad (capitalizar primera letra)
+        function formatCity(city) {
+            if (!city) return '';
+            city = city.trim();
+            // Capitalizar primera letra de cada palabra
+            return city.replace(/\b\w/g, char => char.toUpperCase());
+        }
+        
+        // ============================================
+        // FUNCIÓN PRINCIPAL PARA ENVIAR EL FORMULARIO
+        // ============================================
+        
+        async function submitForm() {
+            // Obtener valores
+            const email = emailInput.value.trim();
+            let city = cityInput.value.trim();
+            const suggestion = suggestionInput.value.trim();
+            
+            // Validaciones
+            if (!email) {
+                showMessage('Por favor, ingresa tu correo electrónico', 'error');
+                emailInput.focus();
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                showMessage('Por favor, ingresa un correo electrónico válido', 'error');
+                emailInput.focus();
+                return;
+            }
+            
+            if (!city) {
+                showMessage('Por favor, escribe tu ciudad', 'error');
+                cityInput.focus();
+                return;
+            }
+            
+            if (!isValidCity(city)) {
+                showMessage('Por favor, escribe un nombre de ciudad válido (solo letras y espacios)', 'error');
+                cityInput.focus();
+                return;
+            }
+            
+            // Formatear ciudad (capitalizar)
+            city = formatCity(city);
+            
+            if (!suggestion) {
+                showMessage('Por favor, escribe tu sugerencia', 'error');
+                suggestionInput.focus();
+                return;
+            }
+            
+            if (suggestion.length < 10) {
+                showMessage('Por favor, escribe una sugerencia más detallada (mínimo 10 caracteres)', 'error');
+                suggestionInput.focus();
+                return;
+            }
+            
+            // Mostrar estado de carga
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            
+            try {
+                // Crear FormData con los valores
+                const formData = new FormData();
+                
+                // IMPORTANTE: Enviar en el orden correcto
+                // 1. Email (campo 1)
+                formData.append(FIELD_IDS.email, email);
+                
+                // 2. Ciudad (campo 2) - TEXTO LIBRE formateado
+                formData.append(FIELD_IDS.ciudad, city);
+                
+                // 3. Sugerencia (campo 3)
+                formData.append(FIELD_IDS.sugerencia, suggestion);
+                
+                // 4. Programa (campo 4) - SIEMPRE "Aplicación Roberto"
+                formData.append(FIELD_IDS.programa, "Aplicación Roberto");
+                
+                console.log('Enviando datos:');
+                console.log('Email:', email);
+                console.log('Ciudad:', city);
+                console.log('Sugerencia:', suggestion.substring(0, 50) + '...');
+                console.log('Programa:', "Aplicación Roberto");
+                
+                // Enviar a Google Forms
+                // Usamos 'no-cors' porque Google Forms no permite CORS desde otros dominios
+                await fetch(FORM_ENDPOINT, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                });
+                
+                // Éxito - Mostrar mensaje
+                showMessage('✅ Sugerencia enviada correctamente. ¡Gracias por tu feedback!', 'success');
+                
+                // Limpiar formulario (mantener email para facilidad)
+                // emailInput.value = ''; // Opcional: mantener email
+                cityInput.value = '';
+                suggestionInput.value = '';
+                
+            } catch (error) {
+                console.error('Error al enviar:', error);
+                showMessage('❌ Error al enviar la sugerencia. Intenta de nuevo.', 'error');
+            } finally {
+                // Restaurar estado normal
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+        
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        
+        // Enviar al hacer clic en el botón
+        submitBtn.addEventListener('click', submitForm);
+        
+        // Permitir Ctrl+Enter en el textarea para enviar
+        suggestionInput.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                submitForm();
+            }
+        });
+        
+        // Permitir Enter en el campo ciudad para ir al siguiente campo
+        cityInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.ctrlKey) {
+                e.preventDefault();
+                suggestionInput.focus();
+            }
+        });
+        
+        // Validación en tiempo real del email
+        emailInput.addEventListener('blur', () => {
+            if (emailInput.value && !isValidEmail(emailInput.value)) {
+                emailInput.style.borderColor = '#f44336';
+                emailInput.style.boxShadow = '0 0 0 3px rgba(244, 67, 54, 0.1)';
+            } else {
+                emailInput.style.borderColor = '#e0e0e0';
+                emailInput.style.boxShadow = 'none';
+            }
+        });
+        
+        // Validación en tiempo real de la ciudad
+        cityInput.addEventListener('input', () => {
+            const city = cityInput.value.trim();
+            if (city && !isValidCity(city)) {
+                cityInput.style.borderColor = '#ff9800';
+                cityInput.style.boxShadow = '0 0 0 3px rgba(255, 152, 0, 0.1)';
+            } else {
+                cityInput.style.borderColor = '#e0e0e0';
+                cityInput.style.boxShadow = 'none';
+            }
+        });
+        
+        // Auto-formatear ciudad al perder el foco
+        cityInput.addEventListener('blur', () => {
+            if (cityInput.value.trim()) {
+                cityInput.value = formatCity(cityInput.value);
+            }
+        });
+        
+        // ============================================
+        // INFORMACIÓN PARA DEBUG
+        // ============================================
+        
+        console.log('🚀 PWA cargada correctamente');
+        console.log('📋 Configuración de campos:');
+        console.log('1. Email:', FIELD_IDS.email);
+        console.log('2. Ciudad (texto libre):', FIELD_IDS.ciudad);
+        console.log('3. Sugerencia:', FIELD_IDS.sugerencia);
+        console.log('4. Programa:', FIELD_IDS.programa);
+        console.log('\n✅ Listo para recibir sugerencias!');
+        
+        // Mostrar mensaje informativo inicial
+        setTimeout(() => {
+            showMessage('📝 Escribe tu ciudad y sugerencia para enviar', 'info');
+        }, 1000);
+        
+        // Sugerencias de ciudades populares al hacer clic en el campo
+        cityInput.addEventListener('focus', () => {
+            if (!cityInput.value) {
+                // Mostrar placeholder dinámico
+                cityInput.placeholder = "Ej: Madrid, Barcelona, Valencia...";
+            }
+        });
+        
+    </script>
+</body>
+</html>

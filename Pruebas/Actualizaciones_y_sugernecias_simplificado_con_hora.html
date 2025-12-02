@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Envía tu Sugerencia - App Roberto</title>
+    <meta name="theme-color" content="#2196F3">
+    <link rel="manifest" href="./manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .app-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.8rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 1.4rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.4rem;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #f44336;
+        }
+        
+        .prefilled-field {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            padding: 0.8rem;
+            border-radius: 8px;
+            color: #2196F3;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            color: white;
+            border: none;
+            padding: 0.9rem;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+        }
+        
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            text-align: center;
+            margin: 1rem 0;
+            display: none;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(33, 150, 243, 0.2);
+            border-top: 3px solid #2196F3;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 1000;
+            max-width: 280px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .message.success {
+            background: #4CAF50;
+        }
+        
+        .message.error {
+            background: #f44336;
+        }
+        
+        .message.info {
+            background: #2196F3;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f0f0f0;
+            color: #888;
+            font-size: 0.8rem;
+        }
+        
+        .hint {
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+        }
+        
+        .city-examples {
+            color: #666;
+            font-size: 0.75rem;
+            margin-top: 0.4rem;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="app-icon">
+                📱
+            </div>
+            <h1>App Roberto</h1>
+            <p class="subtitle">Envía tus comentarios</p>
+        </div>
+        
+        <form id="suggestionForm">
+            <div class="form-group">
+                <label for="email" class="required">Facilítanos tu email para mantenerte informado de las actualizaciones</label>
+                <input type="email" id="email" placeholder="tu@email.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="city" class="required">Ciudad</label>
+                <input type="text" id="city" placeholder="Ej: Madrid" required>
+                <div class="city-examples">Madrid, Barcelona, Valencia, etc.</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="suggestion">Sugerencias para mejorar la aplicación</label>
+                <textarea id="suggestion" placeholder="Tus ideas para mejorar la app..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Programa</label>
+                <div class="prefilled-field">App Roberto</div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Enviando...</p>
+            </div>
+            
+            <button type="button" id="submitBtn" class="btn">
+                📤 Enviar
+            </button>
+        </form>
+        
+        <footer>
+            <p>Versión 1.0 • PWA</p>
+        </footer>
+    </div>
+    
+    <div id="message" class="message"></div>
+    
+    <script>
+        // CONFIGURACIÓN
+        const FORM_ENDPOINT = "https://docs.google.com/forms/d/e/1FAIpQLSeLeD6lAmBweVOubmEqydUONe6mutpQLlFSU_zKfHEhjhZVLg/formResponse";
+        
+        const FIELD_IDS = {
+            email: "entry.1597282778",
+            ciudad: "entry.1552097675",
+            sugerencia: "entry.48109616",
+            programa: "entry.1706983066",
+            fecha: "entry.1734009197",
+            hora: "entry.686693357"
+        };
+        
+        // ELEMENTOS
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const message = document.getElementById('message');
+        const emailInput = document.getElementById('email');
+        const cityInput = document.getElementById('city');
+        const suggestionInput = document.getElementById('suggestion');
+        
+        // FUNCIONES
+        function getCurrentDate() {
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+        
+        function getCurrentTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        }
+        
+        function showMessage(text, type = 'success') {
+            message.textContent = text;
+            message.className = `message ${type}`;
+            message.style.display = 'block';
+            
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 4000);
+        }
+        
+        function isValidEmail(email) {
+            if (!email) return false;
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        function isValidCity(city) {
+            if (!city) return false;
+            city = city.trim();
+            return city.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]+$/.test(city);
+        }
+        
+        function formatCity(city) {
+            if (!city) return '';
+            return city.trim().replace(/\b\w/g, char => char.toUpperCase());
+        }
+        
+        // ENVIAR FORMULARIO
+        async function submitForm() {
+            const email = emailInput.value.trim();
+            let city = cityInput.value.trim();
+            const suggestion = suggestionInput.value.trim();
+            
+            const fecha = getCurrentDate();
+            const hora = getCurrentTime();
+            
+            // Validaciones
+            if (!email) {
+                showMessage('Ingresa tu email', 'error');
+                emailInput.focus();
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                showMessage('Email no válido', 'error');
+                emailInput.focus();
+                return;
+            }
+            
+            if (!city) {
+                showMessage('Escribe tu ciudad', 'error');
+                cityInput.focus();
+                return;
+            }
+            
+            if (!isValidCity(city)) {
+                showMessage('Ciudad no válida', 'error');
+                cityInput.focus();
+                return;
+            }
+            
+            city = formatCity(city);
+            
+            // Mostrar carga
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            
+            try {
+                const formData = new FormData();
+                
+                formData.append(FIELD_IDS.email, email);
+                formData.append(FIELD_IDS.ciudad, city);
+                formData.append(FIELD_IDS.sugerencia, suggestion || "(sin sugerencia)");
+                formData.append(FIELD_IDS.programa, "App Roberto");
+                formData.append(FIELD_IDS.fecha, fecha);
+                formData.append(FIELD_IDS.hora, hora);
+                
+                await fetch(FORM_ENDPOINT, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                });
+                
+                showMessage('✅ Enviado correctamente', 'success');
+                
+                cityInput.value = '';
+                suggestionInput.value = '';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('❌ Error al enviar', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+        
+        // EVENTOS
+        submitBtn.addEventListener('click', submitForm);
+        
+        suggestionInput.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                submitForm();
+            }
+        });
+        
+        cityInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                suggestionInput.focus();
+            }
+        });
+        
+        emailInput.addEventListener('blur', () => {
+            if (emailInput.value && !isValidEmail(emailInput.value)) {
+                emailInput.style.borderColor = '#f44336';
+            } else {
+                emailInput.style.borderColor = '#e0e0e0';
+            }
+        });
+        
+        cityInput.addEventListener('blur', () => {
+            if (cityInput.value.trim()) {
+                cityInput.value = formatCity(cityInput.value);
+            }
+        });
+        
+        console.log('App cargada');
+        console.log('Campos:', FIELD_IDS);
+        
+        setTimeout(() => {
+            showMessage('Comparte tus ideas para mejorar la app', 'info');
+        }, 800);
+        
+    </script>
+</body>
+</html>

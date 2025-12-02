@@ -1,0 +1,130 @@
+Ah, tienes seguridad activada en la consola. Necesitas escribir allow pasting primero. Aquí están los pasos exactos:
+
+Paso a Paso con Seguridad Activada
+Paso 1: Abrir Consola (F12)
+Ve a tu formulario: https://forms.gle/WzSRA1QpZQNfdshF7
+
+Presiona F12 en tu teclado
+
+Paso 2: Ir a la Pestaña Console
+https://i.imgur.com/8JtL9kf.png
+
+Paso 3: Habilitar Pasting
+Verás este mensaje en rojo:
+
+text
+Warning: Don't paste code into the DevTools Console...
+Please type 'allow pasting' below and press Enter
+
+Escribe exactamente: allow pasting
+
+https://i.imgur.com/LRtp4ZL.png
+
+Presiona Enter
+
+Paso 4: Ahora Copia y Pega Este Código Más Simple
+javascript
+// Encontrar IDs de campos de Google Forms
+var ids = [];
+document.querySelectorAll('[name]').forEach(function(elemento) {
+    if (elemento.name.includes('entry.')) {
+        ids.push(elemento.name);
+        elemento.style.outline = '3px solid blue';
+    }
+});
+
+if (ids.length > 0) {
+    console.log('🎯 IDs ENCONTRADOS:');
+    ids.forEach(function(id, i) {
+        console.log((i+1) + '. ' + id);
+    });
+    alert('✅ Se encontraron ' + ids.length + ' campos. Mira la consola (F12)');
+} else {
+    console.log('❌ No se encontraron campos con "entry."');
+    alert('⚠️ No se encontraron campos. ¿Estás en el formulario correcto?');
+}
+Paso 5: Otra Opción - Escribir Manualmente
+Si prefieres escribir en vez de pegar, escribe esto línea por línea:
+
+javascript
+var campos = document.querySelectorAll('[name^="entry."]');
+Presiona Enter, luego:
+
+javascript
+console.log('Campos: ' + campos.length);
+Presiona Enter, luego:
+
+javascript
+campos.forEach(function(c, i) { console.log((i+1)+'. '+c.name); });
+Presiona Enter.
+
+Código Paso a Paso para Escribir Manualmente
+Si no quieres usar allow pasting, escribe estas líneas una por una:
+
+var todos = document.querySelectorAll('input, textarea');
+(Enter)
+
+var ids = [];
+(Enter)
+
+todos.forEach(function(e) { if(e.name && e.name.startsWith('entry.')) ids.push(e.name); });
+(Enter)
+
+console.log('IDs encontrados:');
+(Enter)
+
+ids.forEach(function(id, i) { console.log((i+1)+'. '+id); });
+(Enter)
+
+alert('Listo! Mira la consola (F12)');
+(Enter)
+
+¿Qué Botón Presionar en el Teclado?
+Si no encuentras las teclas:
+
+F12: Está en la fila de arriba del teclado
+
+Enter: La tecla grande donde escribes
+
+Ctrl+C: Para copiar
+
+Ctrl+V: Para pegar (después de escribir allow pasting)
+
+Si Nada Funciona... Usa Este Método Alternativo
+Abre tu formulario
+
+Haz clic derecho en el primer campo (donde pondrías tu email)
+
+Selecciona "Inspeccionar"
+
+Busca en el código algo como:
+
+html
+<input type="text" name="entry.1234567890">
+El número después de entry. es el ID
+
+Resultados Esperados
+Cuando ejecutes el código, deberías ver algo como:
+
+text
+🎯 IDs ENCONTRADOS:
+1. entry.1234567890
+2. entry.9876543210
+3. entry.5555555555
+Y los campos en tu formulario se pintarán con borde azul.
+
+¿Sigues teniendo problemas?
+
+¿Pudiste escribir allow pasting?
+
+¿Qué mensaje ves en la consola?
+
+¿Los campos se pintaron de algún color?
+
+Dime exactamente qué pasa en cada paso.
+
+🎯 IDs ENCONTRADOS:
+VM54:13 1. entry.1597282778
+VM54:13 2. entry.1552097675
+VM54:13 3. entry.48109616
+VM54:13 4. entry.1706983066
