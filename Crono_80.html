@@ -115,7 +115,7 @@
         .languages-section {
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
+            align-items: center;
             gap: 8px;
             margin-left: 20px;
         }
@@ -970,6 +970,7 @@
     </div>
     
     <div class="languages-section">
+        <div class="help-icon" id="help-icon-header" title="Ayuda">❓</div>
         <div class="languages-label">Idioma / Language</div>
         <div class="language-selector">
             <img src="https://flagcdn.com/w40/es.png" class="flag active" id="flag-es" data-lang="es" title="Español">
@@ -977,7 +978,7 @@
             <img src="https://flagcdn.com/w40/gb.png" class="flag" id="flag-en" data-lang="en" title="English">
             <img src="https://flagcdn.com/w40/fr.png" class="flag" id="flag-fr" data-lang="fr" title="Français">
         </div>
-        <span class="help-icon" id="help-icon-header" title="Ayuda">❓</span>
+        
     </div>
 </header>
         
@@ -994,6 +995,7 @@
                     <input type="checkbox" id="milliseconds-toggle" checked>
                     <span class="toggle-slider"></span>
                 </label>
+                
             </div>
             
             <!-- Nuevo control de sonido -->
@@ -1004,12 +1006,12 @@
                 </div>
             </div>
         </div>
-        
+        <div class="current-lap-card">
+            <h3 id="current-lap-title">Vuelta Actual</h3>
+            <p id="current-lap">1</p>
+        </div>
         <div class="chrono-section">
-            <div class="current-lap-card">
-                <h3 id="current-lap-title">Vuelta Actual</h3>
-                <p id="current-lap">1</p>
-            </div>
+
             <div class="chrono-display" id="chrono-display">
                 <div class="lcd-time" id="lcd-time">00:00'00"000</div>
             </div>
