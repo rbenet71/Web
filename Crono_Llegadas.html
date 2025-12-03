@@ -204,6 +204,56 @@
             align-items: center;
         }
         
+        /* Contenedor para el display de límite de tiempo */
+        .time-limit-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        /* Display de límite de tiempo - ENCIMA del cronómetro */
+        .time-limit-display {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 3px solid #333;
+            border-radius: 8px;
+            padding: 10px 15px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            transition: all 0.3s ease;
+            max-width: 500px;
+            margin: 0 auto 10px auto;
+        }
+        
+        .time-limit-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--secondary-color), #f39c12);
+        }
+        
+        .time-limit-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #00ff00;
+            letter-spacing: 1px;
+            line-height: 1.3;
+        }
+        
+        .time-limit-warning {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        
         .chrono-display {
             background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
             border: 8px solid #333;
@@ -221,7 +271,7 @@
             justify-content: center;
             width: 100%;
             max-width: 500px;
-            margin: 0 auto 15px auto;
+            margin: 0 auto;
             transition: all 0.3s ease;
         }
         
@@ -234,6 +284,19 @@
             bottom: 0;
             background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.05) 50%, transparent 70%);
             pointer-events: none;
+        }
+        
+        /* Estado de alerta para cuando se supera el tiempo límite */
+        .chrono-display.time-limit-exceeded {
+            border-color: var(--danger-color);
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 20px rgba(231, 76, 60, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(231, 76, 60, 0.8); }
+            100% { box-shadow: 0 0 20px rgba(231, 76, 60, 0.5); }
         }
         
         .lcd-time {
@@ -471,32 +534,97 @@
             gap: 5px;
         }
         
+        /* Estilos mejorados para la pestaña de parámetros */
         .parameters-content {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
+            padding: 10px;
         }
         
         .parameter-group {
             display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
+            flex-direction: column;
+            gap: 8px;
+            padding: 15px;
             background-color: #1a252f;
-            border-radius: 5px;
+            border-radius: 8px;
+            border: 1px solid #34495e;
+            transition: all 0.3s;
+        }
+        
+        .parameter-group:hover {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
         }
         
         .parameter-group label {
-            min-width: 180px;
+            color: var(--secondary-color);
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+        }
+        
+        .parameter-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .parameter-input-group input,
+        .parameter-input-group select {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px;
+            border: 1px solid #34495e;
+            border-radius: 5px;
+            background-color: #2c3e50;
             color: white;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .parameter-input-group input:focus,
+        .parameter-input-group select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+        
+        .parameter-input-group button {
+            padding: 10px 20px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .parameter-input-group button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .parameter-description {
+            font-size: 0.85rem;
+            color: #95a5a6;
+            margin-top: 5px;
+            font-style: italic;
         }
         
         .start-time-display {
+            padding: 10px 15px;
+            background-color: #1a252f;
+            border-radius: 5px;
+            border-left: 4px solid var(--secondary-color);
             margin-top: 5px;
-            font-size: 0.9rem;
-            color: var(--secondary-color);
-            text-align: center;
             font-family: 'Courier New', monospace;
+            color: var(--secondary-color);
+            font-weight: 600;
         }
         
         .milliseconds-toggle {
@@ -869,8 +997,16 @@
                 align-items: flex-start;
             }
             
-            .parameter-group label {
-                min-width: auto;
+            .parameter-input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .parameter-input-group input,
+            .parameter-input-group select,
+            .parameter-input-group button {
+                min-width: 100%;
+                width: 100%;
             }
             
             header {
@@ -904,6 +1040,14 @@
             .language-selector {
                 justify-content: center;
             }
+            
+            .time-limit-display {
+                padding: 8px 12px;
+            }
+            
+            .time-limit-text {
+                font-size: 0.9rem;
+            }
         }
         
         @media (max-width: 480px) {
@@ -923,6 +1067,10 @@
             .flag {
                 width: 25px;
                 height: 17px;
+            }
+            
+            .time-limit-text {
+                font-size: 0.85rem;
             }
         }
     </style>
@@ -967,8 +1115,16 @@
             </div>
         </div>
         
-        <div class="chrono-display">
-            <div class="lcd-time" id="lcd-time">00:00'00"000</div>
+        <!-- Display del límite de tiempo - ENCIMA del cronómetro -->
+        <div class="time-limit-container">
+            <div class="time-limit-display" id="time-limit-display">
+                <div class="time-limit-text" id="closure-percentage-display">Ejemplo: 5% => 06'00"</div>
+                <div class="time-limit-text" id="time-limit-value-display">Cierre Control => 02:06'06"</div>
+            </div>
+            
+            <div class="chrono-display" id="chrono-display">
+                <div class="lcd-time" id="lcd-time">00:00'00"000</div>
+            </div>
         </div>
         
         <!-- Botón Corte en ancho completo -->
@@ -979,7 +1135,7 @@
         <!-- Botones Iniciar/Pausar y Reiniciar debajo -->
         <div class="controls">
             <div class="controls-column">
-                <button class="btn-start" id="btn-start">⏵ Iniciar</button>
+                <button class="btn-start" id="btn-start">▶ Iniciar</button>
                 <button class="btn-reset" id="btn-reset">🔄 Reiniciar</button>
             </div>
         </div>
@@ -1007,13 +1163,18 @@
                 </div>
             </div>
             
-            <!-- Pestaña Parámetros -->
+            <!-- Pestaña Parámetros (solo con porcentaje de cierre) -->
             <div class="tab-content" id="parametros-tab">
                 <div class="parameters-content">
                     <div class="parameter-group">
                         <label for="start-time-input">Hora de inicio:</label>
-                        <input type="time" id="start-time-input" step="1">
-                        <button id="set-start-btn">Fijar</button>
+                        <div class="parameter-input-group">
+                            <input type="time" id="start-time-input" step="1">
+                            <button id="set-start-btn">Fijar</button>
+                        </div>
+                        <div class="parameter-description">
+                            Establece la hora oficial de salida de la carrera
+                        </div>
                     </div>
                     
                     <div class="start-time-display" id="start-time-display">
@@ -1022,8 +1183,24 @@
                     
                     <div class="parameter-group">
                         <label for="set-elapsed-input">Tiempo del cronómetro (hh:mm:ss):</label>
-                        <input type="text" id="set-elapsed-input" placeholder="00:00:00">
-                        <button id="set-elapsed-btn">Aplicar tiempo</button>
+                        <div class="parameter-input-group">
+                            <input type="text" id="set-elapsed-input" placeholder="00:00:00">
+                            <button id="set-elapsed-btn">Aplicar tiempo</button>
+                        </div>
+                        <div class="parameter-description">
+                            Introduce el tiempo actual del cronómetro manualmente
+                        </div>
+                    </div>
+                    
+                    <div class="parameter-group">
+                        <label for="closure-percentage-input">Porcentaje de Cierre de Control (%):</label>
+                        <div class="parameter-input-group">
+                            <input type="number" id="closure-percentage-input" min="0" max="100" step="0.1" value="5.0">
+                            <span style="color: white; font-weight: bold;">%</span>
+                        </div>
+                        <div class="parameter-description">
+                            Porcentaje que se aplicará automáticamente al tiempo del primer corte para calcular el tiempo límite
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1081,7 +1258,7 @@
         <div class="suggestions-modal-content">
             <div class="suggestions-header">
                 <div class="suggestions-icon">
-                    📱
+                    📩
                 </div>
                 <h1 class="suggestions-title" id="suggestions-title">Cronómetro para Llegadas</h1>
                 <p class="suggestions-subtitle" id="suggestions-subtitle">Envía tus comentarios</p>
@@ -1132,9 +1309,9 @@
             es: {
                 appTitle: "Cronómetro para Llegadas",
                 languagesLabel: "Idioma / Language",
-                startButton: "⏵ Iniciar",
+                startButton: "▶ Iniciar",
                 stopButton: "⏸ Pausar",
-                continueButton: "⏵ Continuar",
+                continueButton: "▶ Continuar",
                 resetButton: "🔄 Reiniciar",
                 lapButton: "⏱ Corte",
                 helpButton: "Ayuda",
@@ -1142,6 +1319,7 @@
                 exportDorsalsButton: "💾 Exportar Dorsales (CSV)",
                 setStartTimeButton: "Fijar",
                 setTimeButton: "Aplicar tiempo",
+                closurePercentageLabel: "Porcentaje de Cierre de Control (%):",
                 startTimeLabel: "Hora de inicio:",
                 timeLabel: "Tiempo del cronómetro (hh:mm:ss):",
                 startTimeDisplay: "Hora de salida:",
@@ -1163,6 +1341,10 @@
                 confirmButton: "Confirmar",
                 createButton: "Crear Carrera",
                 suggestionsButton: "Actualizaciones/Sugerencias",
+                // Textos para límite de tiempo (display encima del cronómetro)
+                exampleDisplay: "Ejemplo: ",
+                closurePercentageDisplay: "5% => 06'00\"",
+                timeLimitValueDisplay: "Cierre Control => 02:06'06\"",
                 // Textos para sugerencias
                 suggestionsTitle: "Cronómetro para Llegadas",
                 suggestionsSubtitle: "Envía tus comentarios",
@@ -1183,9 +1365,9 @@
             ca: {
                 appTitle: "Cronòmetre per Arribades",
                 languagesLabel: "Idioma / Language",
-                startButton: "⏵ Iniciar",
+                startButton: "▶ Iniciar",
                 stopButton: "⏸ Pausar",
-                continueButton: "⏵ Continuar",
+                continueButton: "▶ Continuar",
                 resetButton: "🔄 Reiniciar",
                 lapButton: "⏱ Tall",
                 helpButton: "Ajuda",
@@ -1193,6 +1375,7 @@
                 exportDorsalsButton: "💾 Exportar Dorsals (CSV)",
                 setStartTimeButton: "Fixar",
                 setTimeButton: "Aplicar temps",
+                closurePercentageLabel: "Percentatge de Tancament de Control (%):",
                 startTimeLabel: "Hora d'inici:",
                 timeLabel: "Temps del cronòmetre (hh:mm:ss):",
                 startTimeDisplay: "Hora de sortida:",
@@ -1214,6 +1397,10 @@
                 confirmButton: "Confirmar",
                 createButton: "Crear Cursa",
                 suggestionsButton: "Actualitzacions/Suggeriments",
+                // Textos para límite de tiempo (display encima del cronómetro)
+                exampleDisplay: "Exemple: ",
+                closurePercentageDisplay: "5% => 06'00\"",
+                timeLimitValueDisplay: "Tancament Control => 02:06'06\"",
                 // Textos para sugerencias
                 suggestionsTitle: "Cronòmetre per Arribades",
                 suggestionsSubtitle: "Envia els teus comentaris",
@@ -1234,9 +1421,9 @@
             en: {
                 appTitle: "Finish Line Stopwatch",
                 languagesLabel: "Idioma / Language",
-                startButton: "⏵ Start",
+                startButton: "▶ Start",
                 stopButton: "⏸ Pause",
-                continueButton: "⏵ Continue",
+                continueButton: "▶ Continue",
                 resetButton: "🔄 Reset",
                 lapButton: "⏱ Lap",
                 helpButton: "Help",
@@ -1244,6 +1431,7 @@
                 exportDorsalsButton: "💾 Export Bibs (CSV)",
                 setStartTimeButton: "Set",
                 setTimeButton: "Apply time",
+                closurePercentageLabel: "Control Closure Percentage (%):",
                 startTimeLabel: "Start time:",
                 timeLabel: "Stopwatch time (hh:mm:ss):",
                 startTimeDisplay: "Departure time:",
@@ -1265,6 +1453,10 @@
                 confirmButton: "Confirm",
                 createButton: "Create Race",
                 suggestionsButton: "Updates/Suggestions",
+                // Textos para límite de tiempo (display encima del cronómetro)
+                exampleDisplay: "Example: ",
+                closurePercentageDisplay: "5% => 06'00\"",
+                timeLimitValueDisplay: "Control Closure => 02:06'06\"",
                 // Textos para sugerencias
                 suggestionsTitle: "Finish Line Stopwatch",
                 suggestionsSubtitle: "Send your comments",
@@ -1285,9 +1477,9 @@
             fr: {
                 appTitle: "Chronomètre d'Arrivée",
                 languagesLabel: "Idioma / Language",
-                startButton: "⏵ Démarrer",
+                startButton: "▶ Démarrer",
                 stopButton: "⏸ Pause",
-                continueButton: "⏵ Continuer",
+                continueButton: "▶ Continuer",
                 resetButton: "🔄 Réinitialiser",
                 lapButton: "⏱ Tour",
                 helpButton: "Aide",
@@ -1295,6 +1487,7 @@
                 exportDorsalsButton: "💾 Exporter Dossards (CSV)",
                 setStartTimeButton: "Définir",
                 setTimeButton: "Appliquer temps",
+                closurePercentageLabel: "Pourcentage de Fermeture de Contrôle (%):",
                 startTimeLabel: "Heure de départ:",
                 timeLabel: "Temps du chronomètre (hh:mm:ss):",
                 startTimeDisplay: "Heure de départ:",
@@ -1316,6 +1509,10 @@
                 confirmButton: "Confirmer",
                 createButton: "Créer Course",
                 suggestionsButton: "Mises à jour/Suggestions",
+                // Textos para límite de tiempo (display encima del cronómetro)
+                exampleDisplay: "Exemple: ",
+                closurePercentageDisplay: "5% => 06'00\"",
+                timeLimitValueDisplay: "Fermeture Contrôle => 02:06'06\"",
                 // Textos para sugerencias
                 suggestionsTitle: "Chronomètre d'Arrivée",
                 suggestionsSubtitle: "Envoyez vos commentaires",
@@ -1323,7 +1520,7 @@
                 cityLabel: "Ville",
                 suggestionLabel: "Suggestions pour améliorer l'application",
                 programLabel: "Programme",
-                submitButton: "📤 Envoyer",
+                submitButton: "📤 Enviar",
                 sendingText: "Envoi en cours...",
                 successMessage: "✅ Envoyé avec succès",
                 errorMessage: "❌ Erreur d'envoi",
@@ -1348,6 +1545,13 @@
         let currentRaceId = null;
         let races = {};
         let showMilliseconds = true;
+        
+        // Variables para el cálculo del tiempo límite
+        let closurePercentage = 5.0; // Porcentaje por defecto cambiado a 5%
+        let firstLapTimeMs = 0; // Tiempo del primer corte en milisegundos
+        let closureTimeMs = 0; // 5% del primer corte en milisegundos
+        let timeLimitMs = 0; // Tiempo límite de llegada (primer corte + 5%)
+        let isTimeLimitActive = false; // Si el tiempo límite está activo
 
         // Elementos DOM
         const lcdTime = document.getElementById('lcd-time');
@@ -1376,6 +1580,13 @@
         const parametrosTabButton = document.getElementById('parametros-tab-button');
         const languagesLabel = document.querySelector('.languages-label');
         
+        // Nuevos elementos para límite de tiempo
+        const timeLimitDisplay = document.getElementById('time-limit-display');
+        const closurePercentageDisplay = document.getElementById('closure-percentage-display');
+        const timeLimitValueDisplay = document.getElementById('time-limit-value-display');
+        const closurePercentageInput = document.getElementById('closure-percentage-input');
+        const chronoDisplay = document.getElementById('chrono-display');
+
         // Modales
         const newRaceModal = document.getElementById('new-race-modal');
         const deleteRaceModal = document.getElementById('delete-race-modal');
@@ -1405,10 +1616,17 @@
             parametrosTabButton.textContent = t.parametersTab;
             
             // Actualizar parámetros
-            document.querySelector('.parameter-group label').textContent = t.startTimeLabel;
+            document.querySelectorAll('.parameter-group label')[0].textContent = t.startTimeLabel;
             setStartBtn.textContent = t.setStartTimeButton;
             document.querySelectorAll('.parameter-group label')[1].textContent = t.timeLabel;
             setElapsedBtn.textContent = t.setTimeButton;
+            document.querySelectorAll('.parameter-group label')[2].textContent = t.closurePercentageLabel;
+            
+            // Actualizar descripciones
+            document.querySelectorAll('.parameter-description')[0].textContent = "Establece la hora oficial de salida de la carrera";
+            document.querySelectorAll('.parameter-description')[1].textContent = "Introduce el tiempo actual del cronómetro manualmente";
+            document.querySelectorAll('.parameter-description')[2].textContent = "Porcentaje que se aplicará automáticamente al tiempo del primer corte para calcular el tiempo límite";
+            
             startTimeDisplay.textContent = t.startTimeDisplay + (startTimeValue || t.notSet);
             
             // Actualizar ayuda
@@ -1432,6 +1650,9 @@
             
             // Actualizar placeholders
             document.getElementById('race-name-input').placeholder = t.raceNamePlaceholder;
+            
+            // Actualizar textos del display de tiempo límite
+            updateTimeLimitDisplay();
             
             // Actualizar banderas activas
             document.querySelectorAll('.flag').forEach(flag => {
@@ -1597,7 +1818,7 @@
             isValidCity(city) {
                 if (!city) return false;
                 city = city.trim();
-                return city.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑàâäçéèêëîïôöùûüÿæœ\s\-]+$/.test(city);
+                return city.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑàâäçèéêëîïôöùûüÿæœ\s\-]+$/.test(city);
             }
             
             formatCity(city) {
@@ -1719,8 +1940,19 @@
                 millisecondsToggle.checked = showMilliseconds;
             }
             
+            // Cargar porcentaje de cierre guardado
+            const savedClosurePercentage = localStorage.getItem('llegadasClosurePercentage');
+            if (savedClosurePercentage !== null) {
+                closurePercentage = parseFloat(savedClosurePercentage);
+                closurePercentageInput.value = closurePercentage;
+            }
+            
             loadRaces();
             updateDisplay();
+            
+            // Mostrar siempre el display de tiempo límite
+            timeLimitDisplay.style.display = 'flex';
+            updateTimeLimitDisplay();
             
             // Cargar la última carrera usada
             const lastRaceId = localStorage.getItem('llegadasLastRace');
@@ -1760,6 +1992,17 @@
             setStartBtn.addEventListener('click', setStartTime);
             setElapsedBtn.addEventListener('click', setElapsedTime);
             
+            // Event listener para el cambio de porcentaje de cierre
+            closurePercentageInput.addEventListener('change', function() {
+                closurePercentage = parseFloat(this.value);
+                localStorage.setItem('llegadasClosurePercentage', closurePercentage);
+                
+                // Si ya hay un tiempo límite calculado, recalcular
+                if (isTimeLimitActive && firstLapTimeMs > 0) {
+                    calculateTimeLimit();
+                }
+            });
+            
             setupModalEvents();
             
             document.querySelectorAll('.flag').forEach(flag => {
@@ -1797,6 +2040,7 @@
             updateDisplay();
             renderLaps();
             renderDorsalList();
+            updateTimeLimitDisplay();
             saveCurrentRace();
         }
 
@@ -1843,6 +2087,14 @@
                 dorsalAssignments = {};
                 editingLapIndex = null;
                 
+                // Resetear tiempo límite
+                isTimeLimitActive = false;
+                firstLapTimeMs = 0;
+                closureTimeMs = 0;
+                timeLimitMs = 0;
+                timeLimitDisplay.style.display = 'flex'; // Siempre mostrar el display
+                chronoDisplay.classList.remove('time-limit-exceeded');
+                
                 updateDisplay();
                 renderLaps();
                 renderDorsalList();
@@ -1869,10 +2121,31 @@
             dorsalAssignments = race.dorsalAssignments || {};
             editingLapIndex = null;
             
+            // Cargar configuración de tiempo límite
+            closurePercentage = race.closurePercentage || 5.0;
+            firstLapTimeMs = race.firstLapTimeMs || 0;
+            closureTimeMs = race.closureTimeMs || 0;
+            timeLimitMs = race.timeLimitMs || 0;
+            isTimeLimitActive = race.isTimeLimitActive || false;
+            
             updateDisplay();
             renderLaps();
             renderDorsalList();
             updateButtonsState();
+            
+            // Actualizar input de porcentaje
+            closurePercentageInput.value = closurePercentage;
+            
+            // Mostrar siempre el display de tiempo límite
+            timeLimitDisplay.style.display = 'flex';
+            
+            if (isTimeLimitActive && firstLapTimeMs > 0) {
+                updateTimeLimitDisplay();
+                checkTimeLimitExceeded();
+            } else {
+                // Mostrar el ejemplo cuando no hay tiempo límite calculado
+                updateTimeLimitDisplay();
+            }
             
             if (isRunning) {
                 startChrono();
@@ -1911,7 +2184,13 @@
                 lapTimes: lapTimes,
                 startTimeValue: startTimeValue,
                 startTimeInSeconds: startTimeInSeconds,
-                dorsalAssignments: dorsalAssignments
+                dorsalAssignments: dorsalAssignments,
+                // Guardar configuración de tiempo límite
+                closurePercentage: closurePercentage,
+                firstLapTimeMs: firstLapTimeMs,
+                closureTimeMs: closureTimeMs,
+                timeLimitMs: timeLimitMs,
+                isTimeLimitActive: isTimeLimitActive
             };
             
             saveRaces();
@@ -1965,6 +2244,7 @@
         function updateChrono() {
             currentTime = Date.now() - startTime;
             updateDisplay();
+            checkTimeLimitExceeded();
             saveCurrentRace();
         }
 
@@ -2025,6 +2305,12 @@
                 dorsales: []
             });
             
+            // Si es el primer corte, calcular automáticamente el tiempo límite
+            if (lapTimes.length === 1) {
+                firstLapTimeMs = currentTime;
+                calculateTimeLimit();
+            }
+            
             renderLaps();
             saveCurrentRace();
             
@@ -2044,6 +2330,24 @@
             if(hours > 0 || minutes > 0) str += String(minutes).padStart(hours>0?2:1,'0') + "'";
             str += String(seconds).padStart(2,'0') + '"' + String(milliseconds).padStart(3,'0');
             return str;
+        }
+        
+        // Función para formatear tiempo en el formato correcto para el display
+        function formatTimeForDisplay(ms) {
+            let totalSeconds = Math.floor(ms / 1000);
+            const milliseconds = ms % 1000;
+            const seconds = totalSeconds % 60;
+            const minutes = Math.floor(totalSeconds / 60) % 60;
+            const hours = Math.floor(totalSeconds / 3600);
+            
+            if (hours > 0) {
+                return hours.toString().padStart(2, '0') + ':' + 
+                       minutes.toString().padStart(2, '0') + "'" + 
+                       seconds.toString().padStart(2, '0') + '"';
+            } else {
+                return minutes.toString().padStart(2, '0') + "'" + 
+                       seconds.toString().padStart(2, '0') + '"';
+            }
         }
 
         function formatHoraExacta(date){
@@ -2094,7 +2398,7 @@
                                    placeholder="1, 5, 12..."
                                    onkeypress="if(event.key==='Enter') saveDorsales(${lapIndex}, this)">
                             <button class="dorsal-save-btn" onclick="saveDorsales(${lapIndex}, this.previousElementSibling)">✓</button>
-                            <button class="dorsal-cancel-btn" onclick="cancelEditing()">✕</button>
+                            <button class="dorsal-cancel-btn" onclick="cancelEditing()">✗</button>
                         </div>
                     `;
                 } else {
@@ -2220,7 +2524,7 @@
                     <div class="dorsal-number">Dorsal ${dorsal}</div>
                     <div class="dorsal-time">${tiemposHTML}</div>
                     <div class="dorsal-actions">
-                        <button onclick="removeDorsal(${dorsal})" style="background: #ff4444; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">✕</button>
+                        <button onclick="removeDorsal(${dorsal})" style="background: #ff4444; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">✗</button>
                     </div>
                 `;
                 
@@ -2302,6 +2606,70 @@
             }, 1000);
         }
 
+        // Funciones para el cálculo del tiempo límite (automático)
+        function calculateTimeLimit() {
+            if (!isRaceSelected()) {
+                return;
+            }
+            
+            if (firstLapTimeMs <= 0) {
+                return;
+            }
+            
+            // Calcular el 5% del tiempo del primer corte
+            closureTimeMs = firstLapTimeMs * (closurePercentage / 100);
+            
+            // Calcular tiempo límite de llegada (primer corte + 5%)
+            timeLimitMs = firstLapTimeMs + closureTimeMs;
+            
+            // Activar el tiempo límite
+            isTimeLimitActive = true;
+            
+            // Mostrar el display
+            timeLimitDisplay.style.display = 'flex';
+            
+            // Actualizar display
+            updateTimeLimitDisplay();
+            
+            // Verificar si ya se superó el tiempo límite
+            checkTimeLimitExceeded();
+            
+            // Guardar cambios
+            saveCurrentRace();
+        }
+        
+        function updateTimeLimitDisplay() {
+            const t = translations[currentLanguage];
+            
+            if (!isTimeLimitActive || firstLapTimeMs <= 0) {
+                // Mostrar el ejemplo cuando no hay tiempo límite calculado
+                closurePercentageDisplay.textContent = t.exampleDisplay + t.closurePercentageDisplay;
+                timeLimitValueDisplay.textContent = t.timeLimitValueDisplay;
+                return;
+            }
+            
+            // Formatear los tiempos para el display
+            const closureTimeFormatted = formatTimeForDisplay(closureTimeMs);
+            const timeLimitFormatted = formatTimeForDisplay(timeLimitMs);
+            
+            // Mostrar en el formato solicitado
+            closurePercentageDisplay.textContent = 
+                `${closurePercentage}% => ${closureTimeFormatted}`;
+            
+            timeLimitValueDisplay.textContent = 
+                `Cierre Control => ${timeLimitFormatted}`;
+        }
+        
+        function checkTimeLimitExceeded() {
+            if (!isTimeLimitActive) return;
+            
+            if (currentTime > timeLimitMs) {
+                chronoDisplay.classList.add('time-limit-exceeded');
+            } else {
+                chronoDisplay.classList.remove('time-limit-exceeded');
+            }
+        }
+
         function openResetConfirm(){
             if(!isRaceSelected()) {
                 alert("Debe seleccionar una carrera primero");
@@ -2324,6 +2692,14 @@
             startTimeInSeconds = 0;
             dorsalAssignments = {};
             editingLapIndex = null;
+            
+            // Resetear tiempo límite
+            isTimeLimitActive = false;
+            firstLapTimeMs = 0;
+            closureTimeMs = 0;
+            timeLimitMs = 0;
+            timeLimitDisplay.style.display = 'flex'; // Siempre mostrar el display
+            chronoDisplay.classList.remove('time-limit-exceeded');
             
             updateDisplay();
             renderLaps();
@@ -2421,7 +2797,13 @@
                 lapTimes: [],
                 startTimeValue: "",
                 startTimeInSeconds: 0,
-                dorsalAssignments: {}
+                dorsalAssignments: {},
+                // Inicializar tiempo límite
+                closurePercentage: 5.0,
+                firstLapTimeMs: 0,
+                closureTimeMs: 0,
+                timeLimitMs: 0,
+                isTimeLimitActive: false
             };
             
             saveRaces();
@@ -2504,8 +2886,6 @@
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
-            // ... (código de inicialización existente)
-
             // Configurar actualización automática
             setupAutoUpdate();
             

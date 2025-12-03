@@ -27,3 +27,5 @@ Y despues la opcion de exportacion y el boton de ayuda
 Fijar hora de inicio arreglar
 Mejorar la pestaña parametros con cierre de control
 Mostrar hora de cierre de control y modificar color texto cuando se supere
+
+El diseño de parametros no esta bonito, no es uniforme ni esta organizado. Quiero añadir otro parametro que sea Porcentaje de Cierre de Control (%). Este valor lo utilizaremos para calcular el 8% del tiempo del primer corte,  El resultado lo mostraremos encima del display de crono con el texto: Cierre Control (mostrar en formato hora el 8%) - Tiempo Límite (la suma del 8%)+mas el tiempo del primer corredor. Cuando el crono supere este ultimo tiempo el fondo se pondra rojo
