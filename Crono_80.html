@@ -79,16 +79,18 @@
         header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             margin-bottom: 20px;
             padding-bottom: 15px;
             border-bottom: 1px solid #34495e;
+            flex-wrap: wrap;
         }
         
         .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                min-width: auto;
         }
         
         .app-icon {
@@ -105,7 +107,18 @@
             align-items: center;
             gap: 10px;
         }
-        
+        .header-titles {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        .languages-section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+            margin-left: 20px;
+        }
         .language-selector {
             display: flex;
             gap: 10px;
@@ -946,22 +959,27 @@
 </head>
 <body>
     <div class="container">
-        <header>
-            <div class="header-left">
-                <img src="https://rbenet71.github.io/Web/Crono_80_192x192.png" alt="App Icon" class="app-icon">
-                <h1 id="app-title">Cronómetro Control 80%</h1>
-            </div>
-            <div class="header-right">
-                <span class="help-icon" id="help-icon-header" title="Ayuda">❓</span>
-            </div>
-        </header>
-        
+<header>
+    <div class="header-left">
+        <div class="app-icon-container">
+            <img src="https://rbenet71.github.io/Web/Crono_80_192x192.png" alt="Cronómetro Control 80%" class="app-icon">
+        </div>
+        <div class="header-titles">
+            <h1 class="app-main-title" id="app-title">Cronómetro Control 80%</h1>
+        </div>
+    </div>
+    
+    <div class="languages-section">
+        <div class="languages-label">Idioma / Language</div>
         <div class="language-selector">
             <img src="https://flagcdn.com/w40/es.png" class="flag active" id="flag-es" data-lang="es" title="Español">
             <div class="flag flag-catalunya" id="flag-ca" data-lang="ca" title="Català"></div>
             <img src="https://flagcdn.com/w40/gb.png" class="flag" id="flag-en" data-lang="en" title="English">
             <img src="https://flagcdn.com/w40/fr.png" class="flag" id="flag-fr" data-lang="fr" title="Français">
         </div>
+        <span class="help-icon" id="help-icon-header" title="Ayuda">❓</span>
+    </div>
+</header>
         
         <div class="race-management">
             <select id="race-selector">
@@ -1058,7 +1076,7 @@
             <p>
                 <span id="copyright-text">2025 © Copyright</span>
                 <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                    Roberto Benet - rbenet71@gmail.com - V_02_12_2025
+                    Roberto Benet - rbenet71@gmail.com - V_03_12_2025
                 </a>
             </p>
         </footer>

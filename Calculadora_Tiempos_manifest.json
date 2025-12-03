@@ -6,7 +6,7 @@
   "start_url": "/Web/Calculadora_Tiempos.html?v=1.1",
   "display": "standalone",
   "theme_color": "#2c3e50",
-  "background_color": "#1a2a6c"
+  "background_color": "#1a2a6c",
   "orientation": "portrait",
   "scope": "/Web/",
   "icons": [

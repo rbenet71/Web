@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronómetro para Llegadas</title>
+	
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CV925PMBQV"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-CV925PMBQV');
+    </script>
+
+	<!-- Iconos para la aplicación -->
+	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png">
+	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png">
+
+	<!-- Iconos para PWA -->
+	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
+	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
+	<link rel="icon" type="image/png" sizes="192x192" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
+	<link rel="icon" type="image/png" sizes="512x512" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
+	<link rel="apple-touch-icon" sizes="192x192" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
+	<meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
+
+	<!-- Configuración para PWA (Progressive Web App) -->
+	<meta name="theme-color" content="#2c3e50">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="Crono Llegadas">
+	<meta name="msapplication-TileColor" content="#2c3e50">
+	<meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png">
+
+	<!-- Manifest para PWA -->
+	<link rel="manifest" href="https://rbenet71.github.io/Web/Crono_Llegadas_manifest.json">
+	
+	
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --danger-color: #e74c3c;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 12px;
+            color: white;
+        }
+        
+        .container {
+            background-color: #2c3e50;
+            border-radius: 10px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 800px;
+            padding: 16px;
+            color: white;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #34495e;
+            flex-wrap: wrap;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .app-icon-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: contain;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: 2px solid var(--secondary-color);
+        }
+        
+        .header-titles {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        
+        .app-main-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .languages-section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+            margin-left: 20px;
+        }
+        
+        .languages-label {
+            font-size: 0.9rem;
+            color: #95a5a6;
+            font-weight: 500;
+        }
+        
+        .language-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .flag {
+            width: 30px;
+            height: 20px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: all 0.3s;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        
+        .flag:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+        
+        .flag.active {
+            opacity: 1;
+            border: 2px solid var(--secondary-color);
+            transform: scale(1.1);
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+        }
+        
+        .flag-catalunya {
+            background: linear-gradient(
+                to bottom,
+                #ffcd00 0%, #ffcd00 10%,
+                #da121a 10%, #da121a 20%,
+                #ffcd00 20%, #ffcd00 30%,
+                #da121a 30%, #da121a 40%,
+                #ffcd00 40%, #ffcd00 50%,
+                #da121a 50%, #da121a 60%,
+                #ffcd00 60%, #ffcd00 70%,
+                #da121a 70%, #da121a 80%,
+                #ffcd00 80%, #ffcd00 90%,
+                #da121a 90%, #da121a 100%
+            );
+        }
+        
+        .help-icon {
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--secondary-color);
+            margin-left: 15px;
+            transition: all 0.3s;
+            align-self: center;
+        }
+        
+        .help-icon:hover {
+            transform: scale(1.1);
+            color: var(--primary-color);
+        }
+        
+        .race-management {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .chrono-display {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 8px solid #333;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 
+                0 0 20px rgba(0,0,0,0.5),
+                inset 0 0 20px rgba(0,0,0,0.3);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 15px auto;
+            transition: all 0.3s ease;
+        }
+        
+        .chrono-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.05) 50%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .lcd-time {
+            font-family: 'Orbitron', monospace;
+            font-size: 4rem;
+            font-weight: 900;
+            color: #00ff00;
+            letter-spacing: 3px;
+            line-height: 1;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .controls-column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+        
+        button {
+            background-color: #34495e;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 14px;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:hover {
+            background-color: #4a6583;
+            transform: translateY(-1px);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        button:disabled:hover {
+            background-color: #34495e;
+            transform: none;
+        }
+        
+        .btn-start {
+            background-color: var(--success-color);
+        }
+        
+        .btn-reset {
+            background-color: var(--danger-color);
+        }
+        
+        .btn-lap {
+            background-color: var(--secondary-color);
+            width: 100%;
+        }
+        
+        .btn-export {
+            background-color: var(--primary-color);
+        }
+        
+        .btn-new-race {
+            background-color: #9b59b6;
+        }
+        
+        .btn-delete-race {
+            background-color: #e74c3c;
+        }
+        
+        .btn-help {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 8px 16px;
+        }
+        
+        .tabs-container {
+            background-color: #1a252f;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+        }
+        
+        .tabs-header {
+            display: flex;
+            border-bottom: 1px solid #34495e;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            color: white;
+        }
+        
+        .tab-button.active {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .lap-list, .dorsal-list {
+            list-style-type: none;
+        }
+        
+        .lap-item, .dorsal-item {
+            padding: 10px;
+            border-bottom: 1px solid #34495e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+        
+        .lap-item:last-child, .dorsal-item:last-child {
+            border-bottom: none;
+        }
+        
+        .lap-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        
+        .lap-time {
+            font-weight: bold;
+        }
+        
+        .lap-details {
+            font-size: 0.8rem;
+            color: #95a5a6;
+            margin-top: 2px;
+        }
+        
+        .lap-dorsal {
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+        
+        .lap-dorsal:hover {
+            background: rgba(0, 255, 255, 0.2);
+        }
+        
+        .lap-dorsal.assigned {
+            background: rgba(0, 255, 255, 0.3);
+            font-weight: bold;
+        }
+        
+        .dorsal-input-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dorsal-input {
+            width: 120px;
+            padding: 4px 8px;
+            font-size: 0.9rem;
+            border: 1px solid var(--secondary-color);
+            border-radius: 3px;
+            background: #1a252f;
+            color: white;
+        }
+        
+        .dorsal-save-btn {
+            margin-left: 5px;
+            padding: 4px 8px;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .dorsal-cancel-btn {
+            margin-left: 2px;
+            padding: 4px 8px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .dorsal-number {
+            font-weight: bold;
+            color: var(--secondary-color);
+            min-width: 60px;
+        }
+        
+        .dorsal-time {
+            font-family: 'Courier New', monospace;
+            flex-grow: 1;
+            text-align: center;
+        }
+        
+        .dorsal-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .parameters-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .parameter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background-color: #1a252f;
+            border-radius: 5px;
+        }
+        
+        .parameter-group label {
+            min-width: 180px;
+            color: white;
+        }
+        
+        .start-time-display {
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            text-align: center;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .milliseconds-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 10px;
+            padding: 8px 15px;
+            background-color: #1a252f;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: var(--secondary-color);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px solid #34495e;
+            color: #95a5a6;
+            background-color: #2c3e50;
+        }
+        
+        .footer a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Estilos para modales */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: #2c3e50;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal h3 {
+            margin-bottom: 15px;
+            color: white;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: white;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #34495e;
+            border-radius: 4px;
+            background-color: #1a252f;
+            color: white;
+        }
+        
+        /* Estilos para el botón de sugerencias en el cronómetro */
+        .btn-suggestions {
+            background-color: #9b59b6;
+            color: white;
+            padding: 6px 13px;
+            margin-top: 8px;
+            width: 100%;
+            font-size: 11px;
+        }
+        
+        .btn-suggestions:hover {
+            background-color: #8e44ad;
+        }
+        
+        /* Modal de sugerencias (nuevo) */
+        .suggestions-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .suggestions-modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .suggestions-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .suggestions-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.8rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .suggestions-title {
+            color: #333;
+            font-size: 1.4rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .suggestions-subtitle {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .suggestions-input, .suggestions-textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        .suggestions-input:focus, .suggestions-textarea:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+        
+        .suggestions-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #f44336;
+        }
+        
+        .prefilled-field {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            padding: 0.8rem;
+            border-radius: 8px;
+            color: #2196F3;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+        
+        .suggestions-btn-modal {
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            color: white;
+            border: none;
+            padding: 0.9rem;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+        }
+        
+        .suggestions-btn-modal:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+        
+        .suggestions-btn-modal:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            text-align: center;
+            margin: 1rem 0;
+            display: none;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(33, 150, 243, 0.2);
+            border-top: 3px solid #2196F3;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 1000;
+            max-width: 280px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .message.success {
+            background: #4CAF50;
+        }
+        
+        .message.error {
+            background: #f44336;
+        }
+        
+        .message.info {
+            background: #2196F3;
+        }
+        
+        .hint {
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+        }
+        
+        .city-examples {
+            color: #666;
+            font-size: 0.75rem;
+            margin-top: 0.4rem;
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            .chrono-display {
+                min-height: 150px;
+                padding: 15px;
+            }
+            
+            .lcd-time {
+                font-size: 2.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .race-management {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .milliseconds-toggle {
+                margin-left: 0;
+                margin-top: 10px;
+                justify-content: center;
+            }
+            
+            .parameter-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .parameter-group label {
+                min-width: auto;
+            }
+            
+            header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .header-left {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                min-width: auto;
+            }
+            
+            .app-icon {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .app-main-title {
+                font-size: 1.5rem;
+            }
+            
+            .languages-section {
+                margin-left: 0;
+                align-items: center;
+            }
+            
+            .language-selector {
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .app-icon {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .app-main-title {
+                font-size: 1.3rem;
+            }
+            
+            .languages-label {
+                font-size: 0.8rem;
+            }
+            
+            .flag {
+                width: 25px;
+                height: 17px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <div class="app-icon-container">
+                    <img src="https://rbenet71.github.io/Web/Crono_Llegadas_512x512.png" alt="Cronómetro para Llegadas" class="app-icon">
+                </div>
+                <div class="header-titles">
+                    <h1 class="app-main-title" id="app-title">Cronómetro para Llegadas</h1>
+                </div>
+            </div>
+            
+            <div class="languages-section">
+                <div class="languages-label">Idioma / Language</div>
+                <div class="language-selector">
+                    <img src="https://flagcdn.com/w40/es.png" class="flag active" id="flag-es" data-lang="es">
+                    <div class="flag flag-catalunya" id="flag-ca" data-lang="ca"></div>
+                    <img src="https://flagcdn.com/w40/gb.png" class="flag" id="flag-en" data-lang="en">
+                    <img src="https://flagcdn.com/w40/fr.png" class="flag" id="flag-fr" data-lang="fr">
+                </div>
+                <span class="help-icon" id="help-icon-header" title="Ayuda">❓</span>
+            </div>
+        </header>
+        
+        <div class="race-management">
+            <select id="race-selector">
+                <option value="">-- Seleccionar Carrera --</option>
+            </select>
+            <button class="btn-new-race" id="btn-new-race">Nueva Carrera</button>
+            <button class="btn-delete-race" id="btn-delete-race">Eliminar Carrera</button>
+            
+            <div class="milliseconds-toggle">
+                <span id="milliseconds-label">Mostrar Milésimas</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="milliseconds-toggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="chrono-display">
+            <div class="lcd-time" id="lcd-time">00:00'00"000</div>
+        </div>
+        
+        <!-- Botón Corte en ancho completo -->
+        <div class="controls">
+            <button class="btn-lap" id="btn-lap">⏱ Corte</button>
+        </div>
+        
+        <!-- Botones Iniciar/Pausar y Reiniciar debajo -->
+        <div class="controls">
+            <div class="controls-column">
+                <button class="btn-start" id="btn-start">⏵ Iniciar</button>
+                <button class="btn-reset" id="btn-reset">🔄 Reiniciar</button>
+            </div>
+        </div>
+        
+        <div class="tabs-container">
+            <div class="tabs-header">
+                <button class="tab-button active" data-tab="cortes-tab" id="cortes-tab-button">Cortes</button>
+                <button class="tab-button" data-tab="dorsales-tab" id="dorsales-tab-button">Dorsales</button>
+                <button class="tab-button" data-tab="parametros-tab" id="parametros-tab-button">Parámetros</button>
+            </div>
+            
+            <!-- Pestaña Cortes -->
+            <div class="tab-content active" id="cortes-tab">
+                <ul class="lap-list" id="lap-list"></ul>
+            </div>
+            
+            <!-- Pestaña Dorsales -->
+            <div class="tab-content" id="dorsales-tab">
+                <div class="help-text" style="margin-bottom: 10px;">
+                    Haz clic en cualquier tiempo para asignar dorsales (múltiples separados por comas)
+                </div>
+                
+                <div class="dorsal-assignment" id="dorsal-list">
+                    <!-- Los dorsales asignados aparecerán aquí -->
+                </div>
+            </div>
+            
+            <!-- Pestaña Parámetros -->
+            <div class="tab-content" id="parametros-tab">
+                <div class="parameters-content">
+                    <div class="parameter-group">
+                        <label for="start-time-input">Hora de inicio:</label>
+                        <input type="time" id="start-time-input" step="1">
+                        <button id="set-start-btn">Fijar</button>
+                    </div>
+                    
+                    <div class="start-time-display" id="start-time-display">
+                        Hora de salida: No establecida
+                    </div>
+                    
+                    <div class="parameter-group">
+                        <label for="set-elapsed-input">Tiempo del cronómetro (hh:mm:ss):</label>
+                        <input type="text" id="set-elapsed-input" placeholder="00:00:00">
+                        <button id="set-elapsed-btn">Aplicar tiempo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-export" id="btn-export">💾 Exportar Cortes (CSV)</button>
+            <button class="btn-export" id="btn-export-dorsales">💾 Exportar Dorsales (CSV)</button>
+            <button class="btn-help" id="btn-help">Ayuda</button>
+        </div>
+        
+        <!-- Botón de sugerencias añadido -->
+        <div class="controls">
+            <button class="btn-suggestions" id="btn-suggestions">Actualizaciones/Sugerencias</button>
+        </div>
+
+        <footer class="footer">
+            <p>
+                <span id="copyright-text">2025 © Copyright</span>
+                <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
+                    Roberto Benet - rbenet71@gmail.com - V_02_12_2025
+                </a>
+            </p>
+        </footer>
+    </div>
