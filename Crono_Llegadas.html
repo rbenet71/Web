@@ -2678,7 +2678,7 @@
             }
         }
 
-        function resetChrono(){
+        function resetChrono() {
             if (!isRaceSelected()) return;
             
             stopChrono();
@@ -2695,7 +2695,7 @@
             firstLapTimeMs = 0;
             closureTimeMs = 0;
             timeLimitMs = 0;
-            timeLimitDisplay.style.display = 'flex'; // Siempre mostrar el display
+            timeLimitDisplay.style.display = 'none'; // Ocultar display al reiniciar
             chronoDisplay.classList.remove('time-limit-exceeded');
             
             updateDisplay();
@@ -2704,7 +2704,6 @@
             updateStartTimeDisplay();
             saveCurrentRace();
         }
-
         // Funciones de pestañas
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => {
