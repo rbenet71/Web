@@ -238,7 +238,7 @@
             margin-bottom: 10px;
         }
         
-        .time-limit-section {
+        .closure-control-section {
             background: rgba(46, 204, 113, 0.1);
             padding: 20px;
             border-radius: 8px;
@@ -246,7 +246,7 @@
             border: 2px solid #2ecc71;
         }
         
-        .time-limit-explanation {
+        .closure-control-explanation {
             background: rgba(44, 62, 80, 0.8);
             padding: 15px;
             border-radius: 8px;
@@ -254,7 +254,7 @@
             border-left: 4px solid #2ecc71;
         }
         
-        .time-limit-display-example {
+        .closure-control-display-example {
             font-family: 'Courier New', monospace;
             background: #1a1a1a;
             color: #00ff00;
@@ -263,6 +263,19 @@
             margin: 10px 0;
             font-size: 1.1rem;
             text-align: center;
+        }
+        
+        .more-apps-link {
+            color: #3498db;
+            font-weight: bold;
+            text-decoration: none;
+            border-bottom: 1px dashed #3498db;
+            transition: all 0.3s;
+        }
+        
+        .more-apps-link:hover {
+            color: #2ecc71;
+            border-bottom: 1px solid #2ecc71;
         }
         
         @media (max-width: 768px) {
@@ -306,6 +319,7 @@
             <div class="author-note">
                 <h4>Nota del Autor</h4>
                 <p>Esta aplicación la ha desarrollado Roberto Benet, comisario del comité catalán, para que cualquier árbitro la pueda utilizar en carreras de ciclismo de forma gratuita. Estoy abierto a cualquier tipo de mejora o implementación de nuevas funciones.</p>
+                <p>Si te resulta útil esta aplicación, te invito a explorar mis otras aplicaciones disponibles en <a href="https://rbenet71.github.io/Web" target="_blank" class="more-apps-link">https://rbenet71.github.io/Web</a>.</p>
             </div>
 
             <h2>Descripción General</h2>
@@ -345,12 +359,12 @@
                 </div>
                 
                 <div class="feature-card">
-                    <h4>Sistema de Tiempo Límite</h4>
+                    <h4>Sistema de Cierre de Control</h4>
                     <ul>
-                        <li><strong>Cálculo Automático:</strong> Calcula automáticamente el tiempo límite</li>
+                        <li><strong>Cálculo Automático:</strong> Calcula automáticamente el tiempo de cierre de control</li>
                         <li><strong>Porcentaje Configurable:</strong> Ajusta el porcentaje de cierre de control (5% por defecto)</li>
-                        <li><strong>Visualización Clara:</strong> Muestra el tiempo límite claramente</li>
-                        <li><strong>Alerta Visual:</strong> Cambio de color cuando se supera el límite</li>
+                        <li><strong>Visualización Clara:</strong> Muestra el tiempo de cierre claramente</li>
+                        <li><strong>Alerta Visual:</strong> Cambio de color cuando se supera el tiempo de cierre</li>
                     </ul>
                 </div>
             </div>
@@ -381,19 +395,19 @@
                 </div>
             </div>
 
-            <h2>Sistema de Tiempo Límite Automático</h2>
+            <h2>Sistema de Cierre de Control Automático</h2>
             
-            <div class="time-limit-section">
-                <div class="time-limit-explanation">
-                    <h4>¿Cómo funciona el tiempo límite?</h4>
-                    <p>El sistema calcula automáticamente un tiempo límite basado en el primer corte registrado:</p>
+            <div class="closure-control-section">
+                <div class="closure-control-explanation">
+                    <h4>¿Cómo funciona el cierre de control?</h4>
+                    <p>El sistema calcula automáticamente un tiempo de cierre de control basado en el primer corte registrado:</p>
                     <ol>
                         <li>Cuando registras el primer corte (primera llegada), el sistema toma ese tiempo como referencia</li>
                         <li>Aplica el porcentaje configurado (por defecto 5%) a ese tiempo para calcular el tiempo de cierre de control</li>
-                        <li>Calcula el tiempo límite sumando el tiempo del primer corte más el tiempo de cierre de control</li>
+                        <li>Calcula el tiempo final sumando el tiempo del primer corte más el tiempo de cierre de control</li>
                     </ol>
                     
-                    <div class="time-limit-display-example">
+                    <div class="closure-control-display-example">
                         Cierre de Control (5%) → 06'00" → 02:06'06"
                     </div>
                     
@@ -401,10 +415,10 @@
                     <ul>
                         <li><strong>5%:</strong> Porcentaje configurado (ajustable en Parámetros)</li>
                         <li><strong>06'00":</strong> Tiempo de cierre de control (5% del primer corte)</li>
-                        <li><strong>02:06'06":</strong> Tiempo límite total (primer corte + cierre de control)</li>
+                        <li><strong>02:06'06":</strong> Tiempo final (primer corte + cierre de control)</li>
                     </ul>
                     
-                    <p><strong>Visualización:</strong> Cuando el cronómetro supera el tiempo límite, el display cambia a color rojo para alertarte visualmente.</p>
+                    <p><strong>Visualización:</strong> Cuando el cronómetro supera el tiempo de cierre de control, el display cambia a color rojo para alertarte visualmente.</p>
                 </div>
             </div>
 
@@ -432,7 +446,7 @@
                 <span class="step-number">4</span>
                 <strong>Registrar Llegadas</strong>
                 <p>Cada vez que un corredor o grupo de corredores llegue a meta, haz clic en "Corte" para registrar el tiempo actual.</p>
-                <p><strong>NOTA:</strong> El primer corte establece automáticamente el tiempo límite.</p>
+                <p><strong>NOTA:</strong> El primer corte establece automáticamente el tiempo de cierre de control.</p>
             </div>
             
             <div class="step-box">
@@ -572,8 +586,8 @@
                     <li>Enviar sugerencias si encuentras algo que mejorar</li>
                     <li>Elegir el método de inicio adecuado según la situación</li>
                     <li>Utilizar "Fijar Hora de Inicio" para sincronizar con relojes oficiales</li>
-                    <li>Ajustar el porcentaje de cierre según las necesidades específicas de cada carrera</li>
-                    <li>Monitorizar el display de tiempo límite para controlar las llegadas tardías</li>
+                    <li>Ajustar el porcentaje de cierre de control según las necesidades específicas de cada carrera</li>
+                    <li>Monitorizar el display de cierre de control para controlar las llegadas tardías</li>
                 </ul>
             </div>
 
@@ -585,6 +599,7 @@
             <div class="author-note">
                 <h4>Nota de l'Autor</h4>
                 <p>Aquesta aplicació l'ha desenvolupada Roberto Benet, comissari del comitè català, perquè qualsevol àrbitre la pugui utilitzar en curses de ciclisme de forma gratuïta. Estic obert a qualsevol tipus de millora o implementació de noves funcions.</p>
+                <p>Si et resulta útil aquesta aplicació, t'incito a explorar les meves altres aplicacions disponibles a <a href="https://rbenet71.github.io/Web" target="_blank" class="more-apps-link">https://rbenet71.github.io/Web</a>.</p>
             </div>
 
             <h2>Descripció General</h2>
@@ -624,12 +639,12 @@
                 </div>
                 
                 <div class="feature-card">
-                    <h4>Sistema de Temps Límit</h4>
+                    <h4>Sistema de Tancament de Control</h4>
                     <ul>
-                        <li><strong>Càlcul Automàtic:</strong> Calcula automàticament el temps límit</li>
+                        <li><strong>Càlcul Automàtic:</strong> Calcula automàticament el temps de tancament de control</li>
                         <li><strong>Percentatge Configurable:</strong> Ajusta el percentatge de tancament de control (5% per defecte)</li>
-                        <li><strong>Visualització Clara:</strong> Mostra el temps límit clarament</li>
-                        <li><strong>Alerta Visual:</strong> Canvi de color quan es supera el límit</li>
+                        <li><strong>Visualització Clara:</strong> Mostra el temps de tancament clarament</li>
+                        <li><strong>Alerta Visual:</strong> Canvi de color quan es supera el temps de tancament</li>
                     </ul>
                 </div>
             </div>
@@ -660,19 +675,19 @@
                 </div>
             </div>
 
-            <h2>Sistema de Temps Límit Automàtic</h2>
+            <h2>Sistema de Tancament de Control Automàtic</h2>
             
-            <div class="time-limit-section">
-                <div class="time-limit-explanation">
-                    <h4>¿Com funciona el temps límit?</h4>
-                    <p>El sistema calcula automàticament un temps límit basat en el primer tall registrat:</p>
+            <div class="closure-control-section">
+                <div class="closure-control-explanation">
+                    <h4>¿Com funciona el tancament de control?</h4>
+                    <p>El sistema calcula automàticament un temps de tancament de control basat en el primer tall registrat:</p>
                     <ol>
                         <li>Quan registres el primer tall (primera arribada), el sistema pren aquest temps com a referència</li>
                         <li>Aplica el percentatge configurat (per defecte 5%) a aquest temps per calcular el temps de tancament de control</li>
-                        <li>Calcula el temps límit sumant el temps del primer tall més el temps de tancament de control</li>
+                        <li>Calcula el temps final sumant el temps del primer tall més el temps de tancament de control</li>
                     </ol>
                     
-                    <div class="time-limit-display-example">
+                    <div class="closure-control-display-example">
                         Tancament de Control (5%) → 06'00" → 02:06'06"
                     </div>
                     
@@ -680,10 +695,10 @@
                     <ul>
                         <li><strong>5%:</strong> Percentatge configurat (ajustable a Paràmetres)</li>
                         <li><strong>06'00":</strong> Temps de tancament de control (5% del primer tall)</li>
-                        <li><strong>02:06'06":</strong> Temps límit total (primer tall + tancament de control)</li>
+                        <li><strong>02:06'06":</strong> Temps final (primer tall + tancament de control)</li>
                     </ul>
                     
-                    <p><strong>Visualització:</strong> Quan el cronòmetre supera el temps límit, el display canvia a color vermell per alertar-te visualment.</p>
+                    <p><strong>Visualització:</strong> Quan el cronòmetre supera el temps de tancament de control, el display canvia a color vermell per alertar-te visualment.</p>
                 </div>
             </div>
 
@@ -711,7 +726,7 @@
                 <span class="step-number">4</span>
                 <strong>Registrar Arribades</strong>
                 <p>Cada vegada que un corredor o grup de corredors arribi a meta, fes clic a "Tall" per registrar el temps actual.</p>
-                <p><strong>NOTA:</strong> El primer tall estableix automàticament el temps límit.</p>
+                <p><strong>NOTA:</strong> El primer tall estableix automàticament el temps de tancament de control.</p>
             </div>
             
             <div class="step-box">
@@ -851,8 +866,8 @@
                     <li>Enviar suggeriments si trobes alguna cosa a millorar</li>
                     <li>Escollir el mètode d'inici adequat segons la situació</li>
                     <li>Utilitzar "Fixar Hora d'Inici" per sincronitzar amb rellotges oficials</li>
-                    <li>Ajustar el percentatge de tancament segons les necessitats específiques de cada cursa</li>
-                    <li>Monitoritzar el display de temps límit per controlar les arribades tardanes</li>
+                    <li>Ajustar el percentatge de tancament de control segons les necessitats específiques de cada cursa</li>
+                    <li>Monitoritzar el display de tancament de control per controlar les arribades tardanes</li>
                 </ul>
             </div>
 
@@ -864,6 +879,7 @@
             <div class="author-note">
                 <h4>Author's Note</h4>
                 <p>This application has been developed by Roberto Benet, commissioner of the Catalan committee, so that any referee can use it in cycling races for free. I'm open to any type of improvement or implementation of new features.</p>
+                <p>If you find this application useful, I invite you to explore my other applications available at <a href="https://rbenet71.github.io/Web" target="_blank" class="more-apps-link">https://rbenet71.github.io/Web</a>.</p>
             </div>
 
             <h2>General Description</h2>
@@ -903,12 +919,12 @@
                 </div>
                 
                 <div class="feature-card">
-                    <h4>Time Limit System</h4>
+                    <h4>Control Closure System</h4>
                     <ul>
-                        <li><strong>Automatic Calculation:</strong> Automatically calculates time limit</li>
+                        <li><strong>Automatic Calculation:</strong> Automatically calculates control closure time</li>
                         <li><strong>Configurable Percentage:</strong> Adjust control closure percentage (5% default)</li>
-                        <li><strong>Clear Visualization:</strong> Shows time limit clearly</li>
-                        <li><strong>Visual Alert:</strong> Color change when exceeding limit</li>
+                        <li><strong>Clear Visualization:</strong> Shows control closure time clearly</li>
+                        <li><strong>Visual Alert:</strong> Color change when exceeding control closure time</li>
                     </ul>
                 </div>
             </div>
@@ -939,19 +955,19 @@
                 </div>
             </div>
 
-            <h2>Automatic Time Limit System</h2>
+            <h2>Automatic Control Closure System</h2>
             
-            <div class="time-limit-section">
-                <div class="time-limit-explanation">
-                    <h4>How does time limit work?</h4>
-                    <p>The system automatically calculates a time limit based on first recorded lap:</p>
+            <div class="closure-control-section">
+                <div class="closure-control-explanation">
+                    <h4>How does control closure work?</h4>
+                    <p>The system automatically calculates a control closure time based on first recorded lap:</p>
                     <ol>
                         <li>When you record first lap (first finish), system takes that time as reference</li>
                         <li>Applies configured percentage (5% default) to that time to calculate control closure time</li>
-                        <li>Calculates time limit by adding first lap time plus control closure time</li>
+                        <li>Calculates final time by adding first lap time plus control closure time</li>
                     </ol>
                     
-                    <div class="time-limit-display-example">
+                    <div class="closure-control-display-example">
                         Control Closure (5%) → 06'00" → 02:06'06"
                     </div>
                     
@@ -959,10 +975,10 @@
                     <ul>
                         <li><strong>5%:</strong> Configured percentage (adjustable in Parameters)</li>
                         <li><strong>06'00":</strong> Control closure time (5% of first lap)</li>
-                        <li><strong>02:06'06":</strong> Total time limit (first lap + control closure)</li>
+                        <li><strong>02:06'06":</strong> Final time (first lap + control closure)</li>
                     </ul>
                     
-                    <p><strong>Visualization:</strong> When stopwatch exceeds time limit, display changes to red color to visually alert you.</p>
+                    <p><strong>Visualization:</strong> When stopwatch exceeds control closure time, display changes to red color to visually alert you.</p>
                 </div>
             </div>
 
@@ -990,7 +1006,7 @@
                 <span class="step-number">4</span>
                 <strong>Record Finishes</strong>
                 <p>Each time rider or group of riders finishes, click "Lap" to record current time.</p>
-                <p><strong>NOTE:</strong> First lap automatically sets time limit.</p>
+                <p><strong>NOTE:</strong> First lap automatically sets control closure time.</p>
             </div>
             
             <div class="step-box">
@@ -1130,8 +1146,8 @@
                     <li>Send suggestions if you find something to improve</li>
                     <li>Choose appropriate start method according to situation</li>
                     <li>Use "Set Start Time" to sync with official clocks</li>
-                    <li>Adjust closure percentage according to specific needs of each race</li>
-                    <li>Monitor time limit display to control late finishes</li>
+                    <li>Adjust control closure percentage according to specific needs of each race</li>
+                    <li>Monitor control closure display to control late finishes</li>
                 </ul>
             </div>
 
@@ -1143,6 +1159,7 @@
             <div class="author-note">
                 <h4>Note de l'Auteur</h4>
                 <p>Cette application a été développée par Roberto Benet, commissaire du comité catalan, pour que tout arbitre puisse l'utiliser dans les courses de cyclisme gratuitement. Je suis ouvert à tout type d'amélioration ou d'implémentation de nouvelles fonctionnalités.</p>
+                <p>Si vous trouvez cette application utile, je vous invite à explorer mes autres applications disponibles sur <a href="https://rbenet71.github.io/Web" target="_blank" class="more-apps-link">https://rbenet71.github.io/Web</a>.</p>
             </div>
 
             <h2>Description Générale</h2>
@@ -1182,12 +1199,12 @@
                 </div>
                 
                 <div class="feature-card">
-                    <h4>Système de Temps Limite</h4>
+                    <h4>Système de Fermeture de Contrôle</h4>
                     <ul>
-                        <li><strong>Calcul Automatique:</strong> Calcule automatiquement le temps limite</li>
+                        <li><strong>Calcul Automatique:</strong> Calcule automatiquement le temps de fermeture de contrôle</li>
                         <li><strong>Pourcentage Configurable:</strong> Ajuste le pourcentage de fermeture de contrôle (5% par défaut)</li>
-                        <li><strong>Visualisation Claire:</strong> Affiche le temps limite clairement</li>
-                        <li><strong>Alerte Visuelle:</strong> Changement de couleur lorsque la limite est dépassée</li>
+                        <li><strong>Visualisation Claire:</strong> Affiche le temps de fermeture clairement</li>
+                        <li><strong>Alerte Visuelle:</strong> Changement de couleur lorsque le temps de fermeture est dépassé</li>
                     </ul>
                 </div>
             </div>
@@ -1218,19 +1235,19 @@
                 </div>
             </div>
 
-            <h2>Système de Temps Limite Automatique</h2>
+            <h2>Système de Fermeture de Contrôle Automatique</h2>
             
-            <div class="time-limit-section">
-                <div class="time-limit-explanation">
-                    <h4>Comment fonctionne le temps limite?</h4>
-                    <p>Le système calcule automatiquement un temps limite basé sur le premier tour enregistré:</p>
+            <div class="closure-control-section">
+                <div class="closure-control-explanation">
+                    <h4>Comment fonctionne la fermeture de contrôle?</h4>
+                    <p>Le système calcule automatiquement un temps de fermeture de contrôle basé sur le premier tour enregistré:</p>
                     <ol>
                         <li>Lorsque vous enregistrez le premier tour (première arrivée), le système prend ce temps comme référence</li>
                         <li>Applique le pourcentage configuré (5% par défaut) à ce temps pour calculer le temps de fermeture de contrôle</li>
-                        <li>Calcule le temps limite en ajoutant le temps du premier tour plus le temps de fermeture de contrôle</li>
+                        <li>Calcule le temps final en ajoutant le temps du premier tour plus le temps de fermeture de contrôle</li>
                     </ol>
                     
-                    <div class="time-limit-display-example">
+                    <div class="closure-control-display-example">
                         Fermeture Contrôle (5%) → 06'00" → 02:06'06"
                     </div>
                     
@@ -1238,10 +1255,10 @@
                     <ul>
                         <li><strong>5%:</strong> Pourcentage configuré (ajustable dans Paramètres)</li>
                         <li><strong>06'00":</strong> Temps de fermeture de contrôle (5% du premier tour)</li>
-                        <li><strong>02:06'06":</strong> Temps limite total (premier tour + fermeture de contrôle)</li>
+                        <li><strong>02:06'06":</strong> Temps final (premier tour + fermeture de contrôle)</li>
                     </ul>
                     
-                    <p><strong>Visualisation:</strong> Lorsque le chronomètre dépasse le temps limite, l'affichage change en couleur rouge pour vous alerter visuellement.</p>
+                    <p><strong>Visualisation:</strong> Lorsque le chronomètre dépasse le temps de fermeture de contrôle, l'affichage change en couleur rouge pour vous alerter visuellement.</p>
                 </div>
             </div>
 
@@ -1269,7 +1286,7 @@
                 <span class="step-number">4</span>
                 <strong>Enregistrer les Arrivées</strong>
                 <p>Chaque fois qu'un coureur ou groupe de coureurs arrive à l'arrivée, cliquez sur "Tour" pour enregistrer le temps actuel.</p>
-                <p><strong>NOTE:</strong> Le premier tour établit automatiquement le temps limite.</p>
+                <p><strong>NOTE:</strong> Le premier tour établit automatiquement le temps de fermeture de contrôle.</p>
             </div>
             
             <div class="step-box">
@@ -1326,7 +1343,7 @@
                     <h4>Exporter les Dossards (CSV)</h4>
                     <ul>
                         <li>Générer un fichier CSV spécifique pour les attributions de dossards</li>
-                        <li>Inclut: Numéro de dossard, tour associé, temps formaté, temps en secondes, et heure exacte</li>
+                        <li>Inclut: Numéro de dossard, tour associé, temps formaté, temps en secondes, et heure exacta</li>
                         <li>Organisé par numéro de dossard</li>
                     </ul>
                 </div>
@@ -1409,8 +1426,8 @@
                     <li>Envoyer des suggestions si vous trouvez quelque chose à améliorer</li>
                     <li>Choisir la méthode de démarrage appropriée selon la situation</li>
                     <li>Utiliser "Définir l'Heure de Départ" pour synchroniser avec les horloges officielles</li>
-                    <li>Ajuster le pourcentage de fermeture selon les besoins spécifiques de chaque course</li>
-                    <li>Surveiller l'affichage du temps limite pour contrôler les arrivées tardives</li>
+                    <li>Ajuster le pourcentage de fermeture de contrôle selon les besoins spécifiques de chaque course</li>
+                    <li>Surveiller l'affichage de fermeture de contrôle pour contrôler les arrivées tardives</li>
                 </ul>
             </div>
 
