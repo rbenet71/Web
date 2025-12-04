@@ -240,14 +240,15 @@
             background: linear-gradient(90deg, var(--secondary-color), #f39c12);
         }
         
-        .time-limit-text {
-            font-family: 'Orbitron', monospace;
-            font-size: 1rem;
-            font-weight: 700;
-            color: #00ff00;
-            letter-spacing: 1px;
-            line-height: 1.3;
-        }
+    .time-limit-text {
+        /* Cambiar de Orbitron a la fuente principal */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #00ff00;
+        letter-spacing: 1px;
+        line-height: 2;
+    }
         
         .time-limit-warning {
             color: #ff6b6b;
@@ -388,6 +389,19 @@
             background-color: var(--secondary-color);
             color: white;
             padding: 8px 16px;
+        }
+        
+        .btn-suggestions {
+            background-color: #9b59b6;
+            color: white;
+            padding: 6px 13px;
+            margin-top: 8px;
+            width: 100%;
+            font-size: 11px;
+        }
+        
+        .btn-suggestions:hover {
+            background-color: #8e44ad;
         }
         
         .tabs-container {
@@ -758,20 +772,6 @@
             color: white;
         }
         
-        /* Estilos para el botón de sugerencias en el cronómetro */
-        .btn-suggestions {
-            background-color: #9b59b6;
-            color: white;
-            padding: 6px 13px;
-            margin-top: 8px;
-            width: 100%;
-            font-size: 11px;
-        }
-        
-        .btn-suggestions:hover {
-            background-color: #8e44ad;
-        }
-        
         /* Modal de sugerencias (nuevo) */
         .suggestions-modal {
             display: none;
@@ -1118,8 +1118,9 @@
         <!-- Display del límite de tiempo - ENCIMA del cronómetro -->
         <div class="time-limit-container">
             <div class="time-limit-display" id="time-limit-display">
-                <div class="time-limit-text" id="closure-percentage-display">Ejemplo: 5% => 06'00"</div>
-                <div class="time-limit-text" id="time-limit-value-display">Cierre Control => 02:06'06"</div>
+                <div class="time-limit-text" id="time-limit-combined-display">
+                    Ejemplo: Cierre de Control (5%) -> 06'00" -> 02:06'06"
+                </div>
             </div>
             
             <div class="chrono-display" id="chrono-display">
@@ -1341,10 +1342,8 @@
                 confirmButton: "Confirmar",
                 createButton: "Crear Carrera",
                 suggestionsButton: "Actualizaciones/Sugerencias",
-                // Textos para límite de tiempo (display encima del cronómetro)
-                exampleDisplay: "Ejemplo: ",
-                closurePercentageDisplay: "5% => 06'00\"",
-                timeLimitValueDisplay: "Cierre Control => 02:06'06\"",
+                // Textos para límite de tiempo en una sola línea
+                timeLimitCombinedDisplay: "Ejemplo: Cierre de Control (5%) -> 06'00\" -> 02:06'06\"",
                 // Textos para sugerencias
                 suggestionsTitle: "Cronómetro para Llegadas",
                 suggestionsSubtitle: "Envía tus comentarios",
@@ -1397,10 +1396,8 @@
                 confirmButton: "Confirmar",
                 createButton: "Crear Cursa",
                 suggestionsButton: "Actualitzacions/Suggeriments",
-                // Textos para límite de tiempo (display encima del cronómetro)
-                exampleDisplay: "Exemple: ",
-                closurePercentageDisplay: "5% => 06'00\"",
-                timeLimitValueDisplay: "Tancament Control => 02:06'06\"",
+                // Textos para límite de tiempo en una sola línea
+                timeLimitCombinedDisplay: "Exemple: Tancament de Control (5%) -> 06'00\" -> 02:06'06\"",
                 // Textos para sugerencias
                 suggestionsTitle: "Cronòmetre per Arribades",
                 suggestionsSubtitle: "Envia els teus comentaris",
@@ -1453,10 +1450,8 @@
                 confirmButton: "Confirm",
                 createButton: "Create Race",
                 suggestionsButton: "Updates/Suggestions",
-                // Textos para límite de tiempo (display encima del cronómetro)
-                exampleDisplay: "Example: ",
-                closurePercentageDisplay: "5% => 06'00\"",
-                timeLimitValueDisplay: "Control Closure => 02:06'06\"",
+                // Textos para límite de tiempo en una sola línea
+                timeLimitCombinedDisplay: "Example: Control Closure (5%) -> 06'00\" -> 02:06'06\"",
                 // Textos para sugerencias
                 suggestionsTitle: "Finish Line Stopwatch",
                 suggestionsSubtitle: "Send your comments",
@@ -1509,10 +1504,8 @@
                 confirmButton: "Confirmer",
                 createButton: "Créer Course",
                 suggestionsButton: "Mises à jour/Suggestions",
-                // Textos para límite de tiempo (display encima del cronómetro)
-                exampleDisplay: "Exemple: ",
-                closurePercentageDisplay: "5% => 06'00\"",
-                timeLimitValueDisplay: "Fermeture Contrôle => 02:06'06\"",
+                // Textos para límite de tiempo en una sola línea
+                timeLimitCombinedDisplay: "Exemple: Fermeture Contrôle (5%) -> 06'00\" -> 02:06'06\"",
                 // Textos para sugerencias
                 suggestionsTitle: "Chronomètre d'Arrivée",
                 suggestionsSubtitle: "Envoyez vos commentaires",
@@ -1522,12 +1515,12 @@
                 programLabel: "Programme",
                 submitButton: "📤 Enviar",
                 sendingText: "Envoi en cours...",
-                successMessage: "✅ Envoyé avec succès",
-                errorMessage: "❌ Erreur d'envoi",
-                invalidEmail: "Email non valide",
-                invalidCity: "Ville non valide",
-                enterEmail: "Entrez votre email",
-                enterCity: "Écrivez votre ville",
+                successMessage: "✅ Envoyé con éxito",
+                errorMessage: "❌ Error de envío",
+                invalidEmail: "Email no válido",
+                invalidCity: "Ciudad no válida",
+                enterEmail: "Introduce tu email",
+                enterCity: "Escribe tu ciudad",
                 cityExamples: "Madrid, Barcelona, Valencia, etc."
             }
         };
@@ -1582,8 +1575,7 @@
         
         // Nuevos elementos para límite de tiempo
         const timeLimitDisplay = document.getElementById('time-limit-display');
-        const closurePercentageDisplay = document.getElementById('closure-percentage-display');
-        const timeLimitValueDisplay = document.getElementById('time-limit-value-display');
+        const timeLimitCombinedDisplay = document.getElementById('time-limit-combined-display');
         const closurePercentageInput = document.getElementById('closure-percentage-input');
         const chronoDisplay = document.getElementById('chrono-display');
 
@@ -2616,10 +2608,10 @@
                 return;
             }
             
-            // Calcular el 5% del tiempo del primer corte
+            // Calcular el porcentaje del tiempo del primer corte
             closureTimeMs = firstLapTimeMs * (closurePercentage / 100);
             
-            // Calcular tiempo límite de llegada (primer corte + 5%)
+            // Calcular tiempo límite de llegada (primer corte + porcentaje)
             timeLimitMs = firstLapTimeMs + closureTimeMs;
             
             // Activar el tiempo límite
@@ -2643,8 +2635,7 @@
             
             if (!isTimeLimitActive || firstLapTimeMs <= 0) {
                 // Mostrar el ejemplo cuando no hay tiempo límite calculado
-                closurePercentageDisplay.textContent = t.exampleDisplay + t.closurePercentageDisplay;
-                timeLimitValueDisplay.textContent = t.timeLimitValueDisplay;
+                timeLimitCombinedDisplay.textContent = t.timeLimitCombinedDisplay;
                 return;
             }
             
@@ -2652,12 +2643,9 @@
             const closureTimeFormatted = formatTimeForDisplay(closureTimeMs);
             const timeLimitFormatted = formatTimeForDisplay(timeLimitMs);
             
-            // Mostrar en el formato solicitado
-            closurePercentageDisplay.textContent = 
-                `${closurePercentage}% => ${closureTimeFormatted}`;
-            
-            timeLimitValueDisplay.textContent = 
-                `Cierre Control => ${timeLimitFormatted}`;
+            // Mostrar en el formato solicitado: Cierre de Control (X%) -> [tiempo porcentaje] -> [tiempo límite total]
+            timeLimitCombinedDisplay.textContent = 
+                `Cierre de Control (${closurePercentage}%) -> ${closureTimeFormatted} -> ${timeLimitFormatted}`;
         }
         
         function checkTimeLimitExceeded() {
