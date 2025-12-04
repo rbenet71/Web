@@ -301,11 +301,15 @@
         
         .lcd-time {
             font-family: 'Orbitron', monospace;
-            font-size: clamp(2.5rem, 8vw, 4.5rem);
-            font-weight: 60;
+            /* Ajusta los valores de clamp para mejor adaptación */
+            font-size: clamp(1.8rem, 7vw, 4.5rem); /* Reducido de 2.5rem a 1.8rem para móviles */
+            font-weight: 600; /* Cambié de 60 a 600 (más estándar) */
             color: #00ff00;
-            letter-spacing: 3px;
-            line-height: 1;
+            letter-spacing: 2px; /* Reducido de 3px */
+            line-height: 1.1; /* Añadido mejor line-height */
+            /* Añade wrap por si acaso */
+            word-break: break-all;
+            overflow-wrap: break-word;
         }
         
         .controls {
