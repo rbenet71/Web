@@ -1222,7 +1222,7 @@
             <p>
                 <span id="copyright-text">2025 © Copyright</span>
                 <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                    Roberto Benet - rbenet71@gmail.com - V_02_12_2025
+                    Roberto Benet - rbenet71@gmail.com - V_04_12_2025
                 </a>
             </p>
         </footer>
@@ -2084,7 +2084,13 @@
                 firstLapTimeMs = 0;
                 closureTimeMs = 0;
                 timeLimitMs = 0;
-                timeLimitDisplay.style.display = 'flex'; // Siempre mostrar el display
+                if (isTimeLimitActive && firstLapTimeMs > 0) {
+                    timeLimitDisplay.style.display = 'flex';
+                    updateTimeLimitDisplay();
+                    checkTimeLimitExceeded();
+                } else {
+                    timeLimitDisplay.style.display = 'none';
+                }
                 chronoDisplay.classList.remove('time-limit-exceeded');
                 
                 updateDisplay();
@@ -2634,10 +2640,13 @@
             const t = translations[currentLanguage];
             
             if (!isTimeLimitActive || firstLapTimeMs <= 0) {
-                // Mostrar el ejemplo cuando no hay tiempo límite calculado
-                timeLimitCombinedDisplay.textContent = t.timeLimitCombinedDisplay;
+                // Ocultar completamente el display cuando no hay tiempo límite calculado
+                timeLimitDisplay.style.display = 'none';
                 return;
             }
+            
+            // Mostrar el display cuando hay tiempo límite calculado
+            timeLimitDisplay.style.display = 'flex';
             
             // Formatear los tiempos para el display
             const closureTimeFormatted = formatTimeForDisplay(closureTimeMs);
