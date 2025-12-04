@@ -1166,6 +1166,7 @@
             <!-- Pestaña Parámetros (solo con porcentaje de cierre) -->
             <div class="tab-content" id="parametros-tab">
                 <div class="parameters-content">
+                    
                     <div class="parameter-group">
                         <label for="start-time-input">Hora de inicio:</label>
                         <div class="parameter-input-group">
@@ -1173,10 +1174,10 @@
                             <button id="set-start-btn">Fijar</button>
                         </div>
                         <div class="parameter-description">
-                            Establece la hora oficial de salida de la carrera
+                            Establece la hora oficial de salida de la carrera (formato: HH:MM:SS)
                         </div>
                     </div>
-                    
+                                        
                     <div class="start-time-display" id="start-time-display">
                         Hora de salida: No establecida
                     </div>
@@ -2553,15 +2554,61 @@
 
         function setStartTime(){
             if(!startTimeInput.value) return;
-            const [h,m,s] = startTimeInput.value.split(':').map(Number);
+            
+            // Obtener el valor del input
+            const timeValue = startTimeInput.value;
+            
+            // Formatear para manejar diferentes casos
+            let h, m, s = 0;
+            
+            // Caso 1: Formato HH:MM:SS
+            if(timeValue.includes(':') && timeValue.split(':').length >= 2) {
+                const parts = timeValue.split(':');
+                h = parseInt(parts[0]) || 0;
+                m = parseInt(parts[1]) || 0;
+                
+                // Si tiene segundos, usarlos, si no, usar 0
+                if(parts.length >= 3) {
+                    s = parseInt(parts[2]) || 0;
+                } else {
+                    s = 0;
+                }
+            }
+            
+            // Validar los valores
+            if(isNaN(h) || isNaN(m) || isNaN(s)) {
+                alert('Formato de hora no válido. Use HH:MM o HH:MM:SS');
+                return;
+            }
+            
+            if(h < 0 || h > 23 || m < 0 || m > 59 || s < 0 || s > 59) {
+                alert('Valores de hora no válidos. Use:\nHoras: 0-23\nMinutos: 0-59\nSegundos: 0-59');
+                return;
+            }
+            
+            // Crear fecha actual con la hora especificada
             const now = new Date();
             const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, s);
+            
             startTime = start.getTime();
             currentTime = Date.now() - startTime;
             startTimeValue = formatHoraSalida(start);
             startTimeInSeconds = horaToSeconds(startTimeValue);
+            
+            // También actualizar el valor del input para mostrar segundos si no los tenía
+            if(timeValue.split(':').length === 2) {
+                startTimeInput.value = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:00`;
+            }
+            
             updateDisplay();
             updateStartTimeDisplay();
+            
+            // Feedback visual
+            startTimeInput.style.borderColor = '#0f0';
+            setTimeout(() => {
+                startTimeInput.style.borderColor = '';
+            }, 1000);
+            
             saveCurrentRace();
         }
 
