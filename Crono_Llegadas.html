@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cronómetro para Llegadas</title>
-	
+    
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-CV925PMBQV"></script>
     <script>
@@ -15,30 +15,30 @@
     gtag('config', 'G-CV925PMBQV');
     </script>
 
-	<!-- Iconos para la aplicación -->
-	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png">
-	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png">
+    <!-- Iconos para la aplicación -->
+    <link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png">
+    <link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png">
 
-	<!-- Iconos para PWA -->
-	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
-	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
-	<link rel="icon" type="image/png" sizes="192x192" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
-	<link rel="icon" type="image/png" sizes="512x512" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
-	<link rel="apple-touch-icon" sizes="192x192" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
-	<meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
+    <!-- Iconos para PWA -->
+    <link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
+    <link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
+    <link rel="icon" type="image/png" sizes="192x192" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
+    <link rel="icon" type="image/png" sizes="512x512" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
+    <link rel="apple-touch-icon" sizes="192x192" href="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
+    <meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png?v=2">
 
-	<!-- Configuración para PWA (Progressive Web App) -->
-	<meta name="theme-color" content="#2c3e50">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-	<meta name="apple-mobile-web-app-title" content="Crono Llegadas">
-	<meta name="msapplication-TileColor" content="#2c3e50">
-	<meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png">
+    <!-- Configuración para PWA (Progressive Web App) -->
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Crono Llegadas">
+    <meta name="msapplication-TileColor" content="#2c3e50">
+    <meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png">
 
-	<!-- Manifest para PWA -->
-	<link rel="manifest" href="https://rbenet71.github.io/Web/Crono_Llegadas_manifest.json">
-	
-	
+    <!-- Manifest para PWA -->
+    <link rel="manifest" href="https://rbenet71.github.io/Web/Crono_Llegadas_manifest.json">
+    
+    
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -1079,6 +1079,63 @@
             font-size: 1.1rem;
         }
         
+        /* Estilos para el historial de horas de inicio */
+        .history-item {
+            padding: 8px;
+            margin-bottom: 5px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            border-left: 3px solid var(--secondary-color);
+            transition: all 0.3s;
+        }
+        
+        .history-item:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateX(2px);
+        }
+        
+        .history-time {
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        
+        .history-timestamp {
+            font-size: 0.85rem;
+            color: #95a5a6;
+            margin-left: 8px;
+        }
+        
+        .history-use-btn {
+            background: rgba(52, 152, 219, 0.2);
+            color: var(--secondary-color);
+            padding: 4px 8px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        
+        .history-use-btn:hover {
+            background: rgba(52, 152, 219, 0.4);
+            transform: translateY(-1px);
+        }
+        
+        .history-source {
+            font-size: 0.7rem;
+            color: #7f8c8d;
+            margin-top: 2px;
+            font-style: italic;
+        }
+        
+        .history-source-manual {
+            color: #3498db;
+        }
+        
+        .history-source-auto {
+            color: #2ecc71;
+        }
+        
         @media (max-width: 768px) {
             .chrono-display {
                 min-height: 150px;
@@ -1312,25 +1369,23 @@
                 </div>
             </div>
             
-            <!-- Pestaña Parámetros (solo con porcentaje de cierre) -->
+            <!-- Pestaña Parámetros REORGANIZADA -->
             <div class="tab-content" id="parametros-tab">
                 <div class="parameters-content">
                     
+                    <!-- 1. Porcentaje de Cierre de Control -->
                     <div class="parameter-group">
-                        <label for="start-time-input">Hora de inicio:</label>
+                        <label for="closure-percentage-input">Porcentaje de Cierre de Control (%):</label>
                         <div class="parameter-input-group">
-                            <input type="time" id="start-time-input" step="1">
-                            <button id="set-start-btn">Fijar</button>
+                            <input type="number" id="closure-percentage-input" min="0" max="100" step="0.1" value="5.0">
+                            <span style="color: white; font-weight: bold;">%</span>
                         </div>
                         <div class="parameter-description">
-                            Establece la hora oficial de salida de la carrera (formato: HH:MM:SS)
+                            Porcentaje que se aplicará automáticamente al tiempo del primer corte para calcular el tiempo límite
                         </div>
                     </div>
-                                        
-                    <div class="start-time-display" id="start-time-display">
-                        Hora de salida: No establecida
-                    </div>
                     
+                    <!-- 2. Tiempo del cronómetro -->
                     <div class="parameter-group">
                         <label for="set-elapsed-input">Tiempo del cronómetro (hh:mm:ss):</label>
                         <div class="parameter-input-group">
@@ -1342,16 +1397,34 @@
                         </div>
                     </div>
                     
+                    <!-- 3. Hora de inicio -->
                     <div class="parameter-group">
-                        <label for="closure-percentage-input">Porcentaje de Cierre de Control (%):</label>
+                        <label for="start-time-input">Hora de inicio:</label>
                         <div class="parameter-input-group">
-                            <input type="number" id="closure-percentage-input" min="0" max="100" step="0.1" value="5.0">
-                            <span style="color: white; font-weight: bold;">%</span>
+                            <input type="time" id="start-time-input" step="1">
+                            <button id="set-start-btn">Fijar</button>
                         </div>
                         <div class="parameter-description">
-                            Porcentaje que se aplicará automáticamente al tiempo del primer corte para calcular el tiempo límite
+                            Establece la hora oficial de salida de la carrera (formato: HH:MM:SS)
                         </div>
                     </div>
+                    
+                    <!-- Display de hora de inicio actual -->
+                    <div class="start-time-display" id="start-time-display">
+                        Hora de salida: No establecida
+                    </div>
+                    
+                    <!-- 4. Historial de horas de inicio -->
+                    <div class="parameter-group">
+                        <label>Historial de horas de inicio:</label>
+                        <div id="start-time-history" style="max-height: 200px; overflow-y: auto; margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 5px;">
+                            <!-- El historial se mostrará aquí -->
+                        </div>
+                        <div class="parameter-description">
+                            Horas de inicio previamente usadas (se conservan al reiniciar). Incluye inicios manuales y automáticos.
+                        </div>
+                    </div>
+                    
                 </div>
             </div>
         </div>
@@ -1513,7 +1586,14 @@
                 timeUpdated: "Tiempo actualizado correctamente",
                 dorsalsUpdated: "Dorsales actualizados correctamente",
                 invalidTimeFormat: "Formato de tiempo inválido. Use: mm:ss o mm:ss.mmm o hh:mm:ss",
-                invalidDorsal: "Dorsal no válido. Solo se permiten números."
+                invalidDorsal: "Dorsal no válido. Solo se permiten números.",
+                startTimeHistoryLabel: "Historial de horas de inicio:",
+                startTimeHistoryDescription: "Horas de inicio previamente usadas (se conservan al reiniciar). Incluye inicios manuales y automáticos.",
+                noHistory: "No hay horas de inicio guardadas",
+                useTime: "Usar",
+                manualStart: "Manual",
+                autoStart: "Automático",
+                source: "Origen:"
             },
             ca: {
                 appTitle: "Cronòmetre per Arribades",
@@ -1572,7 +1652,14 @@
                 timeUpdated: "Temps actualitzat correctament",
                 dorsalsUpdated: "Dorsals actualitzats correctament",
                 invalidTimeFormat: "Format de temps invàlid. Utilitza: mm:ss o mm:ss.mmm o hh:mm:ss",
-                invalidDorsal: "Dorsal no vàlid. Només es permeten números."
+                invalidDorsal: "Dorsal no vàlid. Només es permeten números.",
+                startTimeHistoryLabel: "Historial d'hores d'inici:",
+                startTimeHistoryDescription: "Hores d'inici prèviament utilitzades (es conserven en reiniciar). Inclou inici manual i automàtic.",
+                noHistory: "No hi ha hores d'inici guardades",
+                useTime: "Utilitzar",
+                manualStart: "Manual",
+                autoStart: "Automàtic",
+                source: "Origen:"
             },
             en: {
                 appTitle: "Finish Line Stopwatch",
@@ -1631,7 +1718,14 @@
                 timeUpdated: "Time updated successfully",
                 dorsalsUpdated: "Bibs updated successfully",
                 invalidTimeFormat: "Invalid time format. Use: mm:ss or mm:ss.mmm or hh:mm:ss",
-                invalidDorsal: "Invalid bib number. Only numbers are allowed."
+                invalidDorsal: "Invalid bib number. Only numbers are allowed.",
+                startTimeHistoryLabel: "Start time history:",
+                startTimeHistoryDescription: "Previously used start times (preserved on reset). Includes manual and automatic starts.",
+                noHistory: "No start times saved",
+                useTime: "Use",
+                manualStart: "Manual",
+                autoStart: "Automatic",
+                source: "Source:"
             },
             fr: {
                 appTitle: "Chronomètre d'Arrivée",
@@ -1690,7 +1784,14 @@
                 timeUpdated: "Temps mis à jour avec succès",
                 dorsalsUpdated: "Dossards mis à jour avec succès",
                 invalidTimeFormat: "Format de temps invalide. Utilisez: mm:ss ou mm:ss.mmm ou hh:mm:ss",
-                invalidDorsal: "Dossard invalide. Seuls les chiffres sont autorisés."
+                invalidDorsal: "Dossard invalide. Seuls les chiffres sont autorisés.",
+                startTimeHistoryLabel: "Historique des heures de départ:",
+                startTimeHistoryDescription: "Heures de départ précédemment utilisées (conservées lors de la réinitialisation). Comprend les démarrages manuels et automatiques.",
+                noHistory: "Aucune heure de départ enregistrée",
+                useTime: "Utiliser",
+                manualStart: "Manuel",
+                autoStart: "Automatique",
+                source: "Source:"
             }
         };
 
@@ -1708,6 +1809,7 @@
         let currentRaceId = null;
         let races = {};
         let showMilliseconds = true;
+        let startTimeHistory = []; // Nueva variable para el historial
         
         // Variables para el cálculo del tiempo límite
         let closurePercentage = 5.0;
@@ -1746,10 +1848,104 @@
         const timeLimitCombinedDisplay = document.getElementById('time-limit-combined-display');
         const closurePercentageInput = document.getElementById('closure-percentage-input');
         const chronoDisplay = document.getElementById('chrono-display');
+        const startTimeHistoryContainer = document.getElementById('start-time-history'); // Nuevo elemento
 
         // Modales
         const newRaceModal = document.getElementById('new-race-modal');
         const deleteRaceModal = document.getElementById('delete-race-modal');
+
+        // ==============================================
+        // FUNCIONES PARA EL HISTORIAL DE HORAS DE INICIO
+        // ==============================================
+
+        function addToStartTimeHistory(timeStr, source) {
+            const t = translations[currentLanguage];
+            const now = new Date();
+            
+            // Formatear la hora para mostrar (HH:MM:SS)
+            const timeParts = timeStr.split(':');
+            const h = timeParts[0];
+            const m = timeParts[1];
+            const s = timeParts[2] ? timeParts[2].split('.')[0] : '00';
+            const formattedTime = `${h}:${m}:${s}`;
+            
+            // Crear entrada del historial
+            const historyEntry = {
+                time: timeStr,
+                timestamp: Date.now(),
+                formattedTime: formattedTime,
+                source: source // 'manual' o 'auto'
+            };
+            
+            // Evitar duplicados consecutivos (misma hora y mismo origen en los últimos 5 segundos)
+            const lastEntry = startTimeHistory[startTimeHistory.length - 1];
+            const nowTime = Date.now();
+            
+            if (lastEntry && 
+                lastEntry.time === timeStr && 
+                lastEntry.source === source && 
+                (nowTime - lastEntry.timestamp) < 5000) {
+                return; // No agregar duplicado reciente
+            }
+            
+            startTimeHistory.push(historyEntry);
+            
+            // Limitar el historial a las últimas 50 entradas
+            if (startTimeHistory.length > 50) {
+                startTimeHistory = startTimeHistory.slice(-50);
+            }
+            
+            renderStartTimeHistory();
+            saveCurrentRace();
+        }
+
+        function renderStartTimeHistory() {
+            const t = translations[currentLanguage];
+            
+            if (!startTimeHistoryContainer) return;
+            
+            if (startTimeHistory.length === 0) {
+                startTimeHistoryContainer.innerHTML = `<div style="color: #95a5a6; font-style: italic; text-align: center; padding: 10px;">${t.noHistory}</div>`;
+                return;
+            }
+            
+            startTimeHistoryContainer.innerHTML = startTimeHistory.slice().reverse().map((entry, index) => {
+                const date = new Date(entry.timestamp);
+                const timeString = date.toLocaleTimeString();
+                const dateString = date.toLocaleDateString();
+                const sourceClass = entry.source === 'manual' ? 'history-source-manual' : 'history-source-auto';
+                const sourceText = entry.source === 'manual' ? t.manualStart : t.autoStart;
+                
+                return `
+                    <div class="history-item">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div style="flex: 1;">
+                                <div>
+                                    <span class="history-time">${entry.formattedTime}</span>
+                                    <span class="history-timestamp">${dateString} ${timeString}</span>
+                                </div>
+                                <div class="history-source ${sourceClass}">
+                                    ${t.source} ${sourceText}
+                                </div>
+                            </div>
+                            <button class="history-use-btn" onclick="useStartTimeFromHistory('${entry.time}')" title="${t.useTime} ${entry.formattedTime}">
+                                ${t.useTime}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function useStartTimeFromHistory(timeStr) {
+            const parts = timeStr.split(':');
+            const msParts = parts[2].split('.');
+            
+            startTimeInput.value = `${parts[0]}:${parts[1]}:${msParts[0]}`;
+            
+            // Simular clic en el botón Fijar
+            setStartBtn.click();
+        }
 
         // ==============================================
         // FUNCIONES NUEVAS PARA GESTIÓN DE CORTES
@@ -2106,11 +2302,14 @@
             dorsalesTabButton.textContent = t.dorsalsTab;
             parametrosTabButton.textContent = t.parametersTab;
             
-            document.querySelectorAll('.parameter-group label')[0].textContent = t.startTimeLabel;
-            setStartBtn.textContent = t.setStartTimeButton;
+            // Actualizar textos en el orden nuevo
+            document.querySelectorAll('.parameter-group label')[0].textContent = t.closurePercentageLabel;
             document.querySelectorAll('.parameter-group label')[1].textContent = t.timeLabel;
+            document.querySelectorAll('.parameter-group label')[2].textContent = t.startTimeLabel;
+            document.querySelectorAll('.parameter-group label')[3].textContent = t.startTimeHistoryLabel;
+            
+            setStartBtn.textContent = t.setStartTimeButton;
             setElapsedBtn.textContent = t.setTimeButton;
-            document.querySelectorAll('.parameter-group label')[2].textContent = t.closurePercentageLabel;
             
             startTimeDisplay.textContent = t.startTimeDisplay + (startTimeValue || t.notSet);
             
@@ -2148,6 +2347,9 @@
             if (window.suggestionsSystem) {
                 window.suggestionsSystem.updateLanguage(lang);
             }
+            
+            // Renderizar historial con el nuevo idioma
+            renderStartTimeHistory();
         }
 
         // ==============================================
@@ -2324,13 +2526,20 @@
             
             if (startTime === 0) {
                 startTime = Date.now() - currentTime;
-                if (!startTimeValue) {
-                    const now = new Date();
+                // Obtener hora actual automáticamente
+                const now = new Date();
+                startTimeValue = formatHoraSalida(now);
+                startTimeInSeconds = horaToSeconds(startTimeValue);
+                
+                // Guardar en el historial como inicio automático
+                addToStartTimeHistory(startTimeValue, 'auto');
+                
+                // Actualizar campo de entrada si está vacío
+                if (!startTimeInput.value) {
                     startTimeInput.value = now.toTimeString().split(' ')[0];
-                    startTimeValue = formatHoraSalida(now);
-                    startTimeInSeconds = horaToSeconds(startTimeValue);
-                    updateStartTimeDisplay();
                 }
+                
+                updateStartTimeDisplay();
             } else {
                 startTime = Date.now() - currentTime;
             }
@@ -2579,6 +2788,9 @@
             startTimeValue = formatHoraSalida(start);
             startTimeInSeconds = horaToSeconds(startTimeValue);
             
+            // Guardar en el historial como inicio manual
+            addToStartTimeHistory(startTimeValue, 'manual');
+            
             if(timeValue.split(':').length === 2) {
                 startTimeInput.value = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:00`;
             }
@@ -2626,6 +2838,10 @@
             startTimeInput.value = startDate.toTimeString().split(' ')[0];
             startTimeValue = formatHoraSalida(startDate);
             startTimeInSeconds = horaToSeconds(startTimeValue);
+            
+            // Guardar en el historial como inicio manual
+            addToStartTimeHistory(startTimeValue, 'manual');
+            
             updateDisplay();
             updateStartTimeDisplay();
             saveCurrentRace();
@@ -2666,6 +2882,9 @@
             timeLimitMs = 0;
             timeLimitDisplay.style.display = 'none';
             chronoDisplay.classList.remove('time-limit-exceeded');
+            
+            // NO resetear startTimeHistory aquí - se conserva el historial
+            // startTimeHistory = [];
             
             updateDisplay();
             renderLaps();
@@ -2779,6 +2998,7 @@
                 dorsalAssignments = {};
                 editingLapIndex = null;
                 editingTimeIndex = null;
+                startTimeHistory = [];
                 
                 isTimeLimitActive = false;
                 firstLapTimeMs = 0;
@@ -2790,6 +3010,7 @@
                 updateDisplay();
                 renderLaps();
                 renderDorsalList();
+                renderStartTimeHistory();
                 updateButtonsState();
                 
                 if (intervalId) {
@@ -2813,6 +3034,7 @@
             dorsalAssignments = race.dorsalAssignments || {};
             editingLapIndex = null;
             editingTimeIndex = null;
+            startTimeHistory = race.startTimeHistory || [];
             
             closurePercentage = race.closurePercentage || 5.0;
             firstLapTimeMs = race.firstLapTimeMs || 0;
@@ -2823,6 +3045,7 @@
             updateDisplay();
             renderLaps();
             renderDorsalList();
+            renderStartTimeHistory();
             updateButtonsState();
             
             closurePercentageInput.value = closurePercentage;
@@ -2874,7 +3097,8 @@
                 firstLapTimeMs: firstLapTimeMs,
                 closureTimeMs: closureTimeMs,
                 timeLimitMs: timeLimitMs,
-                isTimeLimitActive: isTimeLimitActive
+                isTimeLimitActive: isTimeLimitActive,
+                startTimeHistory: startTimeHistory
             };
             
             saveRaces();
@@ -2907,7 +3131,8 @@
                 firstLapTimeMs: 0,
                 closureTimeMs: 0,
                 timeLimitMs: 0,
-                isTimeLimitActive: false
+                isTimeLimitActive: false,
+                startTimeHistory: []
             };
             
             saveRaces();
