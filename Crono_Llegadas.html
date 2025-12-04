@@ -1358,7 +1358,8 @@
                 invalidCity: "Ciudad no válida",
                 enterEmail: "Ingresa tu email",
                 enterCity: "Escribe tu ciudad",
-                cityExamples: "Madrid, Barcelona, Valencia, etc."
+                cityExamples: "Madrid, Barcelona, Valencia, etc.",
+                controlClosureLabel: "Cierre de Control"
             },
             ca: {
                 appTitle: "Cronòmetre per Arribades",
@@ -1412,7 +1413,8 @@
                 invalidCity: "Ciutat no vàlida",
                 enterEmail: "Introdueix el teu email",
                 enterCity: "Escriu la teva ciutat",
-                cityExamples: "Madrid, Barcelona, València, etc."
+                cityExamples: "Madrid, Barcelona, València, etc.",
+                controlClosureLabel: "Tancament de Control"
             },
             en: {
                 appTitle: "Finish Line Stopwatch",
@@ -1466,7 +1468,8 @@
                 invalidCity: "Invalid city",
                 enterEmail: "Enter your email",
                 enterCity: "Write your city",
-                cityExamples: "Madrid, Barcelona, Valencia, etc."
+                cityExamples: "Madrid, Barcelona, Valencia, etc.",
+                controlClosureLabel: "Time Limit"
             },
             fr: {
                 appTitle: "Chronomètre d'Arrivée",
@@ -1520,7 +1523,8 @@
                 invalidCity: "Ciudad no válida",
                 enterEmail: "Introduce tu email",
                 enterCity: "Escribe tu ciudad",
-                cityExamples: "Madrid, Barcelona, Valencia, etc."
+                cityExamples: "Madrid, Barcelona, Valencia, etc.",
+                controlClosureLabel: "Fermeture Contrôle"
             }
         };
 
@@ -1661,6 +1665,7 @@
             if (window.suggestionsSystem) {
                 window.suggestionsSystem.updateLanguage(lang);
             }
+            updateTimeLimitDisplay();
         }
 
         // Sistema de sugerencias
@@ -2651,9 +2656,10 @@
             const closureTimeFormatted = formatTimeForDisplay(closureTimeMs);
             const timeLimitFormatted = formatTimeForDisplay(timeLimitMs);
             
-            // Mostrar en el formato solicitado: Cierre de Control (X%) -> [tiempo porcentaje] -> [tiempo límite total]
+            // USAR TEXTO TRADUCIDO según el idioma actual
+            // "Cierre de Control" se traduce según el idioma
             timeLimitCombinedDisplay.textContent = 
-                `Cierre de Control (${closurePercentage}%) -> ${closureTimeFormatted} -> ${timeLimitFormatted}`;
+                `${t.controlClosureLabel || "Cierre de Control"} (${closurePercentage}%) -> ${closureTimeFormatted} -> ${timeLimitFormatted}`;
         }
         
         function checkTimeLimitExceeded() {
