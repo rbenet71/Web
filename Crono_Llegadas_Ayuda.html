@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ayuda Cronómetro de Llegadas</title>
+    <title>Ayuda Cronómetro para Llegadas</title>
     <style>
         * {
             margin: 0;
@@ -47,6 +47,7 @@
             justify-content: center;
             gap: 20px;
             margin: 20px 0;
+            flex-wrap: wrap;
         }
         
         .lang-btn {
@@ -58,6 +59,7 @@
             cursor: pointer;
             transition: all 0.3s;
             font-weight: bold;
+            min-width: 120px;
         }
         
         .lang-btn:hover {
@@ -201,6 +203,68 @@
             transform: translateY(-2px);
         }
         
+        .author-note {
+            background: rgba(41, 128, 185, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border-left: 4px solid #3498db;
+            font-style: italic;
+        }
+        
+        .author-note h4 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .start-methods {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border: 2px solid #3498db;
+        }
+        
+        .start-method {
+            background: rgba(44, 62, 80, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .start-method h4 {
+            color: #f39c12;
+            margin-bottom: 10px;
+        }
+        
+        .time-limit-section {
+            background: rgba(46, 204, 113, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border: 2px solid #2ecc71;
+        }
+        
+        .time-limit-explanation {
+            background: rgba(44, 62, 80, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #2ecc71;
+        }
+        
+        .time-limit-display-example {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -228,37 +292,45 @@
 <body>
     <div class="container">
         <header>
-            <h1 id="main-title">Ayuda Cronómetro de Llegadas</h1>
+            <h1 id="main-title">Ayuda Cronómetro para Llegadas</h1>
             <div class="language-selector">
                 <button class="lang-btn active" data-lang="es">Español</button>
                 <button class="lang-btn" data-lang="ca">Català</button>
                 <button class="lang-btn" data-lang="en">English</button>
+                <button class="lang-btn" data-lang="fr">Français</button>
             </div>
         </header>
 
         <!-- Contenido Español -->
         <div class="content active" id="content-es">
+            <div class="author-note">
+                <h4>Nota del Autor</h4>
+                <p>Esta aplicación la ha desarrollado Roberto Benet, comisario del comité catalán, para que cualquier árbitro la pueda utilizar en carreras de ciclismo de forma gratuita. Estoy abierto a cualquier tipo de mejora o implementación de nuevas funciones.</p>
+            </div>
+
             <h2>Descripción General</h2>
-            <p>El Cronómetro de Llegadas es una herramienta especializada para cronometrar carreras de ciclismo, especialmente útil para eventos donde es necesario registrar los tiempos de llegada de múltiples corredores y asignar dorsales a cada tiempo registrado.</p>
+            <p>El Cronómetro para Llegadas es una herramienta profesional diseñada para cronometrar llegadas en carreras de ciclismo, especialmente útil para eventos donde es necesario registrar los tiempos exactos de llegada de múltiples corredores y asignar dorsales a cada tiempo registrado.</p>
 
             <h2>Funcionalidades Principales</h2>
             
             <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Gestión de Carreras</h4>
+                    <ul>
+                        <li><strong>Nueva Carrera:</strong> Crear una nueva carrera con nombre personalizado</li>
+                        <li><strong>Seleccionar Carrera:</strong> Cambiar entre diferentes carreras guardadas</li>
+                        <li><strong>Eliminar Carrera:</strong> Borrar una carrera existente</li>
+                        <li><strong>Persistencia Automática:</strong> Los datos se guardan automáticamente</li>
+                    </ul>
+                </div>
+                
                 <div class="feature-card">
                     <h4>Control del Cronómetro</h4>
                     <ul>
                         <li><strong>Iniciar/Pausar:</strong> Control completo del cronómetro principal</li>
                         <li><strong>Registro de Cortes:</strong> Registrar tiempos de llegada con un solo clic</li>
                         <li><strong>Reiniciar:</strong> Restablecer completamente el cronómetro y todos los datos</li>
-                    </ul>
-                </div>
-                
-                <div class="feature-card">
-                    <h4>Gestión de Tiempos</h4>
-                    <ul>
-                        <li><strong>Hora de Salida:</strong> Establecer y mostrar la hora exacta de inicio</li>
-                        <li><strong>Ajuste Manual:</strong> Fijar manualmente el tiempo del cronómetro</li>
-                        <li><strong>Persistencia:</strong> Los datos se guardan automáticamente</li>
+                        <li><strong>Historial de Horas:</strong> Acceso rápido a horas de inicio anteriores</li>
                     </ul>
                 </div>
                 
@@ -268,16 +340,71 @@
                         <li><strong>Asignación Múltiple:</strong> Asignar múltiples dorsales a un mismo tiempo</li>
                         <li><strong>Gestión Visual:</strong> Lista organizada de dorsales asignados</li>
                         <li><strong>Edición Flexible:</strong> Modificar o eliminar asignaciones fácilmente</li>
+                        <li><strong>Doble Lista:</strong> Vista por cortes y vista específica de dorsales</li>
                     </ul>
                 </div>
                 
                 <div class="feature-card">
-                    <h4>Exportación de Datos</h4>
+                    <h4>Sistema de Tiempo Límite</h4>
                     <ul>
-                        <li><strong>Exportar Cortes:</strong> Generar archivo CSV con todos los tiempos</li>
-                        <li><strong>Exportar Dorsales:</strong> Archivo CSV específico para asignaciones</li>
-                        <li><strong>Formato Estándar:</strong> Compatible con Excel y otras aplicaciones</li>
+                        <li><strong>Cálculo Automático:</strong> Calcula automáticamente el tiempo límite</li>
+                        <li><strong>Porcentaje Configurable:</strong> Ajusta el porcentaje de cierre de control (5% por defecto)</li>
+                        <li><strong>Visualización Clara:</strong> Muestra el tiempo límite claramente</li>
+                        <li><strong>Alerta Visual:</strong> Cambio de color cuando se supera el límite</li>
                     </ul>
+                </div>
+            </div>
+
+            <h2>TRES FORMAS DE PONER EN MARCHA EL CRONÓMETRO</h2>
+            
+            <div class="start-methods">
+                <div class="start-method">
+                    <h4>1. Pulsando "Iniciar"</h4>
+                    <p><strong>Cuando usar:</strong> Para una carrera que comienza en este momento.</p>
+                    <p><strong>Proceso:</strong> Simplemente pulsa el botón "Iniciar" cuando dé la salida la carrera. El sistema registrará automáticamente la hora actual como hora de inicio.</p>
+                    <p><strong>Ventaja:</strong> La forma más rápida y sencilla de empezar.</p>
+                </div>
+                
+                <div class="start-method">
+                    <h4>2. Fijando la Hora de Inicio</h4>
+                    <p><strong>Cuando usar:</strong> Cuando conoces la hora exacta de salida de la carrera.</p>
+                    <p><strong>Proceso:</strong> Ve a la pestaña "Parámetros", introduce la hora exacta de salida en "Hora de inicio" y pulsa "Fijar". El sistema calculará automáticamente el tiempo transcurrido.</p>
+                    <p><strong>Ventaja:</strong> Perfecto cuando la carrera ya ha comenzado y quieres sincronizar el cronómetro con la hora real de salida.</p>
+                    <p><strong>Extra:</strong> Accede al historial de horas de inicio anteriores para seleccionar rápidamente horas usadas en carreras previas.</p>
+                </div>
+                
+                <div class="start-method">
+                    <h4>3. Fijando el Tiempo del Cronómetro</h4>
+                    <p><strong>Cuando usar:</strong> Cuando necesitas establecer un tiempo específico de cronómetro (ej: 1h 30m 15s).</p>
+                    <p><strong>Proceso:</strong> Ve a la pestaña "Parámetros", introduce el tiempo en "Tiempo del cronómetro" y pulsa "Aplicar tiempo".</p>
+                    <p><strong>Ventaja:</strong> Útil para reanudar una carrera después de una parada o para establecer tiempos específicos.</p>
+                </div>
+            </div>
+
+            <h2>Sistema de Tiempo Límite Automático</h2>
+            
+            <div class="time-limit-section">
+                <div class="time-limit-explanation">
+                    <h4>¿Cómo funciona el tiempo límite?</h4>
+                    <p>El sistema calcula automáticamente un tiempo límite basado en el primer corte registrado:</p>
+                    <ol>
+                        <li>Cuando registras el primer corte (primera llegada), el sistema toma ese tiempo como referencia</li>
+                        <li>Aplica el porcentaje configurado (por defecto 5%) a ese tiempo para calcular el tiempo de cierre de control</li>
+                        <li>Calcula el tiempo límite sumando el tiempo del primer corte más el tiempo de cierre de control</li>
+                    </ol>
+                    
+                    <div class="time-limit-display-example">
+                        Cierre de Control (5%) → 06'00" → 02:06'06"
+                    </div>
+                    
+                    <p><strong>Explicación del ejemplo:</strong></p>
+                    <ul>
+                        <li><strong>5%:</strong> Porcentaje configurado (ajustable en Parámetros)</li>
+                        <li><strong>06'00":</strong> Tiempo de cierre de control (5% del primer corte)</li>
+                        <li><strong>02:06'06":</strong> Tiempo límite total (primer corte + cierre de control)</li>
+                    </ul>
+                    
+                    <p><strong>Visualización:</strong> Cuando el cronómetro supera el tiempo límite, el display cambia a color rojo para alertarte visualmente.</p>
                 </div>
             </div>
 
@@ -285,51 +412,98 @@
             
             <div class="step-box">
                 <span class="step-number">1</span>
-                <strong>Configurar Hora de Salida</strong>
-                <p>Establece la hora exacta de inicio de la carrera usando el campo "Hora de inicio" o deja que se establezca automáticamente al iniciar el cronómetro.</p>
+                <strong>Crear o Seleccionar Carrera</strong>
+                <p>Crea una nueva carrera o selecciona una existente. Escoge una de las tres formas de iniciar el cronómetro según tus necesidades.</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">2</span>
-                <strong>Iniciar el Cronómetro</strong>
-                <p>Haz clic en "Iniciar" para comenzar el cronómetro cuando dé comienzo la carrera.</p>
+                <strong>Configurar Parámetros</strong>
+                <p>Configura la hora de inicio si es necesario y ajusta el porcentaje de cierre de control (por defecto 5%).</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">3</span>
-                <strong>Registrar Llegadas</strong>
-                <p>Cada vez que un corredor o grupo de corredores llegue a meta, haz clic en "Corte" para registrar el tiempo actual.</p>
+                <strong>Iniciar el Cronómetro</strong>
+                <p>Inicia el cronómetro cuando dé comienzo la carrera utilizando el método que prefieras.</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">4</span>
+                <strong>Registrar Llegadas</strong>
+                <p>Cada vez que un corredor o grupo de corredores llegue a meta, haz clic en "Corte" para registrar el tiempo actual.</p>
+                <p><strong>NOTA:</strong> El primer corte establece automáticamente el tiempo límite.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
                 <strong>Asignar Dorsales</strong>
                 <p>Haz clic en cualquier tiempo registrado para asignar los números de dorsal correspondientes. Puedes asignar múltiples dorsales separados por comas.</p>
             </div>
             
             <div class="step-box">
-                <span class="step-number">5</span>
+                <span class="step-number">6</span>
                 <strong>Exportar Resultados</strong>
                 <p>Al finalizar la carrera, exporta los datos para su análisis posterior usando los botones de exportación.</p>
             </div>
 
             <h2>Gestión de Cortes y Dorsales</h2>
-            <p>El sistema organiza los tiempos registrados en una lista donde puedes:</p>
-            <ul>
-                <li>Ver todos los cortes registrados en orden cronológico inverso (los más recientes primero)</li>
-                <li>Asignar dorsales haciendo clic en el texto "Haz clic para asignar dorsales"</li>
-                <li>Introducir múltiples dorsales separados por comas (ej: 15, 23, 47)</li>
-                <li>Ver una lista separada con todos los dorsales asignados en la pestaña "Dorsales"</li>
-                <li>Eliminar asignaciones de dorsales individuales</li>
-            </ul>
+            <p>El sistema organiza los tiempos registrados en dos vistas complementarias:</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Pestaña "Cortes"</h4>
+                    <ul>
+                        <li>Ver todos los cortes registrados en orden cronológico inverso (los más recientes primero)</li>
+                        <li>Asignar dorsales haciendo clic en "Haz clic para asignar dorsales"</li>
+                        <li>Introducir múltiples dorsales separados por comas (ej: 15, 23, 47)</li>
+                        <li>Ver información detallada de cada corte</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Pestaña "Dorsales"</h4>
+                    <ul>
+                        <li>Lista organizada de todos los dorsales asignados</li>
+                        <li>Ver todos los cortes asociados a cada dorsal</li>
+                        <li>Eliminar asignaciones de dorsales individuales</li>
+                        <li>Búsqueda rápida de dorsales específicos</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Exportación de Datos</h2>
+            <p>El sistema ofrece dos tipos de exportación:</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Exportar Cortes (CSV)</h4>
+                    <ul>
+                        <li>Genera un archivo CSV con todos los tiempos registrados</li>
+                        <li>Incluye: Número de corte, tiempo formateado, tiempo en segundos, hora exacta, hora de salida, y dorsales asignados</li>
+                        <li>Formato compatible con Excel y otras aplicaciones</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Exportar Dorsales (CSV)</h4>
+                    <ul>
+                        <li>Genera un archivo CSV específico para asignaciones de dorsales</li>
+                        <li>Incluye: Número de dorsal, corte asociado, tiempo formateado, tiempo en segundos, y hora exacta</li>
+                        <li>Organizado por número de dorsal</li>
+                    </ul>
+                </div>
+            </div>
 
             <h2>Características Avanzadas</h2>
             <ul>
-                <li><strong>Idiomas:</strong> Soporte para Español, Catalán e Inglés</li>
+                <li><strong>Idiomas:</strong> Soporte completo para Español, Catalán, Inglés y Francés</li>
                 <li><strong>Persistencia:</strong> Los datos se guardan automáticamente en el navegador</li>
                 <li><strong>Responsive:</strong> Funciona en dispositivos móviles y desktop</li>
                 <li><strong>Atajos de Teclado:</strong> Control rápido sin usar el ratón</li>
+                <li><strong>Milésimas Configurables:</strong> Muestra u oculta las milésimas según necesidad</li>
                 <li><strong>Información Completa:</strong> Incluye hora exacta, segundos con milésimas y cálculos de tiempo de llegada</li>
+                <li><strong>Sistema de Sugerencias:</strong> Envía tus ideas para mejorar la aplicación</li>
             </ul>
 
             <div class="tip-box">
@@ -343,13 +517,14 @@
             </div>
 
             <h2>Información Técnica Incluida</h2>
-            <p>Cada corte registrado contiene la siguiente información:</p>
+            <p>Cada corte registrado contiene la siguiente información completa:</p>
             <ul>
                 <li><strong>Tiempo de cronómetro:</strong> Formato legible (minutos'segundos"milésimas)</li>
                 <li><strong>Tiempo en segundos:</strong> Valor numérico preciso con tres decimales</li>
                 <li><strong>Hora exacta:</strong> Hora real del sistema cuando se registró el corte</li>
                 <li><strong>Tiempo de salida:</strong> Hora de inicio en segundos desde medianoche</li>
                 <li><strong>Tiempo de llegada:</strong> Hora exacta de llegada en segundos desde medianoche</li>
+                <li><strong>Dorsales asignados:</strong> Lista de números de dorsal para ese corte</li>
             </ul>
 
             <h2>Instalación como App en el Móvil</h2>
@@ -382,6 +557,23 @@
                     <li>Funciona sin conexión a internet después de la primera carga</li>
                     <li>Interfaz similar a una aplicación nativa</li>
                     <li>No requiere descarga desde tiendas de aplicaciones</li>
+                    <li>Notificaciones de actualizaciones automáticas</li>
+                </ul>
+            </div>
+
+            <h2>Consejos para Árbitros</h2>
+            <div class="tip-box">
+                <h4>Mejores Prácticas</h4>
+                <ul>
+                    <li>Configurar la carrera con suficiente antelación</li>
+                    <li>Probar el sistema antes de la competición real</li>
+                    <li>Utilizar el historial de horas para carreras con múltiples salidas</li>
+                    <li>Exportar los datos inmediatamente después de cada carrera</li>
+                    <li>Enviar sugerencias si encuentras algo que mejorar</li>
+                    <li>Elegir el método de inicio adecuado según la situación</li>
+                    <li>Utilizar "Fijar Hora de Inicio" para sincronizar con relojes oficiales</li>
+                    <li>Ajustar el porcentaje de cierre según las necesidades específicas de cada carrera</li>
+                    <li>Monitorizar el display de tiempo límite para controlar las llegadas tardías</li>
                 </ul>
             </div>
 
@@ -390,27 +582,34 @@
 
         <!-- Contenido Català -->
         <div class="content" id="content-ca">
+            <div class="author-note">
+                <h4>Nota de l'Autor</h4>
+                <p>Aquesta aplicació l'ha desenvolupada Roberto Benet, comissari del comitè català, perquè qualsevol àrbitre la pugui utilitzar en curses de ciclisme de forma gratuïta. Estic obert a qualsevol tipus de millora o implementació de noves funcions.</p>
+            </div>
+
             <h2>Descripció General</h2>
-            <p>El Cronòmetre d'Arribades és una eina especialitzada per a cronometrar curses de ciclisme, especialment útil per a esdeveniments on cal registrar els temps d'arribada de múltiples corredors i assignar dorsals a cada temps registrat.</p>
+            <p>El Cronòmetre per Arribades és una eina professional dissenyada per a cronometrar arribades en curses de ciclisme, especialment útil per a esdeveniments on cal registrar els temps exactes d'arribada de múltiples corredors i assignar dorsals a cada temps registrat.</p>
 
             <h2>Funcionalitats Principals</h2>
             
             <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Gestió de Curses</h4>
+                    <ul>
+                        <li><strong>Nova Cursa:</strong> Crear una nova cursa amb nom personalitzat</li>
+                        <li><strong>Seleccionar Cursa:</strong> Canviar entre diferents curses guardades</li>
+                        <li><strong>Eliminar Cursa:</strong> Esborrar una cursa existent</li>
+                        <li><strong>Persistència Automàtica:</strong> Les dades es guarden automàticament</li>
+                    </ul>
+                </div>
+                
                 <div class="feature-card">
                     <h4>Control del Cronòmetre</h4>
                     <ul>
                         <li><strong>Iniciar/Pausar:</strong> Control complet del cronòmetre principal</li>
                         <li><strong>Registre de Talls:</strong> Registrar temps d'arribada amb un sol clic</li>
                         <li><strong>Reiniciar:</strong> Restablir completament el cronòmetre i totes les dades</li>
-                    </ul>
-                </div>
-                
-                <div class="feature-card">
-                    <h4>Gestió de Temps</h4>
-                    <ul>
-                        <li><strong>Hora de Sortida:</strong> Establir i mostrar l'hora exacta d'inici</li>
-                        <li><strong>Ajust Manual:</strong> Fixar manualment el temps del cronòmetre</li>
-                        <li><strong>Persistència:</strong> Les dades es guarden automàticament</li>
+                        <li><strong>Historial d'Hores:</strong> Accés ràpid a hores d'inici anteriors</li>
                     </ul>
                 </div>
                 
@@ -420,16 +619,71 @@
                         <li><strong>Assignació Múltiple:</strong> Assignar múltiples dorsals a un mateix temps</li>
                         <li><strong>Gestió Visual:</strong> Llista organitzada de dorsals assignats</li>
                         <li><strong>Edició Flexible:</strong> Modificar o eliminar assignacions fàcilment</li>
+                        <li><strong>Doble Llista:</strong> Vista per talls i vista específica de dorsals</li>
                     </ul>
                 </div>
                 
                 <div class="feature-card">
-                    <h4>Exportació de Dades</h4>
+                    <h4>Sistema de Temps Límit</h4>
                     <ul>
-                        <li><strong>Exportar Talls:</strong> Generar fitxer CSV amb tots els temps</li>
-                        <li><strong>Exportar Dorsals:</strong> Fitxer CSV específic per a assignacions</li>
-                        <li><strong>Format Estàndard:</strong> Compatible amb Excel i altres aplicacions</li>
+                        <li><strong>Càlcul Automàtic:</strong> Calcula automàticament el temps límit</li>
+                        <li><strong>Percentatge Configurable:</strong> Ajusta el percentatge de tancament de control (5% per defecte)</li>
+                        <li><strong>Visualització Clara:</strong> Mostra el temps límit clarament</li>
+                        <li><strong>Alerta Visual:</strong> Canvi de color quan es supera el límit</li>
                     </ul>
+                </div>
+            </div>
+
+            <h2>TRES FORMAS DE POSAR EN MARXA EL CRONÒMETRE</h2>
+            
+            <div class="start-methods">
+                <div class="start-method">
+                    <h4>1. Prement "Iniciar"</h4>
+                    <p><strong>Quan utilitzar:</strong> Per a una cursa que comença en aquest moment.</p>
+                    <p><strong>Procés:</strong> Simplement prem el botó "Iniciar" quan doni la sortida la cursa. El sistema registrarà automàticament l'hora actual com a hora d'inici.</p>
+                    <p><strong>Avantatge:</strong> La forma més ràpida i senzilla de començar.</p>
+                </div>
+                
+                <div class="start-method">
+                    <h4>2. Fixant l'Hora d'Inici</h4>
+                    <p><strong>Quan utilitzar:</strong> Quan coneixes l'hora exacta de sortida de la cursa.</p>
+                    <p><strong>Procés:</strong> Vés a la pestanya "Paràmetres", introdueix l'hora exacta de sortida a "Hora d'inici" i prem "Fixar". El sistema calcularà automàticament el temps transcorregut.</p>
+                    <p><strong>Avantatge:</strong> Perfecte quan la cursa ja ha començat i vols sincronitzar el cronòmetre amb l'hora real de sortida.</p>
+                    <p><strong>Extra:</strong> Accedeix a l'historial d'hores d'inici anteriors per seleccionar ràpidament hores utilitzades en curses prèvies.</p>
+                </div>
+                
+                <div class="start-method">
+                    <h4>3. Fixant el Temps del Cronòmetre</h4>
+                    <p><strong>Quan utilitzar:</strong> Quan necessites establir un temps específic de cronòmetre (ex: 1h 30m 15s).</p>
+                    <p><strong>Procés:</strong> Vés a la pestanya "Paràmetres", introdueix el temps a "Temps del cronòmetre" i prem "Aplicar temps".</p>
+                    <p><strong>Avantatge:</strong> Útil per reprendre una cursa després d'una aturada o per establir temps específics.</p>
+                </div>
+            </div>
+
+            <h2>Sistema de Temps Límit Automàtic</h2>
+            
+            <div class="time-limit-section">
+                <div class="time-limit-explanation">
+                    <h4>¿Com funciona el temps límit?</h4>
+                    <p>El sistema calcula automàticament un temps límit basat en el primer tall registrat:</p>
+                    <ol>
+                        <li>Quan registres el primer tall (primera arribada), el sistema pren aquest temps com a referència</li>
+                        <li>Aplica el percentatge configurat (per defecte 5%) a aquest temps per calcular el temps de tancament de control</li>
+                        <li>Calcula el temps límit sumant el temps del primer tall més el temps de tancament de control</li>
+                    </ol>
+                    
+                    <div class="time-limit-display-example">
+                        Tancament de Control (5%) → 06'00" → 02:06'06"
+                    </div>
+                    
+                    <p><strong>Explicació de l'exemple:</strong></p>
+                    <ul>
+                        <li><strong>5%:</strong> Percentatge configurat (ajustable a Paràmetres)</li>
+                        <li><strong>06'00":</strong> Temps de tancament de control (5% del primer tall)</li>
+                        <li><strong>02:06'06":</strong> Temps límit total (primer tall + tancament de control)</li>
+                    </ul>
+                    
+                    <p><strong>Visualització:</strong> Quan el cronòmetre supera el temps límit, el display canvia a color vermell per alertar-te visualment.</p>
                 </div>
             </div>
 
@@ -437,51 +691,98 @@
             
             <div class="step-box">
                 <span class="step-number">1</span>
-                <strong>Configurar Hora de Sortida</strong>
-                <p>Estableix l'hora exacta d'inici de la cursa utilitzant el camp "Hora d'inici" o deixa que s'estableixi automàticament en iniciar el cronòmetre.</p>
+                <strong>Crear o Seleccionar Cursa</strong>
+                <p>Crea una nova cursa o selecciona una existent. Escull una de les tres formes d'iniciar el cronòmetre segons les teves necessitats.</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">2</span>
-                <strong>Iniciar el Cronòmetre</strong>
-                <p>Fes clic a "Iniciar" per començar el cronòmetre quan doni començament la cursa.</p>
+                <strong>Configurar Paràmetres</strong>
+                <p>Configura l'hora d'inici si és necessari i ajusta el percentatge de tancament de control (per defecte 5%).</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">3</span>
-                <strong>Registrar Arribades</strong>
-                <p>Cada vegada que un corredor o grup de corredors arribi a meta, fes clic a "Tall" per registrar el temps actual.</p>
+                <strong>Iniciar el Cronòmetre</strong>
+                <p>Inicia el cronòmetre quan doni començament la cursa utilitzant el mètode que prefereixis.</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">4</span>
+                <strong>Registrar Arribades</strong>
+                <p>Cada vegada que un corredor o grup de corredors arribi a meta, fes clic a "Tall" per registrar el temps actual.</p>
+                <p><strong>NOTA:</strong> El primer tall estableix automàticament el temps límit.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
                 <strong>Assignar Dorsals</strong>
                 <p>Fes clic en qualsevol temps registrat per assignar els números de dorsal corresponents. Pots assignar múltiples dorsals separats per comes.</p>
             </div>
             
             <div class="step-box">
-                <span class="step-number">5</span>
+                <span class="step-number">6</span>
                 <strong>Exportar Resultats</strong>
                 <p>En finalitzar la cursa, exporta les dades per al seu anàlisi posterior utilitzant els botons d'exportació.</p>
             </div>
 
             <h2>Gestió de Talls i Dorsals</h2>
-            <p>El sistema organitza els temps registrats en una llista on pots:</p>
-            <ul>
-                <li>Veure tots els talls registrats en ordre cronològic invers (els més recents primer)</li>
-                <li>Assignar dorsals fent clic en el text "Fes clic per assignar dorsals"</li>
-                <li>Introduir múltiples dorsals separats per comes (ex: 15, 23, 47)</li>
-                <li>Veure una llista separada amb tots els dorsals assignats a la pestanya "Dorsals"</li>
-                <li>Eliminar assignacions de dorsals individuals</li>
-            </ul>
+            <p>El sistema organitza els temps registrats en dues vistes complementàries:</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Pestanya "Talls"</h4>
+                    <ul>
+                        <li>Veure tots els talls registrats en ordre cronològic invers (els més recents primer)</li>
+                        <li>Assignar dorsals fent clic a "Fes clic per assignar dorsals"</li>
+                        <li>Introduir múltiples dorsals separats per comes (ex: 15, 23, 47)</li>
+                        <li>Veure informació detallada de cada tall</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Pestanya "Dorsals"</h4>
+                    <ul>
+                        <li>Llista organitzada de tots els dorsals assignats</li>
+                        <li>Veure tots els talls associats a cada dorsal</li>
+                        <li>Eliminar assignacions de dorsals individuals</li>
+                        <li>Cerca ràpida de dorsals específics</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Exportació de Dades</h2>
+            <p>El sistema ofereix dos tipus d'exportació:</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Exportar Talls (CSV)</h4>
+                    <ul>
+                        <li>Genera un fitxer CSV amb tots els temps registrats</li>
+                        <li>Inclou: Número de tall, temps formatat, temps en segons, hora exacta, hora de sortida, i dorsals assignats</li>
+                        <li>Format compatible amb Excel i altres aplicacions</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Exportar Dorsals (CSV)</h4>
+                    <ul>
+                        <li>Genera un fitxer CSV específic per a assignacions de dorsals</li>
+                        <li>Inclou: Número de dorsal, tall associat, temps formatat, temps en segons, i hora exacta</li>
+                        <li>Organitzat per número de dorsal</li>
+                    </ul>
+                </div>
+            </div>
 
             <h2>Característiques Avançades</h2>
             <ul>
-                <li><strong>Idiomes:</strong> Suport per a Espanyol, Català i Anglès</li>
+                <li><strong>Idiomes:</strong> Suport complet per a Espanyol, Català, Anglès i Francès</li>
                 <li><strong>Persistència:</strong> Les dades es guarden automàticament al navegador</li>
                 <li><strong>Responsive:</strong> Funciona en dispositius mòbils i desktop</li>
                 <li><strong>Dreceres de Teclat:</strong> Control ràpid sense usar el ratolí</li>
+                <li><strong>Mil·lèsimes Configurables:</strong> Mostra o amaga les mil·lèsimes segons necessitat</li>
                 <li><strong>Informació Completa:</strong> Inclou hora exacta, segons amb mil·lèsimes i càlculs de temps d'arribada</li>
+                <li><strong>Sistema de Suggeriments:</strong> Envia les teves idees per millorar l'aplicació</li>
             </ul>
 
             <div class="tip-box">
@@ -495,13 +796,14 @@
             </div>
 
             <h2>Informació Tècnica Inclosa</h2>
-            <p>Cada tall registrat conté la següent informació:</p>
+            <p>Cada tall registrat conté la següent informació completa:</p>
             <ul>
                 <li><strong>Temps de cronòmetre:</strong> Format llegible (minuts'segons"mil·lèsimes)</li>
                 <li><strong>Temps en segons:</strong> Valor numèric precís amb tres decimals</li>
                 <li><strong>Hora exacta:</strong> Hora real del sistema quan es va registrar el tall</li>
                 <li><strong>Temps de sortida:</strong> Hora d'inici en segons des de mitjanit</li>
                 <li><strong>Temps d'arribada:</strong> Hora exacta d'arribada en segons des de mitjanit</li>
+                <li><strong>Dorsals assignats:</strong> Llista de números de dorsal per a aquest tall</li>
             </ul>
 
             <h2>Instal·lació com a App al Mòbil</h2>
@@ -534,6 +836,23 @@
                     <li>Funciona sense connexió a internet després de la primera càrrega</li>
                     <li>Interfície similar a una aplicació nativa</li>
                     <li>No requereix descàrrega des de botigues d'aplicacions</li>
+                    <li>Notificacions d'actualitzacions automàtiques</li>
+                </ul>
+            </div>
+
+            <h2>Consells per a Àrbitres</h2>
+            <div class="tip-box">
+                <h4>Millors Pràctiques</h4>
+                <ul>
+                    <li>Configurar la cursa amb suficient antelació</li>
+                    <li>Provar el sistema abans de la competició real</li>
+                    <li>Utilitzar l'historial d'hores per a curses amb múltiples sortides</li>
+                    <li>Exportar les dades immediatament després de cada cursa</li>
+                    <li>Enviar suggeriments si trobes alguna cosa a millorar</li>
+                    <li>Escollir el mètode d'inici adequat segons la situació</li>
+                    <li>Utilitzar "Fixar Hora d'Inici" per sincronitzar amb rellotges oficials</li>
+                    <li>Ajustar el percentatge de tancament segons les necessitats específiques de cada cursa</li>
+                    <li>Monitoritzar el display de temps límit per controlar les arribades tardanes</li>
                 </ul>
             </div>
 
@@ -542,46 +861,108 @@
 
         <!-- Contenido English -->
         <div class="content" id="content-en">
+            <div class="author-note">
+                <h4>Author's Note</h4>
+                <p>This application has been developed by Roberto Benet, commissioner of the Catalan committee, so that any referee can use it in cycling races for free. I'm open to any type of improvement or implementation of new features.</p>
+            </div>
+
             <h2>General Description</h2>
-            <p>The Arrivals Stopwatch is a specialized tool for timing cycling races, especially useful for events where it's necessary to record finish times of multiple riders and assign bib numbers to each recorded time.</p>
+            <p>The Finish Line Stopwatch is a professional tool designed to time finishes in cycling races, especially useful for events where it's necessary to record exact finish times of multiple riders and assign bib numbers to each recorded time.</p>
 
             <h2>Main Features</h2>
             
             <div class="feature-grid">
                 <div class="feature-card">
-                    <h4>Stopwatch Control</h4>
+                    <h4>Race Management</h4>
                     <ul>
-                        <li><strong>Start/Pause:</strong> Full control of the main stopwatch</li>
-                        <li><strong>Lap Recording:</strong> Record finish times with a single click</li>
-                        <li><strong>Reset:</strong> Completely reset the stopwatch and all data</li>
+                        <li><strong>New Race:</strong> Create a new race with custom name</li>
+                        <li><strong>Select Race:</strong> Switch between different saved races</li>
+                        <li><strong>Delete Race:</strong> Delete an existing race</li>
+                        <li><strong>Automatic Persistence:</strong> Data is automatically saved</li>
                     </ul>
                 </div>
                 
                 <div class="feature-card">
-                    <h4>Time Management</h4>
+                    <h4>Stopwatch Control</h4>
                     <ul>
-                        <li><strong>Start Time:</strong> Set and display the exact start time</li>
-                        <li><strong>Manual Adjustment:</strong> Manually set the stopwatch time</li>
-                        <li><strong>Persistence:</strong> Data is automatically saved</li>
+                        <li><strong>Start/Pause:</strong> Full control of main stopwatch</li>
+                        <li><strong>Lap Recording:</strong> Record finish times with single click</li>
+                        <li><strong>Reset:</strong> Completely reset stopwatch and all data</li>
+                        <li><strong>Time History:</strong> Quick access to previous start times</li>
                     </ul>
                 </div>
                 
                 <div class="feature-card">
                     <h4>Bib Number Assignment</h4>
                     <ul>
-                        <li><strong>Multiple Assignment:</strong> Assign multiple bibs to the same time</li>
+                        <li><strong>Multiple Assignment:</strong> Assign multiple bibs to same time</li>
                         <li><strong>Visual Management:</strong> Organized list of assigned bibs</li>
                         <li><strong>Flexible Editing:</strong> Easily modify or remove assignments</li>
+                        <li><strong>Double List:</strong> Lap view and specific bib view</li>
                     </ul>
                 </div>
                 
                 <div class="feature-card">
-                    <h4>Data Export</h4>
+                    <h4>Time Limit System</h4>
                     <ul>
-                        <li><strong>Export Laps:</strong> Generate CSV file with all times</li>
-                        <li><strong>Export Bibs:</strong> Specific CSV file for assignments</li>
-                        <li><strong>Standard Format:</strong> Compatible with Excel and other applications</li>
+                        <li><strong>Automatic Calculation:</strong> Automatically calculates time limit</li>
+                        <li><strong>Configurable Percentage:</strong> Adjust control closure percentage (5% default)</li>
+                        <li><strong>Clear Visualization:</strong> Shows time limit clearly</li>
+                        <li><strong>Visual Alert:</strong> Color change when exceeding limit</li>
                     </ul>
+                </div>
+            </div>
+
+            <h2>THREE WAYS TO START THE STOPWATCH</h2>
+            
+            <div class="start-methods">
+                <div class="start-method">
+                    <h4>1. Pressing "Start"</h4>
+                    <p><strong>When to use:</strong> For a race starting right now.</p>
+                    <p><strong>Process:</strong> Simply press the "Start" button when the race starts. The system will automatically record current time as start time.</p>
+                    <p><strong>Advantage:</strong> The fastest and simplest way to start.</p>
+                </div>
+                
+                <div class="start-method">
+                    <h4>2. Setting Start Time</h4>
+                    <p><strong>When to use:</strong> When you know exact race start time.</p>
+                    <p><strong>Process:</strong> Go to "Parameters" tab, enter exact start time in "Start time" and press "Set". System will automatically calculate elapsed time.</p>
+                    <p><strong>Advantage:</strong> Perfect when race has already started and you want to sync stopwatch with actual start time.</p>
+                    <p><strong>Extra:</strong> Access previous start times history to quickly select times used in previous races.</p>
+                </div>
+                
+                <div class="start-method">
+                    <h4>3. Setting Stopwatch Time</h4>
+                    <p><strong>When to use:</strong> When you need to set specific stopwatch time (eg: 1h 30m 15s).</p>
+                    <p><strong>Process:</strong> Go to "Parameters" tab, enter time in "Stopwatch time" and press "Apply time".</p>
+                    <p><strong>Advantage:</strong> Useful to resume race after stop or to set specific times.</p>
+                </div>
+            </div>
+
+            <h2>Automatic Time Limit System</h2>
+            
+            <div class="time-limit-section">
+                <div class="time-limit-explanation">
+                    <h4>How does time limit work?</h4>
+                    <p>The system automatically calculates a time limit based on first recorded lap:</p>
+                    <ol>
+                        <li>When you record first lap (first finish), system takes that time as reference</li>
+                        <li>Applies configured percentage (5% default) to that time to calculate control closure time</li>
+                        <li>Calculates time limit by adding first lap time plus control closure time</li>
+                    </ol>
+                    
+                    <div class="time-limit-display-example">
+                        Control Closure (5%) → 06'00" → 02:06'06"
+                    </div>
+                    
+                    <p><strong>Example explanation:</strong></p>
+                    <ul>
+                        <li><strong>5%:</strong> Configured percentage (adjustable in Parameters)</li>
+                        <li><strong>06'00":</strong> Control closure time (5% of first lap)</li>
+                        <li><strong>02:06'06":</strong> Total time limit (first lap + control closure)</li>
+                    </ul>
+                    
+                    <p><strong>Visualization:</strong> When stopwatch exceeds time limit, display changes to red color to visually alert you.</p>
                 </div>
             </div>
 
@@ -589,71 +970,119 @@
             
             <div class="step-box">
                 <span class="step-number">1</span>
-                <strong>Set Start Time</strong>
-                <p>Set the exact start time of the race using the "Start time" field or let it be set automatically when starting the stopwatch.</p>
+                <strong>Create or Select Race</strong>
+                <p>Create new race or select existing one. Choose one of three ways to start stopwatch according to your needs.</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">2</span>
-                <strong>Start the Stopwatch</strong>
-                <p>Click "Start" to begin the stopwatch when the race starts.</p>
+                <strong>Configure Parameters</strong>
+                <p>Configure start time if needed and adjust control closure percentage (5% default).</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">3</span>
-                <strong>Record Finishes</strong>
-                <p>Each time a rider or group of riders finishes, click "Lap" to record the current time.</p>
+                <strong>Start Stopwatch</strong>
+                <p>Start stopwatch when race begins using your preferred method.</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">4</span>
-                <strong>Assign Bib Numbers</strong>
-                <p>Click on any recorded time to assign the corresponding bib numbers. You can assign multiple bibs separated by commas.</p>
+                <strong>Record Finishes</strong>
+                <p>Each time rider or group of riders finishes, click "Lap" to record current time.</p>
+                <p><strong>NOTE:</strong> First lap automatically sets time limit.</p>
             </div>
             
             <div class="step-box">
                 <span class="step-number">5</span>
+                <strong>Assign Bib Numbers</strong>
+                <p>Click on any recorded time to assign corresponding bib numbers. You can assign multiple bibs separated by commas.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">6</span>
                 <strong>Export Results</strong>
-                <p>When the race finishes, export the data for later analysis using the export buttons.</p>
+                <p>When race finishes, export data for later analysis using export buttons.</p>
             </div>
 
             <h2>Lap and Bib Management</h2>
-            <p>The system organizes recorded times in a list where you can:</p>
-            <ul>
-                <li>View all recorded laps in reverse chronological order (most recent first)</li>
-                <li>Assign bibs by clicking on the "Click to assign bibs" text</li>
-                <li>Enter multiple bibs separated by commas (eg: 15, 23, 47)</li>
-                <li>View a separate list with all assigned bibs in the "Bibs" tab</li>
-                <li>Delete individual bib assignments</li>
-            </ul>
+            <p>The system organizes recorded times in two complementary views:</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>"Laps" Tab</h4>
+                    <ul>
+                        <li>View all recorded laps in reverse chronological order (most recent first)</li>
+                        <li>Assign bibs by clicking "Click to assign bibs"</li>
+                        <li>Enter multiple bibs separated by commas (eg: 15, 23, 47)</li>
+                        <li>View detailed information of each lap</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>"Bibs" Tab</h4>
+                    <ul>
+                        <li>Organized list of all assigned bibs</li>
+                        <li>View all laps associated with each bib</li>
+                        <li>Delete individual bib assignments</li>
+                        <li>Quick search for specific bibs</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Data Export</h2>
+            <p>The system offers two types of export:</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Export Laps (CSV)</h4>
+                    <ul>
+                        <li>Generate CSV file with all recorded times</li>
+                        <li>Includes: Lap number, formatted time, time in seconds, exact time, start time, and assigned bibs</li>
+                        <li>Format compatible with Excel and other applications</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Export Bibs (CSV)</h4>
+                    <ul>
+                        <li>Generate specific CSV file for bib assignments</li>
+                        <li>Includes: Bib number, associated lap, formatted time, time in seconds, and exact time</li>
+                        <li>Organized by bib number</li>
+                    </ul>
+                </div>
+            </div>
 
             <h2>Advanced Features</h2>
             <ul>
-                <li><strong>Languages:</strong> Support for Spanish, Catalan and English</li>
-                <li><strong>Persistence:</strong> Data is automatically saved in the browser</li>
+                <li><strong>Languages:</strong> Full support for Spanish, Catalan, English and French</li>
+                <li><strong>Persistence:</strong> Data is automatically saved in browser</li>
                 <li><strong>Responsive:</strong> Works on mobile devices and desktop</li>
-                <li><strong>Keyboard Shortcuts:</strong> Quick control without using the mouse</li>
-                <li><strong>Complete Information:</strong> Includes exact time, seconds with milliseconds and arrival time calculations</li>
+                <li><strong>Keyboard Shortcuts:</strong> Quick control without using mouse</li>
+                <li><strong>Configurable Milliseconds:</strong> Show or hide milliseconds as needed</li>
+                <li><strong>Complete Information:</strong> Includes exact time, seconds with milliseconds and finish time calculations</li>
+                <li><strong>Suggestion System:</strong> Send your ideas to improve application</li>
             </ul>
 
             <div class="tip-box">
                 <h4>Keyboard Shortcuts</h4>
                 <ul>
-                    <li><strong>Spacebar:</strong> Start/Pause the stopwatch</li>
-                    <li><strong>L Key:</strong> Record a new lap (finish)</li>
-                    <li><strong>Ctrl + R:</strong> Reset the stopwatch</li>
+                    <li><strong>Spacebar:</strong> Start/Pause stopwatch</li>
+                    <li><strong>L Key:</strong> Record new lap (finish)</li>
+                    <li><strong>Ctrl + R:</strong> Reset stopwatch</li>
                     <li><strong>Double click on bibs:</strong> Quickly edit assignments</li>
                 </ul>
             </div>
 
             <h2>Technical Information Included</h2>
-            <p>Each recorded lap contains the following information:</p>
+            <p>Each recorded lap contains following complete information:</p>
             <ul>
                 <li><strong>Stopwatch time:</strong> Readable format (minutes'seconds"milliseconds)</li>
                 <li><strong>Time in seconds:</strong> Precise numerical value with three decimals</li>
-                <li><strong>Exact time:</strong> Real system time when the lap was recorded</li>
+                <li><strong>Exact time:</strong> Real system time when lap was recorded</li>
                 <li><strong>Start time:</strong> Start time in seconds since midnight</li>
                 <li><strong>Finish time:</strong> Exact finish time in seconds since midnight</li>
+                <li><strong>Assigned bibs:</strong> List of bib numbers for that lap</li>
             </ul>
 
             <h2>Installation as Mobile App</h2>
@@ -661,22 +1090,22 @@
                 <div class="platform">
                     <h4>For iPhone/iOS:</h4>
                     <ol>
-                        <li>Open Safari and navigate to the stopwatch page</li>
-                        <li>Tap the share icon (square with upward arrow)</li>
+                        <li>Open Safari and navigate to stopwatch page</li>
+                        <li>Tap share icon (square with upward arrow)</li>
                         <li>Scroll down and select "Add to Home Screen"</li>
-                        <li>Customize the name if desired and tap "Add"</li>
-                        <li>The app will appear on the home screen like a native app</li>
+                        <li>Customize name if desired and tap "Add"</li>
+                        <li>App will appear on home screen like native app</li>
                     </ol>
                 </div>
                 
                 <div class="platform">
                     <h4>For Android:</h4>
                     <ol>
-                        <li>Open Chrome and navigate to the stopwatch page</li>
-                        <li>Tap the three-dot menu in the upper right corner</li>
+                        <li>Open Chrome and navigate to stopwatch page</li>
+                        <li>Tap three-dot menu in upper right corner</li>
                         <li>Select "Add to Home Screen"</li>
-                        <li>Customize the name if desired and tap "Add"</li>
-                        <li>The app will appear on the home screen like a native app</li>
+                        <li>Customize name if desired and tap "Add"</li>
+                        <li>App will appear on home screen like native app</li>
                     </ol>
                 </div>
                 
@@ -686,10 +1115,306 @@
                     <li>Works offline after first load</li>
                     <li>Interface similar to native app</li>
                     <li>No download required from app stores</li>
+                    <li>Automatic update notifications</li>
+                </ul>
+            </div>
+
+            <h2>Tips for Referees</h2>
+            <div class="tip-box">
+                <h4>Best Practices</h4>
+                <ul>
+                    <li>Set up race with sufficient advance</li>
+                    <li>Test system before actual competition</li>
+                    <li>Use time history for races with multiple starts</li>
+                    <li>Export data immediately after each race</li>
+                    <li>Send suggestions if you find something to improve</li>
+                    <li>Choose appropriate start method according to situation</li>
+                    <li>Use "Set Start Time" to sync with official clocks</li>
+                    <li>Adjust closure percentage according to specific needs of each race</li>
+                    <li>Monitor time limit display to control late finishes</li>
                 </ul>
             </div>
 
             <a href="Crono_Llegadas.html" class="back-button">Back to Stopwatch</a>
+        </div>
+
+        <!-- Contenido Français -->
+        <div class="content" id="content-fr">
+            <div class="author-note">
+                <h4>Note de l'Auteur</h4>
+                <p>Cette application a été développée par Roberto Benet, commissaire du comité catalan, pour que tout arbitre puisse l'utiliser dans les courses de cyclisme gratuitement. Je suis ouvert à tout type d'amélioration ou d'implémentation de nouvelles fonctionnalités.</p>
+            </div>
+
+            <h2>Description Générale</h2>
+            <p>Le Chronomètre d'Arrivée est un outil professionnel conçu pour chronométrer les arrivées dans les courses de cyclisme, particulièrement utile pour les événements où il est nécessaire d'enregistrer les temps exacts d'arrivée de plusieurs coureurs et d'attribuer des numéros de dossard à chaque temps enregistré.</p>
+
+            <h2>Fonctionnalités Principales</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Gestion des Courses</h4>
+                    <ul>
+                        <li><strong>Nouvelle Course:</strong> Créer une nouvelle course avec nom personnalisé</li>
+                        <li><strong>Sélectionner Course:</strong> Changer entre différentes courses sauvegardées</li>
+                        <li><strong>Supprimer Course:</strong> Effacer une course existante</li>
+                        <li><strong>Persistance Automatique:</strong> Les données sont automatiquement sauvegardées</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Contrôle du Chronomètre</h4>
+                    <ul>
+                        <li><strong>Démarrer/Pauser:</strong> Contrôle complet du chronomètre principal</li>
+                        <li><strong>Enregistrement des Tours:</strong> Enregistrer les temps d'arrivée avec un seul clic</li>
+                        <li><strong>Réinitialiser:</strong> Réinitialiser complètement le chronomètre et toutes les données</li>
+                        <li><strong>Historique des Heures:</strong> Accès rapide aux heures de départ précédentes</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Attribution de Dossards</h4>
+                    <ul>
+                        <li><strong>Attribution Multiple:</strong> Attribuer plusieurs dossards à un même temps</li>
+                        <li><strong>Gestion Visuelle:</strong> Liste organisée des dossards attribués</li>
+                        <li><strong>Édition Flexible:</strong> Modifier ou supprimer facilement les attributions</li>
+                        <li><strong>Double Liste:</strong> Vue par tours et vue spécifique des dossards</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Système de Temps Limite</h4>
+                    <ul>
+                        <li><strong>Calcul Automatique:</strong> Calcule automatiquement le temps limite</li>
+                        <li><strong>Pourcentage Configurable:</strong> Ajuste le pourcentage de fermeture de contrôle (5% par défaut)</li>
+                        <li><strong>Visualisation Claire:</strong> Affiche le temps limite clairement</li>
+                        <li><strong>Alerte Visuelle:</strong> Changement de couleur lorsque la limite est dépassée</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>TROIS FAÇONS DE DÉMARRER LE CHRONOMÈTRE</h2>
+            
+            <div class="start-methods">
+                <div class="start-method">
+                    <h4>1. En Appuyant sur "Démarrer"</h4>
+                    <p><strong>Quand l'utiliser:</strong> Pour une course qui commence maintenant.</p>
+                    <p><strong>Processus:</strong> Appuyez simplement sur le bouton "Démarrer" lorsque la course démarre. Le système enregistrera automatiquement l'heure actuelle comme heure de départ.</p>
+                    <p><strong>Avantage:</strong> La manière la plus rapide et simple de commencer.</p>
+                </div>
+                
+                <div class="start-method">
+                    <h4>2. En Fixant l'Heure de Départ</h4>
+                    <p><strong>Quand l'utiliser:</strong> Lorsque vous connaissez l'heure exacte de départ de la course.</p>
+                    <p><strong>Processus:</strong> Allez dans l'onglet "Paramètres", entrez l'heure exacte de départ dans "Heure de départ" et appuyez sur "Définir". Le système calculera automatiquement le temps écoulé.</p>
+                    <p><strong>Avantage:</strong> Parfait lorsque la course a déjà commencé et que vous voulez synchroniser le chronomètre avec l'heure réelle de départ.</p>
+                    <p><strong>Extra:</strong> Accédez à l'historique des heures de départ précédentes pour sélectionner rapidement les heures utilisées dans les courses précédentes.</p>
+                </div>
+                
+                <div class="start-method">
+                    <h4>3. En Fixant le Temps du Chronomètre</h4>
+                    <p><strong>Quand l'utiliser:</strong> Lorsque vous devez définir un temps spécifique du chronomètre (ex: 1h 30m 15s).</p>
+                    <p><strong>Processus:</strong> Allez dans l'onglet "Paramètres", entrez le temps dans "Temps du chronomètre" et appuyez sur "Appliquer temps".</p>
+                    <p><strong>Avantage:</strong> Utile pour reprendre une course après un arrêt ou pour définir des temps spécifiques.</p>
+                </div>
+            </div>
+
+            <h2>Système de Temps Limite Automatique</h2>
+            
+            <div class="time-limit-section">
+                <div class="time-limit-explanation">
+                    <h4>Comment fonctionne le temps limite?</h4>
+                    <p>Le système calcule automatiquement un temps limite basé sur le premier tour enregistré:</p>
+                    <ol>
+                        <li>Lorsque vous enregistrez le premier tour (première arrivée), le système prend ce temps comme référence</li>
+                        <li>Applique le pourcentage configuré (5% par défaut) à ce temps pour calculer le temps de fermeture de contrôle</li>
+                        <li>Calcule le temps limite en ajoutant le temps du premier tour plus le temps de fermeture de contrôle</li>
+                    </ol>
+                    
+                    <div class="time-limit-display-example">
+                        Fermeture Contrôle (5%) → 06'00" → 02:06'06"
+                    </div>
+                    
+                    <p><strong>Explication de l'exemple:</strong></p>
+                    <ul>
+                        <li><strong>5%:</strong> Pourcentage configuré (ajustable dans Paramètres)</li>
+                        <li><strong>06'00":</strong> Temps de fermeture de contrôle (5% du premier tour)</li>
+                        <li><strong>02:06'06":</strong> Temps limite total (premier tour + fermeture de contrôle)</li>
+                    </ul>
+                    
+                    <p><strong>Visualisation:</strong> Lorsque le chronomètre dépasse le temps limite, l'affichage change en couleur rouge pour vous alerter visuellement.</p>
+                </div>
+            </div>
+
+            <h2>Comment Utiliser</h2>
+            
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Créer ou Sélectionner Course</strong>
+                <p>Créez une nouvelle course ou sélectionnez une existante. Choisissez l'une des trois façons de démarrer le chronomètre selon vos besoins.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Configurer les Paramètres</strong>
+                <p>Configurez l'heure de départ si nécessaire et ajustez le pourcentage de fermeture de contrôle (5% par défaut).</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Démarrer le Chronomètre</strong>
+                <p>Démarrez le chronomètre lorsque la course commence en utilisant la méthode que vous préférez.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Enregistrer les Arrivées</strong>
+                <p>Chaque fois qu'un coureur ou groupe de coureurs arrive à l'arrivée, cliquez sur "Tour" pour enregistrer le temps actuel.</p>
+                <p><strong>NOTE:</strong> Le premier tour établit automatiquement le temps limite.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
+                <strong>Attribuer les Dossards</strong>
+                <p>Cliquez sur n'importe quel temps enregistré pour attribuer les numéros de dossard correspondants. Vous pouvez attribuer plusieurs dossards séparés par des virgules.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">6</span>
+                <strong>Exporter les Résultats</strong>
+                <p>À la fin de la course, exportez les données pour analyse ultérieure en utilisant les boutons d'exportation.</p>
+            </div>
+
+            <h2>Gestion des Tours et Dossards</h2>
+            <p>Le système organise les temps enregistrés en deux vues complémentaires:</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Onglet "Tours"</h4>
+                    <ul>
+                        <li>Voir tous les tours enregistrés dans l'ordre chronologique inverse (les plus récents d'abord)</li>
+                        <li>Attribuer des dossards en cliquant sur "Cliquer pour attribuer des dossards"</li>
+                        <li>Entrer plusieurs dossards séparés par des virgules (ex: 15, 23, 47)</li>
+                        <li>Voir les informations détaillées de chaque tour</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Onglet "Dossards"</h4>
+                    <ul>
+                        <li>Liste organisée de tous les dossards attribués</li>
+                        <li>Voir tous les tours associés à chaque dossard</li>
+                        <li>Supprimer les attributions de dossards individuels</li>
+                        <li>Recherche rapide de dossards spécifiques</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Exportation des Données</h2>
+            <p>Le système offre deux types d'exportation:</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Exporter les Tours (CSV)</h4>
+                    <ul>
+                        <li>Générer un fichier CSV avec tous les temps enregistrés</li>
+                        <li>Inclut: Numéro de tour, temps formaté, temps en secondes, heure exacte, heure de départ, et dossards attribués</li>
+                        <li>Format compatible avec Excel et autres applications</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Exporter les Dossards (CSV)</h4>
+                    <ul>
+                        <li>Générer un fichier CSV spécifique pour les attributions de dossards</li>
+                        <li>Inclut: Numéro de dossard, tour associé, temps formaté, temps en secondes, et heure exacte</li>
+                        <li>Organisé par numéro de dossard</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Caractéristiques Avancées</h2>
+            <ul>
+                <li><strong>Langues:</strong> Support complet pour l'Espagnol, le Catalan, l'Anglais et le Français</li>
+                <li><strong>Persistance:</strong> Les données sont automatiquement sauvegardées dans le navigateur</li>
+                <li><strong>Responsive:</strong> Fonctionne sur appareils mobiles et desktop</li>
+                <li><strong>Raccourcis Clavier:</strong> Contrôle rapide sans utiliser la souris</li>
+                <li><strong>Millisecondes Configurables:</strong> Afficher ou masquer les millisecondes selon les besoins</li>
+                <li><strong>Informations Complètes:</strong> Inclut l'heure exacte, les secondes avec millisecondes et les calculs de temps d'arrivée</li>
+                <li><strong>Système de Suggestions:</strong> Envoyez vos idées pour améliorer l'application</li>
+            </ul>
+
+            <div class="tip-box">
+                <h4>Raccourcis Clavier</h4>
+                <ul>
+                    <li><strong>Barre d'Espace:</strong> Démarrer/Pauser le chronomètre</li>
+                    <li><strong>Touche L:</strong> Enregistrer un nouveau tour (arrivée)</li>
+                    <li><strong>Ctrl + R:</strong> Réinitialiser le chronomètre</li>
+                    <li><strong>Double clic sur dossards:</strong> Éditer rapidement les attributions</li>
+                </ul>
+            </div>
+
+            <h2>Informations Techniques Incluses</h2>
+            <p>Chaque tour enregistré contient les informations complètes suivantes:</p>
+            <ul>
+                <li><strong>Temps du chronomètre:</strong> Format lisible (minutes'secondes"millisecondes)</li>
+                <li><strong>Temps en secondes:</strong> Valeur numérique précise avec trois décimales</li>
+                <li><strong>Heure exacte:</strong> Heure réelle du système lorsque le tour a été enregistré</li>
+                <li><strong>Temps de départ:</strong> Heure de départ en secondes depuis minuit</li>
+                <li><strong>Temps d'arrivée:</strong> Heure exacte d'arrivée en secondes depuis minuit</li>
+                <li><strong>Dossards attribués:</strong> Liste des numéros de dossard pour ce tour</li>
+            </ul>
+
+            <h2>Installation comme Application Mobile</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>Pour iPhone/iOS:</h4>
+                    <ol>
+                        <li>Ouvrir Safari et naviguer vers la page du chronomètre</li>
+                        <li>Toucher l'icône de partage (carré avec flèche vers le haut)</li>
+                        <li>Défiler vers le bas et sélectionner "Ajouter à l'écran d'accueil"</li>
+                        <li>Personnaliser le nom si désiré et toucher "Ajouter"</li>
+                        <li>L'app apparaîtra sur l'écran d'accueil comme une application native</li>
+                    </ol>
+                </div>
+                
+                <div class="platform">
+                    <h4>Pour Android:</h4>
+                    <ol>
+                        <li>Ouvrir Chrome et naviguer vers la page du chronomètre</li>
+                        <li>Toucher le menu à trois points dans le coin supérieur droit</li>
+                        <li>Sélectionner "Ajouter à l'écran d'accueil"</li>
+                        <li>Personnaliser le nom si désiré et toucher "Ajouter"</li>
+                        <li>L'app apparaîtra sur l'écran d'accueil comme une application native</li>
+                    </ol>
+                </div>
+                
+                <h3>Avantages de l'installer comme Application:</h3>
+                <ul>
+                    <li>Accès rapide directement depuis l'écran d'accueil</li>
+                    <li>Fonctionne sans connexion internet après le premier chargement</li>
+                    <li>Interface similaire à une application native</li>
+                    <li>Aucun téléchargement requis depuis les magasins d'applications</li>
+                    <li>Notifications automatiques des mises à jour</li>
+                </ul>
+            </div>
+
+            <h2>Conseils pour les Arbitres</h2>
+            <div class="tip-box">
+                <h4>Meilleures Pratiques</h4>
+                <ul>
+                    <li>Configurer la course avec suffisamment d'avance</li>
+                    <li>Tester le système avant la compétition réelle</li>
+                    <li>Utiliser l'historique des heures pour les courses avec départs multiples</li>
+                    <li>Exporter les données immédiatement après chaque course</li>
+                    <li>Envoyer des suggestions si vous trouvez quelque chose à améliorer</li>
+                    <li>Choisir la méthode de démarrage appropriée selon la situation</li>
+                    <li>Utiliser "Définir l'Heure de Départ" pour synchroniser avec les horloges officielles</li>
+                    <li>Ajuster le pourcentage de fermeture selon les besoins spécifiques de chaque course</li>
+                    <li>Surveiller l'affichage du temps limite pour contrôler les arrivées tardives</li>
+                </ul>
+            </div>
+
+            <a href="Crono_Llegadas.html" class="back-button">Retour au Chronomètre</a>
         </div>
     </div>
 
@@ -700,9 +1425,10 @@
             const mainTitle = document.getElementById('main-title');
             
             const titles = {
-                'es': 'Ayuda Cronómetro de Llegadas',
-                'ca': 'Ajuda Cronòmetre d\'Arribades',
-                'en': 'Arrivals Stopwatch Help'
+                'es': 'Ayuda Cronómetro para Llegadas',
+                'ca': 'Ajuda Cronòmetre per Arribades',
+                'en': 'Finish Line Stopwatch Help',
+                'fr': 'Aide Chronomètre d\'Arrivée'
             };
             
             langButtons.forEach(button => {
