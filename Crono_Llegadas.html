@@ -240,7 +240,6 @@
         }
         
     .time-limit-text {
-        /* Cambiar de Orbitron a la fuente principal */
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         font-size: 1rem;
         font-weight: 700;
@@ -301,13 +300,11 @@
         
         .lcd-time {
             font-family: 'Orbitron', monospace;
-            /* Ajusta los valores de clamp para mejor adaptación */
-            font-size: clamp(1.8rem, 7vw, 4.5rem); /* Reducido de 2.5rem a 1.8rem para móviles */
-            font-weight: 600; /* Cambié de 60 a 600 (más estándar) */
+            font-size: clamp(1.8rem, 7vw, 4.5rem);
+            font-weight: 600;
             color: #00ff00;
-            letter-spacing: 2px; /* Reducido de 3px */
-            line-height: 1.1; /* Añadido mejor line-height */
-            /* Añade wrap por si acaso */
+            letter-spacing: 2px;
+            line-height: 1.1;
             word-break: break-all;
             overflow-wrap: break-word;
         }
@@ -970,6 +967,118 @@
             font-style: italic;
         }
         
+        /* NUEVOS ESTILOS PARA LA GESTIÓN DE CORTES */
+        .lap-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: 10px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            min-width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        .btn-edit {
+            color: #3498db;
+            border-color: #3498db;
+        }
+        
+        .btn-edit:hover {
+            background: rgba(52, 152, 219, 0.2);
+        }
+        
+        .btn-delete {
+            color: #e74c3c;
+            border-color: #e74c3c;
+        }
+        
+        .btn-delete:hover {
+            background: rgba(231, 76, 60, 0.2);
+        }
+        
+        .btn-save {
+            color: #2ecc71;
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.1);
+        }
+        
+        .btn-save:hover {
+            background: rgba(46, 204, 113, 0.3);
+        }
+        
+        .btn-cancel {
+            color: #95a5a6;
+            border-color: #95a5a6;
+        }
+        
+        .btn-cancel:hover {
+            background: rgba(149, 165, 166, 0.2);
+        }
+        
+        .time-edit-input {
+            width: 140px;
+            padding: 6px 8px;
+            border: 2px solid #3498db;
+            border-radius: 4px;
+            background: #1a252f;
+            color: white;
+            font-size: 0.95rem;
+            margin-right: 5px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .time-edit-input:focus {
+            outline: none;
+            border-color: #2980b9;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+        
+        .edit-time-hint {
+            font-size: 0.75rem;
+            color: #95a5a6;
+            margin-top: 5px;
+            font-style: italic;
+            text-align: center;
+        }
+        
+        .edit-controls {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            margin-top: 5px;
+        }
+        
+        .lap-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        
+        .lap-number {
+            font-weight: bold;
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+        }
+        
         @media (max-width: 768px) {
             .chrono-display {
                 min-height: 150px;
@@ -1051,6 +1160,22 @@
             .time-limit-text {
                 font-size: 0.9rem;
             }
+            
+            .lap-actions {
+                gap: 5px;
+            }
+            
+            .action-btn {
+                padding: 3px 6px;
+                min-width: 28px;
+                height: 28px;
+                font-size: 0.8rem;
+            }
+            
+            .time-edit-input {
+                width: 120px;
+                font-size: 0.9rem;
+            }
         }
         
         @media (max-width: 480px) {
@@ -1073,6 +1198,23 @@
             }
             
             .time-limit-text {
+                font-size: 0.85rem;
+            }
+            
+            .lap-actions {
+                flex-direction: column;
+                gap: 3px;
+            }
+            
+            .action-btn {
+                padding: 2px 4px;
+                min-width: 26px;
+                height: 26px;
+                font-size: 0.75rem;
+            }
+            
+            .time-edit-input {
+                width: 100px;
                 font-size: 0.85rem;
             }
         }
@@ -1153,6 +1295,9 @@
             
             <!-- Pestaña Cortes -->
             <div class="tab-content active" id="cortes-tab">
+                <div class="help-text" style="margin-bottom: 10px; color: #95a5a6; font-size: 0.9rem;">
+                    Haz clic en ✏️ para editar tiempo o en 🗑️ para eliminar un corte
+                </div>
                 <ul class="lap-list" id="lap-list"></ul>
             </div>
             
@@ -1346,9 +1491,7 @@
                 confirmButton: "Confirmar",
                 createButton: "Crear Carrera",
                 suggestionsButton: "Actualizaciones/Sugerencias",
-                // Textos para límite de tiempo en una sola línea
                 timeLimitCombinedDisplay: "Ejemplo: Cierre de Control (5%) -> 06'00\" -> 02:06'06\"",
-                // Textos para sugerencias
                 suggestionsTitle: "Cronómetro para Llegadas",
                 suggestionsSubtitle: "Envía tus comentarios",
                 emailLabel: "Facilítanos tu email para mantenerte informado de las actualizaciones",
@@ -1364,7 +1507,13 @@
                 enterEmail: "Ingresa tu email",
                 enterCity: "Escribe tu ciudad",
                 cityExamples: "Madrid, Barcelona, Valencia, etc.",
-                controlClosureLabel: "Cierre de Control"
+                controlClosureLabel: "Cierre de Control",
+                editTimeHint: "Formato: mm:ss o mm:ss.mmm o hh:mm:ss",
+                deleteLapConfirm: "¿Eliminar este corte? Esta acción no se puede deshacer.",
+                timeUpdated: "Tiempo actualizado correctamente",
+                dorsalsUpdated: "Dorsales actualizados correctamente",
+                invalidTimeFormat: "Formato de tiempo inválido. Use: mm:ss o mm:ss.mmm o hh:mm:ss",
+                invalidDorsal: "Dorsal no válido. Solo se permiten números."
             },
             ca: {
                 appTitle: "Cronòmetre per Arribades",
@@ -1401,9 +1550,7 @@
                 confirmButton: "Confirmar",
                 createButton: "Crear Cursa",
                 suggestionsButton: "Actualitzacions/Suggeriments",
-                // Textos para límite de tiempo en una sola línea
                 timeLimitCombinedDisplay: "Exemple: Tancament de Control (5%) -> 06'00\" -> 02:06'06\"",
-                // Textos para sugerencias
                 suggestionsTitle: "Cronòmetre per Arribades",
                 suggestionsSubtitle: "Envia els teus comentaris",
                 emailLabel: "Facilita'ns el teu email per mantenir-te informat de les actualitzacions",
@@ -1419,7 +1566,13 @@
                 enterEmail: "Introdueix el teu email",
                 enterCity: "Escriu la teva ciutat",
                 cityExamples: "Madrid, Barcelona, València, etc.",
-                controlClosureLabel: "Tancament de Control"
+                controlClosureLabel: "Tancament de Control",
+                editTimeHint: "Format: mm:ss o mm:ss.mmm o hh:mm:ss",
+                deleteLapConfirm: "¿Eliminar aquest tall? Aquesta acció no es pot desfer.",
+                timeUpdated: "Temps actualitzat correctament",
+                dorsalsUpdated: "Dorsals actualitzats correctament",
+                invalidTimeFormat: "Format de temps invàlid. Utilitza: mm:ss o mm:ss.mmm o hh:mm:ss",
+                invalidDorsal: "Dorsal no vàlid. Només es permeten números."
             },
             en: {
                 appTitle: "Finish Line Stopwatch",
@@ -1456,9 +1609,7 @@
                 confirmButton: "Confirm",
                 createButton: "Create Race",
                 suggestionsButton: "Updates/Suggestions",
-                // Textos para límite de tiempo en una sola línea
                 timeLimitCombinedDisplay: "Example: Control Closure (5%) -> 06'00\" -> 02:06'06\"",
-                // Textos para sugerencias
                 suggestionsTitle: "Finish Line Stopwatch",
                 suggestionsSubtitle: "Send your comments",
                 emailLabel: "Provide your email to stay informed about updates",
@@ -1474,7 +1625,13 @@
                 enterEmail: "Enter your email",
                 enterCity: "Write your city",
                 cityExamples: "Madrid, Barcelona, Valencia, etc.",
-                controlClosureLabel: "Time Limit"
+                controlClosureLabel: "Time Limit",
+                editTimeHint: "Format: mm:ss or mm:ss.mmm or hh:mm:ss",
+                deleteLapConfirm: "Delete this lap? This action cannot be undone.",
+                timeUpdated: "Time updated successfully",
+                dorsalsUpdated: "Bibs updated successfully",
+                invalidTimeFormat: "Invalid time format. Use: mm:ss or mm:ss.mmm or hh:mm:ss",
+                invalidDorsal: "Invalid bib number. Only numbers are allowed."
             },
             fr: {
                 appTitle: "Chronomètre d'Arrivée",
@@ -1511,9 +1668,7 @@
                 confirmButton: "Confirmer",
                 createButton: "Créer Course",
                 suggestionsButton: "Mises à jour/Suggestions",
-                // Textos para límite de tiempo en una sola línea
                 timeLimitCombinedDisplay: "Exemple: Fermeture Contrôle (5%) -> 06'00\" -> 02:06'06\"",
-                // Textos para sugerencias
                 suggestionsTitle: "Chronomètre d'Arrivée",
                 suggestionsSubtitle: "Envoyez vos commentaires",
                 emailLabel: "Fournissez votre email pour rester informé des mises à jour",
@@ -1529,7 +1684,13 @@
                 enterEmail: "Introduce tu email",
                 enterCity: "Escribe tu ciudad",
                 cityExamples: "Madrid, Barcelona, Valencia, etc.",
-                controlClosureLabel: "Fermeture Contrôle"
+                controlClosureLabel: "Fermeture Contrôle",
+                editTimeHint: "Format: mm:ss ou mm:ss.mmm ou hh:mm:ss",
+                deleteLapConfirm: "Supprimer ce tour ? Cette action ne peut pas être annulée.",
+                timeUpdated: "Temps mis à jour avec succès",
+                dorsalsUpdated: "Dossards mis à jour avec succès",
+                invalidTimeFormat: "Format de temps invalide. Utilisez: mm:ss ou mm:ss.mmm ou hh:mm:ss",
+                invalidDorsal: "Dossard invalide. Seuls les chiffres sont autorisés."
             }
         };
 
@@ -1543,16 +1704,17 @@
         let startTimeInSeconds = 0;
         let dorsalAssignments = {};
         let editingLapIndex = null;
+        let editingTimeIndex = null;
         let currentRaceId = null;
         let races = {};
         let showMilliseconds = true;
         
         // Variables para el cálculo del tiempo límite
-        let closurePercentage = 5.0; // Porcentaje por defecto cambiado a 5%
-        let firstLapTimeMs = 0; // Tiempo del primer corte en milisegundos
-        let closureTimeMs = 0; // 5% del primer corte en milisegundos
-        let timeLimitMs = 0; // Tiempo límite de llegada (primer corte + 5%)
-        let isTimeLimitActive = false; // Si el tiempo límite está activo
+        let closurePercentage = 5.0;
+        let firstLapTimeMs = 0;
+        let closureTimeMs = 0;
+        let timeLimitMs = 0;
+        let isTimeLimitActive = false;
 
         // Elementos DOM
         const lcdTime = document.getElementById('lcd-time');
@@ -1580,8 +1742,6 @@
         const dorsalesTabButton = document.getElementById('dorsales-tab-button');
         const parametrosTabButton = document.getElementById('parametros-tab-button');
         const languagesLabel = document.querySelector('.languages-label');
-        
-        // Nuevos elementos para límite de tiempo
         const timeLimitDisplay = document.getElementById('time-limit-display');
         const timeLimitCombinedDisplay = document.getElementById('time-limit-combined-display');
         const closurePercentageInput = document.getElementById('closure-percentage-input');
@@ -1591,12 +1751,344 @@
         const newRaceModal = document.getElementById('new-race-modal');
         const deleteRaceModal = document.getElementById('delete-race-modal');
 
-        // Función para actualizar idioma
+        // ==============================================
+        // FUNCIONES NUEVAS PARA GESTIÓN DE CORTES
+        // ==============================================
+
+        function deleteLap(lapIndex) {
+            const t = translations[currentLanguage];
+            if (!confirm(t.deleteLapConfirm)) {
+                return;
+            }
+            
+            const wasFirstLap = lapIndex === 0;
+            lapTimes.splice(lapIndex, 1);
+            
+            if (wasFirstLap && lapTimes.length > 0) {
+                firstLapTimeMs = lapTimes[0].timeMs;
+                calculateTimeLimit();
+            } else if (wasFirstLap && lapTimes.length === 0) {
+                resetTimeLimit();
+            }
+            
+            updateDorsalAssignments();
+            renderLaps();
+            renderDorsalList();
+            saveCurrentRace();
+            showMessage('Corte eliminado correctamente', 'success');
+        }
+
+        function startEditingTime(lapIndex) {
+            editingTimeIndex = lapIndex;
+            editingLapIndex = null;
+            renderLaps();
+            
+            setTimeout(() => {
+                const input = document.querySelector('.time-edit-input');
+                if (input) {
+                    input.select();
+                    input.focus();
+                }
+            }, 10);
+        }
+
+        function saveEditedTime(lapIndex, timeInput) {
+            const t = translations[currentLanguage];
+            const timeStr = timeInput.value.trim();
+            
+            if (!timeStr) {
+                alert('Por favor, introduce un tiempo válido');
+                return;
+            }
+            
+            let newTimeMs = parseTimeString(timeStr);
+            
+            if (newTimeMs === null || isNaN(newTimeMs) || newTimeMs < 0) {
+                alert(t.invalidTimeFormat);
+                return;
+            }
+            
+            const lap = lapTimes[lapIndex];
+            lap.timeMs = newTimeMs;
+            lap.total = formatTime(newTimeMs);
+            lap.segundos = msToSeconds(newTimeMs);
+            
+            if (startTime > 0) {
+                const lapDateTime = new Date(startTime + newTimeMs);
+                lap.hora = formatHoraExacta(lapDateTime);
+                const tiempoLlegadaSegundos = startTimeInSeconds + parseFloat(lap.segundos);
+                lap.tiempoLlegadaSegundos = tiempoLlegadaSegundos.toFixed(3);
+            }
+            
+            if (lapIndex === 0) {
+                firstLapTimeMs = newTimeMs;
+                calculateTimeLimit();
+            }
+            
+            editingTimeIndex = null;
+            renderLaps();
+            renderDorsalList();
+            saveCurrentRace();
+            showMessage(t.timeUpdated, 'success');
+        }
+
+        function parseTimeString(timeStr) {
+            timeStr = timeStr.trim().replace(/[^\d:."'\.]/g, '');
+            
+            let hours = 0, minutes = 0, seconds = 0, milliseconds = 0;
+            
+            if (timeStr.includes('"')) {
+                const parts = timeStr.split('"');
+                const mainPart = parts[0];
+                milliseconds = parts[1] ? parseInt(parts[1].padEnd(3, '0').substring(0, 3)) : 0;
+                
+                if (mainPart.includes("'")) {
+                    const timeParts = mainPart.split("'");
+                    minutes = parseInt(timeParts[0]) || 0;
+                    seconds = parseInt(timeParts[1]) || 0;
+                } else {
+                    seconds = parseInt(mainPart) || 0;
+                }
+            }
+            else if (timeStr.includes('.')) {
+                const parts = timeStr.split('.');
+                const timePart = parts[0];
+                milliseconds = parseInt(parts[1].padEnd(3, '0').substring(0, 3)) || 0;
+                
+                if (timePart.includes(':')) {
+                    const timeParts = timePart.split(':');
+                    if (timeParts.length === 2) {
+                        minutes = parseInt(timeParts[0]) || 0;
+                        seconds = parseInt(timeParts[1]) || 0;
+                    } else if (timeParts.length === 3) {
+                        hours = parseInt(timeParts[0]) || 0;
+                        minutes = parseInt(timeParts[1]) || 0;
+                        seconds = parseInt(timeParts[2]) || 0;
+                    }
+                } else {
+                    seconds = parseInt(timePart) || 0;
+                }
+            }
+            else if (timeStr.includes(':')) {
+                const timeParts = timeStr.split(':');
+                if (timeParts.length === 2) {
+                    minutes = parseInt(timeParts[0]) || 0;
+                    seconds = parseInt(timeParts[1]) || 0;
+                } else if (timeParts.length === 3) {
+                    hours = parseInt(timeParts[0]) || 0;
+                    minutes = parseInt(timeParts[1]) || 0;
+                    seconds = parseInt(timeParts[2]) || 0;
+                }
+            }
+            else {
+                const totalSeconds = parseFloat(timeStr);
+                if (!isNaN(totalSeconds)) {
+                    return totalSeconds * 1000;
+                }
+                return null;
+            }
+            
+            if (isNaN(hours) || isNaN(minutes) || isNaN(seconds) || isNaN(milliseconds)) {
+                return null;
+            }
+            
+            return (hours * 3600000) + (minutes * 60000) + (seconds * 1000) + milliseconds;
+        }
+
+        function formatTimeForEdit(ms) {
+            let totalSeconds = Math.floor(ms / 1000);
+            const milliseconds = ms % 1000;
+            const seconds = totalSeconds % 60;
+            const minutes = Math.floor(totalSeconds / 60) % 60;
+            const hours = Math.floor(totalSeconds / 3600);
+            
+            let timeStr = '';
+            
+            if (hours > 0) {
+                timeStr += hours.toString().padStart(2, '0') + ':';
+            }
+            
+            timeStr += minutes.toString().padStart(2, '0') + ':' + 
+                      seconds.toString().padStart(2, '0');
+            
+            if (milliseconds > 0) {
+                timeStr += '.' + milliseconds.toString().padStart(3, '0').substring(0, 3);
+            }
+            
+            return timeStr;
+        }
+
+        function cancelTimeEdit() {
+            editingTimeIndex = null;
+            renderLaps();
+        }
+
+        function resetTimeLimit() {
+            isTimeLimitActive = false;
+            firstLapTimeMs = 0;
+            closureTimeMs = 0;
+            timeLimitMs = 0;
+            timeLimitDisplay.style.display = 'none';
+            chronoDisplay.classList.remove('time-limit-exceeded');
+            updateTimeLimitDisplay();
+        }
+
+        function showMessage(text, type = 'success') {
+            const messageDiv = document.getElementById('message');
+            if (!messageDiv) return;
+            
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // ==============================================
+        // FUNCIONES MODIFICADAS
+        // ==============================================
+
+        function renderLaps() {
+            const t = translations[currentLanguage];
+            
+            lapListElement.innerHTML = lapTimes.slice().reverse().map((lap, i) => {
+                const lapIndex = lapTimes.length - i - 1;
+                const isEditing = editingLapIndex === lapIndex;
+                const isEditingTime = editingTimeIndex === lapIndex;
+                
+                let timeDisplay;
+                if (isEditingTime) {
+                    const currentTimeStr = formatTimeForEdit(lap.timeMs);
+                    timeDisplay = `
+                        <div style="margin-bottom: 8px;">
+                            <div class="edit-controls">
+                                <input type="text" 
+                                       class="time-edit-input" 
+                                       value="${currentTimeStr}"
+                                       placeholder="mm:ss.mmm"
+                                       onkeypress="if(event.key==='Enter') saveEditedTime(${lapIndex}, this)">
+                                <button class="action-btn btn-save" onclick="saveEditedTime(${lapIndex}, this.previousElementSibling)">✓</button>
+                                <button class="action-btn btn-cancel" onclick="cancelTimeEdit()">✗</button>
+                            </div>
+                            <div class="edit-time-hint">
+                                ${t.editTimeHint}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    timeDisplay = `<span class="lap-time">${showMilliseconds ? lap.total : lap.total.split('"')[0] + '"'}</span>`;
+                }
+                
+                let dorsalDisplay;
+                if (isEditing) {
+                    const currentDorsales = lap.dorsales.join(', ');
+                    dorsalDisplay = `
+                        <div class="dorsal-input-container">
+                            <input type="text" 
+                                   class="dorsal-input" 
+                                   value="${currentDorsales}" 
+                                   placeholder="1, 5, 12..."
+                                   onkeypress="if(event.key==='Enter') saveDorsales(${lapIndex}, this)">
+                            <button class="dorsal-save-btn" onclick="saveDorsales(${lapIndex}, this.previousElementSibling)">✓</button>
+                            <button class="dorsal-cancel-btn" onclick="cancelEditing()">✗</button>
+                        </div>
+                    `;
+                } else {
+                    const dorsalText = lap.dorsales.length > 0 
+                        ? `Dorsales: ${lap.dorsales.join(', ')}`
+                        : 'Haz clic para asignar dorsales';
+                    
+                    dorsalDisplay = `
+                        <span class="lap-dorsal ${lap.dorsales.length > 0 ? 'assigned' : ''}" 
+                              onclick="startEditingDorsal(${lapIndex})">
+                            ${dorsalText}
+                        </span>
+                    `;
+                }
+                
+                const actionButtons = !isEditingTime ? `
+                    <div class="lap-actions">
+                        <button class="action-btn btn-edit" title="Editar tiempo" onclick="startEditingTime(${lapIndex})">✏️</button>
+                        <button class="action-btn btn-delete" title="Eliminar corte" onclick="deleteLap(${lapIndex})">🗑️</button>
+                    </div>
+                ` : '';
+                
+                return `<li class="lap-item">
+                    <div class="lap-item-header">
+                        <span class="lap-number">Corte ${lapTimes.length - i}</span>
+                        ${actionButtons}
+                    </div>
+                    <div class="lap-info">
+                        ${timeDisplay}
+                        <span class="lap-details">${lap.segundos}s | ${dorsalDisplay}</span>
+                    </div>
+                </li>`;
+            }).join('');
+        }
+
+        function startEditingDorsal(lapIndex) {
+            editingLapIndex = lapIndex;
+            editingTimeIndex = null;
+            renderLaps();
+            
+            setTimeout(() => {
+                const input = document.querySelector('.dorsal-input');
+                if (input) {
+                    input.select();
+                    input.focus();
+                }
+            }, 10);
+        }
+
+        function cancelEditing() {
+            editingLapIndex = null;
+            renderLaps();
+        }
+
+        function saveDorsales(lapIndex, dorsalInput) {
+            const t = translations[currentLanguage];
+            const dorsalesStr = dorsalInput.value.trim();
+            
+            if(dorsalesStr === '') {
+                removeAllDorsalsFromLap(lapIndex);
+                editingLapIndex = null;
+                renderLaps();
+                renderDorsalList();
+                saveCurrentRace();
+                return;
+            }
+            
+            const dorsales = dorsalesStr.split(',')
+                .map(d => d.trim())
+                .filter(d => d !== '');
+            
+            if(dorsales.length === 0) {
+                alert('Introduce al menos un dorsal válido.');
+                return;
+            }
+            
+            for(const dorsal of dorsales) {
+                if(isNaN(dorsal) || dorsal === '') {
+                    alert(t.invalidDorsal);
+                    return;
+                }
+            }
+            
+            lapTimes[lapIndex].dorsales = dorsales;
+            updateDorsalAssignments();
+            editingLapIndex = null;
+            renderLaps();
+            renderDorsalList();
+            saveCurrentRace();
+            showMessage(t.dorsalsUpdated, 'success');
+        }
+
         function updateLanguage(lang) {
             currentLanguage = lang;
             const t = translations[lang];
             
-            // Actualizar textos principales
             document.getElementById('app-title').textContent = t.appTitle;
             languagesLabel.textContent = t.languagesLabel;
             btnStart.textContent = isRunning ? t.stopButton : t.startButton;
@@ -1610,35 +2102,26 @@
             btnSuggestions.textContent = t.suggestionsButton;
             millisecondsLabel.textContent = t.millisecondsLabel;
             
-            // Actualizar pestañas
             cortesTabButton.textContent = t.cutsTab;
             dorsalesTabButton.textContent = t.dorsalsTab;
             parametrosTabButton.textContent = t.parametersTab;
             
-            // Actualizar parámetros
             document.querySelectorAll('.parameter-group label')[0].textContent = t.startTimeLabel;
             setStartBtn.textContent = t.setStartTimeButton;
             document.querySelectorAll('.parameter-group label')[1].textContent = t.timeLabel;
             setElapsedBtn.textContent = t.setTimeButton;
             document.querySelectorAll('.parameter-group label')[2].textContent = t.closurePercentageLabel;
             
-            // Actualizar descripciones
-            document.querySelectorAll('.parameter-description')[0].textContent = "Establece la hora oficial de salida de la carrera";
-            document.querySelectorAll('.parameter-description')[1].textContent = "Introduce el tiempo actual del cronómetro manualmente";
-            document.querySelectorAll('.parameter-description')[2].textContent = "Porcentaje que se aplicará automáticamente al tiempo del primer corte para calcular el tiempo límite";
-            
             startTimeDisplay.textContent = t.startTimeDisplay + (startTimeValue || t.notSet);
             
-            // Actualizar ayuda
+            document.querySelector('#cortes-tab .help-text').textContent = "Haz clic en ✏️ para editar tiempo o en 🗑️ para eliminar un corte";
             document.querySelector('#dorsales-tab .help-text').textContent = t.assignHelp;
             
-            // Actualizar selector de carrera
             const firstOption = raceSelector.querySelector('option');
             if (firstOption) {
                 firstOption.textContent = t.selectRace;
             }
             
-            // Actualizar modales
             document.getElementById('new-race-modal-title').textContent = t.newRaceModalTitle;
             document.getElementById('race-name-label').textContent = t.raceNameLabel;
             document.getElementById('delete-race-modal-title').textContent = t.deleteRaceModalTitle;
@@ -1648,13 +2131,10 @@
             document.getElementById('cancel-delete-race').textContent = t.cancelButton;
             document.getElementById('confirm-delete-race').textContent = t.confirmButton;
             
-            // Actualizar placeholders
             document.getElementById('race-name-input').placeholder = t.raceNamePlaceholder;
             
-            // Actualizar textos del display de tiempo límite
             updateTimeLimitDisplay();
             
-            // Actualizar banderas activas
             document.querySelectorAll('.flag').forEach(flag => {
                 flag.classList.remove('active');
             });
@@ -1663,262 +2143,23 @@
                 flagElement.classList.add('active');
             }
             
-            // Guardar idioma seleccionado
             localStorage.setItem('llegadasLanguage', lang);
             
-            // Actualizar textos del sistema de sugerencias si está inicializado
             if (window.suggestionsSystem) {
                 window.suggestionsSystem.updateLanguage(lang);
             }
-            updateTimeLimitDisplay();
         }
 
-        // Sistema de sugerencias
-        class SuggestionsSystem {
-            constructor() {
-                this.modal = document.getElementById('suggestionsModal');
-                this.submitBtn = document.getElementById('submitBtn-suggestions');
-                this.loading = document.getElementById('loading-suggestions');
-                this.message = document.getElementById('message');
-                this.emailInput = document.getElementById('email-suggestions');
-                this.cityInput = document.getElementById('city-suggestions');
-                this.suggestionInput = document.getElementById('suggestion-text');
-                this.currentLanguage = 'es';
-                
-                // Configuración del formulario
-                this.FORM_ENDPOINT = "https://docs.google.com/forms/d/e/1FAIpQLSeLeD6lAmBweVOubmEqydUONe6mutpQLlFSU_zKfHEhjhZVLg/formResponse";
-                this.FIELD_IDS = {
-                    email: "entry.1597282778",
-                    ciudad: "entry.1552097675",
-                    sugerencia: "entry.48109616",
-                    programa: "entry.1706983066",
-                    fecha: "entry.1734009197",
-                    hora: "entry.686693357"
-                };
-                
-                this.initialize();
-            }
-            
-            initialize() {
-                this.attachEventListeners();
-            }
-            
-            attachEventListeners() {
-                // Botón para abrir modal de sugerencias
-                document.getElementById('btn-suggestions').addEventListener('click', () => {
-                    this.showModal();
-                });
-                
-                // Botón de enviar
-                this.submitBtn.addEventListener('click', () => {
-                    this.submitForm();
-                });
-                
-                // Cerrar modal al hacer clic fuera
-                window.addEventListener('click', (e) => {
-                    if (e.target === this.modal) {
-                        this.hideModal();
-                    }
-                });
-                
-                // Atajos de teclado
-                this.suggestionInput.addEventListener('keydown', (e) => {
-                    if (e.ctrlKey && e.key === 'Enter') {
-                        this.submitForm();
-                    }
-                });
-                
-                this.cityInput.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        this.suggestionInput.focus();
-                    }
-                });
-                
-                this.emailInput.addEventListener('blur', () => {
-                    if (this.emailInput.value && !this.isValidEmail(this.emailInput.value)) {
-                        this.emailInput.style.borderColor = '#f44336';
-                    } else {
-                        this.emailInput.style.borderColor = '#e0e0e0';
-                    }
-                });
-                
-                this.cityInput.addEventListener('blur', () => {
-                    if (this.cityInput.value.trim()) {
-                        this.cityInput.value = this.formatCity(this.cityInput.value);
-                    }
-                });
-            }
-            
-            showModal() {
-                this.modal.style.display = 'flex';
-                this.updateTexts();
-                // Limpiar campos al abrir
-                this.emailInput.value = '';
-                this.cityInput.value = '';
-                this.suggestionInput.value = '';
-            }
-            
-            hideModal() {
-                this.modal.style.display = 'none';
-            }
-            
-            updateTexts() {
-                const lang = this.currentLanguage;
-                document.getElementById('suggestions-title').textContent = translations[lang].suggestionsTitle;
-                document.getElementById('suggestions-subtitle').textContent = translations[lang].suggestionsSubtitle;
-                document.getElementById('email-label').innerHTML = translations[lang].emailLabel + '<span class="required"></span>';
-                document.getElementById('city-label').innerHTML = translations[lang].cityLabel + '<span class="required"></span>';
-                document.getElementById('suggestion-label').textContent = translations[lang].suggestionLabel;
-                document.getElementById('program-label').textContent = translations[lang].programLabel;
-                this.submitBtn.textContent = translations[lang].submitButton;
-                document.getElementById('loading-text').textContent = translations[lang].sendingText;
-                document.getElementById('city-examples').textContent = translations[lang].cityExamples;
-                
-                // Actualizar placeholders
-                this.emailInput.placeholder = "tu@email.com";
-                this.cityInput.placeholder = lang === 'en' ? "Ex: Madrid" : lang === 'ca' ? "Ex: Madrid" : lang === 'fr' ? "Ex: Madrid" : "Ej: Madrid";
-                this.suggestionInput.placeholder = lang === 'en' ? "Your ideas to improve the app..." : 
-                                                  lang === 'ca' ? "Les teves idees per millorar l'app..." : 
-                                                  lang === 'fr' ? "Vos idées pour améliorer l'application..." :
-                                                  "Tus ideas para mejorar la app...";
-            }
-            
-            getCurrentDate() {
-                const now = new Date();
-                const day = String(now.getDate()).padStart(2, '0');
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const year = now.getFullYear();
-                return `${day}/${month}/${year}`;
-            }
-            
-            getCurrentTime() {
-                const now = new Date();
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const seconds = String(now.getSeconds()).padStart(2, '0');
-                return `${hours}:${minutes}:${seconds}`;
-            }
-            
-            showMessage(text, type = 'success') {
-                this.message.textContent = text;
-                this.message.className = `message ${type}`;
-                this.message.style.display = 'block';
-                
-                setTimeout(() => {
-                    this.message.style.display = 'none';
-                }, 4000);
-            }
-            
-            isValidEmail(email) {
-                if (!email) return false;
-                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                return re.test(email);
-            }
-            
-            isValidCity(city) {
-                if (!city) return false;
-                city = city.trim();
-                return city.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑàâäçèéêëîïôöùûüÿæœ\s\-]+$/.test(city);
-            }
-            
-            formatCity(city) {
-                if (!city) return '';
-                return city.trim().replace(/\b\w/g, char => char.toUpperCase());
-            }
-            
-            async submitForm() {
-                const email = this.emailInput.value.trim();
-                let city = this.cityInput.value.trim();
-                const suggestion = this.suggestionInput.value.trim();
-                
-                const fecha = this.getCurrentDate();
-                const hora = this.getCurrentTime();
-                
-                // Validaciones
-                if (!email) {
-                    this.showMessage(translations[this.currentLanguage].enterEmail, 'error');
-                    this.emailInput.focus();
-                    return;
-                }
-                
-                if (!this.isValidEmail(email)) {
-                    this.showMessage(translations[this.currentLanguage].invalidEmail, 'error');
-                    this.emailInput.focus();
-                    return;
-                }
-                
-                if (!city) {
-                    this.showMessage(translations[this.currentLanguage].enterCity, 'error');
-                    this.cityInput.focus();
-                    return;
-                }
-                
-                if (!this.isValidCity(city)) {
-                    this.showMessage(translations[this.currentLanguage].invalidCity, 'error');
-                    this.cityInput.focus();
-                    return;
-                }
-                
-                city = this.formatCity(city);
-                
-                // Mostrar carga
-                this.submitBtn.disabled = true;
-                this.loading.style.display = 'block';
-                
-                try {
-                    const formData = new FormData();
-                    
-                    formData.append(this.FIELD_IDS.email, email);
-                    formData.append(this.FIELD_IDS.ciudad, city);
-                    formData.append(this.FIELD_IDS.sugerencia, suggestion || "(sin sugerencia)");
-                    formData.append(this.FIELD_IDS.programa, "Cronómetro para Llegadas");
-                    formData.append(this.FIELD_IDS.fecha, fecha);
-                    formData.append(this.FIELD_IDS.hora, hora);
-                    
-                    await fetch(this.FORM_ENDPOINT, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        body: formData
-                    });
-                    
-                    this.showMessage(translations[this.currentLanguage].successMessage, 'success');
-                    
-                    // Limpiar campos
-                    this.emailInput.value = '';
-                    this.cityInput.value = '';
-                    this.suggestionInput.value = '';
-                    
-                    // Cerrar modal después de un tiempo
-                    setTimeout(() => {
-                        this.hideModal();
-                    }, 1500);
-                    
-                } catch (error) {
-                    console.error('Error:', error);
-                    this.showMessage(translations[this.currentLanguage].errorMessage, 'error');
-                } finally {
-                    this.submitBtn.disabled = false;
-                    this.loading.style.display = 'none';
-                }
-            }
-            
-            updateLanguage(lang) {
-                this.currentLanguage = lang;
-                this.updateTexts();
-            }
-        }
+        // ==============================================
+        // FUNCIONES EXISTENTES (REPARADAS)
+        // ==============================================
 
-        // Función para verificar si hay una carrera seleccionada
         function isRaceSelected() {
             return currentRaceId !== null && races[currentRaceId] !== undefined;
         }
 
-        // Función para actualizar el estado de los botones según si hay carrera seleccionada
         function updateButtonsState() {
             const hasRace = isRaceSelected();
-            
-            // Deshabilitar botones si no hay carrera seleccionada
             btnStart.disabled = !hasRace;
             btnLap.disabled = !hasRace;
             btnReset.disabled = !hasRace;
@@ -1927,13 +2168,9 @@
             btnDeleteRace.disabled = !hasRace;
         }
 
-        // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
-            // Cargar configuración
             const savedLanguage = localStorage.getItem('llegadasLanguage');
-            if (savedLanguage) {
-                currentLanguage = savedLanguage;
-            }
+            if (savedLanguage) currentLanguage = savedLanguage;
             
             const savedMillisecondsSetting = localStorage.getItem('llegadasShowMilliseconds');
             if (savedMillisecondsSetting !== null) {
@@ -1941,7 +2178,6 @@
                 millisecondsToggle.checked = showMilliseconds;
             }
             
-            // Cargar porcentaje de cierre guardado
             const savedClosurePercentage = localStorage.getItem('llegadasClosurePercentage');
             if (savedClosurePercentage !== null) {
                 closurePercentage = parseFloat(savedClosurePercentage);
@@ -1951,29 +2187,23 @@
             loadRaces();
             updateDisplay();
             
-            // Mostrar siempre el display de tiempo límite
             timeLimitDisplay.style.display = 'flex';
             updateTimeLimitDisplay();
             
-            // Cargar la última carrera usada
             const lastRaceId = localStorage.getItem('llegadasLastRace');
             if (lastRaceId && races[lastRaceId]) {
                 loadRace(lastRaceId);
                 raceSelector.value = lastRaceId;
             } else if (Object.keys(races).length > 0) {
-                // Cargar la primera carrera si existe
                 const firstRaceId = Object.keys(races)[0];
                 loadRace(firstRaceId);
                 raceSelector.value = firstRaceId;
             } else {
-                // No hay carreras, actualizar estado de botones
                 updateButtonsState();
             }
             
-            // Actualizar idioma inicial
             updateLanguage(currentLanguage);
             
-            // Event listeners
             btnStart.addEventListener('click', toggleChrono);
             btnLap.addEventListener('click', recordLap);
             btnReset.addEventListener('click', openResetConfirm);
@@ -1993,12 +2223,9 @@
             setStartBtn.addEventListener('click', setStartTime);
             setElapsedBtn.addEventListener('click', setElapsedTime);
             
-            // Event listener para el cambio de porcentaje de cierre
             closurePercentageInput.addEventListener('change', function() {
                 closurePercentage = parseFloat(this.value);
                 localStorage.setItem('llegadasClosurePercentage', closurePercentage);
-                
-                // Si ya hay un tiempo límite calculado, recalcular
                 if (isTimeLimitActive && firstLapTimeMs > 0) {
                     calculateTimeLimit();
                 }
@@ -2013,7 +2240,6 @@
                 });
             });
             
-            // Atajos de teclado
             document.addEventListener('keydown', (e) => {
                 if(e.code === 'Space') {
                     e.preventDefault();
@@ -2027,183 +2253,59 @@
                 }
             });
             
-            // Inicializar sistema de sugerencias
             window.suggestionsSystem = new SuggestionsSystem();
+            
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('time-edit-input') || 
+                    e.target.classList.contains('dorsal-input')) {
+                    e.target.select();
+                }
+            });
         });
 
-        function openHelpFile() {
-            window.open('https://rbenet71.github.io/Web/Crono_Llegadas_Ayuda.html', '_blank');
-        }
-
-        function toggleMilliseconds() {
-            showMilliseconds = millisecondsToggle.checked;
-            localStorage.setItem('llegadasShowMilliseconds', showMilliseconds);
-            updateDisplay();
-            renderLaps();
-            renderDorsalList();
+        function calculateTimeLimit() {
+            if (!isRaceSelected() || firstLapTimeMs <= 0) return;
+            
+            closureTimeMs = firstLapTimeMs * (closurePercentage / 100);
+            timeLimitMs = firstLapTimeMs + closureTimeMs;
+            isTimeLimitActive = true;
+            timeLimitDisplay.style.display = 'flex';
             updateTimeLimitDisplay();
+            checkTimeLimitExceeded();
             saveCurrentRace();
         }
-
-        function setupModalEvents() {
-            document.getElementById('cancel-new-race').addEventListener('click', closeNewRaceModal);
-            document.getElementById('confirm-new-race').addEventListener('click', confirmNewRace);
-            document.getElementById('cancel-delete-race').addEventListener('click', closeDeleteRaceModal);
-            document.getElementById('confirm-delete-race').addEventListener('click', confirmDeleteRace);
-        }
-
-        // Funciones para cargar y gestionar carreras
-        function loadRaces() {
-            const savedRaces = localStorage.getItem('llegadasRaces');
-            if (savedRaces) {
-                races = JSON.parse(savedRaces);
-                updateRaceSelector();
-            }
-        }
-
-        function saveRaces() {
-            localStorage.setItem('llegadasRaces', JSON.stringify(races));
-        }
-
-        function updateRaceSelector() {
-            raceSelector.innerHTML = '<option value="">' + translations[currentLanguage].selectRace + '</option>';
-            for (const id in races) {
-                const option = document.createElement('option');
-                option.value = id;
-                option.textContent = races[id].name;
-                raceSelector.appendChild(option);
-            }
-        }
-
-        function loadRace(raceId) {
-            if (!raceId) {
-                // No hay carrera seleccionada, resetear todo
-                currentRaceId = null;
-                startTime = 0;
-                currentTime = 0;
-                isRunning = false;
-                lapTimes = [];
-                startTimeValue = "";
-                startTimeInSeconds = 0;
-                dorsalAssignments = {};
-                editingLapIndex = null;
-                
-                // Resetear tiempo límite
-                isTimeLimitActive = false;
-                firstLapTimeMs = 0;
-                closureTimeMs = 0;
-                timeLimitMs = 0;
-                if (isTimeLimitActive && firstLapTimeMs > 0) {
-                    timeLimitDisplay.style.display = 'flex';
-                    updateTimeLimitDisplay();
-                    checkTimeLimitExceeded();
-                } else {
-                    timeLimitDisplay.style.display = 'none';
-                }
-                chronoDisplay.classList.remove('time-limit-exceeded');
-                
-                updateDisplay();
-                renderLaps();
-                renderDorsalList();
-                updateButtonsState();
-                
-                if (intervalId) {
-                    clearInterval(intervalId);
-                    intervalId = null;
-                }
-                btnStart.textContent = translations[currentLanguage].startButton;
+        
+        function updateTimeLimitDisplay() {
+            const t = translations[currentLanguage];
+            
+            if (!isTimeLimitActive || firstLapTimeMs <= 0) {
+                timeLimitDisplay.style.display = 'none';
                 return;
             }
             
-            const race = races[raceId];
-            if (!race) return;
-            
-            currentRaceId = raceId;
-            startTime = race.startTime || 0;
-            currentTime = race.currentTime || 0;
-            isRunning = race.isRunning || false;
-            lapTimes = race.lapTimes || [];
-            startTimeValue = race.startTimeValue || "";
-            startTimeInSeconds = race.startTimeInSeconds || 0;
-            dorsalAssignments = race.dorsalAssignments || {};
-            editingLapIndex = null;
-            
-            // Cargar configuración de tiempo límite
-            closurePercentage = race.closurePercentage || 5.0;
-            firstLapTimeMs = race.firstLapTimeMs || 0;
-            closureTimeMs = race.closureTimeMs || 0;
-            timeLimitMs = race.timeLimitMs || 0;
-            isTimeLimitActive = race.isTimeLimitActive || false;
-            
-            updateDisplay();
-            renderLaps();
-            renderDorsalList();
-            updateButtonsState();
-            
-            // Actualizar input de porcentaje
-            closurePercentageInput.value = closurePercentage;
-            
-            // Mostrar siempre el display de tiempo límite
             timeLimitDisplay.style.display = 'flex';
+            const closureTimeFormatted = formatTimeForDisplay(closureTimeMs);
+            const timeLimitFormatted = formatTimeForDisplay(timeLimitMs);
+            timeLimitCombinedDisplay.textContent = 
+                `${t.controlClosureLabel || "Cierre de Control"} (${closurePercentage}%) -> ${closureTimeFormatted} -> ${timeLimitFormatted}`;
+        }
+        
+        function formatTimeForDisplay(ms) {
+            let totalSeconds = Math.floor(ms / 1000);
+            const seconds = totalSeconds % 60;
+            const minutes = Math.floor(totalSeconds / 60) % 60;
+            const hours = Math.floor(totalSeconds / 3600);
             
-            if (isTimeLimitActive && firstLapTimeMs > 0) {
-                updateTimeLimitDisplay();
-                checkTimeLimitExceeded();
+            if (hours > 0) {
+                return hours.toString().padStart(2, '0') + ':' + 
+                       minutes.toString().padStart(2, '0') + "'" + 
+                       seconds.toString().padStart(2, '0') + '"';
             } else {
-                // Mostrar el ejemplo cuando no hay tiempo límite calculado
-                updateTimeLimitDisplay();
+                return minutes.toString().padStart(2, '0') + "'" + 
+                       seconds.toString().padStart(2, '0') + '"';
             }
-            
-            if (isRunning) {
-                startChrono();
-            } else {
-                btnStart.textContent = translations[currentLanguage].startButton;
-                if (intervalId) {
-                    clearInterval(intervalId);
-                    intervalId = null;
-                }
-            }
-            
-            // Actualizar hora de inicio en la interfaz
-            if (startTimeValue) {
-                const timeParts = startTimeValue.split(':');
-                if (timeParts.length >= 2) {
-                    startTimeInput.value = `${timeParts[0]}:${timeParts[1]}:${timeParts[2] ? timeParts[2].split('.')[0] : '00'}`;
-                }
-            } else {
-                startTimeInput.value = "";
-            }
-            
-            updateStartTimeDisplay();
-            
-            // Guardar como última carrera seleccionada
-            localStorage.setItem('llegadasLastRace', raceId);
         }
 
-        function saveCurrentRace() {
-            if (!currentRaceId) return;
-            
-            races[currentRaceId] = {
-                name: races[currentRaceId].name,
-                startTime: startTime,
-                currentTime: currentTime,
-                isRunning: isRunning,
-                lapTimes: lapTimes,
-                startTimeValue: startTimeValue,
-                startTimeInSeconds: startTimeInSeconds,
-                dorsalAssignments: dorsalAssignments,
-                // Guardar configuración de tiempo límite
-                closurePercentage: closurePercentage,
-                firstLapTimeMs: firstLapTimeMs,
-                closureTimeMs: closureTimeMs,
-                timeLimitMs: timeLimitMs,
-                isTimeLimitActive: isTimeLimitActive
-            };
-            
-            saveRaces();
-        }
-
-        // Funciones del cronómetro
         function toggleChrono() {
             if (!isRaceSelected()) {
                 alert("Debe seleccionar una carrera primero");
@@ -2283,7 +2385,6 @@
             }
             
             if (!isRunning) {
-                // Feedback visual cuando no está corriendo
                 btnLap.style.backgroundColor = '#ff4444';
                 setTimeout(() => {
                     btnLap.style.backgroundColor = '';
@@ -2291,7 +2392,6 @@
                 return;
             }
             
-            // Pequeña animación
             btnLap.style.transform = 'scale(0.95)';
             setTimeout(() => {
                 btnLap.style.transform = 'scale(1)';
@@ -2312,7 +2412,6 @@
                 dorsales: []
             });
             
-            // Si es el primer corte, calcular automáticamente el tiempo límite
             if (lapTimes.length === 1) {
                 firstLapTimeMs = currentTime;
                 calculateTimeLimit();
@@ -2320,8 +2419,6 @@
             
             renderLaps();
             saveCurrentRace();
-            
-            // Scroll automático a nuevos cortes
             lapListElement.scrollTop = 0;
         }
 
@@ -2337,24 +2434,6 @@
             if(hours > 0 || minutes > 0) str += String(minutes).padStart(hours>0?2:1,'0') + "'";
             str += String(seconds).padStart(2,'0') + '"' + String(milliseconds).padStart(3,'0');
             return str;
-        }
-        
-        // Función para formatear tiempo en el formato correcto para el display
-        function formatTimeForDisplay(ms) {
-            let totalSeconds = Math.floor(ms / 1000);
-            const milliseconds = ms % 1000;
-            const seconds = totalSeconds % 60;
-            const minutes = Math.floor(totalSeconds / 60) % 60;
-            const hours = Math.floor(totalSeconds / 3600);
-            
-            if (hours > 0) {
-                return hours.toString().padStart(2, '0') + ':' + 
-                       minutes.toString().padStart(2, '0') + "'" + 
-                       seconds.toString().padStart(2, '0') + '"';
-            } else {
-                return minutes.toString().padStart(2, '0') + "'" + 
-                       seconds.toString().padStart(2, '0') + '"';
-            }
         }
 
         function formatHoraExacta(date){
@@ -2374,7 +2453,6 @@
         }
 
         function horaToSeconds(horaStr) {
-            // Convierte formato HH:MM:SS.mmm a segundos desde medianoche
             const parts = horaStr.split(':');
             const h = parseInt(parts[0]);
             const m = parseInt(parts[1]);
@@ -2389,108 +2467,12 @@
             return (ms / 1000).toFixed(3);
         }
 
-        function renderLaps(){
-            lapListElement.innerHTML = lapTimes.slice().reverse().map((lap, i) => {
-                const lapIndex = lapTimes.length - i - 1;
-                const isEditing = editingLapIndex === lapIndex;
-                
-                let dorsalDisplay;
-                if(isEditing) {
-                    const currentDorsales = lap.dorsales.join(', ');
-                    dorsalDisplay = `
-                        <div class="dorsal-input-container">
-                            <input type="text" 
-                                   class="dorsal-input" 
-                                   value="${currentDorsales}" 
-                                   placeholder="1, 5, 12..."
-                                   onkeypress="if(event.key==='Enter') saveDorsales(${lapIndex}, this)">
-                            <button class="dorsal-save-btn" onclick="saveDorsales(${lapIndex}, this.previousElementSibling)">✓</button>
-                            <button class="dorsal-cancel-btn" onclick="cancelEditing()">✗</button>
-                        </div>
-                    `;
-                } else {
-                    const dorsalText = lap.dorsales.length > 0 
-                        ? `Dorsales: ${lap.dorsales.join(', ')}`
-                        : 'Haz clic para asignar dorsales';
-                    
-                    dorsalDisplay = `
-                        <span class="lap-dorsal ${lap.dorsales.length > 0 ? 'assigned' : ''}" 
-                              onclick="startEditingDorsal(${lapIndex})">
-                            ${dorsalText}
-                        </span>
-                    `;
-                }
-                
-                return `<li class="lap-item">
-                    <span>Corte ${lapTimes.length - i}</span>
-                    <div class="lap-info">
-                        <span class="lap-time">${showMilliseconds ? lap.total : lap.total.split('"')[0] + '"'}</span>
-                        <span class="lap-details">${lap.segundos}s | ${dorsalDisplay}</span>
-                    </div>
-                </li>`;
-            }).join('');
-        }
-
-        function startEditingDorsal(lapIndex){
-            editingLapIndex = lapIndex;
-            renderLaps();
-        }
-
-        function saveDorsales(lapIndex, dorsalInput){
-            const dorsalesStr = dorsalInput.value.trim();
-            
-            if(dorsalesStr === '') {
-                // Si está vacío, eliminar todos los dorsales de este corte
-                removeAllDorsalsFromLap(lapIndex);
-                editingLapIndex = null;
-                renderLaps();
-                renderDorsalList();
-                saveCurrentRace();
-                return;
-            }
-            
-            // Separar dorsales por comas y limpiar
-            const dorsales = dorsalesStr.split(',')
-                .map(d => d.trim())
-                .filter(d => d !== '');
-            
-            if(dorsales.length === 0) {
-                alert('Introduce al menos un dorsal válido.');
-                return;
-            }
-            
-            // Validar que todos los dorsales sean números
-            for(const dorsal of dorsales) {
-                if(isNaN(dorsal) || dorsal === '') {
-                    alert(`"${dorsal}" no es un dorsal válido. Solo se permiten números.`);
-                    return;
-                }
-            }
-            
-            // Actualizar el corte con los nuevos dorsales
-            lapTimes[lapIndex].dorsales = dorsales;
-            
-            // Actualizar asignaciones globales
-            updateDorsalAssignments();
-            
-            editingLapIndex = null;
-            renderLaps();
-            renderDorsalList();
-            saveCurrentRace();
-        }
-
-        function cancelEditing(){
-            editingLapIndex = null;
-            renderLaps();
-        }
-
         function removeAllDorsalsFromLap(lapIndex){
             lapTimes[lapIndex].dorsales = [];
             updateDorsalAssignments();
         }
 
         function updateDorsalAssignments(){
-            // Reconstruir las asignaciones globales desde los cortes
             dorsalAssignments = {};
             
             lapTimes.forEach((lap, lapIndex) => {
@@ -2508,7 +2490,6 @@
         function renderDorsalList(){
             dorsalListElement.innerHTML = '';
             
-            // Obtener todos los dorsales únicos
             const dorsales = Object.keys(dorsalAssignments).sort((a, b) => parseInt(a) - parseInt(b));
             
             if(dorsales.length === 0) {
@@ -2541,37 +2522,38 @@
 
         function removeDorsal(dorsal){
             if(confirm(`¿Eliminar todas las asignaciones del dorsal ${dorsal}?`)){
-                // Quitar el dorsal de todos los cortes
                 lapTimes.forEach(lap => {
                     lap.dorsales = lap.dorsales.filter(d => d != dorsal);
                 });
                 
-                // Actualizar asignaciones globales
                 updateDorsalAssignments();
-                
-                // Actualizar visualizaciones
                 renderLaps();
                 renderDorsalList();
                 saveCurrentRace();
             }
         }
 
+        function checkTimeLimitExceeded() {
+            if (!isTimeLimitActive) return;
+            
+            if (currentTime > timeLimitMs) {
+                chronoDisplay.classList.add('time-limit-exceeded');
+            } else {
+                chronoDisplay.classList.remove('time-limit-exceeded');
+            }
+        }
+
         function setStartTime(){
             if(!startTimeInput.value) return;
             
-            // Obtener el valor del input
             const timeValue = startTimeInput.value;
-            
-            // Formatear para manejar diferentes casos
             let h, m, s = 0;
             
-            // Caso 1: Formato HH:MM:SS
             if(timeValue.includes(':') && timeValue.split(':').length >= 2) {
                 const parts = timeValue.split(':');
                 h = parseInt(parts[0]) || 0;
                 m = parseInt(parts[1]) || 0;
                 
-                // Si tiene segundos, usarlos, si no, usar 0
                 if(parts.length >= 3) {
                     s = parseInt(parts[2]) || 0;
                 } else {
@@ -2579,7 +2561,6 @@
                 }
             }
             
-            // Validar los valores
             if(isNaN(h) || isNaN(m) || isNaN(s)) {
                 alert('Formato de hora no válido. Use HH:MM o HH:MM:SS');
                 return;
@@ -2590,7 +2571,6 @@
                 return;
             }
             
-            // Crear fecha actual con la hora especificada
             const now = new Date();
             const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, s);
             
@@ -2599,7 +2579,6 @@
             startTimeValue = formatHoraSalida(start);
             startTimeInSeconds = horaToSeconds(startTimeValue);
             
-            // También actualizar el valor del input para mostrar segundos si no los tenía
             if(timeValue.split(':').length === 2) {
                 startTimeInput.value = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:00`;
             }
@@ -2607,7 +2586,6 @@
             updateDisplay();
             updateStartTimeDisplay();
             
-            // Feedback visual
             startTimeInput.style.borderColor = '#0f0';
             setTimeout(() => {
                 startTimeInput.style.borderColor = '';
@@ -2652,75 +2630,10 @@
             updateStartTimeDisplay();
             saveCurrentRace();
             
-            // Feedback visual
             setElapsedInput.style.borderColor = '#0f0';
             setTimeout(() => {
                 setElapsedInput.style.borderColor = '';
             }, 1000);
-        }
-
-        // Funciones para el cálculo del tiempo límite (automático)
-        function calculateTimeLimit() {
-            if (!isRaceSelected()) {
-                return;
-            }
-            
-            if (firstLapTimeMs <= 0) {
-                return;
-            }
-            
-            // Calcular el porcentaje del tiempo del primer corte
-            closureTimeMs = firstLapTimeMs * (closurePercentage / 100);
-            
-            // Calcular tiempo límite de llegada (primer corte + porcentaje)
-            timeLimitMs = firstLapTimeMs + closureTimeMs;
-            
-            // Activar el tiempo límite
-            isTimeLimitActive = true;
-            
-            // Mostrar el display
-            timeLimitDisplay.style.display = 'flex';
-            
-            // Actualizar display
-            updateTimeLimitDisplay();
-            
-            // Verificar si ya se superó el tiempo límite
-            checkTimeLimitExceeded();
-            
-            // Guardar cambios
-            saveCurrentRace();
-        }
-        
-        function updateTimeLimitDisplay() {
-            const t = translations[currentLanguage];
-            
-            if (!isTimeLimitActive || firstLapTimeMs <= 0) {
-                // Ocultar completamente el display cuando no hay tiempo límite calculado
-                timeLimitDisplay.style.display = 'none';
-                return;
-            }
-            
-            // Mostrar el display cuando hay tiempo límite calculado
-            timeLimitDisplay.style.display = 'flex';
-            
-            // Formatear los tiempos para el display
-            const closureTimeFormatted = formatTimeForDisplay(closureTimeMs);
-            const timeLimitFormatted = formatTimeForDisplay(timeLimitMs);
-            
-            // USAR TEXTO TRADUCIDO según el idioma actual
-            // "Cierre de Control" se traduce según el idioma
-            timeLimitCombinedDisplay.textContent = 
-                `${t.controlClosureLabel || "Cierre de Control"} (${closurePercentage}%) -> ${closureTimeFormatted} -> ${timeLimitFormatted}`;
-        }
-        
-        function checkTimeLimitExceeded() {
-            if (!isTimeLimitActive) return;
-            
-            if (currentTime > timeLimitMs) {
-                chronoDisplay.classList.add('time-limit-exceeded');
-            } else {
-                chronoDisplay.classList.remove('time-limit-exceeded');
-            }
         }
 
         function openResetConfirm(){
@@ -2745,13 +2658,13 @@
             startTimeInSeconds = 0;
             dorsalAssignments = {};
             editingLapIndex = null;
+            editingTimeIndex = null;
             
-            // Resetear tiempo límite
             isTimeLimitActive = false;
             firstLapTimeMs = 0;
             closureTimeMs = 0;
             timeLimitMs = 0;
-            timeLimitDisplay.style.display = 'none'; // Ocultar display al reiniciar
+            timeLimitDisplay.style.display = 'none';
             chronoDisplay.classList.remove('time-limit-exceeded');
             
             updateDisplay();
@@ -2760,7 +2673,7 @@
             updateStartTimeDisplay();
             saveCurrentRace();
         }
-        // Funciones de pestañas
+
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
@@ -2774,7 +2687,6 @@
             document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
         }
 
-        // Funciones de exportación
         function exportLapsCSV(){
             if(!isRaceSelected()) {
                 alert("Debe seleccionar una carrera primero");
@@ -2826,7 +2738,148 @@
             link.click();
         }
 
-        // Funciones de modales
+        function setupModalEvents() {
+            document.getElementById('cancel-new-race').addEventListener('click', closeNewRaceModal);
+            document.getElementById('confirm-new-race').addEventListener('click', confirmNewRace);
+            document.getElementById('cancel-delete-race').addEventListener('click', closeDeleteRaceModal);
+            document.getElementById('confirm-delete-race').addEventListener('click', confirmDeleteRace);
+        }
+
+        function loadRaces() {
+            const savedRaces = localStorage.getItem('llegadasRaces');
+            if (savedRaces) {
+                races = JSON.parse(savedRaces);
+                updateRaceSelector();
+            }
+        }
+
+        function saveRaces() {
+            localStorage.setItem('llegadasRaces', JSON.stringify(races));
+        }
+
+        function updateRaceSelector() {
+            raceSelector.innerHTML = '<option value="">' + translations[currentLanguage].selectRace + '</option>';
+            for (const id in races) {
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = races[id].name;
+                raceSelector.appendChild(option);
+            }
+        }
+
+        function loadRace(raceId) {
+            if (!raceId) {
+                currentRaceId = null;
+                startTime = 0;
+                currentTime = 0;
+                isRunning = false;
+                lapTimes = [];
+                startTimeValue = "";
+                startTimeInSeconds = 0;
+                dorsalAssignments = {};
+                editingLapIndex = null;
+                editingTimeIndex = null;
+                
+                isTimeLimitActive = false;
+                firstLapTimeMs = 0;
+                closureTimeMs = 0;
+                timeLimitMs = 0;
+                timeLimitDisplay.style.display = 'none';
+                chronoDisplay.classList.remove('time-limit-exceeded');
+                
+                updateDisplay();
+                renderLaps();
+                renderDorsalList();
+                updateButtonsState();
+                
+                if (intervalId) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                }
+                btnStart.textContent = translations[currentLanguage].startButton;
+                return;
+            }
+            
+            const race = races[raceId];
+            if (!race) return;
+            
+            currentRaceId = raceId;
+            startTime = race.startTime || 0;
+            currentTime = race.currentTime || 0;
+            isRunning = race.isRunning || false;
+            lapTimes = race.lapTimes || [];
+            startTimeValue = race.startTimeValue || "";
+            startTimeInSeconds = race.startTimeInSeconds || 0;
+            dorsalAssignments = race.dorsalAssignments || {};
+            editingLapIndex = null;
+            editingTimeIndex = null;
+            
+            closurePercentage = race.closurePercentage || 5.0;
+            firstLapTimeMs = race.firstLapTimeMs || 0;
+            closureTimeMs = race.closureTimeMs || 0;
+            timeLimitMs = race.timeLimitMs || 0;
+            isTimeLimitActive = race.isTimeLimitActive || false;
+            
+            updateDisplay();
+            renderLaps();
+            renderDorsalList();
+            updateButtonsState();
+            
+            closurePercentageInput.value = closurePercentage;
+            timeLimitDisplay.style.display = 'flex';
+            
+            if (isTimeLimitActive && firstLapTimeMs > 0) {
+                updateTimeLimitDisplay();
+                checkTimeLimitExceeded();
+            } else {
+                updateTimeLimitDisplay();
+            }
+            
+            if (isRunning) {
+                startChrono();
+            } else {
+                btnStart.textContent = translations[currentLanguage].startButton;
+                if (intervalId) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                }
+            }
+            
+            if (startTimeValue) {
+                const timeParts = startTimeValue.split(':');
+                if (timeParts.length >= 2) {
+                    startTimeInput.value = `${timeParts[0]}:${timeParts[1]}:${timeParts[2] ? timeParts[2].split('.')[0] : '00'}`;
+                }
+            } else {
+                startTimeInput.value = "";
+            }
+            
+            updateStartTimeDisplay();
+            localStorage.setItem('llegadasLastRace', raceId);
+        }
+
+        function saveCurrentRace() {
+            if (!currentRaceId) return;
+            
+            races[currentRaceId] = {
+                name: races[currentRaceId].name,
+                startTime: startTime,
+                currentTime: currentTime,
+                isRunning: isRunning,
+                lapTimes: lapTimes,
+                startTimeValue: startTimeValue,
+                startTimeInSeconds: startTimeInSeconds,
+                dorsalAssignments: dorsalAssignments,
+                closurePercentage: closurePercentage,
+                firstLapTimeMs: firstLapTimeMs,
+                closureTimeMs: closureTimeMs,
+                timeLimitMs: timeLimitMs,
+                isTimeLimitActive: isTimeLimitActive
+            };
+            
+            saveRaces();
+        }
+
         function openNewRaceModal() {
             newRaceModal.style.display = 'flex';
             document.getElementById('race-name-input').value = '';
@@ -2850,7 +2903,6 @@
                 startTimeValue: "",
                 startTimeInSeconds: 0,
                 dorsalAssignments: {},
-                // Inicializar tiempo límite
                 closurePercentage: 5.0,
                 firstLapTimeMs: 0,
                 closureTimeMs: 0,
@@ -2860,7 +2912,6 @@
             
             saveRaces();
             updateRaceSelector();
-            // Cargar la nueva carrera automáticamente
             loadRace(raceId);
             raceSelector.value = raceId;
             closeNewRaceModal();
@@ -2884,148 +2935,255 @@
             
             const raceIds = Object.keys(races);
             if (raceIds.length > 0) {
-                // Cargar la primera carrera disponible
                 loadRace(raceIds[0]);
                 raceSelector.value = raceIds[0];
             } else {
-                // No hay más carreras
-                loadRace(null); // Esto reseteará todo
+                loadRace(null);
                 raceSelector.value = '';
             }
             
             closeDeleteRaceModal();
         }
 
-        // Función para forzar actualización
-        function forceUpdate() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.ready.then(registration => {
-                    // Enviar mensaje al SW para saltar la espera
-                    if (registration.waiting) {
-                        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-                        
-                        // Recargar la página después de la actualización
-                        registration.waiting.addEventListener('statechange', function() {
-                            if (registration.waiting.state === 'activated') {
-                                window.location.reload();
-                            }
-                        });
+        function openHelpFile() {
+            window.open('https://rbenet71.github.io/Web/Crono_Llegadas_Ayuda.html', '_blank');
+        }
+
+        function toggleMilliseconds() {
+            showMilliseconds = millisecondsToggle.checked;
+            localStorage.setItem('llegadasShowMilliseconds', showMilliseconds);
+            updateDisplay();
+            renderLaps();
+            renderDorsalList();
+            updateTimeLimitDisplay();
+            saveCurrentRace();
+        }
+
+        // ==============================================
+        // SISTEMA DE SUGERENCIAS
+        // ==============================================
+
+        class SuggestionsSystem {
+            constructor() {
+                this.modal = document.getElementById('suggestionsModal');
+                this.submitBtn = document.getElementById('submitBtn-suggestions');
+                this.loading = document.getElementById('loading-suggestions');
+                this.message = document.getElementById('message');
+                this.emailInput = document.getElementById('email-suggestions');
+                this.cityInput = document.getElementById('city-suggestions');
+                this.suggestionInput = document.getElementById('suggestion-text');
+                this.currentLanguage = 'es';
+                
+                this.FORM_ENDPOINT = "https://docs.google.com/forms/d/e/1FAIpQLSeLeD6lAmBweVOubmEqydUONe6mutpQLlFSU_zKfHEhjhZVLg/formResponse";
+                this.FIELD_IDS = {
+                    email: "entry.1597282778",
+                    ciudad: "entry.1552097675",
+                    sugerencia: "entry.48109616",
+                    programa: "entry.1706983066",
+                    fecha: "entry.1734009197",
+                    hora: "entry.686693357"
+                };
+                
+                this.initialize();
+            }
+            
+            initialize() {
+                this.attachEventListeners();
+            }
+            
+            attachEventListeners() {
+                document.getElementById('btn-suggestions').addEventListener('click', () => {
+                    this.showModal();
+                });
+                
+                this.submitBtn.addEventListener('click', () => {
+                    this.submitForm();
+                });
+                
+                window.addEventListener('click', (e) => {
+                    if (e.target === this.modal) {
+                        this.hideModal();
+                    }
+                });
+                
+                this.suggestionInput.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 'Enter') {
+                        this.submitForm();
+                    }
+                });
+                
+                this.cityInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.suggestionInput.focus();
+                    }
+                });
+                
+                this.emailInput.addEventListener('blur', () => {
+                    if (this.emailInput.value && !this.isValidEmail(this.emailInput.value)) {
+                        this.emailInput.style.borderColor = '#f44336';
+                    } else {
+                        this.emailInput.style.borderColor = '#e0e0e0';
+                    }
+                });
+                
+                this.cityInput.addEventListener('blur', () => {
+                    if (this.cityInput.value.trim()) {
+                        this.cityInput.value = this.formatCity(this.cityInput.value);
                     }
                 });
             }
-        }
-
-        // Verificar actualizaciones periódicamente
-        function setupAutoUpdate() {
-            // Verificar actualizaciones cada 30 minutos
-            setInterval(checkForUpdates, 30 * 60 * 1000);
             
-            // También verificar cuando la app gana el foco
-            document.addEventListener('visibilitychange', function() {
-                if (!document.hidden) {
-                    checkForUpdates();
-                }
-            });
-            
-            // Escuchar cambios en el Service Worker
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.addEventListener('controllerchange', function() {
-                    console.log('Service Worker actualizado, recargando página...');
-                    window.location.reload();
-                });
+            showModal() {
+                this.modal.style.display = 'flex';
+                this.updateTexts();
+                this.emailInput.value = '';
+                this.cityInput.value = '';
+                this.suggestionInput.value = '';
             }
-        }
-
-        // Inicialización
-        document.addEventListener('DOMContentLoaded', function() {
-            // Configurar actualización automática
-            setupAutoUpdate();
             
-            // Verificar actualización inmediatamente después de cargar
-            setTimeout(checkForUpdates, 5000);
-            
-            // Registrar el Service Worker con mejor control de actualizaciones
-            registerServiceWorker();
-        });
-
-        // Función mejorada para registrar el Service Worker
-        function registerServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('https://rbenet71.github.io/Web/unified-sw.js')
-                    .then(function(registration) {
-                        console.log('ServiceWorker registrado con éxito: ', registration.scope);
-                        
-                        // Escuchar actualizaciones del Service Worker
-                        registration.addEventListener('updatefound', function() {
-                            const newWorker = registration.installing;
-                            console.log('Nueva versión del Service Worker encontrada:', newWorker);
-                            
-                            newWorker.addEventListener('statechange', function() {
-                                if (newWorker.state === 'installed') {
-                                    if (navigator.serviceWorker.controller) {
-                                        // Nueva versión disponible
-                                        console.log('Nueva versión disponible, actualizando...');
-                                        showUpdateNotification();
-                                    }
-                                }
-                            });
-                        });
-                    })
-                    .catch(function(error) {
-                        console.log('Error al registrar ServiceWorker: ', error);
-                    });
-
-                // Escuchar cambios de controlador
-                navigator.serviceWorker.addEventListener('controllerchange', function() {
-                    console.log('Controlador del Service Worker cambiado - recargando');
-                    window.location.reload();
-                });
+            hideModal() {
+                this.modal.style.display = 'none';
             }
-        }
-
-        // Mostrar notificación de actualización
-        function showUpdateNotification() {
-            // Crear una notificación sutil en la interfaz
-            const updateNotification = document.createElement('div');
-            updateNotification.style.cssText = `
-                position: fixed;
-                top: 10px;
-                right: 10px;
-                background: #2ecc71;
-                color: white;
-                padding: 10px 15px;
-                border-radius: 5px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-                z-index: 10000;
-                cursor: pointer;
-                font-size: 14px;
-            `;
-            updateNotification.textContent = 'Nueva versión disponible. Click para actualizar.';
-            updateNotification.addEventListener('click', function() {
-                forceUpdate();
-                this.remove();
-            });
             
-            document.body.appendChild(updateNotification);
+            updateTexts() {
+                const lang = this.currentLanguage;
+                document.getElementById('suggestions-title').textContent = translations[lang].suggestionsTitle;
+                document.getElementById('suggestions-subtitle').textContent = translations[lang].suggestionsSubtitle;
+                document.getElementById('email-label').innerHTML = translations[lang].emailLabel + '<span class="required"></span>';
+                document.getElementById('city-label').innerHTML = translations[lang].cityLabel + '<span class="required"></span>';
+                document.getElementById('suggestion-label').textContent = translations[lang].suggestionLabel;
+                document.getElementById('program-label').textContent = translations[lang].programLabel;
+                this.submitBtn.textContent = translations[lang].submitButton;
+                document.getElementById('loading-text').textContent = translations[lang].sendingText;
+                document.getElementById('city-examples').textContent = translations[lang].cityExamples;
+                
+                this.emailInput.placeholder = "tu@email.com";
+                this.cityInput.placeholder = lang === 'en' ? "Ex: Madrid" : lang === 'ca' ? "Ex: Madrid" : lang === 'fr' ? "Ex: Madrid" : "Ej: Madrid";
+                this.suggestionInput.placeholder = lang === 'en' ? "Your ideas to improve the app..." : 
+                                                  lang === 'ca' ? "Les teves idees per millorar l'app..." : 
+                                                  lang === 'fr' ? "Vos idées pour améliorer l'application..." :
+                                                  "Tus ideas para mejorar la app...";
+            }
             
-            // Auto-eliminar después de 10 segundos
-            setTimeout(() => {
-                if (updateNotification.parentNode) {
-                    updateNotification.remove();
+            getCurrentDate() {
+                const now = new Date();
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const year = now.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+            
+            getCurrentTime() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                return `${hours}:${minutes}:${seconds}`;
+            }
+            
+            showMessage(text, type = 'success') {
+                this.message.textContent = text;
+                this.message.className = `message ${type}`;
+                this.message.style.display = 'block';
+                
+                setTimeout(() => {
+                    this.message.style.display = 'none';
+                }, 4000);
+            }
+            
+            isValidEmail(email) {
+                if (!email) return false;
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
+            
+            isValidCity(city) {
+                if (!city) return false;
+                city = city.trim();
+                return city.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑàâäçèéêëîïôöùûüÿæœ\s\-]+$/.test(city);
+            }
+            
+            formatCity(city) {
+                if (!city) return '';
+                return city.trim().replace(/\b\w/g, char => char.toUpperCase());
+            }
+            
+            async submitForm() {
+                const email = this.emailInput.value.trim();
+                let city = this.cityInput.value.trim();
+                const suggestion = this.suggestionInput.value.trim();
+                
+                const fecha = this.getCurrentDate();
+                const hora = this.getCurrentTime();
+                
+                if (!email) {
+                    this.showMessage(translations[this.currentLanguage].enterEmail, 'error');
+                    this.emailInput.focus();
+                    return;
                 }
-            }, 10000);
-        }
-        
-        // Función para verificar actualizaciones
-        function checkForUpdates() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.ready.then(registration => {
-                    registration.update().then(() => {
-                        console.log('Verificación de actualización completada');
-                    }).catch(error => {
-                        console.log('Error al verificar actualización:', error);
+                
+                if (!this.isValidEmail(email)) {
+                    this.showMessage(translations[this.currentLanguage].invalidEmail, 'error');
+                    this.emailInput.focus();
+                    return;
+                }
+                
+                if (!city) {
+                    this.showMessage(translations[this.currentLanguage].enterCity, 'error');
+                    this.cityInput.focus();
+                    return;
+                }
+                
+                if (!this.isValidCity(city)) {
+                    this.showMessage(translations[this.currentLanguage].invalidCity, 'error');
+                    this.cityInput.focus();
+                    return;
+                }
+                
+                city = this.formatCity(city);
+                
+                this.submitBtn.disabled = true;
+                this.loading.style.display = 'block';
+                
+                try {
+                    const formData = new FormData();
+                    
+                    formData.append(this.FIELD_IDS.email, email);
+                    formData.append(this.FIELD_IDS.ciudad, city);
+                    formData.append(this.FIELD_IDS.sugerencia, suggestion || "(sin sugerencia)");
+                    formData.append(this.FIELD_IDS.programa, "Cronómetro para Llegadas");
+                    formData.append(this.FIELD_IDS.fecha, fecha);
+                    formData.append(this.FIELD_IDS.hora, hora);
+                    
+                    await fetch(this.FORM_ENDPOINT, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: formData
                     });
-                });
+                    
+                    this.showMessage(translations[this.currentLanguage].successMessage, 'success');
+                    
+                    this.emailInput.value = '';
+                    this.cityInput.value = '';
+                    this.suggestionInput.value = '';
+                    
+                    setTimeout(() => {
+                        this.hideModal();
+                    }, 1500);
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.showMessage(translations[this.currentLanguage].errorMessage, 'error');
+                } finally {
+                    this.submitBtn.disabled = false;
+                    this.loading.style.display = 'none';
+                }
+            }
+            
+            updateLanguage(lang) {
+                this.currentLanguage = lang;
+                this.updateTexts();
             }
         }
     </script>
