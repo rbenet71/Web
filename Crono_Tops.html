@@ -177,7 +177,6 @@
             color: var(--light);
         }
 
-        /* Resto del CSS permanece igual... */
         /* Crono Controls */
         .crono-controls {
             background-color: white;
@@ -1015,6 +1014,22 @@
                 gap: 15px;
             }
             
+            .footer-left {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .footer-left button {
+                width: 100%;
+                justify-content: center;
+                margin-bottom: 10px;
+            }
+            
+            .footer-right {
+                justify-content: center;
+                width: 100%;
+            }
+            
             .crono-btn {
                 padding: 15px 30px;
                 font-size: 20px;
@@ -1041,6 +1056,11 @@
         }
 
         @media (max-width: 480px) {
+            .footer-left button {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+            
             .top-time-row {
                 flex-direction: column;
                 align-items: flex-start;
@@ -1120,10 +1140,6 @@
             </div>
         </div>
 
-        <!-- Crono Content -->
-        <div class="crono-content" id="crono-content">
-            <!-- Crono panels will be added here dynamically -->
-        </div>
     </div>
 
     <!-- Footer -->
@@ -1131,21 +1147,21 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-left">
-                    <button class="update-btn" id="update-btn">
-                        <i class="fas fa-sync-alt"></i>
-                        <span id="update-text">Buscar actualizaciones</span>
-                    </button>
-                    <button class="install-btn" id="install-btn">
-                        <i class="fas fa-download"></i>
-                        <span id="install-text">Instalar App</span>
+                    <button class="help-btn" id="footer-help-btn">
+                        <i class="fas fa-question-circle"></i>
+                        <span id="help-text">Ayuda</span>
                     </button>
                     <button class="suggestions-btn" id="suggestions-btn">
                         <i class="fas fa-lightbulb"></i>
                         <span id="suggestions-text">Actualizaciones/Sugerencias</span>
                     </button>
-                    <button class="help-btn" id="footer-help-btn">
-                        <i class="fas fa-question-circle"></i>
-                        <span id="help-text">Ayuda</span>
+                    <button class="install-btn" id="install-btn">
+                        <i class="fas fa-download"></i>
+                        <span id="install-text">Instalar App</span>
+                    </button>
+                    <button class="update-btn" id="update-btn">
+                        <i class="fas fa-sync-alt"></i>
+                        <span id="update-text">Buscar actualizaciones</span>
                     </button>
                 </div>
                 <div class="footer-right">
@@ -1322,7 +1338,7 @@
                 actions: "Acciones",
                 delete: "Eliminar",
                 updateText: "Buscar actualizaciones",
-                installText: "Instalar App", // Nuevo
+                installText: "Instalar App",
                 suggestionsText: "Actualizaciones/Sugerencias",
                 helpText: "Ayuda",
                 languagesLabel: "Idioma / Language",
@@ -1347,7 +1363,6 @@
                 updateModalText: "Hay una nueva versión de Crono Tops disponible. ¿Quieres actualizar ahora?",
                 updateNow: "Actualizar ahora",
                 updateLater: "Más tarde",
-                // Textos para instalación (copiados de Calculadora)
                 installTitle: "Instalar App",
                 installSubtitle: "Añade un acceso directo a tu dispositivo",
                 installAction: "Instalar",
@@ -1376,7 +1391,6 @@
                     <li>Toca el botón "Instalar"</li>
                     <li>Sigue las instrucciones de tu navegador</li>
                 </ol>`,
-                // Textos para sugerencias
                 suggestionsTitle: "Crono Tops",
                 suggestionsSubtitle: "Envía tus comentarios",
                 emailLabel: "Facilítanos tu email para mantenerte informado de las actualizaciones",
@@ -1441,7 +1455,6 @@
                 updateModalText: "Hi ha una nova versió de Crono Tops disponible. Vols actualitzar ara?",
                 updateNow: "Actualitzar ara",
                 updateLater: "Més tard",
-                // Textos para instalación
                 installTitle: "Instal·lar App",
                 installSubtitle: "Afegeix un accés directe al teu dispositiu",
                 installAction: "Instal·lar",
@@ -1534,7 +1547,6 @@
                 updateModalText: "There is a new version of Crono Tops available. Do you want to update now?",
                 updateNow: "Update now",
                 updateLater: "Later",
-                // Textos para instalación
                 installTitle: "Install App",
                 installSubtitle: "Add a shortcut to your device",
                 installAction: "Install",
@@ -1627,7 +1639,6 @@
                 updateModalText: "Une nouvelle version de Crono Tops est disponible. Voulez-vous mettre à jour maintenant?",
                 updateNow: "Mettre à jour maintenant",
                 updateLater: "Plus tard",
-                // Textos para instalación
                 installTitle: "Installer l'App",
                 installSubtitle: "Ajoutez un raccourci à votre appareil",
                 installAction: "Installer",
@@ -1677,7 +1688,7 @@
             }
         };
 
-        // DOM Elements actualizados
+        // DOM Elements
         const domElements = {
             appTitleText: document.getElementById('app-title-text'),
             languagesLabel: document.getElementById('languages-label'),
@@ -1729,11 +1740,7 @@
             instructionsList: document.getElementById('instructionsList')
         };
 
-        // Resto del código JavaScript permanece igual...
-        // [El resto del código JavaScript permanece exactamente igual que en la versión anterior]
-        // Solo se ha cambiado la cabecera HTML para usar la imagen en lugar del icono de FontAwesome
-        
-        // Sistema de instalación de app (copiado de Calculadora)
+        // Sistema de instalación de app
         class AppInstaller {
             constructor() {
                 this.installModal = domElements.installModal;
@@ -1800,7 +1807,6 @@
                 this.instructionsTitle.textContent = t.androidInstructionsTitle;
                 this.instructionsList.innerHTML = t.androidInstructions;
                 
-                // Escuchar evento de instalación PWA
                 window.addEventListener('beforeinstallprompt', (e) => {
                     e.preventDefault();
                     this.deferredPrompt = e;
@@ -1822,12 +1828,10 @@
             }
             
             attachEventListeners() {
-                // Botón para abrir modal de instalación
                 domElements.installBtn.addEventListener('click', () => {
                     this.showInstallModal();
                 });
                 
-                // Botones del modal
                 this.installActionBtn.addEventListener('click', () => {
                     this.handleInstall();
                 });
@@ -1836,7 +1840,6 @@
                     this.hideInstallModal();
                 });
                 
-                // Cerrar modal al hacer clic fuera
                 window.addEventListener('click', (e) => {
                     if (e.target === this.installModal) {
                         this.hideInstallModal();
@@ -1845,7 +1848,7 @@
             }
             
             showInstallModal() {
-                this.setupForPlatform(); // Actualizar instrucciones según plataforma
+                this.setupForPlatform();
                 this.installModal.style.display = 'flex';
                 const t = translations[appState.currentLanguage];
                 this.showMessage(t.installSubtitle, true);
@@ -1941,7 +1944,6 @@
             }
             
             installWindows(t) {
-                // Crear y descargar archivo .url para acceso directo
                 const urlContent = `[InternetShortcut]
 URL=${window.location.href}
 IconIndex=0
@@ -1988,13 +1990,10 @@ IDList=`;
             setupServiceWorker();
             checkForUpdates();
             
-            // Inicializar instalador de app
             window.appInstaller = new AppInstaller();
             
-            // Start updating crono times
             setInterval(updateAllCronoTimes, 100);
             
-            // Mostrar mensaje informativo
             setTimeout(() => {
                 const message = appState.currentLanguage === 'fr' ? 'Partagez vos idées pour améliorer la calculatrice' :
                               appState.currentLanguage === 'en' ? 'Share your ideas to improve the calculator' :
@@ -2017,7 +2016,6 @@ IDList=`;
             const lang = appState.currentLanguage;
             const t = translations[lang];
             
-            // Update UI text
             domElements.appTitleText.textContent = t.appTitle;
             domElements.languagesLabel.textContent = t.languagesLabel;
             domElements.newCronoText.textContent = t.newCrono;
@@ -2036,10 +2034,8 @@ IDList=`;
             domElements.updateModalTitle.textContent = t.updateModalTitle;
             domElements.updateModalText.textContent = t.updateModalText;
             
-            // Update copyright text
             domElements.copyrightText.innerHTML = `2025 © Copyright <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">Roberto Benet - rbenet71@gmail.com - V_04_12_2025</a>`;
             
-            // Update help modal list
             domElements.helpModalList.innerHTML = '';
             t.helpModalList.forEach(item => {
                 const li = document.createElement('li');
@@ -2048,14 +2044,12 @@ IDList=`;
                 domElements.helpModalList.appendChild(li);
             });
             
-            // Update buttons
             domElements.deleteConfirmBtn.textContent = t.deleteConfirm;
             domElements.deleteCancelBtn.textContent = t.cancel;
             domElements.helpModalOk.textContent = t.understood;
             domElements.updateNowBtn.textContent = t.updateNow;
             domElements.updateLaterBtn.textContent = t.updateLater;
             
-            // Update flags
             document.querySelectorAll('.flag').forEach(flag => {
                 flag.classList.remove('active');
             });
@@ -2064,15 +2058,12 @@ IDList=`;
                 flagElement.classList.add('active');
             }
             
-            // Update existing crono panels
             renderCronos();
             
-            // Update suggestions modal if it exists
             if (window.suggestionsSystem) {
                 window.suggestionsSystem.updateLanguage(lang);
             }
             
-            // Update app installer
             if (window.appInstaller) {
                 window.appInstaller.setupForPlatform();
             }
@@ -2083,10 +2074,6 @@ IDList=`;
             window.open('https://rbenet71.github.io/Web/Crono_Tops_Ayuda.html', '_blank');
         }
 
-        // Resto del código JavaScript...
-        // [Aquí iría el resto del código JavaScript que ya tenías en la versión anterior]
-        // Solo se ha modificado la cabecera HTML, el resto del JavaScript permanece igual
-        
         // Crono functions - último crono primero
         function createNewCrono() {
             const cronoId = appState.nextCronoId++;
@@ -2104,9 +2091,8 @@ IDList=`;
                 hasStarted: false
             };
             
-            // INSERTAR AL PRINCIPIO (último crono primero)
             appState.cronos.unshift(newCrono);
-            appState.activeCronoIndex = 0; // Siempre activar el nuevo crono (que está al principio)
+            appState.activeCronoIndex = 0;
             
             saveCronosToStorage();
             renderCronos();
@@ -2118,7 +2104,6 @@ IDList=`;
             if (appState.cronos.length === 0) {
                 appState.activeCronoIndex = -1;
             } else {
-                // Después de eliminar, mantener el primer crono activo
                 appState.activeCronoIndex = 0;
             }
             
@@ -2126,15 +2111,12 @@ IDList=`;
             renderCronos();
         }
 
-        // Botón único Inicio/Top
         function handleCronoButton(index) {
             const crono = appState.cronos[index];
             
             if (!crono.hasStarted) {
-                // Primer clic: Iniciar crono
                 startCrono(index);
             } else {
-                // Siguientes clics: Registrar top
                 recordTop(index);
             }
         }
@@ -2148,7 +2130,6 @@ IDList=`;
                 crono.startTime = Date.now() - crono.elapsedTime;
                 crono.lastUpdateTime = Date.now();
                 
-                // Obtener ubicación GPS
                 getCurrentLocation().then(location => {
                     crono.location = location;
                     saveCronosToStorage();
@@ -2206,7 +2187,6 @@ IDList=`;
             const previousTop = crono.tops.length > 0 ? crono.tops[crono.tops.length - 1] : null;
             const diff = previousTop ? elapsedTime - previousTop.time : 0;
             
-            // Obtener ubicación actual para este top
             getCurrentLocation().then(location => {
                 const newTop = {
                     id: Date.now(),
@@ -2216,7 +2196,6 @@ IDList=`;
                     location: location
                 };
                 
-                // Añadir al principio para mostrar el último primero
                 crono.tops.unshift(newTop);
                 
                 saveCronosToStorage();
@@ -2231,7 +2210,6 @@ IDList=`;
                     location: { error: true }
                 };
                 
-                // Añadir al principio para mostrar el último primero
                 crono.tops.unshift(newTop);
                 
                 saveCronosToStorage();
@@ -2253,7 +2231,6 @@ IDList=`;
                 crono.elapsedTime = now - crono.startTime;
                 crono.lastUpdateTime = now;
                 
-                // Actualizar el display del tiempo en la UI
                 if (index === appState.activeCronoIndex) {
                     const timeDisplay = document.querySelector(`#crono-panel-${crono.id} .time-display`);
                     if (timeDisplay) {
@@ -2288,10 +2265,8 @@ IDList=`;
             
             noCronosMessage.style.display = 'none';
             
-            // Clear existing tabs
             cronoTabs.innerHTML = '';
             
-            // Create tabs for each crono (orden inverso para mostrar primero el último)
             appState.cronos.forEach((crono, index) => {
                 const tab = document.createElement('button');
                 tab.className = `crono-tab ${index === appState.activeCronoIndex ? 'active' : ''}`;
@@ -2314,14 +2289,12 @@ IDList=`;
             const cronoContent = domElements.cronoContent;
             
             if (appState.cronos.length === 0) {
-                cronoContent.innerHTML = '<div class="empty-state"><i class="fas fa-stopwatch"></i><h3>Crea tu primer cronómetro</h3><p>Usa el botón "Nuevo Crono" para comenzar</p></div>';
+                cronoContent.innerHTML = '<div class="empty-state"><i class="fas fa-stopwatch"></i></div>';
                 return;
             }
             
-            // Clear content
             cronoContent.innerHTML = '';
             
-            // Create panel for each crono (mostrar primero el último/activo)
             appState.cronos.forEach((crono, index) => {
                 const panel = document.createElement('div');
                 panel.className = `crono-panel ${index === appState.activeCronoIndex ? 'active' : ''}`;
@@ -2329,11 +2302,9 @@ IDList=`;
                 
                 const t = translations[appState.currentLanguage];
                 
-                // Determinar texto del botón único
                 const buttonText = crono.hasStarted ? t.topBtn : t.startBtn;
                 const buttonIcon = crono.hasStarted ? 'fa-flag-checkered' : 'fa-play';
                 
-                // Panel HTML
                 panel.innerHTML = `
                     <div class="crono-name">
                         <label>${t.cronoNameLabel}</label>
@@ -2370,21 +2341,18 @@ IDList=`;
                 
                 cronoContent.appendChild(panel);
                 
-                // Add event listeners for this panel
                 const nameInput = panel.querySelector('.crono-name input');
                 nameInput.addEventListener('change', (e) => {
                     crono.name = e.target.value;
                     saveCronosToStorage();
                 });
                 
-                // Botón único Inicio/Top
                 const cronoBtn = panel.querySelector(`#crono-btn-${crono.id}`);
                 cronoBtn.addEventListener('click', () => {
                     handleCronoButton(index);
                 });
             });
             
-            // Add event listeners for top items
             setTimeout(() => {
                 document.querySelectorAll('.delete-top').forEach(btn => {
                     btn.addEventListener('click', function() {
@@ -2416,18 +2384,14 @@ IDList=`;
             let html = '';
             
             crono.tops.forEach((top, index) => {
-                // Calcular diferencia con el top anterior (más antiguo)
                 let diffDisplay = '';
                 if (index < crono.tops.length - 1) {
-                    // Compare with the next top (which is older since we're showing newest first)
                     const diff = top.time - crono.tops[index + 1].time;
                     diffDisplay = `+${formatTime(diff)}`;
                 } else {
-                    // This is the oldest top (first one recorded)
                     diffDisplay = '--:--.--';
                 }
                 
-                // Renderizar ubicación del top
                 const locationHtml = renderTopLocation(top, t);
                 
                 html += `
@@ -2541,23 +2505,19 @@ IDList=`;
             if (savedCronos) {
                 appState.cronos = JSON.parse(savedCronos);
                 
-                // Restart any running cronos
                 const now = Date.now();
                 appState.cronos.forEach(crono => {
                     if (crono.isRunning && crono.startTime) {
-                        // Calculate elapsed time since last update
                         const elapsedSinceLastUpdate = now - crono.lastUpdateTime;
                         crono.elapsedTime += elapsedSinceLastUpdate;
                         crono.lastUpdateTime = now;
                     }
                     
-                    // Asegurarse que el campo hasStarted existe
                     if (crono.hasStarted === undefined) {
                         crono.hasStarted = crono.isRunning || crono.tops.length > 0;
                     }
                 });
                 
-                // Ordenar para que el último creado sea el primero
                 appState.cronos.sort((a, b) => b.id - a.id);
             }
             
@@ -2566,20 +2526,18 @@ IDList=`;
             }
             
             if (appState.cronos.length > 0) {
-                appState.activeCronoIndex = 0; // Primer crono (último creado)
+                appState.activeCronoIndex = 0;
             }
         }
 
         // PWA and update functions
         function setupServiceWorker() {
             if ('serviceWorker' in navigator) {
-                // Solo registrar para Crono_Tops
                 if (window.location.href.includes('Crono_Tops')) {
                     navigator.serviceWorker.register('/Web/unified-sw.js')
                     .then(function(registration) {
                         console.log('ServiceWorker Crono Tops registrado: ', registration.scope);
                         
-                        // Escuchar mensajes del Service Worker
                         navigator.serviceWorker.addEventListener('message', event => {
                           if (event.data && event.data.type === 'SW_UPDATED') {
                             console.log('Service Worker actualizado a versión:', event.data.version);
@@ -2587,10 +2545,9 @@ IDList=`;
                           }
                         });
                         
-                        // Check for updates periodically
                         setInterval(() => {
                             registration.update();
-                        }, 60 * 60 * 1000); // Check every hour
+                        }, 60 * 60 * 1000);
                         
                     }).catch(function(error) {
                         console.log('Error al registrar ServiceWorker Crono Tops: ', error);
@@ -2600,15 +2557,12 @@ IDList=`;
         }
 
         function checkForUpdates() {
-            // Simulate checking for updates
             const lastUpdateCheck = localStorage.getItem('crono-tops-last-update-check');
             const now = Date.now();
             
-            // Check once per day
             if (!lastUpdateCheck || now - parseInt(lastUpdateCheck) > 24 * 60 * 60 * 1000) {
                 localStorage.setItem('crono-tops-last-update-check', now.toString());
                 
-                // Randomly show update available (for demo purposes)
                 if (Math.random() < 0.3) {
                     appState.updateAvailable = true;
                     domElements.updateModalVersion.textContent = `Versión disponible: 1.${Math.floor(Math.random() * 5) + 1}.0`;
@@ -2621,13 +2575,10 @@ IDList=`;
             const message = t.updateModalText;
             
             if (confirm(message)) {
-                // Forzar la actualización
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.ready.then(registration => {
-                        // Enviar mensaje al SW para que se active
                         registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
                         
-                        // Recargar la página después de un breve delay
                         setTimeout(() => {
                             window.location.reload();
                         }, 500);
@@ -2640,7 +2591,6 @@ IDList=`;
 
         // Event Listeners setup
         function setupEventListeners() {
-            // Language selector - flags
             document.querySelectorAll('.flag').forEach(flag => {
                 flag.addEventListener('click', function() {
                     const lang = this.getAttribute('data-lang');
@@ -2650,14 +2600,10 @@ IDList=`;
                 });
             });
             
-            // Help buttons
             domElements.helpIconHeader.addEventListener('click', openHelpFile);
             
-            domElements.footerHelpBtn.addEventListener('click', () => {
-                domElements.helpModal.classList.add('active');
-            });
+            domElements.footerHelpBtn.addEventListener('click', openHelpFile);
             
-            // Close help modal
             domElements.helpModalClose.addEventListener('click', () => {
                 domElements.helpModal.classList.remove('active');
             });
@@ -2666,7 +2612,6 @@ IDList=`;
                 domElements.helpModal.classList.remove('active');
             });
             
-            // Close modal when clicking outside
             document.addEventListener('click', (e) => {
                 if (e.target === domElements.helpModal) {
                     domElements.helpModal.classList.remove('active');
@@ -2685,12 +2630,10 @@ IDList=`;
                 }
             });
             
-            // Add crono button
             domElements.addCronoBtn.addEventListener('click', () => {
                 createNewCrono();
             });
             
-            // Delete confirmation
             domElements.deleteConfirmBtn.addEventListener('click', () => {
                 deleteCrono(appState.activeCronoIndex);
                 domElements.deleteModal.classList.remove('active');
@@ -2704,7 +2647,6 @@ IDList=`;
                 domElements.deleteModal.classList.remove('active');
             });
             
-            // Update button
             domElements.updateBtn.addEventListener('click', () => {
                 if (appState.updateAvailable) {
                     domElements.updateModal.classList.add('active');
@@ -2713,9 +2655,7 @@ IDList=`;
                 }
             });
             
-            // Update modal buttons
             domElements.updateNowBtn.addEventListener('click', () => {
-                // In a real app, this would trigger the update
                 showMessage("La aplicación se actualizará en segundo plano. Se reiniciará cuando esté listo.", "info");
                 appState.updateAvailable = false;
                 domElements.updateModal.classList.remove('active');
@@ -2729,24 +2669,20 @@ IDList=`;
                 domElements.updateModal.classList.remove('active');
             });
             
-            // Suggestions button
             domElements.suggestionsBtn.addEventListener('click', () => {
                 document.getElementById('suggestions-modal').classList.add('active');
             });
             
-            // Tab close buttons (delegated event listener)
             domElements.cronoTabs.addEventListener('click', (e) => {
                 if (e.target.classList.contains('tab-close') || e.target.parentElement.classList.contains('tab-close')) {
                     const closeBtn = e.target.classList.contains('tab-close') ? e.target : e.target.parentElement;
                     const index = parseInt(closeBtn.getAttribute('data-index'));
                     
-                    // Set as active then delete
                     setActiveCrono(index);
                     domElements.deleteModal.classList.add('active');
                 }
             });
             
-            // Initialize suggestions system
             window.suggestionsSystem = new SuggestionsSystem();
         }
 
