@@ -1140,6 +1140,11 @@
             </div>
         </div>
 
+        <!-- Contenedor para el contenido de los cronómetros -->
+        <div id="crono-content" class="crono-content">
+            <!-- El contenido de los cronómetros se renderizará aquí -->
+        </div>
+
     </div>
 
     <!-- Footer -->
@@ -1168,7 +1173,7 @@
                     <div class="copyright" id="copyright-text">
                         2025 © Copyright 
                         <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                            Roberto Benet - rbenet71@gmail.com - V_08_12_2025
+                            Roberto Benet - rbenet71@gmail.com
                         </a>
                     </div>
                 </div>
@@ -1652,19 +1657,19 @@
                 </ol>`,
                 androidInstructionsTitle: "Installer sur Android",
                 androidInstructions: `<ol style="padding-left: 15px;">
-                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Appuyez sur le botón "Installer"</li>
                     <li>Il s'installera automatiquement en tant qu'application PWA</li>
                     <li>L'application apparaîtra sur votre écran d'accueil</li>
                 </ol>`,
                 windowsInstructionsTitle: "Créer un Raccourci sur Windows",
                 windowsInstructions: `<ol style="padding-left: 15px;">
-                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Appuyez sur le botón "Installer"</li>
                     <li>Un fichier .url sera téléchargé</li>
                     <li>Ouvrez-le pour créer le raccourci sur votre bureau</li>
                 </ol>`,
                 otherInstructionsTitle: "Installer l'App",
                 otherInstructions: `<ol style="padding-left: 15px;">
-                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Appuyez sur le botón "Installer"</li>
                     <li>Suivez les instructions de votre navigateur</li>
                 </ol>`,
                 suggestionsTitle: "Crono Tops",
@@ -2034,7 +2039,7 @@ IDList=`;
             domElements.updateModalTitle.textContent = t.updateModalTitle;
             domElements.updateModalText.textContent = t.updateModalText;
             
-            domElements.copyrightText.innerHTML = `2025 © Copyright <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">Roberto Benet - rbenet71@gmail.com - V_04_12_2025</a>`;
+            domElements.copyrightText.innerHTML = `2025 © Copyright <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">Roberto Benet - rbenet71@gmail.com - V_08_12_2025</a>`;
             
             domElements.helpModalList.innerHTML = '';
             t.helpModalList.forEach(item => {
@@ -2288,6 +2293,11 @@ IDList=`;
         function renderCronoContent() {
             const cronoContent = domElements.cronoContent;
             
+            if (!cronoContent) {
+                console.error('Elemento crono-content no encontrado');
+                return;
+            }
+            
             if (appState.cronos.length === 0) {
                 cronoContent.innerHTML = '<div class="empty-state"><i class="fas fa-stopwatch"></i></div>';
                 return;
@@ -2348,9 +2358,11 @@ IDList=`;
                 });
                 
                 const cronoBtn = panel.querySelector(`#crono-btn-${crono.id}`);
-                cronoBtn.addEventListener('click', () => {
-                    handleCronoButton(index);
-                });
+                if (cronoBtn) {
+                    cronoBtn.addEventListener('click', () => {
+                        handleCronoButton(index);
+                    });
+                }
             });
             
             setTimeout(() => {
@@ -2591,6 +2603,7 @@ IDList=`;
 
         // Event Listeners setup
         function setupEventListeners() {
+            // Selector de idiomas
             document.querySelectorAll('.flag').forEach(flag => {
                 flag.addEventListener('click', function() {
                     const lang = this.getAttribute('data-lang');
@@ -2600,10 +2613,11 @@ IDList=`;
                 });
             });
             
+            // Botón de ayuda
             domElements.helpIconHeader.addEventListener('click', openHelpFile);
-            
             domElements.footerHelpBtn.addEventListener('click', openHelpFile);
             
+            // Modal de ayuda
             domElements.helpModalClose.addEventListener('click', () => {
                 domElements.helpModal.classList.remove('active');
             });
@@ -2612,6 +2626,7 @@ IDList=`;
                 domElements.helpModal.classList.remove('active');
             });
             
+            // Cerrar modales al hacer clic fuera
             document.addEventListener('click', (e) => {
                 if (e.target === domElements.helpModal) {
                     domElements.helpModal.classList.remove('active');
@@ -2630,12 +2645,16 @@ IDList=`;
                 }
             });
             
+            // Botón nuevo crono
             domElements.addCronoBtn.addEventListener('click', () => {
                 createNewCrono();
             });
             
+            // Botones de eliminar crono
             domElements.deleteConfirmBtn.addEventListener('click', () => {
-                deleteCrono(appState.activeCronoIndex);
+                if (appState.activeCronoIndex !== -1) {
+                    deleteCrono(appState.activeCronoIndex);
+                }
                 domElements.deleteModal.classList.remove('active');
             });
             
@@ -2647,6 +2666,7 @@ IDList=`;
                 domElements.deleteModal.classList.remove('active');
             });
             
+            // Botón de actualizaciones
             domElements.updateBtn.addEventListener('click', () => {
                 if (appState.updateAvailable) {
                     domElements.updateModal.classList.add('active');
@@ -2669,20 +2689,32 @@ IDList=`;
                 domElements.updateModal.classList.remove('active');
             });
             
+            // Botón de sugerencias
             domElements.suggestionsBtn.addEventListener('click', () => {
                 document.getElementById('suggestions-modal').classList.add('active');
             });
             
-            domElements.cronoTabs.addEventListener('click', (e) => {
-                if (e.target.classList.contains('tab-close') || e.target.parentElement.classList.contains('tab-close')) {
-                    const closeBtn = e.target.classList.contains('tab-close') ? e.target : e.target.parentElement;
+            // Delegación de eventos para botones de cierre de tabs
+            document.addEventListener('click', (e) => {
+                // Manejar cierre de tabs
+                if (e.target.classList.contains('tab-close')) {
+                    e.stopPropagation();
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    appState.activeCronoIndex = index;
+                    domElements.deleteModal.classList.add('active');
+                }
+                
+                // O si el botón de cierre está dentro de un span
+                if (e.target.parentElement && e.target.parentElement.classList.contains('tab-close')) {
+                    e.stopPropagation();
+                    const closeBtn = e.target.parentElement;
                     const index = parseInt(closeBtn.getAttribute('data-index'));
-                    
-                    setActiveCrono(index);
+                    appState.activeCronoIndex = index;
                     domElements.deleteModal.classList.add('active');
                 }
             });
             
+            // Inicializar sistema de sugerencias
             window.suggestionsSystem = new SuggestionsSystem();
         }
 
