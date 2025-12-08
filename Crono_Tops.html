@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crono Tops - Control de Tiempos para Carreras</title>
+    <title>Crono Tops</title>
     
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-CV925PMBQV"></script>
@@ -11,32 +11,12 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-CV925PMBQV');
     </script>
 
-    <!-- Iconos para la aplicación -->
+    <!-- Iconos -->
     <link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_Tops_192x192.png">
     <link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_Tops_192x192.png">
-    
-    <!-- Iconos para PWA (todos los tamaños) -->
-    <link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_Tops_192x192.png?v=2">
-    <link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_Tops_192x192.png?v=2">
-    <link rel="icon" type="image/png" sizes="192x192" href="https://rbenet71.github.io/Web/Crono_Tops_192x192.png?v=2">
-    <link rel="icon" type="image/png" sizes="512x512" href="https://rbenet71.github.io/Web/Crono_Tops_512x512.png?v=2">
-    <link rel="apple-touch-icon" sizes="192x192" href="https://rbenet71.github.io/Web/Crono_Tops_192x192.png?v=2">
-    <link rel="apple-touch-icon" sizes="512x512" href="https://rbenet71.github.io/Web/Crono_Tops_512x512.png?v=2">
-    <meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Crono_Tops_192x192.png?v=2">
-    
-    <!-- Configuración para PWA -->
-    <meta name="theme-color" content="#2c3e50">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Crono Tops">
-    <meta name="msapplication-TileColor" content="#2c3e50">
-    <meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Crono_Tops_192x192.png">
-    
-    <!-- Manifest para PWA -->
     <link rel="manifest" href="https://rbenet71.github.io/Web/Crono_Tops_manifest.json">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -65,20 +45,27 @@
             color: #333;
             line-height: 1.6;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 15px 20px;
+            padding: 0 15px 10px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 100px);
         }
 
-        /* Header con diseño mejorado */
+        /* Header compacto */
         .app-header {
             background-color: var(--primary);
             color: white;
-            padding: 15px 0;
+            padding: 10px 0;
             box-shadow: var(--shadow);
+            flex-shrink: 0;
         }
 
         .header-content {
@@ -91,48 +78,48 @@
         .app-title {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .app-logo {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
+            width: 28px;
+            height: 28px;
+            border-radius: 5px;
             object-fit: cover;
             border: 2px solid var(--secondary);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .app-title h1 {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 600;
         }
 
         .header-controls {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
         }
 
         .language-selector {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .languages-label {
             color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
+            font-size: 0.8rem;
+            display: none;
         }
 
         .flag {
-            width: 30px;
-            height: 20px;
+            width: 24px;
+            height: 16px;
             cursor: pointer;
             opacity: 0.6;
             transition: all 0.3s;
             border: 1px solid #ccc;
-            border-radius: 3px;
+            border-radius: 2px;
         }
 
         .flag:hover {
@@ -144,7 +131,6 @@
             opacity: 1;
             border: 2px solid var(--secondary);
             transform: scale(1.1);
-            box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
         }
 
         .flag-catalunya {
@@ -164,12 +150,11 @@
         }
 
         .help-icon {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
             color: var(--secondary);
-            margin-left: 15px;
+            margin-left: 8px;
             transition: all 0.3s;
-            align-self: center;
         }
         
         .help-icon:hover {
@@ -180,25 +165,27 @@
         /* Crono Controls */
         .crono-controls {
             background-color: white;
-            padding: 15px;
-            margin-top: 15px;
-            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 6px;
             box-shadow: var(--shadow);
             display: flex;
-            gap: 15px;
+            gap: 12px;
             flex-wrap: wrap;
+            flex-shrink: 0;
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 8px 16px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             transition: all 0.3s;
+            font-size: 14px;
         }
 
         .btn-primary {
@@ -223,15 +210,16 @@
         .crono-tabs {
             display: flex;
             overflow-x: auto;
-            margin-top: 20px;
+            margin-top: 15px;
             background-color: white;
-            border-radius: 8px 8px 0 0;
+            border-radius: 6px 6px 0 0;
             box-shadow: var(--shadow);
-            padding: 0 10px;
+            padding: 0 8px;
+            flex-shrink: 0;
         }
 
         .crono-tab {
-            padding: 12px 20px;
+            padding: 10px 16px;
             background-color: transparent;
             border: none;
             border-bottom: 3px solid transparent;
@@ -241,8 +229,9 @@
             white-space: nowrap;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             transition: all 0.3s;
+            font-size: 14px;
         }
 
         .crono-tab.active {
@@ -259,14 +248,15 @@
             border: none;
             color: var(--gray);
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
             padding: 0;
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
+            margin-left: 4px;
         }
 
         .tab-close:hover {
@@ -275,40 +265,59 @@
         }
 
         /* Crono Content */
+        .crono-content-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
         .crono-content {
             background-color: white;
-            padding: 25px;
-            border-radius: 0 0 8px 8px;
+            padding: 20px;
+            border-radius: 0 0 6px 6px;
             box-shadow: var(--shadow);
-            margin-bottom: 20px;
-            min-height: 400px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
         .crono-panel {
             display: none;
+            flex: 1;
+            flex-direction: column;
+            overflow: hidden;
         }
 
         .crono-panel.active {
-            display: block;
+            display: flex;
+        }
+
+        /* Contenedor para tiempo y botón */
+        .crono-top-section {
+            flex-shrink: 0;
+            margin-bottom: 15px;
         }
 
         .crono-name {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .crono-name label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-weight: 600;
             color: var(--dark);
+            font-size: 14px;
         }
 
         .crono-name input {
             width: 100%;
-            padding: 12px 15px;
+            padding: 10px 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .crono-name input:focus {
@@ -316,54 +325,67 @@
             border-color: var(--secondary);
         }
 
-        /* Display del tiempo actual del cronómetro */
+        /* Display del tiempo */
         .current-time {
             text-align: center;
-            margin: 20px 0;
-            padding: 15px;
+            margin: 15px 0;
+            padding: 12px;
             background-color: var(--light-gray);
-            border-radius: 8px;
+            border-radius: 6px;
+            flex-shrink: 0;
         }
 
         .time-display {
-            font-size: 48px;
+            font-size: 36px;
             font-weight: 700;
             color: var(--primary);
             font-variant-numeric: tabular-nums;
         }
 
-        /* Botón único - Inicio/Top */
+        /* Botón Inicio/Top */
         .crono-control-buttons {
             display: flex;
             justify-content: center;
-            margin: 20px 0;
+            margin: 15px 0;
+            flex-shrink: 0;
         }
 
         .crono-btn {
-            padding: 18px 40px;
-            font-size: 22px;
-            min-width: 200px;
+            padding: 14px 30px;
+            font-size: 18px;
+            min-width: 160px;
         }
 
         .crono-btn i {
-            font-size: 24px;
+            font-size: 20px;
+        }
+
+        /* Contenedor para la lista de tops con scroll */
+        .tops-container {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 150px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
         }
 
         .tops-list {
-            margin-top: 30px;
+            margin-top: 0;
         }
 
         .tops-list h3 {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             color: var(--dark);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            flex-shrink: 0;
+            font-size: 16px;
         }
 
-        /* Nuevo diseño para tops */
+        /* Diseño para tops */
         .top-item {
-            padding: 15px;
+            padding: 12px;
             border-bottom: 1px solid #eee;
             transition: background-color 0.2s;
         }
@@ -380,34 +402,34 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .top-time-info {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
         }
 
         .top-time {
             font-weight: 700;
             color: var(--dark);
             font-variant-numeric: tabular-nums;
-            font-size: 20px;
-            min-width: 100px;
+            font-size: 18px;
+            min-width: 90px;
         }
 
         .top-diff {
             color: var(--accent);
             font-weight: 600;
             font-variant-numeric: tabular-nums;
-            font-size: 16px;
-            min-width: 100px;
+            font-size: 14px;
+            min-width: 80px;
         }
 
         .top-actions {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .action-btn {
@@ -415,12 +437,14 @@
             border: none;
             cursor: pointer;
             color: var(--gray);
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            font-size: 14px;
         }
 
         .action-btn:hover {
@@ -431,8 +455,39 @@
             color: var(--accent);
         }
 
+        .location-btn {
+            color: var(--gray);
+            position: relative;
+        }
+
+        .location-btn:hover {
+            color: var(--secondary);
+        }
+
+        .location-btn::after {
+            content: "Ver en Google Maps";
+            position: absolute;
+            top: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--dark);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .location-btn:hover::after {
+            opacity: 1;
+        }
+
         .top-dorsal-container {
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         .top-dorsal {
@@ -441,10 +496,10 @@
 
         .top-dorsal input {
             width: 100%;
-            padding: 10px 12px;
+            padding: 8px 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 16px;
+            font-size: 14px;
             word-wrap: break-word;
             overflow-wrap: break-word;
             white-space: normal;
@@ -455,72 +510,34 @@
             border-color: var(--secondary);
         }
 
-        .dorsal-label {
-            display: block;
-            margin-bottom: 5px;
-            color: var(--gray);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        /* Ubicación del top con icono de Google Maps */
-        .top-location {
-            margin-top: 10px;
-            padding: 8px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-            border-left: 3px solid var(--secondary);
-        }
-
-        .location-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--gray);
-            font-size: 14px;
-        }
-
-        .location-link {
-            color: var(--secondary);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 500;
-        }
-
-        .location-link:hover {
-            text-decoration: underline;
-        }
-
-        .location-text {
-            font-style: italic;
-            color: #95a5a6;
-        }
-
+        /* Información del crono */
         .crono-info {
-            margin-top: 30px;
-            padding-top: 20px;
+            margin-top: 15px;
+            padding-top: 15px;
             border-top: 1px solid #eee;
+            flex-shrink: 0;
         }
 
         .info-box {
-            padding: 15px;
+            padding: 12px;
             background-color: var(--light-gray);
-            border-radius: 6px;
-            margin-bottom: 15px;
+            border-radius: 5px;
+            margin-bottom: 12px;
+            font-size: 13px;
         }
 
         .info-box h4 {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             color: var(--dark);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            font-size: 14px;
         }
 
         .info-box p {
             color: var(--gray);
+            font-size: 13px;
         }
 
         .gps-link {
@@ -528,20 +545,22 @@
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            margin-top: 5px;
+            gap: 4px;
+            margin-top: 4px;
+            font-size: 13px;
         }
 
         .gps-link:hover {
             text-decoration: underline;
         }
 
-        /* Footer */
+        /* Footer compacto */
         .app-footer {
             background-color: var(--primary);
             color: white;
-            padding: 20px 0;
-            margin-top: 30px;
+            padding: 12px 0;
+            flex-shrink: 0;
+            font-size: 12px;
         }
 
         .footer-content {
@@ -549,92 +568,48 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 10px;
         }
 
-        .footer-left, .footer-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .update-btn {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
+        .footer-left {
             display: flex;
             align-items: center;
             gap: 8px;
-            transition: background-color 0.3s;
+            flex-wrap: wrap;
         }
 
-        .update-btn:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+        .footer-right {
+            display: flex;
+            align-items: center;
         }
 
-        .suggestions-btn {
+        .update-btn, .suggestions-btn, .install-btn, .help-btn {
             background-color: rgba(255, 255, 255, 0.1);
             border: none;
             color: white;
-            padding: 8px 15px;
-            border-radius: 4px;
+            padding: 6px 10px;
+            border-radius: 3px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 5px;
             transition: background-color 0.3s;
+            font-size: 11px;
+            min-height: 28px;
         }
 
-        .suggestions-btn:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .install-btn {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background-color 0.3s;
-        }
-
-        .install-btn:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .help-btn {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background-color 0.3s;
-        }
-
-        .help-btn:hover {
+        .update-btn:hover, .suggestions-btn:hover, .install-btn:hover, .help-btn:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
 
         .copyright {
             color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
+            font-size: 11px;
         }
 
         .copyright a {
             color: var(--secondary);
             text-decoration: none;
-            font-weight: bold;
         }
 
         .copyright a:hover {
@@ -661,15 +636,15 @@
 
         .modal-content {
             background-color: white;
-            border-radius: 8px;
-            max-width: 500px;
+            border-radius: 6px;
+            max-width: 450px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
         }
 
         .modal-header {
-            padding: 20px;
+            padding: 16px;
             border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
@@ -678,16 +653,17 @@
 
         .modal-header h3 {
             color: var(--dark);
+            font-size: 16px;
         }
 
         .modal-close {
             background: none;
             border: none;
-            font-size: 24px;
+            font-size: 20px;
             cursor: pointer;
             color: var(--gray);
-            width: 30px;
-            height: 30px;
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -699,22 +675,23 @@
         }
 
         .modal-body {
-            padding: 20px;
+            padding: 16px;
+            font-size: 14px;
         }
 
         .modal-body p {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .modal-footer {
-            padding: 15px 20px;
+            padding: 12px 16px;
             border-top: 1px solid #eee;
             display: flex;
             justify-content: flex-end;
-            gap: 10px;
+            gap: 8px;
         }
 
-        /* Estilos para el modal de instalación */
+        /* Modal de instalación */
         .install-modal {
             display: none;
             position: fixed;
@@ -730,25 +707,25 @@
         
         .install-modal-content {
             background-color: #2c3e50;
-            padding: 20px;
-            border-radius: 10px;
+            padding: 16px;
+            border-radius: 8px;
             width: 90%;
-            max-width: 300px;
+            max-width: 280px;
             text-align: center;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
         
         .install-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
+            font-size: 36px;
+            margin-bottom: 12px;
         }
         
         .install-message {
-            margin-bottom: 15px;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            min-height: 40px;
+            margin-bottom: 12px;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            min-height: 35px;
         }
         
         .install-success {
@@ -765,18 +742,18 @@
         
         .install-buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
         }
         
         .install-btn-modal {
-            padding: 8px 16px;
+            padding: 6px 12px;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 12px;
-            min-width: 100px;
+            font-size: 11px;
+            min-width: 80px;
         }
         
         .install-primary {
@@ -790,26 +767,27 @@
         }
         
         .install-instructions {
-            margin-top: 15px;
-            padding: 10px;
+            margin-top: 12px;
+            padding: 8px;
             background-color: #34495e;
-            border-radius: 5px;
-            font-size: 10px;
+            border-radius: 4px;
+            font-size: 9px;
             text-align: left;
         }
         
         .install-instructions h4 {
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             color: #ecf0f1;
+            font-size: 10px;
         }
 
         /* Modal de sugerencias */
         .suggestions-modal-content {
             background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
+            border-radius: 12px;
+            padding: 1.2rem;
             width: 100%;
-            max-width: 400px;
+            max-width: 360px;
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
@@ -817,41 +795,41 @@
 
         .suggestions-header {
             text-align: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.8rem;
             border-bottom: 2px solid #f0f0f0;
         }
 
         .suggestions-icon {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 0.8rem;
+            margin: 0 auto 0.6rem;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
         }
 
         .suggestions-title {
             color: #333;
-            font-size: 1.4rem;
-            margin-bottom: 0.3rem;
+            font-size: 1.2rem;
+            margin-bottom: 0.2rem;
         }
 
         .suggestions-subtitle {
             color: #666;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
 
         .suggestions-input, .suggestions-textarea {
             width: 100%;
-            padding: 0.8rem;
+            padding: 0.7rem;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 0.95rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
             transition: all 0.3s;
             font-family: inherit;
         }
@@ -862,7 +840,7 @@
         }
 
         .suggestions-textarea {
-            min-height: 100px;
+            min-height: 80px;
             resize: vertical;
         }
 
@@ -874,21 +852,21 @@
         .prefilled-field {
             background: #f8f9fa;
             border: 2px solid #e0e0e0;
-            padding: 0.8rem;
-            border-radius: 8px;
+            padding: 0.7rem;
+            border-radius: 6px;
             color: #2196F3;
             font-weight: bold;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
         }
 
         .suggestions-btn-modal {
             background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
             color: white;
             border: none;
-            padding: 0.9rem;
+            padding: 0.8rem;
             width: 100%;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
@@ -908,7 +886,7 @@
 
         .loading {
             text-align: center;
-            margin: 1rem 0;
+            margin: 0.8rem 0;
             display: none;
         }
 
@@ -916,10 +894,10 @@
             border: 3px solid rgba(33, 150, 243, 0.2);
             border-top: 3px solid #2196F3;
             border-radius: 50%;
-            width: 25px;
-            height: 25px;
+            width: 20px;
+            height: 20px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 0.5rem;
+            margin: 0 auto 0.4rem;
         }
 
         @keyframes spin {
@@ -929,17 +907,18 @@
 
         .message {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 1rem;
-            border-radius: 8px;
+            top: 15px;
+            right: 15px;
+            padding: 0.8rem;
+            border-radius: 6px;
             color: white;
             font-weight: 500;
             box-shadow: 0 5px 20px rgba(0,0,0,0.15);
             display: none;
             z-index: 1000;
-            max-width: 280px;
+            max-width: 250px;
             animation: slideIn 0.3s ease;
+            font-size: 13px;
         }
 
         @keyframes slideIn {
@@ -961,13 +940,13 @@
 
         .hint {
             color: #666;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             margin-top: 0.3rem;
         }
 
         .city-examples {
             color: #666;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             margin-top: 0.4rem;
             font-style: italic;
         }
@@ -975,26 +954,41 @@
         /* Empty state */
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
+            padding: 40px 15px;
             color: var(--gray);
         }
 
         .empty-state i {
-            font-size: 60px;
-            margin-bottom: 20px;
+            font-size: 48px;
+            margin-bottom: 15px;
             color: #ddd;
         }
 
         .empty-state h3 {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             color: var(--dark);
+            font-size: 16px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        /* Modal de confirmación para eliminar top */
+        .delete-top-modal .modal-content {
+            max-width: 350px;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
+            .container {
+                min-height: calc(10vh - 90px);
+                padding: 0 10px 5px;
+            }
+            
             .header-content {
                 flex-direction: column;
-                gap: 15px;
+                gap: 10px;
                 text-align: center;
             }
             
@@ -1008,21 +1002,26 @@
                 align-items: center;
             }
             
+            .crono-content {
+                padding: 15px;
+            }
+            
             .footer-content {
                 flex-direction: column;
                 text-align: center;
-                gap: 15px;
+                gap: 8px;
             }
             
             .footer-left {
                 flex-direction: column;
                 width: 100%;
+                gap: 6px;
             }
             
             .footer-left button {
                 width: 100%;
                 justify-content: center;
-                margin-bottom: 10px;
+                margin-bottom: 6px;
             }
             
             .footer-right {
@@ -1031,40 +1030,53 @@
             }
             
             .crono-btn {
-                padding: 15px 30px;
-                font-size: 20px;
-                min-width: 180px;
+                padding: 12px 24px;
+                font-size: 16px;
+                min-width: 140px;
             }
             
             .top-time-info {
-                gap: 10px;
+                gap: 8px;
             }
             
             .top-time {
-                font-size: 18px;
-                min-width: 80px;
+                font-size: 16px;
+                min-width: 70px;
             }
             
             .top-diff {
-                font-size: 14px;
-                min-width: 80px;
+                font-size: 13px;
+                min-width: 70px;
             }
             
             .time-display {
-                font-size: 36px;
+                font-size: 32px;
+            }
+            
+            .tops-container {
+                min-height: 120px;
+            }
+            
+            .app-title h1 {
+                font-size: 18px;
             }
         }
 
         @media (max-width: 480px) {
+            .container {
+                min-height: calc(100vh - 80px);
+            }
+            
             .footer-left button {
-                padding: 10px 15px;
-                font-size: 14px;
+                padding: 6px 8px;
+                font-size: 10px;
+                min-height: 24px;
             }
             
             .top-time-row {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 10px;
+                gap: 8px;
             }
             
             .top-time-info {
@@ -1077,27 +1089,45 @@
             }
             
             .flag {
-                width: 25px;
-                height: 17px;
+                width: 22px;
+                height: 15px;
             }
             
             .languages-label {
-                font-size: 0.8rem;
+                font-size: 0.7rem;
             }
             
             .app-logo {
-                width: 28px;
-                height: 28px;
+                width: 24px;
+                height: 24px;
             }
             
             .app-title h1 {
-                font-size: 20px;
+                font-size: 16px;
+            }
+            
+            .crono-btn {
+                padding: 10px 20px;
+                font-size: 15px;
+                min-width: 120px;
+            }
+            
+            .time-display {
+                font-size: 28px;
+            }
+            
+            .tops-container {
+                min-height: 100px;
+            }
+            
+            .copyright {
+                font-size: 10px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Header con selector de idiomas y logo -->
+    <!-- Header compacto -->
     <header class="app-header">
         <div class="container">
             <div class="header-content">
@@ -1122,7 +1152,7 @@
     </header>
 
     <div class="container">
-        <!-- Crono Controls - Solo botón nuevo crono -->
+        <!-- Crono Controls -->
         <div class="crono-controls">
             <button class="btn btn-primary" id="add-crono-btn">
                 <i class="fas fa-plus"></i>
@@ -1132,7 +1162,6 @@
 
         <!-- Crono Tabs -->
         <div class="crono-tabs" id="crono-tabs">
-            <!-- Tabs will be added here dynamically -->
             <div class="empty-state" id="no-cronos-message">
                 <i class="fas fa-stopwatch"></i>
                 <h3 id="no-cronos-title">No hay cronómetros</h3>
@@ -1140,14 +1169,15 @@
             </div>
         </div>
 
-        <!-- Contenedor para el contenido de los cronómetros -->
-        <div id="crono-content" class="crono-content">
-            <!-- El contenido de los cronómetros se renderizará aquí -->
+        <!-- Contenedor principal -->
+        <div class="crono-content-wrapper">
+            <div class="crono-content" id="crono-content">
+                <!-- Crono panels se añadirán dinámicamente -->
+            </div>
         </div>
-
     </div>
 
-    <!-- Footer -->
+    <!-- Footer compacto -->
     <footer class="app-footer">
         <div class="container">
             <div class="footer-content">
@@ -1158,7 +1188,7 @@
                     </button>
                     <button class="suggestions-btn" id="suggestions-btn">
                         <i class="fas fa-lightbulb"></i>
-                        <span id="suggestions-text">Actualizaciones/Sugerencias</span>
+                        <span id="suggestions-text">Sugerencias</span>
                     </button>
                     <button class="install-btn" id="install-btn">
                         <i class="fas fa-download"></i>
@@ -1166,15 +1196,12 @@
                     </button>
                     <button class="update-btn" id="update-btn">
                         <i class="fas fa-sync-alt"></i>
-                        <span id="update-text">Buscar actualizaciones</span>
+                        <span id="update-text">Actualizar</span>
                     </button>
                 </div>
                 <div class="footer-right">
                     <div class="copyright" id="copyright-text">
-                        2025 © Copyright 
-                        <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                            Roberto Benet - rbenet71@gmail.com
-                        </a>
+                        2025 © <a href="https://rbenet71.github.io/Web/" target="_blank">Roberto Benet</a>
                     </div>
                 </div>
             </div>
@@ -1223,6 +1250,23 @@
             <div class="modal-footer">
                 <button class="btn btn-danger" id="delete-confirm-btn">Eliminar</button>
                 <button class="btn" id="delete-cancel-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Top Confirmation Modal -->
+    <div class="modal delete-top-modal" id="delete-top-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="delete-top-modal-title">Eliminar Top</h3>
+                <button class="modal-close" id="delete-top-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="delete-top-modal-text">¿Estás seguro de que quieres eliminar este top?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="delete-top-confirm-btn">Eliminar</button>
+                <button class="btn" id="delete-top-cancel-btn">Cancelar</button>
             </div>
         </div>
     </div>
@@ -1321,7 +1365,13 @@
             deferredPrompt: null
         };
 
-        // Translations - actualizadas con textos de instalación
+        // Variables para eliminación de tops
+        let pendingTopDeletion = {
+            cronoIndex: -1,
+            topIndex: -1
+        };
+
+        // Translations - actualizadas con textos más cortos
         const translations = {
             es: {
                 appTitle: "Crono Tops",
@@ -1342,9 +1392,9 @@
                 diff: "Diferencia",
                 actions: "Acciones",
                 delete: "Eliminar",
-                updateText: "Buscar actualizaciones",
+                updateText: "Actualizar",
                 installText: "Instalar App",
-                suggestionsText: "Actualizaciones/Sugerencias",
+                suggestionsText: "Sugerencias",
                 helpText: "Ayuda",
                 languagesLabel: "Idioma / Language",
                 helpModalTitle: "Ayuda de Crono Tops",
@@ -1361,6 +1411,8 @@
                 helpModalText2: "Los tiempos se muestran en formato minutos:segundos.décimas y la diferencia se calcula automáticamente entre cada top registrado.",
                 deleteModalTitle: "Confirmar eliminación",
                 deleteModalText: "¿Estás seguro de que quieres eliminar este cronómetro? Todos los tiempos registrados se perderán.",
+                deleteTopModalTitle: "Eliminar Top",
+                deleteTopModalText: "¿Estás seguro de que quieres eliminar este top?",
                 deleteConfirm: "Eliminar",
                 cancel: "Cancelar",
                 understood: "Entendido",
@@ -1373,46 +1425,46 @@
                 installAction: "Instalar",
                 installClose: "Cerrar",
                 iosInstructionsTitle: "Instalar en iPhone/iPad",
-                iosInstructions: `<ol style="padding-left: 15px;">
-                    <li>Toca el botón "Instalar"</li>
-                    <li>Se abrirá el menú de compartir</li>
-                    <li>Desplázate y selecciona <strong>"Añadir a Pantalla de Inicio"</strong></li>
-                    <li>Pulsa <strong>"Añadir"</strong> para confirmar</li>
+                iosInstructions: `<ol style="padding-left: 12px; font-size: 9px;">
+                    <li>Toca "Instalar"</li>
+                    <li>Abre el menú de compartir</li>
+                    <li>Selecciona "Añadir a Pantalla de Inicio"</li>
+                    <li>Pulsa "Añadir"</li>
                 </ol>`,
                 androidInstructionsTitle: "Instalar en Android",
-                androidInstructions: `<ol style="padding-left: 15px;">
-                    <li>Toca el botón "Instalar"</li>
-                    <li>Se instalará automáticamente como app PWA</li>
-                    <li>La app aparecerá en tu pantalla de inicio</li>
+                androidInstructions: `<ol style="padding-left: 12px; font-size: 9px;">
+                    <li>Toca "Instalar"</li>
+                    <li>Se instalará como PWA</li>
+                    <li>Aparecerá en tu pantalla de inicio</li>
                 </ol>`,
-                windowsInstructionsTitle: "Crear Acceso Directo en Windows",
-                windowsInstructions: `<ol style="padding-left: 15px;">
-                    <li>Toca el botón "Instalar"</li>
+                windowsInstructionsTitle: "Acceso Directo Windows",
+                windowsInstructions: `<ol style="padding-left: 12px; font-size: 9px;">
+                    <li>Toca "Instalar"</li>
                     <li>Se descargará un archivo .url</li>
-                    <li>Ábrelo para crear el acceso directo en tu escritorio</li>
+                    <li>Ábrelo para crear acceso directo</li>
                 </ol>`,
                 otherInstructionsTitle: "Instalar App",
-                otherInstructions: `<ol style="padding-left: 15px;">
-                    <li>Toca el botón "Instalar"</li>
-                    <li>Sigue las instrucciones de tu navegador</li>
+                otherInstructions: `<ol style="padding-left: 12px; font-size: 9px;">
+                    <li>Toca "Instalar"</li>
+                    <li>Sigue las instrucciones</li>
                 </ol>`,
                 suggestionsTitle: "Crono Tops",
                 suggestionsSubtitle: "Envía tus comentarios",
-                emailLabel: "Facilítanos tu email para mantenerte informado de las actualizaciones",
+                emailLabel: "Email para actualizaciones",
                 cityLabel: "Ciudad",
-                suggestionLabel: "Sugerencias para mejorar la aplicación",
+                suggestionLabel: "Sugerencias para mejorar",
                 programLabel: "Programa",
                 submitButton: "📤 Enviar",
                 sendingText: "Enviando...",
-                successMessage: "✅ Enviado correctamente",
-                errorMessage: "❌ Error al enviar",
+                successMessage: "✅ Enviado",
+                errorMessage: "❌ Error",
                 invalidEmail: "Email no válido",
                 invalidCity: "Ciudad no válida",
                 enterEmail: "Ingresa tu email",
                 enterCity: "Escribe tu ciudad",
                 cityExamples: "Madrid, Barcelona, Valencia, etc.",
                 locationLabel: "Ubicación:",
-                viewOnMaps: "📍 Ver en Google Maps",
+                viewOnMaps: "Ver en Google Maps",
                 locationNotAvailable: "Ubicación no disponible"
             },
             ca: {
@@ -1434,9 +1486,9 @@
                 diff: "Diferència",
                 actions: "Accions",
                 delete: "Eliminar",
-                updateText: "Cercar actualitzacions",
+                updateText: "Actualitzar",
                 installText: "Instal·lar App",
-                suggestionsText: "Actualitzacions/Suggeriments",
+                suggestionsText: "Suggeriments",
                 helpText: "Ajuda",
                 languagesLabel: "Idioma / Language",
                 helpModalTitle: "Ajuda de Crono Tops",
@@ -1453,6 +1505,8 @@
                 helpModalText2: "Els temps es mostren en format minuts:segons.dècimes i la diferència es calcula automàticament entre cada top registrat.",
                 deleteModalTitle: "Confirmar eliminació",
                 deleteModalText: "Estàs segur que vols eliminar aquest cronòmetre? Tots els temps registrats es perdran.",
+                deleteTopModalTitle: "Eliminar Top",
+                deleteTopModalText: "Estàs segur que vols eliminar aquest top?",
                 deleteConfirm: "Eliminar",
                 cancel: "Cancel·lar",
                 understood: "Entès",
@@ -1465,46 +1519,46 @@
                 installAction: "Instal·lar",
                 installClose: "Tancar",
                 iosInstructionsTitle: "Instal·lar a iPhone/iPad",
-                iosInstructions: `<ol style="padding-left: 15px;">
-                    <li>Toca el botó "Instal·lar"</li>
-                    <li>S'obrirà el menú de compartir</li>
-                    <li>Desplaça't i selecciona <strong>"Afegeix a la pantalla d'inici"</strong></li>
-                    <li>Prem <strong>"Afegeix"</strong> per confirmar</li>
+                iosInstructions: `<ol style="padding-left: 12px; font-size: 9px;">
+                    <li>Toca "Instal·lar"</li>
+                    <li>Obre el menú de compartir</li>
+                    <li>Selecciona "Afegeix a la pantalla d'inici"</li>
+                    <li>Prem "Afegeix"</li>
                 </ol>`,
                 androidInstructionsTitle: "Instal·lar a Android",
-                androidInstructions: `<ol style="padding-left: 15px;">
-                    <li>Toca el botó "Instal·lar"</li>
-                    <li>S'instal·larà automàticament com a app PWA</li>
-                    <li>L'app apareixerà a la teva pantalla d'inici</li>
+                androidInstructions: `<ol style="padding-left: 12px; font-size: 9px;">
+                    <li>Toca "Instal·lar"</li>
+                    <li>S'instal·larà com a PWA</li>
+                    <li>Aparèixerà a la teva pantalla d'inici</li>
                 </ol>`,
-                windowsInstructionsTitle: "Crear Accés Directe a Windows",
-                windowsInstructions: `<ol style="padding-left: 15px;">
-                    <li>Toca el botó "Instal·lar"</li>
+                windowsInstructionsTitle: "Accés Directe Windows",
+                windowsInstructions: `<ol style="padding-left: 12px; font-size: 9px;">
+                    <li>Toca "Instal·lar"</li>
                     <li>Es descarregarà un arxiu .url</li>
-                    <li>Obre'l per crear l'accés directe al teu escriptori</li>
+                    <li>Obre'l per crear accés directe</li>
                 </ol>`,
                 otherInstructionsTitle: "Instal·lar App",
-                otherInstructions: `<ol style="padding-left: 15px;">
-                    <li>Toca el botó "Instal·lar"</li>
-                    <li>Segueix les instruccions del teu navegador</li>
+                otherInstructions: `<ol style="padding-left: 12px; font-size: 9px;">
+                    <li>Toca "Instal·lar"</li>
+                    <li>Segueix les instruccions</li>
                 </ol>`,
                 suggestionsTitle: "Crono Tops",
                 suggestionsSubtitle: "Envia els teus comentaris",
-                emailLabel: "Facilita'ns el teu email per mantenir-te informat de les actualitzacions",
+                emailLabel: "Email per actualitzacions",
                 cityLabel: "Ciutat",
-                suggestionLabel: "Suggeriments per millorar l'aplicació",
+                suggestionLabel: "Suggeriments per millorar",
                 programLabel: "Programa",
                 submitButton: "📤 Enviar",
                 sendingText: "Enviant...",
-                successMessage: "✅ Enviat correctament",
-                errorMessage: "❌ Error en enviar",
+                successMessage: "✅ Enviat",
+                errorMessage: "❌ Error",
                 invalidEmail: "Email no vàlid",
                 invalidCity: "Ciutat no vàlida",
                 enterEmail: "Introdueix el teu email",
                 enterCity: "Escriu la teva ciutat",
                 cityExamples: "Madrid, Barcelona, València, etc.",
                 locationLabel: "Ubicació:",
-                viewOnMaps: "📍 Veure a Google Maps",
+                viewOnMaps: "Veure a Google Maps",
                 locationNotAvailable: "Ubicació no disponible"
             },
             en: {
@@ -1526,9 +1580,9 @@
                 diff: "Difference",
                 actions: "Actions",
                 delete: "Delete",
-                updateText: "Check for updates",
+                updateText: "Update",
                 installText: "Install App",
-                suggestionsText: "Updates/Suggestions",
+                suggestionsText: "Suggestions",
                 helpText: "Help",
                 languagesLabel: "Idioma / Language",
                 helpModalTitle: "Crono Tops Help",
@@ -1545,6 +1599,8 @@
                 helpModalText2: "Times are displayed in minutes:seconds.tenths format and the difference is automatically calculated between each recorded top.",
                 deleteModalTitle: "Confirm deletion",
                 deleteModalText: "Are you sure you want to delete this chronometer? All recorded times will be lost.",
+                deleteTopModalTitle: "Delete Top",
+                deleteTopModalText: "Are you sure you want to delete this top?",
                 deleteConfirm: "Delete",
                 cancel: "Cancel",
                 understood: "Understood",
@@ -1557,53 +1613,53 @@
                 installAction: "Install",
                 installClose: "Close",
                 iosInstructionsTitle: "Install on iPhone/iPad",
-                iosInstructions: `<ol style="padding-left: 15px;">
-                    <li>Tap the "Install" button</li>
-                    <li>The share menu will open</li>
-                    <li>Scroll and select <strong>"Add to Home Screen"</strong></li>
-                    <li>Tap <strong>"Add"</strong> to confirm</li>
+                iosInstructions: `<ol style="padding-left: 12px; font-size: 9px;">
+                    <li>Tap "Install"</li>
+                    <li>Open share menu</li>
+                    <li>Select "Add to Home Screen"</li>
+                    <li>Tap "Add"</li>
                 </ol>`,
                 androidInstructionsTitle: "Install on Android",
-                androidInstructions: `<ol style="padding-left: 15px;">
-                    <li>Tap the "Install" button</li>
-                    <li>It will automatically install as a PWA</li>
-                    <li>The app will appear on your home screen</li>
+                androidInstructions: `<ol style="padding-left: 12px; font-size: 9px;">
+                    <li>Tap "Install"</li>
+                    <li>Will install as PWA</li>
+                    <li>Will appear on home screen</li>
                 </ol>`,
-                windowsInstructionsTitle: "Create Shortcut on Windows",
-                windowsInstructions: `<ol style="padding-left: 15px;">
-                    <li>Tap the "Install" button</li>
-                    <li>A .url file will be downloaded</li>
-                    <li>Open it to create the shortcut on your desktop</li>
+                windowsInstructionsTitle: "Windows Shortcut",
+                windowsInstructions: `<ol style="padding-left: 12px; font-size: 9px;">
+                    <li>Tap "Install"</li>
+                    <li>.url file will download</li>
+                    <li>Open to create shortcut</li>
                 </ol>`,
                 otherInstructionsTitle: "Install App",
-                otherInstructions: `<ol style="padding-left: 15px;">
-                    <li>Tap the "Install" button</li>
-                    <li>Follow your browser instructions</li>
+                otherInstructions: `<ol style="padding-left: 12px; font-size: 9px;">
+                    <li>Tap "Install"</li>
+                    <li>Follow instructions</li>
                 </ol>`,
                 suggestionsTitle: "Crono Tops",
                 suggestionsSubtitle: "Send your comments",
-                emailLabel: "Provide your email to stay informed about updates",
+                emailLabel: "Email for updates",
                 cityLabel: "City",
-                suggestionLabel: "Suggestions to improve the application",
+                suggestionLabel: "Suggestions to improve",
                 programLabel: "Program",
                 submitButton: "📤 Send",
                 sendingText: "Sending...",
-                successMessage: "✅ Sent successfully",
-                errorMessage: "❌ Error sending",
+                successMessage: "✅ Sent",
+                errorMessage: "❌ Error",
                 invalidEmail: "Invalid email",
                 invalidCity: "Invalid city",
                 enterEmail: "Enter your email",
                 enterCity: "Write your city",
                 cityExamples: "Madrid, Barcelona, Valencia, etc.",
                 locationLabel: "Location:",
-                viewOnMaps: "📍 View on Google Maps",
+                viewOnMaps: "View on Google Maps",
                 locationNotAvailable: "Location not available"
             },
             fr: {
                 appTitle: "Crono Tops",
                 newCrono: "Nouveau Chrono",
                 noCronosTitle: "Pas de chronomètres",
-                noCronosText: "Cliquez sur 'Nouveau Chrono' para crear votre premier chronomètre",
+                noCronosText: "Cliquez sur 'Nouveau Chrono' pour créer votre premier chronomètre",
                 cronoNameLabel: "Nom du top",
                 cronoNamePlaceholder: "Ex: Devant Carrefour Prat",
                 startBtn: "Démarrer",
@@ -1618,9 +1674,9 @@
                 diff: "Différence",
                 actions: "Actions",
                 delete: "Supprimer",
-                updateText: "Vérifier les mises à jour",
+                updateText: "Mettre à jour",
                 installText: "Installer App",
-                suggestionsText: "Mises à jour/Suggestions",
+                suggestionsText: "Suggestions",
                 helpText: "Aide",
                 languagesLabel: "Idioma / Language",
                 helpModalTitle: "Aide Crono Tops",
@@ -1637,6 +1693,8 @@
                 helpModalText2: "Les temps sont affichés au format minutes:secondes.dixièmes et la différence est calculée automatiquement entre chaque top enregistré.",
                 deleteModalTitle: "Confirmer la suppression",
                 deleteModalText: "Êtes-vous sûr de vouloir supprimer ce chronomètre? Tous les temps enregistrés seront perdus.",
+                deleteTopModalTitle: "Supprimer Top",
+                deleteTopModalText: "Êtes-vous sûr de vouloir supprimer ce top?",
                 deleteConfirm: "Supprimer",
                 cancel: "Annuler",
                 understood: "Compris",
@@ -1649,46 +1707,46 @@
                 installAction: "Installer",
                 installClose: "Fermer",
                 iosInstructionsTitle: "Installer sur iPhone/iPad",
-                iosInstructions: `<ol style="padding-left: 15px;">
-                    <li>Appuyez sur le bouton "Installer"</li>
-                    <li>Le menu de partage s'ouvrira</li>
-                    <li>Faites défiler et sélectionnez <strong>"Ajouter à l'écran d'accueil"</strong></li>
-                    <li>Appuyez sur <strong>"Ajouter"</strong> pour confirmar</li>
+                iosInstructions: `<ol style="padding-left: 12px; font-size: 9px;">
+                    <li>Appuyez sur "Installer"</li>
+                    <li>Ouvrez le menu de partage</li>
+                    <li>Sélectionnez "Ajouter à l'écran d'accueil"</li>
+                    <li>Appuyez sur "Ajouter"</li>
                 </ol>`,
                 androidInstructionsTitle: "Installer sur Android",
-                androidInstructions: `<ol style="padding-left: 15px;">
-                    <li>Appuyez sur le botón "Installer"</li>
-                    <li>Il s'installera automatiquement en tant qu'application PWA</li>
-                    <li>L'application apparaîtra sur votre écran d'accueil</li>
+                androidInstructions: `<ol style="padding-left: 12px; font-size: 9px;">
+                    <li>Appuyez sur "Installer"</li>
+                    <li>S'installera en PWA</li>
+                    <li>Apparaîtra sur l'écran d'accueil</li>
                 </ol>`,
-                windowsInstructionsTitle: "Créer un Raccourci sur Windows",
-                windowsInstructions: `<ol style="padding-left: 15px;">
-                    <li>Appuyez sur le botón "Installer"</li>
-                    <li>Un fichier .url sera téléchargé</li>
-                    <li>Ouvrez-le pour créer le raccourci sur votre bureau</li>
+                windowsInstructionsTitle: "Raccourci Windows",
+                windowsInstructions: `<ol style="padding-left: 12px; font-size: 9px;">
+                    <li>Appuyez sur "Installer"</li>
+                    <li>Fichier .url téléchargé</li>
+                    <li>Ouvrez pour créer raccourci</li>
                 </ol>`,
                 otherInstructionsTitle: "Installer l'App",
-                otherInstructions: `<ol style="padding-left: 15px;">
-                    <li>Appuyez sur le botón "Installer"</li>
-                    <li>Suivez les instructions de votre navigateur</li>
+                otherInstructions: `<ol style="padding-left: 12px; font-size: 9px;">
+                    <li>Appuyez sur "Installer"</li>
+                    <li>Suivez les instructions</li>
                 </ol>`,
                 suggestionsTitle: "Crono Tops",
                 suggestionsSubtitle: "Envoyez vos commentaires",
-                emailLabel: "Fournissez votre email pour rester informé des mises à jour",
+                emailLabel: "Email pour mises à jour",
                 cityLabel: "Ville",
-                suggestionLabel: "Suggestions pour améliorer l'application",
+                suggestionLabel: "Suggestions d'amélioration",
                 programLabel: "Programme",
                 submitButton: "📤 Enviar",
                 sendingText: "Envoi en cours...",
-                successMessage: "✅ Envoyé con éxito",
-                errorMessage: "❌ Error de envío",
-                invalidEmail: "Email no válido",
-                invalidCity: "Ciudad no válida",
-                enterEmail: "Introduce tu email",
-                enterCity: "Escribe tu ciudad",
+                successMessage: "✅ Envoyé",
+                errorMessage: "❌ Erreur",
+                invalidEmail: "Email non valide",
+                invalidCity: "Ville non valide",
+                enterEmail: "Entrez votre email",
+                enterCity: "Écrivez votre ville",
                 cityExamples: "Madrid, Barcelona, Valencia, etc.",
                 locationLabel: "Emplacement:",
-                viewOnMaps: "📍 Voir sur Google Maps",
+                viewOnMaps: "Voir sur Google Maps",
                 locationNotAvailable: "Emplacement non disponible"
             }
         };
@@ -1719,6 +1777,12 @@
             deleteModalClose: document.getElementById('delete-modal-close'),
             deleteConfirmBtn: document.getElementById('delete-confirm-btn'),
             deleteCancelBtn: document.getElementById('delete-cancel-btn'),
+            deleteTopModal: document.getElementById('delete-top-modal'),
+            deleteTopModalTitle: document.getElementById('delete-top-modal-title'),
+            deleteTopModalText: document.getElementById('delete-top-modal-text'),
+            deleteTopModalClose: document.getElementById('delete-top-modal-close'),
+            deleteTopConfirmBtn: document.getElementById('delete-top-confirm-btn'),
+            deleteTopCancelBtn: document.getElementById('delete-top-cancel-btn'),
             updateBtn: document.getElementById('update-btn'),
             updateText: document.getElementById('update-text'),
             installBtn: document.getElementById('install-btn'),
@@ -1728,7 +1792,6 @@
             footerHelpBtn: document.getElementById('footer-help-btn'),
             helpText: document.getElementById('help-text'),
             copyrightText: document.getElementById('copyright-text'),
-            copyrightLink: document.getElementById('copyright-link'),
             updateModal: document.getElementById('update-modal'),
             updateModalTitle: document.getElementById('update-modal-title'),
             updateModalText: document.getElementById('update-modal-text'),
@@ -1894,24 +1957,15 @@
                         url: window.location.href
                     })
                     .then(() => {
-                        this.showMessage('✅ ' + (appState.currentLanguage === 'fr' ? 'Sélectionnez maintenant "Ajouter à l\'écran d\'accueil"' : 
-                                               appState.currentLanguage === 'en' ? 'Now select "Add to Home Screen"' :
-                                               appState.currentLanguage === 'ca' ? 'Ara selecciona "Afegeix a la pantalla d\'inici"' :
-                                               'Ahora selecciona "Añadir a Pantalla de Inicio"'), false);
+                        this.showMessage('✅ Ahora selecciona "Añadir a Pantalla de Inicio"', false);
                     })
                     .catch((error) => {
                         if (error.name !== 'AbortError') {
-                            this.showMessage('❌ ' + (appState.currentLanguage === 'fr' ? 'Impossible d\'ouvrir le menu de partage' :
-                                               appState.currentLanguage === 'en' ? 'Could not open share menu' :
-                                               appState.currentLanguage === 'ca' ? 'No s\'ha pogut obrir el menú de compartir' :
-                                               'No se pudo abrir el menú de compartir'), true);
+                            this.showMessage('❌ No se pudo abrir el menú de compartir', true);
                         }
                     });
                 } else {
-                    this.showMessage('❌ ' + (appState.currentLanguage === 'fr' ? 'Votre navigateur ne supporte pas cette fonction' :
-                                           appState.currentLanguage === 'en' ? 'Your browser does not support this function' :
-                                           appState.currentLanguage === 'ca' ? 'El teu navegador no suporta aquesta funció' :
-                                           'Tu navegador no soporta esta función'), true);
+                    this.showMessage('❌ Tu navegador no soporta esta función', true);
                 }
             }
             
@@ -1922,29 +1976,17 @@
                         const { outcome } = await this.deferredPrompt.userChoice;
                         
                         if (outcome === 'accepted') {
-                            this.showMessage('✅ ' + (appState.currentLanguage === 'fr' ? 'App installée avec succès' :
-                                                   appState.currentLanguage === 'en' ? 'App installed successfully' :
-                                                   appState.currentLanguage === 'ca' ? 'App instal·lada correctament' :
-                                                   'App instalada correctamente'), false);
+                            this.showMessage('✅ App instalada correctamente', false);
                             this.installActionBtn.style.display = 'none';
                         } else {
-                            this.showMessage(appState.currentLanguage === 'fr' ? 'Installation annulée' :
-                                            appState.currentLanguage === 'en' ? 'Installation cancelled' :
-                                            appState.currentLanguage === 'ca' ? 'Instal·lació cancel·lada' :
-                                            'Instalación cancelada', true);
+                            this.showMessage('Instalación cancelada', true);
                         }
                         this.deferredPrompt = null;
                     } catch (error) {
-                        this.showMessage('❌ ' + (appState.currentLanguage === 'fr' ? 'Erreur d\'installation' :
-                                               appState.currentLanguage === 'en' ? 'Installation error' :
-                                               appState.currentLanguage === 'ca' ? 'Error en la instal·lació' :
-                                               'Error en la instalación'), true);
+                        this.showMessage('❌ Error en la instalación', true);
                     }
                 } else {
-                    this.showMessage('🔧 ' + (appState.currentLanguage === 'fr' ? 'Votre navigateur supporte l\'installation PWA' :
-                                           appState.currentLanguage === 'en' ? 'Your browser supports PWA installation' :
-                                           appState.currentLanguage === 'ca' ? 'El teu navegador suporta instal·lació PWA' :
-                                           'Tu navegador soporta instalación PWA'), false);
+                    this.showMessage('🔧 Tu navegador soporta instalación PWA', false);
                 }
             }
             
@@ -1964,10 +2006,7 @@ IDList=`;
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                this.showMessage('✅ ' + (appState.currentLanguage === 'fr' ? 'Fichier de raccourci téléchargé' :
-                                       appState.currentLanguage === 'en' ? 'Shortcut file downloaded' :
-                                       appState.currentLanguage === 'ca' ? 'Arxiu d\'accés directe descarregat' :
-                                       'Archivo de acceso directo descargado'), false);
+                this.showMessage('✅ Archivo de acceso directo descargado', false);
             }
             
             installOther(t) {
@@ -1978,10 +2017,7 @@ IDList=`;
                         url: window.location.href
                     });
                 } else {
-                    this.showMessage('⭐ ' + (appState.currentLanguage === 'fr' ? 'Utilisez le menu de votre navigateur para crear un raccourci' :
-                                           appState.currentLanguage === 'en' ? 'Use your browser menu to create a shortcut' :
-                                           appState.currentLanguage === 'ca' ? 'Utilitza el menú del teu navegador per crear un accés directe' :
-                                           'Usa el menú de tu navegador para crear un acceso directo'), false);
+                    this.showMessage('⭐ Usa el menú de tu navegador para crear un acceso directo', false);
                 }
             }
         }
@@ -2000,11 +2036,7 @@ IDList=`;
             setInterval(updateAllCronoTimes, 100);
             
             setTimeout(() => {
-                const message = appState.currentLanguage === 'fr' ? 'Partagez vos idées pour améliorer la calculatrice' :
-                              appState.currentLanguage === 'en' ? 'Share your ideas to improve the calculator' :
-                              appState.currentLanguage === 'ca' ? 'Comparteix les teves idees per millorar la calculadora' :
-                              'Comparte tus ideas para mejorar la calculadora';
-                showMessage(message, 'info');
+                showMessage('Comparte tus ideas para mejorar la calculadora', 'info');
             }, 1000);
         }
 
@@ -2036,21 +2068,26 @@ IDList=`;
             domElements.helpModalText2.textContent = t.helpModalText2;
             domElements.deleteModalTitle.textContent = t.deleteModalTitle;
             domElements.deleteModalText.textContent = t.deleteModalText;
+            domElements.deleteTopModalTitle.textContent = t.deleteTopModalTitle;
+            domElements.deleteTopModalText.textContent = t.deleteTopModalText;
             domElements.updateModalTitle.textContent = t.updateModalTitle;
             domElements.updateModalText.textContent = t.updateModalText;
             
-            domElements.copyrightText.innerHTML = `2025 © Copyright <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">Roberto Benet - rbenet71@gmail.com - V_08_12_2025</a>`;
+            domElements.copyrightText.innerHTML = `2025 © <a href="https://rbenet71.github.io/Web/" target="_blank">Roberto Benet</a>`;
             
             domElements.helpModalList.innerHTML = '';
             t.helpModalList.forEach(item => {
                 const li = document.createElement('li');
                 li.textContent = item;
-                li.style.marginBottom = '8px';
+                li.style.marginBottom = '6px';
+                li.style.fontSize = '13px';
                 domElements.helpModalList.appendChild(li);
             });
             
             domElements.deleteConfirmBtn.textContent = t.deleteConfirm;
             domElements.deleteCancelBtn.textContent = t.cancel;
+            domElements.deleteTopConfirmBtn.textContent = t.deleteConfirm;
+            domElements.deleteTopCancelBtn.textContent = t.cancel;
             domElements.helpModalOk.textContent = t.understood;
             domElements.updateNowBtn.textContent = t.updateNow;
             domElements.updateLaterBtn.textContent = t.updateLater;
@@ -2081,7 +2118,20 @@ IDList=`;
 
         // Crono functions - último crono primero
         function createNewCrono() {
-            const cronoId = appState.nextCronoId++;
+            // Encontrar el ID más alto de los cronos existentes
+            let maxId = 0;
+            appState.cronos.forEach(crono => {
+                if (crono.id > maxId) {
+                    maxId = crono.id;
+                }
+            });
+            
+            const cronoId = maxId + 1;
+            
+            // Actualizar el nextCronoId para futuros cronos
+            if (cronoId >= appState.nextCronoId) {
+                appState.nextCronoId = cronoId + 1;
+            }
             
             const newCrono = {
                 id: cronoId,
@@ -2316,25 +2366,29 @@ IDList=`;
                 const buttonIcon = crono.hasStarted ? 'fa-flag-checkered' : 'fa-play';
                 
                 panel.innerHTML = `
-                    <div class="crono-name">
-                        <label>${t.cronoNameLabel}</label>
-                        <input type="text" value="${crono.name}" placeholder="${t.cronoNamePlaceholder}" data-index="${index}">
+                    <div class="crono-top-section">
+                        <div class="crono-name">
+                            <label>${t.cronoNameLabel}</label>
+                            <input type="text" value="${crono.name}" placeholder="${t.cronoNamePlaceholder}" data-index="${index}">
+                        </div>
+                        
+                        <div class="current-time">
+                            <div class="time-display">${formatTime(crono.elapsedTime)}</div>
+                        </div>
+                        
+                        <div class="crono-control-buttons">
+                            <button class="btn btn-success crono-btn" id="crono-btn-${crono.id}" data-index="${index}">
+                                <i class="fas ${buttonIcon}"></i>
+                                ${buttonText}
+                            </button>
+                        </div>
                     </div>
                     
-                    <div class="current-time">
-                        <div class="time-display">${formatTime(crono.elapsedTime)}</div>
-                    </div>
-                    
-                    <div class="crono-control-buttons">
-                        <button class="btn btn-success crono-btn" id="crono-btn-${crono.id}" data-index="${index}">
-                            <i class="fas ${buttonIcon}"></i>
-                            ${buttonText}
-                        </button>
-                    </div>
-                    
-                    <div class="tops-list">
-                        <h3><i class="fas fa-list-ol"></i> ${t.topsListTitle}</h3>
-                        ${renderTopsList(crono, index)}
+                    <div class="tops-container">
+                        <div class="tops-list">
+                            <h3><i class="fas fa-list-ol"></i> ${t.topsListTitle}</h3>
+                            ${renderTopsList(crono, index)}
+                        </div>
                     </div>
                     
                     <div class="crono-info">
@@ -2365,12 +2419,30 @@ IDList=`;
                 }
             });
             
+            // Attach event listeners to delete and location buttons
             setTimeout(() => {
                 document.querySelectorAll('.delete-top').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const cronoIndex = parseInt(this.getAttribute('data-crono-index'));
                         const topIndex = parseInt(this.getAttribute('data-top-index'));
-                        deleteTop(cronoIndex, topIndex);
+                        pendingTopDeletion.cronoIndex = cronoIndex;
+                        pendingTopDeletion.topIndex = topIndex;
+                        domElements.deleteTopModal.classList.add('active');
+                    });
+                });
+                
+                document.querySelectorAll('.location-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const cronoIndex = parseInt(this.getAttribute('data-crono-index'));
+                        const topIndex = parseInt(this.getAttribute('data-top-index'));
+                        const top = appState.cronos[cronoIndex].tops[topIndex];
+                        
+                        if (top.location && !top.location.error) {
+                            const lat = top.location.lat.toFixed(6);
+                            const lng = top.location.lng.toFixed(6);
+                            const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
+                            window.open(mapsUrl, '_blank');
+                        }
                     });
                 });
                 
@@ -2404,8 +2476,6 @@ IDList=`;
                     diffDisplay = '--:--.--';
                 }
                 
-                const locationHtml = renderTopLocation(top, t);
-                
                 html += `
                     <div class="top-item">
                         <div class="top-time-row">
@@ -2414,6 +2484,13 @@ IDList=`;
                                 <div class="top-diff">${diffDisplay}</div>
                             </div>
                             <div class="top-actions">
+                                <button class="action-btn location-btn" 
+                                        data-crono-index="${cronoIndex}"
+                                        data-top-index="${index}"
+                                        title="${t.viewOnMaps}"
+                                        ${top.location && !top.location.error ? '' : 'disabled style="opacity: 0.3; cursor: not-allowed;"'}>
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </button>
                                 <button class="action-btn delete-top" 
                                         data-crono-index="${cronoIndex}"
                                         data-top-index="${index}"
@@ -2422,9 +2499,7 @@ IDList=`;
                                 </button>
                             </div>
                         </div>
-                        ${locationHtml}
                         <div class="top-dorsal-container">
-                            <label class="dorsal-label">${t.dorsalPlaceholder}:</label>
                             <div class="top-dorsal">
                                 <input type="text" 
                                        value="${top.dorsal}" 
@@ -2438,32 +2513,6 @@ IDList=`;
             });
             
             return html;
-        }
-
-        function renderTopLocation(top, t) {
-            if (!top.location) {
-                return `<div class="top-location"><div class="location-info"><span class="location-text">${t.locationNotAvailable}</span></div></div>`;
-            }
-            
-            if (top.location.error) {
-                return `<div class="top-location"><div class="location-info"><span class="location-text">${t.locationNotAvailable}</span></div></div>`;
-            }
-            
-            const lat = top.location.lat.toFixed(6);
-            const lng = top.location.lng.toFixed(6);
-            const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
-            
-            return `
-                <div class="top-location">
-                    <div class="location-info">
-                        <span>${t.locationLabel}</span>
-                        <a href="${mapsUrl}" target="_blank" class="location-link">
-                            <i class="fas fa-map-marker-alt"></i>
-                            ${t.viewOnMaps}
-                        </a>
-                    </div>
-                </div>
-            `;
         }
 
         function renderLocationInfo(crono, t) {
@@ -2548,11 +2597,11 @@ IDList=`;
                 if (window.location.href.includes('Crono_Tops')) {
                     navigator.serviceWorker.register('/Web/unified-sw.js')
                     .then(function(registration) {
-                        console.log('ServiceWorker Crono Tops registrado: ', registration.scope);
+                        console.log('ServiceWorker Crono Tops registrado');
                         
                         navigator.serviceWorker.addEventListener('message', event => {
                           if (event.data && event.data.type === 'SW_UPDATED') {
-                            console.log('Service Worker actualizado a versión:', event.data.version);
+                            console.log('Service Worker actualizado');
                             showUpdateNotification();
                           }
                         });
@@ -2626,6 +2675,24 @@ IDList=`;
                 domElements.helpModal.classList.remove('active');
             });
             
+            // Modal de eliminación de top
+            domElements.deleteTopModalClose.addEventListener('click', () => {
+                domElements.deleteTopModal.classList.remove('active');
+            });
+            
+            domElements.deleteTopConfirmBtn.addEventListener('click', () => {
+                if (pendingTopDeletion.cronoIndex !== -1 && pendingTopDeletion.topIndex !== -1) {
+                    deleteTop(pendingTopDeletion.cronoIndex, pendingTopDeletion.topIndex);
+                }
+                domElements.deleteTopModal.classList.remove('active');
+                pendingTopDeletion = { cronoIndex: -1, topIndex: -1 };
+            });
+            
+            domElements.deleteTopCancelBtn.addEventListener('click', () => {
+                domElements.deleteTopModal.classList.remove('active');
+                pendingTopDeletion = { cronoIndex: -1, topIndex: -1 };
+            });
+            
             // Cerrar modales al hacer clic fuera
             document.addEventListener('click', (e) => {
                 if (e.target === domElements.helpModal) {
@@ -2633,6 +2700,10 @@ IDList=`;
                 }
                 if (e.target === domElements.deleteModal) {
                     domElements.deleteModal.classList.remove('active');
+                }
+                if (e.target === domElements.deleteTopModal) {
+                    domElements.deleteTopModal.classList.remove('active');
+                    pendingTopDeletion = { cronoIndex: -1, topIndex: -1 };
                 }
                 if (e.target === domElements.updateModal) {
                     domElements.updateModal.classList.remove('active');
