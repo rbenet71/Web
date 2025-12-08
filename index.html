@@ -184,6 +184,15 @@
                 linear-gradient(-45deg, transparent 47%, white 47%, white 53%, transparent 53%);
         }
 
+        /* Bandera Francia - Azul, Blanco, Rojo */
+        .flag-fr {
+            background: 
+                linear-gradient(to right, 
+                    #0055A4 0%, #0055A4 33.33%,
+                    #FFFFFF 33.33%, #FFFFFF 66.66%,
+                    #EF4135 66.66%, #EF4135 100%);
+        }
+
         .container {
             max-width: 1200px;
             margin: 30px auto;
@@ -715,6 +724,10 @@
                         <span class="flag flag-ca"></span>
                         Català
                     </a>
+                    <a href="#" data-lang="fr">
+                        <span class="flag flag-fr"></span>
+                        Français
+                    </a>
                     <a href="#" data-lang="en">
                         <span class="flag flag-en"></span>
                         English
@@ -742,15 +755,15 @@
                         <span id="btn-crono-llegadas">Crono Llegadas</span>
                     </a>
                     <a href="Crono_Top.html" target="_blank" class="app-button crono-tops">
-                        <i class="fas fa-tachometer-alt"></i>
+                        <img src="Crono_Tops_192x192.png" alt="Crono Tops" class="icon-image">
                         <span id="btn-crono-tops">Crono Tops</span>
                     </a>
                     <a href="Crono_cuenta_atras.html" target="_blank" class="app-button reloj-cri">
-                        <i class="fas fa-clock"></i>
+                        <img src="Crono_cuenta_atras._192_192.png" alt="Crono Cuenta Atras" class="icon-image">
                         <span id="btn-reloj-cri">Crono Cuenta Atras</span>
                     </a>
                     <a href="Crono_CRI.html" target="_blank" class="app-button salidas-cri">
-                        <i class="fas fa-flag-checkered"></i>
+                        <img src="Crono_CRI._192x192.png" alt="Salidas CRI" class="icon-image">
                         <span id="btn-salidas-cri">Salidas CRI</span>
                     </a>
                     <a href="Calculadora_Tiempos.html" target="_blank" class="app-button calculadora-tiempos">
@@ -1015,6 +1028,70 @@
                     <li>Segueix les instruccions del teu navegador</li>
                 </ol>`,
                 footer: "© 2025 Aplicacions Web Roberto Benet - Tots els drets reservats"
+            },
+            fr: {
+                title: "Applications Web Roberto Benet",
+                arbitro: "Arbitre",
+                ciclismo: "Cyclisme",
+                genericas: "Génériques",
+                arbitroTitle: "Applications d'Arbitre",
+                arbitroDesc: "Sélectionnez une des applications disponibles:",
+                ciclismoTitle: "Applications de Cyclisme",
+                ciclismoDesc: "D'autres applications de cyclisme à venir...",
+                genericasTitle: "Applications Génériques",
+                genericasDesc: "Applications génériques à venir...",
+                btnCronoLLegadas: "Chrono Arrivées",
+                btnCronoTops: "Chrono Tops",
+                btnRelojCri: "Chrono Compte à Rebours",
+                btnSalidasCri: "Départs CRI",
+                btnCalculadoraTiempos: "Calculateur de Temps",
+                btnCrono80: "Chronomètre 80%",
+                installButton: "Installer App",
+                installTitle: "Installer App",
+                installSubtitle: "Ajoutez un raccourci à votre appareil",
+                installAction: "Installer",
+                installClose: "Fermer",
+                suggestionsButton: "Mises à jour/Suggestions",
+                suggestionsTitle: "App Roberto",
+                suggestionsSubtitle: "Envoyez vos commentaires",
+                emailLabel: "Fournissez votre email pour rester informé des mises à jour",
+                cityLabel: "Ville",
+                suggestionLabel: "Suggestions pour améliorer l'application",
+                programLabel: "Programme",
+                submitButton: "📤 Envoyer",
+                sendingText: "Envoi en cours...",
+                successMessage: "✅ Envoyé avec succès",
+                errorMessage: "❌ Erreur d'envoi",
+                invalidEmail: "Email non valide",
+                invalidCity: "Ville non valide",
+                enterEmail: "Entrez votre email",
+                enterCity: "Écrivez votre ville",
+                cityExamples: "Madrid, Barcelone, Valence, etc.",
+                iosInstructionsTitle: "Installer sur iPhone/iPad",
+                iosInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Le menu de partage s'ouvrira</li>
+                    <li>Faites défiler et sélectionnez <strong>"Ajouter à l'écran d'accueil"</strong></li>
+                    <li>Appuyez sur <strong>"Ajouter"</strong> pour confirmer</li>
+                </ol>`,
+                androidInstructionsTitle: "Installer sur Android",
+                androidInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Il s'installera automatiquement en tant qu'application PWA</li>
+                    <li>L'application apparaîtra sur votre écran d'accueil</li>
+                </ol>`,
+                windowsInstructionsTitle: "Créer un Raccourci sur Windows",
+                windowsInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Un fichier .url sera téléchargé</li>
+                    <li>Ouvrez-le pour créer le raccourci sur votre bureau</li>
+                </ol>`,
+                otherInstructionsTitle: "Installer l'App",
+                otherInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Suivez les instructions de votre navigateur</li>
+                </ol>`,
+                footer: "© 2025 Applications Web Roberto Benet - Tous droits réservés"
             },
             en: {
                 title: "Roberto Benet Web Applications",
@@ -1403,9 +1480,13 @@ IDList=`;
                 
                 // Actualizar placeholders
                 this.emailInput.placeholder = "tu@email.com";
-                this.cityInput.placeholder = lang === 'en' ? "Ex: Madrid" : lang === 'ca' ? "Ex: Madrid" : "Ej: Madrid";
+                this.cityInput.placeholder = lang === 'en' ? "Ex: Madrid" : 
+                                            lang === 'ca' ? "Ex: Madrid" : 
+                                            lang === 'fr' ? "Ex: Madrid" : 
+                                            "Ej: Madrid";
                 this.suggestionInput.placeholder = lang === 'en' ? "Your ideas to improve the app..." : 
                                                   lang === 'ca' ? "Les teves idees per millorar l'app..." : 
+                                                  lang === 'fr' ? "Vos idées pour améliorer l'app..." : 
                                                   "Tus ideas para mejorar la app...";
             }
             
@@ -1444,7 +1525,7 @@ IDList=`;
             isValidCity(city) {
                 if (!city) return false;
                 city = city.trim();
-                return city.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-]+$/.test(city);
+                return city.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑàèìòùÀÈÌÒÙ\s\-]+$/.test(city);
             }
             
             formatCity(city) {
