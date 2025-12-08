@@ -175,15 +175,6 @@
             background-color: #2980b9;
         }
 
-        .btn-danger {
-            background-color: var(--accent);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: #c0392b;
-        }
-
         .btn-success {
             background-color: var(--success);
             color: white;
@@ -248,7 +239,7 @@
             color: var(--accent);
         }
 
-        /* Crono Content - ÚLTIMO CRONO PRIMERO */
+        /* Crono Content */
         .crono-content {
             background-color: white;
             padding: 25px;
@@ -290,10 +281,11 @@
             border-color: var(--secondary);
         }
 
+        /* Display del tiempo actual del cronómetro - SIN ETIQUETA */
         .current-time {
             text-align: center;
-            margin: 30px 0;
-            padding: 20px;
+            margin: 20px 0;
+            padding: 15px;
             background-color: var(--light-gray);
             border-radius: 8px;
         }
@@ -305,17 +297,11 @@
             font-variant-numeric: tabular-nums;
         }
 
-        .time-label {
-            color: var(--gray);
-            font-size: 14px;
-            margin-top: 5px;
-        }
-
-        /* BOTÓN ÚNICO - Inicio/Top */
+        /* Botón único - Inicio/Top */
         .crono-control-buttons {
             display: flex;
             justify-content: center;
-            margin: 30px 0;
+            margin: 20px 0;
         }
 
         .crono-btn {
@@ -340,11 +326,9 @@
             gap: 10px;
         }
 
+        /* Nuevo diseño para tops - tiempo y diferencia en línea, dorsal debajo */
         .top-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
+            padding: 15px;
             border-bottom: 1px solid #eee;
             transition: background-color 0.2s;
         }
@@ -357,33 +341,24 @@
             border-bottom: none;
         }
 
-        .top-info {
+        .top-time-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .top-time-info {
             display: flex;
             align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .top-dorsal {
-            width: 80px;
-            min-width: 80px;
-        }
-
-        .top-dorsal input {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            font-size: 16px;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            white-space: normal;
+            gap: 20px;
         }
 
         .top-time {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--dark);
             font-variant-numeric: tabular-nums;
+            font-size: 20px;
             min-width: 100px;
         }
 
@@ -391,6 +366,7 @@
             color: var(--accent);
             font-weight: 600;
             font-variant-numeric: tabular-nums;
+            font-size: 16px;
             min-width: 100px;
         }
 
@@ -420,19 +396,49 @@
             color: var(--accent);
         }
 
+        .top-dorsal-container {
+            margin-top: 10px;
+        }
+
+        .top-dorsal {
+            width: 100%;
+        }
+
+        .top-dorsal input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+        }
+
+        .top-dorsal input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        .dorsal-label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--gray);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
         .crono-info {
             margin-top: 30px;
             padding-top: 20px;
             border-top: 1px solid #eee;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
         }
 
         .info-box {
             padding: 15px;
             background-color: var(--light-gray);
             border-radius: 6px;
+            margin-bottom: 15px;
         }
 
         .info-box h4 {
@@ -460,7 +466,7 @@
             text-decoration: underline;
         }
 
-        /* Footer - NO FIJADO */
+        /* Footer */
         .app-footer {
             background-color: var(--primary);
             color: white;
@@ -590,18 +596,10 @@
                 align-items: center;
             }
             
-            .crono-info {
-                grid-template-columns: 1fr;
-            }
-            
             .footer-content {
                 flex-direction: column;
                 text-align: center;
                 gap: 15px;
-            }
-            
-            .time-display {
-                font-size: 36px;
             }
             
             .crono-btn {
@@ -610,34 +608,39 @@
                 min-width: 180px;
             }
             
-            .top-info {
+            .top-time-info {
                 gap: 10px;
             }
             
-            .top-dorsal {
-                width: 70px;
-                min-width: 70px;
+            .top-time {
+                font-size: 18px;
+                min-width: 80px;
             }
             
-            .top-time, .top-diff {
+            .top-diff {
+                font-size: 14px;
                 min-width: 80px;
+            }
+            
+            .time-display {
+                font-size: 36px;
             }
         }
 
         @media (max-width: 480px) {
-            .top-info {
+            .top-time-row {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 5px;
+                gap: 10px;
             }
             
-            .top-dorsal {
+            .top-time-info {
                 width: 100%;
-                min-width: 100%;
+                justify-content: space-between;
             }
             
-            .top-time, .top-diff {
-                min-width: auto;
+            .top-actions {
+                align-self: flex-end;
             }
         }
 
@@ -698,40 +701,6 @@
             margin-bottom: 10px;
             color: var(--dark);
         }
-
-        /* Tabs scroll */
-        .tabs-container {
-            position: relative;
-        }
-
-        .tabs-scroll-btn {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 30px;
-            background-color: rgba(255, 255, 255, 0.8);
-            border: none;
-            color: var(--dark);
-            cursor: pointer;
-            display: none;
-            z-index: 1;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .tabs-scroll-btn.left {
-            left: 0;
-            border-radius: 8px 0 0 0;
-        }
-
-        .tabs-scroll-btn.right {
-            right: 0;
-            border-radius: 0 8px 0 0;
-        }
-
-        .tabs-container:hover .tabs-scroll-btn {
-            display: flex;
-        }
     </style>
 </head>
 <body>
@@ -765,27 +734,21 @@
     </header>
 
     <div class="container">
-        <!-- Crono Controls -->
+        <!-- Crono Controls - Solo botón nuevo crono -->
         <div class="crono-controls">
             <button class="btn btn-primary" id="add-crono-btn">
                 <i class="fas fa-plus"></i>
                 <span id="new-crono-text">Nuevo Crono</span>
             </button>
-            <button class="btn btn-danger" id="delete-crono-btn" disabled>
-                <i class="fas fa-trash"></i>
-                <span id="delete-crono-text">Eliminar Crono</span>
-            </button>
         </div>
 
         <!-- Crono Tabs -->
-        <div class="tabs-container">
-            <div class="crono-tabs" id="crono-tabs">
-                <!-- Tabs will be added here dynamically -->
-                <div class="empty-state" id="no-cronos-message">
-                    <i class="fas fa-stopwatch"></i>
-                    <h3 id="no-cronos-title">No hay cronómetros</h3>
-                    <p id="no-cronos-text">Haz clic en "Nuevo Crono" para crear tu primer cronómetro</p>
-                </div>
+        <div class="crono-tabs" id="crono-tabs">
+            <!-- Tabs will be added here dynamically -->
+            <div class="empty-state" id="no-cronos-message">
+                <i class="fas fa-stopwatch"></i>
+                <h3 id="no-cronos-title">No hay cronómetros</h3>
+                <p id="no-cronos-text">Haz clic en "Nuevo Crono" para crear tu primer cronómetro</p>
             </div>
         </div>
 
@@ -834,8 +797,7 @@
                     <li><strong>Nombre del Top:</strong> Asigna un nombre al punto de control (ej: "Frente Carrefour Prat").</li>
                     <li><strong>Botón Inicio/Top:</strong> Al pulsar por primera vez se inicia el cronómetro. Las siguientes pulsaciones registran tiempos (tops).</li>
                     <li><strong>Dorsal:</strong> Asigna el número de dorsal a cada tiempo registrado.</li>
-                    <li><strong>Eliminar Top:</strong> Elimina un tiempo registrado si es necesario.</li>
-                    <li><strong>Coordenadas GPS:</strong> La ubicación se registra automáticamente al iniciar el cronómetro.</li>
+                    <li><strong>Ubicación:</strong> La ubicación GPS se registra automáticamente al iniciar el cronómetro.</li>
                 </ul>
                 
                 <p id="help-modal-text2">Los tiempos se muestran en formato minutos:segundos.décimas y la diferencia se calcula automáticamente entre cada top registrado.</p>
@@ -904,23 +866,23 @@
             deferredPrompt: null
         };
 
-        // Translations
+        // Translations - Eliminada la etiqueta "currentTimeLabel"
         const translations = {
             es: {
                 appTitle: "Crono Tops",
                 newCrono: "Nuevo Crono",
-                deleteCrono: "Eliminar Crono",
                 noCronosTitle: "No hay cronómetros",
                 noCronosText: "Haz clic en 'Nuevo Crono' para crear tu primer cronómetro",
                 cronoNameLabel: "Nombre del top",
                 cronoNamePlaceholder: "Ej: Frente Carrefour Prat",
-                currentTimeLabel: "Tiempo actual",
+                // currentTimeLabel: "Tiempo actual", // ELIMINADO
                 startBtn: "Inicio",
                 topBtn: "Top",
                 topsListTitle: "Tops registrados",
                 startTimeLabel: "Hora de inicio",
                 gpsLabel: "Ubicación GPS",
                 gpsLink: "Ver en Google Maps",
+                gpsNoAvailable: "No disponible - Permite acceso a ubicación",
                 dorsalPlaceholder: "Dorsal",
                 time: "Tiempo",
                 diff: "Diferencia",
@@ -937,8 +899,7 @@
                     "Nombre del Top: Asigna un nombre al punto de control (ej: 'Frente Carrefour Prat').",
                     "Botón Inicio/Top: Al pulsar por primera vez se inicia el cronómetro. Las siguientes pulsaciones registran tiempos (tops).",
                     "Dorsal: Asigna el número de dorsal a cada tiempo registrado.",
-                    "Eliminar Top: Elimina un tiempo registrado si es necesario.",
-                    "Coordenadas GPS: La ubicación se registra automáticamente al iniciar el cronómetro."
+                    "Ubicación: La ubicación GPS se registra automáticamente al iniciar el cronómetro."
                 ],
                 helpModalText2: "Los tiempos se muestran en formato minutos:segundos.décimas y la diferencia se calcula automáticamente entre cada top registrado.",
                 deleteModalTitle: "Confirmar eliminación",
@@ -957,18 +918,18 @@
             ca: {
                 appTitle: "Crono Tops",
                 newCrono: "Nou Crono",
-                deleteCrono: "Eliminar Crono",
                 noCronosTitle: "No hi ha cronòmetres",
                 noCronosText: "Fes clic a 'Nou Crono' per crear el teu primer cronòmetre",
                 cronoNameLabel: "Nom del top",
                 cronoNamePlaceholder: "Ex: Davant Carrefour Prat",
-                currentTimeLabel: "Temps actual",
+                // currentTimeLabel: "Temps actual", // ELIMINADO
                 startBtn: "Inici",
                 topBtn: "Top",
                 topsListTitle: "Tops registrats",
                 startTimeLabel: "Hora d'inici",
                 gpsLabel: "Ubicació GPS",
                 gpsLink: "Veure a Google Maps",
+                gpsNoAvailable: "No disponible - Permet l'accés a la ubicació",
                 dorsalPlaceholder: "Dorsal",
                 time: "Temps",
                 diff: "Diferència",
@@ -985,8 +946,7 @@
                     "Nom del Top: Assigna un nom al punt de control (ex: 'Davant Carrefour Prat').",
                     "Botó Inici/Top: En prémer per primera vegada s'inicia el cronòmetre. Les següents pulsacions registren temps (tops).",
                     "Dorsal: Assigna el número de dorsal a cada temps registrat.",
-                    "Eliminar Top: Elimina un temps registrat si és necessari.",
-                    "Coordenades GPS: La ubicació es registra automàticament en iniciar el cronòmetre."
+                    "Ubicació: La ubicació GPS es registra automàticament en iniciar el cronòmetre."
                 ],
                 helpModalText2: "Els temps es mostren en format minuts:segons.dècimes i la diferència es calcula automàticament entre cada top registrat.",
                 deleteModalTitle: "Confirmar eliminació",
@@ -1005,18 +965,18 @@
             en: {
                 appTitle: "Crono Tops",
                 newCrono: "New Chrono",
-                deleteCrono: "Delete Chrono",
                 noCronosTitle: "No chronometers",
                 noCronosText: "Click 'New Chrono' to create your first chronometer",
                 cronoNameLabel: "Top name",
                 cronoNamePlaceholder: "Ex: Front Carrefour Prat",
-                currentTimeLabel: "Current time",
+                // currentTimeLabel: "Current time", // ELIMINADO
                 startBtn: "Start",
                 topBtn: "Top",
                 topsListTitle: "Recorded tops",
                 startTimeLabel: "Start time",
                 gpsLabel: "GPS location",
                 gpsLink: "View on Google Maps",
+                gpsNoAvailable: "Not available - Allow location access",
                 dorsalPlaceholder: "Bib number",
                 time: "Time",
                 diff: "Difference",
@@ -1033,8 +993,7 @@
                     "Top Name: Assign a name to the checkpoint (ex: 'Front Carrefour Prat').",
                     "Start/Top Button: When pressed for the first time it starts the chronometer. Subsequent presses record times (tops).",
                     "Bib Number: Assign the bib number to each recorded time.",
-                    "Delete Top: Delete a recorded time if necessary.",
-                    "GPS Coordinates: The location is automatically recorded when starting the chronometer."
+                    "Location: GPS location is automatically recorded when starting the chronometer."
                 ],
                 helpModalText2: "Times are displayed in minutes:seconds.tenths format and the difference is automatically calculated between each recorded top.",
                 deleteModalTitle: "Confirm deletion",
@@ -1060,9 +1019,7 @@
             languageDropdown: document.getElementById('language-dropdown'),
             helpBtn: document.getElementById('help-btn'),
             addCronoBtn: document.getElementById('add-crono-btn'),
-            deleteCronoBtn: document.getElementById('delete-crono-btn'),
             newCronoText: document.getElementById('new-crono-text'),
-            deleteCronoText: document.getElementById('delete-crono-text'),
             cronoTabs: document.getElementById('crono-tabs'),
             cronoContent: document.getElementById('crono-content'),
             noCronosMessage: document.getElementById('no-cronos-message'),
@@ -1110,6 +1067,9 @@
             setupServiceWorker();
             checkForUpdates();
             showPWAInstallPrompt();
+            
+            // Start updating crono times
+            setInterval(updateAllCronoTimes, 100);
         }
 
         // Language functions
@@ -1129,7 +1089,6 @@
             domElements.appTitleText.textContent = t.appTitle;
             domElements.currentLanguage.textContent = getLanguageName(lang);
             domElements.newCronoText.textContent = t.newCrono;
-            domElements.deleteCronoText.textContent = t.deleteCrono;
             domElements.noCronosTitle.textContent = t.noCronosTitle;
             domElements.noCronosText.textContent = t.noCronosText;
             domElements.updateText.textContent = t.updateText;
@@ -1172,7 +1131,7 @@
             return names[code] || 'Español';
         }
 
-        // Crono functions - MODIFICADO: último crono primero
+        // Crono functions - último crono primero
         function createNewCrono() {
             const cronoId = appState.nextCronoId++;
             const now = new Date();
@@ -1187,23 +1146,15 @@
                 tops: [],
                 location: null,
                 tabName: `Crono ${cronoId}`,
-                hasStarted: false  // Nuevo campo para controlar si ya se inició
+                hasStarted: false
             };
             
             // INSERTAR AL PRINCIPIO (último crono primero)
             appState.cronos.unshift(newCrono);
             appState.activeCronoIndex = 0; // Siempre activar el nuevo crono (que está al principio)
             
-            // Try to get location
-            getCurrentLocation().then(location => {
-                newCrono.location = location;
-            }).catch(error => {
-                console.log("No se pudo obtener la ubicación:", error);
-            });
-            
             saveCronosToStorage();
             renderCronos();
-            updateDeleteButtonState();
         }
 
         function deleteCrono(index) {
@@ -1218,10 +1169,9 @@
             
             saveCronosToStorage();
             renderCronos();
-            updateDeleteButtonState();
         }
 
-        // MODIFICADO: Botón único Inicio/Top
+        // Botón único Inicio/Top
         function handleCronoButton(index) {
             const crono = appState.cronos[index];
             
@@ -1243,19 +1193,49 @@
                 crono.startTime = Date.now() - crono.elapsedTime;
                 crono.lastUpdateTime = Date.now();
                 
-                // If this is the first start and we don't have location yet, try to get it
-                if (!crono.location) {
-                    getCurrentLocation().then(location => {
-                        crono.location = location;
-                        renderCronos();
-                    }).catch(error => {
-                        console.log("No se pudo obtener la ubicación:", error);
-                    });
-                }
+                // Obtener ubicación GPS
+                getCurrentLocation().then(location => {
+                    crono.location = location;
+                    saveCronosToStorage();
+                    renderCronos();
+                }).catch(error => {
+                    console.log("No se pudo obtener la ubicación:", error);
+                    crono.location = { error: true };
+                    saveCronosToStorage();
+                    renderCronos();
+                });
                 
                 saveCronosToStorage();
                 renderCronos();
             }
+        }
+
+        function getCurrentLocation() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error("Geolocation no está disponible"));
+                    return;
+                }
+                
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        resolve({
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                            accuracy: position.coords.accuracy,
+                            timestamp: position.timestamp
+                        });
+                    },
+                    (error) => {
+                        reject(error);
+                    },
+                    { 
+                        enableHighAccuracy: true, 
+                        timeout: 10000, 
+                        maximumAge: 0 
+                    }
+                );
+            });
         }
 
         function recordTop(index) {
@@ -1299,7 +1279,7 @@
                 crono.elapsedTime = now - crono.startTime;
                 crono.lastUpdateTime = now;
                 
-                // Update the time display for the active crono
+                // Actualizar el display del tiempo en la UI
                 if (index === appState.activeCronoIndex) {
                     const timeDisplay = document.querySelector(`#crono-panel-${crono.id} .time-display`);
                     if (timeDisplay) {
@@ -1379,6 +1359,7 @@
                 const buttonText = crono.hasStarted ? t.topBtn : t.startBtn;
                 const buttonIcon = crono.hasStarted ? 'fa-flag-checkered' : 'fa-play';
                 
+                // Panel HTML - SIN ETIQUETA DE TIEMPO ACTUAL
                 panel.innerHTML = `
                     <div class="crono-name">
                         <label>${t.cronoNameLabel}</label>
@@ -1387,7 +1368,6 @@
                     
                     <div class="current-time">
                         <div class="time-display">${formatTime(crono.elapsedTime)}</div>
-                        <div class="time-label">${t.currentTimeLabel}</div>
                     </div>
                     
                     <div class="crono-control-buttons">
@@ -1409,12 +1389,7 @@
                         </div>
                         <div class="info-box">
                             <h4><i class="fas fa-map-marker-alt"></i> ${t.gpsLabel}</h4>
-                            ${crono.location ? 
-                                `<p>${crono.location.lat.toFixed(6)}, ${crono.location.lng.toFixed(6)}</p>
-                                 <a href="https://maps.google.com/?q=${crono.location.lat},${crono.location.lng}" target="_blank" class="gps-link">
-                                    <i class="fas fa-external-link-alt"></i> ${t.gpsLink}
-                                 </a>` 
-                                : '<p>No disponible</p>'}
+                            ${renderLocationInfo(crono, t)}
                         </div>
                     </div>
                 `;
@@ -1480,25 +1455,29 @@
                 
                 html += `
                     <div class="top-item">
-                        <div class="top-info">
+                        <div class="top-time-row">
+                            <div class="top-time-info">
+                                <div class="top-time">${formatTime(top.time)}</div>
+                                <div class="top-diff">${diffDisplay}</div>
+                            </div>
+                            <div class="top-actions">
+                                <button class="action-btn delete-top" 
+                                        data-crono-index="${cronoIndex}"
+                                        data-top-index="${index}"
+                                        title="${t.delete}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="top-dorsal-container">
+                            <label class="dorsal-label">${t.dorsalPlaceholder}:</label>
                             <div class="top-dorsal">
                                 <input type="text" 
                                        value="${top.dorsal}" 
                                        placeholder="${t.dorsalPlaceholder}"
                                        data-crono-index="${cronoIndex}"
-                                       data-top-index="${index}"
-                                       style="white-space: normal; word-wrap: break-word;">
+                                       data-top-index="${index}">
                             </div>
-                            <div class="top-time">${formatTime(top.time)}</div>
-                            <div class="top-diff">${diffDisplay}</div>
-                        </div>
-                        <div class="top-actions">
-                            <button class="action-btn delete-top" 
-                                    data-crono-index="${cronoIndex}"
-                                    data-top-index="${index}"
-                                    title="${t.delete}">
-                                <i class="fas fa-trash"></i>
-                            </button>
                         </div>
                     </div>
                 `;
@@ -1507,14 +1486,26 @@
             return html;
         }
 
+        function renderLocationInfo(crono, t) {
+            if (!crono.location) {
+                return `<p>${t.gpsNoAvailable}</p>`;
+            }
+            
+            if (crono.location.error) {
+                return `<p>${t.gpsNoAvailable}</p>`;
+            }
+            
+            return `
+                <p>${crono.location.lat.toFixed(6)}, ${crono.location.lng.toFixed(6)}</p>
+                <a href="https://maps.google.com/?q=${crono.location.lat},${crono.location.lng}" target="_blank" class="gps-link">
+                    <i class="fas fa-external-link-alt"></i> ${t.gpsLink}
+                </a>
+            `;
+        }
+
         function setActiveCrono(index) {
             appState.activeCronoIndex = index;
             renderCronos();
-            updateDeleteButtonState();
-        }
-
-        function updateDeleteButtonState() {
-            domElements.deleteCronoBtn.disabled = appState.activeCronoIndex === -1;
         }
 
         // Utility functions
@@ -1527,28 +1518,6 @@
             const tenths = Math.floor((milliseconds % 1000) / 100);
             
             return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${tenths}`;
-        }
-
-        function getCurrentLocation() {
-            return new Promise((resolve, reject) => {
-                if (!navigator.geolocation) {
-                    reject(new Error("Geolocation no está disponible"));
-                    return;
-                }
-                
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        resolve({
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        });
-                    },
-                    (error) => {
-                        reject(error);
-                    },
-                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-                );
-            });
         }
 
         // Storage functions
@@ -1703,13 +1672,6 @@
                 createNewCrono();
             });
             
-            // Delete crono button
-            domElements.deleteCronoBtn.addEventListener('click', () => {
-                if (appState.activeCronoIndex !== -1) {
-                    domElements.deleteModal.classList.add('active');
-                }
-            });
-            
             // Delete confirmation
             domElements.deleteConfirmBtn.addEventListener('click', () => {
                 deleteCrono(appState.activeCronoIndex);
@@ -1777,9 +1739,6 @@
                     domElements.deleteModal.classList.add('active');
                 }
             });
-            
-            // Update crono times every 100ms
-            setInterval(updateAllCronoTimes, 100);
         }
 
         // Initialize the app when DOM is loaded
