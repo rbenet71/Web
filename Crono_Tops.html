@@ -2239,18 +2239,28 @@ IDList=`;
             
             const currentTime = Date.now();
             const elapsedTime = currentTime - crono.startTime;
-            const previousTop = crono.tops.length > 0 ? crono.tops[crono.tops.length - 1] : null;
-            const diff = previousTop ? elapsedTime - previousTop.time : 0;
+            
+            // Calcular diferencia con el top anterior (si existe)
+            let diff = 0;
+            if (crono.tops.length > 0) {
+                // El último top registrado está al principio del array (por el unshift)
+                const lastTop = crono.tops[0];
+                diff = elapsedTime - lastTop.time;
+            } else {
+                // Primer top - diferencia es el tiempo desde inicio
+                diff = elapsedTime;
+            }
             
             getCurrentLocation().then(location => {
                 const newTop = {
                     id: Date.now(),
                     dorsal: "",
-                    time: elapsedTime,
-                    diff: diff,
+                    time: elapsedTime, // Tiempo total desde inicio
+                    diff: diff,        // Diferencia con el top anterior
                     location: location
                 };
                 
+                // Insertar al principio (último top primero)
                 crono.tops.unshift(newTop);
                 
                 saveCronosToStorage();
@@ -2271,6 +2281,8 @@ IDList=`;
                 renderCronos();
             });
         }
+
+
 
         function deleteTop(cronoIndex, topIndex) {
             appState.cronos[cronoIndex].tops.splice(topIndex, 1);
@@ -2437,61 +2449,75 @@ IDList=`;
         }
 
         function renderTopsList(crono, cronoIndex) {
-            const t = translations[appState.currentLanguage];
-            
-            if (crono.tops.length === 0) {
-                return '<div class="empty-state" style="padding: 20px;"><p>No hay tops registrados todavía</p></div>';
+    const t = translations[appState.currentLanguage];
+    
+    if (crono.tops.length === 0) {
+        return '<div class="empty-state" style="padding: 20px;"><p>No hay tops registrados todavía</p></div>';
+    }
+    
+    let html = '';
+    
+    // Recorrer los tops tal como están (último primero)
+    crono.tops.forEach((top, index) => {
+        let diffDisplay = '';
+        
+        if (index === 0) {
+            // El primer elemento es el último top registrado
+            // Diferencia con el top anterior (si existe)
+            if (crono.tops.length > 1) {
+                const nextTop = crono.tops[1]; // El top anterior en el tiempo
+                diffDisplay = `+${formatTime(top.time - nextTop.time)}`;
+            } else {
+                // Es el único top - diferencia desde inicio
+                diffDisplay = `+${formatTime(top.time)}`;
             }
-            
-            let html = '';
-            
-            crono.tops.forEach((top, index) => {
-                let diffDisplay = '';
-                
-                if (index === 0) {
-                    // Primer top - diferencia desde el inicio
-                    diffDisplay = `+${formatTime(top.time)}`;  // ← Ya sin milésimas
-                } else {
-                    // Top posterior - diferencia desde el top anterior
-                    const prevTop = crono.tops[index - 1];
-                    const diff = top.time - prevTop.time;
-                    diffDisplay = `+${formatTime(diff)}`;  // ← Ya sin milésimas
-                }
-                
-                const locationHtml = renderTopLocation(top, t);
-                
-                html += `
-                    <div class="top-item">
-                        <div class="top-time-row">
-                            <div class="top-time-info">
-                                <div class="top-time" style="min-width: 90px;">${formatTime(top.time)}</div>  <!-- ← Sin milésimas -->
-                                <div class="top-diff" style="min-width: 90px;">${diffDisplay}</div>  <!-- ← Sin milésimas -->
-                            </div>
-                            <div class="top-actions" style="display: flex; gap: 8px; align-items: center;">
-                                ${locationHtml}
-                                <button class="action-btn delete-top" 
-                                        data-crono-index="${cronoIndex}"
-                                        data-top-index="${index}"
-                                        title="${t.delete}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="top-dorsal-container">
-                            <div class="top-dorsal">
-                                <input type="text" 
-                                    value="${top.dorsal}" 
-                                    placeholder="${t.dorsalPlaceholder}"
-                                    data-crono-index="${cronoIndex}"
-                                    data-top-index="${index}">
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            return html;
+        } else {
+            // Para los tops anteriores en el tiempo
+            if (index < crono.tops.length - 1) {
+                // Hay un top posterior - calcular diferencia con el siguiente top
+                const nextTop = crono.tops[index + 1];
+                diffDisplay = `+${formatTime(top.time - nextTop.time)}`;
+            } else {
+                // Este es el primer top registrado (el más antiguo)
+                diffDisplay = `+${formatTime(top.time)}`;
+            }
         }
+        
+        const locationHtml = renderTopLocation(top, t);
+        
+        html += `
+            <div class="top-item">
+                <div class="top-time-row">
+                    <div class="top-time-info">
+                        <div class="top-time" style="min-width: 90px;">${formatTime(top.time)}</div>
+                        <div class="top-diff" style="min-width: 90px;">${diffDisplay}</div>
+                    </div>
+                    <div class="top-actions" style="display: flex; gap: 8px; align-items: center;">
+                        ${locationHtml}
+                        <button class="action-btn delete-top" 
+                                data-crono-index="${cronoIndex}"
+                                data-top-index="${index}"
+                                title="${t.delete}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="top-dorsal-container">
+                    <div class="top-dorsal">
+                        <input type="text" 
+                            value="${top.dorsal}" 
+                            placeholder="${t.dorsalPlaceholder}"
+                            data-crono-index="${cronoIndex}"
+                            data-top-index="${index}">
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    return html;
+}
+        
         function renderTopLocation(top, t) {
             if (!top.location || top.location.error) {
                 return '';
