@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayuda Crono Tops - Control de Tiempos para Carreras</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(44, 62, 80, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+        
+        .language-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .lang-btn {
+            background: #34495e;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            min-width: 120px;
+        }
+        
+        .lang-btn:hover {
+            background: #3498db;
+            transform: translateY(-2px);
+        }
+        
+        .lang-btn.active {
+            background: #3498db;
+        }
+        
+        .content {
+            display: none;
+        }
+        
+        .content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h2 {
+            color: #3498db;
+            margin: 30px 0 15px 0;
+            font-size: 1.8rem;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #2ecc71;
+            margin: 20px 0 10px 0;
+            font-size: 1.4rem;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: rgba(52, 73, 94, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #2ecc71;
+        }
+        
+        .feature-card h4 {
+            color: #2ecc71;
+            margin-bottom: 10px;
+        }
+        
+        .step-box {
+            background: rgba(52, 73, 94, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: #f39c12;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .tip-box {
+            background: rgba(155, 89, 182, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #9b59b6;
+        }
+        
+        .tip-box h4 {
+            color: #9b59b6;
+            margin-bottom: 10px;
+        }
+        
+        .app-install {
+            background: rgba(46, 204, 113, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2ecc71;
+        }
+        
+        .app-install h3 {
+            color: #2ecc71;
+        }
+        
+        .platform {
+            margin: 15px 0;
+        }
+        
+        .platform h4 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .back-button {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .back-button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .author-note {
+            background: rgba(41, 128, 185, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border-left: 4px solid #3498db;
+            font-style: italic;
+        }
+        
+        .author-note h4 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .unique-feature {
+            background: rgba(231, 76, 60, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border: 2px solid #e74c3c;
+        }
+        
+        .unique-feature-explanation {
+            background: rgba(44, 62, 80, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .gps-feature {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border: 2px solid #3498db;
+        }
+        
+        .gps-explanation {
+            background: rgba(44, 62, 80, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #3498db;
+        }
+        
+        .gps-maps-example {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
+        .more-apps-link {
+            color: #3498db;
+            font-weight: bold;
+            text-decoration: none;
+            border-bottom: 1px dashed #3498db;
+            transition: all 0.3s;
+        }
+        
+        .more-apps-link:hover {
+            color: #2ecc71;
+            border-bottom: 1px solid #2ecc71;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .language-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .lang-btn {
+                width: 200px;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 id="main-title">Ayuda Crono Tops</h1>
+            <div class="language-selector">
+                <button class="lang-btn active" data-lang="es">Español</button>
+                <button class="lang-btn" data-lang="ca">Català</button>
+                <button class="lang-btn" data-lang="en">English</button>
+                <button class="lang-btn" data-lang="fr">Français</button>
+            </div>
+        </header>
+
+        <!-- Contenido Español -->
+        <div class="content active" id="content-es">
+            <div class="author-note">
+                <h4>Nota del Autor</h4>
+                <p>Esta aplicación la ha desarrollado Roberto Benet, comisario del comité catalán, para que cualquier árbitro la pueda utilizar en carreras de ciclismo de forma gratuita. Estoy abierto a cualquier tipo de mejora o implementación de nuevas funciones.</p>
+                <p>Si te resulta útil esta aplicación, te invito a explorar mis otras aplicaciones disponibles en <a href="https://rbenet71.github.io/Web" target="_blank" class="more-apps-link">https://rbenet71.github.io/Web</a>.</p>
+            </div>
+
+            <h2>Descripción General</h2>
+            <p>Crono Tops es una aplicación profesional diseñada específicamente para registrar tiempos en puntos de control durante carreras de ciclismo. A diferencia de los cronómetros tradicionales, Crono Tops permite crear múltiples cronómetros independientes para diferentes puntos de control, cada uno con su propia pestaña y configuración.</p>
+
+            <h2>Funcionalidades Principales</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Múltiples Cronómetros</h4>
+                    <ul>
+                        <li><strong>Varios Puntos de Control:</strong> Crea un cronómetro independiente para cada punto de control de la carrera</li>
+                        <li><strong>Pestañas Separadas:</strong> Cada cronómetro tiene su propia pestaña para fácil navegación</li>
+                        <li><strong>Nombres Personalizados:</strong> Asigna nombres específicos a cada punto (ej: "Frente Carrefour", "Km 25", etc.)</li>
+                        <li><strong>Gestión Sencilla:</strong> Añade, elimina y cambia entre cronómetros fácilmente</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Botón Único Inicio/Top</h4>
+                    <ul>
+                        <li><strong>Función Dual Inteligente:</strong> El mismo botón sirve para iniciar el cronómetro y registrar tops</li>
+                        <li><strong>Inicio Automático:</strong> Primer clic = Inicia el cronómetro del punto de control</li>
+                        <li><strong>Registro Rápido:</strong> Siguientes clics = Registran tiempos de paso de corredores</li>
+                        <li><strong>Indicación Clara:</strong> El botón cambia de "Inicio" a "Top" automáticamente</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Registro GPS Automático</h4>
+                    <ul>
+                        <li><strong>Ubicación Precisa:</strong> Registra automáticamente la ubicación GPS de cada top</li>
+                        <li><strong>Enlace a Google Maps:</strong> Cada top incluye un enlace directo a Google Maps</li>
+                        <li><strong>Doble Nivel:</strong> Ubicación del punto de control y ubicación específica de cada top</li>
+                        <li><strong>Precisión Alta:</strong> Utiliza GPS de alta precisión para ubicaciones exactas</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Asignación de Dorsales</h4>
+                    <ul>
+                        <li><strong>Registro por Dorsal:</strong> Asigna el número de dorsal a cada tiempo registrado</li>
+                        <li><strong>Edición en Tiempo Real:</strong> Modifica los dorsales en cualquier momento</li>
+                        <li><strong>Visualización Clara:</strong> Dorsales asociados directamente a cada tiempo</li>
+                        <li><strong>Persistencia Automática:</strong> Los datos se guardan automáticamente</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>CARACTERÍSTICA ÚNICA: UN SOLO BOTÓN PARA TODO</h2>
+            
+            <div class="unique-feature">
+                <div class="unique-feature-explanation">
+                    <h4>¿Cómo funciona el botón único?</h4>
+                    <p>Crono Tops revoluciona el registro de tiempos con un sistema de botón único que simplifica enormemente el proceso:</p>
+                    
+                    <div class="gps-maps-example">
+                        🕐 Primer clic → INICIO del cronómetro<br>
+                        🏁 Siguientes clics → TOP (registro de tiempos)
+                    </div>
+                    
+                    <p><strong>Ventajas de este sistema:</strong></p>
+                    <ul>
+                        <li><strong>Simplicidad:</strong> No hay confusión sobre qué botón pulsar</li>
+                        <li><strong>Rapidez:</strong> Registro ultrarrápido en situaciones de presión</li>
+                        <li><strong>Intuitivo:</strong> El funcionamiento es natural y fácil de aprender</li>
+                        <li><strong>Sin Errores:</strong> Reduce al mínimo los errores de pulsación</li>
+                    </ul>
+                    
+                    <p><strong>Visualización:</strong> El botón cambia automáticamente de color y texto para indicar su función actual.</p>
+                </div>
+            </div>
+
+            <h2>SISTEMA DE UBICACIÓN GPS INTEGRADO</h2>
+            
+            <div class="gps-feature">
+                <div class="gps-explanation">
+                    <h4>Registro Automático de Ubicación</h4>
+                    <p>Crono Tops incluye un sistema GPS avanzado que registra automáticamente la ubicación exacta:</p>
+                    
+                    <div class="gps-maps-example">
+                        📍 GPS Activado → Ubicación automática<br>
+                        🗺️ Enlace directo a Google Maps en cada top
+                    </div>
+                    
+                    <p><strong>Dos niveles de ubicación:</strong></p>
+                    <ol>
+                        <li><strong>Ubicación del Punto de Control:</strong> Se registra al iniciar el cronómetro</li>
+                        <li><strong>Ubicación de Cada Top:</strong> Se registra específicamente en cada registro de tiempo</li>
+                    </ol>
+                    
+                    <p><strong>Funcionalidades del GPS:</strong></p>
+                    <ul>
+                        <li><strong>Coordenadas Exactas:</strong> Latitud y longitud con 6 decimales de precisión</li>
+                        <li><strong>Enlace a Maps:</strong> Clic en el icono 📍 abre Google Maps con la ubicación exacta</li>
+                        <li><strong>Independiente por Top:</strong> Cada top mantiene su propia ubicación GPS</li>
+                        <li><strong>Alta Precisión:</strong> Utiliza la máxima precisión disponible del dispositivo</li>
+                    </ul>
+                    
+                    <p><strong>Uso en Carreras:</strong> Perfecto para documentar exactamente dónde se tomaron los tiempos, esencial para controles aleatorios y verificación de recorridos.</p>
+                </div>
+            </div>
+
+            <h2>Cómo Usar</h2>
+            
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Crear un Nuevo Cronómetro</strong>
+                <p>Haz clic en "Nuevo Crono" para crear un nuevo cronómetro. Se abrirá una nueva pestaña con tu cronómetro.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Nombrar el Punto de Control</strong>
+                <p>Asigna un nombre descriptivo al punto de control (ej: "Salida", "Km 15", "Meta Intermedia", etc.).</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Iniciar el Cronómetro</strong>
+                <p>Haz clic en el botón verde grande "INICIO" para comenzar el cronómetro de ese punto de control.</p>
+                <p><strong>NOTA:</strong> El primer clic siempre inicia el cronómetro.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Registrar Tops (Tiempos)</strong>
+                <p>Cada vez que un corredor o grupo pase por el punto de control, haz clic en el botón "TOP" para registrar el tiempo.</p>
+                <p><strong>IMPORTANTE:</strong> El botón cambia automáticamente de "INICIO" a "TOP" después del primer clic.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
+                <strong>Asignar Dorsales</strong>
+                <p>En cada tiempo registrado, escribe el número de dorsal del corredor en el campo correspondiente.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">6</span>
+                <strong>Verificar Ubicación</strong>
+                <p>Haz clic en el icono 📍 junto a cada top para verificar la ubicación exacta en Google Maps.</p>
+            </div>
+
+            <h2>Gestión de Múltiples Cronómetros</h2>
+            <p>Crono Tops está diseñado específicamente para carreras con múltiples puntos de control:</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Creación de Puntos</h4>
+                    <ul>
+                        <li>Crea tantos cronómetros como puntos de control tenga la carrera</li>
+                        <li>Cada punto funciona independientemente</li>
+                        <li>Navega entre puntos con las pestañas superiores</li>
+                        <li>Los nombres de los puntos ayudan a identificar rápidamente cada ubicación</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Organización Visual</h4>
+                    <ul>
+                        <li>Las pestañas muestran el nombre de cada punto</li>
+                        <li>El cronómetro activo se muestra con colores destacados</li>
+                        <li>Los tops se muestran en orden inverso (el más reciente primero)</li>
+                        <li>La diferencia de tiempo se calcula automáticamente entre tops consecutivos</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Información Técnica Registrada</h2>
+            <p>Cada top registrado contiene la siguiente información completa:</p>
+            <ul>
+                <li><strong>Tiempo de cronómetro:</strong> Formato minutos:segundos.décimas</li>
+                <li><strong>Diferencia:</strong> Tiempo transcurrido desde el top anterior</li>
+                <li><strong>Dorsal:</strong> Número de dorsal del corredor</li>
+                <li><strong>Ubicación GPS:</strong> Coordenadas exactas (latitud, longitud)</li>
+                <li><strong>Enlace a Maps:</strong> Acceso directo a Google Maps con la ubicación</li>
+                <li><strong>Hora exacta:</strong> Hora real del sistema cuando se registró el top</li>
+            </ul>
+
+            <h2>Formato de Tiempo y Cálculos</h2>
+            <p>El sistema utiliza un formato claro y profesional para mostrar los tiempos:</p>
+            
+            <div class="tip-box">
+                <h4>Formato de Visualización</h4>
+                <ul>
+                    <li><strong>Tiempo Actual:</strong> 02:15.3 (2 minutos, 15 segundos, 3 décimas)</li>
+                    <li><strong>Diferencia:</strong> +00:05.2 (5 segundos y 2 décimas más que el top anterior)</li>
+                    <li><strong>Precisión:</strong> Hasta décimas de segundo (0.1 segundos)</li>
+                    <li><strong>Actualización:</strong> El tiempo actual se actualiza en tiempo real cada 100ms</li>
+                </ul>
+            </div>
+
+            <h2>Características Avanzadas</h2>
+            <ul>
+                <li><strong>Idiomas:</strong> Soporte completo para Español, Catalán, Inglés y Francés</li>
+                <li><strong>Persistencia:</strong> Los datos se guardan automáticamente en el navegador</li>
+                <li><strong>Responsive:</strong> Funciona perfectamente en móviles, tablets y ordenadores</li>
+                <li><strong>Sin Conexión:</strong> Funciona sin internet después de la primera carga</li>
+                <li><strong>Instalable como App:</strong> Puedes instalarla en tu dispositivo como una app nativa</li>
+                <li><strong>Actualizaciones Automáticas:</strong> Recibe notificaciones de nuevas versiones</li>
+                <li><strong>Sistema de Sugerencias:</strong> Envía tus ideas para mejorar la aplicación</li>
+            </ul>
+
+            <div class="tip-box">
+                <h4>Consejos para Árbitros</h4>
+                <ul>
+                    <li>Antes de la carrera, crea todos los puntos de control que necesitarás</li>
+                    <li>Usa nombres descriptivos para identificar rápidamente cada punto</li>
+                    <li>Asegúrate de que el GPS esté activado en tu dispositivo</li>
+                    <li>Prueba el sistema antes de la carrera para familiarizarte con el botón único</li>
+                    <li>En carreras largas, recuerda que puedes crear puntos adicionales en cualquier momento</li>
+                    <li>Utiliza el enlace a Google Maps para verificar ubicaciones problemáticas</li>
+                    <li>Exporta los datos inmediatamente después de cada carrera</li>
+                    <li>Envía sugerencias si encuentras algo que mejorar</li>
+                </ul>
+            </div>
+
+            <h2>Instalación como App en el Móvil</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>Para iPhone/iOS:</h4>
+                    <ol>
+                        <li>Abrir Safari y navegar a la página de Crono Tops</li>
+                        <li>Tocar el icono de compartir (cuadrado con flecha hacia arriba)</li>
+                        <li>Desplazarse hacia abajo y seleccionar "Añadir a pantalla de inicio"</li>
+                        <li>Personalizar el nombre si se desea y tocar "Añadir"</li>
+                        <li>La app aparecerá en la pantalla de inicio como una aplicación nativa</li>
+                    </ol>
+                </div>
+                
+                <div class="platform">
+                    <h4>Para Android:</h4>
+                    <ol>
+                        <li>Abrir Chrome y navegar a la página de Crono Tops</li>
+                        <li>Tocar el menú de tres puntos en la esquina superior derecha</li>
+                        <li>Seleccionar "Añadir a pantalla de inicio"</li>
+                        <li>Personalizar el nombre si se desea y tocar "Añadir"</li>
+                        <li>La app aparecerá en la pantalla de inicio como una aplicación nativa</li>
+                    </ol>
+                </div>
+                
+                <h3>Ventajas de instalarla como App:</h3>
+                <ul>
+                    <li>Acceso rápido directo desde la pantalla de inicio</li>
+                    <li>Funciona sin conexión a internet después de la primera carga</li>
+                    <li>Interfaz similar a una aplicación nativa</li>
+                    <li>No requiere descarga desde tiendas de aplicaciones</li>
+                    <li>Notificaciones de actualizaciones automáticas</li>
+                    <li>Mayor integración con el sistema del dispositivo</li>
+                </ul>
+            </div>
+
+            <h2>Escenarios de Uso Típicos</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Carreras por Etapas</h4>
+                    <ul>
+                        <li>Un cronómetro por cada punto de control de la etapa</li>
+                        <li>Registro preciso de tiempos en metas intermedias</li>
+                        <li>Ubicación GPS para verificar puntos exactos</li>
+                        <li>Datos completos para cada sector cronometrado</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Controles Aleatorios</h4>
+                    <ul>
+                        <li>Creación rápida de puntos de control no planificados</li>
+                        <li>Registro automático de ubicación para validez oficial</li>
+                        <li>Documentación completa de cada control</li>
+                        <li>Datos listos para presentar a organizadores</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Pruebas Contrareloj</h4>
+                    <ul>
+                        <li>Cronómetro en salida y otro en meta</li>
+                        <li>Posibilidad de añadir puntos intermedios</li>
+                        <li>Registro individual por dorsal</li>
+                        <li>Tiempos parciales y finales automáticos</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Carreras por Circuitos</h4>
+                    <ul>
+                        <li>Un punto por cada paso por meta</li>
+                        <li>Seguimiento de vueltas individuales</li>
+                        <li>Detección automática de diferencias</li>
+                        <li>Control de abandonos por tiempos límite</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Solución de Problemas</h2>
+            <div class="tip-box">
+                <h4>Problemas Comunes y Soluciones</h4>
+                <ul>
+                    <li><strong>GPS no funciona:</strong> Asegúrate de tener activado el GPS y haber dado permisos al navegador</li>
+                    <li><strong>El botón no cambia:</strong> Verifica que hayas hecho el primer clic para iniciar el cronómetro</li>
+                    <li><strong>No se guardan los datos:</strong> El navegador puede estar en modo incógnito, usa un navegador normal</li>
+                    <li><strong>La app es lenta:</strong> Cierra pestañas innecesarias y reinicia la aplicación</li>
+                    <li><strong>No veo las pestañas:</strong> En móviles pequeños, desplázate horizontalmente en la zona de pestañas</li>
+                    <li><strong>Los tiempos no son precisos:</strong> Asegúrate de tener buena señal y actualiza la página si es necesario</li>
+                </ul>
+            </div>
+
+            <a href="crono_tops.html" class="back-button">Volver a Crono Tops</a>
+        </div>
+
+        <!-- Contenido Català -->
+        <div class="content" id="content-ca">
+            <div class="author-note">
+                <h4>Nota de l'Autor</h4>
+                <p>Aquesta aplicació l'ha desenvolupada Roberto Benet, comissari del comitè català, perquè qualsevol àrbitre la pugui utilitzar en curses de ciclisme de forma gratuïta. Estic obert a qualsevol tipus de millora o implementació de noves funcions.</p>
+                <p>Si et resulta útil aquesta aplicació, t'incito a explorar les meves altres aplicacions disponibles a <a href="https://rbenet71.github.io/Web" target="_blank" class="more-apps-link">https://rbenet71.github.io/Web</a>.</p>
+            </div>
+
+            <h2>Descripció General</h2>
+            <p>Crono Tops és una aplicació professional dissenyada específicament per registrar temps en punts de control durant curses de ciclisme. A diferència dels cronòmetres tradicionals, Crono Tops permet crear múltiples cronòmetres independents per a diferents punts de control, cadascun amb la seva pròpia pestanya i configuració.</p>
+
+            <h2>Funcionalitats Principals</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Múltiples Cronòmetres</h4>
+                    <ul>
+                        <li><strong>Varis Punts de Control:</strong> Crea un cronòmetre independent per a cada punt de control de la cursa</li>
+                        <li><strong>Pestanyes Separades:</strong> Cada cronòmetre té la seva pròpia pestanya per a fàcil navegació</li>
+                        <li><strong>Noms Personalitzats:</strong> Assigna noms específics a cada punt (ex: "Davant Carrefour", "Km 25", etc.)</li>
+                        <li><strong>Gestió Senzilla:</strong> Afegeix, elimina i canvia entre cronòmetres fàcilment</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Botó Únic Inici/Top</h4>
+                    <ul>
+                        <li><strong>Funció Dual Intel·ligent:</strong> El mateix botó serveix per iniciar el cronòmetre i registrar tops</li>
+                        <li><strong>Inici Automàtic:</strong> Primer clic = Inicia el cronòmetre del punt de control</li>
+                        <li><strong>Registre Ràpid:</strong> Següents clics = Registren temps de pas de corredors</li>
+                        <li><strong>Indicació Clara:</strong> El botó canvia de "Inici" a "Top" automàticament</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Registre GPS Automàtic</h4>
+                    <ul>
+                        <li><strong>Ubicació Precisa:</strong> Registra automàticament la ubicació GPS de cada top</li>
+                        <li><strong>Enllaç a Google Maps:</strong> Cada top inclou un enllaç directe a Google Maps</li>
+                        <li><strong>Doble Nivell:</strong> Ubicació del punt de control i ubicació específica de cada top</li>
+                        <li><strong>Precisió Alta:</strong> Utilitza GPS d'alta precisió per a ubicacions exactes</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Assignació de Dorsals</h4>
+                    <ul>
+                        <li><strong>Registre per Dorsal:</strong> Assigna el número de dorsal a cada temps registrat</li>
+                        <li><strong>Edició en Temps Real:</strong> Modifica els dorsals en qualsevol moment</li>
+                        <li><strong>Visualització Clara:</strong> Dorsals associats directament a cada temps</li>
+                        <li><strong>Persistència Automàtica:</strong> Les dades es guarden automàticament</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>CARACTERÍSTICA ÚNICA: UN SOL BOTÓ PER A TOT</h2>
+            
+            <div class="unique-feature">
+                <div class="unique-feature-explanation">
+                    <h4>¿Com funciona el botó únic?</h4>
+                    <p>Crono Tops revoluciona el registre de temps amb un sistema de botó únic que simplifica enormement el procés:</p>
+                    
+                    <div class="gps-maps-example">
+                        🕐 Primer clic → INICI del cronòmetre<br>
+                        🏁 Següents clics → TOP (registre de temps)
+                    </div>
+                    
+                    <p><strong>Avantatges d'aquest sistema:</strong></p>
+                    <ul>
+                        <li><strong>Simplicitat:</strong> No hi ha confusió sobre quin botó prémer</li>
+                        <li><strong>Rapidesa:</strong> Registre ultraràpid en situacions de pressió</li>
+                        <li><strong>Intuïtiu:</strong> El funcionament és natural i fàcil d'aprendre</li>
+                        <li><strong>Sense Errors:</strong> Redueix al mínim els errors de pulsació</li>
+                    </ul>
+                    
+                    <p><strong>Visualització:</strong> El botó canvia automàticament de color i text per indicar la seva funció actual.</p>
+                </div>
+            </div>
+
+            <h2>SISTEMA D'UBICACIÓ GPS INTEGRAT</h2>
+            
+            <div class="gps-feature">
+                <div class="gps-explanation">
+                    <h4>Registre Automàtic d'Ubicació</h4>
+                    <p>Crono Tops inclou un sistema GPS avançat que registra automàticament la ubicació exacta:</p>
+                    
+                    <div class="gps-maps-example">
+                        📍 GPS Activat → Ubicació automàtica<br>
+                        🗺️ Enllaç directe a Google Maps en cada top
+                    </div>
+                    
+                    <p><strong>Dos nivells d'ubicació:</strong></p>
+                    <ol>
+                        <li><strong>Ubicació del Punt de Control:</strong> Es registra en iniciar el cronòmetre</li>
+                        <li><strong>Ubicació de Cada Top:</strong> Es registra específicament en cada registre de temps</li>
+                    </ol>
+                    
+                    <p><strong>Funcionalitats del GPS:</strong></p>
+                    <ul>
+                        <li><strong>Coordenades Exactes:</strong> Latitud i longitud amb 6 decimals de precisió</li>
+                        <li><strong>Enllaç a Maps:</strong> Clic a la icona 📍 obre Google Maps amb la ubicació exacta</li>
+                        <li><strong>Independent per Top:</strong> Cada top manté la seva pròpia ubicació GPS</li>
+                        <li><strong>Alta Precisió:</strong> Utilitza la màxima precisió disponible del dispositiu</li>
+                    </ul>
+                    
+                    <p><strong>Ús en Curses:</strong> Perfecte per documentar exactament on es van prendre els temps, essencial per a controls aleatoris i verificació de recorreguts.</p>
+                </div>
+            </div>
+
+            <h2>Com Utilitzar-ho</h2>
+            
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Crear un Nou Cronòmetre</strong>
+                <p>Fes clic a "Nou Crono" per crear un nou cronòmetre. S'obrirà una nova pestanya amb el teu cronòmetre.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Anomenar el Punt de Control</strong>
+                <p>Assigna un nom descriptiu al punt de control (ex: "Sortida", "Km 15", "Meta Intermèdia", etc.).</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Iniciar el Cronòmetre</strong>
+                <p>Fes clic al botó verd gran "INICI" per començar el cronòmetre d'aquest punt de control.</p>
+                <p><strong>NOTA:</strong> El primer clic sempre inicia el cronòmetre.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Registrar Tops (Temps)</strong>
+                <p>Cada vegada que un corredor o grup passi pel punt de control, fes clic al botó "TOP" per registrar el temps.</p>
+                <p><strong>IMPORTANT:</strong> El botó canvia automàticament de "INICI" a "TOP" després del primer clic.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
+                <strong>Assignar Dorsals</strong>
+                <p>En cada temps registrat, escriu el número de dorsal del corredor al camp corresponent.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">6</span>
+                <strong>Verificar Ubicació</strong>
+                <p>Fes clic a la icona 📍 al costat de cada top per verificar la ubicació exacta a Google Maps.</p>
+            </div>
+
+            <h2>Gestió de Múltiples Cronòmetres</h2>
+            <p>Crono Tops està dissenyat específicament per a curses amb múltiples punts de control:</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Creació de Punts</h4>
+                    <ul>
+                        <li>Crea tants cronòmetres com punts de control tingui la cursa</li>
+                        <li>Cada punt funciona independentment</li>
+                        <li>Navega entre punts amb les pestanyes superiors</li>
+                        <li>Els noms dels punts ajuden a identificar ràpidament cada ubicació</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Organització Visual</h4>
+                    <ul>
+                        <li>Les pestanyes mostren el nom de cada punt</li>
+                        <li>El cronòmetre actiu es mostra amb colors destacats</li>
+                        <li>Els tops es mostren en ordre invers (el més recent primer)</li>
+                        <li>La diferència de temps es calcula automàticament entre tops consecutius</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Informació Tècnica Registrada</h2>
+            <p>Cada top registrat conté la següent informació completa:</p>
+            <ul>
+                <li><strong>Temps de cronòmetre:</strong> Format minuts:segons.dècimes</li>
+                <li><strong>Diferència:</strong> Temps transcorregut des del top anterior</li>
+                <li><strong>Dorsal:</strong> Número de dorsal del corredor</li>
+                <li><strong>Ubicació GPS:</strong> Coordenades exactes (latitud, longitud)</li>
+                <li><strong>Enllaç a Maps:</strong> Accés directe a Google Maps amb la ubicació</li>
+                <li><strong>Hora exacta:</strong> Hora real del sistema quan es va registrar el top</li>
+            </ul>
+
+            <h2>Format de Temps i Càlculs</h2>
+            <p>El sistema utilitza un format clar i professional per mostrar els temps:</p>
+            
+            <div class="tip-box">
+                <h4>Format de Visualització</h4>
+                <ul>
+                    <li><strong>Temps Actual:</strong> 02:15.3 (2 minuts, 15 segons, 3 dècimes)</li>
+                    <li><strong>Diferència:</strong> +00:05.2 (5 segons i 2 dècimes més que el top anterior)</li>
+                    <li><strong>Precisió:</strong> Fins a dècimes de segon (0.1 segons)</li>
+                    <li><strong>Actualització:</strong> El temps actual s'actualitza en temps real cada 100ms</li>
+                </ul>
+            </div>
+
+            <h2>Característiques Avançades</h2>
+            <ul>
+                <li><strong>Idiomes:</strong> Suport complet per a Espanyol, Català, Anglès i Francès</li>
+                <li><strong>Persistència:</strong> Les dades es guarden automàticament al navegador</li>
+                <li><strong>Responsive:</strong> Funciona perfectament en mòbils, tablets i ordinadors</li>
+                <li><strong>Sense Connexió:</strong> Funciona sense internet després de la primera càrrega</li>
+                <li><strong>Instal·lable com a App:</strong> Pots instal·lar-la al teu dispositiu com una app nativa</li>
+                <li><strong>Actualitzacions Automàtiques:</strong> Rep notificacions de noves versions</li>
+                <li><strong>Sistema de Suggeriments:</strong> Envia les teves idees per millorar l'aplicació</li>
+            </ul>
+
+            <div class="tip-box">
+                <h4>Consells per a Àrbitres</h4>
+                <ul>
+                    <li>Abans de la cursa, crea tots els punts de control que necessitaràs</li>
+                    <li>Utilitza noms descriptius per identificar ràpidament cada punt</li>
+                    <li>Assegura't que el GPS estigui activat al teu dispositiu</li>
+                    <li>Prova el sistema abans de la cursa per familiaritzar-te amb el botó únic</li>
+                    <li>En curses llargues, recorda que pots crear punts addicionals en qualsevol moment</li>
+                    <li>Utilitza l'enllaç a Google Maps per verificar ubicacions problemàtiques</li>
+                    <li>Exporta les dades immediatament després de cada cursa</li>
+                    <li>Envia suggeriments si trobes alguna cosa a millorar</li>
+                </ul>
+            </div>
+
+            <h2>Instal·lació com a App al Mòbil</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>Per a iPhone/iOS:</h4>
+                    <ol>
+                        <li>Obrir Safari i navegar a la pàgina de Crono Tops</li>
+                        <li>Toqui la icona de compartir (quadrat amb fletxa cap amunt)</li>
+                        <li>Desplaçar-se cap avall i seleccionar "Afegir a pantalla d'inici"</li>
+                        <li>Personalitzar el nom si es desitja i tocar "Afegir"</li>
+                        <li>L'app apareixerà a la pantalla d'inici com una aplicació nativa</li>
+                    </ol>
+                </div>
+                
+                <div class="platform">
+                    <h4>Per a Android:</h4>
+                    <ol>
+                        <li>Obrir Chrome i navegar a la pàgina de Crono Tops</li>
+                        <li>Toqui el menú de tres punts a la cantonada superior dreta</li>
+                        <li>Seleccionar "Afegir a pantalla d'inici"</li>
+                        <li>Personalitzar el nom si es desitja i tocar "Afegir"</li>
+                        <li>L'app apareixerà a la pantalla d'inici com una aplicació nativa</li>
+                    </ol>
+                </div>
+                
+                <h3>Avantatges d'instal·lar-la com a App:</h3>
+                <ul>
+                    <li>Accés ràpid directe des de la pantalla d'inici</li>
+                    <li>Funciona sense connexió a internet després de la primera càrrega</li>
+                    <li>Interfície similar a una aplicació nativa</li>
+                    <li>No requereix descàrrega des de botigues d'aplicacions</li>
+                    <li>Notificacions d'actualitzacions automàtiques</li>
+                    <li>Major integració amb el sistema del dispositiu</li>
+                </ul>
+            </div>
+
+            <h2>Escenaris d'Ús Típics</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Curses per Etapes</h4>
+                    <ul>
+                        <li>Un cronòmetre per a cada punt de control de l'etapa</li>
+                        <li>Registre precís de temps en metes intermèdies</li>
+                        <li>Ubicació GPS per verificar punts exactes</li>
+                        <li>Dades completes per a cada sector cronometrat</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Controls Aleatoris</h4>
+                    <ul>
+                        <li>Creació ràpida de punts de control no planificats</li>
+                        <li>Registre automàtic d'ubicació per validesa oficial</li>
+                        <li>Documentació completa de cada control</li>
+                        <li>Dades llestes per presentar a organitzadors</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Proves Contrarellotge</h4>
+                    <ul>
+                        <li>Cronòmetre a sortida i un altre a meta</li>
+                        <li>Possibilitat d'afegir punts intermedis</li>
+                        <li>Registre individual per dorsal</li>
+                        <li>Temps parcials i finals automàtics</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Curses per Circuits</h4>
+                    <ul>
+                        <li>Un punt per a cada pas per meta</li>
+                        <li>Seguiment de voltes individuals</li>
+                        <li>Detecció automàtica de diferències</li>
+                        <li>Control d'abandons per temps límit</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Solució de Problemes</h2>
+            <div class="tip-box">
+                <h4>Problemes Comuns i Solucions</h4>
+                <ul>
+                    <li><strong>GPS no funciona:</strong> Assegura't de tenir activat el GPS i haver donat permisos al navegador</li>
+                    <li><strong>El botó no canvia:</strong> Verifica que hagis fet el primer clic per iniciar el cronòmetre</li>
+                    <li><strong>No es guarden les dades:</strong> El navegador pot estar en mode incògnit, utilitza un navegador normal</li>
+                    <li><strong>L'app és lenta:</strong> Tanca pestanyes innecessàries i reinicia l'aplicació</li>
+                    <li><strong>No veig les pestanyes:</strong> En mòbils petits, desplaça't horitzontalment a la zona de pestanyes</li>
+                    <li><strong>Els temps no són precisos:</strong> Assegura't de tenir bona senyal i actualitza la pàgina si cal</li>
+                </ul>
+            </div>
+
+            <a href="crono_tops.html" class="back-button">Tornar a Crono Tops</a>
+        </div>
+
+        <!-- Contenido English -->
+        <div class="content" id="content-en">
+            <div class="author-note">
+                <h4>Author's Note</h4>
+                <p>This application has been developed by Roberto Benet, commissioner of the Catalan committee, so that any referee can use it in cycling races for free. I'm open to any type of improvement or implementation of new features.</p>
+                <p>If you find this application useful, I invite you to explore my other applications available at <a href="https://rbenet71.github.io/Web" target="_blank" class="more-apps-link">https://rbenet71.github.io/Web</a>.</p>
+            </div>
+
+            <h2>General Description</h2>
+            <p>Crono Tops is a professional application specifically designed to record times at checkpoints during cycling races. Unlike traditional stopwatches, Crono Tops allows creating multiple independent stopwatches for different checkpoints, each with its own tab and configuration.</p>
+
+            <h2>Main Features</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Multiple Stopwatches</h4>
+                    <ul>
+                        <li><strong>Multiple Checkpoints:</strong> Create an independent stopwatch for each race checkpoint</li>
+                        <li><strong>Separate Tabs:</strong> Each stopwatch has its own tab for easy navigation</li>
+                        <li><strong>Custom Names:</strong> Assign specific names to each point (eg: "Front Carrefour", "Km 25", etc.)</li>
+                        <li><strong>Easy Management:</strong> Add, delete and switch between stopwatches easily</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Single Start/Top Button</h4>
+                    <ul>
+                        <li><strong>Smart Dual Function:</strong> Same button serves to start stopwatch and record tops</li>
+                        <li><strong>Automatic Start:</strong> First click = Starts the checkpoint stopwatch</li>
+                        <li><strong>Quick Recording:</strong> Next clicks = Record rider pass times</li>
+                        <li><strong>Clear Indication:</strong> Button automatically changes from "Start" to "Top"</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Automatic GPS Recording</h4>
+                    <ul>
+                        <li><strong>Precise Location:</strong> Automatically records GPS location of each top</li>
+                        <li><strong>Google Maps Link:</strong> Each top includes direct link to Google Maps</li>
+                        <li><strong>Double Level:</strong> Checkpoint location and specific location of each top</li>
+                        <li><strong>High Accuracy:</strong> Uses high-precision GPS for exact locations</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Bib Number Assignment</h4>
+                    <ul>
+                        <li><strong>Bib-based Recording:</strong> Assign bib number to each recorded time</li>
+                        <li><strong>Real-time Editing:</strong> Modify bibs at any time</li>
+                        <li><strong>Clear Visualization:</strong> Bibs directly associated with each time</li>
+                        <li><strong>Automatic Persistence:</strong> Data is automatically saved</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>UNIQUE FEATURE: ONE BUTTON FOR EVERYTHING</h2>
+            
+            <div class="unique-feature">
+                <div class="unique-feature-explanation">
+                    <h4>How does the single button work?</h4>
+                    <p>Crono Tops revolutionizes time recording with a single-button system that greatly simplifies the process:</p>
+                    
+                    <div class="gps-maps-example">
+                        🕐 First click → START stopwatch<br>
+                        🏁 Next clicks → TOP (time recording)
+                    </div>
+                    
+                    <p><strong>Advantages of this system:</strong></p>
+                    <ul>
+                        <li><strong>Simplicity:</strong> No confusion about which button to press</li>
+                        <li><strong>Speed:</strong> Ultra-fast recording in pressure situations</li>
+                        <li><strong>Intuitive:</strong> Functioning is natural and easy to learn</li>
+                        <li><strong>Error-free:</strong> Minimizes pressing errors</li>
+                    </ul>
+                    
+                    <p><strong>Visualization:</strong> The button automatically changes color and text to indicate its current function.</p>
+                </div>
+            </div>
+
+            <h2>INTEGRATED GPS LOCATION SYSTEM</h2>
+            
+            <div class="gps-feature">
+                <div class="gps-explanation">
+                    <h4>Automatic Location Recording</h4>
+                    <p>Crono Tops includes an advanced GPS system that automatically records exact location:</p>
+                    
+                    <div class="gps-maps-example">
+                        📍 GPS Activated → Automatic location<br>
+                        🗺️ Direct link to Google Maps in each top
+                    </div>
+                    
+                    <p><strong>Two levels of location:</strong></p>
+                    <ol>
+                        <li><strong>Checkpoint Location:</strong> Recorded when starting stopwatch</li>
+                        <li><strong>Each Top Location:</strong> Specifically recorded in each time recording</li>
+                    </ol>
+                    
+                    <p><strong>GPS Features:</strong></p>
+                    <ul>
+                        <li><strong>Exact Coordinates:</strong> Latitude and longitude with 6 decimal precision</li>
+                        <li><strong>Maps Link:</strong> Click 📍 icon opens Google Maps with exact location</li>
+                        <li><strong>Independent per Top:</strong> Each top maintains its own GPS location</li>
+                        <li><strong>High Precision:</strong> Uses maximum precision available on device</li>
+                    </ul>
+                    
+                    <p><strong>Use in Races:</strong> Perfect to document exactly where times were taken, essential for random controls and route verification.</p>
+                </div>
+            </div>
+
+            <h2>How to Use</h2>
+            
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Create New Stopwatch</strong>
+                <p>Click "New Chrono" to create a new stopwatch. A new tab will open with your stopwatch.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Name Checkpoint</strong>
+                <p>Assign a descriptive name to the checkpoint (eg: "Start", "Km 15", "Intermediate Finish", etc.).</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Start Stopwatch</strong>
+                <p>Click the big green "START" button to begin that checkpoint's stopwatch.</p>
+                <p><strong>NOTE:</strong> First click always starts the stopwatch.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Record Tops (Times)</strong>
+                <p>Each time a rider or group passes the checkpoint, click "TOP" button to record the time.</p>
+                <p><strong>IMPORTANT:</strong> Button automatically changes from "START" to "TOP" after first click.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
+                <strong>Assign Bib Numbers</strong>
+                <p>In each recorded time, write the rider's bib number in the corresponding field.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">6</span>
+                <strong>Verify Location</strong>
+                <p>Click the 📍 icon next to each top to verify exact location on Google Maps.</p>
+            </div>
+
+            <h2>Multiple Stopwatches Management</h2>
+            <p>Crono Tops is specifically designed for races with multiple checkpoints:</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Point Creation</h4>
+                    <ul>
+                        <li>Create as many stopwatches as race checkpoints needed</li>
+                        <li>Each point works independently</li>
+                        <li>Navigate between points with top tabs</li>
+                        <li>Point names help quickly identify each location</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Visual Organization</h4>
+                    <ul>
+                        <li>Tabs show each point's name</li>
+                        <li>Active stopwatch displayed with highlighted colors</li>
+                        <li>Tops shown in reverse order (most recent first)</li>
+                        <li>Time difference automatically calculated between consecutive tops</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Technical Information Recorded</h2>
+            <p>Each recorded top contains following complete information:</p>
+            <ul>
+                <li><strong>Stopwatch time:</strong> Format minutes:seconds.tenths</li>
+                <li><strong>Difference:</strong> Time elapsed since previous top</li>
+                <li><strong>Bib number:</strong> Rider's bib number</li>
+                <li><strong>GPS location:</strong> Exact coordinates (latitude, longitude)</li>
+                <li><strong>Maps link:</strong> Direct access to Google Maps with location</li>
+                <li><strong>Exact time:</strong> Real system time when top was recorded</li>
+            </ul>
+
+            <h2>Time Format and Calculations</h2>
+            <p>The system uses a clear professional format to display times:</p>
+            
+            <div class="tip-box">
+                <h4>Display Format</h4>
+                <ul>
+                    <li><strong>Current Time:</strong> 02:15.3 (2 minutes, 15 seconds, 3 tenths)</li>
+                    <li><strong>Difference:</strong> +00:05.2 (5 seconds and 2 tenths more than previous top)</li>
+                    <li><strong>Precision:</strong> Up to tenths of second (0.1 seconds)</li>
+                    <li><strong>Update:</strong> Current time updates in real time every 100ms</li>
+                </ul>
+            </div>
+
+            <h2>Advanced Features</h2>
+            <ul>
+                <li><strong>Languages:</strong> Full support for Spanish, Catalan, English and French</li>
+                <li><strong>Persistence:</strong> Data automatically saved in browser</li>
+                <li><strong>Responsive:</strong> Works perfectly on mobiles, tablets and computers</li>
+                <li><strong>Offline:</strong> Works without internet after first load</li>
+                <li><strong>Installable as App:</strong> Can install on device as native app</li>
+                <li><strong>Automatic Updates:</strong> Receive notifications of new versions</li>
+                <li><strong>Suggestion System:</strong> Send your ideas to improve application</li>
+            </ul>
+
+            <div class="tip-box">
+                <h4>Tips for Referees</h4>
+                <ul>
+                    <li>Before race, create all checkpoints you'll need</li>
+                    <li>Use descriptive names to quickly identify each point</li>
+                    <li>Ensure GPS is activated on your device</li>
+                    <li>Test system before race to familiarize with single button</li>
+                    <li>In long races, remember you can create additional points anytime</li>
+                    <li>Use Google Maps link to verify problematic locations</li>
+                    <li>Export data immediately after each race</li>
+                    <li>Send suggestions if you find something to improve</li>
+                </ul>
+            </div>
+
+            <h2>Installation as Mobile App</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>For iPhone/iOS:</h4>
+                    <ol>
+                        <li>Open Safari and navigate to Crono Tops page</li>
+                        <li>Tap share icon (square with upward arrow)</li>
+                        <li>Scroll down and select "Add to Home Screen"</li>
+                        <li>Customize name if desired and tap "Add"</li>
+                        <li>App will appear on home screen like native app</li>
+                    </ol>
+                </div>
+                
+                <div class="platform">
+                    <h4>For Android:</h4>
+                    <ol>
+                        <li>Open Chrome and navigate to Crono Tops page</li>
+                        <li>Tap three-dot menu in upper right corner</li>
+                        <li>Select "Add to Home Screen"</li>
+                        <li>Customize name if desired and tap "Add"</li>
+                        <li>App will appear on home screen like native app</li>
+                    </ol>
+                </div>
+                
+                <h3>Advantages of Installing as App:</h3>
+                <ul>
+                    <li>Quick access directly from home screen</li>
+                    <li>Works offline after first load</li>
+                    <li>Interface similar to native app</li>
+                    <li>No download required from app stores</li>
+                    <li>Automatic update notifications</li>
+                    <li>Greater integration with device system</li>
+                </ul>
+            </div>
+
+            <h2>Typical Usage Scenarios</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Stage Races</h4>
+                    <ul>
+                        <li>One stopwatch per stage checkpoint</li>
+                        <li>Accurate recording of intermediate finish times</li>
+                        <li>GPS location to verify exact points</li>
+                        <li>Complete data for each timed sector</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Random Controls</h4>
+                    <ul>
+                        <li>Quick creation of unplanned checkpoints</li>
+                        <li>Automatic location recording for official validity</li>
+                        <li>Complete documentation of each control</li>
+                        <li>Data ready to present to organizers</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Time Trials</h4>
+                    <ul>
+                        <li>Stopwatch at start and another at finish</li>
+                        <li>Possibility to add intermediate points</li>
+                        <li>Individual recording per bib</li>
+                        <li>Automatic partial and final times</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Circuit Races</h4>
+                    <ul>
+                        <li>One point for each lap finish</li>
+                        <li>Individual lap tracking</li>
+                        <li>Automatic difference detection</li>
+                        <li>Dropout control by time limits</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Troubleshooting</h2>
+            <div class="tip-box">
+                <h4>Common Problems and Solutions</h4>
+                <ul>
+                    <li><strong>GPS not working:</strong> Ensure GPS is activated and permissions given to browser</li>
+                    <li><strong>Button doesn't change:</strong> Verify you made first click to start stopwatch</li>
+                    <li><strong>Data not saving:</strong> Browser may be in incognito mode, use normal browser</li>
+                    <li><strong>App is slow:</strong> Close unnecessary tabs and restart application</li>
+                    <li><strong>Can't see tabs:</strong> On small mobiles, scroll horizontally in tab area</li>
+                    <li><strong>Times not accurate:</strong> Ensure good signal and refresh page if needed</li>
+                </ul>
+            </div>
+
+            <a href="crono_tops.html" class="back-button">Back to Crono Tops</a>
+        </div>
+
+        <!-- Contenido Français -->
+        <div class="content" id="content-fr">
+            <div class="author-note">
+                <h4>Note de l'Auteur</h4>
+                <p>Cette application a été développée par Roberto Benet, commissaire du comité catalan, pour que tout arbitre puisse l'utiliser dans les courses de cyclisme gratuitement. Je suis ouvert à tout type d'amélioration ou d'implémentation de nouvelles fonctionnalités.</p>
+                <p>Si vous trouvez cette application utile, je vous invite à explorer mes autres applications disponibles sur <a href="https://rbenet71.github.io/Web" target="_blank" class="more-apps-link">https://rbenet71.github.io/Web</a>.</p>
+            </div>
+
+            <h2>Description Générale</h2>
+            <p>Crono Tops est une application professionnelle conçue spécifiquement pour enregistrer les temps aux points de contrôle pendant les courses de cyclisme. Contrairement aux chronomètres traditionnels, Crono Tops permet de créer plusieurs chronomètres indépendants pour différents points de contrôle, chacun avec son propre onglet et configuration.</p>
+
+            <h2>Fonctionnalités Principales</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Chronomètres Multiples</h4>
+                    <ul>
+                        <li><strong>Plusieurs Points de Contrôle:</strong> Créez un chronomètre indépendant pour chaque point de contrôle de course</li>
+                        <li><strong>Onglets Séparés:</strong> Chaque chronomètre a son propre onglet pour une navigation facile</li>
+                        <li><strong>Noms Personnalisés:</strong> Attribuez des noms spécifiques à chaque point (ex: "Devant Carrefour", "Km 25", etc.)</li>
+                        <li><strong>Gestion Simple:</strong> Ajoutez, supprimez et changez entre chronomètres facilement</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Bouton Unique Départ/Top</h4>
+                    <ul>
+                        <li><strong>Fonction Double Intelligente:</strong> Le même bouton sert à démarrer le chronomètre et enregistrer les tops</li>
+                        <li><strong>Départ Automatique:</strong> Premier clic = Démarre le chronomètre du point de contrôle</li>
+                        <li><strong>Enregistrement Rapide:</strong> Clics suivants = Enregistrent les temps de passage des coureurs</li>
+                        <li><strong>Indication Claire:</strong> Le bouton change automatiquement de "Départ" à "Top"</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Enregistrement GPS Automatique</h4>
+                    <ul>
+                        <li><strong>Emplacement Précis:</strong> Enregistre automatiquement l'emplacement GPS de chaque top</li>
+                        <li><strong>Lien Google Maps:</strong> Chaque top inclut un lien direct vers Google Maps</li>
+                        <li><strong>Double Niveau:</strong> Emplacement du point de contrôle et emplacement spécifique de chaque top</li>
+                        <li><strong>Haute Précision:</strong> Utilise GPS haute précision pour des emplacements exacts</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Attribution de Dossards</h4>
+                    <ul>
+                        <li><strong>Enregistrement par Dossard:</strong> Attribuez le numéro de dossard à chaque temps enregistré</li>
+                        <li><strong>Édition en Temps Réel:</strong> Modifiez les dossards à tout moment</li>
+                        <li><strong>Visualisation Claire:</strong> Dossards associés directement à chaque temps</li>
+                        <li><strong>Persistance Automatique:</strong> Les données sont automatiquement sauvegardées</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>CARACTÉRISTIQUE UNIQUE : UN SEUL BOUTON POUR TOUT</h2>
+            
+            <div class="unique-feature">
+                <div class="unique-feature-explanation">
+                    <h4>Comment fonctionne le bouton unique ?</h4>
+                    <p>Crono Tops révolutionne l'enregistrement du temps avec un système à bouton unique qui simplifie énormément le processus :</p>
+                    
+                    <div class="gps-maps-example">
+                        🕐 Premier clic → DÉPART du chronomètre<br>
+                        🏁 Clics suivants → TOP (enregistrement des temps)
+                    </div>
+                    
+                    <p><strong>Avantages de ce système :</strong></p>
+                    <ul>
+                        <li><strong>Simplicité :</strong> Pas de confusion sur quel bouton appuyer</li>
+                        <li><strong>Rapidité :</strong> Enregistrement ultra-rapide en situations de pression</li>
+                        <li><strong>Intuitif :</strong> Le fonctionnement est naturel et facile à apprendre</li>
+                        <li><strong>Sans Erreurs :</strong> Réduit au minimum les erreurs d'appui</li>
+                    </ul>
+                    
+                    <p><strong>Visualisation :</strong> Le bouton change automatiquement de couleur et de texte pour indiquer sa fonction actuelle.</p>
+                </div>
+            </div>
+
+            <h2>SYSTÈME D'EMPLACEMENT GPS INTÉGRÉ</h2>
+            
+            <div class="gps-feature">
+                <div class="gps-explanation">
+                    <h4>Enregistrement Automatique d'Emplacement</h4>
+                    <p>Crono Tops inclut un système GPS avancé qui enregistre automatiquement l'emplacement exact :</p>
+                    
+                    <div class="gps-maps-example">
+                        📍 GPS Activé → Emplacement automatique<br>
+                        🗺️ Lien direct vers Google Maps dans chaque top
+                    </div>
+                    
+                    <p><strong>Deux niveaux d'emplacement :</strong></p>
+                    <ol>
+                        <li><strong>Emplacement du Point de Contrôle :</strong> Enregistré au démarrage du chronomètre</li>
+                        <li><strong>Emplacement de Chaque Top :</strong> Enregistré spécifiquement dans chaque enregistrement de temps</li>
+                    </ol>
+                    
+                    <p><strong>Fonctionnalités du GPS :</strong></p>
+                    <ul>
+                        <li><strong>Coordonnées Exactes :</strong> Latitude et longitude avec 6 décimales de précision</li>
+                        <li><strong>Lien vers Maps :</strong> Clic sur l'icône 📍 ouvre Google Maps avec l'emplacement exact</li>
+                        <li><strong>Indépendant par Top :</strong> Chaque top maintient son propre emplacement GPS</li>
+                        <li><strong>Haute Précision :</strong> Utilise la précision maximale disponible sur l'appareil</li>
+                    </ul>
+                    
+                    <p><strong>Utilisation en Courses :</strong> Parfait pour documenter exactement où les temps ont été pris, essentiel pour les contrôles aléatoires et la vérification des parcours.</p>
+                </div>
+            </div>
+
+            <h2>Comment Utiliser</h2>
+            
+            <div class="step-box">
+                <span class="step-number">1</span>
+                <strong>Créer un Nouveau Chronomètre</strong>
+                <p>Cliquez sur "Nouveau Chrono" pour créer un nouveau chronomètre. Un nouvel onglet s'ouvrira avec votre chronomètre.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">2</span>
+                <strong>Nommer le Point de Contrôle</strong>
+                <p>Attribuez un nom descriptif au point de contrôle (ex : "Départ", "Km 15", "Arrivée Intermédiaire", etc.).</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">3</span>
+                <strong>Démarrer le Chronomètre</strong>
+                <p>Cliquez sur le gros bouton vert "DÉPART" pour commencer le chronomètre de ce point de contrôle.</p>
+                <p><strong>NOTE :</strong> Le premier clic démarre toujours le chronomètre.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">4</span>
+                <strong>Enregistrer les Tops (Temps)</strong>
+                <p>Chaque fois qu'un coureur ou groupe passe par le point de contrôle, cliquez sur le bouton "TOP" pour enregistrer le temps.</p>
+                <p><strong>IMPORTANT :</strong> Le bouton change automatiquement de "DÉPART" à "TOP" après le premier clic.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">5</span>
+                <strong>Attribuer les Dossards</strong>
+                <p>Dans chaque temps enregistré, écrivez le numéro de dossard du coureur dans le champ correspondant.</p>
+            </div>
+            
+            <div class="step-box">
+                <span class="step-number">6</span>
+                <strong>Vérifier l'Emplacement</strong>
+                <p>Cliquez sur l'icône 📍 à côté de chaque top pour vérifier l'emplacement exact sur Google Maps.</p>
+            </div>
+
+            <h2>Gestion des Chronomètres Multiples</h2>
+            <p>Crono Tops est spécifiquement conçu pour les courses avec plusieurs points de contrôle :</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Création de Points</h4>
+                    <ul>
+                        <li>Créez autant de chronomètres que de points de contrôle nécessaires pour la course</li>
+                        <li>Chaque point fonctionne indépendamment</li>
+                        <li>Naviguez entre points avec les onglets supérieurs</li>
+                        <li>Les noms des points aident à identifier rapidement chaque emplacement</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Organisation Visuelle</h4>
+                    <ul>
+                        <li>Les onglets affichent le nom de chaque point</li>
+                        <li>Le chronomètre actif est affiché avec des couleurs accentuées</li>
+                        <li>Les tops sont affichés en ordre inverse (le plus récent en premier)</li>
+                        <li>La différence de temps est calculée automatiquement entre les tops consécutifs</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Informations Techniques Enregistrées</h2>
+            <p>Chaque top enregistré contient les informations complètes suivantes :</p>
+            <ul>
+                <li><strong>Temps du chronomètre :</strong> Format minutes:secondes.dixièmes</li>
+                <li><strong>Différence :</strong> Temps écoulé depuis le top précédent</li>
+                <li><strong>Dossard :</strong> Numéro de dossard du coureur</li>
+                <li><strong>Emplacement GPS :</strong> Coordonnées exactes (latitude, longitude)</li>
+                <li><strong>Lien vers Maps :</strong> Accès direct à Google Maps avec l'emplacement</li>
+                <li><strong>Heure exacte :</strong> Heure réelle du système lorsque le top a été enregistré</li>
+            </ul>
+
+            <h2>Format de Temps et Calculs</h2>
+            <p>Le système utilise un format clair et professionnel pour afficher les temps :</p>
+            
+            <div class="tip-box">
+                <h4>Format d'Affichage</h4>
+                <ul>
+                    <li><strong>Temps Actuel :</strong> 02:15.3 (2 minutes, 15 secondes, 3 dixièmes)</li>
+                    <li><strong>Différence :</strong> +00:05.2 (5 secondes et 2 dixièmes de plus que le top précédent)</li>
+                    <li><strong>Précision :</strong> Jusqu'aux dixièmes de seconde (0.1 secondes)</li>
+                    <li><strong>Mise à Jour :</strong> Le temps actuel se met à jour en temps réel toutes les 100ms</li>
+                </ul>
+            </div>
+
+            <h2>Caractéristiques Avancées</h2>
+            <ul>
+                <li><strong>Langues :</strong> Support complet pour l'Espagnol, le Catalan, l'Anglais et le Français</li>
+                <li><strong>Persistance :</strong> Les données sont automatiquement sauvegardées dans le navigateur</li>
+                <li><strong>Responsive :</strong> Fonctionne parfaitement sur mobiles, tablettes et ordinateurs</li>
+                <li><strong>Sans Connexion :</strong> Fonctionne sans internet après le premier chargement</li>
+                <li><strong>Installable comme App :</strong> Peut être installée sur votre appareil comme application native</li>
+                <li><strong>Mises à Jour Automatiques :</strong> Recevez des notifications des nouvelles versions</li>
+                <li><strong>Système de Suggestions :</strong> Envoyez vos idées pour améliorer l'application</li>
+            </ul>
+
+            <div class="tip-box">
+                <h4>Conseils pour les Arbitres</h4>
+                <ul>
+                    <li>Avant la course, créez tous les points de contrôle dont vous aurez besoin</li>
+                    <li>Utilisez des noms descriptifs pour identifier rapidement chaque point</li>
+                    <li>Assurez-vous que le GPS est activé sur votre appareil</li>
+                    <li>Testez le système avant la course pour vous familiariser avec le bouton unique</li>
+                    <li>Dans les courses longues, souvenez-vous que vous pouvez créer des points supplémentaires à tout moment</li>
+                    <li>Utilisez le lien Google Maps pour vérifier les emplacements problématiques</li>
+                    <li>Exportez les données immédiatement après chaque course</li>
+                    <li>Envoyez des suggestions si vous trouvez quelque chose à améliorer</li>
+                </ul>
+            </div>
+
+            <h2>Installation comme Application Mobile</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>Pour iPhone/iOS :</h4>
+                    <ol>
+                        <li>Ouvrir Safari et naviguer vers la page de Crono Tops</li>
+                        <li>Toucher l'icône de partage (carré avec flèche vers le haut)</li>
+                        <li>Défiler vers le bas et sélectionner "Ajouter à l'écran d'accueil"</li>
+                        <li>Personnaliser le nom si souhaité et toucher "Ajouter"</li>
+                        <li>L'app apparaîtra sur l'écran d'accueil comme une application native</li>
+                    </ol>
+                </div>
+                
+                <div class="platform">
+                    <h4>Pour Android :</h4>
+                    <ol>
+                        <li>Ouvrir Chrome et naviguer vers la page de Crono Tops</li>
+                        <li>Toucher le menu à trois points dans le coin supérieur droit</li>
+                        <li>Sélectionner "Ajouter à l'écran d'accueil"</li>
+                        <li>Personnaliser le nom si souhaité et toucher "Ajouter"</li>
+                        <li>L'app apparaîtra sur l'écran d'accueil comme une application native</li>
+                    </ol>
+                </div>
+                
+                <h3>Avantages de l'installer comme Application :</h3>
+                <ul>
+                    <li>Accès rapide directement depuis l'écran d'accueil</li>
+                    <li>Fonctionne sans connexion internet après le premier chargement</li>
+                    <li>Interface similaire à une application native</li>
+                    <li>Aucun téléchargement requis depuis les magasins d'applications</li>
+                    <li>Notifications automatiques des mises à jour</li>
+                    <li>Meilleure intégration avec le système de l'appareil</li>
+                </ul>
+            </div>
+
+            <h2>Scénarios d'Utilisation Typiques</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Courses par Étapes</h4>
+                    <ul>
+                        <li>Un chronomètre par point de contrôle d'étape</li>
+                        <li>Enregistrement précis des temps d'arrivée intermédiaires</li>
+                        <li>Emplacement GPS pour vérifier les points exacts</li>
+                        <li>Données complètes pour chaque secteur chronométré</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Contrôles Aléatoires</h4>
+                    <ul>
+                        <li>Création rapide de points de contrôle non planifiés</li>
+                        <li>Enregistrement automatique d'emplacement pour validité officielle</li>
+                        <li>Documentation complète de chaque contrôle</li>
+                        <li>Données prêtes à présenter aux organisateurs</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Contre-la-Montre</h4>
+                    <ul>
+                        <li>Chronomètre au départ et un autre à l'arrivée</li>
+                        <li>Possibilité d'ajouter des points intermédiaires</li>
+                        <li>Enregistrement individuel par dossard</li>
+                        <li>Temps partiels et finaux automatiques</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>Courses en Circuit</h4>
+                    <ul>
+                        <li>Un point pour chaque passage à l'arrivée</li>
+                        <li>Suivi des tours individuels</li>
+                        <li>Détection automatique des différences</li>
+                        <li>Contrôle des abandons par limites de temps</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Dépannage</h2>
+            <div class="tip-box">
+                <h4>Problèmes Courants et Solutions</h4>
+                <ul>
+                    <li><strong>GPS ne fonctionne pas :</strong> Assurez-vous que le GPS est activé et que les permissions sont données au navigateur</li>
+                    <li><strong>Le bouton ne change pas :</strong> Vérifiez que vous avez fait le premier clic pour démarrer le chronomètre</li>
+                    <li><strong>Les données ne se sauvegardent pas :</strong> Le navigateur peut être en mode navigation privée, utilisez un navigateur normal</li>
+                    <li><strong>L'app est lente :</strong> Fermez les onglets inutiles et redémarrez l'application</li>
+                    <li><strong>Je ne vois pas les onglets :</strong> Sur les petits mobiles, défilez horizontalement dans la zone des onglets</li>
+                    <li><strong>Les temps ne sont pas précis :</strong> Assurez-vous d'avoir un bon signal et actualisez la page si nécessaire</li>
+                </ul>
+            </div>
+
+            <a href="crono_tops.html" class="back-button">Retour à Crono Tops</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const langButtons = document.querySelectorAll('.lang-btn');
+            const contents = document.querySelectorAll('.content');
+            const mainTitle = document.getElementById('main-title');
+            
+            const titles = {
+                'es': 'Ayuda Crono Tops',
+                'ca': 'Ajuda Crono Tops',
+                'en': 'Crono Tops Help',
+                'fr': 'Aide Crono Tops'
+            };
+            
+            langButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    
+                    // Actualizar botones activos
+                    langButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Actualizar contenido visible
+                    contents.forEach(content => content.classList.remove('active'));
+                    document.getElementById(`content-${lang}`).classList.add('active');
+                    
+                    // Actualizar título
+                    mainTitle.textContent = titles[lang];
+                });
+            });
+        });
+    </script>
+</body>
+</html>

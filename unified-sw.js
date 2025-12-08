@@ -1,11 +1,12 @@
 // unified-sw.js
 // Service Worker unificado para todas las aplicaciones
-// Versión: 2.0
+// Versión: 2.1
 
 const APP_CACHES = {
   'calculadora': 'calculadora-tiempos-v1.1',
   'crono80': 'crono-80-v1.2',
   'cronollegadas': 'crono-llegadas-v1.2',
+  'crono_tops': 'crono-tops-v1.0',
   'index': 'index-page-v1.0'
 };
 
@@ -29,6 +30,12 @@ const APP_RESOURCES = {
     'https://rbenet71.github.io/Web/Crono_Llegadas_manifest.json',
     'https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png',
     'https://rbenet71.github.io/Web/Crono_Llegadas_Ayuda.html'
+  ],
+  'crono_tops': [
+    'https://rbenet71.github.io/Web/crono_tops.html',
+    'https://rbenet71.github.io/Web/crono_tops_manifest.json',
+    'https://rbenet71.github.io/Web/crono_tops_192x192.png',
+    'https://rbenet71.github.io/Web/crono_tops_Ayuda.html'
   ],
   'index': [
     'https://rbenet71.github.io/Web/',
@@ -94,6 +101,8 @@ self.addEventListener('fetch', event => {
     targetApp = 'crono80';
   } else if (url.pathname.includes('Crono_Llegadas')) {
     targetApp = 'cronollegadas';
+  } else if (url.pathname.includes('crono_tops')) {
+    targetApp = 'crono_tops';
   } else if (url.pathname.includes('index.html') || url.pathname === '/Web/' || url.pathname === '/Web') {
     targetApp = 'index';
   }
@@ -166,6 +175,7 @@ async function getFallbackPage(appName) {
     'calculadora': 'https://rbenet71.github.io/Web/Calculadora_Tiempos.html',
     'crono80': 'https://rbenet71.github.io/Web/Crono_80.html',
     'cronollegadas': 'https://rbenet71.github.io/Web/Crono_Llegadas.html',
+    'crono_tops': 'https://rbenet71.github.io/Web/crono_tops.html',
     'index': 'https://rbenet71.github.io/Web/index.html'
   };
   
@@ -192,7 +202,7 @@ self.addEventListener('message', event => {
   
   if (event.data && event.data.type === 'GET_VERSION') {
     event.ports[0].postMessage({
-      version: '2.0',
+      version: '2.1',
       apps: Object.keys(APP_CACHES)
     });
   }
@@ -205,8 +215,8 @@ self.addEventListener('activate', event => {
       clients.forEach(client => {
         client.postMessage({
           type: 'SW_UPDATED',
-          version: '2.0',
-          apps: ['calculadora', 'crono80', 'cronollegadas', 'index']
+          version: '2.1',
+          apps: ['calculadora', 'crono80', 'cronollegadas', 'crono_tops', 'index']
         });
       });
     })

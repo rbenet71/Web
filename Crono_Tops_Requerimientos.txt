@@ -1,0 +1,35 @@
+Crono Tops
+
+Aprovechando las funcionalidades extras de crono llegadas (Idiomas,Actualización/sugerencias, Actualización automática app, pwa, ayuda, no necesito milesimas, texto copyright, boton instalar App..)
+
+Quiero hacer una app para poder coger tops en una carrera de bicicletas, y así saber el tiempo que separa a diferentes corredores en una carrera.
+La idea es que una persona te avisa cuando pasa por un sitio, en ese punto pones el crono en marcha y cuando tu pasas pulsas top y sabes la diferencia, a la vez puede haber otra persona que te avisa cuando pasa por ese punto y así sabes las diferencias entre varios corredores. Lo que puede pasar es que te den varios tops a la vez por lo que hemos de poder poner varios cronos a la vez. 
+La idea sería que se gestionase por pestañas, por cada crono una. El nombre de la pestaña sería el orden de inicio, 1,2,3... el usuario a de poder dar un nombre al lugar donde se tomó el top (frente Carrefour Prat por ejemplo)  ha de tener un botón que diga inicio y otro top, cada top se ha de almacenar por orden inverso de creación y el usuario ha de poder poner el dorsal. El usuario ha de poder eliminar cada crono creado, con pregunta previa de confirmación. Por cada top se ha de poder almacenar la hora y la ubicación donde se inicio el crono.
+Los tiempos serán en un 90% de ocasiones menores de 10min
+
+El diseño lo veo 
+primera línea icono app y título app, luego otra línea interrogante de ayuda y luego los idiomas.
+Siguiente Linea botón nuevo crono, eliminar crono.
+Cuerpo con toda la info de crono, una pestaña por cada crono 1,2,...:
+A nombre del top
+B tiempo actual
+C Botón inicio y botón top
+D Último corte de tiempo- posibilidad de eliminar y poner dorsales, se ha de mostrar tiempo de top y la diferencia con el tiempo anterior.
+E Hora inicio crono
+F Coordenada GPS de inicio del crono haciendo click te lleva a google maps.
+
+4. Botón ayuda
+5. Botón actualización
+6. Copy right
+
+———
+Mejoras
+El primer crono visible es el último
+Al iniciar el botón se convierte en top (solo hay un botón)
+El dorsal que sea wrap on
+Ni la cabecera ni el pie han de ser fijos, han de moverse con el scroll
+
+Quitar botón eliminar
+Quitar el texto tiempo actual
+Primero tiempo al lado diferencia, al lado picto eliminar y debajo dorsal
+La ubicación no va, hay que hacer que funcione

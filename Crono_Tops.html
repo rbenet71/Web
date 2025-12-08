@@ -4,8 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crono Tops - Control de Tiempos para Carreras</title>
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CV925PMBQV"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-CV925PMBQV');
+    </script>
+
+    <!-- Iconos para la aplicación -->
+    <link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_Tops_192x192.png">
+    <link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_Tops_192x192.png">
+    
+    <!-- Iconos para PWA (todos los tamaños) -->
+    <link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_Tops_192x192.png?v=2">
+    <link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_Tops_192x192.png?v=2">
+    <link rel="icon" type="image/png" sizes="192x192" href="https://rbenet71.github.io/Web/Crono_Tops_192x192.png?v=2">
+    <link rel="icon" type="image/png" sizes="512x512" href="https://rbenet71.github.io/Web/Crono_Tops_512x512.png?v=2">
+    <link rel="apple-touch-icon" sizes="192x192" href="https://rbenet71.github.io/Web/Crono_Tops_192x192.png?v=2">
+    <link rel="apple-touch-icon" sizes="512x512" href="https://rbenet71.github.io/Web/Crono_Tops_512x512.png?v=2">
+    <meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Crono_Tops_192x192.png?v=2">
+    
+    <!-- Configuración para PWA -->
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Crono Tops">
+    <meta name="msapplication-TileColor" content="#2c3e50">
+    <meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Crono_Tops_192x192.png">
+    
+    <!-- Manifest para PWA -->
+    <link rel="manifest" href="https://rbenet71.github.io/Web/Crono_Tops_manifest.json">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="manifest" href="manifest.json">
     <style>
         * {
             margin: 0;
@@ -27,9 +61,10 @@
         }
 
         body {
-            background-color: #f5f7fa;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
             color: #333;
             line-height: 1.6;
+            min-height: 100vh;
         }
 
         .container {
@@ -38,7 +73,7 @@
             padding: 0 15px 20px;
         }
 
-        /* Header */
+        /* Header con diseño mejorado */
         .app-header {
             background-color: var(--primary);
             color: white;
@@ -50,6 +85,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .app-title {
@@ -58,9 +94,13 @@
             gap: 12px;
         }
 
-        .app-title i {
-            font-size: 28px;
-            color: var(--secondary);
+        .app-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 2px solid var(--secondary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .app-title h1 {
@@ -75,73 +115,69 @@
         }
 
         .language-selector {
-            position: relative;
-            display: inline-block;
-        }
-
-        .language-btn {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
-            transition: background-color 0.3s;
+            gap: 10px;
         }
 
-        .language-btn:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+        .languages-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
         }
 
-        .language-dropdown {
-            display: none;
-            position: absolute;
-            right: 0;
-            background-color: white;
-            min-width: 150px;
-            box-shadow: var(--shadow);
-            border-radius: 4px;
-            overflow: hidden;
-            z-index: 10;
-        }
-
-        .language-dropdown.show {
-            display: block;
-        }
-
-        .language-option {
-            padding: 10px 15px;
+        .flag {
+            width: 30px;
+            height: 20px;
             cursor: pointer;
-            color: var(--dark);
-            transition: background-color 0.2s;
+            opacity: 0.6;
+            transition: all 0.3s;
+            border: 1px solid #ccc;
+            border-radius: 3px;
         }
 
-        .language-option:hover {
-            background-color: var(--light-gray);
+        .flag:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
         }
 
-        .help-btn {
-            background-color: transparent;
-            border: none;
-            color: white;
-            font-size: 20px;
+        .flag.active {
+            opacity: 1;
+            border: 2px solid var(--secondary);
+            transform: scale(1.1);
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+        }
+
+        .flag-catalunya {
+            background: linear-gradient(
+                to bottom,
+                #ffcd00 0%, #ffcd00 10%,
+                #da121a 10%, #da121a 20%,
+                #ffcd00 20%, #ffcd00 30%,
+                #da121a 30%, #da121a 40%,
+                #ffcd00 40%, #ffcd00 50%,
+                #da121a 50%, #da121a 60%,
+                #ffcd00 60%, #ffcd00 70%,
+                #da121a 70%, #da121a 80%,
+                #ffcd00 80%, #ffcd00 90%,
+                #da121a 90%, #da121a 100%
+            );
+        }
+
+        .help-icon {
+            font-size: 1.2rem;
             cursor: pointer;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.3s;
+            color: var(--secondary);
+            margin-left: 15px;
+            transition: all 0.3s;
+            align-self: center;
+        }
+        
+        .help-icon:hover {
+            transform: scale(1.1);
+            color: var(--light);
         }
 
-        .help-btn:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
+        /* Resto del CSS permanece igual... */
         /* Crono Controls */
         .crono-controls {
             background-color: white;
@@ -281,7 +317,7 @@
             border-color: var(--secondary);
         }
 
-        /* Display del tiempo actual del cronómetro - SIN ETIQUETA */
+        /* Display del tiempo actual del cronómetro */
         .current-time {
             text-align: center;
             margin: 20px 0;
@@ -326,7 +362,7 @@
             gap: 10px;
         }
 
-        /* Nuevo diseño para tops - tiempo y diferencia en línea, dorsal debajo */
+        /* Nuevo diseño para tops */
         .top-item {
             padding: 15px;
             border-bottom: 1px solid #eee;
@@ -428,6 +464,41 @@
             font-weight: 500;
         }
 
+        /* Ubicación del top con icono de Google Maps */
+        .top-location {
+            margin-top: 10px;
+            padding: 8px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 3px solid var(--secondary);
+        }
+
+        .location-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .location-link {
+            color: var(--secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+        }
+
+        .location-link:hover {
+            text-decoration: underline;
+        }
+
+        .location-text {
+            font-style: italic;
+            color: #95a5a6;
+        }
+
         .crono-info {
             margin-top: 30px;
             padding-top: 20px;
@@ -505,9 +576,70 @@
             background-color: rgba(255, 255, 255, 0.2);
         }
 
+        .suggestions-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .suggestions-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .install-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .install-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .help-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .help-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
         .copyright {
             color: rgba(255, 255, 255, 0.7);
             font-size: 14px;
+        }
+
+        .copyright a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .copyright a:hover {
+            text-decoration: underline;
         }
 
         /* Modal */
@@ -583,12 +715,293 @@
             gap: 10px;
         }
 
+        /* Estilos para el modal de instalación */
+        .install-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .install-modal-content {
+            background-color: #2c3e50;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .install-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .install-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            min-height: 40px;
+        }
+        
+        .install-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .install-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .install-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .install-btn-modal {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            min-width: 100px;
+        }
+        
+        .install-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .install-secondary {
+            background-color: #7f8c8d;
+            color: white;
+        }
+        
+        .install-instructions {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #34495e;
+            border-radius: 5px;
+            font-size: 10px;
+            text-align: left;
+        }
+        
+        .install-instructions h4 {
+            margin-bottom: 5px;
+            color: #ecf0f1;
+        }
+
+        /* Modal de sugerencias */
+        .suggestions-modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .suggestions-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .suggestions-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.8rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .suggestions-title {
+            color: #333;
+            font-size: 1.4rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .suggestions-subtitle {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .suggestions-input, .suggestions-textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .suggestions-input:focus, .suggestions-textarea:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+
+        .suggestions-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .required::after {
+            content: " *";
+            color: #f44336;
+        }
+
+        .prefilled-field {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            padding: 0.8rem;
+            border-radius: 8px;
+            color: #2196F3;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .suggestions-btn-modal {
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            color: white;
+            border: none;
+            padding: 0.9rem;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+        }
+
+        .suggestions-btn-modal:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+
+        .suggestions-btn-modal:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .spinner {
+            border: 3px solid rgba(33, 150, 243, 0.2);
+            border-top: 3px solid #2196F3;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 1000;
+            max-width: 280px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .message.success {
+            background: #4CAF50;
+        }
+
+        .message.error {
+            background: #f44336;
+        }
+
+        .message.info {
+            background: #2196F3;
+        }
+
+        .hint {
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+        }
+
+        .city-examples {
+            color: #666;
+            font-size: 0.75rem;
+            margin-top: 0.4rem;
+            font-style: italic;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
                 gap: 15px;
                 text-align: center;
+            }
+            
+            .header-controls {
+                flex-wrap: wrap;
+                justify-content: center;
             }
             
             .crono-control-buttons {
@@ -642,92 +1055,47 @@
             .top-actions {
                 align-self: flex-end;
             }
-        }
-
-        /* PWA Install Prompt */
-        .pwa-install-prompt {
-            position: fixed;
-            bottom: 20px;
-            left: 0;
-            right: 0;
-            background-color: var(--primary);
-            color: white;
-            padding: 15px;
-            margin: 0 15px;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            display: none;
-            z-index: 1001;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .pwa-install-prompt.show {
-            display: flex;
-        }
-
-        .pwa-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-
-        .pwa-close:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--gray);
-        }
-
-        .empty-state i {
-            font-size: 60px;
-            margin-bottom: 20px;
-            color: #ddd;
-        }
-
-        .empty-state h3 {
-            margin-bottom: 10px;
-            color: var(--dark);
+            
+            .flag {
+                width: 25px;
+                height: 17px;
+            }
+            
+            .languages-label {
+                font-size: 0.8rem;
+            }
+            
+            .app-logo {
+                width: 28px;
+                height: 28px;
+            }
+            
+            .app-title h1 {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
+    <!-- Header con selector de idiomas y logo -->
     <header class="app-header">
         <div class="container">
             <div class="header-content">
                 <div class="app-title">
-                    <i class="fas fa-stopwatch"></i>
+                    <img src="https://rbenet71.github.io/Web/Crono_Tops_192x192.png" 
+                         alt="Logo Crono Tops" 
+                         class="app-logo">
                     <h1 id="app-title-text">Crono Tops</h1>
                 </div>
                 <div class="header-controls">
                     <div class="language-selector">
-                        <button class="language-btn" id="language-btn">
-                            <i class="fas fa-globe"></i>
-                            <span id="current-language">Español</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        <div class="language-dropdown" id="language-dropdown">
-                            <div class="language-option" data-lang="es">Español</div>
-                            <div class="language-option" data-lang="ca">Català</div>
-                            <div class="language-option" data-lang="en">English</div>
-                        </div>
+                        <div class="languages-label" id="languages-label">Idioma / Language</div>
+                        <img src="https://flagcdn.com/w40/es.png" class="flag active" id="flag-es" data-lang="es">
+                        <div class="flag flag-catalunya" id="flag-ca" data-lang="ca"></div>
+                        <img src="https://flagcdn.com/w40/gb.png" class="flag" id="flag-en" data-lang="en">
+                        <img src="https://flagcdn.com/w40/fr.png" class="flag" id="flag-fr" data-lang="fr">
+                        <span class="help-icon" id="help-icon-header" title="Ayuda">❓</span>
                     </div>
-                    <button class="help-btn" id="help-btn">
-                        <i class="fas fa-question-circle"></i>
-                    </button>
                 </div>
             </div>
         </div>
@@ -767,6 +1135,14 @@
                         <i class="fas fa-sync-alt"></i>
                         <span id="update-text">Buscar actualizaciones</span>
                     </button>
+                    <button class="install-btn" id="install-btn">
+                        <i class="fas fa-download"></i>
+                        <span id="install-text">Instalar App</span>
+                    </button>
+                    <button class="suggestions-btn" id="suggestions-btn">
+                        <i class="fas fa-lightbulb"></i>
+                        <span id="suggestions-text">Actualizaciones/Sugerencias</span>
+                    </button>
                     <button class="help-btn" id="footer-help-btn">
                         <i class="fas fa-question-circle"></i>
                         <span id="help-text">Ayuda</span>
@@ -774,7 +1150,10 @@
                 </div>
                 <div class="footer-right">
                     <div class="copyright" id="copyright-text">
-                        © 2023 Crono Tops - Todos los derechos reservados
+                        2025 © Copyright 
+                        <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
+                            Roberto Benet - rbenet71@gmail.com - V_04_12_2025
+                        </a>
                     </div>
                 </div>
             </div>
@@ -797,10 +1176,12 @@
                     <li><strong>Nombre del Top:</strong> Asigna un nombre al punto de control (ej: "Frente Carrefour Prat").</li>
                     <li><strong>Botón Inicio/Top:</strong> Al pulsar por primera vez se inicia el cronómetro. Las siguientes pulsaciones registran tiempos (tops).</li>
                     <li><strong>Dorsal:</strong> Asigna el número de dorsal a cada tiempo registrado.</li>
-                    <li><strong>Ubicación:</strong> La ubicación GPS se registra automáticamente al iniciar el cronómetro.</li>
+                    <li><strong>Ubicación:</strong> La ubicación GPS se registra automáticamente al iniciar el cronómetro y en cada top.</li>
+                    <li><strong>Google Maps:</strong> Haz clic en el icono 📍 para ver la ubicación exacta en Google Maps.</li>
                 </ul>
                 
                 <p id="help-modal-text2">Los tiempos se muestran en formato minutos:segundos.décimas y la diferencia se calcula automáticamente entre cada top registrado.</p>
+                <p><strong>Para más información, visita:</strong> <a href="https://rbenet71.github.io/Web/Crono_Tops_Ayuda.html" target="_blank">Crono_Tops_Ayuda.html</a></p>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary" id="help-modal-ok">Entendido</button>
@@ -843,17 +1224,70 @@
         </div>
     </div>
 
-    <!-- PWA Install Prompt -->
-    <div class="pwa-install-prompt" id="pwa-install-prompt">
-        <div>
-            <strong id="pwa-prompt-title">Instalar Crono Tops</strong>
-            <p id="pwa-prompt-text">Instala esta aplicación en tu dispositivo para un acceso rápido y uso sin conexión.</p>
-        </div>
-        <div>
-            <button class="btn btn-success" id="pwa-install-btn">Instalar</button>
-            <button class="pwa-close" id="pwa-close-btn">&times;</button>
+    <!-- Install Modal -->
+    <div class="install-modal" id="installModal">
+        <div class="install-modal-content">
+            <div class="install-icon" id="installIcon">📱</div>
+            <div class="install-message" id="installMessage"></div>
+            <div class="install-buttons">
+                <button class="install-btn-modal install-primary" id="installActionBtn">Instalar</button>
+                <button class="install-btn-modal install-secondary" id="installCancelBtn">Cerrar</button>
+            </div>
+            <div class="install-instructions" id="installInstructions">
+                <h4 id="instructionsTitle">Instrucciones de instalación</h4>
+                <div id="instructionsList">
+                    <!-- Las instrucciones se llenarán dinámicamente -->
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Suggestions Modal -->
+    <div class="modal" id="suggestions-modal">
+        <div class="suggestions-modal-content">
+            <div class="suggestions-header">
+                <div class="suggestions-icon">
+                    📩
+                </div>
+                <h1 class="suggestions-title" id="suggestions-title">Crono Tops</h1>
+                <p class="suggestions-subtitle" id="suggestions-subtitle">Envía tus comentarios</p>
+            </div>
+            
+            <form id="suggestionForm">
+                <div class="form-group">
+                    <label for="email-suggestions" class="required" id="email-label">Facilítanos tu email para mantenerte informado de las actualizaciones</label>
+                    <input type="email" id="email-suggestions" class="suggestions-input" placeholder="tu@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="city-suggestions" class="required" id="city-label">Ciudad</label>
+                    <input type="text" id="city-suggestions" class="suggestions-input" placeholder="Ej: Madrid" required>
+                    <div class="city-examples" id="city-examples">Madrid, Barcelona, Valencia, etc.</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="suggestion-text" id="suggestion-label">Sugerencias para mejorar la aplicación</label>
+                    <textarea id="suggestion-text" class="suggestions-textarea" placeholder="Tus ideas para mejorar la app..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label id="program-label">Programa</label>
+                    <div class="prefilled-field">Crono Tops</div>
+                </div>
+                
+                <div class="loading" id="loading-suggestions">
+                    <div class="spinner"></div>
+                    <p id="loading-text">Enviando...</p>
+                </div>
+                
+                <button type="button" id="submitBtn-suggestions" class="suggestions-btn-modal">
+                    📤 Enviar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="message" class="message"></div>
 
     <script>
         // App State
@@ -866,7 +1300,7 @@
             deferredPrompt: null
         };
 
-        // Translations - Eliminada la etiqueta "currentTimeLabel"
+        // Translations - actualizadas con textos de instalación
         const translations = {
             es: {
                 appTitle: "Crono Tops",
@@ -875,7 +1309,6 @@
                 noCronosText: "Haz clic en 'Nuevo Crono' para crear tu primer cronómetro",
                 cronoNameLabel: "Nombre del top",
                 cronoNamePlaceholder: "Ej: Frente Carrefour Prat",
-                // currentTimeLabel: "Tiempo actual", // ELIMINADO
                 startBtn: "Inicio",
                 topBtn: "Top",
                 topsListTitle: "Tops registrados",
@@ -889,8 +1322,10 @@
                 actions: "Acciones",
                 delete: "Eliminar",
                 updateText: "Buscar actualizaciones",
+                installText: "Instalar App", // Nuevo
+                suggestionsText: "Actualizaciones/Sugerencias",
                 helpText: "Ayuda",
-                copyright: "© 2023 Crono Tops - Todos los derechos reservados",
+                languagesLabel: "Idioma / Language",
                 helpModalTitle: "Ayuda de Crono Tops",
                 helpModalText1: "Crono Tops es una aplicación para tomar tiempos en carreras de bicicletas. Puedes crear múltiples cronómetros para diferentes puntos de control.",
                 helpModalSubtitle1: "Cómo usar:",
@@ -899,7 +1334,8 @@
                     "Nombre del Top: Asigna un nombre al punto de control (ej: 'Frente Carrefour Prat').",
                     "Botón Inicio/Top: Al pulsar por primera vez se inicia el cronómetro. Las siguientes pulsaciones registran tiempos (tops).",
                     "Dorsal: Asigna el número de dorsal a cada tiempo registrado.",
-                    "Ubicación: La ubicación GPS se registra automáticamente al iniciar el cronómetro."
+                    "Ubicación: La ubicación GPS se registra automáticamente al iniciar el cronómetro y en cada top.",
+                    "Google Maps: Haz clic en el icono 📍 para ver la ubicación exacta en Google Maps."
                 ],
                 helpModalText2: "Los tiempos se muestran en formato minutos:segundos.décimas y la diferencia se calcula automáticamente entre cada top registrado.",
                 deleteModalTitle: "Confirmar eliminación",
@@ -911,9 +1347,54 @@
                 updateModalText: "Hay una nueva versión de Crono Tops disponible. ¿Quieres actualizar ahora?",
                 updateNow: "Actualizar ahora",
                 updateLater: "Más tarde",
-                pwaPromptTitle: "Instalar Crono Tops",
-                pwaPromptText: "Instala esta aplicación en tu dispositivo para un acceso rápido y uso sin conexión.",
-                install: "Instalar"
+                // Textos para instalación (copiados de Calculadora)
+                installTitle: "Instalar App",
+                installSubtitle: "Añade un acceso directo a tu dispositivo",
+                installAction: "Instalar",
+                installClose: "Cerrar",
+                iosInstructionsTitle: "Instalar en iPhone/iPad",
+                iosInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Se abrirá el menú de compartir</li>
+                    <li>Desplázate y selecciona <strong>"Añadir a Pantalla de Inicio"</strong></li>
+                    <li>Pulsa <strong>"Añadir"</strong> para confirmar</li>
+                </ol>`,
+                androidInstructionsTitle: "Instalar en Android",
+                androidInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Se instalará automáticamente como app PWA</li>
+                    <li>La app aparecerá en tu pantalla de inicio</li>
+                </ol>`,
+                windowsInstructionsTitle: "Crear Acceso Directo en Windows",
+                windowsInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Se descargará un archivo .url</li>
+                    <li>Ábrelo para crear el acceso directo en tu escritorio</li>
+                </ol>`,
+                otherInstructionsTitle: "Instalar App",
+                otherInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Sigue las instrucciones de tu navegador</li>
+                </ol>`,
+                // Textos para sugerencias
+                suggestionsTitle: "Crono Tops",
+                suggestionsSubtitle: "Envía tus comentarios",
+                emailLabel: "Facilítanos tu email para mantenerte informado de las actualizaciones",
+                cityLabel: "Ciudad",
+                suggestionLabel: "Sugerencias para mejorar la aplicación",
+                programLabel: "Programa",
+                submitButton: "📤 Enviar",
+                sendingText: "Enviando...",
+                successMessage: "✅ Enviado correctamente",
+                errorMessage: "❌ Error al enviar",
+                invalidEmail: "Email no válido",
+                invalidCity: "Ciudad no válida",
+                enterEmail: "Ingresa tu email",
+                enterCity: "Escribe tu ciudad",
+                cityExamples: "Madrid, Barcelona, Valencia, etc.",
+                locationLabel: "Ubicación:",
+                viewOnMaps: "📍 Ver en Google Maps",
+                locationNotAvailable: "Ubicación no disponible"
             },
             ca: {
                 appTitle: "Crono Tops",
@@ -922,7 +1403,6 @@
                 noCronosText: "Fes clic a 'Nou Crono' per crear el teu primer cronòmetre",
                 cronoNameLabel: "Nom del top",
                 cronoNamePlaceholder: "Ex: Davant Carrefour Prat",
-                // currentTimeLabel: "Temps actual", // ELIMINADO
                 startBtn: "Inici",
                 topBtn: "Top",
                 topsListTitle: "Tops registrats",
@@ -936,8 +1416,10 @@
                 actions: "Accions",
                 delete: "Eliminar",
                 updateText: "Cercar actualitzacions",
+                installText: "Instal·lar App",
+                suggestionsText: "Actualitzacions/Suggeriments",
                 helpText: "Ajuda",
-                copyright: "© 2023 Crono Tops - Tots els drets reservats",
+                languagesLabel: "Idioma / Language",
                 helpModalTitle: "Ajuda de Crono Tops",
                 helpModalText1: "Crono Tops és una aplicació per prendre temps en curses de bicicletes. Pots crear múltiples cronòmetres per diferents punts de control.",
                 helpModalSubtitle1: "Com usar:",
@@ -946,7 +1428,8 @@
                     "Nom del Top: Assigna un nom al punt de control (ex: 'Davant Carrefour Prat').",
                     "Botó Inici/Top: En prémer per primera vegada s'inicia el cronòmetre. Les següents pulsacions registren temps (tops).",
                     "Dorsal: Assigna el número de dorsal a cada temps registrat.",
-                    "Ubicació: La ubicació GPS es registra automàticament en iniciar el cronòmetre."
+                    "Ubicació: La ubicació GPS es registra automàticament en iniciar el cronòmetre i en cada top.",
+                    "Google Maps: Fes clic a la icona 📍 per veure la ubicació exacta a Google Maps."
                 ],
                 helpModalText2: "Els temps es mostren en format minuts:segons.dècimes i la diferència es calcula automàticament entre cada top registrat.",
                 deleteModalTitle: "Confirmar eliminació",
@@ -958,9 +1441,53 @@
                 updateModalText: "Hi ha una nova versió de Crono Tops disponible. Vols actualitzar ara?",
                 updateNow: "Actualitzar ara",
                 updateLater: "Més tard",
-                pwaPromptTitle: "Instal·lar Crono Tops",
-                pwaPromptText: "Instal·la aquesta aplicació al teu dispositiu per a un accés ràpid i ús sense connexió.",
-                install: "Instal·lar"
+                // Textos para instalación
+                installTitle: "Instal·lar App",
+                installSubtitle: "Afegeix un accés directe al teu dispositiu",
+                installAction: "Instal·lar",
+                installClose: "Tancar",
+                iosInstructionsTitle: "Instal·lar a iPhone/iPad",
+                iosInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botó "Instal·lar"</li>
+                    <li>S'obrirà el menú de compartir</li>
+                    <li>Desplaça't i selecciona <strong>"Afegeix a la pantalla d'inici"</strong></li>
+                    <li>Prem <strong>"Afegeix"</strong> per confirmar</li>
+                </ol>`,
+                androidInstructionsTitle: "Instal·lar a Android",
+                androidInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botó "Instal·lar"</li>
+                    <li>S'instal·larà automàticament com a app PWA</li>
+                    <li>L'app apareixerà a la teva pantalla d'inici</li>
+                </ol>`,
+                windowsInstructionsTitle: "Crear Accés Directe a Windows",
+                windowsInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botó "Instal·lar"</li>
+                    <li>Es descarregarà un arxiu .url</li>
+                    <li>Obre'l per crear l'accés directe al teu escriptori</li>
+                </ol>`,
+                otherInstructionsTitle: "Instal·lar App",
+                otherInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botó "Instal·lar"</li>
+                    <li>Segueix les instruccions del teu navegador</li>
+                </ol>`,
+                suggestionsTitle: "Crono Tops",
+                suggestionsSubtitle: "Envia els teus comentaris",
+                emailLabel: "Facilita'ns el teu email per mantenir-te informat de les actualitzacions",
+                cityLabel: "Ciutat",
+                suggestionLabel: "Suggeriments per millorar l'aplicació",
+                programLabel: "Programa",
+                submitButton: "📤 Enviar",
+                sendingText: "Enviant...",
+                successMessage: "✅ Enviat correctament",
+                errorMessage: "❌ Error en enviar",
+                invalidEmail: "Email no vàlid",
+                invalidCity: "Ciutat no vàlida",
+                enterEmail: "Introdueix el teu email",
+                enterCity: "Escriu la teva ciutat",
+                cityExamples: "Madrid, Barcelona, València, etc.",
+                locationLabel: "Ubicació:",
+                viewOnMaps: "📍 Veure a Google Maps",
+                locationNotAvailable: "Ubicació no disponible"
             },
             en: {
                 appTitle: "Crono Tops",
@@ -969,7 +1496,6 @@
                 noCronosText: "Click 'New Chrono' to create your first chronometer",
                 cronoNameLabel: "Top name",
                 cronoNamePlaceholder: "Ex: Front Carrefour Prat",
-                // currentTimeLabel: "Current time", // ELIMINADO
                 startBtn: "Start",
                 topBtn: "Top",
                 topsListTitle: "Recorded tops",
@@ -983,8 +1509,10 @@
                 actions: "Actions",
                 delete: "Delete",
                 updateText: "Check for updates",
+                installText: "Install App",
+                suggestionsText: "Updates/Suggestions",
                 helpText: "Help",
-                copyright: "© 2023 Crono Tops - All rights reserved",
+                languagesLabel: "Idioma / Language",
                 helpModalTitle: "Crono Tops Help",
                 helpModalText1: "Crono Tops is an application for taking times in bicycle races. You can create multiple chronometers for different checkpoints.",
                 helpModalSubtitle1: "How to use:",
@@ -993,7 +1521,8 @@
                     "Top Name: Assign a name to the checkpoint (ex: 'Front Carrefour Prat').",
                     "Start/Top Button: When pressed for the first time it starts the chronometer. Subsequent presses record times (tops).",
                     "Bib Number: Assign the bib number to each recorded time.",
-                    "Location: GPS location is automatically recorded when starting the chronometer."
+                    "Location: GPS location is automatically recorded when starting the chronometer and on each top.",
+                    "Google Maps: Click the 📍 icon to view the exact location on Google Maps."
                 ],
                 helpModalText2: "Times are displayed in minutes:seconds.tenths format and the difference is automatically calculated between each recorded top.",
                 deleteModalTitle: "Confirm deletion",
@@ -1005,19 +1534,154 @@
                 updateModalText: "There is a new version of Crono Tops available. Do you want to update now?",
                 updateNow: "Update now",
                 updateLater: "Later",
-                pwaPromptTitle: "Install Crono Tops",
-                pwaPromptText: "Install this application on your device for quick access and offline use.",
-                install: "Install"
+                // Textos para instalación
+                installTitle: "Install App",
+                installSubtitle: "Add a shortcut to your device",
+                installAction: "Install",
+                installClose: "Close",
+                iosInstructionsTitle: "Install on iPhone/iPad",
+                iosInstructions: `<ol style="padding-left: 15px;">
+                    <li>Tap the "Install" button</li>
+                    <li>The share menu will open</li>
+                    <li>Scroll and select <strong>"Add to Home Screen"</strong></li>
+                    <li>Tap <strong>"Add"</strong> to confirm</li>
+                </ol>`,
+                androidInstructionsTitle: "Install on Android",
+                androidInstructions: `<ol style="padding-left: 15px;">
+                    <li>Tap the "Install" button</li>
+                    <li>It will automatically install as a PWA</li>
+                    <li>The app will appear on your home screen</li>
+                </ol>`,
+                windowsInstructionsTitle: "Create Shortcut on Windows",
+                windowsInstructions: `<ol style="padding-left: 15px;">
+                    <li>Tap the "Install" button</li>
+                    <li>A .url file will be downloaded</li>
+                    <li>Open it to create the shortcut on your desktop</li>
+                </ol>`,
+                otherInstructionsTitle: "Install App",
+                otherInstructions: `<ol style="padding-left: 15px;">
+                    <li>Tap the "Install" button</li>
+                    <li>Follow your browser instructions</li>
+                </ol>`,
+                suggestionsTitle: "Crono Tops",
+                suggestionsSubtitle: "Send your comments",
+                emailLabel: "Provide your email to stay informed about updates",
+                cityLabel: "City",
+                suggestionLabel: "Suggestions to improve the application",
+                programLabel: "Program",
+                submitButton: "📤 Send",
+                sendingText: "Sending...",
+                successMessage: "✅ Sent successfully",
+                errorMessage: "❌ Error sending",
+                invalidEmail: "Invalid email",
+                invalidCity: "Invalid city",
+                enterEmail: "Enter your email",
+                enterCity: "Write your city",
+                cityExamples: "Madrid, Barcelona, Valencia, etc.",
+                locationLabel: "Location:",
+                viewOnMaps: "📍 View on Google Maps",
+                locationNotAvailable: "Location not available"
+            },
+            fr: {
+                appTitle: "Crono Tops",
+                newCrono: "Nouveau Chrono",
+                noCronosTitle: "Pas de chronomètres",
+                noCronosText: "Cliquez sur 'Nouveau Chrono' para crear votre premier chronomètre",
+                cronoNameLabel: "Nom du top",
+                cronoNamePlaceholder: "Ex: Devant Carrefour Prat",
+                startBtn: "Démarrer",
+                topBtn: "Top",
+                topsListTitle: "Tops enregistrés",
+                startTimeLabel: "Heure de début",
+                gpsLabel: "Emplacement GPS",
+                gpsLink: "Voir sur Google Maps",
+                gpsNoAvailable: "Non disponible - Autorisez l'accès à l'emplacement",
+                dorsalPlaceholder: "Dossard",
+                time: "Temps",
+                diff: "Différence",
+                actions: "Actions",
+                delete: "Supprimer",
+                updateText: "Vérifier les mises à jour",
+                installText: "Installer App",
+                suggestionsText: "Mises à jour/Suggestions",
+                helpText: "Aide",
+                languagesLabel: "Idioma / Language",
+                helpModalTitle: "Aide Crono Tops",
+                helpModalText1: "Crono Tops est une application pour prendre des temps dans les courses de vélo. Vous pouvez créer plusieurs chronomètres pour différents points de contrôle.",
+                helpModalSubtitle1: "Comment utiliser:",
+                helpModalList: [
+                    "Nouveau Chrono: Créez un nouveau chronomètre avec un onglet.",
+                    "Nom du Top: Attribuez un nom au point de contrôle (ex: 'Devant Carrefour Prat').",
+                    "Bouton Départ/Top: Lorsqu'il est pressé pour la première fois, il démarre le chronomètre. Les pressions suivantes enregistrent les temps (tops).",
+                    "Dossard: Attribuez le numéro de dossard à chaque temps enregistré.",
+                    "Emplacement: L'emplacement GPS est automatiquement enregistré au démarrage du chronomètre et sur chaque top.",
+                    "Google Maps: Cliquez sur l'icône 📍 pour voir l'emplacement exact sur Google Maps."
+                ],
+                helpModalText2: "Les temps sont affichés au format minutes:secondes.dixièmes et la différence est calculée automatiquement entre chaque top enregistré.",
+                deleteModalTitle: "Confirmer la suppression",
+                deleteModalText: "Êtes-vous sûr de vouloir supprimer ce chronomètre? Tous les temps enregistrés seront perdus.",
+                deleteConfirm: "Supprimer",
+                cancel: "Annuler",
+                understood: "Compris",
+                updateModalTitle: "Mise à jour disponible",
+                updateModalText: "Une nouvelle version de Crono Tops est disponible. Voulez-vous mettre à jour maintenant?",
+                updateNow: "Mettre à jour maintenant",
+                updateLater: "Plus tard",
+                // Textos para instalación
+                installTitle: "Installer l'App",
+                installSubtitle: "Ajoutez un raccourci à votre appareil",
+                installAction: "Installer",
+                installClose: "Fermer",
+                iosInstructionsTitle: "Installer sur iPhone/iPad",
+                iosInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Le menu de partage s'ouvrira</li>
+                    <li>Faites défiler et sélectionnez <strong>"Ajouter à l'écran d'accueil"</strong></li>
+                    <li>Appuyez sur <strong>"Ajouter"</strong> pour confirmar</li>
+                </ol>`,
+                androidInstructionsTitle: "Installer sur Android",
+                androidInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Il s'installera automatiquement en tant qu'application PWA</li>
+                    <li>L'application apparaîtra sur votre écran d'accueil</li>
+                </ol>`,
+                windowsInstructionsTitle: "Créer un Raccourci sur Windows",
+                windowsInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Un fichier .url sera téléchargé</li>
+                    <li>Ouvrez-le pour créer le raccourci sur votre bureau</li>
+                </ol>`,
+                otherInstructionsTitle: "Installer l'App",
+                otherInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Suivez les instructions de votre navigateur</li>
+                </ol>`,
+                suggestionsTitle: "Crono Tops",
+                suggestionsSubtitle: "Envoyez vos commentaires",
+                emailLabel: "Fournissez votre email pour rester informé des mises à jour",
+                cityLabel: "Ville",
+                suggestionLabel: "Suggestions pour améliorer l'application",
+                programLabel: "Programme",
+                submitButton: "📤 Enviar",
+                sendingText: "Envoi en cours...",
+                successMessage: "✅ Envoyé con éxito",
+                errorMessage: "❌ Error de envío",
+                invalidEmail: "Email no válido",
+                invalidCity: "Ciudad no válida",
+                enterEmail: "Introduce tu email",
+                enterCity: "Escribe tu ciudad",
+                cityExamples: "Madrid, Barcelona, Valencia, etc.",
+                locationLabel: "Emplacement:",
+                viewOnMaps: "📍 Voir sur Google Maps",
+                locationNotAvailable: "Emplacement non disponible"
             }
         };
 
-        // DOM Elements
+        // DOM Elements actualizados
         const domElements = {
             appTitleText: document.getElementById('app-title-text'),
-            currentLanguage: document.getElementById('current-language'),
-            languageBtn: document.getElementById('language-btn'),
-            languageDropdown: document.getElementById('language-dropdown'),
-            helpBtn: document.getElementById('help-btn'),
+            languagesLabel: document.getElementById('languages-label'),
+            helpIconHeader: document.getElementById('help-icon-header'),
             addCronoBtn: document.getElementById('add-crono-btn'),
             newCronoText: document.getElementById('new-crono-text'),
             cronoTabs: document.getElementById('crono-tabs'),
@@ -1041,9 +1705,14 @@
             deleteCancelBtn: document.getElementById('delete-cancel-btn'),
             updateBtn: document.getElementById('update-btn'),
             updateText: document.getElementById('update-text'),
+            installBtn: document.getElementById('install-btn'),
+            installText: document.getElementById('install-text'),
+            suggestionsBtn: document.getElementById('suggestions-btn'),
+            suggestionsText: document.getElementById('suggestions-text'),
             footerHelpBtn: document.getElementById('footer-help-btn'),
             helpText: document.getElementById('help-text'),
             copyrightText: document.getElementById('copyright-text'),
+            copyrightLink: document.getElementById('copyright-link'),
             updateModal: document.getElementById('update-modal'),
             updateModalTitle: document.getElementById('update-modal-title'),
             updateModalText: document.getElementById('update-modal-text'),
@@ -1051,12 +1720,264 @@
             updateModalClose: document.getElementById('update-modal-close'),
             updateNowBtn: document.getElementById('update-now-btn'),
             updateLaterBtn: document.getElementById('update-later-btn'),
-            pwaInstallPrompt: document.getElementById('pwa-install-prompt'),
-            pwaPromptTitle: document.getElementById('pwa-prompt-title'),
-            pwaPromptText: document.getElementById('pwa-prompt-text'),
-            pwaInstallBtn: document.getElementById('pwa-install-btn'),
-            pwaCloseBtn: document.getElementById('pwa-close-btn')
+            installModal: document.getElementById('installModal'),
+            installIcon: document.getElementById('installIcon'),
+            installMessage: document.getElementById('installMessage'),
+            installActionBtn: document.getElementById('installActionBtn'),
+            installCancelBtn: document.getElementById('installCancelBtn'),
+            instructionsTitle: document.getElementById('instructionsTitle'),
+            instructionsList: document.getElementById('instructionsList')
         };
+
+        // Resto del código JavaScript permanece igual...
+        // [El resto del código JavaScript permanece exactamente igual que en la versión anterior]
+        // Solo se ha cambiado la cabecera HTML para usar la imagen en lugar del icono de FontAwesome
+        
+        // Sistema de instalación de app (copiado de Calculadora)
+        class AppInstaller {
+            constructor() {
+                this.installModal = domElements.installModal;
+                this.installIcon = domElements.installIcon;
+                this.installMessage = domElements.installMessage;
+                this.installActionBtn = domElements.installActionBtn;
+                this.installCancelBtn = domElements.installCancelBtn;
+                this.instructionsTitle = domElements.instructionsTitle;
+                this.instructionsList = domElements.instructionsList;
+                
+                this.deferredPrompt = null;
+                this.platform = this.detectPlatform();
+                
+                this.initialize();
+            }
+            
+            initialize() {
+                this.attachEventListeners();
+                this.setupForPlatform();
+            }
+            
+            detectPlatform() {
+                const userAgent = navigator.userAgent.toLowerCase();
+                
+                if (/iphone|ipad|ipod/.test(userAgent)) {
+                    return 'iOS';
+                } else if (/android/.test(userAgent)) {
+                    return 'Android';
+                } else if (/windows/.test(userAgent)) {
+                    return 'Windows';
+                } else {
+                    return 'Other';
+                }
+            }
+            
+            setupForPlatform() {
+                const t = translations[appState.currentLanguage];
+                
+                switch(this.platform) {
+                    case 'iOS':
+                        this.setupIOS(t);
+                        break;
+                    case 'Android':
+                        this.setupAndroid(t);
+                        break;
+                    case 'Windows':
+                        this.setupWindows(t);
+                        break;
+                    default:
+                        this.setupOther(t);
+                }
+            }
+            
+            setupIOS(t) {
+                this.installIcon.textContent = '📱';
+                this.installActionBtn.textContent = t.installAction;
+                this.instructionsTitle.textContent = t.iosInstructionsTitle;
+                this.instructionsList.innerHTML = t.iosInstructions;
+            }
+            
+            setupAndroid(t) {
+                this.installIcon.textContent = '🤖';
+                this.installActionBtn.textContent = t.installAction;
+                this.instructionsTitle.textContent = t.androidInstructionsTitle;
+                this.instructionsList.innerHTML = t.androidInstructions;
+                
+                // Escuchar evento de instalación PWA
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    this.deferredPrompt = e;
+                });
+            }
+            
+            setupWindows(t) {
+                this.installIcon.textContent = '💻';
+                this.installActionBtn.textContent = t.installAction;
+                this.instructionsTitle.textContent = t.windowsInstructionsTitle;
+                this.instructionsList.innerHTML = t.windowsInstructions;
+            }
+            
+            setupOther(t) {
+                this.installIcon.textContent = '🌐';
+                this.installActionBtn.textContent = t.installAction;
+                this.instructionsTitle.textContent = t.otherInstructionsTitle;
+                this.instructionsList.innerHTML = t.otherInstructions;
+            }
+            
+            attachEventListeners() {
+                // Botón para abrir modal de instalación
+                domElements.installBtn.addEventListener('click', () => {
+                    this.showInstallModal();
+                });
+                
+                // Botones del modal
+                this.installActionBtn.addEventListener('click', () => {
+                    this.handleInstall();
+                });
+                
+                this.installCancelBtn.addEventListener('click', () => {
+                    this.hideInstallModal();
+                });
+                
+                // Cerrar modal al hacer clic fuera
+                window.addEventListener('click', (e) => {
+                    if (e.target === this.installModal) {
+                        this.hideInstallModal();
+                    }
+                });
+            }
+            
+            showInstallModal() {
+                this.setupForPlatform(); // Actualizar instrucciones según plataforma
+                this.installModal.style.display = 'flex';
+                const t = translations[appState.currentLanguage];
+                this.showMessage(t.installSubtitle, true);
+            }
+            
+            hideInstallModal() {
+                this.installModal.style.display = 'none';
+            }
+            
+            showMessage(message, isInfo = true) {
+                this.installMessage.textContent = message;
+                this.installMessage.className = `install-message ${isInfo ? 'install-info' : 'install-success'}`;
+            }
+            
+            async handleInstall() {
+                const t = translations[appState.currentLanguage];
+                
+                switch(this.platform) {
+                    case 'iOS':
+                        this.installIOS(t);
+                        break;
+                    case 'Android':
+                        await this.installAndroid(t);
+                        break;
+                    case 'Windows':
+                        this.installWindows(t);
+                        break;
+                    default:
+                        this.installOther(t);
+                }
+            }
+            
+            installIOS(t) {
+                if (navigator.share) {
+                    navigator.share({
+                        title: document.title,
+                        text: t.installSubtitle,
+                        url: window.location.href
+                    })
+                    .then(() => {
+                        this.showMessage('✅ ' + (appState.currentLanguage === 'fr' ? 'Sélectionnez maintenant "Ajouter à l\'écran d\'accueil"' : 
+                                               appState.currentLanguage === 'en' ? 'Now select "Add to Home Screen"' :
+                                               appState.currentLanguage === 'ca' ? 'Ara selecciona "Afegeix a la pantalla d\'inici"' :
+                                               'Ahora selecciona "Añadir a Pantalla de Inicio"'), false);
+                    })
+                    .catch((error) => {
+                        if (error.name !== 'AbortError') {
+                            this.showMessage('❌ ' + (appState.currentLanguage === 'fr' ? 'Impossible d\'ouvrir le menu de partage' :
+                                               appState.currentLanguage === 'en' ? 'Could not open share menu' :
+                                               appState.currentLanguage === 'ca' ? 'No s\'ha pogut obrir el menú de compartir' :
+                                               'No se pudo abrir el menú de compartir'), true);
+                        }
+                    });
+                } else {
+                    this.showMessage('❌ ' + (appState.currentLanguage === 'fr' ? 'Votre navigateur ne supporte pas cette fonction' :
+                                           appState.currentLanguage === 'en' ? 'Your browser does not support this function' :
+                                           appState.currentLanguage === 'ca' ? 'El teu navegador no suporta aquesta funció' :
+                                           'Tu navegador no soporta esta función'), true);
+                }
+            }
+            
+            async installAndroid(t) {
+                if (this.deferredPrompt) {
+                    try {
+                        this.deferredPrompt.prompt();
+                        const { outcome } = await this.deferredPrompt.userChoice;
+                        
+                        if (outcome === 'accepted') {
+                            this.showMessage('✅ ' + (appState.currentLanguage === 'fr' ? 'App installée avec succès' :
+                                                   appState.currentLanguage === 'en' ? 'App installed successfully' :
+                                                   appState.currentLanguage === 'ca' ? 'App instal·lada correctament' :
+                                                   'App instalada correctamente'), false);
+                            this.installActionBtn.style.display = 'none';
+                        } else {
+                            this.showMessage(appState.currentLanguage === 'fr' ? 'Installation annulée' :
+                                            appState.currentLanguage === 'en' ? 'Installation cancelled' :
+                                            appState.currentLanguage === 'ca' ? 'Instal·lació cancel·lada' :
+                                            'Instalación cancelada', true);
+                        }
+                        this.deferredPrompt = null;
+                    } catch (error) {
+                        this.showMessage('❌ ' + (appState.currentLanguage === 'fr' ? 'Erreur d\'installation' :
+                                               appState.currentLanguage === 'en' ? 'Installation error' :
+                                               appState.currentLanguage === 'ca' ? 'Error en la instal·lació' :
+                                               'Error en la instalación'), true);
+                    }
+                } else {
+                    this.showMessage('🔧 ' + (appState.currentLanguage === 'fr' ? 'Votre navigateur supporte l\'installation PWA' :
+                                           appState.currentLanguage === 'en' ? 'Your browser supports PWA installation' :
+                                           appState.currentLanguage === 'ca' ? 'El teu navegador suporta instal·lació PWA' :
+                                           'Tu navegador soporta instalación PWA'), false);
+                }
+            }
+            
+            installWindows(t) {
+                // Crear y descargar archivo .url para acceso directo
+                const urlContent = `[InternetShortcut]
+URL=${window.location.href}
+IconIndex=0
+IDList=`;
+                
+                const blob = new Blob([urlContent], { type: 'application/internet-shortcut' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${document.title}.url`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.showMessage('✅ ' + (appState.currentLanguage === 'fr' ? 'Fichier de raccourci téléchargé' :
+                                       appState.currentLanguage === 'en' ? 'Shortcut file downloaded' :
+                                       appState.currentLanguage === 'ca' ? 'Arxiu d\'accés directe descarregat' :
+                                       'Archivo de acceso directo descargado'), false);
+            }
+            
+            installOther(t) {
+                if (navigator.share) {
+                    navigator.share({
+                        title: document.title,
+                        text: t.installSubtitle,
+                        url: window.location.href
+                    });
+                } else {
+                    this.showMessage('⭐ ' + (appState.currentLanguage === 'fr' ? 'Utilisez le menu de votre navigateur para crear un raccourci' :
+                                           appState.currentLanguage === 'en' ? 'Use your browser menu to create a shortcut' :
+                                           appState.currentLanguage === 'ca' ? 'Utilitza el menú del teu navegador per crear un accés directe' :
+                                           'Usa el menú de tu navegador para crear un acceso directo'), false);
+                }
+            }
+        }
 
         // Initialize the app
         function initApp() {
@@ -1066,10 +1987,21 @@
             renderCronos();
             setupServiceWorker();
             checkForUpdates();
-            showPWAInstallPrompt();
+            
+            // Inicializar instalador de app
+            window.appInstaller = new AppInstaller();
             
             // Start updating crono times
             setInterval(updateAllCronoTimes, 100);
+            
+            // Mostrar mensaje informativo
+            setTimeout(() => {
+                const message = appState.currentLanguage === 'fr' ? 'Partagez vos idées pour améliorer la calculatrice' :
+                              appState.currentLanguage === 'en' ? 'Share your ideas to improve the calculator' :
+                              appState.currentLanguage === 'ca' ? 'Comparteix les teves idees per millorar la calculadora' :
+                              'Comparte tus ideas para mejorar la calculadora';
+                showMessage(message, 'info');
+            }, 1000);
         }
 
         // Language functions
@@ -1087,13 +2019,14 @@
             
             // Update UI text
             domElements.appTitleText.textContent = t.appTitle;
-            domElements.currentLanguage.textContent = getLanguageName(lang);
+            domElements.languagesLabel.textContent = t.languagesLabel;
             domElements.newCronoText.textContent = t.newCrono;
             domElements.noCronosTitle.textContent = t.noCronosTitle;
             domElements.noCronosText.textContent = t.noCronosText;
             domElements.updateText.textContent = t.updateText;
+            domElements.installText.textContent = t.installText;
+            domElements.suggestionsText.textContent = t.suggestionsText;
             domElements.helpText.textContent = t.helpText;
-            domElements.copyrightText.textContent = t.copyright;
             domElements.helpModalTitle.textContent = t.helpModalTitle;
             domElements.helpModalText1.textContent = t.helpModalText1;
             domElements.helpModalSubtitle1.textContent = t.helpModalSubtitle1;
@@ -1102,8 +2035,9 @@
             domElements.deleteModalText.textContent = t.deleteModalText;
             domElements.updateModalTitle.textContent = t.updateModalTitle;
             domElements.updateModalText.textContent = t.updateModalText;
-            domElements.pwaPromptTitle.textContent = t.pwaPromptTitle;
-            domElements.pwaPromptText.textContent = t.pwaPromptText;
+            
+            // Update copyright text
+            domElements.copyrightText.innerHTML = `2025 © Copyright <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">Roberto Benet - rbenet71@gmail.com - V_04_12_2025</a>`;
             
             // Update help modal list
             domElements.helpModalList.innerHTML = '';
@@ -1120,21 +2054,42 @@
             domElements.helpModalOk.textContent = t.understood;
             domElements.updateNowBtn.textContent = t.updateNow;
             domElements.updateLaterBtn.textContent = t.updateLater;
-            domElements.pwaInstallBtn.textContent = t.install;
+            
+            // Update flags
+            document.querySelectorAll('.flag').forEach(flag => {
+                flag.classList.remove('active');
+            });
+            const flagElement = document.getElementById('flag-' + lang);
+            if (flagElement) {
+                flagElement.classList.add('active');
+            }
             
             // Update existing crono panels
             renderCronos();
+            
+            // Update suggestions modal if it exists
+            if (window.suggestionsSystem) {
+                window.suggestionsSystem.updateLanguage(lang);
+            }
+            
+            // Update app installer
+            if (window.appInstaller) {
+                window.appInstaller.setupForPlatform();
+            }
         }
 
-        function getLanguageName(code) {
-            const names = { es: 'Español', ca: 'Català', en: 'English' };
-            return names[code] || 'Español';
+        // Función para abrir el archivo de ayuda
+        function openHelpFile() {
+            window.open('https://rbenet71.github.io/Web/Crono_Tops_Ayuda.html', '_blank');
         }
 
+        // Resto del código JavaScript...
+        // [Aquí iría el resto del código JavaScript que ya tenías en la versión anterior]
+        // Solo se ha modificado la cabecera HTML, el resto del JavaScript permanece igual
+        
         // Crono functions - último crono primero
         function createNewCrono() {
             const cronoId = appState.nextCronoId++;
-            const now = new Date();
             
             const newCrono = {
                 id: cronoId,
@@ -1251,18 +2206,37 @@
             const previousTop = crono.tops.length > 0 ? crono.tops[crono.tops.length - 1] : null;
             const diff = previousTop ? elapsedTime - previousTop.time : 0;
             
-            const newTop = {
-                id: Date.now(),
-                dorsal: "",
-                time: elapsedTime,
-                diff: diff
-            };
-            
-            // Añadir al principio para mostrar el último primero
-            crono.tops.unshift(newTop);
-            
-            saveCronosToStorage();
-            renderCronos();
+            // Obtener ubicación actual para este top
+            getCurrentLocation().then(location => {
+                const newTop = {
+                    id: Date.now(),
+                    dorsal: "",
+                    time: elapsedTime,
+                    diff: diff,
+                    location: location
+                };
+                
+                // Añadir al principio para mostrar el último primero
+                crono.tops.unshift(newTop);
+                
+                saveCronosToStorage();
+                renderCronos();
+            }).catch(error => {
+                console.log("No se pudo obtener la ubicación para el top:", error);
+                const newTop = {
+                    id: Date.now(),
+                    dorsal: "",
+                    time: elapsedTime,
+                    diff: diff,
+                    location: { error: true }
+                };
+                
+                // Añadir al principio para mostrar el último primero
+                crono.tops.unshift(newTop);
+                
+                saveCronosToStorage();
+                renderCronos();
+            });
         }
 
         function deleteTop(cronoIndex, topIndex) {
@@ -1359,7 +2333,7 @@
                 const buttonText = crono.hasStarted ? t.topBtn : t.startBtn;
                 const buttonIcon = crono.hasStarted ? 'fa-flag-checkered' : 'fa-play';
                 
-                // Panel HTML - SIN ETIQUETA DE TIEMPO ACTUAL
+                // Panel HTML
                 panel.innerHTML = `
                     <div class="crono-name">
                         <label>${t.cronoNameLabel}</label>
@@ -1453,6 +2427,9 @@
                     diffDisplay = '--:--.--';
                 }
                 
+                // Renderizar ubicación del top
+                const locationHtml = renderTopLocation(top, t);
+                
                 html += `
                     <div class="top-item">
                         <div class="top-time-row">
@@ -1469,6 +2446,7 @@
                                 </button>
                             </div>
                         </div>
+                        ${locationHtml}
                         <div class="top-dorsal-container">
                             <label class="dorsal-label">${t.dorsalPlaceholder}:</label>
                             <div class="top-dorsal">
@@ -1486,6 +2464,32 @@
             return html;
         }
 
+        function renderTopLocation(top, t) {
+            if (!top.location) {
+                return `<div class="top-location"><div class="location-info"><span class="location-text">${t.locationNotAvailable}</span></div></div>`;
+            }
+            
+            if (top.location.error) {
+                return `<div class="top-location"><div class="location-info"><span class="location-text">${t.locationNotAvailable}</span></div></div>`;
+            }
+            
+            const lat = top.location.lat.toFixed(6);
+            const lng = top.location.lng.toFixed(6);
+            const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
+            
+            return `
+                <div class="top-location">
+                    <div class="location-info">
+                        <span>${t.locationLabel}</span>
+                        <a href="${mapsUrl}" target="_blank" class="location-link">
+                            <i class="fas fa-map-marker-alt"></i>
+                            ${t.viewOnMaps}
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
         function renderLocationInfo(crono, t) {
             if (!crono.location) {
                 return `<p>${t.gpsNoAvailable}</p>`;
@@ -1495,9 +2499,13 @@
                 return `<p>${t.gpsNoAvailable}</p>`;
             }
             
+            const lat = crono.location.lat.toFixed(6);
+            const lng = crono.location.lng.toFixed(6);
+            const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
+            
             return `
-                <p>${crono.location.lat.toFixed(6)}, ${crono.location.lng.toFixed(6)}</p>
-                <a href="https://maps.google.com/?q=${crono.location.lat},${crono.location.lng}" target="_blank" class="gps-link">
+                <p>${lat}, ${lng}</p>
+                <a href="${mapsUrl}" target="_blank" class="gps-link">
                     <i class="fas fa-external-link-alt"></i> ${t.gpsLink}
                 </a>
             `;
@@ -1565,25 +2573,34 @@
         // PWA and update functions
         function setupServiceWorker() {
             if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js').then(registration => {
-                        console.log('ServiceWorker registrado con éxito:', registration.scope);
+                // Solo registrar para Crono_Tops
+                if (window.location.href.includes('Crono_Tops')) {
+                    navigator.serviceWorker.register('/Web/unified-sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker Crono Tops registrado: ', registration.scope);
+                        
+                        // Escuchar mensajes del Service Worker
+                        navigator.serviceWorker.addEventListener('message', event => {
+                          if (event.data && event.data.type === 'SW_UPDATED') {
+                            console.log('Service Worker actualizado a versión:', event.data.version);
+                            showUpdateNotification();
+                          }
+                        });
                         
                         // Check for updates periodically
                         setInterval(() => {
                             registration.update();
                         }, 60 * 60 * 1000); // Check every hour
                         
-                    }).catch(error => {
-                        console.log('Error al registrar el ServiceWorker:', error);
+                    }).catch(function(error) {
+                        console.log('Error al registrar ServiceWorker Crono Tops: ', error);
                     });
-                });
+                }
             }
         }
 
         function checkForUpdates() {
             // Simulate checking for updates
-            // In a real app, this would check with a server
             const lastUpdateCheck = localStorage.getItem('crono-tops-last-update-check');
             const now = Date.now();
             
@@ -1599,47 +2616,42 @@
             }
         }
 
-        function showPWAInstallPrompt() {
-            // Listen for the beforeinstallprompt event
-            window.addEventListener('beforeinstallprompt', (e) => {
-                // Prevent the mini-infobar from appearing on mobile
-                e.preventDefault();
-                // Stash the event so it can be triggered later
-                appState.deferredPrompt = e;
-                // Show the install prompt
-                domElements.pwaInstallPrompt.classList.add('show');
-            });
+        function showUpdateNotification() {
+            const t = translations[appState.currentLanguage];
+            const message = t.updateModalText;
+            
+            if (confirm(message)) {
+                // Forzar la actualización
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.ready.then(registration => {
+                        // Enviar mensaje al SW para que se active
+                        registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
+                        
+                        // Recargar la página después de un breve delay
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 500);
+                    });
+                } else {
+                    window.location.reload();
+                }
+            }
         }
 
         // Event Listeners setup
         function setupEventListeners() {
-            // Language selector
-            domElements.languageBtn.addEventListener('click', () => {
-                domElements.languageDropdown.classList.toggle('show');
-            });
-            
-            // Close language dropdown when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!domElements.languageBtn.contains(e.target) && !domElements.languageDropdown.contains(e.target)) {
-                    domElements.languageDropdown.classList.remove('show');
-                }
-            });
-            
-            // Language options
-            document.querySelectorAll('.language-option').forEach(option => {
-                option.addEventListener('click', () => {
-                    const lang = option.getAttribute('data-lang');
+            // Language selector - flags
+            document.querySelectorAll('.flag').forEach(flag => {
+                flag.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
                     appState.currentLanguage = lang;
                     localStorage.setItem('crono-tops-language', lang);
                     updateLanguageUI();
-                    domElements.languageDropdown.classList.remove('show');
                 });
             });
             
             // Help buttons
-            domElements.helpBtn.addEventListener('click', () => {
-                domElements.helpModal.classList.add('active');
-            });
+            domElements.helpIconHeader.addEventListener('click', openHelpFile);
             
             domElements.footerHelpBtn.addEventListener('click', () => {
                 domElements.helpModal.classList.add('active');
@@ -1664,6 +2676,12 @@
                 }
                 if (e.target === domElements.updateModal) {
                     domElements.updateModal.classList.remove('active');
+                }
+                if (e.target === document.getElementById('suggestions-modal')) {
+                    document.getElementById('suggestions-modal').classList.remove('active');
+                }
+                if (e.target === domElements.installModal) {
+                    domElements.installModal.style.display = 'none';
                 }
             });
             
@@ -1691,14 +2709,14 @@
                 if (appState.updateAvailable) {
                     domElements.updateModal.classList.add('active');
                 } else {
-                    alert("No hay actualizaciones disponibles en este momento.");
+                    showMessage("No hay actualizaciones disponibles en este momento.", "info");
                 }
             });
             
             // Update modal buttons
             domElements.updateNowBtn.addEventListener('click', () => {
                 // In a real app, this would trigger the update
-                alert("La aplicación se actualizará en segundo plano. Se reiniciará cuando esté listo.");
+                showMessage("La aplicación se actualizará en segundo plano. Se reiniciará cuando esté listo.", "info");
                 appState.updateAvailable = false;
                 domElements.updateModal.classList.remove('active');
             });
@@ -1711,21 +2729,9 @@
                 domElements.updateModal.classList.remove('active');
             });
             
-            // PWA install buttons
-            domElements.pwaInstallBtn.addEventListener('click', async () => {
-                if (appState.deferredPrompt) {
-                    appState.deferredPrompt.prompt();
-                    const { outcome } = await appState.deferredPrompt.userChoice;
-                    if (outcome === 'accepted') {
-                        console.log('Usuario aceptó la instalación');
-                    }
-                    appState.deferredPrompt = null;
-                    domElements.pwaInstallPrompt.classList.remove('show');
-                }
-            });
-            
-            domElements.pwaCloseBtn.addEventListener('click', () => {
-                domElements.pwaInstallPrompt.classList.remove('show');
+            // Suggestions button
+            domElements.suggestionsBtn.addEventListener('click', () => {
+                document.getElementById('suggestions-modal').classList.add('active');
             });
             
             // Tab close buttons (delegated event listener)
@@ -1739,6 +2745,208 @@
                     domElements.deleteModal.classList.add('active');
                 }
             });
+            
+            // Initialize suggestions system
+            window.suggestionsSystem = new SuggestionsSystem();
+        }
+
+        // Suggestions System
+        class SuggestionsSystem {
+            constructor() {
+                this.modal = document.getElementById('suggestions-modal');
+                this.submitBtn = document.getElementById('submitBtn-suggestions');
+                this.loading = document.getElementById('loading-suggestions');
+                this.message = document.getElementById('message');
+                this.emailInput = document.getElementById('email-suggestions');
+                this.cityInput = document.getElementById('city-suggestions');
+                this.suggestionInput = document.getElementById('suggestion-text');
+                this.currentLanguage = appState.currentLanguage;
+                
+                this.FORM_ENDPOINT = "https://docs.google.com/forms/d/e/1FAIpQLSeLeD6lAmBweVOubmEqydUONe6mutpQLlFSU_zKfHEhjhZVLg/formResponse";
+                this.FIELD_IDS = {
+                    email: "entry.1597282778",
+                    ciudad: "entry.1552097675",
+                    sugerencia: "entry.48109616",
+                    programa: "entry.1706983066",
+                    fecha: "entry.1734009197",
+                    hora: "entry.686693357"
+                };
+                
+                this.initialize();
+            }
+            
+            initialize() {
+                this.attachEventListeners();
+                this.updateTexts();
+            }
+            
+            attachEventListeners() {
+                this.submitBtn.addEventListener('click', () => {
+                    this.submitForm();
+                });
+                
+                this.suggestionInput.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 'Enter') {
+                        this.submitForm();
+                    }
+                });
+                
+                this.cityInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.suggestionInput.focus();
+                    }
+                });
+            }
+            
+            updateTexts() {
+                const lang = this.currentLanguage;
+                const t = translations[lang];
+                
+                document.getElementById('suggestions-title').textContent = t.suggestionsTitle;
+                document.getElementById('suggestions-subtitle').textContent = t.suggestionsSubtitle;
+                document.getElementById('email-label').innerHTML = t.emailLabel + '<span class="required"></span>';
+                document.getElementById('city-label').innerHTML = t.cityLabel + '<span class="required"></span>';
+                document.getElementById('suggestion-label').textContent = t.suggestionLabel;
+                document.getElementById('program-label').textContent = t.programLabel;
+                this.submitBtn.textContent = t.submitButton;
+                document.getElementById('loading-text').textContent = t.sendingText;
+                document.getElementById('city-examples').textContent = t.cityExamples;
+                
+                this.emailInput.placeholder = "tu@email.com";
+                this.cityInput.placeholder = lang === 'en' ? "Ex: Madrid" : lang === 'ca' ? "Ex: Madrid" : lang === 'fr' ? "Ex: Madrid" : "Ej: Madrid";
+                this.suggestionInput.placeholder = lang === 'en' ? "Your ideas to improve the app..." : 
+                                                  lang === 'ca' ? "Les teves idees per millorar l'app..." : 
+                                                  lang === 'fr' ? "Vos idées pour améliorer l'application..." :
+                                                  "Tus ideas para mejorar la app...";
+            }
+            
+            getCurrentDate() {
+                const now = new Date();
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const year = now.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+            
+            getCurrentTime() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                return `${hours}:${minutes}:${seconds}`;
+            }
+            
+            isValidEmail(email) {
+                if (!email) return false;
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
+            
+            isValidCity(city) {
+                if (!city) return false;
+                city = city.trim();
+                return city.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑàâäçèéêëîïôöùûüÿæœ\s\-]+$/.test(city);
+            }
+            
+            formatCity(city) {
+                if (!city) return '';
+                return city.trim().replace(/\b\w/g, char => char.toUpperCase());
+            }
+            
+            async submitForm() {
+                const lang = this.currentLanguage;
+                const t = translations[lang];
+                
+                const email = this.emailInput.value.trim();
+                let city = this.cityInput.value.trim();
+                const suggestion = this.suggestionInput.value.trim();
+                
+                const fecha = this.getCurrentDate();
+                const hora = this.getCurrentTime();
+                
+                if (!email) {
+                    showMessage(t.enterEmail, 'error');
+                    this.emailInput.focus();
+                    return;
+                }
+                
+                if (!this.isValidEmail(email)) {
+                    showMessage(t.invalidEmail, 'error');
+                    this.emailInput.focus();
+                    return;
+                }
+                
+                if (!city) {
+                    showMessage(t.enterCity, 'error');
+                    this.cityInput.focus();
+                    return;
+                }
+                
+                if (!this.isValidCity(city)) {
+                    showMessage(t.invalidCity, 'error');
+                    this.cityInput.focus();
+                    return;
+                }
+                
+                city = this.formatCity(city);
+                
+                this.submitBtn.disabled = true;
+                this.loading.style.display = 'block';
+                
+                try {
+                    const formData = new FormData();
+                    
+                    formData.append(this.FIELD_IDS.email, email);
+                    formData.append(this.FIELD_IDS.ciudad, city);
+                    formData.append(this.FIELD_IDS.sugerencia, suggestion || "(sin sugerencia)");
+                    formData.append(this.FIELD_IDS.programa, "Crono Tops");
+                    formData.append(this.FIELD_IDS.fecha, fecha);
+                    formData.append(this.FIELD_IDS.hora, hora);
+                    
+                    await fetch(this.FORM_ENDPOINT, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: formData
+                    });
+                    
+                    showMessage(t.successMessage, 'success');
+                    
+                    this.emailInput.value = '';
+                    this.cityInput.value = '';
+                    this.suggestionInput.value = '';
+                    
+                    setTimeout(() => {
+                        this.modal.classList.remove('active');
+                    }, 1500);
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    showMessage(t.errorMessage, 'error');
+                } finally {
+                    this.submitBtn.disabled = false;
+                    this.loading.style.display = 'none';
+                }
+            }
+            
+            updateLanguage(lang) {
+                this.currentLanguage = lang;
+                this.updateTexts();
+            }
+        }
+
+        // Utility function to show messages
+        function showMessage(text, type = 'success') {
+            const messageDiv = document.getElementById('message');
+            if (!messageDiv) return;
+            
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
         }
 
         // Initialize the app when DOM is loaded
