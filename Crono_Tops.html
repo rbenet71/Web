@@ -2447,11 +2447,15 @@ IDList=`;
             
             crono.tops.forEach((top, index) => {
                 let diffDisplay = '';
-                if (index < crono.tops.length - 1) {
-                    const diff = top.time - crono.tops[index + 1].time;
-                    diffDisplay = `+${formatTime(diff)}`;
+                
+                if (index === 0) {
+                    // Primer top - diferencia desde el inicio
+                    diffDisplay = `+${formatTime(top.time)}`;  // ← Ya sin milésimas
                 } else {
-                    diffDisplay = '--:--.--';
+                    // Top posterior - diferencia desde el top anterior
+                    const prevTop = crono.tops[index - 1];
+                    const diff = top.time - prevTop.time;
+                    diffDisplay = `+${formatTime(diff)}`;  // ← Ya sin milésimas
                 }
                 
                 const locationHtml = renderTopLocation(top, t);
@@ -2460,8 +2464,8 @@ IDList=`;
                     <div class="top-item">
                         <div class="top-time-row">
                             <div class="top-time-info">
-                                <div class="top-time" style="min-width: 90px;">${formatTime(top.time)}</div>
-                                <div class="top-diff" style="min-width: 90px;">${diffDisplay}</div>
+                                <div class="top-time" style="min-width: 90px;">${formatTime(top.time)}</div>  <!-- ← Sin milésimas -->
+                                <div class="top-diff" style="min-width: 90px;">${diffDisplay}</div>  <!-- ← Sin milésimas -->
                             </div>
                             <div class="top-actions" style="display: flex; gap: 8px; align-items: center;">
                                 ${locationHtml}
@@ -2487,7 +2491,7 @@ IDList=`;
             });
             
             return html;
-        }        
+        }
         function renderTopLocation(top, t) {
             if (!top.location || top.location.error) {
                 return '';
@@ -2545,14 +2549,13 @@ IDList=`;
 
         // Utility functions
         function formatTime(milliseconds) {
-            if (milliseconds < 0) return "00:00.0";
+            if (milliseconds < 0) return "00:00";
             
             const totalSeconds = Math.floor(milliseconds / 1000);
             const minutes = Math.floor(totalSeconds / 60);
             const seconds = totalSeconds % 60;
-            const tenths = Math.floor((milliseconds % 1000) / 100);
             
-            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${tenths}`;
+            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }
 
         // Storage functions
