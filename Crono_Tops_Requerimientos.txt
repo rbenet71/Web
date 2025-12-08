@@ -34,8 +34,8 @@ Quitar el texto tiempo actual
 Primero tiempo al lado diferencia, al lado picto eliminar y debajo dorsal
 La ubicación no va, hay que hacer que funcione
 
-El numero de crono al crearse ha de ser el numero siguiente al crono que existe con el numero mas alto, ahora es el numero de contador, por cada top poner solo el picto de google al lado de el de eleminar y quitar todo el texto (ver en google maps, solo si te pones encima del picto de Google) hay que hacer que la pantalla ocupe lo minimo posible, y antes de eliminar el top hay que preguntar
-
-y ademas que los tops se muevan con scroll para que siempre se vea el tiempo del crono
+El numero de crono al crearse ha de ser el numero siguiente al crono que existe con el numero mas alto, ahora es el numero de contador, por cada top poner solo el picto de google al lado de el de eleminar y quitar todo el texto (ver en google maps, solo si te pones encima del picto de Google) , y antes de eliminar el top hay que preguntar
 
 el texto dorsal: quitalo
+
+y ademas que los tops se muevan con scroll para que siempre se vea el tiempo del crono
