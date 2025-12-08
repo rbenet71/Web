@@ -2722,12 +2722,10 @@ IDList=`;
             
             // Botón de actualizaciones
             domElements.updateBtn.addEventListener('click', () => {
-                if (appState.updateAvailable) {
-                    domElements.updateModal.classList.add('active');
-                } else {
-                    showMessage("No hay actualizaciones disponibles en este momento.", "info");
-                }
+                checkForUpdates();
+                showMessage("Buscando actualizaciones...", "info");
             });
+
             
             domElements.updateNowBtn.addEventListener('click', () => {
                 showMessage("La aplicación se actualizará en segundo plano. Se reiniciará cuando esté listo.", "info");
@@ -2969,6 +2967,143 @@ IDList=`;
             setTimeout(() => {
                 messageDiv.style.display = 'none';
             }, 3000);
+        }
+        // Service Worker y actualizaciones automáticas
+        function setupServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                // Solo registrar para Crono_Tops
+                if (window.location.href.includes('Crono_Tops')) {
+                    navigator.serviceWorker.register('/Web/unified-sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker Crono Tops registrado: ', registration.scope);
+                        
+                        // Escuchar mensajes del Service Worker
+                        navigator.serviceWorker.addEventListener('message', event => {
+                            if (event.data && event.data.type === 'SW_UPDATED') {
+                                console.log('Service Worker actualizado a versión:', event.data.version);
+                                showUpdateNotification();
+                            }
+                        });
+                        
+                    }).catch(function(error) {
+                        console.log('Error al registrar ServiceWorker Crono Tops: ', error);
+                    });
+                }
+            }
+        }
+
+        // Mostrar notificación de actualización
+        function showUpdateNotification() {
+            const t = translations[appState.currentLanguage];
+            const message = t.updateModalText;
+            
+            if (confirm(message)) {
+                // Forzar la actualización
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.ready.then(registration => {
+                        // Enviar mensaje al SW para que se active
+                        registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
+                        
+                        // Recargar la página después de un breve delay
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 500);
+                    });
+                } else {
+                    window.location.reload();
+                }
+            }
+        }
+
+        // Verificar actualización al cargar la página
+        window.addEventListener('load', () => {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(registration => {
+                    if (registration.waiting) {
+                        // Hay una actualización esperando
+                        showUpdateNotification();
+                    }
+                });
+            }
+        });
+
+        // Botón manual para buscar actualizaciones (opcional)
+        function addUpdateButton() {
+            const updateBtn = document.createElement('button');
+            const t = translations[appState.currentLanguage];
+            
+            updateBtn.textContent = appState.currentLanguage === 'fr' ? '🔄 Rechercher des mises à jour' :
+                                    appState.currentLanguage === 'en' ? '🔄 Check for Updates' :
+                                    appState.currentLanguage === 'ca' ? '🔄 Buscar Actualitzacions' :
+                                    '🔄 Buscar Actualizaciones';
+            
+            updateBtn.style.cssText = `
+                position: fixed;
+                bottom: 10px;
+                right: 10px;
+                z-index: 1000;
+                padding: 8px 12px;
+                background: #3498db;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 12px;
+            `;
+            
+            updateBtn.onclick = checkForUpdates;
+            document.body.appendChild(updateBtn);
+        }
+
+        function checkForUpdates() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.update().then(() => {
+                        const t = translations[appState.currentLanguage];
+                        alert(t.updateModalText || 'Update check completed');
+                    });
+                });
+            } else {
+                const t = translations[appState.currentLanguage];
+                alert(t.updateModalText || 'Service Worker not available');
+            }
+        }
+
+        // Función para verificar actualizaciones periódicamente
+        function checkForUpdatesPeriodically() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(registration => {
+                    // Verificar actualizaciones cada hora
+                    setInterval(() => {
+                        registration.update();
+                    }, 60 * 60 * 1000);
+                    
+                    // Verificar inmediatamente al cargar
+                    registration.update();
+                });
+            }
+        }
+
+        // Actualizar la función initApp para incluir las verificaciones de actualización
+        function initApp() {
+            loadLanguagePreference();
+            loadCronosFromStorage();
+            setupEventListeners();
+            renderCronos();
+            setupServiceWorker();
+            checkForUpdatesPeriodically(); // Cambiar esta línea
+            
+            window.appInstaller = new AppInstaller();
+            
+            setInterval(updateAllCronoTimes, 100);
+            
+            setTimeout(() => {
+                const message = appState.currentLanguage === 'fr' ? 'Partagez vos idées pour améliorer la calculatrice' :
+                            appState.currentLanguage === 'en' ? 'Share your ideas to improve the calculator' :
+                            appState.currentLanguage === 'ca' ? 'Comparteix les teves idees per millorar la calculadora' :
+                            'Comparte tus ideas para mejorar la calculadora';
+                showMessage(message, 'info');
+            }, 1000);
         }
 
         // Initialize the app when DOM is loaded
