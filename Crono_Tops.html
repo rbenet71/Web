@@ -380,21 +380,27 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 0;
+            flex-wrap: nowrap;
+            gap: 15px;
         }
 
         .top-time-info {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
+            flex: 1;
+            flex-wrap: nowrap;
+            min-width: 0;
         }
 
         .top-time {
             font-weight: 700;
             color: var(--dark);
             font-variant-numeric: tabular-nums;
-            font-size: 20px;
-            min-width: 100px;
+            font-size: 18px;
+            min-width: 90px;
+            white-space: nowrap;
         }
 
         .top-diff {
@@ -402,12 +408,15 @@
             font-weight: 600;
             font-variant-numeric: tabular-nums;
             font-size: 16px;
-            min-width: 100px;
+            min-width: 90px;
+            white-space: nowrap;
         }
 
         .top-actions {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            align-items: center;
+            flex-shrink: 0;
         }
 
         .action-btn {
@@ -433,6 +442,8 @@
 
         .top-dorsal-container {
             margin-top: 10px;
+            margin-left: 0;
+            width: 100%;
         }
 
         .top-dorsal {
@@ -1053,6 +1064,20 @@
             .time-display {
                 font-size: 36px;
             }
+            
+            .top-time-row {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .top-time, .top-diff {
+                font-size: 16px;
+                min-width: 80px;
+            }
+            
+            .top-actions {
+                margin-left: auto;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1092,6 +1117,21 @@
             
             .app-title h1 {
                 font-size: 20px;
+            }
+            .top-time-row {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+            
+            .top-time-info {
+                justify-content: flex-start;
+                width: auto;
+            }
+            
+            .top-time, .top-diff {
+                font-size: 14px;
+                min-width: 70px;
             }
         }
     </style>
@@ -2420,10 +2460,10 @@ IDList=`;
                     <div class="top-item">
                         <div class="top-time-row">
                             <div class="top-time-info">
-                                <div class="top-time">${formatTime(top.time)}</div>
-                                <div class="top-diff">${diffDisplay}</div>
+                                <div class="top-time" style="min-width: 90px;">${formatTime(top.time)}</div>
+                                <div class="top-diff" style="min-width: 90px;">${diffDisplay}</div>
                             </div>
-                            <div class="top-actions">
+                            <div class="top-actions" style="display: flex; gap: 8px; align-items: center;">
                                 ${locationHtml}
                                 <button class="action-btn delete-top" 
                                         data-crono-index="${cronoIndex}"
@@ -2447,7 +2487,7 @@ IDList=`;
             });
             
             return html;
-        }
+        }        
         function renderTopLocation(top, t) {
             if (!top.location || top.location.error) {
                 return '';
