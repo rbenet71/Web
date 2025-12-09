@@ -66,26 +66,30 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 12px;
+            padding: 8px;
             color: white;
+            font-size: 0.9em;
         }
         
         .container {
             background-color: #2c3e50;
-            border-radius: 10px;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
             width: 100%;
             max-width: 800px;
-            padding: 16px;
+            padding: 12px;
             color: white;
+            transform: scale(0.8);
+            transform-origin: top center;
+            margin: -20px 0;
         }
         
         header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
             border-bottom: 1px solid #34495e;
             flex-wrap: wrap;
         }
@@ -93,9 +97,9 @@
         .header-left {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             flex: 1;
-            min-width: 300px;
+            min-width: 280px;
         }
         
         .app-icon-container {
@@ -105,11 +109,11 @@
         }
         
         .app-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 12px;
+            width: 64px;
+            height: 64px;
+            border-radius: 10px;
             object-fit: contain;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
             border: 2px solid var(--secondary-color);
         }
         
@@ -120,35 +124,35 @@
         }
         
         .app-main-title {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 700;
             color: white;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
         
         .languages-section {
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 8px;
-            margin-left: 20px;
+            gap: 6px;
+            margin-left: 15px;
         }
         
         .languages-label {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #95a5a6;
             font-weight: 500;
         }
         
         .language-selector {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
         }
         
         .flag {
-            width: 30px;
-            height: 20px;
+            width: 25px;
+            height: 17px;
             cursor: pointer;
             opacity: 0.6;
             transition: all 0.3s;
@@ -165,7 +169,7 @@
             opacity: 1;
             border: 2px solid var(--secondary-color);
             transform: scale(1.1);
-            box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+            box-shadow: 0 0 6px rgba(52, 152, 219, 0.5);
         }
         
         .flag-catalunya {
@@ -185,10 +189,10 @@
         }
         
         .help-icon {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
             color: var(--secondary-color);
-            margin-left: 15px;
+            margin-left: 12px;
             transition: all 0.3s;
             align-self: center;
         }
@@ -200,8 +204,8 @@
         
         .race-management {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 15px;
             flex-wrap: wrap;
             align-items: center;
         }
@@ -210,26 +214,26 @@
         .time-limit-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 12px;
         }
         
         /* Display de límite de tiempo - ENCIMA del cronómetro */
         .time-limit-display {
             background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            border: 3px solid #333;
-            border-radius: 8px;
-            padding: 10px 15px;
+            border: 2px solid #333;
+            border-radius: 6px;
+            padding: 8px 12px;
             text-align: center;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
             display: none;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
             transition: all 0.3s ease;
-            max-width: 500px;
-            margin: 0 auto 10px auto;
+            max-width: 400px;
+            margin: 0 auto 8px auto;
         }
         
         .time-limit-display::before {
@@ -238,16 +242,16 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
+            height: 2px;
         }
         
     .time-limit-text {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        font-size: 1rem;
+        font-size: 0.9rem;
         font-weight: 700;
         color: #00ff00;
-        letter-spacing: 1px;
-        line-height: 2;
+        letter-spacing: 0.5px;
+        line-height: 1.8;
     }
         
         .time-limit-warning {
@@ -257,21 +261,21 @@
         
         .chrono-display {
             background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            border: 8px solid #333;
-            border-radius: 15px;
-            padding: 25px;
+            border: 6px solid #333;
+            border-radius: 12px;
+            padding: 20px;
             box-shadow: 
-                0 0 20px rgba(0,0,0,0.5),
-                inset 0 0 20px rgba(0,0,0,0.3);
+                0 0 15px rgba(0,0,0,0.5),
+                inset 0 0 15px rgba(0,0,0,0.3);
             text-align: center;
             position: relative;
             overflow: hidden;
-            min-height: 180px;
+            min-height: 144px;
             display: flex;
             align-items: center;
             justify-content: center;
             width: 100%;
-            max-width: 500px;
+            max-width: 400px;
             margin: 0 auto;
             transition: all 0.3s ease;
         }
@@ -290,22 +294,22 @@
         /* Estado de alerta para cuando se supera el tiempo límite */
         .chrono-display.time-limit-exceeded {
             border-color: var(--danger-color);
-            box-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.5);
             animation: pulse 2s infinite;
         }
         
         @keyframes pulse {
-            0% { box-shadow: 0 0 20px rgba(231, 76, 60, 0.5); }
-            50% { box-shadow: 0 0 30px rgba(231, 76, 60, 0.8); }
-            100% { box-shadow: 0 0 20px rgba(231, 76, 60, 0.5); }
+            0% { box-shadow: 0 0 15px rgba(231, 76, 60, 0.5); }
+            50% { box-shadow: 0 0 25px rgba(231, 76, 60, 0.8); }
+            100% { box-shadow: 0 0 15px rgba(231, 76, 60, 0.5); }
         }
         
         .lcd-time {
             font-family: 'Orbitron', monospace;
-            font-size: clamp(1.8rem, 7vw, 4.5rem);
+            font-size: clamp(1.5rem, 6vw, 3.6rem);
             font-weight: 600;
             color: #00ff00;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
             line-height: 1.1;
             word-break: break-all;
             overflow-wrap: break-word;
@@ -313,11 +317,11 @@
         
         .controls {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 15px;
             justify-content: center;
             width: 100%;
-            max-width: 500px;
+            max-width: 400px;
             margin-left: auto;
             margin-right: auto;
         }
@@ -325,20 +329,20 @@
         .controls-column {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             width: 100%;
         }
         
         button {
             background-color: #34495e;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             color: white;
-            font-size: 14px;
-            padding: 12px 20px;
+            font-size: 13px;
+            padding: 10px 16px;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
         
         button:hover {
@@ -391,16 +395,16 @@
         .btn-help {
             background-color: var(--secondary-color);
             color: white;
-            padding: 8px 16px;
+            padding: 7px 14px;
         }
         
         .btn-suggestions {
             background-color: #9b59b6;
             color: white;
-            padding: 6px 13px;
-            margin-top: 8px;
+            padding: 5px 11px;
+            margin-top: 6px;
             width: 100%;
-            font-size: 11px;
+            font-size: 10px;
         }
         
         .btn-suggestions:hover {
@@ -409,11 +413,11 @@
         
         .tabs-container {
             background-color: #1a252f;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
             overflow: hidden;
-            margin-bottom: 20px;
-            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+            margin-bottom: 15px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
         }
         
         .tabs-header {
@@ -423,13 +427,14 @@
         
         .tab-button {
             flex: 1;
-            padding: 15px;
+            padding: 12px;
             background: none;
             border: none;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
             color: white;
+            font-size: 13px;
         }
         
         .tab-button.active {
@@ -439,8 +444,8 @@
         
         .tab-content {
             display: none;
-            padding: 20px;
-            max-height: 400px;
+            padding: 16px;
+            max-height: 320px;
             overflow-y: auto;
         }
         
@@ -454,10 +459,10 @@
         }
 
         .lap-item {
-            padding: 12px 15px;
-            margin-bottom: 10px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
             background: rgba(255,255,255,0.05);
-            border-radius: 8px;
+            border-radius: 6px;
             border: 1px solid rgba(255,255,255,0.1);
             transition: all 0.3s ease;
         }
@@ -472,8 +477,8 @@
             display: flex;
             justify-content: space-between;
             align-items: stretch;
-            gap: 20px;
-            min-height: 80px;
+            gap: 16px;
+            min-height: 64px;
         }
 
         /* COLUMNA IZQUIERDA: Tiempo */
@@ -487,11 +492,11 @@
 
         .lap-time-full {
             font-family: 'Orbitron', monospace;
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             font-weight: 700;
             color: #00ff00;
             line-height: 1.1;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
             white-space: nowrap;
             text-align: center;
         }
@@ -500,23 +505,23 @@
         .lap-controls-wrapper {
             display: flex;
             flex-direction: column;
-            width: 200px;
+            width: 160px;
             border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 6px;
+            border-radius: 5px;
             overflow: hidden;
             background: rgba(0,0,0,0.3);
         }
 
         /* Celda superior */
         .lap-controls-top {
-            padding: 8px 10px;
-            border-bottom: 2px solid rgba(255,255,255,0.15);
+            padding: 6px 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
             background: rgba(0,0,0,0.2);
         }
 
         /* Celda inferior */
         .lap-controls-bottom {
-            padding: 8px 10px;
+            padding: 6px 8px;
             background: rgba(0,0,0,0.1);
         }
 
@@ -530,12 +535,12 @@
         .lap-number-inline {
             font-weight: bold;
             color: var(--secondary-color);
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
 
         .lap-actions-inline {
             display: flex;
-            gap: 5px;
+            gap: 4px;
         }
 
         .icon-btn-small {
@@ -543,12 +548,12 @@
             border: 1px solid rgba(255,255,255,0.3);
             color: white;
             cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.9rem;
+            padding: 3px 7px;
+            border-radius: 3px;
+            font-size: 0.85rem;
             transition: all 0.2s;
-            min-width: 32px;
-            height: 32px;
+            min-width: 26px;
+            height: 26px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -581,22 +586,22 @@
         .dorsal-display {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
         }
 
         .dorsal-seconds {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #95a5a6;
         }
 
         .lap-dorsal {
             cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 3px 7px;
+            border-radius: 3px;
             background: rgba(52, 152, 219, 0.1);
             border: 1px solid rgba(52, 152, 219, 0.3);
             transition: all 0.2s;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             text-align: center;
         }
 
@@ -614,7 +619,7 @@
         .dorsal-edit {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
 
         .dorsal-row {
@@ -624,14 +629,14 @@
         }
 
         .dorsal-label {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #95a5a6;
         }
 
         .dorsal-input {
-            width: 120px;
-            padding: 4px 8px;
-            font-size: 0.9rem;
+            width: 96px;
+            padding: 3px 7px;
+            font-size: 0.85rem;
             border: 1px solid var(--secondary-color);
             border-radius: 3px;
             background: #1a252f;
@@ -640,7 +645,7 @@
 
         .dorsal-buttons {
             display: flex;
-            gap: 5px;
+            gap: 4px;
             justify-content: flex-end;
         }
 
@@ -667,7 +672,7 @@
         .lap-edit-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         .edit-header {
@@ -678,13 +683,13 @@
 
         .edit-controls {
             display: flex;
-            gap: 5px;
+            gap: 4px;
         }
 
         .btn-small {
-            padding: 4px 8px;
-            font-size: 0.8rem;
-            min-width: 30px;
+            padding: 3px 7px;
+            font-size: 0.75rem;
+            min-width: 25px;
         }
 
         .btn-save {
@@ -699,18 +704,18 @@
 
         .time-edit-input {
             width: 100%;
-            padding: 8px;
-            font-size: 1.2rem;
+            padding: 6px;
+            font-size: 1rem;
             font-family: 'Courier New', monospace;
             border: 2px solid #3498db;
-            border-radius: 5px;
+            border-radius: 4px;
             background: #1a252f;
             color: white;
             text-align: center;
         }
 
         .edit-time-hint {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #95a5a6;
             text-align: center;
             font-style: italic;
@@ -722,7 +727,7 @@
         }
         
         .dorsal-item {
-            padding: 10px;
+            padding: 8px;
             border-bottom: 1px solid #34495e;
             display: flex;
             justify-content: space-between;
@@ -740,9 +745,9 @@
         }
         
         .dorsal-input-old {
-            width: 120px;
-            padding: 4px 8px;
-            font-size: 0.9rem;
+            width: 96px;
+            padding: 3px 7px;
+            font-size: 0.85rem;
             border: 1px solid var(--secondary-color);
             border-radius: 3px;
             background: #1a252f;
@@ -750,78 +755,79 @@
         }
         
         .dorsal-save-btn-old {
-            margin-left: 5px;
-            padding: 4px 8px;
+            margin-left: 4px;
+            padding: 3px 7px;
             background: var(--secondary-color);
             color: white;
             border: none;
             border-radius: 3px;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
         
         .dorsal-cancel-btn-old {
             margin-left: 2px;
-            padding: 4px 8px;
+            padding: 3px 7px;
             background: #ff4444;
             color: white;
             border: none;
             border-radius: 3px;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
         
         .dorsal-number {
             font-weight: bold;
             color: var(--secondary-color);
-            min-width: 60px;
+            min-width: 50px;
         }
         
         .dorsal-time {
             font-family: 'Courier New', monospace;
             flex-grow: 1;
             text-align: center;
+            font-size: 0.9rem;
         }
         
         .dorsal-actions {
             display: flex;
-            gap: 5px;
+            gap: 4px;
         }
         
         /* Estilos mejorados para la pestaña de parámetros */
         .parameters-content {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            padding: 10px;
+            gap: 16px;
+            padding: 8px;
         }
         
         .parameter-group {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            padding: 15px;
+            gap: 6px;
+            padding: 12px;
             background-color: #1a252f;
-            border-radius: 8px;
+            border-radius: 6px;
             border: 1px solid #34495e;
             transition: all 0.3s;
         }
         
         .parameter-group:hover {
             border-color: var(--secondary-color);
-            box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
         }
         
         .parameter-group label {
             color: var(--secondary-color);
             font-weight: 600;
-            font-size: 0.95rem;
-            margin-bottom: 5px;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
         }
         
         .parameter-input-group {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
             flex-wrap: wrap;
         }
@@ -829,13 +835,13 @@
         .parameter-input-group input,
         .parameter-input-group select {
             flex: 1;
-            min-width: 200px;
-            padding: 10px;
+            min-width: 160px;
+            padding: 8px;
             border: 1px solid #34495e;
-            border-radius: 5px;
+            border-radius: 4px;
             background-color: #2c3e50;
             color: white;
-            font-size: 1rem;
+            font-size: 0.95rem;
             transition: all 0.3s;
         }
         
@@ -843,15 +849,15 @@
         .parameter-input-group select:focus {
             outline: none;
             border-color: var(--secondary-color);
-            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+            box-shadow: 0 0 4px rgba(52, 152, 219, 0.5);
         }
         
         .parameter-input-group button {
-            padding: 10px 20px;
+            padding: 8px 16px;
             background-color: var(--secondary-color);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.2s;
@@ -864,39 +870,40 @@
         }
         
         .parameter-description {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #95a5a6;
-            margin-top: 5px;
+            margin-top: 4px;
             font-style: italic;
         }
         
         .start-time-display {
-            padding: 10px 15px;
+            padding: 8px 12px;
             background-color: #1a252f;
-            border-radius: 5px;
-            border-left: 4px solid var(--secondary-color);
-            margin-top: 5px;
+            border-radius: 4px;
+            border-left: 3px solid var(--secondary-color);
+            margin-top: 4px;
             font-family: 'Courier New', monospace;
             color: var(--secondary-color);
             font-weight: 600;
+            font-size: 0.9rem;
         }
         
         .milliseconds-toggle {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-left: 10px;
-            padding: 8px 15px;
+            gap: 8px;
+            margin-left: 8px;
+            padding: 6px 12px;
             background-color: #1a252f;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
         }
         
         .toggle-switch {
             position: relative;
             display: inline-block;
-            width: 50px;
-            height: 24px;
+            width: 40px;
+            height: 20px;
         }
         
         .toggle-switch input {
@@ -914,16 +921,16 @@
             bottom: 0;
             background-color: #ccc;
             transition: .4s;
-            border-radius: 24px;
+            border-radius: 20px;
         }
         
         .toggle-slider:before {
             position: absolute;
             content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
             background-color: white;
             transition: .4s;
             border-radius: 50%;
@@ -934,16 +941,17 @@
         }
         
         input:checked + .toggle-slider:before {
-            transform: translateX(26px);
+            transform: translateX(20px);
         }
         
         .footer {
             text-align: center;
-            margin-top: 40px;
-            padding: 20px;
+            margin-top: 30px;
+            padding: 16px;
             border-top: 1px solid #34495e;
             color: #95a5a6;
             background-color: #2c3e50;
+            font-size: 0.85rem;
         }
         
         .footer a {
@@ -972,42 +980,42 @@
         
         .modal-content {
             background-color: #2c3e50;
-            padding: 20px;
-            border-radius: 8px;
+            padding: 16px;
+            border-radius: 6px;
             width: 90%;
-            max-width: 500px;
+            max-width: 400px;
             max-height: 80vh;
             overflow-y: auto;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
         }
         
         .modal h3 {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             color: white;
         }
         
         .modal-buttons {
             display: flex;
             justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 8px;
+            margin-top: 16px;
         }
         
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             color: white;
         }
         
         .form-group input, .form-group select {
             width: 100%;
-            padding: 8px;
+            padding: 6px;
             border: 1px solid #34495e;
-            border-radius: 4px;
+            border-radius: 3px;
             background-color: #1a252f;
             color: white;
         }
@@ -1024,69 +1032,69 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 16px;
         }
         
         .suggestions-modal-content {
             background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
+            border-radius: 12px;
+            padding: 1.2rem;
             width: 100%;
-            max-width: 400px;
+            max-width: 320px;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
         }
         
         .suggestions-header {
             text-align: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid #f0f0f0;
         }
         
         .suggestions-icon {
-            width: 60px;
-            height: 60px;
+            width: 48px;
+            height: 48px;
             background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 0.8rem;
+            margin: 0 auto 0.6rem;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
         }
         
         .suggestions-title {
             color: #333;
-            font-size: 1.4rem;
-            margin-bottom: 0.3rem;
+            font-size: 1.2rem;
+            margin-bottom: 0.2rem;
         }
         
         .suggestions-subtitle {
             color: #666;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
         
         .form-group {
-            margin-bottom: 1.2rem;
+            margin-bottom: 1rem;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.3rem;
             color: #333;
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
         
         .suggestions-input, .suggestions-textarea {
             width: 100%;
-            padding: 0.8rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 0.95rem;
+            padding: 0.6rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.9rem;
             transition: all 0.3s;
             font-family: inherit;
         }
@@ -1097,7 +1105,7 @@
         }
         
         .suggestions-textarea {
-            min-height: 100px;
+            min-height: 80px;
             resize: vertical;
         }
         
@@ -1108,31 +1116,31 @@
         
         .prefilled-field {
             background: #f8f9fa;
-            border: 2px solid #e0e0e0;
-            padding: 0.8rem;
-            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            padding: 0.6rem;
+            border-radius: 6px;
             color: #2196F3;
             font-weight: bold;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
         
         .suggestions-btn-modal {
             background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
             color: white;
             border: none;
-            padding: 0.9rem;
+            padding: 0.7rem;
             width: 100%;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 0.5rem;
+            margin-top: 0.4rem;
         }
         
         .suggestions-btn-modal:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
         }
         
         .suggestions-btn-modal:disabled {
@@ -1143,18 +1151,18 @@
         
         .loading {
             text-align: center;
-            margin: 1rem 0;
+            margin: 0.8rem 0;
             display: none;
         }
         
         .spinner {
-            border: 3px solid rgba(33, 150, 243, 0.2);
-            border-top: 3px solid #2196F3;
+            border: 2px solid rgba(33, 150, 243, 0.2);
+            border-top: 2px solid #2196F3;
             border-radius: 50%;
-            width: 25px;
-            height: 25px;
+            width: 20px;
+            height: 20px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 0.5rem;
+            margin: 0 auto 0.4rem;
         }
         
         @keyframes spin {
@@ -1164,16 +1172,16 @@
         
         .message {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 1rem;
-            border-radius: 8px;
+            top: 16px;
+            right: 16px;
+            padding: 0.8rem;
+            border-radius: 6px;
             color: white;
             font-weight: 500;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
             display: none;
             z-index: 1000;
-            max-width: 280px;
+            max-width: 220px;
             animation: slideIn 0.3s ease;
         }
         
@@ -1196,51 +1204,52 @@
         
         .hint {
             color: #666;
-            font-size: 0.8rem;
-            margin-top: 0.3rem;
+            font-size: 0.75rem;
+            margin-top: 0.2rem;
         }
         
         .city-examples {
             color: #666;
-            font-size: 0.75rem;
-            margin-top: 0.4rem;
+            font-size: 0.7rem;
+            margin-top: 0.3rem;
             font-style: italic;
         }
         
         /* Estilos para el historial de horas de inicio */
         .history-item {
-            padding: 8px;
-            margin-bottom: 5px;
+            padding: 6px;
+            margin-bottom: 4px;
             background: rgba(255,255,255,0.1);
-            border-radius: 4px;
-            border-left: 3px solid var(--secondary-color);
+            border-radius: 3px;
+            border-left: 2px solid var(--secondary-color);
             transition: all 0.3s;
         }
         
         .history-item:hover {
             background: rgba(255,255,255,0.15);
-            transform: translateX(2px);
+            transform: translateX(1px);
         }
         
         .history-time {
             font-weight: bold;
             color: var(--secondary-color);
+            font-size: 0.9rem;
         }
         
         .history-timestamp {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #95a5a6;
-            margin-left: 8px;
+            margin-left: 6px;
         }
         
         .history-use-btn {
             background: rgba(52, 152, 219, 0.2);
             color: var(--secondary-color);
-            padding: 4px 8px;
+            padding: 3px 6px;
             border: none;
-            border-radius: 3px;
+            border-radius: 2px;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             transition: all 0.2s;
         }
         
@@ -1250,9 +1259,9 @@
         }
         
         .history-source {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #7f8c8d;
-            margin-top: 2px;
+            margin-top: 1px;
             font-style: italic;
         }
         
@@ -1266,12 +1275,12 @@
         
         @media (max-width: 768px) {
             .chrono-display {
-                min-height: 150px;
-                padding: 15px;
+                min-height: 120px;
+                padding: 12px;
             }
             
             .lcd-time {
-                font-size: 2.5rem;
+                font-size: 2rem;
             }
             
             .controls {
@@ -1285,7 +1294,7 @@
             
             .milliseconds-toggle {
                 margin-left: 0;
-                margin-top: 10px;
+                margin-top: 8px;
                 justify-content: center;
             }
             
@@ -1310,7 +1319,7 @@
                 flex-direction: column;
                 align-items: center;
                 text-align: center;
-                gap: 15px;
+                gap: 12px;
             }
             
             .header-left {
@@ -1321,12 +1330,12 @@
             }
             
             .app-icon {
-                width: 70px;
-                height: 70px;
+                width: 56px;
+                height: 56px;
             }
             
             .app-main-title {
-                font-size: 1.5rem;
+                font-size: 1.3rem;
             }
             
             .languages-section {
@@ -1339,22 +1348,22 @@
             }
             
             .time-limit-display {
-                padding: 8px 12px;
+                padding: 6px 10px;
             }
             
             .time-limit-text {
-                font-size: 0.9rem;
+                font-size: 0.85rem;
             }
             
             /* Responsive para cortes */
             .lap-row {
                 flex-direction: column;
-                gap: 15px;
+                gap: 12px;
                 min-height: auto;
             }
             
             .lap-time-full {
-                font-size: 1.8rem;
+                font-size: 1.5rem;
             }
             
             .lap-controls-wrapper {
@@ -1362,43 +1371,43 @@
             }
             
             .icon-btn-small {
-                min-width: 28px;
-                height: 28px;
-                font-size: 0.8rem;
+                min-width: 22px;
+                height: 22px;
+                font-size: 0.75rem;
             }
         }
         
         @media (max-width: 480px) {
             .app-icon {
-                width: 60px;
-                height: 60px;
+                width: 48px;
+                height: 48px;
             }
             
             .app-main-title {
-                font-size: 1.3rem;
+                font-size: 1.1rem;
             }
             
             .languages-label {
-                font-size: 0.8rem;
+                font-size: 0.75rem;
             }
             
             .flag {
-                width: 25px;
-                height: 17px;
+                width: 20px;
+                height: 14px;
             }
             
             .time-limit-text {
-                font-size: 0.85rem;
+                font-size: 0.8rem;
             }
             
             /* Responsive para cortes en móviles pequeños */
             .lap-time-full {
-                font-size: 1.5rem;
+                font-size: 1.3rem;
             }
             
             .lap-controls-single-line {
                 flex-direction: column;
-                gap: 5px;
+                gap: 4px;
                 align-items: flex-start;
             }
             
@@ -1408,7 +1417,7 @@
             
             .dorsal-row {
                 flex-direction: column;
-                gap: 5px;
+                gap: 4px;
                 align-items: flex-start;
             }
             
@@ -1417,9 +1426,9 @@
             }
             
             .icon-btn-small {
-                min-width: 26px;
-                height: 26px;
-                font-size: 0.75rem;
+                min-width: 20px;
+                height: 20px;
+                font-size: 0.7rem;
             }
         }
         
@@ -1427,20 +1436,20 @@
         .install-app-btn {
             background-color: #2ecc71;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             color: white;
-            font-size: 14px;
-            padding: 12px 20px;
+            font-size: 13px;
+            padding: 10px 16px;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
             width: 100%;
-            max-width: 500px;
-            margin: 0 auto 20px auto;
+            max-width: 400px;
+            margin: 0 auto 16px auto;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .install-app-btn:hover {
@@ -1454,7 +1463,7 @@
         }
 
         .install-app-btn i {
-            font-size: 1.2rem;
+            font-size: 1rem;
         }
 
         /* Modal de instalación */
@@ -1473,26 +1482,26 @@
 
         .install-modal-content {
             background-color: #2c3e50;
-            padding: 20px;
-            border-radius: 10px;
+            padding: 16px;
+            border-radius: 8px;
             width: 90%;
-            max-width: 300px;
+            max-width: 240px;
             text-align: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 3px 16px rgba(0, 0, 0, 0.3);
         }
 
         .install-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
+            font-size: 40px;
+            margin-bottom: 12px;
             color: #3498db;
         }
 
         .install-message {
-            margin-bottom: 15px;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            min-height: 40px;
+            margin-bottom: 12px;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            min-height: 32px;
             background-color: #34495e;
             color: #ecf0f1;
         }
@@ -1511,18 +1520,18 @@
 
         .install-buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
         }
 
         .install-btn {
-            padding: 8px 16px;
+            padding: 6px 13px;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 12px;
-            min-width: 100px;
+            font-size: 11px;
+            min-width: 80px;
         }
 
         .install-primary {
@@ -1536,48 +1545,48 @@
         }
 
         .install-instructions {
-            margin-top: 15px;
-            padding: 10px;
+            margin-top: 12px;
+            padding: 8px;
             background-color: #34495e;
-            border-radius: 5px;
-            font-size: 10px;
+            border-radius: 4px;
+            font-size: 9px;
             text-align: left;
             color: #ecf0f1;
         }
 
         .install-instructions h4 {
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             color: #ecf0f1;
         }
 
         @media (max-width: 768px) {
             .install-app-btn {
-                padding: 10px 20px;
-                font-size: 0.9rem;
-                min-width: 140px;
+                padding: 8px 16px;
+                font-size: 0.85rem;
+                min-width: 112px;
             }
         }
 
         @media (max-width: 480px) {
             .install-app-btn {
-                padding: 8px 15px;
-                font-size: 0.85rem;
-                min-width: 130px;
+                padding: 7px 14px;
+                font-size: 0.8rem;
+                min-width: 104px;
             }
         }
         
         /* Botón de cerrar en la esquina del modal de sugerencias */
         .suggestions-close-btn {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: 12px;
+            right: 12px;
             background: none;
             border: none;
-            font-size: 24px;
+            font-size: 20px;
             color: #666;
             cursor: pointer;
-            width: 30px;
-            height: 30px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -1594,11 +1603,11 @@
         /* Responsive para móviles */
         @media (max-width: 480px) {
             .suggestions-close-btn {
-                top: 10px;
-                right: 10px;
-                font-size: 20px;
-                width: 25px;
-                height: 25px;
+                top: 8px;
+                right: 8px;
+                font-size: 18px;
+                width: 20px;
+                height: 20px;
             }
         }
     </style>
@@ -1681,7 +1690,7 @@
             
             <!-- Pestaña Cortes -->
             <div class="tab-content active" id="cortes-tab">
-                <div class="help-text" style="margin-bottom: 10px; color: #95a5a6; font-size: 0.9rem;">
+                <div class="help-text" style="margin-bottom: 8px; color: #95a5a6; font-size: 0.85rem;">
                     Haz clic en ✏️ para editar tiempo o en 🗑️ para eliminar un corte
                 </div>
                 <ul class="lap-list" id="lap-list"></ul>
@@ -1689,7 +1698,7 @@
             
             <!-- Pestaña Dorsales -->
             <div class="tab-content" id="dorsales-tab">
-                <div class="help-text" style="margin-bottom: 10px;">
+                <div class="help-text" style="margin-bottom: 8px;">
                     Haz clic en cualquier tiempo para asignar dorsales (múltiples separados por comas)
                 </div>
                 
@@ -1746,7 +1755,7 @@
                     <!-- 4. Historial de horas de inicio -->
                     <div class="parameter-group">
                         <label>Historial de horas de inicio:</label>
-                        <div id="start-time-history" style="max-height: 200px; overflow-y: auto; margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 5px;">
+                        <div id="start-time-history" style="max-height: 160px; overflow-y: auto; margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 4px;">
                             <!-- El historial se mostrará aquí -->
                         </div>
                         <div class="parameter-description">
@@ -2245,7 +2254,7 @@
                     <li>Appuyez sur le bouton "Installer"</li>
                     <li>Le menu de partage s'ouvrira</li>
                     <li>Faites défiler et sélectionnez <strong>"Ajouter à l'écran d'accueil"</strong></li>
-                    <li>Appuyez sur <strong>"Ajouter"</strong> pour confirmer</li>
+                    <li>Appuyez sur <strong>"Ajouter"</strong> para confirmar</li>
                 </ol>`,
                 androidInstructionsTitle: "Installer sur Android",
                 androidInstructions: `<ol style="padding-left: 15px;">
@@ -2255,14 +2264,14 @@
                 </ol>`,
                 windowsInstructionsTitle: "Créer un Raccourci sur Windows",
                 windowsInstructions: `<ol style="padding-left: 15px;">
-                    <li>Appuyez sur le bouton "Installer"</li>
-                    <li>Un fichier .url sera téléchargé</li>
+                    <li>Appuyez sur le botó "Installer"</li>
+                    <li>Un fichier .url será téléchargé</li>
                     <li>Ouvrez-le pour créer le raccourci sur votre bureau</li>
                 </ol>`,
                 otherInstructionsTitle: "Installer l'App",
                 otherInstructions: `<ol style="padding-left: 15px;">
-                    <li>Appuyez sur le bouton "Installer"</li>
-                    <li>Suivez les instructions de votre navigateur</li>
+                    <li>Appuyez sur le botó "Installer"</li>
+                    <li>Suivez les instructions de votre navegador</li>
                 </ol>`
             }
         };
@@ -2377,7 +2386,7 @@
             if (!startTimeHistoryContainer) return;
             
             if (startTimeHistory.length === 0) {
-                startTimeHistoryContainer.innerHTML = `<div style="color: #95a5a6; font-style: italic; text-align: center; padding: 10px;">${t.noHistory}</div>`;
+                startTimeHistoryContainer.innerHTML = `<div style="color: #95a5a6; font-style: italic; text-align: center; padding: 8px;">${t.noHistory}</div>`;
                 return;
             }
             
@@ -3209,7 +3218,7 @@
             const dorsales = Object.keys(dorsalAssignments).sort((a, b) => parseInt(a) - parseInt(b));
             
             if(dorsales.length === 0) {
-                dorsalListElement.innerHTML = '<div style="text-align: center; color: #95a5a6; padding: 20px;">No hay dorsales asignados</div>';
+                dorsalListElement.innerHTML = '<div style="text-align: center; color: #95a5a6; padding: 16px;">No hay dorsales asignados</div>';
                 return;
             }
             
@@ -3228,7 +3237,7 @@
                     <div class="dorsal-number">Dorsal ${dorsal}</div>
                     <div class="dorsal-time">${tiemposHTML}</div>
                     <div class="dorsal-actions">
-                        <button onclick="removeDorsal(${dorsal})" style="background: #ff4444; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">✗</button>
+                        <button onclick="removeDorsal(${dorsal})" style="background: #ff4444; color: white; border: none; padding: 4px 8px; border-radius: 2px; cursor: pointer;">✗</button>
                     </div>
                 `;
                 
