@@ -1,6 +1,15 @@
 Crono Tops
 
-Aprovechando las funcionalidades extras de crono llegadas (Idiomas,Actualización/sugerencias, Actualización automática app, pwa, ayuda, no necesito milesimas, texto copyright, boton instalar App..)
+Aprovechando las funcionalidades extras de crono llegadas:
+- Idiomas
+- Actualización/sugerencias
+- Actualización automática app
+- PWA
+- Ayuda, 
+- Reloj no necesito milesimas
+- Mismo texto copyright
+- Boton instalar App
+- La funcion - function keepScreenAwakeAlternative()
 
 Quiero hacer una app para poder coger tops en una carrera de bicicletas, y así saber el tiempo que separa a diferentes corredores en una carrera.
 La idea es que una persona te avisa cuando pasa por un sitio, en ese punto pones el crono en marcha y cuando tu pasas pulsas top y sabes la diferencia, a la vez puede haber otra persona que te avisa cuando pasa por ese punto y así sabes las diferencias entre varios corredores. Lo que puede pasar es que te den varios tops a la vez por lo que hemos de poder poner varios cronos a la vez. 

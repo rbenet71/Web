@@ -1428,7 +1428,7 @@
             position: absolute;
             top: 15px;
             right: 15px;
-            background: none;
+            background:  #b13636;
             border: none;
             font-size: 24px;
             color: #666;
@@ -1444,7 +1444,7 @@
         }
 
         .suggestions-close-btn:hover {
-            background-color: #f0f0f0;
+            background-color: #d6f13c;
             color: #333;
         }
 
@@ -1456,6 +1456,294 @@
                 font-size: 20px;
                 width: 25px;
                 height: 25px;
+            }
+        }
+        /* NUEVO DISEÑO MÓVIL PARA CORTES */
+        .mobile-lap-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .lap-content-mobile {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* LÍNEA 1: Tiempo + Corte + Acciones */
+        .lap-line1 {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .lap-time-multiline {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .lap-time-line1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #00ff00;
+            line-height: 1.2;
+            margin-bottom: 2px;
+        }
+
+        .lap-time-line2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            color: #00cc00;
+            line-height: 1.2;
+        }
+
+        .lap-header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+            min-width: 70px;
+        }
+
+        .lap-number-mobile {
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+            font-weight: 600;
+            background: rgba(52, 152, 219, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+
+        .lap-actions-mobile-compact {
+            display: flex;
+            gap: 5px;
+        }
+
+        .mobile-icon-btn {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 4px;
+            font-size: 1rem;
+            min-width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .mobile-icon-btn:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-1px);
+        }
+
+        .mobile-icon-btn.btn-edit {
+            color: #3498db;
+            border-color: #3498db;
+        }
+
+        .mobile-icon-btn.btn-edit:hover {
+            background: rgba(52, 152, 219, 0.2);
+        }
+
+        .mobile-icon-btn.btn-delete {
+            color: #e74c3c;
+            border-color: #e74c3c;
+        }
+
+        .mobile-icon-btn.btn-delete:hover {
+            background: rgba(231, 76, 60, 0.2);
+        }
+
+        /* LÍNEA 2: Segundos + Dorsales */
+        .lap-line2 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lap-seconds-mobile {
+            font-size: 0.95rem;
+            color: #95a5a6;
+            font-weight: 600;
+            min-width: 50px;
+        }
+
+        .lap-dorsal-container {
+            flex: 1;
+            text-align: right;
+        }
+
+        .lap-dorsal-mobile {
+            cursor: pointer;
+            padding: 5px 8px;
+            border-radius: 4px;
+            background: rgba(0, 255, 255, 0.1);
+            font-size: 0.85rem;
+            display: inline-block;
+            transition: all 0.2s;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .lap-dorsal-mobile:hover {
+            background: rgba(0, 255, 255, 0.2);
+        }
+
+        .lap-dorsal-mobile.assigned {
+            background: rgba(0, 255, 255, 0.3);
+            font-weight: bold;
+        }
+
+        /* Campos de edición para móvil */
+        .mobile-edit-container {
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+        }
+
+        .edit-header-mobile {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .edit-controls-mobile {
+            display: flex;
+            gap: 5px;
+        }
+
+        .mobile-btn-small {
+            padding: 6px 10px !important;
+            font-size: 0.9rem !important;
+            min-width: 40px;
+        }
+
+        .mobile-edit-input {
+            width: 100% !important;
+            margin-bottom: 8px;
+            font-size: 1.1rem !important;
+            text-align: center;
+            padding: 10px !important;
+        }
+
+        /* Edición de dorsales */
+        .dorsal-edit-mobile {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .mobile-dorsal-input {
+            flex: 1;
+            font-size: 0.9rem !important;
+            padding: 6px 8px !important;
+        }
+
+        .dorsal-buttons-mobile {
+            display: flex;
+            gap: 3px;
+        }
+
+        .mobile-icon-btn-small {
+            padding: 6px !important;
+            min-width: 32px;
+            height: 32px;
+            font-size: 0.9rem;
+        }
+
+        /* Ajustes responsive */
+        @media (max-width: 768px) {
+            .mobile-help-text {
+                display: block;
+            }
+            
+            .lap-item:not(.mobile-lap-item) {
+                display: none;
+            }
+            
+            .lap-time-line1 {
+                font-size: 1.2rem;
+            }
+            
+            .lap-time-line2 {
+                font-size: 0.8rem;
+            }
+            
+            .lap-number-mobile {
+                font-size: 0.8rem;
+                padding: 1px 4px;
+            }
+            
+            .mobile-icon-btn {
+                min-width: 32px;
+                height: 32px;
+                padding: 4px;
+                font-size: 0.9rem;
+            }
+            
+            .lap-seconds-mobile {
+                font-size: 0.9rem;
+            }
+            
+            .lap-dorsal-mobile {
+                font-size: 0.8rem;
+                padding: 4px 6px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .lap-time-line1 {
+                font-size: 1rem;
+            }
+            
+            .lap-time-line2 {
+                font-size: 0.7rem;
+            }
+            
+            .lap-number-mobile {
+                font-size: 0.75rem;
+            }
+            
+            .mobile-icon-btn {
+                min-width: 28px;
+                height: 28px;
+                font-size: 0.8rem;
+            }
+            
+            .lap-seconds-mobile {
+                font-size: 0.85rem;
+            }
+            
+            .lap-dorsal-mobile {
+                font-size: 0.75rem;
+                padding: 3px 5px;
+            }
+            
+            .mobile-edit-input {
+                font-size: 1rem !important;
+                padding: 8px !important;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-lap-item {
+                display: none;
             }
         }
     </style>
@@ -1533,10 +1821,11 @@
                 <button class="tab-button" data-tab="parametros-tab" id="parametros-tab-button">Parámetros</button>
             </div>
             
+
             <!-- Pestaña Cortes -->
             <div class="tab-content active" id="cortes-tab">
-                <div class="help-text" style="margin-bottom: 10px; color: #95a5a6; font-size: 0.9rem;">
-                    Haz clic en ✏️ para editar tiempo o en 🗑️ para eliminar un corte
+                <div class="mobile-help-text" style="display: none; padding: 8px 15px; color: #95a5a6; font-size: 0.8rem; background: rgba(0,0,0,0.2); border-radius: 5px; margin-bottom: 10px; text-align: center;">
+                    ✏️ Editar tiempo | 🗑️ Eliminar corte
                 </div>
                 <ul class="lap-list" id="lap-list"></ul>
             </div>
@@ -2467,88 +2756,179 @@
             }, 3000);
         }
 
-        // ==============================================
-        // FUNCIONES MODIFICADAS
-        // ==============================================
-
         function renderLaps() {
-            const t = translations[currentLanguage];
+    const t = translations[currentLanguage];
+    
+    lapListElement.innerHTML = lapTimes.slice().reverse().map((lap, i) => {
+        const lapIndex = lapTimes.length - i - 1;
+        const isEditing = editingLapIndex === lapIndex;
+        const isEditingTime = editingTimeIndex === lapIndex;
+        
+        // Determinar si estamos en móvil
+        const isMobile = window.innerWidth <= 768;
+        
+        // DISEÑO PARA MÓVIL (nuevo diseño)
+        if (isMobile) {
+            let timeDisplay;
+            if (isEditingTime) {
+                const currentTimeStr = formatTimeForEdit(lap.timeMs);
+                timeDisplay = `
+                    <div class="mobile-edit-container">
+                        <div class="edit-header-mobile">
+                            <span class="lap-number-mobile">Corte ${lapTimes.length - i}</span>
+                            <div class="edit-controls-mobile">
+                                <button class="action-btn btn-save mobile-btn-small" onclick="saveEditedTime(${lapIndex}, this.parentElement.parentElement.querySelector('.mobile-edit-input'))">✓</button>
+                                <button class="action-btn btn-cancel mobile-btn-small" onclick="cancelTimeEdit()">✗</button>
+                            </div>
+                        </div>
+                        <input type="text" 
+                               class="time-edit-input mobile-edit-input" 
+                               value="${currentTimeStr}"
+                               placeholder="mm:ss.mmm"
+                               onkeypress="if(event.key==='Enter') saveEditedTime(${lapIndex}, this)">
+                        <div class="edit-time-hint mobile-hint">
+                            ${t.editTimeHint}
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Formatear tiempo para mostrar en 2 líneas
+                const timeFormatted = showMilliseconds ? lap.total : lap.total.split('"')[0] + '"';
+                const timeParts = timeFormatted.split('"');
+                const mainTime = timeParts[0] + '"';
+                const milliseconds = timeParts[1] || '';
+                
+                timeDisplay = `
+                    <div class="lap-content-mobile">
+                        <!-- LÍNEA 1: Tiempo + Corte + Acciones -->
+                        <div class="lap-line1">
+                            <div class="lap-time-multiline">
+                                <div class="lap-time-line1">${mainTime}</div>
+                                ${milliseconds ? `<div class="lap-time-line2">${milliseconds}</div>` : ''}
+                            </div>
+                            <div class="lap-header-right">
+                                <span class="lap-number-mobile">Corte ${lapTimes.length - i}</span>
+                                <div class="lap-actions-mobile-compact">
+                                    <button class="action-btn btn-edit mobile-icon-btn" title="Editar tiempo" onclick="startEditingTime(${lapIndex})">✏️</button>
+                                    <button class="action-btn btn-delete mobile-icon-btn" title="Eliminar corte" onclick="deleteLap(${lapIndex})">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- LÍNEA 2: Segundos + Dorsales -->
+                        <div class="lap-line2">
+                            <div class="lap-seconds-mobile">${lap.segundos}s</div>
+                            <div class="lap-dorsal-container">
+                                ${isEditing ? `
+                                    <div class="dorsal-edit-mobile">
+                                        <input type="text" 
+                                               class="dorsal-input mobile-dorsal-input" 
+                                               value="${lap.dorsales.join(', ')}" 
+                                               placeholder="Dorsales: 1,5,12"
+                                               onkeypress="if(event.key==='Enter') saveDorsales(${lapIndex}, this)">
+                                        <div class="dorsal-buttons-mobile">
+                                            <button class="dorsal-save-btn mobile-icon-btn-small" onclick="saveDorsales(${lapIndex}, this.parentElement.parentElement.querySelector('.mobile-dorsal-input'))">✓</button>
+                                            <button class="dorsal-cancel-btn mobile-icon-btn-small" onclick="cancelEditing()">✗</button>
+                                        </div>
+                                    </div>
+                                ` : `
+                                    <span class="lap-dorsal-mobile ${lap.dorsales.length > 0 ? 'assigned' : ''}" 
+                                          onclick="startEditingDorsal(${lapIndex})">
+                                        ${lap.dorsales.length > 0 ? 
+                                            `Dorsales: ${lap.dorsales.join(', ')}` : 
+                                            'Toca para asignar dorsales'}
+                                    </span>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
             
-            lapListElement.innerHTML = lapTimes.slice().reverse().map((lap, i) => {
-                const lapIndex = lapTimes.length - i - 1;
-                const isEditing = editingLapIndex === lapIndex;
-                const isEditingTime = editingTimeIndex === lapIndex;
-                
-                let timeDisplay;
-                if (isEditingTime) {
-                    const currentTimeStr = formatTimeForEdit(lap.timeMs);
-                    timeDisplay = `
-                        <div style="margin-bottom: 8px;">
-                            <div class="edit-controls">
-                                <input type="text" 
-                                       class="time-edit-input" 
-                                       value="${currentTimeStr}"
-                                       placeholder="mm:ss.mmm"
-                                       onkeypress="if(event.key==='Enter') saveEditedTime(${lapIndex}, this)">
-                                <button class="action-btn btn-save" onclick="saveEditedTime(${lapIndex}, this.previousElementSibling)">✓</button>
-                                <button class="action-btn btn-cancel" onclick="cancelTimeEdit()">✗</button>
-                            </div>
-                            <div class="edit-time-hint">
-                                ${t.editTimeHint}
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    timeDisplay = `<span class="lap-time">${showMilliseconds ? lap.total : lap.total.split('"')[0] + '"'}</span>`;
-                }
-                
-                let dorsalDisplay;
-                if (isEditing) {
-                    const currentDorsales = lap.dorsales.join(', ');
-                    dorsalDisplay = `
-                        <div class="dorsal-input-container">
-                            <input type="text" 
-                                   class="dorsal-input" 
-                                   value="${currentDorsales}" 
-                                   placeholder="1, 5, 12..."
-                                   onkeypress="if(event.key==='Enter') saveDorsales(${lapIndex}, this)">
-                            <button class="dorsal-save-btn" onclick="saveDorsales(${lapIndex}, this.previousElementSibling)">✓</button>
-                            <button class="dorsal-cancel-btn" onclick="cancelEditing()">✗</button>
-                        </div>
-                    `;
-                } else {
-                    const dorsalText = lap.dorsales.length > 0 
-                        ? `Dorsales: ${lap.dorsales.join(', ')}`
-                        : 'Haz clic para asignar dorsales';
-                    
-                    dorsalDisplay = `
-                        <span class="lap-dorsal ${lap.dorsales.length > 0 ? 'assigned' : ''}" 
-                              onclick="startEditingDorsal(${lapIndex})">
-                            ${dorsalText}
-                        </span>
-                    `;
-                }
-                
-                const actionButtons = !isEditingTime ? `
-                    <div class="lap-actions">
-                        <button class="action-btn btn-edit" title="Editar tiempo" onclick="startEditingTime(${lapIndex})">✏️</button>
-                        <button class="action-btn btn-delete" title="Eliminar corte" onclick="deleteLap(${lapIndex})">🗑️</button>
-                    </div>
-                ` : '';
-                
-                return `<li class="lap-item">
-                    <div class="lap-item-header">
-                        <span class="lap-number">Corte ${lapTimes.length - i}</span>
-                        ${actionButtons}
-                    </div>
-                    <div class="lap-info">
-                        ${timeDisplay}
-                        <span class="lap-details">${lap.segundos}s | ${dorsalDisplay}</span>
-                    </div>
-                </li>`;
-            }).join('');
+            return `<li class="lap-item mobile-lap-item">
+                ${timeDisplay}
+            </li>`;
         }
-
+        
+        // DISEÑO PARA ESCRITORIO (mantén el original)
+        else {
+            let timeDisplay;
+            if (isEditingTime) {
+                const currentTimeStr = formatTimeForEdit(lap.timeMs);
+                timeDisplay = `
+                    <div style="margin-bottom: 8px;">
+                        <div class="edit-controls">
+                            <input type="text" 
+                                   class="time-edit-input" 
+                                   value="${currentTimeStr}"
+                                   placeholder="mm:ss.mmm"
+                                   onkeypress="if(event.key==='Enter') saveEditedTime(${lapIndex}, this)">
+                            <button class="action-btn btn-save" onclick="saveEditedTime(${lapIndex}, this.previousElementSibling)">✓</button>
+                            <button class="action-btn btn-cancel" onclick="cancelTimeEdit()">✗</button>
+                        </div>
+                        <div class="edit-time-hint">
+                            ${t.editTimeHint}
+                        </div>
+                    </div>
+                `;
+            } else {
+                timeDisplay = `<span class="lap-time">${showMilliseconds ? lap.total : lap.total.split('"')[0] + '"'}</span>`;
+            }
+            
+            let dorsalDisplay;
+            if (isEditing) {
+                const currentDorsales = lap.dorsales.join(', ');
+                dorsalDisplay = `
+                    <div class="dorsal-input-container">
+                        <input type="text" 
+                               class="dorsal-input" 
+                               value="${currentDorsales}" 
+                               placeholder="1, 5, 12..."
+                               onkeypress="if(event.key==='Enter') saveDorsales(${lapIndex}, this)">
+                        <button class="dorsal-save-btn" onclick="saveDorsales(${lapIndex}, this.previousElementSibling)">✓</button>
+                        <button class="dorsal-cancel-btn" onclick="cancelEditing()">✗</button>
+                    </div>
+                `;
+            } else {
+                const dorsalText = lap.dorsales.length > 0 
+                    ? `Dorsales: ${lap.dorsales.join(', ')}`
+                    : 'Haz clic para asignar dorsales';
+                
+                dorsalDisplay = `
+                    <span class="lap-dorsal ${lap.dorsales.length > 0 ? 'assigned' : ''}" 
+                          onclick="startEditingDorsal(${lapIndex})">
+                        ${dorsalText}
+                    </span>
+                `;
+            }
+            
+            const actionButtons = !isEditingTime ? `
+                <div class="lap-actions">
+                    <button class="action-btn btn-edit" title="Editar tiempo" onclick="startEditingTime(${lapIndex})">✏️</button>
+                    <button class="action-btn btn-delete" title="Eliminar corte" onclick="deleteLap(${lapIndex})">🗑️</button>
+                </div>
+            ` : '';
+            
+            return `<li class="lap-item">
+                <div class="lap-item-header">
+                    <span class="lap-number">Corte ${lapTimes.length - i}</span>
+                    ${actionButtons}
+                </div>
+                <div class="lap-info">
+                    ${timeDisplay}
+                    <span class="lap-details">${lap.segundos}s | ${dorsalDisplay}</span>
+                </div>
+            </li>`;
+        }
+    }).join('');
+    
+    // Mostrar/ocultar texto de ayuda móvil
+    const mobileHelpText = document.querySelector('.mobile-help-text');
+    if (mobileHelpText) {
+        mobileHelpText.style.display = window.innerWidth <= 768 ? 'block' : 'none';
+    }
+}       
+        
         function startEditingDorsal(lapIndex) {
             editingLapIndex = lapIndex;
             editingTimeIndex = null;
@@ -3932,6 +4312,10 @@
                 navigator.vibrate(0); // Vibración de 0ms no hace vibrar pero mantiene activo
             }
         }
+        // En DOMContentLoaded, añade esto:
+        window.addEventListener('resize', function() {
+            renderLaps();
+        });
     </script>
 </body>
 </html>
