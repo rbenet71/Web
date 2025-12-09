@@ -3131,6 +3131,21 @@ IDList=`;
                 showMessage(message, 'info');
             }, 1000);
         }
+        // Método alternativo para navegadores sin Wake Lock API
+        function keepScreenAwakeAlternative() {
+            if (!isRunning) return;
+            
+            // Reproducir un video invisible (truco para mantener pantalla activa)
+            const keepAliveVideo = document.getElementById('keep-alive-video');
+            if (keepAliveVideo) {
+                keepAliveVideo.play().catch(e => console.log('Video keep-alive falló:', e));
+            }
+            
+            // O usar la API de vibración (si está disponible)
+            if (navigator.vibrate) {
+                navigator.vibrate(0); // Vibración de 0ms no hace vibrar pero mantiene activo
+            }
+        }
 
         // Initialize the app when DOM is loaded
         document.addEventListener('DOMContentLoaded', initApp);
