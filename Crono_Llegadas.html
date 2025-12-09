@@ -376,7 +376,8 @@
         }
         
         .btn-export {
-            background-color: var(--primary-color);
+            background-color:  #b1087e;
+            color: white;
         }
         
         .btn-new-race {
@@ -1420,6 +1421,43 @@
                 min-width: 130px;
             }
         }
+        /* AÑADE estos estilos al final de tu CSS */
+
+        /* Botón de cerrar en la esquina del modal de sugerencias */
+        .suggestions-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            z-index: 1;
+        }
+
+        .suggestions-close-btn:hover {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        /* Responsive para móviles */
+        @media (max-width: 480px) {
+            .suggestions-close-btn {
+                top: 10px;
+                right: 10px;
+                font-size: 20px;
+                width: 25px;
+                height: 25px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1594,7 +1632,7 @@
             <p>
                 <span id="copyright-text">2025 © Copyright</span>
                 <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                    Roberto Benet - rbenet71@gmail.com - V_04_12_2025
+                    Roberto Benet - rbenet71@gmail.com - V_09_12_2025
                 </a>
             </p>
         </footer>
@@ -1651,9 +1689,12 @@
                 </div>
                 <h1 class="suggestions-title" id="suggestions-title">Cronómetro para Llegadas</h1>
                 <p class="suggestions-subtitle" id="suggestions-subtitle">Envía tus comentarios</p>
+                <!-- AÑADE ESTA LÍNEA: Botón de cerrar -->
+                <button class="suggestions-close-btn" id="suggestionsCloseBtn">×</button>
             </div>
             
             <form id="suggestionForm">
+                <!-- TODOS TUS CAMPOS EXISTENTES SE MANTIENEN IGUAL -->
                 <div class="form-group">
                     <label for="email-suggestions" class="required" id="email-label">Facilítanos tu email para mantenerte informado de las actualizaciones</label>
                     <input type="email" id="email-suggestions" class="suggestions-input" placeholder="tu@email.com" required>
@@ -1680,6 +1721,7 @@
                     <p id="loading-text">Enviando...</p>
                 </div>
                 
+                <!-- Botón Enviar se mantiene igual -->
                 <button type="button" id="submitBtn-suggestions" class="suggestions-btn-modal">
                     📤 Enviar
                 </button>
@@ -3517,6 +3559,16 @@
             }
             
             attachEventListeners() {
+                // Añade esta línea en attachEventListeners():
+                document.getElementById('suggestionsCloseBtn').addEventListener('click', () => {
+                    this.hideModal();
+                });
+                // Añade esto también en attachEventListeners():
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && this.modal.style.display === 'flex') {
+                        this.hideModal();
+                    }
+                });
                 document.getElementById('btn-suggestions').addEventListener('click', () => {
                     this.showModal();
                 });
