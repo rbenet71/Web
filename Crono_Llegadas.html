@@ -493,12 +493,13 @@
         .lap-time-full {
             font-family: 'Orbitron', monospace;
             font-size: 1.8rem;
-            font-weight: 700;
+            font-weight: 7000;
             color: #00ff00;
             line-height: 1.1;
             letter-spacing: 0.8px;
             white-space: nowrap;
             text-align: center;
+            gap:10px
         }
 
         /* COLUMNA DERECHA: 2 celdas con divisor */
@@ -528,8 +529,7 @@
         /* Controles en una sola línea */
         .lap-controls-single-line {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            gap: 10px
         }
 
         .lap-number-inline {
@@ -1273,165 +1273,7 @@
             color: #2ecc71;
         }
         
-        @media (max-width: 768px) {
-            .chrono-display {
-                min-height: 120px;
-                padding: 12px;
-            }
-            
-            .lcd-time {
-                font-size: 2rem;
-            }
-            
-            .controls {
-                flex-direction: column;
-            }
-            
-            .race-management {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .milliseconds-toggle {
-                margin-left: 0;
-                margin-top: 8px;
-                justify-content: center;
-            }
-            
-            .parameter-group {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .parameter-input-group {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .parameter-input-group input,
-            .parameter-input-group select,
-            .parameter-input-group button {
-                min-width: 100%;
-                width: 100%;
-            }
-            
-            header {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                gap: 12px;
-            }
-            
-            .header-left {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                min-width: auto;
-            }
-            
-            .app-icon {
-                width: 56px;
-                height: 56px;
-            }
-            
-            .app-main-title {
-                font-size: 1.3rem;
-            }
-            
-            .languages-section {
-                margin-left: 0;
-                align-items: center;
-            }
-            
-            .language-selector {
-                justify-content: center;
-            }
-            
-            .time-limit-display {
-                padding: 6px 10px;
-            }
-            
-            .time-limit-text {
-                font-size: 0.85rem;
-            }
-            
-            /* Responsive para cortes */
-            .lap-row {
-                flex-direction: column;
-                gap: 12px;
-                min-height: auto;
-            }
-            
-            .lap-time-full {
-                font-size: 1.5rem;
-            }
-            
-            .lap-controls-wrapper {
-                width: 100%;
-            }
-            
-            .icon-btn-small {
-                min-width: 22px;
-                height: 22px;
-                font-size: 0.75rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .app-icon {
-                width: 48px;
-                height: 48px;
-            }
-            
-            .app-main-title {
-                font-size: 1.1rem;
-            }
-            
-            .languages-label {
-                font-size: 0.75rem;
-            }
-            
-            .flag {
-                width: 20px;
-                height: 14px;
-            }
-            
-            .time-limit-text {
-                font-size: 0.8rem;
-            }
-            
-            /* Responsive para cortes en móviles pequeños */
-            .lap-time-full {
-                font-size: 1.3rem;
-            }
-            
-            .lap-controls-single-line {
-                flex-direction: column;
-                gap: 4px;
-                align-items: flex-start;
-            }
-            
-            .lap-actions-inline {
-                align-self: flex-end;
-            }
-            
-            .dorsal-row {
-                flex-direction: column;
-                gap: 4px;
-                align-items: flex-start;
-            }
-            
-            .dorsal-input {
-                width: 100%;
-            }
-            
-            .icon-btn-small {
-                min-width: 20px;
-                height: 20px;
-                font-size: 0.7rem;
-            }
-        }
-        
+
         /* Botón de instalar app */
         .install-app-btn {
             background-color: #2ecc71;
