@@ -40,6 +40,8 @@
     
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -1275,6 +1277,149 @@
                 font-size: 0.85rem;
             }
         }
+        /* Botón de instalar app */
+        /* Usa la misma clase que los otros botones importantes */
+        .install-app-btn {
+            background-color: #2ecc71; /* Verde para instalación */
+            border: none;
+            border-radius: 5px; /* Igual que otros botones */
+            color: white;
+            font-size: 14px; /* Igual que otros botones */
+            padding: 12px 20px; /* Igual que otros botones */
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            width: 100%; /* Para que ocupe todo el ancho */
+            max-width: 500px; /* Igual que los otros controles */
+            margin: 0 auto 20px auto; /* Centrado y con margen */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .install-app-btn:hover {
+            background-color: #27ae60; /* Verde más oscuro al hover */
+            transform: translateY(-1px);
+        }
+
+        .install-app-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .install-app-btn i {
+            font-size: 1.2rem;
+        }
+
+        /* Modal de instalación */
+        .install-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .install-modal-content {
+            background-color: #2c3e50;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .install-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #3498db;
+        }
+
+        .install-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            min-height: 40px;
+            background-color: #34495e;
+            color: #ecf0f1;
+        }
+
+        .install-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .install-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .install-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .install-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            min-width: 100px;
+        }
+
+        .install-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .install-secondary {
+            background-color: #7f8c8d;
+            color: white;
+        }
+
+        .install-instructions {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #34495e;
+            border-radius: 5px;
+            font-size: 10px;
+            text-align: left;
+            color: #ecf0f1;
+        }
+
+        .install-instructions h4 {
+            margin-bottom: 5px;
+            color: #ecf0f1;
+        }
+
+        @media (max-width: 768px) {
+            .install-app-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+                min-width: 140px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .install-app-btn {
+                padding: 8px 15px;
+                font-size: 0.85rem;
+                min-width: 130px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1432,12 +1577,17 @@
         <div class="controls">
             <button class="btn-export" id="btn-export">💾 Exportar Cortes (CSV)</button>
             <button class="btn-export" id="btn-export-dorsales">💾 Exportar Dorsales (CSV)</button>
-            <button class="btn-help" id="btn-help">Ayuda</button>
+            
         </div>
         
         <!-- Botón de sugerencias añadido -->
         <div class="controls">
+            <button class="btn-help" id="btn-help">Ayuda</button>
             <button class="btn-suggestions" id="btn-suggestions">Actualizaciones/Sugerencias</button>
+            <button class="install-app-btn" id="install-btn">
+                <i class="fas fa-download"></i>
+                <span id="install-btn-text">Instalar App</span>
+            </button>
         </div>
 
         <footer class="footer">
@@ -1449,8 +1599,24 @@
             </p>
         </footer>
     </div>
-    
+
     <!-- Modales -->
+     <div class="install-modal" id="installModal">
+        <div class="install-modal-content">
+            <div class="install-icon" id="installIcon">📱</div>
+            <div class="install-message" id="installMessage"></div>
+            <div class="install-buttons">
+                <button class="install-btn install-primary" id="installActionBtn">Instalar</button>
+                <button class="install-btn install-secondary" id="installCancelBtn">Cerrar</button>
+            </div>
+            <div class="install-instructions" id="installInstructions">
+                <h4 id="instructionsTitle">Instrucciones de instalación</h4>
+                <div id="instructionsList">
+                    <!-- Las instrucciones se llenarán dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal" id="new-race-modal">
         <div class="modal-content">
             <h3 id="new-race-modal-title">Nueva Carrera</h3>
@@ -1593,7 +1759,36 @@
                 useTime: "Usar",
                 manualStart: "Manual",
                 autoStart: "Automático",
-                source: "Origen:"
+                source: "Origen:",
+                installButton: "Instalar App",
+                installTitle: "Instalar App",
+                installSubtitle: "Añade un acceso directo a tu dispositivo",
+                installAction: "Instalar",
+                installClose: "Cerrar",
+                iosInstructionsTitle: "Instalar en iPhone/iPad",
+                iosInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Se abrirá el menú de compartir</li>
+                    <li>Desplázate y selecciona <strong>"Añadir a Pantalla de Inicio"</strong></li>
+                    <li>Pulsa <strong>"Añadir"</strong> para confirmar</li>
+                </ol>`,
+                androidInstructionsTitle: "Instalar en Android",
+                androidInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Se instalará automáticamente como app PWA</li>
+                    <li>La app aparecerá en tu pantalla de inicio</li>
+                </ol>`,
+                windowsInstructionsTitle: "Crear Acceso Directo en Windows",
+                windowsInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Se descargará un archivo .url</li>
+                    <li>Ábrelo para crear el acceso directo en tu escritorio</li>
+                </ol>`,
+                otherInstructionsTitle: "Instalar App",
+                otherInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Sigue las instrucciones de tu navegador</li>
+                </ol>`
             },
             ca: {
                 appTitle: "Cronòmetre per Arribades",
@@ -1659,7 +1854,37 @@
                 useTime: "Utilitzar",
                 manualStart: "Manual",
                 autoStart: "Automàtic",
-                source: "Origen:"
+                source: "Origen:",
+
+                installButton: "Instal·lar App",
+                installTitle: "Instal·lar App",
+                installSubtitle: "Afegeix un accés directe al teu dispositiu",
+                installAction: "Instal·lar",
+                installClose: "Tancar",
+                iosInstructionsTitle: "Instal·lar a iPhone/iPad",
+                iosInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botó "Instal·lar"</li>
+                    <li>S'obrirà el menú de compartir</li>
+                    <li>Desplaça't i selecciona <strong>"Afegeix a la pantalla d'inici"</strong></li>
+                    <li>Prem <strong>"Afegeix"</strong> para confirmar</li>
+                </ol>`,
+                androidInstructionsTitle: "Instal·lar a Android",
+                androidInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botó "Instal·lar"</li>
+                    <li>S'instal·larà automàticament com a app PWA</li>
+                    <li>L'app apareixerà a la teva pantalla d'inici</li>
+                </ol>`,
+                windowsInstructionsTitle: "Crear Accés Directe a Windows",
+                windowsInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botó "Instal·lar"</li>
+                    <li>Es descarregarà un arxiu .url</li>
+                    <li>Obre'l per crear l'accés directe al teu escriptori</li>
+                </ol>`,
+                otherInstructionsTitle: "Instal·lar App",
+                otherInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botó "Instal·lar"</li>
+                    <li>Segueix les instruccions del teu navegador</li>
+                </ol>`
             },
             en: {
                 appTitle: "Finish Line Stopwatch",
@@ -1725,7 +1950,36 @@
                 useTime: "Use",
                 manualStart: "Manual",
                 autoStart: "Automatic",
-                source: "Source:"
+                source: "Source:",
+                installButton: "Install App",
+                installTitle: "Install App",
+                installSubtitle: "Add a shortcut to your device",
+                installAction: "Install",
+                installClose: "Close",
+                iosInstructionsTitle: "Install on iPhone/iPad",
+                iosInstructions: `<ol style="padding-left: 15px;">
+                    <li>Tap the "Install" button</li>
+                    <li>The share menu will open</li>
+                    <li>Scroll and select <strong>"Add to Home Screen"</strong></li>
+                    <li>Tap <strong>"Add"</strong> to confirm</li>
+                </ol>`,
+                androidInstructionsTitle: "Install on Android",
+                androidInstructions: `<ol style="padding-left: 15px;">
+                    <li>Tap the "Install" button</li>
+                    <li>It will automatically install as a PWA</li>
+                    <li>The app will appear on your home screen</li>
+                </ol>`,
+                windowsInstructionsTitle: "Create Shortcut on Windows",
+                windowsInstructions: `<ol style="padding-left: 15px;">
+                    <li>Tap the "Install" button</li>
+                    <li>A .url file will be downloaded</li>
+                    <li>Open it to create the shortcut on your desktop</li>
+                </ol>`,
+                otherInstructionsTitle: "Install App",
+                otherInstructions: `<ol style="padding-left: 15px;">
+                    <li>Tap the "Install" button</li>
+                    <li>Follow your browser instructions</li>
+                </ol>`
             },
             fr: {
                 appTitle: "Chronomètre d'Arrivée",
@@ -1791,7 +2045,36 @@
                 useTime: "Utiliser",
                 manualStart: "Manuel",
                 autoStart: "Automatique",
-                source: "Source:"
+                source: "Source:",
+                installButton: "Installer App",
+                installTitle: "Installer App",
+                installSubtitle: "Ajoutez un raccourci à votre appareil",
+                installAction: "Installer",
+                installClose: "Fermer",
+                iosInstructionsTitle: "Installer sur iPhone/iPad",
+                iosInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Le menu de partage s'ouvrira</li>
+                    <li>Faites défiler et sélectionnez <strong>"Ajouter à l'écran d'accueil"</strong></li>
+                    <li>Appuyez sur <strong>"Ajouter"</strong> pour confirmer</li>
+                </ol>`,
+                androidInstructionsTitle: "Installer sur Android",
+                androidInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Il s'installera automatiquement en tant qu'application PWA</li>
+                    <li>L'application apparaîtra sur votre écran d'accueil</li>
+                </ol>`,
+                windowsInstructionsTitle: "Créer un Raccourci sur Windows",
+                windowsInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Un fichier .url sera téléchargé</li>
+                    <li>Ouvrez-le pour créer le raccourci sur votre bureau</li>
+                </ol>`,
+                otherInstructionsTitle: "Installer l'App",
+                otherInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Suivez les instructions de votre navigateur</li>
+                </ol>`
             }
         };
 
@@ -2331,6 +2614,8 @@
             document.getElementById('confirm-delete-race').textContent = t.confirmButton;
             
             document.getElementById('race-name-input').placeholder = t.raceNamePlaceholder;
+            // Actualizar texto del botón de instalación
+            document.getElementById('install-btn-text').textContent = t.installButton;  
             
             updateTimeLimitDisplay();
             
@@ -2462,6 +2747,21 @@
                     e.target.classList.contains('dorsal-input')) {
                     e.target.select();
                 }
+            });
+            // Eventos para el botón de instalación
+            document.getElementById('install-btn').addEventListener('click', showInstallModal);
+            document.getElementById('installActionBtn').addEventListener('click', handleInstall);
+            document.getElementById('installCancelBtn').addEventListener('click', hideInstallModal);
+            window.addEventListener('click', (e) => {
+                if (e.target === document.getElementById('installModal')) {
+                    hideInstallModal();
+                }
+            });
+
+            // Escuchar evento de instalación PWA
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
             });
         });
 
@@ -3409,6 +3709,160 @@
             updateLanguage(lang) {
                 this.currentLanguage = lang;
                 this.updateTexts();
+            }
+        }
+        // Sistema de instalación de app
+        let deferredPrompt = null;
+        let platform = detectPlatform();
+
+        function detectPlatform() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            
+            if (/iphone|ipad|ipod/.test(userAgent)) {
+                return 'iOS';
+            } else if (/android/.test(userAgent)) {
+                return 'Android';
+            } else if (/windows/.test(userAgent)) {
+                return 'Windows';
+            } else {
+                return 'Other';
+            }
+        }
+
+        function setupInstallModal() {
+            const t = translations[currentLanguage];
+            
+            switch(platform) {
+                case 'iOS':
+                    document.getElementById('installIcon').textContent = '📱';
+                    document.getElementById('instructionsTitle').textContent = t.iosInstructionsTitle;
+                    document.getElementById('instructionsList').innerHTML = t.iosInstructions;
+                    break;
+                case 'Android':
+                    document.getElementById('installIcon').textContent = '🤖';
+                    document.getElementById('instructionsTitle').textContent = t.androidInstructionsTitle;
+                    document.getElementById('instructionsList').innerHTML = t.androidInstructions;
+                    break;
+                case 'Windows':
+                    document.getElementById('installIcon').textContent = '💻';
+                    document.getElementById('instructionsTitle').textContent = t.windowsInstructionsTitle;
+                    document.getElementById('instructionsList').innerHTML = t.windowsInstructions;
+                    break;
+                default:
+                    document.getElementById('installIcon').textContent = '🌐';
+                    document.getElementById('instructionsTitle').textContent = t.otherInstructionsTitle;
+                    document.getElementById('instructionsList').innerHTML = t.otherInstructions;
+            }
+        }
+
+        function showInstallModal() {
+            setupInstallModal();
+            document.getElementById('installModal').style.display = 'flex';
+            const t = translations[currentLanguage];
+            document.getElementById('installMessage').textContent = t.installSubtitle;
+        }
+
+        function hideInstallModal() {
+            document.getElementById('installModal').style.display = 'none';
+        }
+
+        async function handleInstall() {
+            const t = translations[currentLanguage];
+            
+            switch(platform) {
+                case 'iOS':
+                    installIOS();
+                    break;
+                case 'Android':
+                    await installAndroid();
+                    break;
+                case 'Windows':
+                    installWindows();
+                    break;
+                default:
+                    installOther();
+            }
+        }
+
+        function installIOS() {
+            if (navigator.share) {
+                navigator.share({
+                    title: document.title,
+                    text: 'Instalar esta app en mi pantalla de inicio',
+                    url: window.location.href
+                })
+                .then(() => {
+                    document.getElementById('installMessage').textContent = '✅ Ahora selecciona "Añadir a Pantalla de Inicio"';
+                    document.getElementById('installMessage').className = 'install-message install-success';
+                })
+                .catch((error) => {
+                    if (error.name !== 'AbortError') {
+                        document.getElementById('installMessage').textContent = '❌ No se pudo abrir el menú de compartir';
+                        document.getElementById('installMessage').className = 'install-message';
+                    }
+                });
+            } else {
+                document.getElementById('installMessage').textContent = '❌ Tu navegador no soporta esta función';
+                document.getElementById('installMessage').className = 'install-message';
+            }
+        }
+
+        async function installAndroid() {
+            if (deferredPrompt) {
+                try {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    
+                    if (outcome === 'accepted') {
+                        document.getElementById('installMessage').textContent = '✅ App instalada correctamente';
+                        document.getElementById('installMessage').className = 'install-message install-success';
+                        document.getElementById('installActionBtn').style.display = 'none';
+                    } else {
+                        document.getElementById('installMessage').textContent = 'Instalación cancelada';
+                        document.getElementById('installMessage').className = 'install-message';
+                    }
+                    deferredPrompt = null;
+                } catch (error) {
+                    document.getElementById('installMessage').textContent = '❌ Error en la instalación';
+                    document.getElementById('installMessage').className = 'install-message';
+                }
+            } else {
+                document.getElementById('installMessage').textContent = '🔧 Tu navegador soporta instalación PWA';
+                document.getElementById('installMessage').className = 'install-message install-info';
+            }
+        }
+
+        function installWindows() {
+            // Crear y descargar archivo .url para acceso directo
+            const urlContent = `[InternetShortcut]
+        URL=${window.location.href}
+        IconIndex=0
+        IDList=`;
+            
+            const blob = new Blob([urlContent], { type: 'application/internet-shortcut' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${document.title}.url`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            document.getElementById('installMessage').textContent = '✅ Archivo de acceso directo descargado';
+            document.getElementById('installMessage').className = 'install-message install-success';
+        }
+
+        function installOther() {
+            if (navigator.share) {
+                navigator.share({
+                    title: document.title,
+                    text: 'Instalar esta app',
+                    url: window.location.href
+                });
+            } else {
+                document.getElementById('installMessage').textContent = '⭐ Usa el menú de tu navegador para crear un acceso directo';
+                document.getElementById('installMessage').className = 'install-message install-info';
             }
         }
     </script>
