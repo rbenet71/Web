@@ -1453,7 +1453,8 @@
                 cityExamples: "Madrid, Barcelona, Valencia, etc.",
                 locationLabel: "Ubicación:",
                 viewOnMaps: "📍 Ver en Google Maps",
-                locationNotAvailable: "Ubicación no disponible"
+                locationNotAvailable: "Ubicación no disponible",
+                deleteTopConfirm: "¿Estás seguro de que quieres eliminar el tiempo {time}?"
             },
             ca: {
                 appTitle: "Crono Tops",
@@ -1545,7 +1546,8 @@
                 cityExamples: "Madrid, Barcelona, València, etc.",
                 locationLabel: "Ubicació:",
                 viewOnMaps: "📍 Veure a Google Maps",
-                locationNotAvailable: "Ubicació no disponible"
+                locationNotAvailable: "Ubicació no disponible",
+                deleteTopConfirm: "Segur que vols eliminar el temps {time}?"
             },
             en: {
                 appTitle: "Crono Tops",
@@ -1637,7 +1639,8 @@
                 cityExamples: "Madrid, Barcelona, Valencia, etc.",
                 locationLabel: "Location:",
                 viewOnMaps: "📍 View on Google Maps",
-                locationNotAvailable: "Location not available"
+                locationNotAvailable: "Location not available",
+                deleteTopConfirm: "Are you sure you want to delete the time {time}?"
             },
             fr: {
                 appTitle: "Crono Tops",
@@ -1729,7 +1732,8 @@
                 cityExamples: "Madrid, Barcelona, Valencia, etc.",
                 locationLabel: "Emplacement:",
                 viewOnMaps: "📍 Voir sur Google Maps",
-                locationNotAvailable: "Emplacement non disponible"
+                locationNotAvailable: "Emplacement non disponible",
+                deleteTopConfirm: "Êtes-vous sûr de vouloir supprimer le temps {time}?"
             }
         };
 
@@ -2079,7 +2083,7 @@ IDList=`;
             domElements.updateModalTitle.textContent = t.updateModalTitle;
             domElements.updateModalText.textContent = t.updateModalText;
             
-            domElements.copyrightText.innerHTML = `2025 © Copyright <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">Roberto Benet - rbenet71@gmail.com - V_08_12_2025</a>`;
+            domElements.copyrightText.innerHTML = `2025 © Copyright <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">Roberto Benet - rbenet71@gmail.com - V_10_12_2025</a>`;
             
             domElements.helpModalList.innerHTML = '';
             t.helpModalList.forEach(item => {
@@ -2428,13 +2432,50 @@ IDList=`;
             });
             
             setTimeout(() => {
+
+
+
+                // En el setTimeout dentro de renderCronos() (alrededor de línea 1600)
                 document.querySelectorAll('.delete-top').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const cronoIndex = parseInt(this.getAttribute('data-crono-index'));
                         const topIndex = parseInt(this.getAttribute('data-top-index'));
-                        deleteTop(cronoIndex, topIndex);
+                        
+                        // Obtener el tiempo del top para mostrar en el mensaje
+                        const crono = appState.cronos[cronoIndex];
+                        const top = crono.tops[topIndex];
+                        const topTime = formatTime(top.time);
+                        
+                        // Mensaje de confirmación según idioma
+                        const t = translations[appState.currentLanguage];
+                        let confirmMessage;
+                        
+                        switch(appState.currentLanguage) {
+                            case 'es':
+                                confirmMessage = `¿Estás seguro de que quieres eliminar el tiempo ${topTime}?`;
+                                break;
+                            case 'ca':
+                                confirmMessage = `Segur que vols eliminar el temps ${topTime}?`;
+                                break;
+                            case 'en':
+                                confirmMessage = `Are you sure you want to delete the time ${topTime}?`;
+                                break;
+                            case 'fr':
+                                confirmMessage = `Êtes-vous sûr de vouloir supprimer le temps ${topTime}?`;
+                                break;
+                            default:
+                                confirmMessage = `¿Estás seguro de que quieres eliminar el tiempo ${topTime}?`;
+                        }
+                        
+                        if (confirm(confirmMessage)) {
+                            deleteTop(cronoIndex, topIndex);
+                        }
                     });
                 });
+
+
+
+
                 
                 document.querySelectorAll('.top-dorsal input').forEach(input => {
                     input.addEventListener('change', function() {
