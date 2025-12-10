@@ -1613,9 +1613,7 @@
             color: #333;
         }
 
-    </style>
-
-    
+    </style>   
 </head>
 <body>
     <div class="container">
@@ -1982,10 +1980,12 @@
                     <li>Ábrelo para crear el acceso directo en tu escritorio</li>
                 </ol>`,
                 otherInstructionsTitle: "Instalar App",
+                dorsalPlaceholder: "Dorsales",
                 otherInstructions: `<ol style="padding-left: 15px;">
                     <li>Toca el botón "Instalar"</li>
                     <li>Sigue las instrucciones de tu navegador</li>
                 </ol>`
+
             },
             ca: {
                 appTitle: "Cronòmetre per Arribades",
@@ -2078,6 +2078,7 @@
                     <li>Obre'l per crear l'accés directe al teu escriptori</li>
                 </ol>`,
                 otherInstructionsTitle: "Instal·lar App",
+                dorsalPlaceholder: "Dorsals",
                 otherInstructions: `<ol style="padding-left: 15px;">
                     <li>Toca el botó "Instal·lar"</li>
                     <li>Segueix les instruccions del teu navegador</li>
@@ -2173,6 +2174,7 @@
                     <li>Open it to create the shortcut on your desktop</li>
                 </ol>`,
                 otherInstructionsTitle: "Install App",
+                dorsalPlaceholder: "Bibs",
                 otherInstructions: `<ol style="padding-left: 15px;">
                     <li>Tap the "Install" button</li>
                     <li>Follow your browser instructions</li>
@@ -2268,6 +2270,7 @@
                     <li>Ouvrez-le pour créer le raccourci sur votre bureau</li>
                 </ol>`,
                 otherInstructionsTitle: "Installer l'App",
+                dorsalPlaceholder: "Dossards",
                 otherInstructions: `<ol style="padding-left: 15px;">
                     <li>Appuyez sur le botó "Installer"</li>
                     <li>Suivez les instructions de votre navegador</li>
@@ -2715,7 +2718,7 @@
                                                   onclick="startEditingDorsal(${lapIndex})">
                                                 ${lap.dorsales.length > 0 ? 
                                                     `${lap.dorsales.join(', ')}` : 
-                                                    'Asignar'}
+                                                    translations[currentLanguage].dorsalPlaceholder}
                                             </span>
                                         </div>
                                     `}
