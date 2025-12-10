@@ -1362,24 +1362,38 @@
             
             /* Responsive para cortes */
             .lap-row {
+
                 flex-direction: row;
                 gap: 40px;
                 min-height: auto;
-
                 align-items: center; /* Alinear verticalmente */
-                padding: 0 20px; /* Espacio interno general */
+                padding: 0 40px; /* Espacio interno general */
             }
             /* SEPARAR DE LA IZQUIERDA */
             .lap-time-wrapper {
                 flex: 1; /* Ocupa espacio disponible */
                 padding-left: 10px; /* Separación del borde izquierdo */
                 margin-right: 20px; /* Separación del contenedor derecho */
+                
             }
 
             .lap-time-full {
-                font-size: 1.3rem;
+                font-size: 1.1rem;
                 text-align: left;
                 white-space: nowrap; /* Evitar que el tiempo se rompa */
+            }
+            .lap-number-inline {
+                font-weight: bold;
+                color: var(--secondary-color);
+                font-size: 0.7rem;
+            }
+            .dorsal-seconds {
+                font-size: 0.5rem;
+                color: #95a5a6;
+            }
+            .lap-dorsal {
+                font-size: 0.5rem;
+                text-align: start;
             }
             
             .lap-controls-wrapper {
@@ -1432,7 +1446,7 @@
             
             /* Responsive para cortes en móviles pequeños */
             .lap-time-full {
-                font-size: 1.3rem;
+                font-size: 0.8rem;
             }
             
             .lap-controls-single-line {
