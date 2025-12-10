@@ -351,6 +351,7 @@
 
         .tops-list {
             margin-top: 30px;
+            font-size: 12px;
         }
 
         .tops-list h3 {
@@ -358,7 +359,7 @@
             color: var(--dark);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 5px;
         }
 
         /* Nuevo diseño para tops */
@@ -405,7 +406,6 @@
 
         .top-diff {
             color: var(--accent);
-            font-weight: 600;
             font-variant-numeric: tabular-nums;
             font-size: 16px;
             min-width: 90px;
@@ -1128,9 +1128,13 @@
                 justify-content: flex-start;
                 width: auto;
             }
-            
-            .top-time, .top-diff {
+            .top-time {
                 font-size: 14px;
+                min-width: 70px;
+            }
+            
+            .top-diff {
+                font-size: 12px;
                 min-width: 70px;
             }
         }
