@@ -3390,6 +3390,7 @@ IDList=`;
             downloadKMLFile(kmlContent);
         }
 
+        
         function createKMLContent() {
             const now = new Date();
             const dateStr = now.toISOString().split('T')[0];
@@ -3421,31 +3422,55 @@ IDList=`;
                 <LabelStyle>
                     <scale>0.8</scale>
                 </LabelStyle>
+            </Style>
+            <Style id="routeStyle">
+                <LineStyle>
+                    <color>ff3498db</color>
+                    <width>3</width>
+                </LineStyle>
             </Style>`;
             
             // Procesar cada cronómetro
             appState.cronos.forEach((crono, cronoIndex) => {
                 if (!crono.location && crono.tops.length === 0) return;
                 
+                // Crear nombres mejorados
+                const cronoNumber = cronoIndex + 1;
+                const cronoName = crono.name || `Top ${crono.id}`;
+                const folderName = `Crono ${cronoNumber} - ${cronoName}`;
+                
                 // Añadir folder para este cronómetro
                 kml += `
             <Folder>
-                <name>${crono.name || `Crono ${cronoIndex + 1}`}</name>
-                <description>Cronómetro: ${crono.name}<br/>ID: ${crono.id}</description>`;
+                <name>${folderName}</name>
+                <description>
+                    <![CDATA[
+                    <div style="font-family: Arial; padding: 10px;">
+                        <h3>${folderName}</h3>
+                        <p><strong>ID:</strong> ${crono.id || 'N/A'}</p>
+                        <p><strong>Tops registrados:</strong> ${crono.tops.length}</p>
+                        <p><strong>Hora inicio:</strong> ${crono.startTime ? new Date(crono.startTime).toLocaleString() : 'No iniciado'}</p>
+                        <p><strong>Estado:</strong> ${crono.isRunning ? 'En ejecución' : 'Detenido'}</p>
+                        <p><strong>Última actualización:</strong> ${crono.lastUpdateTime ? new Date(crono.lastUpdateTime).toLocaleTimeString() : 'N/A'}</p>
+                    </div>
+                    ]]>
+                </description>`;
                 
                 // Punto de inicio (si existe)
                 if (crono.location && !crono.location.error) {
                     const startTime = crono.startTime ? 
                         new Date(crono.startTime).toLocaleTimeString() : 'No iniciado';
                     
+                    const startPointName = `INICIO - ${cronoName}`;
+                    
                     kml += `
                 <Placemark>
-                    <name>INICIO - ${crono.name}</name>
+                    <name>${startPointName}</name>
                     <description>
                         <![CDATA[
                         <div style="font-family: Arial; padding: 10px;">
                             <h3 style="color: #27ae60;">PUNTO DE INICIO</h3>
-                            <p><strong>Crono:</strong> ${crono.name}</p>
+                            <p><strong>Crono:</strong> ${folderName}</p>
                             <p><strong>Hora inicio:</strong> ${startTime}</p>
                             <p><strong>Coordenadas:</strong><br/>
                             ${crono.location.lat.toFixed(6)}°, ${crono.location.lng.toFixed(6)}°</p>
@@ -3471,16 +3496,19 @@ IDList=`;
                     const timeStr = formatTime(top.time);
                     const diffStr = top.diff ? formatTime(top.diff) : 'N/A';
                     
+                    // Crear el nombre con dorsales si existen
+                    const pointName = `TOP ${topNumber} - ${timeStr}${top.dorsal && top.dorsal.trim() !== '' ? ` (Dorsal: ${top.dorsal})` : ''}`;
+                    
                     kml += `
                 <Placemark>
-                    <name>TOP ${topNumber} - ${timeStr}</name>
+                    <name>${pointName}</name>
                     <description>
                         <![CDATA[
                         <div style="font-family: Arial; padding: 10px;">
-                            <h3 style="color: #e74c3c;">TOP ${topNumber}</h3>
-                            <p><strong>Crono:</strong> ${crono.name}</p>
-                            <p><strong>Tiempo total:</strong> ${timeStr}</p>
-                            <p><strong>Diferencia:</strong> ${diffStr}</p>
+                            <h3 style="color: #e74c3c;">${pointName}</h3>
+                            <p><strong>Crono:</strong> ${folderName}</p>
+                            <p><strong>Tiempo total desde inicio:</strong> ${timeStr}</p>
+                            <p><strong>Diferencia con anterior:</strong> ${diffStr}</p>
                             <p><strong>Dorsal:</strong> ${top.dorsal || 'No asignado'}</p>
                             <p><strong>Coordenadas:</strong><br/>
                             ${top.location.lat.toFixed(6)}°, ${top.location.lng.toFixed(6)}°</p>
@@ -3497,7 +3525,7 @@ IDList=`;
                 
                 // Añadir ruta si hay múltiples puntos
                 if (crono.location && !crono.location.error && crono.tops.length > 0) {
-                    kml += createRoutePlacemark(crono, cronoIndex);
+                    kml += createRoutePlacemark(crono, folderName, cronoName);
                 }
                 
                 kml += `
@@ -3511,54 +3539,52 @@ IDList=`;
             return kml;
         }
 
-        function createRoutePlacemark(crono, cronoIndex) {
-            let coordinates = '';
-            
-            // Punto de inicio
-            if (crono.location && !crono.location.error) {
-                coordinates += `${crono.location.lng},${crono.location.lat},0\n`;
-            }
-            
-            // Tops en orden cronológico
-            const orderedTops = [...crono.tops].reverse();
-            
-            orderedTops.forEach(top => {
-                if (top.location && !top.location.error) {
-                    coordinates += `${top.location.lng},${top.location.lat},0\n`;
-                }
-            });
-            
-            if (!coordinates.trim()) return '';
-            
-            return `
-                <Placemark>
-                    <name>Ruta - ${crono.name}</name>
-                    <description>
-                        <![CDATA[
-                        <div style="font-family: Arial; padding: 10px;">
-                            <h3 style="color: #3498db;">RUTA COMPLETA</h3>
-                            <p><strong>Crono:</strong> ${crono.name}</p>
-                            <p><strong>Total puntos:</strong> ${(crono.location ? 1 : 0) + crono.tops.filter(t => t.location && !t.location.error).length}</p>
-                        </div>
-                        ]]>
-                    </description>
-                    <Style>
-                        <LineStyle>
-                            <color>ff3498db</color>
-                            <width>3</width>
-                        </LineStyle>
-                        <PolyStyle>
-                            <color>1a3498db</color>
-                        </PolyStyle>
-                    </Style>
-                    <LineString>
-                        <tessellate>1</tessellate>
-                        <coordinates>
-        ${coordinates.trim()}
-                        </coordinates>
-                    </LineString>
-                </Placemark>`;
+        
+        function createRoutePlacemark(crono, folderName, cronoName) {
+    let coordinates = '';
+    
+    // Punto de inicio
+    if (crono.location && !crono.location.error) {
+        coordinates += `${crono.location.lng},${crono.location.lat},0\n`;
+    }
+    
+    // Tops en orden cronológico
+    const orderedTops = [...crono.tops].reverse();
+    
+    orderedTops.forEach(top => {
+        if (top.location && !top.location.error) {
+            coordinates += `${top.location.lng},${top.location.lat},0\n`;
         }
+    });
+    
+    if (!coordinates.trim()) return '';
+    
+    // Contar dorsales asignados
+    const dorsalesAsignados = crono.tops.filter(top => top.dorsal && top.dorsal.trim() !== '').length;
+    
+    return `
+        <Placemark>
+            <name>RUTA - ${cronoName}</name>
+            <description>
+                <![CDATA[
+                <div style="font-family: Arial; padding: 10px;">
+                    <h3 style="color: #3498db;">RUTA COMPLETA</h3>
+                    <p><strong>Crono:</strong> ${folderName}</p>
+                    <p><strong>Puntos totales:</strong> ${(crono.location ? 1 : 0) + crono.tops.filter(t => t.location && !t.location.error).length}</p>
+                    <p><strong>Dorsales registrados:</strong> ${dorsalesAsignados} de ${crono.tops.length}</p>
+                    <p><strong>Tiempo máximo registrado:</strong> ${crono.tops.length > 0 ? formatTime(crono.tops[0].time) : 'N/A'}</p>
+                </div>
+                ]]>
+            </description>
+            <styleUrl>#routeStyle</styleUrl>
+            <LineString>
+                <tessellate>1</tessellate>
+                <coordinates>
+${coordinates.trim()}
+                </coordinates>
+            </LineString>
+        </Placemark>`;
+}
 
         function downloadKMLFile(kmlContent) {
             const now = new Date();
@@ -3579,11 +3605,6 @@ IDList=`;
             const t = translations[appState.currentLanguage];
             showMessage("✅ KML generado y descargado", "success");
         }
-
-
-
-
-
 
 
         // Método alternativo para navegadores sin Wake Lock API
