@@ -1274,6 +1274,11 @@
         }
         
         @media (max-width: 768px) {
+            .install-app-btn {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+                min-width: 112px;
+            }
             .chrono-display {
                 min-height: 120px;
                 padding: 12px;
@@ -1357,17 +1362,30 @@
             
             /* Responsive para cortes */
             .lap-row {
-                flex-direction: column;
-                gap: 12px;
+                flex-direction: row;
+                gap: 40px;
                 min-height: auto;
+
+                align-items: center; /* Alinear verticalmente */
+                padding: 0 20px; /* Espacio interno general */
             }
-            
+            /* SEPARAR DE LA IZQUIERDA */
+            .lap-time-wrapper {
+                flex: 1; /* Ocupa espacio disponible */
+                padding-left: 10px; /* Separación del borde izquierdo */
+                margin-right: 20px; /* Separación del contenedor derecho */
+            }
+
             .lap-time-full {
-                font-size: 1.5rem;
+                font-size: 1.3rem;
+                text-align: left;
+                white-space: nowrap; /* Evitar que el tiempo se rompa */
             }
             
             .lap-controls-wrapper {
-                width: 100%;
+                width: 150px;
+                min-width: 140px;
+                flex-shrink: 0; /* No se encoja demasiado */
             }
             
             .icon-btn-small {
@@ -1378,6 +1396,18 @@
         }
         
         @media (max-width: 480px) {
+            .install-app-btn {
+                padding: 7px 14px;
+                font-size: 0.8rem;
+                min-width: 104px;
+            }
+            .suggestions-close-btn {
+                top: 8px;
+                right: 8px;
+                font-size: 18px;
+                width: 20px;
+                height: 20px;
+            }
             .app-icon {
                 width: 48px;
                 height: 48px;
@@ -1557,21 +1587,6 @@
             color: #ecf0f1;
         }
 
-        @media (max-width: 768px) {
-            .install-app-btn {
-                padding: 8px 16px;
-                font-size: 0.85rem;
-                min-width: 112px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .install-app-btn {
-                padding: 7px 14px;
-                font-size: 0.8rem;
-                min-width: 104px;
-            }
-        }
         
         /* Botón de cerrar en la esquina del modal de sugerencias */
         .suggestions-close-btn {
@@ -1598,16 +1613,6 @@
             color: #333;
         }
 
-        /* Responsive para móviles */
-        @media (max-width: 480px) {
-            .suggestions-close-btn {
-                top: 8px;
-                right: 8px;
-                font-size: 18px;
-                width: 20px;
-                height: 20px;
-            }
-        }
     </style>
 
     
