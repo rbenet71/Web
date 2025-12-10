@@ -2578,10 +2578,28 @@ IDList=`;
             if (milliseconds < 0) return "00:00";
             
             const totalSeconds = Math.floor(milliseconds / 1000);
-            const minutes = Math.floor(totalSeconds / 60);
-            const seconds = totalSeconds % 60;
             
-            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            // Menos de 60 segundos: mostrar solo segundos
+            if (totalSeconds < 60) {
+                return `${totalSeconds}s`; // 10s
+            }
+            
+            // Menos de 3600 segundos: mostrar minutos:segundos con 2 dígitos para segundos
+            else if (totalSeconds < 3600) {
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                return `${minutes}m${seconds.toString().padStart(2, '0')}s`; // 2m05s
+            }
+            
+            // 3600 segundos o más: mostrar horas:minutos:segundos con 2 dígitos
+            else {
+                const hours = Math.floor(totalSeconds / 3600);
+                const remainingSeconds = totalSeconds % 3600;
+                const minutes = Math.floor(remainingSeconds / 60);
+                const seconds = remainingSeconds % 60;
+                
+                return `${hours}h${minutes.toString().padStart(2, '0')}m${seconds.toString().padStart(2, '0')}s`; // 1h02m03s
+            }
         }
 
         // Storage functions

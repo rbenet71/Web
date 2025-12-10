@@ -48,3 +48,6 @@ El numero de crono al crearse ha de ser el numero siguiente al crono que existe 
 el texto dorsal: quitalo
 
 y ademas que los tops se muevan con scroll para que siempre se vea el tiempo del crono
+
+
+formato de tiempo quier que sea si el tiempo es menor de 60segundos 10s, menos de 3600segundos 2m05s, mas de 3599 1h02m03s
