@@ -1,0 +1,76 @@
+Crono Cuenta Atrás
+
+Quiero crear un cronómetro que vaya haciendo una cuenta atrás, y mientras lo hace va mostrando el tiempo que falta, durante ese tiempo todo el fondo de pantalla es rojo, cuando faltan 10 segundos, se pone fondo naranja y hace un zumbido agudo, cuando faltan 5 segundos se poner a parpadear y hacer un zumbido cada segundo (sigue fondo naranjan) y cuando se llega al cero  se hace otro zumbido grave diferente a los anteriores y muestra durante dos segundo la palabra salida en fondo verda, esos dos segundos se le deberá restar al tiempo al que saldrá el siguiente corredor.
+
+Quiero aprovechar de Crono_Tops las siguientes funciones:
+- Idiomas
+- Actualización/sugerencias
+- Actualización automática app
+- PWA
+- Ayuda, 
+- Reloj no necesito milesimas
+- Mismo texto copyright
+- Boton instalar App
+- La funcion - function keepScreenAwakeAlternative()
+
+La idea es proyectar o no la app a una pantalla externa, desde un portátil, tablet o teléfono móvil.
+
+El diseño lo veo una primera pantalla presentacion y configuración, y cuando se pone en marcha, ejecución.
+
+La pantalla de presentacion ha de ser 
+
+Línea 1 - pinto aplicación y título Crono Cuenta Atrás
+Línea 2 - interrogante ayuda e opciones de idiomas
+Línea 3 - gestion carreras, combo selección, nueva carrera y eliminar carrera
+Línea 4 - cadencia de salida 
+Opción 1 - siempre la misma - definir minutos y segundos, por defecto un minuto
+Opción 2 - varios tramos según el número de salidas dadas (corredores). del corredor A al corredor B cada x min, del c al d x min..
+
+Línea 5 - iniciar cuenta atrás desde 0 o desde posición X ( x será el número de corredores que ya han salido)
+Línea 6 - listado de horas de salida ( cada vez que se da a iniciar se alacena la hora en un listado)
+Línea 7 - execel de salida, se crea un Excel en que diga cada corredor ha que hora a salido.
+Línea 6 - ayuda
+Línea 7 - sugerencias
+Línea 8 - copyright 
+
+La pantalla de ejecución ha de estar pensado en que funcione apaisada, es una pantalla responsible con sólo un fondo el reloj de cuenta atrás y un pictograma pequeño de configuración en la parte superior derecha, en la esquina inferior derecha habrá un número pequeño con el número de corredores salidos, y en la esquina inferior izquierda el siguiente corredor a cuánto tiempo va a salir. En la esquina superior izquierda el tiempo total desde que se inició la carrera (hora actual- hora inicio) el tiempo de cuenta atrás ha de estar centrado vertical y horizontalmente. Si haces doble click sobre el número de corredores o el próximo tiempo de salida lo podrás modificar.
+
+El programa ha de ir haciendo la cuenta atrás y cada vez que llegue a cero, aumenta el contador de corredores salidos y mira según ese número con que diferencia de tiempo va a salir el corredor.
+Si durante la ejecución se da al pictó de configuración el crono no ha de parar y la cuenta atrás sigue.
+
+——-
+Obligatorio seleccionar una carrera
+Texto próximo en por Próximo Sale a: y a de ser modificable al hacer un click sobre el.
+Salidos ha de ser modificable al hacer un click sobre el.
+Limpiar lista salidos no borra porque no veo el mensaje de confirmación
+El tiempo de cuenta atrás ha de ser la diferencia entre la hora actual-tiempo de salida y hora de salida (así si sales de la app los tiempos no se modifican/paran
+Los tiempos por varios tramos no funciona, siempre hace 1 minuto, más los segundos indicados en el primer tramo, el segundo tramo si lo hace bien
+Cuando el tiempo que falta es menor a un minuto, solo mostrar los segundos
+Hacer que la pantalla no se apague
+
+
+Con la primera salida el fondo no sale rojo.
+El cuadrado superior derecha con el nombre de la prueba no tiene que salir
+El texto proxima salida ponlo encima del tiempo
+El parpadeo de los 5 ultimos segundos, que sea cada segundo tambien
+El numero 0 no ha de aparecer
+Esos 2 segundos que se muestra se han de restar del tiempo que durará la siguiente cuenta atras.
+El contador de tiempo total de carrera ha de ser la diferencia entre la hora actual y la hora de inicio.
+Al apretar el signo de configuración el reloj ha de seguir con su cuenta atras y ha de haber la opción de seguir con ese 
+
+
+
+En la configuracion de tramo que el cuadro de x a x este en la misma fila y en la siguiente cada x minutos y x segundos
+
+cuando se pone salida el 1 no debe aparecer detrás, cuando digo que restes dos segundos, es para que lo restes al numero de la cuenta atras, no en el tiempo del proximo corredor. Cuando hago click en la cofiguracion el tiempo de la cuenta atras se para (el tiempo de la cuenta atras ha de ser la hora de inicio+tiempo acumulado+ el tiempo que tiene que salir - hora actual . 
+
+No oigo los pitidos que pedi
+Al hacer click en configuracion no se abre la opcion de configurar que tenia antes
+Cuando quiero modificar el tiempo del proximo corredor, la edición no se mantiene y no puedo modificarlo, salidos si que puedo bien. 
+al detener el tiempo o marcharse de la cuenta atras, se ha de reiniciar el tiempo acumulado
+al hacer por tramos guardar los datos por si el usuario quiere volver a usuarlo. 
+boton cuenta atras despues del apartado de definir desde que corredor se inicia la cuenta atras
+modificar picto por C:\Roberto\Visual_Studio_Code\Rbenet\Web\Crono_cuenta_atras_192_192.png
+crea el fichero manifest
+cuando parpadea porque faltan menos de 5 segundos, que solo parpadee el fondo, los numeros fijos
+

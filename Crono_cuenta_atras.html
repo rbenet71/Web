@@ -3,1169 +3,2792 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crono Cuenta Atrás</title>
+    <title>Crono Cuenta Atrás - Control de Salidas para Carreras</title>
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CV925PMBQV"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-CV925PMBQV');
+    </script>
+
+    <!-- Iconos -->
+    <link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_Tops_192x192.png">
+    <link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_Tops_192x192.png">
+    
+    <!-- PWA -->
+    <meta name="theme-color" content="#e74c3c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Crono Cuenta Atrás">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
+    
     <style>
-        :root {
-            --primary-color: #2ecc71;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-            --dark-color: #2c3e50;
-            --light-color: #ecf0f1;
-            --transition-speed: 0.3s;
-        }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
-        body {
-            background-color: var(--dark-color);
-            color: var(--light-color);
-            overflow-x: hidden;
-            transition: background-color 0.5s;
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --gray: #95a5a6;
+            --light-gray: #f8f9fa;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --red-bg: #e74c3c;
+            --orange-bg: #f39c12;
+            --green-bg: #27ae60;
         }
-        
-        /* Pantalla de configuración */
-        #config-screen {
+
+        body {
+            background-color: var(--light);
+            color: #333;
+            line-height: 1.6;
             min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
+            transition: background-color 0.5s ease;
+        }
+
+        /* Estados de cuenta atrás */
+        body.countdown-normal {
+            background-color: var(--red-bg) !important;
+        }
+
+        body.countdown-warning {
+            background-color: var(--orange-bg);
+            animation: pulse-orange 1s infinite;
+        }
+
+        body.countdown-critical {
+            background-color: var(--orange-bg);
+            animation: blink 1s infinite;
+        }
+
+        body.countdown-salida {
+            background-color: var(--green-bg);
+        }
+
+        /* CORRECCIÓN: Ocultar número detrás de SALIDA */
+        .countdown-screen.countdown-salida-active .countdown-display {
+            visibility: hidden !important;
+        }
+
+        @keyframes pulse-orange {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.9; }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 0 15px;
         }
-        
-        .header {
+
+        /* Header */
+        .app-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--primary-color);
+            flex-wrap: wrap;
         }
-        
+
         .app-title {
-            font-size: 2.8rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            text-align: center;
-            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        
-        .help-icon {
-            font-size: 1.8rem;
-            color: var(--light-color);
+
+        .app-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 2px solid var(--secondary);
+        }
+
+        .app-title h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .languages-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .flag {
+            width: 30px;
+            height: 20px;
             cursor: pointer;
-            transition: color var(--transition-speed);
+            opacity: 0.6;
+            transition: all 0.3s;
+            border: 1px solid #ccc;
+            border-radius: 3px;
         }
-        
-        .help-icon:hover {
-            color: var(--primary-color);
+
+        .flag:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
         }
-        
+
+        .flag.active {
+            opacity: 1;
+            border: 2px solid var(--secondary);
+            transform: scale(1.1);
+        }
+
+        .flag-catalunya {
+            background: linear-gradient(
+                to bottom,
+                #ffcd00 0%, #ffcd00 10%,
+                #da121a 10%, #da121a 20%,
+                #ffcd00 20%, #ffcd00 30%,
+                #da121a 30%, #da121a 40%,
+                #ffcd00 40%, #ffcd00 50%,
+                #da121a 50%, #da121a 60%,
+                #ffcd00 60%, #ffcd00 70%,
+                #da121a 70%, #da121a 80%,
+                #ffcd00 80%, #ffcd00 90%,
+                #da121a 90%, #da121a 100%
+            );
+        }
+
+        /* Pantalla de Configuración */
+        .config-screen {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+
         .config-line {
             display: flex;
             align-items: center;
-            margin: 15px 0;
+            margin-bottom: 20px;
             padding: 15px;
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: var(--light-gray);
             border-radius: 8px;
-            flex-wrap: wrap;
+            border-left: 4px solid var(--secondary);
         }
-        
-        .line-label {
+
+        .config-line label {
+            min-width: 250px;
             font-weight: 600;
-            font-size: 1.1rem;
-            min-width: 200px;
+            color: var(--dark);
             margin-right: 20px;
         }
-        
-        .line-content {
-            flex-grow: 1;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        select, input, button {
+
+        .config-input, .config-select {
+            flex: 1;
             padding: 10px 15px;
-            border-radius: 5px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background-color: rgba(0, 0, 0, 0.3);
-            color: var(--light-color);
-            font-size: 1rem;
-            min-width: 150px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
         }
-        
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background-color var(--transition-speed);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+
+        .config-input:focus, .config-select:focus {
+            outline: none;
+            border-color: var(--secondary);
         }
-        
-        button:hover {
-            background-color: #27ae60;
-        }
-        
-        .btn-secondary {
-            background-color: #7f8c8d;
-        }
-        
-        .btn-secondary:hover {
-            background-color: #95a5a6;
-        }
-        
-        .btn-danger {
-            background-color: var(--danger-color);
-        }
-        
-        .btn-danger:hover {
-            background-color: #c0392b;
-        }
-        
-        .btn-warning {
-            background-color: var(--warning-color);
-        }
-        
-        .btn-warning:hover {
-            background-color: #e67e22;
-        }
-        
-        .time-input {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .time-input input {
-            width: 80px;
+
+        .small-input {
+            width: 100px;
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
             text-align: center;
         }
-        
-        .cadence-option {
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Gestión de intervalos */
+        .interval-management {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: white;
+            border: 2px solid #eee;
+            border-radius: 8px;
+        }
+
+        .interval-row {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin: 5px 0;
-        }
-        
-        .cadence-option input[type="radio"] {
-            width: 20px;
-            height: 20px;
-            min-width: auto;
-        }
-        
-        .cadence-details {
-            margin-left: 30px;
+            gap: 15px;
+            margin-bottom: 10px;
             padding: 10px;
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
-            width: 100%;
-            margin-top: 10px;
+            background-color: var(--light-gray);
+            border-radius: 6px;
         }
-        
-        .cadence-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 8px 0;
-            flex-wrap: wrap;
+
+        .interval-row span {
+            min-width: 120px;
+            font-weight: 500;
         }
-        
-        .cadence-row input {
-            width: 80px;
-        }
-        
+
+        /* Lista de salidas */
         .departure-list {
             max-height: 200px;
             overflow-y: auto;
+            margin-top: 10px;
+            border: 2px solid #eee;
+            border-radius: 8px;
             padding: 10px;
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
-            width: 100%;
         }
-        
+
         .departure-item {
-            padding: 8px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-variant-numeric: tabular-nums;
         }
-        
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+        .departure-item:last-child {
+            border-bottom: none;
         }
-        
-        .footer-link {
-            color: var(--light-color);
-            text-decoration: none;
-            transition: color var(--transition-speed);
-        }
-        
-        .footer-link:hover {
-            color: var(--primary-color);
-        }
-        
-        /* Pantalla de ejecución */
-        #execution-screen {
+
+        /* Pantalla de Ejecución */
+        .countdown-screen {
             display: none;
-            height: 100vh;
-            width: 100vw;
-            flex-direction: column;
-            position: relative;
-            transition: background-color 0.5s;
-        }
-        
-        .execution-header {
-            display: flex;
-            justify-content: space-between;
-            padding: 20px;
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            z-index: 10;
+            width: 100%;
+            height: 100vh;
+            z-index: 1000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.5s ease;
         }
-        
-        .execution-footer {
+
+        .countdown-screen.active {
             display: flex;
-            justify-content: space-between;
-            padding: 20px;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 10;
         }
-        
-        .timer-display {
+
+        .countdown-display {
+            font-size: 30vw;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            font-variant-numeric: tabular-nums;
+            margin: 0;
+            line-height: 1;
+            text-align: center;
+        }
+
+        .countdown-label {
+            font-size: 8vw;
+            color: white;
+            text-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2vw;
+            text-align: center;
+            font-weight: 600;
+            position: absolute;
+            top: 20%;
+            width: 100%;
+        }
+
+        /* Elementos de información en pantalla */
+        .info-corner {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 1.5vw;
+            min-width: 200px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .info-corner:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .top-left {
+            top: 30px;
+            left: 30px;
+        }
+
+        .bottom-left {
+            bottom: 30px;
+            left: 30px;
+        }
+
+        .bottom-right {
+            bottom: 30px;
+            right: 30px;
+        }
+
+        .info-label {
+            font-size: 0.9vw;
+            opacity: 0.8;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .info-value {
+            font-size: 2vw;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Icono de configuración */
+        .config-toggle {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            z-index: 1001;
+        }
+
+        .config-toggle:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+            transform: scale(1.1) rotate(90deg);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Display de SALIDA */
+        .salida-display {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: 20vw;
             font-weight: 900;
-            text-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+            color: white;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1002;
+        }
+
+        .salida-display.show {
+            opacity: 1;
+        }
+
+        /* Footer */
+        .app-footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 25px 0;
+            margin-top: 40px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             transition: all 0.3s;
         }
-        
-        .config-icon {
-            font-size: 2rem;
+
+        .footer-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .copyright {
             color: rgba(255, 255, 255, 0.7);
-            cursor: pointer;
-            transition: all var(--transition-speed);
+            font-size: 14px;
         }
-        
-        .config-icon:hover {
-            color: white;
-            transform: scale(1.1);
+
+        .copyright a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: bold;
         }
-        
-        .info-box {
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 1.5rem;
-            font-weight: 600;
-            min-width: 150px;
-            text-align: center;
-            cursor: pointer;
-            transition: background-color var(--transition-speed);
+
+        .copyright a:hover {
+            text-decoration: underline;
         }
-        
-        .info-box:hover {
-            background-color: rgba(0, 0, 0, 0.7);
-        }
-        
-        .info-label {
-            font-size: 0.9rem;
-            font-weight: normal;
-            opacity: 0.8;
-            margin-bottom: 5px;
-        }
-        
-        /* Modal de configuración en ejecución */
-        .modal-overlay {
+
+        /* Modal */
+        .modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
+            width: 100%;
+            height: 100%;
             background-color: rgba(0, 0, 0, 0.7);
-            z-index: 100;
-            justify-content: center;
+            z-index: 2000;
             align-items: center;
+            justify-content: center;
         }
-        
+
+        .modal.active {
+            display: flex;
+        }
+
         .modal-content {
-            background-color: var(--dark-color);
-            padding: 30px;
-            border-radius: 10px;
+            background-color: white;
+            border-radius: 15px;
             max-width: 500px;
             width: 90%;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
-        
-        .modal-title {
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-            color: var(--primary-color);
-            text-align: center;
-        }
-        
-        .modal-buttons {
+
+        .modal-header {
+            padding: 25px;
+            border-bottom: 2px solid #eee;
             display: flex;
             justify-content: space-between;
-            margin-top: 30px;
+            align-items: center;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .modal-header h3 {
+            color: white;
+            font-size: 24px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: white;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 2px solid #eee;
+            display: flex;
+            justify-content: flex-end;
             gap: 15px;
         }
-        
-        /* Efectos de cuenta atrás */
-        .normal-bg {
-            background-color: var(--primary-color);
+
+        /* Mensajes */
+        .message {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            padding: 20px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 3000;
+            max-width: 350px;
+            animation: slideIn 0.3s ease;
+            backdrop-filter: blur(10px);
         }
-        
-        .warning-bg {
-            background-color: var(--warning-color);
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
-        
-        .danger-bg {
-            background-color: var(--danger-color);
+
+        .message.success {
+            background-color: rgba(39, 174, 96, 0.9);
+            border-left: 5px solid #27ae60;
         }
-        
-        .blink {
-            animation: blink 1s infinite;
+
+        .message.error {
+            background-color: rgba(231, 76, 60, 0.9);
+            border-left: 5px solid #c0392b;
         }
-        
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+
+        .message.warning {
+            background-color: rgba(243, 156, 18, 0.9);
+            border-left: 5px solid #e67e22;
         }
-        
-        .exit-text {
-            font-size: 15vw;
-            text-align: center;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 20;
-            background-color: rgba(0, 0, 0, 0.8);
-            padding: 40px;
-            border-radius: 20px;
+
+        .message.info {
+            background-color: rgba(52, 152, 219, 0.9);
+            border-left: 5px solid #2980b9;
         }
-        
+
         /* Responsive */
         @media (max-width: 768px) {
             .config-line {
                 flex-direction: column;
                 align-items: flex-start;
+                gap: 10px;
             }
             
-            .line-label {
-                margin-bottom: 10px;
+            .config-line label {
+                min-width: 100%;
+                margin-right: 0;
             }
             
-            .timer-display {
-                font-size: 25vw;
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
             }
             
-            .info-box {
-                font-size: 1.2rem;
+            .footer-left {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .countdown-display {
+                font-size: 40vw;
+            }
+            
+            .countdown-label {
+                font-size: 10vw;
+                top: 15%;
+            }
+            
+            .info-corner {
+                min-width: 150px;
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            
+            .info-value {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .config-screen {
+                padding: 20px;
+            }
+            
+            .config-line {
+                padding: 12px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .countdown-display {
+                font-size: 50vw;
+            }
+            
+            .countdown-label {
+                font-size: 12vw;
+                top: 10%;
+            }
+            
+            .info-corner {
                 min-width: 120px;
-                padding: 8px 15px;
-            }
-            
-            .app-title {
-                font-size: 2rem;
-            }
-            
-            .footer-links {
-                flex-wrap: wrap;
-                gap: 15px;
+                padding: 10px 15px;
+                font-size: 12px;
             }
         }
-        
-        @media (max-height: 600px) {
-            .timer-display {
-                font-size: 15vh;
-            }
-            
-            .execution-header, .execution-footer {
-                padding: 10px;
-            }
-        }
-        
-        /* Pantalla de ayuda */
-        .help-screen {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--dark-color);
-            z-index: 200;
-            padding: 30px;
-            overflow-y: auto;
-        }
-        
-        .help-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .help-title {
-            font-size: 2.5rem;
-            color: var(--primary-color);
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        
-        .help-section {
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .help-section h3 {
-            color: var(--warning-color);
-            margin-bottom: 15px;
-            font-size: 1.5rem;
-        }
-        
-        .help-section p {
-            line-height: 1.6;
-            margin-bottom: 10px;
-        }
-        
-        .close-help {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 2rem;
-            color: var(--light-color);
+
+        /* Editor inline */
+        .inline-edit {
             cursor: pointer;
-            transition: color var(--transition-speed);
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
         }
-        
-        .close-help:hover {
-            color: var(--primary-color);
+
+        .inline-edit:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .inline-edit-input {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: inherit;
+            font-weight: inherit;
+            text-align: center;
+            width: 100%;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        /* Ocultar elementos en pantalla de ejecución */
+        .hide-on-countdown {
+            transition: opacity 0.3s;
+        }
+
+        .countdown-screen.active ~ .hide-on-countdown {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Modal de configuración durante cuenta atrás */
+        .config-modal-during-countdown {
+            background-color: rgba(0, 0, 0, 0.8) !important;
+            z-index: 2001 !important;
+        }
+
+        .config-modal-during-countdown .modal-content {
+            background-color: var(--primary) !important;
+            color: white !important;
+        }
+
+        .config-modal-during-countdown .btn {
+            margin: 5px;
+        }
+
+        .modal-buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <!-- Pantalla de configuración -->
-    <div id="config-screen">
-        <div class="header">
-            <div class="app-title">Crono Cuenta Atrás</div>
-            <div class="help-icon" id="help-icon">
-                <i class="fas fa-question-circle"></i>
+    <!-- Pantalla de Configuración -->
+    <header class="app-header hide-on-countdown">
+        <div class="container">
+            <div class="header-content">
+                <div class="app-title">
+                    <img src="https://rbenet71.github.io/Web/Crono_Tops_192x192.png" 
+                         alt="Logo Crono Cuenta Atrás" 
+                         class="app-logo">
+                    <h1 id="app-title-text">Crono Cuenta Atrás</h1>
+                </div>
+                <div class="header-controls">
+                    <div class="language-selector">
+                        <div class="languages-label" id="languages-label">Idioma / Language</div>
+                        <img src="https://flagcdn.com/w40/es.png" class="flag active" id="flag-es" data-lang="es">
+                        <div class="flag flag-catalunya" id="flag-ca" data-lang="ca"></div>
+                        <img src="https://flagcdn.com/w40/gb.png" class="flag" id="flag-en" data-lang="en">
+                        <img src="https://flagcdn.com/w40/fr.png" class="flag" id="flag-fr" data-lang="fr">
+                        <i class="fas fa-question-circle help-icon" id="help-icon-header" title="Ayuda"></i>
+                    </div>
+                </div>
             </div>
         </div>
-        
-        <!-- Línea 3: Gestión de carreras -->
-        <div class="config-line">
-            <div class="line-label">Gestión de carreras:</div>
-            <div class="line-content">
-                <select id="race-select">
+    </header>
+
+    <div class="container hide-on-countdown">
+        <div class="config-screen">
+            <!-- Línea 3: Gestión de carreras -->
+            <div class="config-line">
+                <label for="race-select" id="race-select-label">Seleccionar carrera:</label>
+                <select id="race-select" class="config-select">
                     <option value="">-- Selecciona una carrera --</option>
-                    <option value="race1">Carrera de montaña 2023</option>
-                    <option value="race2">Maratón ciudad</option>
-                    <option value="race3">Trail running</option>
                 </select>
-                <button id="new-race-btn"><i class="fas fa-plus"></i> Nueva carrera</button>
-                <button id="delete-race-btn" class="btn-danger"><i class="fas fa-trash"></i> Eliminar carrera</button>
-            </div>
-        </div>
-        
-        <!-- Línea 4: Cadencia de salida -->
-        <div class="config-line">
-            <div class="line-label">Cadencia de salida:</div>
-            <div class="line-content">
-                <div class="cadence-option">
-                    <input type="radio" id="cadence-option1" name="cadence" value="same" checked>
-                    <label for="cadence-option1">Siempre la misma</label>
-                </div>
-                <div class="cadence-option">
-                    <input type="radio" id="cadence-option2" name="cadence" value="variable">
-                    <label for="cadence-option2">Varios tramos según número de salidas</label>
-                </div>
-                
-                <!-- Detalles para opción 1 -->
-                <div id="cadence-details1" class="cadence-details">
-                    <div class="time-input">
-                        <span>Minutos:</span>
-                        <input type="number" id="same-minutes" min="0" max="59" value="1">
-                        <span>Segundos:</span>
-                        <input type="number" id="same-seconds" min="0" max="59" value="0">
-                    </div>
-                </div>
-                
-                <!-- Detalles para opción 2 -->
-                <div id="cadence-details2" class="cadence-details" style="display:none;">
-                    <div class="cadence-row">
-                        <span>Del corredor</span>
-                        <input type="number" id="from-runner1" min="1" value="1">
-                        <span>al corredor</span>
-                        <input type="number" id="to-runner1" min="1" value="10">
-                        <span>cada</span>
-                        <input type="number" id="minutes1" min="0" max="59" value="1">
-                        <span>minutos y</span>
-                        <input type="number" id="seconds1" min="0" max="59" value="0">
-                        <span>segundos</span>
-                    </div>
-                    <div class="cadence-row">
-                        <span>Del corredor</span>
-                        <input type="number" id="from-runner2" min="11" value="11">
-                        <span>al corredor</span>
-                        <input type="number" id="to-runner2" min="11" value="20">
-                        <span>cada</span>
-                        <input type="number" id="minutes2" min="0" max="59" value="0">
-                        <span>minutos y</span>
-                        <input type="number" id="seconds2" min="0" max="59" value="30">
-                        <span>segundos</span>
-                    </div>
-                    <button id="add-cadence-row" class="btn-secondary"><i class="fas fa-plus"></i> Añadir tramo</button>
+                <div class="btn-group">
+                    <button class="btn btn-primary btn-small" id="new-race-btn">
+                        <i class="fas fa-plus"></i> <span id="new-race-text">Nueva</span>
+                    </button>
+                    <button class="btn btn-danger btn-small" id="delete-race-btn">
+                        <i class="fas fa-trash"></i> <span id="delete-race-text">Eliminar</span>
+                    </button>
                 </div>
             </div>
-        </div>
-        
-        <!-- Línea 5: Iniciar cuenta atrás -->
-        <div class="config-line">
-            <div class="line-label">Iniciar cuenta atrás:</div>
-            <div class="line-content">
-                <div class="time-input">
-                    <span>Desde la posición:</span>
-                    <input type="number" id="start-position" min="0" value="0">
-                    <span>(0 = desde el primer corredor)</span>
+
+            <!-- Línea 4: Cadencia de salida -->
+            <div class="config-line">
+                <label id="cadence-label">Cadencia de salida:</label>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="same-interval-btn">
+                        <i class="fas fa-clock"></i> <span id="same-interval-text">Siempre igual</span>
+                    </button>
+                    <button class="btn btn-warning" id="variable-interval-btn">
+                        <i class="fas fa-list-ol"></i> <span id="variable-interval-text">Varios tramos</span>
+                    </button>
                 </div>
-                <button id="start-countdown" class="btn-warning"><i class="fas fa-play-circle"></i> Iniciar cuenta atrás</button>
             </div>
-        </div>
-        
-        <!-- Línea 6: Listado de horas de salida -->
-        <div class="config-line">
-            <div class="line-label">Listado de horas de salida:</div>
-            <div class="line-content">
-                <div class="departure-list" id="departure-list">
-                    <!-- Las horas de salida se añadirán aquí dinámicamente -->
-                    <div class="departure-item">
-                        <span>Corredor 1</span>
-                        <span>09:00:00</span>
-                    </div>
-                    <div class="departure-item">
-                        <span>Corredor 2</span>
-                        <span>09:01:00</span>
-                    </div>
-                    <div class="departure-item">
-                        <span>Corredor 3</span>
-                        <span>09:02:00</span>
-                    </div>
-                </div>
-                <button id="clear-departures" class="btn-secondary"><i class="fas fa-trash-alt"></i> Limpiar lista</button>
-            </div>
-        </div>
-        
-        <!-- Línea 7: Exportar a Excel -->
-        <div class="config-line">
-            <div class="line-label">Exportar a Excel:</div>
-            <div class="line-content">
-                <button id="export-excel"><i class="fas fa-file-excel"></i> Generar Excel de salidas</button>
-            </div>
-        </div>
-        
-        <!-- Línea 8-10: Enlaces de pie -->
-        <div class="footer-links">
-            <a href="#" class="footer-link" id="help-link">Ayuda</a>
-            <a href="#" class="footer-link" id="suggestions-link">Sugerencias</a>
-            <a href="#" class="footer-link" id="copyright-link">© 2023 Crono Cuenta Atrás</a>
-        </div>
-    </div>
-    
-    <!-- Pantalla de ejecución -->
-    <div id="execution-screen">
-        <div class="execution-header">
-            <div class="info-box" id="total-time">
-                <div class="info-label">Tiempo total</div>
-                <div>00:00:00</div>
-            </div>
-            <div class="config-icon" id="execution-config">
-                <i class="fas fa-cog"></i>
-            </div>
-        </div>
-        
-        <div class="timer-display" id="countdown-timer">01:00</div>
-        
-        <div class="execution-footer">
-            <div class="info-box" id="next-runner">
-                <div class="info-label">Próximo en</div>
-                <div>01:00</div>
-            </div>
-            <div class="info-box" id="runners-departed">
-                <div class="info-label">Salidos</div>
-                <div>0</div>
-            </div>
-        </div>
-        
-        <!-- Modal de configuración en ejecución -->
-        <div class="modal-overlay" id="execution-modal">
-            <div class="modal-content">
-                <div class="modal-title">Configuración</div>
-                <p>La cuenta atrás continúa en segundo plano mientras configuras.</p>
-                
+
+            <!-- Configuración de intervalo único -->
+            <div id="single-interval-config" class="interval-management">
                 <div class="config-line">
-                    <div class="line-label">Ajustar corredores salidos:</div>
-                    <div class="line-content">
-                        <input type="number" id="adjust-departed" min="0" value="0">
-                    </div>
+                    <label id="interval-time-label">Tiempo entre salidas:</label>
+                    <input type="number" id="interval-minutes" class="small-input" min="0" value="1" placeholder="Min">
+                    <span id="minutes-text">minutos</span>
+                    <input type="number" id="interval-seconds" class="small-input" min="0" max="59" value="0" placeholder="Seg">
+                    <span id="seconds-text">segundos</span>
                 </div>
-                
+            </div>
+
+            <!-- Configuración de intervalos variables -->
+            <div id="variable-interval-config" class="interval-management" style="display: none;">
                 <div class="config-line">
-                    <div class="line-label">Ajustar tiempo próximo:</div>
-                    <div class="line-content">
-                        <div class="time-input">
-                            <input type="number" id="adjust-minutes" min="0" max="59" value="1">
-                            <span>min</span>
-                            <input type="number" id="adjust-seconds" min="0" max="59" value="0">
-                            <span>seg</span>
-                        </div>
-                    </div>
+                    <label id="add-interval-label">Añadir tramo:</label>
+                    <input type="number" id="from-corredor" class="small-input" min="1" value="1" placeholder="Desde">
+                    <span id="to-text">a</span>
+                    <input type="number" id="to-corredor" class="small-input" min="1" value="10" placeholder="Hasta">
+                    <span id="every-text">cada</span>
+                    <input type="number" id="var-minutes" class="small-input" min="0" value="1" placeholder="Min">
+                    <span>min</span>
+                    <input type="number" id="var-seconds" class="small-input" min="0" max="59" value="0" placeholder="Seg">
+                    <span>seg</span>
+                    <button class="btn btn-success btn-small" id="add-interval-btn">
+                        <i class="fas fa-plus"></i> <span id="add-interval-text">Añadir</span>
+                    </button>
                 </div>
-                
-                <div class="modal-buttons">
-                    <button id="apply-changes"><i class="fas fa-check"></i> Aplicar cambios</button>
-                    <button id="stop-countdown" class="btn-danger"><i class="fas fa-stop"></i> Detener y volver</button>
-                    <button id="close-modal" class="btn-secondary"><i class="fas fa-times"></i> Cerrar</button>
+                <div id="intervals-list"></div>
+            </div>
+
+            <!-- Línea 5: Iniciar desde -->
+            <div class="config-line">
+                <label id="start-from-label">Iniciar cuenta atrás desde:</label>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="start-from-zero-btn">
+                        <i class="fas fa-play"></i> <span id="start-from-zero-text">Corredor 1</span>
+                    </button>
+                    <button class="btn btn-warning" id="start-from-x-btn">
+                        <i class="fas fa-forward"></i> <span id="start-from-x-text">Posición X</span>
+                    </button>
                 </div>
+                <input type="number" id="start-position" class="small-input" min="1" value="1" placeholder="Posición" style="display: none;">
             </div>
-        </div>
-    </div>
-    
-    <!-- Pantalla de ayuda -->
-    <div class="help-screen" id="help-screen">
-        <div class="help-content">
-            <div class="close-help" id="close-help">
-                <i class="fas fa-times"></i>
+
+            <!-- Línea 6: Listado de salidas -->
+            <div class="config-line">
+                <label id="departures-label">Salidas registradas:</label>
+                <button class="btn btn-danger" id="clear-departures-btn">
+                    <i class="fas fa-broom"></i> <span id="clear-departures-text">Limpiar lista</span>
+                </button>
+                <button class="btn btn-success" id="export-excel-btn">
+                    <i class="fas fa-file-excel"></i> <span id="export-excel-text">Exportar Excel</span>
+                </button>
             </div>
-            <h1 class="help-title">Ayuda de Crono Cuenta Atrás</h1>
-            
-            <div class="help-section">
-                <h3>Configuración inicial</h3>
-                <p>1. Selecciona una carrera existente o crea una nueva.</p>
-                <p>2. Configura la cadencia de salida: tiempo fijo o por tramos.</p>
-                <p>3. Decide desde qué posición iniciar la cuenta atrás (0 para empezar desde el primer corredor).</p>
-                <p>4. Haz clic en "Iniciar cuenta atrás" para comenzar.</p>
+            <div id="departures-list" class="departure-list">
+                <!-- Lista de salidas se llenará aquí -->
             </div>
-            
-            <div class="help-section">
-                <h3>Durante la ejecución</h3>
-                <p>• El fondo será verde durante la cuenta atrás normal.</p>
-                <p>• Cuando queden 10 segundos, el fondo se pondrá naranja y sonará un zumbido agudo.</p>
-                <p>• Cuando queden 5 segundos, el fondo parpadeará en rojo y sonará un zumbido cada segundo.</p>
-                <p>• Al llegar a cero, se mostrará "SALIDA" durante 1 segundo y sonará un zumbido grave.</p>
-                <p>• Puedes hacer doble clic en los contadores de la parte inferior para modificarlos.</p>
-                <p>• El icono de configuración (arriba a la derecha) te permite ajustar valores sin detener la cuenta atrás.</p>
-            </div>
-            
-            <div class="help-section">
-                <h3>Exportación de datos</h3>
-                <p>Puedes exportar todas las salidas a un archivo Excel haciendo clic en "Generar Excel de salidas".</p>
+
+            <!-- Botón de inicio -->
+            <div class="config-line" style="justify-content: center; border-left-color: var(--success); margin-top: 30px;">
+                <button class="btn btn-success btn-lg" id="start-countdown-btn" style="font-size: 20px; padding: 15px 40px;">
+                    <i class="fas fa-rocket"></i> <span id="start-countdown-text">INICIAR CUENTA ATRÁS</span>
+                </button>
             </div>
         </div>
     </div>
 
+    <!-- Pantalla de Ejecución -->
+    <div class="countdown-screen" id="countdown-screen">
+        <!-- Icono de configuración -->
+        <div class="config-toggle" id="config-toggle">
+            <i class="fas fa-cog"></i>
+        </div>
+
+        <!-- Display principal -->
+        <div class="countdown-label" id="countdown-label">Próxima salida en</div>
+        <div class="countdown-display" id="countdown-display">60</div>
+
+        <!-- Información en esquinas -->
+        <div class="info-corner top-left">
+            <span class="info-label" id="total-time-label">Tiempo total</span>
+            <div class="info-value" id="total-time-value">00:00:00</div>
+        </div>
+        
+        <div class="info-corner bottom-left">
+            <span class="info-label" id="next-corredor-label">Próximo sale a</span>
+            <div class="info-value inline-edit" id="next-corredor-time">1:00</div>
+        </div>
+        
+        <div class="info-corner bottom-right">
+            <span class="info-label" id="departed-label">Salidos</span>
+            <div class="info-value inline-edit" id="departed-count">0</div>
+        </div>
+
+        <!-- Display de SALIDA -->
+        <div class="salida-display" id="salida-display">SALIDA</div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer hide-on-countdown">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <button class="footer-btn" id="footer-help-btn">
+                        <i class="fas fa-question-circle"></i>
+                        <span id="help-text">Ayuda</span>
+                    </button>
+                    <button class="footer-btn" id="suggestions-btn">
+                        <i class="fas fa-lightbulb"></i>
+                        <span id="suggestions-text">Sugerencias</span>
+                    </button>
+                    <button class="footer-btn" id="install-btn">
+                        <i class="fas fa-download"></i>
+                        <span id="install-text">Instalar App</span>
+                    </button>
+                    <button class="footer-btn" id="update-btn">
+                        <i class="fas fa-sync-alt"></i>
+                        <span id="update-text">Buscar actualizaciones</span>
+                    </button>
+                </div>
+                <div class="copyright" id="copyright-text">
+                    2025 © Copyright 
+                    <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
+                        Roberto Benet - rbenet71.github.io/Web
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal de ayuda -->
+    <div class="modal" id="help-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="help-modal-title">Ayuda de Crono Cuenta Atrás</h3>
+                <button class="modal-close" id="help-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="help-modal-text1">Crono Cuenta Atrás es una aplicación para controlar las salidas en carreras con cuenta atrás visual y sonora.</p>
+                
+                <h4 id="help-modal-subtitle1">Cómo usar:</h4>
+                <ul id="help-modal-list">
+                    <li><strong>Selecciona una carrera</strong> o crea una nueva</li>
+                    <li><strong>Configura la cadencia de salida</strong> (siempre igual o por tramos)</li>
+                    <li><strong>Inicia desde el corredor 1</strong> o desde una posición específica</li>
+                    <li><strong>Pulsa "INICIAR CUENTA ATRÁS"</strong> para comenzar</li>
+                    <li><strong>La pantalla cambiará</strong> mostrando la cuenta atrás grande</li>
+                    <li><strong>Cuando llegue a cero</strong> se mostrará "SALIDA" y comenzará la cuenta para el siguiente</li>
+                </ul>
+                
+                <h4 id="help-modal-subtitle2">Indicadores visuales:</h4>
+                <ul>
+                    <li><strong style="color: #e74c3c;">Fondo rojo:</strong> Cuenta atrás normal</li>
+                    <li><strong style="color: #f39c12;">Fondo naranja:</strong> Últimos 10 segundos</li>
+                    <li><strong style="color: #27ae60;">Fondo verde:</strong> Momento de salida (2 segundos)</li>
+                </ul>
+                
+                <h4 id="help-modal-subtitle3">Sonidos:</h4>
+                <ul>
+                    <li><strong>Zumbido agudo:</strong> Al llegar a 10 segundos</li>
+                    <li><strong>Zumbido cada segundo:</strong> Últimos 5 segundos</li>
+                    <li><strong>Zumbido grave:</strong> Al llegar a cero</li>
+                </ul>
+                
+                <p id="help-modal-text2">Los 2 segundos de "SALIDA" se restan automáticamente del tiempo de la siguiente cuenta atrás.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="help-modal-ok">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de configuración durante cuenta atrás -->
+    <div class="modal" id="config-during-countdown-modal">
+        <div class="modal-content config-modal-during-countdown">
+            <div class="modal-header">
+                <h3>Configuración</h3>
+                <button class="modal-close" id="config-during-countdown-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>La cuenta atrás continúa en segundo plano.</p>
+                <div class="modal-buttons-container">
+                    <button class="btn btn-success" id="resume-countdown-btn">
+                        <i class="fas fa-play"></i> Continuar viendo
+                    </button>
+                    <button class="btn btn-warning" id="stop-countdown-btn">
+                        <i class="fas fa-stop"></i> Detener cuenta atrás
+                    </button>
+                    <button class="btn btn-primary" id="adjust-times-btn">
+                        <i class="fas fa-edit"></i> Ajustar tiempos
+                    </button>
+                    <button class="btn btn-danger" id="exit-countdown-btn">
+                        <i class="fas fa-sign-out-alt"></i> Salir completamente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de ajuste de tiempos -->
+    <div class="modal" id="adjust-times-modal">
+        <div class="modal-content config-modal-during-countdown">
+            <div class="modal-header">
+                <h3>Ajustar Tiempos</h3>
+                <button class="modal-close" id="adjust-times-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="config-line" style="flex-direction: column; align-items: stretch;">
+                    <label for="adjust-next-time">Próximo tiempo (segundos):</label>
+                    <input type="number" id="adjust-next-time" class="config-input" min="1" value="60">
+                </div>
+                <div class="config-line" style="flex-direction: column; align-items: stretch;">
+                    <label for="adjust-departed">Corredores salidos:</label>
+                    <input type="number" id="adjust-departed" class="config-input" min="0" value="0">
+                </div>
+                <div class="config-line" style="flex-direction: column; align-items: stretch;">
+                    <label for="adjust-current-time">Tiempo actual (segundos):</label>
+                    <input type="number" id="adjust-current-time" class="config-input" min="0" value="60">
+                </div>
+                <div class="modal-buttons-container">
+                    <button class="btn btn-success" id="save-adjustments-btn">
+                        <i class="fas fa-save"></i> Guardar ajustes
+                    </button>
+                    <button class="btn" id="cancel-adjustments-btn">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación eliminar carrera -->
+    <div class="modal" id="delete-race-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="delete-race-modal-title">Confirmar eliminación</h3>
+                <button class="modal-close" id="delete-race-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="delete-race-modal-text">¿Estás seguro de que quieres eliminar esta carrera? Todos los datos se perderán.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="delete-race-confirm-btn">Eliminar</button>
+                <button class="btn" id="delete-race-cancel-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación limpiar salidas -->
+    <div class="modal" id="clear-departures-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="clear-departures-modal-title">Confirmar limpieza</h3>
+                <button class="modal-close" id="clear-departures-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="clear-departures-modal-text">¿Estás seguro de que quieres limpiar la lista de salidas? Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="clear-departures-confirm-btn">Limpiar</button>
+                <button class="btn" id="clear-departures-cancel-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de sugerencias -->
+    <div class="modal" id="suggestions-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="suggestions-modal-title">Enviar sugerencias</h3>
+                <button class="modal-close" id="suggestions-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="suggestion-form">
+                    <div class="config-line" style="flex-direction: column; align-items: stretch;">
+                        <label for="suggestion-email" id="suggestion-email-label">Email (opcional):</label>
+                        <input type="email" id="suggestion-email" class="config-input" placeholder="tu@email.com">
+                    </div>
+                    <div class="config-line" style="flex-direction: column; align-items: stretch;">
+                        <label for="suggestion-text" id="suggestion-text-label">Sugerencias:</label>
+                        <textarea id="suggestion-text" class="config-input" rows="5" placeholder="Tus ideas para mejorar la aplicación..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="send-suggestion-btn">Enviar</button>
+                <button class="btn" id="cancel-suggestion-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de nueva carrera -->
+    <div class="modal" id="new-race-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="new-race-modal-title">Nueva carrera</h3>
+                <button class="modal-close" id="new-race-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="config-line" style="flex-direction: column; align-items: stretch;">
+                    <label for="new-race-name" id="new-race-name-label">Nombre de la carrera:</label>
+                    <input type="text" id="new-race-name" class="config-input" placeholder="Ej: Carrera MTB 2025">
+                </div>
+                <div class="config-line" style="flex-direction: column; align-items: stretch;">
+                    <label for="new-race-description" id="new-race-desc-label">Descripción (opcional):</label>
+                    <textarea id="new-race-description" class="config-input" rows="3" placeholder="Información adicional sobre la carrera..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" id="create-race-btn">Crear carrera</button>
+                <button class="btn" id="cancel-create-race-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio para sonidos - CORREGIDOS -->
+    <audio id="warning-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-warning-alarm-1001.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="critical-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-retro-game-emergency-alarm-1000.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="salida-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-bell-notification-933.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Video oculto para mantener pantalla activa -->
+    <video id="keep-alive-video" style="display: none;" muted playsinline>
+        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+    </video>
+
+    <!-- Mensajes flotantes -->
+    <div id="message" class="message"></div>
+
     <script>
-        // Variables globales
-        let countdownInterval;
-        let totalTimeInterval;
-        let currentTime = 60; // Tiempo inicial en segundos (1 minuto por defecto)
-        let originalTime = 60;
-        let isRunning = false;
-        let runnersDeparted = 0;
-        let nextRunnerTime = 60; // Tiempo para el próximo corredor en segundos
-        let raceStartTime = null;
-        let soundContext;
-        let soundOscillator;
-        
-        // Configuración de cadencia
-        let cadenceType = 'same'; // 'same' o 'variable'
-        let sameCadence = 60; // 60 segundos por defecto
-        let variableCadence = [
-            {from: 1, to: 10, minutes: 1, seconds: 0},
-            {from: 11, to: 20, minutes: 0, seconds: 30}
-        ];
-        
-        // Inicialización
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
-        });
-        
-        function initializeApp() {
-            // Configurar eventos
-            document.getElementById('start-countdown').addEventListener('click', startCountdown);
-            document.getElementById('execution-config').addEventListener('click', openExecutionModal);
-            document.getElementById('close-modal').addEventListener('click', closeExecutionModal);
-            document.getElementById('apply-changes').addEventListener('click', applyExecutionChanges);
-            document.getElementById('stop-countdown').addEventListener('click', stopCountdown);
-            document.getElementById('help-icon').addEventListener('click', openHelpScreen);
-            document.getElementById('close-help').addEventListener('click', closeHelpScreen);
-            document.getElementById('help-link').addEventListener('click', openHelpScreen);
-            document.getElementById('new-race-btn').addEventListener('click', createNewRace);
-            document.getElementById('delete-race-btn').addEventListener('click', deleteRace);
-            document.getElementById('clear-departures').addEventListener('click', clearDepartureList);
-            document.getElementById('export-excel').addEventListener('click', exportToExcel);
+        // ============================================
+        // ESTADO DE LA APLICACIÓN
+        // ============================================
+        const appState = {
+            currentLanguage: 'es',
+            currentRace: null,
+            races: [],
+            countdownActive: false,
+            countdownValue: 0,
+            countdownInterval: null,
+            raceStartTime: null, // Hora de inicio de la carrera
+            departedCount: 0,
+            nextCorredorTime: 60, // en segundos
+            intervals: [],
+            currentIntervalIndex: 0,
+            departureTimes: [],
+            audioContext: null,
+            isSalidaShowing: false,
+            salidaTimeout: null,
+            deferredPrompt: null,
+            updateAvailable: false,
+            countdownPaused: false,
+            salidaSubtractionApplied: false,
+            accumulatedTime: 0, // Tiempo acumulado para cálculo correcto
+            configModalOpen: false
+        };
+
+        // ============================================
+        // TRADUCCIONES
+        // ============================================
+        const translations = {
+            es: {
+                appTitle: "Crono Cuenta Atrás",
+                languagesLabel: "Idioma / Language",
+                raceSelectLabel: "Seleccionar carrera:",
+                newRaceText: "Nueva",
+                deleteRaceText: "Eliminar",
+                cadenceLabel: "Cadencia de salida:",
+                sameIntervalText: "Siempre igual",
+                variableIntervalText: "Varios tramos",
+                intervalTimeLabel: "Tiempo entre salidas:",
+                minutesText: "minutos",
+                secondsText: "segundos",
+                addIntervalLabel: "Añadir tramo:",
+                toText: "a",
+                everyText: "cada",
+                addIntervalText: "Añadir",
+                startFromLabel: "Iniciar cuenta atrás desde:",
+                startFromZeroText: "Corredor 1",
+                startFromXText: "Posición X",
+                departuresLabel: "Salidas registradas:",
+                clearDeparturesText: "Limpiar lista",
+                exportExcelText: "Exportar Excel",
+                startCountdownText: "INICIAR CUENTA ATRÁS",
+                totalTimeLabel: "Tiempo total",
+                nextCorredorLabel: "Próximo sale a",
+                departedLabel: "Salidos",
+                helpText: "Ayuda",
+                suggestionsText: "Sugerencias",
+                installText: "Instalar App",
+                updateText: "Buscar actualizaciones",
+                copyrightText: "2025 © Copyright ",
+                helpModalTitle: "Ayuda de Crono Cuenta Atrás",
+                helpModalText1: "Crono Cuenta Atrás es una aplicación para controlar las salidas en carreras con cuenta atrás visual y sonora.",
+                helpModalSubtitle1: "Cómo usar:",
+                helpModalList: [
+                    "Selecciona una carrera o crea una nueva",
+                    "Configura la cadencia de salida (siempre igual o por tramos)",
+                    "Inicia desde el corredor 1 o desde una posición específica",
+                    "Pulsa 'INICIAR CUENTA ATRÁS' para comenzar",
+                    "La pantalla cambiará mostrando la cuenta atrás grande",
+                    "Cuando llegue a cero se mostrará 'SALIDA' y comenzará la cuenta para el siguiente"
+                ],
+                helpModalSubtitle2: "Indicadores visuales:",
+                helpModalSubtitle3: "Sonidos:",
+                helpModalText2: "Los 2 segundos de 'SALIDA' se restan automáticamente del tiempo de la siguiente cuenta atrás.",
+                deleteRaceModalTitle: "Confirmar eliminación",
+                deleteRaceModalText: "¿Estás seguro de que quieres eliminar esta carrera? Todos los datos se perderán.",
+                clearDeparturesModalTitle: "Confirmar limpieza",
+                clearDeparturesModalText: "¿Estás seguro de que quieres limpiar la lista de salidas? Esta acción no se puede deshacer.",
+                suggestionsModalTitle: "Enviar sugerencias",
+                suggestionEmailLabel: "Email (opcional):",
+                suggestionTextLabel: "Sugerencias:",
+                newRaceModalTitle: "Nueva carrera",
+                newRaceNameLabel: "Nombre de la carrera:",
+                newRaceDescLabel: "Descripción (opcional):",
+                deleteConfirm: "Eliminar",
+                cancel: "Cancelar",
+                understood: "Entendido",
+                createRace: "Crear carrera",
+                sendSuggestion: "Enviar",
+                clear: "Limpiar",
+                selectRaceFirst: "Por favor, selecciona una carrera primero",
+                countdownStarted: "Cuenta atrás iniciada",
+                countdownStopped: "Cuenta atrás detenida",
+                raceCreated: "Carrera creada correctamente",
+                raceDeleted: "Carrera eliminada",
+                departuresCleared: "Lista de salidas limpiada",
+                intervalAdded: "Tramo añadido",
+                excelExported: "Excel exportado correctamente",
+                suggestionSent: "Sugerencia enviada",
+                updateChecked: "Actualización verificada"
+            },
+            ca: {
+                appTitle: "Crono Compte Enrere",
+                languagesLabel: "Idioma / Language",
+                raceSelectLabel: "Seleccionar cursa:",
+                newRaceText: "Nova",
+                deleteRaceText: "Eliminar",
+                cadenceLabel: "Cadència de sortida:",
+                sameIntervalText: "Sempre igual",
+                variableIntervalText: "Diversos trams",
+                intervalTimeLabel: "Temps entre sortides:",
+                minutesText: "minuts",
+                secondsText: "segons",
+                addIntervalLabel: "Afegir tram:",
+                toText: "a",
+                everyText: "cada",
+                addIntervalText: "Afegir",
+                startFromLabel: "Iniciar compte enrere des de:",
+                startFromZeroText: "Corredor 1",
+                startFromXText: "Posició X",
+                departuresLabel: "Sortides registrades:",
+                clearDeparturesText: "Netejar llista",
+                exportExcelText: "Exportar Excel",
+                startCountdownText: "INICIAR COMPTE ENRERE",
+                totalTimeLabel: "Temps total",
+                nextCorredorLabel: "Pròxim surt a",
+                departedLabel: "Sortits",
+                helpText: "Ajuda",
+                suggestionsText: "Suggeriments",
+                installText: "Instal·lar App",
+                updateText: "Cercar actualitzacions",
+                copyrightText: "2025 © Copyright ",
+                helpModalTitle: "Ajuda de Crono Compte Enrere",
+                helpModalText1: "Crono Compte Enrere és una aplicació per controlar les sortides en curses amb compte enrere visual i sonor.",
+                helpModalSubtitle1: "Com usar:",
+                helpModalList: [
+                    "Selecciona una cursa o crea'n una de nova",
+                    "Configura la cadència de sortida (sempre igual o per trams)",
+                    "Inicia des del corredor 1 o des d'una posició específica",
+                    "Prem 'INICIAR COMPTE ENRERE' per començar",
+                    "La pantalla canviarà mostrant el compte enrere gran",
+                    "Quan arribi a zero es mostrarà 'SORTIDA' i començarà el compte per al següent"
+                ],
+                helpModalSubtitle2: "Indicadors visuals:",
+                helpModalSubtitle3: "Sons:",
+                helpModalText2: "Els 2 segons de 'SORTIDA' es resten automàticament del temps del compte enrere següent.",
+                deleteRaceModalTitle: "Confirmar eliminació",
+                deleteRaceModalText: "Estàs segur que vols eliminar aquesta cursa? Totes les dades es perdran.",
+                clearDeparturesModalTitle: "Confirmar neteja",
+                clearDeparturesModalText: "Estàs segur que vols netejar la llista de sortides? Aquesta acció no es pot desfer.",
+                suggestionsModalTitle: "Enviar suggeriments",
+                suggestionEmailLabel: "Email (opcional):",
+                suggestionTextLabel: "Suggeriments:",
+                newRaceModalTitle: "Nova cursa",
+                newRaceNameLabel: "Nom de la cursa:",
+                newRaceDescLabel: "Descripció (opcional):",
+                deleteConfirm: "Eliminar",
+                cancel: "Cancel·lar",
+                understood: "Entès",
+                createRace: "Crear cursa",
+                sendSuggestion: "Enviar",
+                clear: "Netejar",
+                selectRaceFirst: "Si us plau, selecciona una cursa primer",
+                countdownStarted: "Compte enrere iniciat",
+                countdownStopped: "Compte enrere aturat",
+                raceCreated: "Cursa creada correctament",
+                raceDeleted: "Cursa eliminada",
+                departuresCleared: "Llista de sortides netejada",
+                intervalAdded: "Tram afegit",
+                excelExported: "Excel exportat correctament",
+                suggestionSent: "Suggeriment enviat",
+                updateChecked: "Actualització verificada"
+            },
+            en: {
+                appTitle: "Countdown Timer",
+                languagesLabel: "Language / Idioma",
+                raceSelectLabel: "Select race:",
+                newRaceText: "New",
+                deleteRaceText: "Delete",
+                cadenceLabel: "Start cadence:",
+                sameIntervalText: "Always the same",
+                variableIntervalText: "Multiple intervals",
+                intervalTimeLabel: "Time between starts:",
+                minutesText: "minutes",
+                secondsText: "seconds",
+                addIntervalLabel: "Add interval:",
+                toText: "to",
+                everyText: "every",
+                addIntervalText: "Add",
+                startFromLabel: "Start countdown from:",
+                startFromZeroText: "Racer 1",
+                startFromXText: "Position X",
+                departuresLabel: "Recorded starts:",
+                clearDeparturesText: "Clear list",
+                exportExcelText: "Export Excel",
+                startCountdownText: "START COUNTDOWN",
+                totalTimeLabel: "Total time",
+                nextCorredorLabel: "Next starts in",
+                departedLabel: "Departed",
+                helpText: "Help",
+                suggestionsText: "Suggestions",
+                installText: "Install App",
+                updateText: "Check for updates",
+                copyrightText: "2025 © Copyright ",
+                helpModalTitle: "Countdown Timer Help",
+                helpModalText1: "Countdown Timer is an application to control race starts with visual and sound countdown.",
+                helpModalSubtitle1: "How to use:",
+                helpModalList: [
+                    "Select a race or create a new one",
+                    "Configure start cadence (same or multiple intervals)",
+                    "Start from racer 1 or from specific position",
+                    "Press 'START COUNTDOWN' to begin",
+                    "Screen will change showing big countdown",
+                    "When it reaches zero 'START' will show and countdown for next begins"
+                ],
+                helpModalSubtitle2: "Visual indicators:",
+                helpModalSubtitle3: "Sounds:",
+                helpModalText2: "The 2 seconds of 'START' are automatically subtracted from the next countdown time.",
+                deleteRaceModalTitle: "Confirm deletion",
+                deleteRaceModalText: "Are you sure you want to delete this race? All data will be lost.",
+                clearDeparturesModalTitle: "Confirm cleanup",
+                clearDeparturesModalText: "Are you sure you want to clear the starts list? This action cannot be undone.",
+                suggestionsModalTitle: "Send suggestions",
+                suggestionEmailLabel: "Email (optional):",
+                suggestionTextLabel: "Suggestions:",
+                newRaceModalTitle: "New race",
+                newRaceNameLabel: "Race name:",
+                newRaceDescLabel: "Description (optional):",
+                deleteConfirm: "Delete",
+                cancel: "Cancel",
+                understood: "Understood",
+                createRace: "Create race",
+                sendSuggestion: "Send",
+                clear: "Clear",
+                selectRaceFirst: "Please select a race first",
+                countdownStarted: "Countdown started",
+                countdownStopped: "Countdown stopped",
+                raceCreated: "Race created successfully",
+                raceDeleted: "Race deleted",
+                departuresCleared: "Starts list cleared",
+                intervalAdded: "Interval added",
+                excelExported: "Excel exported successfully",
+                suggestionSent: "Suggestion sent",
+                updateChecked: "Update checked"
+            },
+            fr: {
+                appTitle: "Compte à Rebours",
+                languagesLabel: "Langue / Language",
+                raceSelectLabel: "Sélectionner course:",
+                newRaceText: "Nouvelle",
+                deleteRaceText: "Supprimer",
+                cadenceLabel: "Cadence de départ:",
+                sameIntervalText: "Toujours égal",
+                variableIntervalText: "Plusieurs intervalles",
+                intervalTimeLabel: "Temps entre départs:",
+                minutesText: "minutes",
+                secondsText: "secondes",
+                addIntervalLabel: "Ajouter intervalle:",
+                toText: "à",
+                everyText: "chaque",
+                addIntervalText: "Ajouter",
+                startFromLabel: "Démarrer compte à rebours depuis:",
+                startFromZeroText: "Coureur 1",
+                startFromXText: "Position X",
+                departuresLabel: "Départs enregistrés:",
+                clearDeparturesText: "Effacer liste",
+                exportExcelText: "Exporter Excel",
+                startCountdownText: "DÉMARRER COMPTE À REBOURS",
+                totalTimeLabel: "Temps total",
+                nextCorredorLabel: "Prochain départ dans",
+                departedLabel: "Partis",
+                helpText: "Aide",
+                suggestionsText: "Suggestions",
+                installText: "Installer App",
+                updateText: "Vérifier mises à jour",
+                copyrightText: "2025 © Copyright ",
+                helpModalTitle: "Aide Compte à Rebours",
+                helpModalText1: "Compte à Rebours est une application pour contrôler les départs de course avec compte à rebours visuel et sonore.",
+                helpModalSubtitle1: "Comment utiliser:",
+                helpModalList: [
+                    "Sélectionnez une course ou créez-en une nouvelle",
+                    "Configurez la cadence de départ (toujours égal ou plusieurs intervalles)",
+                    "Démarrez depuis le coureur 1 ou depuis une position spécifique",
+                    "Appuyez sur 'DÉMARRER COMPTE À REBOURS' pour commencer",
+                    "L'écran changera montrant le compte à rebours grand",
+                    "Quand il atteint zéro 'DÉPART' s'affichera et le compte pour le suivant commencera"
+                ],
+                helpModalSubtitle2: "Indicateurs visuels:",
+                helpModalSubtitle3: "Sons:",
+                helpModalText2: "Les 2 secondes de 'DÉPART' sont automatiquement soustraites du temps du compte à rebours suivant.",
+                deleteRaceModalTitle: "Confirmer suppression",
+                deleteRaceModalText: "Êtes-vous sûr de vouloir supprimer cette course? Toutes les données seront perdues.",
+                clearDeparturesModalTitle: "Confirmar nettoyage",
+                clearDeparturesModalText: "Êtes-vous sûr de vouloir nettoyer la liste des départs? Cette action ne peut pas être annulée.",
+                suggestionsModalTitle: "Envoyer suggestions",
+                suggestionEmailLabel: "Email (optionnel):",
+                suggestionTextLabel: "Suggestions:",
+                newRaceModalTitle: "Nouvelle course",
+                newRaceNameLabel: "Nom de la course:",
+                newRaceDescLabel: "Description (optionnel):",
+                deleteConfirm: "Supprimer",
+                cancel: "Annuler",
+                understood: "Compris",
+                createRace: "Créer course",
+                sendSuggestion: "Envoyer",
+                clear: "Nettoyer",
+                selectRaceFirst: "Veuillez sélectionner une course d'abord",
+                countdownStarted: "Compte à rebours démarré",
+                countdownStopped: "Compte à rebours arrêté",
+                raceCreated: "Course créée avec succès",
+                raceDeleted: "Course supprimée",
+                departuresCleared: "Liste des départs nettoyée",
+                intervalAdded: "Intervalle ajouté",
+                excelExported: "Excel exporté avec succès",
+                suggestionSent: "Suggestion envoyée",
+                updateChecked: "Mise à jour vérifiée"
+            }
+        };
+
+        // ============================================
+        // FUNCIONES PRINCIPALES
+        // ============================================
+
+        // Inicializar aplicación
+        function initApp() {
+            loadLanguagePreference();
+            loadRacesFromStorage();
+            loadAppState();
+            updateLanguageUI();
+            setupEventListeners();
+            renderRacesSelect();
+            renderDeparturesList();
+            setupServiceWorker();
+            initAudioContext();
             
-            // Eventos para cambio de cadencia
-            document.querySelectorAll('input[name="cadence"]').forEach(radio => {
-                radio.addEventListener('change', function() {
-                    cadenceType = this.value;
-                    document.getElementById('cadence-details1').style.display = 
-                        cadenceType === 'same' ? 'block' : 'none';
-                    document.getElementById('cadence-details2').style.display = 
-                        cadenceType === 'variable' ? 'block' : 'none';
-                });
-            });
+            // Iniciar actualización del tiempo total
+            setInterval(updateTotalTime, 1000);
             
-            // Eventos para doble clic en los contadores de ejecución
-            document.getElementById('runners-departed').addEventListener('dblclick', function() {
-                let newValue = prompt("Introduce el nuevo número de corredores salidos:", runnersDeparted);
-                if (newValue !== null && !isNaN(newValue) && newValue >= 0) {
-                    runnersDeparted = parseInt(newValue);
-                    updateDepartureDisplay();
-                    calculateNextRunnerTime();
+            // Inicializar instalador PWA
+            setupPWA();
+            
+            // Precargar sonidos
+            preloadSounds();
+        }
+
+        // Precargar sonidos
+        function preloadSounds() {
+            const sounds = ['warning-sound', 'critical-sound', 'salida-sound'];
+            sounds.forEach(soundId => {
+                const audio = document.getElementById(soundId);
+                if (audio) {
+                    audio.load();
                 }
             });
+        }
+
+        // Cargar preferencia de idioma
+        function loadLanguagePreference() {
+            const savedLang = localStorage.getItem('countdown-language');
+            if (savedLang && translations[savedLang]) {
+                appState.currentLanguage = savedLang;
+            }
+        }
+
+        // Cargar carreras desde almacenamiento
+        function loadRacesFromStorage() {
+            const savedRaces = localStorage.getItem('countdown-races');
+            if (savedRaces) {
+                appState.races = JSON.parse(savedRaces);
+            }
             
-            document.getElementById('next-runner').addEventListener('dblclick', function() {
-                let minutes = Math.floor(nextRunnerTime / 60);
-                let seconds = nextRunnerTime % 60;
-                let newTime = prompt("Introduce el tiempo para el próximo corredor (formato MM:SS):", 
-                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+            // Cargar carrera activa si existe
+            const savedCurrentRace = localStorage.getItem('countdown-current-race');
+            if (savedCurrentRace) {
+                appState.currentRace = JSON.parse(savedCurrentRace);
+            }
+        }
+
+        // Cargar estado de la aplicación
+        function loadAppState() {
+            const savedState = localStorage.getItem('countdown-app-state');
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                Object.assign(appState, state);
                 
-                if (newTime !== null) {
-                    let parts = newTime.split(':');
-                    if (parts.length === 2) {
-                        let newMinutes = parseInt(parts[0]) || 0;
-                        let newSeconds = parseInt(parts[1]) || 0;
-                        nextRunnerTime = newMinutes * 60 + newSeconds;
-                        currentTime = nextRunnerTime;
-                        originalTime = nextRunnerTime;
-                        updateTimerDisplay();
-                        updateNextRunnerDisplay();
-                    }
+                // Si había cuenta atrás activa, restaurarla
+                if (appState.countdownActive) {
+                    startCountdownFromState();
                 }
+            }
+        }
+
+        // Guardar estado de la aplicación
+        function saveAppState() {
+            localStorage.setItem('countdown-app-state', JSON.stringify({
+                countdownActive: appState.countdownActive,
+                countdownValue: appState.countdownValue,
+                departedCount: appState.departedCount,
+                nextCorredorTime: appState.nextCorredorTime,
+                intervals: appState.intervals,
+                currentIntervalIndex: appState.currentIntervalIndex,
+                departureTimes: appState.departureTimes,
+                raceStartTime: appState.raceStartTime,
+                accumulatedTime: appState.accumulatedTime,
+                countdownPaused: appState.countdownPaused
+            }));
+        }
+
+        // Guardar carreras
+        function saveRacesToStorage() {
+            localStorage.setItem('countdown-races', JSON.stringify(appState.races));
+            if (appState.currentRace) {
+                localStorage.setItem('countdown-current-race', JSON.stringify(appState.currentRace));
+            }
+        }
+
+        // Actualizar interfaz según idioma
+        function updateLanguageUI() {
+            const lang = appState.currentLanguage;
+            const t = translations[lang];
+            
+            // Actualizar textos
+            document.getElementById('app-title-text').textContent = t.appTitle;
+            document.getElementById('languages-label').textContent = t.languagesLabel;
+            document.getElementById('race-select-label').textContent = t.raceSelectLabel;
+            document.getElementById('new-race-text').textContent = t.newRaceText;
+            document.getElementById('delete-race-text').textContent = t.deleteRaceText;
+            document.getElementById('cadence-label').textContent = t.cadenceLabel;
+            document.getElementById('same-interval-text').textContent = t.sameIntervalText;
+            document.getElementById('variable-interval-text').textContent = t.variableIntervalText;
+            document.getElementById('interval-time-label').textContent = t.intervalTimeLabel;
+            document.getElementById('minutes-text').textContent = t.minutesText;
+            document.getElementById('seconds-text').textContent = t.secondsText;
+            document.getElementById('add-interval-label').textContent = t.addIntervalLabel;
+            document.getElementById('to-text').textContent = t.toText;
+            document.getElementById('every-text').textContent = t.everyText;
+            document.getElementById('add-interval-text').textContent = t.addIntervalText;
+            document.getElementById('start-from-label').textContent = t.startFromLabel;
+            document.getElementById('start-from-zero-text').textContent = t.startFromZeroText;
+            document.getElementById('start-from-x-text').textContent = t.startFromXText;
+            document.getElementById('departures-label').textContent = t.departuresLabel;
+            document.getElementById('clear-departures-text').textContent = t.clearDeparturesText;
+            document.getElementById('export-excel-text').textContent = t.exportExcelText;
+            document.getElementById('start-countdown-text').textContent = t.startCountdownText;
+            document.getElementById('total-time-label').textContent = t.totalTimeLabel;
+            document.getElementById('next-corredor-label').textContent = t.nextCorredorLabel;
+            document.getElementById('departed-label').textContent = t.departedLabel;
+            document.getElementById('help-text').textContent = t.helpText;
+            document.getElementById('suggestions-text').textContent = t.suggestionsText;
+            document.getElementById('install-text').textContent = t.installText;
+            document.getElementById('update-text').textContent = t.updateText;
+            document.getElementById('copyright-text').innerHTML = t.copyrightText + 
+                '<a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">Roberto Benet - rbenet71.github.io/Web</a>';
+            
+            // Actualizar banderas activas
+            document.querySelectorAll('.flag').forEach(flag => {
+                flag.classList.remove('active');
             });
+            document.getElementById('flag-' + lang).classList.add('active');
             
-            // Inicializar audio
-            initializeAudio();
-            
-            // Cargar configuración guardada si existe
-            loadSavedConfiguration();
+            // Actualizar modales
+            updateModalTexts();
         }
-        
-        function initializeAudio() {
-            try {
-                // Crear contexto de audio para los sonidos
-                window.AudioContext = window.AudioContext || window.webkitAudioContext;
-                soundContext = new AudioContext();
-            } catch (e) {
-                console.log("Web Audio API no está soportada en este navegador");
-            }
+
+        // Actualizar textos de modales
+        function updateModalTexts() {
+            const t = translations[appState.currentLanguage];
+            
+            // Modal de ayuda
+            document.getElementById('help-modal-title').textContent = t.helpModalTitle;
+            document.getElementById('help-modal-text1').textContent = t.helpModalText1;
+            document.getElementById('help-modal-subtitle1').textContent = t.helpModalSubtitle1;
+            document.getElementById('help-modal-subtitle2').textContent = t.helpModalSubtitle2;
+            document.getElementById('help-modal-subtitle3').textContent = t.helpModalSubtitle3;
+            document.getElementById('help-modal-text2').textContent = t.helpModalText2;
+            document.getElementById('help-modal-ok').textContent = t.understood;
+            
+            // Modal eliminar carrera
+            document.getElementById('delete-race-modal-title').textContent = t.deleteRaceModalTitle;
+            document.getElementById('delete-race-modal-text').textContent = t.deleteRaceModalText;
+            document.getElementById('delete-race-confirm-btn').textContent = t.deleteConfirm;
+            document.getElementById('delete-race-cancel-btn').textContent = t.cancel;
+            
+            // Modal limpiar salidas
+            document.getElementById('clear-departures-modal-title').textContent = t.clearDeparturesModalTitle;
+            document.getElementById('clear-departures-modal-text').textContent = t.clearDeparturesModalText;
+            document.getElementById('clear-departures-confirm-btn').textContent = t.clear;
+            document.getElementById('clear-departures-cancel-btn').textContent = t.cancel;
+            
+            // Modal sugerencias
+            document.getElementById('suggestions-modal-title').textContent = t.suggestionsModalTitle;
+            document.getElementById('suggestion-email-label').textContent = t.suggestionEmailLabel;
+            document.getElementById('suggestion-text-label').textContent = t.suggestionTextLabel;
+            document.getElementById('send-suggestion-btn').textContent = t.sendSuggestion;
+            document.getElementById('cancel-suggestion-btn').textContent = t.cancel;
+            
+            // Modal nueva carrera
+            document.getElementById('new-race-modal-title').textContent = t.newRaceModalTitle;
+            document.getElementById('new-race-name-label').textContent = t.newRaceNameLabel;
+            document.getElementById('new-race-desc-label').textContent = t.newRaceDescLabel;
+            document.getElementById('create-race-btn').textContent = t.createRace;
+            document.getElementById('cancel-create-race-btn').textContent = t.cancel;
+            
+            // Actualizar lista de ayuda
+            const helpList = document.getElementById('help-modal-list');
+            helpList.innerHTML = '';
+            t.helpModalList.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                li.style.marginBottom = '8px';
+                helpList.appendChild(li);
+            });
         }
-        
-        function playSound(frequency, duration, type = 'sine') {
-            if (!soundContext) return;
+
+        // Renderizar selector de carreras
+        function renderRacesSelect() {
+            const select = document.getElementById('race-select');
+            select.innerHTML = '<option value="">-- ' + translations[appState.currentLanguage].raceSelectLabel + ' --</option>';
             
-            try {
-                let oscillator = soundContext.createOscillator();
-                let gainNode = soundContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(soundContext.destination);
-                
-                oscillator.frequency.value = frequency;
-                oscillator.type = type;
-                
-                // Configurar volumen para evitar clipping
-                gainNode.gain.setValueAtTime(0.1, soundContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, soundContext.currentTime + duration);
-                
-                oscillator.start();
-                oscillator.stop(soundContext.currentTime + duration);
-            } catch (e) {
-                console.log("Error reproduciendo sonido:", e);
-            }
-        }
-        
-        function startCountdown() {
-            // Obtener configuración
-            getConfigurationFromUI();
-            
-            // Establecer tiempo inicial según la posición de inicio
-            let startPosition = parseInt(document.getElementById('start-position').value) || 0;
-            runnersDeparted = startPosition;
-            
-            // Calcular tiempo para el próximo corredor
-            calculateNextRunnerTime();
-            
-            // Establecer tiempo actual
-            currentTime = nextRunnerTime;
-            originalTime = nextRunnerTime;
-            
-            // Cambiar a pantalla de ejecución
-            document.getElementById('config-screen').style.display = 'none';
-            document.getElementById('execution-screen').style.display = 'flex';
-            
-            // Iniciar temporizadores
-            isRunning = true;
-            raceStartTime = new Date();
-            
-            // Iniciar cuenta atrás
-            startCountdownTimer();
-            
-            // Iniciar contador de tiempo total
-            startTotalTimeCounter();
-            
-            // Establecer fondo inicial
-            document.body.classList.add('normal-bg');
-            document.body.classList.remove('warning-bg', 'danger-bg', 'blink');
-            
-            // Actualizar displays
-            updateTimerDisplay();
-            updateDepartureDisplay();
-            updateNextRunnerDisplay();
-        }
-        
-        function getConfigurationFromUI() {
-            // Obtener tipo de cadencia
-            cadenceType = document.querySelector('input[name="cadence"]:checked').value;
-            
-            // Obtener cadencia fija
-            let sameMinutes = parseInt(document.getElementById('same-minutes').value) || 0;
-            let sameSeconds = parseInt(document.getElementById('same-seconds').value) || 0;
-            sameCadence = sameMinutes * 60 + sameSeconds;
-            
-            // Obtener cadencia variable (solo primeros dos tramos para simplificar)
-            variableCadence = [];
-            
-            let from1 = parseInt(document.getElementById('from-runner1').value) || 1;
-            let to1 = parseInt(document.getElementById('to-runner1').value) || 10;
-            let min1 = parseInt(document.getElementById('minutes1').value) || 1;
-            let sec1 = parseInt(document.getElementById('seconds1').value) || 0;
-            variableCadence.push({from: from1, to: to1, minutes: min1, seconds: sec1});
-            
-            let from2 = parseInt(document.getElementById('from-runner2').value) || 11;
-            let to2 = parseInt(document.getElementById('to-runner2').value) || 20;
-            let min2 = parseInt(document.getElementById('minutes2').value) || 0;
-            let sec2 = parseInt(document.getElementById('seconds2').value) || 30;
-            variableCadence.push({from: from2, to: to2, minutes: min2, seconds: sec2});
-        }
-        
-        function calculateNextRunnerTime() {
-            if (cadenceType === 'same') {
-                nextRunnerTime = sameCadence;
-            } else {
-                // Buscar en qué tramo está el próximo corredor
-                let nextRunnerNumber = runnersDeparted + 1;
-                for (let segment of variableCadence) {
-                    if (nextRunnerNumber >= segment.from && nextRunnerNumber <= segment.to) {
-                        nextRunnerTime = segment.minutes * 60 + segment.seconds;
-                        break;
-                    }
+            appState.races.forEach((race, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = race.name;
+                if (appState.currentRace && race.id === appState.currentRace.id) {
+                    option.selected = true;
                 }
-                // Si no se encuentra, usar el último segmento
-                if (!nextRunnerTime) {
-                    let lastSegment = variableCadence[variableCadence.length - 1];
-                    nextRunnerTime = lastSegment.minutes * 60 + lastSegment.seconds;
-                }
-            }
+                select.appendChild(option);
+            });
         }
-        
-        function startCountdownTimer() {
-            clearInterval(countdownInterval);
+
+        // Renderizar lista de salidas
+        function renderDeparturesList() {
+            const container = document.getElementById('departures-list');
+            container.innerHTML = '';
             
-            countdownInterval = setInterval(function() {
-                currentTime--;
-                
-                // Actualizar display
-                updateTimerDisplay();
-                
-                // Comprobar cambios de estado
-                checkCountdownState();
-                
-                // Si llega a cero
-                if (currentTime <= 0) {
-                    finishCountdown();
-                }
-            }, 1000);
-        }
-        
-        function checkCountdownState() {
-            // Cambiar a naranja a los 10 segundos
-            if (currentTime === 10) {
-                document.body.classList.remove('normal-bg');
-                document.body.classList.add('warning-bg');
-                playSound(800, 0.5); // Zumbido agudo
-            }
-            
-            // Cambiar a parpadeo rojo a los 5 segundos
-            if (currentTime === 5) {
-                document.body.classList.remove('warning-bg');
-                document.body.classList.add('danger-bg', 'blink');
-                playSound(600, 0.3); // Zumbido cada segundo
-            }
-            
-            // Zumbido cada segundo en los últimos 5 segundos
-            if (currentTime > 0 && currentTime <= 5) {
-                playSound(500, 0.2); // Zumbido corto
-            }
-        }
-        
-        function finishCountdown() {
-            // Detener temporizador
-            clearInterval(countdownInterval);
-            
-            // Mostrar "SALIDA"
-            let exitDiv = document.createElement('div');
-            exitDiv.className = 'exit-text';
-            exitDiv.textContent = 'SALIDA';
-            document.getElementById('execution-screen').appendChild(exitDiv);
-            
-            // Reproducir sonido grave
-            playSound(200, 1.0, 'sawtooth');
-            
-            // Actualizar contadores
-            runnersDeparted++;
-            updateDepartureDisplay();
-            
-            // Añadir a la lista de salidas
-            addDepartureToList();
-            
-            // Calcular tiempo para el próximo corredor
-            calculateNextRunnerTime();
-            
-            // Restar 1 segundo al tiempo del próximo corredor (como especificado)
-            nextRunnerTime--;
-            
-            // Después de 1 segundo, continuar
-            setTimeout(function() {
-                // Remover texto "SALIDA"
-                if (exitDiv.parentNode) {
-                    exitDiv.parentNode.removeChild(exitDiv);
-                }
-                
-                // Reiniciar con el tiempo del próximo corredor
-                currentTime = nextRunnerTime;
-                originalTime = nextRunnerTime;
-                
-                // Restablecer fondo a verde
-                document.body.classList.remove('danger-bg', 'blink');
-                document.body.classList.add('normal-bg');
-                
-                // Actualizar displays
-                updateTimerDisplay();
-                updateNextRunnerDisplay();
-                
-                // Reiniciar cuenta atrás
-                startCountdownTimer();
-            }, 1000);
-        }
-        
-        function startTotalTimeCounter() {
-            clearInterval(totalTimeInterval);
-            
-            totalTimeInterval = setInterval(function() {
-                if (raceStartTime) {
-                    let now = new Date();
-                    let diff = Math.floor((now - raceStartTime) / 1000); // diferencia en segundos
-                    
-                    let hours = Math.floor(diff / 3600);
-                    let minutes = Math.floor((diff % 3600) / 60);
-                    let seconds = diff % 60;
-                    
-                    document.getElementById('total-time').querySelector('div:last-child').textContent = 
-                        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                }
-            }, 1000);
-        }
-        
-        function updateTimerDisplay() {
-            let minutes = Math.floor(currentTime / 60);
-            let seconds = currentTime % 60;
-            document.getElementById('countdown-timer').textContent = 
-                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-        
-        function updateDepartureDisplay() {
-            document.getElementById('runners-departed').querySelector('div:last-child').textContent = 
-                runnersDeparted;
-        }
-        
-        function updateNextRunnerDisplay() {
-            let minutes = Math.floor(nextRunnerTime / 60);
-            let seconds = nextRunnerTime % 60;
-            document.getElementById('next-runner').querySelector('div:last-child').textContent = 
-                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-        
-        function addDepartureToList() {
-            let now = new Date();
-            let timeString = now.toTimeString().split(' ')[0];
-            
-            let departureItem = document.createElement('div');
-            departureItem.className = 'departure-item';
-            departureItem.innerHTML = `<span>Corredor ${runnersDeparted}</span><span>${timeString}</span>`;
-            
-            document.getElementById('departure-list').prepend(departureItem);
-        }
-        
-        function clearDepartureList() {
-            if (confirm("¿Estás seguro de que quieres limpiar la lista de salidas?")) {
-                document.getElementById('departure-list').innerHTML = '';
-            }
-        }
-        
-        function openExecutionModal() {
-            document.getElementById('execution-modal').style.display = 'flex';
-            document.getElementById('adjust-departed').value = runnersDeparted;
-            
-            let minutes = Math.floor(nextRunnerTime / 60);
-            let seconds = nextRunnerTime % 60;
-            document.getElementById('adjust-minutes').value = minutes;
-            document.getElementById('adjust-seconds').value = seconds;
-        }
-        
-        function closeExecutionModal() {
-            document.getElementById('execution-modal').style.display = 'none';
-        }
-        
-        function applyExecutionChanges() {
-            // Ajustar corredores salidos
-            let newDeparted = parseInt(document.getElementById('adjust-departed').value) || 0;
-            if (newDeparted >= 0) {
-                runnersDeparted = newDeparted;
-                updateDepartureDisplay();
-            }
-            
-            // Ajustar tiempo próximo
-            let adjustMinutes = parseInt(document.getElementById('adjust-minutes').value) || 0;
-            let adjustSeconds = parseInt(document.getElementById('adjust-seconds').value) || 0;
-            nextRunnerTime = adjustMinutes * 60 + adjustSeconds;
-            
-            // Si el tiempo actual es mayor que el nuevo tiempo próximo, ajustarlo
-            if (currentTime > nextRunnerTime) {
-                currentTime = nextRunnerTime;
-                originalTime = nextRunnerTime;
-                updateTimerDisplay();
-            }
-            
-            updateNextRunnerDisplay();
-            closeExecutionModal();
-        }
-        
-        function stopCountdown() {
-            clearInterval(countdownInterval);
-            clearInterval(totalTimeInterval);
-            isRunning = false;
-            
-            // Volver a pantalla de configuración
-            document.getElementById('execution-screen').style.display = 'none';
-            document.getElementById('config-screen').style.display = 'flex';
-            
-            // Restablecer colores
-            document.body.classList.remove('normal-bg', 'warning-bg', 'danger-bg', 'blink');
-        }
-        
-        function openHelpScreen() {
-            document.getElementById('help-screen').style.display = 'block';
-        }
-        
-        function closeHelpScreen() {
-            document.getElementById('help-screen').style.display = 'none';
-        }
-        
-        function createNewRace() {
-            let raceName = prompt("Introduce el nombre de la nueva carrera:");
-            if (raceName) {
-                let raceSelect = document.getElementById('race-select');
-                let newOption = document.createElement('option');
-                newOption.value = 'race' + (raceSelect.options.length + 1);
-                newOption.textContent = raceName;
-                raceSelect.appendChild(newOption);
-                raceSelect.value = newOption.value;
-                
-                alert(`Carrera "${raceName}" creada correctamente.`);
-            }
-        }
-        
-        function deleteRace() {
-            let raceSelect = document.getElementById('race-select');
-            if (raceSelect.value) {
-                if (confirm(`¿Estás seguro de que quieres eliminar la carrera "${raceSelect.options[raceSelect.selectedIndex].text}"?`)) {
-                    raceSelect.remove(raceSelect.selectedIndex);
-                    raceSelect.value = '';
-                }
-            } else {
-                alert("Por favor, selecciona una carrera para eliminar.");
-            }
-        }
-        
-        function exportToExcel() {
-            // En una implementación real, aquí se generaría un archivo Excel
-            // Para este ejemplo, simularemos la exportación
-            
-            let departureItems = document.querySelectorAll('.departure-item');
-            if (departureItems.length === 0) {
-                alert("No hay datos de salida para exportar.");
+            if (appState.departureTimes.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--gray);">' +
+                    '<i class="fas fa-clock"></i><br>' +
+                    '<span>No hay salidas registradas</span>' +
+                    '</div>';
                 return;
             }
             
-            // Simular creación de archivo Excel
-            let csvContent = "Corredor,Hora de salida\n";
-            departureItems.forEach(item => {
-                let parts = item.textContent.split(/(\d+:\d+:\d+)/);
-                let runner = parts[0].trim();
-                let time = parts[1] || '';
-                csvContent += `${runner},${time}\n`;
+            // Mostrar en orden inverso (más reciente primero)
+            const reversedTimes = [...appState.departureTimes].reverse();
+            
+            reversedTimes.forEach(departure => {
+                const item = document.createElement('div');
+                item.className = 'departure-item';
+                
+                const time = new Date(departure.timestamp);
+                const timeStr = time.toLocaleTimeString();
+                const dateStr = time.toLocaleDateString();
+                
+                item.innerHTML = `
+                    <div class="departure-number">Corredor ${departure.corredor}</div>
+                    <div class="departure-time">${dateStr} ${timeStr}</div>
+                `;
+                
+                container.appendChild(item);
             });
             
-            // Crear enlace de descarga
-            let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            let url = URL.createObjectURL(blob);
-            let link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'salidas_carrera.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // Actualizar contador de salidos
+            document.getElementById('departed-count').textContent = appState.departedCount;
+        }
+
+        // Inicializar contexto de audio
+        function initAudioContext() {
+            try {
+                appState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                // Resumir contexto si está suspendido
+                if (appState.audioContext.state === 'suspended') {
+                    appState.audioContext.resume();
+                }
+            } catch (e) {
+                console.log("AudioContext no soportado:", e);
+            }
+        }
+
+        // Reproducir sonido
+        function playSound(type) {
+            try {
+                const audioMap = {
+                    'warning': document.getElementById('warning-sound'),
+                    'critical': document.getElementById('critical-sound'),
+                    'salida': document.getElementById('salida-sound')
+                };
+                
+                const audio = audioMap[type];
+                if (audio) {
+                    // Asegurarse de que el audio esté cargado
+                    if (audio.readyState < 3) {
+                        audio.load();
+                    }
+                    
+                    audio.currentTime = 0;
+                    
+                    // Intentar reproducir
+                    const playPromise = audio.play();
+                    
+                    if (playPromise !== undefined) {
+                        playPromise
+                            .then(() => {
+                                console.log(`Sonido ${type} reproducido`);
+                            })
+                            .catch(error => {
+                                console.log(`Error reproduciendo sonido ${type}:`, error);
+                                // Intentar activar el contexto de audio si está suspendido
+                                if (appState.audioContext && appState.audioContext.state === 'suspended') {
+                                    appState.audioContext.resume().then(() => {
+                                        audio.play().catch(e => console.log("Error después de resume:", e));
+                                    });
+                                }
+                            });
+                    }
+                }
+            } catch (e) {
+                console.log("Error general en playSound:", e);
+            }
+        }
+
+        // Configurar Service Worker
+        function setupServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/Web/countdown-sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registrado:', registration.scope);
+                        
+                        // Verificar actualizaciones periódicamente
+                        setInterval(() => {
+                            registration.update();
+                        }, 60 * 60 * 1000);
+                    })
+                    .catch(error => {
+                        console.log('Error registrando ServiceWorker:', error);
+                    });
+            }
+        }
+
+        // Configurar PWA
+        function setupPWA() {
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                appState.deferredPrompt = e;
+                
+                // Mostrar botón de instalación
+                const installBtn = document.getElementById('install-btn');
+                installBtn.style.display = 'flex';
+            });
+        }
+
+        // Instalar PWA
+        function installPWA() {
+            if (appState.deferredPrompt) {
+                appState.deferredPrompt.prompt();
+                appState.deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        showMessage('Aplicación instalada', 'success');
+                    }
+                    appState.deferredPrompt = null;
+                });
+            }
+        }
+
+        // Mantener pantalla activa (alternativa)
+        function keepScreenAwakeAlternative() {
+            if (!appState.countdownActive) return;
             
-            alert("Archivo de salidas generado correctamente.");
+            // Usar API de Wake Lock si está disponible
+            if ('wakeLock' in navigator) {
+                navigator.wakeLock.request('screen')
+                    .then(wakeLock => {
+                        console.log('Wake Lock activado');
+                    })
+                    .catch(err => {
+                        console.log('Wake Lock no disponible:', err);
+                    });
+            }
+            
+            // Alternativa: reproducir video invisible
+            const video = document.getElementById('keep-alive-video');
+            if (video) {
+                video.loop = true;
+                video.play().catch(e => console.log('Video keep-alive falló:', e));
+            }
+            
+            // Usar API de vibración (si está disponible)
+            if (navigator.vibrate) {
+                navigator.vibrate(0);
+            }
         }
-        
-        function loadSavedConfiguration() {
-            // En una implementación real, cargaríamos la configuración desde localStorage
-            // Para este ejemplo, usaremos valores por defecto
-            console.log("Cargando configuración...");
+
+        // ============================================
+        // FUNCIONES DE CUENTA ATRÁS - CORREGIDAS
+        // ============================================
+
+        // Iniciar cuenta atrás
+        function startCountdown() {
+            if (!appState.currentRace) {
+                showMessage(translations[appState.currentLanguage].selectRaceFirst, 'error');
+                return;
+            }
+            
+            // Ocultar pantalla de configuración
+            document.querySelectorAll('.hide-on-countdown').forEach(el => {
+                el.style.display = 'none';
+            });
+            
+            // Mostrar pantalla de ejecución
+            const countdownScreen = document.getElementById('countdown-screen');
+            countdownScreen.classList.add('active');
+            
+            // CORRECCIÓN: Iniciar tiempo de carrera
+            appState.raceStartTime = Date.now();
+            appState.accumulatedTime = 0;
+            
+            // Configurar intervalo inicial
+            if (appState.intervals.length === 0) {
+                // Intervalo único
+                const minutes = parseInt(document.getElementById('interval-minutes').value) || 0;
+                const seconds = parseInt(document.getElementById('interval-seconds').value) || 0;
+                appState.nextCorredorTime = minutes * 60 + seconds;
+                
+                appState.intervals = [{
+                    from: 1,
+                    to: 9999,
+                    minutes: minutes,
+                    seconds: seconds,
+                    totalSeconds: minutes * 60 + seconds
+                }];
+            }
+            
+            // Determinar intervalo actual basado en corredores salidos
+            updateCurrentInterval();
+            
+            // Iniciar cuenta atrás
+            appState.countdownActive = true;
+            appState.countdownPaused = false;
+            appState.countdownValue = appState.nextCorredorTime;
+            
+            // Fondo rojo desde el inicio
+            document.body.classList.remove('countdown-warning', 'countdown-critical', 'countdown-salida');
+            document.body.classList.add('countdown-normal');
+            
+            // CORRECCIÓN: Quitar clase de salida activa
+            countdownScreen.classList.remove('countdown-salida-active');
+            
+            // Actualizar display
+            updateCountdownDisplay();
+            
+            // Iniciar intervalo
+            appState.countdownInterval = setInterval(updateCountdown, 1000);
+            
+            // Mantener pantalla activa
+            keepScreenAwakeAlternative();
+            
+            // Guardar estado
+            saveAppState();
+            
+            showMessage(translations[appState.currentLanguage].countdownStarted, 'success');
         }
+
+        // Actualizar cuenta atrás - CORREGIDA: Cálculo correcto del tiempo
+        function updateCountdown() {
+            if (!appState.countdownActive || appState.countdownPaused) return;
+            
+            // CORRECCIÓN: Calcular tiempo restante basado en tiempo real
+            const currentTime = Date.now();
+            const elapsedFromRaceStart = Math.floor((currentTime - appState.raceStartTime) / 1000);
+            
+            // Tiempo que debería haber pasado según salidas
+            const expectedElapsedTime = appState.accumulatedTime + 
+                (appState.nextCorredorTime - appState.countdownValue);
+            
+            // Si hay desfase, ajustar
+            if (Math.abs(elapsedFromRaceStart - expectedElapsedTime) > 1) {
+                appState.countdownValue = Math.max(0, appState.nextCorredorTime - 
+                    (elapsedFromRaceStart - appState.accumulatedTime));
+            } else {
+                // Contador normal
+                appState.countdownValue--;
+            }
+            
+            // CORRECCIÓN: No mostrar 0, saltar directamente a SALIDA
+            if (appState.countdownValue <= 0) {
+                handleCountdownZero();
+                return;
+            }
+            
+            // Actualizar display
+            updateCountdownDisplay();
+            
+            // Verificar estados especiales
+            if (appState.countdownValue === 10) {
+                // 10 segundos: fondo naranja, sonido agudo
+                document.body.classList.remove('countdown-normal');
+                document.body.classList.add('countdown-warning');
+                playSound('warning');
+            } else if (appState.countdownValue === 5) {
+                // 5 segundos: parpadeo, sonido cada segundo
+                document.body.classList.remove('countdown-warning');
+                document.body.classList.add('countdown-critical');
+                playSound('critical');
+            } else if (appState.countdownValue < 5 && appState.countdownValue > 0) {
+                // Últimos 5 segundos: sonido cada segundo
+                playSound('critical');
+            }
+            
+            // Guardar estado cada 10 segundos
+            if (appState.countdownValue % 10 === 0) {
+                saveAppState();
+            }
+        }
+
+        // Actualizar display de cuenta atrás
+        function updateCountdownDisplay() {
+            const display = document.getElementById('countdown-display');
+            
+            if (appState.countdownValue >= 60) {
+                // Mostrar minutos y segundos
+                const minutes = Math.floor(appState.countdownValue / 60);
+                const seconds = appState.countdownValue % 60;
+                display.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                // Menos de 1 minuto: mostrar solo segundos
+                display.textContent = appState.countdownValue.toString();
+            }
+            
+            // Actualizar tiempo del próximo corredor
+            updateNextCorredorDisplay();
+        }
+
+        // Manejar cuando la cuenta atrás llega a cero
+        function handleCountdownZero() {
+            clearInterval(appState.countdownInterval);
+            
+            // CORRECCIÓN: Ocultar número detrás de SALIDA
+            const countdownScreen = document.getElementById('countdown-screen');
+            countdownScreen.classList.add('countdown-salida-active');
+            
+            // Cambiar a fondo verde
+            document.body.classList.remove('countdown-critical', 'countdown-warning', 'countdown-normal');
+            document.body.classList.add('countdown-salida');
+            
+            // Mostrar "SALIDA"
+            const salidaDisplay = document.getElementById('salida-display');
+            salidaDisplay.classList.add('show');
+            
+            // Reproducir sonido de salida
+            playSound('salida');
+            
+            // Registrar salida
+            registerDeparture();
+            
+            // CORRECCIÓN: Acumular tiempo actual
+            appState.accumulatedTime += appState.nextCorredorTime;
+            
+            // Ocultar "SALIDA" después de 2 segundos y preparar siguiente
+            appState.salidaTimeout = setTimeout(() => {
+                salidaDisplay.classList.remove('show');
+                countdownScreen.classList.remove('countdown-salida-active');
+                prepareNextCountdown();
+            }, 2000);
+        }
+
+        // Registrar salida
+        function registerDeparture() {
+            appState.departedCount++;
+            
+            const departure = {
+                corredor: appState.departedCount,
+                timestamp: Date.now()
+            };
+            
+            appState.departureTimes.push(departure);
+            
+            // Actualizar display
+            document.getElementById('departed-count').textContent = appState.departedCount;
+            
+            // Actualizar lista
+            renderDeparturesList();
+            
+            // Guardar en almacenamiento
+            saveAppState();
+            localStorage.setItem('countdown-departures', JSON.stringify(appState.departureTimes));
+        }
+
+        // Preparar siguiente cuenta atrás
+        function prepareNextCountdown() {
+            // Actualizar intervalo basado en corredores salidos
+            updateCurrentInterval();
+            
+            // CORRECCIÓN: Restar 2 segundos de la cuenta atrás actual, no del tiempo base
+            appState.countdownValue = Math.max(0, appState.nextCorredorTime - 2);
+            
+            // Volver a fondo rojo
+            document.body.classList.remove('countdown-salida');
+            document.body.classList.add('countdown-normal');
+            
+            // Actualizar display
+            updateCountdownDisplay();
+            
+            // Reiniciar intervalo
+            appState.countdownInterval = setInterval(updateCountdown, 1000);
+            
+            // Guardar estado
+            saveAppState();
+        }
+
+        // Actualizar intervalo actual
+        function updateCurrentInterval() {
+            const currentCorredor = appState.departedCount + 1;
+            
+            // Buscar intervalo que corresponda al corredor actual
+            for (let i = 0; i < appState.intervals.length; i++) {
+                const interval = appState.intervals[i];
+                if (currentCorredor >= interval.from && currentCorredor <= interval.to) {
+                    appState.currentIntervalIndex = i;
+                    appState.nextCorredorTime = interval.totalSeconds;
+                    break;
+                }
+            }
+        }
+
+        // Actualizar display del próximo corredor - CORREGIDA: Edición funcionando
+        function updateNextCorredorDisplay() {
+            const display = document.getElementById('next-corredor-time');
+            const totalSeconds = appState.nextCorredorTime;
+            
+            if (totalSeconds >= 60) {
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                display.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                display.textContent = totalSeconds + "s";
+            }
+        }
+
+        // Actualizar tiempo total - CORREGIDA: Diferencia entre hora actual y hora de inicio
+        function updateTotalTime() {
+            if (!appState.raceStartTime) return;
+            
+            // CORRECCIÓN: Calcular diferencia entre hora actual y hora de inicio
+            const elapsed = Math.floor((Date.now() - appState.raceStartTime) / 1000);
+            const hours = Math.floor(elapsed / 3600);
+            const minutes = Math.floor((elapsed % 3600) / 60);
+            const seconds = elapsed % 60;
+            
+            const display = document.getElementById('total-time-value');
+            display.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Detener cuenta atrás
+        function stopCountdown() {
+            if (appState.countdownInterval) {
+                clearInterval(appState.countdownInterval);
+                appState.countdownInterval = null;
+            }
+            
+            if (appState.salidaTimeout) {
+                clearTimeout(appState.salidaTimeout);
+                appState.salidaTimeout = null;
+            }
+            
+            appState.countdownActive = false;
+            appState.countdownPaused = false;
+            saveAppState();
+        }
+
+        // Pausar cuenta atrás (solo visual)
+        function pauseCountdownVisual() {
+            appState.countdownPaused = true;
+            appState.configModalOpen = true;
+        }
+
+        // Reanudar cuenta atrás visual
+        function resumeCountdownVisual() {
+            appState.countdownPaused = false;
+            appState.configModalOpen = false;
+        }
+
+        // Restaurar cuenta atrás desde estado guardado
+        function startCountdownFromState() {
+            if (!appState.countdownActive) return;
+            
+            // Calcular tiempo transcurrido desde que se guardó
+            const now = Date.now();
+            const lastUpdate = localStorage.getItem('countdown-last-update');
+            
+            if (lastUpdate) {
+                const elapsed = Math.floor((now - parseInt(lastUpdate)) / 1000);
+                appState.countdownValue = Math.max(0, appState.countdownValue - elapsed);
+            }
+            
+            // Iniciar cuenta atrás
+            startCountdown();
+        }
+
+        // ============================================
+        // FUNCIONES DE CONFIGURACIÓN
+        // ============================================
+
+        // Crear nueva carrera
+        function createNewRace() {
+            const name = document.getElementById('new-race-name').value.trim();
+            if (!name) {
+                showMessage('Ingresa un nombre para la carrera', 'error');
+                return;
+            }
+            
+            const description = document.getElementById('new-race-description').value.trim();
+            
+            const newRace = {
+                id: Date.now(),
+                name: name,
+                description: description,
+                createdAt: new Date().toISOString(),
+                intervals: [],
+                departures: []
+            };
+            
+            appState.races.push(newRace);
+            appState.currentRace = newRace;
+            
+            saveRacesToStorage();
+            renderRacesSelect();
+            
+            document.getElementById('new-race-modal').classList.remove('active');
+            document.getElementById('new-race-name').value = '';
+            document.getElementById('new-race-description').value = '';
+            
+            showMessage(translations[appState.currentLanguage].raceCreated, 'success');
+        }
+
+        // Eliminar carrera
+        function deleteCurrentRace() {
+            if (!appState.currentRace) return;
+            
+            const raceIndex = appState.races.findIndex(r => r.id === appState.currentRace.id);
+            if (raceIndex !== -1) {
+                appState.races.splice(raceIndex, 1);
+                appState.currentRace = null;
+                
+                // Si había cuenta atrás activa, detenerla
+                if (appState.countdownActive) {
+                    stopCountdown();
+                    document.getElementById('countdown-screen').classList.remove('active');
+                    document.querySelectorAll('.hide-on-countdown').forEach(el => {
+                        el.style.display = '';
+                    });
+                }
+                
+                saveRacesToStorage();
+                renderRacesSelect();
+                showMessage(translations[appState.currentLanguage].raceDeleted, 'success');
+            }
+        }
+
+        // Añadir intervalo variable
+        function addVariableInterval() {
+            const from = parseInt(document.getElementById('from-corredor').value) || 1;
+            const to = parseInt(document.getElementById('to-corredor').value) || 10;
+            const minutes = parseInt(document.getElementById('var-minutes').value) || 0;
+            const seconds = parseInt(document.getElementById('var-seconds').value) || 0;
+            
+            if (from > to) {
+                showMessage('El corredor "desde" debe ser menor o igual que "hasta"', 'error');
+                return;
+            }
+            
+            if (minutes === 0 && seconds === 0) {
+                showMessage('Ingresa un tiempo válido', 'error');
+                return;
+            }
+            
+            const totalSeconds = minutes * 60 + seconds;
+            
+            const newInterval = {
+                from: from,
+                to: to,
+                minutes: minutes,
+                seconds: seconds,
+                totalSeconds: totalSeconds
+            };
+            
+            appState.intervals.push(newInterval);
+            renderIntervalsList();
+            
+            // Limpiar campos
+            document.getElementById('from-corredor').value = to + 1;
+            document.getElementById('to-corredor').value = to + 10;
+            document.getElementById('var-minutes').value = 1;
+            document.getElementById('var-seconds').value = 0;
+            
+            showMessage(translations[appState.currentLanguage].intervalAdded, 'success');
+        }
+
+        // Renderizar lista de intervalos
+        function renderIntervalsList() {
+            const container = document.getElementById('intervals-list');
+            container.innerHTML = '';
+            
+            appState.intervals.forEach((interval, index) => {
+                const row = document.createElement('div');
+                row.className = 'interval-row';
+                row.innerHTML = `
+                    <span>Corredores ${interval.from} - ${interval.to}</span>
+                    <span>Cada: ${interval.minutes}min ${interval.seconds}s</span>
+                    <button class="btn btn-danger btn-small remove-interval-btn" data-index="${index}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                container.appendChild(row);
+            });
+            
+            // Agregar event listeners a botones de eliminar
+            document.querySelectorAll('.remove-interval-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    appState.intervals.splice(index, 1);
+                    renderIntervalsList();
+                });
+            });
+        }
+
+        // Limpiar lista de salidas
+        function clearDeparturesList() {
+            appState.departureTimes = [];
+            appState.departedCount = 0;
+            renderDeparturesList();
+            saveAppState();
+            localStorage.removeItem('countdown-departures');
+            showMessage(translations[appState.currentLanguage].departuresCleared, 'success');
+        }
+
+        // Exportar a Excel
+        function exportToExcel() {
+            if (appState.departureTimes.length === 0) {
+                showMessage('No hay datos para exportar', 'warning');
+                return;
+            }
+            
+            // Crear datos para Excel
+            const data = [
+                ['Corredor', 'Fecha', 'Hora', 'Timestamp']
+            ];
+            
+            appState.departureTimes.forEach(departure => {
+                const date = new Date(departure.timestamp);
+                data.push([
+                    departure.corredor,
+                    date.toLocaleDateString(),
+                    date.toLocaleTimeString(),
+                    departure.timestamp
+                ]);
+            });
+            
+            // Crear hoja de cálculo
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Salidas");
+            
+            // Generar nombre de archivo
+            const raceName = appState.currentRace ? 
+                appState.currentRace.name.replace(/[^a-z0-9]/gi, '_') : 'carrera';
+            const date = new Date().toISOString().split('T')[0];
+            const filename = `salidas_${raceName}_${date}.xlsx`;
+            
+            // Descargar
+            XLSX.writeFile(wb, filename);
+            showMessage(translations[appState.currentLanguage].excelExported, 'success');
+        }
+
+        // Enviar sugerencias
+        function sendSuggestion() {
+            const email = document.getElementById('suggestion-email').value.trim();
+            const text = document.getElementById('suggestion-text').value.trim();
+            
+            if (!text) {
+                showMessage('Ingresa tu sugerencia', 'error');
+                return;
+            }
+            
+            // Aquí iría la lógica para enviar la sugerencia
+            // Por ahora solo mostramos un mensaje
+            console.log('Sugerencia enviada:', { email, text });
+            
+            document.getElementById('suggestions-modal').classList.remove('active');
+            document.getElementById('suggestion-email').value = '';
+            document.getElementById('suggestion-text').value = '';
+            
+            showMessage(translations[appState.currentLanguage].suggestionSent, 'success');
+        }
+
+        // ============================================
+        // EVENT LISTENERS - CORREGIDOS
+        // ============================================
+
+        function setupEventListeners() {
+            // Selector de idioma
+            document.querySelectorAll('.flag').forEach(flag => {
+                flag.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    appState.currentLanguage = lang;
+                    localStorage.setItem('countdown-language', lang);
+                    updateLanguageUI();
+                });
+            });
+            
+            // Botón de ayuda
+            document.getElementById('help-icon-header').addEventListener('click', () => {
+                document.getElementById('help-modal').classList.add('active');
+            });
+            
+            document.getElementById('footer-help-btn').addEventListener('click', () => {
+                document.getElementById('help-modal').classList.add('active');
+            });
+            
+            // Cerrar modales
+            document.getElementById('help-modal-close').addEventListener('click', () => {
+                document.getElementById('help-modal').classList.remove('active');
+            });
+            
+            document.getElementById('help-modal-ok').addEventListener('click', () => {
+                document.getElementById('help-modal').classList.remove('active');
+            });
+            
+            document.getElementById('delete-race-modal-close').addEventListener('click', () => {
+                document.getElementById('delete-race-modal').classList.remove('active');
+            });
+            
+            document.getElementById('delete-race-cancel-btn').addEventListener('click', () => {
+                document.getElementById('delete-race-modal').classList.remove('active');
+            });
+            
+            document.getElementById('clear-departures-modal-close').addEventListener('click', () => {
+                document.getElementById('clear-departures-modal').classList.remove('active');
+            });
+            
+            document.getElementById('clear-departures-cancel-btn').addEventListener('click', () => {
+                document.getElementById('clear-departures-modal').classList.remove('active');
+            });
+            
+            document.getElementById('suggestions-modal-close').addEventListener('click', () => {
+                document.getElementById('suggestions-modal').classList.remove('active');
+            });
+            
+            document.getElementById('cancel-suggestion-btn').addEventListener('click', () => {
+                document.getElementById('suggestions-modal').classList.remove('active');
+            });
+            
+            document.getElementById('new-race-modal-close').addEventListener('click', () => {
+                document.getElementById('new-race-modal').classList.remove('active');
+            });
+            
+            document.getElementById('cancel-create-race-btn').addEventListener('click', () => {
+                document.getElementById('new-race-modal').classList.remove('active');
+            });
+            
+            // Modal de configuración durante cuenta atrás
+            document.getElementById('config-during-countdown-close').addEventListener('click', () => {
+                document.getElementById('config-during-countdown-modal').classList.remove('active');
+                resumeCountdownVisual();
+            });
+            
+            document.getElementById('resume-countdown-btn').addEventListener('click', () => {
+                document.getElementById('config-during-countdown-modal').classList.remove('active');
+                resumeCountdownVisual();
+            });
+            
+            document.getElementById('stop-countdown-btn').addEventListener('click', () => {
+                stopCountdown();
+                document.getElementById('countdown-screen').classList.remove('active');
+                document.querySelectorAll('.hide-on-countdown').forEach(el => {
+                    el.style.display = '';
+                });
+                document.getElementById('config-during-countdown-modal').classList.remove('active');
+                showMessage(translations[appState.currentLanguage].countdownStopped, 'info');
+            });
+            
+            document.getElementById('adjust-times-btn').addEventListener('click', () => {
+                // Mostrar modal de ajuste de tiempos
+                document.getElementById('config-during-countdown-modal').classList.remove('active');
+                document.getElementById('adjust-times-modal').classList.add('active');
+                
+                // Llenar campos con valores actuales
+                document.getElementById('adjust-next-time').value = appState.nextCorredorTime;
+                document.getElementById('adjust-departed').value = appState.departedCount;
+                document.getElementById('adjust-current-time').value = appState.countdownValue;
+            });
+            
+            document.getElementById('exit-countdown-btn').addEventListener('click', () => {
+                stopCountdown();
+                document.getElementById('countdown-screen').classList.remove('active');
+                document.querySelectorAll('.hide-on-countdown').forEach(el => {
+                    el.style.display = '';
+                });
+                document.getElementById('config-during-countdown-modal').classList.remove('active');
+                showMessage('Sesión finalizada', 'info');
+            });
+            
+            // Modal de ajuste de tiempos
+            document.getElementById('adjust-times-close').addEventListener('click', () => {
+                document.getElementById('adjust-times-modal').classList.remove('active');
+                resumeCountdownVisual();
+            });
+            
+            document.getElementById('cancel-adjustments-btn').addEventListener('click', () => {
+                document.getElementById('adjust-times-modal').classList.remove('active');
+                resumeCountdownVisual();
+            });
+            
+            document.getElementById('save-adjustments-btn').addEventListener('click', () => {
+                const newNextTime = parseInt(document.getElementById('adjust-next-time').value) || 60;
+                const newDeparted = parseInt(document.getElementById('adjust-departed').value) || 0;
+                const newCurrentTime = parseInt(document.getElementById('adjust-current-time').value) || 60;
+                
+                if (newNextTime <= 0 || newCurrentTime < 0 || newDeparted < 0) {
+                    showMessage('Valores no válidos', 'error');
+                    return;
+                }
+                
+                appState.nextCorredorTime = newNextTime;
+                appState.departedCount = newDeparted;
+                appState.countdownValue = Math.min(newCurrentTime, newNextTime);
+                
+                // Actualizar displays
+                updateNextCorredorDisplay();
+                document.getElementById('departed-count').textContent = newDeparted;
+                updateCountdownDisplay();
+                
+                document.getElementById('adjust-times-modal').classList.remove('active');
+                resumeCountdownVisual();
+                saveAppState();
+                showMessage('Tiempos ajustados correctamente', 'success');
+            });
+            
+            // Cerrar modal al hacer clic fuera
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                        if (modal.id === 'config-during-countdown-modal' || 
+                            modal.id === 'adjust-times-modal') {
+                            resumeCountdownVisual();
+                        }
+                    }
+                });
+            });
+            
+            // Gestión de carreras
+            document.getElementById('race-select').addEventListener('change', function() {
+                const index = parseInt(this.value);
+                if (index >= 0 && index < appState.races.length) {
+                    appState.currentRace = appState.races[index];
+                    saveRacesToStorage();
+                }
+            });
+            
+            document.getElementById('new-race-btn').addEventListener('click', () => {
+                document.getElementById('new-race-modal').classList.add('active');
+                document.getElementById('new-race-name').focus();
+            });
+            
+            document.getElementById('create-race-btn').addEventListener('click', createNewRace);
+            
+            document.getElementById('delete-race-btn').addEventListener('click', () => {
+                if (!appState.currentRace) {
+                    showMessage(translations[appState.currentLanguage].selectRaceFirst, 'error');
+                    return;
+                }
+                document.getElementById('delete-race-modal').classList.add('active');
+            });
+            
+            document.getElementById('delete-race-confirm-btn').addEventListener('click', deleteCurrentRace);
+            
+            // Configuración de intervalos
+            document.getElementById('same-interval-btn').addEventListener('click', () => {
+                document.getElementById('single-interval-config').style.display = 'block';
+                document.getElementById('variable-interval-config').style.display = 'none';
+                appState.intervals = [];
+                renderIntervalsList();
+            });
+            
+            document.getElementById('variable-interval-btn').addEventListener('click', () => {
+                document.getElementById('single-interval-config').style.display = 'none';
+                document.getElementById('variable-interval-config').style.display = 'block';
+                appState.intervals = [];
+                renderIntervalsList();
+            });
+            
+            document.getElementById('add-interval-btn').addEventListener('click', addVariableInterval);
+            
+            // Iniciar desde posición
+            document.getElementById('start-from-zero-btn').addEventListener('click', () => {
+                appState.departedCount = 0;
+                document.getElementById('departed-count').textContent = '0';
+                document.getElementById('start-position').style.display = 'none';
+            });
+            
+            document.getElementById('start-from-x-btn').addEventListener('click', () => {
+                document.getElementById('start-position').style.display = 'inline-block';
+                document.getElementById('start-position').focus();
+            });
+            
+            document.getElementById('start-position').addEventListener('change', function() {
+                const position = parseInt(this.value) || 1;
+                appState.departedCount = Math.max(0, position - 1);
+                document.getElementById('departed-count').textContent = appState.departedCount;
+            });
+            
+            // Limpiar salidas
+            document.getElementById('clear-departures-btn').addEventListener('click', () => {
+                if (appState.departureTimes.length === 0) {
+                    showMessage('La lista ya está vacía', 'info');
+                    return;
+                }
+                document.getElementById('clear-departures-modal').classList.add('active');
+            });
+            
+            document.getElementById('clear-departures-confirm-btn').addEventListener('click', () => {
+                clearDeparturesList();
+                document.getElementById('clear-departures-modal').classList.remove('active');
+            });
+            
+            // Exportar Excel
+            document.getElementById('export-excel-btn').addEventListener('click', exportToExcel);
+            
+            // Iniciar cuenta atrás
+            document.getElementById('start-countdown-btn').addEventListener('click', startCountdown);
+            
+            // Configuración en pantalla de ejecución - CORRECCIÓN: No para el tiempo
+            document.getElementById('config-toggle').addEventListener('click', () => {
+                if (appState.countdownActive && !appState.configModalOpen) {
+                    pauseCountdownVisual();
+                    document.getElementById('config-during-countdown-modal').classList.add('active');
+                }
+            });
+            
+            // Edición inline de contadores - CORREGIDA: Funciona para próximo tiempo
+            document.getElementById('departed-count').addEventListener('dblclick', function() {
+                const currentValue = parseInt(this.textContent) || 0;
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.className = 'inline-edit-input';
+                input.value = currentValue;
+                input.min = 0;
+                
+                this.innerHTML = '';
+                this.appendChild(input);
+                input.focus();
+                input.select();
+                
+                const finishEdit = () => {
+                    const newValue = parseInt(input.value) || 0;
+                    appState.departedCount = newValue;
+                    this.textContent = newValue;
+                    updateCurrentInterval();
+                    saveAppState();
+                    renderDeparturesList();
+                };
+                
+                input.addEventListener('blur', finishEdit);
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        finishEdit();
+                    }
+                });
+            });
+            
+            document.getElementById('next-corredor-time').addEventListener('dblclick', function() {
+                const currentText = this.textContent;
+                let currentSeconds = appState.nextCorredorTime;
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'inline-edit-input';
+                
+                // Mostrar en formato actual
+                if (currentSeconds >= 60) {
+                    const minutes = Math.floor(currentSeconds / 60);
+                    const seconds = currentSeconds % 60;
+                    input.value = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                } else {
+                    input.value = currentSeconds + "s";
+                }
+                
+                input.placeholder = 'Ej: 1:30 o 90s';
+                
+                this.innerHTML = '';
+                this.appendChild(input);
+                input.focus();
+                input.select();
+                
+                const finishEdit = () => {
+                    const value = input.value.trim();
+                    let seconds = 0;
+                    
+                    if (value.includes(':')) {
+                        const parts = value.split(':');
+                        const mins = parseInt(parts[0]) || 0;
+                        const secs = parseInt(parts[1]) || 0;
+                        seconds = mins * 60 + secs;
+                    } else if (value.endsWith('s')) {
+                        seconds = parseInt(value) || 0;
+                    } else {
+                        seconds = parseInt(value) || 0;
+                    }
+                    
+                    if (seconds > 0) {
+                        appState.nextCorredorTime = seconds;
+                        // Ajustar countdownValue si es necesario
+                        if (appState.countdownValue > seconds) {
+                            appState.countdownValue = seconds;
+                        }
+                        updateNextCorredorDisplay();
+                        updateCountdownDisplay();
+                        saveAppState();
+                    }
+                };
+                
+                input.addEventListener('blur', finishEdit);
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        finishEdit();
+                    }
+                });
+            });
+            
+            // Botones del footer
+            document.getElementById('suggestions-btn').addEventListener('click', () => {
+                document.getElementById('suggestions-modal').classList.add('active');
+                document.getElementById('suggestion-text').focus();
+            });
+            
+            document.getElementById('send-suggestion-btn').addEventListener('click', sendSuggestion);
+            
+            document.getElementById('install-btn').addEventListener('click', installPWA);
+            
+            document.getElementById('update-btn').addEventListener('click', () => {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.ready.then(registration => {
+                        registration.update();
+                        showMessage(translations[appState.currentLanguage].updateChecked, 'info');
+                    });
+                }
+            });
+            
+            // Permitir Enter para enviar sugerencias
+            document.getElementById('suggestion-text').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    sendSuggestion();
+                }
+            });
+        }
+
+        // ============================================
+        // FUNCIONES UTILITARIAS
+        // ============================================
+
+        // Mostrar mensaje
+        function showMessage(text, type = 'info') {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // Guardar última actualización
+        function saveLastUpdate() {
+            localStorage.setItem('countdown-last-update', Date.now().toString());
+        }
+
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', initApp);
+
+        // Guardar última actualización al salir
+        window.addEventListener('beforeunload', () => {
+            if (appState.countdownActive) {
+                saveLastUpdate();
+            }
+        });
+
+        // Manejar tecla Escape para salir de pantalla completa
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && appState.countdownActive && !appState.configModalOpen) {
+                pauseCountdownVisual();
+                document.getElementById('config-during-countdown-modal').classList.add('active');
+            }
+            
+            // Atajo para iniciar cuenta atrás: Ctrl+Enter
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('start-countdown-btn').click();
+            }
+        });
+
+        // Solicitar permiso de notificaciones si es necesario
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+
+        // Activar audio en interacción del usuario
+        document.addEventListener('click', function initAudioOnInteraction() {
+            if (appState.audioContext && appState.audioContext.state === 'suspended') {
+                appState.audioContext.resume();
+            }
+            // Remover el event listener después de la primera interacción
+            document.removeEventListener('click', initAudioOnInteraction);
+        });
+
     </script>
+
+    <!-- Script para XLSX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </body>
 </html>
