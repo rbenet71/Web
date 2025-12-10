@@ -1138,6 +1138,32 @@
                 min-width: 70px;
             }
         }
+        /* Añade esto en la sección de estilos CSS */
+        .map-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .map-buttons a {
+            transition: all 0.3s ease;
+        }
+
+        .map-buttons a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        /* Estilo para los botones de acción (iconos de mapa) */
+        .action-btn {
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background-color: rgba(52, 152, 219, 0.1) !important;
+            color: #3498db !important;
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
@@ -2567,29 +2593,22 @@ IDList=`;
             return html;
         }
         
+
         function renderTopLocation(top, t, isStartLocation = false) {
-    if (!top.location || top.location.error) {
-        return '';
-    }
-    
-    const lat = top.location.lat.toFixed(6);
-    const lng = top.location.lng.toFixed(6);
-    
-    // Crear un ID único para este punto
-    const pointId = isStartLocation ? 'start' : top.id;
-    const label = isStartLocation ? t.startBtn : (top.dorsal || `Top ${top.id}`);
-    const time = isStartLocation ? '00:00' : formatTime(top.time);
-    
-    // Construir URL de Google Maps con todos los puntos del cronómetro
-    const cronoIndex = appState.activeCronoIndex;
-    const mapsUrl = buildAllPointsMapUrl(cronoIndex);
-    
-    return `
-        <a href="${mapsUrl}" target="_blank" class="action-btn" title="${t.viewAllPoints || 'Ver todos los puntos'}">
-            <i class="fas fa-map-marker-alt"></i>
-        </a>
-    `;
-}
+            if (!top.location || top.location.error) {
+                return '';
+            }
+            
+            const cronoIndex = appState.activeCronoIndex;
+            const mapsUrl = buildAllPointsMapUrl(cronoIndex);
+            
+            return `
+                <a href="${mapsUrl}" target="_blank" class="action-btn" title="${t.viewAllPoints || 'Ver todos los puntos'}">
+                    <i class="fas fa-map-marker-alt"></i>
+                </a>
+            `;
+        }
+
         
         function deleteTopWithConfirmation(cronoIndex, topIndex) {
             const t = translations[appState.currentLanguage];
@@ -2615,15 +2634,42 @@ IDList=`;
     
     const lat = crono.location.lat.toFixed(6);
     const lng = crono.location.lng.toFixed(6);
+    const cronoIndex = appState.activeCronoIndex;
     
-    // URL para mostrar todos los puntos
-    const allPointsUrl = buildAllPointsMapUrl('start', lat, lng, t.startBtn + ' ' + crono.tabName, true);
+    // URL para este punto individual
+    const singlePointUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+    
+    if (cronoIndex === -1) {
+        return `
+            <p>${lat}, ${lng}</p>
+            <a href="${singlePointUrl}" target="_blank" class="gps-link">
+                <i class="fas fa-map-marker-alt"></i> ${t.gpsLink}
+            </a>
+        `;
+    }
+    
+    // URL para todos los puntos del cronómetro
+    const allPointsUrl = buildAllPointsMapUrl(cronoIndex);
+    const totalPoints = (crono.location && !crono.location.error ? 1 : 0) + crono.tops.filter(t => t.location && !t.location.error).length;
     
     return `
-        <p>${lat}, ${lng}</p>
-        <a href="${allPointsUrl}" target="_blank" class="gps-link">
-            <i class="fas fa-external-link-alt"></i> ${t.viewAllPoints || t.gpsLink}
-        </a>
+        <p><strong>Coordenadas:</strong> ${lat}, ${lng}</p>
+        <div class="map-buttons" style="margin-top: 15px;">
+            <div style="margin-bottom: 10px;">
+                <a href="${singlePointUrl}" target="_blank" class="gps-link" 
+                   style="display: inline-flex; align-items: center; gap: 8px; background: #3498db; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none;">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>${t.gpsLink}</span>
+                </a>
+            </div>
+            <div>
+                <a href="${allPointsUrl}" target="_blank" class="gps-link"
+                   style="display: inline-flex; align-items: center; gap: 8px; background: #e74c3c; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none;">
+                    <i class="fas fa-route"></i>
+                    <span>${t.viewAllPoints || "Ver ruta completa"} (${totalPoints} puntos)</span>
+                </a>
+            </div>
+        </div>
     `;
 }
 
@@ -3167,60 +3213,43 @@ IDList=`;
         
 
         function buildAllPointsMapUrl(cronoIndex) {
-            if (cronoIndex === -1 || !appState.cronos[cronoIndex]) {
-                console.log('No hay cronómetro activo');
-                return `https://maps.google.com/`;
-            }
-            
-            const crono = appState.cronos[cronoIndex];
-            const points = [];
-            
-            console.log('Cronómetro encontrado:', crono.tabName);
-            console.log('Ubicación de inicio:', crono.location);
-            console.log('Número de tops:', crono.tops.length);
-            
-            // Añadir punto de inicio si existe
-            if (crono.location && !crono.location.error) {
-                points.push({
-                    lat: crono.location.lat,
-                    lng: crono.location.lng,
-                    label: `${crono.tabName} - Inicio`,
-                    time: '00:00',
-                    dorsal: 'Inicio'
-                });
-                console.log('Punto de inicio añadido');
-            }
-            
-            // Añadir todos los tops en orden cronológico (del más antiguo al más reciente)
-            const orderedTops = [...crono.tops].reverse();
-            
-            orderedTops.forEach((top, index) => {
-                if (top.location && !top.location.error) {
-                    points.push({
-                        lat: top.location.lat,
-                        lng: top.location.lng,
-                        label: `Top ${index + 1}`,
-                        time: formatTime(top.time),
-                        dorsal: top.dorsal || `Top ${index + 1}`
-                    });
-                    console.log(`Top ${index + 1} añadido:`, top.location.lat, top.location.lng);
-                }
-            });
-            
-            console.log('Total de puntos:', points.length);
-            
-            // Si no hay puntos, mostrar mapa vacío
-            if (points.length === 0) {
-                console.log('No hay puntos para mostrar');
-                return `https://maps.google.com/`;
-            }
-            
-            // Crear URL para Google Maps
-            const url = createMarkersWithLabelsUrl(points);
-            console.log('URL generada:', url);
-            
-            return url;
+    if (cronoIndex === -1 || !appState.cronos[cronoIndex]) {
+        return 'https://maps.google.com/';
+    }
+    
+    const crono = appState.cronos[cronoIndex];
+    let url = 'https://www.google.com/maps/dir/';
+    let hasPoints = false;
+    
+    console.log('DEBUG: Generando mapa para crono:', crono.tabName);
+    
+    // 1. Punto de inicio (si existe)
+    if (crono.location && !crono.location.error) {
+        url += `${crono.location.lat.toFixed(6)},${crono.location.lng.toFixed(6)}/`;
+        hasPoints = true;
+        console.log('DEBUG - Inicio añadido:', crono.location.lat, crono.location.lng);
+    }
+    
+    // 2. Tops en orden cronológico (más antiguo primero)
+    const orderedTops = [...crono.tops].reverse();
+    
+    orderedTops.forEach((top, index) => {
+        if (top.location && !top.location.error) {
+            url += `${top.location.lat.toFixed(6)},${top.location.lng.toFixed(6)}/`;
+            hasPoints = true;
+            console.log(`DEBUG - Top ${index + 1} añadido:`, top.location.lat, top.location.lng);
         }
+    });
+    
+    if (!hasPoints) {
+        console.log('DEBUG - No hay puntos GPS');
+        return 'https://maps.google.com/';
+    }
+    
+    console.log('DEBUG - URL generada:', url);
+    return url;
+}
+        
         function createMarkersMapUrl(points) {
             if (points.length === 0) return 'https://maps.google.com/';
             
