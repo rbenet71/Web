@@ -2101,14 +2101,7 @@ IDList=`;
             window.appInstaller = new AppInstaller();
             
             setInterval(updateAllCronoTimes, 100);
-            
-            setTimeout(() => {
-                const message = appState.currentLanguage === 'fr' ? 'Partagez vos idées pour améliorer la calculatrice' :
-                            appState.currentLanguage === 'en' ? 'Share your ideas to improve the calculator' :
-                            appState.currentLanguage === 'ca' ? 'Comparteix les teves idees per millorar la calculadora' :
-                            'Comparte tus ideas para mejorar la calculadora';
-                showMessage(message, 'info');
-            }, 1000);
+
         }
 
         // Language functions
