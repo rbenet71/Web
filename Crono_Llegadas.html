@@ -1162,232 +1162,7 @@
             animation: spin 1s linear infinite;
             margin: 0 auto 0.4rem;
         }
-
-        /* Estilos optimizados para tabla de dorsales */
-        .dorsal-table-header {
-            display: flex;
-            background-color: #34495e;
-            border-radius: 4px 4px 0 0;
-            font-weight: bold;
-            padding: 6px 4px;
-            font-size: 0.85rem;
-        }
-
-        .dorsal-header-cell {
-            flex: 1;
-            padding: 6px 4px;
-            text-align: center;
-            cursor: default;
-            min-width: 0; /* Permite que se reduzca */
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .dorsal-header-cell.sortable {
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.2s;
-            position: relative;
-        }
-
-        .dorsal-header-cell.sortable:hover {
-            background-color: rgba(52, 152, 219, 0.2);
-        }
-
-        .dorsal-header-cell.sort-asc {
-            background-color: rgba(46, 204, 113, 0.2);
-        }
-
-        .dorsal-header-cell.sort-desc {
-            background-color: rgba(231, 76, 60, 0.2);
-        }
-
-        .sort-arrow {
-            font-size: 0.75em;
-            margin-left: 4px;
-            opacity: 0.7;
-        }
-
-        .dorsal-row {
-            display: flex;
-            border-bottom: 1px solid #34495e;
-            transition: background-color 0.2s;
-            padding: 4px;
-            min-height: 36px;
-            align-items: center;
-        }
-
-        .dorsal-row:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-
-        .dorsal-cell {
-            flex: 1;
-            padding: 4px 3px;
-            text-align: center;
-            min-width: 0; /* Permite que se reduzca */
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-size: 0.85rem;
-        }
-
-        /* Estilos específicos para cada columna */
-        .dorsal-number {
-            font-weight: bold;
-            color: var(--secondary-color);
-            font-size: 0.9rem;
-            flex: 0.8;
-        }
-
-        .dorsal-time {
-            font-family: 'Orbitron', monospace;
-            color: #00ff00;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-            flex: 1.2;
-        }
-
-        .dorsal-cut {
-            color: #f39c12;
-            font-weight: bold;
-            flex: 0.7;
-        }
-
-        .dorsal-action {
-            flex: 0.5;
-            padding: 0 2px;
-        }
-
-        .dorsal-action .icon-btn-small {
-            min-width: 28px;
-            height: 28px;
-            padding: 2px;
-            margin: 0 auto;
-        }
-
-        /* Contenedor principal */
-        #dorsal-list {
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid #34495e;
-            border-radius: 6px;
-            margin-top: 8px;
-        }
-
-        /* Scrollbar personalizado */
-        #dorsal-list::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        #dorsal-list::-webkit-scrollbar-track {
-            background: #1a252f;
-        }
-
-        #dorsal-list::-webkit-scrollbar-thumb {
-            background: var(--secondary-color);
-            border-radius: 2px;
-        }
-
-        /* Ajustes para móviles */
-        @media (max-width: 768px) {
-            .dorsal-table-header {
-                padding: 4px 2px;
-                font-size: 0.75rem;
-            }
-            
-            .dorsal-header-cell {
-                padding: 4px 2px;
-                font-size: 0.75rem;
-            }
-            
-            .dorsal-row {
-                padding: 3px 2px;
-                min-height: 32px;
-            }
-            
-            .dorsal-cell {
-                padding: 3px 2px;
-                font-size: 0.8rem;
-            }
-            
-            .dorsal-number {
-                font-size: 0.85rem;
-                flex: 0.7;
-            }
-            
-            .dorsal-time {
-                font-size: 0.8rem;
-                flex: 1.1;
-                letter-spacing: 0.3px;
-            }
-            
-            .dorsal-cut {
-                font-size: 0.8rem;
-                flex: 0.6;
-            }
-            
-            .dorsal-action {
-                flex: 0.4;
-            }
-            
-            .dorsal-action .icon-btn-small {
-                min-width: 24px;
-                height: 24px;
-                font-size: 0.7rem;
-            }
-            
-            #dorsal-list {
-                max-height: 350px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .dorsal-table-header {
-                font-size: 0.7rem;
-                padding: 3px 1px;
-            }
-            
-            .dorsal-header-cell {
-                padding: 3px 1px;
-                font-size: 0.7rem;
-            }
-            
-            .dorsal-cell {
-                padding: 2px 1px;
-                font-size: 0.75rem;
-            }
-            
-            .dorsal-number {
-                font-size: 0.8rem;
-                flex: 0.6;
-            }
-            
-            .dorsal-time {
-                font-size: 0.75rem;
-                flex: 1;
-            }
-            
-            .dorsal-cut {
-                font-size: 0.75rem;
-                flex: 0.5;
-            }
-            
-            .dorsal-action {
-                flex: 0.3;
-                padding: 0;
-            }
-            
-            .dorsal-action .icon-btn-small {
-                min-width: 22px;
-                height: 22px;
-                font-size: 0.65rem;
-                padding: 1px;
-            }
-        }  
         
-                      
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -1679,7 +1454,7 @@
             }
             
             .dorsal-row {
-                flex-direction: row;
+                flex-direction: column;
                 gap: 4px;
                 align-items: flex-start;
             }
@@ -2007,7 +1782,7 @@
             <p>
                 <span id="copyright-text">2025 © Copyright</span>
                 <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                    Roberto Benet - rbenet71@gmail.com - V_10_12_2025
+                    Roberto Benet - rbenet71@gmail.com - V_09_12_2025
                 </a>
             </p>
         </footer>
@@ -2133,7 +1908,7 @@
                 cutsTab: "Cortes",
                 dorsalsTab: "Dorsales",
                 parametersTab: "Parámetros",
-                assignHelp: "Haz clic en las cabeceras para ordenar. Dorsal/Tiempo/Corte",
+                assignHelp: "Haz clic en cualquier tiempo para asignar dorsales (múltiples separados por comas)",
                 millisecondsLabel: "Mostrar Milésimas",
                 newRaceButton: "Nueva Carrera",
                 deleteRaceButton: "Eliminar Carrera",
@@ -2203,9 +1978,6 @@
                 </ol>`,
                 otherInstructionsTitle: "Instalar App",
                 dorsalPlaceholder: "Dorsales",
-                dorsalHeader: "Dorsal",
-                timeHeader: "Tiempo",
-                cutHeader: "Corte",
                 otherInstructions: `<ol style="padding-left: 15px;">
                     <li>Toca el botón "Instalar"</li>
                     <li>Sigue las instrucciones de tu navegador</li>
@@ -2233,7 +2005,7 @@
                 cutsTab: "Talls",
                 dorsalsTab: "Dorsals",
                 parametersTab: "Paràmetres",
-                assignHelp: "Fes clic a les capçaleres per ordenar. Dorsal/Temps/Tall",
+                assignHelp: "Fes clic en qualsevol temps per assignar dorsals (múltiples separats per comes)",
                 millisecondsLabel: "Mostrar Mil·lèsimes",
                 newRaceButton: "Nova Cursa",
                 deleteRaceButton: "Eliminar Cursa",
@@ -2304,9 +2076,6 @@
                 </ol>`,
                 otherInstructionsTitle: "Instal·lar App",
                 dorsalPlaceholder: "Dorsals",
-                dorsalHeader: "Dorsal",
-                timeHeader: "Temps",
-                cutHeader: "Tall",
                 otherInstructions: `<ol style="padding-left: 15px;">
                     <li>Toca el botó "Instal·lar"</li>
                     <li>Segueix les instruccions del teu navegador</li>
@@ -2333,7 +2102,7 @@
                 cutsTab: "Laps",
                 dorsalsTab: "Bibs",
                 parametersTab: "Parameters",
-                assignHelp: "Click on headers to sort. Bib/Time/Cut",
+                assignHelp: "Click on any time to assign bib numbers (multiple separated by commas)",
                 millisecondsLabel: "Show Milliseconds",
                 newRaceButton: "New Race",
                 deleteRaceButton: "Delete Race",
@@ -2403,9 +2172,6 @@
                 </ol>`,
                 otherInstructionsTitle: "Install App",
                 dorsalPlaceholder: "Bibs",
-                dorsalHeader: "Bib",
-                timeHeader: "Time",
-                cutHeader: "Lap",
                 otherInstructions: `<ol style="padding-left: 15px;">
                     <li>Tap the "Install" button</li>
                     <li>Follow your browser instructions</li>
@@ -2432,7 +2198,7 @@
                 cutsTab: "Tours",
                 dorsalsTab: "Dossards",
                 parametersTab: "Paramètres",
-                assignHelp: "Cliquez sur les en-têtes pour trier. Dossard/Temps/Tour",
+                assignHelp: "Cliquez sur n'importe quel temps pour attribuer des numéros de dossard (plusieurs séparés par des virgules)",
                 millisecondsLabel: "Afficher Millisecondes",
                 newRaceButton: "Nouvelle Course",
                 deleteRaceButton: "Supprimer Course",
@@ -2502,9 +2268,6 @@
                 </ol>`,
                 otherInstructionsTitle: "Installer l'App",
                 dorsalPlaceholder: "Dossards",
-                dorsalHeader: "Dossard",
-                timeHeader: "Temps",
-                cutHeader: "Tour",
                 otherInstructions: `<ol style="padding-left: 15px;">
                     <li>Appuyez sur le botó "Installer"</li>
                     <li>Suivez les instructions de votre navegador</li>
@@ -3053,10 +2816,7 @@
             document.querySelectorAll('.parameter-group label')[1].textContent = t.timeLabel;
             document.querySelectorAll('.parameter-group label')[2].textContent = t.startTimeLabel;
             document.querySelectorAll('.parameter-group label')[3].textContent = t.startTimeHistoryLabel;
-            document.querySelector('#sort-dorsal').innerHTML = t.dorsalHeader;
-            document.querySelector('#sort-time').innerHTML = t.timeHeader;
-            document.querySelector('#sort-cut').innerHTML = t.cutHeader;
-                        
+            
             setStartBtn.textContent = t.setStartTimeButton;
             setElapsedBtn.textContent = t.setTimeButton;
             
@@ -3457,183 +3217,41 @@
             });
         }
 
-        function renderDorsalList() {
-    dorsalListElement.innerHTML = '';
-    
-    const dorsales = Object.keys(dorsalAssignments).sort((a, b) => parseInt(a) - parseInt(b));
-    
-    if (dorsales.length === 0) {
-        dorsalListElement.innerHTML = '<div style="text-align: center; color: #95a5a6; padding: 16px;">No hay dorsales asignados</div>';
-        return;
-    }
-    
-    // Preparar los datos para mostrar
-    let dorsalData = [];
-    
-    dorsales.forEach(dorsal => {
-        const lapIndices = dorsalAssignments[dorsal];
-        lapIndices.forEach(lapIndex => {
-            const lap = lapTimes[lapIndex];
-            const cutNumber = lapTimes.findIndex(l => l === lap) + 1; // Número del corte
-            dorsalData.push({
-                dorsal: parseInt(dorsal),
-                dorsalStr: dorsal,
-                time: lap.timeMs,
-                timeFormatted: showMilliseconds ? lap.total : lap.total.split('"')[0] + '"',
-                cutNumber: cutNumber,
-                lapIndex: lapIndex
+        function renderDorsalList(){
+            dorsalListElement.innerHTML = '';
+            
+            const dorsales = Object.keys(dorsalAssignments).sort((a, b) => parseInt(a) - parseInt(b));
+            
+            if(dorsales.length === 0) {
+                dorsalListElement.innerHTML = '<div style="text-align: center; color: #95a5a6; padding: 16px;">No hay dorsales asignados</div>';
+                return;
+            }
+            
+            dorsales.forEach(dorsal => {
+                const lapIndices = dorsalAssignments[dorsal];
+                const tiempos = lapIndices.map(index => lapTimes[index]);
+                
+                const dorsalElement = document.createElement('div');
+                dorsalElement.className = 'dorsal-item';
+                
+                let tiemposHTML = tiempos.map((lap, i) => 
+                    `Corte ${i + 1}: ${showMilliseconds ? lap.total : lap.total.split('"')[0] + '"'}`
+                ).join(' | ');
+                
+                dorsalElement.innerHTML = `
+                    <div class="dorsal-number">Dorsal ${dorsal}</div>
+                    <div class="dorsal-time">${tiemposHTML}</div>
+                    <div class="dorsal-actions">
+                        <button onclick="removeDorsal(${dorsal})" style="background: #ff4444; color: white; border: none; padding: 4px 8px; border-radius: 2px; cursor: pointer;">✗</button>
+                    </div>
+                `;
+                
+                dorsalListElement.appendChild(dorsalElement);
             });
-        });
-    });
-    
-    // Estado de ordenación - usar variable global para que persista
-    if (!window.dorsalSortState) {
-        window.dorsalSortState = {
-            field: 'dorsal',
-            ascending: true
-        };
-    }
-    
-    // Función para ordenar
-    function sortDorsalData() {
-        dorsalData.sort((a, b) => {
-            let compareResult = 0;
-            
-            switch (window.dorsalSortState.field) {
-                case 'dorsal':
-                    compareResult = a.dorsal - b.dorsal;
-                    break;
-                case 'time':
-                    compareResult = a.time - b.time;
-                    break;
-                case 'cut':
-                    compareResult = a.cutNumber - b.cutNumber;
-                    break;
-            }
-            
-            return window.dorsalSortState.ascending ? compareResult : -compareResult;
-        });
-    }
-    
-    // Función para manejar clics en cabeceras
-    function handleHeaderClick(event) {
-        const header = event.currentTarget;
-        const sortField = header.getAttribute('data-sort');
-        
-        if (window.dorsalSortState.field === sortField) {
-            window.dorsalSortState.ascending = !window.dorsalSortState.ascending;
-        } else {
-            window.dorsalSortState.field = sortField;
-            window.dorsalSortState.ascending = true;
-        }
-        
-        renderTable();
-    }
-    
-    // Renderizar tabla
-    function renderTable() {
-        sortDorsalData();
-        
-        // Crear cabecera compacta
-        dorsalListElement.innerHTML = `
-            <div class="dorsal-table-header">
-                <div class="dorsal-header-cell sortable" data-sort="dorsal" id="sort-dorsal">
-                    Dorsal
-                </div>
-                <div class="dorsal-header-cell sortable" data-sort="time" id="sort-time">
-                    Tiempo
-                </div>
-                <div class="dorsal-header-cell sortable" data-sort="cut" id="sort-cut">
-                    Corte
-                </div>
-                <div class="dorsal-header-cell"></div>
-            </div>
-            <div id="dorsal-rows-container"></div>
-        `;
-        
-        // Renderizar filas
-        const rowsContainer = document.getElementById('dorsal-rows-container');
-        rowsContainer.innerHTML = dorsalData.map(item => `
-            <div class="dorsal-row">
-                <div class="dorsal-cell dorsal-number">${item.dorsalStr}</div>
-                <div class="dorsal-cell dorsal-time">${item.timeFormatted}</div>
-                <div class="dorsal-cell dorsal-cut">${item.cutNumber}</div>
-                <div class="dorsal-cell dorsal-action">
-                    <button class="icon-btn-small btn-delete" 
-                            onclick="removeSpecificDorsal('${item.dorsalStr}', ${item.lapIndex})" 
-                            title="Eliminar">
-                        🗑️
-                    </button>
-                </div>
-            </div>
-        `).join('');
-        
-        // Añadir indicadores de ordenación
-        updateSortIndicators();
-        
-        // AÑADIR event listeners DESPUÉS de crear el HTML
-        setTimeout(() => {
-            attachSortListeners();
-        }, 0);
-    }
-    
-    // Función para adjuntar listeners (separada)
-    function attachSortListeners() {
-        document.querySelectorAll('.dorsal-header-cell.sortable').forEach(header => {
-            // Primero remover cualquier listener anterior
-            header.removeEventListener('click', handleHeaderClick);
-            // Luego añadir el nuevo listener
-            header.addEventListener('click', handleHeaderClick);
-        });
-    }
-    
-    // Actualizar indicadores visuales
-    function updateSortIndicators() {
-        document.querySelectorAll('.dorsal-header-cell.sortable').forEach(header => {
-            // Limpiar flechas existentes
-            const existingArrows = header.querySelectorAll('.sort-arrow');
-            existingArrows.forEach(arrow => arrow.remove());
-            
-            // Limpiar clases de ordenación
-            header.classList.remove('sort-asc', 'sort-desc');
-            
-            // Crear y añadir nueva flecha solo si es la columna actualmente ordenada
-            if (header.getAttribute('data-sort') === window.dorsalSortState.field) {
-                const arrow = document.createElement('span');
-                arrow.className = 'sort-arrow';
-                arrow.textContent = window.dorsalSortState.ascending ? '↑' : '↓';
-                header.appendChild(arrow);
-                header.classList.add(window.dorsalSortState.ascending ? 'sort-asc' : 'sort-desc');
-            }
-        });
-    }
-    
-    // Renderizar tabla inicial
-    renderTable();
-}
-
-        // Nueva función para eliminar un dorsal específico de un corte específico
-        function removeSpecificDorsal(dorsal, lapIndex) {
-            if (confirm(`¿Eliminar el dorsal ${dorsal} del corte ${lapIndex + 1}?`)) {
-                const lap = lapTimes[lapIndex];
-                if (lap) {
-                    // Filtrar el dorsal específico del array de dorsales
-                    lap.dorsales = lap.dorsales.filter(d => d !== dorsal);
-                    
-                    // Actualizar asignaciones y renderizar
-                    updateDorsalAssignments();
-                    renderLaps();
-                    renderDorsalList();
-                    saveCurrentRace();
-                    
-                    showMessage(`Dorsal ${dorsal} eliminado del corte ${lapIndex + 1}`, 'success');
-                }
-            }
         }
 
-        // También necesitas mantener la función removeDorsal original para eliminar todas las apariciones
-        function removeDorsal(dorsal) {
-            if (confirm(`¿Eliminar TODAS las apariciones del dorsal ${dorsal}?`)) {
+        function removeDorsal(dorsal){
+            if(confirm(`¿Eliminar todas las asignaciones del dorsal ${dorsal}?`)){
                 lapTimes.forEach(lap => {
                     lap.dorsales = lap.dorsales.filter(d => d != dorsal);
                 });
@@ -4477,20 +4095,6 @@ IDList=`;
             } else {
                 document.getElementById('installMessage').textContent = '⭐ Usa el menú de tu navegador para crear un acceso directo';
                 document.getElementById('installMessage').className = 'install-message install-info';
-            }
-        }
-        function keepScreenAwakeAlternative() {
-            if (!isRunning) return;
-            
-            // Reproducir un video invisible (truco para mantener pantalla activa)
-            const keepAliveVideo = document.getElementById('keep-alive-video');
-            if (keepAliveVideo) {
-                keepAliveVideo.play().catch(e => console.log('Video keep-alive falló:', e));
-            }
-            
-            // O usar la API de vibración (si está disponible)
-            if (navigator.vibrate) {
-                navigator.vibrate(0); // Vibración de 0ms no hace vibrar pero mantiene activo
             }
         }
     </script>
