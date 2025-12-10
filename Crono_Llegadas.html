@@ -1677,8 +1677,6 @@
             <button class="btn-lap" id="btn-lap">⏱ Corte</button>
         </div>
         
-
-        
         <div class="tabs-container">
             <div class="tabs-header">
                 <button class="tab-button active" data-tab="cortes-tab" id="cortes-tab-button">Cortes</button>
@@ -1688,9 +1686,7 @@
             
             <!-- Pestaña Cortes -->
             <div class="tab-content active" id="cortes-tab">
-                <div class="help-text" style="margin-bottom: 8px; color: #95a5a6; font-size: 0.85rem;">
-                    Haz clic en ✏️ para editar tiempo o en 🗑️ para eliminar un corte
-                </div>
+
                 <ul class="lap-list" id="lap-list"></ul>
             </div>
             
@@ -2815,7 +2811,7 @@
             
             startTimeDisplay.textContent = t.startTimeDisplay + (startTimeValue || t.notSet);
             
-            document.querySelector('#cortes-tab .help-text').textContent = "Haz clic en ✏️ para editar tiempo o en 🗑️ para eliminar un corte";
+            
             document.querySelector('#dorsales-tab .help-text').textContent = t.assignHelp;
             
             const firstOption = raceSelector.querySelector('option');
