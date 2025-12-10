@@ -2595,19 +2595,21 @@ IDList=`;
         
 
         function renderTopLocation(top, t, isStartLocation = false) {
-            if (!top.location || top.location.error) {
-                return '';
-            }
-            
-            const cronoIndex = appState.activeCronoIndex;
-            const mapsUrl = buildAllPointsMapUrl(cronoIndex);
-            
-            return `
-                <a href="${mapsUrl}" target="_blank" class="action-btn" title="${t.viewAllPoints || 'Ver todos los puntos'}">
-                    <i class="fas fa-map-marker-alt"></i>
-                </a>
-            `;
-        }
+    if (!top.location || top.location.error) {
+        return '';
+    }
+    
+    // URL para este punto individual solamente
+    const lat = top.location.lat.toFixed(6);
+    const lng = top.location.lng.toFixed(6);
+    const singlePointUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+    
+    return `
+        <a href="${singlePointUrl}" target="_blank" class="action-btn" title="${t.viewOnMaps || 'Ver en Google Maps'}">
+            <i class="fas fa-map-marker-alt"></i>
+        </a>
+    `;
+}
 
         
         function deleteTopWithConfirmation(cronoIndex, topIndex) {
@@ -3311,35 +3313,20 @@ IDList=`;
     
     const lat = crono.location.lat.toFixed(6);
     const lng = crono.location.lng.toFixed(6);
-    const cronoIndex = appState.activeCronoIndex;
     
-    // URL para punto individual
+    // URL solo para este punto (ubicación de inicio)
     const singlePointUrl = `https://www.google.com/maps?q=${lat},${lng}`;
     
-    if (cronoIndex === -1) {
-        return `
-            <p>${lat}, ${lng}</p>
-            <a href="${singlePointUrl}" target="_blank" class="gps-link">
-                <i class="fas fa-map-marker-alt"></i> ${t.gpsLink}
-            </a>
-        `;
-    }
-    
-    // URL para todos los puntos
-    const allPointsUrl = buildAllPointsMapUrl(cronoIndex);
-    
     return `
-        <p>${lat}, ${lng}</p>
-        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
-            <a href="${singlePointUrl}" target="_blank" class="gps-link" style="background: #f0f0f0; padding: 8px; border-radius: 5px;">
-                <i class="fas fa-map-marker-alt"></i> ${t.gpsLink}
-            </a>
-            <a href="${allPointsUrl}" target="_blank" class="gps-link" style="background: #e74c3c; color: white; padding: 8px; border-radius: 5px;">
-                <i class="fas fa-route"></i> ${t.viewAllPoints || "Ver todos los puntos"}
-            </a>
-        </div>
+        <p><strong>Coordenadas:</strong> ${lat}, ${lng}</p>
+        <a href="${singlePointUrl}" target="_blank" class="gps-link" 
+           style="display: inline-flex; align-items: center; gap: 8px; background: #3498db; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none;">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>${t.gpsLink}</span>
+        </a>
     `;
-}     
+}
+
 
         // Método alternativo para navegadores sin Wake Lock API
         function keepScreenAwakeAlternative() {
