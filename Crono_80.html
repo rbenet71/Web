@@ -890,6 +890,99 @@
             margin: 0 auto 10px;
         }
 
+        /* Estilos para botones de instalación en Crono 80 */
+        .install-btn-custom, .suggestions-btn-custom {
+            background-color: #9b59b6;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-size: 1rem;
+            margin: 10px;
+        }
+
+        .suggestions-btn-custom {
+            background-color: #3498db;
+        }
+
+        .install-btn-custom:hover {
+            background-color: #8e44ad;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .suggestions-btn-custom:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Modal de instalación para Crono 80 */
+        .install-modal-crono80, .suggestions-modal-crono80 {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .install-modal-content {
+            background-color: #2c3e50;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        /* Estilos para el modal de instalación */
+        .install-modal-crono80 {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .install-modal-content {
+            background-color: #2c3e50;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+
+        #instructionsListCrono80 ol {
+            text-align: left;
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        #instructionsListCrono80 li {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -1073,6 +1166,9 @@
             <button class="btn-reset" id="btn-reset">Reiniciar Cronómetro</button>
             <button class="btn-help" id="btn-help">Ayuda</button>
             <button class="btn-suggestions" id="btn-suggestions">Actualizaciones/Sugerencias</button>
+            <button id="install-btn-crono80" class="install-btn-custom">
+                <i class="fas fa-download"></i> Instalar App
+            </button>
         </div>    
 
         <footer class="footer">
@@ -1086,6 +1182,31 @@
     </div>
     
     <!-- Modales existentes -->
+
+    <!-- Modal de instalación COMPLETO (reemplaza el existente) -->
+    <div class="install-modal-crono80" id="installModalCrono80">
+        <div class="install-modal-content">
+            <div class="suggestions-header">
+                <div class="suggestions-icon">
+                    📱
+                </div>
+                <h2 id="installTitleCrono80">Instalar Crono 80%</h2>
+                <p id="installSubtitleCrono80">Añade esta app a tu pantalla de inicio</p>
+            </div>
+            
+            <p id="installMessageCrono80">Instala Crono 80% como una app nativa en tu dispositivo para un acceso rápido y uso sin conexión.</p>
+            
+            <div id="instructionsListCrono80" style="text-align: left; margin: 20px 0; padding: 15px; background: #1a252f; border-radius: 5px;">
+                <p id="instructionsTextCrono80">Instrucciones según tu dispositivo:</p>
+                <!-- Las instrucciones se llenarán dinámicamente -->
+            </div>
+            
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                <button class="btn-reset" id="installCancelBtnCrono80">Cancelar</button>
+                <button class="btn-modify" id="installActionBtnCrono80">Instalar</button>
+            </div>
+        </div>
+    </div>
     <div class="modal" id="withdraw-modal">
         <div class="modal-content">
             <h3 id="withdraw-modal-title">Retirar Corredor</h3>
@@ -1369,7 +1490,6 @@
             </form>
         </div>
     </div>
-
     <script>
         // Variables globales para el sistema de idiomas
         let currentLanguage = 'es';
@@ -3824,7 +3944,269 @@
                 });
             }
         }
+    // Sistema de instalación simplificado para Crono 80
+    class Crono80Installer {
+    constructor() {
+        this.installModal = document.getElementById('installModalCrono80');
+        this.installMessage = document.getElementById('installMessageCrono80');
+        this.installActionBtn = document.getElementById('installActionBtnCrono80');
+        this.installCancelBtn = document.getElementById('installCancelBtnCrono80');
+        this.instructionsList = document.getElementById('instructionsListCrono80');
+        this.installTitle = document.getElementById('installTitleCrono80');
+        this.installSubtitle = document.getElementById('installSubtitleCrono80');
+        this.instructionsText = document.getElementById('instructionsTextCrono80');
+        
+        this.deferredPrompt = null;
+        this.platform = this.detectPlatform();
+        
+        this.initialize();
+    }
+    
+    detectPlatform() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+        
+        if (isStandalone) {
+            return 'AlreadyInstalled';
+        } else if (/iphone|ipad|ipod/.test(userAgent)) {
+            return 'iOS';
+        } else if (/android/.test(userAgent)) {
+            return 'Android';
+        } else if (/windows/.test(userAgent)) {
+            return 'Windows';
+        } else if (/mac/.test(userAgent)) {
+            return 'Mac';
+        } else {
+            return 'Other';
+        }
+    }
+    
+    initialize() {
+        // Botón para abrir modal
+        const installBtn = document.getElementById('install-btn-crono80');
+        if (installBtn) {
+            installBtn.addEventListener('click', () => {
+                this.showInstallModal();
+            });
+        }
+        
+        // Botones del modal
+        if (this.installActionBtn) {
+            this.installActionBtn.addEventListener('click', () => {
+                this.handleInstall();
+            });
+        }
+        
+        if (this.installCancelBtn) {
+            this.installCancelBtn.addEventListener('click', () => {
+                this.hideInstallModal();
+            });
+        }
+        
+        // Cerrar modal al hacer clic fuera
+        window.addEventListener('click', (e) => {
+            if (e.target === this.installModal) {
+                this.hideInstallModal();
+            }
+        });
+        
+        // Escuchar evento de instalación PWA
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            this.deferredPrompt = e;
+            console.log('Evento beforeinstallprompt capturado');
+            
+            // Mostrar el botón de instalación si está disponible
+            const installBtn = document.getElementById('install-btn-crono80');
+            if (installBtn) {
+                installBtn.style.display = 'inline-flex';
+            }
+        });
+        
+        // Verificar si ya está instalado
+        if (this.platform === 'AlreadyInstalled') {
+            const installBtn = document.getElementById('install-btn-crono80');
+            if (installBtn) {
+                installBtn.textContent = '✅ Ya instalada';
+                installBtn.disabled = true;
+                installBtn.style.opacity = '0.7';
+            }
+        }
+        
+        this.setupInstructions();
+    }
+    
+    setupInstructions() {
+        if (!this.instructionsList) return;
+        
+        let instructions = '';
+        
+        switch(this.platform) {
+            case 'AlreadyInstalled':
+                instructions = '<p>✅ La aplicación ya está instalada en tu dispositivo.</p>';
+                if (this.installActionBtn) this.installActionBtn.style.display = 'none';
+                break;
+            case 'iOS':
+                instructions = `
+                    <ol>
+                        <li>Toca el botón <strong>"Compartir"</strong> en Safari (icono de caja con flecha hacia arriba)</li>
+                        <li>Desplázate hacia abajo y selecciona <strong>"Añadir a Pantalla de Inicio"</strong></li>
+                        <li>Pulsa <strong>"Añadir"</strong> en la esquina superior derecha</li>
+                        <li>La app aparecerá en tu pantalla de inicio</li>
+                    </ol>
+                `;
+                break;
+            case 'Android':
+                instructions = `
+                    <p>Para Chrome/Android:</p>
+                    <ol>
+                        <li>Toca el botón <strong>"Instalar"</strong> abajo</li>
+                        <li>Confirma la instalación en el diálogo emergente</li>
+                        <li>La app se instalará automáticamente</li>
+                    </ol>
+                    <p style="margin-top: 10px; font-size: 0.9rem; color: #95a5a6;">
+                        Si no ves el botón de instalación:
+                    </p>
+                    <ol>
+                        <li>Abre el menú de Chrome (tres puntos)</li>
+                        <li>Selecciona <strong>"Instalar app"</strong> o <strong>"Añadir a pantalla de inicio"</strong></li>
+                    </ol>
+                `;
+                break;
+            case 'Windows':
+                instructions = `
+                    <ol>
+                        <li>Toca el botón <strong>"Instalar"</strong></li>
+                        <li>Se descargará un acceso directo</li>
+                        <li>Ábrelo para instalar la app</li>
+                    </ol>
+                `;
+                break;
+            case 'Mac':
+                instructions = `
+                    <ol>
+                        <li>En Safari, ve al menú <strong>"Archivo"</strong></li>
+                        <li>Selecciona <strong>"Añadir a pantalla de inicio"</strong></li>
+                        <li>Confirma el nombre y pulsa <strong>"Añadir"</strong></li>
+                    </ol>
+                `;
+                break;
+            default:
+                instructions = `
+                    <p>Para instalar esta app:</p>
+                    <ol>
+                        <li>Busca la opción <strong>"Instalar app"</strong> o <strong>"Añadir a pantalla de inicio"</strong> en el menú de tu navegador</li>
+                        <li>Sigue las instrucciones específicas de tu navegador</li>
+                    </ol>
+                `;
+        }
+        
+        this.instructionsList.innerHTML = instructions;
+    }
+    
+    showInstallModal() {
+        playButtonSound();
+        
+        if (this.platform === 'AlreadyInstalled') {
+            this.installTitle.textContent = '✅ App instalada';
+            this.installSubtitle.textContent = 'Crono 80% ya está instalada';
+            this.installMessage.textContent = 'La aplicación ya está instalada en tu dispositivo. Puedes acceder a ella desde tu pantalla de inicio.';
+            if (this.installActionBtn) this.installActionBtn.style.display = 'none';
+        } else {
+            this.installTitle.textContent = 'Instalar Crono 80%';
+            this.installSubtitle.textContent = 'Añade esta app a tu pantalla de inicio';
+            this.installMessage.textContent = 'Instala Crono 80% como una app nativa en tu dispositivo para un acceso rápido y uso sin conexión.';
+            if (this.installActionBtn) this.installActionBtn.style.display = 'inline-block';
+        }
+        
+        this.setupInstructions();
+        this.installModal.style.display = 'flex';
+    }
+    
+    hideInstallModal() {
+        this.installModal.style.display = 'none';
+    }
+    
+    async handleInstall() {
+        playButtonSound();
+        
+        if (this.deferredPrompt) {
+            // Mostrar el prompt de instalación nativo
+            try {
+                this.deferredPrompt.prompt();
+                const { outcome } = await this.deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    console.log('Usuario aceptó la instalación');
+                    this.installMessage.textContent = '✅ App instalada correctamente';
+                    if (this.installActionBtn) {
+                        this.installActionBtn.textContent = '✅ Instalada';
+                        this.installActionBtn.disabled = true;
+                    }
+                    
+                    // Actualizar estado
+                    this.platform = 'AlreadyInstalled';
+                    this.setupInstructions();
+                } else {
+                    console.log('Usuario rechazó la instalación');
+                    this.installMessage.textContent = 'Instalación cancelada. Puedes intentarlo más tarde.';
+                }
+                
+                this.deferredPrompt = null;
+                
+            } catch (error) {
+                console.error('Error durante la instalación:', error);
+                this.installMessage.textContent = '❌ Error en la instalación. Intenta manualmente desde el menú de tu navegador.';
+            }
+        } else {
+            // Si no hay prompt nativo, mostrar instrucciones manuales
+            switch(this.platform) {
+                case 'iOS':
+                    this.installMessage.textContent = '📱 Usa el menú de compartir de Safari (icono de caja con flecha) y selecciona "Añadir a Pantalla de Inicio"';
+                    break;
+                case 'Android':
+                    this.installMessage.textContent = '📱 Abre el menú de Chrome (tres puntos) y busca "Instalar app" o "Añadir a pantalla de inicio"';
+                    break;
+                default:
+                    this.installMessage.textContent = '🔧 Busca en el menú de tu navegador la opción "Instalar app" o "Añadir a pantalla de inicio"';
+            }
+        }
+    }
+}
 
+    // Inicializar cuando el DOM esté cargado
+    document.addEventListener('DOMContentLoaded', () => {
+    // Inicializar el instalador
+    window.crono80Installer = new Crono80Installer();
+    
+    // Ocultar botón de instalación inicialmente (se mostrará si beforeinstallprompt se dispara)
+    const installBtn = document.getElementById('install-btn-crono80');
+    if (installBtn && !window.matchMedia('(display-mode: standalone)').matches) {
+        installBtn.style.display = 'inline-flex';
+    }
+});
+        // Inicializar cuando el DOM esté cargado
+        document.addEventListener('DOMContentLoaded', () => {
+            window.crono80Installer = new Crono80Installer();
+            
+            // Sistema de sugerencias simple
+            const suggestionsBtn = document.getElementById('suggestions-btn-crono80');
+            const suggestionsModal = document.getElementById('suggestionsModalCrono80');
+            
+            if (suggestionsBtn && suggestionsModal) {
+                suggestionsBtn.addEventListener('click', () => {
+                    suggestionsModal.style.display = 'flex';
+                });
+                
+                suggestionsModal.addEventListener('click', (e) => {
+                    if (e.target === suggestionsModal) {
+                        suggestionsModal.style.display = 'none';
+                    }
+                });
+            }
+        })
+
+        
         // Mostrar notificación de actualización
         function showUpdateNotification() {
             // Crear una notificación sutil en la interfaz
@@ -3962,5 +4344,7 @@
             registerServiceWorker();
         });
     </script>
+    <!-- Botones en la parte inferior -->
+
 </body>
 </html>
