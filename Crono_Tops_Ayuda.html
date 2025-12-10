@@ -1,3 +1,4 @@
+[file content begin]
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -273,6 +274,60 @@
             border-bottom: 1px solid #2ecc71;
         }
         
+        .export-feature {
+            background: rgba(155, 89, 182, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border: 2px solid #9b59b6;
+        }
+        
+        .export-explanation {
+            background: rgba(44, 62, 80, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #9b59b6;
+        }
+        
+        .export-example {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #ffcc00;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        .time-format-feature {
+            background: rgba(241, 196, 15, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border: 2px solid #f39c12;
+        }
+        
+        .time-format-explanation {
+            background: rgba(44, 62, 80, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .time-format-example {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #ffcc00;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -418,6 +473,78 @@
                 </div>
             </div>
 
+            <h2>NUEVO FORMATO DE TIEMPO LEGIBLE</h2>
+            
+            <div class="time-format-feature">
+                <div class="time-format-explanation">
+                    <h4>Formato Intuitivo de Tiempo</h4>
+                    <p>Crono Tops utiliza un sistema de visualización de tiempos optimizado para una lectura rápida y clara:</p>
+                    
+                    <div class="time-format-example">
+                        🕐 Menos de 1 minuto → 45s<br>
+                        🕐 1-60 minutos → 2m05s<br>
+                        🕐 Más de 1 hora → 1h02m03s
+                    </div>
+                    
+                    <p><strong>Ventajas de este formato:</strong></p>
+                    <ul>
+                        <li><strong>LECTURA RÁPIDA:</strong> Los tiempos son más fáciles de interpretar en situaciones de estrés</li>
+                        <li><strong>SIN CONFUSIÓN:</strong> Elimina la ambigüedad entre minutos, segundos y décimas</li>
+                        <li><strong>OPTIMIZADO PARA CARRERAS:</strong> Formato diseñado específicamente para cronometraje deportivo</li>
+                        <li><strong>DIFERENCIAS CLARAS:</strong> Las distancias entre corredores se ven de inmediato</li>
+                    </ul>
+                    
+                    <p><strong>Ejemplos de visualización:</strong></p>
+                    <ul>
+                        <li><strong>Tiempo corto:</strong> 45s (45 segundos)</li>
+                        <li><strong>Tiempo medio:</strong> 2m15s (2 minutos, 15 segundos)</li>
+                        <li><strong>Tiempo largo:</strong> 1h25m30s (1 hora, 25 minutos, 30 segundos)</li>
+                        <li><strong>Diferencia:</strong> +5s (5 segundos más que el corredor anterior)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>EXPORTACIÓN DE DATOS EN FORMATO KML</h2>
+            
+            <div class="export-feature">
+                <div class="export-explanation">
+                    <h4>Generación de Archivos KML para Google Earth</h4>
+                    <p>Crono Tops permite exportar todos los datos GPS registrados en formato KML (Keyhole Markup Language) para su visualización en Google Earth:</p>
+                    
+                    <div class="export-example">
+                        📍 Botón "Generar KML" → Archivo .kml descargado<br>
+                        🌍 Abrir en Google Earth → Ver todos los puntos en el mapa<br>
+                        🗺️ Ruta completa con marcadores diferenciados
+                    </div>
+                    
+                    <p><strong>Contenido del archivo KML:</strong></p>
+                    <ol>
+                        <li><strong>Punto de Inicio:</strong> Marcador verde con información del cronómetro</li>
+                        <li><strong>Tops Registrados:</strong> Marcadores rojos numerados con tiempos y dorsales</li>
+                        <li><strong>Ruta Completa:</strong> Línea azul que conecta todos los puntos en orden cronológico</li>
+                        <li><strong>Información Detallada:</strong> Cada punto incluye tiempo, dorsal, coordenadas y precisión GPS</li>
+                    </ol>
+                    
+                    <p><strong>Usos del archivo KML:</strong></p>
+                    <ul>
+                        <li><strong>Documentación Oficial:</strong> Prueba documental de los controles realizados</li>
+                        <li><strong>Análisis de Recorrido:</strong> Visualización exacta de dónde se tomaron los tiempos</li>
+                        <li><strong>Informes Técnicos:</strong> Datos listos para presentar a organizadores de carreras</li>
+                        <li><strong>Verificación de Distancias:</strong> Comprobación de distancias entre puntos de control</li>
+                        <li><strong>Archivo Permanente:</strong> Conservación de datos para futuras referencias</li>
+                    </ul>
+                    
+                    <p><strong>Cómo usar los archivos KML:</strong></p>
+                    <ol>
+                        <li>Haz clic en el botón "Generar KML" en el pie de página</li>
+                        <li>Se descargará un archivo con nombre: Crono_Tops_AAAAMMDD_HHMMSS.kml</li>
+                        <li>Abre Google Earth en tu ordenador o dispositivo móvil</li>
+                        <li>Arrastra el archivo KML a Google Earth o usa "Abrir proyecto"</li>
+                        <li>Visualiza todos los puntos con sus etiquetas e información</li>
+                    </ol>
+                </div>
+            </div>
+
             <h2>Cómo Usar</h2>
             
             <div class="step-box">
@@ -454,8 +581,8 @@
             
             <div class="step-box">
                 <span class="step-number">6</span>
-                <strong>Verificar Ubicación</strong>
-                <p>Haz clic en el icono 📍 junto a cada top para verificar la ubicación exacta en Google Maps.</p>
+                <strong>Exportar Datos KML</strong>
+                <p>Haz clic en "Generar KML" para descargar un archivo con todos los puntos GPS para Google Earth.</p>
             </div>
 
             <h2>Gestión de Múltiples Cronómetros</h2>
@@ -486,12 +613,13 @@
             <h2>Información Técnica Registrada</h2>
             <p>Cada top registrado contiene la siguiente información completa:</p>
             <ul>
-                <li><strong>Tiempo de cronómetro:</strong> Formato minutos:segundos.décimas</li>
+                <li><strong>Tiempo de cronómetro:</strong> Formato legible (ej: 2m15s, 1h05m30s)</li>
                 <li><strong>Diferencia:</strong> Tiempo transcurrido desde el top anterior</li>
                 <li><strong>Dorsal:</strong> Número de dorsal del corredor</li>
                 <li><strong>Ubicación GPS:</strong> Coordenadas exactas (latitud, longitud)</li>
                 <li><strong>Enlace a Maps:</strong> Acceso directo a Google Maps con la ubicación</li>
                 <li><strong>Hora exacta:</strong> Hora real del sistema cuando se registró el top</li>
+                <li><strong>Precisión GPS:</strong> Nivel de precisión en metros del registro</li>
             </ul>
 
             <h2>Formato de Tiempo y Cálculos</h2>
@@ -500,9 +628,9 @@
             <div class="tip-box">
                 <h4>Formato de Visualización</h4>
                 <ul>
-                    <li><strong>Tiempo Actual:</strong> 02:15.3 (2 minutos, 15 segundos, 3 décimas)</li>
-                    <li><strong>Diferencia:</strong> +00:05.2 (5 segundos y 2 décimas más que el top anterior)</li>
-                    <li><strong>Precisión:</strong> Hasta décimas de segundo (0.1 segundos)</li>
+                    <li><strong>Tiempo Actual:</strong> 2m15s (2 minutos, 15 segundos)</li>
+                    <li><strong>Diferencia:</strong> +5s (5 segundos más que el top anterior)</li>
+                    <li><strong>Precisión:</strong> Formato optimizado para lectura rápida</li>
                     <li><strong>Actualización:</strong> El tiempo actual se actualiza en tiempo real cada 100ms</li>
                 </ul>
             </div>
@@ -515,7 +643,9 @@
                 <li><strong>Sin Conexión:</strong> Funciona sin internet después de la primera carga</li>
                 <li><strong>Instalable como App:</strong> Puedes instalarla en tu dispositivo como una app nativa</li>
                 <li><strong>Actualizaciones Automáticas:</strong> Recibe notificaciones de nuevas versiones</li>
+                <li><strong>Exportación KML:</strong> Genera archivos para Google Earth con todos los puntos</li>
                 <li><strong>Sistema de Sugerencias:</strong> Envía tus ideas para mejorar la aplicación</li>
+                <li><strong>Formato de Tiempo Intuitivo:</strong> Visualización optimizada para carreras</li>
             </ul>
 
             <div class="tip-box">
@@ -527,7 +657,8 @@
                     <li>Prueba el sistema antes de la carrera para familiarizarte con el botón único</li>
                     <li>En carreras largas, recuerda que puedes crear puntos adicionales en cualquier momento</li>
                     <li>Utiliza el enlace a Google Maps para verificar ubicaciones problemáticas</li>
-                    <li>Exporta los datos inmediatamente después de cada carrera</li>
+                    <li>Exporta los datos en formato KML inmediatamente después de cada carrera</li>
+                    <li>Guarda los archivos KML como documentación oficial de los controles</li>
                     <li>Envía sugerencias si encuentras algo que mejorar</li>
                 </ul>
             </div>
@@ -577,6 +708,7 @@
                         <li>Registro preciso de tiempos en metas intermedias</li>
                         <li>Ubicación GPS para verificar puntos exactos</li>
                         <li>Datos completos para cada sector cronometrado</li>
+                        <li>Exportación KML para análisis completo del recorrido</li>
                     </ul>
                 </div>
                 
@@ -585,7 +717,7 @@
                     <ul>
                         <li>Creación rápida de puntos de control no planificados</li>
                         <li>Registro automático de ubicación para validez oficial</li>
-                        <li>Documentación completa de cada control</li>
+                        <li>Documentación completa de cada control en formato KML</li>
                         <li>Datos listos para presentar a organizadores</li>
                     </ul>
                 </div>
@@ -597,6 +729,7 @@
                         <li>Posibilidad de añadir puntos intermedios</li>
                         <li>Registro individual por dorsal</li>
                         <li>Tiempos parciales y finales automáticos</li>
+                        <li>Formato de tiempo claro para diferencias pequeñas</li>
                     </ul>
                 </div>
                 
@@ -607,6 +740,7 @@
                         <li>Seguimiento de vueltas individuales</li>
                         <li>Detección automática de diferencias</li>
                         <li>Control de abandonos por tiempos límite</li>
+                        <li>Visualización clara de tiempos por vuelta</li>
                     </ul>
                 </div>
             </div>
@@ -621,6 +755,8 @@
                     <li><strong>La app es lenta:</strong> Cierra pestañas innecesarias y reinicia la aplicación</li>
                     <li><strong>No veo las pestañas:</strong> En móviles pequeños, desplázate horizontalmente en la zona de pestañas</li>
                     <li><strong>Los tiempos no son precisos:</strong> Asegúrate de tener buena señal y actualiza la página si es necesario</li>
+                    <li><strong>No puedo generar KML:</strong> Asegúrate de que haya datos GPS registrados en algún cronómetro</li>
+                    <li><strong>Error al abrir KML en Google Earth:</strong> Asegúrate de tener la versión más reciente de Google Earth instalada</li>
                 </ul>
             </div>
 
@@ -736,6 +872,78 @@
                 </div>
             </div>
 
+            <h2>NOU FORMAT DE TEMPS LLEGIBLE</h2>
+            
+            <div class="time-format-feature">
+                <div class="time-format-explanation">
+                    <h4>Format Intuïtiu de Temps</h4>
+                    <p>Crono Tops utilitza un sistema de visualització de temps optimitzat per a una lectura ràpida i clara:</p>
+                    
+                    <div class="time-format-example">
+                        🕐 Menys d'1 minut → 45s<br>
+                        🕐 1-60 minuts → 2m05s<br>
+                        🕐 Més d'1 hora → 1h02m03s
+                    </div>
+                    
+                    <p><strong>Avantatges d'aquest format:</strong></p>
+                    <ul>
+                        <li><strong>LECTURA RÀPIDA:</strong> Els temps són més fàcils d'interpretar en situacions d'estrès</li>
+                        <li><strong>SENSE CONFUSIÓ:</strong> Elimina l'ambigüitat entre minuts, segons i dècimes</li>
+                        <li><strong>OPTIMITZAT PER A CURSES:</strong> Format dissenyat específicament per a cronometratge esportiu</li>
+                        <li><strong>DIFERÈNCIES CLARES:</strong> Les distàncies entre corredors es veuen immediatament</li>
+                    </ul>
+                    
+                    <p><strong>Exemples de visualització:</strong></p>
+                    <ul>
+                        <li><strong>Temps curt:</strong> 45s (45 segons)</li>
+                        <li><strong>Temps mitjà:</strong> 2m15s (2 minuts, 15 segons)</li>
+                        <li><strong>Temps llarg:</strong> 1h25m30s (1 hora, 25 minuts, 30 segons)</li>
+                        <li><strong>Diferència:</strong> +5s (5 segons més que el corredor anterior)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>EXPORTACIÓ DE DADES EN FORMAT KML</h2>
+            
+            <div class="export-feature">
+                <div class="export-explanation">
+                    <h4>Generació d'Arxius KML per a Google Earth</h4>
+                    <p>Crono Tops permet exportar totes les dades GPS registrades en format KML (Keyhole Markup Language) per a la seva visualització a Google Earth:</p>
+                    
+                    <div class="export-example">
+                        📍 Botó "Crear KML" → Arxiu .kml descarregat<br>
+                        🌍 Obrir a Google Earth → Veure tots els punts al mapa<br>
+                        🗺️ Ruta completa amb marcadors diferenciats
+                    </div>
+                    
+                    <p><strong>Contingut de l'arxiu KML:</strong></p>
+                    <ol>
+                        <li><strong>Punt d'Inici:</strong> Marcador verd amb informació del cronòmetre</li>
+                        <li><strong>Tops Registrats:</strong> Marcadors vermells numerats amb temps i dorsals</li>
+                        <li><strong>Ruta Completa:</strong> Línia blava que connecta tots els punts en ordre cronològic</li>
+                        <li><strong>Informació Detallada:</strong> Cada punt inclou temps, dorsal, coordenades i precisió GPS</li>
+                    </ol>
+                    
+                    <p><strong>Usos de l'arxiu KML:</strong></p>
+                    <ul>
+                        <li><strong>Documentació Oficial:</strong> Prova documental dels controls realitzats</li>
+                        <li><strong>Anàlisi de Recorregut:</strong> Visualització exacta d'on es van prendre els temps</li>
+                        <li><strong>Informes Tècnics:</strong> Dades llestes per presentar a organitzadors de curses</li>
+                        <li><strong>Verificació de Distàncies:</strong> Comprovació de distàncies entre punts de control</li>
+                        <li><strong>Arxiu Permanent:</strong> Conservació de dades per a futures referències</li>
+                    </ul>
+                    
+                    <p><strong>Com usar els arxius KML:</strong></p>
+                    <ol>
+                        <li>Fes clic al botó "Crear KML" al peu de pàgina</li>
+                        <li>Es descarregarà un arxiu amb nom: Crono_Tops_AAAAMMDD_HHMMSS.kml</li>
+                        <li>Obre Google Earth al teu ordinador o dispositiu mòbil</li>
+                        <li>Arrossega l'arxiu KML a Google Earth o usa "Obrir projecte"</li>
+                        <li>Visualitza tots els punts amb les seves etiquetes i informació</li>
+                    </ol>
+                </div>
+            </div>
+
             <h2>Com Utilitzar-ho</h2>
             
             <div class="step-box">
@@ -772,8 +980,8 @@
             
             <div class="step-box">
                 <span class="step-number">6</span>
-                <strong>Verificar Ubicació</strong>
-                <p>Fes clic a la icona 📍 al costat de cada top per verificar la ubicació exacta a Google Maps.</p>
+                <strong>Exportar Dades KML</strong>
+                <p>Fes clic a "Crear KML" per descarregar un arxiu amb tots els punts GPS per a Google Earth.</p>
             </div>
 
             <h2>Gestió de Múltiples Cronòmetres</h2>
@@ -804,12 +1012,13 @@
             <h2>Informació Tècnica Registrada</h2>
             <p>Cada top registrat conté la següent informació completa:</p>
             <ul>
-                <li><strong>Temps de cronòmetre:</strong> Format minuts:segons.dècimes</li>
+                <li><strong>Temps de cronòmetre:</strong> Format llegible (ex: 2m15s, 1h05m30s)</li>
                 <li><strong>Diferència:</strong> Temps transcorregut des del top anterior</li>
                 <li><strong>Dorsal:</strong> Número de dorsal del corredor</li>
                 <li><strong>Ubicació GPS:</strong> Coordenades exactes (latitud, longitud)</li>
                 <li><strong>Enllaç a Maps:</strong> Accés directe a Google Maps amb la ubicació</li>
                 <li><strong>Hora exacta:</strong> Hora real del sistema quan es va registrar el top</li>
+                <li><strong>Precisió GPS:</strong> Nivell de precisió en metres del registre</li>
             </ul>
 
             <h2>Format de Temps i Càlculs</h2>
@@ -818,9 +1027,9 @@
             <div class="tip-box">
                 <h4>Format de Visualització</h4>
                 <ul>
-                    <li><strong>Temps Actual:</strong> 02:15.3 (2 minuts, 15 segons, 3 dècimes)</li>
-                    <li><strong>Diferència:</strong> +00:05.2 (5 segons i 2 dècimes més que el top anterior)</li>
-                    <li><strong>Precisió:</strong> Fins a dècimes de segon (0.1 segons)</li>
+                    <li><strong>Temps Actual:</strong> 2m15s (2 minuts, 15 segons)</li>
+                    <li><strong>Diferència:</strong> +5s (5 segons més que el top anterior)</li>
+                    <li><strong>Precisió:</strong> Format optimitzat per a lectura ràpida</li>
                     <li><strong>Actualització:</strong> El temps actual s'actualitza en temps real cada 100ms</li>
                 </ul>
             </div>
@@ -833,7 +1042,9 @@
                 <li><strong>Sense Connexió:</strong> Funciona sense internet després de la primera càrrega</li>
                 <li><strong>Instal·lable com a App:</strong> Pots instal·lar-la al teu dispositiu com una app nativa</li>
                 <li><strong>Actualitzacions Automàtiques:</strong> Rep notificacions de noves versions</li>
+                <li><strong>Exportació KML:</strong> Genera arxius per a Google Earth amb tots els punts</li>
                 <li><strong>Sistema de Suggeriments:</strong> Envia les teves idees per millorar l'aplicació</li>
+                <li><strong>Format de Temps Intuïtiu:</strong> Visualització optimitzada per a curses</li>
             </ul>
 
             <div class="tip-box">
@@ -845,7 +1056,8 @@
                     <li>Prova el sistema abans de la cursa per familiaritzar-te amb el botó únic</li>
                     <li>En curses llargues, recorda que pots crear punts addicionals en qualsevol moment</li>
                     <li>Utilitza l'enllaç a Google Maps per verificar ubicacions problemàtiques</li>
-                    <li>Exporta les dades immediatament després de cada cursa</li>
+                    <li>Exporta les dades en format KML immediatament després de cada cursa</li>
+                    <li>Guarda els arxius KML com a documentació oficial dels controls</li>
                     <li>Envia suggeriments si trobes alguna cosa a millorar</li>
                 </ul>
             </div>
@@ -895,6 +1107,7 @@
                         <li>Registre precís de temps en metes intermèdies</li>
                         <li>Ubicació GPS per verificar punts exactes</li>
                         <li>Dades completes per a cada sector cronometrat</li>
+                        <li>Exportació KML per a anàlisi complet del recorregut</li>
                     </ul>
                 </div>
                 
@@ -903,7 +1116,7 @@
                     <ul>
                         <li>Creació ràpida de punts de control no planificats</li>
                         <li>Registre automàtic d'ubicació per validesa oficial</li>
-                        <li>Documentació completa de cada control</li>
+                        <li>Documentació completa de cada control en format KML</li>
                         <li>Dades llestes per presentar a organitzadors</li>
                     </ul>
                 </div>
@@ -915,6 +1128,7 @@
                         <li>Possibilitat d'afegir punts intermedis</li>
                         <li>Registre individual per dorsal</li>
                         <li>Temps parcials i finals automàtics</li>
+                        <li>Format de temps clar per a diferències petites</li>
                     </ul>
                 </div>
                 
@@ -925,6 +1139,7 @@
                         <li>Seguiment de voltes individuals</li>
                         <li>Detecció automàtica de diferències</li>
                         <li>Control d'abandons per temps límit</li>
+                        <li>Visualització clara de temps per volta</li>
                     </ul>
                 </div>
             </div>
@@ -939,6 +1154,8 @@
                     <li><strong>L'app és lenta:</strong> Tanca pestanyes innecessàries i reinicia l'aplicació</li>
                     <li><strong>No veig les pestanyes:</strong> En mòbils petits, desplaça't horitzontalment a la zona de pestanyes</li>
                     <li><strong>Els temps no són precisos:</strong> Assegura't de tenir bona senyal i actualitza la pàgina si cal</li>
+                    <li><strong>No puc crear KML:</strong> Assegura't que hi hagi dades GPS registrades en algun cronòmetre</li>
+                    <li><strong>Error en obrir KML a Google Earth:</strong> Assegura't de tenir la versió més recent de Google Earth instal·lada</li>
                 </ul>
             </div>
 
@@ -1054,6 +1271,78 @@
                 </div>
             </div>
 
+            <h2>NEW READABLE TIME FORMAT</h2>
+            
+            <div class="time-format-feature">
+                <div class="time-format-explanation">
+                    <h4>Intuitive Time Format</h4>
+                    <p>Crono Tops uses an optimized time display system for fast and clear reading:</p>
+                    
+                    <div class="time-format-example">
+                        🕐 Less than 1 minute → 45s<br>
+                        🕐 1-60 minutes → 2m05s<br>
+                        🕐 More than 1 hour → 1h02m03s
+                    </div>
+                    
+                    <p><strong>Advantages of this format:</strong></p>
+                    <ul>
+                        <li><strong>FAST READING:</strong> Times are easier to interpret in stressful situations</li>
+                        <li><strong>NO CONFUSION:</strong> Eliminates ambiguity between minutes, seconds and tenths</li>
+                        <li><strong>OPTIMIZED FOR RACES:</strong> Format specifically designed for sports timing</li>
+                        <li><strong>CLEAR DIFFERENCES:</strong> Distances between riders are immediately visible</li>
+                    </ul>
+                    
+                    <p><strong>Display examples:</strong></p>
+                    <ul>
+                        <li><strong>Short time:</strong> 45s (45 seconds)</li>
+                        <li><strong>Medium time:</strong> 2m15s (2 minutes, 15 seconds)</li>
+                        <li><strong>Long time:</strong> 1h25m30s (1 hour, 25 minutes, 30 seconds)</li>
+                        <li><strong>Difference:</strong> +5s (5 seconds more than previous rider)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>KML DATA EXPORT</h2>
+            
+            <div class="export-feature">
+                <div class="export-explanation">
+                    <h4>KML File Generation for Google Earth</h4>
+                    <p>Crono Tops allows exporting all recorded GPS data in KML format (Keyhole Markup Language) for visualization in Google Earth:</p>
+                    
+                    <div class="export-example">
+                        📍 "Generate KML" button → .kml file downloaded<br>
+                        🌍 Open in Google Earth → View all points on map<br>
+                        🗺️ Complete route with differentiated markers
+                    </div>
+                    
+                    <p><strong>KML file content:</strong></p>
+                    <ol>
+                        <li><strong>Start Point:</strong> Green marker with stopwatch information</li>
+                        <li><strong>Recorded Tops:</strong> Red numbered markers with times and bib numbers</li>
+                        <li><strong>Complete Route:</strong> Blue line connecting all points in chronological order</li>
+                        <li><strong>Detailed Information:</strong> Each point includes time, bib, coordinates and GPS accuracy</li>
+                    </ol>
+                    
+                    <p><strong>KML file uses:</strong></p>
+                    <ul>
+                        <li><strong>Official Documentation:</strong> Documentary proof of performed controls</li>
+                        <li><strong>Route Analysis:</strong> Exact visualization of where times were taken</li>
+                        <li><strong>Technical Reports:</strong> Data ready to present to race organizers</li>
+                        <li><strong>Distance Verification:</strong> Checking distances between checkpoints</li>
+                        <li><strong>Permanent Archive:</strong> Data preservation for future reference</li>
+                    </ul>
+                    
+                    <p><strong>How to use KML files:</strong></p>
+                    <ol>
+                        <li>Click "Generate KML" button in the footer</li>
+                        <li>A file will download: Crono_Tops_YYYYMMDD_HHMMSS.kml</li>
+                        <li>Open Google Earth on your computer or mobile device</li>
+                        <li>Drag KML file to Google Earth or use "Open project"</li>
+                        <li>View all points with their labels and information</li>
+                    </ol>
+                </div>
+            </div>
+
             <h2>How to Use</h2>
             
             <div class="step-box">
@@ -1090,8 +1379,8 @@
             
             <div class="step-box">
                 <span class="step-number">6</span>
-                <strong>Verify Location</strong>
-                <p>Click the 📍 icon next to each top to verify exact location on Google Maps.</p>
+                <strong>Export KML Data</strong>
+                <p>Click "Generate KML" to download a file with all GPS points for Google Earth.</p>
             </div>
 
             <h2>Multiple Stopwatches Management</h2>
@@ -1122,12 +1411,13 @@
             <h2>Technical Information Recorded</h2>
             <p>Each recorded top contains following complete information:</p>
             <ul>
-                <li><strong>Stopwatch time:</strong> Format minutes:seconds.tenths</li>
+                <li><strong>Stopwatch time:</strong> Readable format (eg: 2m15s, 1h05m30s)</li>
                 <li><strong>Difference:</strong> Time elapsed since previous top</li>
                 <li><strong>Bib number:</strong> Rider's bib number</li>
                 <li><strong>GPS location:</strong> Exact coordinates (latitude, longitude)</li>
                 <li><strong>Maps link:</strong> Direct access to Google Maps with location</li>
                 <li><strong>Exact time:</strong> Real system time when top was recorded</li>
+                <li><strong>GPS accuracy:</strong> Accuracy level in meters of the recording</li>
             </ul>
 
             <h2>Time Format and Calculations</h2>
@@ -1136,9 +1426,9 @@
             <div class="tip-box">
                 <h4>Display Format</h4>
                 <ul>
-                    <li><strong>Current Time:</strong> 02:15.3 (2 minutes, 15 seconds, 3 tenths)</li>
-                    <li><strong>Difference:</strong> +00:05.2 (5 seconds and 2 tenths more than previous top)</li>
-                    <li><strong>Precision:</strong> Up to tenths of second (0.1 seconds)</li>
+                    <li><strong>Current Time:</strong> 2m15s (2 minutes, 15 seconds)</li>
+                    <li><strong>Difference:</strong> +5s (5 seconds more than previous top)</li>
+                    <li><strong>Precision:</strong> Format optimized for fast reading</li>
                     <li><strong>Update:</strong> Current time updates in real time every 100ms</li>
                 </ul>
             </div>
@@ -1151,7 +1441,9 @@
                 <li><strong>Offline:</strong> Works without internet after first load</li>
                 <li><strong>Installable as App:</strong> Can install on device as native app</li>
                 <li><strong>Automatic Updates:</strong> Receive notifications of new versions</li>
+                <li><strong>KML Export:</strong> Generates files for Google Earth with all points</li>
                 <li><strong>Suggestion System:</strong> Send your ideas to improve application</li>
+                <li><strong>Intuitive Time Format:</strong> Optimized display for races</li>
             </ul>
 
             <div class="tip-box">
@@ -1163,7 +1455,8 @@
                     <li>Test system before race to familiarize with single button</li>
                     <li>In long races, remember you can create additional points anytime</li>
                     <li>Use Google Maps link to verify problematic locations</li>
-                    <li>Export data immediately after each race</li>
+                    <li>Export data in KML format immediately after each race</li>
+                    <li>Save KML files as official documentation of controls</li>
                     <li>Send suggestions if you find something to improve</li>
                 </ul>
             </div>
@@ -1213,6 +1506,7 @@
                         <li>Accurate recording of intermediate finish times</li>
                         <li>GPS location to verify exact points</li>
                         <li>Complete data for each timed sector</li>
+                        <li>KML export for complete route analysis</li>
                     </ul>
                 </div>
                 
@@ -1221,7 +1515,7 @@
                     <ul>
                         <li>Quick creation of unplanned checkpoints</li>
                         <li>Automatic location recording for official validity</li>
-                        <li>Complete documentation of each control</li>
+                        <li>Complete documentation of each control in KML format</li>
                         <li>Data ready to present to organizers</li>
                     </ul>
                 </div>
@@ -1233,6 +1527,7 @@
                         <li>Possibility to add intermediate points</li>
                         <li>Individual recording per bib</li>
                         <li>Automatic partial and final times</li>
+                        <li>Clear time format for small differences</li>
                     </ul>
                 </div>
                 
@@ -1243,6 +1538,7 @@
                         <li>Individual lap tracking</li>
                         <li>Automatic difference detection</li>
                         <li>Dropout control by time limits</li>
+                        <li>Clear lap time visualization</li>
                     </ul>
                 </div>
             </div>
@@ -1257,6 +1553,8 @@
                     <li><strong>App is slow:</strong> Close unnecessary tabs and restart application</li>
                     <li><strong>Can't see tabs:</strong> On small mobiles, scroll horizontally in tab area</li>
                     <li><strong>Times not accurate:</strong> Ensure good signal and refresh page if needed</li>
+                    <li><strong>Can't generate KML:</strong> Ensure there is GPS data recorded in some stopwatch</li>
+                    <li><strong>Error opening KML in Google Earth:</strong> Ensure you have latest version of Google Earth installed</li>
                 </ul>
             </div>
 
@@ -1372,6 +1670,78 @@
                 </div>
             </div>
 
+            <h2>NOUVEAU FORMAT DE TEMPS LISIBLE</h2>
+            
+            <div class="time-format-feature">
+                <div class="time-format-explanation">
+                    <h4>Format Intuitif de Temps</h4>
+                    <p>Crono Tops utilise un système d'affichage des temps optimisé pour une lecture rapide et claire :</p>
+                    
+                    <div class="time-format-example">
+                        🕐 Moins d'1 minute → 45s<br>
+                        🕐 1-60 minutes → 2m05s<br>
+                        🕐 Plus d'1 heure → 1h02m03s
+                    </div>
+                    
+                    <p><strong>Avantages de ce format :</strong></p>
+                    <ul>
+                        <li><strong>LECTURE RAPIDE :</strong> Les temps sont plus faciles à interpréter en situations de stress</li>
+                        <li><strong>SANS CONFUSION :</strong> Élimine l'ambiguïté entre minutes, secondes et dixièmes</li>
+                        <li><strong>OPTIMISÉ POUR LES COURSES :</strong> Format spécialement conçu pour le chronométrage sportif</li>
+                        <li><strong>DIFFÉRENCES CLAIRES :</strong> Les distances entre coureurs sont immédiatement visibles</li>
+                    </ul>
+                    
+                    <p><strong>Exemples d'affichage :</strong></p>
+                    <ul>
+                        <li><strong>Temps court :</strong> 45s (45 secondes)</li>
+                        <li><strong>Temps moyen :</strong> 2m15s (2 minutes, 15 secondes)</li>
+                        <li><strong>Temps long :</strong> 1h25m30s (1 heure, 25 minutes, 30 secondes)</li>
+                        <li><strong>Différence :</strong> +5s (5 secondes de plus que le coureur précédent)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>EXPORTATION DE DONNÉES EN FORMAT KML</h2>
+            
+            <div class="export-feature">
+                <div class="export-explanation">
+                    <h4>Génération de Fichiers KML pour Google Earth</h4>
+                    <p>Crono Tops permet d'exporter toutes les données GPS enregistrées au format KML (Keyhole Markup Language) pour leur visualisation dans Google Earth :</p>
+                    
+                    <div class="export-example">
+                        📍 Bouton "Générer KML" → Fichier .kml téléchargé<br>
+                        🌍 Ouvrir dans Google Earth → Voir tous les points sur la carte<br>
+                        🗺️ Route complète avec marqueurs différenciés
+                    </div>
+                    
+                    <p><strong>Contenu du fichier KML :</strong></p>
+                    <ol>
+                        <li><strong>Point de Départ :</strong> Marqueur vert avec information du chronomètre</li>
+                        <li><strong>Tops Enregistrés :</strong> Marqueurs rouges numérotés avec temps et dossards</li>
+                        <li><strong>Route Complète :</strong> Ligne bleue connectant tous les points dans l'ordre chronologique</li>
+                        <li><strong>Information Détaillée :</strong> Chaque point inclut temps, dossard, coordonnées et précision GPS</li>
+                    </ol>
+                    
+                    <p><strong>Utilisations des fichiers KML :</strong></p>
+                    <ul>
+                        <li><strong>Documentation Officielle :</strong> Preuve documentaire des contrôles effectués</li>
+                        <li><strong>Analyse de Parcours :</strong> Visualisation exacte de l'endroit où les temps ont été pris</li>
+                        <li><strong>Rapports Techniques :</strong> Données prêtes à présenter aux organisateurs de courses</li>
+                        <li><strong>Vérification des Distances :</strong> Vérification des distances entre points de contrôle</li>
+                        <li><strong>Archive Permanente :</strong> Conservation des données pour référence future</li>
+                    </ul>
+                    
+                    <p><strong>Comment utiliser les fichiers KML :</strong></p>
+                    <ol>
+                        <li>Cliquez sur le bouton "Générer KML" dans le pied de page</li>
+                        <li>Un fichier sera téléchargé : Crono_Tops_AAAAMMJJ_HHMMSS.kml</li>
+                        <li>Ouvrez Google Earth sur votre ordinateur ou appareil mobile</li>
+                        <li>Faites glisser le fichier KML vers Google Earth ou utilisez "Ouvrir un projet"</li>
+                        <li>Visualisez tous les points avec leurs étiquettes et informations</li>
+                    </ol>
+                </div>
+            </div>
+
             <h2>Comment Utiliser</h2>
             
             <div class="step-box">
@@ -1408,8 +1778,8 @@
             
             <div class="step-box">
                 <span class="step-number">6</span>
-                <strong>Vérifier l'Emplacement</strong>
-                <p>Cliquez sur l'icône 📍 à côté de chaque top pour vérifier l'emplacement exact sur Google Maps.</p>
+                <strong>Exporter les Données KML</strong>
+                <p>Cliquez sur "Générer KML" pour télécharger un fichier avec tous les points GPS pour Google Earth.</p>
             </div>
 
             <h2>Gestion des Chronomètres Multiples</h2>
@@ -1440,12 +1810,13 @@
             <h2>Informations Techniques Enregistrées</h2>
             <p>Chaque top enregistré contient les informations complètes suivantes :</p>
             <ul>
-                <li><strong>Temps du chronomètre :</strong> Format minutes:secondes.dixièmes</li>
+                <li><strong>Temps du chronomètre :</strong> Format lisible (ex : 2m15s, 1h05m30s)</li>
                 <li><strong>Différence :</strong> Temps écoulé depuis le top précédent</li>
                 <li><strong>Dossard :</strong> Numéro de dossard du coureur</li>
                 <li><strong>Emplacement GPS :</strong> Coordonnées exactes (latitude, longitude)</li>
                 <li><strong>Lien vers Maps :</strong> Accès direct à Google Maps avec l'emplacement</li>
                 <li><strong>Heure exacte :</strong> Heure réelle du système lorsque le top a été enregistré</li>
+                <li><strong>Précision GPS :</strong> Niveau de précision en mètres de l'enregistrement</li>
             </ul>
 
             <h2>Format de Temps et Calculs</h2>
@@ -1454,9 +1825,9 @@
             <div class="tip-box">
                 <h4>Format d'Affichage</h4>
                 <ul>
-                    <li><strong>Temps Actuel :</strong> 02:15.3 (2 minutes, 15 secondes, 3 dixièmes)</li>
-                    <li><strong>Différence :</strong> +00:05.2 (5 secondes et 2 dixièmes de plus que le top précédent)</li>
-                    <li><strong>Précision :</strong> Jusqu'aux dixièmes de seconde (0.1 secondes)</li>
+                    <li><strong>Temps Actuel :</strong> 2m15s (2 minutes, 15 secondes)</li>
+                    <li><strong>Différence :</strong> +5s (5 secondes de plus que le top précédent)</li>
+                    <li><strong>Précision :</strong> Format optimisé pour une lecture rapide</li>
                     <li><strong>Mise à Jour :</strong> Le temps actuel se met à jour en temps réel toutes les 100ms</li>
                 </ul>
             </div>
@@ -1469,7 +1840,9 @@
                 <li><strong>Sans Connexion :</strong> Fonctionne sans internet après le premier chargement</li>
                 <li><strong>Installable comme App :</strong> Peut être installée sur votre appareil comme application native</li>
                 <li><strong>Mises à Jour Automatiques :</strong> Recevez des notifications des nouvelles versions</li>
+                <li><strong>Exportation KML :</strong> Génère des fichiers pour Google Earth avec tous les points</li>
                 <li><strong>Système de Suggestions :</strong> Envoyez vos idées pour améliorer l'application</li>
+                <li><strong>Format de Temps Intuitif :</strong> Affichage optimisé pour les courses</li>
             </ul>
 
             <div class="tip-box">
@@ -1481,7 +1854,8 @@
                     <li>Testez le système avant la course pour vous familiariser avec le bouton unique</li>
                     <li>Dans les courses longues, souvenez-vous que vous pouvez créer des points supplémentaires à tout moment</li>
                     <li>Utilisez le lien Google Maps pour vérifier les emplacements problématiques</li>
-                    <li>Exportez les données immédiatement après chaque course</li>
+                    <li>Exportez les données au format KML immédiatement après chaque course</li>
+                    <li>Conservez les fichiers KML comme documentation officielle des contrôles</li>
                     <li>Envoyez des suggestions si vous trouvez quelque chose à améliorer</li>
                 </ul>
             </div>
@@ -1531,6 +1905,7 @@
                         <li>Enregistrement précis des temps d'arrivée intermédiaires</li>
                         <li>Emplacement GPS pour vérifier les points exacts</li>
                         <li>Données complètes pour chaque secteur chronométré</li>
+                        <li>Exportation KML pour analyse complète du parcours</li>
                     </ul>
                 </div>
                 
@@ -1539,7 +1914,7 @@
                     <ul>
                         <li>Création rapide de points de contrôle non planifiés</li>
                         <li>Enregistrement automatique d'emplacement pour validité officielle</li>
-                        <li>Documentation complète de chaque contrôle</li>
+                        <li>Documentation complète de chaque contrôle au format KML</li>
                         <li>Données prêtes à présenter aux organisateurs</li>
                     </ul>
                 </div>
@@ -1551,6 +1926,7 @@
                         <li>Possibilité d'ajouter des points intermédiaires</li>
                         <li>Enregistrement individuel par dossard</li>
                         <li>Temps partiels et finaux automatiques</li>
+                        <li>Format de temps clair pour de petites différences</li>
                     </ul>
                 </div>
                 
@@ -1561,6 +1937,7 @@
                         <li>Suivi des tours individuels</li>
                         <li>Détection automatique des différences</li>
                         <li>Contrôle des abandons par limites de temps</li>
+                        <li>Visualisation claire des temps par tour</li>
                     </ul>
                 </div>
             </div>
@@ -1575,6 +1952,8 @@
                     <li><strong>L'app est lente :</strong> Fermez les onglets inutiles et redémarrez l'application</li>
                     <li><strong>Je ne vois pas les onglets :</strong> Sur les petits mobiles, défilez horizontalement dans la zone des onglets</li>
                     <li><strong>Les temps ne sont pas précis :</strong> Assurez-vous d'avoir un bon signal et actualisez la page si nécessaire</li>
+                    <li><strong>Impossible de générer KML :</strong> Assurez-vous qu'il y ait des données GPS enregistrées dans un chronomètre</li>
+                    <li><strong>Erreur lors de l'ouverture KML dans Google Earth :</strong> Assurez-vous d'avoir la dernière version de Google Earth installée</li>
                 </ul>
             </div>
 
@@ -1615,3 +1994,4 @@
     </script>
 </body>
 </html>
+[file content end]
