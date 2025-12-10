@@ -3432,6 +3432,12 @@ IDList=`;
                 const cronoName = crono.name || `Top ${crono.id}`;
                 const folderName = `Crono ${cronoNumber} - ${cronoName}`;
                 
+                // Calcular hora de inicio si existe
+                const startTime = crono.startTime ? 
+                    new Date(crono.startTime).toLocaleTimeString() : 'No iniciado';
+                const startDate = crono.startTime ? 
+                    new Date(crono.startTime).toLocaleDateString() : 'N/A';
+                
                 // Añadir folder para este cronómetro
                 kml += `
             <Folder>
@@ -3441,8 +3447,9 @@ IDList=`;
                     <div style="font-family: Arial; padding: 10px;">
                         <h3>${folderName}</h3>
                         <p><strong>ID:</strong> ${crono.id || 'N/A'}</p>
+                        <p><strong>Hora de inicio:</strong> ${startTime}</p>
+                        <p><strong>Fecha de inicio:</strong> ${startDate}</p>
                         <p><strong>Tops registrados:</strong> ${crono.tops.length}</p>
-                        <p><strong>Hora inicio:</strong> ${crono.startTime ? new Date(crono.startTime).toLocaleString() : 'No iniciado'}</p>
                         <p><strong>Estado:</strong> ${crono.isRunning ? 'En ejecución' : 'Detenido'}</p>
                         <p><strong>Última actualización:</strong> ${crono.lastUpdateTime ? new Date(crono.lastUpdateTime).toLocaleTimeString() : 'N/A'}</p>
                     </div>
@@ -3451,9 +3458,6 @@ IDList=`;
                 
                 // Punto de inicio (si existe)
                 if (crono.location && !crono.location.error) {
-                    const startTime = crono.startTime ? 
-                        new Date(crono.startTime).toLocaleTimeString() : 'No iniciado';
-                    
                     const startPointName = `INICIO - ${cronoName}`;
                     
                     kml += `
@@ -3464,11 +3468,13 @@ IDList=`;
                         <div style="font-family: Arial; padding: 10px;">
                             <h3 style="color: #27ae60;">PUNTO DE INICIO</h3>
                             <p><strong>Crono:</strong> ${folderName}</p>
-                            <p><strong>Hora inicio:</strong> ${startTime}</p>
+                            <p><strong>Hora de inicio:</strong> ${startTime}</p>
+                            <p><strong>Fecha de inicio:</strong> ${startDate}</p>
                             <p><strong>Coordenadas:</strong><br/>
                             ${crono.location.lat.toFixed(6)}°, ${crono.location.lng.toFixed(6)}°</p>
                             <p><strong>Precisión:</strong> ${crono.location.accuracy ? crono.location.accuracy.toFixed(1) + 'm' : 'N/A'}</p>
                             <p><strong>Tops registrados:</strong> ${crono.tops.length}</p>
+                            <p><strong>Hora actual del sistema:</strong> ${new Date().toLocaleTimeString()}</p>
                         </div>
                         ]]>
                     </description>
@@ -3489,6 +3495,15 @@ IDList=`;
                     const timeStr = formatTime(top.time);
                     const diffStr = top.diff ? formatTime(top.diff) : 'N/A';
                     
+                    // Calcular la hora exacta del corte
+                    let cutTime = 'N/A';
+                    let cutDate = 'N/A';
+                    if (crono.startTime) {
+                        const cutDateTime = new Date(crono.startTime + top.time);
+                        cutTime = cutDateTime.toLocaleTimeString();
+                        cutDate = cutDateTime.toLocaleDateString();
+                    }
+                    
                     // Crear el nombre con dorsales si existen
                     const pointName = `TOP ${topNumber} - ${timeStr}${top.dorsal && top.dorsal.trim() !== '' ? ` (Dorsal: ${top.dorsal})` : ''}`;
                     
@@ -3500,12 +3515,16 @@ IDList=`;
                         <div style="font-family: Arial; padding: 10px;">
                             <h3 style="color: #e74c3c;">${pointName}</h3>
                             <p><strong>Crono:</strong> ${folderName}</p>
-                            <p><strong>Tiempo total desde inicio:</strong> ${timeStr}</p>
+                            <p><strong>Tiempo desde inicio:</strong> ${timeStr}</p>
                             <p><strong>Diferencia con anterior:</strong> ${diffStr}</p>
                             <p><strong>Dorsal:</strong> ${top.dorsal || 'No asignado'}</p>
+                            <p><strong>Hora del corte:</strong> ${cutTime}</p>
+                            <p><strong>Fecha del corte:</strong> ${cutDate}</p>
+                            <p><strong>Hora de inicio del cronómetro:</strong> ${startTime}</p>
                             <p><strong>Coordenadas:</strong><br/>
                             ${top.location.lat.toFixed(6)}°, ${top.location.lng.toFixed(6)}°</p>
                             <p><strong>Precisión:</strong> ${top.location.accuracy ? top.location.accuracy.toFixed(1) + 'm' : 'N/A'}</p>
+                            <p><strong>Hora actual del sistema:</strong> ${new Date().toLocaleTimeString()}</p>
                         </div>
                         ]]>
                     </description>
@@ -3518,7 +3537,7 @@ IDList=`;
                 
                 // Añadir ruta si hay múltiples puntos
                 if (crono.location && !crono.location.error && crono.tops.length > 0) {
-                    kml += createRoutePlacemark(crono, folderName, cronoName);
+                    kml += createRoutePlacemark(crono, folderName, cronoName, startTime);
                 }
                 
                 kml += `
@@ -3530,6 +3549,55 @@ IDList=`;
         </kml>`;
             
             return kml;
+        }
+
+        function createRoutePlacemark(crono, folderName, cronoName, startTime) {
+            let coordinates = '';
+            
+            // Punto de inicio
+            if (crono.location && !crono.location.error) {
+                coordinates += `${crono.location.lng},${crono.location.lat},0\n`;
+            }
+            
+            // Tops en orden cronológico
+            const orderedTops = [...crono.tops].reverse();
+            
+            orderedTops.forEach(top => {
+                if (top.location && !top.location.error) {
+                    coordinates += `${top.location.lng},${top.location.lat},0\n`;
+                }
+            });
+            
+            if (!coordinates.trim()) return '';
+            
+            // Contar dorsales asignados
+            const dorsalesAsignados = crono.tops.filter(top => top.dorsal && top.dorsal.trim() !== '').length;
+            
+            return `
+            <Placemark>
+                <name>RUTA - ${cronoName}</name>
+                <description>
+                    <![CDATA[
+                    <div style="font-family: Arial; padding: 10px;">
+                        <h3 style="color: #3498db;">RUTA COMPLETA</h3>
+                        <p><strong>Crono:</strong> ${folderName}</p>
+                        <p><strong>Hora de inicio:</strong> ${startTime}</p>
+                        <p><strong>Puntos totales:</strong> ${(crono.location ? 1 : 0) + crono.tops.filter(t => t.location && !t.location.error).length}</p>
+                        <p><strong>Dorsales registrados:</strong> ${dorsalesAsignados} de ${crono.tops.length}</p>
+                        <p><strong>Tiempo máximo registrado:</strong> ${crono.tops.length > 0 ? formatTime(crono.tops[0].time) : 'N/A'}</p>
+                        <p><strong>Duración total:</strong> ${crono.tops.length > 0 ? formatTime(crono.tops[0].time) : 'N/A'}</p>
+                        <p><strong>Hora actual del sistema:</strong> ${new Date().toLocaleTimeString()}</p>
+                    </div>
+                    ]]>
+                </description>
+                <styleUrl>#routeStyle</styleUrl>
+                <LineString>
+                    <tessellate>1</tessellate>
+                    <coordinates>
+        ${coordinates.trim()}
+                    </coordinates>
+                </LineString>
+            </Placemark>`;
         }
 
         
