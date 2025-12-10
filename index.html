@@ -1732,83 +1732,9 @@ IDList=`;
 
         // Mostrar notificación de actualización para index.html
         function showUpdateNotificationIndex() {
-            // Crear o mostrar notificación
-            if (!document.getElementById('update-notification-index')) {
-                const notification = document.createElement('div');
-                notification.id = 'update-notification-index';
-                notification.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: linear-gradient(135deg, #3498db, #2980b9);
-                    color: white;
-                    padding: 15px 20px;
-                    border-radius: 10px;
-                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-                    z-index: 10000;
-                    max-width: 300px;
-                    animation: slideIn 0.3s ease;
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                `;
-                
-                notification.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                        <i class="fas fa-sync-alt" style="font-size: 1.2rem;"></i>
-                        <strong style="font-size: 0.9rem;">¡Nueva versión disponible!</strong>
-                    </div>
-                    <p style="margin-bottom: 10px; font-size: 0.8rem;">
-                        Hay una nueva versión de la aplicación. ¿Quieres actualizar?
-                    </p>
-                    <div style="display: flex; gap: 10px;">
-                        <button id="update-now-index" style="
-                            background: white;
-                            color: #3498db;
-                            border: none;
-                            padding: 8px 15px;
-                            border-radius: 5px;
-                            cursor: pointer;
-                            font-weight: bold;
-                            font-size: 0.8rem;
-                            flex: 1;
-                        ">
-                            Actualizar ahora
-                        </button>
-                        <button id="update-later-index" style="
-                            background: transparent;
-                            color: white;
-                            border: 1px solid white;
-                            padding: 8px 15px;
-                            border-radius: 5px;
-                            cursor: pointer;
-                            font-size: 0.8rem;
-                            flex: 1;
-                        ">
-                            Más tarde
-                        </button>
-                    </div>
-                `;
-                
-                document.body.appendChild(notification);
-                
-                // Animación CSS para la notificación
-                const style = document.createElement('style');
-                style.textContent = `
-                    @keyframes slideIn {
-                        from { transform: translateX(100%); opacity: 0; }
-                        to { transform: translateX(0); opacity: 1; }
-                    }
-                `;
-                document.head.appendChild(style);
-                
-                // Event listeners para los botones
-                document.getElementById('update-now-index').addEventListener('click', () => {
-                    updateIndexApp();
-                });
-                
-                document.getElementById('update-later-index').addEventListener('click', () => {
-                    notification.style.display = 'none';
-                });
-            }
+            // Solo actualizar automáticamente sin preguntar
+            console.log('Nueva versión disponible - Actualizando automáticamente');
+            updateIndexApp();
         }
 
         // Función para actualizar la aplicación index
