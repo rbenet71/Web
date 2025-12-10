@@ -485,7 +485,7 @@
         .lap-time-wrapper {
             flex: 1;
             min-width: 0;
-            display: flex;
+            display: block;
             align-items: center;
             justify-content: center;
         }
@@ -2688,9 +2688,12 @@
                 return `<li class="lap-item">
                     <div class="lap-row">
                         <!-- COLUMNA IZQUIERDA: Tiempo (una celda grande) -->
+
                         <div class="lap-time-wrapper">
                             <div class="lap-time-full">${timeFormatted}</div>
+                            <div class="dorsal-seconds">${lap.segundos}s</div>
                         </div>
+
                         
                         <!-- COLUMNA DERECHA: 2 celdas con divisor -->
                         <div class="lap-controls-wrapper">
@@ -2723,15 +2726,16 @@
                                                 <button class="icon-btn-small dorsal-cancel-btn" onclick="cancelEditing()">✗</button>
                                             </div>
                                         </div>
+
                                     ` : `
                                         <div class="dorsal-display">
-                                            <span class="dorsal-seconds">${lap.segundos}s</span>
                                             <span class="lap-dorsal ${lap.dorsales.length > 0 ? 'assigned' : ''}" 
                                                   onclick="startEditingDorsal(${lapIndex})">
                                                 ${lap.dorsales.length > 0 ? 
                                                     `${lap.dorsales.join(', ')}` : 
                                                     translations[currentLanguage].dorsalPlaceholder}
                                             </span>
+                                            
                                         </div>
                                     `}
                                 </div>
@@ -2739,6 +2743,8 @@
                         </div>
                     </div>
                 </li>`;
+            
+            
             }).join('');
         }
 
