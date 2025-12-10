@@ -1164,6 +1164,23 @@
             color: #3498db !important;
             transform: scale(1.1);
         }
+        /* En la sección CSS para botones del footer, añade: */
+        .kml-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .kml-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -1222,6 +1239,10 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-left">
+                    <button class="kml-btn" id="kml-btn">
+                        <i class="fas fa-file-download"></i>
+                        <span id="kml-text">Generar KML</span>
+                    </button>
                     <button class="help-btn" id="footer-help-btn">
                         <i class="fas fa-question-circle"></i>
                         <span id="help-text">Ayuda</span>
@@ -1485,6 +1506,7 @@
                 viewOnMaps: "📍 Ver en Google Maps",
                 locationNotAvailable: "Ubicación no disponible",
                 viewAllPoints: "Ver todos los puntos",
+                kmlText: "Generar KML",
                 deleteTopConfirm: "¿Estás seguro de que quieres eliminar el tiempo {time}?"
             },
             ca: {
@@ -1579,6 +1601,7 @@
                 viewOnMaps: "📍 Veure a Google Maps",
                 locationNotAvailable: "Ubicació no disponible",
                 viewAllPoints: "Veure tots els punts",
+                kmlText: "Crear KML",
                 deleteTopConfirm: "Segur que vols eliminar el temps {time}?"
             },
             en: {
@@ -1673,6 +1696,7 @@
                 viewOnMaps: "📍 View on Google Maps",
                 locationNotAvailable: "Location not available",
                 viewAllPoints: "View all points",
+                kmlText: "Generate KML",
                 deleteTopConfirm: "Are you sure you want to delete the time {time}?"
             },
             fr: {
@@ -1767,6 +1791,7 @@
                 viewOnMaps: "📍 Voir sur Google Maps",
                 locationNotAvailable: "Emplacement non disponible",
                 viewAllPoints: "Voir tous les points",
+                kmlText: "Générer KML",
                 deleteTopConfirm: "Êtes-vous sûr de vouloir supprimer le temps {time}?"
             }
         };
@@ -2098,6 +2123,10 @@ IDList=`;
         function updateLanguageUI() {
             const lang = appState.currentLanguage;
             const t = translations[lang];
+            const kmlText = document.getElementById('kml-text');
+                if (kmlText) {
+                    kmlText.textContent = t.kmlText;
+                }
             
             domElements.appTitleText.textContent = t.appTitle;
             domElements.languagesLabel.textContent = t.languagesLabel;
@@ -2808,6 +2837,10 @@ IDList=`;
 
         // Event Listeners setup
         function setupEventListeners() {
+            const kmlBtn = document.getElementById('kml-btn');
+                if (kmlBtn) {
+                    kmlBtn.addEventListener('click', generateKMLForAllCronos);
+                }
             // Selector de idiomas
             document.querySelectorAll('.flag').forEach(flag => {
                 flag.addEventListener('click', function() {
@@ -3326,6 +3359,231 @@ IDList=`;
         </a>
     `;
 }
+
+
+        // Añade esta función al final del archivo, antes de initApp()
+        function generateKMLForAllCronos() {
+            if (appState.cronos.length === 0) {
+                showMessage("No hay cronómetros con datos", "error");
+                return;
+            }
+            
+            let hasData = false;
+            appState.cronos.forEach(crono => {
+                if (crono.location || crono.tops.length > 0) {
+                    hasData = true;
+                }
+            });
+            
+            if (!hasData) {
+                showMessage("No hay datos GPS para generar KML", "error");
+                return;
+            }
+            
+            const t = translations[appState.currentLanguage];
+            showMessage("Generando archivo KML...", "info");
+            
+            // Crear el contenido KML
+            const kmlContent = createKMLContent();
+            
+            // Crear y descargar el archivo
+            downloadKMLFile(kmlContent);
+        }
+
+        function createKMLContent() {
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0];
+            const timeStr = now.toTimeString().split(' ')[0];
+            
+            let kml = `<?xml version="1.0" encoding="UTF-8"?>
+        <kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+            <name>Crono Tops - ${dateStr} ${timeStr}</name>
+            <description>Puntos generados por Crono Tops</description>
+            <Style id="startStyle">
+                <IconStyle>
+                    <scale>1.2</scale>
+                    <Icon>
+                        <href>http://maps.google.com/mapfiles/kml/paddle/grn-circle.png</href>
+                    </Icon>
+                </IconStyle>
+                <LabelStyle>
+                    <scale>0.8</scale>
+                </LabelStyle>
+            </Style>
+            <Style id="topStyle">
+                <IconStyle>
+                    <scale>1.0</scale>
+                    <Icon>
+                        <href>http://maps.google.com/mapfiles/kml/paddle/red-circle.png</href>
+                    </Icon>
+                </IconStyle>
+                <LabelStyle>
+                    <scale>0.8</scale>
+                </LabelStyle>
+            </Style>`;
+            
+            // Procesar cada cronómetro
+            appState.cronos.forEach((crono, cronoIndex) => {
+                if (!crono.location && crono.tops.length === 0) return;
+                
+                // Añadir folder para este cronómetro
+                kml += `
+            <Folder>
+                <name>${crono.name || `Crono ${cronoIndex + 1}`}</name>
+                <description>Cronómetro: ${crono.name}<br/>ID: ${crono.id}</description>`;
+                
+                // Punto de inicio (si existe)
+                if (crono.location && !crono.location.error) {
+                    const startTime = crono.startTime ? 
+                        new Date(crono.startTime).toLocaleTimeString() : 'No iniciado';
+                    
+                    kml += `
+                <Placemark>
+                    <name>INICIO - ${crono.name}</name>
+                    <description>
+                        <![CDATA[
+                        <div style="font-family: Arial; padding: 10px;">
+                            <h3 style="color: #27ae60;">PUNTO DE INICIO</h3>
+                            <p><strong>Crono:</strong> ${crono.name}</p>
+                            <p><strong>Hora inicio:</strong> ${startTime}</p>
+                            <p><strong>Coordenadas:</strong><br/>
+                            ${crono.location.lat.toFixed(6)}°, ${crono.location.lng.toFixed(6)}°</p>
+                            <p><strong>Precisión:</strong> ${crono.location.accuracy ? crono.location.accuracy.toFixed(1) + 'm' : 'N/A'}</p>
+                            <p><strong>Tops registrados:</strong> ${crono.tops.length}</p>
+                        </div>
+                        ]]>
+                    </description>
+                    <styleUrl>#startStyle</styleUrl>
+                    <Point>
+                        <coordinates>${crono.location.lng},${crono.location.lat},0</coordinates>
+                    </Point>
+                </Placemark>`;
+                }
+                
+                // Puntos de tops (en orden cronológico inverso para mostrar del 1 en adelante)
+                const orderedTops = [...crono.tops].reverse();
+                
+                orderedTops.forEach((top, index) => {
+                    if (!top.location || top.location.error) return;
+                    
+                    const topNumber = crono.tops.length - index; // Numeración 1, 2, 3...
+                    const timeStr = formatTime(top.time);
+                    const diffStr = top.diff ? formatTime(top.diff) : 'N/A';
+                    
+                    kml += `
+                <Placemark>
+                    <name>TOP ${topNumber} - ${timeStr}</name>
+                    <description>
+                        <![CDATA[
+                        <div style="font-family: Arial; padding: 10px;">
+                            <h3 style="color: #e74c3c;">TOP ${topNumber}</h3>
+                            <p><strong>Crono:</strong> ${crono.name}</p>
+                            <p><strong>Tiempo total:</strong> ${timeStr}</p>
+                            <p><strong>Diferencia:</strong> ${diffStr}</p>
+                            <p><strong>Dorsal:</strong> ${top.dorsal || 'No asignado'}</p>
+                            <p><strong>Coordenadas:</strong><br/>
+                            ${top.location.lat.toFixed(6)}°, ${top.location.lng.toFixed(6)}°</p>
+                            <p><strong>Precisión:</strong> ${top.location.accuracy ? top.location.accuracy.toFixed(1) + 'm' : 'N/A'}</p>
+                        </div>
+                        ]]>
+                    </description>
+                    <styleUrl>#topStyle</styleUrl>
+                    <Point>
+                        <coordinates>${top.location.lng},${top.location.lat},0</coordinates>
+                    </Point>
+                </Placemark>`;
+                });
+                
+                // Añadir ruta si hay múltiples puntos
+                if (crono.location && !crono.location.error && crono.tops.length > 0) {
+                    kml += createRoutePlacemark(crono, cronoIndex);
+                }
+                
+                kml += `
+            </Folder>`;
+            });
+            
+            kml += `
+        </Document>
+        </kml>`;
+            
+            return kml;
+        }
+
+        function createRoutePlacemark(crono, cronoIndex) {
+            let coordinates = '';
+            
+            // Punto de inicio
+            if (crono.location && !crono.location.error) {
+                coordinates += `${crono.location.lng},${crono.location.lat},0\n`;
+            }
+            
+            // Tops en orden cronológico
+            const orderedTops = [...crono.tops].reverse();
+            
+            orderedTops.forEach(top => {
+                if (top.location && !top.location.error) {
+                    coordinates += `${top.location.lng},${top.location.lat},0\n`;
+                }
+            });
+            
+            if (!coordinates.trim()) return '';
+            
+            return `
+                <Placemark>
+                    <name>Ruta - ${crono.name}</name>
+                    <description>
+                        <![CDATA[
+                        <div style="font-family: Arial; padding: 10px;">
+                            <h3 style="color: #3498db;">RUTA COMPLETA</h3>
+                            <p><strong>Crono:</strong> ${crono.name}</p>
+                            <p><strong>Total puntos:</strong> ${(crono.location ? 1 : 0) + crono.tops.filter(t => t.location && !t.location.error).length}</p>
+                        </div>
+                        ]]>
+                    </description>
+                    <Style>
+                        <LineStyle>
+                            <color>ff3498db</color>
+                            <width>3</width>
+                        </LineStyle>
+                        <PolyStyle>
+                            <color>1a3498db</color>
+                        </PolyStyle>
+                    </Style>
+                    <LineString>
+                        <tessellate>1</tessellate>
+                        <coordinates>
+        ${coordinates.trim()}
+                        </coordinates>
+                    </LineString>
+                </Placemark>`;
+        }
+
+        function downloadKMLFile(kmlContent) {
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0].replace(/-/g, '');
+            const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '');
+            const filename = `Crono_Tops_${dateStr}_${timeStr}.kml`;
+            
+            const blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            const t = translations[appState.currentLanguage];
+            showMessage("✅ KML generado y descargado", "success");
+        }
+
+
+
+
+
 
 
         // Método alternativo para navegadores sin Wake Lock API
