@@ -1162,7 +1162,112 @@
             animation: spin 1s linear infinite;
             margin: 0 auto 0.4rem;
         }
-        
+
+        /* Estilos para la tabla de dorsales */
+        .dorsal-table-header {
+            display: flex;
+            background-color: #34495e;
+            border-radius: 4px 4px 0 0;
+            border-bottom: 2px solid var(--secondary-color);
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .dorsal-header-cell {
+            flex: 1;
+            padding: 10px 8px;
+            text-align: center;
+            cursor: default;
+        }
+
+        .dorsal-header-cell.sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s;
+        }
+
+        .dorsal-header-cell.sortable:hover {
+            background-color: rgba(52, 152, 219, 0.2);
+        }
+
+        .dorsal-header-cell.sort-asc {
+            background-color: rgba(46, 204, 113, 0.2);
+        }
+
+        .dorsal-header-cell.sort-desc {
+            background-color: rgba(231, 76, 60, 0.2);
+        }
+
+        .sort-arrow {
+            margin-left: 5px;
+            font-size: 0.8em;
+            display: inline-block;
+            width: 12px;
+        }
+
+        .dorsal-row {
+            display: flex;
+            border-bottom: 1px solid #34495e;
+            transition: background-color 0.2s;
+        }
+
+        .dorsal-row:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .dorsal-cell {
+            flex: 1;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* Estilo para el número de dorsal */
+        .dorsal-cell:first-child {
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        /* Estilo para el tiempo */
+        .dorsal-cell:nth-child(2) {
+            font-family: 'Orbitron', monospace;
+            color: #00ff00;
+        }
+
+        /* Estilo para el número de corte */
+        .dorsal-cell:nth-child(3) {
+            color: #f39c12;
+        }
+
+        /* Contenedor principal de dorsales */
+        #dorsal-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #34495e;
+            border-radius: 6px;
+        }
+
+        /* Scrollbar personalizado */
+        #dorsal-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #dorsal-list::-webkit-scrollbar-track {
+            background: #1a252f;
+            border-radius: 3px;
+        }
+
+        #dorsal-list::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 3px;
+        }
+
+        #dorsal-list::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+                
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -3217,41 +3322,166 @@
             });
         }
 
-        function renderDorsalList(){
+        function renderDorsalList() {
             dorsalListElement.innerHTML = '';
             
             const dorsales = Object.keys(dorsalAssignments).sort((a, b) => parseInt(a) - parseInt(b));
             
-            if(dorsales.length === 0) {
+            if (dorsales.length === 0) {
                 dorsalListElement.innerHTML = '<div style="text-align: center; color: #95a5a6; padding: 16px;">No hay dorsales asignados</div>';
                 return;
             }
             
+            // Crear cabecera de la tabla con columnas ordenables
+            dorsalListElement.innerHTML = `
+                <div class="dorsal-table-header">
+                    <div class="dorsal-header-cell sortable" data-sort="dorsal" id="sort-dorsal">
+                        Dorsal <span class="sort-arrow">↕</span>
+                    </div>
+                    <div class="dorsal-header-cell sortable" data-sort="time" id="sort-time">
+                        Tiempo <span class="sort-arrow">↕</span>
+                    </div>
+                    <div class="dorsal-header-cell sortable" data-sort="cut" id="sort-cut">
+                        Nº de Corte <span class="sort-arrow">↕</span>
+                    </div>
+                    <div class="dorsal-header-cell">
+                        Acciones
+                    </div>
+                </div>
+            `;
+            
+            // Preparar los datos para mostrar
+            let dorsalData = [];
+            
             dorsales.forEach(dorsal => {
                 const lapIndices = dorsalAssignments[dorsal];
-                const tiempos = lapIndices.map(index => lapTimes[index]);
+                lapIndices.forEach(lapIndex => {
+                    const lap = lapTimes[lapIndex];
+                    const cutNumber = lapTimes.findIndex(l => l === lap) + 1; // Número del corte
+                    dorsalData.push({
+                        dorsal: parseInt(dorsal),
+                        dorsalStr: dorsal,
+                        time: lap.timeMs,
+                        timeFormatted: showMilliseconds ? lap.total : lap.total.split('"')[0] + '"',
+                        cutNumber: cutNumber,
+                        lapIndex: lapIndex
+                    });
+                });
+            });
+            
+            // Estado de ordenación
+            let currentSort = {
+                field: 'dorsal',
+                ascending: true
+            };
+            
+            // Función para ordenar y renderizar
+            function sortAndRender() {
+                dorsalData.sort((a, b) => {
+                    let compareResult = 0;
+                    
+                    switch (currentSort.field) {
+                        case 'dorsal':
+                            compareResult = a.dorsal - b.dorsal;
+                            break;
+                        case 'time':
+                            compareResult = a.time - b.time;
+                            break;
+                        case 'cut':
+                            compareResult = a.cutNumber - b.cutNumber;
+                            break;
+                    }
+                    
+                    return currentSort.ascending ? compareResult : -compareResult;
+                });
                 
-                const dorsalElement = document.createElement('div');
-                dorsalElement.className = 'dorsal-item';
-                
-                let tiemposHTML = tiempos.map((lap, i) => 
-                    `Corte ${i + 1}: ${showMilliseconds ? lap.total : lap.total.split('"')[0] + '"'}`
-                ).join(' | ');
-                
-                dorsalElement.innerHTML = `
-                    <div class="dorsal-number">Dorsal ${dorsal}</div>
-                    <div class="dorsal-time">${tiemposHTML}</div>
-                    <div class="dorsal-actions">
-                        <button onclick="removeDorsal(${dorsal})" style="background: #ff4444; color: white; border: none; padding: 4px 8px; border-radius: 2px; cursor: pointer;">✗</button>
-                    </div>
-                `;
-                
-                dorsalListElement.appendChild(dorsalElement);
+                renderDorsalRows();
+            }
+            
+            // Función para renderizar las filas
+            function renderDorsalRows() {
+                const rowsContainer = document.getElementById('dorsal-rows-container');
+                if (rowsContainer) {
+                    rowsContainer.innerHTML = dorsalData.map(item => `
+                        <div class="dorsal-row">
+                            <div class="dorsal-cell">${item.dorsalStr}</div>
+                            <div class="dorsal-cell">${item.timeFormatted}</div>
+                            <div class="dorsal-cell">${item.cutNumber}</div>
+                            <div class="dorsal-cell">
+                                <button class="icon-btn-small btn-delete" 
+                                        onclick="removeSpecificDorsal('${item.dorsalStr}', ${item.lapIndex})" 
+                                        title="Eliminar este dorsal del corte ${item.cutNumber}">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+            
+            // Crear contenedor para las filas
+            const rowsContainer = document.createElement('div');
+            rowsContainer.id = 'dorsal-rows-container';
+            dorsalListElement.appendChild(rowsContainer);
+            
+            // Renderizar inicialmente
+            sortAndRender();
+            
+            // Añadir event listeners para ordenación
+            document.querySelectorAll('.sortable').forEach(header => {
+                header.addEventListener('click', function() {
+                    const sortField = this.getAttribute('data-sort');
+                    
+                    // Actualizar estado de ordenación
+                    if (currentSort.field === sortField) {
+                        currentSort.ascending = !currentSort.ascending;
+                    } else {
+                        currentSort.field = sortField;
+                        currentSort.ascending = true;
+                    }
+                    
+                    // Actualizar indicadores visuales
+                    document.querySelectorAll('.sortable').forEach(h => {
+                        h.classList.remove('sort-asc', 'sort-desc');
+                        const arrow = h.querySelector('.sort-arrow');
+                        if (arrow) arrow.textContent = '↕';
+                    });
+                    
+                    this.classList.add(currentSort.ascending ? 'sort-asc' : 'sort-desc');
+                    const arrow = this.querySelector('.sort-arrow');
+                    if (arrow) {
+                        arrow.textContent = currentSort.ascending ? '↑' : '↓';
+                    }
+                    
+                    // Ordenar y renderizar
+                    sortAndRender();
+                });
             });
         }
 
-        function removeDorsal(dorsal){
-            if(confirm(`¿Eliminar todas las asignaciones del dorsal ${dorsal}?`)){
+
+        // Nueva función para eliminar un dorsal específico de un corte específico
+        function removeSpecificDorsal(dorsal, lapIndex) {
+            if (confirm(`¿Eliminar el dorsal ${dorsal} del corte ${lapIndex + 1}?`)) {
+                const lap = lapTimes[lapIndex];
+                if (lap) {
+                    // Filtrar el dorsal específico del array de dorsales
+                    lap.dorsales = lap.dorsales.filter(d => d !== dorsal);
+                    
+                    // Actualizar asignaciones y renderizar
+                    updateDorsalAssignments();
+                    renderLaps();
+                    renderDorsalList();
+                    saveCurrentRace();
+                    
+                    showMessage(`Dorsal ${dorsal} eliminado del corte ${lapIndex + 1}`, 'success');
+                }
+            }
+        }
+
+        // También necesitas mantener la función removeDorsal original para eliminar todas las apariciones
+        function removeDorsal(dorsal) {
+            if (confirm(`¿Eliminar TODAS las apariciones del dorsal ${dorsal}?`)) {
                 lapTimes.forEach(lap => {
                     lap.dorsales = lap.dorsales.filter(d => d != dorsal);
                 });

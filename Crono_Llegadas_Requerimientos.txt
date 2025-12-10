@@ -34,3 +34,6 @@ El diseño de parametros no esta bonito, no es uniforme ni esta organizado. Quie
 revisar que se vean las horas de inicio anteriores.
 
 Eliminar cortes, modificar tiempo de los cortes y dorsales, que al modificar el tiempo del primer corte se vuelva a calcular el cierre de control
+
+en la pestaña de dorsales me gustaria que hubiesen las siguiente columnas con titulo: Dorsal, tiempo, Numero de Corte, que al hacer click en el nombre de la columna se ordenase primero ascendente y luego descendente. En cada linea la opción de eliminar ese dorsal
+el numero de corte es el número que en la pestaña cortes tiene.
