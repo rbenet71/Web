@@ -2037,7 +2037,7 @@ IDList=`;
             setupEventListeners();
             renderCronos();
             setupServiceWorker();
-            checkForUpdates();
+            checkForUpdatesPeriodically();  // <-- ASÍ
             
             window.appInstaller = new AppInstaller();
             
@@ -2045,9 +2045,9 @@ IDList=`;
             
             setTimeout(() => {
                 const message = appState.currentLanguage === 'fr' ? 'Partagez vos idées pour améliorer la calculatrice' :
-                              appState.currentLanguage === 'en' ? 'Share your ideas to improve the calculator' :
-                              appState.currentLanguage === 'ca' ? 'Comparteix les teves idees per millorar la calculadora' :
-                              'Comparte tus ideas para mejorar la calculadora';
+                            appState.currentLanguage === 'en' ? 'Share your ideas to improve the calculator' :
+                            appState.currentLanguage === 'ca' ? 'Comparteix les teves idees per millorar la calculadora' :
+                            'Comparte tus ideas para mejorar la calculadora';
                 showMessage(message, 'info');
             }, 1000);
         }
@@ -3053,29 +3053,7 @@ IDList=`;
                 messageDiv.style.display = 'none';
             }, 3000);
         }
-        // Service Worker y actualizaciones automáticas
-        function setupServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                // Solo registrar para Crono_Tops
-                if (window.location.href.includes('Crono_Tops')) {
-                    navigator.serviceWorker.register('/Web/unified-sw.js')
-                    .then(function(registration) {
-                        console.log('ServiceWorker Crono Tops registrado: ', registration.scope);
-                        
-                        // Escuchar mensajes del Service Worker
-                        navigator.serviceWorker.addEventListener('message', event => {
-                            if (event.data && event.data.type === 'SW_UPDATED') {
-                                console.log('Service Worker actualizado a versión:', event.data.version);
-                                showUpdateNotification();
-                            }
-                        });
-                        
-                    }).catch(function(error) {
-                        console.log('Error al registrar ServiceWorker Crono Tops: ', error);
-                    });
-                }
-            }
-        }
+
 
         // Mostrar notificación de actualización
         function showUpdateNotification() {
@@ -3169,27 +3147,6 @@ IDList=`;
             }
         }
 
-        // Actualizar la función initApp para incluir las verificaciones de actualización
-        function initApp() {
-            loadLanguagePreference();
-            loadCronosFromStorage();
-            setupEventListeners();
-            renderCronos();
-            setupServiceWorker();
-            checkForUpdatesPeriodically(); // Cambiar esta línea
-            
-            window.appInstaller = new AppInstaller();
-            
-            setInterval(updateAllCronoTimes, 100);
-            
-            setTimeout(() => {
-                const message = appState.currentLanguage === 'fr' ? 'Partagez vos idées pour améliorer la calculatrice' :
-                            appState.currentLanguage === 'en' ? 'Share your ideas to improve the calculator' :
-                            appState.currentLanguage === 'ca' ? 'Comparteix les teves idees per millorar la calculadora' :
-                            'Comparte tus ideas para mejorar la calculadora';
-                showMessage(message, 'info');
-            }, 1000);
-        }
         // Método alternativo para navegadores sin Wake Lock API
         function keepScreenAwakeAlternative() {
             if (!isRunning) return;
