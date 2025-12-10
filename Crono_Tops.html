@@ -1458,6 +1458,7 @@
                 locationLabel: "Ubicación:",
                 viewOnMaps: "📍 Ver en Google Maps",
                 locationNotAvailable: "Ubicación no disponible",
+                viewAllPoints: "Ver todos los puntos",
                 deleteTopConfirm: "¿Estás seguro de que quieres eliminar el tiempo {time}?"
             },
             ca: {
@@ -1551,6 +1552,7 @@
                 locationLabel: "Ubicació:",
                 viewOnMaps: "📍 Veure a Google Maps",
                 locationNotAvailable: "Ubicació no disponible",
+                viewAllPoints: "Veure tots els punts",
                 deleteTopConfirm: "Segur que vols eliminar el temps {time}?"
             },
             en: {
@@ -1644,6 +1646,7 @@
                 locationLabel: "Location:",
                 viewOnMaps: "📍 View on Google Maps",
                 locationNotAvailable: "Location not available",
+                viewAllPoints: "View all points",
                 deleteTopConfirm: "Are you sure you want to delete the time {time}?"
             },
             fr: {
@@ -1737,6 +1740,7 @@
                 locationLabel: "Emplacement:",
                 viewOnMaps: "📍 Voir sur Google Maps",
                 locationNotAvailable: "Emplacement non disponible",
+                viewAllPoints: "Voir tous les points",
                 deleteTopConfirm: "Êtes-vous sûr de vouloir supprimer le temps {time}?"
             }
         };
@@ -2494,90 +2498,96 @@ IDList=`;
         }
 
         function renderTopsList(crono, cronoIndex) {
-    const t = translations[appState.currentLanguage];
-    
-    if (crono.tops.length === 0) {
-        return '<div class="empty-state" style="padding: 20px;"><p>No hay tops registrados todavía</p></div>';
+            const t = translations[appState.currentLanguage];
+            
+            if (crono.tops.length === 0) {
+                return '<div class="empty-state" style="padding: 20px;"><p>No hay tops registrados todavía</p></div>';
+            }
+            
+            let html = '';
+            
+            // Recorrer los tops tal como están (último primero)
+            crono.tops.forEach((top, index) => {
+                let diffDisplay = '';
+                
+                if (index === 0) {
+                    // El primer elemento es el último top registrado
+                    // Diferencia con el top anterior (si existe)
+                    if (crono.tops.length > 1) {
+                        const nextTop = crono.tops[1]; // El top anterior en el tiempo
+                        diffDisplay = `+${formatTime(top.time - nextTop.time)}`;
+                    } else {
+                        // Es el único top - diferencia desde inicio
+                        diffDisplay = `+${formatTime(top.time)}`;
+                    }
+                } else {
+                    // Para los tops anteriores en el tiempo
+                    if (index < crono.tops.length - 1) {
+                        // Hay un top posterior - calcular diferencia con el siguiente top
+                        const nextTop = crono.tops[index + 1];
+                        diffDisplay = `+${formatTime(top.time - nextTop.time)}`;
+                    } else {
+                        // Este es el primer top registrado (el más antiguo)
+                        diffDisplay = `+${formatTime(top.time)}`;
+                    }
+                }
+                
+                const locationHtml = renderTopLocation(top, t, false);
+                
+                html += `
+                    <div class="top-item">
+                        <div class="top-time-row">
+                            <div class="top-time-info">
+                                <div class="top-time" style="min-width: 90px;">${formatTime(top.time)}</div>
+                                <div class="top-diff" style="min-width: 90px;">${diffDisplay}</div>
+                            </div>
+                            <div class="top-actions" style="display: flex; gap: 8px; align-items: center;">
+                                ${locationHtml}
+                                <button class="action-btn delete-top" 
+                                        data-crono-index="${cronoIndex}"
+                                        data-top-index="${index}"
+                                        title="${t.delete}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="top-dorsal-container">
+                            <div class="top-dorsal">
+                                <input type="text" 
+                                    value="${top.dorsal}" 
+                                    placeholder="${t.dorsalPlaceholder}"
+                                    data-crono-index="${cronoIndex}"
+                                    data-top-index="${index}">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            return html;
+        }
+        
+        function renderTopLocation(top, t, isStartLocation = false) {
+    if (!top.location || top.location.error) {
+        return '';
     }
     
-    let html = '';
+    const lat = top.location.lat.toFixed(6);
+    const lng = top.location.lng.toFixed(6);
     
-    // Recorrer los tops tal como están (último primero)
-    crono.tops.forEach((top, index) => {
-        let diffDisplay = '';
-        
-        if (index === 0) {
-            // El primer elemento es el último top registrado
-            // Diferencia con el top anterior (si existe)
-            if (crono.tops.length > 1) {
-                const nextTop = crono.tops[1]; // El top anterior en el tiempo
-                diffDisplay = `+${formatTime(top.time - nextTop.time)}`;
-            } else {
-                // Es el único top - diferencia desde inicio
-                diffDisplay = `+${formatTime(top.time)}`;
-            }
-        } else {
-            // Para los tops anteriores en el tiempo
-            if (index < crono.tops.length - 1) {
-                // Hay un top posterior - calcular diferencia con el siguiente top
-                const nextTop = crono.tops[index + 1];
-                diffDisplay = `+${formatTime(top.time - nextTop.time)}`;
-            } else {
-                // Este es el primer top registrado (el más antiguo)
-                diffDisplay = `+${formatTime(top.time)}`;
-            }
-        }
-        
-        const locationHtml = renderTopLocation(top, t);
-        
-        html += `
-            <div class="top-item">
-                <div class="top-time-row">
-                    <div class="top-time-info">
-                        <div class="top-time" style="min-width: 90px;">${formatTime(top.time)}</div>
-                        <div class="top-diff" style="min-width: 90px;">${diffDisplay}</div>
-                    </div>
-                    <div class="top-actions" style="display: flex; gap: 8px; align-items: center;">
-                        ${locationHtml}
-                        <button class="action-btn delete-top" 
-                                data-crono-index="${cronoIndex}"
-                                data-top-index="${index}"
-                                title="${t.delete}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="top-dorsal-container">
-                    <div class="top-dorsal">
-                        <input type="text" 
-                            value="${top.dorsal}" 
-                            placeholder="${t.dorsalPlaceholder}"
-                            data-crono-index="${cronoIndex}"
-                            data-top-index="${index}">
-                    </div>
-                </div>
-            </div>
-        `;
-    });
+    // Crear un ID único para este punto
+    const pointId = isStartLocation ? 'start' : top.id;
+    const label = isStartLocation ? t.startBtn : (top.dorsal || `Top ${top.id}`);
     
-    return html;
+    // Construir URL de Google Maps con todos los puntos
+    const mapsUrl = buildAllPointsMapUrl(pointId, lat, lng, label, isStartLocation);
+    
+    return `
+        <a href="${mapsUrl}" target="_blank" class="action-btn" title="${t.gpsLink}">
+            <i class="fas fa-map-marker-alt"></i>
+        </a>
+    `;
 }
-        
-        function renderTopLocation(top, t) {
-            if (!top.location || top.location.error) {
-                return '';
-            }
-            
-            const lat = top.location.lat.toFixed(6);
-            const lng = top.location.lng.toFixed(6);
-            const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
-            
-            return `
-                <a href="${mapsUrl}" target="_blank" class="action-btn" title="${t.gpsLink}">
-                    <i class="fas fa-map-marker-alt"></i>
-                </a>
-            `;
-        }
 
         function deleteTopWithConfirmation(cronoIndex, topIndex) {
             const t = translations[appState.currentLanguage];
@@ -2593,25 +2603,27 @@ IDList=`;
 
 
         function renderLocationInfo(crono, t) {
-            if (!crono.location) {
-                return `<p>${t.gpsNoAvailable}</p>`;
-            }
-            
-            if (crono.location.error) {
-                return `<p>${t.gpsNoAvailable}</p>`;
-            }
-            
-            const lat = crono.location.lat.toFixed(6);
-            const lng = crono.location.lng.toFixed(6);
-            const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
-            
-            return `
-                <p>${lat}, ${lng}</p>
-                <a href="${mapsUrl}" target="_blank" class="gps-link">
-                    <i class="fas fa-external-link-alt"></i> ${t.gpsLink}
-                </a>
-            `;
-        }
+    if (!crono.location) {
+        return `<p>${t.gpsNoAvailable}</p>`;
+    }
+    
+    if (crono.location.error) {
+        return `<p>${t.gpsNoAvailable}</p>`;
+    }
+    
+    const lat = crono.location.lat.toFixed(6);
+    const lng = crono.location.lng.toFixed(6);
+    
+    // URL para mostrar todos los puntos
+    const allPointsUrl = buildAllPointsMapUrl('start', lat, lng, t.startBtn + ' ' + crono.tabName, true);
+    
+    return `
+        <p>${lat}, ${lng}</p>
+        <a href="${allPointsUrl}" target="_blank" class="gps-link">
+            <i class="fas fa-external-link-alt"></i> ${t.viewAllPoints || t.gpsLink}
+        </a>
+    `;
+}
 
         function setActiveCrono(index) {
             appState.activeCronoIndex = index;
@@ -3150,6 +3162,107 @@ IDList=`;
                 });
             }
         }
+        
+
+        function buildAllPointsMapUrl(currentPointId, currentLat, currentLng, currentLabel, isStartLocation) {
+    const cronoIndex = appState.activeCronoIndex;
+    if (cronoIndex === -1) return `https://maps.google.com/?q=${currentLat},${currentLng}`;
+    
+    const crono = appState.cronos[cronoIndex];
+    const points = [];
+    
+    // Añadir punto de inicio
+    if (crono.location && !crono.location.error) {
+        points.push({
+            lat: crono.location.lat,
+            lng: crono.location.lng,
+            label: translations[appState.currentLanguage].startBtn + ' ' + crono.tabName,
+            time: 'Inicio',
+            dorsal: 'Inicio'
+        });
+    }
+    
+    // Añadir todos los tops en orden cronológico (del más antiguo al más reciente)
+    // Primero invertimos el array para tener el orden correcto
+    const orderedTops = [...crono.tops].reverse();
+    
+    orderedTops.forEach((top, index) => {
+        if (top.location && !top.location.error) {
+            points.push({
+                lat: top.location.lat,
+                lng: top.location.lng,
+                label: `Top ${index + 1}`,
+                time: formatTime(top.time),
+                dorsal: top.dorsal || `Top ${index + 1}`
+            });
+        }
+    });
+    
+    // Si solo hay un punto, mostrar solo ese
+    if (points.length <= 1) {
+        return `https://maps.google.com/?q=${currentLat},${currentLng}`;
+    }
+    
+    // Crear URL para Google Maps con múltiples marcadores
+    let url = 'https://www.google.com/maps/dir/';
+    
+    // Añadir todos los puntos en orden
+    points.forEach((point, index) => {
+        url += `${point.lat},${point.lng}/`;
+    });
+    
+    // Para mejor visualización, usar la versión con marcadores
+    return createMarkersMapUrl(points);
+}
+
+        function createMarkersMapUrl(points) {
+    let url = 'https://www.google.com/maps/@?api=1&map_action=map';
+    
+    if (points.length === 0) return url;
+    
+    // Centrar el mapa en el primer punto
+    url += `&center=${points[0].lat},${points[0].lng}`;
+    url += '&zoom=14';
+    
+    // Añadir cada marcador
+    points.forEach((point, index) => {
+        const label = index === 0 ? 'S' : index.toString(); // S para Start, números para tops
+        const color = index === 0 ? 'blue' : 'red';
+        const encodedLabel = encodeURIComponent(label);
+        url += `&markers=color:${color}%7Clabel:${encodedLabel}%7C${point.lat},${point.lng}`;
+    });
+    
+    return url;
+}
+
+        // Modifica renderLocationInfo para incluir ambos enlaces:
+        function renderLocationInfo(crono, t) {
+    if (!crono.location) {
+        return `<p>${t.gpsNoAvailable}</p>`;
+    }
+    
+    if (crono.location.error) {
+        return `<p>${t.gpsNoAvailable}</p>`;
+    }
+    
+    const lat = crono.location.lat.toFixed(6);
+    const lng = crono.location.lng.toFixed(6);
+    const singlePointUrl = `https://maps.google.com/?q=${lat},${lng}`;
+    const allPointsUrl = buildAllPointsMapUrl('start', lat, lng, t.startBtn + ' ' + crono.tabName, true);
+    
+    return `
+        <p>${lat}, ${lng}</p>
+        <div style="display: flex; gap: 10px; margin-top: 5px;">
+            <a href="${singlePointUrl}" target="_blank" class="gps-link">
+                <i class="fas fa-map-marker-alt"></i> ${t.gpsLink}
+            </a>
+            <a href="${allPointsUrl}" target="_blank" class="gps-link" style="color: #e74c3c;">
+                <i class="fas fa-route"></i> ${t.viewAllPoints || "Ver todos los puntos"}
+            </a>
+        </div>
+    `;
+}
+
 
         // Método alternativo para navegadores sin Wake Lock API
         function keepScreenAwakeAlternative() {
