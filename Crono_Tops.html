@@ -2704,11 +2704,13 @@ IDList=`;
             // URL solo para este punto (ubicación de inicio)
             const singlePointUrl = `https://www.google.com/maps?q=${lat},${lng}`;
             
-            // Información de ubicación (se cargará dinámicamente)
+            // Información de ubicación que se cargará dinámicamente
+            const locationContainerId = `location-details-${crono.id}`;
+            
             let locationInfoHTML = `
-                <div class="location-details" id="location-details-${crono.id}">
-                    <div class="loading-location" style="font-size: 12px; color: #666; margin-bottom: 10px;">
-                        <i class="fas fa-spinner fa-spin"></i> Obteniendo información de ubicación...
+                <div class="location-details" id="${locationContainerId}" style="margin-top: 10px; margin-bottom: 10px;">
+                    <div class="loading-location" style="font-size: 13px; color: #666;">
+                        <i class="fas fa-spinner fa-spin"></i> ${t.locationLoading || 'Obteniendo información de ubicación...'}
                     </div>
                 </div>
             `;
@@ -2728,6 +2730,7 @@ IDList=`;
                 </a>
             `;
         }
+
         function setActiveCrono(index) {
             appState.activeCronoIndex = index;
             renderCronos();
@@ -3702,11 +3705,17 @@ ${coordinates.trim()}
             try {
                 // Usamos Nominatim (OpenStreetMap) - Es gratis pero tiene límites
                 const response = await fetch(
-                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`,
+                    {
+                        headers: {
+                            'Accept': 'application/json',
+                            'User-Agent': 'Crono-Tops-App/1.0'
+                        }
+                    }
                 );
                 
                 if (!response.ok) {
-                    throw new Error('Error en la geocodificación');
+                    throw new Error(`Error HTTP: ${response.status}`);
                 }
                 
                 const data = await response.json();
@@ -3714,12 +3723,16 @@ ${coordinates.trim()}
                 if (data && data.address) {
                     const address = data.address;
                     return {
-                        // Solo información esencial
+                        road: address.road || '',
                         village: address.village || '',
                         town: address.town || '',
                         city: address.city || '',
+                        municipality: address.municipality || '',
+                        county: address.county || '',
+                        state: address.state || '',
                         country: address.country || '',
-                        country_code: address.country_code || ''
+                        country_code: address.country_code || '',
+                        postcode: address.postcode || ''
                     };
                 }
                 
@@ -3743,54 +3756,69 @@ ${coordinates.trim()}
         
         async function loadLocationDetails(cronoId, lat, lng, t) {
             const container = document.getElementById(`location-details-${cronoId}`);
-            if (!container) return;
+            if (!container) {
+                console.log(`Contenedor no encontrado: location-details-${cronoId}`);
+                return;
+            }
             
             try {
+                // Mostrar mensaje de carga
+                container.innerHTML = `
+                    <div style="font-size: 13px; color: #666;">
+                        <i class="fas fa-spinner fa-spin"></i> ${t.locationLoading || 'Obteniendo información de ubicación...'}
+                    </div>
+                `;
+                
                 const locationData = await reverseGeocode(lat, lng);
                 
                 let html = '';
                 if (locationData) {
-                    // Obtener población (prioridad: village -> town -> city)
-                    let poblacion = locationData.village || locationData.town || locationData.city || '';
+                    // Obtener población (prioridad: village -> town -> city -> municipality)
+                    let poblacion = locationData.village || 
+                                locationData.town || 
+                                locationData.city || 
+                                locationData.municipality || 
+                                '';
+                    
                     let pais = locationData.country || '';
                     
                     // Formatear como "Barcelona (España)" si tenemos ambos
                     let ubicacionTexto = '';
                     if (poblacion && pais) {
-                        ubicacionTexto = `${poblacion} (${pais})`;
+                        ubicacionTexto = `<strong>${poblacion}</strong> (${pais})`;
                     } else if (poblacion) {
-                        ubicacionTexto = poblacion;
+                        ubicacionTexto = `<strong>${poblacion}</strong>`;
                     } else if (pais) {
                         ubicacionTexto = pais;
                     } else {
-                        ubicacionTexto = 'Información de ubicación no disponible';
+                        ubicacionTexto = t.locationNotFound || 'Información de ubicación no disponible';
                     }
                     
                     html = `
-                        <div class="location-info-box" style="margin-top: 10px; padding: 8px; background-color: #f8f9fa; border-radius: 4px; border-left: 3px solid #3498db;">
-                            <div style="font-size: 13px; color: #2c3e50;">
+                        <div style="margin-top: 8px; padding: 8px; background-color: #f8f9fa; border-radius: 4px; border-left: 3px solid #3498db;">
+                            <div style="font-size: 14px; color: #2c3e50;">
                                 <i class="fas fa-map-marker-alt" style="color: #3498db; margin-right: 5px;"></i>
                                 ${ubicacionTexto}
                             </div>
                         </div>
                     `;
                 } else {
-                    html = `<div style="font-size: 12px; color: #95a5a6; font-style: italic; margin-top: 10px;">
+                    html = `<div style="font-size: 13px; color: #95a5a6; font-style: italic; margin-top: 8px;">
                             <i class="fas fa-map-marker-alt" style="color: #95a5a6; margin-right: 5px;"></i>
-                            Información de ubicación no disponible
+                            ${t.locationNotFound || 'Información de ubicación no disponible'}
                         </div>`;
                 }
                 
                 container.innerHTML = html;
+                
             } catch (error) {
-                container.innerHTML = `<div style="font-size: 12px; color: #e74c3c; font-style: italic; margin-top: 10px;">
+                console.error('Error al obtener detalles de ubicación:', error);
+                container.innerHTML = `<div style="font-size: 13px; color: #e74c3c; font-style: italic; margin-top: 8px;">
                         <i class="fas fa-exclamation-triangle" style="margin-right: 5px;"></i>
-                        Error al obtener ubicación
+                        ${t.locationError || 'Error al obtener ubicación'}
                     </div>`;
             }
         }
-
-
         // Añade esta función en la sección de Utility functions
         function playBeepSound() {
             try {
