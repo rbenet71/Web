@@ -521,13 +521,12 @@
             border-color: rgba(255, 255, 255, 0.4);
         }
 
-        /* Display de SALIDA - AJUSTADO para esquinas pegadas */
+        /* Display de SALIDA - AJUSTADO AUTOMÁTICAMENTE A LA PANTALLA */
         .salida-display {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 18vw;
             font-weight: 900;
             color: white;
             text-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
@@ -535,10 +534,27 @@
             transition: opacity 0.3s;
             z-index: 1003;
             animation: salida-pulse 0.5s infinite alternate;
-            width: calc(100% - 320px); /* RESTA espacio reducido de esquinas */
-            max-width: 80%;
             text-align: center;
             line-height: 1.1;
+            margin: 0;
+            padding: 0;
+            /* TAMAÑO DINÁMICO que se ajusta automáticamente */
+            font-size: 20vw; /* Tamaño base */
+            max-width: 90%; /* Nunca más del 90% del ancho */
+            max-height: 90%; /* Nunca más del 90% del alto */
+            overflow: hidden;
+            word-wrap: break-word;
+            white-space: normal;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: auto;
+        }
+
+        /* Clase para calcular tamaño óptimo - se añadirá con JavaScript */
+        .salida-display.auto-size {
+            font-size: min(20vw, 20vh); /* Usa el menor entre ancho y alto */
+            padding: 0 5%;
         }
 
         @keyframes salida-pulse {
@@ -797,6 +813,16 @@
             justify-content: center;
             margin-top: 20px;
         }
+        /* Añadidos
+        /* SOLUCIÓN SIMPLE Y EFECTIVA */
+        .countdown-screen.countdown-salida-active .countdown-display {
+            display: none !important;
+        }
+
+        .countdown-screen.countdown-salida-active .salida-display.show {
+            display: flex !important;
+            opacity: 1 !important;
+        }
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -860,10 +886,11 @@
                 font-size: 16px;
             }
             
-            /* SALIDA ajustado para móviles */
+            /* SALIDA ajustado automáticamente para móviles */
             .salida-display {
-                font-size: 22vw;
-                width: calc(100% - 200px); /* Espacio reducido */
+                font-size: min(18vw, 18vh); /* Se ajusta al menor dimension */
+                max-width: 95%;
+                max-height: 95%;
             }
         }
 
@@ -925,10 +952,12 @@
                 font-size: 14px;
             }
             
-            /* SALIDA en móviles pequeños */
+            /* SALIDA en móviles pequeños - ajuste más agresivo */
             .salida-display {
-                font-size: 25vw;
-                width: calc(100% - 160px); /* Espacio mínimo */
+                font-size: min(16vw, 16vh);
+                max-width: 98%;
+                max-height: 98%;
+                padding: 0 3%;
             }
             
             /* Ocultar texto si no cabe en pantallas muy pequeñas */
@@ -951,9 +980,33 @@
                 }
                 
                 .salida-display {
-                    width: calc(100% - 140px);
-                    font-size: 23vw;
+                    font-size: min(14vw, 14vh);
+                    max-width: 99%;
                 }
+            }
+        }
+        
+        /* Orientación horizontal específica */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .salida-display {
+                font-size: min(15vw, 15vh); /* Más pequeño en landscape */
+                max-width: 85%;
+            }
+            
+            .countdown-label {
+                height: 35px;
+                line-height: 35px;
+                font-size: 4vw;
+            }
+            
+            .info-corner {
+                height: 35px;
+            }
+            
+            .config-toggle {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
             }
         }
     </style>
