@@ -2178,7 +2178,7 @@ IDList=`;
             domElements.updateModalTitle.textContent = t.updateModalTitle;
             domElements.updateModalText.textContent = t.updateModalText;
             
-            domElements.copyrightText.innerHTML = `2025 © Copyright <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">Roberto Benet - rbenet71@gmail.com - V_10_12_2025</a>`;
+            domElements.copyrightText.innerHTML = `2025 © Copyright <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">Roberto Benet - rbenet71@gmail.com - V_11_12_2025</a>`;
             
             domElements.helpModalList.innerHTML = '';
             t.helpModalList.forEach(item => {
@@ -2728,8 +2728,6 @@ IDList=`;
                 </a>
             `;
         }
-
-
         function setActiveCrono(index) {
             appState.activeCronoIndex = index;
             renderCronos();
@@ -3716,13 +3714,12 @@ ${coordinates.trim()}
                 if (data && data.address) {
                     const address = data.address;
                     return {
-                        village: address.village || address.town || address.city || address.municipality || '',
-                        city: address.city || address.town || address.municipality || address.county || '',
-                        state: address.state || '',
+                        // Solo información esencial
+                        village: address.village || '',
+                        town: address.town || '',
+                        city: address.city || '',
                         country: address.country || '',
-                        country_code: address.country_code || '',
-                        display_name: data.display_name || '',
-                        formatted: formatAddress(address)
+                        country_code: address.country_code || ''
                     };
                 }
                 
@@ -3753,36 +3750,46 @@ ${coordinates.trim()}
                 
                 let html = '';
                 if (locationData) {
+                    // Obtener población (prioridad: village -> town -> city)
+                    let poblacion = locationData.village || locationData.town || locationData.city || '';
+                    let pais = locationData.country || '';
+                    
+                    // Formatear como "Barcelona (España)" si tenemos ambos
+                    let ubicacionTexto = '';
+                    if (poblacion && pais) {
+                        ubicacionTexto = `${poblacion} (${pais})`;
+                    } else if (poblacion) {
+                        ubicacionTexto = poblacion;
+                    } else if (pais) {
+                        ubicacionTexto = pais;
+                    } else {
+                        ubicacionTexto = 'Información de ubicación no disponible';
+                    }
+                    
                     html = `
-                        <div class="location-info-box" style="background-color: #f8f9fa; padding: 10px; border-radius: 5px; border-left: 3px solid #27ae60; margin-bottom: 10px;">
-                            <div style="display: flex; align-items: flex-start; gap: 10px;">
-                                <i class="fas fa-city" style="color: #3498db; font-size: 16px; margin-top: 2px;"></i>
-                                <div>
-                                    ${locationData.city ? `<p style="margin: 0 0 3px 0; font-weight: bold;">${locationData.city}</p>` : ''}
-                                    ${locationData.village && locationData.village !== locationData.city ? 
-                                        `<p style="margin: 0 0 3px 0; font-size: 13px;">${locationData.village}</p>` : ''}
-                                    ${locationData.state ? `<p style="margin: 0 0 3px 0; font-size: 12px; color: #666;">${locationData.state}</p>` : ''}
-                                    ${locationData.country ? `
-                                        <div style="display: flex; align-items: center; gap: 5px; margin-top: 5px;">
-                                            <span style="font-size: 12px; color: #666;">${locationData.country}</span>
-                                            ${locationData.country_code ? 
-                                                `<span style="font-size: 10px; background: #eee; padding: 2px 5px; border-radius: 3px;">${locationData.country_code.toUpperCase()}</span>` : ''}
-                                        </div>` : ''}
-                                    ${locationData.formatted ? 
-                                        `<p style="margin: 5px 0 0 0; font-size: 11px; color: #888; font-style: italic; border-top: 1px solid #eee; padding-top: 5px;">${locationData.formatted}</p>` : ''}
-                                </div>
+                        <div class="location-info-box" style="margin-top: 10px; padding: 8px; background-color: #f8f9fa; border-radius: 4px; border-left: 3px solid #3498db;">
+                            <div style="font-size: 13px; color: #2c3e50;">
+                                <i class="fas fa-map-marker-alt" style="color: #3498db; margin-right: 5px;"></i>
+                                ${ubicacionTexto}
                             </div>
                         </div>
                     `;
                 } else {
-                    html = `<p style="font-size: 12px; color: #95a5a6; margin: 0;">Información de ubicación no disponible</p>`;
+                    html = `<div style="font-size: 12px; color: #95a5a6; font-style: italic; margin-top: 10px;">
+                            <i class="fas fa-map-marker-alt" style="color: #95a5a6; margin-right: 5px;"></i>
+                            Información de ubicación no disponible
+                        </div>`;
                 }
                 
                 container.innerHTML = html;
             } catch (error) {
-                container.innerHTML = `<p style="font-size: 12px; color: #e74c3c; margin: 0;">Error al obtener ubicación</p>`;
+                container.innerHTML = `<div style="font-size: 12px; color: #e74c3c; font-style: italic; margin-top: 10px;">
+                        <i class="fas fa-exclamation-triangle" style="margin-right: 5px;"></i>
+                        Error al obtener ubicación
+                    </div>`;
             }
         }
+
 
         // Añade esta función en la sección de Utility functions
         function playBeepSound() {
