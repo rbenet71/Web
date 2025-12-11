@@ -1723,28 +1723,31 @@
         }
 
         // Reproducir sonido específico
+
         function playSound(type) {
             if (!appState.soundEnabled) return;
             
             try {
                 switch(type) {
-                    case 'warning': // 10 segundos - beep agudo
-                        generateBeep(800, 0.3, 'sine');
+                    case 'warning': // 10 segundos - beep GRAVE y ALTO
+                        generateBeep(30, 0.5, 'sine'); // Cambiado de 800Hz a 300Hz (más grave)
                         break;
                     case 'critical': // 5 segundos - beep medio
-                        generateBeep(600, 0.2, 'sine');
+                        generateBeep(600, 0.3, 'sine'); // Un poco más grave
                         break;
                     case 'salida': // Salida - beep grave
-                        generateBeep(300, 0.5, 'sine');
+                        generateBeep(2000, 0.9, 'sine'); // Más grave y más largo
                         break;
                     case 'beep': // Cada segundo en últimos 5 segundos - beep corto
-                        generateBeep(500, 0.1, 'square');
+                        generateBeep(500, 0.15, 'square');
                         break;
                 }
             } catch (error) {
                 console.log("Error reproduciendo sonido:", error);
             }
         }
+                
+
 
         // Activar audio en interacción del usuario
         function initAudioOnInteraction() {
