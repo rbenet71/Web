@@ -364,7 +364,7 @@
 
         /* Nuevo diseño para tops */
         .top-item {
-            padding: 15px;
+            padding: 1px;
             border-bottom: 1px solid #eee;
             transition: background-color 0.2s;
         }
@@ -441,7 +441,7 @@
         }
 
         .top-dorsal-container {
-            margin-top: 10px;
+            margin-top: 1px;
             margin-left: 0;
             width: 100%;
         }
@@ -452,10 +452,10 @@
 
         .top-dorsal input {
             width: 100%;
-            padding: 10px 12px;
+            padding: 2px 3px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 16px;
+            font-size: 12px;
             word-wrap: break-word;
             overflow-wrap: break-word;
             white-space: normal;
@@ -1177,7 +1177,7 @@
             .top-time-row {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 10px;
+                gap: 100px;
             }
             
             .top-time-info {
@@ -2231,10 +2231,10 @@ IDList=`;
                 <h3>${t.screensaverReminder}</h3>
                 <p>${t.screensaverInstructions}</p>
                 <div style="font-size: 12px; color: rgba(255, 255, 255, 0.7); margin-top: 5px;">
-                    ${lang === 'es' ? 'Este mensaje desaparecerá en 5 segundos' :
-                    lang === 'ca' ? 'Aquest missatge desapareixerà en 5 segons' :
-                    lang === 'en' ? 'This message will disappear in 5 seconds' :
-                    'Ce message disparaîtra dans 5 secondes'}
+                    ${lang === 'es' ? 'Este mensaje desaparecerá en 3 segundos' :
+                    lang === 'ca' ? 'Aquest missatge desapareixerà en 3 segons' :
+                    lang === 'en' ? 'This message will disappear in 3 seconds' :
+                    'Ce message disparaîtra dans 3 secondes'}
                 </div>
             `;
             
@@ -2247,7 +2247,7 @@ IDList=`;
                 if (reminder) {
                     reminder.remove();
                 }
-            }, 5000);
+            }, 3000);
             
             // Opcional: también cerrar al hacer clic
             reminderDiv.addEventListener('click', function() {
