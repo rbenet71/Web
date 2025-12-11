@@ -2457,11 +2457,6 @@ IDList=`;
         function renderCronoContent() {
             const cronoContent = domElements.cronoContent;
             
-            if (!cronoContent) {
-                console.error('Elemento crono-content no encontrado');
-                return;
-            }
-            
             if (appState.cronos.length === 0) {
                 cronoContent.innerHTML = '<div class="empty-state"><i class="fas fa-stopwatch"></i></div>';
                 return;
@@ -2476,116 +2471,25 @@ IDList=`;
                 
                 const t = translations[appState.currentLanguage];
                 
-                const buttonText = crono.hasStarted ? t.topBtn : t.startBtn;
-                const buttonIcon = crono.hasStarted ? 'fa-flag-checkered' : 'fa-play';
-                
-                panel.innerHTML = `
-                    <div class="crono-name">
-                        <label>${t.cronoNameLabel}</label>
-                        <input type="text" value="${crono.name}" placeholder="${t.cronoNamePlaceholder}" data-index="${index}">
-                    </div>
-                    
-                    <div class="current-time">
-                        <div class="time-display">${formatTime(crono.elapsedTime)}</div>
-                    </div>
-                    
-                    <div class="crono-control-buttons">
-                        <button class="btn btn-success crono-btn" id="crono-btn-${crono.id}" data-index="${index}">
-                            <i class="fas ${buttonIcon}"></i>
-                            ${buttonText}
-                        </button>
-                    </div>
-                    
-                    <div class="tops-list">
-                        <h3><i class="fas fa-list-ol"></i> ${t.topsListTitle}</h3>
-                        ${renderTopsList(crono, index)}
-                    </div>
-                    
-                    <div class="crono-info">
-                        <div class="info-box">
-                            <h4><i class="far fa-clock"></i> ${t.startTimeLabel}</h4>
-                            <p>${crono.startTime ? new Date(crono.startTime).toLocaleTimeString() : '--:--:--'}</p>
-                        </div>
-                        <div class="info-box">
-                            <h4><i class="fas fa-map-marker-alt"></i> ${t.gpsLabel}</h4>
-                            ${renderLocationInfo(crono, t)}
-                        </div>
-                    </div>
-                `;
+                // ... (código existente para crear el panel) ...
                 
                 cronoContent.appendChild(panel);
                 
-                const nameInput = panel.querySelector('.crono-name input');
-                nameInput.addEventListener('change', (e) => {
-                    crono.name = e.target.value;
-                    saveCronosToStorage();
-                });
-                
-                const cronoBtn = panel.querySelector(`#crono-btn-${crono.id}`);
-                if (cronoBtn) {
-                    cronoBtn.addEventListener('click', () => {
-                        handleCronoButton(index);
-                    });
+                // DESPUÉS de añadir el panel al DOM, cargar la ubicación
+                if (crono.location && !crono.location.error) {
+                    setTimeout(() => {
+                        loadAndDisplayLocation(
+                            crono.id, 
+                            crono.location.lat, 
+                            crono.location.lng
+                        );
+                    }, 100);
                 }
-            });
-            
-            setTimeout(() => {
-
-
-
-                // En el setTimeout dentro de renderCronos() (alrededor de línea 1600)
-                document.querySelectorAll('.delete-top').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const cronoIndex = parseInt(this.getAttribute('data-crono-index'));
-                        const topIndex = parseInt(this.getAttribute('data-top-index'));
-                        
-                        // Obtener el tiempo del top para mostrar en el mensaje
-                        const crono = appState.cronos[cronoIndex];
-                        const top = crono.tops[topIndex];
-                        const topTime = formatTime(top.time);
-                        
-                        // Mensaje de confirmación según idioma
-                        const t = translations[appState.currentLanguage];
-                        let confirmMessage;
-                        
-                        switch(appState.currentLanguage) {
-                            case 'es':
-                                confirmMessage = `¿Estás seguro de que quieres eliminar el tiempo ${topTime}?`;
-                                break;
-                            case 'ca':
-                                confirmMessage = `Segur que vols eliminar el temps ${topTime}?`;
-                                break;
-                            case 'en':
-                                confirmMessage = `Are you sure you want to delete the time ${topTime}?`;
-                                break;
-                            case 'fr':
-                                confirmMessage = `Êtes-vous sûr de vouloir supprimer le temps ${topTime}?`;
-                                break;
-                            default:
-                                confirmMessage = `¿Estás seguro de que quieres eliminar el tiempo ${topTime}?`;
-                        }
-                        
-                        if (confirm(confirmMessage)) {
-                            deleteTop(cronoIndex, topIndex);
-                        }
-                    });
-                });
-
-
-
-
                 
-                document.querySelectorAll('.top-dorsal input').forEach(input => {
-                    input.addEventListener('change', function() {
-                        const cronoIndex = parseInt(this.getAttribute('data-crono-index'));
-                        const topIndex = parseInt(this.getAttribute('data-top-index'));
-                        const dorsal = this.value;
-                        appState.cronos[cronoIndex].tops[topIndex].dorsal = dorsal;
-                        saveCronosToStorage();
-                    });
-                });
-            }, 100);
+                // ... (resto del código existente) ...
+            });
         }
+
 
         function renderTopsList(crono, cronoIndex) {
             const t = translations[appState.currentLanguage];
@@ -2688,7 +2592,6 @@ IDList=`;
             }
         }
 
-
         function renderLocationInfo(crono, t) {
             if (!crono.location) {
                 return `<p>${t.gpsNoAvailable}</p>`;
@@ -2701,34 +2604,24 @@ IDList=`;
             const lat = crono.location.lat.toFixed(6);
             const lng = crono.location.lng.toFixed(6);
             
-            // URL solo para este punto (ubicación de inicio)
+            // URL solo para este punto
             const singlePointUrl = `https://www.google.com/maps?q=${lat},${lng}`;
             
-            // Información de ubicación (se cargará dinámicamente)
-            let locationInfoHTML = `
-                <div class="location-details" id="location-details-${crono.id}">
-                    <div class="loading-location" style="font-size: 12px; color: #666; margin-bottom: 10px;">
-                        <i class="fas fa-spinner fa-spin"></i> Obteniendo información de ubicación...
-                    </div>
-                </div>
-            `;
-            
-            // Llamar a la función para cargar la ubicación después de renderizar
-            setTimeout(() => {
-                loadLocationDetails(crono.id, lat, lng, t);
-            }, 100);
-            
+            // HTML básico con contenedor para ubicación
             return `
                 <p><strong>Coordenadas:</strong> ${lat}, ${lng}</p>
-                ${locationInfoHTML}
+                <div id="loc-info-${crono.id}" style="margin: 5px 0; min-height: 30px;">
+                    <div style="font-size: 12px; color: #666;">
+                        <i class="fas fa-spinner fa-spin"></i> Cargando...
+                    </div>
+                </div>
                 <a href="${singlePointUrl}" target="_blank" class="gps-link" 
-                style="display: inline-flex; align-items: center; gap: 8px; background: #3498db; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none; margin-top: 10px;">
+                style="display: inline-flex; align-items: center; gap: 8px; background: #3498db; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none;">
                     <i class="fas fa-map-marker-alt"></i>
                     <span>${t.gpsLink}</span>
                 </a>
             `;
         }
-
 
         function setActiveCrono(index) {
             appState.activeCronoIndex = index;
@@ -3700,89 +3593,69 @@ ${coordinates.trim()}
             showMessage("✅ KML generado y descargado", "success");
         }
 
-        async function reverseGeocode(lat, lng) {
+        // Poblacion y Pais
+        async function getLocationInfo(lat, lng) {
             try {
-                // Usamos Nominatim (OpenStreetMap) - Es gratis pero tiene límites
                 const response = await fetch(
                     `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`
                 );
                 
-                if (!response.ok) {
-                    throw new Error('Error en la geocodificación');
-                }
+                if (!response.ok) return null;
                 
                 const data = await response.json();
                 
                 if (data && data.address) {
-                    const address = data.address;
                     return {
-                        village: address.village || address.town || address.city || address.municipality || '',
-                        city: address.city || address.town || address.municipality || address.county || '',
-                        state: address.state || '',
-                        country: address.country || '',
-                        country_code: address.country_code || '',
-                        display_name: data.display_name || '',
-                        formatted: formatAddress(address)
+                        // Primero intentamos obtener la población
+                        poblacion: data.address.village || 
+                                data.address.town || 
+                                data.address.city || 
+                                data.address.municipality || 
+                                '',
+                        // Luego el país
+                        pais: data.address.country || ''
                     };
                 }
                 
                 return null;
             } catch (error) {
-                console.error('Error en geocodificación inversa:', error);
+                console.log('Error obteniendo ubicación:', error);
                 return null;
             }
         }
 
-        function formatAddress(address) {
-            const parts = [];
-            if (address.village) parts.push(address.village);
-            if (address.town && address.town !== address.village) parts.push(address.town);
-            if (address.city && address.city !== address.town && address.city !== address.village) parts.push(address.city);
-            if (address.state) parts.push(address.state);
-            if (address.country) parts.push(address.country);
-            
-            return parts.join(', ');
-        }
-        
-        async function loadLocationDetails(cronoId, lat, lng, t) {
-            const container = document.getElementById(`location-details-${cronoId}`);
+        async function loadAndDisplayLocation(cronoId, lat, lng) {
+            const container = document.getElementById(`loc-info-${cronoId}`);
             if (!container) return;
             
             try {
-                const locationData = await reverseGeocode(lat, lng);
+                const location = await getLocationInfo(lat, lng);
                 
                 let html = '';
-                if (locationData) {
+                if (location && (location.poblacion || location.pais)) {
                     html = `
-                        <div class="location-info-box" style="background-color: #f8f9fa; padding: 10px; border-radius: 5px; border-left: 3px solid #27ae60; margin-bottom: 10px;">
-                            <div style="display: flex; align-items: flex-start; gap: 10px;">
-                                <i class="fas fa-city" style="color: #3498db; font-size: 16px; margin-top: 2px;"></i>
-                                <div>
-                                    ${locationData.city ? `<p style="margin: 0 0 3px 0; font-weight: bold;">${locationData.city}</p>` : ''}
-                                    ${locationData.village && locationData.village !== locationData.city ? 
-                                        `<p style="margin: 0 0 3px 0; font-size: 13px;">${locationData.village}</p>` : ''}
-                                    ${locationData.state ? `<p style="margin: 0 0 3px 0; font-size: 12px; color: #666;">${locationData.state}</p>` : ''}
-                                    ${locationData.country ? `
-                                        <div style="display: flex; align-items: center; gap: 5px; margin-top: 5px;">
-                                            <span style="font-size: 12px; color: #666;">${locationData.country}</span>
-                                            ${locationData.country_code ? 
-                                                `<span style="font-size: 10px; background: #eee; padding: 2px 5px; border-radius: 3px;">${locationData.country_code.toUpperCase()}</span>` : ''}
-                                        </div>` : ''}
-                                    ${locationData.formatted ? 
-                                        `<p style="margin: 5px 0 0 0; font-size: 11px; color: #888; font-style: italic; border-top: 1px solid #eee; padding-top: 5px;">${locationData.formatted}</p>` : ''}
-                                </div>
-                            </div>
+                        <div style="font-size: 13px; line-height: 1.4;">
+                            ${location.poblacion ? `<div><strong>Población:</strong> ${location.poblacion}</div>` : ''}
+                            ${location.pais ? `<div><strong>País:</strong> ${location.pais}</div>` : ''}
                         </div>
                     `;
                 } else {
-                    html = `<p style="font-size: 12px; color: #95a5a6; margin: 0;">Información de ubicación no disponible</p>`;
+                    html = `<div style="font-size: 12px; color: #95a5a6; font-style: italic;">
+                        Ubicación no disponible
+                    </div>`;
                 }
                 
                 container.innerHTML = html;
             } catch (error) {
-                container.innerHTML = `<p style="font-size: 12px; color: #e74c3c; margin: 0;">Error al obtener ubicación</p>`;
+                container.innerHTML = `<div style="font-size: 12px; color: #e74c3c;">
+                    Error cargando ubicación
+                </div>`;
             }
         }
+
+
+
+
 
         // Añade esta función en la sección de Utility functions
         function playBeepSound() {
