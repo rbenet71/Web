@@ -2139,6 +2139,9 @@
                     return;
                 }
                 
+                // IMPORTANTE: Primero actualizar el tiempo de cadencia con la configuración actual
+                updateCadenceTime();
+                
                 // Ocultar pantalla de configuración
                 document.querySelectorAll('.hide-on-countdown').forEach(el => {
                     el.style.display = 'none';
@@ -2155,25 +2158,15 @@
                 appState.raceStartTime = Date.now();
                 appState.accumulatedTime = 0;
                 
-                // Configurar intervalo inicial
+                // Asegurar que tenemos intervalos configurados
                 if (appState.intervals.length === 0) {
-                    const minutes = parseInt(document.getElementById('interval-minutes').value) || 0;
-                    const seconds = parseInt(document.getElementById('interval-seconds').value) || 0;
-                    appState.nextCorredorTime = minutes * 60 + seconds;
-                    
-                    appState.intervals = [{
-                        from: 1,
-                        to: 9999,
-                        minutes: minutes,
-                        seconds: seconds,
-                        totalSeconds: minutes * 60 + seconds
-                    }];
+                    updateCadenceTime(); // Llamar de nuevo para crear intervalo
                 }
                 
-                // Determinar intervalo actual
+                // Determinar intervalo actual basado en corredores salidos
                 updateCurrentInterval();
                 
-                // Iniciar cuenta atrás
+                // Iniciar cuenta atrás con el tiempo actualizado
                 appState.countdownActive = true;
                 appState.countdownPaused = false;
                 appState.countdownValue = appState.nextCorredorTime;
@@ -2193,7 +2186,12 @@
                 // Actualizar display
                 updateCountdownDisplay();
                 
-                // Iniciar intervalo
+                // Detener cualquier intervalo previo
+                if (appState.countdownInterval) {
+                    clearInterval(appState.countdownInterval);
+                }
+                
+                // Iniciar nuevo intervalo
                 appState.countdownInterval = setInterval(updateCountdown, 1000);
                 
                 // Mantener pantalla activa
@@ -2339,6 +2337,7 @@
 
             // Preparar siguiente cuenta atrás
             function prepareNextCountdown() {
+                // Asegurar que usamos el tiempo actualizado de cadencia
                 updateCurrentInterval();
                 
                 appState.countdownValue = Math.max(0, appState.nextCorredorTime - 2);
@@ -2357,6 +2356,8 @@
                 
                 saveAppState();
             }
+
+
 
             // Actualizar intervalo actual
             function updateCurrentInterval() {
@@ -2650,6 +2651,26 @@
             // ============================================
 
             function setupEventListeners() {
+
+                document.getElementById('interval-minutes').addEventListener('change', () => {
+                    if (!appState.countdownActive) {
+                        updateCadenceTime();
+                    }
+                });
+                
+                document.getElementById('interval-seconds').addEventListener('change', () => {
+                    if (!appState.countdownActive) {
+                        updateCadenceTime();
+                    }
+                });
+                
+                // Actualizar también cuando se hace clic en "siempre igual"
+                document.getElementById('same-interval-btn').addEventListener('click', () => {
+                    if (!appState.countdownActive) {
+                        setTimeout(updateCadenceTime, 100);
+                    }
+                });
+
                 // Selector de idioma
                 document.querySelectorAll('.flag').forEach(flag => {
                     flag.addEventListener('click', function() {
@@ -3070,6 +3091,68 @@
                     document.getElementById('start-countdown-btn').click();
                 }
             });
+
+            // Añade esta función en la sección de funciones principales
+            function updateCadenceTime() {
+                // Obtener el modo actual (siempre igual o variable)
+                const isVariableMode = document.getElementById('variable-interval-config').style.display !== 'none';
+                
+                if (!isVariableMode) {
+                    // Modo: siempre igual
+                    const minutes = parseInt(document.getElementById('interval-minutes').value) || 0;
+                    const seconds = parseInt(document.getElementById('interval-seconds').value) || 0;
+                    const totalSeconds = minutes * 60 + seconds;
+                    
+                    // Actualizar el tiempo del próximo corredor
+                    appState.nextCorredorTime = totalSeconds;
+                    
+                    // Actualizar o crear el intervalo único
+                    if (appState.intervals.length === 0) {
+                        appState.intervals = [{
+                            from: 1,
+                            to: 9999,
+                            minutes: minutes,
+                            seconds: seconds,
+                            totalSeconds: totalSeconds
+                        }];
+                    } else {
+                        // Actualizar el primer intervalo
+                        appState.intervals[0] = {
+                            from: 1,
+                            to: 9999,
+                            minutes: minutes,
+                            seconds: seconds,
+                            totalSeconds: totalSeconds
+                        };
+                    }
+                    
+                    // Guardar configuración
+                    saveVariableIntervalConfig();
+                } else {
+                    // Modo variable - usar los intervalos ya configurados
+                    if (appState.intervals.length > 0) {
+                        // Determinar el intervalo actual basado en corredores salidos
+                        const currentCorredor = appState.departedCount + 1;
+                        let foundInterval = appState.intervals[0]; // Por defecto el primero
+                        
+                        for (let i = 0; i < appState.intervals.length; i++) {
+                            const interval = appState.intervals[i];
+                            if (currentCorredor >= interval.from && currentCorredor <= interval.to) {
+                                foundInterval = interval;
+                                break;
+                            }
+                        }
+                        
+                        appState.nextCorredorTime = foundInterval.totalSeconds;
+                    }
+                }
+                
+                // Actualizar display
+                updateNextCorredorDisplay();
+            }
+
+
+            
         </script>
 
         <!-- Script para XLSX -->
