@@ -361,7 +361,7 @@
         }
 
         /* ================================================ */
-        /* PANTALLA DE EJECUCIÓN - CON TEXTO EN PRIMERA LÍNEA */
+        /* PANTALLA DE EJECUCIÓN - CON ELEMENTOS PEGADOS A ESQUINAS */
         /* ================================================ */
         .countdown-screen {
             display: none;
@@ -410,41 +410,42 @@
             box-sizing: border-box;
             transition: opacity 0.3s ease;
             position: absolute;
-            top: 30px; /* MISMA ALTURA que top-left y config-toggle */
+            top: 10px; /* PEGADO AL EXTREMO SUPERIOR */
             left: 0;
             right: 0;
             z-index: 10;
             margin: 0;
-            padding: 0 140px; /* ESPACIO PARA ESQUINAS (180px + 60px + margen) */
-            line-height: 60px; /* MISMA ALTURA que config-toggle */
-            height: 60px; /* MISMA ALTURA que config-toggle */
+            padding: 0 120px; /* ESPACIO REDUCIDO para esquinas pegadas */
+            line-height: 50px; 
+            height: 50px; 
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4vw; /* TAMAÑO DINÁMICO que se ajusta al espacio */
+            font-size: 4vw;
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
         }
 
-        /* Elementos de información en pantalla - REORGANIZADOS */
+        /* Elementos de información en pantalla - PEGADOS A ESQUINAS */
         .info-corner {
             position: absolute;
             background-color: rgba(0, 0, 0, 0.6);
             color: white;
-            padding: 10px 15px;
-            border-radius: 10px;
+            padding: 8px 12px;
+            border-radius: 0; /* SIN BORDES REDONDEADOS para esquinas */
             text-align: center;
             backdrop-filter: blur(10px);
             cursor: pointer;
             transition: all 0.3s;
             border: 2px solid rgba(255, 255, 255, 0.2);
-            min-width: 180px;
-            height: 60px; /* MISMA ALTURA que config-toggle */
+            min-width: 160px;
+            height: 50px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            z-index: 1001;
         }
 
         .info-corner:hover {
@@ -453,20 +454,28 @@
             border-color: rgba(255, 255, 255, 0.4);
         }
 
-        /* Tiempo total - MISMA ALTURA que el icono de configuración */
+        /* ESQUINA SUPERIOR IZQUIERDA - PEGADA AL EXTREMO */
         .top-left {
-            top: 30px;
-            left: 30px;
+            top: 0;
+            left: 0;
+            border-top-left-radius: 0;
+            border-bottom-right-radius: 10px;
         }
 
+        /* ESQUINA INFERIOR IZQUIERDA - PEGADA AL EXTREMO */
         .bottom-left {
-            bottom: 30px;
-            left: 30px;
+            bottom: 0;
+            left: 0;
+            border-bottom-left-radius: 0;
+            border-top-right-radius: 10px;
         }
 
+        /* ESQUINA INFERIOR DERECHA - PEGADA AL EXTREMO */
         .bottom-right {
-            bottom: 30px;
-            right: 30px;
+            bottom: 0;
+            right: 0;
+            border-bottom-right-radius: 0;
+            border-top-left-radius: 10px;
         }
 
         .info-label {
@@ -484,25 +493,26 @@
             line-height: 1.2;
         }
 
-        /* Icono de configuración - ALINEADO CON TIEMPO TOTAL */
+        /* Icono de configuración - ESQUINA SUPERIOR DERECHA PEGADA */
         .config-toggle {
             position: absolute;
-            top: 30px; /* MISMA ALTURA que top-left */
-            right: 30px;
+            top: 0; /* PEGADO AL EXTREMO SUPERIOR */
+            right: 0; /* PEGADO AL EXTREMO DERECHO */
             background-color: rgba(0, 0, 0, 0.6);
             color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            border-radius: 0; /* SIN BORDES REDONDEADOS */
+            border-bottom-left-radius: 10px; /* Solo esquina inferior izquierda redondeada */
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 20px;
             cursor: pointer;
             transition: all 0.3s;
             backdrop-filter: blur(10px);
             border: 2px solid rgba(255, 255, 255, 0.2);
-            z-index: 1001;
+            z-index: 1002;
         }
 
         .config-toggle:hover {
@@ -511,7 +521,7 @@
             border-color: rgba(255, 255, 255, 0.4);
         }
 
-        /* Display de SALIDA - AJUSTADO para no superponerse */
+        /* Display de SALIDA - AJUSTADO para esquinas pegadas */
         .salida-display {
             position: absolute;
             top: 50%;
@@ -523,9 +533,9 @@
             text-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
             opacity: 0;
             transition: opacity 0.3s;
-            z-index: 1002;
+            z-index: 1003;
             animation: salida-pulse 0.5s infinite alternate;
-            width: calc(100% - 400px); /* RESTA espacio de esquinas */
+            width: calc(100% - 320px); /* RESTA espacio reducido de esquinas */
             max-width: 80%;
             text-align: center;
             line-height: 1.1;
@@ -820,35 +830,26 @@
                 font-size: 45vw !important;
             }
             
-            /* Texto "Próxima salida en" en móviles - ESPACIO REDUCIDO */
+            /* Texto "Próxima salida en" en móviles */
             .countdown-label {
-                top: 20px;
-                height: 50px;
-                line-height: 50px;
-                padding: 0 120px; /* Espacio reducido para móviles */
-                font-size: 5vw; /* Tamaño ajustado */
+                top: 0;
+                height: 45px;
+                line-height: 45px;
+                padding: 0 100px; /* Espacio reducido */
+                font-size: 5vw;
             }
             
             /* Ajustes para info-corner en móviles */
             .info-corner {
                 min-width: 140px;
-                height: 50px;
-                padding: 8px 12px;
-            }
-            
-            .top-left, .config-toggle {
-                top: 20px;
+                height: 45px;
+                padding: 6px 10px;
             }
             
             .config-toggle {
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
-                right: 20px;
-            }
-            
-            .top-left {
-                left: 20px;
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
             }
             
             .info-label {
@@ -862,20 +863,7 @@
             /* SALIDA ajustado para móviles */
             .salida-display {
                 font-size: 22vw;
-                width: calc(100% - 240px); /* Espacio reducido */
-            }
-            
-            /* Esquinas inferiores */
-            .bottom-left, .bottom-right {
-                bottom: 20px;
-            }
-            
-            .bottom-left {
-                left: 20px;
-            }
-            
-            .bottom-right {
-                right: 20px;
+                width: calc(100% - 200px); /* Espacio reducido */
             }
         }
 
@@ -908,33 +896,24 @@
             
             /* Texto "Próxima salida en" en móviles pequeños */
             .countdown-label {
-                top: 15px;
-                height: 45px;
-                line-height: 45px;
-                padding: 0 100px; /* Espacio aún más reducido */
-                font-size: 6vw; /* Tamaño aumentado para mejor legibilidad */
+                top: 0;
+                height: 40px;
+                line-height: 40px;
+                padding: 0 80px; /* Espacio mínimo */
+                font-size: 6vw;
             }
             
             /* Ajustes para info-corner en móviles pequeños */
             .info-corner {
                 min-width: 120px;
-                height: 45px;
-                padding: 6px 10px;
-            }
-            
-            .top-left, .config-toggle {
-                top: 15px;
+                height: 40px;
+                padding: 4px 8px;
             }
             
             .config-toggle {
-                width: 45px;
-                height: 45px;
-                font-size: 18px;
-                right: 15px;
-            }
-            
-            .top-left {
-                left: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
             }
             
             .info-label {
@@ -949,31 +928,31 @@
             /* SALIDA en móviles pequeños */
             .salida-display {
                 font-size: 25vw;
-                width: calc(100% - 180px); /* Espacio mínimo */
+                width: calc(100% - 160px); /* Espacio mínimo */
             }
             
-            /* Esquinas inferiores */
-            .bottom-left, .bottom-right {
-                bottom: 15px;
-            }
-            
-            .bottom-left {
-                left: 15px;
-            }
-            
-            .bottom-right {
-                right: 15px;
-            }
-            
-            /* Ocultar texto si no cabe */
+            /* Ocultar texto si no cabe en pantallas muy pequeñas */
             @media (max-width: 360px) {
                 .countdown-label {
                     font-size: 5.5vw;
-                    padding: 0 90px;
+                    padding: 0 70px;
                 }
                 
                 .info-corner {
                     min-width: 110px;
+                    height: 35px;
+                    padding: 3px 6px;
+                }
+                
+                .config-toggle {
+                    width: 35px;
+                    height: 35px;
+                    font-size: 14px;
+                }
+                
+                .salida-display {
+                    width: calc(100% - 140px);
+                    font-size: 23vw;
                 }
             }
         }
@@ -1115,7 +1094,7 @@
         <!-- Contenedor principal para centrar -->
         <div class="countdown-container">
             <!-- Texto en primera línea -->
-            <div class="countdown-label" id="countdown-label">Próxima salida en</div>
+            <div class="countdown-label" id="countdown-label">Salida en</div>
             
             <!-- Display principal centrado -->
             <div class="countdown-display" id="countdown-display">60</div>
