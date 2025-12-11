@@ -64,14 +64,13 @@ En la configuracion de tramo que el cuadro de x a x este en la misma fila y en l
 
 cuando se pone salida el 1 no debe aparecer detrás, cuando digo que restes dos segundos, es para que lo restes al numero de la cuenta atras, no en el tiempo del proximo corredor. Cuando hago click en la cofiguracion el tiempo de la cuenta atras se para (el tiempo de la cuenta atras ha de ser la hora de inicio+tiempo acumulado+ el tiempo que tiene que salir - hora actual . 
 crea el fichero manifest
-
-No oigo los pitidos que pedi
 Al hacer click en configuracion no se abre la opcion de configurar que tenia antes
+modificar picto por C:\Roberto\Visual_Studio_Code\Rbenet\Web\Crono_cuenta_atras_192_192.png
+boton cuenta atras despues del apartado de definir desde que corredor se inicia la cuenta atras
+No oigo los pitidos que pedi
+
 Cuando quiero modificar el tiempo del proximo corredor, la edición no se mantiene y no puedo modificarlo, salidos si que puedo bien. 
 al detener el tiempo o marcharse de la cuenta atras, se ha de reiniciar el tiempo acumulado
 al hacer por tramos guardar los datos por si el usuario quiere volver a usuarlo. 
-boton cuenta atras despues del apartado de definir desde que corredor se inicia la cuenta atras
-modificar picto por C:\Roberto\Visual_Studio_Code\Rbenet\Web\Crono_cuenta_atras_192_192.png
-
 cuando parpadea porque faltan menos de 5 segundos, que solo parpadee el fondo, los numeros fijos
 

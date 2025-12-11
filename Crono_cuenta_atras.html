@@ -15,8 +15,8 @@
     </script>
 
     <!-- Iconos -->
-    <link rel="icon" type="image/png" href="C:\Roberto\Visual_Studio_Code\Rbenet\Web\Crono_cuenta_atras_192_192.png">
-    <link rel="apple-touch-icon" href="C:\Roberto\Visual_Studio_Code\Rbenet\Web\Crono_cuenta_atras_192_192.png">
+    <link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Crono_cuenta_atras_192_192.png">
+    <link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Crono_cuenta_atras_192_192.png">
     
     <!-- PWA -->
     <meta name="theme-color" content="#e74c3c">
@@ -25,7 +25,6 @@
     <meta name="apple-mobile-web-app-title" content="Crono Cuenta Atrás">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
     
     <style>
         * {
@@ -66,23 +65,11 @@
 
         body.countdown-warning {
             background-color: var(--orange-bg);
-            animation: pulse-orange 1s infinite;
         }
 
         body.countdown-critical {
             background-color: var(--orange-bg);
-        }
-
-        .countdown-critical .countdown-display {
-            animation: none !important;
-        }
-
-        .countdown-critical .countdown-display,
-        .countdown-critical .countdown-label,
-        .countdown-critical .info-corner,
-        .countdown-critical .config-toggle {
-            opacity: 1 !important;
-            animation: none !important;
+            animation: pulse-orange 1s infinite;
         }
 
         body.countdown-salida {
@@ -94,14 +81,44 @@
             visibility: hidden !important;
         }
 
-        @keyframes pulse-orange {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.9; }
+        /* CORRECCIÓN: Ocultar "Próxima salida en" durante SALIDA */
+        .countdown-screen.countdown-salida-active .countdown-label {
+            opacity: 0 !important;
+            visibility: hidden !important;
         }
 
-        @keyframes blink {
+        @keyframes pulse-orange {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+
+        /* ANIMACIÓN AGRESIVA para últimos 5 segundos */
+        @keyframes aggressive-pulse {
+            0%, 100% { 
+                transform: scale(1);
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            }
+            25% { 
+                transform: scale(1.1);
+                text-shadow: 0 0 30px rgba(255, 255, 255, 1);
+            }
+            50% { 
+                transform: scale(1.05);
+                text-shadow: 0 0 40px rgba(255, 255, 255, 1);
+            }
+            75% { 
+                transform: scale(1.15);
+                text-shadow: 0 0 50px rgba(255, 0, 0, 1);
+            }
+        }
+
+        /* Clase para números agresivos en últimos 5 segundos */
+        .aggressive-numbers .countdown-display {
+            animation: aggressive-pulse 0.5s infinite !important;
+            font-size: 35vw !important;
+            color: #ff0000 !important;
+            text-shadow: 0 0 30px rgba(255, 0, 0, 0.9) !important;
+            transition: all 0.3s ease !important;
         }
 
         .container {
@@ -369,6 +386,7 @@
             margin: 0;
             line-height: 1;
             text-align: center;
+            transition: all 0.3s ease;
         }
 
         .countdown-label {
@@ -381,6 +399,7 @@
             position: absolute;
             top: 20%;
             width: 100%;
+            transition: opacity 0.3s ease;
         }
 
         /* Elementos de información en pantalla */
@@ -466,13 +485,25 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 20vw;
+            font-size: 25vw;
             font-weight: 900;
             color: white;
-            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
             opacity: 0;
             transition: opacity 0.3s;
             z-index: 1002;
+            animation: salida-pulse 0.5s infinite alternate;
+        }
+
+        @keyframes salida-pulse {
+            from {
+                transform: translate(-50%, -50%) scale(1);
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+            }
+            to {
+                transform: translate(-50%, -50%) scale(1.1);
+                text-shadow: 0 0 60px rgba(255, 255, 255, 1);
+            }
         }
 
         .salida-display.show {
@@ -680,6 +711,10 @@
                 font-size: 40vw;
             }
             
+            .aggressive-numbers .countdown-display {
+                font-size: 45vw !important;
+            }
+            
             .countdown-label {
                 font-size: 10vw;
                 top: 15%;
@@ -693,6 +728,10 @@
             
             .info-value {
                 font-size: 20px;
+            }
+            
+            .salida-display {
+                font-size: 30vw;
             }
         }
 
@@ -719,6 +758,10 @@
                 font-size: 50vw;
             }
             
+            .aggressive-numbers .countdown-display {
+                font-size: 55vw !important;
+            }
+            
             .countdown-label {
                 font-size: 12vw;
                 top: 10%;
@@ -728,6 +771,10 @@
                 min-width: 120px;
                 padding: 10px 15px;
                 font-size: 12px;
+            }
+            
+            .salida-display {
+                font-size: 35vw;
             }
         }
 
@@ -795,7 +842,7 @@
         <div class="container">
             <div class="header-content">
                 <div class="app-title">
-                    <img src="C:\Roberto\Visual_Studio_Code\Rbenet\Web\Crono_cuenta_atras_192_192.png" 
+                    <img src="https://rbenet71.github.io/Web/Crono_cuenta_atras_192_192.png" 
                          alt="Logo Crono Cuenta Atrás" 
                          class="app-logo">
                     <h1 id="app-title-text">Crono Cuenta Atrás</h1>
@@ -1000,13 +1047,14 @@
                     <li><strong style="color: #e74c3c;">Fondo rojo:</strong> Cuenta atrás normal</li>
                     <li><strong style="color: #f39c12;">Fondo naranja:</strong> Últimos 10 segundos</li>
                     <li><strong style="color: #27ae60;">Fondo verde:</strong> Momento de salida (2 segundos)</li>
+                    <li><strong style="color: #ff0000;">Números rojos pulsantes:</strong> Últimos 5 segundos</li>
                 </ul>
                 
                 <h4 id="help-modal-subtitle3">Sonidos:</h4>
                 <ul>
-                    <li><strong>Zumbido agudo:</strong> Al llegar a 10 segundos</li>
-                    <li><strong>Zumbido cada segundo:</strong> Últimos 5 segundos</li>
-                    <li><strong>Zumbido grave:</strong> Al llegar a cero</li>
+                    <li><strong>Beep agudo:</strong> Al llegar a 10 segundos</li>
+                    <li><strong>Beep cada segundo:</strong> Últimos 5 segundos</li>
+                    <li><strong>Beep grave:</strong> Al llegar a cero</li>
                 </ul>
                 
                 <p id="help-modal-text2">Los 2 segundos de "SALIDA" se restan automáticamente del tiempo de la siguiente cuenta atrás.</p>
@@ -1160,20 +1208,6 @@
             </div>
         </div>
 
-        <!-- Audio para sonidos - CORREGIDOS con mejores fuentes -->
-        <audio id="warning-sound" preload="auto">
-            <source src="https://assets.mixkit.co/sfx/preview/mixkit-warning-alarm-1001.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="critical-sound" preload="auto">
-            <source src="https://assets.mixkit.co/sfx/preview/mixkit-retro-game-emergency-alarm-1000.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="salida-sound" preload="auto">
-            <source src="https://assets.mixkit.co/sfx/preview/mixkit-bell-notification-933.mp3" type="audio/mpeg">
-        </audio>
-        <audio id="beep-sound" preload="auto">
-            <source src="https://assets.mixkit.co/sfx/preview/mixkit-classic-alarm-995.mp3" type="audio/mpeg">
-        </audio>
-
         <!-- Video oculto para mantener pantalla activa -->
         <video id="keep-alive-video" style="display: none;" muted playsinline>
             <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
@@ -1193,9 +1227,9 @@
                 countdownActive: false,
                 countdownValue: 0,
                 countdownInterval: null,
-                raceStartTime: null, // Hora de inicio de la carrera
+                raceStartTime: null,
                 departedCount: 0,
-                nextCorredorTime: 60, // en segundos
+                nextCorredorTime: 60,
                 intervals: [],
                 currentIntervalIndex: 0,
                 departureTimes: [],
@@ -1205,13 +1239,14 @@
                 deferredPrompt: null,
                 updateAvailable: false,
                 countdownPaused: false,
-                salidaSubtractionApplied: false,
-                accumulatedTime: 0, // Tiempo acumulado para cálculo correcto
+                accumulatedTime: 0,
                 configModalOpen: false,
                 variableIntervalConfig: {
                     intervals: [],
                     saved: false
-                }
+                },
+                soundEnabled: true,
+                aggressiveMode: false // Nuevo estado para modo agresivo
             };
 
             // ============================================
@@ -1477,7 +1512,7 @@
                     helpModalList: [
                         "Sélectionnez une course ou créez-en une nouvelle",
                         "Configurez la cadence de départ (toujours égal ou plusieurs intervalles)",
-                        "Démarrez depuis le coureur 1 ou depuis une position spécifique",
+                        "Démarrez depuis le coureur 1 o desde una posición específica",
                         "Appuyez sur 'DÉMARRER COMPTE À REBOURS' pour commencer",
                         "L'écran changera montrant le compte à rebours grand",
                         "Quand il atteint zéro 'DÉPART' s'affichera et le compte pour le suivant commencera"
@@ -1517,6 +1552,89 @@
             };
 
             // ============================================
+            // FUNCIONES DE SONIDO - BEEPS DEL SISTEMA
+            // ============================================
+
+            // Generar beep con AudioContext
+            function generateBeep(frequency, duration, type = 'sine') {
+                try {
+                    // Crear contexto de audio si no existe
+                    if (!appState.audioContext) {
+                        appState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+                    
+                    if (appState.audioContext.state === 'suspended') {
+                        appState.audioContext.resume();
+                    }
+                    
+                    // Crear oscilador
+                    const oscillator = appState.audioContext.createOscillator();
+                    const gainNode = appState.audioContext.createGain();
+                    
+                    // Conectar nodos
+                    oscillator.connect(gainNode);
+                    gainNode.connect(appState.audioContext.destination);
+                    
+                    // Configurar oscilador
+                    oscillator.frequency.setValueAtTime(frequency, appState.audioContext.currentTime);
+                    oscillator.type = type;
+                    
+                    // Configurar volumen (attack y release)
+                    gainNode.gain.setValueAtTime(0.3, appState.audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, appState.audioContext.currentTime + duration);
+                    
+                    // Iniciar y detener
+                    oscillator.start(appState.audioContext.currentTime);
+                    oscillator.stop(appState.audioContext.currentTime + duration);
+                    
+                } catch (error) {
+                    console.log("Error generando beep:", error);
+                }
+            }
+
+            // Reproducir sonido específico
+            function playSound(type) {
+                if (!appState.soundEnabled) return;
+                
+                try {
+                    switch(type) {
+                        case 'warning': // 10 segundos - beep agudo
+                            generateBeep(800, 0.3, 'sine');
+                            break;
+                        case 'critical': // 5 segundos - beep medio
+                            generateBeep(600, 0.2, 'sine');
+                            break;
+                        case 'salida': // Salida - beep grave
+                            generateBeep(300, 0.5, 'sine');
+                            break;
+                        case 'beep': // Cada segundo en últimos 5 segundos - beep corto
+                            generateBeep(500, 0.1, 'square');
+                            break;
+                    }
+                } catch (error) {
+                    console.log("Error reproduciendo sonido:", error);
+                }
+            }
+
+            // Activar audio en interacción del usuario
+            function initAudioOnInteraction() {
+                if (!appState.audioContext) {
+                    appState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                if (appState.audioContext.state === 'suspended') {
+                    appState.audioContext.resume().then(() => {
+                        // Test beep
+                        generateBeep(440, 0.1);
+                    });
+                }
+                
+                // Remover event listeners después de activar
+                document.removeEventListener('click', initAudioOnInteraction);
+                document.removeEventListener('keydown', initAudioOnInteraction);
+            }
+
+            // ============================================
             // FUNCIONES PRINCIPALES
             // ============================================
 
@@ -1531,7 +1649,6 @@
                 renderRacesSelect();
                 renderDeparturesList();
                 setupServiceWorker();
-                initAudioContext();
                 
                 // Iniciar actualización del tiempo total
                 setInterval(updateTotalTime, 1000);
@@ -1539,30 +1656,9 @@
                 // Inicializar instalador PWA
                 setupPWA();
                 
-                // Precargar sonidos
-                preloadSounds();
-                
-                // Asegurar que los sonidos se puedan reproducir
-                setTimeout(() => {
-                    const sounds = ['warning-sound', 'critical-sound', 'salida-sound', 'beep-sound'];
-                    sounds.forEach(soundId => {
-                        const audio = document.getElementById(soundId);
-                        if (audio) {
-                            audio.volume = 0.5; // Volumen medio
-                        }
-                    });
-                }, 1000);
-            }
-
-            // Precargar sonidos
-            function preloadSounds() {
-                const sounds = ['warning-sound', 'critical-sound', 'salida-sound', 'beep-sound'];
-                sounds.forEach(soundId => {
-                    const audio = document.getElementById(soundId);
-                    if (audio) {
-                        audio.load();
-                    }
-                });
+                // Activar audio en primera interacción
+                document.addEventListener('click', initAudioOnInteraction);
+                document.addEventListener('keydown', initAudioOnInteraction);
             }
 
             // Cargar preferencia de idioma
@@ -1580,7 +1676,6 @@
                     appState.races = JSON.parse(savedRaces);
                 }
                 
-                // Cargar carrera activa si existe
                 const savedCurrentRace = localStorage.getItem('countdown-current-race');
                 if (savedCurrentRace) {
                     appState.currentRace = JSON.parse(savedCurrentRace);
@@ -1613,7 +1708,6 @@
                     const state = JSON.parse(savedState);
                     Object.assign(appState, state);
                     
-                    // Si había cuenta atrás activa, restaurarla
                     if (appState.countdownActive) {
                         startCountdownFromState();
                     }
@@ -1649,7 +1743,6 @@
                 const lang = appState.currentLanguage;
                 const t = translations[lang];
                 
-                // Actualizar textos
                 document.getElementById('app-title-text').textContent = t.appTitle;
                 document.getElementById('languages-label').textContent = t.languagesLabel;
                 document.getElementById('race-select-label').textContent = t.raceSelectLabel;
@@ -1682,13 +1775,11 @@
                 document.getElementById('copyright-text').innerHTML = t.copyrightText + 
                     '<a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">Roberto Benet - rbenet71.github.io/Web</a>';
                 
-                // Actualizar banderas activas
                 document.querySelectorAll('.flag').forEach(flag => {
                     flag.classList.remove('active');
                 });
                 document.getElementById('flag-' + lang).classList.add('active');
                 
-                // Actualizar modales
                 updateModalTexts();
             }
 
@@ -1696,7 +1787,6 @@
             function updateModalTexts() {
                 const t = translations[appState.currentLanguage];
                 
-                // Modal de ayuda
                 document.getElementById('help-modal-title').textContent = t.helpModalTitle;
                 document.getElementById('help-modal-text1').textContent = t.helpModalText1;
                 document.getElementById('help-modal-subtitle1').textContent = t.helpModalSubtitle1;
@@ -1705,33 +1795,28 @@
                 document.getElementById('help-modal-text2').textContent = t.helpModalText2;
                 document.getElementById('help-modal-ok').textContent = t.understood;
                 
-                // Modal eliminar carrera
                 document.getElementById('delete-race-modal-title').textContent = t.deleteRaceModalTitle;
                 document.getElementById('delete-race-modal-text').textContent = t.deleteRaceModalText;
                 document.getElementById('delete-race-confirm-btn').textContent = t.deleteConfirm;
                 document.getElementById('delete-race-cancel-btn').textContent = t.cancel;
                 
-                // Modal limpiar salidas
                 document.getElementById('clear-departures-modal-title').textContent = t.clearDeparturesModalTitle;
                 document.getElementById('clear-departures-modal-text').textContent = t.clearDeparturesModalText;
                 document.getElementById('clear-departures-confirm-btn').textContent = t.clear;
                 document.getElementById('clear-departures-cancel-btn').textContent = t.cancel;
                 
-                // Modal sugerencias
                 document.getElementById('suggestions-modal-title').textContent = t.suggestionsModalTitle;
                 document.getElementById('suggestion-email-label').textContent = t.suggestionEmailLabel;
                 document.getElementById('suggestion-text-label').textContent = t.suggestionTextLabel;
                 document.getElementById('send-suggestion-btn').textContent = t.sendSuggestion;
                 document.getElementById('cancel-suggestion-btn').textContent = t.cancel;
                 
-                // Modal nueva carrera
                 document.getElementById('new-race-modal-title').textContent = t.newRaceModalTitle;
                 document.getElementById('new-race-name-label').textContent = t.newRaceNameLabel;
                 document.getElementById('new-race-desc-label').textContent = t.newRaceDescLabel;
                 document.getElementById('create-race-btn').textContent = t.createRace;
                 document.getElementById('cancel-create-race-btn').textContent = t.cancel;
                 
-                // Actualizar lista de ayuda
                 const helpList = document.getElementById('help-modal-list');
                 helpList.innerHTML = '';
                 t.helpModalList.forEach(item => {
@@ -1771,7 +1856,6 @@
                     return;
                 }
                 
-                // Mostrar en orden inverso (más reciente primero)
                 const reversedTimes = [...appState.departureTimes].reverse();
                 
                 reversedTimes.forEach(departure => {
@@ -1790,64 +1874,7 @@
                     container.appendChild(item);
                 });
                 
-                // Actualizar contador de salidos
                 document.getElementById('departed-count').textContent = appState.departedCount;
-            }
-
-            // Inicializar contexto de audio
-            function initAudioContext() {
-                try {
-                    appState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    // Resumir contexto si está suspendido
-                    if (appState.audioContext.state === 'suspended') {
-                        appState.audioContext.resume();
-                    }
-                } catch (e) {
-                    console.log("AudioContext no soportado:", e);
-                }
-            }
-
-            // Reproducir sonido
-            function playSound(type) {
-                try {
-                    const audioMap = {
-                        'warning': document.getElementById('warning-sound'),
-                        'critical': document.getElementById('critical-sound'),
-                        'salida': document.getElementById('salida-sound'),
-                        'beep': document.getElementById('beep-sound')
-                    };
-                    
-                    const audio = audioMap[type];
-                    if (audio) {
-                        // Asegurarse de que el audio esté cargado
-                        if (audio.readyState < 3) {
-                            audio.load();
-                        }
-                        
-                        audio.currentTime = 0;
-                        
-                        // Intentar reproducir
-                        const playPromise = audio.play();
-                        
-                        if (playPromise !== undefined) {
-                            playPromise
-                                .then(() => {
-                                    console.log(`Sonido ${type} reproducido`);
-                                })
-                                .catch(error => {
-                                    console.log(`Error reproduciendo sonido ${type}:`, error);
-                                    // Intentar activar el contexto de audio si está suspendido
-                                    if (appState.audioContext && appState.audioContext.state === 'suspended') {
-                                        appState.audioContext.resume().then(() => {
-                                            audio.play().catch(e => console.log("Error después de resume:", e));
-                                        });
-                                    }
-                                });
-                        }
-                    }
-                } catch (e) {
-                    console.log("Error general en playSound:", e);
-                }
             }
 
             // Configurar Service Worker
@@ -1857,7 +1884,6 @@
                         .then(registration => {
                             console.log('ServiceWorker registrado:', registration.scope);
                             
-                            // Verificar actualizaciones periódicamente
                             setInterval(() => {
                                 registration.update();
                             }, 60 * 60 * 1000);
@@ -1874,7 +1900,6 @@
                     e.preventDefault();
                     appState.deferredPrompt = e;
                     
-                    // Mostrar botón de instalación
                     const installBtn = document.getElementById('install-btn');
                     installBtn.style.display = 'flex';
                 });
@@ -1893,11 +1918,10 @@
                 }
             }
 
-            // Mantener pantalla activa (alternativa)
+            // Mantener pantalla activa
             function keepScreenAwakeAlternative() {
                 if (!appState.countdownActive) return;
                 
-                // Usar API de Wake Lock si está disponible
                 if ('wakeLock' in navigator) {
                     navigator.wakeLock.request('screen')
                         .then(wakeLock => {
@@ -1908,14 +1932,12 @@
                         });
                 }
                 
-                // Alternativa: reproducir video invisible
                 const video = document.getElementById('keep-alive-video');
                 if (video) {
                     video.loop = true;
                     video.play().catch(e => console.log('Video keep-alive falló:', e));
                 }
                 
-                // Usar API de vibración (si está disponible)
                 if (navigator.vibrate) {
                     navigator.vibrate(0);
                 }
@@ -1941,13 +1963,15 @@
                 const countdownScreen = document.getElementById('countdown-screen');
                 countdownScreen.classList.add('active');
                 
-                // CORRECCIÓN: Iniciar tiempo de carrera
+                // Quitar clase de números agresivos si existe
+                countdownScreen.classList.remove('aggressive-numbers');
+                
+                // Iniciar tiempo de carrera
                 appState.raceStartTime = Date.now();
                 appState.accumulatedTime = 0;
                 
                 // Configurar intervalo inicial
                 if (appState.intervals.length === 0) {
-                    // Intervalo único
                     const minutes = parseInt(document.getElementById('interval-minutes').value) || 0;
                     const seconds = parseInt(document.getElementById('interval-seconds').value) || 0;
                     appState.nextCorredorTime = minutes * 60 + seconds;
@@ -1961,20 +1985,25 @@
                     }];
                 }
                 
-                // Determinar intervalo actual basado en corredores salidos
+                // Determinar intervalo actual
                 updateCurrentInterval();
                 
                 // Iniciar cuenta atrás
                 appState.countdownActive = true;
                 appState.countdownPaused = false;
                 appState.countdownValue = appState.nextCorredorTime;
+                appState.aggressiveMode = false; // Resetear modo agresivo
                 
                 // Fondo rojo desde el inicio
                 document.body.classList.remove('countdown-warning', 'countdown-critical', 'countdown-salida');
                 document.body.classList.add('countdown-normal');
                 
-                // CORRECCIÓN: Quitar clase de salida activa
+                // Quitar clase de salida activa
                 countdownScreen.classList.remove('countdown-salida-active');
+                
+                // Mostrar "Próxima salida en"
+                document.getElementById('countdown-label').style.opacity = '1';
+                document.getElementById('countdown-label').style.visibility = 'visible';
                 
                 // Actualizar display
                 updateCountdownDisplay();
@@ -1991,53 +2020,67 @@
                 showMessage(translations[appState.currentLanguage].countdownStarted, 'success');
             }
 
-            // Actualizar cuenta atrás - CORREGIDA: Cálculo correcto del tiempo
+            // Actualizar cuenta atrás
             function updateCountdown() {
                 if (!appState.countdownActive || appState.countdownPaused) return;
                 
-                // CORRECCIÓN: Calcular tiempo restante basado en tiempo real
+                // Calcular tiempo restante basado en tiempo real
                 const currentTime = Date.now();
                 const elapsedFromRaceStart = Math.floor((currentTime - appState.raceStartTime) / 1000);
                 
-                // Tiempo que debería haber pasado según salidas
                 const expectedElapsedTime = appState.accumulatedTime + 
                     (appState.nextCorredorTime - appState.countdownValue);
                 
-                // Si hay desfase, ajustar
                 if (Math.abs(elapsedFromRaceStart - expectedElapsedTime) > 1) {
                     appState.countdownValue = Math.max(0, appState.nextCorredorTime - 
                         (elapsedFromRaceStart - appState.accumulatedTime));
                 } else {
-                    // Contador normal
                     appState.countdownValue--;
                 }
                 
-                // CORRECCIÓN: No mostrar 0, saltar directamente a SALIDA
                 if (appState.countdownValue <= 0) {
                     handleCountdownZero();
                     return;
                 }
                 
-                // Actualizar display
                 updateCountdownDisplay();
                 
-                // Verificar estados especiales
+                // Verificar estados especiales con sonidos
                 if (appState.countdownValue === 10) {
-                    // 10 segundos: fondo naranja, sonido agudo
                     document.body.classList.remove('countdown-normal');
                     document.body.classList.add('countdown-warning');
                     playSound('warning');
+                    
+                    // Quitar modo agresivo si estaba activo
+                    const countdownScreen = document.getElementById('countdown-screen');
+                    countdownScreen.classList.remove('aggressive-numbers');
+                    appState.aggressiveMode = false;
                 } else if (appState.countdownValue === 5) {
-                    // 5 segundos: parpadeo del fondo SOLAMENTE
+                    // Solo el fondo parpadea
                     document.body.classList.remove('countdown-warning');
                     document.body.classList.add('countdown-critical');
                     playSound('critical');
+                    
+                    // ACTIVAR MODO AGRESIVO para últimos 5 segundos
+                    const countdownScreen = document.getElementById('countdown-screen');
+                    countdownScreen.classList.add('aggressive-numbers');
+                    appState.aggressiveMode = true;
                 } else if (appState.countdownValue < 5 && appState.countdownValue > 0) {
-                    // Últimos 5 segundos: sonido cada segundo
                     playSound('beep');
+                    
+                    // Mantener modo agresivo
+                    if (!appState.aggressiveMode) {
+                        const countdownScreen = document.getElementById('countdown-screen');
+                        countdownScreen.classList.add('aggressive-numbers');
+                        appState.aggressiveMode = true;
+                    }
+                } else if (appState.countdownValue > 5 && appState.aggressiveMode) {
+                    // Desactivar modo agresivo si ya no estamos en los últimos 5 segundos
+                    const countdownScreen = document.getElementById('countdown-screen');
+                    countdownScreen.classList.remove('aggressive-numbers');
+                    appState.aggressiveMode = false;
                 }
                 
-                // Guardar estado cada 10 segundos
                 if (appState.countdownValue % 10 === 0) {
                     saveAppState();
                 }
@@ -2048,16 +2091,13 @@
                 const display = document.getElementById('countdown-display');
                 
                 if (appState.countdownValue >= 60) {
-                    // Mostrar minutos y segundos
                     const minutes = Math.floor(appState.countdownValue / 60);
                     const seconds = appState.countdownValue % 60;
                     display.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
                 } else {
-                    // Menos de 1 minuto: mostrar solo segundos
                     display.textContent = appState.countdownValue.toString();
                 }
                 
-                // Actualizar tiempo del próximo corredor
                 updateNextCorredorDisplay();
             }
 
@@ -2065,28 +2105,25 @@
             function handleCountdownZero() {
                 clearInterval(appState.countdownInterval);
                 
-                // CORRECCIÓN: Ocultar número detrás de SALIDA
                 const countdownScreen = document.getElementById('countdown-screen');
                 countdownScreen.classList.add('countdown-salida-active');
                 
-                // Cambiar a fondo verde
+                // Quitar clase de números agresivos
+                countdownScreen.classList.remove('aggressive-numbers');
+                appState.aggressiveMode = false;
+                
                 document.body.classList.remove('countdown-critical', 'countdown-warning', 'countdown-normal');
                 document.body.classList.add('countdown-salida');
                 
-                // Mostrar "SALIDA"
                 const salidaDisplay = document.getElementById('salida-display');
                 salidaDisplay.classList.add('show');
                 
-                // Reproducir sonido de salida
                 playSound('salida');
                 
-                // Registrar salida
                 registerDeparture();
                 
-                // CORRECCIÓN: Acumular tiempo actual
                 appState.accumulatedTime += appState.nextCorredorTime;
                 
-                // Ocultar "SALIDA" después de 2 segundos y preparar siguiente
                 appState.salidaTimeout = setTimeout(() => {
                     salidaDisplay.classList.remove('show');
                     countdownScreen.classList.remove('countdown-salida-active');
@@ -2105,36 +2142,31 @@
                 
                 appState.departureTimes.push(departure);
                 
-                // Actualizar display
                 document.getElementById('departed-count').textContent = appState.departedCount;
                 
-                // Actualizar lista
                 renderDeparturesList();
                 
-                // Guardar en almacenamiento
                 saveAppState();
                 localStorage.setItem('countdown-departures', JSON.stringify(appState.departureTimes));
             }
 
             // Preparar siguiente cuenta atrás
             function prepareNextCountdown() {
-                // Actualizar intervalo basado en corredores salidos
                 updateCurrentInterval();
                 
-                // CORRECCIÓN: Restar 2 segundos de la cuenta atrás actual, no del tiempo base
                 appState.countdownValue = Math.max(0, appState.nextCorredorTime - 2);
                 
-                // Volver a fondo rojo
                 document.body.classList.remove('countdown-salida');
                 document.body.classList.add('countdown-normal');
                 
-                // Actualizar display
+                // Mostrar nuevamente "Próxima salida en"
+                document.getElementById('countdown-label').style.opacity = '1';
+                document.getElementById('countdown-label').style.visibility = 'visible';
+                
                 updateCountdownDisplay();
                 
-                // Reiniciar intervalo
                 appState.countdownInterval = setInterval(updateCountdown, 1000);
                 
-                // Guardar estado
                 saveAppState();
             }
 
@@ -2142,7 +2174,6 @@
             function updateCurrentInterval() {
                 const currentCorredor = appState.departedCount + 1;
                 
-                // Buscar intervalo que corresponda al corredor actual
                 for (let i = 0; i < appState.intervals.length; i++) {
                     const interval = appState.intervals[i];
                     if (currentCorredor >= interval.from && currentCorredor <= interval.to) {
@@ -2153,7 +2184,7 @@
                 }
             }
 
-            // Actualizar display del próximo corredor - CORREGIDA: Edición funcionando
+            // Actualizar display del próximo corredor - CORREGIDA
             function updateNextCorredorDisplay() {
                 const display = document.getElementById('next-corredor-time');
                 const totalSeconds = appState.nextCorredorTime;
@@ -2167,11 +2198,10 @@
                 }
             }
 
-            // Actualizar tiempo total - CORREGIDA: Diferencia entre hora actual y hora de inicio
+            // Actualizar tiempo total
             function updateTotalTime() {
                 if (!appState.raceStartTime) return;
                 
-                // CORRECCIÓN: Calcular diferencia entre hora actual y hora de inicio
                 const elapsed = Math.floor((Date.now() - appState.raceStartTime) / 1000);
                 const hours = Math.floor(elapsed / 3600);
                 const minutes = Math.floor((elapsed % 3600) / 60);
@@ -2181,7 +2211,7 @@
                 display.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             }
 
-            // Detener cuenta atrás
+            // Detener cuenta atrás - CORREGIDA: Reiniciar tiempo acumulado
             function stopCountdown() {
                 if (appState.countdownInterval) {
                     clearInterval(appState.countdownInterval);
@@ -2195,8 +2225,17 @@
                 
                 appState.countdownActive = false;
                 appState.countdownPaused = false;
-                appState.raceStartTime = null; // Reiniciar tiempo acumulado
-                appState.accumulatedTime = 0; // Reiniciar acumulado
+                // CORRECCIÓN: Reiniciar tiempo acumulado
+                appState.raceStartTime = null;
+                appState.accumulatedTime = 0;
+                appState.aggressiveMode = false;
+                
+                // Quitar clase de números agresivos
+                document.getElementById('countdown-screen').classList.remove('aggressive-numbers');
+                
+                // Reiniciar tiempo total display
+                document.getElementById('total-time-value').textContent = '00:00:00';
+                
                 saveAppState();
             }
 
@@ -2216,7 +2255,6 @@
             function startCountdownFromState() {
                 if (!appState.countdownActive) return;
                 
-                // Calcular tiempo transcurrido desde que se guardó
                 const now = Date.now();
                 const lastUpdate = localStorage.getItem('countdown-last-update');
                 
@@ -2225,7 +2263,6 @@
                     appState.countdownValue = Math.max(0, appState.countdownValue - elapsed);
                 }
                 
-                // Iniciar cuenta atrás
                 startCountdown();
             }
 
@@ -2274,7 +2311,6 @@
                     appState.races.splice(raceIndex, 1);
                     appState.currentRace = null;
                     
-                    // Si había cuenta atrás activa, detenerla
                     if (appState.countdownActive) {
                         stopCountdown();
                         document.getElementById('countdown-screen').classList.remove('active');
@@ -2319,10 +2355,9 @@
                 appState.intervals.push(newInterval);
                 renderIntervalsList();
                 
-                // Guardar configuración de intervalos
+                // CORRECCIÓN: Guardar configuración de intervalos
                 saveVariableIntervalConfig();
                 
-                // Limpiar campos
                 document.getElementById('from-corredor').value = to + 1;
                 document.getElementById('to-corredor').value = to + 10;
                 document.getElementById('var-minutes').value = 1;
@@ -2349,12 +2384,12 @@
                     container.appendChild(row);
                 });
                 
-                // Agregar event listeners a botones de eliminar
                 document.querySelectorAll('.remove-interval-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const index = parseInt(this.getAttribute('data-index'));
                         appState.intervals.splice(index, 1);
                         renderIntervalsList();
+                        // CORRECCIÓN: Guardar cuando se elimina
                         saveVariableIntervalConfig();
                     });
                 });
@@ -2377,7 +2412,6 @@
                     return;
                 }
                 
-                // Crear datos para Excel
                 const data = [
                     ['Corredor', 'Fecha', 'Hora', 'Timestamp']
                 ];
@@ -2397,13 +2431,11 @@
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, "Salidas");
                 
-                // Generar nombre de archivo
                 const raceName = appState.currentRace ? 
                     appState.currentRace.name.replace(/[^a-z0-9]/gi, '_') : 'carrera';
                 const date = new Date().toISOString().split('T')[0];
                 const filename = `salidas_${raceName}_${date}.xlsx`;
                 
-                // Descargar
                 XLSX.writeFile(wb, filename);
                 showMessage(translations[appState.currentLanguage].excelExported, 'success');
             }
@@ -2418,8 +2450,6 @@
                     return;
                 }
                 
-                // Aquí iría la lógica para enviar la sugerencia
-                // Por ahora solo mostramos un mensaje
                 console.log('Sugerencia enviada:', { email, text });
                 
                 document.getElementById('suggestions-modal').classList.remove('active');
@@ -2430,7 +2460,7 @@
             }
 
             // ============================================
-            // EVENT LISTENERS - CORREGIDOS
+            // EVENT LISTENERS - TODOS LOS PROBLEMAS CORREGIDOS
             // ============================================
 
             function setupEventListeners() {
@@ -2505,6 +2535,7 @@
                     resumeCountdownVisual();
                 });
                 
+                // CORRECCIÓN: Detener cuenta atrás con reinicio de tiempo
                 document.getElementById('stop-countdown-btn').addEventListener('click', () => {
                     stopCountdown();
                     document.getElementById('countdown-screen').classList.remove('active');
@@ -2516,11 +2547,9 @@
                 });
                 
                 document.getElementById('adjust-times-btn').addEventListener('click', () => {
-                    // Mostrar modal de ajuste de tiempos
                     document.getElementById('config-during-countdown-modal').classList.remove('active');
                     document.getElementById('adjust-times-modal').classList.add('active');
                     
-                    // Llenar campos con valores actuales
                     document.getElementById('adjust-next-time').value = appState.nextCorredorTime;
                     document.getElementById('adjust-departed').value = appState.departedCount;
                     document.getElementById('adjust-current-time').value = appState.countdownValue;
@@ -2561,7 +2590,6 @@
                     appState.departedCount = newDeparted;
                     appState.countdownValue = Math.min(newCurrentTime, newNextTime);
                     
-                    // Actualizar displays
                     updateNextCorredorDisplay();
                     document.getElementById('departed-count').textContent = newDeparted;
                     updateCountdownDisplay();
@@ -2617,13 +2645,14 @@
                     document.getElementById('variable-interval-config').style.display = 'none';
                     appState.intervals = [];
                     renderIntervalsList();
+                    // CORRECCIÓN: Guardar configuración vacía
+                    saveVariableIntervalConfig();
                 });
                 
                 document.getElementById('variable-interval-btn').addEventListener('click', () => {
                     document.getElementById('single-interval-config').style.display = 'none';
                     document.getElementById('variable-interval-config').style.display = 'block';
                     
-                    // Cargar intervalos guardados si existen
                     if (appState.variableIntervalConfig.saved && appState.variableIntervalConfig.intervals.length > 0) {
                         appState.intervals = [...appState.variableIntervalConfig.intervals];
                         renderIntervalsList();
@@ -2671,7 +2700,7 @@
                 // Iniciar cuenta atrás
                 document.getElementById('start-countdown-btn').addEventListener('click', startCountdown);
                 
-                // Configuración en pantalla de ejecución - CORRECCIÓN: No para el tiempo
+                // Configuración en pantalla de ejecución
                 document.getElementById('config-toggle').addEventListener('click', () => {
                     if (appState.countdownActive && !appState.configModalOpen) {
                         pauseCountdownVisual();
@@ -2679,8 +2708,76 @@
                     }
                 });
                 
-                // Edición inline de contadores - CORREGIDA: Funciona para próximo tiempo
-                document.getElementById('departed-count').addEventListener('dblclick', function() {
+                // CORRECCIÓN: Edición inline del tiempo del próximo corredor FUNCIONA
+                document.getElementById('next-corredor-time').addEventListener('dblclick', function(e) {
+                    e.stopPropagation();
+                    
+                    const currentText = this.textContent;
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'inline-edit-input';
+                    input.value = currentText;
+                    
+                    this.innerHTML = '';
+                    this.appendChild(input);
+                    input.focus();
+                    input.select();
+                    
+                    const finishEdit = () => {
+                        const value = input.value.trim();
+                        let seconds = 0;
+                        
+                        if (value.includes(':')) {
+                            const parts = value.split(':');
+                            const mins = parseInt(parts[0]) || 0;
+                            const secs = parseInt(parts[1]) || 0;
+                            seconds = mins * 60 + secs;
+                        } else if (value.includes('min')) {
+                            const mins = parseInt(value) || 0;
+                            seconds = mins * 60;
+                        } else {
+                            seconds = parseInt(value) || 0;
+                        }
+                        
+                        if (seconds > 0) {
+                            appState.nextCorredorTime = seconds;
+                            
+                            // Ajustar el intervalo actual si estamos en modo único
+                            if (appState.intervals.length === 1) {
+                                appState.intervals[0].totalSeconds = seconds;
+                                appState.intervals[0].minutes = Math.floor(seconds / 60);
+                                appState.intervals[0].seconds = seconds % 60;
+                            }
+                            
+                            // Ajustar countdownValue si es necesario
+                            if (appState.countdownActive && appState.countdownValue > seconds) {
+                                appState.countdownValue = seconds;
+                                updateCountdownDisplay();
+                            }
+                            
+                            updateNextCorredorDisplay();
+                            saveAppState();
+                            saveVariableIntervalConfig();
+                        }
+                        
+                        // Restaurar display
+                        this.textContent = appState.nextCorredorTime >= 60 ? 
+                            `${Math.floor(appState.nextCorredorTime / 60)}:${(appState.nextCorredorTime % 60).toString().padStart(2, '0')}` : 
+                            appState.nextCorredorTime + "s";
+                    };
+                    
+                    input.addEventListener('blur', finishEdit);
+                    input.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            finishEdit();
+                        }
+                    });
+                });
+                
+                // Edición inline de contadores
+                document.getElementById('departed-count').addEventListener('dblclick', function(e) {
+                    e.stopPropagation();
+                    
                     const currentValue = parseInt(this.textContent) || 0;
                     const input = document.createElement('input');
                     input.type = 'number';
@@ -2700,73 +2797,6 @@
                         updateCurrentInterval();
                         saveAppState();
                         renderDeparturesList();
-                    };
-                    
-                    input.addEventListener('blur', finishEdit);
-                    input.addEventListener('keypress', function(e) {
-                        if (e.key === 'Enter') {
-                            finishEdit();
-                        }
-                    });
-                });
-                
-                // Edición inline del tiempo del próximo corredor - CORREGIDA
-                document.getElementById('next-corredor-time').addEventListener('dblclick', function() {
-                    const currentText = this.textContent;
-                    let currentSeconds = appState.nextCorredorTime;
-                    
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.className = 'inline-edit-input';
-                    
-                    // Mostrar en formato actual
-                    if (currentSeconds >= 60) {
-                        const minutes = Math.floor(currentSeconds / 60);
-                        const seconds = currentSeconds % 60;
-                        input.value = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                    } else {
-                        input.value = currentSeconds;
-                    }
-                    
-                    input.placeholder = 'Ej: 1:30 o 90';
-                    
-                    this.innerHTML = '';
-                    this.appendChild(input);
-                    input.focus();
-                    input.select();
-                    
-                    const finishEdit = () => {
-                        const value = input.value.trim();
-                        let seconds = 0;
-                        
-                        if (value.includes(':')) {
-                            const parts = value.split(':');
-                            const mins = parseInt(parts[0]) || 0;
-                            const secs = parseInt(parts[1]) || 0;
-                            seconds = mins * 60 + secs;
-                        } else {
-                            seconds = parseInt(value) || 0;
-                        }
-                        
-                        if (seconds > 0) {
-                            appState.nextCorredorTime = seconds;
-                            // Ajustar countdownValue si es necesario
-                            if (appState.countdownValue > seconds) {
-                                appState.countdownValue = seconds;
-                            }
-                            updateNextCorredorDisplay();
-                            updateCountdownDisplay();
-                            saveAppState();
-                        }
-                        
-                        // Restaurar el texto original
-                        if (appState.nextCorredorTime >= 60) {
-                            const minutes = Math.floor(appState.nextCorredorTime / 60);
-                            const secs = appState.nextCorredorTime % 60;
-                            this.textContent = `${minutes}:${secs.toString().padStart(2, '0')}`;
-                        } else {
-                            this.textContent = appState.nextCorredorTime;
-                        }
                     };
                     
                     input.addEventListener('blur', finishEdit);
@@ -2803,9 +2833,13 @@
                     }
                 });
                 
-                // Guardar configuración de intervalos cuando se cierra la configuración de tramos
+                // CORRECCIÓN: Guardar configuración de intervalos cuando se cambia entre modos
                 document.getElementById('same-interval-btn').addEventListener('click', () => {
-                    saveVariableIntervalConfig();
+                    setTimeout(saveVariableIntervalConfig, 100);
+                });
+                
+                document.getElementById('variable-interval-btn').addEventListener('click', () => {
+                    setTimeout(saveVariableIntervalConfig, 100);
                 });
             }
 
@@ -2840,37 +2874,21 @@
                 }
             });
 
-            // Manejar tecla Escape para salir de pantalla completa
+            // Manejar tecla Escape
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && appState.countdownActive && !appState.configModalOpen) {
                     pauseCountdownVisual();
                     document.getElementById('config-during-countdown-modal').classList.add('active');
                 }
                 
-                // Atajo para iniciar cuenta atrás: Ctrl+Enter
                 if (e.ctrlKey && e.key === 'Enter') {
                     e.preventDefault();
                     document.getElementById('start-countdown-btn').click();
                 }
             });
-
-            // Solicitar permiso de notificaciones si es necesario
-            if ('Notification' in window && Notification.permission === 'default') {
-                Notification.requestPermission();
-            }
-
-            // Activar audio en interacción del usuario
-            document.addEventListener('click', function initAudioOnInteraction() {
-                if (appState.audioContext && appState.audioContext.state === 'suspended') {
-                    appState.audioContext.resume();
-                }
-                // Remover el event listener después de la primera interacción
-                document.removeEventListener('click', initAudioOnInteraction);
-            });
-
         </script>
 
         <!-- Script para XLSX -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     </body>
-    </html>
+</html>
