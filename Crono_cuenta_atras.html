@@ -2906,13 +2906,25 @@
                 document.getElementById('start-countdown-btn').addEventListener('click', startCountdown);
                 
                 // Configuración en pantalla de ejecución
-                document.getElementById('config-toggle').addEventListener('click', () => {
+                document.getElementById('config-toggle').addEventListener('click', function(e) {
+                    e.stopPropagation(); // Evitar que el evento se propague
+                    
                     if (appState.countdownActive && !appState.configModalOpen) {
                         pauseCountdownVisual();
                         document.getElementById('config-during-countdown-modal').classList.add('active');
                     }
                 });
-                
+
+                // También añade un listener alternativo para toque
+                document.getElementById('config-toggle').addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    if (appState.countdownActive && !appState.configModalOpen) {
+                        pauseCountdownVisual();
+                        document.getElementById('config-during-countdown-modal').classList.add('active');
+                    }
+                });
                 // Edición inline del tiempo del próximo corredor
                 document.getElementById('next-corredor-time').addEventListener('dblclick', function(e) {
                     e.stopPropagation();
