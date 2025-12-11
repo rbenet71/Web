@@ -1027,6 +1027,68 @@
             color: var(--dark);
         }
 
+        /* Mensaje de recordatorio de salvapantallas */
+        .screensaver-reminder {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 9999;
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+            animation: fadeInOut 5s ease-in-out forwards;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .screensaver-icon {
+            font-size: 48px;
+            animation: pulse 2s infinite;
+        }
+
+        .screensaver-reminder h3 {
+            font-size: 20px;
+            margin: 0;
+            color: white;
+            font-weight: 600;
+        }
+
+        .screensaver-reminder p {
+            font-size: 14px;
+            margin: 0;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.4;
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            10% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            90% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+                display: none;
+            }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header-content {
@@ -1536,6 +1598,8 @@
                 deleteTopConfirm: "¿Estás seguro de que quieres eliminar el tiempo {time}?",
                 locationLoading: "Obteniendo información de ubicación...",
                 locationNotFound: "Información de ubicación no disponible",
+                screensaverReminder: "Recuerda desactivar el Salvapantallas de tu dispositivo",
+                screensaverInstructions: "Configuración → Pantalla → Salvapantallas → Desactivar",
                 locationError: "Error al obtener ubicación"
             },
             ca: {
@@ -1634,6 +1698,8 @@
                 deleteTopConfirm: "Segur que vols eliminar el temps {time}?",
                 locationLoading: "Obtenint informació de ubicació...",
                 locationNotFound: "Informació de ubicació no disponible",
+                screensaverReminder: "Recorda desactivar el Salvapantalles del teu dispositiu",
+                screensaverInstructions: "Configuració → Pantalla → Salvapantalles → Desactivar",     
                 locationError: "Error en obtenir ubicació"
             },
             en: {
@@ -1732,6 +1798,8 @@
                 deleteTopConfirm: "Are you sure you want to delete the time {time}?",
                 locationLoading: "Getting location information...",
                 locationNotFound: "Location information not available",
+                screensaverReminder: "Remember to disable your device's Screensaver",
+                screensaverInstructions: "Settings → Display → Screensaver → Disable",
                 locationError: "Error getting location"
 
             },
@@ -1831,6 +1899,8 @@
                 deleteTopConfirm: "Êtes-vous sûr de vouloir supprimer le temps {time}?",
                 locationLoading: "Obtention des informations de localisation...",
                 locationNotFound: "Informations de localisation non disponibles",
+                screensaverReminder: "N'oubliez pas de désactiver l'économiseur d'écran de votre appareil",
+                screensaverInstructions: "Paramètres → Affichage → Économiseur d'écran → Désactiver",
                 locationError: "Erreur lors de l'obtention de la localisation"
             }
         };
@@ -2135,12 +2205,54 @@ IDList=`;
             setupEventListeners();
             renderCronos();
             setupServiceWorker();
-            checkForUpdatesPeriodically();  // <-- ASÍ
+            checkForUpdatesPeriodically();
+            
+            // Mostrar recordatorio de salvapantallas
+            setTimeout(() => {
+                showScreensaverReminder();
+            }, 1000); // 1 segundo después de cargar
             
             window.appInstaller = new AppInstaller();
             
             setInterval(updateAllCronoTimes, 100);
-
+        }
+        // Función para mostrar el recordatorio de salvapantallas
+        function showScreensaverReminder() {
+            const lang = appState.currentLanguage;
+            const t = translations[lang];
+            
+            // Crear el elemento del mensaje
+            const reminderDiv = document.createElement('div');
+            reminderDiv.className = 'screensaver-reminder';
+            reminderDiv.id = 'screensaver-reminder';
+            
+            reminderDiv.innerHTML = `
+                <div class="screensaver-icon">⏰</div>
+                <h3>${t.screensaverReminder}</h3>
+                <p>${t.screensaverInstructions}</p>
+                <div style="font-size: 12px; color: rgba(255, 255, 255, 0.7); margin-top: 5px;">
+                    ${lang === 'es' ? 'Este mensaje desaparecerá en 5 segundos' :
+                    lang === 'ca' ? 'Aquest missatge desapareixerà en 5 segons' :
+                    lang === 'en' ? 'This message will disappear in 5 seconds' :
+                    'Ce message disparaîtra dans 5 secondes'}
+                </div>
+            `;
+            
+            // Añadir al body
+            document.body.appendChild(reminderDiv);
+            
+            // Eliminar automáticamente después de 5 segundos
+            setTimeout(() => {
+                const reminder = document.getElementById('screensaver-reminder');
+                if (reminder) {
+                    reminder.remove();
+                }
+            }, 5000);
+            
+            // Opcional: también cerrar al hacer clic
+            reminderDiv.addEventListener('click', function() {
+                this.remove();
+            });
         }
 
         // Language functions
