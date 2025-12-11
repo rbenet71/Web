@@ -1730,16 +1730,16 @@
             try {
                 switch(type) {
                     case 'warning': // 10 segundos - beep GRAVE y ALTO
-                        generateBeep(30, 0.5, 'sine'); // Cambiado de 800Hz a 300Hz (más grave)
+                        generateBeep(300, 1.5, 'square'); // Cambiado de 800Hz a 300Hz (más grave)
                         break;
                     case 'critical': // 5 segundos - beep medio
-                        generateBeep(600, 0.3, 'sine'); // Un poco más grave
+                        generateBeep(500, 0.3, 'sine'); // Un poco más grave
                         break;
                     case 'salida': // Salida - beep grave
-                        generateBeep(2000, 0.9, 'sine'); // Más grave y más largo
+                        generateBeep(800, 1.5, 'sine'); // Más grave y más largo
                         break;
                     case 'beep': // Cada segundo en últimos 5 segundos - beep corto
-                        generateBeep(500, 0.15, 'square');
+                        generateBeep(500, 0.3, 'sine');
                         break;
                 }
             } catch (error) {
