@@ -2457,6 +2457,11 @@ IDList=`;
         function renderCronoContent() {
             const cronoContent = domElements.cronoContent;
             
+            if (!cronoContent) {
+                console.error('Elemento crono-content no encontrado');
+                return;
+            }
+            
             if (appState.cronos.length === 0) {
                 cronoContent.innerHTML = '<div class="empty-state"><i class="fas fa-stopwatch"></i></div>';
                 return;
@@ -2471,26 +2476,133 @@ IDList=`;
                 
                 const t = translations[appState.currentLanguage];
                 
-                // ... (código existente para crear el panel) ...
+                const buttonText = crono.hasStarted ? t.topBtn : t.startBtn;
+                const buttonIcon = crono.hasStarted ? 'fa-flag-checkered' : 'fa-play';
+                
+                panel.innerHTML = `
+                    <div class="crono-name">
+                        <label>${t.cronoNameLabel}</label>
+                        <input type="text" value="${crono.name}" placeholder="${t.cronoNamePlaceholder}" data-index="${index}">
+                    </div>
+                    
+                    <div class="current-time">
+                        <div class="time-display">${formatTime(crono.elapsedTime)}</div>
+                    </div>
+                    
+                    <div class="crono-control-buttons">
+                        <button class="btn btn-success crono-btn" id="crono-btn-${crono.id}" data-index="${index}">
+                            <i class="fas ${buttonIcon}"></i>
+                            ${buttonText}
+                        </button>
+                    </div>
+                    
+                    <div class="tops-list">
+                        <h3><i class="fas fa-list-ol"></i> ${t.topsListTitle}</h3>
+                        ${renderTopsList(crono, index)}
+                    </div>
+                    
+                    <div class="crono-info">
+                        <div class="info-box">
+                            <h4><i class="far fa-clock"></i> ${t.startTimeLabel}</h4>
+                            <p>${crono.startTime ? new Date(crono.startTime).toLocaleTimeString() : '--:--:--'}</p>
+                        </div>
+                        <div class="info-box">
+                            <h4><i class="fas fa-map-marker-alt"></i> ${t.gpsLabel}</h4>
+                            ${renderLocationInfo(crono, t)}
+                        </div>
+                    </div>
+                `;
                 
                 cronoContent.appendChild(panel);
                 
-                // DESPUÉS de añadir el panel al DOM, cargar la ubicación
-                if (crono.location && !crono.location.error) {
-                    setTimeout(() => {
-                        loadAndDisplayLocation(
-                            crono.id, 
-                            crono.location.lat, 
-                            crono.location.lng
-                        );
-                    }, 100);
+                // Configurar eventos para este cronómetro
+                const nameInput = panel.querySelector('.crono-name input');
+                nameInput.addEventListener('change', (e) => {
+                    crono.name = e.target.value;
+                    saveCronosToStorage();
+                });
+                
+                const cronoBtn = panel.querySelector(`#crono-btn-${crono.id}`);
+                if (cronoBtn) {
+                    cronoBtn.addEventListener('click', () => {
+                        handleCronoButton(index);
+                    });
                 }
                 
-                // ... (resto del código existente) ...
+                // Cargar la información de ubicación después de renderizar
+                if (crono.location && !crono.location.error) {
+                    setTimeout(() => {
+                        loadLocationForCrono(crono.id, crono.location.lat, crono.location.lng);
+                    }, 100);
+                }
             });
+            
+            // Configurar eventos para los tops
+            setTimeout(() => {
+                document.querySelectorAll('.delete-top').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const cronoIndex = parseInt(this.getAttribute('data-crono-index'));
+                        const topIndex = parseInt(this.getAttribute('data-top-index'));
+                        
+                        // Obtener el tiempo del top para mostrar en el mensaje
+                        const crono = appState.cronos[cronoIndex];
+                        const top = crono.tops[topIndex];
+                        const topTime = formatTime(top.time);
+                        
+                        // Mensaje de confirmación según idioma
+                        const t = translations[appState.currentLanguage];
+                        let confirmMessage;
+                        
+                        switch(appState.currentLanguage) {
+                            case 'es':
+                                confirmMessage = `¿Estás seguro de que quieres eliminar el tiempo ${topTime}?`;
+                                break;
+                            case 'ca':
+                                confirmMessage = `Segur que vols eliminar el temps ${topTime}?`;
+                                break;
+                            case 'en':
+                                confirmMessage = `Are you sure you want to delete the time ${topTime}?`;
+                                break;
+                            case 'fr':
+                                confirmMessage = `Êtes-vous sûr de vouloir supprimer le temps ${topTime}?`;
+                                break;
+                            default:
+                                confirmMessage = `¿Estás seguro de que quieres eliminar el tiempo ${topTime}?`;
+                        }
+                        
+                        if (confirm(confirmMessage)) {
+                            deleteTop(cronoIndex, topIndex);
+                        }
+                    });
+                });
+                
+                // Configurar eventos para los dorsales
+                document.querySelectorAll('.top-dorsal input').forEach(input => {
+                    input.addEventListener('change', function() {
+                        const cronoIndex = parseInt(this.getAttribute('data-crono-index'));
+                        const topIndex = parseInt(this.getAttribute('data-top-index'));
+                        const dorsal = this.value;
+                        appState.cronos[cronoIndex].tops[topIndex].dorsal = dorsal;
+                        saveCronosToStorage();
+                    });
+                });
+                
+                // También configurar eventos para el sonido al pulsar Top
+                document.querySelectorAll('.crono-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        const crono = appState.cronos[index];
+                        
+                        // Si el cronómetro ya ha empezado, reproducir sonido al hacer Top
+                        if (crono.hasStarted) {
+                            playBeepSound();  // Añade esta función para el sonido
+                        }
+                    });
+                });
+                
+            }, 100);
         }
-
-
+        
         function renderTopsList(crono, cronoIndex) {
             const t = translations[appState.currentLanguage];
             
