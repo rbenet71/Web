@@ -192,9 +192,7 @@
             background-color: #1abc9c;
         }
         
-        .zero-btn {
-            grid-column: span 2;
-        }
+        /* Eliminada la clase .zero-btn ya que 0 ahora ocupa solo un espacio */
         
         .special-buttons {
             display: grid;
@@ -698,6 +696,15 @@
             margin-top: 0.4rem;
             font-style: italic;
         }
+        
+        /* Nuevo estilo para el botón de borrar un carácter */
+        .backspace-btn {
+            background-color: #9b59b6;
+        }
+        
+        .backspace-btn:hover {
+            background-color: #8e44ad;
+        }
     </style>
 </head>
 <body>
@@ -737,13 +744,13 @@
             
             <button class="clear-btn" data-clear="c">C</button>
             <button class="clear-btn" data-clear="ce">CE</button>
+            <button class="backspace-btn" data-backspace="backspace">←</button>
             <button class="operation-btn" data-operation="*">×</button>
-            <button class="operation-btn" data-operation="/">÷</button>
             
             <button data-number="7">7</button>
             <button data-number="8">8</button>
             <button data-number="9">9</button>
-            <button class="operation-btn" data-operation="%+">%+</button>
+            <button class="operation-btn" data-operation="/">÷</button>
             
             <button data-number="4">4</button>
             <button data-number="5">5</button>
@@ -755,8 +762,10 @@
             <button data-number="3">3</button>
             <button class="operation-btn" data-operation="+">+</button>
             
-            <button class="zero-btn" data-number="0">0</button>
+            <!-- Fila modificada: 0 ocupa solo un espacio, %+ se mueve debajo del 1 -->
+            <button data-number="0">0</button>
             <button data-decimal>.</button>
+            <button class="operation-btn" data-operation="%+">%+</button>
             <button class="equals-btn" data-equals>=</button>
         </div>
         
@@ -773,7 +782,7 @@
             <p>
                 <span id="copyright-text">2025 © Copyright</span>
                 <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                    Roberto Benet - rbenet71@gmail.com - V_02_12_2025
+                    Roberto Benet - rbenet71@gmail.com - V_11_12_2025
                 </a>
             </p>
         </div>
@@ -1104,7 +1113,7 @@
                     <li>Appuyez sur le bouton "Installer"</li>
                     <li>Le menu de partage s'ouvrira</li>
                     <li>Faites défiler et sélectionnez <strong>"Ajouter à l'écran d'accueil"</strong></li>
-                    <li>Appuyez sur <strong>"Ajouter"</strong> pour confirmer</li>
+                    <li>Appuyez sur <strong>"Ajouter"</strong> para confirmar</li>
                 </ol>`,
                 androidInstructionsTitle: "Installer sur Android",
                 androidInstructions: `<ol style="padding-left: 15px;">
@@ -1120,7 +1129,7 @@
                 </ol>`,
                 otherInstructionsTitle: "Installer l'App",
                 otherInstructions: `<ol style="padding-left: 15px;">
-                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Appuyez sur le botón "Installer"</li>
                     <li>Suivez les instructions de votre navigateur</li>
                 </ol>`,
                 // Textos para sugerencias
@@ -1423,7 +1432,7 @@ IDList=`;
                         url: window.location.href
                     });
                 } else {
-                    this.showMessage('⭐ ' + (currentLanguage === 'fr' ? 'Utilisez le menu de votre navigateur pour créer un raccourci' :
+                    this.showMessage('⭐ ' + (currentLanguage === 'fr' ? 'Utilisez le menu de votre navegador para crear un raccourci' :
                                            currentLanguage === 'en' ? 'Use your browser menu to create a shortcut' :
                                            currentLanguage === 'ca' ? 'Utilitza el menú del teu navegador per crear un accés directe' :
                                            'Usa el menú de tu navegador para crear un acceso directo'), false);
@@ -1756,6 +1765,11 @@ IDList=`;
                     });
                 });
                 
+                // Evento para el nuevo botón de borrar un carácter
+                document.querySelector('[data-backspace]').addEventListener('click', () => {
+                    this.handleBackspace();
+                });
+                
                 // Eventos para botones especiales
                 document.getElementById('averageBtn').addEventListener('click', () => {
                     this.showAverageModal();
@@ -1805,6 +1819,62 @@ IDList=`;
                         this.hideLapsModal();
                     }
                 });
+            }
+            
+            handleBackspace() {
+                if (this.mode === 'decimal') {
+                    // Modo decimal: eliminar el último carácter
+                    if (this.currentInput.length > 1) {
+                        this.currentInput = this.currentInput.slice(0, -1);
+                    } else {
+                        this.currentInput = '0';
+                    }
+                } else {
+                    // Modo tiempo
+                    if (this.isBuildingTime && this.currentNumber.length > 0) {
+                        // Estamos construyendo un número, eliminar el último dígito
+                        this.currentNumber = this.currentNumber.slice(0, -1);
+                        if (this.currentNumber.length === 0) {
+                            this.isBuildingTime = false;
+                            // Mostrar el tiempo actual sin el número en construcción
+                            this.currentInput = this.formatTimeInput();
+                        } else {
+                            // Mostrar el tiempo actual + el número que queda
+                            const timeDisplay = this.formatTimeInput();
+                            if (timeDisplay !== '0') {
+                                this.currentInput = timeDisplay + ' ' + this.currentNumber;
+                            } else {
+                                this.currentInput = this.currentNumber;
+                            }
+                        }
+                    } else if (this.currentInput !== '0') {
+                        // No estamos construyendo un número, eliminar el último componente de tiempo
+                        const timeStr = this.currentInput;
+                        const parts = timeStr.split(' ');
+                        
+                        if (parts.length > 0) {
+                            const lastPart = parts[parts.length - 1];
+                            const unit = lastPart.slice(-1); // 'h', 'm' o 's'
+                            const value = parseInt(lastPart.slice(0, -1));
+                            
+                            // Actualizar el valor de tiempo correspondiente
+                            if (unit === 'h') {
+                                this.timeInput.hours = 0;
+                            } else if (unit === 'm') {
+                                this.timeInput.minutes = 0;
+                            } else if (unit === 's') {
+                                this.timeInput.seconds = 0;
+                            }
+                            
+                            // Reconstruir el display
+                            this.currentInput = this.formatTimeInput();
+                        }
+                    }
+                }
+                
+                this.waitingForNewInput = false;
+                this.lastResult = null;
+                this.updateDisplay();
             }
             
             showAverageModal() {
