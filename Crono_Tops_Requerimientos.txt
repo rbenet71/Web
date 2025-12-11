@@ -51,3 +51,5 @@ y ademas que los tops se muevan con scroll para que siempre se vea el tiempo del
 
 
 formato de tiempo quier que sea si el tiempo es menor de 60segundos 10s, menos de 3600segundos 2m05s, mas de 3599 1h02m03s
+es posible que cuando mostremos las coordenadas de inicio del crono, mostremos que población y pais es?
+podemos hacer que al pulsar el boton de top haga un sonido PIIIII

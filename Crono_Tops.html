@@ -2336,6 +2336,9 @@ IDList=`;
                 return;
             }
             
+            // ¡Reproducir sonido!
+            playBeepSound();  // O playSimpleBeep() o playBeepFromFile()
+            
             const currentTime = Date.now();
             const elapsedTime = currentTime - crono.startTime;
             
@@ -3780,6 +3783,74 @@ ${coordinates.trim()}
                 container.innerHTML = `<p style="font-size: 12px; color: #e74c3c; margin: 0;">Error al obtener ubicación</p>`;
             }
         }
+
+        // Añade esta función en la sección de Utility functions
+        function playBeepSound() {
+            try {
+                // Crear contexto de audio
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                // Configurar el sonido
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.type = 'sine';  // 'sine', 'square', 'sawtooth', 'triangle'
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);  // Frecuencia en Hz (más alto = más agudo)
+                
+                // Configurar volumen (attack y release)
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.01);  // Attack rápido
+                gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.1);     // Release rápido
+                
+                // Reproducir
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);  // Duración: 0.1 segundos
+                
+                // Limpiar
+                setTimeout(() => {
+                    oscillator.disconnect();
+                    gainNode.disconnect();
+                }, 200);
+                
+            } catch (error) {
+                console.log('Error reproduciendo sonido:', error);
+                // Fallback: intentar reproducir un beep simple
+                try {
+                    // Intentar con un método alternativo
+                    const beep = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==');
+                    beep.volume = 0.2;
+                    beep.play().catch(e => console.log('Fallback beep error:', e));
+                } catch (e) {
+                    // Si todo falla, mostrar en consola
+                    console.log('Beep!');
+                }
+            }
+        }
+
+        // Opción alternativa más simple para móviles
+        function playSimpleBeep() {
+            try {
+                // Crear un oscilador simple
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                
+                oscillator.connect(audioContext.destination);
+                oscillator.type = 'square';
+                oscillator.frequency.value = 1000;  // 1000 Hz - tono agudo
+                
+                oscillator.start();
+                setTimeout(() => {
+                    oscillator.stop();
+                }, 50);  // 50ms de duración
+                
+            } catch (error) {
+                console.log('No se pudo reproducir sonido:', error);
+            }
+        }
+
+
         // Método alternativo para navegadores sin Wake Lock API
         function keepScreenAwakeAlternative() {
             if (!isRunning) return;
