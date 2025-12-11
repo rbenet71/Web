@@ -2515,7 +2515,6 @@ IDList=`;
                 
                 cronoContent.appendChild(panel);
                 
-                // Configurar eventos para este cronómetro
                 const nameInput = panel.querySelector('.crono-name input');
                 nameInput.addEventListener('change', (e) => {
                     crono.name = e.target.value;
@@ -2528,17 +2527,13 @@ IDList=`;
                         handleCronoButton(index);
                     });
                 }
-                
-                // Cargar la información de ubicación después de renderizar
-                if (crono.location && !crono.location.error) {
-                    setTimeout(() => {
-                        loadLocationForCrono(crono.id, crono.location.lat, crono.location.lng);
-                    }, 100);
-                }
             });
             
-            // Configurar eventos para los tops
             setTimeout(() => {
+
+
+
+                // En el setTimeout dentro de renderCronos() (alrededor de línea 1600)
                 document.querySelectorAll('.delete-top').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const cronoIndex = parseInt(this.getAttribute('data-crono-index'));
@@ -2575,8 +2570,11 @@ IDList=`;
                         }
                     });
                 });
+
+
+
+
                 
-                // Configurar eventos para los dorsales
                 document.querySelectorAll('.top-dorsal input').forEach(input => {
                     input.addEventListener('change', function() {
                         const cronoIndex = parseInt(this.getAttribute('data-crono-index'));
@@ -2586,23 +2584,9 @@ IDList=`;
                         saveCronosToStorage();
                     });
                 });
-                
-                // También configurar eventos para el sonido al pulsar Top
-                document.querySelectorAll('.crono-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const index = parseInt(this.getAttribute('data-index'));
-                        const crono = appState.cronos[index];
-                        
-                        // Si el cronómetro ya ha empezado, reproducir sonido al hacer Top
-                        if (crono.hasStarted) {
-                            playBeepSound();  // Añade esta función para el sonido
-                        }
-                    });
-                });
-                
             }, 100);
         }
-        
+
         function renderTopsList(crono, cronoIndex) {
             const t = translations[appState.currentLanguage];
             
@@ -2704,6 +2688,7 @@ IDList=`;
             }
         }
 
+
         function renderLocationInfo(crono, t) {
             if (!crono.location) {
                 return `<p>${t.gpsNoAvailable}</p>`;
@@ -2716,24 +2701,34 @@ IDList=`;
             const lat = crono.location.lat.toFixed(6);
             const lng = crono.location.lng.toFixed(6);
             
-            // URL solo para este punto
+            // URL solo para este punto (ubicación de inicio)
             const singlePointUrl = `https://www.google.com/maps?q=${lat},${lng}`;
             
-            // HTML básico con contenedor para ubicación
-            return `
-                <p><strong>Coordenadas:</strong> ${lat}, ${lng}</p>
-                <div id="loc-info-${crono.id}" style="margin: 5px 0; min-height: 30px;">
-                    <div style="font-size: 12px; color: #666;">
-                        <i class="fas fa-spinner fa-spin"></i> Cargando...
+            // Información de ubicación (se cargará dinámicamente)
+            let locationInfoHTML = `
+                <div class="location-details" id="location-details-${crono.id}">
+                    <div class="loading-location" style="font-size: 12px; color: #666; margin-bottom: 10px;">
+                        <i class="fas fa-spinner fa-spin"></i> Obteniendo información de ubicación...
                     </div>
                 </div>
+            `;
+            
+            // Llamar a la función para cargar la ubicación después de renderizar
+            setTimeout(() => {
+                loadLocationDetails(crono.id, lat, lng, t);
+            }, 100);
+            
+            return `
+                <p><strong>Coordenadas:</strong> ${lat}, ${lng}</p>
+                ${locationInfoHTML}
                 <a href="${singlePointUrl}" target="_blank" class="gps-link" 
-                style="display: inline-flex; align-items: center; gap: 8px; background: #3498db; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none;">
+                style="display: inline-flex; align-items: center; gap: 8px; background: #3498db; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none; margin-top: 10px;">
                     <i class="fas fa-map-marker-alt"></i>
                     <span>${t.gpsLink}</span>
                 </a>
             `;
         }
+
 
         function setActiveCrono(index) {
             appState.activeCronoIndex = index;
@@ -3705,69 +3700,89 @@ ${coordinates.trim()}
             showMessage("✅ KML generado y descargado", "success");
         }
 
-        // Poblacion y Pais
-        async function getLocationInfo(lat, lng) {
+        async function reverseGeocode(lat, lng) {
             try {
+                // Usamos Nominatim (OpenStreetMap) - Es gratis pero tiene límites
                 const response = await fetch(
                     `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`
                 );
                 
-                if (!response.ok) return null;
+                if (!response.ok) {
+                    throw new Error('Error en la geocodificación');
+                }
                 
                 const data = await response.json();
                 
                 if (data && data.address) {
+                    const address = data.address;
                     return {
-                        // Primero intentamos obtener la población
-                        poblacion: data.address.village || 
-                                data.address.town || 
-                                data.address.city || 
-                                data.address.municipality || 
-                                '',
-                        // Luego el país
-                        pais: data.address.country || ''
+                        village: address.village || address.town || address.city || address.municipality || '',
+                        city: address.city || address.town || address.municipality || address.county || '',
+                        state: address.state || '',
+                        country: address.country || '',
+                        country_code: address.country_code || '',
+                        display_name: data.display_name || '',
+                        formatted: formatAddress(address)
                     };
                 }
                 
                 return null;
             } catch (error) {
-                console.log('Error obteniendo ubicación:', error);
+                console.error('Error en geocodificación inversa:', error);
                 return null;
             }
         }
 
-        async function loadAndDisplayLocation(cronoId, lat, lng) {
-            const container = document.getElementById(`loc-info-${cronoId}`);
+        function formatAddress(address) {
+            const parts = [];
+            if (address.village) parts.push(address.village);
+            if (address.town && address.town !== address.village) parts.push(address.town);
+            if (address.city && address.city !== address.town && address.city !== address.village) parts.push(address.city);
+            if (address.state) parts.push(address.state);
+            if (address.country) parts.push(address.country);
+            
+            return parts.join(', ');
+        }
+        
+        async function loadLocationDetails(cronoId, lat, lng, t) {
+            const container = document.getElementById(`location-details-${cronoId}`);
             if (!container) return;
             
             try {
-                const location = await getLocationInfo(lat, lng);
+                const locationData = await reverseGeocode(lat, lng);
                 
                 let html = '';
-                if (location && (location.poblacion || location.pais)) {
+                if (locationData) {
                     html = `
-                        <div style="font-size: 13px; line-height: 1.4;">
-                            ${location.poblacion ? `<div><strong>Población:</strong> ${location.poblacion}</div>` : ''}
-                            ${location.pais ? `<div><strong>País:</strong> ${location.pais}</div>` : ''}
+                        <div class="location-info-box" style="background-color: #f8f9fa; padding: 10px; border-radius: 5px; border-left: 3px solid #27ae60; margin-bottom: 10px;">
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <i class="fas fa-city" style="color: #3498db; font-size: 16px; margin-top: 2px;"></i>
+                                <div>
+                                    ${locationData.city ? `<p style="margin: 0 0 3px 0; font-weight: bold;">${locationData.city}</p>` : ''}
+                                    ${locationData.village && locationData.village !== locationData.city ? 
+                                        `<p style="margin: 0 0 3px 0; font-size: 13px;">${locationData.village}</p>` : ''}
+                                    ${locationData.state ? `<p style="margin: 0 0 3px 0; font-size: 12px; color: #666;">${locationData.state}</p>` : ''}
+                                    ${locationData.country ? `
+                                        <div style="display: flex; align-items: center; gap: 5px; margin-top: 5px;">
+                                            <span style="font-size: 12px; color: #666;">${locationData.country}</span>
+                                            ${locationData.country_code ? 
+                                                `<span style="font-size: 10px; background: #eee; padding: 2px 5px; border-radius: 3px;">${locationData.country_code.toUpperCase()}</span>` : ''}
+                                        </div>` : ''}
+                                    ${locationData.formatted ? 
+                                        `<p style="margin: 5px 0 0 0; font-size: 11px; color: #888; font-style: italic; border-top: 1px solid #eee; padding-top: 5px;">${locationData.formatted}</p>` : ''}
+                                </div>
+                            </div>
                         </div>
                     `;
                 } else {
-                    html = `<div style="font-size: 12px; color: #95a5a6; font-style: italic;">
-                        Ubicación no disponible
-                    </div>`;
+                    html = `<p style="font-size: 12px; color: #95a5a6; margin: 0;">Información de ubicación no disponible</p>`;
                 }
                 
                 container.innerHTML = html;
             } catch (error) {
-                container.innerHTML = `<div style="font-size: 12px; color: #e74c3c;">
-                    Error cargando ubicación
-                </div>`;
+                container.innerHTML = `<p style="font-size: 12px; color: #e74c3c; margin: 0;">Error al obtener ubicación</p>`;
             }
         }
-
-
-
-
 
         // Añade esta función en la sección de Utility functions
         function playBeepSound() {
