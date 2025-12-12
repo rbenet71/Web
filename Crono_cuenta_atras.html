@@ -729,9 +729,10 @@
             opacity: 0.5;
         }
 
-        /* =========================================== */
-        /* PANTALLA DE EJECUCIÓN (NO MODIFICAR) */
-        /* =========================================== */
+        /* ================================================ */
+        /* PANTALLA DE EJECUCIÓN - CON ELEMENTOS PEGADOS A ESQUINAS */
+        /* ================================================ */
+
         .countdown-screen {
             display: none;
             position: fixed;
@@ -747,6 +748,7 @@
             display: block;
         }
 
+        /* Contenedor principal que centra el número */
         .countdown-container {
             display: flex;
             flex-direction: column;
@@ -756,6 +758,7 @@
             position: relative;
         }
 
+        /* Display principal de cuenta atrás - CENTRADO VERTICALMENTE */
         .countdown-display {
             font-size: 30vw;
             font-weight: 900;
@@ -768,20 +771,23 @@
             transition: all 0.3s ease;
         }
 
+        /* Texto "Próxima salida en" - CENTRADO EN ESPACIO DISPONIBLE */
         .countdown-label {
             color: white;
             text-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
             text-align: center;
             font-weight: 600;
+            box-sizing: border-box;
+            transition: opacity 0.3s ease;
             position: absolute;
-            top: 10px;
+            top: 10px; /* PEGADO AL EXTREMO SUPERIOR */
             left: 0;
             right: 0;
             z-index: 10;
             margin: 0;
-            padding: 0 120px;
-            line-height: 50px;
-            height: 50px;
+            padding: 0 120px; /* ESPACIO REDUCIDO para esquinas pegadas */
+            line-height: 50px; 
+            height: 50px; 
             display: flex;
             align-items: center;
             justify-content: center;
@@ -791,12 +797,13 @@
             text-overflow: ellipsis;
         }
 
+        /* Elementos de información en pantalla - PEGADOS A ESQUINAS */
         .info-corner {
             position: absolute;
             background-color: rgba(0, 0, 0, 0.6);
             color: white;
             padding: 8px 12px;
-            border-radius: 0;
+            border-radius: 0; /* SIN BORDES REDONDEADOS para esquinas */
             text-align: center;
             backdrop-filter: blur(10px);
             cursor: pointer;
@@ -817,6 +824,7 @@
             border-color: rgba(255, 255, 255, 0.4);
         }
 
+        /* ESQUINA SUPERIOR IZQUIERDA - PEGADA AL EXTREMO */
         .top-left {
             top: 0;
             left: 0;
@@ -824,6 +832,7 @@
             border-bottom-right-radius: 10px;
         }
 
+        /* ESQUINA INFERIOR IZQUIERDA - PEGADA AL EXTREMO */
         .bottom-left {
             bottom: 0;
             left: 0;
@@ -831,6 +840,7 @@
             border-top-right-radius: 10px;
         }
 
+        /* ESQUINA INFERIOR DERECHA - PEGADA AL EXTREMO */
         .bottom-right {
             bottom: 0;
             right: 0;
@@ -853,16 +863,17 @@
             line-height: 1.2;
         }
 
+        /* Icono de configuración - ESQUINA SUPERIOR DERECHA PEGADA */
         .config-toggle {
             position: absolute;
-            top: 0;
-            right: 0;
+            top: 0; /* PEGADO AL EXTREMO SUPERIOR */
+            right: 0; /* PEGADO AL EXTREMO DERECHO */
             background-color: rgba(0, 0, 0, 0.6);
             color: white;
             width: 50px;
             height: 50px;
-            border-radius: 0;
-            border-bottom-left-radius: 10px;
+            border-radius: 0; /* SIN BORDES REDONDEADOS */
+            border-bottom-left-radius: 10px; /* Solo esquina inferior izquierda redondeada */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -880,6 +891,7 @@
             border-color: rgba(255, 255, 255, 0.4);
         }
 
+        /* Display de SALIDA - AJUSTADO AUTOMÁTICAMENTE A LA PANTALLA */
         .salida-display {
             position: absolute;
             top: 50%;
@@ -896,9 +908,10 @@
             line-height: 1.1;
             margin: 0;
             padding: 0;
-            font-size: 20vw;
-            max-width: 90%;
-            max-height: 90%;
+            /* TAMAÑO DINÁMICO que se ajusta automáticamente */
+            font-size: 20vw; /* Tamaño base */
+            max-width: 90%; /* Nunca más del 90% del ancho */
+            max-height: 90%; /* Nunca más del 90% del alto */
             overflow: hidden;
             word-wrap: break-word;
             white-space: normal;
@@ -908,8 +921,9 @@
             width: auto;
         }
 
+        /* Clase para calcular tamaño óptimo - se añadirá con JavaScript */
         .salida-display.auto-size {
-            font-size: min(20vw, 20vh);
+            font-size: min(20vw, 20vh); /* Usa el menor entre ancho y alto */
             padding: 0 5%;
         }
 
@@ -928,6 +942,17 @@
             opacity: 1;
         }
 
+        /* Ajuste para cuando se muestra SALIDA */
+        .countdown-screen.countdown-salida-active .countdown-container {
+            justify-content: center; /* Mantiene centrado verticalmente */
+        }
+
+        .countdown-screen.countdown-salida-active .countdown-label {
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+
+        /* CORRECCIÓN: Ocultar número detrás de SALIDA */
         .countdown-screen.countdown-salida-active .countdown-display {
             display: none !important;
         }
@@ -1266,6 +1291,52 @@
                 min-width: 100%;
                 padding: 18px 30px;
             }
+            
+            /* Responsive para pantalla de ejecución */
+            .countdown-display {
+                font-size: 40vw;
+            }
+            
+            .aggressive-numbers .countdown-display {
+                font-size: 45vw !important;
+            }
+            
+            /* Texto "Próxima salida en" en móviles */
+            .countdown-label {
+                top: 0;
+                height: 45px;
+                line-height: 45px;
+                padding: 0 100px; /* Espacio reducido */
+                font-size: 5vw;
+            }
+            
+            /* Ajustes para info-corner en móviles */
+            .info-corner {
+                min-width: 140px;
+                height: 45px;
+                padding: 6px 10px;
+            }
+            
+            .config-toggle {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            
+            .info-label {
+                font-size: 10px;
+            }
+            
+            .info-value {
+                font-size: 16px;
+            }
+            
+            /* SALIDA ajustado automáticamente para móviles */
+            .salida-display {
+                font-size: min(18vw, 18vh); /* Se ajusta al menor dimension */
+                max-width: 95%;
+                max-height: 95%;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1311,6 +1382,103 @@
             .start-options {
                 flex-direction: column;
                 align-items: flex-start;
+            }
+            
+            /* Responsive para pantalla de ejecución - móviles pequeños */
+            .countdown-display {
+                font-size: 50vw;
+            }
+            
+            .aggressive-numbers .countdown-display {
+                font-size: 55vw !important;
+            }
+            
+            /* Texto "Próxima salida en" en móviles pequeños */
+            .countdown-label {
+                top: 0;
+                height: 40px;
+                line-height: 40px;
+                padding: 0 80px; /* Espacio mínimo */
+                font-size: 6vw;
+            }
+            
+            /* Ajustes para info-corner en móviles pequeños */
+            .info-corner {
+                min-width: 120px;
+                height: 40px;
+                padding: 4px 8px;
+            }
+            
+            .config-toggle {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            
+            .info-label {
+                font-size: 9px;
+                margin-bottom: 1px;
+            }
+            
+            .info-value {
+                font-size: 14px;
+            }
+            
+            /* SALIDA en móviles pequeños - ajuste más agresivo */
+            .salida-display {
+                font-size: min(16vw, 16vh);
+                max-width: 98%;
+                max-height: 98%;
+                padding: 0 3%;
+            }
+            
+            /* Ocultar texto si no cabe en pantallas muy pequeñas */
+            @media (max-width: 360px) {
+                .countdown-label {
+                    font-size: 5.5vw;
+                    padding: 0 70px;
+                }
+                
+                .info-corner {
+                    min-width: 110px;
+                    height: 35px;
+                    padding: 3px 6px;
+                }
+                
+                .config-toggle {
+                    width: 35px;
+                    height: 35px;
+                    font-size: 14px;
+                }
+                
+                .salida-display {
+                    font-size: min(14vw, 14vh);
+                    max-width: 99%;
+                }
+            }
+        }
+
+        /* Orientación horizontal específica */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .salida-display {
+                font-size: min(15vw, 15vh); /* Más pequeño en landscape */
+                max-width: 85%;
+            }
+            
+            .countdown-label {
+                height: 35px;
+                line-height: 35px;
+                font-size: 4vw;
+            }
+            
+            .info-corner {
+                height: 35px;
+            }
+            
+            .config-toggle {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
             }
         }
     </style>
@@ -1537,7 +1705,7 @@
     </main>
 
     <!-- =========================================== -->
-    <!-- PANTALLA DE EJECUCIÓN (NO MODIFICADA) -->
+    <!-- PANTALLA DE EJECUCIÓN (REDISEÑADA) -->
     <!-- =========================================== -->
     <div class="countdown-screen" id="countdown-screen">
         <div class="config-toggle" id="config-toggle">
