@@ -1136,13 +1136,38 @@
             border: 2px solid rgba(255, 255, 255, 0.1);
         }
 
+        /* CONTENEDOR */
         .modal-buttons-container {
             display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
         }
+
+        /* BOTONES */
+        .modal-buttons-container .btn {
+            width: 100% !important; /* Ocupa todo el ancho */
+            min-height: 55px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; /* Texto a la izquierda */
+            text-align: left;
+            font-size: 1rem;
+            border-radius: 8px;
+        }
+
+        /* ÍCONOS */
+        .modal-buttons-container .btn i {
+            margin-right: 12px;
+            min-width: 24px;
+            font-size: 1.1rem;
+        }
+
+
+
+
+
 
         /* =========================================== */
         /* MENSAJES DE ESTADO */
