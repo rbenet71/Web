@@ -131,7 +131,7 @@
         .app-header {
             background: linear-gradient(135deg, var(--primary) 0%, #1a2530 100%);
             color: white;
-            padding: 20px 0;
+            padding: 12px 0;
             box-shadow: var(--shadow);
             position: relative;
             overflow: hidden;
@@ -250,7 +250,7 @@
 
         .help-icon {
             color: rgba(255, 255, 255, 0.9);
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             cursor: pointer;
             transition: all 0.3s;
             padding: 8px;
@@ -268,7 +268,7 @@
         /* CONTENIDO PRINCIPAL - REDISEÑADO COMPLETO */
         /* =========================================== */
         .main-content {
-            padding: 30px 0;
+            padding: 10px 0;
             min-height: calc(100vh - 200px);
         }
 
@@ -277,7 +277,7 @@
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
             overflow: hidden;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
             border: 1px solid rgba(0, 0, 0, 0.08);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
@@ -288,14 +288,14 @@
         }
 
         .card-header {
-            padding: 25px 30px;
+            padding: 2px 10px;
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             border-bottom: 1px solid #e9ecef;
         }
 
         .card-header h2 {
             color: var(--primary);
-            font-size: 1.6rem;
+            font-size: 1.2rem;
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -305,7 +305,7 @@
 
         .card-header h2 i {
             color: var(--secondary);
-            font-size: 1.4rem;
+            font-size: 1.2rem;
         }
 
         .card-body {
@@ -316,7 +316,7 @@
         /* SECCIONES DE CONFIGURACIÓN - ORGANIZADAS */
         /* =========================================== */
         .config-section {
-            margin-bottom: 35px;
+            margin-bottom: 10px;
         }
 
         .section-title {
@@ -552,21 +552,30 @@
             gap: 15px;
             align-items: center;
             width: 100%;
-        align-items: stretch;
         }
 
+        /* El select ocupará una fila completa cuando esté solo */
         .race-selector select {
-            flex: 1 1 300px; /* Crece, encoge, mínimo 300px */
-            min-width: 200px; /* Ancho mínimo */
-            max-width: 100%; /* Nunca más ancho que el contenedor */
+            flex: 1 1 100%;
+            min-width: 200px;
         }
 
+        /* Los botones se colocarán en la misma fila si hay espacio */
         .race-selector .btn {
-            flex: 0 0 auto; /* Tamaño fijo según contenido */
-            white-space: nowrap; /* Texto en una línea */
-            min-width: 100px; /* Ancho mínimo para botones */
-            width: 100%;
+            flex: 0 0 auto;
+            white-space: nowrap;
+            max-width: calc(100% - 250px);
         }
+
+        #new-race-btn span, #delete-race-btn span {
+            font-size: clamp(0.7rem, 2vw, 1rem);
+            display: inline-block;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
 
         /* =========================================== */
         /* TARJETA DE CONFIGURACIÓN DE TIEMPOS */
@@ -658,7 +667,7 @@
         .start-main-btn {
             min-width: 300px;
             padding: 22px 50px;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             background: linear-gradient(135deg, var(--success) 0%, var(--secondary) 100%);
             position: relative;
             overflow: hidden;
@@ -1636,14 +1645,8 @@
                 </div>
                 <div class="card-body">
                     <div class="config-section">
-                        <div class="section-title">
-                            <i class="fas fa-list"></i>
-                            <span id="race-management-title">Selección de carrera</span>
-                        </div>
                         <div class="form-group">
                             <div class="form-row">
-                                <label for="race-select" class="form-label" id="race-select-label">Carrera actual:</label>
-                                <div class="race-selector">
                                     <select id="race-select" class="form-control">
                                         <option value="">-- Selecciona una carrera --</option>
                                     </select>
@@ -1669,10 +1672,6 @@
                 </div>
                 <div class="card-body">
                     <div class="config-section">
-                        <div class="section-title">
-                            <i class="fas fa-sliders-h"></i>
-                            <span id="cadence-title">Cadencia de salida</span>
-                        </div>
                         <div class="time-mode-selector">
                             <button class="btn btn-primary mode-btn" id="same-interval-btn">
                                 <i class="fas fa-equals"></i>
@@ -1789,10 +1788,6 @@
                 <div class="card-body">
                     <div class="config-section">
                         <div class="departures-header">
-                            <div class="section-title">
-                                <i class="fas fa-clipboard-list"></i>
-                                <span id="departures-label">Historial de salidas</span>
-                            </div>
                             <div class="btn-group">
                                 <button class="btn btn-danger" id="clear-departures-btn">
                                     <i class="fas fa-broom"></i>
@@ -2124,12 +2119,10 @@
             es: {
                 appTitle: "Crono Cuenta Atrás",
                 languagesLabel: "Idioma / Language",
-                cardRaceTitle: "Gestión de Carrera",
-                raceManagementTitle: "Selección de carrera",
-                raceSelectLabel: "Carrera actual:",
+                cardRaceTitle: "Selección de carrera",
                 newRaceText: "Nueva",
                 deleteRaceText: "Eliminar",
-                cardTimeTitle: "Configuración de Tiempos",
+                cardTimeTitle: "Cadencia de salida",
                 cadenceTitle: "Cadencia de salida",
                 sameIntervalText: "Siempre igual",
                 variableIntervalText: "Varios tramos",
@@ -2143,8 +2136,7 @@
                 startFromLabel: "Iniciar desde",
                 startFromZeroText: "Comenzar desde el corredor 1",
                 startFromXText: "O desde la posición:",
-                cardDeparturesTitle: "Salidas Registradas",
-                departuresLabel: "Historial de salidas",
+                cardDeparturesTitle: "Historial de salidas",
                 clearDeparturesText: "Limpiar lista",
                 exportExcelText: "Exportar Excel",
                 startCountdownText: "INICIAR CUENTA ATRÁS",
@@ -2202,12 +2194,10 @@
             ca: {
                 appTitle: "Crono Compte Enrere",
                 languagesLabel: "Idioma / Language",
-                cardRaceTitle: "Gestió de Cursa",
-                raceManagementTitle: "Selecció de cursa",
-                raceSelectLabel: "Cursa actual:",
+                cardRaceTitle: "Selecció de cursa",
                 newRaceText: "Nova",
                 deleteRaceText: "Eliminar",
-                cardTimeTitle: "Configuració de Temps",
+                cardTimeTitle: "Cadència de sortida",
                 cadenceTitle: "Cadència de sortida",
                 sameIntervalText: "Sempre igual",
                 variableIntervalText: "Diversos trams",
@@ -2221,8 +2211,7 @@
                 startFromLabel: "Iniciar des de",
                 startFromZeroText: "Començar des del corredor 1",
                 startFromXText: "O des de la posició:",
-                cardDeparturesTitle: "Sortides Registrades",
-                departuresLabel: "Historial de sortides",
+                cardDeparturesTitle: "Historial de sortides",
                 clearDeparturesText: "Netejar llista",
                 exportExcelText: "Exportar Excel",
                 startCountdownText: "INICIAR COMPTE ENRERE",
@@ -2280,12 +2269,11 @@
             en: {
                 appTitle: "Countdown Timer",
                 languagesLabel: "Language / Idioma",
-                cardRaceTitle: "Race Management",
-                raceManagementTitle: "Race selection",
-                raceSelectLabel: "Current race:",
+                cardRaceTitle: "Race selection",
+
                 newRaceText: "New",
                 deleteRaceText: "Delete",
-                cardTimeTitle: "Time Configuration",
+                cardTimeTitle: "Start cadence",
                 cadenceTitle: "Start cadence",
                 sameIntervalText: "Always the same",
                 variableIntervalText: "Multiple intervals",
@@ -2299,8 +2287,7 @@
                 startFromLabel: "Start from",
                 startFromZeroText: "Start from racer 1",
                 startFromXText: "Or from position:",
-                cardDeparturesTitle: "Recorded Starts",
-                departuresLabel: "Starts history",
+                cardDeparturesTitle: "Starts history",
                 clearDeparturesText: "Clear list",
                 exportExcelText: "Export Excel",
                 startCountdownText: "START COUNTDOWN",
@@ -2358,12 +2345,10 @@
             fr: {
                 appTitle: "Compte à Rebours",
                 languagesLabel: "Langue / Language",
-                cardRaceTitle: "Gestion de Course",
-                raceManagementTitle: "Sélection de course",
-                raceSelectLabel: "Course actuelle:",
+                cardRaceTitle: "Sélection de course",
                 newRaceText: "Nouvelle",
                 deleteRaceText: "Supprimer",
-                cardTimeTitle: "Configuration des Temps",
+                cardTimeTitle: "Cadence de départ",
                 cadenceTitle: "Cadence de départ",
                 sameIntervalText: "Toujours égal",
                 variableIntervalText: "Plusieurs intervalles",
@@ -2377,8 +2362,7 @@
                 startFromLabel: "Démarrer depuis",
                 startFromZeroText: "Démarrer depuis le coureur 1",
                 startFromXText: "Ou depuis la position:",
-                cardDeparturesTitle: "Départs Enregistrés",
-                departuresLabel: "Historique des départs",
+                cardDeparturesTitle: "Historique des départs",
                 clearDeparturesText: "Effacer liste",
                 exportExcelText: "Exporter Excel",
                 startCountdownText: "DÉMARRER COMPTE À REBOURS",
@@ -2622,12 +2606,9 @@
             document.getElementById('app-title-text').textContent = t.appTitle;
             document.getElementById('languages-label').textContent = t.languagesLabel;
             document.getElementById('card-race-title').textContent = t.cardRaceTitle;
-            document.getElementById('race-management-title').textContent = t.raceManagementTitle;
-            document.getElementById('race-select-label').textContent = t.raceSelectLabel;
             document.getElementById('new-race-text').textContent = t.newRaceText;
             document.getElementById('delete-race-text').textContent = t.deleteRaceText;
             document.getElementById('card-time-title').textContent = t.cardTimeTitle;
-            document.getElementById('cadence-title').textContent = t.cadenceTitle;
             document.getElementById('same-interval-text').textContent = t.sameIntervalText;
             document.getElementById('variable-interval-text').textContent = t.variableIntervalText;
             document.getElementById('interval-time-label').textContent = t.intervalTimeLabel;
@@ -2641,7 +2622,6 @@
             document.getElementById('start-from-zero-text').textContent = t.startFromZeroText;
             document.getElementById('start-from-x-text').textContent = t.startFromXText;
             document.getElementById('card-departures-title').textContent = t.cardDeparturesTitle;
-            document.getElementById('departures-label').textContent = t.departuresLabel;
             document.getElementById('clear-departures-text').textContent = t.clearDeparturesText;
             document.getElementById('export-excel-text').textContent = t.exportExcelText;
             document.getElementById('start-countdown-text').textContent = t.startCountdownText;
@@ -2709,7 +2689,7 @@
 
         function renderRacesSelect() {
             const select = document.getElementById('race-select');
-            select.innerHTML = '<option value="">-- ' + translations[appState.currentLanguage].raceSelectLabel + ' --</option>';
+            select.innerHTML = '<option value="">-- '+ ' --</option>';
             
             appState.races.forEach((race, index) => {
                 const option = document.createElement('option');
