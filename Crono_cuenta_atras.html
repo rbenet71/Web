@@ -990,25 +990,23 @@
         }
 
         .footer-left {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Ajusta automáticamente */
+            gap: 10px;
+            width: 100%;
         }
 
         .footer-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 12px 20px;
-            border-radius: var(--border-radius);
-            cursor: pointer;
+            width: 100%;
+            min-height: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-            min-height: 48px;
+            text-align: center;
+            white-space: nowrap;
+            background: rgba(255, 0, 200, 0.2);
+            color: white;
+            pad: 10px
         }
 
         .footer-btn:hover {
