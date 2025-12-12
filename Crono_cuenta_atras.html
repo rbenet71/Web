@@ -112,10 +112,10 @@
 
         /* Clase para números agresivos en últimos 5 segundos - VERSIÓN ORIGINAL */
         .aggressive-numbers .countdown-display {
-            animation: aggressive-pulse 0.5s infinite !important;
+            animation: aggressive-pulse 0.5s infinite ;
             font-size: 35vw !important;
             color: #ff0000 !important;
-            text-shadow: 0 0 30px rgba(255, 0, 0, 0.9) !important;
+            text-shadow: 0 0 30px rgba(255, 0, 0, 0.9);
             transition: all 0.3s ease !important;
         }
 
@@ -552,7 +552,7 @@
             gap: 15px;
             align-items: center;
             width: 100%;
-            align-items: stretch;
+        align-items: stretch;
         }
 
         .race-selector select {
@@ -754,7 +754,6 @@
             height: 100vh;
             z-index: 1000;
             transition: background-color 0.5s ease;
-
         }
 
         .countdown-screen.active {
@@ -773,8 +772,8 @@
 
         /* Display principal de cuenta atrás - CENTRADO VERTICALMENTE */
         .countdown-display {
-            font-size: 80vw;
-            font-weight: 600;
+            font-size: 30vw;
+            font-weight: 900;
             color: white;
             text-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
             font-variant-numeric: tabular-nums;
@@ -2529,6 +2528,10 @@
             
             setupPWA();
             
+            // NUEVO: Inicializar ajuste de tamaño
+            setupCountdownResize();
+            adjustCountdownSize(); // Ajustar tamaño inicial
+
             document.addEventListener('click', initAudioOnInteraction);
             document.addEventListener('keydown', initAudioOnInteraction);
             
@@ -2649,7 +2652,7 @@
             document.getElementById('suggestions-text').textContent = t.suggestionsText;
             document.getElementById('install-text').textContent = t.installText;
             document.getElementById('update-text').textContent = t.updateText;
-            document.getElementById('copyright-text').innerHTML = `2025 © Copyright <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">Roberto Benet - rbenet71@gmail.com - V_12_12_2025</a>`;
+            document.getElementById('copyright-text').innerHTML = `2025 © Copyright <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">Roberto Benet - rbenet71@gmail.com - Va_12_12_2025</a>`;
             
             document.querySelectorAll('.flag').forEach(flag => {
                 flag.classList.remove('active');
@@ -2972,6 +2975,7 @@
             }
             
             updateNextCorredorDisplay();
+            adjustCountdownSize();
         }
 
         function handleCountdownZero() {
@@ -3764,6 +3768,78 @@
                 document.getElementById('start-countdown-btn').click();
             }
         });
+        // Función para ajustar tamaño del contador
+function adjustCountdownSize() {
+    const display = document.getElementById('countdown-display');
+    if (!display) return;
+    
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const text = display.textContent;
+    const isAggressive = document.getElementById('countdown-screen').classList.contains('aggressive-numbers');
+    
+    // Determinar tamaño óptimo
+    let fontSize;
+    
+    // Priorizar la dimensión más pequeña para evitar desbordamiento
+    const minDimension = Math.min(screenWidth, screenHeight);
+    
+    if (isAggressive) {
+        // Modo agresivo (últimos 5 segundos) - más grande
+        if (minDimension < 400) {
+            fontSize = minDimension * 0.35; // 35% en móviles pequeños
+        } else if (minDimension < 768) {
+            fontSize = minDimension * 0.30; // 30% en móviles
+        } else if (minDimension < 1024) {
+            fontSize = minDimension * 0.25; // 25% en tablets
+        } else {
+            fontSize = minDimension * 0.20; // 20% en desktop
+        }
+    } else {
+        // Modo normal
+        if (minDimension < 400) {
+            fontSize = minDimension * 0.30; // 30% en móviles pequeños
+        } else if (minDimension < 768) {
+            fontSize = minDimension * 0.25; // 25% en móviles
+        } else if (minDimension < 1024) {
+            fontSize = minDimension * 0.20; // 20% en tablets
+        } else {
+            fontSize = minDimension * 0.15; // 15% en desktop
+        }
+    }
+    
+    // Limitar tamaño mínimo y máximo
+    fontSize = Math.max(80, Math.min(fontSize, 500));
+    
+    // Aplicar tamaño
+    display.style.fontSize = `${fontSize}px`;
+    
+    // Ajustar también el contenedor si es necesario
+    display.style.lineHeight = `${fontSize * 0.9}px`;
+}
+
+// Llamar a la función en eventos relevantes
+function setupCountdownResize() {
+    // Al cargar
+    window.addEventListener('load', adjustCountdownSize);
+    
+    // Al redimensionar
+    window.addEventListener('resize', adjustCountdownSize);
+    
+    // Al cambiar orientación
+    window.addEventListener('orientationchange', adjustCountdownSize);
+    
+    // También después de cada actualización del contador
+    const originalUpdateCountdownDisplay = window.updateCountdownDisplay;
+    window.updateCountdownDisplay = function() {
+        if (originalUpdateCountdownDisplay) {
+            originalUpdateCountdownDisplay();
+        }
+        adjustCountdownSize();
+    };
+}
+
+        
     </script>
 
     <!-- Script para XLSX -->
