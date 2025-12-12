@@ -547,26 +547,32 @@
         }
 
         .race-selector {
-                display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
             align-items: center;
+            width: 100%;
+        align-items: stretch;
         }
 
         .race-selector select {
             flex: 1 1 300px; /* Crece, encoge, mínimo 300px */
             min-width: 200px; /* Ancho mínimo */
-            max-width: 00px; /* Ancho máximo */
+            max-width: 100%; /* Nunca más ancho que el contenedor */
+        }
+
+        .race-selector .btn {
+            flex: 0 0 auto; /* Tamaño fijo según contenido */
+            white-space: nowrap; /* Texto en una línea */
+            min-width: 100px; /* Ancho mínimo para botones */
+            width: 100%;
         }
 
         /* =========================================== */
         /* TARJETA DE CONFIGURACIÓN DE TIEMPOS */
         /* =========================================== */
         .time-config-card {
-            border-left: 5px solid var(--success);
-            
+            border-left: 5px solid var(--success); 
         }
 
         .time-mode-selector {
@@ -998,6 +1004,9 @@
             width: 100%;
         }
 
+        /* =========================================== */
+        /* BOTONES DEL FOOTER - ESTILO UNIFICADO */
+        /* =========================================== */
         .footer-btn {
             width: 100%;
             min-height: 48px;
@@ -1006,15 +1015,87 @@
             justify-content: center;
             text-align: center;
             white-space: nowrap;
-            background: rgba(255, 0, 200, 0.2);
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); /* Color morado elegante */
             color: white;
-            pad: 10px
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+        }
+
+        .footer-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        .footer-btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
         }
 
         .footer-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-            border-color: rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, #8e44ad 0%, #732d91 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(155, 89, 182, 0.4);
+        }
+
+        .footer-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .footer-btn i {
+            font-size: 1.1rem;
+        }
+
+        /* Para mantener la disposición grid del footer */
+        .footer-left {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            width: 100%;
+        }
+
+        /* Versión para móviles */
+        @media (max-width: 768px) {
+            .footer-btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+                min-height: 44px;
+            }
+            
+            .footer-left {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-btn {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+                min-height: 40px;
+            }
+            
+            .footer-left {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
         }
 
         .copyright {
