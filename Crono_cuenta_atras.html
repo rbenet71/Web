@@ -546,34 +546,56 @@
             border-left: 5px solid var(--secondary);
         }
 
+        /* =========================================== */
+        /* TARJETA DE GESTIÓN DE CARRERA - CORREGIDO */
+        /* =========================================== */
         .race-selector {
             display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
             align-items: center;
-            width: 100%;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            gap: 10px;
+            flex-wrap: nowrap; /* Evita que se rompa en varias líneas */
         }
 
-        /* El select ocupará una fila completa cuando esté solo */
+        /* El select ocupará el espacio disponible */
         .race-selector select {
-            flex: 1 1 100%;
-            min-width: 200px;
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            min-width: 200px; /* Ancho mínimo para el select */
         }
 
-        /* Los botones se colocarán en la misma fila si hay espacio */
+        /* Los botones mantienen su tamaño fijo */
         .race-selector .btn {
             flex: 0 0 auto;
             white-space: nowrap;
-            max-width: calc(100% - 250px);
+            min-width: 100px; /* Ancho mínimo para los botones */
+        }
+
+        /* Ajuste para pantallas pequeñas */
+        @media (max-width: 768px) {
+            .race-selector {
+                flex-wrap: wrap; /* Permite que se envuelva en móviles */
+            }
+            
+            .race-selector select {
+                min-width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .race-selector .btn {
+                flex: 1;
+                min-width: calc(50% - 5px);
+            }
         }
 
         #new-race-btn span, #delete-race-btn span {
             font-size: clamp(0.7rem, 2vw, 1rem);
-            display: inline-block;
-            max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
 
@@ -1643,25 +1665,18 @@
                 <div class="card-header">
                     <h2><i class="fas fa-flag-checkered"></i> <span id="card-race-title">Gestión de Carrera</span></h2>
                 </div>
-                <div class="card-body">
-                    <div class="config-section">
-                        <div class="form-group">
-                            <div class="form-row">
-                                    <select id="race-select" class="form-control">
-                                        <option value="">-- Selecciona una carrera --</option>
-                                    </select>
-                                    <button class="btn btn-primary" id="new-race-btn">
-                                        <i class="fas fa-plus"></i>
-                                        <span id="new-race-text">Nueva</span>
-                                    </button>
-                                    <button class="btn btn-danger" id="delete-race-btn">
-                                        <i class="fas fa-trash"></i>
-                                        <span id="delete-race-text">Eliminar</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="race-selector">
+                    <select id="race-select" class="form-control">
+                        <option value="">-- Selecciona una carrera --</option>
+                    </select>
+                    <button class="btn btn-primary" id="new-race-btn">
+                        <i class="fas fa-plus"></i>
+                        <span id="new-race-text">Nueva</span>
+                    </button>
+                    <button class="btn btn-danger" id="delete-race-btn">
+                        <i class="fas fa-trash"></i>
+                        <span id="delete-race-text">Eliminar</span>
+                    </button>
                 </div>
             </div>
 
