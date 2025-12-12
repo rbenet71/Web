@@ -602,25 +602,52 @@
         /* =========================================== */
         /* TARJETA DE CONFIGURACIÓN DE TIEMPOS */
         /* =========================================== */
+
         .time-config-card {
             border-left: 5px solid var(--success); 
         }
 
-        .time-mode-selector {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
+/* =========================================== */
+/* TARJETA DE CONFIGURACIÓN DE TIEMPOS - CORREGIDO */
+/* =========================================== */
 
-        .mode-btn {
-            flex: 1;
-            min-width: 200px;
-        }
+.time-mode-selector {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: var(--light-gray);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    flex-wrap: nowrap; /* Evita que se envuelvan */
+    justify-content: space-between; /* Distribuye el espacio entre botones */
+    gap: 10px; /* Espacio entre botones */
+}
 
+.mode-btn {
+    white-space: nowrap;
+    flex: 1; /* Ocupa espacio disponible igualmente */
+    min-width: 0; /* Permite que se ajuste al contenedor */
+    margin: 0; /* Sin márgenes externos */
+    font-size: clamp(0.8rem, 2vw, 1rem);
+    padding: 12px 15px;
+    text-align: center;
+}
+
+/* Para pantallas muy pequeñas */
+@media (max-width: 480px) {
+    .time-mode-selector {
+        flex-direction: column; /* Apila los botones verticalmente */
+        gap: 8px;
+    }
+    
+    .mode-btn {
+        width: 100%; /* Ocupa todo el ancho */
+        flex: none; /* Resetea flex */
+    }
+}
         .time-inputs {
             background: #f8f9fa;
-            padding: 25px;
+            padding: 2px;
             border-radius: var(--border-radius);
             border: 1px dashed #dee2e6;
         }
@@ -1281,11 +1308,6 @@
             font-size: 1.1rem;
         }
 
-
-
-
-
-
         /* =========================================== */
         /* MENSAJES DE ESTADO */
         /* =========================================== */
@@ -1411,7 +1433,7 @@
             }
             
             .card-body {
-                padding: 20px;
+                padding: 10px;
             }
             
             .modal-content {
@@ -1697,7 +1719,6 @@
                                 <span id="variable-interval-text">Varios tramos</span>
                             </button>
                         </div>
-
                         <!-- Configuración de intervalo único -->
                         <div id="single-interval-config" class="time-inputs">
                             <div class="form-group">
@@ -2139,8 +2160,8 @@
                 deleteRaceText: "Eliminar",
                 cardTimeTitle: "Cadencia de salida",
                 cadenceTitle: "Cadencia de salida",
-                sameIntervalText: "Siempre igual",
-                variableIntervalText: "Varios tramos",
+                sameIntervalText: "Igual",
+                variableIntervalText: "Por Tramos",
                 intervalTimeLabel: "Tiempo entre salidas",
                 minutesText: "minutos",
                 secondsText: "segundos",
@@ -2214,8 +2235,8 @@
                 deleteRaceText: "Eliminar",
                 cardTimeTitle: "Cadència de sortida",
                 cadenceTitle: "Cadència de sortida",
-                sameIntervalText: "Sempre igual",
-                variableIntervalText: "Diversos trams",
+                sameIntervalText: "Igual",
+                variableIntervalText: "Per Trams",
                 intervalTimeLabel: "Temps entre sortides",
                 minutesText: "minuts",
                 secondsText: "segons",
@@ -2290,8 +2311,8 @@
                 deleteRaceText: "Delete",
                 cardTimeTitle: "Start cadence",
                 cadenceTitle: "Start cadence",
-                sameIntervalText: "Always the same",
-                variableIntervalText: "Multiple intervals",
+                sameIntervalText: "The Same",
+                variableIntervalText: "By Intervals",
                 intervalTimeLabel: "Time between starts",
                 minutesText: "minutes",
                 secondsText: "seconds",
@@ -2365,8 +2386,8 @@
                 deleteRaceText: "Supprimer",
                 cardTimeTitle: "Cadence de départ",
                 cadenceTitle: "Cadence de départ",
-                sameIntervalText: "Toujours égal",
-                variableIntervalText: "Plusieurs intervalles",
+                sameIntervalText: "égal",
+                variableIntervalText: "intervalles",
                 intervalTimeLabel: "Temps entre départs",
                 minutesText: "minutes",
                 secondsText: "secondes",
