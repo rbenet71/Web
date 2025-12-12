@@ -548,13 +548,15 @@
 
         .race-selector {
             display: flex;
+            flex-wrap: wrap;
             gap: 15px;
             align-items: center;
         }
 
         .race-selector select {
-            flex: 1;
-            max-width: 400px;
+            flex: 1 1 300px; /* Crece, encoge, mínimo 300px */
+            min-width: 100px; /* Ancho mínimo */
+            max-width: 00px; /* Ancho máximo */
         }
 
         /* =========================================== */
@@ -562,12 +564,14 @@
         /* =========================================== */
         .time-config-card {
             border-left: 5px solid var(--success);
+            
         }
 
         .time-mode-selector {
             display: flex;
             gap: 15px;
             margin-bottom: 25px;
+            flex-wrap: wrap;
         }
 
         .mode-btn {
@@ -978,6 +982,7 @@
 
         .footer-content {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
