@@ -547,6 +547,8 @@
         }
 
         .race-selector {
+                display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
@@ -555,7 +557,7 @@
 
         .race-selector select {
             flex: 1 1 300px; /* Crece, encoge, mínimo 300px */
-            min-width: 100px; /* Ancho mínimo */
+            min-width: 200px; /* Ancho mínimo */
             max-width: 00px; /* Ancho máximo */
         }
 
