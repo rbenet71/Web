@@ -79,3 +79,8 @@ el botón de reiniciar/Salir completamente ha de estar solo en pantalla inicial 
 En Punto de inicio ponerlo despues del boton iniciar cuenta antras, y solo ha de indicar posición actual editable (ni titulo ni boton), por defecto es 1 y mientras no se de a reiniciar o nueva carrera mantendra el contador que salidos.
 
 En historial de salida, deben ser 3 columnas que se puedan ordenadar poe ellas, columna 1 - número de salido, hora y anotación, Estos tres campos se exportaran en el excel.
+
+
+----------------
+
+posibilidad de rerpoducir audio o beep y por idiomas.
