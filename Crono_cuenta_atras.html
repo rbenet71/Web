@@ -2843,7 +2843,7 @@
                 createRace: "Créer course",
                 sendSuggestion: "Envoyer",
                 clear: "Nettoyer",
-                restartConfirm: "Oui, redémarrer complètement",
+                restartConfirm: "Oui, redémarrer completement",
                 selectRaceFirst: "Veuillez sélectionner une course d'abord",
                 countdownStarted: "Compte à rebours démarré",
                 countdownStopped: "Compte à rebours arrêté",
@@ -2950,13 +2950,12 @@
             loadLanguagePreference();
             loadRacesFromStorage();
             loadAppState();
-            loadDeparturesFromStorage(); // Cambiada para cargar salidas
+            loadDeparturesFromStorage();
             loadIntervalConfig();
             
             updateLanguageUI();
-            setupEventListeners();
             renderRacesSelect();
-            setupSorting(); // Nueva función para ordenación
+            setupSorting();
             
             setInterval(updateTotalTime, 1000);
             
@@ -2965,10 +2964,13 @@
             setupCountdownResize();
             adjustCountdownSize();
             
+            switchToSingleMode();
+            
+            // IMPORTANTE: Configurar eventos
+            setupEventListeners();
+            
             document.addEventListener('click', initAudioOnInteraction);
             document.addEventListener('keydown', initAudioOnInteraction);
-            
-            switchToSingleMode();
             
             console.log("Aplicación inicializada.");
         }
@@ -3008,7 +3010,6 @@
                 appState.raceStartTime = null;
                 appState.countdownPaused = false;
                 
-                // Actualizar campo de posición
                 document.getElementById('start-position').value = appState.departedCount + 1;
                 
                 console.log("Estado cargado, salidos:", appState.departedCount);
@@ -3049,13 +3050,19 @@
         }
 
         function saveDeparturesToStorage() {
-            localStorage.setItem('countdown-departures', JSON.stringify(
-                appState.departureTimes.map(d => ({
+            try {
+                const dataToSave = appState.departureTimes.map(d => ({
                     corredor: d.corredor,
                     timestamp: d.timestamp,
-                    notes: d.notes || ''
-                }))
-            ));
+                    notes: d.notes || '',
+                    editing: false
+                }));
+                
+                localStorage.setItem('countdown-departures', JSON.stringify(dataToSave));
+                console.log("Datos guardados en localStorage:", dataToSave.length, "registros");
+            } catch (error) {
+                console.error("Error guardando datos:", error);
+            }
         }
 
         function saveRacesToStorage() {
@@ -3069,7 +3076,6 @@
             const lang = appState.currentLanguage;
             const t = translations[lang];
 
-            // Actualizar textos principales
             document.getElementById('app-title-text').textContent = t.appTitle;
             document.getElementById('languages-label').textContent = t.languagesLabel;
             document.getElementById('card-race-title').textContent = t.cardRaceTitle;
@@ -3085,7 +3091,6 @@
             document.getElementById('to-text').textContent = t.toText;
             document.getElementById('add-interval-text').textContent = t.addIntervalText;
             
-            // Actualizar posición actual
             document.getElementById('start-from-x-text').textContent = t.currentPositionText;
             
             document.getElementById('card-departures-title').textContent = t.cardDeparturesTitle;
@@ -3100,7 +3105,7 @@
             document.getElementById('suggestions-text').textContent = t.suggestionsText;
             document.getElementById('install-text').textContent = t.installText;
             document.getElementById('update-text').textContent = t.updateText;
-            document.getElementById('copyright-text').innerHTML = `2025 © Copyright <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">Roberto Benet - rbenet71@gmail.com - V_13_12_2025</a>`;
+            document.getElementById('copyright-text').innerHTML = `2025 © Copyright <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">Roberto Benet - rbenet71@gmail.com</a>`;
             
             document.querySelectorAll('.flag').forEach(flag => {
                 flag.classList.remove('active');
@@ -3185,7 +3190,8 @@
             const departure = {
                 corredor: appState.departedCount,
                 timestamp: Date.now(),
-                notes: '' // Nuevo campo para anotaciones
+                notes: '',
+                editing: false
             };
             
             appState.departureTimes.push(departure);
@@ -3211,7 +3217,6 @@
             
             emptyState.style.display = 'none';
             
-            // Ordenar las salidas
             const sortedDepartures = [...appState.departureTimes].sort((a, b) => {
                 let valueA, valueB;
                 
@@ -3240,12 +3245,21 @@
                 }
             });
             
-            // Renderizar las filas
             tableBody.innerHTML = '';
             
-            sortedDepartures.forEach((departure, index) => {
+            // Necesitamos un mapeo de índices ordenados a índices reales
+            const indexMap = sortedDepartures.map(sortedItem => 
+                appState.departureTimes.findIndex(originalItem => 
+                    originalItem.corredor === sortedItem.corredor && 
+                    originalItem.timestamp === sortedItem.timestamp
+                )
+            );
+            
+            sortedDepartures.forEach((departure, sortedIndex) => {
+                const realIndex = indexMap[sortedIndex];
+                
                 const row = document.createElement('tr');
-                row.setAttribute('data-index', index);
+                row.setAttribute('data-index', realIndex); // Guardar el índice REAL
                 
                 const time = new Date(departure.timestamp);
                 const timeStr = time.toLocaleTimeString();
@@ -3254,16 +3268,16 @@
                 row.innerHTML = `
                     <td class="departure-number-cell">${departure.corredor}</td>
                     <td class="departure-time-cell">${dateStr} ${timeStr}</td>
-                    <td class="departure-notes-cell" id="notes-cell-${index}">
+                    <td class="departure-notes-cell" id="notes-cell-${realIndex}">
                         ${departure.editing ? 
                             `<div class="notes-edit-container">
-                                <textarea class="departure-notes-input" id="notes-input-${index}" rows="2">${departure.notes || ''}</textarea>
+                                <textarea class="departure-notes-input" id="notes-input-${realIndex}" rows="2">${departure.notes || ''}</textarea>
                                 <div class="notes-buttons">
-                                    <button class="save-notes-btn" data-index="${index}">Guardar</button>
-                                    <button class="cancel-notes-btn" data-index="${index}">Cancelar</button>
+                                    <button class="save-notes-btn" data-index="${realIndex}">Guardar</button>
+                                    <button class="cancel-notes-btn" data-index="${realIndex}">Cancelar</button>
                                 </div>
                             </div>` :
-                            `<div class="departure-notes-display ${!departure.notes ? 'empty' : ''}" data-index="${index}">
+                            `<div class="departure-notes-display ${!departure.notes ? 'empty' : ''}" data-index="${realIndex}">
                                 ${departure.notes || 'Haz clic para añadir nota...'}
                             </div>`
                         }
@@ -3272,15 +3286,13 @@
                 
                 tableBody.appendChild(row);
                 
-                // Configurar eventos para esta fila
                 if (departure.editing) {
-                    setupEditingMode(index);
+                    setupEditingMode(realIndex);
                 } else {
-                    setupDisplayMode(index);
+                    setupDisplayMode(realIndex);
                 }
             });
             
-            // Actualizar indicadores de ordenación
             updateSortIndicators();
         }
 
@@ -3305,17 +3317,13 @@
                 inputElement.focus();
                 inputElement.select();
                 
-                // Guardar al perder foco
                 inputElement.addEventListener('blur', function() {
                     const idx = parseInt(this.id.split('-')[2]);
-                    if (!appState.departureTimes[idx].saving) {
-                        saveNotes(idx);
-                    }
+                    saveNotes(idx);
                 });
                 
-                // Guardar al presionar Enter (permitir nueva línea con Ctrl+Enter)
                 inputElement.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter' && !e.ctrlKey) {
+                    if ((e.key === 'Enter' && e.ctrlKey) || (e.key === 'Enter' && !e.shiftKey)) {
                         e.preventDefault();
                         const idx = parseInt(this.id.split('-')[2]);
                         saveNotes(idx);
@@ -3325,6 +3333,7 @@
             
             if (saveButton) {
                 saveButton.addEventListener('click', function(e) {
+                    e.preventDefault();
                     e.stopPropagation();
                     const idx = parseInt(this.getAttribute('data-index'));
                     saveNotes(idx);
@@ -3333,6 +3342,7 @@
             
             if (cancelButton) {
                 cancelButton.addEventListener('click', function(e) {
+                    e.preventDefault();
                     e.stopPropagation();
                     const idx = parseInt(this.getAttribute('data-index'));
                     appState.departureTimes[idx].editing = false;
@@ -3343,96 +3353,22 @@
 
         function saveNotes(index) {
             const inputElement = document.getElementById(`notes-input-${index}`);
-            if (inputElement) {
-                appState.departureTimes[index].notes = inputElement.value.trim();
+            if (!inputElement) {
+                console.error("Elemento input no encontrado para índice:", index);
+                return;
+            }
+            
+            const newNotes = inputElement.value.trim();
+            
+            if (index >= 0 && index < appState.departureTimes.length) {
+                appState.departureTimes[index].notes = newNotes;
                 appState.departureTimes[index].editing = false;
-                appState.departureTimes[index].saving = true;
-                
-                setTimeout(() => {
-                    appState.departureTimes[index].saving = false;
-                }, 100);
                 
                 saveDeparturesToStorage();
-                renderDeparturesList();
-            }
-        }
-
-
-        function setupNotesCell(index, departure) {
-            const cell = document.getElementById(`notes-cell-${index}`);
-            
-            if (cell) {
-                if (departure.editing) {
-                    cell.innerHTML = `
-                        <textarea class="departure-notes-input" id="notes-input-${index}" rows="2">${departure.notes || ''}</textarea>
-                        <button class="save-notes-btn" data-index="${index}">Guardar</button>
-                        <button class="cancel-notes-btn" data-index="${index}">Cancelar</button>
-                    `;
-                    
-                    const input = document.getElementById(`notes-input-${index}`);
-                    if (input) {
-                        input.focus();
-                        input.select();
-                    }
-                } else {
-                    const displayDiv = document.createElement('div');
-                    displayDiv.className = `departure-notes-display ${!departure.notes ? 'empty' : ''}`;
-                    displayDiv.textContent = departure.notes || 'Haz clic para añadir nota...';
-                    displayDiv.setAttribute('data-index', index);
-                    
-                    cell.innerHTML = '';
-                    cell.appendChild(displayDiv);
-                }
                 
-                // Evento para iniciar edición
-                const displayDiv = cell.querySelector('.departure-notes-display');
-                if (displayDiv) {
-                    displayDiv.addEventListener('click', function() {
-                        const idx = parseInt(this.getAttribute('data-index'));
-                        appState.departureTimes[idx].editing = true;
-                        renderDeparturesList();
-                    });
-                }
-                
-                // Evento para guardar
-                const saveBtn = cell.querySelector('.save-notes-btn');
-                if (saveBtn) {
-                    saveBtn.addEventListener('click', function() {
-                        const idx = parseInt(this.getAttribute('data-index'));
-                        const input = document.getElementById(`notes-input-${idx}`);
-                        if (input) {
-                            appState.departureTimes[idx].notes = input.value.trim();
-                            appState.departureTimes[idx].editing = false;
-                            saveDeparturesToStorage();
-                            renderDeparturesList();
-                        }
-                    });
-                }
-                
-                // Evento para cancelar
-                const cancelBtn = cell.querySelector('.cancel-notes-btn');
-                if (cancelBtn) {
-                    cancelBtn.addEventListener('click', function() {
-                        const idx = parseInt(this.getAttribute('data-index'));
-                        appState.departureTimes[idx].editing = false;
-                        renderDeparturesList();
-                    });
-                }
-                
-                // Guardar al presionar Enter (Ctrl+Enter para nueva línea)
-                const textarea = cell.querySelector('.departure-notes-input');
-                if (textarea) {
-                    textarea.addEventListener('keydown', function(e) {
-                        if (e.key === 'Enter' && !e.ctrlKey) {
-                            e.preventDefault();
-                            const idx = parseInt(this.id.split('-')[2]);
-                            appState.departureTimes[idx].notes = this.value.trim();
-                            appState.departureTimes[idx].editing = false;
-                            saveDeparturesToStorage();
-                            renderDeparturesList();
-                        }
-                    });
-                }
+                setTimeout(() => {
+                    renderDeparturesList();
+                }, 50);
             }
         }
 
@@ -3452,10 +3388,8 @@
                     const column = this.getAttribute('data-sort');
                     
                     if (sortState.column === column) {
-                        // Cambiar dirección
                         sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
                     } else {
-                        // Nueva columna, orden ascendente por defecto
                         sortState.column = column;
                         sortState.direction = 'asc';
                     }
@@ -3471,7 +3405,6 @@
                 return;
             }
             
-            // Ordenar por número de corredor para el Excel
             const sortedForExport = [...appState.departureTimes].sort((a, b) => a.corredor - b.corredor);
             
             const data = [
@@ -3493,13 +3426,12 @@
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Salidas");
             
-            // Ajustar ancho de columnas
             const colWidths = [
-                {wch: 10}, // Número
-                {wch: 12}, // Fecha
-                {wch: 12}, // Hora
-                {wch: 50}, // Anotación (más ancho)
-                {wch: 15}  // Timestamp
+                {wch: 10},
+                {wch: 12},
+                {wch: 12},
+                {wch: 50},
+                {wch: 15}
             ];
             ws['!cols'] = colWidths;
             
@@ -3578,7 +3510,7 @@
             
             appState.countdownInterval = setInterval(updateCountdown, 1000);
             
-            keepScreenAwakeAlternative();
+            keepScreenAwake();
             
             saveAppState();
             
@@ -3798,7 +3730,7 @@
             appState.raceStartTime = null;
             appState.accumulatedTime = 0;
             appState.aggressiveMode = false;
-            appState.configModalOpen = false; // ¡ESTA LÍNEA ES CRUCIAL!
+            appState.configModalOpen = false;
             
             document.getElementById('countdown-screen').classList.remove('aggressive-numbers');
             
@@ -3870,7 +3802,6 @@
                     });
                 }
                 
-                // Restablecer posición a 1
                 appState.departedCount = 0;
                 document.getElementById('start-position').value = 1;
                 document.getElementById('departed-count').textContent = 0;
@@ -3878,7 +3809,6 @@
                 saveRacesToStorage();
                 renderRacesSelect();
                 
-                // AÑADIR ESTA LÍNEA: Cerrar el modal
                 document.getElementById('delete-race-modal').classList.remove('active');
                 
                 showMessage(translations[appState.currentLanguage].raceDeleted, 'success');
@@ -4109,7 +4039,7 @@
         }
 
         // ============================================
-        // EVENT LISTENERS
+        // EVENT LISTENERS - FUNCIÓN CORREGIDA
         // ============================================
 
         function setupEventListeners() {
@@ -4328,10 +4258,8 @@
             
             document.getElementById('delete-race-confirm-btn').addEventListener('click', () => {
                 deleteCurrentRace();
-                // Añade esta línea
-                document.getElementById('delete-race-modal').classList.remove('active');
-            });  
-                      
+            });
+
             // Configuración de intervalos
             document.getElementById('same-interval-btn').addEventListener('click', switchToSingleMode);
             document.getElementById('variable-interval-btn').addEventListener('click', switchToVariableMode);
@@ -4525,53 +4453,24 @@
             });
             
             // Evento para guardar notas cuando se hace clic fuera del campo
+            // En la función setupEventListeners(), modificar el evento:
             document.addEventListener('click', function(e) {
-                // Guardar notas si se hace clic fuera del campo de edición
-                if (!e.target.closest('.departure-notes-input') && 
-                    !e.target.closest('.save-notes-btn') && 
-                    !e.target.closest('.cancel-notes-btn')) {
-                    
-                    appState.departureTimes.forEach((departure, index) => {
-                        if (departure.editing) {
-                            const input = document.getElementById(`notes-input-${index}`);
-                            if (input) {
-                                departure.notes = input.value.trim();
-                            }
-                            departure.editing = false;
+                const activeInput = document.querySelector('.departure-notes-input:focus');
+                if (activeInput) {
+                    if (!e.target.closest('.departure-notes-input') && 
+                        !e.target.closest('.save-notes-btn') && 
+                        !e.target.closest('.cancel-notes-btn')) {
+                        
+                        const inputId = activeInput.id;
+                        if (inputId && inputId.startsWith('notes-input-')) {
+                            const idx = parseInt(inputId.split('-')[2]);
+                            saveNotes(idx);
                         }
-                    });
-                    renderDeparturesList();
-                    saveDeparturesToStorage();
+                    }
                 }
             });
-            
-            console.log("Event listeners configurados correctamente");
         }
 
-        // ============================================
-        // INICIALIZACIÓN
-        // ============================================
-
-        document.addEventListener('DOMContentLoaded', initApp);
-
-        window.addEventListener('beforeunload', () => {
-            if (appState.countdownActive) {
-                saveLastUpdate();
-            }
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && appState.countdownActive && !appState.configModalOpen) {
-                pauseCountdownVisual();
-                document.getElementById('config-during-countdown-modal').classList.add('active');
-            }
-            
-            if (e.ctrlKey && e.key === 'Enter') {
-                e.preventDefault();
-                document.getElementById('start-countdown-btn').click();
-            }
-        });
-        
         // ============================================
         // FUNCIONES DE MANTENIMIENTO DE PANTALLA
         // ============================================
@@ -4614,7 +4513,7 @@
             }
         }
 
-        function keepScreenAwakeAlternative() {
+        function keepScreenAwake() {
             if (!appState.countdownActive) return;
             
             if ('wakeLock' in navigator) {
@@ -4682,16 +4581,31 @@
             window.addEventListener('load', adjustCountdownSize);
             window.addEventListener('resize', adjustCountdownSize);
             window.addEventListener('orientationchange', adjustCountdownSize);
-            
-            const originalUpdateCountdownDisplay = window.updateCountdownDisplay;
-            window.updateCountdownDisplay = function() {
-                if (originalUpdateCountdownDisplay) {
-                    originalUpdateCountdownDisplay();
-                }
-                adjustCountdownSize();
-            };
         }
         
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
+
+        document.addEventListener('DOMContentLoaded', initApp);
+
+        window.addEventListener('beforeunload', () => {
+            if (appState.countdownActive) {
+                saveLastUpdate();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && appState.countdownActive && !appState.configModalOpen) {
+                pauseCountdownVisual();
+                document.getElementById('config-during-countdown-modal').classList.add('active');
+            }
+            
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('start-countdown-btn').click();
+            }
+        });
     </script>
 
     <!-- Script para XLSX -->
