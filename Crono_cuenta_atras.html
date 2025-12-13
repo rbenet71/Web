@@ -693,17 +693,30 @@
         }
 
         /* =========================================== */
-        /* TARJETA DE PUNTO DE INICIO */
+        /* PUNTO DE INICIO SIMPLIFICADO */
         /* =========================================== */
-        .start-point-card {
-            border-left: 5px solid var(--warning);
+        .start-point-simple {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #e9ecef;
+            margin-top: 20px;
+            text-align: center;
         }
 
-        .start-options {
+        .start-point-simple .form-inline-group {
             display: flex;
-            gap: 20px;
             align-items: center;
+            justify-content: center;
+            gap: 12px;
             flex-wrap: wrap;
+        }
+
+        .start-point-simple input {
+            font-weight: 600;
+            color: var(--primary);
+            width: 100px;
+            text-align: center;
         }
 
         /* =========================================== */
@@ -1803,43 +1816,28 @@
                 </div>
             </div>
 
-            <!-- Tarjeta 3: Punto de inicio -->
-            <div class="app-card start-point-card">
-                <div class="card-header">
-                    <h2><i class="fas fa-flag"></i> <span id="card-start-title">Punto de Inicio</span></h2>
-                </div>
-                <div class="card-body">
-                    <div class="config-section">
-                        <div class="section-title">
-                            <i class="fas fa-play"></i>
-                            <span id="start-from-label">Iniciar desde</span>
-                        </div>
-                        <div class="start-options">
-                            <button class="btn btn-primary" id="start-from-zero-btn">
-                                <i class="fas fa-play"></i>
-                                <span id="start-from-zero-text">Comenzar desde el corredor 1</span>
-                            </button>
-                            <div class="form-inline-group">
-                                <span id="start-from-x-text">O desde la posición:</span>
-                                <input type="number" id="start-position" class="form-control form-control-sm" min="1" value="1" style="width: 120px;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Botón principal de inicio -->
             <div class="start-main-btn-container">
                 <button class="btn btn-success btn-lg start-main-btn" id="start-countdown-btn">
                     <i class="fas fa-rocket"></i>
                     <span id="start-countdown-text">INICIAR CUENTA ATRÁS</span>
                 </button>
-                <button class="btn btn-danger btn-block" id="exit-complete-btn" style="max-width: 400px; margin: 0 auto;">
+                
+                <!-- =========================================== -->
+                <!-- PUNTO DE INICIO SIMPLIFICADO -->
+                <!-- =========================================== -->
+                <div class="start-point-simple">
+                    <div class="form-inline-group">
+                        <span id="start-from-x-text">Posición actual:</span>
+                        <input type="number" id="start-position" class="form-control form-control-sm" min="1" value="1">
+                    </div>
+                </div>
+                
+                <button class="btn btn-danger btn-block" id="exit-complete-btn" style="max-width: 400px; margin: 20px auto 0;">
                     <i class="fas fa-sign-out-alt"></i>
                     <span id="exit-complete-text">REINICIAR / SALIR COMPLETAMENTE</span>
                 </button>
             </div>
-            
 
             <!-- Tarjeta 4: Salidas registradas -->
             <div class="app-card departures-card">
@@ -2203,27 +2201,29 @@
             es: {
                 appTitle: "Crono Cuenta Atrás",
                 languagesLabel: "Idioma / Language",
-                cardRaceTitle: "Selección de carrera",
+                cardRaceTitle: "Gestión de Carrera",
                 newRaceText: "Nueva",
                 deleteRaceText: "Eliminar",
-                cardTimeTitle: "Cadencia de salida",
+                cardTimeTitle: "Configuración de Tiempos",
                 cadenceTitle: "Cadencia de salida",
-                sameIntervalText: "Igual",
-                variableIntervalText: "Por Tramos",
+                sameIntervalText: "Siempre igual",
+                variableIntervalText: "Varios tramos",
                 intervalTimeLabel: "Tiempo entre salidas",
                 minutesText: "minutos",
                 secondsText: "segundos",
                 addIntervalLabel: "Añadir nuevo tramo",
                 toText: "hasta",
                 addIntervalText: "Añadir",
+                currentPositionText: "Posición actual:",
                 cardStartTitle: "Punto de Inicio",
                 startFromLabel: "Iniciar desde",
                 startFromZeroText: "Comenzar desde el corredor 1",
                 startFromXText: "O desde la posición:",
-                cardDeparturesTitle: "Historial de salidas",
+                cardDeparturesTitle: "Salidas Registradas",
                 clearDeparturesText: "Limpiar lista",
                 exportExcelText: "Exportar Excel",
                 startCountdownText: "INICIAR CUENTA ATRÁS",
+                exitCompleteText: "REINICIAR / SALIR COMPLETAMENTE",
                 totalTimeLabel: "Tiempo total",
                 nextCorredorLabel: "Próximo sale a",
                 departedLabel: "Salidos",
@@ -2245,7 +2245,7 @@
                 ],
                 helpModalSubtitle2: "Indicadores visuales:",
                 helpModalSubtitle3: "Sonidos:",
-                helpModalText2: "Los 2 segundos de 'SALIDA' se restan automáticamente del tiempo del siguiente cuenta atrás.",
+                helpModalText2: "Los 2 segundos de 'SALIDA' se restan automáticamente del tiempo de la siguiente cuenta atrás.",
                 deleteRaceModalTitle: "Confirmar eliminación",
                 deleteRaceModalText: "¿Estás seguro de que quieres eliminar esta carrera? Todos los datos se perderán.",
                 clearDeparturesModalTitle: "Confirmar limpieza",
@@ -2256,12 +2256,15 @@
                 newRaceModalTitle: "Nueva carrera",
                 newRaceNameLabel: "Nombre de la carrera:",
                 newRaceDescLabel: "Descripción (opcional):",
+                restartModalTitle: "Confirmar reinicio completo",
+                restartModalText: "¿Estás seguro de que quieres reiniciar completamente? Esta acción:",
                 deleteConfirm: "Eliminar",
                 cancel: "Cancelar",
                 understood: "Entendido",
                 createRace: "Crear carrera",
                 sendSuggestion: "Enviar",
                 clear: "Limpiar",
+                restartConfirm: "Sí, reiniciar completamente",
                 selectRaceFirst: "Por favor, selecciona una carrera primero",
                 countdownStarted: "Cuenta atrás iniciada",
                 countdownStopped: "Cuenta atrás detenida",
@@ -2273,38 +2276,35 @@
                 suggestionSent: "Sugerencia enviada",
                 updateChecked: "Actualización verificada",
                 intervalSaved: "Configuración de tramos guardada",
-                restartTitle: "Reiniciar / Salir",
-        restartLabel: "Finalizar sesión",
-        restartDescription: "Detendrá completamente la cuenta atrás y borrará todos los datos de la sesión actual.",
-        restartButton: "REINICIAR / SALIR COMPLETAMENTE",
-        restartModalTitle: "Confirmar reinicio completo",
-        restartModalText: "¿Estás seguro de que quieres reiniciar completamente? Esta acción:",
-                intervalLoaded: "Configuración de tramos cargada"
+                intervalLoaded: "Configuración de tramos cargada",
+                sessionRestarted: "Sesión reiniciada completamente"
             },
             ca: {
                 appTitle: "Crono Compte Enrere",
                 languagesLabel: "Idioma / Language",
-                cardRaceTitle: "Selecció de cursa",
+                cardRaceTitle: "Gestió de Cursa",
                 newRaceText: "Nova",
                 deleteRaceText: "Eliminar",
-                cardTimeTitle: "Cadència de sortida",
+                cardTimeTitle: "Configuració de Temps",
                 cadenceTitle: "Cadència de sortida",
-                sameIntervalText: "Igual",
-                variableIntervalText: "Per Trams",
+                sameIntervalText: "Sempre igual",
+                variableIntervalText: "Varis trams",
                 intervalTimeLabel: "Temps entre sortides",
                 minutesText: "minuts",
                 secondsText: "segons",
                 addIntervalLabel: "Afegir nou tram",
                 toText: "fins a",
                 addIntervalText: "Afegir",
+                currentPositionText: "Posició actual:",
                 cardStartTitle: "Punt d'Inici",
                 startFromLabel: "Iniciar des de",
                 startFromZeroText: "Començar des del corredor 1",
                 startFromXText: "O des de la posició:",
-                cardDeparturesTitle: "Historial de sortides",
+                cardDeparturesTitle: "Sortides Registrades",
                 clearDeparturesText: "Netejar llista",
                 exportExcelText: "Exportar Excel",
                 startCountdownText: "INICIAR COMPTE ENRERE",
+                exitCompleteText: "REINICIAR / SORTIR COMPLETAMENT",
                 totalTimeLabel: "Temps total",
                 nextCorredorLabel: "Pròxim surt a",
                 departedLabel: "Sortits",
@@ -2337,12 +2337,15 @@
                 newRaceModalTitle: "Nova cursa",
                 newRaceNameLabel: "Nom de la cursa:",
                 newRaceDescLabel: "Descripció (opcional):",
+                restartModalTitle: "Confirmar reinici complet",
+                restartModalText: "Estàs segur que vols reiniciar completament? Aquesta acció:",
                 deleteConfirm: "Eliminar",
                 cancel: "Cancel·lar",
                 understood: "Entès",
                 createRace: "Crear cursa",
                 sendSuggestion: "Enviar",
                 clear: "Netejar",
+                restartConfirm: "Sí, reiniciar completament",
                 selectRaceFirst: "Si us plau, selecciona una cursa primer",
                 countdownStarted: "Compte enrere iniciat",
                 countdownStopped: "Compte enrere aturat",
@@ -2354,33 +2357,35 @@
                 suggestionSent: "Suggeriment enviat",
                 updateChecked: "Actualització verificada",
                 intervalSaved: "Configuració de trams guardada",
-                intervalLoaded: "Configuració de trams carregada"
+                intervalLoaded: "Configuració de trams carregada",
+                sessionRestarted: "Sessió reiniciada completament"
             },
             en: {
                 appTitle: "Countdown Timer",
                 languagesLabel: "Language / Idioma",
-                cardRaceTitle: "Race selection",
-
+                cardRaceTitle: "Race Management",
                 newRaceText: "New",
                 deleteRaceText: "Delete",
-                cardTimeTitle: "Start cadence",
+                cardTimeTitle: "Time Configuration",
                 cadenceTitle: "Start cadence",
-                sameIntervalText: "The Same",
-                variableIntervalText: "By Intervals",
+                sameIntervalText: "Always the same",
+                variableIntervalText: "Multiple intervals",
                 intervalTimeLabel: "Time between starts",
                 minutesText: "minutes",
                 secondsText: "seconds",
                 addIntervalLabel: "Add new interval",
                 toText: "to",
                 addIntervalText: "Add",
+                currentPositionText: "Current position:",
                 cardStartTitle: "Starting Point",
                 startFromLabel: "Start from",
                 startFromZeroText: "Start from racer 1",
                 startFromXText: "Or from position:",
-                cardDeparturesTitle: "Starts history",
+                cardDeparturesTitle: "Registered Departures",
                 clearDeparturesText: "Clear list",
                 exportExcelText: "Export Excel",
                 startCountdownText: "START COUNTDOWN",
+                exitCompleteText: "RESTART / EXIT COMPLETELY",
                 totalTimeLabel: "Total time",
                 nextCorredorLabel: "Next starts in",
                 departedLabel: "Departed",
@@ -2413,12 +2418,15 @@
                 newRaceModalTitle: "New race",
                 newRaceNameLabel: "Race name:",
                 newRaceDescLabel: "Description (optional):",
+                restartModalTitle: "Confirm complete restart",
+                restartModalText: "Are you sure you want to restart completely? This action:",
                 deleteConfirm: "Delete",
                 cancel: "Cancel",
                 understood: "Understood",
                 createRace: "Create race",
                 sendSuggestion: "Send",
                 clear: "Clear",
+                restartConfirm: "Yes, restart completely",
                 selectRaceFirst: "Please select a race first",
                 countdownStarted: "Countdown started",
                 countdownStopped: "Countdown stopped",
@@ -2430,32 +2438,35 @@
                 suggestionSent: "Suggestion sent",
                 updateChecked: "Update checked",
                 intervalSaved: "Interval configuration saved",
-                intervalLoaded: "Interval configuration loaded"
+                intervalLoaded: "Interval configuration loaded",
+                sessionRestarted: "Session restarted completely"
             },
             fr: {
                 appTitle: "Compte à Rebours",
                 languagesLabel: "Langue / Language",
-                cardRaceTitle: "Sélection de course",
+                cardRaceTitle: "Gestion de Course",
                 newRaceText: "Nouvelle",
                 deleteRaceText: "Supprimer",
-                cardTimeTitle: "Cadence de départ",
+                cardTimeTitle: "Configuration des Temps",
                 cadenceTitle: "Cadence de départ",
-                sameIntervalText: "égal",
-                variableIntervalText: "intervalles",
+                sameIntervalText: "Toujours égal",
+                variableIntervalText: "Plusieurs intervalles",
                 intervalTimeLabel: "Temps entre départs",
                 minutesText: "minutes",
                 secondsText: "secondes",
                 addIntervalLabel: "Ajouter nouvel intervalle",
                 toText: "à",
                 addIntervalText: "Ajouter",
+                currentPositionText: "Position actuelle:",
                 cardStartTitle: "Point de Départ",
                 startFromLabel: "Démarrer depuis",
                 startFromZeroText: "Démarrer depuis le coureur 1",
                 startFromXText: "Ou depuis la position:",
-                cardDeparturesTitle: "Historique des départs",
+                cardDeparturesTitle: "Départs Enregistrés",
                 clearDeparturesText: "Effacer liste",
                 exportExcelText: "Exporter Excel",
                 startCountdownText: "DÉMARRER COMPTE À REBOURS",
+                exitCompleteText: "REDÉMARRER / QUITTER COMPLÈTEMENT",
                 totalTimeLabel: "Temps total",
                 nextCorredorLabel: "Prochain départ dans",
                 departedLabel: "Partis",
@@ -2488,12 +2499,15 @@
                 newRaceModalTitle: "Nouvelle course",
                 newRaceNameLabel: "Nom de la course:",
                 newRaceDescLabel: "Description (optionnel):",
+                restartModalTitle: "Confirmer redémarrage complet",
+                restartModalText: "Êtes-vous sûr de vouloir redémarrer complètement? Cette action:",
                 deleteConfirm: "Supprimer",
                 cancel: "Annuler",
                 understood: "Compris",
                 createRace: "Créer course",
                 sendSuggestion: "Envoyer",
                 clear: "Nettoyer",
+                restartConfirm: "Oui, redémarrer complètement",
                 selectRaceFirst: "Veuillez sélectionner une course d'abord",
                 countdownStarted: "Compte à rebours démarré",
                 countdownStopped: "Compte à rebours arrêté",
@@ -2505,7 +2519,8 @@
                 suggestionSent: "Suggestion envoyée",
                 updateChecked: "Mise à jour vérifiée",
                 intervalSaved: "Configuration des intervalles sauvegardée",
-                intervalLoaded: "Configuration des intervalles chargée"
+                intervalLoaded: "Configuration des intervalles chargée",
+                sessionRestarted: "Session redémarrée complètement"
             }
         };
 
@@ -2591,16 +2606,7 @@
             loadLanguagePreference();
             loadRacesFromStorage();
             loadAppState();
-            loadIntervalConfig(); // ← Esta línea carga ambos modos
-            
-            // Asegurar que intervalConfig tenga valores válidos
-            if (!intervalConfig.singleMode.minutes && !intervalConfig.singleMode.seconds) {
-                intervalConfig.singleMode = {
-                    minutes: 1,
-                    seconds: 0,
-                    saved: true
-                };
-            }
+            loadIntervalConfig();
             
             updateLanguageUI();
             setupEventListeners();
@@ -2621,7 +2627,7 @@
             // Inicializar siempre en modo "Siempre igual" por defecto
             switchToSingleMode();
             
-            console.log("Aplicación inicializada. Configuración cargada:", intervalConfig);
+            console.log("Aplicación inicializada.");
         }
 
         function loadLanguagePreference() {
@@ -2643,32 +2649,6 @@
             }
         }
 
-        function loadVariableIntervalConfig() {
-            const savedConfig = localStorage.getItem('countdown-variable-intervals');
-            if (savedConfig) {
-                appState.variableIntervalConfig = JSON.parse(savedConfig);
-                
-                // Por defecto mostrar "Siempre igual" al cargar
-                document.getElementById('single-interval-config').style.display = 'block';
-                document.getElementById('variable-interval-config').style.display = 'none';
-                
-                if (appState.variableIntervalConfig.intervals && appState.variableIntervalConfig.intervals.length > 0) {
-                    const firstInterval = appState.variableIntervalConfig.intervals[0];
-                    
-                    // Si el primer intervalo es 1-9999, estamos en modo "Siempre igual"
-                    if (firstInterval.from === 1 && firstInterval.to === 9999) {
-                        document.getElementById('interval-minutes').value = firstInterval.minutes;
-                        document.getElementById('interval-seconds').value = firstInterval.seconds;
-                        appState.intervals = [firstInterval];
-                    } else {
-                        // Si no, estamos en modo "Varios tramos"
-                        appState.intervals = [...appState.variableIntervalConfig.intervals];
-                    }
-                }
-                
-                // No renderizar la lista aquí, se hará cuando se pulse "Varios tramos"
-            }
-        }
         function loadAppState() {
             const savedState = localStorage.getItem('countdown-app-state');
             if (savedState) {
@@ -2686,7 +2666,10 @@
                 appState.raceStartTime = null;
                 appState.countdownPaused = false;
                 
-                console.log("Estado cargado, cuenta atrás NO activada automáticamente");
+                // Actualizar campo de posición
+                document.getElementById('start-position').value = appState.departedCount + 1;
+                
+                console.log("Estado cargado, salidos:", appState.departedCount);
             }
         }
 
@@ -2720,15 +2703,7 @@
             const lang = appState.currentLanguage;
             const t = translations[lang];
 
-
-            // Actualizar textos del nuevo botón
-
-            document.getElementById('restart-modal-title').textContent = t.restartModalTitle;
-            document.getElementById('restart-modal-text').textContent = t.restartModalText;
-            document.getElementById('restart-confirm-btn').textContent = t.restartConfirm || 'Sí, reiniciar completamente';
-            document.getElementById('restart-cancel-btn').textContent = t.cancel;
-            
-            
+            // Actualizar textos principales
             document.getElementById('app-title-text').textContent = t.appTitle;
             document.getElementById('languages-label').textContent = t.languagesLabel;
             document.getElementById('card-race-title').textContent = t.cardRaceTitle;
@@ -2743,14 +2718,15 @@
             document.getElementById('add-interval-label').textContent = t.addIntervalLabel;
             document.getElementById('to-text').textContent = t.toText;
             document.getElementById('add-interval-text').textContent = t.addIntervalText;
-            document.getElementById('card-start-title').textContent = t.cardStartTitle;
-            document.getElementById('start-from-label').textContent = t.startFromLabel;
-            document.getElementById('start-from-zero-text').textContent = t.startFromZeroText;
-            document.getElementById('start-from-x-text').textContent = t.startFromXText;
+            
+            // Actualizar posición actual
+            document.getElementById('start-from-x-text').textContent = t.currentPositionText;
+            
             document.getElementById('card-departures-title').textContent = t.cardDeparturesTitle;
             document.getElementById('clear-departures-text').textContent = t.clearDeparturesText;
             document.getElementById('export-excel-text').textContent = t.exportExcelText;
             document.getElementById('start-countdown-text').textContent = t.startCountdownText;
+            document.getElementById('exit-complete-text').textContent = t.exitCompleteText;
             document.getElementById('total-time-label').textContent = t.totalTimeLabel;
             document.getElementById('next-corredor-label').textContent = t.nextCorredorLabel;
             document.getElementById('departed-label').textContent = t.departedLabel;
@@ -2801,6 +2777,11 @@
             document.getElementById('create-race-btn').textContent = t.createRace;
             document.getElementById('cancel-create-race-btn').textContent = t.cancel;
             
+            document.getElementById('restart-modal-title').textContent = t.restartModalTitle;
+            document.getElementById('restart-modal-text').textContent = t.restartModalText;
+            document.getElementById('restart-confirm-btn').textContent = t.restartConfirm;
+            document.getElementById('restart-cancel-btn').textContent = t.cancel;
+            
             const helpList = document.getElementById('help-modal-list');
             if (helpList) {
                 helpList.innerHTML = '';
@@ -2815,7 +2796,7 @@
 
         function renderRacesSelect() {
             const select = document.getElementById('race-select');
-            select.innerHTML = '<option value="">-- '+ ' --</option>';
+            select.innerHTML = '<option value="">-- Selecciona una carrera --</option>';
             
             appState.races.forEach((race, index) => {
                 const option = document.createElement('option');
@@ -2924,7 +2905,7 @@
         }
 
         // ============================================
-        // FUNCIONES DE CUENTA ATRÁS - CORREGIDAS
+        // FUNCIONES DE CUENTA ATRÁS
         // ============================================
 
         function startCountdown() {
@@ -2935,7 +2916,6 @@
                 return;
             }
             
-            // Verificar que tenemos intervalos configurados
             const isVariableMode = document.getElementById('variable-interval-config').style.display !== 'none';
             
             if (isVariableMode && appState.intervals.length === 0) {
@@ -2943,14 +2923,8 @@
                 return;
             }
             
-            // Configurar intervalos ANTES de iniciar
             updateCadenceTime();
             
-            // Verificar que se configuraron correctamente
-            console.log("Intervalos configurados al iniciar:", appState.intervals);
-            console.log("Tiempo siguiente:", appState.nextCorredorTime);
-            
-            // Resto del código igual...
             document.querySelectorAll('.hide-on-countdown').forEach(el => {
                 el.style.display = 'none';
             });
@@ -2962,7 +2936,6 @@
             appState.raceStartTime = Date.now();
             appState.accumulatedTime = 0;
             
-            // Asegurar que currentIntervalIndex esté actualizado
             updateCurrentInterval();
             
             appState.countdownActive = true;
@@ -2991,21 +2964,19 @@
             saveAppState();
             
             showMessage(translations[appState.currentLanguage].countdownStarted, 'success');
-            console.log("Cuenta atrás iniciada correctamente. Intervalos activos:", appState.intervals);
+            console.log("Cuenta atrás iniciada correctamente.");
         }
 
         function updateCadenceTime() {
             const isVariableMode = document.getElementById('variable-interval-config').style.display !== 'none';
             
             if (!isVariableMode) {
-                // Modo "Siempre igual"
                 const minutes = parseInt(document.getElementById('interval-minutes').value) || 0;
                 const seconds = parseInt(document.getElementById('interval-seconds').value) || 0;
                 const totalSeconds = minutes * 60 + seconds;
                 
                 appState.nextCorredorTime = totalSeconds;
                 
-                // Solo usar un intervalo 1-9999 para el modo "Siempre igual"
                 appState.intervals = [{
                     from: 1,
                     to: 9999,
@@ -3014,8 +2985,6 @@
                     totalSeconds: totalSeconds
                 }];
             } else {
-                // Modo "Varios tramos" - no modificar appState.intervals aquí
-                // Solo actualizar nextCorredorTime basado en el corredor actual
                 updateCurrentInterval();
             }
             
@@ -3134,6 +3103,7 @@
             appState.departureTimes.push(departure);
             
             document.getElementById('departed-count').textContent = appState.departedCount;
+            document.getElementById('start-position').value = appState.departedCount + 1;
             
             renderDeparturesList();
             
@@ -3161,36 +3131,27 @@
 
         function updateCurrentInterval() {
             const currentCorredor = appState.departedCount + 1;
-            console.log(`Buscando intervalo para corredor ${currentCorredor} entre ${appState.intervals.length} intervalos`);
             
-            // Ordenar intervalos por 'from' para asegurar búsqueda correcta
             const sortedIntervals = [...appState.intervals].sort((a, b) => a.from - b.from);
             
             for (let i = 0; i < sortedIntervals.length; i++) {
                 const interval = sortedIntervals[i];
-                console.log(`Intervalo ${i}: ${interval.from}-${interval.to} = ${interval.totalSeconds}s`);
                 
                 if (currentCorredor >= interval.from && currentCorredor <= interval.to) {
                     appState.currentIntervalIndex = i;
                     appState.nextCorredorTime = interval.totalSeconds;
-                    console.log(`Intervalo encontrado: corredor ${currentCorredor} -> ${interval.totalSeconds}s`);
                     return;
                 }
             }
             
-            // Si no encuentra intervalo, usar el último o valor por defecto
             if (sortedIntervals.length > 0) {
                 const lastInterval = sortedIntervals[sortedIntervals.length - 1];
                 if (currentCorredor > lastInterval.to) {
-                    // Usar el último intervalo si hemos pasado el último rango
                     appState.nextCorredorTime = lastInterval.totalSeconds;
                     appState.currentIntervalIndex = sortedIntervals.length - 1;
-                    console.log(`Usando último intervalo (${lastInterval.totalSeconds}s) para corredor ${currentCorredor}`);
                 }
             } else {
-                // Si no hay intervalos configurados, usar valor por defecto
                 appState.nextCorredorTime = 60;
-                console.log(`No hay intervalos configurados. Usando valor por defecto: 60s`);
             }
         }
 
@@ -3308,6 +3269,11 @@
                     });
                 }
                 
+                // Restablecer posición a 1
+                appState.departedCount = 0;
+                document.getElementById('start-position').value = 1;
+                document.getElementById('departed-count').textContent = 0;
+                
                 saveRacesToStorage();
                 renderRacesSelect();
                 showMessage(translations[appState.currentLanguage].raceDeleted, 'success');
@@ -3330,7 +3296,6 @@
                 return;
             }
             
-            // Verificar que no se solapen con intervalos existentes
             for (const interval of appState.intervals) {
                 if ((from >= interval.from && from <= interval.to) ||
                     (to >= interval.from && to <= interval.to) ||
@@ -3352,38 +3317,22 @@
             
             appState.intervals.push(newInterval);
             
-            // Ordenar por 'from' para facilitar búsquedas
             appState.intervals.sort((a, b) => a.from - b.from);
             
             renderIntervalsList();
             
-            // Guardar configuración
             intervalConfig.variableMode = {
                 intervals: [...appState.intervals],
                 saved: true
             };
             saveIntervalConfig();
             
-            console.log("Tramo añadido:", newInterval);
-            console.log("Todos los tramos:", appState.intervals);
-            
-            // Actualizar valores de entrada para el siguiente tramo
             document.getElementById('from-corredor').value = to + 1;
             document.getElementById('to-corredor').value = to + 10;
             document.getElementById('var-minutes').value = 1;
             document.getElementById('var-seconds').value = 0;
             
             showMessage(translations[appState.currentLanguage].intervalAdded, 'success');
-        }
-        function debugIntervals() {
-            console.log("=== DEBUG DE INTERVALOS ===");
-            console.log("Modo variable activo:", document.getElementById('variable-interval-config').style.display !== 'none');
-            console.log("Intervalos configurados:", appState.intervals);
-            console.log("Corredores salidos:", appState.departedCount);
-            console.log("Próximo corredor:", appState.departedCount + 1);
-            console.log("Tiempo próximo corredor:", appState.nextCorredorTime);
-            console.log("Configuración guardada:", intervalConfig);
-            console.log("=== FIN DEBUG ===");
         }
 
         function renderIntervalsList() {
@@ -3399,27 +3348,23 @@
                         <div class="interval-time">Cada: ${interval.minutes}min ${interval.seconds}s</div>
                     </div>
                     <button class="btn btn-danger btn-sm remove-interval-btn" data-index="${index}">
-                        <i class="fas fa-trash"></i> <!-- Icono de papelera -->
+                        <i class="fas fa-trash"></i>
                     </button>
                 `;
                 container.appendChild(row);
             });
             
-            // Agregar event listeners para eliminar
             document.querySelectorAll('.remove-interval-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const index = parseInt(this.getAttribute('data-index'));
                     appState.intervals.splice(index, 1);
                     renderIntervalsList();
                     
-                    // Guardar los cambios
                     intervalConfig.variableMode = {
                         intervals: [...appState.intervals],
                         saved: true
                     };
                     saveIntervalConfig();
-                    
-                    console.log("Tramo eliminado. Nueva lista:", appState.intervals);
                 });
             });
         }
@@ -3427,6 +3372,8 @@
         function clearDeparturesList() {
             appState.departureTimes = [];
             appState.departedCount = 0;
+            document.getElementById('start-position').value = 1;
+            document.getElementById('departed-count').textContent = 0;
             renderDeparturesList();
             saveAppState();
             localStorage.removeItem('countdown-departures');
@@ -3503,45 +3450,10 @@
             localStorage.setItem('countdown-last-update', Date.now().toString());
         }
 
-        function saveVariableIntervalConfig() {
-            const isVariableMode = document.getElementById('variable-interval-config').style.display !== 'none';
-            
-            if (isVariableMode) {
-                // Guardar solo los intervalos variables (sin 1-9999)
-                appState.variableIntervalConfig = {
-                    intervals: [...appState.intervals].filter(interval => 
-                        !(interval.from === 1 && interval.to === 9999)
-                    ),
-                    saved: true
-                };
-            } else {
-                // Guardar el tiempo para "Siempre igual"
-                const minutes = parseInt(document.getElementById('interval-minutes').value) || 0;
-                const seconds = parseInt(document.getElementById('interval-seconds').value) || 0;
-                const totalSeconds = minutes * 60 + seconds;
-                
-                appState.variableIntervalConfig = {
-                    intervals: [{
-                        from: 1,
-                        to: 9999,
-                        minutes: minutes,
-                        seconds: seconds,
-                        totalSeconds: totalSeconds
-                    }],
-                    saved: true
-                };
-            }
-            
-            localStorage.setItem('countdown-variable-intervals', JSON.stringify(appState.variableIntervalConfig));
-            showMessage(translations[appState.currentLanguage].intervalSaved, 'success');
-        }
-
-
         // ============================================
         // CONFIGURACIÓN MEJORADA DE INTERVALOS
         // ============================================
 
-        // Variables para guardar estado separado
         const intervalConfig = {
             singleMode: {
                 minutes: 1,
@@ -3561,12 +3473,10 @@
                 try {
                     const config = JSON.parse(savedConfig);
                     
-                    // Cargar configuración de "Siempre igual"
                     if (config.singleMode) {
                         intervalConfig.singleMode = config.singleMode;
                     }
                     
-                    // Cargar configuración de "Varios tramos"
                     if (config.variableMode) {
                         intervalConfig.variableMode = config.variableMode;
                     }
@@ -3574,42 +3484,30 @@
                     console.error("Error cargando configuración:", e);
                 }
             }
-            
-            console.log("Configuración cargada:", intervalConfig);
         }
 
         function saveIntervalConfig() {
             localStorage.setItem('countdown-interval-config', JSON.stringify(intervalConfig));
-            console.log("Configuración guardada:", intervalConfig);
         }
 
         function switchToSingleMode() {
-            console.log("Cambiando a modo 'Siempre igual'");
-            
-            // Guardar SIEMPRE los tramos variables antes de cambiar de modo
             if (document.getElementById('variable-interval-config').style.display !== 'none') {
-                // Estamos en modo variable, guardar su configuración
                 intervalConfig.variableMode = {
                     intervals: [...appState.intervals],
                     saved: true
                 };
                 saveIntervalConfig();
-                console.log("Configuración de tramos guardada antes de cambiar a igual:", intervalConfig.variableMode);
             }
             
-            // Restaurar los valores de "Siempre igual"
             document.getElementById('interval-minutes').value = intervalConfig.singleMode.minutes;
             document.getElementById('interval-seconds').value = intervalConfig.singleMode.seconds;
             
-            // Cambiar la vista
             document.getElementById('single-interval-config').style.display = 'block';
             document.getElementById('variable-interval-config').style.display = 'none';
             
-            // Actualizar botones activos
             document.getElementById('same-interval-btn').classList.add('active');
             document.getElementById('variable-interval-btn').classList.remove('active');
             
-            // Configurar appState.intervals para modo único
             const totalSeconds = intervalConfig.singleMode.minutes * 60 + intervalConfig.singleMode.seconds;
             appState.intervals = [{
                 from: 1,
@@ -3619,17 +3517,11 @@
                 totalSeconds: totalSeconds
             }];
             
-            // Actualizar cadencia
             appState.nextCorredorTime = totalSeconds;
             updateNextCorredorDisplay();
-            
-            console.log("Modo 'Siempre igual' activado:", intervalConfig.singleMode);
         }
 
         function switchToVariableMode() {
-            console.log("Cambiando a modo 'Varios tramos'");
-            
-            // Guardar SIEMPRE los valores de "Siempre igual" antes de cambiar
             const currentMinutes = parseInt(document.getElementById('interval-minutes').value) || 0;
             const currentSeconds = parseInt(document.getElementById('interval-seconds').value) || 0;
             
@@ -3639,81 +3531,24 @@
                 saved: true
             };
             saveIntervalConfig();
-            console.log("Configuración de igual guardada antes de cambiar a tramos:", intervalConfig.singleMode);
             
-            // Cambiar la vista
             document.getElementById('single-interval-config').style.display = 'none';
             document.getElementById('variable-interval-config').style.display = 'block';
             
-            // Actualizar botones activos
             document.getElementById('same-interval-btn').classList.remove('active');
             document.getElementById('variable-interval-btn').classList.add('active');
             
-            // Cargar intervalos variables si existen
             if (intervalConfig.variableMode.saved && intervalConfig.variableMode.intervals.length > 0) {
                 appState.intervals = [...intervalConfig.variableMode.intervals];
                 renderIntervalsList();
-                console.log("Tramos cargados:", appState.intervals);
             } else {
-                // Si no hay configuración guardada, empezar con lista vacía
                 appState.intervals = [];
                 renderIntervalsList();
-                console.log("Lista de tramos vacía iniciada");
             }
-            
-            console.log("Modo 'Varios tramos' activado");
         }
 
         // ============================================
-        // MODIFICAR LA FUNCIÓN updateCadenceTime
-        // ============================================
-        function updateCadenceTime() {
-            const isVariableMode = document.getElementById('variable-interval-config').style.display !== 'none';
-            
-            if (!isVariableMode) {
-                // Modo "Siempre igual"
-                const minutes = parseInt(document.getElementById('interval-minutes').value) || 0;
-                const seconds = parseInt(document.getElementById('interval-seconds').value) || 0;
-                const totalSeconds = minutes * 60 + seconds;
-                
-                appState.nextCorredorTime = totalSeconds;
-                
-                // Configurar un solo intervalo para todo
-                appState.intervals = [{
-                    from: 1,
-                    to: 9999,
-                    minutes: minutes,
-                    seconds: seconds,
-                    totalSeconds: totalSeconds
-                }];
-                
-                // Guardar configuración
-                intervalConfig.singleMode = {
-                    minutes: minutes,
-                    seconds: seconds,
-                    saved: true
-                };
-                saveIntervalConfig();
-                
-                console.log("Modo igual configurado:", appState.intervals);
-            } else {
-                // Modo "Varios tramos"
-                if (appState.intervals.length > 0) {
-                    // Actualizar basado en el corredor actual
-                    updateCurrentInterval();
-                } else {
-                    // Si no hay intervalos, usar valor por defecto
-                    appState.nextCorredorTime = 60;
-                }
-            }
-            
-            updateNextCorredorDisplay();
-            console.log("Cadencia actualizada. Intervalos:", appState.intervals);
-        }
-
-
-        // ============================================
-        // EVENT LISTENERS CORREGIDOS
+        // EVENT LISTENERS
         // ============================================
 
         function setupEventListeners() {
@@ -3729,61 +3564,54 @@
                 });
             });
 
-        // Botón de reiniciar/salir completamente
-        document.getElementById('exit-complete-btn').addEventListener('click', () => {
-            document.getElementById('restart-confirm-modal').classList.add('active');
-        });
+            // Botón de reiniciar/salir completamente
+            document.getElementById('exit-complete-btn').addEventListener('click', () => {
+                document.getElementById('restart-confirm-modal').classList.add('active');
+            });
 
-        // Cerrar modal de reinicio
-        document.getElementById('restart-modal-close').addEventListener('click', () => {
-            document.getElementById('restart-confirm-modal').classList.remove('active');
-        });
+            // Cerrar modal de reinicio
+            document.getElementById('restart-modal-close').addEventListener('click', () => {
+                document.getElementById('restart-confirm-modal').classList.remove('active');
+            });
 
-        document.getElementById('restart-cancel-btn').addEventListener('click', () => {
-            document.getElementById('restart-confirm-modal').classList.remove('active');
-        });
+            document.getElementById('restart-cancel-btn').addEventListener('click', () => {
+                document.getElementById('restart-confirm-modal').classList.remove('active');
+            });
 
-        // Confirmar reinicio completo
-        document.getElementById('restart-confirm-btn').addEventListener('click', () => {
-            // Detener cuenta atrás si está activa
-            if (appState.countdownActive) {
-                stopCountdown();
-                document.getElementById('countdown-screen').classList.remove('active');
-                document.querySelectorAll('.hide-on-countdown').forEach(el => {
-                    el.style.display = '';
-                });
-            }
-            
-            // Reiniciar todos los contadores
-            appState.departedCount = 0;
-            appState.nextCorredorTime = 60;
-            appState.departureTimes = [];
-            appState.currentIntervalIndex = 0;
-            appState.accumulatedTime = 0;
-            appState.raceStartTime = null;
-            appState.countdownActive = false;
-            appState.countdownPaused = false;
-            
-            // Actualizar displays
-            document.getElementById('departed-count').textContent = '0';
-            updateNextCorredorDisplay();
-            renderDeparturesList();
-            document.getElementById('total-time-value').textContent = '00:00:00';
-            
-            // Limpiar localStorage de la sesión
-            localStorage.removeItem('countdown-app-state');
-            localStorage.removeItem('countdown-departures');
-            
-            // Cerrar modal
-            document.getElementById('restart-confirm-modal').classList.remove('active');
-            
-            // Mostrar mensaje
-            showMessage('Sesión reiniciada completamente', 'success');
-            console.log("Sesión reiniciada completamente");
-        });
+            // Confirmar reinicio completo
+            document.getElementById('restart-confirm-btn').addEventListener('click', () => {
+                if (appState.countdownActive) {
+                    stopCountdown();
+                    document.getElementById('countdown-screen').classList.remove('active');
+                    document.querySelectorAll('.hide-on-countdown').forEach(el => {
+                        el.style.display = '';
+                    });
+                }
+                
+                appState.departedCount = 0;
+                appState.nextCorredorTime = 60;
+                appState.departureTimes = [];
+                appState.currentIntervalIndex = 0;
+                appState.accumulatedTime = 0;
+                appState.raceStartTime = null;
+                appState.countdownActive = false;
+                appState.countdownPaused = false;
+                
+                document.getElementById('departed-count').textContent = '0';
+                document.getElementById('start-position').value = 1;
+                updateNextCorredorDisplay();
+                renderDeparturesList();
+                document.getElementById('total-time-value').textContent = '00:00:00';
+                
+                localStorage.removeItem('countdown-app-state');
+                localStorage.removeItem('countdown-departures');
+                
+                document.getElementById('restart-confirm-modal').classList.remove('active');
+                
+                showMessage(translations[appState.currentLanguage].sessionRestarted, 'success');
+                console.log("Sesión reiniciada completamente");
+            });
 
-
-            
             // Botón de ayuda
             document.getElementById('help-icon-header').addEventListener('click', () => {
                 document.getElementById('help-modal').classList.add('active');
@@ -3863,7 +3691,7 @@
                 document.getElementById('adjust-departed').value = appState.departedCount;
                 document.getElementById('adjust-current-time').value = appState.countdownValue;
             });
-                        
+            
             // Modal de ajuste de tiempos
             document.getElementById('adjust-times-close').addEventListener('click', () => {
                 document.getElementById('adjust-times-modal').classList.remove('active');
@@ -3888,6 +3716,7 @@
                 appState.nextCorredorTime = newNextTime;
                 appState.departedCount = newDeparted;
                 appState.countdownValue = Math.min(newCurrentTime, newNextTime);
+                document.getElementById('start-position').value = newDeparted + 1;
                 
                 updateNextCorredorDisplay();
                 document.getElementById('departed-count').textContent = newDeparted;
@@ -3938,40 +3767,28 @@
             
             document.getElementById('delete-race-confirm-btn').addEventListener('click', deleteCurrentRace);
             
-            // Configuración de intervalos - CORREGIDO
+            // Configuración de intervalos
             document.getElementById('same-interval-btn').addEventListener('click', switchToSingleMode);
             document.getElementById('variable-interval-btn').addEventListener('click', switchToVariableMode);
             
             document.getElementById('add-interval-btn').addEventListener('click', addVariableInterval);
             
-            document.getElementById('interval-minutes').addEventListener('change', function() {
-                const minutes = parseInt(this.value) || 0;
-                intervalConfig.singleMode.minutes = minutes;
-                intervalConfig.singleMode.saved = true;
-                saveIntervalConfig();
-                updateCadenceTime();
-                console.log("Minutos actualizados:", minutes);
-            });
-            
-            document.getElementById('interval-seconds').addEventListener('change', function() {
-                const seconds = parseInt(this.value) || 0;
-                intervalConfig.singleMode.seconds = seconds;
-                intervalConfig.singleMode.saved = true;
-                saveIntervalConfig();
-                updateCadenceTime();
-                console.log("Segundos actualizados:", seconds);
-            });
-
-            // Iniciar desde posición
-            document.getElementById('start-from-zero-btn').addEventListener('click', () => {
-                appState.departedCount = 0;
-                document.getElementById('departed-count').textContent = '0';
-            });
-            
+            // Configuración de posición actual
             document.getElementById('start-position').addEventListener('change', function() {
                 const position = parseInt(this.value) || 1;
                 appState.departedCount = Math.max(0, position - 1);
                 document.getElementById('departed-count').textContent = appState.departedCount;
+                updateCurrentInterval();
+                saveAppState();
+                console.log("Posición actualizada:", position, "Salidos:", appState.departedCount);
+            });
+            
+            document.getElementById('start-position').addEventListener('blur', function() {
+                const position = parseInt(this.value) || 1;
+                appState.departedCount = Math.max(0, position - 1);
+                document.getElementById('departed-count').textContent = appState.departedCount;
+                updateCurrentInterval();
+                saveAppState();
             });
             
             // Limpiar salidas
@@ -3991,20 +3808,16 @@
             // Exportar Excel
             document.getElementById('export-excel-btn').addEventListener('click', exportToExcel);
             
-            // Iniciar cuenta atrás - CORREGIDO
+            // Iniciar cuenta atrás
             document.getElementById('start-countdown-btn').addEventListener('click', startCountdown);
             
             // Configuración en pantalla de ejecución
             document.getElementById('config-toggle').addEventListener('click', function(e) {
-                console.log("Botón de configuración clickeado");
                 e.stopPropagation();
                 
                 if (appState.countdownActive && !appState.configModalOpen) {
-                    console.log("Abriendo modal de configuración durante cuenta atrás");
                     pauseCountdownVisual();
                     document.getElementById('config-during-countdown-modal').classList.add('active');
-                } else {
-                    console.log("No se puede abrir modal: cuenta atrás inactiva o modal ya abierto");
                 }
             });
 
@@ -4065,7 +3878,6 @@
                         
                         updateNextCorredorDisplay();
                         saveAppState();
-                        saveVariableIntervalConfig();
                     }
                     
                     this.textContent = appState.nextCorredorTime >= 60 ? 
@@ -4100,6 +3912,7 @@
                 const finishEdit = () => {
                     const newValue = parseInt(input.value) || 0;
                     appState.departedCount = newValue;
+                    document.getElementById('start-position').value = newValue + 1;
                     this.textContent = newValue;
                     updateCurrentInterval();
                     saveAppState();
@@ -4132,37 +3945,22 @@
                     });
                 }
             });
-                    
+            
             // Guardar configuración cuando se cambian valores en modo "Siempre igual"
             document.getElementById('interval-minutes').addEventListener('change', function() {
-                // Guardar inmediatamente cuando se cambia
                 intervalConfig.singleMode.minutes = parseInt(this.value) || 0;
                 saveIntervalConfig();
                 updateCadenceTime();
             });
 
             document.getElementById('interval-seconds').addEventListener('change', function() {
-                // Guardar inmediatamente cuando se cambia
                 intervalConfig.singleMode.seconds = parseInt(this.value) || 0;
                 saveIntervalConfig();
                 updateCadenceTime();
             });
             
-            // Guardar configuración cuando se elimina un intervalo
-            const originalRenderIntervalsList = window.renderIntervalsList;
-            window.renderIntervalsList = function() {
-                if (originalRenderIntervalsList) {
-                    originalRenderIntervalsList();
-                }
-                // Actualizar configuración de modo variable
-                intervalConfig.variableMode = {
-                    intervals: [...appState.intervals],
-                    saved: true
-                };
-                saveIntervalConfig();
-            };
-            
-            console.log("Event listeners configurados correctamente");        }
+            console.log("Event listeners configurados correctamente");
+        }
 
         // ============================================
         // INICIALIZACIÓN
@@ -4187,77 +3985,60 @@
                 document.getElementById('start-countdown-btn').click();
             }
         });
+        
         // Función para ajustar tamaño del contador
-function adjustCountdownSize() {
-    const display = document.getElementById('countdown-display');
-    if (!display) return;
-    
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
-    const text = display.textContent;
-    const isAggressive = document.getElementById('countdown-screen').classList.contains('aggressive-numbers');
-    
-    // Determinar tamaño óptimo
-    let fontSize;
-    
-    // Priorizar la dimensión más pequeña para evitar desbordamiento
-    const minDimension = Math.min(screenWidth, screenHeight);
-    
-    if (isAggressive) {
-        // Modo agresivo (últimos 5 segundos) - más grande
-        if (minDimension < 400) {
-            fontSize = minDimension * 0.35; // 35% en móviles pequeños
-        } else if (minDimension < 768) {
-            fontSize = minDimension * 0.30; // 30% en móviles
-        } else if (minDimension < 1024) {
-            fontSize = minDimension * 0.25; // 25% en tablets
-        } else {
-            fontSize = minDimension * 0.20; // 20% en desktop
+        function adjustCountdownSize() {
+            const display = document.getElementById('countdown-display');
+            if (!display) return;
+            
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const isAggressive = document.getElementById('countdown-screen').classList.contains('aggressive-numbers');
+            
+            let fontSize;
+            const minDimension = Math.min(screenWidth, screenHeight);
+            
+            if (isAggressive) {
+                if (minDimension < 400) {
+                    fontSize = minDimension * 0.35;
+                } else if (minDimension < 768) {
+                    fontSize = minDimension * 0.30;
+                } else if (minDimension < 1024) {
+                    fontSize = minDimension * 0.25;
+                } else {
+                    fontSize = minDimension * 0.20;
+                }
+            } else {
+                if (minDimension < 400) {
+                    fontSize = minDimension * 0.30;
+                } else if (minDimension < 768) {
+                    fontSize = minDimension * 0.25;
+                } else if (minDimension < 1024) {
+                    fontSize = minDimension * 0.20;
+                } else {
+                    fontSize = minDimension * 0.15;
+                }
+            }
+            
+            fontSize = Math.max(80, Math.min(fontSize, 500));
+            display.style.fontSize = `${fontSize}px`;
+            display.style.lineHeight = `${fontSize * 0.9}px`;
         }
-    } else {
-        // Modo normal
-        if (minDimension < 400) {
-            fontSize = minDimension * 0.30; // 30% en móviles pequeños
-        } else if (minDimension < 768) {
-            fontSize = minDimension * 0.25; // 25% en móviles
-        } else if (minDimension < 1024) {
-            fontSize = minDimension * 0.20; // 20% en tablets
-        } else {
-            fontSize = minDimension * 0.15; // 15% en desktop
-        }
-    }
-    
-    // Limitar tamaño mínimo y máximo
-    fontSize = Math.max(80, Math.min(fontSize, 500));
-    
-    // Aplicar tamaño
-    display.style.fontSize = `${fontSize}px`;
-    
-    // Ajustar también el contenedor si es necesario
-    display.style.lineHeight = `${fontSize * 0.9}px`;
-}
 
-// Llamar a la función en eventos relevantes
-function setupCountdownResize() {
-    // Al cargar
-    window.addEventListener('load', adjustCountdownSize);
-    
-    // Al redimensionar
-    window.addEventListener('resize', adjustCountdownSize);
-    
-    // Al cambiar orientación
-    window.addEventListener('orientationchange', adjustCountdownSize);
-    
-    // También después de cada actualización del contador
-    const originalUpdateCountdownDisplay = window.updateCountdownDisplay;
-    window.updateCountdownDisplay = function() {
-        if (originalUpdateCountdownDisplay) {
-            originalUpdateCountdownDisplay();
+        // Llamar a la función en eventos relevantes
+        function setupCountdownResize() {
+            window.addEventListener('load', adjustCountdownSize);
+            window.addEventListener('resize', adjustCountdownSize);
+            window.addEventListener('orientationchange', adjustCountdownSize);
+            
+            const originalUpdateCountdownDisplay = window.updateCountdownDisplay;
+            window.updateCountdownDisplay = function() {
+                if (originalUpdateCountdownDisplay) {
+                    originalUpdateCountdownDisplay();
+                }
+                adjustCountdownSize();
+            };
         }
-        adjustCountdownSize();
-    };
-}
-
         
     </script>
 
