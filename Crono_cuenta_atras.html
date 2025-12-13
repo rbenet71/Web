@@ -3877,6 +3877,10 @@
                 
                 saveRacesToStorage();
                 renderRacesSelect();
+                
+                // AÑADIR ESTA LÍNEA: Cerrar el modal
+                document.getElementById('delete-race-modal').classList.remove('active');
+                
                 showMessage(translations[appState.currentLanguage].raceDeleted, 'success');
             }
         }
@@ -4322,8 +4326,12 @@
                 document.getElementById('delete-race-modal').classList.add('active');
             });
             
-            document.getElementById('delete-race-confirm-btn').addEventListener('click', deleteCurrentRace);
-            
+            document.getElementById('delete-race-confirm-btn').addEventListener('click', () => {
+                deleteCurrentRace();
+                // Añade esta línea
+                document.getElementById('delete-race-modal').classList.remove('active');
+            });  
+                      
             // Configuración de intervalos
             document.getElementById('same-interval-btn').addEventListener('click', switchToSingleMode);
             document.getElementById('variable-interval-btn').addEventListener('click', switchToVariableMode);
