@@ -1863,6 +1863,106 @@
             transform: translateY(-3px);
         }
 
+        /* Añade esto en la sección CSS */
+        .notes-edit-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .notes-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .departure-notes-input {
+            width: 100%;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #fff;
+            transition: all 0.3s;
+            resize: vertical;
+            min-height: 60px;
+            max-height: 120px;
+        }
+
+        .departure-notes-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+        }
+
+        .save-notes-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+            min-width: 70px;
+        }
+
+        .save-notes-btn:hover {
+            background: #27ae60;
+        }
+
+        .cancel-notes-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+            min-width: 70px;
+        }
+
+        .cancel-notes-btn:hover {
+            background: #c0392b;
+        }
+
+        .departure-notes-display {
+            padding: 8px;
+            min-height: 36px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .departure-notes-display:hover {
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px dashed #ddd;
+        }
+
+        .departure-notes-display.empty {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        /* Asegurar que la tabla sea responsive */
+        @media (max-width: 768px) {
+            .departure-notes-input {
+                min-height: 50px;
+                font-size: 13px;
+                padding: 6px 10px;
+            }
+            
+            .save-notes-btn,
+            .cancel-notes-btn {
+                padding: 5px 10px;
+                font-size: 11px;
+                min-width: 60px;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -3102,6 +3202,7 @@
             
             sortedDepartures.forEach((departure, index) => {
                 const row = document.createElement('tr');
+                row.setAttribute('data-index', index);
                 
                 const time = new Date(departure.timestamp);
                 const timeStr = time.toLocaleTimeString();
@@ -3110,18 +3211,109 @@
                 row.innerHTML = `
                     <td class="departure-number-cell">${departure.corredor}</td>
                     <td class="departure-time-cell">${dateStr} ${timeStr}</td>
-                    <td class="departure-notes-cell" id="notes-cell-${index}"></td>
+                    <td class="departure-notes-cell" id="notes-cell-${index}">
+                        ${departure.editing ? 
+                            `<div class="notes-edit-container">
+                                <textarea class="departure-notes-input" id="notes-input-${index}" rows="2">${departure.notes || ''}</textarea>
+                                <div class="notes-buttons">
+                                    <button class="save-notes-btn" data-index="${index}">Guardar</button>
+                                    <button class="cancel-notes-btn" data-index="${index}">Cancelar</button>
+                                </div>
+                            </div>` :
+                            `<div class="departure-notes-display ${!departure.notes ? 'empty' : ''}" data-index="${index}">
+                                ${departure.notes || 'Haz clic para añadir nota...'}
+                            </div>`
+                        }
+                    </td>
                 `;
                 
                 tableBody.appendChild(row);
                 
-                // Inicializar la celda de notas
-                setupNotesCell(index, departure);
+                // Configurar eventos para esta fila
+                if (departure.editing) {
+                    setupEditingMode(index);
+                } else {
+                    setupDisplayMode(index);
+                }
             });
             
             // Actualizar indicadores de ordenación
             updateSortIndicators();
         }
+
+        function setupDisplayMode(index) {
+            const displayElement = document.querySelector(`#notes-cell-${index} .departure-notes-display`);
+            if (displayElement) {
+                displayElement.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const idx = parseInt(this.getAttribute('data-index'));
+                    appState.departureTimes[idx].editing = true;
+                    renderDeparturesList();
+                });
+            }
+        }
+
+        function setupEditingMode(index) {
+            const inputElement = document.getElementById(`notes-input-${index}`);
+            const saveButton = document.querySelector(`#notes-cell-${index} .save-notes-btn`);
+            const cancelButton = document.querySelector(`#notes-cell-${index} .cancel-notes-btn`);
+            
+            if (inputElement) {
+                inputElement.focus();
+                inputElement.select();
+                
+                // Guardar al perder foco
+                inputElement.addEventListener('blur', function() {
+                    const idx = parseInt(this.id.split('-')[2]);
+                    if (!appState.departureTimes[idx].saving) {
+                        saveNotes(idx);
+                    }
+                });
+                
+                // Guardar al presionar Enter (permitir nueva línea con Ctrl+Enter)
+                inputElement.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.ctrlKey) {
+                        e.preventDefault();
+                        const idx = parseInt(this.id.split('-')[2]);
+                        saveNotes(idx);
+                    }
+                });
+            }
+            
+            if (saveButton) {
+                saveButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const idx = parseInt(this.getAttribute('data-index'));
+                    saveNotes(idx);
+                });
+            }
+            
+            if (cancelButton) {
+                cancelButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const idx = parseInt(this.getAttribute('data-index'));
+                    appState.departureTimes[idx].editing = false;
+                    renderDeparturesList();
+                });
+            }
+        }
+
+        function saveNotes(index) {
+            const inputElement = document.getElementById(`notes-input-${index}`);
+            if (inputElement) {
+                appState.departureTimes[index].notes = inputElement.value.trim();
+                appState.departureTimes[index].editing = false;
+                appState.departureTimes[index].saving = true;
+                
+                setTimeout(() => {
+                    appState.departureTimes[index].saving = false;
+                }, 100);
+                
+                saveDeparturesToStorage();
+                renderDeparturesList();
+            }
+        }
+
 
         function setupNotesCell(index, departure) {
             const cell = document.getElementById(`notes-cell-${index}`);
