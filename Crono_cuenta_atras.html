@@ -2877,6 +2877,22 @@
                 return;
             }
             
+            // Verificar que tenemos intervalos configurados
+            const isVariableMode = document.getElementById('variable-interval-config').style.display !== 'none';
+            
+            if (isVariableMode && appState.intervals.length === 0) {
+                showMessage('Debes configurar al menos un tramo para el modo "Varios tramos"', 'error');
+                return;
+            }
+            
+            // Configurar intervalos ANTES de iniciar
+            updateCadenceTime();
+            
+            // Verificar que se configuraron correctamente
+            console.log("Intervalos configurados al iniciar:", appState.intervals);
+            console.log("Tiempo siguiente:", appState.nextCorredorTime);
+            
+            // Resto del código igual...
             document.querySelectorAll('.hide-on-countdown').forEach(el => {
                 el.style.display = 'none';
             });
@@ -2888,8 +2904,7 @@
             appState.raceStartTime = Date.now();
             appState.accumulatedTime = 0;
             
-            updateCadenceTime();
-            
+            // Asegurar que currentIntervalIndex esté actualizado
             updateCurrentInterval();
             
             appState.countdownActive = true;
@@ -2918,7 +2933,7 @@
             saveAppState();
             
             showMessage(translations[appState.currentLanguage].countdownStarted, 'success');
-            console.log("Cuenta atrás iniciada correctamente");
+            console.log("Cuenta atrás iniciada correctamente. Intervalos activos:", appState.intervals);
         }
 
         function updateCadenceTime() {
@@ -3088,14 +3103,36 @@
 
         function updateCurrentInterval() {
             const currentCorredor = appState.departedCount + 1;
+            console.log(`Buscando intervalo para corredor ${currentCorredor} entre ${appState.intervals.length} intervalos`);
             
-            for (let i = 0; i < appState.intervals.length; i++) {
-                const interval = appState.intervals[i];
+            // Ordenar intervalos por 'from' para asegurar búsqueda correcta
+            const sortedIntervals = [...appState.intervals].sort((a, b) => a.from - b.from);
+            
+            for (let i = 0; i < sortedIntervals.length; i++) {
+                const interval = sortedIntervals[i];
+                console.log(`Intervalo ${i}: ${interval.from}-${interval.to} = ${interval.totalSeconds}s`);
+                
                 if (currentCorredor >= interval.from && currentCorredor <= interval.to) {
                     appState.currentIntervalIndex = i;
                     appState.nextCorredorTime = interval.totalSeconds;
-                    break;
+                    console.log(`Intervalo encontrado: corredor ${currentCorredor} -> ${interval.totalSeconds}s`);
+                    return;
                 }
+            }
+            
+            // Si no encuentra intervalo, usar el último o valor por defecto
+            if (sortedIntervals.length > 0) {
+                const lastInterval = sortedIntervals[sortedIntervals.length - 1];
+                if (currentCorredor > lastInterval.to) {
+                    // Usar el último intervalo si hemos pasado el último rango
+                    appState.nextCorredorTime = lastInterval.totalSeconds;
+                    appState.currentIntervalIndex = sortedIntervals.length - 1;
+                    console.log(`Usando último intervalo (${lastInterval.totalSeconds}s) para corredor ${currentCorredor}`);
+                }
+            } else {
+                // Si no hay intervalos configurados, usar valor por defecto
+                appState.nextCorredorTime = 60;
+                console.log(`No hay intervalos configurados. Usando valor por defecto: 60s`);
             }
         }
 
@@ -3235,6 +3272,16 @@
                 return;
             }
             
+            // Verificar que no se solapen con intervalos existentes
+            for (const interval of appState.intervals) {
+                if ((from >= interval.from && from <= interval.to) ||
+                    (to >= interval.from && to <= interval.to) ||
+                    (from <= interval.from && to >= interval.to)) {
+                    showMessage(`Este tramo se solapa con el tramo existente ${interval.from}-${interval.to}`, 'error');
+                    return;
+                }
+            }
+            
             const totalSeconds = minutes * 60 + seconds;
             
             const newInterval = {
@@ -3246,18 +3293,23 @@
             };
             
             appState.intervals.push(newInterval);
+            
+            // Ordenar por 'from' para facilitar búsquedas
+            appState.intervals.sort((a, b) => a.from - b.from);
+            
             renderIntervalsList();
             
-            // Guardar inmediatamente en la configuración
+            // Guardar configuración
             intervalConfig.variableMode = {
                 intervals: [...appState.intervals],
                 saved: true
             };
             saveIntervalConfig();
             
-            console.log("Tramo añadido y guardado:", newInterval);
+            console.log("Tramo añadido:", newInterval);
+            console.log("Todos los tramos:", appState.intervals);
             
-            // Actualizar el siguiente valor "desde" automáticamente
+            // Actualizar valores de entrada para el siguiente tramo
             document.getElementById('from-corredor').value = to + 1;
             document.getElementById('to-corredor').value = to + 10;
             document.getElementById('var-minutes').value = 1;
@@ -3265,7 +3317,17 @@
             
             showMessage(translations[appState.currentLanguage].intervalAdded, 'success');
         }
-        
+        function debugIntervals() {
+            console.log("=== DEBUG DE INTERVALOS ===");
+            console.log("Modo variable activo:", document.getElementById('variable-interval-config').style.display !== 'none');
+            console.log("Intervalos configurados:", appState.intervals);
+            console.log("Corredores salidos:", appState.departedCount);
+            console.log("Próximo corredor:", appState.departedCount + 1);
+            console.log("Tiempo próximo corredor:", appState.nextCorredorTime);
+            console.log("Configuración guardada:", intervalConfig);
+            console.log("=== FIN DEBUG ===");
+        }
+
         function renderIntervalsList() {
             const container = document.getElementById('intervals-list');
             container.innerHTML = '';
@@ -3547,7 +3609,6 @@
         // ============================================
         // MODIFICAR LA FUNCIÓN updateCadenceTime
         // ============================================
-
         function updateCadenceTime() {
             const isVariableMode = document.getElementById('variable-interval-config').style.display !== 'none';
             
@@ -3559,7 +3620,7 @@
                 
                 appState.nextCorredorTime = totalSeconds;
                 
-                // Actualizar el intervalo único
+                // Configurar un solo intervalo para todo
                 appState.intervals = [{
                     from: 1,
                     to: 9999,
@@ -3568,7 +3629,7 @@
                     totalSeconds: totalSeconds
                 }];
                 
-                // Guardar en configuración
+                // Guardar configuración
                 intervalConfig.singleMode = {
                     minutes: minutes,
                     seconds: seconds,
@@ -3576,13 +3637,20 @@
                 };
                 saveIntervalConfig();
                 
-                console.log("Cadencia igual actualizada:", minutes, "min", seconds, "seg");
+                console.log("Modo igual configurado:", appState.intervals);
             } else {
-                // Modo "Varios tramos" - actualizar basado en el corredor actual
-                updateCurrentInterval();
+                // Modo "Varios tramos"
+                if (appState.intervals.length > 0) {
+                    // Actualizar basado en el corredor actual
+                    updateCurrentInterval();
+                } else {
+                    // Si no hay intervalos, usar valor por defecto
+                    appState.nextCorredorTime = 60;
+                }
             }
             
             updateNextCorredorDisplay();
+            console.log("Cadencia actualizada. Intervalos:", appState.intervals);
         }
 
 
