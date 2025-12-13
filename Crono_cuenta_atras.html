@@ -1412,6 +1412,101 @@
         }
 
         /* =========================================== */
+        /* ESTILOS PARA EL MODAL DE NUEVA CARRERA */
+        /* =========================================== */
+        .config-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .config-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .config-line {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .config-line label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1rem;
+        }
+
+        .config-input::placeholder {
+            color: #aaa;
+            opacity: 0.7;
+        }
+
+        textarea.config-input {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+            line-height: 1.5;
+        }
+
+        /* Estilos específicos para el modal de nueva carrera */
+        #new-race-modal .modal-content {
+            max-width: 500px;
+        }
+
+        #new-race-name-label,
+        #new-race-desc-label {
+            color: var(--dark);
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        #new-race-name,
+        #new-race-description {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        #new-race-description {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Ajustes responsivos */
+        @media (max-width: 768px) {
+            .config-input {
+                padding: 10px 12px;
+                font-size: 0.95rem;
+            }
+            
+            #new-race-modal .modal-content {
+                width: 95%;
+                max-width: 95%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .config-input {
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+            
+            #new-race-modal .modal-content {
+                width: 98%;
+                max-width: 98%;
+            }
+        }
+
+
+        /* =========================================== */
         /* MENSAJES DE ESTADO */
         /* =========================================== */
         .message {
@@ -2463,6 +2558,7 @@
     </div>
 
     <!-- Modal de nueva carrera -->
+    <!-- Modal de nueva carrera -->
     <div class="modal" id="new-race-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -2470,18 +2566,26 @@
                 <button class="modal-close" id="new-race-modal-close">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="config-line" style="flex-direction: column; align-items: stretch;">
+                <div class="form-group">
                     <label for="new-race-name" id="new-race-name-label">Nombre de la carrera:</label>
-                    <input type="text" id="new-race-name" class="config-input" placeholder="Ej: Carrera MTB 2025">
+                    <input type="text" 
+                        id="new-race-name" 
+                        class="form-control config-input" 
+                        placeholder="Ej: Carrera MTB 2025"
+                        maxlength="100">
                 </div>
-                <div class="config-line" style="flex-direction: column; align-items: stretch;">
+                <div class="form-group">
                     <label for="new-race-description" id="new-race-desc-label">Descripción (opcional):</label>
-                    <textarea id="new-race-description" class="config-input" rows="3" placeholder="Información adicional sobre la carrera..."></textarea>
+                    <textarea id="new-race-description" 
+                            class="form-control config-input" 
+                            rows="4" 
+                            placeholder="Información adicional sobre la carrera..."
+                            maxlength="500"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-success" id="create-race-btn">Crear carrera</button>
-                <button class="btn" id="cancel-create-race-btn">Cancelar</button>
+                <button class="btn btn-outline" id="cancel-create-race-btn">Cancelar</button>
             </div>
         </div>
     </div>
@@ -3732,7 +3836,23 @@
             appState.aggressiveMode = false;
             appState.configModalOpen = false;
             
+            // CORRECCIÓN: Limpiar las clases de estado del body
+            document.body.classList.remove(
+                'countdown-normal', 
+                'countdown-warning', 
+                'countdown-critical', 
+                'countdown-salida'
+            );
+            
+            // CORRECCIÓN: También remover la clase aggressive-numbers de la pantalla
             document.getElementById('countdown-screen').classList.remove('aggressive-numbers');
+            
+            // CORRECCIÓN: Restaurar el fondo original
+            document.body.style.backgroundColor = '';
+            document.body.style.background = '';
+            
+            // CORRECCIÓN: Si hay animaciones de pulso, detenerlas
+            document.body.style.animation = '';
             
             document.getElementById('total-time-value').textContent = '00:00:00';
             
@@ -4078,6 +4198,17 @@
                         el.style.display = '';
                     });
                 }
+                
+                // CORRECCIÓN: Asegurarse de limpiar también aquí
+                document.body.classList.remove(
+                    'countdown-normal', 
+                    'countdown-warning', 
+                    'countdown-critical', 
+                    'countdown-salida'
+                );
+                document.body.style.backgroundColor = '';
+                document.body.style.background = '';
+                document.body.style.animation = '';
                 
                 appState.departedCount = 0;
                 appState.nextCorredorTime = 60;
