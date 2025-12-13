@@ -1653,6 +1653,21 @@
                 font-size: 16px;
             }
         }
+        /* Añadir en la sección de estilos */
+        .restart-card {
+            margin-bottom: 10px;
+        }
+
+        #exit-complete-btn {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            border: none;
+        }
+
+        #exit-complete-btn:hover {
+            background: linear-gradient(135deg, #8e44ad 0%, #732d91 100%);
+            transform: translateY(-3px);
+        }
+
     </style>
 </head>
 <body>
@@ -1819,7 +1834,12 @@
                     <i class="fas fa-rocket"></i>
                     <span id="start-countdown-text">INICIAR CUENTA ATRÁS</span>
                 </button>
+                <button class="btn btn-danger btn-block" id="exit-complete-btn" style="max-width: 400px; margin: 0 auto;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span id="exit-complete-text">REINICIAR / SALIR COMPLETAMENTE</span>
+                </button>
             </div>
+            
 
             <!-- Tarjeta 4: Salidas registradas -->
             <div class="app-card departures-card">
@@ -1966,6 +1986,32 @@
         </div>
     </div>
 
+    <!-- Al final de los modales (después del modal de nueva carrera, línea ~1650) -->
+    <!-- Modal de confirmación reiniciar/salir -->
+    <div class="modal" id="restart-confirm-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="restart-modal-title">Confirmar reinicio completo</h3>
+                <button class="modal-close" id="restart-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="restart-modal-text">¿Estás seguro de que quieres reiniciar completamente? Esta acción:</p>
+                <ul style="margin: 15px 0; padding-left: 20px;">
+                    <li>Detendrá la cuenta atrás si está activa</li>
+                    <li>Borrará todos los datos de la sesión actual</li>
+                    <li>Reiniciará los contadores a cero</li>
+                    <li>Volverá a la pantalla de configuración inicial</li>
+                </ul>
+                <p style="color: var(--danger); font-weight: 600;">
+                    Esta acción no se puede deshacer.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="restart-confirm-btn">Sí, reiniciar completamente</button>
+                <button class="btn" id="restart-cancel-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
     <!-- Modal de configuración durante cuenta atrás -->
     <div class="modal" id="config-during-countdown-modal">
         <div class="modal-content config-modal-during-countdown">
@@ -1984,9 +2030,6 @@
                     </button>
                     <button class="btn btn-primary" id="adjust-times-btn">
                         <i class="fas fa-edit"></i> Ajustar tiempos
-                    </button>
-                    <button class="btn btn-danger" id="exit-countdown-btn">
-                        <i class="fas fa-sign-out-alt"></i> Salir completamente
                     </button>
                 </div>
             </div>
@@ -2230,6 +2273,12 @@
                 suggestionSent: "Sugerencia enviada",
                 updateChecked: "Actualización verificada",
                 intervalSaved: "Configuración de tramos guardada",
+                restartTitle: "Reiniciar / Salir",
+        restartLabel: "Finalizar sesión",
+        restartDescription: "Detendrá completamente la cuenta atrás y borrará todos los datos de la sesión actual.",
+        restartButton: "REINICIAR / SALIR COMPLETAMENTE",
+        restartModalTitle: "Confirmar reinicio completo",
+        restartModalText: "¿Estás seguro de que quieres reiniciar completamente? Esta acción:",
                 intervalLoaded: "Configuración de tramos cargada"
             },
             ca: {
@@ -2670,6 +2719,15 @@
         function updateLanguageUI() {
             const lang = appState.currentLanguage;
             const t = translations[lang];
+
+
+            // Actualizar textos del nuevo botón
+
+            document.getElementById('restart-modal-title').textContent = t.restartModalTitle;
+            document.getElementById('restart-modal-text').textContent = t.restartModalText;
+            document.getElementById('restart-confirm-btn').textContent = t.restartConfirm || 'Sí, reiniciar completamente';
+            document.getElementById('restart-cancel-btn').textContent = t.cancel;
+            
             
             document.getElementById('app-title-text').textContent = t.appTitle;
             document.getElementById('languages-label').textContent = t.languagesLabel;
@@ -3670,6 +3728,61 @@
                     updateLanguageUI();
                 });
             });
+
+        // Botón de reiniciar/salir completamente
+        document.getElementById('exit-complete-btn').addEventListener('click', () => {
+            document.getElementById('restart-confirm-modal').classList.add('active');
+        });
+
+        // Cerrar modal de reinicio
+        document.getElementById('restart-modal-close').addEventListener('click', () => {
+            document.getElementById('restart-confirm-modal').classList.remove('active');
+        });
+
+        document.getElementById('restart-cancel-btn').addEventListener('click', () => {
+            document.getElementById('restart-confirm-modal').classList.remove('active');
+        });
+
+        // Confirmar reinicio completo
+        document.getElementById('restart-confirm-btn').addEventListener('click', () => {
+            // Detener cuenta atrás si está activa
+            if (appState.countdownActive) {
+                stopCountdown();
+                document.getElementById('countdown-screen').classList.remove('active');
+                document.querySelectorAll('.hide-on-countdown').forEach(el => {
+                    el.style.display = '';
+                });
+            }
+            
+            // Reiniciar todos los contadores
+            appState.departedCount = 0;
+            appState.nextCorredorTime = 60;
+            appState.departureTimes = [];
+            appState.currentIntervalIndex = 0;
+            appState.accumulatedTime = 0;
+            appState.raceStartTime = null;
+            appState.countdownActive = false;
+            appState.countdownPaused = false;
+            
+            // Actualizar displays
+            document.getElementById('departed-count').textContent = '0';
+            updateNextCorredorDisplay();
+            renderDeparturesList();
+            document.getElementById('total-time-value').textContent = '00:00:00';
+            
+            // Limpiar localStorage de la sesión
+            localStorage.removeItem('countdown-app-state');
+            localStorage.removeItem('countdown-departures');
+            
+            // Cerrar modal
+            document.getElementById('restart-confirm-modal').classList.remove('active');
+            
+            // Mostrar mensaje
+            showMessage('Sesión reiniciada completamente', 'success');
+            console.log("Sesión reiniciada completamente");
+        });
+
+
             
             // Botón de ayuda
             document.getElementById('help-icon-header').addEventListener('click', () => {
@@ -3750,17 +3863,7 @@
                 document.getElementById('adjust-departed').value = appState.departedCount;
                 document.getElementById('adjust-current-time').value = appState.countdownValue;
             });
-            
-            document.getElementById('exit-countdown-btn').addEventListener('click', () => {
-                stopCountdown();
-                document.getElementById('countdown-screen').classList.remove('active');
-                document.querySelectorAll('.hide-on-countdown').forEach(el => {
-                    el.style.display = '';
-                });
-                document.getElementById('config-during-countdown-modal').classList.remove('active');
-                showMessage('Sesión finalizada', 'info');
-            });
-            
+                        
             // Modal de ajuste de tiempos
             document.getElementById('adjust-times-close').addEventListener('click', () => {
                 document.getElementById('adjust-times-modal').classList.remove('active');
