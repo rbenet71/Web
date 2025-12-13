@@ -756,7 +756,7 @@
         }
 
         /* =========================================== */
-        /* TARJETA DE SALIDAS REGISTRADAS */
+        /* TABLA DE SALIDAS REGISTRADAS */
         /* =========================================== */
         .departures-card {
             border-left: 5px solid var(--danger);
@@ -769,46 +769,163 @@
             margin-bottom: 20px;
         }
 
-        .departure-list {
-            max-height: 300px;
+        .departures-table-container {
+            max-height: 400px;
             overflow-y: auto;
             border: 1px solid #e9ecef;
             border-radius: var(--border-radius);
         }
 
-        .departure-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
+        .departures-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .departures-table th {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: var(--primary);
+            font-weight: 600;
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .departures-table th:hover {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+        }
+
+        .departures-table th.sortable {
+            position: relative;
+            padding-right: 30px;
+        }
+
+        .departures-table th.sortable::after {
+            content: '↕';
+            position: absolute;
+            right: 10px;
+            opacity: 0.5;
+            font-size: 12px;
+        }
+
+        .departures-table th.sortable.asc::after {
+            content: '↑';
+            opacity: 1;
+        }
+
+        .departures-table th.sortable.desc::after {
+            content: '↓';
+            opacity: 1;
+        }
+
+        .departures-table td {
+            padding: 12px;
             border-bottom: 1px solid #f1f1f1;
             font-variant-numeric: tabular-nums;
             transition: background 0.2s ease;
         }
 
-        .departure-item:last-child {
+        .departures-table tr:last-child td {
             border-bottom: none;
         }
 
-        .departure-item:hover {
+        .departures-table tr:hover td {
             background: #f8fafc;
         }
 
-        .departure-number {
+        .departure-number-cell {
             font-weight: 600;
             color: var(--primary);
-            font-size: 1.1rem;
+            width: 120px;
         }
 
-        .departure-time {
+        .departure-time-cell {
+            color: var(--dark);
+            width: 160px;
+        }
+
+        .departure-notes-cell {
             color: var(--gray);
-            font-size: 0.95rem;
+            min-width: 200px;
         }
 
+        .departure-notes-input {
+            width: 100%;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #fff;
+            transition: all 0.3s;
+        }
+
+        .departure-notes-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+        }
+
+        .departure-notes-display {
+            padding: 8px 0;
+            min-height: 36px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .departure-notes-display:hover {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .departure-notes-display.empty {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .save-notes-btn {
+            margin-top: 5px;
+            padding: 6px 12px;
+            font-size: 12px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .save-notes-btn:hover {
+            background: #27ae60;
+        }
+
+        .cancel-notes-btn {
+            margin-top: 5px;
+            margin-left: 5px;
+            padding: 6px 12px;
+            font-size: 12px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .cancel-notes-btn:hover {
+            background: #c0392b;
+        }
+
+        /* Estado vacío */
         .empty-state {
             text-align: center;
             padding: 40px 20px;
             color: var(--gray);
+            grid-column: 1 / -1;
         }
 
         .empty-state i {
@@ -1522,6 +1639,30 @@
                 max-width: 95%;
                 max-height: 95%;
             }
+            
+            /* Ajustes tabla de salidas en móviles */
+            .departures-table th,
+            .departures-table td {
+                padding: 8px 6px;
+                font-size: 0.9rem;
+            }
+            
+            .departure-number-cell {
+                width: 80px;
+            }
+            
+            .departure-time-cell {
+                width: 130px;
+            }
+            
+            .departure-notes-cell {
+                min-width: 150px;
+            }
+            
+            .departures-table th.sortable::after {
+                right: 5px;
+                font-size: 10px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1617,6 +1758,28 @@
                 padding: 0 3%;
             }
             
+            /* Ajustes tabla de salidas en móviles pequeños */
+            .departures-table {
+                font-size: 0.8rem;
+            }
+            
+            .departures-table th,
+            .departures-table td {
+                padding: 6px 4px;
+            }
+            
+            .departure-number-cell {
+                width: 60px;
+            }
+            
+            .departure-time-cell {
+                width: 100px;
+            }
+            
+            .departure-notes-cell {
+                min-width: 120px;
+            }
+            
             /* Ocultar texto si no cabe en pantallas muy pequeñas */
             @media (max-width: 360px) {
                 .countdown-label {
@@ -1639,6 +1802,21 @@
                 .salida-display {
                     font-size: min(14vw, 14vh);
                     max-width: 99%;
+                }
+                
+                .departures-table {
+                    font-size: 0.75rem;
+                }
+                
+                .departure-notes-input {
+                    font-size: 0.75rem;
+                    padding: 6px 8px;
+                }
+                
+                .save-notes-btn,
+                .cancel-notes-btn {
+                    font-size: 10px;
+                    padding: 4px 8px;
                 }
             }
         }
@@ -1664,6 +1842,10 @@
                 width: 35px;
                 height: 35px;
                 font-size: 16px;
+            }
+            
+            .departures-table-container {
+                max-height: 250px;
             }
         }
         /* Añadir en la sección de estilos */
@@ -1858,9 +2040,20 @@
                                 </button>
                             </div>
                         </div>
-                        <div id="departures-list" class="departure-list">
-                            <!-- Las salidas se agregarán aquí dinámicamente -->
-                            <div class="empty-state">
+                        <div id="departures-table-container" class="departures-table-container">
+                            <table class="departures-table" id="departures-table">
+                                <thead>
+                                    <tr>
+                                        <th class="sortable" data-sort="number">Número</th>
+                                        <th class="sortable" data-sort="time">Hora</th>
+                                        <th class="sortable" data-sort="notes">Anotación</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="departures-table-body">
+                                    <!-- Las filas se agregarán aquí dinámicamente -->
+                                </tbody>
+                            </table>
+                            <div id="departures-empty" class="empty-state" style="display: none;">
                                 <i class="fas fa-clock"></i>
                                 <p>No hay salidas registradas</p>
                             </div>
@@ -1930,7 +2123,7 @@
                 <div class="copyright" id="copyright-text">
                     2025 © Copyright 
                     <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                        Roberto Benet - rbenet71@gmail.com
+                        Roberto Benet - rbenet71@gmail.com - Va_12_12_2025
                     </a>
                 </div>
             </div>
@@ -2597,6 +2790,14 @@
         }
 
         // ============================================
+        // VARIABLES PARA ORDENACIÓN
+        // ============================================
+        let sortState = {
+            column: 'time',
+            direction: 'desc' // 'asc' o 'desc'
+        };
+
+        // ============================================
         // FUNCIONES PRINCIPALES
         // ============================================
 
@@ -2606,25 +2807,24 @@
             loadLanguagePreference();
             loadRacesFromStorage();
             loadAppState();
+            loadDeparturesFromStorage(); // Cambiada para cargar salidas
             loadIntervalConfig();
             
             updateLanguageUI();
             setupEventListeners();
             renderRacesSelect();
-            renderDeparturesList();
-            setupServiceWorker();
+            setupSorting(); // Nueva función para ordenación
             
             setInterval(updateTotalTime, 1000);
             
+            setupServiceWorker();
             setupPWA();
-            
             setupCountdownResize();
             adjustCountdownSize();
             
             document.addEventListener('click', initAudioOnInteraction);
             document.addEventListener('keydown', initAudioOnInteraction);
             
-            // Inicializar siempre en modo "Siempre igual" por defecto
             switchToSingleMode();
             
             console.log("Aplicación inicializada.");
@@ -2658,7 +2858,6 @@
                 appState.nextCorredorTime = state.nextCorredorTime || 60;
                 appState.intervals = state.intervals || [];
                 appState.currentIntervalIndex = state.currentIntervalIndex || 0;
-                appState.departureTimes = state.departureTimes || [];
                 appState.accumulatedTime = state.accumulatedTime || 0;
                 
                 appState.countdownActive = false;
@@ -2670,6 +2869,20 @@
                 document.getElementById('start-position').value = appState.departedCount + 1;
                 
                 console.log("Estado cargado, salidos:", appState.departedCount);
+            }
+        }
+
+        function loadDeparturesFromStorage() {
+            const savedDepartures = localStorage.getItem('countdown-departures');
+            if (savedDepartures) {
+                appState.departureTimes = JSON.parse(savedDepartures);
+                appState.departedCount = appState.departureTimes.length > 0 ? 
+                    Math.max(...appState.departureTimes.map(d => d.corredor)) : 0;
+                
+                document.getElementById('departed-count').textContent = appState.departedCount;
+                document.getElementById('start-position').value = appState.departedCount + 1;
+                
+                renderDeparturesList();
             }
         }
 
@@ -2690,6 +2903,16 @@
             } else {
                 localStorage.removeItem('countdown-app-state');
             }
+        }
+
+        function saveDeparturesToStorage() {
+            localStorage.setItem('countdown-departures', JSON.stringify(
+                appState.departureTimes.map(d => ({
+                    corredor: d.corredor,
+                    timestamp: d.timestamp,
+                    notes: d.notes || ''
+                }))
+            ));
         }
 
         function saveRacesToStorage() {
@@ -2809,99 +3032,260 @@
             });
         }
 
+        // ============================================
+        // FUNCIONES PARA EL HISTORIAL DE SALIDAS
+        // ============================================
+
+        function registerDeparture() {
+            appState.departedCount++;
+            
+            const departure = {
+                corredor: appState.departedCount,
+                timestamp: Date.now(),
+                notes: '' // Nuevo campo para anotaciones
+            };
+            
+            appState.departureTimes.push(departure);
+            
+            document.getElementById('departed-count').textContent = appState.departedCount;
+            document.getElementById('start-position').value = appState.departedCount + 1;
+            
+            renderDeparturesList();
+            saveDeparturesToStorage();
+            
+            saveAppState();
+        }
+
         function renderDeparturesList() {
-            const container = document.getElementById('departures-list');
+            const tableBody = document.getElementById('departures-table-body');
+            const emptyState = document.getElementById('departures-empty');
             
             if (appState.departureTimes.length === 0) {
-                container.innerHTML = '<div class="empty-state">' +
-                    '<i class="fas fa-clock"></i>' +
-                    '<p>No hay salidas registradas</p>' +
-                    '</div>';
+                tableBody.innerHTML = '';
+                emptyState.style.display = 'block';
                 return;
             }
             
-            container.innerHTML = '';
-            const reversedTimes = [...appState.departureTimes].reverse();
+            emptyState.style.display = 'none';
             
-            reversedTimes.forEach(departure => {
-                const item = document.createElement('div');
-                item.className = 'departure-item';
+            // Ordenar las salidas
+            const sortedDepartures = [...appState.departureTimes].sort((a, b) => {
+                let valueA, valueB;
+                
+                switch(sortState.column) {
+                    case 'number':
+                        valueA = a.corredor;
+                        valueB = b.corredor;
+                        break;
+                    case 'time':
+                        valueA = a.timestamp;
+                        valueB = b.timestamp;
+                        break;
+                    case 'notes':
+                        valueA = (a.notes || '').toLowerCase();
+                        valueB = (b.notes || '').toLowerCase();
+                        break;
+                    default:
+                        valueA = a.timestamp;
+                        valueB = b.timestamp;
+                }
+                
+                if (sortState.direction === 'asc') {
+                    return valueA > valueB ? 1 : (valueA < valueB ? -1 : 0);
+                } else {
+                    return valueA < valueB ? 1 : (valueA > valueB ? -1 : 0);
+                }
+            });
+            
+            // Renderizar las filas
+            tableBody.innerHTML = '';
+            
+            sortedDepartures.forEach((departure, index) => {
+                const row = document.createElement('tr');
                 
                 const time = new Date(departure.timestamp);
                 const timeStr = time.toLocaleTimeString();
                 const dateStr = time.toLocaleDateString();
                 
-                item.innerHTML = `
-                    <div class="departure-number">Corredor ${departure.corredor}</div>
-                    <div class="departure-time">${dateStr} ${timeStr}</div>
+                row.innerHTML = `
+                    <td class="departure-number-cell">${departure.corredor}</td>
+                    <td class="departure-time-cell">${dateStr} ${timeStr}</td>
+                    <td class="departure-notes-cell" id="notes-cell-${index}"></td>
                 `;
                 
-                container.appendChild(item);
-            });
-            
-            document.getElementById('departed-count').textContent = appState.departedCount;
-        }
-
-        function setupServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/Web/countdown-sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registrado:', registration.scope);
-                        
-                        setInterval(() => {
-                            registration.update();
-                        }, 60 * 60 * 1000);
-                    })
-                    .catch(error => {
-                        console.log('Error registrando ServiceWorker:', error);
-                    });
-            }
-        }
-
-        function setupPWA() {
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                appState.deferredPrompt = e;
+                tableBody.appendChild(row);
                 
-                const installBtn = document.getElementById('install-btn');
-                installBtn.style.display = 'flex';
+                // Inicializar la celda de notas
+                setupNotesCell(index, departure);
+            });
+            
+            // Actualizar indicadores de ordenación
+            updateSortIndicators();
+        }
+
+        function setupNotesCell(index, departure) {
+            const cell = document.getElementById(`notes-cell-${index}`);
+            
+            if (cell) {
+                if (departure.editing) {
+                    cell.innerHTML = `
+                        <textarea class="departure-notes-input" id="notes-input-${index}" rows="2">${departure.notes || ''}</textarea>
+                        <button class="save-notes-btn" data-index="${index}">Guardar</button>
+                        <button class="cancel-notes-btn" data-index="${index}">Cancelar</button>
+                    `;
+                    
+                    const input = document.getElementById(`notes-input-${index}`);
+                    if (input) {
+                        input.focus();
+                        input.select();
+                    }
+                } else {
+                    const displayDiv = document.createElement('div');
+                    displayDiv.className = `departure-notes-display ${!departure.notes ? 'empty' : ''}`;
+                    displayDiv.textContent = departure.notes || 'Haz clic para añadir nota...';
+                    displayDiv.setAttribute('data-index', index);
+                    
+                    cell.innerHTML = '';
+                    cell.appendChild(displayDiv);
+                }
+                
+                // Evento para iniciar edición
+                const displayDiv = cell.querySelector('.departure-notes-display');
+                if (displayDiv) {
+                    displayDiv.addEventListener('click', function() {
+                        const idx = parseInt(this.getAttribute('data-index'));
+                        appState.departureTimes[idx].editing = true;
+                        renderDeparturesList();
+                    });
+                }
+                
+                // Evento para guardar
+                const saveBtn = cell.querySelector('.save-notes-btn');
+                if (saveBtn) {
+                    saveBtn.addEventListener('click', function() {
+                        const idx = parseInt(this.getAttribute('data-index'));
+                        const input = document.getElementById(`notes-input-${idx}`);
+                        if (input) {
+                            appState.departureTimes[idx].notes = input.value.trim();
+                            appState.departureTimes[idx].editing = false;
+                            saveDeparturesToStorage();
+                            renderDeparturesList();
+                        }
+                    });
+                }
+                
+                // Evento para cancelar
+                const cancelBtn = cell.querySelector('.cancel-notes-btn');
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', function() {
+                        const idx = parseInt(this.getAttribute('data-index'));
+                        appState.departureTimes[idx].editing = false;
+                        renderDeparturesList();
+                    });
+                }
+                
+                // Guardar al presionar Enter (Ctrl+Enter para nueva línea)
+                const textarea = cell.querySelector('.departure-notes-input');
+                if (textarea) {
+                    textarea.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter' && !e.ctrlKey) {
+                            e.preventDefault();
+                            const idx = parseInt(this.id.split('-')[2]);
+                            appState.departureTimes[idx].notes = this.value.trim();
+                            appState.departureTimes[idx].editing = false;
+                            saveDeparturesToStorage();
+                            renderDeparturesList();
+                        }
+                    });
+                }
+            }
+        }
+
+        function updateSortIndicators() {
+            document.querySelectorAll('.departures-table th.sortable').forEach(th => {
+                th.classList.remove('asc', 'desc');
+                const column = th.getAttribute('data-sort');
+                if (column === sortState.column) {
+                    th.classList.add(sortState.direction);
+                }
             });
         }
 
-        function installPWA() {
-            if (appState.deferredPrompt) {
-                appState.deferredPrompt.prompt();
-                appState.deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        showMessage('Aplicación instalada', 'success');
+        function setupSorting() {
+            document.querySelectorAll('.departures-table th.sortable').forEach(th => {
+                th.addEventListener('click', function() {
+                    const column = this.getAttribute('data-sort');
+                    
+                    if (sortState.column === column) {
+                        // Cambiar dirección
+                        sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        // Nueva columna, orden ascendente por defecto
+                        sortState.column = column;
+                        sortState.direction = 'asc';
                     }
-                    appState.deferredPrompt = null;
+                    
+                    renderDeparturesList();
                 });
-            }
+            });
         }
 
-        function keepScreenAwakeAlternative() {
-            if (!appState.countdownActive) return;
-            
-            if ('wakeLock' in navigator) {
-                navigator.wakeLock.request('screen')
-                    .then(wakeLock => {
-                        console.log('Wake Lock activado');
-                    })
-                    .catch(err => {
-                        console.log('Wake Lock no disponible:', err);
-                    });
+        function exportToExcel() {
+            if (appState.departureTimes.length === 0) {
+                showMessage('No hay datos para exportar', 'warning');
+                return;
             }
             
-            const video = document.getElementById('keep-alive-video');
-            if (video) {
-                video.loop = true;
-                video.play().catch(e => console.log('Video keep-alive falló:', e));
-            }
+            // Ordenar por número de corredor para el Excel
+            const sortedForExport = [...appState.departureTimes].sort((a, b) => a.corredor - b.corredor);
             
-            if (navigator.vibrate) {
-                navigator.vibrate(0);
-            }
+            const data = [
+                ['Número', 'Fecha', 'Hora', 'Anotación', 'Timestamp']
+            ];
+            
+            sortedForExport.forEach(departure => {
+                const date = new Date(departure.timestamp);
+                data.push([
+                    departure.corredor,
+                    date.toLocaleDateString(),
+                    date.toLocaleTimeString(),
+                    departure.notes || '',
+                    departure.timestamp
+                ]);
+            });
+            
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Salidas");
+            
+            // Ajustar ancho de columnas
+            const colWidths = [
+                {wch: 10}, // Número
+                {wch: 12}, // Fecha
+                {wch: 12}, // Hora
+                {wch: 50}, // Anotación (más ancho)
+                {wch: 15}  // Timestamp
+            ];
+            ws['!cols'] = colWidths;
+            
+            const raceName = appState.currentRace ? 
+                appState.currentRace.name.replace(/[^a-z0-9]/gi, '_') : 'carrera';
+            const date = new Date().toISOString().split('T')[0];
+            const filename = `salidas_${raceName}_${date}.xlsx`;
+            
+            XLSX.writeFile(wb, filename);
+            showMessage(translations[appState.currentLanguage].excelExported, 'success');
+        }
+
+        function clearDeparturesList() {
+            appState.departureTimes = [];
+            appState.departedCount = 0;
+            document.getElementById('start-position').value = 1;
+            document.getElementById('departed-count').textContent = 0;
+            renderDeparturesList();
+            saveAppState();
+            localStorage.removeItem('countdown-departures');
+            showMessage(translations[appState.currentLanguage].departuresCleared, 'success');
         }
 
         // ============================================
@@ -3090,25 +3474,6 @@
                 countdownScreen.classList.remove('countdown-salida-active');
                 prepareNextCountdown();
             }, 2000);
-        }
-
-        function registerDeparture() {
-            appState.departedCount++;
-            
-            const departure = {
-                corredor: appState.departedCount,
-                timestamp: Date.now()
-            };
-            
-            appState.departureTimes.push(departure);
-            
-            document.getElementById('departed-count').textContent = appState.departedCount;
-            document.getElementById('start-position').value = appState.departedCount + 1;
-            
-            renderDeparturesList();
-            
-            saveAppState();
-            localStorage.setItem('countdown-departures', JSON.stringify(appState.departureTimes));
         }
 
         function prepareNextCountdown() {
@@ -3367,50 +3732,6 @@
                     saveIntervalConfig();
                 });
             });
-        }
-
-        function clearDeparturesList() {
-            appState.departureTimes = [];
-            appState.departedCount = 0;
-            document.getElementById('start-position').value = 1;
-            document.getElementById('departed-count').textContent = 0;
-            renderDeparturesList();
-            saveAppState();
-            localStorage.removeItem('countdown-departures');
-            showMessage(translations[appState.currentLanguage].departuresCleared, 'success');
-        }
-
-        function exportToExcel() {
-            if (appState.departureTimes.length === 0) {
-                showMessage('No hay datos para exportar', 'warning');
-                return;
-            }
-            
-            const data = [
-                ['Corredor', 'Fecha', 'Hora', 'Timestamp']
-            ];
-            
-            appState.departureTimes.forEach(departure => {
-                const date = new Date(departure.timestamp);
-                data.push([
-                    departure.corredor,
-                    date.toLocaleDateString(),
-                    date.toLocaleTimeString(),
-                    departure.timestamp
-                ]);
-            });
-            
-            const ws = XLSX.utils.aoa_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Salidas");
-            
-            const raceName = appState.currentRace ? 
-                appState.currentRace.name.replace(/[^a-z0-9]/gi, '_') : 'carrera';
-            const date = new Date().toISOString().split('T')[0];
-            const filename = `salidas_${raceName}_${date}.xlsx`;
-            
-            XLSX.writeFile(wb, filename);
-            showMessage(translations[appState.currentLanguage].excelExported, 'success');
         }
 
         function sendSuggestion() {
@@ -3959,6 +4280,27 @@
                 updateCadenceTime();
             });
             
+            // Evento para guardar notas cuando se hace clic fuera del campo
+            document.addEventListener('click', function(e) {
+                // Guardar notas si se hace clic fuera del campo de edición
+                if (!e.target.closest('.departure-notes-input') && 
+                    !e.target.closest('.save-notes-btn') && 
+                    !e.target.closest('.cancel-notes-btn')) {
+                    
+                    appState.departureTimes.forEach((departure, index) => {
+                        if (departure.editing) {
+                            const input = document.getElementById(`notes-input-${index}`);
+                            if (input) {
+                                departure.notes = input.value.trim();
+                            }
+                            departure.editing = false;
+                        }
+                    });
+                    renderDeparturesList();
+                    saveDeparturesToStorage();
+                }
+            });
+            
             console.log("Event listeners configurados correctamente");
         }
 
@@ -3985,6 +4327,72 @@
                 document.getElementById('start-countdown-btn').click();
             }
         });
+        
+        // ============================================
+        // FUNCIONES DE MANTENIMIENTO DE PANTALLA
+        // ============================================
+        
+        function setupServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/Web/countdown-sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registrado:', registration.scope);
+                        
+                        setInterval(() => {
+                            registration.update();
+                        }, 60 * 60 * 1000);
+                    })
+                    .catch(error => {
+                        console.log('Error registrando ServiceWorker:', error);
+                    });
+            }
+        }
+
+        function setupPWA() {
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                appState.deferredPrompt = e;
+                
+                const installBtn = document.getElementById('install-btn');
+                installBtn.style.display = 'flex';
+            });
+        }
+
+        function installPWA() {
+            if (appState.deferredPrompt) {
+                appState.deferredPrompt.prompt();
+                appState.deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        showMessage('Aplicación instalada', 'success');
+                    }
+                    appState.deferredPrompt = null;
+                });
+            }
+        }
+
+        function keepScreenAwakeAlternative() {
+            if (!appState.countdownActive) return;
+            
+            if ('wakeLock' in navigator) {
+                navigator.wakeLock.request('screen')
+                    .then(wakeLock => {
+                        console.log('Wake Lock activado');
+                    })
+                    .catch(err => {
+                        console.log('Wake Lock no disponible:', err);
+                    });
+            }
+            
+            const video = document.getElementById('keep-alive-video');
+            if (video) {
+                video.loop = true;
+                video.play().catch(e => console.log('Video keep-alive falló:', e));
+            }
+            
+            if (navigator.vibrate) {
+                navigator.vibrate(0);
+            }
+        }
         
         // Función para ajustar tamaño del contador
         function adjustCountdownSize() {
