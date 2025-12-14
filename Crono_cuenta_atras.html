@@ -3373,12 +3373,12 @@
                 intervalsToSave = appState.intervals.length > 0 ? [...appState.intervals] : [];
             }
             
-            // Actualizar datos de la carrera
+            // Actualizar datos de la carrera (INCLUYENDO LAS NOTAS)
             appState.races[raceIndex] = {
                 ...appState.currentRace,
                 cadenceMode: cadenceMode,
-                departures: [...appState.departureTimes],
-                intervals: intervalsToSave, // ← Guardar solo si existen
+                departures: [...appState.departureTimes], // ← Aquí se guardan las notas
+                intervals: intervalsToSave,
                 lastModified: new Date().toISOString()
             };
             
@@ -3390,8 +3390,10 @@
             
             console.log("Datos guardados para carrera:", appState.currentRace.name);
             console.log("Modo:", cadenceMode);
+            console.log("Salidas con notas:", appState.departureTimes.length);
             console.log("Intervalos guardados:", intervalsToSave.length);
         }
+
 
         function saveRacesToStorage() {
             localStorage.setItem('countdown-races', JSON.stringify(appState.races));
@@ -3560,7 +3562,7 @@
             
             console.log("Salida registrada - Corredor:", appState.departedCount, "Tiempo:", timeValue);
         }
-
+        
         function renderDeparturesList() {
             const tableBody = document.getElementById('departures-table-body');
             const emptyState = document.getElementById('departures-empty');
@@ -3630,7 +3632,7 @@
                     <td class="departure-notes-cell">
                         ${departure.editing ? 
                             `<div class="notes-edit-container">
-                                <textarea class="departure-notes-input" rows="2" placeholder="${t.departurePlaceholder}">${departure.notes || ''}</textarea>
+                                <textarea class="departure-notes-input" rows="2" placeholder="${t.departurePlaceholder}" data-index="${index}">${departure.notes || ''}</textarea>
                                 <div class="notes-buttons">
                                     <button class="save-notes-btn" data-index="${index}">${t.saveButtonText}</button>
                                     <button class="cancel-notes-btn" data-index="${index}">${t.cancelButtonText}</button>
@@ -3656,7 +3658,8 @@
                     if (displayElement) {
                         displayElement.addEventListener('click', function(e) {
                             e.stopPropagation();
-                            appState.departureTimes[index].editing = true;
+                            const idx = parseInt(this.getAttribute('data-index'));
+                            appState.departureTimes[idx].editing = true;
                             renderDeparturesList();
                         });
                     }
@@ -3665,7 +3668,6 @@
             
             updateSortIndicators();
         }
-
 
         function setupDisplayMode(index) {
             const displayElement = document.querySelector(`#notes-cell-${index} .departure-notes-display`);
@@ -3680,9 +3682,9 @@
         }
 
         function setupEditingMode(index) {
-            const inputElement = document.getElementById(`notes-input-${index}`);
-            const saveButton = document.querySelector(`#notes-cell-${index} .save-notes-btn`);
-            const cancelButton = document.querySelector(`#notes-cell-${index} .cancel-notes-btn`);
+            const inputElement = document.querySelector(`.departure-notes-input[data-index="${index}"]`);
+            const saveButton = document.querySelector(`.save-notes-btn[data-index="${index}"]`);
+            const cancelButton = document.querySelector(`.cancel-notes-btn[data-index="${index}"]`);
             
             if (inputElement) {
                 inputElement.focus();
@@ -3690,16 +3692,14 @@
                 
                 // Agregar evento blur
                 inputElement.addEventListener('blur', function() {
-                    const idx = parseInt(this.id.split('-')[2]);
-                    saveNotes(idx);
+                    saveNotes(index);
                 });
                 
                 // Agregar evento keydown para Enter
                 inputElement.addEventListener('keydown', function(e) {
                     if ((e.key === 'Enter' && e.ctrlKey) || (e.key === 'Enter' && !e.shiftKey)) {
                         e.preventDefault();
-                        const idx = parseInt(this.id.split('-')[2]);
-                        saveNotes(idx);
+                        saveNotes(index);
                     }
                 });
             }
@@ -3708,8 +3708,7 @@
                 saveButton.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    const idx = parseInt(this.getAttribute('data-index'));
-                    saveNotes(idx);
+                    saveNotes(index);
                 });
             }
             
@@ -3717,15 +3716,14 @@
                 cancelButton.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    const idx = parseInt(this.getAttribute('data-index'));
-                    appState.departureTimes[idx].editing = false;
+                    appState.departureTimes[index].editing = false;
                     renderDeparturesList();
                 });
             }
         }
 
         function saveNotes(index) {
-            const inputElement = document.getElementById(`notes-input-${index}`);
+            const inputElement = document.querySelector(`.departure-notes-input[data-index="${index}"]`);
             if (!inputElement) {
                 console.error("Elemento input no encontrado para índice:", index);
                 return;
@@ -3738,6 +3736,16 @@
                 appState.departureTimes[index].editing = false;
                 
                 saveRaceData();  // Guardar en los datos de la carrera
+                
+                // Encontrar la carrera actual y actualizar sus datos
+                if (appState.currentRace) {
+                    const raceIndex = appState.races.findIndex(r => r.id === appState.currentRace.id);
+                    if (raceIndex !== -1) {
+                        appState.races[raceIndex].departures = [...appState.departureTimes];
+                        saveRacesToStorage();
+                        console.log("Nota guardada para corredor:", appState.departureTimes[index].corredor);
+                    }
+                }
                 
                 setTimeout(() => {
                     renderDeparturesList();
