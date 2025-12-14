@@ -2130,6 +2130,49 @@
                 max-height: 250px;
             }
         }
+
+        /* ================================================ */
+        /* ELEMENTO DE HORA ACTUAL EN ESQUINA SUPERIOR DERECHA */
+        /* ================================================ */
+
+        /* ESQUINA SUPERIOR DERECHA - PEGADA AL EXTREMO */
+        .top-right {
+            top: 0;
+            right: 50px; /* Dejar espacio para el botón de configuración */
+            border-top-right-radius: 0;
+            border-bottom-left-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.7); /* Color diferente para distinguir */
+        }
+
+        /* Estilo específico para la hora actual */
+        #current-time-value {
+            color: #4CAF50; /* Color verde para diferenciar */
+            font-size: 1.8vw;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.2;
+        }
+
+        /* Ajuste para móviles */
+        @media (max-width: 768px) {
+            .top-right {
+                right: 45px;
+            }
+            
+            #current-time-value {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .top-right {
+                right: 40px;
+            }
+            
+            #current-time-value {
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2349,6 +2392,7 @@
         <div class="info-corner top-left">
             <span class="info-label" id="total-time-label">Tiempo total</span>
             <div class="info-value" id="total-time-value">00:00:00</div>
+            <div class="info-value" id="current-time-value">00:00:00</div>
         </div>
         
         <div class="info-corner bottom-left">
@@ -5159,6 +5203,27 @@
                 document.getElementById('start-countdown-btn').click();
             }
         });
+
+        // ============================================
+        // FUNCIÓN PARA ACTUALIZAR HORA ACTUAL
+        // ============================================
+        function updateCurrentTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            
+            const display = document.getElementById('current-time-value');
+            if (display) {
+                display.textContent = `${hours}:${minutes}:${seconds}`;
+            }
+        }
+
+        // Actualizar cada segundo
+        setInterval(updateCurrentTime, 1000);
+
+        // Inicializar inmediatamente
+        updateCurrentTime();
     </script>
 
     <!-- Script para XLSX -->

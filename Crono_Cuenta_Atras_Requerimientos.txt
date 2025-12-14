@@ -80,8 +80,11 @@ En Punto de inicio ponerlo despues del boton iniciar cuenta antras, y solo ha de
 
 En historial de salida, deben ser 3 columnas que se puedan ordenadar poe ellas, columna 1 - número de salido, hora y anotación, Estos tres campos se exportaran en el excel.
 
-
-----------------
 linea de copyriht sin idiomas
 tabla de salidos con idiomas
+
+quiero qye la columna tiempo, de tiempos de salida, se rellene con el tiempo acumulado que aparece en la esquina superior izquierda de la pantalla de la cuenta atras
+----------------
+debajo de tiempo total poner hora del dia
+
 posibilidad de rerpoducir audio o beep y por idiomas.
