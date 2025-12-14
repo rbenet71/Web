@@ -2650,10 +2650,11 @@
                     <label for="adjust-departed">Corredores salidos:</label>
                     <input type="number" id="adjust-departed" class="config-input" min="0" value="0">
                 </div>
-                <div class="config-line" style="flex-direction: column; align-items: stretch;">
+                <!-- ELIMINAR ESTE CAMPO -->
+                <!-- <div class="config-line" style="flex-direction: column; align-items: stretch;">
                     <label for="adjust-current-time">Tiempo actual (segundos):</label>
                     <input type="number" id="adjust-current-time" class="config-input" min="0" value="60">
-                </div>
+                </div> -->
                 <div class="modal-buttons-container">
                     <button class="btn btn-success" id="save-adjustments-btn">
                         <i class="fas fa-save"></i> Guardar ajustes
@@ -4214,8 +4215,15 @@
         }
 
         function prepareNextCountdown() {
-            updateCurrentInterval();
+            // Primero, actualizar qué intervalo corresponde al NUEVO corredor
+            appState.departedCount++; // Ahora tenemos un corredor más salido
             
+            updateCurrentInterval(); // Esto debe encontrar el intervalo para el NUEVO corredor
+            
+            // IMPORTANTE: Usar el tiempo del intervalo encontrado
+            // NO usar appState.nextCorredorTime directamente porque puede haber cambiado
+            
+            // Restar los 2 segundos de "SALIDA" del tiempo del intervalo
             appState.countdownValue = Math.max(0, appState.nextCorredorTime - 2);
             
             document.body.classList.remove('countdown-salida');
@@ -4232,7 +4240,7 @@
         }
 
         function updateCurrentInterval() {
-            const currentCorredor = appState.departedCount + 1;
+            const currentCorredor = appState.departedCount + 1; // El próximo a salir
             
             const sortedIntervals = [...appState.intervals].sort((a, b) => a.from - b.from);
             
@@ -4241,11 +4249,12 @@
                 
                 if (currentCorredor >= interval.from && currentCorredor <= interval.to) {
                     appState.currentIntervalIndex = i;
-                    appState.nextCorredorTime = interval.totalSeconds;
+                    appState.nextCorredorTime = interval.totalSeconds; // Usar el tiempo del intervalo
                     return;
                 }
             }
             
+            // Si no encuentra intervalo, usar el último o por defecto
             if (sortedIntervals.length > 0) {
                 const lastInterval = sortedIntervals[sortedIntervals.length - 1];
                 if (currentCorredor > lastInterval.to) {
@@ -4253,22 +4262,51 @@
                     appState.currentIntervalIndex = sortedIntervals.length - 1;
                 }
             } else {
-                appState.nextCorredorTime = 60;
+                appState.nextCorredorTime = 60; // Valor por defecto
             }
         }
 
         function updateNextCorredorDisplay() {
             const display = document.getElementById('next-corredor-time');
-            const totalSeconds = appState.nextCorredorTime;
+            if (!display) return;
             
-            if (totalSeconds >= 60) {
-                const minutes = Math.floor(totalSeconds / 60);
-                const seconds = totalSeconds % 60;
+            // Calcular qué tiempo le corresponde al SIGUIENTE corredor
+            const nextCorredorNumber = appState.departedCount + 2; // El que viene después del actual
+            
+            let timeForNextCorredor = appState.nextCorredorTime; // Valor por defecto
+            
+            // Buscar en los intervalos
+            if (appState.intervals && appState.intervals.length > 0) {
+                const sortedIntervals = [...appState.intervals].sort((a, b) => a.from - b.from);
+                
+                for (const interval of sortedIntervals) {
+                    if (nextCorredorNumber >= interval.from && nextCorredorNumber <= interval.to) {
+                        timeForNextCorredor = interval.totalSeconds;
+                        break;
+                    }
+                }
+                
+                // Si no se encuentra, buscar el último intervalo (para corredores más allá del último definido)
+                if (timeForNextCorredor === appState.nextCorredorTime) {
+                    const lastInterval = sortedIntervals[sortedIntervals.length - 1];
+                    if (lastInterval && nextCorredorNumber > lastInterval.to) {
+                        timeForNextCorredor = lastInterval.totalSeconds;
+                    }
+                }
+            }
+            
+            // Formatear para mostrar
+            if (timeForNextCorredor >= 60) {
+                const minutes = Math.floor(timeForNextCorredor / 60);
+                const seconds = timeForNextCorredor % 60;
                 display.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
             } else {
-                display.textContent = totalSeconds + "s";
+                display.textContent = timeForNextCorredor + "s";
             }
+            
+            console.log(`Display actualizado: Próximo corredor (${nextCorredorNumber}) sale en ${timeForNextCorredor}s`);
         }
+
 
         function updateTotalTime() {
             if (!appState.raceStartTime) return;
@@ -4332,6 +4370,228 @@
             appState.configModalOpen = false;
         }
 
+
+        function updateFutureIntervals(startFromCorredor, newSeconds) {
+            console.log(`Actualizando intervalos futuros desde corredor ${startFromCorredor} a ${newSeconds}s`);
+            
+            // Encontrar todos los intervalos que empiezan en o después del corredor de inicio
+            const intervalsToModify = [];
+            
+            // Primero, clonar los intervalos para no modificar el array mientras iteramos
+            const originalIntervals = [...appState.intervals];
+            appState.intervals = [];
+            
+            originalIntervals.forEach((interval, originalIndex) => {
+                if (interval.from >= startFromCorredor) {
+                    // Este intervalo está completamente en el futuro - modificar completamente
+                    appState.intervals.push({
+                        from: interval.from,
+                        to: interval.to,
+                        minutes: Math.floor(newSeconds / 60),
+                        seconds: newSeconds % 60,
+                        totalSeconds: newSeconds
+                    });
+                } else if (interval.to >= startFromCorredor) {
+                    // Este intervalo se solapa parcialmente (comienza antes, termina después)
+                    // Necesitamos dividirlo
+                    
+                    // Parte antes del cambio (mantener tiempo original)
+                    const beforeInterval = {
+                        from: interval.from,
+                        to: startFromCorredor - 1,
+                        minutes: interval.minutes,
+                        seconds: interval.seconds,
+                        totalSeconds: interval.totalSeconds
+                    };
+                    
+                    // Parte después del cambio (nuevo tiempo)
+                    const afterInterval = {
+                        from: startFromCorredor,
+                        to: interval.to,
+                        minutes: Math.floor(newSeconds / 60),
+                        seconds: newSeconds % 60,
+                        totalSeconds: newSeconds
+                    };
+                    
+                    // Añadir ambas partes
+                    appState.intervals.push(beforeInterval);
+                    appState.intervals.push(afterInterval);
+                } else {
+                    // Intervalo termina antes de startFromCorredor - mantener sin cambios
+                    appState.intervals.push({...interval});
+                }
+            });
+            
+            // Ordenar intervalos por 'from'
+            appState.intervals.sort((a, b) => a.from - b.from);
+            
+            // Fusionar intervalos adyacentes con el mismo tiempo
+            const mergedIntervals = [];
+            for (let i = 0; i < appState.intervals.length; i++) {
+                if (mergedIntervals.length === 0) {
+                    mergedIntervals.push({...appState.intervals[i]});
+                } else {
+                    const lastInterval = mergedIntervals[mergedIntervals.length - 1];
+                    const currentInterval = appState.intervals[i];
+                    
+                    // Si los intervalos son adyacentes y tienen el mismo tiempo, fusionarlos
+                    if (lastInterval.to + 1 === currentInterval.from && 
+                        lastInterval.totalSeconds === currentInterval.totalSeconds) {
+                        lastInterval.to = currentInterval.to;
+                    } else {
+                        mergedIntervals.push({...currentInterval});
+                    }
+                }
+            }
+            
+            appState.intervals = mergedIntervals;
+            
+            // Guardar configuración
+            intervalConfig.variableMode = {
+                intervals: [...appState.intervals],
+                saved: true
+            };
+            saveIntervalConfig();
+            
+            // Actualizar el display inferior izquierdo
+            setTimeout(() => {
+                updateNextCorredorDisplay();
+            }, 100);
+            
+            console.log("Intervalos futuros actualizados:", appState.intervals);
+        }
+
+        function updateSingleIntervalForFuture(startFromCorredor, newSeconds) {
+            console.log(`Actualizando modo single para futuros desde corredor ${startFromCorredor} a ${newSeconds}s`);
+            
+            if (appState.intervals.length === 0) {
+                // No hay intervalos, crear dos: uno para el actual y otro para futuros
+                appState.intervals.push({
+                    from: 1,
+                    to: startFromCorredor - 1,
+                    minutes: Math.floor(appState.nextCorredorTime / 60),
+                    seconds: appState.nextCorredorTime % 60,
+                    totalSeconds: appState.nextCorredorTime
+                });
+                
+                appState.intervals.push({
+                    from: startFromCorredor,
+                    to: 9999,
+                    minutes: Math.floor(newSeconds / 60),
+                    seconds: newSeconds % 60,
+                    totalSeconds: newSeconds
+                });
+            } else if (appState.intervals.length === 1) {
+                // Ya hay un intervalo único
+                const currentInterval = appState.intervals[0];
+                
+                if (currentInterval.from < startFromCorredor) {
+                    // El intervalo actual comienza antes, necesitamos dividirlo
+                    const beforeInterval = {
+                        from: currentInterval.from,
+                        to: startFromCorredor - 1,
+                        minutes: currentInterval.minutes,
+                        seconds: currentInterval.seconds,
+                        totalSeconds: currentInterval.totalSeconds
+                    };
+                    
+                    const afterInterval = {
+                        from: startFromCorredor,
+                        to: 9999,
+                        minutes: Math.floor(newSeconds / 60),
+                        seconds: newSeconds % 60,
+                        totalSeconds: newSeconds
+                    };
+                    
+                    appState.intervals = [beforeInterval, afterInterval];
+                } else {
+                    // El intervalo ya comienza en el futuro, actualizarlo
+                    appState.intervals[0] = {
+                        from: startFromCorredor,
+                        to: 9999,
+                        minutes: Math.floor(newSeconds / 60),
+                        seconds: newSeconds % 60,
+                        totalSeconds: newSeconds
+                    };
+                }
+            } else {
+                // Ya hay múltiples intervalos (modo variable activado)
+                // Encontrar y modificar los intervalos futuros
+                for (let i = 0; i < appState.intervals.length; i++) {
+                    const interval = appState.intervals[i];
+                    
+                    if (interval.from >= startFromCorredor) {
+                        // Intervalo completamente futuro
+                        appState.intervals[i] = {
+                            from: interval.from,
+                            to: interval.to,
+                            minutes: Math.floor(newSeconds / 60),
+                            seconds: newSeconds % 60,
+                            totalSeconds: newSeconds
+                        };
+                    } else if (interval.to >= startFromCorredor) {
+                        // Intervalo se solapa
+                        const beforeInterval = {
+                            from: interval.from,
+                            to: startFromCorredor - 1,
+                            minutes: interval.minutes,
+                            seconds: interval.seconds,
+                            totalSeconds: interval.totalSeconds
+                        };
+                        
+                        const afterInterval = {
+                            from: startFromCorredor,
+                            to: interval.to,
+                            minutes: Math.floor(newSeconds / 60),
+                            seconds: newSeconds % 60,
+                            totalSeconds: newSeconds
+                        };
+                        
+                        // Reemplazar el intervalo original
+                        appState.intervals.splice(i, 1, beforeInterval, afterInterval);
+                        i++; // Saltar el intervalo añadido
+                    }
+                }
+                
+                // Ordenar y fusionar
+                appState.intervals.sort((a, b) => a.from - b.from);
+                
+                const mergedIntervals = [];
+                for (let i = 0; i < appState.intervals.length; i++) {
+                    if (mergedIntervals.length === 0) {
+                        mergedIntervals.push({...appState.intervals[i]});
+                    } else {
+                        const lastInterval = mergedIntervals[mergedIntervals.length - 1];
+                        const currentInterval = appState.intervals[i];
+                        
+                        if (lastInterval.to + 1 === currentInterval.from && 
+                            lastInterval.totalSeconds === currentInterval.totalSeconds) {
+                            lastInterval.to = currentInterval.to;
+                        } else {
+                            mergedIntervals.push({...currentInterval});
+                        }
+                    }
+                }
+                
+                appState.intervals = mergedIntervals;
+            }
+            
+            // Guardar configuración single
+            intervalConfig.singleMode = {
+                minutes: Math.floor(newSeconds / 60),
+                seconds: newSeconds % 60,
+                saved: true
+            };
+            saveIntervalConfig();
+            
+            // Actualizar el display inferior izquierdo
+            setTimeout(() => {
+                updateNextCorredorDisplay();
+            }, 100);
+            
+            console.log("Intervalos después de actualización single para futuros:", appState.intervals);
+        }
+            
         // ============================================
         // FUNCIONES DE CONFIGURACIÓN
         // ============================================
@@ -5134,9 +5394,10 @@
                 
                 document.getElementById('adjust-next-time').value = appState.nextCorredorTime;
                 document.getElementById('adjust-departed').value = appState.departedCount;
-                document.getElementById('adjust-current-time').value = appState.countdownValue;
+                // Eliminar esta línea:
+                // document.getElementById('adjust-current-time').value = appState.countdownValue;
             });
-            
+
             document.getElementById('adjust-times-close').addEventListener('click', () => {
                 document.getElementById('adjust-times-modal').classList.remove('active');
                 resumeCountdownVisual();
@@ -5150,18 +5411,41 @@
             document.getElementById('save-adjustments-btn').addEventListener('click', () => {
                 const newNextTime = parseInt(document.getElementById('adjust-next-time').value) || 60;
                 const newDeparted = parseInt(document.getElementById('adjust-departed').value) || 0;
-                const newCurrentTime = parseInt(document.getElementById('adjust-current-time').value) || 60;
                 
-                if (newNextTime <= 0 || newCurrentTime < 0 || newDeparted < 0) {
+                if (newNextTime <= 0 || newDeparted < 0) {
                     showMessage('Valores no válidos', 'error');
                     return;
                 }
                 
-                appState.nextCorredorTime = newNextTime;
+                // Solo cambiar el tiempo para futuros corredores
+                // El tiempo actual NO se modifica
                 appState.departedCount = newDeparted;
-                appState.countdownValue = Math.min(newCurrentTime, newNextTime);
+                
+                // Aplicar nuevo tiempo desde el SIGUIENTE corredor
+                const currentCorredor = appState.departedCount + 1; // Corredor actual en cuenta atrás
+                const startFromCorredor = currentCorredor + 1; // Aplicar desde el siguiente
+                
+                if (appState.isVariableMode) {
+                    updateFutureIntervals(startFromCorredor, newNextTime);
+                } else {
+                    updateSingleIntervalForFuture(startFromCorredor, newNextTime);
+                }
+                
                 document.getElementById('start-position').value = newDeparted + 1;
                 
+                // ACTUALIZAR EL DISPLAY INFERIOR IZQUIERDO (Próximo sale a)
+                const displayElement = document.getElementById('next-corredor-time');
+                if (displayElement) {
+                    if (newNextTime >= 60) {
+                        const minutes = Math.floor(newNextTime / 60);
+                        const seconds = newNextTime % 60;
+                        displayElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    } else {
+                        displayElement.textContent = newNextTime + "s";
+                    }
+                }
+                
+                updateCurrentInterval(); // Actualizar el intervalo actual
                 updateNextCorredorDisplay();
                 document.getElementById('departed-count').textContent = newDeparted;
                 updateCountdownDisplay();
@@ -5169,9 +5453,10 @@
                 document.getElementById('adjust-times-modal').classList.remove('active');
                 resumeCountdownVisual();
                 saveAppState();
-                showMessage('Tiempos ajustados correctamente', 'success');
+                
+                showMessage(`Ajustes guardados. Tiempo: ${newNextTime}s desde corredor ${startFromCorredor}`, 'success');
             });
-            
+
             document.querySelectorAll('.modal').forEach(modal => {
                 modal.addEventListener('click', (e) => {
                     if (e.target === modal) {
@@ -5303,15 +5588,23 @@
                     document.getElementById('config-during-countdown-modal').classList.add('active');
                 }
             });
-            
+
+
             document.getElementById('next-corredor-time').addEventListener('dblclick', function(e) {
                 e.stopPropagation();
+                
+                // Si la cuenta atrás no está activa, no permitir editar
+                if (!appState.countdownActive) {
+                    showMessage('La cuenta atrás no está activa', 'warning');
+                    return;
+                }
                 
                 const currentText = this.textContent;
                 const input = document.createElement('input');
                 input.type = 'text';
                 input.className = 'inline-edit-input';
                 input.value = currentText;
+                input.placeholder = 'Ej: 1:30 o 90';
                 
                 this.innerHTML = '';
                 this.appendChild(input);
@@ -5322,39 +5615,64 @@
                     const value = input.value.trim();
                     let seconds = 0;
                     
+                    // Parsear el valor ingresado
                     if (value.includes(':')) {
                         const parts = value.split(':');
                         const mins = parseInt(parts[0]) || 0;
                         const secs = parseInt(parts[1]) || 0;
                         seconds = mins * 60 + secs;
-                    } else if (value.includes('min')) {
+                    } else if (value.toLowerCase().includes('min')) {
                         const mins = parseInt(value) || 0;
                         seconds = mins * 60;
                     } else {
                         seconds = parseInt(value) || 0;
                     }
                     
-                    if (seconds > 0) {
-                        appState.nextCorredorTime = seconds;
-                        
-                        if (appState.intervals.length === 1 && !appState.isVariableMode) {
-                            appState.intervals[0].totalSeconds = seconds;
-                            appState.intervals[0].minutes = Math.floor(seconds / 60);
-                            appState.intervals[0].seconds = seconds % 60;
-                        }
-                        
-                        if (appState.countdownActive && appState.countdownValue > seconds) {
-                            appState.countdownValue = seconds;
-                            updateCountdownDisplay();
-                        }
-                        
-                        updateNextCorredorDisplay();
-                        saveAppState();
+                    if (seconds <= 0) {
+                        showMessage('Ingresa un tiempo válido (mayor que 0)', 'error');
+                        this.textContent = currentText;
+                        return;
                     }
                     
-                    this.textContent = appState.nextCorredorTime >= 60 ? 
-                        `${Math.floor(appState.nextCorredorTime / 60)}:${(appState.nextCorredorTime % 60).toString().padStart(2, '0')}` : 
-                        appState.nextCorredorTime + "s";
+                    // CORRECCIÓN: NO modificar appState.nextCorredorTime directamente
+                    // porque eso afectaría al corredor actual
+                    
+                    // El corredor actual es: departedCount + 1 (el que está en cuenta atrás)
+                    const currentCorredor = appState.departedCount + 1;
+                    
+                    // El nuevo tiempo debe aplicarse desde el SIGUIENTE corredor
+                    const startFromCorredor = currentCorredor + 1;
+                    
+                    console.log(`Corredor actual: ${currentCorredor}, Aplicar desde: ${startFromCorredor}`);
+                    
+                    // ACTUALIZAR INTERVALOS FUTUROS (NO el actual)
+                    if (appState.isVariableMode) {
+                        // En modo variable, modificar intervalos futuros
+                        updateFutureIntervals(startFromCorredor, seconds);
+                    } else {
+                        // En modo single, crear un nuevo intervalo desde el siguiente corredor
+                        updateSingleIntervalForFuture(startFromCorredor, seconds);
+                    }
+                    
+                    // IMPORTANTE: NO cambiar appState.nextCorredorTime
+                    // porque eso cambiaría el tiempo del corredor actual
+                    
+                    // Solo actualizar el display para mostrar el nuevo tiempo futuro
+                    // Pero mantener el tiempo actual intacto
+                    const displayText = seconds >= 60 ? 
+                        `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, '0')}` : 
+                        seconds + "s";
+                    
+                    this.textContent = displayText;
+                    
+                    // Guardar cambios
+                    saveAppState();
+                    if (appState.currentRace) {
+                        saveRaceData();
+                    }
+                    
+                    // Mostrar mensaje informativo
+                    showMessage(`Tiempo actualizado a ${seconds}s para corredores desde ${startFromCorredor} en adelante`, 'success');
                 };
                 
                 input.addEventListener('blur', finishEdit);
@@ -5364,7 +5682,6 @@
                     }
                 });
             });
-            
             document.getElementById('departed-count').addEventListener('dblclick', function(e) {
                 e.stopPropagation();
                 
@@ -5447,14 +5764,11 @@
             document.getElementById('adjust-next-time').addEventListener('click', function(e) {
                 e.stopPropagation();
             });
-            
+
             document.getElementById('adjust-departed').addEventListener('click', function(e) {
                 e.stopPropagation();
             });
-            
-            document.getElementById('adjust-current-time').addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
+
         }
                 
         // ============================================
