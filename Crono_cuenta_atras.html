@@ -2135,14 +2135,6 @@
         /* ELEMENTO DE HORA ACTUAL EN ESQUINA SUPERIOR DERECHA */
         /* ================================================ */
 
-        /* ESQUINA SUPERIOR DERECHA - PEGADA AL EXTREMO */
-        .top-right {
-            top: 0;
-            right: 50px; /* Dejar espacio para el botón de configuración */
-            border-top-right-radius: 0;
-            border-bottom-left-radius: 10px;
-            background-color: rgba(0, 0, 0, 0.7); /* Color diferente para distinguir */
-        }
 
         /* Estilo específico para la hora actual */
         #current-time-value {
@@ -2153,26 +2145,6 @@
             line-height: 1.2;
         }
 
-        /* Ajuste para móviles */
-        @media (max-width: 768px) {
-            .top-right {
-                right: 45px;
-            }
-            
-            #current-time-value {
-                font-size: 16px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .top-right {
-                right: 40px;
-            }
-            
-            #current-time-value {
-                font-size: 14px;
-            }
-        }
     </style>
 </head>
 <body>
