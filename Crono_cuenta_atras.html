@@ -2155,6 +2155,119 @@
             }
         }
 
+        /* =========================================== */
+        /* ESTILOS PARA TRAMOS - ACTUALIZADOS */
+        /* =========================================== */
+        .interval-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 0; /* Permite que se comprima */
+        }
+
+        .interval-range {
+            font-weight: 600;
+            color: var(--primary);
+            min-width: 120px; /* Reducido */
+            white-space: nowrap;
+        }
+
+        .interval-time {
+            color: var(--secondary);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* Eliminar los elementos que ya no queremos */
+        .interval-status,
+        .interval-corredors {
+            display: none !important;
+        }
+
+        /* Contenedor de acciones de intervalo - AHORA RESPONSIVE */
+        .interval-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap; /* Permite que los botones bajen */
+            justify-content: flex-end;
+            min-width: 140px; /* Ancho mínimo para dos botones */
+        }
+
+        /* Botones de intervalo más compactos */
+        .edit-interval-btn,
+        .remove-interval-btn {
+            padding: 6px 10px !important;
+            font-size: 12px !important;
+            min-width: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        /* Ocultar texto del botón en pantallas pequeñas */
+        .edit-interval-btn .btn-text,
+        .remove-interval-btn .btn-text {
+            display: inline;
+        }
+
+        /* En pantallas muy pequeñas, mostrar solo iconos */
+        @media (max-width: 480px) {
+            .edit-interval-btn .btn-text,
+            .remove-interval-btn .btn-text {
+                display: none;
+            }
+            
+            .edit-interval-btn,
+            .remove-interval-btn {
+                min-width: 40px;
+                padding: 6px 8px !important;
+            }
+            
+            .edit-interval-btn i,
+            .remove-interval-btn i {
+                margin: 0;
+            }
+        }
+
+        /* Para pantallas medianas donde el espacio es limitado */
+        @media (max-width: 768px) {
+            .interval-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            
+            .interval-info {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .interval-range {
+                min-width: 100px;
+            }
+            
+            .interval-actions {
+                width: 100%;
+                justify-content: flex-start;
+                margin-top: 5px;
+            }
+        }
+
+        /* Para pantallas muy estrechas */
+        @media (max-width: 360px) {
+            .interval-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .interval-range,
+            .interval-time {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2569,7 +2682,60 @@
             </div>
         </div>
     </div>
-
+    <!-- Modal de edición de tramo (añadir después del modal de ajuste de tiempos) -->
+    <div class="modal" id="edit-interval-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="edit-interval-modal-title">Editar Tiempo por Tramo</h3>
+                <button class="modal-close" id="edit-interval-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-interval-form" class="edit-interval-form">
+                    <div class="edit-interval-row">
+                        <label class="edit-interval-label" for="edit-from-corredor">Desde:</label>
+                        <input type="number" 
+                            id="edit-from-corredor" 
+                            class="form-control edit-interval-input" 
+                            min="1" 
+                            required>
+                    </div>
+                    <div class="edit-interval-row">
+                        <label class="edit-interval-label" for="edit-to-corredor">Hasta:</label>
+                        <input type="number" 
+                            id="edit-to-corredor" 
+                            class="form-control edit-interval-input" 
+                            min="1" 
+                            required>
+                    </div>
+                    <div class="edit-interval-row">
+                        <label class="edit-interval-label" for="edit-interval-minutes">Minutos:</label>
+                        <input type="number" 
+                            id="edit-interval-minutes" 
+                            class="form-control edit-interval-input" 
+                            min="0" 
+                            required>
+                    </div>
+                    <div class="edit-interval-row">
+                        <label class="edit-interval-label" for="edit-interval-seconds">Segundos:</label>
+                        <input type="number" 
+                            id="edit-interval-seconds" 
+                            class="form-control edit-interval-input" 
+                            min="0" 
+                            max="59" 
+                            required>
+                    </div>
+                    <div class="edit-interval-buttons">
+                        <button type="button" class="btn btn-success" id="save-edit-interval-btn">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                        <button type="button" class="btn btn-outline" id="cancel-edit-interval-btn">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <!-- Modal de confirmación limpiar salidas -->
     <div class="modal" id="clear-departures-modal">
         <div class="modal-content">
@@ -2687,7 +2853,9 @@
                 saved: false
             },
             soundEnabled: true,
-            aggressiveMode: false
+            aggressiveMode: false,
+            // NUEVA PROPIEDAD: Para saber si estamos en modo variable
+            isVariableMode: false
         };
 
         // ============================================
@@ -2780,7 +2948,8 @@
                 departurePlaceholder: "Dorsal o aclaración",
                 noDeparturesText: "No hay salidas registradas",
                 saveButtonText: "Guardar",
-                cancelButtonText: "Cancelar"
+                cancelButtonText: "Cancelar",
+                editIntervalModalTitle: "Editar Tiempo por Tramo"
             },
             ca: {
                 appTitle: "Crono Compte Enrere",
@@ -2868,7 +3037,8 @@
                 departurePlaceholder: "Dorsal o aclaració",
                 noDeparturesText: "No hi ha sortides registrades",
                 saveButtonText: "Desar",
-                cancelButtonText: "Cancel·lar"
+                cancelButtonText: "Cancel·lar",
+                editIntervalModalTitle: "Editar Temps per Tram"
             },
             en: {
                 appTitle: "Countdown Timer",
@@ -2956,7 +3126,8 @@
                 departurePlaceholder: "Bib number or note",
                 noDeparturesText: "No departures recorded",
                 saveButtonText: "Save",
-                cancelButtonText: "Cancel"
+                cancelButtonText: "Cancel",
+                editIntervalModalTitle: "Edit Time per Interval"
             },
             fr: {
                 appTitle: "Compte à Rebours",
@@ -2978,7 +3149,7 @@
                 cardStartTitle: "Point de Départ",
                 startFromLabel: "Démarrer depuis",
                 startFromZeroText: "Démarrer depuis le coureur 1",
-                startFromXText: "Ou depuis la position:",
+                startFromXText: "Ou desde la posición:",
                 cardDeparturesTitle: "Départs Enregistrés",
                 clearDeparturesText: "Effacer liste",
                 exportExcelText: "Exporter Excel",
@@ -2997,7 +3168,7 @@
                 helpModalList: [
                     "Sélectionnez une course ou créez-en une nouvelle",
                     "Configurez la cadence de départ (toujours égal ou plusieurs intervalles)",
-                    "Démarrez depuis le coureur 1 ou depuis une position spécifique",
+                    "Démarrez depuis le coureur 1 ou desde una position spécifique",
                     "Appuyez sur 'DÉMARRER COMPTE À REBOURS' pour commencer",
                     "L'écran changera montrant le compte à rebours grand",
                     "Quand il atteint zéro 'DÉPART' s'affichera et le compte pour le suivant commencera"
@@ -3044,7 +3215,8 @@
                 departurePlaceholder: "Dossard ou remarque",
                 noDeparturesText: "Aucun départ enregistré",
                 saveButtonText: "Enregistrer",
-                cancelButtonText: "Annuler"
+                cancelButtonText: "Annuler",
+                editIntervalModalTitle: "Modifier Temps par Intervalle"
             }
         };
 
@@ -3156,11 +3328,10 @@
             adjustCountdownSize();
             adjustInfoCornersSize();
             
-            // NOTA: No llamar a switchToSingleMode() aquí porque ya lo hace loadRaceData()
-            // Basar el modo en la carrera actual cargada
-            
-            // IMPORTANTE: Configurar eventos
+            // Configurar eventos
             setupEventListeners();
+            setupEditIntervalModalEvents();
+            setupIntervalsEvents();
             
             document.addEventListener('click', initAudioOnInteraction);
             document.addEventListener('keydown', initAudioOnInteraction);
@@ -3197,15 +3368,14 @@
                 appState.intervals = state.intervals || [];
                 appState.currentIntervalIndex = state.currentIntervalIndex || 0;
                 appState.accumulatedTime = state.accumulatedTime || 0;
-                appState.raceStartTime = state.raceStartTime || null; // ← Cargar raceStartTime
+                appState.raceStartTime = state.raceStartTime || null;
+                appState.isVariableMode = state.isVariableMode || false;
                 
                 // Asegurarse de que los tiempos de salida existentes tengan timeValue
                 if (state.departureTimes && state.departureTimes.length > 0 && state.raceStartTime) {
                     appState.departureTimes = state.departureTimes.map(departure => {
-                        // Si ya tiene timeValue, mantenerlo
                         if (departure.timeValue) return departure;
                         
-                        // Si no tiene timeValue, calcularlo
                         const elapsedSeconds = Math.floor((departure.timestamp - state.raceStartTime) / 1000);
                         const hours = Math.floor(elapsedSeconds / 3600);
                         const minutes = Math.floor((elapsedSeconds % 3600) / 60);
@@ -3231,41 +3401,36 @@
             }
         }
 
-
         function loadRaceData() {
             if (!appState.currentRace) {
                 appState.departureTimes = [];
                 appState.departedCount = 0;
                 appState.intervals = [];
+                appState.isVariableMode = false;
                 
-                // Actualizar UI
                 document.getElementById('departed-count').textContent = appState.departedCount;
                 document.getElementById('start-position').value = appState.departedCount + 1;
                 renderDeparturesList();
                 return;
             }
             
-            // Cargar datos específicos de esta carrera
             appState.departureTimes = appState.currentRace.departures || [];
             appState.departedCount = appState.departureTimes.length > 0 ? 
                 Math.max(...appState.departureTimes.map(d => d.corredor)) : 0;
             appState.intervals = appState.currentRace.intervals || [];
             
-            // Actualizar UI
             document.getElementById('departed-count').textContent = appState.departedCount;
             document.getElementById('start-position').value = appState.departedCount + 1;
             
-            // Cargar el modo de cadencia de la carrera
             const cadenceMode = appState.currentRace.cadenceMode || 'single';
+            appState.isVariableMode = (cadenceMode === 'variable');
             
-            if (cadenceMode === 'variable') {
-                // Activar modo variable
+            if (appState.isVariableMode) {
                 document.getElementById('single-interval-config').style.display = 'none';
                 document.getElementById('variable-interval-config').style.display = 'block';
                 document.getElementById('same-interval-btn').classList.remove('active');
                 document.getElementById('variable-interval-btn').classList.add('active');
                 
-                // Cargar intervalos si existen
                 if (appState.intervals.length > 0) {
                     intervalConfig.variableMode = {
                         intervals: [...appState.intervals],
@@ -3274,18 +3439,15 @@
                     updateCurrentInterval();
                     renderIntervalsList();
                 } else {
-                    // Si no hay intervalos en modo variable, la lista debe estar vacía
                     appState.intervals = [];
                     renderIntervalsList();
                 }
             } else {
-                // Activar modo single
                 document.getElementById('single-interval-config').style.display = 'block';
                 document.getElementById('variable-interval-config').style.display = 'none';
                 document.getElementById('same-interval-btn').classList.add('active');
                 document.getElementById('variable-interval-btn').classList.remove('active');
                 
-                // Cargar intervalo único si existe
                 if (appState.intervals.length > 0 && appState.intervals[0]) {
                     const firstInterval = appState.intervals[0];
                     document.getElementById('interval-minutes').value = firstInterval.minutes;
@@ -3298,7 +3460,6 @@
                     };
                     appState.nextCorredorTime = firstInterval.totalSeconds;
                 } else {
-                    // Valores por defecto para modo single
                     const defaultMinutes = intervalConfig.singleMode.minutes || 1;
                     const defaultSeconds = intervalConfig.singleMode.seconds || 0;
                     const defaultTotalSeconds = defaultMinutes * 60 + defaultSeconds;
@@ -3306,9 +3467,7 @@
                     document.getElementById('interval-minutes').value = defaultMinutes;
                     document.getElementById('interval-seconds').value = defaultSeconds;
                     
-                    // NO crear intervalo por defecto en appState.intervals
-                    // Solo mantener la configuración en intervalConfig.singleMode
-                    appState.intervals = []; // ← Vaciar intervalos
+                    appState.intervals = [];
                     appState.nextCorredorTime = defaultTotalSeconds;
                     
                     console.log("Modo single sin intervalos guardados - usando valores por defecto");
@@ -3337,7 +3496,8 @@
                     departureTimes: appState.departureTimes,
                     raceStartTime: appState.raceStartTime,
                     accumulatedTime: appState.accumulatedTime,
-                    countdownPaused: appState.countdownPaused
+                    countdownPaused: appState.countdownPaused,
+                    isVariableMode: appState.isVariableMode
                 }));
             } else {
                 localStorage.removeItem('countdown-app-state');
@@ -3350,42 +3510,32 @@
                 return;
             }
             
-            // Determinar el modo actual de cadencia
-            const isVariableMode = document.getElementById('variable-interval-config').style.display !== 'none';
-            const cadenceMode = isVariableMode ? 'variable' : 'single';
+            const cadenceMode = appState.isVariableMode ? 'variable' : 'single';
             
-            // Encontrar el índice de la carrera actual
             const raceIndex = appState.races.findIndex(r => r.id === appState.currentRace.id);
             if (raceIndex === -1) {
                 console.log("Carrera no encontrada en el array");
                 return;
             }
             
-            // Preparar intervalos para guardar
             let intervalsToSave = [];
             
             if (cadenceMode === 'variable') {
-                // En modo variable, guardar todos los intervalos
                 intervalsToSave = [...appState.intervals];
             } else {
-                // En modo single, solo guardar intervalos si existen
-                // Si no hay intervalos (lista vacía), no guardar el intervalo por defecto
                 intervalsToSave = appState.intervals.length > 0 ? [...appState.intervals] : [];
             }
             
-            // Actualizar datos de la carrera (INCLUYENDO LAS NOTAS)
             appState.races[raceIndex] = {
                 ...appState.currentRace,
                 cadenceMode: cadenceMode,
-                departures: [...appState.departureTimes], // ← Aquí se guardan las notas
+                departures: [...appState.departureTimes],
                 intervals: intervalsToSave,
                 lastModified: new Date().toISOString()
             };
             
-            // Actualizar la referencia actual
             appState.currentRace = appState.races[raceIndex];
             
-            // Guardar en localStorage
             saveRacesToStorage();
             
             console.log("Datos guardados para carrera:", appState.currentRace.name);
@@ -3393,7 +3543,6 @@
             console.log("Salidas con notas:", appState.departureTimes.length);
             console.log("Intervalos guardados:", intervalsToSave.length);
         }
-
 
         function saveRacesToStorage() {
             localStorage.setItem('countdown-races', JSON.stringify(appState.races));
@@ -3447,16 +3596,16 @@
 
         function updateModalTexts() {
             const t = translations[appState.currentLanguage];
+            document.getElementById('edit-interval-modal-title').textContent = t.editIntervalModalTitle;
             document.getElementById('departure-header-dorsal').textContent = t.departureHeaderDorsal;
             document.getElementById('departure-header-time').textContent = t.departureHeaderTime;
             document.getElementById('departure-header-notes').textContent = t.departureHeaderNotes;
             document.getElementById('departure-header-date').textContent = t.departureHeaderDate;
             document.getElementById('no-departures-text').textContent = t.noDeparturesText;
             
-            // También necesitamos volver a renderizar la tabla para actualizar los placeholders
             if (appState.departureTimes.length > 0) {
                 renderDeparturesList();
-    }
+            }
             
             document.getElementById('help-modal-title').textContent = t.helpModalTitle;
             document.getElementById('help-modal-text1').textContent = t.helpModalText1;
@@ -3526,14 +3675,12 @@
         function registerDeparture() {
             appState.departedCount++;
             
-            // Obtener el tiempo acumulado directamente del cronómetro
             let accumulatedSeconds = 0;
             
             if (appState.raceStartTime) {
                 accumulatedSeconds = Math.floor((Date.now() - appState.raceStartTime) / 1000);
             }
             
-            // Convertir a formato HH:MM:SS
             const hours = Math.floor(accumulatedSeconds / 3600);
             const minutes = Math.floor((accumulatedSeconds % 3600) / 60);
             const seconds = accumulatedSeconds % 60;
@@ -3544,8 +3691,8 @@
                 timestamp: Date.now(),
                 notes: '',
                 editing: false,
-                timeValue: timeValue,  // ← Almacenar el tiempo acumulado directamente
-                elapsedSeconds: accumulatedSeconds  // ← También almacenar en segundos para ordenar
+                timeValue: timeValue,
+                elapsedSeconds: accumulatedSeconds
             };
             
             appState.departureTimes.push(departure);
@@ -3553,16 +3700,13 @@
             document.getElementById('departed-count').textContent = appState.departedCount;
             document.getElementById('start-position').value = appState.departedCount + 1;
             
-            // Actualizar la tabla inmediatamente
             renderDeparturesList();
-            saveRaceData();  // Guardar en los datos de la carrera
-            
-            // También actualizar appState para la sesión actual
+            saveRaceData();
             saveAppState();
             
             console.log("Salida registrada - Corredor:", appState.departedCount, "Tiempo:", timeValue);
         }
-        
+
         function renderDeparturesList() {
             const tableBody = document.getElementById('departures-table-body');
             const emptyState = document.getElementById('departures-empty');
@@ -3584,7 +3728,6 @@
                         valueB = b.corredor;
                         break;
                     case 'timeValue':
-                        // Ordenar por tiempo acumulado (ya tenemos elapsedSeconds)
                         valueA = a.elapsedSeconds || 0;
                         valueB = b.elapsedSeconds || 0;
                         break;
@@ -3621,7 +3764,6 @@
                 });
                 const dateStr = time.toLocaleDateString('es-ES');
                 
-                // Obtener traducciones actuales
                 const t = translations[appState.currentLanguage];
                 
                 row.innerHTML = `
@@ -3650,7 +3792,6 @@
                 
                 tableBody.appendChild(row);
                 
-                // Configurar eventos de edición
                 if (departure.editing) {
                     setupEditingMode(index);
                 } else {
@@ -3669,18 +3810,6 @@
             updateSortIndicators();
         }
 
-        function setupDisplayMode(index) {
-            const displayElement = document.querySelector(`#notes-cell-${index} .departure-notes-display`);
-            if (displayElement) {
-                displayElement.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const idx = parseInt(this.getAttribute('data-index'));
-                    appState.departureTimes[idx].editing = true;
-                    renderDeparturesList();
-                });
-            }
-        }
-
         function setupEditingMode(index) {
             const inputElement = document.querySelector(`.departure-notes-input[data-index="${index}"]`);
             const saveButton = document.querySelector(`.save-notes-btn[data-index="${index}"]`);
@@ -3690,12 +3819,10 @@
                 inputElement.focus();
                 inputElement.select();
                 
-                // Agregar evento blur
                 inputElement.addEventListener('blur', function() {
                     saveNotes(index);
                 });
                 
-                // Agregar evento keydown para Enter
                 inputElement.addEventListener('keydown', function(e) {
                     if ((e.key === 'Enter' && e.ctrlKey) || (e.key === 'Enter' && !e.shiftKey)) {
                         e.preventDefault();
@@ -3735,9 +3862,8 @@
                 appState.departureTimes[index].notes = newNotes;
                 appState.departureTimes[index].editing = false;
                 
-                saveRaceData();  // Guardar en los datos de la carrera
+                saveRaceData();
                 
-                // Encontrar la carrera actual y actualizar sus datos
                 if (appState.currentRace) {
                     const raceIndex = appState.races.findIndex(r => r.id === appState.currentRace.id);
                     if (raceIndex !== -1) {
@@ -3800,7 +3926,7 @@
             
             sortedForExport.forEach(departure => {
                 const date = new Date(departure.timestamp);
-                const timeValue = departure.timeValue || '--:--:--'; // Se actualizará cuando tengas el valor
+                const timeValue = departure.timeValue || '--:--:--';
                 
                 data.push([
                     departure.corredor,
@@ -3817,19 +3943,18 @@
             XLSX.utils.book_append_sheet(wb, ws, "Salidas");
             
             const colWidths = [
-                {wch: 8},   // Salida
-                {wch: 10},  // Tiempo
-                {wch: 50},  // Nota
-                {wch: 12},  // Fecha
-                {wch: 10},  // Hora
-                {wch: 15}   // Timestamp
+                {wch: 8},
+                {wch: 10},
+                {wch: 50},
+                {wch: 12},
+                {wch: 10},
+                {wch: 15}
             ];
             ws['!cols'] = colWidths;
             
-            // Estilos para las cabeceras (primeras filas)
             const headerRange = XLSX.utils.decode_range(ws['!ref']);
-            for (let R = 0; R <= 4; R++) { // Filas 0-4 (información de la carrera)
-                for (let C = 0; C <= 1; C++) { // Columnas A-B
+            for (let R = 0; R <= 4; R++) {
+                for (let C = 0; C <= 1; C++) {
                     const cellAddress = XLSX.utils.encode_cell({r: R, c: C});
                     if (!ws[cellAddress]) continue;
                     ws[cellAddress].s = {
@@ -3839,8 +3964,7 @@
                 }
             }
             
-            // Estilos para las cabeceras de la tabla (fila 6)
-            const headerRow = 6; // Fila donde empieza la tabla
+            const headerRow = 6;
             for (let C = 0; C <= 5; C++) {
                 const cellAddress = XLSX.utils.encode_cell({r: headerRow, c: C});
                 if (!ws[cellAddress]) continue;
@@ -3851,7 +3975,6 @@
                 };
             }
             
-            // Añadir filtros automáticos a la tabla
             ws['!autofilter'] = {
                 ref: XLSX.utils.encode_range({
                     s: { r: headerRow, c: 0 },
@@ -3859,7 +3982,6 @@
                 })
             };
             
-            // Calcular nombre del archivo
             const raceName = appState.currentRace ? 
                 appState.currentRace.name.replace(/[^a-z0-9]/gi, '_').substring(0, 50) : 'carrera';
             const date = new Date().toISOString().split('T')[0];
@@ -3877,12 +3999,11 @@
             
             appState.departureTimes = [];
             appState.departedCount = 0;
-            appState.raceStartTime = null;  // ← Reiniciar el tiempo inicial
+            appState.raceStartTime = null;
             document.getElementById('start-position').value = 1;
             document.getElementById('departed-count').textContent = 0;
             document.getElementById('total-time-value').textContent = '00:00:00';
             
-            // Guardar cambios en la carrera
             saveRaceData();
             renderDeparturesList();
             
@@ -3902,16 +4023,15 @@
             }
             
             const isVariableMode = document.getElementById('variable-interval-config').style.display !== 'none';
+            appState.isVariableMode = isVariableMode;
             
             if (isVariableMode && appState.intervals.length === 0) {
                 showMessage('Debes configurar al menos un tramo para el modo "Varios tramos"', 'error');
                 return;
             }
             
-            // IMPORTANTE: updateCadenceTime() creará el intervalo único si es necesario
             updateCadenceTime();
             
-            // Verificar que hay intervalos configurados
             if (appState.intervals.length === 0) {
                 showMessage('Error: No hay intervalos configurados', 'error');
                 return;
@@ -3953,7 +4073,6 @@
             
             keepScreenAwake();
             
-            // Guardar el intervalo único en la carrera si estamos en modo single
             if (!isVariableMode && appState.currentRace) {
                 appState.currentRace.intervals = [...appState.intervals];
                 saveRaceData();
@@ -3968,6 +4087,7 @@
 
         function updateCadenceTime() {
             const isVariableMode = document.getElementById('variable-interval-config').style.display !== 'none';
+            appState.isVariableMode = isVariableMode;
             
             if (!isVariableMode) {
                 const minutes = parseInt(document.getElementById('interval-minutes').value) || 0;
@@ -3976,7 +4096,6 @@
                 
                 appState.nextCorredorTime = totalSeconds;
                 
-                // Crear el intervalo único SOLO cuando se inicia la cuenta atrás
                 appState.intervals = [{
                     from: 1,
                     to: 9999,
@@ -3987,13 +4106,11 @@
                 
                 console.log("Intervalo único creado para cuenta atrás:", minutes, "min", seconds, "seg");
             } else {
-                // En modo variable, ya deberían existir los intervalos
                 updateCurrentInterval();
             }
             
             updateNextCorredorDisplay();
         }
-
         
         function updateCountdown() {
             if (!appState.countdownActive || appState.countdownPaused) return;
@@ -4163,9 +4280,6 @@
             
             const display = document.getElementById('total-time-value');
             display.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            
-            // NOTA: Ya no necesitamos actualizar los tiempos de salida aquí
-            // porque cada salida ya almacenó su tiempo exacto en el momento del registro
         }
 
         function stopCountdown() {
@@ -4188,7 +4302,6 @@
             appState.aggressiveMode = false;
             appState.configModalOpen = false;
             
-            // CORRECCIÓN: Limpiar las clases de estado del body
             document.body.classList.remove(
                 'countdown-normal', 
                 'countdown-warning', 
@@ -4196,14 +4309,10 @@
                 'countdown-salida'
             );
             
-            // CORRECCIÓN: También remover la clase aggressive-numbers de la pantalla
             document.getElementById('countdown-screen').classList.remove('aggressive-numbers');
             
-            // CORRECCIÓN: Restaurar el fondo original
             document.body.style.backgroundColor = '';
             document.body.style.background = '';
-            
-            // CORRECCIÓN: Si hay animaciones de pulso, detenerlas
             document.body.style.animation = '';
             
             document.getElementById('total-time-value').textContent = '00:00:00';
@@ -4242,7 +4351,7 @@
                 description: description,
                 createdAt: new Date().toISOString(),
                 lastModified: new Date().toISOString(),
-                cadenceMode: 'single', // 'single' o 'variable'
+                cadenceMode: 'single',
                 departures: [],
                 intervals: []
             };
@@ -4250,15 +4359,13 @@
             appState.races.push(newRace);
             appState.currentRace = newRace;
             
-            // Inicializar datos de la nueva carrera
             appState.departureTimes = [];
             appState.departedCount = 0;
             appState.intervals = [];
+            appState.isVariableMode = false;
             
-            // Establecer modo por defecto
             switchToSingleMode();
             
-            // Actualizar UI
             document.getElementById('departed-count').textContent = 0;
             document.getElementById('start-position').value = 1;
             renderDeparturesList();
@@ -4291,15 +4398,14 @@
                     });
                 }
                 
-                // Resetear datos
                 appState.departureTimes = [];
                 appState.departedCount = 0;
                 appState.intervals = [];
+                appState.isVariableMode = false;
                 
                 document.getElementById('start-position').value = 1;
                 document.getElementById('departed-count').textContent = 0;
                 
-                // Restablecer a modo simple por defecto
                 document.getElementById('single-interval-config').style.display = 'block';
                 document.getElementById('variable-interval-config').style.display = 'none';
                 document.getElementById('same-interval-btn').classList.add('active');
@@ -4356,14 +4462,12 @@
             
             renderIntervalsList();
             
-            // Guardar en la carrera actual
             if (appState.currentRace) {
                 appState.currentRace.cadenceMode = 'variable';
                 appState.currentRace.intervals = [...appState.intervals];
                 saveRaceData();
             }
             
-            // También guardar en config local
             intervalConfig.variableMode = {
                 intervals: [...appState.intervals],
                 saved: true
@@ -4378,39 +4482,284 @@
             showMessage(translations[appState.currentLanguage].intervalAdded, 'success');
         }
 
-
         function renderIntervalsList() {
             const container = document.getElementById('intervals-list');
             container.innerHTML = '';
             
-            appState.intervals.forEach((interval, index) => {
+            const sortedIntervals = [...appState.intervals].sort((a, b) => a.from - b.from);
+            
+            sortedIntervals.forEach((interval, index) => {
+                const originalIndex = appState.intervals.findIndex(i => 
+                    i.from === interval.from && 
+                    i.to === interval.to && 
+                    i.totalSeconds === interval.totalSeconds
+                );
+                
                 const row = document.createElement('div');
                 row.className = 'interval-row';
+                row.setAttribute('data-index', originalIndex);
                 row.innerHTML = `
                     <div class="interval-info">
-                        <div class="interval-range">Corredores ${interval.from} - ${interval.to}</div>
-                        <div class="interval-time">Cada: ${interval.minutes}min ${interval.seconds}s</div>
+                        <div class="interval-range">
+                            <strong>${interval.from} - ${interval.to}</strong>
+                        </div>
+                        <div class="interval-time">
+                            <i class="fas fa-clock"></i> 
+                            ${interval.minutes}min ${interval.seconds.toString().padStart(2, '0')}s
+                        </div>
                     </div>
-                    <button class="btn btn-danger btn-sm remove-interval-btn" data-index="${index}">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <div class="interval-actions">
+                        <button class="btn btn-secondary btn-sm edit-interval-btn" 
+                                data-index="${originalIndex}" 
+                                title="Editar este tramo">
+                            <i class="fas fa-edit"></i>
+                            <span class="btn-text">Editar</span>
+                        </button>
+                        <button class="btn btn-danger btn-sm remove-interval-btn" 
+                                data-index="${originalIndex}" 
+                                title="Eliminar este tramo">
+                            <i class="fas fa-trash"></i>
+                            <span class="btn-text">Eliminar</span>
+                        </button>
+                    </div>
                 `;
                 container.appendChild(row);
             });
             
-            document.querySelectorAll('.remove-interval-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
+            if (appState.intervals.length === 0) {
+                const emptyMessage = document.createElement('div');
+                emptyMessage.className = 'empty-state';
+                emptyMessage.innerHTML = `
+                    <i class="fas fa-plus-circle" style="font-size: 2rem; color: var(--gray); margin-bottom: 10px;"></i>
+                    <p style="color: var(--gray); font-style: italic;">
+                        No hay tramos configurados. Añade el primer tramo usando el formulario superior.
+                    </p>
+                `;
+                container.appendChild(emptyMessage);
+            }
+            
+            document.querySelectorAll('.interval-row').forEach(row => {
+                row.addEventListener('dblclick', function(e) {
+                    e.stopPropagation();
                     const index = parseInt(this.getAttribute('data-index'));
-                    appState.intervals.splice(index, 1);
-                    renderIntervalsList();
-                    
-                    intervalConfig.variableMode = {
-                        intervals: [...appState.intervals],
-                        saved: true
-                    };
-                    saveIntervalConfig();
+                    if (!isNaN(index) && index >= 0 && index < appState.intervals.length) {
+                        openEditIntervalModal(index);
+                    }
+                });
+                
+                row.addEventListener('mouseenter', function() {
+                    this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+                });
+                
+                row.addEventListener('mouseleave', function() {
+                    this.style.boxShadow = '';
                 });
             });
+            
+            updateIntervalCount();
+        }  
+        
+        function setupEditIntervalModalEvents() {
+            console.log("Configurando eventos del modal de edición...");
+            
+            document.addEventListener('click', function(e) {
+                if (e.target && e.target.id === 'save-edit-interval-btn') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("Botón Guardar Cambios clickeado");
+                    saveEditedInterval();
+                }
+                
+                if (e.target && e.target.id === 'cancel-edit-interval-btn') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("Botón Cancelar clickeado");
+                    cancelEditInterval();
+                }
+                
+                if (e.target && e.target.id === 'edit-interval-modal-close') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("Botón Cerrar modal clickeado");
+                    cancelEditInterval();
+                }
+            });
+            
+            document.getElementById('edit-interval-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('edit-interval-modal')) {
+                    cancelEditInterval();
+                }
+            });
+            
+            document.getElementById('edit-interval-form').addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+            
+            document.getElementById('edit-interval-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("Formulario de edición enviado");
+                saveEditedInterval();
+            });
+            
+            const saveBtn = document.getElementById('save-edit-interval-btn');
+            const cancelBtn = document.getElementById('cancel-edit-interval-btn');
+            const closeBtn = document.getElementById('edit-interval-modal-close');
+            
+            if (saveBtn) {
+                saveBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    saveEditedInterval();
+                });
+            }
+            
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    cancelEditInterval();
+                });
+            }
+            
+            if (closeBtn) {
+                closeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    cancelEditInterval();
+                });
+            }
+        }
+
+        function setupIntervalsEvents() {
+            console.log("Configurando eventos de intervalos...");
+            
+            let lastClickTime = 0;
+            let lastClickRow = null;
+            const DOUBLE_CLICK_DELAY = 300;
+            
+            document.addEventListener('click', function(e) {
+                const deleteButton = e.target.closest('.remove-interval-btn');
+                if (deleteButton) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("Botón ELIMINAR clickeado");
+                    
+                    const index = parseInt(deleteButton.getAttribute('data-index'));
+                    console.log("Índice del intervalo a eliminar:", index);
+                    
+                    if (!isNaN(index) && index >= 0 && index < appState.intervals.length) {
+                        console.log("Eliminando intervalo en índice:", index);
+                        
+                        const interval = appState.intervals[index];
+                        if (confirm(`¿Estás seguro de que quieres eliminar el tramo ${interval.from}-${interval.to}?`)) {
+                            appState.intervals.splice(index, 1);
+                            
+                            renderIntervalsList();
+                            
+                            intervalConfig.variableMode = {
+                                intervals: [...appState.intervals],
+                                saved: true
+                            };
+                            saveIntervalConfig();
+                            
+                            if (appState.currentRace) {
+                                appState.currentRace.intervals = [...appState.intervals];
+                                saveRaceData();
+                            }
+                            
+                            if (appState.countdownActive) {
+                                updateCurrentInterval();
+                                saveAppState();
+                            }
+                            
+                            showMessage('Tramo eliminado correctamente', 'success');
+                            console.log("Intervalo eliminado. Total restante:", appState.intervals.length);
+                        }
+                    } else {
+                        console.error("Índice inválido:", index);
+                    }
+                    return;
+                }
+                
+                const editButton = e.target.closest('.edit-interval-btn');
+                if (editButton) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("Botón EDITAR clickeado");
+                    
+                    const index = parseInt(editButton.getAttribute('data-index'));
+                    console.log("Índice del intervalo a editar:", index);
+                    
+                    if (!isNaN(index) && index >= 0 && index < appState.intervals.length) {
+                        console.log("Abriendo modal para editar intervalo:", index);
+                        openEditIntervalModal(index);
+                    } else {
+                        console.error("Índice inválido para editar:", index);
+                    }
+                    return;
+                }
+                
+                const row = e.target.closest('.interval-row');
+                if (row && !e.target.closest('button')) {
+                    console.log("Clic en fila (no en botón)");
+                    
+                    const currentTime = new Date().getTime();
+                    const timeSinceLastClick = currentTime - lastClickTime;
+                    
+                    const isDoubleClick = (timeSinceLastClick < DOUBLE_CLICK_DELAY) && 
+                                        (lastClickRow === row);
+                    
+                    if (!isDoubleClick) {
+                        lastClickTime = currentTime;
+                        lastClickRow = row;
+                    } else {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        const index = parseInt(row.getAttribute('data-index'));
+                        
+                        if (!isNaN(index) && index >= 0 && index < appState.intervals.length) {
+                            console.log("DOBLE CLIC en fila para editar intervalo:", index);
+                            openEditIntervalModal(index);
+                        }
+                        
+                        lastClickTime = 0;
+                        lastClickRow = null;
+                    }
+                } else {
+                    lastClickTime = 0;
+                    lastClickRow = null;
+                }
+            });
+            
+            document.addEventListener('dblclick', function(e) {
+                if (e.target.closest('.remove-interval-btn') || 
+                    e.target.closest('.edit-interval-btn')) {
+                    console.log("Doble clic en botón - ignorando");
+                    return;
+                }
+                
+                const row = e.target.closest('.interval-row');
+                if (row) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const index = parseInt(row.getAttribute('data-index'));
+                    
+                    if (!isNaN(index) && index >= 0 && index < appState.intervals.length) {
+                        console.log("Evento dblclick en fila para editar:", index);
+                        openEditIntervalModal(index);
+                    }
+                }
+            });
+            
+            console.log("Eventos de intervalos configurados correctamente");
+        }
+                
+        function updateIntervalCount() {
+            const count = appState.intervals.length;
+            console.log("Total de intervalos configurados:", count);
         }
 
         function sendSuggestion() {
@@ -4492,7 +4841,6 @@
 
         function switchToSingleMode() {
             if (document.getElementById('variable-interval-config').style.display !== 'none') {
-                // Guardar configuración de variable mode antes de cambiar
                 if (appState.currentRace) {
                     appState.currentRace.intervals = [...appState.intervals];
                     appState.currentRace.cadenceMode = 'variable';
@@ -4506,7 +4854,6 @@
                 saveIntervalConfig();
             }
             
-            // Cargar configuración de single mode
             document.getElementById('interval-minutes').value = intervalConfig.singleMode.minutes;
             document.getElementById('interval-seconds').value = intervalConfig.singleMode.seconds;
             
@@ -4518,18 +4865,14 @@
             
             const totalSeconds = intervalConfig.singleMode.minutes * 60 + intervalConfig.singleMode.seconds;
             
-            // IMPORTANTE: NO crear automáticamente el intervalo 1-9999
-            // Solo mantener los valores en intervalConfig.singleMode
-            // El intervalo se creará dinámicamente cuando se necesite (en updateCadenceTime())
+            appState.isVariableMode = false;
             
-            // Guardar en la carrera actual
             if (appState.currentRace) {
                 appState.currentRace.cadenceMode = 'single';
-                // Solo guardar intervalos si realmente existen
                 if (appState.intervals.length > 0) {
                     appState.currentRace.intervals = [...appState.intervals];
                 } else {
-                    appState.currentRace.intervals = []; // ← Vaciar intervalos
+                    appState.currentRace.intervals = [];
                 }
                 saveRaceData();
             }
@@ -4557,30 +4900,105 @@
             document.getElementById('same-interval-btn').classList.remove('active');
             document.getElementById('variable-interval-btn').classList.add('active');
             
-            // Cargar intervalos de la carrera actual si existen
+            appState.isVariableMode = true;
+            
             if (appState.currentRace && appState.currentRace.intervals && appState.currentRace.intervals.length > 0) {
                 appState.intervals = [...appState.currentRace.intervals];
                 renderIntervalsList();
             } else if (intervalConfig.variableMode.saved && intervalConfig.variableMode.intervals.length > 0) {
-                // Cargar de configuración local si no hay en la carrera
                 appState.intervals = [...intervalConfig.variableMode.intervals];
                 renderIntervalsList();
                 
-                // Guardar en la carrera actual
                 if (appState.currentRace) {
                     appState.currentRace.cadenceMode = 'variable';
                     appState.currentRace.intervals = [...appState.intervals];
                     saveRaceData();
                 }
             } else {
-                // Si no hay intervalos, mostrar lista vacía
                 appState.intervals = [];
                 renderIntervalsList();
             }
             
             console.log("Modo variable activado. Intervalos:", appState.intervals.length);
         }   
+        
+        function setupEditIntervalModalEvents() {
+            console.log("Configurando eventos del modal de edición...");
+            
+            document.addEventListener('click', function(e) {
+                if (e.target && e.target.id === 'save-edit-interval-btn') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("Botón Guardar Cambios clickeado");
+                    saveEditedInterval();
+                }
                 
+                if (e.target && e.target.id === 'cancel-edit-interval-btn') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("Botón Cancelar clickeado");
+                    cancelEditInterval();
+                }
+                
+                if (e.target && e.target.id === 'edit-interval-modal-close') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("Botón Cerrar modal clickeado");
+                    cancelEditInterval();
+                }
+            });
+            
+            document.getElementById('edit-interval-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('edit-interval-modal')) {
+                    cancelEditInterval();
+                }
+            });
+            
+            document.getElementById('edit-interval-form').addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+            
+            document.querySelectorAll('.edit-interval-input').forEach(input => {
+                input.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+            });
+            
+            document.getElementById('edit-interval-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("Formulario de edición enviado");
+                saveEditedInterval();
+            });
+            
+            const saveBtn = document.getElementById('save-edit-interval-btn');
+            const cancelBtn = document.getElementById('cancel-edit-interval-btn');
+            const closeBtn = document.getElementById('edit-interval-modal-close');
+            
+            if (saveBtn) {
+                saveBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    saveEditedInterval();
+                });
+            }
+            
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    cancelEditInterval();
+                });
+            }
+            
+            if (closeBtn) {
+                closeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    cancelEditInterval();
+                });
+            }
+        }
 
         // ============================================
         // EVENT LISTENERS - FUNCIÓN CORREGIDA
@@ -4589,7 +5007,6 @@
         function setupEventListeners() {
             console.log("Configurando event listeners...");
             
-            // Selector de idioma
             document.querySelectorAll('.flag').forEach(flag => {
                 flag.addEventListener('click', function() {
                     const lang = this.getAttribute('data-lang');
@@ -4599,12 +5016,10 @@
                 });
             });
 
-            // Botón de reiniciar/salir completamente
             document.getElementById('exit-complete-btn').addEventListener('click', () => {
                 document.getElementById('restart-confirm-modal').classList.add('active');
             });
 
-            // Cerrar modal de reinicio
             document.getElementById('restart-modal-close').addEventListener('click', () => {
                 document.getElementById('restart-confirm-modal').classList.remove('active');
             });
@@ -4613,7 +5028,6 @@
                 document.getElementById('restart-confirm-modal').classList.remove('active');
             });
 
-            // Confirmar reinicio completo
             document.getElementById('restart-confirm-btn').addEventListener('click', () => {
                 if (appState.countdownActive) {
                     stopCountdown();
@@ -4623,7 +5037,6 @@
                     });
                 }
                 
-                // Reiniciar solo los datos de la sesión, NO los de la carrera
                 appState.departedCount = 0;
                 appState.nextCorredorTime = 60;
                 appState.currentIntervalIndex = 0;
@@ -4636,8 +5049,6 @@
                 document.getElementById('start-position').value = 1;
                 updateNextCorredorDisplay();
                 
-                // NO limpiar departureTimes aquí - pertenecen a la carrera
-                // Solo actualizar la UI con los datos existentes
                 renderDeparturesList();
                 document.getElementById('total-time-value').textContent = '00:00:00';
                 
@@ -4649,7 +5060,6 @@
                 console.log("Sesión reiniciada, datos de carrera preservados");
             });
 
-            // Botón de ayuda
             document.getElementById('help-icon-header').addEventListener('click', () => {
                 document.getElementById('help-modal').classList.add('active');
             });
@@ -4658,7 +5068,6 @@
                 document.getElementById('help-modal').classList.add('active');
             });
             
-            // Cerrar modales
             document.getElementById('help-modal-close').addEventListener('click', () => {
                 document.getElementById('help-modal').classList.remove('active');
             });
@@ -4699,7 +5108,6 @@
                 document.getElementById('new-race-modal').classList.remove('active');
             });
             
-            // Modal de configuración durante cuenta atrás
             document.getElementById('config-during-countdown-close').addEventListener('click', () => {
                 document.getElementById('config-during-countdown-modal').classList.remove('active');
                 resumeCountdownVisual();
@@ -4729,7 +5137,6 @@
                 document.getElementById('adjust-current-time').value = appState.countdownValue;
             });
             
-            // Modal de ajuste de tiempos
             document.getElementById('adjust-times-close').addEventListener('click', () => {
                 document.getElementById('adjust-times-modal').classList.remove('active');
                 resumeCountdownVisual();
@@ -4765,7 +5172,6 @@
                 showMessage('Tiempos ajustados correctamente', 'success');
             });
             
-            // Cerrar modal al hacer clic fuera
             document.querySelectorAll('.modal').forEach(modal => {
                 modal.addEventListener('click', (e) => {
                     if (e.target === modal) {
@@ -4778,22 +5184,16 @@
                 });
             });
             
-            // Gestión de carreras
             document.getElementById('race-select').addEventListener('change', function() {
                 const index = parseInt(this.value);
                 if (index >= 0 && index < appState.races.length) {
-                    // Guardar datos de la carrera anterior si existe
                     if (appState.currentRace) {
                         saveRaceData();
                     }
                     
-                    // Cambiar a la nueva carrera
                     appState.currentRace = appState.races[index];
                     
-                    // Cargar datos de la nueva carrera
                     loadRaceData();
-                    
-                    // La función loadRaceData() ya se encarga de configurar el modo correcto
                     
                     saveRacesToStorage();
                     
@@ -4802,17 +5202,16 @@
                     console.log("Salidas:", appState.departureTimes.length);
                     console.log("Intervalos:", appState.intervals.length);
                 } else {
-                    // Si se selecciona "Selecciona una carrera"
                     appState.currentRace = null;
                     appState.departureTimes = [];
                     appState.departedCount = 0;
                     appState.intervals = [];
+                    appState.isVariableMode = false;
                     
                     document.getElementById('departed-count').textContent = 0;
                     document.getElementById('start-position').value = 1;
                     renderDeparturesList();
                     
-                    // Restablecer a modo simple por defecto
                     document.getElementById('single-interval-config').style.display = 'block';
                     document.getElementById('variable-interval-config').style.display = 'none';
                     document.getElementById('same-interval-btn').classList.add('active');
@@ -4838,24 +5237,20 @@
                 deleteCurrentRace();
             });
 
-            // Configuración de intervalos
             document.getElementById('same-interval-btn').addEventListener('click', function() {
                 switchToSingleMode();
-                // Guardar inmediatamente el cambio de modo
                 if (appState.currentRace) {
                     saveRaceData();
                 }
             });
             document.getElementById('variable-interval-btn').addEventListener('click', function() {
                 switchToVariableMode();
-                // Guardar inmediatamente el cambio de modo
                 if (appState.currentRace) {
                     saveRaceData();
                 }
             });
             document.getElementById('add-interval-btn').addEventListener('click', addVariableInterval);
             
-            // Configuración de posición actual
             document.getElementById('start-position').addEventListener('change', function() {
                 const position = parseInt(this.value) || 1;
                 appState.departedCount = Math.max(0, position - 1);
@@ -4873,7 +5268,6 @@
                 saveAppState();
             });
             
-            // Limpiar salidas
             document.getElementById('clear-departures-btn').addEventListener('click', () => {
                 if (appState.departureTimes.length === 0) {
                     showMessage('La lista ya está vacía', 'info');
@@ -4887,13 +5281,10 @@
                 document.getElementById('clear-departures-modal').classList.remove('active');
             });
             
-            // Exportar Excel
             document.getElementById('export-excel-btn').addEventListener('click', exportToExcel);
             
-            // Iniciar cuenta atrás
             document.getElementById('start-countdown-btn').addEventListener('click', startCountdown);
             
-            // Configuración en pantalla de ejecución
             document.getElementById('config-toggle').addEventListener('click', function(e) {
                 e.stopPropagation();
                 
@@ -4913,7 +5304,6 @@
                 }
             });
             
-            // Edición inline del tiempo del próximo corredor
             document.getElementById('next-corredor-time').addEventListener('dblclick', function(e) {
                 e.stopPropagation();
                 
@@ -4947,7 +5337,7 @@
                     if (seconds > 0) {
                         appState.nextCorredorTime = seconds;
                         
-                        if (appState.intervals.length === 1) {
+                        if (appState.intervals.length === 1 && !appState.isVariableMode) {
                             appState.intervals[0].totalSeconds = seconds;
                             appState.intervals[0].minutes = Math.floor(seconds / 60);
                             appState.intervals[0].seconds = seconds % 60;
@@ -4975,7 +5365,6 @@
                 });
             });
             
-            // Edición inline de contadores
             document.getElementById('departed-count').addEventListener('dblclick', function(e) {
                 e.stopPropagation();
                 
@@ -5009,7 +5398,6 @@
                 });
             });
             
-            // Botones del footer
             document.getElementById('suggestions-btn').addEventListener('click', () => {
                 document.getElementById('suggestions-modal').classList.add('active');
                 document.getElementById('suggestion-text').focus();
@@ -5028,7 +5416,6 @@
                 }
             });
             
-            // Guardar configuración cuando se cambian valores en modo "Siempre igual"
             document.getElementById('interval-minutes').addEventListener('change', function() {
                 intervalConfig.singleMode.minutes = parseInt(this.value) || 0;
                 saveIntervalConfig();
@@ -5041,11 +5428,9 @@
                 updateCadenceTime();
             });
             
-            // Evento para guardar notas cuando se hace clic fuera del campo
             document.addEventListener('click', function(e) {
                 const activeInput = document.querySelector('.departure-notes-input:focus');
                 if (activeInput) {
-                    // Si el clic NO es en el input, ni en los botones de guardar/cancelar
                     if (!e.target.closest('.departure-notes-input') && 
                         !e.target.closest('.save-notes-btn') && 
                         !e.target.closest('.cancel-notes-btn')) {
@@ -5059,7 +5444,6 @@
                 }
             });
             
-            // CORRECCIÓN: Prevenir el cierre accidental del modal al hacer clic en los inputs
             document.getElementById('adjust-next-time').addEventListener('click', function(e) {
                 e.stopPropagation();
             });
@@ -5072,7 +5456,7 @@
                 e.stopPropagation();
             });
         }
-
+                
         // ============================================
         // FUNCIONES DE MANTENIMIENTO DE PANTALLA
         // ============================================
@@ -5139,7 +5523,6 @@
             }
         }
         
-        // Función para ajustar tamaño del contador
         function adjustCountdownSize() {
             const display = document.getElementById('countdown-display');
             if (!display) return;
@@ -5178,16 +5561,13 @@
             display.style.lineHeight = `${fontSize * 0.9}px`;
         }
         
-        // Función para ajustar tamaño de las cajas de información
         function adjustInfoCornersSize() {
             const screenWidth = window.innerWidth;
             const screenHeight = window.innerHeight;
             const minDimension = Math.min(screenWidth, screenHeight);
             
-            // Ajustar el tamaño máximo de las cajas según el tamaño de pantalla
             const infoCorners = document.querySelectorAll('.info-corner');
             infoCorners.forEach(corner => {
-                // Para pantallas muy pequeñas, limitar el tamaño máximo
                 if (minDimension < 400) {
                     corner.style.maxWidth = '40vw';
                 } else if (minDimension < 768) {
@@ -5198,7 +5578,6 @@
                     corner.style.maxWidth = '25vw';
                 }
                 
-                // Ajustar padding según tamaño
                 if (minDimension < 400) {
                     corner.style.padding = '0.6vw 1vw';
                 } else if (minDimension < 768) {
@@ -5209,7 +5588,6 @@
             });
         }
 
-        // Llamar a la función en eventos relevantes
         function setupCountdownResize() {
             window.addEventListener('load', function() {
                 adjustCountdownSize();
@@ -5265,8 +5643,138 @@
                 display.textContent = `${hours}:${minutes}:${seconds}`;
             }
         }
+        
+        let editingIntervalIndex = -1;
 
-        // Inicializar inmediatamente
+        function openEditIntervalModal(index) {
+            console.log("Abriendo modal de edición para índice:", index);
+            
+            if (index < 0 || index >= appState.intervals.length) {
+                console.error("Índice inválido:", index);
+                showMessage('Índice de tramo inválido', 'error');
+                return;
+            }
+            
+            const interval = appState.intervals[index];
+            console.log("Intervalo a editar:", interval);
+            
+            editingIntervalIndex = index;
+            
+            document.getElementById('edit-from-corredor').value = interval.from;
+            document.getElementById('edit-to-corredor').value = interval.to;
+            document.getElementById('edit-interval-minutes').value = interval.minutes;
+            document.getElementById('edit-interval-seconds').value = interval.seconds;
+            
+            document.getElementById('edit-interval-modal').classList.add('active');
+            document.getElementById('edit-from-corredor').focus();
+            
+            console.log("Modal abierto correctamente");
+        }
+
+        function closeEditIntervalModal() {
+            console.log("Cerrando modal de edición de intervalo");
+            
+            editingIntervalIndex = -1;
+            
+            document.getElementById('edit-from-corredor').value = '';
+            document.getElementById('edit-to-corredor').value = '';
+            document.getElementById('edit-interval-minutes').value = '';
+            document.getElementById('edit-interval-seconds').value = '';
+            
+            document.getElementById('edit-interval-modal').classList.remove('active');
+            
+            console.log("Modal cerrado");
+        }
+
+        function saveEditedInterval() {
+            console.log("saveEditedInterval iniciado, índice:", editingIntervalIndex);
+            
+            if (editingIntervalIndex < 0 || editingIntervalIndex >= appState.intervals.length) {
+                console.error("No hay tramo seleccionado para editar");
+                showMessage('No hay tramo seleccionado para editar', 'error');
+                closeEditIntervalModal();
+                return;
+            }
+            
+            const from = parseInt(document.getElementById('edit-from-corredor').value) || 1;
+            const to = parseInt(document.getElementById('edit-to-corredor').value) || 10;
+            const minutes = parseInt(document.getElementById('edit-interval-minutes').value) || 0;
+            const seconds = parseInt(document.getElementById('edit-interval-seconds').value) || 0;
+            
+            console.log("Valores del formulario:", {from, to, minutes, seconds});
+            
+            if (from > to) {
+                showMessage('El corredor "desde" debe ser menor o igual que "hasta"', 'error');
+                return;
+            }
+            
+            if (minutes === 0 && seconds === 0) {
+                showMessage('Ingresa un tiempo válido', 'error');
+                return;
+            }
+            
+            for (let i = 0; i < appState.intervals.length; i++) {
+                if (i === editingIntervalIndex) continue;
+                
+                const interval = appState.intervals[i];
+                if ((from >= interval.from && from <= interval.to) ||
+                    (to >= interval.from && to <= interval.to) ||
+                    (from <= interval.from && to >= interval.to)) {
+                    showMessage(`Este tramo se solapa con el tramo existente ${interval.from}-${interval.to}`, 'error');
+                    return;
+                }
+            }
+            
+            const totalSeconds = minutes * 60 + seconds;
+            
+            const updatedInterval = {
+                from: from,
+                to: to,
+                minutes: minutes,
+                seconds: seconds,
+                totalSeconds: totalSeconds
+            };
+            
+            console.log("Intervalo actualizado:", updatedInterval);
+            
+            appState.intervals[editingIntervalIndex] = updatedInterval;
+            
+            appState.intervals.sort((a, b) => a.from - b.from);
+            
+            const newIndex = appState.intervals.findIndex(interval => 
+                interval.from === from && interval.to === to && interval.totalSeconds === totalSeconds
+            );
+            
+            console.log("Nuevo índice después de ordenar:", newIndex);
+            
+            renderIntervalsList();
+            
+            intervalConfig.variableMode = {
+                intervals: [...appState.intervals],
+                saved: true
+            };
+            saveIntervalConfig();
+            
+            if (appState.currentRace) {
+                appState.currentRace.intervals = [...appState.intervals];
+                saveRaceData();
+            }
+            
+            if (appState.countdownActive) {
+                updateCurrentInterval();
+                saveAppState();
+            }
+            
+            closeEditIntervalModal();
+            showMessage('Tramo actualizado correctamente', 'success');
+            console.log("Intervalo guardado correctamente");
+        }
+        
+        function cancelEditInterval() {
+            console.log("Cancelando edición de intervalo");
+            closeEditIntervalModal();
+        }
+
         updateCurrentTime();
     </script>
 
