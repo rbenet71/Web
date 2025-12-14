@@ -82,5 +82,6 @@ En historial de salida, deben ser 3 columnas que se puedan ordenadar poe ellas, 
 
 
 ----------------
-no graba los datos por carrera
+linea de copyriht sin idiomas
+tabla de salidos con idiomas
 posibilidad de rerpoducir audio o beep y por idiomas.
