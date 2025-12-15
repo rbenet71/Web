@@ -101,10 +101,6 @@ al reiniciar no se borran las salidas
 el numero de salida solo sale el impar (1,3,5)
 ----------------
 
-Traducir:
-Tramos configurados
-Salida en
-
 posibilidad de rerpoducir grabación, lectura o beep y por idiomas.
 
 

@@ -2390,9 +2390,9 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <div class="section-title">
+                                <div class="section-title" >
                                     <i class="fas fa-list-ul"></i>
-                                    <span>Tramos configurados</span>
+                                    <span  id="configured-sections-label">Tramos configurados</span>
                                 </div>
                                 <div id="intervals-list">
                                     <!-- Los intervalos se agregarán aquí dinámicamente -->
@@ -2988,7 +2988,8 @@
                 countdownNormalDesc: "Cuenta atrás normal",
                 countdownWarningDesc: "Últimos 10 segundos",
                 countdownCriticalDesc: "Últimos 5 segundos",
-                countdownSalidaDesc: "Momento de salida (2 segundos)"
+                countdownSalidaDesc: "Momento de salida (2 segundos)",
+                configuredSections: "Tramos configurados"
             },
             ca: {
                 appTitle: "Crono Compte Enrere",
@@ -3114,7 +3115,8 @@
                 countdownNormalDesc: "Compte enrere normal",
                 countdownWarningDesc: "Últims 10 segons",
                 countdownCriticalDesc: "Últims 5 segons",
-                countdownSalidaDesc: "Momento de sortida (2 segons)"
+                countdownSalidaDesc: "Momento de sortida (2 segons)",
+                configuredSections: "Trams configurats"
             },
             en: {
                 appTitle: "Countdown Timer",
@@ -3240,7 +3242,8 @@
                 countdownNormalDesc: "Normal countdown",
                 countdownWarningDesc: "Last 10 seconds",
                 countdownCriticalDesc: "Last 5 seconds",
-                countdownSalidaDesc: "Start moment (2 seconds)"
+                countdownSalidaDesc: "Start moment (2 seconds)",
+                configuredSections: "Configured intervals"
             },
             fr: {
                 appTitle: "Compte à Rebours",
@@ -3366,7 +3369,8 @@
                 countdownNormalDesc: "Compte à rebours normal",
                 countdownWarningDesc: "Dernières 10 secondes",
                 countdownCriticalDesc: "Dernières 5 secondes",
-                countdownSalidaDesc: "Moment de départ (2 secondes)"
+                countdownSalidaDesc: "Moment de départ (2 secondes)",
+                configuredSections: "Intervalles configurés"
             }
         };
 
@@ -3869,6 +3873,7 @@
             document.getElementById('green-background-text').textContent = t.greenBackground;
             document.getElementById('red-numbers-text').textContent = t.redNumbers;
             document.getElementById('countdown-normal-desc').textContent = t.countdownNormalDesc;
+            document.getElementById('configured-sections-label').textContent = t.configuredSections;
             document.getElementById('countdown-warning-desc').textContent = t.countdownWarningDesc;
             document.getElementById('countdown-critical-desc').textContent = t.countdownCriticalDesc;
             document.getElementById('countdown-salida-desc').textContent = t.countdownSalidaDesc;
