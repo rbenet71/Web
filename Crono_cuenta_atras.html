@@ -2950,7 +2950,8 @@
                 noDeparturesText: "No hay salidas registradas",
                 saveButtonText: "Guardar",
                 cancelButtonText: "Cancelar",
-                editIntervalModalTitle: "Editar Tiempo por Tramo"
+                editIntervalModalTitle: "Editar Tiempo por Tramo",
+                salidaText: "SALIDA"
             },
             ca: {
                 appTitle: "Crono Compte Enrere",
@@ -3039,7 +3040,8 @@
                 noDeparturesText: "No hi ha sortides registrades",
                 saveButtonText: "Desar",
                 cancelButtonText: "Cancel·lar",
-                editIntervalModalTitle: "Editar Temps per Tram"
+                editIntervalModalTitle: "Editar Temps per Tram",
+                salidaText: "SORTIDA"
             },
             en: {
                 appTitle: "Countdown Timer",
@@ -3128,7 +3130,8 @@
                 noDeparturesText: "No departures recorded",
                 saveButtonText: "Save",
                 cancelButtonText: "Cancel",
-                editIntervalModalTitle: "Edit Time per Interval"
+                editIntervalModalTitle: "Edit Time per Interval",
+                salidaText: "GO !!!!"
             },
             fr: {
                 appTitle: "Compte à Rebours",
@@ -3217,7 +3220,8 @@
                 noDeparturesText: "Aucun départ enregistré",
                 saveButtonText: "Enregistrer",
                 cancelButtonText: "Annuler",
-                editIntervalModalTitle: "Modifier Temps par Intervalle"
+                editIntervalModalTitle: "Modifier Temps par Intervalle",
+                salidaText: "DÉPART"
             }
         };
 
@@ -3304,7 +3308,6 @@
         // ============================================
         // FUNCIONES PRINCIPALES
         // ============================================
-
         function initApp() {
             console.log("Inicializando aplicación...");
             
@@ -3317,6 +3320,7 @@
             loadRaceData();
             
             updateLanguageUI();
+            updateSalidaText();  // <-- Añade esta línea para inicializar el texto
             renderRacesSelect();
             setupSorting();
             
@@ -3338,6 +3342,8 @@
             document.addEventListener('keydown', initAudioOnInteraction);
             
             console.log("Aplicación inicializada.");
+            console.log(`Idioma inicial: ${appState.currentLanguage}`);
+            console.log(`Texto SALIDA: ${translations[appState.currentLanguage].salidaText}`);
         }
 
         function loadLanguagePreference() {
@@ -3586,6 +3592,11 @@
             document.getElementById('install-text').textContent = t.installText;
             document.getElementById('update-text').textContent = t.updateText;
 
+            // Actualizar el texto "SALIDA" en la pantalla de cuenta atrás
+            const salidaDisplay = document.getElementById('salida-display');
+            if (salidaDisplay) {
+                salidaDisplay.textContent = t.salidaText;
+            }
             
             document.querySelectorAll('.flag').forEach(flag => {
                 flag.classList.remove('active');
@@ -3593,6 +3604,16 @@
             document.getElementById('flag-' + lang).classList.add('active');
             
             updateModalTexts();
+        }
+
+        function updateSalidaText() {
+            const lang = appState.currentLanguage;
+            const t = translations[lang];
+            const salidaDisplay = document.getElementById('salida-display');
+            
+            if (salidaDisplay) {
+                salidaDisplay.textContent = t.salidaText;
+            }
         }
 
         function updateModalTexts() {
@@ -5272,10 +5293,11 @@
                     const lang = this.getAttribute('data-lang');
                     appState.currentLanguage = lang;
                     localStorage.setItem('countdown-language', lang);
-                    updateLanguageUI();
+                    updateLanguageUI();      // Actualiza toda la interfaz
+                    updateSalidaText();      // Actualiza específicamente el texto "SALIDA"
+                    console.log(`Idioma cambiado a: ${lang}`);
                 });
             });
-
             document.getElementById('exit-complete-btn').addEventListener('click', () => {
                 document.getElementById('restart-confirm-modal').classList.add('active');
             });
