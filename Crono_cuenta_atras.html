@@ -3780,6 +3780,10 @@
         // FUNCIONES PARA EL HISTORIAL DE SALIDAS
         // ============================================
         function registerDeparture() {
+            // El número de salida es el valor ACTUAL de departedCount
+            const salidaNumber = appState.departedCount + 1; // +1 porque departedCount es 0-indexed
+            
+            // Incrementar el contador de corredores salidos
             appState.departedCount++;
             
             let accumulatedSeconds = 0;
@@ -3794,7 +3798,7 @@
             const timeValue = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             
             const departure = {
-                corredor: appState.departedCount,
+                corredor: salidaNumber, // Usar el número de salida correcto
                 timestamp: Date.now(),
                 notes: '',
                 editing: false,
@@ -3804,6 +3808,7 @@
             
             appState.departureTimes.push(departure);
             
+            // Actualizar displays
             document.getElementById('departed-count').textContent = appState.departedCount;
             document.getElementById('start-position').value = appState.departedCount + 1;
             
@@ -3811,7 +3816,7 @@
             saveRaceData();
             saveAppState();
             
-            console.log("Salida registrada - Corredor:", appState.departedCount, "Tiempo:", timeValue);
+            console.log("Salida registrada - Número de salida:", salidaNumber, "Tiempo:", timeValue);
         }
 
         function renderDeparturesList() {
@@ -4197,6 +4202,20 @@
             appState.raceStartTime = Date.now();
             appState.accumulatedTime = 0;
             
+            // Si empezamos desde una posición diferente, ajustar departedCount
+            const startPosition = parseInt(document.getElementById('start-position').value) || 1;
+            appState.departedCount = startPosition - 1;
+            document.getElementById('departed-count').textContent = appState.departedCount;
+            
+            // Asegurar que el array departureTimes esté vacío si empezamos desde una nueva posición
+            if (startPosition > 1) {
+                appState.departureTimes = [];
+                if (appState.currentRace) {
+                    appState.currentRace.departures = [];
+                    saveRaceData();
+                }
+            }
+            
             updateCurrentInterval();
             
             appState.countdownActive = true;
@@ -4231,7 +4250,8 @@
             
             showMessage(translations[appState.currentLanguage].countdownStarted, 'success');
             console.log("Cuenta atrás iniciada correctamente.");
-            console.log("Intervalos activos:", appState.intervals);
+            console.log("Posición inicial:", startPosition, "Salidos:", appState.departedCount);
+            console.log("Tiempo inicial:", appState.nextCorredorTime, "segundos");
         }
 
         function updateCadenceTime() {
@@ -4351,7 +4371,11 @@
             
             playSound('salida');
             
-            registerDeparture();
+            // ¡IMPORTANTE! NO incrementar departedCount aquí
+            // Solo se incrementará en registerDeparture()
+            
+            // Registrar la salida
+            registerDeparture(); // Esta función YA incrementa departedCount
             
             appState.accumulatedTime += appState.nextCorredorTime;
             
@@ -4361,11 +4385,25 @@
                 prepareNextCountdown();
             }, 2000);
         }
+                
+        function canModifyDuringCountdown() {
+            if (!appState.countdownActive) return true;
+            
+            // No permitir modificar si faltan menos de 12 segundos
+            if (appState.countdownValue <= 15) {
+                showMessage('No se puede modificar durante los últimos 12 segundos', 'warning');
+                return false;
+            }
+            
+            return true;
+        }
 
         function prepareNextCountdown() {
-            // Primero, actualizar qué intervalo corresponde al NUEVO corredor
-            appState.departedCount++; // Ahora tenemos un corredor más salido
+            // ¡IMPORTANTE! NO incrementar departedCount aquí
+            // departedCount ya fue incrementado en registerDeparture()
             
+            // Solo actualizar qué intervalo corresponde al PRÓXIMO corredor
+            // El próximo corredor es el actual + 1 (departedCount ya fue incrementado)
             updateCurrentInterval(); // Esto debe encontrar el intervalo para el NUEVO corredor
             
             // IMPORTANTE: Usar el tiempo del intervalo encontrado
@@ -5412,6 +5450,7 @@
                 document.getElementById('restart-confirm-modal').classList.remove('active');
             });
 
+            // En setupEventListeners(), modificar el evento del botón de reinicio:
             document.getElementById('restart-confirm-btn').addEventListener('click', () => {
                 if (appState.countdownActive) {
                     stopCountdown();
@@ -5421,7 +5460,15 @@
                     });
                 }
                 
+                // RESET COMPLETO - AÑADIR ESTAS LÍNEAS:
                 appState.departedCount = 0;
+                appState.departureTimes = [];
+                
+                if (appState.currentRace) {
+                    appState.currentRace.departures = [];
+                    saveRaceData();
+                }
+                
                 appState.nextCorredorTime = 60;
                 appState.currentIntervalIndex = 0;
                 appState.accumulatedTime = 0;
@@ -5433,7 +5480,7 @@
                 document.getElementById('start-position').value = 1;
                 updateNextCorredorDisplay();
                 
-                renderDeparturesList();
+                renderDeparturesList(); // Esto mostrará la lista vacía
                 document.getElementById('total-time-value').textContent = '00:00:00';
                 
                 localStorage.removeItem('countdown-app-state');
@@ -5441,8 +5488,9 @@
                 document.getElementById('restart-confirm-modal').classList.remove('active');
                 
                 showMessage(translations[appState.currentLanguage].sessionRestarted, 'success');
-                console.log("Sesión reiniciada, datos de carrera preservados");
+                console.log("Sesión reiniciada, TODOS los datos borrados");
             });
+
 
             document.getElementById('help-icon-header').addEventListener('click', () => {
                 document.getElementById('help-modal').classList.add('active');
@@ -5697,6 +5745,12 @@
             document.getElementById('config-toggle').addEventListener('click', function(e) {
                 e.stopPropagation();
                 
+                // VALIDACIÓN AÑADIDA:
+                if (appState.countdownActive && appState.countdownValue <= 12) {
+                    showMessage('Espera a que termine la cuenta atrás (menos de 12 segundos)', 'warning');
+                    return;
+                }
+                
                 if (appState.countdownActive && !appState.configModalOpen) {
                     pauseCountdownVisual();
                     document.getElementById('config-during-countdown-modal').classList.add('active');
@@ -5716,7 +5770,11 @@
 
             document.getElementById('next-corredor-time').addEventListener('dblclick', function(e) {
                 e.stopPropagation();
-                
+
+                if (!canModifyDuringCountdown()) {
+                    return;
+                }
+
                 // Si la cuenta atrás no está activa, no permitir editar
                 if (!appState.countdownActive) {
                     showMessage('La cuenta atrás no está activa', 'warning');
@@ -5806,8 +5864,13 @@
                     }
                 });
             });
+            
+            
             document.getElementById('departed-count').addEventListener('dblclick', function(e) {
                 e.stopPropagation();
+                if (!canModifyDuringCountdown()) {
+                    return;
+                }
                 
                 const currentValue = parseInt(this.textContent) || 0;
                 const input = document.createElement('input');

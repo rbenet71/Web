@@ -91,11 +91,17 @@ poder editar los datos por tramos
 en el listado de tramos de salida, quitar la palabra corredores, el total de corredores, el total de tiempo, y el boton duplicar y los botones han de bajar si hay poco espacio. el primer boton eliminar, editar y duplicar
 el boton eleminar de las cadencias no funciona
 cuando en la pantalla de cuenta atras modificas el tiempo de salida, se modifica en la cuenta atras para el corredor actual, eso no es correcto, es para todos los que vienen después
-----------------
-
 
 la edicion de notas no funciona bien, al editar no se cierra la edicion
 
+No poder modificar datos cuenta atras si faltan menos de 12 segundos
+
+al reiniciar no se borran las salidas
+
+el numero de salida solo sale el impar (1,3,5)
+----------------
+
+
 posibilidad de rerpoducir grabación, lectura o beep y por idiomas.
-No poder modificar datos cuenta atras si faltan menos de 15 segundos
+
 
