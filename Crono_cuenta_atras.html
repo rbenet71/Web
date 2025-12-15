@@ -2530,7 +2530,7 @@
                 <div class="copyright" id="copyright-text">
                     2025 © Copyright 
                     <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                        Roberto Benet - rbenet71@gmail.com - V_14_12_2025
+                        Roberto Benet - rbenet71@gmail.com - V_15_12_2025
                     </a>
                 </div>
             </div>
@@ -2858,6 +2858,7 @@
             // NUEVA PROPIEDAD: Para saber si estamos en modo variable
             isVariableMode: false
         };
+        window.savingNotesIndex = null;
 
         // ============================================
         // TRADUCCIONES ACTUALIZADAS
@@ -3172,7 +3173,7 @@
                 helpModalList: [
                     "Sélectionnez une course ou créez-en une nouvelle",
                     "Configurez la cadence de départ (toujours égal ou plusieurs intervalles)",
-                    "Démarrez depuis le coureur 1 ou desde una position spécifique",
+                    "Démarrez depuis le coureur 1 ou desde una position específica",
                     "Appuyez sur 'DÉMARRER COMPTE À REBOURS' pour commencer",
                     "L'écran changera montrant le compte à rebours grand",
                     "Quand il atteint zéro 'DÉPART' s'affichera et le compte pour le suivant commencera"
@@ -3320,7 +3321,7 @@
             loadRaceData();
             
             updateLanguageUI();
-            updateSalidaText();  // <-- Añade esta línea para inicializar el texto
+            updateSalidaText();
             renderRacesSelect();
             setupSorting();
             
@@ -3333,10 +3334,15 @@
             adjustCountdownSize();
             adjustInfoCornersSize();
             
-            // Configurar eventos
-            setupEventListeners();
-            setupEditIntervalModalEvents();
+            // Configurar eventos - PRIMERO los de intervalos
             setupIntervalsEvents();
+            setupEditIntervalModalEvents();
+            setupEventListeners();
+            
+            // Configurar listeners adicionales específicos para intervalos
+            setTimeout(() => {
+                setupSpecificIntervalListeners();
+            }, 500);
             
             document.addEventListener('click', initAudioOnInteraction);
             document.addEventListener('keydown', initAudioOnInteraction);
@@ -3344,6 +3350,85 @@
             console.log("Aplicación inicializada.");
             console.log(`Idioma inicial: ${appState.currentLanguage}`);
             console.log(`Texto SALIDA: ${translations[appState.currentLanguage].salidaText}`);
+        }
+
+        function setupSpecificIntervalListeners() {
+            console.log("Configurando listeners específicos para intervalos...");
+            
+            // Agregar listeners directos a los botones existentes
+            document.querySelectorAll('.remove-interval-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    console.log("Evento click directo en botón eliminar");
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const index = parseInt(this.getAttribute('data-index'));
+                    handleRemoveInterval(index);
+                });
+            });
+            
+            document.querySelectorAll('.edit-interval-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    console.log("Evento click directo en botón editar");
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const index = parseInt(this.getAttribute('data-index'));
+                    if (!isNaN(index)) {
+                        openEditIntervalModal(index);
+                    }
+                });
+            });
+        }
+
+        function handleRemoveInterval(index) {
+            if (!isNaN(index) && index >= 0 && index < appState.intervals.length) {
+                const interval = appState.intervals[index];
+                if (confirm(`¿Estás seguro de que quieres eliminar el tramo ${interval.from}-${interval.to}?`)) {
+                    appState.intervals.splice(index, 1);
+                    
+                    renderIntervalsList();
+                    
+                    intervalConfig.variableMode = {
+                        intervals: [...appState.intervals],
+                        saved: true
+                    };
+                    saveIntervalConfig();
+                    
+                    if (appState.currentRace) {
+                        appState.currentRace.intervals = [...appState.intervals];
+                        saveRaceData();
+                    }
+                    
+                    if (appState.countdownActive) {
+                        updateCurrentInterval();
+                        saveAppState();
+                    }
+                    
+                    showMessage('Tramo eliminado correctamente', 'success');
+                    console.log("Intervalo eliminado. Total restante:", appState.intervals.length);
+                    
+                    // Reconfigurar listeners después de renderizar
+                    setTimeout(() => {
+                        setupSpecificIntervalListeners();
+                    }, 100);
+                }
+            }
+        }
+        function refreshIntervalButtons() {
+            // Limpiar eventos antiguos
+            document.querySelectorAll('.remove-interval-btn').forEach(btn => {
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+            });
+            
+            document.querySelectorAll('.edit-interval-btn').forEach(btn => {
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+            });
+            
+            // Agregar nuevos listeners
+            setupSpecificIntervalListeners();
         }
 
         function loadLanguagePreference() {
@@ -3775,7 +3860,12 @@
             
             tableBody.innerHTML = '';
             
-            sortedDepartures.forEach((departure, index) => {
+            sortedDepartures.forEach((departure, displayIndex) => {
+                // Encontrar el índice REAL en el array original
+                const originalIndex = appState.departureTimes.findIndex(d => 
+                    d.corredor === departure.corredor && d.timestamp === departure.timestamp
+                );
+                
                 const row = document.createElement('tr');
                 
                 const time = new Date(departure.timestamp);
@@ -3788,6 +3878,9 @@
                 
                 const t = translations[appState.currentLanguage];
                 
+                // Usar el índice ORIGINAL, no el de display
+                const actualIndex = originalIndex !== -1 ? originalIndex : displayIndex;
+                
                 row.innerHTML = `
                     <td class="departure-dorsal-cell">${departure.corredor}</td>
                     <td class="departure-time-value-cell">
@@ -3796,13 +3889,13 @@
                     <td class="departure-notes-cell">
                         ${departure.editing ? 
                             `<div class="notes-edit-container">
-                                <textarea class="departure-notes-input" rows="2" placeholder="${t.departurePlaceholder}" data-index="${index}">${departure.notes || ''}</textarea>
+                                <textarea id="notes-input-${actualIndex}" class="departure-notes-input" rows="2" placeholder="${t.departurePlaceholder}" data-index="${actualIndex}">${departure.notes || ''}</textarea>
                                 <div class="notes-buttons">
-                                    <button class="save-notes-btn" data-index="${index}">${t.saveButtonText}</button>
-                                    <button class="cancel-notes-btn" data-index="${index}">${t.cancelButtonText}</button>
+                                    <button class="save-notes-btn" data-index="${actualIndex}">${t.saveButtonText}</button>
+                                    <button class="cancel-notes-btn" data-index="${actualIndex}">${t.cancelButtonText}</button>
                                 </div>
                             </div>` :
-                            `<div class="departure-notes-display ${!departure.notes ? 'empty' : ''}" data-index="${index}">
+                            `<div class="departure-notes-display ${!departure.notes ? 'empty' : ''}" data-index="${actualIndex}">
                                 ${departure.notes || t.departurePlaceholder + '...'}
                             </div>`
                         }
@@ -3815,15 +3908,17 @@
                 tableBody.appendChild(row);
                 
                 if (departure.editing) {
-                    setupEditingMode(index);
+                    setupEditingMode(actualIndex);
                 } else {
                     const displayElement = row.querySelector('.departure-notes-display');
                     if (displayElement) {
                         displayElement.addEventListener('click', function(e) {
                             e.stopPropagation();
                             const idx = parseInt(this.getAttribute('data-index'));
-                            appState.departureTimes[idx].editing = true;
-                            renderDeparturesList();
+                            if (idx >= 0 && idx < appState.departureTimes.length) {
+                                appState.departureTimes[idx].editing = true;
+                                renderDeparturesList();
+                            }
                         });
                     }
                 }
@@ -3832,46 +3927,80 @@
             updateSortIndicators();
         }
 
+
         function setupEditingMode(index) {
+            // Usar el índice directamente del atributo data-index
             const inputElement = document.querySelector(`.departure-notes-input[data-index="${index}"]`);
             const saveButton = document.querySelector(`.save-notes-btn[data-index="${index}"]`);
             const cancelButton = document.querySelector(`.cancel-notes-btn[data-index="${index}"]`);
             
             if (inputElement) {
-                inputElement.focus();
-                inputElement.select();
+                inputElement.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
                 
-                inputElement.addEventListener('blur', function() {
-                    saveNotes(index);
+                inputElement.addEventListener('focus', function(e) {
+                    e.stopPropagation();
+                });
+                
+                inputElement.addEventListener('blur', function(e) {
+                    e.stopPropagation();
+                    // Solo guardar si el blur no fue causado por hacer clic en save/cancel
+                    if (!e.relatedTarget || 
+                        (!e.relatedTarget.classList.contains('save-notes-btn') && 
+                        !e.relatedTarget.classList.contains('cancel-notes-btn'))) {
+                        saveNotes(index);
+                    }
                 });
                 
                 inputElement.addEventListener('keydown', function(e) {
+                    e.stopPropagation();
                     if ((e.key === 'Enter' && e.ctrlKey) || (e.key === 'Enter' && !e.shiftKey)) {
                         e.preventDefault();
                         saveNotes(index);
                     }
                 });
+                
+                setTimeout(() => {
+                    inputElement.focus();
+                    inputElement.select();
+                }, 100);
             }
             
             if (saveButton) {
                 saveButton.addEventListener('click', function(e) {
                     e.preventDefault();
-                    e.stopPropagation();
                     saveNotes(index);
                 });
+                
+                // También agregar event listener al contenedor de botones para prevenir propagación
+                const buttonContainer = saveButton.closest('.notes-buttons');
+                if (buttonContainer) {
+                    buttonContainer.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                    });
+                }
             }
             
             if (cancelButton) {
                 cancelButton.addEventListener('click', function(e) {
                     e.preventDefault();
-                    e.stopPropagation();
-                    appState.departureTimes[index].editing = false;
-                    renderDeparturesList();
+                    if (index >= 0 && index < appState.departureTimes.length) {
+                        appState.departureTimes[index].editing = false;
+                        renderDeparturesList();
+                    }
                 });
             }
         }
 
+
         function saveNotes(index) {
+            // Verificar que el índice sea válido
+            if (index < 0 || index >= appState.departureTimes.length) {
+                console.error("Índice inválido en saveNotes:", index);
+                return;
+            }
+            
             const inputElement = document.querySelector(`.departure-notes-input[data-index="${index}"]`);
             if (!inputElement) {
                 console.error("Elemento input no encontrado para índice:", index);
@@ -3880,25 +4009,23 @@
             
             const newNotes = inputElement.value.trim();
             
-            if (index >= 0 && index < appState.departureTimes.length) {
-                appState.departureTimes[index].notes = newNotes;
-                appState.departureTimes[index].editing = false;
-                
-                saveRaceData();
-                
-                if (appState.currentRace) {
-                    const raceIndex = appState.races.findIndex(r => r.id === appState.currentRace.id);
-                    if (raceIndex !== -1) {
-                        appState.races[raceIndex].departures = [...appState.departureTimes];
-                        saveRacesToStorage();
-                        console.log("Nota guardada para corredor:", appState.departureTimes[index].corredor);
-                    }
+            appState.departureTimes[index].notes = newNotes;
+            appState.departureTimes[index].editing = false;
+            
+            saveRaceData();
+            
+            if (appState.currentRace) {
+                const raceIndex = appState.races.findIndex(r => r.id === appState.currentRace.id);
+                if (raceIndex !== -1) {
+                    appState.races[raceIndex].departures = [...appState.departureTimes];
+                    saveRacesToStorage();
+                    console.log("Nota guardada para corredor:", appState.departureTimes[index].corredor);
                 }
-                
-                setTimeout(() => {
-                    renderDeparturesList();
-                }, 50);
             }
+            
+            setTimeout(() => {
+                renderDeparturesList();
+            }, 50);
         }
 
         function updateSortIndicators() {
@@ -4759,6 +4886,11 @@
             document.getElementById('to-corredor').value = to + 10;
             document.getElementById('var-minutes').value = 1;
             document.getElementById('var-seconds').value = 0;
+
+            // Refrescar botones
+            setTimeout(() => {
+                refreshIntervalButtons();
+            }, 100);
             
             showMessage(translations[appState.currentLanguage].intervalAdded, 'success');
         }
@@ -4770,15 +4902,9 @@
             const sortedIntervals = [...appState.intervals].sort((a, b) => a.from - b.from);
             
             sortedIntervals.forEach((interval, index) => {
-                const originalIndex = appState.intervals.findIndex(i => 
-                    i.from === interval.from && 
-                    i.to === interval.to && 
-                    i.totalSeconds === interval.totalSeconds
-                );
-                
                 const row = document.createElement('div');
                 row.className = 'interval-row';
-                row.setAttribute('data-index', originalIndex);
+                row.setAttribute('data-index', index);
                 row.innerHTML = `
                     <div class="interval-info">
                         <div class="interval-range">
@@ -4791,19 +4917,27 @@
                     </div>
                     <div class="interval-actions">
                         <button class="btn btn-secondary btn-sm edit-interval-btn" 
-                                data-index="${originalIndex}" 
-                                title="Editar este tramo">
+                                data-index="${index}" 
+                                title="Editar este tramo"
+                                onclick="event.stopPropagation();">
                             <i class="fas fa-edit"></i>
                             <span class="btn-text">Editar</span>
                         </button>
                         <button class="btn btn-danger btn-sm remove-interval-btn" 
-                                data-index="${originalIndex}" 
-                                title="Eliminar este tramo">
+                                data-index="${index}" 
+                                title="Eliminar este tramo"
+                                onclick="event.stopPropagation();">
                             <i class="fas fa-trash"></i>
                             <span class="btn-text">Eliminar</span>
                         </button>
                     </div>
                 `;
+                updateIntervalCount();
+    
+                // Refrescar botones después de renderizar
+                setTimeout(() => {
+                    refreshIntervalButtons();
+                }, 100);
                 container.appendChild(row);
             });
             
@@ -4819,27 +4953,10 @@
                 container.appendChild(emptyMessage);
             }
             
-            document.querySelectorAll('.interval-row').forEach(row => {
-                row.addEventListener('dblclick', function(e) {
-                    e.stopPropagation();
-                    const index = parseInt(this.getAttribute('data-index'));
-                    if (!isNaN(index) && index >= 0 && index < appState.intervals.length) {
-                        openEditIntervalModal(index);
-                    }
-                });
-                
-                row.addEventListener('mouseenter', function() {
-                    this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-                });
-                
-                row.addEventListener('mouseleave', function() {
-                    this.style.boxShadow = '';
-                });
-            });
-            
             updateIntervalCount();
-        }  
-        
+        }    
+
+
         function setupEditIntervalModalEvents() {
             console.log("Configurando eventos del modal de edición...");
             
@@ -4915,24 +5032,35 @@
         function setupIntervalsEvents() {
             console.log("Configurando eventos de intervalos...");
             
-            let lastClickTime = 0;
-            let lastClickRow = null;
-            const DOUBLE_CLICK_DELAY = 300;
-            
+            // Delegación de eventos más segura con verificación específica
             document.addEventListener('click', function(e) {
+                // Verificar primero si estamos en el contenedor de notas
+                const isInNotesContainer = e.target.closest('.notes-edit-container');
+                const isNotesButton = e.target.closest('.save-notes-btn') || e.target.closest('.cancel-notes-btn');
+                const isNotesInput = e.target.closest('.departure-notes-input');
+                
+                // Si estamos en el área de notas, NO procesar eventos de intervalos
+                if (isInNotesContainer || isNotesButton || isNotesInput) {
+                    console.log("Evento en área de notas - ignorando eventos de intervalos");
+                    return;
+                }
+                
+                // Verificar si es botón de eliminar intervalo
                 const deleteButton = e.target.closest('.remove-interval-btn');
                 if (deleteButton) {
+                    console.log("Botón ELIMINAR detectado (después de verificación de notas)");
                     e.preventDefault();
                     e.stopPropagation();
-                    console.log("Botón ELIMINAR clickeado");
                     
                     const index = parseInt(deleteButton.getAttribute('data-index'));
                     console.log("Índice del intervalo a eliminar:", index);
                     
                     if (!isNaN(index) && index >= 0 && index < appState.intervals.length) {
-                        console.log("Eliminando intervalo en índice:", index);
+                        console.log("Procesando eliminación para índice:", index);
                         
                         const interval = appState.intervals[index];
+                        const t = translations[appState.currentLanguage];
+                        
                         if (confirm(`¿Estás seguro de que quieres eliminar el tramo ${interval.from}-${interval.to}?`)) {
                             appState.intervals.splice(index, 1);
                             
@@ -4960,14 +5088,15 @@
                     } else {
                         console.error("Índice inválido:", index);
                     }
-                    return;
+                    return false;
                 }
                 
+                // Verificar si es botón de editar
                 const editButton = e.target.closest('.edit-interval-btn');
                 if (editButton) {
+                    console.log("Botón EDITAR detectado (después de verificación de notas)");
                     e.preventDefault();
                     e.stopPropagation();
-                    console.log("Botón EDITAR clickeado");
                     
                     const index = parseInt(editButton.getAttribute('data-index'));
                     console.log("Índice del intervalo a editar:", index);
@@ -4978,66 +5107,39 @@
                     } else {
                         console.error("Índice inválido para editar:", index);
                     }
+                    return false;
+                }
+            });
+            
+            // Doble clic en la fila para editar (solo si no es en notas)
+            document.addEventListener('dblclick', function(e) {
+                // Verificar si estamos en el área de notas
+                const isInNotesContainer = e.target.closest('.notes-edit-container');
+                const isNotesButton = e.target.closest('.save-notes-btn') || e.target.closest('.cancel-notes-btn');
+                const isNotesInput = e.target.closest('.departure-notes-input');
+                
+                if (isInNotesContainer || isNotesButton || isNotesInput) {
+                    console.log("Doble clic en área de notas - ignorando");
                     return;
                 }
                 
                 const row = e.target.closest('.interval-row');
                 if (row && !e.target.closest('button')) {
-                    console.log("Clic en fila (no en botón)");
-                    
-                    const currentTime = new Date().getTime();
-                    const timeSinceLastClick = currentTime - lastClickTime;
-                    
-                    const isDoubleClick = (timeSinceLastClick < DOUBLE_CLICK_DELAY) && 
-                                        (lastClickRow === row);
-                    
-                    if (!isDoubleClick) {
-                        lastClickTime = currentTime;
-                        lastClickRow = row;
-                    } else {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        const index = parseInt(row.getAttribute('data-index'));
-                        
-                        if (!isNaN(index) && index >= 0 && index < appState.intervals.length) {
-                            console.log("DOBLE CLIC en fila para editar intervalo:", index);
-                            openEditIntervalModal(index);
-                        }
-                        
-                        lastClickTime = 0;
-                        lastClickRow = null;
-                    }
-                } else {
-                    lastClickTime = 0;
-                    lastClickRow = null;
-                }
-            });
-            
-            document.addEventListener('dblclick', function(e) {
-                if (e.target.closest('.remove-interval-btn') || 
-                    e.target.closest('.edit-interval-btn')) {
-                    console.log("Doble clic en botón - ignorando");
-                    return;
-                }
-                
-                const row = e.target.closest('.interval-row');
-                if (row) {
                     e.preventDefault();
                     e.stopPropagation();
                     
                     const index = parseInt(row.getAttribute('data-index'));
                     
                     if (!isNaN(index) && index >= 0 && index < appState.intervals.length) {
-                        console.log("Evento dblclick en fila para editar:", index);
+                        console.log("DOBLE CLIC en fila para editar intervalo:", index);
                         openEditIntervalModal(index);
                     }
                 }
             });
             
             console.log("Eventos de intervalos configurados correctamente");
-        }
-                
+        }        
+
         function updateIntervalCount() {
             const count = appState.intervals.length;
             console.log("Total de intervalos configurados:", count);
@@ -5767,21 +5869,6 @@
                 updateCadenceTime();
             });
             
-            document.addEventListener('click', function(e) {
-                const activeInput = document.querySelector('.departure-notes-input:focus');
-                if (activeInput) {
-                    if (!e.target.closest('.departure-notes-input') && 
-                        !e.target.closest('.save-notes-btn') && 
-                        !e.target.closest('.cancel-notes-btn')) {
-                        
-                        const inputId = activeInput.id;
-                        if (inputId && inputId.startsWith('notes-input-')) {
-                            const idx = parseInt(inputId.split('-')[2]);
-                            saveNotes(idx);
-                        }
-                    }
-                }
-            });
             
             document.getElementById('adjust-next-time').addEventListener('click', function(e) {
                 e.stopPropagation();
