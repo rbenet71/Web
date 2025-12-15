@@ -2563,17 +2563,17 @@
                 
                 <h4 id="help-modal-subtitle2">Indicadores visuales:</h4>
                 <ul>
-                    <li><strong style="color: #FF0000; background: #000; padding: 2px 5px;">Fondo ROJO:</strong> Cuenta atrás normal</li>
-                    <li><strong style="color: #FFFF00; background: #000; padding: 2px 5px;">Fondo AMARILLO:</strong> Últimos 10 segundos</li>
-                    <li><strong style="color: #00FF00; background: #000; padding: 2px 5px;">Fondo VERDE:</strong> Momento de salida (2 segundos)</li>
-                    <li><strong style="color: #FF0000; background: #000; padding: 2px 5px;">Números ROJOS pulsantes:</strong> Últimos 5 segundos</li>
+                    <li><strong id="red-background-text">Fondo ROJO:</strong> <span id="countdown-normal-desc">Cuenta atrás normal</span></li>
+                    <li><strong id="yellow-background-text">Fondo AMARILLO:</strong> <span id="countdown-warning-desc">Últimos 10 segundos</span></li>
+                    <li><strong id="green-background-text">Fondo VERDE:</strong> <span id="countdown-salida-desc">Momento de salida (2 segundos)</span></li>
+                    <li><strong id="red-numbers-text">Números ROJOS pulsantes:</strong> <span id="countdown-critical-desc">Últimos 5 segundos</span></li>
                 </ul>
                 
                 <h4 id="help-modal-subtitle3">Sonidos:</h4>
                 <ul>
-                    <li><strong>Beep agudo:</strong> Al llegar a 10 segundos</li>
-                    <li><strong>Beep cada segundo:</strong> Últimos 5 segundos</li>
-                    <li><strong>Beep grave:</strong> Al llegar a cero</li>
+                    <li><strong id="beep-high-text">Beep agudo:</strong> <span id="beep-high-desc">Al llegar a 10 segundos</span></li>
+                    <li><strong id="beep-every-second-text">Beep cada segundo:</strong> <span id="beep-every-second-desc">Últimos 5 segundos</span></li>
+                    <li><strong id="beep-low-text">Beep grave:</strong> <span id="beep-low-desc">Al llegar a cero</span></li>
                 </ul>
                 
                 <p id="help-modal-text2">Los 2 segundos de "SALIDA" se restan automáticamente del tiempo de la siguiente cuenta atrás.</p>
@@ -2861,7 +2861,7 @@
         window.savingNotesIndex = null;
 
         // ============================================
-        // TRADUCCIONES ACTUALIZADAS
+        // TRADUCCIONES ACTUALIZADAS COMPLETAS
         // ============================================
         const translations = {
             es: {
@@ -2891,6 +2891,7 @@
                 startCountdownText: "INICIAR CUENTA ATRÁS",
                 exitCompleteText: "REINICIAR",
                 totalTimeLabel: "Tiempo total",
+                countdownlabel: "Salida en",
                 nextCorredorLabel: "Próximo sale a",
                 departedLabel: "Salidos",
                 helpText: "Ayuda",
@@ -2952,7 +2953,42 @@
                 saveButtonText: "Guardar",
                 cancelButtonText: "Cancelar",
                 editIntervalModalTitle: "Editar Tiempo por Tramo",
-                salidaText: "SALIDA"
+                salidaText: "SALIDA",
+                
+                // NUEVAS TRADUCCIONES AÑADIDAS:
+                beepHigh: "Beep agudo",
+                beepHighDesc: "Al llegar a 10 segundos",
+                beepEverySecond: "Beep cada segundo",
+                beepEverySecondDesc: "Últimos 5 segundos",
+                beepLow: "Beep grave",
+                beepLowDesc: "Al llegar a cero",
+                configureAtLeastOneInterval: "Debes configurar al menos un tramo para el modo 'Varios tramos'",
+                noIntervalsConfigured: "Error: No hay intervalos configurados",
+                noDataToExport: "No hay datos para exportar",
+                listAlreadyEmpty: "La lista ya está vacía",
+                cannotModifyLastSeconds: "No se puede modificar durante los últimos 12 segundos",
+                countdownNotActive: "La cuenta atrás no está activa",
+                enterValidTime: "Ingresa un tiempo válido (mayor que 0)",
+                enterRaceName: "Ingresa un nombre para la carrera",
+                fromMustBeLessThanTo: "El corredor 'desde' debe ser menor o igual que 'hasta'",
+                enterValidTimeValue: "Ingresa un tiempo válido",
+                intervalOverlaps: "Este tramo se solapa con el tramo existente",
+                invalidValues: "Valores no válidos",
+                adjustmentsSaved: "Ajustes guardados. Tiempo: {seconds}s desde corredor {corredor}",
+                waitCountdownEnd: "Espera a que termine la cuenta atrás (menos de 12 segundos)",
+                timeUpdated: "Tiempo actualizado a {seconds}s para corredores desde {corredor} en adelante",
+                noIntervalSelected: "No hay tramo seleccionado para editar",
+                intervalUpdated: "Tramo actualizado correctamente",
+                intervalDeleted: "Tramo eliminado correctamente",
+                confirmDeleteInterval: "¿Estás seguro de que quieres eliminar el tramo {from}-{to}?",
+                redBackground: "Fondo ROJO:",
+                yellowBackground: "Fondo AMARILLO:",
+                greenBackground: "Fondo VERDE:",
+                redNumbers: "Números ROJOS pulsantes:",
+                countdownNormalDesc: "Cuenta atrás normal",
+                countdownWarningDesc: "Últimos 10 segundos",
+                countdownCriticalDesc: "Últimos 5 segundos",
+                countdownSalidaDesc: "Momento de salida (2 segundos)"
             },
             ca: {
                 appTitle: "Crono Compte Enrere",
@@ -2981,6 +3017,7 @@
                 startCountdownText: "INICIAR COMPTE ENRERE",
                 exitCompleteText: "REINICIAR",
                 totalTimeLabel: "Temps total",
+                countdownlabel: "Sortida en",
                 nextCorredorLabel: "Pròxim surt a",
                 departedLabel: "Sortits",
                 helpText: "Ajuda",
@@ -3042,7 +3079,42 @@
                 saveButtonText: "Desar",
                 cancelButtonText: "Cancel·lar",
                 editIntervalModalTitle: "Editar Temps per Tram",
-                salidaText: "SORTIDA"
+                salidaText: "SORTIDA",
+                
+                // NUEVAS TRADUCCIONES AÑADIDAS:
+                beepHigh: "Beep agut",
+                beepHighDesc: "En arribar a 10 segons",
+                beepEverySecond: "Beep cada segon",
+                beepEverySecondDesc: "Últims 5 segons",
+                beepLow: "Beep greu",
+                beepLowDesc: "En arribar a zero",
+                configureAtLeastOneInterval: "Has de configurar almenys un tram per al mode 'Varis trams'",
+                noIntervalsConfigured: "Error: No hi ha trams configurats",
+                noDataToExport: "No hi ha dades per exportar",
+                listAlreadyEmpty: "La llista ja està buida",
+                cannotModifyLastSeconds: "No es pot modificar durant els últims 12 segons",
+                countdownNotActive: "El compte enrere no està actiu",
+                enterValidTime: "Introdueix un temps vàlid (major que 0)",
+                enterRaceName: "Introdueix un nom per a la cursa",
+                fromMustBeLessThanTo: "El corredor 'des de' ha de ser menor o igual que 'fins a'",
+                enterValidTimeValue: "Introdueix un temps vàlid",
+                intervalOverlaps: "Aquest tram se solapa amb el tram existent",
+                invalidValues: "Valors no vàlids",
+                adjustmentsSaved: "Ajustos desats. Temps: {seconds}s des del corredor {corredor}",
+                waitCountdownEnd: "Espera que acabi el compte enrere (menys de 12 segons)",
+                timeUpdated: "Temps actualitzat a {seconds}s per a corredors des del {corredor} en endavant",
+                noIntervalSelected: "No hi ha tram seleccionat per editar",
+                intervalUpdated: "Tram actualitzat correctament",
+                intervalDeleted: "Tram eliminat correctament",
+                confirmDeleteInterval: "Estàs segur que vols eliminar el tram {from}-{to}?",
+                redBackground: "Fons VERMELL:",
+                yellowBackground: "Fons GROC:",
+                greenBackground: "Fons VERD:",
+                redNumbers: "Números VERMELLS pulsants:",
+                countdownNormalDesc: "Compte enrere normal",
+                countdownWarningDesc: "Últims 10 segons",
+                countdownCriticalDesc: "Últims 5 segons",
+                countdownSalidaDesc: "Momento de sortida (2 segons)"
             },
             en: {
                 appTitle: "Countdown Timer",
@@ -3071,6 +3143,7 @@
                 startCountdownText: "START COUNTDOWN",
                 exitCompleteText: "RESTART",
                 totalTimeLabel: "Total time",
+                countdownlabel: "Starts in",
                 nextCorredorLabel: "Next starts in",
                 departedLabel: "Departed",
                 helpText: "Help",
@@ -3132,7 +3205,42 @@
                 saveButtonText: "Save",
                 cancelButtonText: "Cancel",
                 editIntervalModalTitle: "Edit Time per Interval",
-                salidaText: "GO !!!!"
+                salidaText: "GO !!!!",
+                
+                // NUEVAS TRADUCCIONES AÑADIDAS:
+                beepHigh: "High beep",
+                beepHighDesc: "When reaching 10 seconds",
+                beepEverySecond: "Beep every second",
+                beepEverySecondDesc: "Last 5 seconds",
+                beepLow: "Low beep",
+                beepLowDesc: "When reaching zero",
+                configureAtLeastOneInterval: "You must configure at least one interval for 'Multiple intervals' mode",
+                noIntervalsConfigured: "Error: No intervals configured",
+                noDataToExport: "No data to export",
+                listAlreadyEmpty: "The list is already empty",
+                cannotModifyLastSeconds: "Cannot modify during the last 12 seconds",
+                countdownNotActive: "Countdown is not active",
+                enterValidTime: "Enter a valid time (greater than 0)",
+                enterRaceName: "Enter a race name",
+                fromMustBeLessThanTo: "From' corredor must be less than or equal to 'To'",
+                enterValidTimeValue: "Enter a valid time",
+                intervalOverlaps: "This interval overlaps with existing interval",
+                invalidValues: "Invalid values",
+                adjustmentsSaved: "Adjustments saved. Time: {seconds}s from corredor {corredor}",
+                waitCountdownEnd: "Wait for countdown to end (less than 12 seconds)",
+                timeUpdated: "Time updated to {seconds}s for corredors from {corredor} onwards",
+                noIntervalSelected: "No interval selected for editing",
+                intervalUpdated: "Interval updated successfully",
+                intervalDeleted: "Interval deleted successfully",
+                confirmDeleteInterval: "Are you sure you want to delete interval {from}-{to}?",
+                redBackground: "RED background:",
+                yellowBackground: "YELLOW background:",
+                greenBackground: "GREEN background:",
+                redNumbers: "RED pulsing numbers:",
+                countdownNormalDesc: "Normal countdown",
+                countdownWarningDesc: "Last 10 seconds",
+                countdownCriticalDesc: "Last 5 seconds",
+                countdownSalidaDesc: "Start moment (2 seconds)"
             },
             fr: {
                 appTitle: "Compte à Rebours",
@@ -3161,6 +3269,7 @@
                 startCountdownText: "DÉMARRER COMPTE À REBOURS",
                 exitCompleteText: "REDÉMARRER",
                 totalTimeLabel: "Temps total",
+                countdownlabel: "Départ dans",
                 nextCorredorLabel: "Prochain départ dans",
                 departedLabel: "Partis",
                 helpText: "Aide",
@@ -3222,7 +3331,42 @@
                 saveButtonText: "Enregistrer",
                 cancelButtonText: "Annuler",
                 editIntervalModalTitle: "Modifier Temps par Intervalle",
-                salidaText: "DÉPART"
+                salidaText: "DÉPART",
+                
+                // NUEVAS TRADUCCIONES AÑADIDAS:
+                beepHigh: "Beep aigu",
+                beepHighDesc: "En atteignant 10 secondes",
+                beepEverySecond: "Beep chaque seconde",
+                beepEverySecondDesc: "Dernières 5 secondes",
+                beepLow: "Beep grave",
+                beepLowDesc: "En atteignant zéro",
+                configureAtLeastOneInterval: "Vous devez configurer au moins un intervalle pour le mode 'Plusieurs intervalles'",
+                noIntervalsConfigured: "Erreur: Aucun intervalle configuré",
+                noDataToExport: "Aucune donnée à exporter",
+                listAlreadyEmpty: "La liste est déjà vide",
+                cannotModifyLastSeconds: "Impossible de modifier pendant les 12 dernières secondes",
+                countdownNotActive: "Le compte à rebours n'est pas actif",
+                enterValidTime: "Entrez un temps valide (supérieur à 0)",
+                enterRaceName: "Entrez un nom de course",
+                fromMustBeLessThanTo: "Le corredor 'De' doit être inférieur ou égal à 'À'",
+                enterValidTimeValue: "Entrez un temps valide",
+                intervalOverlaps: "Cet intervalle chevauche l'intervalle existant",
+                invalidValues: "Valeurs non valides",
+                adjustmentsSaved: "Ajustements enregistrés. Temps: {seconds}s depuis le corredor {corredor}",
+                waitCountdownEnd: "Attendez la fin du compte à rebours (moins de 12 secondes)",
+                timeUpdated: "Temps mis à jour à {seconds}s pour les corredors à partir de {corredor}",
+                noIntervalSelected: "Aucun intervalle sélectionné pour modification",
+                intervalUpdated: "Intervalle mis à jour avec succès",
+                intervalDeleted: "Intervalle supprimé avec succès",
+                confirmDeleteInterval: "Êtes-vous sûr de vouloir supprimer l'intervalle {from}-{to}?",
+                redBackground: "Fond ROUGE:",
+                yellowBackground: "Fond JAUNE:",
+                greenBackground: "Fond VERT:",
+                redNumbers: "Chiffres ROUGES pulsants:",
+                countdownNormalDesc: "Compte à rebours normal",
+                countdownWarningDesc: "Dernières 10 secondes",
+                countdownCriticalDesc: "Dernières 5 secondes",
+                countdownSalidaDesc: "Moment de départ (2 secondes)"
             }
         };
 
@@ -3382,9 +3526,13 @@
         }
 
         function handleRemoveInterval(index) {
+            const t = translations[appState.currentLanguage];
+            
             if (!isNaN(index) && index >= 0 && index < appState.intervals.length) {
                 const interval = appState.intervals[index];
-                if (confirm(`¿Estás seguro de que quieres eliminar el tramo ${interval.from}-${interval.to}?`)) {
+                const confirmMessage = t.confirmDeleteInterval.replace('{from}', interval.from).replace('{to}', interval.to);
+                
+                if (confirm(confirmMessage)) {
                     appState.intervals.splice(index, 1);
                     
                     renderIntervalsList();
@@ -3405,7 +3553,7 @@
                         saveAppState();
                     }
                     
-                    showMessage('Tramo eliminado correctamente', 'success');
+                    showMessage(t.intervalDeleted, 'success');
                     console.log("Intervalo eliminado. Total restante:", appState.intervals.length);
                     
                     // Reconfigurar listeners después de renderizar
@@ -3670,6 +3818,8 @@
             document.getElementById('start-countdown-text').textContent = t.startCountdownText;
             document.getElementById('exit-complete-text').textContent = t.exitCompleteText;
             document.getElementById('total-time-label').textContent = t.totalTimeLabel;
+            document.getElementById('countdown-label').textContent = t.countdownlabel;
+            
             document.getElementById('next-corredor-label').textContent = t.nextCorredorLabel;
             document.getElementById('departed-label').textContent = t.departedLabel;
             document.getElementById('help-text').textContent = t.helpText;
@@ -3703,17 +3853,8 @@
 
         function updateModalTexts() {
             const t = translations[appState.currentLanguage];
-            document.getElementById('edit-interval-modal-title').textContent = t.editIntervalModalTitle;
-            document.getElementById('departure-header-dorsal').textContent = t.departureHeaderDorsal;
-            document.getElementById('departure-header-time').textContent = t.departureHeaderTime;
-            document.getElementById('departure-header-notes').textContent = t.departureHeaderNotes;
-            document.getElementById('departure-header-date').textContent = t.departureHeaderDate;
-            document.getElementById('no-departures-text').textContent = t.noDeparturesText;
             
-            if (appState.departureTimes.length > 0) {
-                renderDeparturesList();
-            }
-            
+            // Modal de ayuda
             document.getElementById('help-modal-title').textContent = t.helpModalTitle;
             document.getElementById('help-modal-text1').textContent = t.helpModalText1;
             document.getElementById('help-modal-subtitle1').textContent = t.helpModalSubtitle1;
@@ -3722,32 +3863,23 @@
             document.getElementById('help-modal-text2').textContent = t.helpModalText2;
             document.getElementById('help-modal-ok').textContent = t.understood;
             
-            document.getElementById('delete-race-modal-title').textContent = t.deleteRaceModalTitle;
-            document.getElementById('delete-race-modal-text').textContent = t.deleteRaceModalText;
-            document.getElementById('delete-race-confirm-btn').textContent = t.deleteConfirm;
-            document.getElementById('delete-race-cancel-btn').textContent = t.cancel;
+            // Indicadores visuales en modal de ayuda
+            document.getElementById('red-background-text').textContent = t.redBackground;
+            document.getElementById('yellow-background-text').textContent = t.yellowBackground;
+            document.getElementById('green-background-text').textContent = t.greenBackground;
+            document.getElementById('red-numbers-text').textContent = t.redNumbers;
+            document.getElementById('countdown-normal-desc').textContent = t.countdownNormalDesc;
+            document.getElementById('countdown-warning-desc').textContent = t.countdownWarningDesc;
+            document.getElementById('countdown-critical-desc').textContent = t.countdownCriticalDesc;
+            document.getElementById('countdown-salida-desc').textContent = t.countdownSalidaDesc;
             
-            document.getElementById('clear-departures-modal-title').textContent = t.clearDeparturesModalTitle;
-            document.getElementById('clear-departures-modal-text').textContent = t.clearDeparturesModalText;
-            document.getElementById('clear-departures-confirm-btn').textContent = t.clear;
-            document.getElementById('clear-departures-cancel-btn').textContent = t.cancel;
-            
-            document.getElementById('suggestions-modal-title').textContent = t.suggestionsModalTitle;
-            document.getElementById('suggestion-email-label').textContent = t.suggestionEmailLabel;
-            document.getElementById('suggestion-text-label').textContent = t.suggestionTextLabel;
-            document.getElementById('send-suggestion-btn').textContent = t.sendSuggestion;
-            document.getElementById('cancel-suggestion-btn').textContent = t.cancel;
-            
-            document.getElementById('new-race-modal-title').textContent = t.newRaceModalTitle;
-            document.getElementById('new-race-name-label').textContent = t.newRaceNameLabel;
-            document.getElementById('new-race-desc-label').textContent = t.newRaceDescLabel;
-            document.getElementById('create-race-btn').textContent = t.createRace;
-            document.getElementById('cancel-create-race-btn').textContent = t.cancel;
-            
-            document.getElementById('restart-modal-title').textContent = t.restartModalTitle;
-            document.getElementById('restart-modal-text').textContent = t.restartModalText;
-            document.getElementById('restart-confirm-btn').textContent = t.restartConfirm;
-            document.getElementById('restart-cancel-btn').textContent = t.cancel;
+            // Sonidos en modal de ayuda
+            document.getElementById('beep-high-text').textContent = t.beepHigh;
+            document.getElementById('beep-high-desc').textContent = t.beepHighDesc;
+            document.getElementById('beep-every-second-text').textContent = t.beepEverySecond;
+            document.getElementById('beep-every-second-desc').textContent = t.beepEverySecondDesc;
+            document.getElementById('beep-low-text').textContent = t.beepLow;
+            document.getElementById('beep-low-desc').textContent = t.beepLowDesc;
             
             const helpList = document.getElementById('help-modal-list');
             if (helpList) {
@@ -3759,6 +3891,50 @@
                     helpList.appendChild(li);
                 });
             }
+            
+            // Tabla de salidas
+            document.getElementById('edit-interval-modal-title').textContent = t.editIntervalModalTitle;
+            document.getElementById('departure-header-dorsal').textContent = t.departureHeaderDorsal;
+            document.getElementById('departure-header-time').textContent = t.departureHeaderTime;
+            document.getElementById('departure-header-notes').textContent = t.departureHeaderNotes;
+            document.getElementById('departure-header-date').textContent = t.departureHeaderDate;
+            document.getElementById('no-departures-text').textContent = t.noDeparturesText;
+            
+            if (appState.departureTimes.length > 0) {
+                renderDeparturesList();
+            }
+            
+            // Modal eliminar carrera
+            document.getElementById('delete-race-modal-title').textContent = t.deleteRaceModalTitle;
+            document.getElementById('delete-race-modal-text').textContent = t.deleteRaceModalText;
+            document.getElementById('delete-race-confirm-btn').textContent = t.deleteConfirm;
+            document.getElementById('delete-race-cancel-btn').textContent = t.cancel;
+            
+            // Modal limpiar salidas
+            document.getElementById('clear-departures-modal-title').textContent = t.clearDeparturesModalTitle;
+            document.getElementById('clear-departures-modal-text').textContent = t.clearDeparturesModalText;
+            document.getElementById('clear-departures-confirm-btn').textContent = t.clear;
+            document.getElementById('clear-departures-cancel-btn').textContent = t.cancel;
+            
+            // Modal sugerencias
+            document.getElementById('suggestions-modal-title').textContent = t.suggestionsModalTitle;
+            document.getElementById('suggestion-email-label').textContent = t.suggestionEmailLabel;
+            document.getElementById('suggestion-text-label').textContent = t.suggestionTextLabel;
+            document.getElementById('send-suggestion-btn').textContent = t.sendSuggestion;
+            document.getElementById('cancel-suggestion-btn').textContent = t.cancel;
+            
+            // Modal nueva carrera
+            document.getElementById('new-race-modal-title').textContent = t.newRaceModalTitle;
+            document.getElementById('new-race-name-label').textContent = t.newRaceNameLabel;
+            document.getElementById('new-race-desc-label').textContent = t.newRaceDescLabel;
+            document.getElementById('create-race-btn').textContent = t.createRace;
+            document.getElementById('cancel-create-race-btn').textContent = t.cancel;
+            
+            // Modal reiniciar
+            document.getElementById('restart-modal-title').textContent = t.restartModalTitle;
+            document.getElementById('restart-modal-text').textContent = t.restartModalText;
+            document.getElementById('restart-confirm-btn').textContent = t.restartConfirm;
+            document.getElementById('restart-cancel-btn').textContent = t.cancel;
         }
 
         function renderRacesSelect() {
@@ -4061,8 +4237,10 @@
         }
 
         function exportToExcel() {
+            const t = translations[appState.currentLanguage];
+            
             if (appState.departureTimes.length === 0) {
-                showMessage('No hay datos para exportar', 'warning');
+                showMessage(t.noDataToExport, 'warning');
                 return;
             }
             
@@ -4142,12 +4320,14 @@
             const filename = `salidas_${raceName}_${date}.xlsx`;
             
             XLSX.writeFile(wb, filename);
-            showMessage(translations[appState.currentLanguage].excelExported, 'success');
+            showMessage(t.excelExported, 'success');
         }
 
         function clearRaceDepartures() {
+            const t = translations[appState.currentLanguage];
+            
             if (!appState.currentRace) {
-                showMessage('No hay carrera seleccionada', 'error');
+                showMessage(t.selectRaceFirst, 'error');
                 return;
             }
             
@@ -4161,7 +4341,7 @@
             saveRaceData();
             renderDeparturesList();
             
-            showMessage(translations[appState.currentLanguage].departuresCleared, 'success');
+            showMessage(t.departuresCleared, 'success');
         }
 
         // ============================================
@@ -4171,8 +4351,10 @@
         function startCountdown() {
             console.log("Iniciando cuenta atrás...");
             
+            const t = translations[appState.currentLanguage];
+            
             if (!appState.currentRace) {
-                showMessage(translations[appState.currentLanguage].selectRaceFirst, 'error');
+                showMessage(t.selectRaceFirst, 'error');
                 return;
             }
             
@@ -4180,14 +4362,14 @@
             appState.isVariableMode = isVariableMode;
             
             if (isVariableMode && appState.intervals.length === 0) {
-                showMessage('Debes configurar al menos un tramo para el modo "Varios tramos"', 'error');
+                showMessage(t.configureAtLeastOneInterval, 'error');
                 return;
             }
             
             updateCadenceTime();
             
             if (appState.intervals.length === 0) {
-                showMessage('Error: No hay intervalos configurados', 'error');
+                showMessage(t.noIntervalsConfigured, 'error');
                 return;
             }
             
@@ -4248,7 +4430,7 @@
             
             saveAppState();
             
-            showMessage(translations[appState.currentLanguage].countdownStarted, 'success');
+            showMessage(t.countdownStarted, 'success');
             console.log("Cuenta atrás iniciada correctamente.");
             console.log("Posición inicial:", startPosition, "Salidos:", appState.departedCount);
             console.log("Tiempo inicial:", appState.nextCorredorTime, "segundos");
@@ -4387,11 +4569,13 @@
         }
                 
         function canModifyDuringCountdown() {
+            const t = translations[appState.currentLanguage];
+            
             if (!appState.countdownActive) return true;
             
             // No permitir modificar si faltan menos de 12 segundos
             if (appState.countdownValue <= 15) {
-                showMessage('No se puede modificar durante los últimos 12 segundos', 'warning');
+                showMessage(t.waitCountdownEnd, 'warning');
                 return false;
             }
             
@@ -4783,9 +4967,11 @@
         // ============================================
 
         function createNewRace() {
+            const t = translations[appState.currentLanguage];
+            
             const name = document.getElementById('new-race-name').value.trim();
             if (!name) {
-                showMessage('Ingresa un nombre para la carrera', 'error');
+                showMessage(t.enterRaceName, 'error');
                 return;
             }
             
@@ -4823,7 +5009,7 @@
             document.getElementById('new-race-name').value = '';
             document.getElementById('new-race-description').value = '';
             
-            showMessage(translations[appState.currentLanguage].raceCreated, 'success');
+            showMessage(t.raceCreated, 'success');
             
             console.log("Nueva carrera creada:", name, "Modo:", 'single');
         }
@@ -4868,18 +5054,20 @@
         }    
                 
         function addVariableInterval() {
+            const t = translations[appState.currentLanguage];
+            
             const from = parseInt(document.getElementById('from-corredor').value) || 1;
             const to = parseInt(document.getElementById('to-corredor').value) || 10;
             const minutes = parseInt(document.getElementById('var-minutes').value) || 0;
             const seconds = parseInt(document.getElementById('var-seconds').value) || 0;
             
             if (from > to) {
-                showMessage('El corredor "desde" debe ser menor o igual que "hasta"', 'error');
+                showMessage(t.fromMustBeLessThanTo, 'error');
                 return;
             }
             
             if (minutes === 0 && seconds === 0) {
-                showMessage('Ingresa un tiempo válido', 'error');
+                showMessage(t.enterValidTimeValue, 'error');
                 return;
             }
             
@@ -4887,7 +5075,7 @@
                 if ((from >= interval.from && from <= interval.to) ||
                     (to >= interval.from && to <= interval.to) ||
                     (from <= interval.from && to >= interval.to)) {
-                    showMessage(`Este tramo se solapa con el tramo existente ${interval.from}-${interval.to}`, 'error');
+                    showMessage(`${t.intervalOverlaps} ${interval.from}-${interval.to}`, 'error');
                     return;
                 }
             }
@@ -4930,7 +5118,7 @@
                 refreshIntervalButtons();
             }, 100);
             
-            showMessage(translations[appState.currentLanguage].intervalAdded, 'success');
+            showMessage(t.intervalAdded, 'success');
         }
 
         function renderIntervalsList() {
@@ -5098,8 +5286,9 @@
                         
                         const interval = appState.intervals[index];
                         const t = translations[appState.currentLanguage];
+                        const confirmMessage = t.confirmDeleteInterval.replace('{from}', interval.from).replace('{to}', interval.to);
                         
-                        if (confirm(`¿Estás seguro de que quieres eliminar el tramo ${interval.from}-${interval.to}?`)) {
+                        if (confirm(confirmMessage)) {
                             appState.intervals.splice(index, 1);
                             
                             renderIntervalsList();
@@ -5120,7 +5309,7 @@
                                 saveAppState();
                             }
                             
-                            showMessage('Tramo eliminado correctamente', 'success');
+                            showMessage(t.intervalDeleted, 'success');
                             console.log("Intervalo eliminado. Total restante:", appState.intervals.length);
                         }
                     } else {
@@ -5184,11 +5373,13 @@
         }
 
         function sendSuggestion() {
+            const t = translations[appState.currentLanguage];
+            
             const email = document.getElementById('suggestion-email').value.trim();
             const text = document.getElementById('suggestion-text').value.trim();
             
             if (!text) {
-                showMessage('Ingresa tu sugerencia', 'error');
+                showMessage(t.suggestionTextLabel, 'error');
                 return;
             }
             
@@ -5198,7 +5389,7 @@
             document.getElementById('suggestion-email').value = '';
             document.getElementById('suggestion-text').value = '';
             
-            showMessage(translations[appState.currentLanguage].suggestionSent, 'success');
+            showMessage(t.suggestionSent, 'success');
         }
 
         // ============================================
@@ -5452,6 +5643,8 @@
 
             // En setupEventListeners(), modificar el evento del botón de reinicio:
             document.getElementById('restart-confirm-btn').addEventListener('click', () => {
+                const t = translations[appState.currentLanguage];
+                
                 if (appState.countdownActive) {
                     stopCountdown();
                     document.getElementById('countdown-screen').classList.remove('active');
@@ -5487,7 +5680,7 @@
                 
                 document.getElementById('restart-confirm-modal').classList.remove('active');
                 
-                showMessage(translations[appState.currentLanguage].sessionRestarted, 'success');
+                showMessage(t.sessionRestarted, 'success');
                 console.log("Sesión reiniciada, TODOS los datos borrados");
             });
 
@@ -5551,13 +5744,14 @@
             });
             
             document.getElementById('stop-countdown-btn').addEventListener('click', () => {
+                const t = translations[appState.currentLanguage];
                 stopCountdown();
                 document.getElementById('countdown-screen').classList.remove('active');
                 document.querySelectorAll('.hide-on-countdown').forEach(el => {
                     el.style.display = '';
                 });
                 document.getElementById('config-during-countdown-modal').classList.remove('active');
-                showMessage(translations[appState.currentLanguage].countdownStopped, 'info');
+                showMessage(t.countdownStopped, 'info');
             });
             
             document.getElementById('adjust-times-btn').addEventListener('click', () => {
@@ -5581,11 +5775,13 @@
             });
             
             document.getElementById('save-adjustments-btn').addEventListener('click', () => {
+                const t = translations[appState.currentLanguage];
+                
                 const newNextTime = parseInt(document.getElementById('adjust-next-time').value) || 60;
                 const newDeparted = parseInt(document.getElementById('adjust-departed').value) || 0;
                 
                 if (newNextTime <= 0 || newDeparted < 0) {
-                    showMessage('Valores no válidos', 'error');
+                    showMessage(t.invalidValues, 'error');
                     return;
                 }
                 
@@ -5626,7 +5822,10 @@
                 resumeCountdownVisual();
                 saveAppState();
                 
-                showMessage(`Ajustes guardados. Tiempo: ${newNextTime}s desde corredor ${startFromCorredor}`, 'success');
+                const message = t.adjustmentsSaved
+                    .replace('{seconds}', newNextTime)
+                    .replace('{corredor}', startFromCorredor);
+                showMessage(message, 'success');
             });
 
             document.querySelectorAll('.modal').forEach(modal => {
@@ -5683,8 +5882,9 @@
             document.getElementById('create-race-btn').addEventListener('click', createNewRace);
             
             document.getElementById('delete-race-btn').addEventListener('click', () => {
+                const t = translations[appState.currentLanguage];
                 if (!appState.currentRace) {
-                    showMessage(translations[appState.currentLanguage].selectRaceFirst, 'error');
+                    showMessage(t.selectRaceFirst, 'error');
                     return;
                 }
                 document.getElementById('delete-race-modal').classList.add('active');
@@ -5726,8 +5926,9 @@
             });
             
             document.getElementById('clear-departures-btn').addEventListener('click', () => {
+                const t = translations[appState.currentLanguage];
                 if (appState.departureTimes.length === 0) {
-                    showMessage('La lista ya está vacía', 'info');
+                    showMessage(t.listAlreadyEmpty, 'info');
                     return;
                 }
                 document.getElementById('clear-departures-modal').classList.add('active');
@@ -5745,9 +5946,11 @@
             document.getElementById('config-toggle').addEventListener('click', function(e) {
                 e.stopPropagation();
                 
+                const t = translations[appState.currentLanguage];
+                
                 // VALIDACIÓN AÑADIDA:
                 if (appState.countdownActive && appState.countdownValue <= 12) {
-                    showMessage('Espera a que termine la cuenta atrás (menos de 12 segundos)', 'warning');
+                    showMessage(t.waitCountdownEnd, 'warning');
                     return;
                 }
                 
@@ -5775,9 +5978,11 @@
                     return;
                 }
 
+                const t = translations[appState.currentLanguage];
+
                 // Si la cuenta atrás no está activa, no permitir editar
                 if (!appState.countdownActive) {
-                    showMessage('La cuenta atrás no está activa', 'warning');
+                    showMessage(t.countdownNotActive, 'warning');
                     return;
                 }
                 
@@ -5811,7 +6016,7 @@
                     }
                     
                     if (seconds <= 0) {
-                        showMessage('Ingresa un tiempo válido (mayor que 0)', 'error');
+                        showMessage(t.enterValidTime, 'error');
                         this.textContent = currentText;
                         return;
                     }
@@ -5854,7 +6059,10 @@
                     }
                     
                     // Mostrar mensaje informativo
-                    showMessage(`Tiempo actualizado a ${seconds}s para corredores desde ${startFromCorredor} en adelante`, 'success');
+                    const message = t.timeUpdated
+                        .replace('{seconds}', seconds)
+                        .replace('{corredor}', startFromCorredor);
+                    showMessage(message, 'success');
                 };
                 
                 input.addEventListener('blur', finishEdit);
@@ -5912,10 +6120,11 @@
             document.getElementById('install-btn').addEventListener('click', installPWA);
             
             document.getElementById('update-btn').addEventListener('click', () => {
+                const t = translations[appState.currentLanguage];
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.ready.then(registration => {
                         registration.update();
-                        showMessage(translations[appState.currentLanguage].updateChecked, 'info');
+                        showMessage(t.updateChecked, 'info');
                     });
                 }
             });
@@ -6135,9 +6344,11 @@
         function openEditIntervalModal(index) {
             console.log("Abriendo modal de edición para índice:", index);
             
+            const t = translations[appState.currentLanguage];
+            
             if (index < 0 || index >= appState.intervals.length) {
                 console.error("Índice inválido:", index);
-                showMessage('Índice de tramo inválido', 'error');
+                showMessage(t.noIntervalSelected, 'error');
                 return;
             }
             
@@ -6175,9 +6386,11 @@
         function saveEditedInterval() {
             console.log("saveEditedInterval iniciado, índice:", editingIntervalIndex);
             
+            const t = translations[appState.currentLanguage];
+            
             if (editingIntervalIndex < 0 || editingIntervalIndex >= appState.intervals.length) {
                 console.error("No hay tramo seleccionado para editar");
-                showMessage('No hay tramo seleccionado para editar', 'error');
+                showMessage(t.noIntervalSelected, 'error');
                 closeEditIntervalModal();
                 return;
             }
@@ -6190,12 +6403,12 @@
             console.log("Valores del formulario:", {from, to, minutes, seconds});
             
             if (from > to) {
-                showMessage('El corredor "desde" debe ser menor o igual que "hasta"', 'error');
+                showMessage(t.fromMustBeLessThanTo, 'error');
                 return;
             }
             
             if (minutes === 0 && seconds === 0) {
-                showMessage('Ingresa un tiempo válido', 'error');
+                showMessage(t.enterValidTimeValue, 'error');
                 return;
             }
             
@@ -6206,7 +6419,7 @@
                 if ((from >= interval.from && from <= interval.to) ||
                     (to >= interval.from && to <= interval.to) ||
                     (from <= interval.from && to >= interval.to)) {
-                    showMessage(`Este tramo se solapa con el tramo existente ${interval.from}-${interval.to}`, 'error');
+                    showMessage(`${t.intervalOverlaps} ${interval.from}-${interval.to}`, 'error');
                     return;
                 }
             }
@@ -6252,7 +6465,7 @@
             }
             
             closeEditIntervalModal();
-            showMessage('Tramo actualizado correctamente', 'success');
+            showMessage(t.intervalUpdated, 'success');
             console.log("Intervalo guardado correctamente");
         }
         
