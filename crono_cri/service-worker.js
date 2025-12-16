@@ -5,6 +5,8 @@ const urlsToCache = [
   '/Crono_CRI.html',
   '/styles.css',
   '/script.js',
+  '/Crono_CRI_192x192.png',    // Añadido
+  '/Crono_CRI_512x512.png', 
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
   'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Digital+7&display=swap',
   'https://cdn.jsdelivr.net/npm/chart.js',

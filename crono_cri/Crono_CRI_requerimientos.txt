@@ -30,3 +30,19 @@ La opción de exportar, exportará el número de dorsal, nombre apellido, hora y
 
 El inicio del crono que tengas tres opciones desde el primer corredor, desde el número del siguiente dorsal del último dorsal que salió o desde el dorsal que indique el usuario.
 
+crono-cri/
+├── Crono_CRI.html
+├── Crono_CRI_manifest.json
+├── styles.css
+├── script.js
+├── service-worker.js
+├── Crono_CRI_192x192.png      # Icono 192x192
+├── Crono_CRI_512x512.png      # Icono 512x512
+├── Crono_CRI_maskable_192x192.png  # (Opcional)
+├── Crono_CRI_maskable_512x512.png  # (Opcional)
+├── audio/
+│   ├── es_10.ogg
+│   ├── es_5.ogg
+│   └── ...
+└── plantilla-cri.xlsx
+

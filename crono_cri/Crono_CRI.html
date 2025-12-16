@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" sizes="192x192" href="Crono_CRI_192x192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="Crono_CRI_512x512.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="Crono_CRI_192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="Crono_CRI_512x512.png">
     <meta name="mobile-web-app-capable" content="yes">
     <title>Crono CRI - Control de Contrarrelojes</title>
     
@@ -58,25 +60,26 @@
 </head>
 <body>
     <!-- Header -->
-    <header class="app-header">
-        <div class="container">
-            <div class="header-content">
-                <div class="app-title">
-                    <i class="fas fa-stopwatch fa-2x"></i>
-                    <h1>Crono <span class="cri-text">CRI</span></h1>
-                    <span class="app-subtitle">Sistema de Control de Contrarrelojes</span>
-                </div>
-                <div class="header-actions">
-                    <button id="language-toggle" class="btn-icon" title="Cambiar idioma">
-                        <i class="fas fa-language"></i>
-                    </button>
-                    <button id="help-btn" class="btn-icon" title="Ayuda">
-                        <i class="fas fa-question-circle"></i>
-                    </button>
+        <header class="app-header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="app-title">
+                        <!-- Cambia el icono de Font Awesome por tu imagen -->
+                        <img src="Crono_CRI_192x192.png" alt="Logo Crono CRI" class="app-logo">
+                        <h1>Crono <span class="cri-text">CRI</span></h1>
+                        <span class="app-subtitle">Sistema de Control de Contrarrelojes</span>
+                    </div>
+                    <div class="header-actions">
+                        <button id="language-toggle" class="btn-icon" title="Cambiar idioma">
+                            <i class="fas fa-language"></i>
+                        </button>
+                        <button id="help-btn" class="btn-icon" title="Ayuda">
+                            <i class="fas fa-question-circle"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </header>
+        </header>
 
     <!-- Menú Principal -->
     <nav class="main-nav">
