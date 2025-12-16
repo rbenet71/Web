@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Crono CRI - Control de Contrarrelojes</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Digital+7&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SheetJS para Excel -->
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- PWA -->
+    <link rel="manifest" href="Crono_CRI_manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <style>
+        /* Estilos CSS incrustados para mejor rendimiento inicial */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --crono-red: #e74c3c;
+            --crono-yellow: #f1c40f;
+            --crono-green: #2ecc71;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="app-title">
+                    <i class="fas fa-stopwatch fa-2x"></i>
+                    <h1>Crono <span class="cri-text">CRI</span></h1>
+                    <span class="app-subtitle">Sistema de Control de Contrarrelojes</span>
+                </div>
+                <div class="header-actions">
+                    <button id="language-toggle" class="btn-icon" title="Cambiar idioma">
+                        <i class="fas fa-language"></i>
+                    </button>
+                    <button id="help-btn" class="btn-icon" title="Ayuda">
+                        <i class="fas fa-question-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Menú Principal -->
+    <nav class="main-nav">
+        <div class="container">
+            <div class="nav-buttons">
+                <button id="btn-corredores" class="nav-btn active">
+                    <i class="fas fa-users"></i>
+                    <span>Corredores</span>
+                </button>
+                <button id="btn-config" class="nav-btn">
+                    <i class="fas fa-cog"></i>
+                    <span>Configuración</span>
+                </button>
+                <button id="btn-crono" class="nav-btn">
+                    <i class="fas fa-play-circle"></i>
+                    <span>Crono</span>
+                </button>
+                <button id="btn-resultados" class="nav-btn">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Resultados</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Sección: Gestión de Corredores -->
+            <section id="section-corredores" class="content-section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-users"></i> Gestión de Corredores</h2>
+                    <div class="section-actions">
+                        <button id="btn-importar-excel" class="btn btn-primary">
+                            <i class="fas fa-file-import"></i> Importar Excel
+                        </button>
+                        <button id="btn-crear-plantilla" class="btn btn-secondary">
+                            <i class="fas fa-file-download"></i> Plantilla
+                        </button>
+                        <button id="btn-nuevo-corredor" class="btn btn-success">
+                            <i class="fas fa-user-plus"></i> Nuevo Corredor
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Filtros y Búsqueda -->
+                <div class="search-filters">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-corredor" placeholder="Buscar por dorsal, nombre o apellido...">
+                    </div>
+                    <div class="filters">
+                        <select id="filter-orden">
+                            <option value="tiempo">Orden por Tiempo</option>
+                            <option value="dorsal">Orden por Dorsal</option>
+                            <option value="nombre">Orden por Nombre</option>
+                        </select>
+                        <button id="btn-limpiar-filtros" class="btn btn-outline">
+                            <i class="fas fa-times"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Lista de Corredores -->
+                <div class="corredores-table-container">
+                    <table class="corredores-table">
+                        <thead>
+                            <tr>
+                                <th>Orden</th>
+                                <th>Dorsal</th>
+                                <th>Nombre</th>
+                                <th>Apellido</th>
+                                <th>Tiempo Salida</th>
+                                <th>Hora Salida</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corredores-list">
+                            <!-- Los corredores se cargarán aquí -->
+                            <tr class="empty-state">
+                                <td colspan="8">
+                                    <i class="fas fa-users-slash"></i>
+                                    <p>No hay corredores cargados</p>
+                                    <button id="btn-importar-first" class="btn btn-primary">
+                                        Importar lista de corredores
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Estadísticas -->
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="total-corredores">0</span>
+                            <span class="stat-label">Total Corredores</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-flag-checkered"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="corredores-salidos">0</span>
+                            <span class="stat-label">Salidos</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="tiempo-total">0:00</span>
+                            <span class="stat-label">Tiempo Total</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-stopwatch"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="intervalo-promedio">0:00</span>
+                            <span class="stat-label">Intervalo Promedio</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección: Configuración -->
+            <section id="section-config" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-cog"></i> Configuración</h2>
+                </div>
+                
+                <div class="config-grid">
+                    <div class="config-card">
+                        <h3><i class="fas fa-bell"></i> Configuración de Audio</h3>
+                        <div class="config-options">
+                            <div class="audio-option active" data-audio="beep">
+                                <i class="fas fa-bell"></i>
+                                <span>Beeps</span>
+                            </div>
+                            <div class="audio-option" data-audio="voice">
+                                <i class="fas fa-microphone"></i>
+                                <span>Voz</span>
+                            </div>
+                            <div class="audio-option" data-audio="none">
+                                <i class="fas fa-volume-mute"></i>
+                                <span>Silencio</span>
+                            </div>
+                        </div>
+                        <button id="test-audio" class="btn btn-outline">
+                            <i class="fas fa-play"></i> Probar Sonido
+                        </button>
+                    </div>
+                    
+                    <div class="config-card">
+                        <h3><i class="fas fa-palette"></i> Apariencia</h3>
+                        <div class="color-options">
+                            <div class="color-option" data-color="default" style="background: #667eea;"></div>
+                            <div class="color-option" data-color="dark" style="background: #2c3e50;"></div>
+                            <div class="color-option" data-color="green" style="background: #27ae60;"></div>
+                            <div class="color-option" data-color="red" style="background: #e74c3c;"></div>
+                        </div>
+                        <div class="config-item">
+                            <label>
+                                <input type="checkbox" id="dark-mode"> Modo Oscuro
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="config-card">
+                        <h3><i class="fas fa-database"></i> Gestión de Datos</h3>
+                        <div class="config-actions">
+                            <button id="btn-backup" class="btn btn-outline">
+                                <i class="fas fa-save"></i> Backup Datos
+                            </button>
+                            <button id="btn-restore" class="btn btn-outline">
+                                <i class="fas fa-undo"></i> Restaurar
+                            </button>
+                            <button id="btn-clear-data" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Limpiar Todo
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="config-card">
+                        <h3><i class="fas fa-info-circle"></i> Información</h3>
+                        <div class="info-list">
+                            <div class="info-item">
+                                <span>Versión:</span>
+                                <span id="app-version">1.0.0</span>
+                            </div>
+                            <div class="info-item">
+                                <span>Última Actualización:</span>
+                                <span id="last-update">01/01/2024</span>
+                            </div>
+                            <div class="info-item">
+                                <span>Corredores Cargados:</span>
+                                <span id="info-corredores">0</span>
+                            </div>
+                            <div class="info-item">
+                                <span>Salidas Registradas:</span>
+                                <span id="info-salidas">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección: Crono -->
+            <section id="section-crono" class="content-section">
+                <div class="crono-container">
+                    <!-- Panel de Control del Crono -->
+                    <div class="crono-controls">
+                        <div class="control-group">
+                            <h3><i class="fas fa-play-circle"></i> Control de Inicio</h3>
+                            <div class="start-options">
+                                <div class="start-option active" data-start="first">
+                                    <i class="fas fa-forward"></i>
+                                    <span>Desde el Primero</span>
+                                </div>
+                                <div class="start-option" data-start="next">
+                                    <i class="fas fa-step-forward"></i>
+                                    <span>Desde el Siguiente</span>
+                                </div>
+                                <div class="start-option" data-start="custom">
+                                    <i class="fas fa-user-edit"></i>
+                                    <span>Dorsal Específico</span>
+                                </div>
+                            </div>
+                            
+                            <div class="custom-start" id="custom-start-input" style="display: none;">
+                                <input type="number" id="custom-dorsal" placeholder="Número de dorsal">
+                                <button id="btn-set-custom" class="btn btn-primary">
+                                    <i class="fas fa-check"></i> Establecer
+                                </button>
+                            </div>
+                            
+                            <div class="control-buttons">
+                                <button id="btn-start-crono" class="btn btn-success btn-lg">
+                                    <i class="fas fa-rocket"></i> INICIAR CRONO
+                                </button>
+                                <button id="btn-pause-crono" class="btn btn-warning" disabled>
+                                    <i class="fas fa-pause"></i> Pausar
+                                </button>
+                                <button id="btn-stop-crono" class="btn btn-danger" disabled>
+                                    <i class="fas fa-stop"></i> Detener
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <h3><i class="fas fa-info-circle"></i> Información Actual</h3>
+                            <div class="current-info">
+                                <div class="info-item">
+                                    <span class="info-label">Corredor Actual:</span>
+                                    <span class="info-value" id="current-corredor">--</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Próximo Salida:</span>
+                                    <span class="info-value" id="next-time">--:--</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Total Salidos:</span>
+                                    <span class="info-value" id="total-departed">0</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Tiempo Total:</span>
+                                    <span class="info-value" id="crono-total-time">00:00:00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pantalla de Cuenta Atrás -->
+                    <div class="countdown-screen" id="countdown-screen">
+                        <div class="countdown-header">
+                            <div class="next-corredor-info" id="next-corredor-info">
+                                <div class="next-dorsal">Dorsal: --</div>
+                                <div class="next-name">Nombre: --</div>
+                                <div class="next-time">Hora Salida: --:--</div>
+                                <div class="next-planned">Tiempo: --:--</div>
+                            </div>
+                            <div class="countdown-status">
+                                <span id="countdown-label">SALIDA EN</span>
+                                <button id="config-toggle" class="btn-icon">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="countdown-display-container">
+                            <div class="countdown-display" id="countdown-display">
+                                60
+                            </div>
+                        </div>
+                        
+                        <div class="current-corredor-info" id="current-corredor-info">
+                            <div class="current-dorsal" id="current-dorsal">--</div>
+                            <div class="current-name" id="current-name">Nombre Apellido</div>
+                        </div>
+                        
+                        <div class="countdown-footer">
+                            <div class="footer-info left">
+                                <div class="info-label">Tiempo Total</div>
+                                <div class="info-value" id="footer-total-time">00:00:00</div>
+                            </div>
+                            <div class="footer-info center">
+                                <div class="info-label">Salidos</div>
+                                <div class="info-value" id="footer-departed">0</div>
+                            </div>
+                            <div class="footer-info right">
+                                <div class="info-label">Próximo en</div>
+                                <div class="info-value" id="footer-next-time">--:--</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección: Resultados -->
+            <section id="section-resultados" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-bar"></i> Resultados y Exportación</h2>
+                    <div class="section-actions">
+                        <button id="btn-export-resultados" class="btn btn-primary">
+                            <i class="fas fa-file-export"></i> Exportar Resultados
+                        </button>
+                        <button id="btn-clear-resultados" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Limpiar Resultados
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Resumen de Resultados -->
+                <div class="results-summary">
+                    <div class="summary-card">
+                        <h3><i class="fas fa-tachometer-alt"></i> Resumen</h3>
+                        <div class="summary-content">
+                            <div class="summary-item">
+                                <span>Corredores Totales:</span>
+                                <span id="summary-total">0</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Corredores Salidos:</span>
+                                <span id="summary-departed">0</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Tiempo Promedio:</span>
+                                <span id="summary-avg-time">--:--</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Desviación Media:</span>
+                                <span id="summary-avg-diff">--:--</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <h3><i class="fas fa-award"></i> Más Rápidos</h3>
+                        <div class="ranking-list" id="fastest-list">
+                            <!-- Se llenará con JavaScript -->
+                            <div class="empty-ranking">No hay datos</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Mayores Desviaciones</h3>
+                        <div class="ranking-list" id="deviations-list">
+                            <!-- Se llenará con JavaScript -->
+                            <div class="empty-ranking">No hay datos</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tabla de Resultados Detallados -->
+                <div class="results-table-container">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>Pos.</th>
+                                <th>Dorsal</th>
+                                <th>Corredor</th>
+                                <th>Tiempo Previsto</th>
+                                <th>Hora Prevista</th>
+                                <th>Hora Real</th>
+                                <th>Tiempo Real</th>
+                                <th>Diferencia</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-list">
+                            <!-- Los resultados se cargarán aquí -->
+                            <tr class="empty-state">
+                                <td colspan="9">
+                                    <i class="fas fa-chart-line"></i>
+                                    <p>No hay resultados registrados</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Gráficos (opcional) -->
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-bar"></i> Distribución de Tiempos</h3>
+                        <canvas id="time-distribution-chart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-line"></i> Evolución Desviaciones</h3>
+                        <canvas id="deviations-chart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modales -->
+    <div id="modal-container">
+        <!-- Modal Importar Excel -->
+        <div class="modal" id="modal-importar">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-file-import"></i> Importar Lista de Corredores</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="import-instructions">
+                        <h4>Instrucciones:</h4>
+                        <p>El archivo Excel debe contener las siguientes columnas:</p>
+                        <ul>
+                            <li><strong>Orden</strong> (opcional): Número de orden</li>
+                            <li><strong>Dorsal</strong> (obligatorio): Número de dorsal</li>
+                            <li><strong>TiempoSalida</strong> (obligatorio): Tiempo de salida (formato mm:ss)</li>
+                            <li><strong>HoraSalida</strong> (opcional): Hora de salida (formato HH:MM)</li>
+                            <li><strong>Nombre</strong> (opcional): Nombre del corredor</li>
+                            <li><strong>Apellido</strong> (opcional): Apellido del corredor</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="file-upload-area" id="drop-area">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Arrastra y suelta tu archivo Excel aquí</p>
+                        <p>o</p>
+                        <button id="btn-select-file" class="btn btn-primary">
+                            <i class="fas fa-folder-open"></i> Seleccionar Archivo
+                        </button>
+                        <input type="file" id="file-input" accept=".xlsx,.xls" hidden>
+                        <p class="file-info" id="file-info">No se ha seleccionado ningún archivo</p>
+                    </div>
+                    
+                    <div class="import-options">
+                        <label>
+                            <input type="checkbox" id="auto-calculate" checked>
+                            Calcular automáticamente horas de salida
+                        </label>
+                        <label>
+                            <input type="checkbox" id="overwrite-data">
+                            Sobrescribir datos existentes
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btn-confirm-import" class="btn btn-success" disabled>
+                        <i class="fas fa-check"></i> Importar
+                    </button>
+                    <button class="btn btn-outline cancel-import">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Nuevo/Editar Corredor -->
+        <div class="modal" id="modal-corredor">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-user-edit"></i> <span id="modal-corredor-title">Nuevo Corredor</span></h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-corredor">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="corredor-dorsal">Dorsal *</label>
+                                <input type="number" id="corredor-dorsal" required min="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="corredor-orden">Orden</label>
+                                <input type="number" id="corredor-orden" min="1">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="corredor-nombre">Nombre</label>
+                                <input type="text" id="corredor-nombre">
+                            </div>
+                            <div class="form-group">
+                                <label for="corredor-apellido">Apellido</label>
+                                <input type="text" id="corredor-apellido">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="corredor-tiempo">Tiempo Salida (mm:ss) *</label>
+                                <input type="text" id="corredor-tiempo" placeholder="01:30" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="corredor-hora">Hora Salida (HH:MM)</label>
+                                <input type="text" id="corredor-hora" placeholder="09:00">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="corredor-notas">Notas</label>
+                            <textarea id="corredor-notas" rows="3" placeholder="Información adicional..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" form="form-corredor" class="btn btn-success">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                    <button class="btn btn-outline cancel-corredor">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Confirmación -->
+        <div class="modal" id="modal-confirm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Confirmación</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirm-message">¿Estás seguro?</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="btn-confirm-yes" class="btn btn-danger">
+                        <i class="fas fa-check"></i> Sí, confirmar
+                    </button>
+                    <button id="btn-confirm-no" class="btn btn-outline">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Ayuda -->
+        <div class="modal" id="modal-help">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-question-circle"></i> Ayuda - Crono CRI</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="help-content">
+                        <h4>Guía Rápida</h4>
+                        
+                        <div class="help-section">
+                            <h5><i class="fas fa-file-import"></i> Importar Corredores</h5>
+                            <p>1. Descarga la plantilla Excel con el botón "Plantilla"</p>
+                            <p>2. Completa los datos de los corredores</p>
+                            <p>3. Importa el archivo con "Importar Excel"</p>
+                        </div>
+                        
+                        <div class="help-section">
+                            <h5><i class="fas fa-play-circle"></i> Iniciar Crono</h5>
+                            <p>1. Selecciona desde dónde iniciar:</p>
+                            <ul>
+                                <li><strong>Desde el Primero</strong>: Comienza con el primer corredor</li>
+                                <li><strong>Desde el Siguiente</strong>: Continúa después del último salido</li>
+                                <li><strong>Dorsal Específico</strong>: Comienza desde un dorsal concreto</li>
+                            </ul>
+                            <p>2. Pulsa "INICIAR CRONO"</p>
+                        </div>
+                        
+                        <div class="help-section">
+                            <h5><i class="fas fa-chart-bar"></i> Exportar Resultados</h5>
+                            <p>1. Ve a la sección "Resultados"</p>
+                            <p>2. Pulsa "Exportar Resultados" para generar un Excel con:</p>
+                            <ul>
+                                <li>Tiempos previstos vs reales</li>
+                                <li>Diferencias</li>
+                                <li>Estadísticas</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="help-section">
+                            <h5><i class="fas fa-volume-up"></i> Indicadores de Sonido</h5>
+                            <ul>
+                                <li><strong>10 segundos</strong>: Beep agudo</li>
+                                <li><strong>5 segundos</strong>: Beep cada segundo</li>
+                                <li><strong>0 segundos</strong>: Beep grave y "SALIDA"</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary close-help">
+                        Entendido
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <p>Crono CRI v1.0 - Sistema de Control de Contrarrelojes</p>
+                    <p class="copyright">© 2024 - Desarrollado para eventos ciclistas</p>
+                </div>
+                <div class="footer-right">
+                    <button id="btn-install" class="btn btn-outline">
+                        <i class="fas fa-download"></i> Instalar App
+                    </button>
+                    <button id="btn-feedback" class="btn btn-outline">
+                        <i class="fas fa-comment"></i> Feedback
+                    </button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+    
+    <!-- Inicialización -->
+    <script>
+        // Inicializar la aplicación cuando se cargue la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const app = new CronoCRI();
+            app.init();
+        });
+    </script>
+</body>
+</html>
