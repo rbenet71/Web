@@ -7,6 +7,7 @@ const APP_CACHES = {
   'crono80': 'crono-80-v1.2',
   'cronollegadas': 'crono-llegadas-v1.2',
   'crono_tops': 'crono-tops-v1.0',
+  'crono_cuenta_atras': 'crono-cuenta-atras-v1.0', 
   'index': 'index-page-v1.0'
 };
 
@@ -36,6 +37,13 @@ const APP_RESOURCES = {
     'https://rbenet71.github.io/Web/crono_tops_manifest.json',
     'https://rbenet71.github.io/Web/crono_tops_192x192.png',
     'https://rbenet71.github.io/Web/crono_tops_Ayuda.html'
+  ],
+    'crono_cuenta_atras': [
+    'https://rbenet71.github.io/Web/Crono_cuenta_atras.html',
+    'https://rbenet71.github.io/Web/Crono_Cuenta_Atras_manifest.json',
+    'https://rbenet71.github.io/Web/Crono_cuenta_atras_192_192.png',
+    'https://rbenet71.github.io/Web/Crono_cuenta_atras_512_512.png'
+
   ],
   'index': [
     'https://rbenet71.github.io/Web/',
@@ -119,6 +127,8 @@ self.addEventListener('fetch', event => {
     targetApp = 'cronollegadas';
   } else if (url.pathname.includes('crono_tops')) {
     targetApp = 'crono_tops';
+  } else if (url.pathname.includes('Crono_cuenta_atras')) {
+    targetApp = 'crono_cuenta_atras';
   } else if (url.pathname.includes('index.html') || url.pathname === '/Web/' || url.pathname === '/Web') {
     targetApp = 'index';
   }
@@ -194,6 +204,7 @@ async function getFallbackPage(appName) {
     'crono80': 'https://rbenet71.github.io/Web/Crono_80.html',
     'cronollegadas': 'https://rbenet71.github.io/Web/Crono_Llegadas.html',
     'crono_tops': 'https://rbenet71.github.io/Web/crono_tops.html',
+    'crono_cuenta_atras': 'https://rbenet71.github.io/Web/Crono_cuenta_atras.html',
     'index': 'https://rbenet71.github.io/Web/index.html'
   };
   

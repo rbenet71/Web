@@ -12,6 +12,8 @@ Quiero aprovechar de Crono_Tops las siguientes funciones:
 - Mismo texto copyright
 - Boton instalar App
 - La funcion - function keepScreenAwakeAlternative()
+- Funcionamiento offline
+
 
 La idea es proyectar o no la app a una pantalla externa, desde un portátil, tablet o teléfono móvil.
 

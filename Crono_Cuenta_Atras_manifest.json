@@ -21,18 +21,7 @@
     }
   ],
   "categories": ["sports", "productivity"],
-  "shortcuts": [
-    {
-      "name": "Nueva carrera",
-      "short_name": "Nueva",
-      "description": "Crear nueva carrera",
-      "url": "/Web/Crono_cuenta_atras.html?action=new"
-    },
-    {
-      "name": "Iniciar cuenta atrás",
-      "short_name": "Iniciar",
-      "description": "Iniciar cuenta atrás",
-      "url": "/Web/Crono_cuenta_atras.html?action=start"
-    }
-  ]
+  "scope": "https://rbenet71.github.io/Web/",
+  "lang": "es",
+  "dir": "ltr"
 }
