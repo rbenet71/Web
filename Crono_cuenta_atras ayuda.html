@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crono Cuenta Atrás - Ayuda Completa</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --border-radius: 8px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(44, 62, 80, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .help-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .help-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+
+        .help-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .language-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .lang-btn {
+            background: #34495e;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lang-btn:hover {
+            background: #3498db;
+            transform: translateY(-2px);
+        }
+
+        .lang-btn.active {
+            background: #3498db;
+        }
+
+        .flag {
+            width: 24px;
+            height: 16px;
+            border-radius: 2px;
+        }
+
+        .flag-catalunya {
+            background: linear-gradient(
+                to bottom,
+                #ffcd00 0%, #ffcd00 10%,
+                #da121a 10%, #da121a 20%,
+                #ffcd00 20%, #ffcd00 30%,
+                #da121a 30%, #da121a 40%,
+                #ffcd00 40%, #ffcd00 50%,
+                #da121a 50%, #da121a 60%,
+                #ffcd00 60%, #ffcd00 70%,
+                #da121a 70%, #da121a 80%,
+                #ffcd00 80%, #ffcd00 90%,
+                #da121a 90%, #da121a 100%
+            );
+        }
+
+        .help-content {
+            display: none;
+        }
+
+        .help-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            color: #3498db;
+            margin: 30px 0 15px 0;
+            font-size: 1.8rem;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #2ecc71;
+            margin: 20px 0 10px 0;
+            font-size: 1.4rem;
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin: 15px 0 15px 30px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            background: rgba(52, 73, 94, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #2ecc71;
+        }
+
+        .feature-card h4 {
+            color: #2ecc71;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .visual-indicators {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .indicator {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            color: white;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .indicator.red { background: #FF0000; }
+        .indicator.yellow { background: #FFFF00; color: #333; }
+        .indicator.green { background: #00FF00; color: #333; }
+        .indicator.pulse { 
+            background: #FF0000; 
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .sound-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .sound-option {
+            background: rgba(52, 73, 94, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #3498db;
+        }
+
+        .sound-option i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+
+        .keyboard-shortcuts {
+            background: rgba(52, 73, 94, 0.9);
+            color: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+        }
+
+        .keyboard-shortcuts table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .keyboard-shortcuts th,
+        .keyboard-shortcuts td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .keyboard-shortcuts th {
+            background: rgba(255,255,255,0.1);
+            font-weight: 600;
+        }
+
+        .keyboard-shortcuts kbd {
+            background: #1a2530;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .troubleshooting {
+            background: rgba(243, 156, 18, 0.2);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--warning);
+            margin-top: 20px;
+        }
+
+        .troubleshooting h4 {
+            color: var(--warning);
+            margin-bottom: 15px;
+        }
+
+        .back-button {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .back-button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .intro-box {
+            background: rgba(231, 76, 60, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .intro-box p {
+            font-style: italic;
+            color: #ecf0f1;
+        }
+
+        .step-box {
+            background: rgba(52, 73, 94, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #f39c12;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #f39c12;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .tip-box {
+            background: rgba(155, 89, 182, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #9b59b6;
+        }
+
+        .tip-box h4 {
+            color: #9b59b6;
+            margin-bottom: 10px;
+        }
+
+        .app-install {
+            background: rgba(46, 204, 113, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2ecc71;
+        }
+
+        .app-install h3 {
+            color: #2ecc71;
+        }
+
+        .platform {
+            margin: 15px 0;
+        }
+
+        .platform h4 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .other-feature {
+            background: rgba(52, 152, 219, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #3498db;
+        }
+
+        .other-feature h4 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .help-header h1 {
+                font-size: 2rem;
+            }
+            
+            .language-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .lang-btn {
+                width: 200px;
+            }
+            
+            .feature-grid,
+            .visual-indicators,
+            .sound-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .keyboard-shortcuts {
+                padding: 15px;
+            }
+            
+            .keyboard-shortcuts th,
+            .keyboard-shortcuts td {
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Encabezado -->
+        <header class="help-header">
+            <h1><i class="fas fa-question-circle"></i> Crono Cuenta Atrás - Ayuda Completa</h1>
+            <p>Guía completa de uso en todos los idiomas disponibles</p>
+            
+            <!-- Selector de idiomas actualizado -->
+            <div class="language-selector">
+                <button class="lang-btn active" data-lang="es">
+                    <img src="https://flagcdn.com/w40/es.png" class="flag" alt="Español">
+                    Español
+                </button>
+                <button class="lang-btn" data-lang="ca">
+                    <div class="flag flag-catalunya"></div>
+                    Català
+                </button>
+                <button class="lang-btn" data-lang="en">
+                    <img src="https://flagcdn.com/w40/gb.png" class="flag" alt="English">
+                    English
+                </button>
+                <button class="lang-btn" data-lang="fr">
+                    <img src="https://flagcdn.com/w40/fr.png" class="flag" alt="Français">
+                    Français
+                </button>
+            </div>
+        </header>
+
+        <!-- =========================================== -->
+        <!-- CONTENIDO EN ESPAÑOL -->
+        <!-- =========================================== -->
+        <div class="help-content active" id="help-es">
+            <div class="intro-box">
+                <h4><i class="fas fa-info-circle"></i> Nota del Desarrollador</h4>
+                <p>Esta aplicación ha sido desarrollada por Roberto Benet, comisario del comité catalán, para que cualquier árbitro la pueda utilizar en carreras deportivas de forma gratuita. Estoy abierto a cualquier tipo de mejora o implementación de nuevas funciones.</p>
+                <p>Si te resulta útil esta aplicación, te invito a explorar mis otras aplicaciones disponibles en <a href="https://rbenet71.github.io/Web" target="_blank" style="color: #3498db; text-decoration: underline;">https://rbenet71.github.io/Web</a>.</p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-info-circle"></i> ¿Qué es Crono Cuenta Atrás?</h2>
+                <p>Crono Cuenta Atrás es una aplicación profesional para controlar las salidas en carreras deportivas. Proporciona una cuenta atrás visual y sonora para organizar salidas escalonadas de corredores o participantes.</p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-graduation-cap"></i> Cómo usar la aplicación</h2>
+                
+                <div class="step-box">
+                    <span class="step-number">1</span>
+                    <strong>Crear o seleccionar una carrera</strong>
+                    <ul>
+                        <li><strong>Crea una nueva carrera</strong> con nombre y descripción</li>
+                        <li><strong>Selecciona una carrera existente</strong> para continuar donde la dejaste</li>
+                        <li>Los datos se guardan automáticamente</li>
+                    </ul>
+                </div>
+
+                <div class="step-box">
+                    <span class="step-number">2</span>
+                    <strong>Configurar la cadencia de salida</strong>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4><i class="fas fa-equals"></i> Siempre igual</h4>
+                            <p>Todos los corredores salen con el mismo intervalo de tiempo</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4><i class="fas fa-list-ol"></i> Varios tramos</h4>
+                            <p>Configura diferentes intervalos para grupos de corredores</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <span class="step-number">3</span>
+                    <strong>Iniciar la cuenta atrás</strong>
+                    <ol>
+                        <li>Define desde qué corredor comenzar</li>
+                        <li>Haz clic en "INICIAR CUENTA ATRÁS"</li>
+                        <li>La pantalla cambiará al modo de ejecución</li>
+                        <li>¡Todo está listo para comenzar!</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-palette"></i> Indicadores visuales</h2>
+                <div class="visual-indicators">
+                    <div class="indicator red">
+                        <i class="fas fa-stopwatch"></i><br>
+                        <strong>FONDO ROJO</strong><br>
+                        Cuenta atrás normal
+                    </div>
+                    <div class="indicator yellow">
+                        <i class="fas fa-exclamation-triangle"></i><br>
+                        <strong>FONDO AMARILLO</strong><br>
+                        Últimos 10 segundos
+                    </div>
+                    <div class="indicator green">
+                        <i class="fas fa-flag-checkered"></i><br>
+                        <strong>FONDO VERDE</strong><br>
+                        Momento de salida (2 segundos)
+                    </div>
+                    <div class="indicator pulse">
+                        <i class="fas fa-heartbeat"></i><br>
+                        <strong>NÚMEROS ROJOS PULSANTES</strong><br>
+                        Últimos 5 segundos
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-volume-up"></i> Opciones de sonido</h2>
+                <div class="sound-options">
+                    <div class="sound-option">
+                        <i class="fas fa-bell"></i>
+                        <h4>Sonidos Beep</h4>
+                        <p>Beeps electrónicos para cada segundo</p>
+                    </div>
+                    <div class="sound-option">
+                        <i class="fas fa-microphone-alt"></i>
+                        <h4>Voz grabada</h4>
+                        <p>Voz humana contando en español</p>
+                    </div>
+                    <div class="sound-option">
+                        <i class="fas fa-volume-mute"></i>
+                        <h4>Sin sonido</h4>
+                        <p>Solo efectos visuales</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-keyboard"></i> Atajos de teclado</h2>
+                <div class="keyboard-shortcuts">
+                    <p>Durante la cuenta atrás puedes usar estos atajos:</p>
+                    <table>
+                        <tr>
+                            <th>Tecla</th>
+                            <th>Acción</th>
+                            <th>Descripción</th>
+                        </tr>
+                        <tr>
+                            <td><kbd>Espacio</kbd></td>
+                            <td>Pausar/Reanudar</td>
+                            <td>Detiene o continúa la cuenta atrás</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>ESC</kbd></td>
+                            <td>Configuración</td>
+                            <td>Abre el menú de configuración</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>+</kbd></td>
+                            <td>Aumentar tiempo</td>
+                            <td>Añade 5 segundos al tiempo actual</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>-</kbd></td>
+                            <td>Reducir tiempo</td>
+                            <td>Resta 5 segundos al tiempo actual</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-wrench"></i> Solución de problemas</h2>
+                <div class="troubleshooting">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Problemas comunes</h4>
+                    <ul>
+                        <li><strong>No se escuchan los sonidos:</strong> Asegúrate de que el volumen del navegador está activado y que has permitido la reproducción de audio</li>
+                        <li><strong>La pantalla se apaga:</strong> La aplicación incluye un sistema para mantener la pantalla activa</li>
+                        <li><strong>Los datos no se guardan:</strong> Los datos se guardan automáticamente en tu navegador</li>
+                        <li><strong>La cuenta atrás no es precisa:</strong> Usa la función de sincronización en el menú de configuración</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Instalación como App</h2>
+            <div class="app-install">
+                <div class="platform">
+                    <h4>Para iPhone/iOS:</h4>
+                    <ol>
+                        <li>Abrir Safari y navegar a la aplicación</li>
+                        <li>Tocar el icono de compartir (cuadrado con flecha hacia arriba)</li>
+                        <li>Desplazarse y seleccionar "Añadir a pantalla de inicio"</li>
+                        <li>Personalizar el nombre y tocar "Añadir"</li>
+                        <li>La app aparecerá en la pantalla de inicio</li>
+                    </ol>
+                </div>
+                
+                <div class="platform">
+                    <h4>Para Android:</h4>
+                    <ol>
+                        <li>Abrir Chrome y navegar a la aplicación</li>
+                        <li>Tocar el menú de tres puntos (esquina superior derecha)</li>
+                        <li>Seleccionar "Instalar app" o "Añadir a pantalla de inicio"</li>
+                        <li>Seguir las instrucciones del navegador</li>
+                        <li>La app se instalará automáticamente</li>
+                    </ol>
+                </div>
+                
+                <h3>Ventajas de la instalación:</h3>
+                <ul>
+                    <li><strong>Acceso inmediato:</strong> Icono directo en pantalla de inicio</li>
+                    <li><strong>Funciona sin internet:</strong> Esencial en zonas sin cobertura</li>
+                    <li><strong>Actualizaciones automáticas:</strong> Siempre tendrás la última versión</li>
+                    <li><strong>Mayor velocidad:</strong> Carga instantánea como app nativa</li>
+                </ul>
+            </div>
+
+            <div class="tip-box">
+                <h4>Contribuir al Proyecto</h4>
+                <p>Esta aplicación es gratuita y de código abierto. Si eres árbitro o comisario y tienes ideas para mejorarla:</p>
+                <ol>
+                    <li>Describe la función que necesitas</li>
+                    <li>Explica en qué tipo de carrera la usarías</li>
+                    <li>Puedes contactarme a través de mis otras aplicaciones</li>
+                </ol>
+                <p><strong>Todas las sugerencias serán consideradas para futuras versiones.</strong></p>
+            </div>
+
+            <a href="Crono_cuenta_atras.html" class="back-button">
+                <i class="fas fa-arrow-left"></i> Volver a la aplicación
+            </a>
+        </div>
+
+        <!-- =========================================== -->
+        <!-- CONTENIDO EN CATALÁN -->
+        <!-- =========================================== -->
+        <div class="help-content" id="help-ca">
+            <div class="intro-box">
+                <h4><i class="fas fa-info-circle"></i> Nota del Desenvolupador</h4>
+                <p>Aquesta aplicació l'ha desenvolupada Roberto Benet, comissari del comitè català, perquè qualsevol àrbitre la pugui utilitzar en curses esportives de forma gratuïta. Estic obert a qualsevol tipus de millora o implementació de noves funcions.</p>
+                <p>Si et resulta útil aquesta aplicació, t'incito a explorar les meves altres aplicacions disponibles a <a href="https://rbenet71.github.io/Web" target="_blank" style="color: #3498db; text-decoration: underline;">https://rbenet71.github.io/Web</a>.</p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-info-circle"></i> Què és Crono Compte Enrere?</h2>
+                <p>Crono Compte Enrere és una aplicació professional per controlar les sortides en curses esportives. Proporciona un compte enrere visual i sonor per organitzar sortides escalonades de corredors o participants.</p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-graduation-cap"></i> Com utilitzar l'aplicació</h2>
+                
+                <div class="step-box">
+                    <span class="step-number">1</span>
+                    <strong>Crear o seleccionar una cursa</strong>
+                    <ul>
+                        <li><strong>Crea una nova cursa</strong> amb nom i descripció</li>
+                        <li><strong>Selecciona una cursa existent</strong> per continuar on la vas deixar</li>
+                        <li>Les dades es guarden automàticament</li>
+                    </ul>
+                </div>
+
+                <div class="step-box">
+                    <span class="step-number">2</span>
+                    <strong>Configurar la cadència de sortida</strong>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4><i class="fas fa-equals"></i> Sempre igual</h4>
+                            <p>Tots els corredors surten amb el mateix interval de temps</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4><i class="fas fa-list-ol"></i> Varis trams</h4>
+                            <p>Configura diferents intervals per a grups de corredors</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <span class="step-number">3</span>
+                    <strong>Iniciar el compte enrere</strong>
+                    <ol>
+                        <li>Defineix des de quin corredor començar</li>
+                        <li>Fes clic a "INICIAR COMPTE ENRERE"</li>
+                        <li>La pantalla canviarà al mode d'execució</li>
+                        <li>¡Tot està llest per començar!</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-palette"></i> Indicadors visuals</h2>
+                <div class="visual-indicators">
+                    <div class="indicator red">
+                        <i class="fas fa-stopwatch"></i><br>
+                        <strong>FONS VERMELL</strong><br>
+                        Compte enrere normal
+                    </div>
+                    <div class="indicator yellow">
+                        <i class="fas fa-exclamation-triangle"></i><br>
+                        <strong>FONS GROC</strong><br>
+                        Últims 10 segons
+                    </div>
+                    <div class="indicator green">
+                        <i class="fas fa-flag-checkered"></i><br>
+                        <strong>FONS VERD</strong><br>
+                        Moment de sortida (2 segons)
+                    </div>
+                    <div class="indicator pulse">
+                        <i class="fas fa-heartbeat"></i><br>
+                        <strong>NÚMEROS VERMELLS PULSANTS</strong><br>
+                        Últims 5 segons
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-volume-up"></i> Opcions de so</h2>
+                <div class="sound-options">
+                    <div class="sound-option">
+                        <i class="fas fa-bell"></i>
+                        <h4>Sons Beep</h4>
+                        <p>Beeps electrònics per a cada segon</p>
+                    </div>
+                    <div class="sound-option">
+                        <i class="fas fa-microphone-alt"></i>
+                        <h4>Veure enregistrada</h4>
+                        <p>Veure humana comptant en català</p>
+                    </div>
+                    <div class="sound-option">
+                        <i class="fas fa-volume-mute"></i>
+                        <h4>Sense so</h4>
+                        <p>Només efectes visuals</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-keyboard"></i> Dreceres de teclat</h2>
+                <div class="keyboard-shortcuts">
+                    <p>Durant el compte enrere pots utilitzar aquestes dreceres:</p>
+                    <table>
+                        <tr>
+                            <th>Tecla</th>
+                            <th>Acció</th>
+                            <th>Descripció</th>
+                        </tr>
+                        <tr>
+                            <td><kbd>Espai</kbd></td>
+                            <td>Pausar/Reprendre</td>
+                            <td>Atura o continua el compte enrere</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>ESC</kbd></td>
+                            <td>Configuració</td>
+                            <td>Obre el menú de configuració</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>+</kbd></td>
+                            <td>Augmentar temps</td>
+                            <td>Afegeix 5 segons al temps actual</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>-</kbd></td>
+                            <td>Reduir temps</td>
+                            <td>Resta 5 segons al temps actual</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-wrench"></i> Solució de problemes</h2>
+                <div class="troubleshooting">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Problemes comuns</h4>
+                    <ul>
+                        <li><strong>No s'escolten els sons:</strong> Assegura't que el volum del navegador està activat i que has permès la reproducció d'àudio</li>
+                        <li><strong>La pantalla s'apaga:</strong> L'aplicació inclou un sistema per mantenir la pantalla activa</li>
+                        <li><strong>Les dades no es guarden:</strong> Les dades es guarden automàticament al teu navegador</li>
+                        <li><strong>El compte enrere no és precís:</strong> Utilitza la funció de sincronització al menú de configuració</li>
+                    </ul>
+                </div>
+            </div>
+
+            <a href="Crono_cuenta_atras.html" class="back-button">
+                <i class="fas fa-arrow-left"></i> Tornar a l'aplicació
+            </a>
+        </div>
+
+        <!-- =========================================== -->
+        <!-- CONTENIDO EN INGLÉS -->
+        <!-- =========================================== -->
+        <div class="help-content" id="help-en">
+            <div class="intro-box">
+                <h4><i class="fas fa-info-circle"></i> Developer's Note</h4>
+                <p>This application has been developed by Roberto Benet, commissioner of the Catalan committee, so that any referee can use it in sporting events for free. I'm open to any type of improvement or implementation of new features.</p>
+                <p>If you find this application useful, I invite you to explore my other applications available at <a href="https://rbenet71.github.io/Web" target="_blank" style="color: #3498db; text-decoration: underline;">https://rbenet71.github.io/Web</a>.</p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-info-circle"></i> What is Countdown Timer?</h2>
+                <p>Countdown Timer is a professional application to control race starts in sporting events. It provides a visual and audible countdown to organize staggered starts of runners or participants.</p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-graduation-cap"></i> How to use the application</h2>
+                
+                <div class="step-box">
+                    <span class="step-number">1</span>
+                    <strong>Create or select a race</strong>
+                    <ul>
+                        <li><strong>Create a new race</strong> with name and description</li>
+                        <li><strong>Select an existing race</strong> to continue where you left off</li>
+                        <li>Data is saved automatically</li>
+                    </ul>
+                </div>
+
+                <div class="step-box">
+                    <span class="step-number">2</span>
+                    <strong>Configure start cadence</strong>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4><i class="fas fa-equals"></i> Always the same</h4>
+                            <p>All racers start with the same time interval</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4><i class="fas fa-list-ol"></i> Multiple intervals</h4>
+                            <p>Configure different intervals for groups of racers</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <span class="step-number">3</span>
+                    <strong>Start the countdown</strong>
+                    <ol>
+                        <li>Define from which racer to start</li>
+                        <li>Click "START COUNTDOWN"</li>
+                        <li>The screen will change to execution mode</li>
+                        <li>Everything is ready to go!</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-palette"></i> Visual indicators</h2>
+                <div class="visual-indicators">
+                    <div class="indicator red">
+                        <i class="fas fa-stopwatch"></i><br>
+                        <strong>RED BACKGROUND</strong><br>
+                        Normal countdown
+                    </div>
+                    <div class="indicator yellow">
+                        <i class="fas fa-exclamation-triangle"></i><br>
+                        <strong>YELLOW BACKGROUND</strong><br>
+                        Last 10 seconds
+                    </div>
+                    <div class="indicator green">
+                        <i class="fas fa-flag-checkered"></i><br>
+                        <strong>GREEN BACKGROUND</strong><br>
+                        Start moment (2 seconds)
+                    </div>
+                    <div class="indicator pulse">
+                        <i class="fas fa-heartbeat"></i><br>
+                        <strong>RED PULSING NUMBERS</strong><br>
+                        Last 5 seconds
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-volume-up"></i> Sound options</h2>
+                <div class="sound-options">
+                    <div class="sound-option">
+                        <i class="fas fa-bell"></i>
+                        <h4>Beep Sounds</h4>
+                        <p>Electronic beeps for each second</p>
+                    </div>
+                    <div class="sound-option">
+                        <i class="fas fa-microphone-alt"></i>
+                        <h4>Recorded Voice</h4>
+                        <p>Human voice counting in English</p>
+                    </div>
+                    <div class="sound-option">
+                        <i class="fas fa-volume-mute"></i>
+                        <h4>No Sound</h4>
+                        <p>Visual effects only</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-keyboard"></i> Keyboard shortcuts</h2>
+                <div class="keyboard-shortcuts">
+                    <p>During countdown you can use these shortcuts:</p>
+                    <table>
+                        <tr>
+                            <th>Key</th>
+                            <th>Action</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td><kbd>Space</kbd></td>
+                            <td>Pause/Resume</td>
+                            <td>Stops or continues the countdown</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>ESC</kbd></td>
+                            <td>Configuration</td>
+                            <td>Opens the configuration menu</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>+</kbd></td>
+                            <td>Increase time</td>
+                            <td>Adds 5 seconds to current time</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>-</kbd></td>
+                            <td>Decrease time</td>
+                            <td>Subtracts 5 seconds from current time</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-wrench"></i> Troubleshooting</h2>
+                <div class="troubleshooting">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Common problems</h4>
+                    <ul>
+                        <li><strong>No sound is heard:</strong> Make sure browser volume is on and you have allowed audio playback</li>
+                        <li><strong>Screen turns off:</strong> The application includes a system to keep the screen active</li>
+                        <li><strong>Data is not saved:</strong> Data is automatically saved in your browser</li>
+                        <li><strong>Countdown is not accurate:</strong> Use the sync function in the configuration menu</li>
+                    </ul>
+                </div>
+            </div>
+
+            <a href="Crono_cuenta_atras.html" class="back-button">
+                <i class="fas fa-arrow-left"></i> Back to application
+            </a>
+        </div>
+
+        <!-- =========================================== -->
+        <!-- CONTENIDO EN FRANCÉS -->
+        <!-- =========================================== -->
+        <div class="help-content" id="help-fr">
+            <div class="intro-box">
+                <h4><i class="fas fa-info-circle"></i> Note du Développeur</h4>
+                <p>Cette application a été développée par Roberto Benet, commissaire du comité catalan, pour que tout arbitre puisse l'utiliser dans les événements sportifs gratuitement. Je suis ouvert à tout type d'amélioration ou d'implémentation de nouvelles fonctionnalités.</p>
+                <p>Si vous trouvez cette application utile, je vous invite à explorer mes autres applications disponibles sur <a href="https://rbenet71.github.io/Web" target="_blank" style="color: #3498db; text-decoration: underline;">https://rbenet71.github.io/Web</a>.</p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-info-circle"></i> Qu'est-ce que Compte à Rebours?</h2>
+                <p>Compte à Rebours est une application professionnelle pour contrôler les départs de course dans les événements sportifs. Il fournit un compte à rebours visuel et sonore pour organiser des départs échelonnés de coureurs ou participants.</p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-graduation-cap"></i> Comment utiliser l'application</h2>
+                
+                <div class="step-box">
+                    <span class="step-number">1</span>
+                    <strong>Créer ou sélectionner une course</strong>
+                    <ul>
+                        <li><strong>Créez une nouvelle course</strong> avec nom et description</li>
+                        <li><strong>Sélectionnez une course existante</strong> pour continuer où vous vous êtes arrêté</li>
+                        <li>Les données sont enregistrées automatiquement</li>
+                    </ul>
+                </div>
+
+                <div class="step-box">
+                    <span class="step-number">2</span>
+                    <strong>Configurer la cadence de départ</strong>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4><i class="fas fa-equals"></i> Toujours égal</h4>
+                            <p>Tous les coureurs partent avec le même intervalle de temps</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4><i class="fas fa-list-ol"></i> Plusieurs intervalles</h4>
+                            <p>Configurez différents intervalles pour des groupes de coureurs</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <span class="step-number">3</span>
+                    <strong>Démarrer le compte à rebours</strong>
+                    <ol>
+                        <li>Définissez à partir de quel coureur commencer</li>
+                        <li>Cliquez sur "DÉMARRER COMPTE À REBOURS"</li>
+                        <li>L'écran passera en mode d'exécution</li>
+                        <li>Tout est prêt à partir!</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-palette"></i> Indicateurs visuels</h2>
+                <div class="visual-indicators">
+                    <div class="indicator red">
+                        <i class="fas fa-stopwatch"></i><br>
+                        <strong>FOND ROUGE</strong><br>
+                        Compte à rebours normal
+                    </div>
+                    <div class="indicator yellow">
+                        <i class="fas fa-exclamation-triangle"></i><br>
+                        <strong>FOND JAUNE</strong><br>
+                        Dernières 10 secondes
+                    </div>
+                    <div class="indicator green">
+                        <i class="fas fa-flag-checkered"></i><br>
+                        <strong>FOND VERT</strong><br>
+                        Moment de départ (2 secondes)
+                    </div>
+                    <div class="indicator pulse">
+                        <i class="fas fa-heartbeat"></i><br>
+                        <strong>CHIFFRES ROUGES PULSANTS</strong><br>
+                        Dernières 5 secondes
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-volume-up"></i> Options sonores</h2>
+                <div class="sound-options">
+                    <div class="sound-option">
+                        <i class="fas fa-bell"></i>
+                        <h4>Sons Beep</h4>
+                        <p>Bips électroniques pour chaque seconde</p>
+                    </div>
+                    <div class="sound-option">
+                        <i class="fas fa-microphone-alt"></i>
+                        <h4>Voix enregistrée</h4>
+                        <p>Voix humaine comptant en français</p>
+                    </div>
+                    <div class="sound-option">
+                        <i class="fas fa-volume-mute"></i>
+                        <h4>Sans son</h4>
+                        <p>Effets visuels seulement</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-keyboard"></i> Raccourcis clavier</h2>
+                <div class="keyboard-shortcuts">
+                    <p>Pendant le compte à rebours vous pouvez utiliser ces raccourcis:</p>
+                    <table>
+                        <tr>
+                            <th>Touche</th>
+                            <th>Action</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td><kbd>Espace</kbd></td>
+                            <td>Pause/Reprise</td>
+                            <td>Arrête ou continue le compte à rebours</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>ESC</kbd></td>
+                            <td>Configuration</td>
+                            <td>Ouvre le menu de configuration</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>+</kbd></td>
+                            <td>Augmenter temps</td>
+                            <td>Ajoute 5 secondes au temps actuel</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>-</kbd></td>
+                            <td>Réduire temps</td>
+                            <td>Soustrait 5 secondes du temps actuel</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-wrench"></i> Dépannage</h2>
+                <div class="troubleshooting">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Problèmes courants</h4>
+                    <ul>
+                        <li><strong>Aucun son n'est entendu:</strong> Assurez-vous que le volume du navigateur est activé et que vous avez autorisé la lecture audio</li>
+                        <li><strong>L'écran s'éteint:</strong> L'application inclut un système pour garder l'écran actif</li>
+                        <li><strong>Les données ne sont pas sauvegardées:</strong> Les données sont automatiquement enregistrées dans votre navigateur</li>
+                        <li><strong>Le compte à rebours n'est pas précis:</strong> Utilisez la fonction de synchronisation dans le menu de configuration</li>
+                    </ul>
+                </div>
+            </div>
+
+            <a href="Crono_cuenta_atras.html" class="back-button">
+                <i class="fas fa-arrow-left"></i> Retour à l'application
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Cambio entre idiomas
+        document.addEventListener('DOMContentLoaded', function() {
+            const langButtons = document.querySelectorAll('.lang-btn');
+            const contents = document.querySelectorAll('.help-content');
+            
+            langButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    
+                    // Actualizar botones activos
+                    langButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Actualizar contenido visible
+                    contents.forEach(content => content.classList.remove('active'));
+                    document.getElementById(`help-${lang}`).classList.add('active');
+                    
+                    // Guardar preferencia de idioma para ayuda
+                    localStorage.setItem('help-language', lang);
+                });
+            });
+            
+            // Cargar idioma preferido de ayuda
+            const savedLang = localStorage.getItem('help-language') || 'es';
+            const tab = document.querySelector(`.lang-btn[data-lang="${savedLang}"]`);
+            if (tab) {
+                tab.click();
+            }
+            
+            // Botón para volver a la aplicación principal
+            document.querySelectorAll('.back-button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.href = 'Crono_cuenta_atras.html';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
