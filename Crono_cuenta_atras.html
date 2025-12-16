@@ -2977,7 +2977,6 @@
             voiceAudioCache: {},
             
             // Para el audio de salida
-            salidaAudioCache: {},
             currentLanguage: 'es',
             currentRace: null,
             races: [],
@@ -3643,58 +3642,48 @@
             console.log("Precargando audios de voz .ogg...");
             
             const languages = ['es', 'en', 'ca', 'fr'];
-            const numbers = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
+            const numbers = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]; // ¡0 ahora es "salida"!
             
             // Contador para audios cargados
             let loadedCount = 0;
-            const totalToLoad = languages.length * (numbers.length + 1); // +1 para "salida"
+            const totalToLoad = languages.length * numbers.length;
             
             languages.forEach(lang => {
                 appState.voiceAudioCache[lang] = {};
-                appState.salidaAudioCache[lang] = null;
                 
-                // Precargar números
+                // Precargar TODOS los números incluyendo 0
                 numbers.forEach(num => {
                     const audio = new Audio();
                     audio.preload = 'auto';
                     
-                    // SOLO formato .ogg
+                    // Formato consistente: idioma_número.ogg
                     audio.src = `audio/${lang}_${num}.ogg`;
                     
                     audio.addEventListener('canplaythrough', () => {
                         appState.voiceAudioCache[lang][num] = audio;
                         loadedCount++;
                         console.log(`✅ Audio cargado: ${lang}_${num}.ogg (${loadedCount}/${totalToLoad})`);
+                        
+                        // El 0 es especial - es la "salida"
+                        if (num === 0) {
+                            console.log(`   (Este es el audio de SALIDA para ${lang})`);
+                        }
                     });
                     
                     audio.addEventListener('error', (e) => {
                         console.error(`❌ ERROR cargando ${audio.src}:`, e.type);
-                        console.error("  Razón posible: Archivo no existe o ruta incorrecta");
                         console.error("  Verifica que exista: audio/" + lang + "_" + num + ".ogg");
+                        
+                        // Si es el 0 y falla, dar un mensaje específico
+                        if (num === 0) {
+                            console.error("  IMPORTANTE: El archivo 0.ogg es para 'SALIDA'/'GO'/'DÉPART'");
+                        }
+                        
                         loadedCount++;
                     });
                     
                     audio.load();
                 });
-                
-                // Precargar "salida"
-                const salidaAudio = new Audio();
-                salidaAudio.preload = 'auto';
-                salidaAudio.src = `audio/${lang}_salida.ogg`;
-                
-                salidaAudio.addEventListener('canplaythrough', () => {
-                    appState.salidaAudioCache[lang] = salidaAudio;
-                    loadedCount++;
-                    console.log(`✅ "Salida" cargado: ${lang}_salida.ogg (${loadedCount}/${totalToLoad})`);
-                });
-                
-                salidaAudio.addEventListener('error', (e) => {
-                    console.error(`❌ ERROR cargando salida ${salidaAudio.src}:`, e.type);
-                    console.error("  Verifica que exista: audio/" + lang + "_salida.ogg");
-                    loadedCount++;
-                });
-                
-                salidaAudio.load();
             });
             
             // Verificar carga después de un tiempo
@@ -3704,8 +3693,15 @@
                 
                 languages.forEach(lang => {
                     console.log(`\nIdioma: ${lang}`);
-                    console.log(`  Números cargados: ${Object.keys(appState.voiceAudioCache[lang] || {}).length}/11`);
-                    console.log(`  Salida cargada: ${appState.salidaAudioCache[lang] ? 'SÍ' : 'NO'}`);
+                    const loadedNumbers = Object.keys(appState.voiceAudioCache[lang] || {}).length;
+                    console.log(`  Números cargados: ${loadedNumbers}/11`);
+                    
+                    // Verificar si el 0 (salida) está cargado
+                    if (appState.voiceAudioCache[lang][0]) {
+                        console.log(`  ✅ Audio de SALIDA (0.ogg): CARGADO`);
+                    } else {
+                        console.log(`  ❌ Audio de SALIDA (0.ogg): FALTA`);
+                    }
                 });
             }, 3000);
         }
@@ -3773,27 +3769,10 @@
         function playSalidaVoice() {
             if (appState.audioType !== 'voice') return;
             
-            console.log(`🔊 Reproduciendo salida: ${appState.currentLanguage}_salida.ogg`);
+            console.log(`🔊 Reproduciendo SALIDA (${appState.currentLanguage}_0.ogg)`);
             
-            try {
-                const lang = appState.currentLanguage;
-                
-                if (appState.salidaAudioCache[lang]) {
-                    const audio = appState.salidaAudioCache[lang];
-                    audio.currentTime = 0;
-                    
-                    audio.play().catch(error => {
-                        console.warn(`Error reproduciendo salida precargada:`, error);
-                        loadAndPlaySalidaDirectly(lang);
-                    });
-                } else {
-                    loadAndPlaySalidaDirectly(lang);
-                }
-                
-            } catch (error) {
-                console.error("❌ Error en playSalidaVoice:", error);
-                generateBeep(800, 1.5, 'sine');
-            }
+            // ¡Simplemente usar playVoiceAudio con número 0!
+            playVoiceAudio(0);
         }
 
         function loadAndPlaySalidaDirectly(lang) {
@@ -3808,6 +3787,7 @@
 
         function verifyAudioFiles() {
             console.log("=== VERIFICACIÓN DE ARCHIVOS .ogg ===");
+            console.log("CONVENCIÓN: 0.ogg = audio de SALIDA\n");
             
             const languages = ['es', 'en', 'ca', 'fr'];
             const requiredNumbers = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
@@ -3822,34 +3802,28 @@
                     audio.src = url;
                     
                     audio.addEventListener('canplaythrough', () => {
-                        console.log(`  ✅ ${lang}_${num}.ogg - EXISTE`);
+                        if (num === 0) {
+                            console.log(`  ✅ ${lang}_${num}.ogg - SALIDA ✓`);
+                        } else {
+                            console.log(`  ✅ ${lang}_${num}.ogg`);
+                        }
                     });
                     
                     audio.addEventListener('error', (e) => {
-                        console.log(`  ❌ ${lang}_${num}.ogg - NO EXISTE o ERROR`);
+                        if (num === 0) {
+                            console.log(`  ❌ ${lang}_${num}.ogg - SALIDA (FALTA!)`);
+                        } else {
+                            console.log(`  ❌ ${lang}_${num}.ogg`);
+                        }
                         console.log(`      Ruta probada: ${url}`);
                     });
                     
                     audio.load();
                 });
-                
-                // Verificar "salida"
-                const salidaAudio = new Audio();
-                const salidaUrl = `audio/${lang}_salida.ogg`;
-                salidaAudio.src = salidaUrl;
-                
-                salidaAudio.addEventListener('canplaythrough', () => {
-                    console.log(`  ✅ ${lang}_salida.ogg - EXISTE`);
-                });
-                
-                salidaAudio.addEventListener('error', (e) => {
-                    console.log(`  ❌ ${lang}_salida.ogg - NO EXISTE o ERROR`);
-                    console.log(`      Ruta probada: ${salidaUrl}`);
-                });
-                
-                salidaAudio.load();
             });
         }
+       
+       
         // Función de fallback para cargar audio directamente
         function fallbackVoiceAudio(number, lang) {
             console.log(`Usando fallback para: ${lang}_${number}`);
@@ -3906,39 +3880,37 @@
             
             try {
                 switch(type) {
-                    case 'warning': // Cuando llega a 10 segundos
+                    case 'warning': // 10 segundos
                         if (appState.audioType === 'beep') {
                             generateBeep(300, 1.5, 'square');
                         } else if (appState.audioType === 'voice') {
-                            // Solo decir "diez" una vez
-                            playVoiceAudio(10);
+                            playVoiceAudio(10); // "diez", "ten", etc.
                         }
                         break;
                         
-                    case 'critical': // Cuando llega a 5 segundos
+                    case 'critical': // 5 segundos
                         if (appState.audioType === 'beep') {
                             generateBeep(500, 0.3, 'sine');
                         } else if (appState.audioType === 'voice') {
-                            // Solo decir "cinco" una vez
-                            playVoiceAudio(5);
+                            playVoiceAudio(5); // "cinco", "five", etc.
                         }
                         break;
                         
-                    case 'salida': // Cuando llega a 0
+                    case 'salida': // 0 segundos - ¡SALIDA!
                         if (appState.audioType === 'beep') {
                             generateBeep(800, 1.5, 'sine');
                         } else if (appState.audioType === 'voice') {
-                            playSalidaVoice();
+                            playVoiceAudio(0); // ¡Usar el 0 para salida!
                         }
                         break;
                         
-                    case 'beep': // Beeps normales (modo beep)
+                    case 'beep': // Beeps normales
                         if (appState.audioType === 'beep') {
                             generateBeep(500, 0.3, 'sine');
                         }
                         break;
                         
-                    case 'number': // Números (modo voz)
+                    case 'number': // Números del 4 al 1
                         if (appState.audioType === 'voice' && appState.countdownValue >= 0) {
                             // Solo decir números del 4 al 1
                             if (appState.countdownValue <= 4 && appState.countdownValue > 0) {
@@ -3959,6 +3931,7 @@
             console.log("=== PRUEBA COMPLETA DE AUDIO ===");
             console.log("Idioma:", appState.currentLanguage);
             console.log("Tipo de audio:", appState.audioType);
+            console.log("Convención: 0.ogg = SALIDA/GO/DÉPART/SORTIDA\n");
             
             if (appState.audioType === 'none') {
                 showMessage("Modo sin sonido activado", 'info');
@@ -3966,48 +3939,53 @@
             }
             
             if (appState.audioType === 'beep') {
-                // Probar diferentes beeps
                 console.log("Probando beeps...");
-                generateBeep(300, 0.5, 'square');  // Beep de advertencia
-                setTimeout(() => generateBeep(500, 0.3, 'sine'), 600);  // Beep normal
-                setTimeout(() => generateBeep(800, 1.5, 'sine'), 1200); // Beep de salida
+                generateBeep(300, 0.5, 'square');
+                setTimeout(() => generateBeep(500, 0.3, 'sine'), 600);
+                setTimeout(() => generateBeep(800, 1.5, 'sine'), 1200);
                 
                 showMessage("Probando sonido beep", 'info');
                 
             } else if (appState.audioType === 'voice') {
-                console.log("Probando voz completa...");
+                console.log("Probando secuencia de carrera completa:");
                 
-                // Secuencia de prueba
-                playVoiceAudio(10);  // "Diez"
+                // Simular una secuencia de cuenta atrás real
+                console.log("1. Advertencia (10 segundos)...");
+                playVoiceAudio(10);
                 
                 setTimeout(() => {
-                    playVoiceAudio(5);   // "Cinco"
+                    console.log("2. Cinco segundos...");
+                    playVoiceAudio(5);
                 }, 1500);
                 
                 setTimeout(() => {
-                    playVoiceAudio(4);   // "Cuatro"
+                    console.log("3. Cuatro...");
+                    playVoiceAudio(4);
                 }, 3000);
                 
                 setTimeout(() => {
-                    playVoiceAudio(3);   // "Tres"
+                    console.log("4. Tres...");
+                    playVoiceAudio(3);
                 }, 4500);
                 
                 setTimeout(() => {
-                    playVoiceAudio(2);   // "Dos"
+                    console.log("5. Dos...");
+                    playVoiceAudio(2);
                 }, 6000);
                 
                 setTimeout(() => {
-                    playVoiceAudio(1);   // "Uno"
+                    console.log("6. Uno...");
+                    playVoiceAudio(1);
                 }, 7500);
                 
                 setTimeout(() => {
-                    playSalidaVoice();   // "¡Salida!"
+                    console.log("7. ¡SALIDA! (0)...");
+                    playVoiceAudio(0); // ¡Este es el audio de salida!
                 }, 9000);
                 
                 showMessage(`Probando voz en ${appState.currentLanguage}`, 'info');
             }
         }
-
         // Añadir esta función y llamarla en initApp
         function checkAvailableAudioFiles() {
             console.log("=== VERIFICANDO ARCHIVOS DE AUDIO ===");
@@ -4081,6 +4059,36 @@
                 appState.audioType = savedAudioType;
             }
         }
+        function showExpectedFilenames() {
+            console.log("=== NOMBRES DE ARCHIVOS ESPERADOS ===");
+            console.log("(Para carpeta audio/)\n");
+            
+            const languages = {
+                'es': 'Español',
+                'en': 'English', 
+                'ca': 'Català',
+                'fr': 'Français'
+            };
+            
+            Object.entries(languages).forEach(([code, name]) => {
+                console.log(`\n${name} (${code}):`);
+                console.log(`  ${code}_10.ogg  → "diez" / "ten" / "deu" / "dix"`);
+                console.log(`  ${code}_9.ogg   → "nueve" / "nine" / "nou" / "neuf"`);
+                console.log(`  ${code}_8.ogg   → "ocho" / "eight" / "vuit" / "huit"`);
+                console.log(`  ${code}_7.ogg   → "siete" / "seven" / "set" / "sept"`);
+                console.log(`  ${code}_6.ogg   → "seis" / "six" / "sis" / "six"`);
+                console.log(`  ${code}_5.ogg   → "cinco" / "five" / "cinc" / "cinq"`);
+                console.log(`  ${code}_4.ogg   → "cuatro" / "four" / "quatre" / "quatre"`);
+                console.log(`  ${code}_3.ogg   → "tres" / "three" / "tres" / "trois"`);
+                console.log(`  ${code}_2.ogg   → "dos" / "two" / "dos" / "deux"`);
+                console.log(`  ${code}_1.ogg   → "uno" / "one" / "un" / "un"`);
+                console.log(`  ${code}_0.ogg   → "¡SALIDA!" / "GO!" / "SORTIDA!" / "DÉPART!"`);
+            });
+            
+            console.log("\n=== TOTAL DE ARCHIVOS NECESARIOS ===");
+            console.log("4 idiomas × 11 números = 44 archivos .ogg");
+        }
+        
         // ============================================
         // VARIABLES PARA ORDENACIÓN
         // ============================================
