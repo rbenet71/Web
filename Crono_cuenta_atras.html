@@ -6428,12 +6428,12 @@
             });
 
 
-            document.getElementById('help-icon-header').addEventListener('click', () => {
-                document.getElementById('help-modal').classList.add('active');
+            document.getElementById('help-icon-header').addEventListener('click', function() {
+                window.open('crono_cuenta_atras_ayuda.html', '_blank');
             });
-            
-            document.getElementById('footer-help-btn').addEventListener('click', () => {
-                document.getElementById('help-modal').classList.add('active');
+
+            document.getElementById('footer-help-btn').addEventListener('click', function() {
+                window.open('crono_cuenta_atras_ayuda.html', '_blank');
             });
             
             document.getElementById('help-modal-close').addEventListener('click', () => {
