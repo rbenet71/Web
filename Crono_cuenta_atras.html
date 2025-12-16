@@ -2268,6 +2268,103 @@
                 width: 100%;
             }
         }
+
+        /* =========================================== */
+        /* NUEVOS ESTILOS PARA CONFIGURACIÓN DE AUDIO */
+        /* =========================================== */
+        .audio-config-section {
+            background: #f8f9fa;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .audio-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .audio-option {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .audio-option:hover {
+            border-color: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.1);
+        }
+
+        .audio-option.active {
+            border-color: var(--success);
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(52, 152, 219, 0.1) 100%);
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.2);
+        }
+
+        .audio-option i {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .audio-option.active i {
+            color: var(--success);
+        }
+
+        .audio-option .option-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--dark);
+        }
+
+        .audio-option .option-desc {
+            font-size: 0.9rem;
+            color: var(--gray);
+            line-height: 1.4;
+        }
+
+        .audio-test-btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .audio-test-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive para configuración de audio */
+        @media (max-width: 768px) {
+            .audio-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .audio-option {
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2319,6 +2416,51 @@
                         <i class="fas fa-trash"></i>
                         <span id="delete-race-text">Eliminar</span>
                     </button>
+                </div>
+            </div>
+            <!-- =========================================== -->
+            <!-- NUEVA TARJETA: CONFIGURACIÓN DE AUDIO -->
+            <!-- =========================================== -->
+            <div class="app-card audio-config-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-volume-up"></i> <span id="audio-config-title">Configuración de Audio</span></h2>
+                </div>
+                <div class="card-body">
+                    <div class="config-section">
+                        <div class="audio-config-section">
+                            <div class="section-title">
+                                <i class="fas fa-music"></i>
+                                <span id="audio-mode-label">Tipo de sonido para cuenta atrás</span>
+                            </div>
+                            
+                            <div class="audio-options" id="audio-options">
+                                <div class="audio-option active" data-audio-type="beep">
+                                    <i class="fas fa-bell"></i>
+                                    <div class="option-title" id="beep-option-title">Sonidos Beep</div>
+                                    <div class="option-desc" id="beep-option-desc">Beeps electrónicos para cada segundo</div>
+                                </div>
+                                
+                                <div class="audio-option" data-audio-type="voice">
+                                    <i class="fas fa-microphone-alt"></i>
+                                    <div class="option-title" id="voice-option-title">Voz grabada</div>
+                                    <div class="option-desc" id="voice-option-desc">Voz humana contando en tu idioma</div>
+                                </div>
+                                
+                                <div class="audio-option" data-audio-type="none">
+                                    <i class="fas fa-volume-mute"></i>
+                                    <div class="option-title" id="mute-option-title">Sin sonido</div>
+                                    <div class="option-desc" id="mute-option-desc">Solo efectos visuales</div>
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: center; margin-top: 20px;">
+                                <button class="audio-test-btn" id="test-audio-btn">
+                                    <i class="fas fa-play-circle"></i>
+                                    <span id="test-audio-text">Probar sonido actual</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -2829,6 +2971,13 @@
         // ESTADO DE LA APLICACIÓN
         // ============================================
         const appState = {
+            audioType: 'beep', // 'beep', 'voice', o 'none'
+    
+            // Para almacenar los audios precargados
+            voiceAudioCache: {},
+            
+            // Para el audio de salida
+            salidaAudioCache: {},
             currentLanguage: 'es',
             currentRace: null,
             races: [],
@@ -2989,7 +3138,16 @@
                 countdownWarningDesc: "Últimos 10 segundos",
                 countdownCriticalDesc: "Últimos 5 segundos",
                 countdownSalidaDesc: "Momento de salida (2 segundos)",
-                configuredSections: "Tramos configurados"
+                configuredSections: "Tramos configurados",        
+                audioConfigTitle: "Configuración de Audio",
+                audioModeLabel: "Tipo de sonido para cuenta atrás",
+                beepOptionTitle: "Sonidos Beep",
+                beepOptionDesc: "Beeps electrónicos para cada segundo",
+                voiceOptionTitle: "Voz grabada",
+                voiceOptionDesc: "Voz humana contando en tu idioma",
+                muteOptionTitle: "Sin sonido",
+                muteOptionDesc: "Solo efectos visuales",
+                testAudioText: "Probar sonido actual"
             },
             ca: {
                 appTitle: "Crono Compte Enrere",
@@ -3116,7 +3274,16 @@
                 countdownWarningDesc: "Últims 10 segons",
                 countdownCriticalDesc: "Últims 5 segons",
                 countdownSalidaDesc: "Momento de sortida (2 segons)",
-                configuredSections: "Trams configurats"
+                configuredSections: "Trams configurats",
+                audioConfigTitle: "Configuració d'Àudio",
+                audioModeLabel: "Tipus de so per al compte enrere",
+                beepOptionTitle: "Sons Beep",
+                beepOptionDesc: "Beeps electrònics per a cada segon",
+                voiceOptionTitle: "Veure enregistrada",
+                voiceOptionDesc: "Veure humana comptant en la teva llengua",
+                muteOptionTitle: "Sense so",
+                muteOptionDesc: "Només efectes visuals",
+                testAudioText: "Provar so actual"
             },
             en: {
                 appTitle: "Countdown Timer",
@@ -3243,7 +3410,16 @@
                 countdownWarningDesc: "Last 10 seconds",
                 countdownCriticalDesc: "Last 5 seconds",
                 countdownSalidaDesc: "Start moment (2 seconds)",
-                configuredSections: "Configured intervals"
+                configuredSections: "Configured intervals",
+                audioConfigTitle: "Audio Configuration",
+                audioModeLabel: "Sound type for countdown",
+                beepOptionTitle: "Beep Sounds",
+                beepOptionDesc: "Electronic beeps for each second",
+                voiceOptionTitle: "Recorded Voice",
+                voiceOptionDesc: "Human voice counting in your language",
+                muteOptionTitle: "No Sound",
+                muteOptionDesc: "Visual effects only",
+                testAudioText: "Test current sound"
             },
             fr: {
                 appTitle: "Compte à Rebours",
@@ -3370,7 +3546,16 @@
                 countdownWarningDesc: "Dernières 10 secondes",
                 countdownCriticalDesc: "Dernières 5 secondes",
                 countdownSalidaDesc: "Moment de départ (2 secondes)",
-                configuredSections: "Intervalles configurés"
+                configuredSections: "Intervalles configurés",
+                audioConfigTitle: "Configuration Audio",
+                audioModeLabel: "Type de son pour le compte à rebours",
+                beepOptionTitle: "Sons Beep",
+                beepOptionDesc: "Bips électroniques pour chaque seconde",
+                voiceOptionTitle: "Voix enregistrée",
+                voiceOptionDesc: "Voix humaine comptant dans votre langue",
+                muteOptionTitle: "Sans son",
+                muteOptionDesc: "Effets visuels seulement",
+                testAudioText: "Tester le son actuel"
             }
         };
 
@@ -3447,6 +3632,456 @@
         }
 
         // ============================================
+        // FUNCIONES DE AUDIO MEJORADAS
+        // ============================================
+
+        // Precarga de audios de voz
+        // ============================================
+        // FUNCIÓN MEJORADA PARA PRECARGAR AUDIOS
+        // ============================================
+        function preloadVoiceAudios() {
+            console.log("Precargando audios de voz .ogg...");
+            
+            const languages = ['es', 'en', 'ca', 'fr'];
+            const numbers = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
+            
+            // Contador para audios cargados
+            let loadedCount = 0;
+            const totalToLoad = languages.length * (numbers.length + 1); // +1 para "salida"
+            
+            languages.forEach(lang => {
+                appState.voiceAudioCache[lang] = {};
+                appState.salidaAudioCache[lang] = null;
+                
+                // Precargar números
+                numbers.forEach(num => {
+                    const audio = new Audio();
+                    audio.preload = 'auto';
+                    
+                    // SOLO formato .ogg
+                    audio.src = `audio/${lang}_${num}.ogg`;
+                    
+                    audio.addEventListener('canplaythrough', () => {
+                        appState.voiceAudioCache[lang][num] = audio;
+                        loadedCount++;
+                        console.log(`✅ Audio cargado: ${lang}_${num}.ogg (${loadedCount}/${totalToLoad})`);
+                    });
+                    
+                    audio.addEventListener('error', (e) => {
+                        console.error(`❌ ERROR cargando ${audio.src}:`, e.type);
+                        console.error("  Razón posible: Archivo no existe o ruta incorrecta");
+                        console.error("  Verifica que exista: audio/" + lang + "_" + num + ".ogg");
+                        loadedCount++;
+                    });
+                    
+                    audio.load();
+                });
+                
+                // Precargar "salida"
+                const salidaAudio = new Audio();
+                salidaAudio.preload = 'auto';
+                salidaAudio.src = `audio/${lang}_salida.ogg`;
+                
+                salidaAudio.addEventListener('canplaythrough', () => {
+                    appState.salidaAudioCache[lang] = salidaAudio;
+                    loadedCount++;
+                    console.log(`✅ "Salida" cargado: ${lang}_salida.ogg (${loadedCount}/${totalToLoad})`);
+                });
+                
+                salidaAudio.addEventListener('error', (e) => {
+                    console.error(`❌ ERROR cargando salida ${salidaAudio.src}:`, e.type);
+                    console.error("  Verifica que exista: audio/" + lang + "_salida.ogg");
+                    loadedCount++;
+                });
+                
+                salidaAudio.load();
+            });
+            
+            // Verificar carga después de un tiempo
+            setTimeout(() => {
+                console.log(`\n=== RESUMEN DE CARGA DE AUDIOS ===`);
+                console.log(`Cargados: ${loadedCount}/${totalToLoad}`);
+                
+                languages.forEach(lang => {
+                    console.log(`\nIdioma: ${lang}`);
+                    console.log(`  Números cargados: ${Object.keys(appState.voiceAudioCache[lang] || {}).length}/11`);
+                    console.log(`  Salida cargada: ${appState.salidaAudioCache[lang] ? 'SÍ' : 'NO'}`);
+                });
+            }, 3000);
+        }
+
+        function playVoiceAudio(number) {
+            if (appState.audioType !== 'voice') return;
+            
+            console.log(`🔊 Reproduciendo: ${appState.currentLanguage}_${number}.ogg`);
+            
+            try {
+                const lang = appState.currentLanguage;
+                
+                // Primero intentar usar el audio precargado
+                if (appState.voiceAudioCache[lang] && appState.voiceAudioCache[lang][number]) {
+                    const audio = appState.voiceAudioCache[lang][number];
+                    audio.currentTime = 0; // Reiniciar al inicio
+                    
+                    const playPromise = audio.play();
+                    
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.warn(`Error reproduciendo audio precargado ${lang}_${number}:`, error);
+                            // Fallback: cargar directamente
+                            loadAndPlayAudioDirectly(lang, number);
+                        });
+                    }
+                } else {
+                    // Si no está precargado, cargar directamente
+                    loadAndPlayAudioDirectly(lang, number);
+                }
+                
+            } catch (error) {
+                console.error("❌ Error crítico en playVoiceAudio:", error);
+                // Fallback a beep
+                generateBeep(500, 0.3, 'sine');
+            }
+        }
+
+        function loadAndPlayAudioDirectly(lang, number) {
+            console.log(`📥 Cargando directamente: ${lang}_${number}.ogg`);
+            
+            const audio = new Audio();
+            audio.src = `audio/${lang}_${number}.ogg`;
+            
+            // Intentar reproducir inmediatamente
+            audio.play().then(() => {
+                console.log(`✅ Audio reproducido directamente: ${lang}_${number}.ogg`);
+            }).catch(error => {
+                console.error(`❌ Error reproduciendo ${lang}_${number}.ogg:`, error);
+                
+                // Si hay error, mostrar información de depuración
+                if (error.name === 'NotAllowedError') {
+                    console.error("  El usuario no ha interactuado con la página");
+                    console.error("  Haz clic en la página primero");
+                } else if (error.name === 'NotFoundError') {
+                    console.error("  El archivo no se encuentra");
+                    console.error("  Verifica la ruta: " + audio.src);
+                }
+                
+                // Fallback a beep
+                generateBeep(500, 0.3, 'sine');
+            });
+        }
+
+        function playSalidaVoice() {
+            if (appState.audioType !== 'voice') return;
+            
+            console.log(`🔊 Reproduciendo salida: ${appState.currentLanguage}_salida.ogg`);
+            
+            try {
+                const lang = appState.currentLanguage;
+                
+                if (appState.salidaAudioCache[lang]) {
+                    const audio = appState.salidaAudioCache[lang];
+                    audio.currentTime = 0;
+                    
+                    audio.play().catch(error => {
+                        console.warn(`Error reproduciendo salida precargada:`, error);
+                        loadAndPlaySalidaDirectly(lang);
+                    });
+                } else {
+                    loadAndPlaySalidaDirectly(lang);
+                }
+                
+            } catch (error) {
+                console.error("❌ Error en playSalidaVoice:", error);
+                generateBeep(800, 1.5, 'sine');
+            }
+        }
+
+        function loadAndPlaySalidaDirectly(lang) {
+            const audio = new Audio();
+            audio.src = `audio/${lang}_salida.ogg`;
+            
+            audio.play().catch(error => {
+                console.error(`❌ Error reproduciendo salida ${lang}:`, error);
+                generateBeep(800, 1.5, 'sine');
+            });
+        }
+
+        function verifyAudioFiles() {
+            console.log("=== VERIFICACIÓN DE ARCHIVOS .ogg ===");
+            
+            const languages = ['es', 'en', 'ca', 'fr'];
+            const requiredNumbers = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
+            
+            languages.forEach(lang => {
+                console.log(`\n📁 Idioma: ${lang.toUpperCase()}`);
+                
+                // Verificar archivos de números
+                requiredNumbers.forEach(num => {
+                    const audio = new Audio();
+                    const url = `audio/${lang}_${num}.ogg`;
+                    audio.src = url;
+                    
+                    audio.addEventListener('canplaythrough', () => {
+                        console.log(`  ✅ ${lang}_${num}.ogg - EXISTE`);
+                    });
+                    
+                    audio.addEventListener('error', (e) => {
+                        console.log(`  ❌ ${lang}_${num}.ogg - NO EXISTE o ERROR`);
+                        console.log(`      Ruta probada: ${url}`);
+                    });
+                    
+                    audio.load();
+                });
+                
+                // Verificar "salida"
+                const salidaAudio = new Audio();
+                const salidaUrl = `audio/${lang}_salida.ogg`;
+                salidaAudio.src = salidaUrl;
+                
+                salidaAudio.addEventListener('canplaythrough', () => {
+                    console.log(`  ✅ ${lang}_salida.ogg - EXISTE`);
+                });
+                
+                salidaAudio.addEventListener('error', (e) => {
+                    console.log(`  ❌ ${lang}_salida.ogg - NO EXISTE o ERROR`);
+                    console.log(`      Ruta probada: ${salidaUrl}`);
+                });
+                
+                salidaAudio.load();
+            });
+        }
+        // Función de fallback para cargar audio directamente
+        function fallbackVoiceAudio(number, lang) {
+            console.log(`Usando fallback para: ${lang}_${number}`);
+            
+            const audio = new Audio();
+            const formats = ['.mp3', '.ogg', '.wav'];
+            
+            // Intentar diferentes formatos
+            for (const format of formats) {
+                audio.src = `audio/${lang}_${number}${format}`;
+                
+                audio.addEventListener('error', () => {
+                    console.log(`Formato ${format} no funciona para ${lang}_${number}`);
+                });
+                
+                audio.addEventListener('canplaythrough', () => {
+                    console.log(`Formato ${format} funciona para ${lang}_${number}`);
+                    audio.play().catch(e => {
+                        console.warn("Error reproduciendo fallback:", e);
+                        generateBeep(500, 0.3, 'sine');
+                    });
+                    return; // Salir del bucle si funciona
+                });
+                
+                audio.load();
+            }
+        }
+
+        function fallbackSalidaVoice(lang) {
+            const audio = new Audio();
+            const formats = ['.mp3', '.ogg', '.wav'];
+            
+            for (const format of formats) {
+                audio.src = `audio/${lang}_salida${format}`;
+                
+                audio.addEventListener('canplaythrough', () => {
+                    audio.play().catch(e => {
+                        console.warn("Error reproduciendo salida fallback:", e);
+                        generateBeep(800, 1.5, 'sine');
+                    });
+                    return;
+                });
+                
+                audio.addEventListener('error', () => {
+                    console.log(`Formato ${format} no funciona para salida ${lang}`);
+                });
+                
+                audio.load();
+            }
+        }
+
+        function playSound(type) {
+            if (appState.audioType === 'none') return;
+            
+            try {
+                switch(type) {
+                    case 'warning': // Cuando llega a 10 segundos
+                        if (appState.audioType === 'beep') {
+                            generateBeep(300, 1.5, 'square');
+                        } else if (appState.audioType === 'voice') {
+                            // Solo decir "diez" una vez
+                            playVoiceAudio(10);
+                        }
+                        break;
+                        
+                    case 'critical': // Cuando llega a 5 segundos
+                        if (appState.audioType === 'beep') {
+                            generateBeep(500, 0.3, 'sine');
+                        } else if (appState.audioType === 'voice') {
+                            // Solo decir "cinco" una vez
+                            playVoiceAudio(5);
+                        }
+                        break;
+                        
+                    case 'salida': // Cuando llega a 0
+                        if (appState.audioType === 'beep') {
+                            generateBeep(800, 1.5, 'sine');
+                        } else if (appState.audioType === 'voice') {
+                            playSalidaVoice();
+                        }
+                        break;
+                        
+                    case 'beep': // Beeps normales (modo beep)
+                        if (appState.audioType === 'beep') {
+                            generateBeep(500, 0.3, 'sine');
+                        }
+                        break;
+                        
+                    case 'number': // Números (modo voz)
+                        if (appState.audioType === 'voice' && appState.countdownValue >= 0) {
+                            // Solo decir números del 4 al 1
+                            if (appState.countdownValue <= 4 && appState.countdownValue > 0) {
+                                playVoiceAudio(appState.countdownValue);
+                            }
+                        }
+                        break;
+                }
+            } catch (error) {
+                console.log("Error en playSound:", error);
+            }
+        }
+
+        function testCurrentAudio() {
+            const t = translations[appState.currentLanguage];
+            
+            console.clear();
+            console.log("=== PRUEBA COMPLETA DE AUDIO ===");
+            console.log("Idioma:", appState.currentLanguage);
+            console.log("Tipo de audio:", appState.audioType);
+            
+            if (appState.audioType === 'none') {
+                showMessage("Modo sin sonido activado", 'info');
+                return;
+            }
+            
+            if (appState.audioType === 'beep') {
+                // Probar diferentes beeps
+                console.log("Probando beeps...");
+                generateBeep(300, 0.5, 'square');  // Beep de advertencia
+                setTimeout(() => generateBeep(500, 0.3, 'sine'), 600);  // Beep normal
+                setTimeout(() => generateBeep(800, 1.5, 'sine'), 1200); // Beep de salida
+                
+                showMessage("Probando sonido beep", 'info');
+                
+            } else if (appState.audioType === 'voice') {
+                console.log("Probando voz completa...");
+                
+                // Secuencia de prueba
+                playVoiceAudio(10);  // "Diez"
+                
+                setTimeout(() => {
+                    playVoiceAudio(5);   // "Cinco"
+                }, 1500);
+                
+                setTimeout(() => {
+                    playVoiceAudio(4);   // "Cuatro"
+                }, 3000);
+                
+                setTimeout(() => {
+                    playVoiceAudio(3);   // "Tres"
+                }, 4500);
+                
+                setTimeout(() => {
+                    playVoiceAudio(2);   // "Dos"
+                }, 6000);
+                
+                setTimeout(() => {
+                    playVoiceAudio(1);   // "Uno"
+                }, 7500);
+                
+                setTimeout(() => {
+                    playSalidaVoice();   // "¡Salida!"
+                }, 9000);
+                
+                showMessage(`Probando voz en ${appState.currentLanguage}`, 'info');
+            }
+        }
+
+        // Añadir esta función y llamarla en initApp
+        function checkAvailableAudioFiles() {
+            console.log("=== VERIFICANDO ARCHIVOS DE AUDIO ===");
+            
+            const languages = ['es', 'en', 'ca', 'fr'];
+            const testNumbers = [10, 5, 1];
+            
+            languages.forEach(lang => {
+                console.log(`\n📁 Idioma: ${lang}`);
+                
+                // Verificar números
+                testNumbers.forEach(num => {
+                    const formats = ['.mp3', '.ogg', '.wav'];
+                    formats.forEach(format => {
+                        const audio = new Audio();
+                        const url = `audio/${lang}_${num}${format}`;
+                        
+                        audio.addEventListener('canplaythrough', () => {
+                            console.log(`  ✅ ${lang}_${num}${format} - DISPONIBLE`);
+                        });
+                        
+                        audio.addEventListener('error', (e) => {
+                            console.log(`  ❌ ${lang}_${num}${format} - NO DISPONIBLE (${e.type})`);
+                        });
+                        
+                        audio.src = url;
+                        audio.load();
+                    });
+                });
+                
+                // Verificar "salida"
+                const formats = ['.mp3', '.ogg', '.wav'];
+                formats.forEach(format => {
+                    const audio = new Audio();
+                    const url = `audio/${lang}_salida${format}`;
+                    
+                    audio.addEventListener('canplaythrough', () => {
+                        console.log(`  ✅ ${lang}_salida${format} - DISPONIBLE`);
+                    });
+                    
+                    audio.addEventListener('error', (e) => {
+                        console.log(`  ❌ ${lang}_salida${format} - NO DISPONIBLE (${e.type})`);
+                    });
+                    
+                    audio.src = url;
+                    audio.load();
+                });
+            });
+        }
+        // Función para seleccionar tipo de audio
+        function selectAudioType(audioType) {
+            appState.audioType = audioType;
+            
+            // Actualizar interfaz
+            document.querySelectorAll('.audio-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            
+            document.querySelector(`.audio-option[data-audio-type="${audioType}"]`).classList.add('active');
+            
+            // Guardar preferencia
+            localStorage.setItem('countdown-audio-type', audioType);
+            
+            console.log("Tipo de audio seleccionado:", audioType);
+        }
+
+        // Cargar preferencias de audio guardadas
+        function loadAudioPreferences() {
+            const savedAudioType = localStorage.getItem('countdown-audio-type');
+            if (savedAudioType && ['beep', 'voice', 'none'].includes(savedAudioType)) {
+                appState.audioType = savedAudioType;
+            }
+        }
+        // ============================================
         // VARIABLES PARA ORDENACIÓN
         // ============================================
         let sortState = {
@@ -3464,7 +4099,18 @@
             loadRacesFromStorage();
             loadAppState();
             loadIntervalConfig();
+            loadAudioPreferences(); // Cargar preferencias de audio
             
+            // Verificar archivos de audio
+            setTimeout(() => {
+                verifyAudioFiles();
+            }, 500);
+            
+            // Precargar audios
+            setTimeout(() => {
+                preloadVoiceAudios();
+            }, 1000);
+    
             // Cargar datos de la carrera actual
             loadRaceData();
             
@@ -3482,10 +4128,14 @@
             adjustCountdownSize();
             adjustInfoCornersSize();
             
+            // Precargar audios de voz
+            preloadVoiceAudios();
+            
             // Configurar eventos - PRIMERO los de intervalos
             setupIntervalsEvents();
             setupEditIntervalModalEvents();
             setupEventListeners();
+            setupAudioEventListeners(); // Configurar eventos de audio
             
             // Configurar listeners adicionales específicos para intervalos
             setTimeout(() => {
@@ -3497,7 +4147,21 @@
             
             console.log("Aplicación inicializada.");
             console.log(`Idioma inicial: ${appState.currentLanguage}`);
+            console.log(`Tipo de audio: ${appState.audioType}`);
             console.log(`Texto SALIDA: ${translations[appState.currentLanguage].salidaText}`);
+        }
+
+        function setupAudioEventListeners() {
+            // Configurar selección de tipo de audio
+            document.querySelectorAll('.audio-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const audioType = this.getAttribute('data-audio-type');
+                    selectAudioType(audioType);
+                });
+            });
+            
+            // Botón de prueba de audio
+            document.getElementById('test-audio-btn').addEventListener('click', testCurrentAudio);
         }
 
         function setupSpecificIntervalListeners() {
@@ -3799,6 +4463,22 @@
             const lang = appState.currentLanguage;
             const t = translations[lang];
 
+            document.getElementById('audio-config-title').textContent = t.audioConfigTitle;
+            document.getElementById('audio-mode-label').textContent = t.audioModeLabel;
+            document.getElementById('beep-option-title').textContent = t.beepOptionTitle;
+            document.getElementById('beep-option-desc').textContent = t.beepOptionDesc;
+            document.getElementById('voice-option-title').textContent = t.voiceOptionTitle;
+            document.getElementById('voice-option-desc').textContent = t.voiceOptionDesc;
+            document.getElementById('mute-option-title').textContent = t.muteOptionTitle;
+            document.getElementById('mute-option-desc').textContent = t.muteOptionDesc;
+            document.getElementById('test-audio-text').textContent = t.testAudioText;
+
+            // Actualizar selección de audio
+            document.querySelectorAll('.audio-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.querySelector(`.audio-option[data-audio-type="${appState.audioType}"]`).classList.add('active');
+
             document.getElementById('app-title-text').textContent = t.appTitle;
             document.getElementById('languages-label').textContent = t.languagesLabel;
             document.getElementById('card-race-title').textContent = t.cardRaceTitle;
@@ -3844,6 +4524,8 @@
             
             updateModalTexts();
         }
+
+
 
         function updateSalidaText() {
             const lang = appState.currentLanguage;
@@ -3940,6 +4622,22 @@
             document.getElementById('restart-modal-text').textContent = t.restartModalText;
             document.getElementById('restart-confirm-btn').textContent = t.restartConfirm;
             document.getElementById('restart-cancel-btn').textContent = t.cancel;
+
+            const helpModalText = document.querySelector('#help-modal .modal-body');
+            if (helpModalText) {
+                // Asegúrate de que se incluye esta sección:
+                const audioSection = document.createElement('div');
+                audioSection.innerHTML = `
+                    <h4 id="help-modal-subtitle3">Opciones de sonido:</h4>
+                    <ul>
+                        <li><strong>Sonidos Beep:</strong> Beeps electrónicos para cada segundo</li>
+                        <li><strong>Voz grabada:</strong> Voz humana contando en tu idioma (es, en, ca, fr)</li>
+                        <li><strong>Sin sonido:</strong> Solo efectos visuales</li>
+                    </ul>
+                `;
+                // Insertar en la posición adecuada
+                helpModalText.appendChild(audioSection);
+            }
         }
 
         function renderRacesSelect() {
@@ -4491,6 +5189,7 @@
             
             updateCountdownDisplay();
             
+            // Reproducir sonidos según el tipo seleccionado
             if (appState.countdownValue === 10) {
                 document.body.classList.remove('countdown-normal');
                 document.body.classList.add('countdown-warning');
@@ -4508,7 +5207,12 @@
                 countdownScreen.classList.add('aggressive-numbers');
                 appState.aggressiveMode = true;
             } else if (appState.countdownValue < 5 && appState.countdownValue > 0) {
-                playSound('beep');
+                // Reproducir beep para modo beep o número para modo voz
+                if (appState.audioType === 'beep') {
+                    playSound('beep');
+                } else if (appState.audioType === 'voice') {
+                    playSound('number');
+                }
                 
                 if (!appState.aggressiveMode) {
                     const countdownScreen = document.getElementById('countdown-screen');
@@ -4556,13 +5260,10 @@
             const salidaDisplay = document.getElementById('salida-display');
             salidaDisplay.classList.add('show');
             
-            playSound('salida');
-            
-            // ¡IMPORTANTE! NO incrementar departedCount aquí
-            // Solo se incrementará en registerDeparture()
+            playSound('salida'); // USANDO LA NUEVA FUNCIÓN
             
             // Registrar la salida
-            registerDeparture(); // Esta función YA incrementa departedCount
+            registerDeparture();
             
             appState.accumulatedTime += appState.nextCorredorTime;
             
@@ -4572,7 +5273,7 @@
                 prepareNextCountdown();
             }, 2000);
         }
-                
+
         function canModifyDuringCountdown() {
             const t = translations[appState.currentLanguage];
             
