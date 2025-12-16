@@ -815,6 +815,176 @@
             80% { opacity: 1; transform: translateY(0); }
             100% { opacity: 0; transform: translateY(10px); }
         }
+        /* Estilos para la sección Acerca de mí */
+.about-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.about-header {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.profile-photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid var(--primary-color);
+    box-shadow: var(--shadow);
+}
+
+.about-header-text {
+    flex: 1;
+}
+
+.about-subtitle {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-top: 5px;
+}
+
+.about-content {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+}
+
+.timeline-item {
+    display: flex;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-year {
+    min-width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    position: absolute;
+    left: -40px;
+    box-shadow: var(--shadow);
+    z-index: 1;
+}
+
+.timeline-content {
+    flex: 1;
+    margin-left: 60px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.timeline-content p {
+    line-height: 1.6;
+    margin-bottom: 15px;
+    color: var(--dark-color);
+}
+
+.contact-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.contact-btn {
+    padding: 12px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.email-btn {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+.web-btn {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+}
+
+.contact-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+/* Responsive para la sección Acerca de mí */
+@media (max-width: 768px) {
+    .about-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+    
+    .profile-photo {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .timeline {
+        padding-left: 20px;
+    }
+    
+    .timeline-year {
+        width: 60px;
+        height: 60px;
+        left: -30px;
+        font-size: 0.9rem;
+    }
+    
+    .timeline-content {
+        margin-left: 40px;
+        padding: 15px;
+    }
+    
+    .contact-buttons {
+        flex-direction: column;
+    }
+    
+    .contact-btn {
+        justify-content: center;
+    }
+}
     </style>
 </head>
 <body>
@@ -826,8 +996,7 @@
                 <p class="header-subtitle">
                     <i class="fas fa-mobile-alt"></i> App PWA disponible para instalar
                 </p>
-            </div>
-            
+            </div>            
             <div class="language-selector">
                 <div class="language-dropdown">
                     <button class="dropdown-btn">
@@ -837,7 +1006,7 @@
                     </button>
                     <div class="dropdown-content">
                         <a href="#" data-lang="es">
-                            <span class="flag flag-es"></span>
+                            <img src="https://flagcdn.com/w40/es.png" class="flag-icon" data-lang="es" title="Español">
                             Español
                         </a>
                         <a href="#" data-lang="ca">
@@ -845,17 +1014,18 @@
                             Català
                         </a>
                         <a href="#" data-lang="fr">
-                            <span class="flag flag-fr"></span>
+                            <img src="https://flagcdn.com/w40/fr.png" class="flag-icon" data-lang="fr" title="Français">
                             Français
                         </a>
                         <a href="#" data-lang="en">
-                            <span class="flag flag-en"></span>
+                             <img src="https://flagcdn.com/w40/gb.png" class="flag-icon" data-lang="en" title="English">
                             English
                         </a>
                     </div>
                 </div>
             </div>
         </div>
+        
     </header>
 
     <div class="container">
@@ -863,6 +1033,7 @@
             <div class="tab active" data-tab="arbitro">Árbitro</div>
             <div class="tab" data-tab="ciclismo">Ciclismo</div>
             <div class="tab" data-tab="genericas">Genéricas</div>
+            <div class="tab" data-tab="acercade">Acerca de mí</div>
         </div>
 
         <div class="content">
@@ -928,6 +1099,79 @@
                         <i class="fas fa-list"></i>
                         <span>Próximamente</span>
                     </a>
+                </div>
+            </div>
+            <!-- Contenido de Acerca de mí -->
+            <div class="tab-content" id="acercade-content">
+                <div class="about-container">
+                    <div class="about-header">
+                        <img src="RBB.JPG" alt="Roberto Benet" class="profile-photo">
+                        <div class="about-header-text">
+                            <h2 id="about-title">Roberto Benet</h2>
+                            <p class="about-subtitle" id="about-subtitle">Árbitro de ciclismo y desarrollador de aplicaciones</p>
+                        </div>
+                    </div>
+                    
+                    <div class="about-content">
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-year">1988</div>
+                                <div class="timeline-content">
+                                    <p id="about-text-1">Soy un árbitro catalán de ciclismo desde 1988, y desde entonces me encantó aplicar la informática al ciclismo.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-year">1990</div>
+                                <div class="timeline-content">
+                                    <p id="about-text-2">Fruto de ello, en el año 1990 ya realicé un programa gratuito en Clipper para el control de carreras de BTT y posteriormente para el resto de especialidades (carretera, pista, descenso, etc...).</p>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-year">1992</div>
+                                <div class="timeline-content">
+                                    <p id="about-text-3">Además, en 1992 realicé un programa para la gestión de licencias de la federación catalana, en el que a través de un módem se podían traspasar los datos de una delegación a otra y tener siempre actualizadas las licencias de toda la comunidad autónoma.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-year">1995</div>
+                                <div class="timeline-content">
+                                    <p id="about-text-4">En 1995 me puse a trabajar en el mundo de la publicidad y los eventos y tuve que dedicar poco tiempo a esta afición.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-year">2014</div>
+                                <div class="timeline-content">
+                                    <p id="about-text-5">En 2014 dejé la agencia de publicidad y pude volver a retomarla. Empecé de nuevo a realizar aplicaciones para ayudarme a realizar las tareas de árbitro en Python (Programas de CRI con Mylaps, Programa de Cronometraje para Pista (Persecución, 200m,..), PumpTrack (con resultados en directo en Telegram,….).</p>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-year">2025</div>
+                                <div class="timeline-content">
+                                    <p id="about-text-6">En 2025 pensé que sería bueno realizar aplicaciones gratuitas en JavaScript para poder compartir con todos los árbitros del mundo y así poder facilitar su tarea. Al ser web no necesitas instalación ni grandes dispositivos para ejecutarlas.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-year" style="background: #e74c3c;">Contacto</div>
+                                <div class="timeline-content">
+                                    <p id="about-text-7">Si tienes cualquier sugerencia de aplicación o mejoras en las que ya hay, envíame un email a <strong>rbenet71@gmail.com</strong>.</p>
+                                    <div class="contact-buttons">
+                                        <a href="mailto:rbenet71@gmail.com" class="contact-btn email-btn">
+                                            <i class="fas fa-envelope"></i> Enviar email
+                                        </a>
+                                        <a href="https://rbenet71.github.io/Web/" target="_blank" class="contact-btn web-btn">
+                                            <i class="fas fa-globe"></i> Mi web
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1025,6 +1269,7 @@
         </div>
     </div>
     
+    
     <div id="message" class="message"></div>
 
     <script>
@@ -1092,7 +1337,18 @@
                     <li>Toca el botón "Instalar"</li>
                     <li>Sigue las instrucciones de tu navegador</li>
                 </ol>`,
-                footer: "© 2025 Aplicaciones Web Roberto Benet - Todos los derechos reservados"
+                footer: "© 2025 Aplicaciones Web Roberto Benet - Todos los derechos reservados",
+                aboutTitle: "Roberto Benet",
+                aboutSubtitle: "Árbitro de ciclismo y desarrollador de aplicaciones",
+                aboutText1: "Soy un árbitro catalán de ciclismo desde 1988, y desde entonces me encantó aplicar la informática al ciclismo.",
+                aboutText2: "Fruto de ello, en el año 1990 ya realicé un programa gratuito en Clipper para el control de carreras de BTT y posteriormente para el resto de especialidades (carretera, pista, descenso, etc...).",
+                aboutText3: "Además, en 1992 realicé un programa para la gestión de licencias de la federación catalana, en el que a través de un módem se podían traspasar los datos de una delegación a otra y tener siempre actualizadas las licencias de toda la comunidad autónoma.",
+                aboutText4: "En 1995 me puse a trabajar en el mundo de la publicidad y los eventos y tuve que dedicar poco tiempo a esta afición.",
+                aboutText5: "En 2014 dejé la agencia de publicidad y pude volver a retomarla. Empecé de nuevo a realizar aplicaciones para ayudarme a realizar las tareas de árbitro en Python (Programas de CRI con Mylaps, Programa de Cronometraje para Pista (Persecución, 200m,..), PumpTrack (con resultados en directo en Telegram,….).",
+                aboutText6: "En 2025 pensé que sería bueno realizar aplicaciones gratuitas en JavaScript para poder compartir con todos los árbitros del mundo y así poder facilitar su tarea. Al ser web no necesitas instalación ni grandes dispositivos para ejecutarlas.",
+                aboutText7: "Si tienes cualquier sugerencia de aplicación o mejoras en las que ya hay, envíame un email a",
+                contactSendEmail: "Enviar email",
+                contactMyWeb: "Mi web"
             },
             ca: {
                 title: "Aplicacions Web Roberto Benet",
@@ -1156,7 +1412,18 @@
                     <li>Toca el botó "Instalar"</li>
                     <li>Segueix les instruccions del teu navegador</li>
                 </ol>`,
-                footer: "© 2025 Aplicacions Web Roberto Benet - Tots els drets reservats"
+                footer: "© 2025 Aplicacions Web Roberto Benet - Tots els drets reservats",
+                aboutTitle: "Roberto Benet",
+                aboutSubtitle: "Àrbitre de ciclisme i desenvolupador d'aplicacions",
+                aboutText1: "Sóc un àrbitre català de ciclisme des de 1988, i des d'aleshores m'encantà aplicar la informàtica al ciclisme.",
+                aboutText2: "Fruit d'això, l'any 1990 ja vaig fer un programa gratuït en Clipper per al control de carreres de BTT i posteriorment per a la resta d'especialitats (carretera, pista, descens, etc...).",
+                aboutText3: "A més, el 1992 vaig realitzar un programa per a la gestió de llicències de la federació catalana, en el qual a través d'un mòdem es podien traspassar les dades d'una delegació a una altra i tenir sempre actualitzades les llicències de tota la comunitat autònoma.",
+                aboutText4: "El 1995 em vaig posar a treballar en el món de la publicitat i els esdeveniments i vaig haver de dedicar poc temps a aquesta afició.",
+                aboutText5: "El 2014 vaig deixar l'agència de publicitat i vaig poder tornar-ho a reprendre. Vaig començar de nou a fer aplicacions per ajudar-me a realitzar les tasques d'àrbitre en Python (Programes de CRI amb Mylaps, Programa de Cronometratge per a Pista (Persecució, 200m,..), PumpTrack (amb resultats en directe a Telegram,….).",
+                aboutText6: "El 2025 vaig pensar que seria bo realitzar aplicacions gratuïtes en JavaScript per poder compartir amb tots els àrbitres del món i així poder facilitar la seva tasca. En ser web no necessites instal·lació ni grans dispositius per executar-les.",
+                aboutText7: "Si tens qualsevol suggeriment d'aplicació o millores en les que ja hi ha, envia'm un correu electrònic a",
+                contactSendEmail: "Enviar correu",
+                contactMyWeb: "La meva web"
             },
             fr: {
                 title: "Applications Web Roberto Benet",
@@ -1220,7 +1487,18 @@
                     <li>Appuyez sur le botón "Installer"</li>
                     <li>Suivez les instructions de votre navigateur</li>
                 </ol>`,
-                footer: "© 2025 Applications Web Roberto Benet - Tous droits réservés"
+                footer: "© 2025 Applications Web Roberto Benet - Tous droits réservés",
+                aboutTitle: "Roberto Benet",
+                aboutSubtitle: "Arbitre de cyclisme et développeur d'applications",
+                aboutText1: "Je suis un arbitre catalan de cyclisme depuis 1988, et depuis lors, j'ai adoré appliquer l'informatique au cyclisme.",
+                aboutText2: "En conséquence, en 1990, j'ai déjà réalisé un programme gratuit en Clipper pour le contrôle des courses de VTT et ensuite pour les autres spécialités (route, piste, descente, etc...).",
+                aboutText3: "De plus, en 1992, j'ai réalisé un programme pour la gestion des licences de la fédération catalane, dans lequel, grâce à un modem, les données pouvaient être transférées d'une délégation à une autre et avoir toujours les licences de toute la communauté autonome à jour.",
+                aboutText4: "En 1995, j'ai commencé à travailler dans le monde de la publicité et des événements et j'ai dû consacrer peu de temps à cette passion.",
+                aboutText5: "En 2014, j'ai quitté l'agence de publicité et j'ai pu la reprendre. J'ai recommencé à réaliser des applications pour m'aider dans les tâches d'arbitre en Python (Programmes de CRI avec Mylaps, Programme de Chronométrage pour Piste (Poursuite, 200m,..), PumpTrack (avec résultats en direct sur Telegram,….).",
+                aboutText6: "En 2025, j'ai pensé qu'il serait bon de réaliser des applications gratuites en JavaScript pour pouvoir les partager avec tous les arbitres du monde et ainsi faciliter leur tâche. Étant web, vous n'avez pas besoin d'installation ni de gros appareils pour les exécuter.",
+                aboutText7: "Si vous avez une suggestion d'application ou des améliorations pour celles qui existent déjà, envoyez-moi un email à",
+                contactSendEmail: "Envoyer email",
+                contactMyWeb: "Mon site web"
             },
             en: {
                 title: "Roberto Benet Web Applications",
@@ -1284,7 +1562,18 @@
                     <li>Tap the "Install" button</li>
                     <li>Follow your browser instructions</li>
                 </ol>`,
-                footer: "© 2025 Roberto Benet Web Applications - All rights reserved"
+                footer: "© 2025 Roberto Benet Web Applications - All rights reserved",
+                aboutTitle: "Roberto Benet",
+                aboutSubtitle: "Cycling referee and application developer",
+                aboutText1: "I am a Catalan cycling referee since 1988, and ever since then I have loved applying computer science to cycling.",
+                aboutText2: "As a result, in 1990 I already created a free program in Clipper for MTB race control and later for other specialties (road, track, downhill, etc...).",
+                aboutText3: "Additionally, in 1992 I created a program for managing licenses of the Catalan federation, where through a modem, data could be transferred from one delegation to another and always keep the licenses of the entire autonomous community updated.",
+                aboutText4: "In 1995 I started working in the world of advertising and events and had to dedicate little time to this hobby.",
+                aboutText5: "In 2014 I left the advertising agency and was able to resume it. I started again creating applications to help me with referee tasks in Python (CRI programs with Mylaps, Timing Program for Track (Pursuit, 200m,..), PumpTrack (with live results on Telegram,….).",
+                aboutText6: "In 2025 I thought it would be good to create free applications in JavaScript to share with all referees in the world and thus facilitate their work. Being web-based, you don't need installation or large devices to run them.",
+                aboutText7: "If you have any application suggestions or improvements for existing ones, send me an email to",
+                contactSendEmail: "Send email",
+                contactMyWeb: "My website"
             }
         };
 
@@ -1759,6 +2048,20 @@ IDList=`;
                 const flagClass = `flag-${lang}`;
                 dropdownBtn.innerHTML = `<span class="flag ${flagClass}"></span>${this.textContent}<i class="fas fa-chevron-down"></i>`;
                 
+
+                // Después de las otras actualizaciones de texto, añade:
+                document.getElementById('about-title').textContent = translations[lang].aboutTitle;
+                document.querySelector('.about-subtitle').textContent = translations[lang].aboutSubtitle;
+                document.getElementById('about-text-1').textContent = translations[lang].aboutText1;
+                document.getElementById('about-text-2').textContent = translations[lang].aboutText2;
+                document.getElementById('about-text-3').textContent = translations[lang].aboutText3;
+                document.getElementById('about-text-4').textContent = translations[lang].aboutText4;
+                document.getElementById('about-text-5').textContent = translations[lang].aboutText5;
+                document.getElementById('about-text-6').textContent = translations[lang].aboutText6;
+                document.getElementById('about-text-7').innerHTML = translations[lang].aboutText7 + ' <strong>rbenet71@gmail.com</strong>.';
+                document.querySelector('.email-btn').innerHTML = `<i class="fas fa-envelope"></i> ${translations[lang].contactSendEmail}`;
+                document.querySelector('.web-btn').innerHTML = `<i class="fas fa-globe"></i> ${translations[lang].contactMyWeb}`;
+
                 // Actualizar textos
                 document.getElementById('main-title').textContent = translations[lang].title;
                 document.querySelector('[data-tab="arbitro"]').textContent = translations[lang].arbitro;
