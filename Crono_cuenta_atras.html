@@ -2269,102 +2269,139 @@
             }
         }
 
-        /* =========================================== */
-        /* NUEVOS ESTILOS PARA CONFIGURACIÓN DE AUDIO */
-        /* =========================================== */
-        .audio-config-section {
-            background: #f8f9fa;
-            border-radius: var(--border-radius);
-            padding: 20px;
-            margin-top: 20px;
-            border: 1px solid #e9ecef;
-        }
+    /* =========================================== */
+    /* NUEVOS ESTILOS PARA CONFIGURACIÓN DE AUDIO - SIMPLIFICADO */
+    /* =========================================== */
+    .audio-config-section {
+        background: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: 15px;
+        margin-top: 15px;
+        border: 1px solid #e9ecef;
+    }
 
+    .audio-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+        margin-top: 10px;
+    }
+
+    .audio-option {
+        background: white;
+        border: 2px solid #e0e0e0;  
+        border-radius: var(--border-radius);
+        padding: 15px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+    }
+
+    .audio-option:hover {
+        border-color: var(--secondary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.1);
+    }
+
+    .audio-option.active {
+        border-color: var(--success);
+        background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(52, 152, 219, 0.1) 100%);
+        box-shadow: 0 4px 12px rgba(46, 204, 113, 0.15);
+    }
+
+    .audio-option i {
+        font-size: 1.5rem;
+        color: var(--primary);
+    }
+
+    .audio-option.active i {
+        color: var(--success);
+    }
+
+    .audio-option .option-title {
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--dark);
+        line-height: 1.2;
+    }
+
+    /* Texto de descripción oculto por defecto, mostrado en tooltip */
+    .audio-option .option-desc {
+        display: none;
+    }
+
+    /* Tooltip al pasar el cursor */
+    .audio-option:hover::after {
+        content: attr(title);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        z-index: 1000;
+        margin-bottom: 8px;
+        pointer-events: none;
+    }
+
+    .audio-option:hover::before {
+        content: '';
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 6px solid transparent;
+        border-top-color: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        margin-bottom: -4px;
+        pointer-events: none;
+    }
+
+    .audio-test-btn {
+        margin-top: 15px;
+        padding: 8px 16px;
+        background: var(--secondary);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: center;
+        transition: all 0.3s;
+        font-size: 0.95rem;
+    }
+
+    .audio-test-btn:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+    }
+
+    /* Responsive para configuración de audio */
+    @media (max-width: 768px) {
         .audio-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
+            grid-template-columns: 1fr;
         }
-
+        
         .audio-option {
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: var(--border-radius);
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
+            padding: 12px;
         }
-
-        .audio-option:hover {
-            border-color: var(--secondary);
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.1);
-        }
-
-        .audio-option.active {
-            border-color: var(--success);
-            background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(52, 152, 219, 0.1) 100%);
-            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.2);
-        }
-
+        
         .audio-option i {
-            font-size: 2rem;
-            color: var(--primary);
+            font-size: 1.3rem;
         }
-
-        .audio-option.active i {
-            color: var(--success);
-        }
-
-        .audio-option .option-title {
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: var(--dark);
-        }
-
-        .audio-option .option-desc {
-            font-size: 0.9rem;
-            color: var(--gray);
-            line-height: 1.4;
-        }
-
-        .audio-test-btn {
-            margin-top: 15px;
-            padding: 10px 20px;
-            background: var(--secondary);
-            color: white;
-            border: none;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            justify-content: center;
-            transition: all 0.3s;
-        }
-
-        .audio-test-btn:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        /* Responsive para configuración de audio */
-        @media (max-width: 768px) {
-            .audio-options {
-                grid-template-columns: 1fr;
-            }
-            
-            .audio-option {
-                padding: 15px;
-            }
-        }
+    }
     </style>
 </head>
 <body>
@@ -2428,32 +2465,30 @@
                 <div class="card-body">
                     <div class="config-section">
                         <div class="audio-config-section">
-                            <div class="section-title">
-                                <i class="fas fa-music"></i>
-                                <span id="audio-mode-label">Tipo de sonido para cuenta atrás</span>
-                            </div>
-                            
                             <div class="audio-options" id="audio-options">
-                                <div class="audio-option active" data-audio-type="beep">
+                                <div class="audio-option active" 
+                                    data-audio-type="beep"
+                                    title="Beeps electrónicos para cada segundo">
                                     <i class="fas fa-bell"></i>
                                     <div class="option-title" id="beep-option-title">Sonidos Beep</div>
-                                    <div class="option-desc" id="beep-option-desc">Beeps electrónicos para cada segundo</div>
                                 </div>
                                 
-                                <div class="audio-option" data-audio-type="voice">
+                                <div class="audio-option" 
+                                    data-audio-type="voice"
+                                    title="Voz humana contando en tu idioma">
                                     <i class="fas fa-microphone-alt"></i>
                                     <div class="option-title" id="voice-option-title">Voz grabada</div>
-                                    <div class="option-desc" id="voice-option-desc">Voz humana contando en tu idioma</div>
                                 </div>
                                 
-                                <div class="audio-option" data-audio-type="none">
+                                <div class="audio-option" 
+                                    data-audio-type="none"
+                                    title="Solo efectos visuales">
                                     <i class="fas fa-volume-mute"></i>
                                     <div class="option-title" id="mute-option-title">Sin sonido</div>
-                                    <div class="option-desc" id="mute-option-desc">Solo efectos visuales</div>
                                 </div>
                             </div>
                             
-                            <div style="text-align: center; margin-top: 20px;">
+                            <div style="text-align: center; margin-top: 15px;">
                                 <button class="audio-test-btn" id="test-audio-btn">
                                     <i class="fas fa-play-circle"></i>
                                     <span id="test-audio-text">Probar sonido actual</span>
@@ -4472,13 +4507,7 @@
             const t = translations[lang];
 
             document.getElementById('audio-config-title').textContent = t.audioConfigTitle;
-            document.getElementById('audio-mode-label').textContent = t.audioModeLabel;
             document.getElementById('beep-option-title').textContent = t.beepOptionTitle;
-            document.getElementById('beep-option-desc').textContent = t.beepOptionDesc;
-            document.getElementById('voice-option-title').textContent = t.voiceOptionTitle;
-            document.getElementById('voice-option-desc').textContent = t.voiceOptionDesc;
-            document.getElementById('mute-option-title').textContent = t.muteOptionTitle;
-            document.getElementById('mute-option-desc').textContent = t.muteOptionDesc;
             document.getElementById('test-audio-text').textContent = t.testAudioText;
 
             // Actualizar selección de audio
