@@ -103,4 +103,6 @@ el numero de salida solo sale el impar (1,3,5)
 
 posibilidad de rerpoducir grabación, lectura o beep y por idiomas.
 
+graabciones es_10. es_5. es_4. es_3. es.2.
+
 
