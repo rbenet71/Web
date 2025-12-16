@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aplicaciones Web Roberto Benet</title>
+    <!-- Favicon para navegadores -->
+    <link rel="icon" type="image/png" href="App_RBB_192x192.png">
+    <link rel="apple-touch-icon" href="App_RBB_192x192.png">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-CV925PMBQV"></script>
     <script>
@@ -44,20 +47,67 @@
             background-color: var(--dark-color);
             color: white;
             padding: 20px 0;
-            text-align: center;
             box-shadow: var(--shadow);
             position: relative;
         }
 
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .app-icon-header {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            object-fit: cover;
+            border: 3px solid #3498db;
+        }
+
+        .header-text {
+            flex: 1;
+            text-align: center;
+        }
+
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+        }
+
+        .header-subtitle {
+            color: #ecf0f1;
+            font-size: 0.95rem;
+            opacity: 0.9;
         }
 
         .language-selector {
             position: absolute;
             top: 20px;
             right: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .language-selector {
+                position: static;
+                margin-top: 15px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
         }
 
         .language-dropdown {
@@ -331,6 +381,22 @@
             font-size: 0.9rem;
         }
 
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .footer-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            object-fit: cover;
+        }
+
         /* Botones en el footer */
         .footer-buttons {
             display: flex;
@@ -401,9 +467,19 @@
         }
 
         .install-icon {
-            font-size: 48px;
             margin-bottom: 15px;
             color: #3498db;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .install-icon img {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            border: 3px solid #3498db;
         }
 
         .install-message {
@@ -505,14 +581,20 @@
         .suggestions-icon {
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
-            border-radius: 50%;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 0.8rem;
-            color: white;
-            font-size: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border: 2px solid #3498db;
+        }
+
+        .suggestions-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .suggestions-title {
@@ -674,17 +756,7 @@
             }
             
             h1 {
-                font-size: 2rem;
-            }
-            
-            .language-selector {
-                position: static;
-                margin-top: 15px;
-            }
-            
-            .language-dropdown {
-                display: flex;
-                justify-content: center;
+                font-size: 1.8rem;
             }
             
             .install-app-btn, .suggestions-btn {
@@ -702,6 +774,11 @@
                 width: 50px;
                 height: 50px;
                 font-size: 1.8rem;
+            }
+            
+            .app-icon-header {
+                width: 60px;
+                height: 60px;
             }
         }
         
@@ -742,32 +819,40 @@
 </head>
 <body>
     <header>
-        <h1 id="main-title">Aplicaciones Web Roberto Benet</h1>
-        
-        <div class="language-selector">
-            <div class="language-dropdown">
-                <button class="dropdown-btn">
-                    <span class="flag flag-es"></span>
-                    Español
-                    <i class="fas fa-chevron-down"></i>
-                </button>
-                <div class="dropdown-content">
-                    <a href="#" data-lang="es">
+        <div class="header-content">
+            <img src="App_RBB_512x512.png" alt="App Roberto" class="app-icon-header">
+            <div class="header-text">
+                <h1 id="main-title">Aplicaciones Web Roberto Benet</h1>
+                <p class="header-subtitle">
+                    <i class="fas fa-mobile-alt"></i> App PWA disponible para instalar
+                </p>
+            </div>
+            
+            <div class="language-selector">
+                <div class="language-dropdown">
+                    <button class="dropdown-btn">
                         <span class="flag flag-es"></span>
                         Español
-                    </a>
-                    <a href="#" data-lang="ca">
-                        <span class="flag flag-ca"></span>
-                        Català
-                    </a>
-                    <a href="#" data-lang="fr">
-                        <span class="flag flag-fr"></span>
-                        Français
-                    </a>
-                    <a href="#" data-lang="en">
-                        <span class="flag flag-en"></span>
-                        English
-                    </a>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="#" data-lang="es">
+                            <span class="flag flag-es"></span>
+                            Español
+                        </a>
+                        <a href="#" data-lang="ca">
+                            <span class="flag flag-ca"></span>
+                            Català
+                        </a>
+                        <a href="#" data-lang="fr">
+                            <span class="flag flag-fr"></span>
+                            Français
+                        </a>
+                        <a href="#" data-lang="en">
+                            <span class="flag flag-en"></span>
+                            English
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -861,18 +946,26 @@
     </div>
 
     <footer>
-        <p>
-            <span id="copyright-text">© 2025 - Aplicaciones Web Roberto Benet - Todos los derechos reservados</span>
-            <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                Roberto Benet - rbenet71@gmail.com - V_01_12_2025
-            </a>
-        </p>
+        <div class="footer-content">
+            <img src="App_RBB_192x192.png" alt="Icono App" class="footer-icon">
+            <div style="text-align: left;">
+                <p>
+                    <span id="copyright-text">© 2025 - Aplicaciones Web Roberto Benet - Todos los derechos reservados</span>
+                    <br>
+                    <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
+                        Roberto Benet - rbenet71@gmail.com - V_01_12_2025
+                    </a>
+                </p>
+            </div>
+        </div>
     </footer>
 
     <!-- Modal de instalación -->
     <div class="install-modal" id="installModal">
         <div class="install-modal-content">
-            <div class="install-icon" id="installIcon">📱</div>
+            <div class="install-icon" id="installIcon">
+                <img src="App_RBB_512x512.png" alt="App Roberto">
+            </div>
             <div class="install-message" id="installMessage"></div>
             <div class="install-buttons">
                 <button class="install-btn install-primary" id="installActionBtn">Instalar</button>
@@ -892,7 +985,7 @@
         <div class="suggestions-modal-content">
             <div class="suggestions-header">
                 <div class="suggestions-icon">
-                    📱
+                    <img src="App_RBB_192x192.png" alt="App Roberto">
                 </div>
                 <h1 class="suggestions-title">App Roberto</h1>
                 <p class="suggestions-subtitle">Envía tus comentarios</p>
@@ -1060,7 +1153,7 @@
                 </ol>`,
                 otherInstructionsTitle: "Instal·lar App",
                 otherInstructions: `<ol style="padding-left: 15px;">
-                    <li>Toca el botó "Instal·lar"</li>
+                    <li>Toca el botó "Instalar"</li>
                     <li>Segueix les instruccions del teu navegador</li>
                 </ol>`,
                 footer: "© 2025 Aplicacions Web Roberto Benet - Tots els drets reservats"
@@ -1093,7 +1186,7 @@
                 emailLabel: "Fournissez votre email pour rester informé des mises à jour",
                 cityLabel: "Ville",
                 suggestionLabel: "Suggestions pour améliorer l'application",
-                programLabel: "Programme",
+                programLabel: "Programe",
                 submitButton: "📤 Envoyer",
                 sendingText: "Envoi en cours...",
                 successMessage: "✅ Envoyé avec succès",
@@ -1124,7 +1217,7 @@
                 </ol>`,
                 otherInstructionsTitle: "Installer l'App",
                 otherInstructions: `<ol style="padding-left: 15px;">
-                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Appuyez sur le botón "Installer"</li>
                     <li>Suivez les instructions de votre navigateur</li>
                 </ol>`,
                 footer: "© 2025 Applications Web Roberto Benet - Tous droits réservés"
@@ -1249,14 +1342,14 @@
             }
             
             setupIOS() {
-                this.installIcon.textContent = '📱';
+                this.installIcon.innerHTML = '<img src="App_RBB_512x512.png" alt="App Roberto" style="width: 80px; height: 80px; border-radius: 16px; border: 3px solid #3498db;">';
                 this.installActionBtn.textContent = translations[this.currentLanguage].installAction;
                 this.instructionsTitle.textContent = translations[this.currentLanguage].iosInstructionsTitle;
                 this.instructionsList.innerHTML = translations[this.currentLanguage].iosInstructions;
             }
             
             setupAndroid() {
-                this.installIcon.textContent = '🤖';
+                this.installIcon.innerHTML = '<img src="App_RBB_512x512.png" alt="App Roberto" style="width: 80px; height: 80px; border-radius: 16px; border: 3px solid #3498db;">';
                 this.installActionBtn.textContent = translations[this.currentLanguage].installAction;
                 this.instructionsTitle.textContent = translations[this.currentLanguage].androidInstructionsTitle;
                 this.instructionsList.innerHTML = translations[this.currentLanguage].androidInstructions;
@@ -1269,14 +1362,14 @@
             }
             
             setupWindows() {
-                this.installIcon.textContent = '💻';
+                this.installIcon.innerHTML = '<img src="App_RBB_512x512.png" alt="App Roberto" style="width: 80px; height: 80px; border-radius: 16px; border: 3px solid #3498db;">';
                 this.installActionBtn.textContent = translations[this.currentLanguage].installAction;
                 this.instructionsTitle.textContent = translations[this.currentLanguage].windowsInstructionsTitle;
                 this.instructionsList.innerHTML = translations[this.currentLanguage].windowsInstructions;
             }
             
             setupOther() {
-                this.installIcon.textContent = '🌐';
+                this.installIcon.innerHTML = '<img src="App_RBB_512x512.png" alt="App Roberto" style="width: 80px; height: 80px; border-radius: 16px; border: 3px solid #3498db;">';
                 this.installActionBtn.textContent = translations[this.currentLanguage].installAction;
                 this.instructionsTitle.textContent = translations[this.currentLanguage].otherInstructionsTitle;
                 this.instructionsList.innerHTML = translations[this.currentLanguage].otherInstructions;
@@ -1381,6 +1474,8 @@
                 const urlContent = `[InternetShortcut]
 URL=${window.location.href}
 IconIndex=0
+HotKey=0
+IconFile=https://rbenet71.github.io/Web/App_RBB_192x192.png
 IDList=`;
                 
                 const blob = new Blob([urlContent], { type: 'application/internet-shortcut' });
