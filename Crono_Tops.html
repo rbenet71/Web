@@ -3976,6 +3976,23 @@ ${coordinates.trim()}
             }
         }
 
+        // Puedes añadir esto al código
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
+        function updateOnlineStatus() {
+            const status = navigator.onLine ? 'online' : 'offline';
+            showMessage(`Modo ${status}`, 'info');
+        }
+
+        // En las funciones que usan geolocation
+        getCurrentLocation().catch(error => {
+            if (!navigator.onLine) {
+                showMessage("Modo offline - Usando última ubicación guardada", "info");
+            }
+        });
+
+
         // Opción alternativa más simple para móviles
         function playSimpleBeep() {
             try {
