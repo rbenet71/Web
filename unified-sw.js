@@ -1,6 +1,6 @@
 // unified-sw.js
 // Service Worker unificado para todas las aplicaciones
-// Versión: 2.1
+// Versión: 2.2 (corregida - sin bucle de activación)
 
 const APP_CACHES = {
   'calculadora': 'calculadora-tiempos-v1.1',
@@ -46,7 +46,7 @@ const APP_RESOURCES = {
 
 // Instalación del Service Worker unificado
 self.addEventListener('install', event => {
-  console.log('Service Worker Unificado: Instalando...');
+  console.log('Service Worker Unificado v2.2: Instalando...');
   
   event.waitUntil(
     Promise.all(
@@ -54,7 +54,9 @@ self.addEventListener('install', event => {
         return caches.open(APP_CACHES[appName])
           .then(cache => {
             console.log(`Cacheando recursos para ${appName}`);
-            return cache.addAll(APP_RESOURCES[appName]);
+            return cache.addAll(APP_RESOURCES[appName]).catch(error => {
+              console.error(`Error cacheando recursos para ${appName}:`, error);
+            });
           });
       })
     ).then(() => {
@@ -64,25 +66,39 @@ self.addEventListener('install', event => {
   );
 });
 
-// Activación del Service Worker
+// Activación del Service Worker - ÚNICO EVENTO ACTIVATE
 self.addEventListener('activate', event => {
-  console.log('Service Worker Unificado: Activado');
+  console.log('Service Worker Unificado v2.2: Activado');
   
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          // Mantener solo las cachés actuales
-          const isCurrentCache = Object.values(APP_CACHES).includes(cacheName);
-          if (!isCurrentCache) {
-            console.log('Eliminando caché antigua:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
-      console.log('Service Worker Unificado: Listo');
-      return self.clients.claim();
+    Promise.all([
+      // Limpiar cachés antiguas
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            // Mantener solo las cachés actuales
+            const isCurrentCache = Object.values(APP_CACHES).includes(cacheName);
+            if (!isCurrentCache) {
+              console.log('Eliminando caché antigua:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
+      // Reclamar control inmediatamente
+      self.clients.claim(),
+      // Enviar mensaje de actualización solo una vez
+      self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          client.postMessage({
+            type: 'SW_UPDATED',
+            version: '2.2',
+            apps: ['calculadora', 'crono80', 'cronollegadas', 'crono_tops', 'index']
+          });
+        });
+      })
+    ]).then(() => {
+      console.log('Service Worker Unificado v2.2: Listo para usar');
     })
   );
 });
@@ -116,14 +132,16 @@ self.addEventListener('fetch', event => {
   
   // Para páginas HTML, usar Network First
   if (request.mode === 'navigate' || 
-      request.headers.get('Accept').includes('text/html')) {
+      request.headers.get('Accept')?.includes('text/html')) {
     event.respondWith(
       fetch(request)
         .then(response => {
-          // Actualizar caché
-          const responseClone = response.clone();
-          caches.open(cacheName)
-            .then(cache => cache.put(request, responseClone));
+          // Actualizar caché solo si la respuesta es válida
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(cacheName)
+              .then(cache => cache.put(request, responseClone));
+          }
           return response;
         })
         .catch(() => {
@@ -193,32 +211,17 @@ async function getFallbackPage(appName) {
   );
 }
 
-// Manejo de actualizaciones
+// Manejo de actualizaciones - solo para saltar espera
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('Service Worker Unificado: Saltando espera');
+    console.log('Service Worker Unificado: Saltando espera por solicitud');
     self.skipWaiting();
   }
   
   if (event.data && event.data.type === 'GET_VERSION') {
-    event.ports[0].postMessage({
-      version: '2.1',
+    event.ports[0]?.postMessage({
+      version: '2.2',
       apps: Object.keys(APP_CACHES)
     });
   }
-});
-
-// Notificar actualizaciones
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    self.clients.matchAll().then(clients => {
-      clients.forEach(client => {
-        client.postMessage({
-          type: 'SW_UPDATED',
-          version: '2.1',
-          apps: ['calculadora', 'crono80', 'cronollegadas', 'crono_tops', 'index']
-        });
-      });
-    })
-  );
 });

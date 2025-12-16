@@ -1,0 +1,99 @@
+{
+  "name": "Aplicaciones Roberto Benet",
+  "short_name": "App Roberto",
+  "description": "Aplicaciones web para árbitros y ciclismo - Calculadora de tiempos, cronómetros y más",
+  "start_url": "https://rbenet71.github.io/Web/",
+  "display": "standalone",
+  "background_color": "#2c3e50",
+  "theme_color": "#3498db",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://rbenet71.github.io/Web/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://rbenet71.github.io/Web/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://rbenet71.github.io/Web/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "https://rbenet71.github.io/Web/icon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "https://rbenet71.github.io/Web/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["sports", "productivity", "utilities"],
+  "lang": "es",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "scope": "https://rbenet71.github.io/Web/",
+  "shortcuts": [
+    {
+      "name": "Calculadora de Tiempos",
+      "short_name": "Calculadora",
+      "description": "Calculadora de tiempos para competiciones",
+      "url": "https://rbenet71.github.io/Web/Calculadora_Tiempos.html",
+      "icons": [
+        {
+          "src": "https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Crono Llegadas",
+      "short_name": "Llegadas",
+      "description": "Cronómetro para control de llegadas",
+      "url": "https://rbenet71.github.io/Web/Crono_Llegadas.html",
+      "icons": [
+        {
+          "src": "https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Crono 80%",
+      "short_name": "80%",
+      "description": "Cronómetro del 80% para competiciones",
+      "url": "https://rbenet71.github.io/Web/Crono_80.html",
+      "icons": [
+        {
+          "src": "https://rbenet71.github.io/Web/Crono_80_192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://rbenet71.github.io/Web/screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Vista de escritorio de las aplicaciones"
+    },
+    {
+      "src": "https://rbenet71.github.io/Web/screenshot-mobile.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Vista móvil de las aplicaciones"
+    }
+  ]
+}
