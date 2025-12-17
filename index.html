@@ -1033,6 +1033,7 @@
             <div class="tab active" data-tab="arbitro">Árbitro</div>
             <div class="tab" data-tab="ciclismo">Ciclismo</div>
             <div class="tab" data-tab="genericas">Genéricas</div>
+            <div class="tab" data-tab="entretenimiento">Entretenimiento</div> <!-- NUEVA PESTAÑA -->
             <div class="tab" data-tab="acercade">Acerca de mí</div>
         </div>
 
@@ -1042,6 +1043,7 @@
                 <h2 id="arbitro-title">Aplicaciones de Árbitro</h2>
                 <p id="arbitro-desc">Selecciona una de las aplicaciones disponibles:</p>
                 <div class="button-grid">
+                    <!-- Apps existentes -->
                     <a href="Crono_Llegadas.html" target="_blank" class="app-button crono-llegadas">
                         <img src="Crono_Llegadas_512x512.png" alt="Crono Llegadas" class="icon-image">
                         <span id="btn-crono-llegadas">Crono Llegadas</span>
@@ -1054,7 +1056,7 @@
                         <img src="crono_cuenta_atras/Crono_cuenta_atras_192_192.png" alt="Crono Cuenta Atras" class="icon-image">
                         <span id="btn-reloj-cri">Crono Cuenta Atras</span>
                     </a>
-                    <a href="crono_cri/Crono_CRI.html"_blank" class="app-button salidas-cri">
+                    <a href="crono_cri/Crono_CRI.html" target="_blank" class="app-button salidas-cri">
                         <img src="crono_cri/Crono_CRI_192x192.png" alt="Salidas CRI" class="icon-image">
                         <span id="btn-salidas-cri">Salidas CRI</span>
                     </a>
@@ -1066,10 +1068,41 @@
                         <img src="Crono_80_512x512.png" alt="Cronómetro 80%" class="icon-image">
                         <span id="btn-crono-80">Cronómetro 80%</span>
                     </a>
+                    
+                    <!-- NUEVOS BOTONES PARA ÁRBITRO -->
+                    <a href="Árbitro/Cuenta_Vueltas/Cuenta_Vueltas.html" target="_blank" class="app-button" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+                        <i class="fas fa-flag-checkered"></i>
+                        <span id="btn-cuenta-vueltas">Cuenta Vueltas</span>
+                    </a>
+                    <a href="Árbitro/Gestion_Carreras/Gestion_Carreras.html" target="_blank" class="app-button" style="background: linear-gradient(135deg, #3498db, #2980b9);">
+                        <i class="fas fa-flag-checkered"></i>
+                        <span id="btn-gestion-carreras">Gestión de Carreras</span>
+                    </a>
+                    <a href="Árbitro/Pasos_Puntuables/Pasos_Puntuables.html" target="_blank" class="app-button" style="background: linear-gradient(135deg, #2ecc71, #27ae60);">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span id="btn-pasos-puntuables">Pasos Puntuables</span>
+                    </a>
+                    <a href="Árbitro/Arrastres/Arrastres.html" target="_blank" class="app-button" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                        <i class="fas fa-users"></i>
+                        <span id="btn-arrastres">Arrastres</span>
+                    </a>
+                    <a href="Árbitro/Reparto_Funciones/Reparto_Funciones.html" target="_blank" class="app-button" style="background: linear-gradient(135deg, #f39c12, #e67e22);">
+                        <i class="fas fa-tasks"></i>
+                        <span id="btn-reparto-funciones">Reparto Funciones</span>
+                    </a>
+                    <a href="Árbitro/Normativas/Normativas.html" target="_blank" class="app-button" style="background: linear-gradient(135deg, #16a085, #1abc9c);">
+                        <i class="fas fa-book"></i>
+                        <span id="btn-normativas">Normativas</span>
+                    </a>
+                    <a href="Árbitro/Otras_Aplicaciones/Otras_Aplicaciones.html" target="_blank" class="app-button" style="background: linear-gradient(135deg, #95a5a6, #7f8c8d);">
+                        <i class="fas fa-ellipsis-h"></i>
+                        <span id="btn-otras-aplicaciones">Otras Aplicaciones</span>
+                    </a>
+
                 </div>
             </div>
 
-            <!-- Contenido de Ciclismo -->
+            <!-- Contenido de Ciclismo - MODIFICADO -->
             <div class="tab-content" id="ciclismo-content">
                 <h2 id="ciclismo-title">Aplicaciones de Ciclismo</h2>
                 <p id="ciclismo-desc"></p>
@@ -1078,95 +1111,137 @@
                         <img src="GPS.png" class="icon-image" alt="GPS">
                         <span>GPS</span>
                     </a>
-
-                    <a href="#" class="app-button" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+                    
+                    <!-- NUEVO BOTÓN PARA CICLISMO -->
+                    <a href="Ciclismo/Grabador_Track/Grabador_Track.html" class="app-button" style="background: linear-gradient(135deg, #3498db, #2980b9);">
+                        <i class="fas fa-video"></i>
+                        <span id="btn-grabador-track">Grabador Track</span>
+                    </a>
+                    
+                    <!-- Botón genérico para próximas -->
+                    <a href="#" class="app-button" style="background: linear-gradient(135deg, #7f8c8d, #95a5a6);">
                         <i class="fas fa-bicycle"></i>
                         <span>Próximamente</span>
                     </a>
                 </div>
             </div>
 
-            <!-- Contenido de Genéricas -->
+            <!-- Contenido de Genéricas - MODIFICADO -->
             <div class="tab-content" id="genericas-content">
                 <h2 id="genericas-title">Aplicaciones Genéricas</h2>
-                <p id="genericas-desc">Próximamente aplicaciones genéricas...</p>
+                <p id="genericas-desc"></p>
                 <div class="button-grid">
+                    <!-- NUEVOS BOTONES PARA GENÉRICAS -->
+                    <a href="Genericas/Gestor_Videos/Gestor_Videos.html" class="app-button" style="background: linear-gradient(135deg, #3498db, #2980b9);">
+                        <i class="fas fa-video"></i>
+                        <span id="btn-gestor-videos">Gestor de Videos</span>
+                    </a>
+                    <a href="Genericas/GPX_Video/GPX_Video.html" class="app-button" style="background: linear-gradient(135deg, #2ecc71, #27ae60);">
+                        <i class="fas fa-map"></i>
+                        <span id="btn-gpx-video">GPX a Video</span>
+                    </a>
+                    
+                    <!-- Botón genérico para próximas -->
                     <a href="#" class="app-button" style="background: linear-gradient(135deg, #7f8c8d, #95a5a6);">
                         <i class="fas fa-tools"></i>
                         <span>Próximamente</span>
                     </a>
-                    <a href="#" class="app-button" style="background: linear-gradient(135deg, #7f8c8d, #95a5a6);">
-                        <i class="fas fa-list"></i>
-                        <span>Próximamente</span>
+                </div>
+            </div>
+
+            <!-- Contenido de Entretenimiento - NUEVA PESTAÑA -->
+            <div class="tab-content" id="entretenimiento-content">
+                <h2 id="entretenimiento-title">Aplicaciones de Entretenimiento</h2>
+                <p id="entretenimiento-desc">Juegos y aplicaciones de ocio</p>
+                <div class="button-grid">
+                    <!-- BOTONES PARA ENTRETENIMIENTO -->
+                    <a href="Entretenimiento/Solitario/Solitario.html" class="app-button" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+                        <i class="fas fa-cards"></i>
+                        <span id="btn-solitario">Solitario</span>
+                    </a>
+                    <a href="Entretenimiento/Tetris/Tetris.html" class="app-button" style="background: linear-gradient(135deg, #3498db, #2980b9);">
+                        <i class="fas fa-gamepad"></i>
+                        <span id="btn-tetris">Tetris</span>
+                    </a>
+                    <a href="Entretenimiento/Sudoku/Sudoku.html" class="app-button" style="background: linear-gradient(135deg, #2ecc71, #27ae60);">
+                        <i class="fas fa-table"></i>
+                        <span id="btn-sudoku">Sudoku</span>
+                    </a>
+                    <a href="Entretenimiento/Damas/Damas.html" class="app-button" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                        <i class="fas fa-chess-board"></i>
+                        <span id="btn-damas">Damas</span>
                     </a>
                 </div>
             </div>
-            <!-- Contenido de Acerca de mí -->
-            <div class="tab-content" id="acercade-content">
-                <div class="about-container">
-                    <div class="about-header">
-                        <img src="RBB.JPG" alt="Roberto Benet" class="profile-photo">
-                        <div class="about-header-text">
-                            <h2 id="about-title">Roberto Benet</h2>
-                            <p class="about-subtitle" id="about-subtitle">Árbitro de ciclismo y desarrollador de aplicaciones</p>
-                        </div>
-                    </div>
-                    
-                    <div class="about-content">
-                        <div class="timeline">
-                            <div class="timeline-item">
-                                <div class="timeline-year">1988</div>
-                                <div class="timeline-content">
-                                    <p id="about-text-1">Soy un árbitro catalán de ciclismo desde 1988, y desde entonces me encantó aplicar la informática al ciclismo.</p>
-                                </div>
-                            </div>
-                            
-                            <div class="timeline-item">
-                                <div class="timeline-year">1990</div>
-                                <div class="timeline-content">
-                                    <p id="about-text-2">Fruto de ello, en el año 1990 ya realicé un programa gratuito en Clipper para el control de carreras de BTT y posteriormente para el resto de especialidades (carretera, pista, descenso, etc...).</p>
-                                </div>
-                            </div>
-                            
-                            <div class="timeline-item">
-                                <div class="timeline-year">1992</div>
-                                <div class="timeline-content">
-                                    <p id="about-text-3">Además, en 1992 realicé un programa para la gestión de licencias de la federación catalana, en el que a través de un módem se podían traspasar los datos de una delegación a otra y tener siempre actualizadas las licencias de toda la comunidad autónoma.</p>
-                                </div>
-                            </div>
-                            
-                            <div class="timeline-item">
-                                <div class="timeline-year">1995</div>
-                                <div class="timeline-content">
-                                    <p id="about-text-4">En 1995 me puse a trabajar en el mundo de la publicidad y los eventos y tuve que dedicar poco tiempo a esta afición.</p>
-                                </div>
-                            </div>
-                            
-                            <div class="timeline-item">
-                                <div class="timeline-year">2014</div>
-                                <div class="timeline-content">
-                                    <p id="about-text-5">En 2014 dejé la agencia de publicidad y pude volver a retomarla. Empecé de nuevo a realizar aplicaciones para ayudarme a realizar las tareas de árbitro en Python (Programas de CRI con Mylaps, Programa de Cronometraje para Pista (Persecución, 200m,..), PumpTrack (con resultados en directo en Telegram,….).</p>
-                                </div>
-                            </div>
-                            
-                            <div class="timeline-item">
-                                <div class="timeline-year">2025</div>
-                                <div class="timeline-content">
-                                    <p id="about-text-6">En 2025 pensé que sería bueno realizar aplicaciones gratuitas en JavaScript para poder compartir con todos los árbitros del mundo y así poder facilitar su tarea. Al ser web no necesitas instalación ni grandes dispositivos para ejecutarlas.</p>
-                                </div>
-                            </div>
-                            
-                            <div class="timeline-item">
-                                <div class="timeline-year" style="background: #e74c3c;">Contacto</div>
-                                <div class="timeline-content">
-                                    <p id="about-text-7">Si tienes cualquier sugerencia de aplicación o mejoras en las que ya hay, envíame un email a <strong>rbenet71@gmail.com</strong>.</p>
 
+                <!-- Contenido de Acerca de mí -->
+                <div class="tab-content" id="acercade-content">
+                    <div class="about-container">
+                        <div class="about-header">
+                            <img src="RBB.jpg" alt="Foto de Roberto Benet" class="profile-photo">
+                            <div class="about-header-text">
+                                <h2 id="about-title">Roberto Benet</h2>
+                                <p class="about-subtitle">Árbitro de ciclismo y desarrollador de aplicaciones</p>
+                            </div>
+                        </div>
+                        
+                        <div class="about-content">
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-year">1988</div>
+                                    <div class="timeline-content">
+                                        <p id="about-text-1">Soy un árbitro catalán de ciclismo desde 1988, y desde entonces me encantó aplicar la informática al ciclismo.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-item">
+                                    <div class="timeline-year">1990</div>
+                                    <div class="timeline-content">
+                                        <p id="about-text-2">Fruto de ello, en el año 1990 ya realicé un programa gratuito en Clipper para el control de carreras de BTT y posteriormente para el resto de especialidades (carretera, pista, descenso, etc...).</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-item">
+                                    <div class="timeline-year">1992</div>
+                                    <div class="timeline-content">
+                                        <p id="about-text-3">Además, en 1992 realicé un programa para la gestión de licencias de la federación catalana, en el que a través de un módem se podían traspasar los datos de una delegación a otra y tener siempre actualizadas las licencias de toda la comunidad autónoma.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-item">
+                                    <div class="timeline-year">1995</div>
+                                    <div class="timeline-content">
+                                        <p id="about-text-4">En 1995 me puse a trabajar en el mundo de la publicidad y los eventos y tuve que dedicar poco tiempo a esta afición.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-item">
+                                    <div class="timeline-year">2014</div>
+                                    <div class="timeline-content">
+                                        <p id="about-text-5">En 2014 dejé la agencia de publicidad y pude volver a retomarla. Empecé de nuevo a realizar aplicaciones para ayudarme a realizar las tareas de árbitro en Python (Programas de CRI con Mylaps, Programa de Cronometraje para Pista (Persecución, 200m,..), PumpTrack (con resultados en directo en Telegram,….).</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-item">
+                                    <div class="timeline-year">2025</div>
+                                    <div class="timeline-content">
+                                        <p id="about-text-6">En 2025 pensé que sería bueno realizar aplicaciones gratuitas en JavaScript para poder compartir con todos los árbitros del mundo y así poder facilitar su tarea. Al ser web no necesitas instalación ni grandes dispositivos para ejecutarlas.</p>
+                                        <p id="about-text-7">Si tienes cualquier sugerencia de aplicación o mejoras en las que ya hay, envíame un email a <strong>rbenet71@gmail.com</strong>.</p>
+                                        
+                                        <div class="contact-buttons">
+                                            <a href="mailto:rbenet71@gmail.com" class="contact-btn email-btn">
+                                                <i class="fas fa-envelope"></i> Enviar email
+                                            </a>
+                                            <a href="https://rbenet71.github.io/Web/" target="_blank" class="contact-btn web-btn">
+                                                <i class="fas fa-globe"></i> Mi web
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
         </div>
     </div>
 
@@ -1341,7 +1416,24 @@
                 aboutText6: "En 2025 pensé que sería bueno realizar aplicaciones gratuitas en JavaScript para poder compartir con todos los árbitros del mundo y así poder facilitar su tarea. Al ser web no necesitas instalación ni grandes dispositivos para ejecutarlas.",
                 aboutText7: "Si tienes cualquier sugerencia de aplicación o mejoras en las que ya hay, envíame un email a",
                 contactSendEmail: "Enviar email",
-                contactMyWeb: "Mi web"
+                contactMyWeb: "Mi web",
+                btnCuentaVueltas: "Cuenta Vueltas",
+                btnGestionCarreras: "Gestión de Carreras",
+                btnPasosPuntuables: "Pasos Puntuables",
+                btnArrastres: "Arrastres",
+                btnRepartoFunciones: "Reparto Funciones",
+                btnNormativas: "Normativas",
+                btnOtrasAplicaciones: "Otras Aplicaciones",
+                btnGrabadorTrack: "Grabador Track",
+                btnGestorVideos: "Gestor de Videos",
+                btnGpxVideo: "GPX a Video",
+                entretenimiento: "Entretenimiento",
+                entretenimientoTitle: "Aplicaciones de Entretenimiento",
+                entretenimientoDesc: "Juegos y aplicaciones de ocio",
+                btnSolitario: "Solitario",
+                btnTetris: "Tetris",
+                btnSudoku: "Sudoku",
+                btnDamas: "Damas"
             },
             ca: {
                 title: "Aplicacions Web Roberto Benet",
@@ -1416,7 +1508,24 @@
                 aboutText6: "El 2025 vaig pensar que seria bo realitzar aplicacions gratuïtes en JavaScript per poder compartir amb tots els àrbitres del món i així poder facilitar la seva tasca. En ser web no necessites instal·lació ni grans dispositius per executar-les.",
                 aboutText7: "Si tens qualsevol suggeriment d'aplicació o millores en les que ja hi ha, envia'm un correu electrònic a",
                 contactSendEmail: "Enviar correu",
-                contactMyWeb: "La meva web"
+                contactMyWeb: "La meva web",
+                btnCuentaVueltas: "Compta Voltes",
+                btnGestionCarreras: "Gestió de Curses",
+                btnPasosPuntuables: "Passos Puntuables",
+                btnArrastres: "Arrossegaments",
+                btnRepartoFunciones: "Repartiment de Funcions",
+                btnNormativas: "Normatives",
+                btnOtrasAplicacions: "Altres Aplicacions",
+                btnGrabadorTrack: "Gravador de Pista",
+                btnGestorVideos: "Gestor de Vídeos",
+                btnGpxVideo: "GPX a Vídeo",
+                entreteniment: "Entreteniment",
+                entretenimentTitle: "Aplicacions d'Entreteniment",
+                entretenimentDesc: "Jocs i aplicacions d'oci",
+                btnSolitari: "Solitari",
+                btnTetris: "Tetris",
+                btnSudoku: "Sudoku",
+                btnDames: "Dames"
             },
             fr: {
                 title: "Applications Web Roberto Benet",
@@ -1491,7 +1600,24 @@
                 aboutText6: "En 2025, j'ai pensé qu'il serait bon de réaliser des applications gratuites en JavaScript pour pouvoir les partager avec tous les arbitres du monde et ainsi faciliter leur tâche. Étant web, vous n'avez pas besoin d'installation ni de gros appareils pour les exécuter.",
                 aboutText7: "Si vous avez une suggestion d'application ou des améliorations pour celles qui existent déjà, envoyez-moi un email à",
                 contactSendEmail: "Envoyer email",
-                contactMyWeb: "Mon site web"
+                contactMyWeb: "Mon site web",
+                btnCuentaVueltas: "Compteur de Tours",
+                btnGestionCarreras: "Gestion des Courses",
+                btnPasosPuntuables: "Points de Passage",
+                btnArrastres: "Aspirations",
+                btnRepartoFunciones: "Répartition des Fonctions",
+                btnNormativas: "Règlements",
+                btnOtrasAplicaciones: "Autres Applications",
+                btnGrabadorTrack: "Enregistreur de Piste",
+                btnGestorVideos: "Gestionnaire de Vidéos",
+                btnGpxVideo: "GPX en Vidéo",
+                divertissement: "Divertissement",
+                divertissementTitle: "Applications de Divertissement",
+                divertissementDesc: "Jeux et applications de loisir",
+                btnSolitaire: "Solitaire",
+                btnTetris: "Tetris",
+                btnSudoku: "Sudoku",
+                btnDames: "Dames"
             },
             en: {
                 title: "Roberto Benet Web Applications",
@@ -1566,7 +1692,24 @@
                 aboutText6: "In 2025 I thought it would be good to create free applications in JavaScript to share with all referees in the world and thus facilitate their work. Being web-based, you don't need installation or large devices to run them.",
                 aboutText7: "If you have any application suggestions or improvements for existing ones, send me an email to",
                 contactSendEmail: "Send email",
-                contactMyWeb: "My website"
+                contactMyWeb: "My website",
+                btnCuentaVueltas: "Lap Counter",
+                btnGestionCarreras: "Race Management",
+                btnPasosPuntuables: "Checkpoints",
+                btnArrastres: "Drafting",
+                btnRepartoFunciones: "Roles Distribution",
+                btnNormativas: "Regulations",
+                btnOtrasAplicaciones: "Other Applications",
+                btnGrabadorTrack: "Track Recorder",
+                btnGestorVideos: "Video Manager",
+                btnGpxVideo: "GPX to Video",
+                entertainment: "Entertainment",
+                entertainmentTitle: "Entertainment Applications",
+                entertainmentDesc: "Games and leisure applications",
+                btnSolitaire: "Solitaire",
+                btnTetris: "Tetris",
+                btnSudoku: "Sudoku",
+                btnCheckers: "Checkers"
             }
         };
 

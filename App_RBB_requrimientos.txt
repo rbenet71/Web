@@ -1,0 +1,26 @@
+Quiero que en la pestaña de arbitros crees los siguientes botones:
+
+Cuenta Vueltas
+Gestión de Carreras
+Pasos Puntuables
+Arrastres
+Reparto Funciones
+Normativas
+Otras Aplicaciones
+
+Ciclismo
+Grabador Track
+
+Genéricas
+Gestor de Videos
+GPX a Video
+
+Crear un nuevo apartado después de genericas
+
+Entretenimiento
+Solitario
+Tetris
+Sodoku
+Damas
+
+de todos estos ya me creas los nombres html y dame un codigo que al hacer click diga Proximamente
