@@ -186,10 +186,11 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 10px;
+            padding: 5px;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
             cursor: pointer;
             transition: transform 0.3s;
+            overflow: hidden;
         }
 
         .card:hover {
@@ -205,11 +206,22 @@
         }
 
         .card-corner {
-            font-size: 1.5rem;
+            font-size: 14px;
             font-weight: bold;
             display: flex;
             flex-direction: column;
             align-items: center;
+            line-height: 1;
+            min-height: 28px;
+        }
+
+        .card-corner .rank {
+            font-size: 16px;
+        }
+
+        .card-corner .suit {
+            font-size: 16px;
+            margin-top: 1px;
         }
 
         .card-corner.bottom {
@@ -217,11 +229,12 @@
         }
 
         .card-center {
-            flex-grow: 1;
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 2.5rem;
+            font-size: 40px;
+            margin: 2px 0;
         }
 
         .card.back {
@@ -372,20 +385,31 @@
             .foundation, .tableau-column {
                 width: 70px;
                 height: 98px;
+                min-width: 70px;
             }
             
             .card {
                 width: 70px;
                 height: 98px;
-                padding: 5px;
+                padding: 3px;
+                min-width: 70px;
             }
             
             .card-corner {
-                font-size: 1rem;
+                font-size: 10px;
+                min-height: 20px;
+            }
+            
+            .card-corner .rank {
+                font-size: 12px;
+            }
+            
+            .card-corner .suit {
+                font-size: 12px;
             }
             
             .card-center {
-                font-size: 1.8rem;
+                font-size: 28px;
             }
             
             .tableau-column .card {
@@ -410,23 +434,80 @@
             .foundation, .tableau-column {
                 width: 60px;
                 height: 84px;
+                min-width: 60px;
             }
             
             .card {
                 width: 60px;
                 height: 84px;
+                padding: 2px;
+                min-width: 60px;
             }
             
             .card-corner {
-                font-size: 0.8rem;
+                font-size: 9px;
+                min-height: 18px;
+            }
+            
+            .card-corner .rank {
+                font-size: 10px;
+            }
+            
+            .card-corner .suit {
+                font-size: 10px;
             }
             
             .card-center {
-                font-size: 1.5rem;
+                font-size: 24px;
             }
             
             .tableau-column .card {
                 margin-top: -60px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .foundation, .tableau-column {
+                width: 52px;
+                height: 73px;
+                min-width: 52px;
+            }
+            
+            .card {
+                width: 52px;
+                height: 73px;
+                padding: 2px;
+                min-width: 52px;
+            }
+            
+            .card-corner {
+                font-size: 8px;
+                min-height: 16px;
+            }
+            
+            .card-corner .rank {
+                font-size: 9px;
+            }
+            
+            .card-corner .suit {
+                font-size: 9px;
+            }
+            
+            .card-center {
+                font-size: 20px;
+            }
+            
+            .tableau-column .card {
+                margin-top: -52px;
+            }
+            
+            .game-controls {
+                gap: 5px;
+            }
+            
+            button {
+                padding: 8px 12px;
+                font-size: 0.8rem;
             }
         }
 
@@ -756,13 +837,13 @@
             if (card.faceUp !== false) {
                 cardElement.innerHTML = `
                     <div class="card-corner">
-                        <div>${card.rank}</div>
-                        <div>${card.suit}</div>
+                        <div class="rank">${card.rank}</div>
+                        <div class="suit">${card.suit}</div>
                     </div>
                     <div class="card-center">${card.suit}</div>
                     <div class="card-corner bottom">
-                        <div>${card.rank}</div>
-                        <div>${card.suit}</div>
+                        <div class="rank">${card.rank}</div>
+                        <div class="suit">${card.suit}</div>
                     </div>
                 `;
             }
