@@ -374,6 +374,100 @@
             margin-bottom: 10px;
         }
 
+        .use-case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .use-case-card {
+            background: rgba(52, 73, 94, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-top: 4px solid #3498db;
+        }
+
+        .use-case-card i {
+            font-size: 2.5rem;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+
+        .use-case-card h4 {
+            color: #2ecc71;
+            margin-bottom: 10px;
+        }
+
+        .hardware-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .hardware-item {
+            background: rgba(52, 73, 94, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #9b59b6;
+        }
+
+        .hardware-item i {
+            font-size: 2rem;
+            color: #9b59b6;
+            margin-bottom: 10px;
+        }
+
+        .version-note {
+            background: rgba(241, 196, 15, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #f1c40f;
+        }
+
+        .version-note h4 {
+            color: #f1c40f;
+            margin-bottom: 10px;
+        }
+
+        .list-export {
+            background: rgba(46, 204, 113, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2ecc71;
+        }
+
+        .list-export h4 {
+            color: #2ecc71;
+            margin-bottom: 15px;
+        }
+
+        .example-cadence {
+            background: rgba(52, 73, 94, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
+        }
+
+        .example-cadence h4 {
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+
+        .cadence-example {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -394,7 +488,9 @@
             
             .feature-grid,
             .visual-indicators,
-            .sound-options {
+            .sound-options,
+            .use-case-grid,
+            .hardware-grid {
                 grid-template-columns: 1fr;
             }
             
@@ -448,12 +544,82 @@
             <div class="intro-box">
                 <h4><i class="fas fa-info-circle"></i> Nota del Desarrollador</h4>
                 <p>Esta aplicación ha sido desarrollada por Roberto Benet, comisario del comité catalán, para que cualquier árbitro la pueda utilizar en carreras deportivas de forma gratuita. Estoy abierto a cualquier tipo de mejora o implementación de nuevas funciones.</p>
+                <p>Siguiendo la serie de Apps Web, esta aplicación está diseñada para ayudar a dar las salidas en descenso o otras salidas con tiempo. Para las CRI (Contrarreloj Individual) estoy preparando una versión que permitirá incluir el dorsal y nombre de cada corredor.</p>
                 <p>Si te resulta útil esta aplicación, te invito a explorar mis otras aplicaciones disponibles en <a href="https://rbenet71.github.io/Web" target="_blank" style="color: #3498db; text-decoration: underline;">https://rbenet71.github.io/Web</a>.</p>
             </div>
 
             <div class="section">
                 <h2><i class="fas fa-info-circle"></i> ¿Qué es Crono Cuenta Atrás?</h2>
                 <p>Crono Cuenta Atrás es una aplicación profesional para controlar las salidas en carreras deportivas. Proporciona una cuenta atrás visual y sonora para organizar salidas escalonadas de corredores o participantes.</p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-laptop"></i> Configuraciones de hardware recomendadas</h2>
+                <p>La aplicación está diseñada para funcionar en múltiples dispositivos, permitiendo flexibilidad según tus necesidades:</p>
+                
+                <div class="hardware-grid">
+                    <div class="hardware-item">
+                        <i class="fas fa-laptop"></i>
+                        <h4>Portátil</h4>
+                        <p>Para el control principal</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-tablet-alt"></i>
+                        <h4>Tablet</h4>
+                        <p>Para visualización secundaria</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h4>Móvil</h4>
+                        <p>Para control portátil</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-tv"></i>
+                        <h4>Pantalla TV</h4>
+                        <p>Para visualización pública</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-bluetooth"></i>
+                        <h4>Altavoz Bluetooth</h4>
+                        <p>Para audio amplificado</p>
+                    </div>
+                </div>
+                
+                <div class="tip-box">
+                    <h4><i class="fas fa-lightbulb"></i> Ideas de configuración</h4>
+                    <ul>
+                        <li><strong>Configuración básica:</strong> Usa un portátil conectado a una pantalla grande de TV</li>
+                        <li><strong>Configuración móvil:</strong> Tableta + altavoz Bluetooth para máxima portabilidad</li>
+                        <li><strong>Configuración doble:</strong> Portátil para control + tableta para visualización en línea de salida</li>
+                        <li><strong>Configuración profesional:</strong> Todos los dispositivos conectados y sincronizados</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-running"></i> Tipos de carreras compatibles</h2>
+                <div class="use-case-grid">
+                    <div class="use-case-card">
+                        <i class="fas fa-mountain"></i>
+                        <h4>Descensos</h4>
+                        <p>Salidas escalonadas en descenso de montaña</p>
+                    </div>
+                    <div class="use-case-card">
+                        <i class="fas fa-road"></i>
+                        <h4>Contrarreloj</h4>
+                        <p>Salidas individuales con intervalos</p>
+                    </div>
+                    <div class="use-case-card">
+                        <i class="fas fa-users"></i>
+                        <h4>Salidas masivas</h4>
+                        <p>Grupos que salen con intervalos</p>
+                    </div>
+                    <div class="use-case-card">
+                        <i class="fas fa-flag-checkered"></i>
+                        <h4>Otras disciplinas</h4>
+                        <p>Cualquier deporte con salidas cronometradas</p>
+                    </div>
+                </div>
             </div>
 
             <div class="section">
@@ -476,16 +642,40 @@
                         <div class="feature-card">
                             <h4><i class="fas fa-equals"></i> Siempre igual</h4>
                             <p>Todos los corredores salen con el mismo intervalo de tiempo</p>
+                            <p><strong>Ejemplo:</strong> Cada corredor sale cada 15 segundos</p>
                         </div>
                         <div class="feature-card">
                             <h4><i class="fas fa-list-ol"></i> Varios tramos</h4>
                             <p>Configura diferentes intervalos para grupos de corredores</p>
+                            <p><strong>Ejemplo:</strong> Del 1 al 10: cada 10s, del 11 al 50: cada 20s</p>
                         </div>
+                    </div>
+                    
+                    <div class="example-cadence">
+                        <h4><i class="fas fa-calculator"></i> Ejemplo práctico de configuración por tramos</h4>
+                        <p>Para una carrera con 60 participantes:</p>
+                        <div class="cadence-example">
+                            <p><strong>Tramo 1:</strong> Dorsales 1-3 → Cada 10 segundos</p>
+                            <p><strong>Tramo 2:</strong> Dorsales 4-20 → Cada 20 segundos</p>
+                            <p><strong>Tramo 3:</strong> Dorsales 21-60 → Cada 15 segundos</p>
+                        </div>
+                        <p>Esta configuración permite mayor densidad al principio y al final, con un intervalo más amplio en el centro para evitar aglomeraciones.</p>
                     </div>
                 </div>
 
                 <div class="step-box">
                     <span class="step-number">3</span>
+                    <strong>Configurar audio</strong>
+                    <ul>
+                        <li><strong>Altavoz Bluetooth:</strong> Conecta un altavoz para que el sonido llegue a toda la línea de salida</li>
+                        <li><strong>Pitidos electrónicos:</strong> Sonidos precisos para cada segundo</li>
+                        <li><strong>Voz grabada:</strong> Conteo vocal "10, 5, 4, 3, 2, 1, ¡SALIDA!"</li>
+                        <li><strong>Sin sonido:</strong> Solo indicadores visuales para entornos ruidosos</li>
+                    </ul>
+                </div>
+
+                <div class="step-box">
+                    <span class="step-number">4</span>
                     <strong>Iniciar la cuenta atrás</strong>
                     <ol>
                         <li>Define desde qué corredor comenzar</li>
@@ -493,6 +683,27 @@
                         <li>La pantalla cambiará al modo de ejecución</li>
                         <li>¡Todo está listo para comenzar!</li>
                     </ol>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-clipboard-list"></i> Listado de salidas y exportación</h2>
+                <div class="list-export">
+                    <h4><i class="fas fa-file-excel"></i> Funcionalidades avanzadas</h4>
+                    <ul>
+                        <li><strong>Listado completo:</strong> Al finalizar la carrera, obtén un listado detallado de todas las salidas</li>
+                        <li><strong>Añadir dorsales:</strong> Puedes asignar números de dorsal a cada posición de salida</li>
+                        <li><strong>Anotaciones personalizadas:</strong> Añade observaciones específicas para cada corredor</li>
+                        <li><strong>Exportación a Excel:</strong> Exporta el listado completo a formato CSV/Excel para su procesamiento</li>
+                        <li><strong>Uso posterior:</strong> Los datos exportados pueden usarse para:
+                            <ul>
+                                <li>Cálculo de tiempos finales</li>
+                                <li>Generación de clasificaciones</li>
+                                <li>Estadísticas de carrera</li>
+                                <li>Informes oficiales</li>
+                            </ul>
+                        </li>
+                    </ul>
                 </div>
             </div>
 
@@ -533,12 +744,17 @@
                     <div class="sound-option">
                         <i class="fas fa-microphone-alt"></i>
                         <h4>Voz grabada</h4>
-                        <p>Voz humana contando en español</p>
+                        <p>Voz humana contando en español: "10, 5, 4, 3, 2, 1, ¡SALIDA!"</p>
                     </div>
                     <div class="sound-option">
                         <i class="fas fa-volume-mute"></i>
                         <h4>Sin sonido</h4>
-                        <p>Solo efectos visuales</p>
+                        <p>Solo efectos visuales para zonas ruidosas</p>
+                    </div>
+                    <div class="sound-option">
+                        <i class="fas fa-bluetooth"></i>
+                        <h4>Altavoz externo</h4>
+                        <p>Conecta altavoz Bluetooth para mayor volumen</p>
                     </div>
                 </div>
             </div>
@@ -573,8 +789,30 @@
                             <td>Reducir tiempo</td>
                             <td>Resta 5 segundos al tiempo actual</td>
                         </tr>
+                        <tr>
+                            <td><kbd>S</kbd></td>
+                            <td>Alternar sonido</td>
+                            <td>Activa/desactiva el sonido</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>F</kbd></td>
+                            <td>Pantalla completa</td>
+                            <td>Alternar modo pantalla completa</td>
+                        </tr>
                     </table>
                 </div>
+            </div>
+
+            <div class="version-note">
+                <h4><i class="fas fa-code-branch"></i> Próximas versiones</h4>
+                <p><strong>Versión CRI (Contrarreloj Individual) en desarrollo:</strong></p>
+                <ul>
+                    <li>Inclusión de dorsal y nombre por corredor</li>
+                    <li>Asignación personalizada de tiempos de salida</li>
+                    <li>Integración con sistemas de cronometraje</li>
+                    <li>Exportación avanzada de datos</li>
+                </ul>
+                <p>Esta versión especial para contrarrelojes estará disponible próximamente.</p>
             </div>
 
             <div class="section">
@@ -582,10 +820,23 @@
                 <div class="troubleshooting">
                     <h4><i class="fas fa-exclamation-triangle"></i> Problemas comunes</h4>
                     <ul>
-                        <li><strong>No se escuchan los sonidos:</strong> Asegúrate de que el volumen del navegador está activado y que has permitido la reproducción de audio</li>
+                        <li><strong>No se escuchan los sonidos:</strong> 
+                            <ul>
+                                <li>Asegúrate de que el volumen del navegador está activado</li>
+                                <li>Permite la reproducción de audio en el navegador</li>
+                                <li>Verifica la conexión Bluetooth si usas altavoz externo</li>
+                            </ul>
+                        </li>
                         <li><strong>La pantalla se apaga:</strong> La aplicación incluye un sistema para mantener la pantalla activa</li>
-                        <li><strong>Los datos no se guardan:</strong> Los datos se guardan automáticamente en tu navegador</li>
+                        <li><strong>Los datos no se guardan:</strong> Los datos se guardan automáticamente en tu navegador (LocalStorage)</li>
                         <li><strong>La cuenta atrás no es precisa:</strong> Usa la función de sincronización en el menú de configuración</li>
+                        <li><strong>Problemas de conectividad Bluetooth:</strong>
+                            <ul>
+                                <li>Empareja el altavoz antes de abrir la aplicación</li>
+                                <li>Asegúrate de que el dispositivo está dentro del rango</li>
+                                <li>Reinicia la conexión si hay problemas de audio</li>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -620,18 +871,26 @@
                     <li><strong>Funciona sin internet:</strong> Esencial en zonas sin cobertura</li>
                     <li><strong>Actualizaciones automáticas:</strong> Siempre tendrás la última versión</li>
                     <li><strong>Mayor velocidad:</strong> Carga instantánea como app nativa</li>
+                    <li><strong>Pantalla completa:</strong> Sin barras del navegador</li>
                 </ul>
             </div>
 
             <div class="tip-box">
-                <h4>Contribuir al Proyecto</h4>
-                <p>Esta aplicación es gratuita y de código abierto. Si eres árbitro o comisario y tienes ideas para mejorarla:</p>
+                <h4><i class="fas fa-hands-helping"></i> Contribuir al Proyecto</h4>
+                <p>Esta aplicación es gratuita y de código abierto. Si eres árbitro, comisario u organizador y tienes ideas para mejorarla:</p>
                 <ol>
                     <li>Describe la función que necesitas</li>
-                    <li>Explica en qué tipo de carrera la usarías</li>
+                    <li>Explica en qué tipo de carrera o situación la usarías</li>
+                    <li>Menciona cualquier problema que hayas encontrado</li>
                     <li>Puedes contactarme a través de mis otras aplicaciones</li>
                 </ol>
                 <p><strong>Todas las sugerencias serán consideradas para futuras versiones.</strong></p>
+                <p><em>Ejemplos de mejoras ya implementadas gracias a sugerencias:</em></p>
+                <ul>
+                    <li>Exportación a Excel</li>
+                    <li>Modo por tramos</li>
+                    <li>Soporte para altavoces Bluetooth</li>
+                </ul>
             </div>
 
             <a href="Crono_cuenta_atras.html" class="back-button">
@@ -646,12 +905,82 @@
             <div class="intro-box">
                 <h4><i class="fas fa-info-circle"></i> Nota del Desenvolupador</h4>
                 <p>Aquesta aplicació l'ha desenvolupada Roberto Benet, comissari del comitè català, perquè qualsevol àrbitre la pugui utilitzar en curses esportives de forma gratuïta. Estic obert a qualsevol tipus de millora o implementació de noves funcions.</p>
+                <p>Seguint la sèrie d'Apps Web, aquesta aplicació està dissenyada per ajudar a donar les sortides en descens o altres sortides amb temps. Per a les CRI (Contrarrellotge Individual) estic preparant una versió que permetrà incloure el dorsal i nom de cada corredor.</p>
                 <p>Si et resulta útil aquesta aplicació, t'incito a explorar les meves altres aplicacions disponibles a <a href="https://rbenet71.github.io/Web" target="_blank" style="color: #3498db; text-decoration: underline;">https://rbenet71.github.io/Web</a>.</p>
             </div>
 
             <div class="section">
                 <h2><i class="fas fa-info-circle"></i> Què és Crono Compte Enrere?</h2>
                 <p>Crono Compte Enrere és una aplicació professional per controlar les sortides en curses esportives. Proporciona un compte enrere visual i sonor per organitzar sortides escalonades de corredors o participants.</p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-laptop"></i> Configuracions de hardware recomanades</h2>
+                <p>L'aplicació està dissenyada per funcionar en múltiples dispositius, permetent flexibilitat segons les teves necessitats:</p>
+                
+                <div class="hardware-grid">
+                    <div class="hardware-item">
+                        <i class="fas fa-laptop"></i>
+                        <h4>Portàtil</h4>
+                        <p>Per al control principal</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-tablet-alt"></i>
+                        <h4>Tauleta</h4>
+                        <p>Per a visualització secundària</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h4>Mòbil</h4>
+                        <p>Per a control portàtil</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-tv"></i>
+                        <h4>Pantalla TV</h4>
+                        <p>Per a visualització pública</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-bluetooth"></i>
+                        <h4>Altaveu Bluetooth</h4>
+                        <p>Per a àudio amplificat</p>
+                    </div>
+                </div>
+                
+                <div class="tip-box">
+                    <h4><i class="fas fa-lightbulb"></i> Idees de configuració</h4>
+                    <ul>
+                        <li><strong>Configuració bàsica:</strong> Utilitza un portàtil connectat a una pantalla gran de TV</li>
+                        <li><strong>Configuració mòbil:</strong> Tauleta + altaveu Bluetooth per a màxima portabilitat</li>
+                        <li><strong>Configuració doble:</strong> Portàtil per control + tauleta per a visualització en línia de sortida</li>
+                        <li><strong>Configuració professional:</strong> Tots els dispositius connectats i sincronitzats</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-running"></i> Tipus de curses compatibles</h2>
+                <div class="use-case-grid">
+                    <div class="use-case-card">
+                        <i class="fas fa-mountain"></i>
+                        <h4>Descensos</h4>
+                        <p>Sortides escalonades en descens de muntanya</p>
+                    </div>
+                    <div class="use-case-card">
+                        <i class="fas fa-road"></i>
+                        <h4>Contrarrellotge</h4>
+                        <p>Sortides individuals amb intervals</p>
+                    </div>
+                    <div class="use-case-card">
+                        <i class="fas fa-users"></i>
+                        <h4>Sortides massives</h4>
+                        <p>Grups que surten amb intervals</p>
+                    </div>
+                    <div class="use-case-card">
+                        <i class="fas fa-flag-checkered"></i>
+                        <h4>Altres disciplines</h4>
+                        <p>Qualsevol esport amb sortides cronometrades</p>
+                    </div>
+                </div>
             </div>
 
             <div class="section">
@@ -674,16 +1003,40 @@
                         <div class="feature-card">
                             <h4><i class="fas fa-equals"></i> Sempre igual</h4>
                             <p>Tots els corredors surten amb el mateix interval de temps</p>
+                            <p><strong>Exemple:</strong> Cada corredor surt cada 15 segons</p>
                         </div>
                         <div class="feature-card">
                             <h4><i class="fas fa-list-ol"></i> Varis trams</h4>
                             <p>Configura diferents intervals per a grups de corredors</p>
+                            <p><strong>Exemple:</strong> Del 1 al 10: cada 10s, del 11 al 50: cada 20s</p>
                         </div>
+                    </div>
+                    
+                    <div class="example-cadence">
+                        <h4><i class="fas fa-calculator"></i> Exemple pràctic de configuració per trams</h4>
+                        <p>Per a una cursa amb 60 participants:</p>
+                        <div class="cadence-example">
+                            <p><strong>Tram 1:</strong> Dorsals 1-3 → Cada 10 segons</p>
+                            <p><strong>Tram 2:</strong> Dorsals 4-20 → Cada 20 segons</p>
+                            <p><strong>Tram 3:</strong> Dorsals 21-60 → Cada 15 segons</p>
+                        </div>
+                        <p>Aquesta configuració permet major densitat al principi i al final, amb un interval més ampli al centre per evitar aglomeracions.</p>
                     </div>
                 </div>
 
                 <div class="step-box">
                     <span class="step-number">3</span>
+                    <strong>Configurar àudio</strong>
+                    <ul>
+                        <li><strong>Altaveu Bluetooth:</strong> Connecta un altaveu perquè el so arribi a tota la línia de sortida</li>
+                        <li><strong>Pitjats electrònics:</strong> Sons precisos per a cada segon</li>
+                        <li><strong>Veure enregistrada:</strong> Recompte vocal "10, 5, 4, 3, 2, 1, ¡SORTIDA!"</li>
+                        <li><strong>Sense so:</strong> Només indicadors visuals per a entorns sorollosos</li>
+                    </ul>
+                </div>
+
+                <div class="step-box">
+                    <span class="step-number">4</span>
                     <strong>Iniciar el compte enrere</strong>
                     <ol>
                         <li>Defineix des de quin corredor començar</li>
@@ -691,6 +1044,27 @@
                         <li>La pantalla canviarà al mode d'execució</li>
                         <li>¡Tot està llest per començar!</li>
                     </ol>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-clipboard-list"></i> Llistat de sortides i exportació</h2>
+                <div class="list-export">
+                    <h4><i class="fas fa-file-excel"></i> Funcionalitats avançades</h4>
+                    <ul>
+                        <li><strong>Llistat complet:</strong> En finalitzar la cursa, obtén un llistat detallat de totes les sortides</li>
+                        <li><strong>Afegir dorsals:</strong> Pots assignar números de dorsal a cada posició de sortida</li>
+                        <li><strong>Anotacions personalitzades:</strong> Afegeix observacions específiques per a cada corredor</li>
+                        <li><strong>Exportació a Excel:</strong> Exporta el llistat complet a format CSV/Excel per al seu processament</li>
+                        <li><strong>Ús posterior:</strong> Les dades exportades poden usar-se per:
+                            <ul>
+                                <li>Càlcul de temps finals</li>
+                                <li>Generació de classificacions</li>
+                                <li>Estadístiques de cursa</li>
+                                <li>Informes oficials</li>
+                            </ul>
+                        </li>
+                    </ul>
                 </div>
             </div>
 
@@ -731,12 +1105,17 @@
                     <div class="sound-option">
                         <i class="fas fa-microphone-alt"></i>
                         <h4>Veure enregistrada</h4>
-                        <p>Veure humana comptant en català</p>
+                        <p>Veure humana comptant en català: "10, 5, 4, 3, 2, 1, ¡SORTIDA!"</p>
                     </div>
                     <div class="sound-option">
                         <i class="fas fa-volume-mute"></i>
                         <h4>Sense so</h4>
-                        <p>Només efectes visuals</p>
+                        <p>Només efectes visuals per a zones sorolloses</p>
+                    </div>
+                    <div class="sound-option">
+                        <i class="fas fa-bluetooth"></i>
+                        <h4>Altaveu extern</h4>
+                        <p>Connecta altaveu Bluetooth per a major volum</p>
                     </div>
                 </div>
             </div>
@@ -771,8 +1150,30 @@
                             <td>Reduir temps</td>
                             <td>Resta 5 segons al temps actual</td>
                         </tr>
+                        <tr>
+                            <td><kbd>S</kbd></td>
+                            <td>Alternar so</td>
+                            <td>Activa/desactiva el so</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>F</kbd></td>
+                            <td>Pantalla completa</td>
+                            <td>Alternar mode pantalla completa</td>
+                        </tr>
                     </table>
                 </div>
+            </div>
+
+            <div class="version-note">
+                <h4><i class="fas fa-code-branch"></i> Pròximes versions</h4>
+                <p><strong>Versió CRI (Contrarrellotge Individual) en desenvolupament:</strong></p>
+                <ul>
+                    <li>Inclusió de dorsal i nom per corredor</li>
+                    <li>Assignació personalitzada de temps de sortida</li>
+                    <li>Integració amb sistemes de cronometratge</li>
+                    <li>Exportació avançada de dades</li>
+                </ul>
+                <p>Aquesta versió especial per a contrarrellotges estarà disponible properament.</p>
             </div>
 
             <div class="section">
@@ -780,10 +1181,23 @@
                 <div class="troubleshooting">
                     <h4><i class="fas fa-exclamation-triangle"></i> Problemes comuns</h4>
                     <ul>
-                        <li><strong>No s'escolten els sons:</strong> Assegura't que el volum del navegador està activat i que has permès la reproducció d'àudio</li>
+                        <li><strong>No s'escolten els sons:</strong> 
+                            <ul>
+                                <li>Assegura't que el volum del navegador està activat</li>
+                                <li>Permet la reproducció d'àudio en el navegador</li>
+                                <li>Verifica la connexió Bluetooth si utilitzes altaveu extern</li>
+                            </ul>
+                        </li>
                         <li><strong>La pantalla s'apaga:</strong> L'aplicació inclou un sistema per mantenir la pantalla activa</li>
-                        <li><strong>Les dades no es guarden:</strong> Les dades es guarden automàticament al teu navegador</li>
+                        <li><strong>Les dades no es guarden:</strong> Les dades es guarden automàticament al teu navegador (LocalStorage)</li>
                         <li><strong>El compte enrere no és precís:</strong> Utilitza la funció de sincronització al menú de configuració</li>
+                        <li><strong>Problemes de connectivitat Bluetooth:</strong>
+                            <ul>
+                                <li>Emparella l'altaveu abans d'obrir l'aplicació</li>
+                                <li>Assegura't que el dispositiu està dins de l'abast</li>
+                                <li>Reinicia la connexió si hi ha problemes d'àudio</li>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -800,12 +1214,82 @@
             <div class="intro-box">
                 <h4><i class="fas fa-info-circle"></i> Developer's Note</h4>
                 <p>This application has been developed by Roberto Benet, commissioner of the Catalan committee, so that any referee can use it in sporting events for free. I'm open to any type of improvement or implementation of new features.</p>
+                <p>Following the Web Apps series, this application is designed to help with downhill starts or other timed starts. For ITT (Individual Time Trial) I'm preparing a version that will allow including rider number and name for each competitor.</p>
                 <p>If you find this application useful, I invite you to explore my other applications available at <a href="https://rbenet71.github.io/Web" target="_blank" style="color: #3498db; text-decoration: underline;">https://rbenet71.github.io/Web</a>.</p>
             </div>
 
             <div class="section">
                 <h2><i class="fas fa-info-circle"></i> What is Countdown Timer?</h2>
                 <p>Countdown Timer is a professional application to control race starts in sporting events. It provides a visual and audible countdown to organize staggered starts of runners or participants.</p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-laptop"></i> Recommended hardware configurations</h2>
+                <p>The application is designed to work on multiple devices, allowing flexibility according to your needs:</p>
+                
+                <div class="hardware-grid">
+                    <div class="hardware-item">
+                        <i class="fas fa-laptop"></i>
+                        <h4>Laptop</h4>
+                        <p>For main control</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-tablet-alt"></i>
+                        <h4>Tablet</h4>
+                        <p>For secondary display</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h4>Mobile</h4>
+                        <p>For portable control</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-tv"></i>
+                        <h4>TV Screen</h4>
+                        <p>For public display</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-bluetooth"></i>
+                        <h4>Bluetooth Speaker</h4>
+                        <p>For amplified audio</p>
+                    </div>
+                </div>
+                
+                <div class="tip-box">
+                    <h4><i class="fas fa-lightbulb"></i> Setup ideas</h4>
+                    <ul>
+                        <li><strong>Basic setup:</strong> Use a laptop connected to a large TV screen</li>
+                        <li><strong>Mobile setup:</strong> Tablet + Bluetooth speaker for maximum portability</li>
+                        <li><strong>Dual setup:</strong> Laptop for control + tablet for start line display</li>
+                        <li><strong>Professional setup:</strong> All devices connected and synchronized</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-running"></i> Supported race types</h2>
+                <div class="use-case-grid">
+                    <div class="use-case-card">
+                        <i class="fas fa-mountain"></i>
+                        <h4>Downhill</h4>
+                        <p>Staggered starts in mountain downhill</p>
+                    </div>
+                    <div class="use-case-card">
+                        <i class="fas fa-road"></i>
+                        <h4>Time Trial</h4>
+                        <p>Individual starts with intervals</p>
+                    </div>
+                    <div class="use-case-card">
+                        <i class="fas fa-users"></i>
+                        <h4>Mass starts</h4>
+                        <p>Groups starting with intervals</p>
+                    </div>
+                    <div class="use-case-card">
+                        <i class="fas fa-flag-checkered"></i>
+                        <h4>Other disciplines</h4>
+                        <p>Any sport with timed starts</p>
+                    </div>
+                </div>
             </div>
 
             <div class="section">
@@ -828,16 +1312,40 @@
                         <div class="feature-card">
                             <h4><i class="fas fa-equals"></i> Always the same</h4>
                             <p>All racers start with the same time interval</p>
+                            <p><strong>Example:</strong> Each racer starts every 15 seconds</p>
                         </div>
                         <div class="feature-card">
                             <h4><i class="fas fa-list-ol"></i> Multiple intervals</h4>
                             <p>Configure different intervals for groups of racers</p>
+                            <p><strong>Example:</strong> From 1 to 10: every 10s, from 11 to 50: every 20s</p>
                         </div>
+                    </div>
+                    
+                    <div class="example-cadence">
+                        <h4><i class="fas fa-calculator"></i> Practical example of section configuration</h4>
+                        <p>For a race with 60 participants:</p>
+                        <div class="cadence-example">
+                            <p><strong>Section 1:</strong> Numbers 1-3 → Every 10 seconds</p>
+                            <p><strong>Section 2:</strong> Numbers 4-20 → Every 20 seconds</p>
+                            <p><strong>Section 3:</strong> Numbers 21-60 → Every 15 seconds</p>
+                        </div>
+                        <p>This configuration allows higher density at the beginning and end, with a wider interval in the center to avoid congestion.</p>
                     </div>
                 </div>
 
                 <div class="step-box">
                     <span class="step-number">3</span>
+                    <strong>Configure audio</strong>
+                    <ul>
+                        <li><strong>Bluetooth speaker:</strong> Connect a speaker so sound reaches the entire start line</li>
+                        <li><strong>Electronic beeps:</strong> Precise sounds for each second</li>
+                        <li><strong>Recorded voice:</strong> Vocal countdown "10, 5, 4, 3, 2, 1, GO!"</li>
+                        <li><strong>No sound:</strong> Only visual indicators for noisy environments</li>
+                    </ul>
+                </div>
+
+                <div class="step-box">
+                    <span class="step-number">4</span>
                     <strong>Start the countdown</strong>
                     <ol>
                         <li>Define from which racer to start</li>
@@ -845,6 +1353,27 @@
                         <li>The screen will change to execution mode</li>
                         <li>Everything is ready to go!</li>
                     </ol>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-clipboard-list"></i> Start list and export</h2>
+                <div class="list-export">
+                    <h4><i class="fas fa-file-excel"></i> Advanced features</h4>
+                    <ul>
+                        <li><strong>Complete list:</strong> When the race finishes, get a detailed list of all starts</li>
+                        <li><strong>Add race numbers:</strong> You can assign race numbers to each start position</li>
+                        <li><strong>Custom annotations:</strong> Add specific observations for each rider</li>
+                        <li><strong>Export to Excel:</strong> Export the complete list to CSV/Excel format for processing</li>
+                        <li><strong>Post-use:</strong> Exported data can be used for:
+                            <ul>
+                                <li>Final time calculation</li>
+                                <li>Classification generation</li>
+                                <li>Race statistics</li>
+                                <li>Official reports</li>
+                            </ul>
+                        </li>
+                    </ul>
                 </div>
             </div>
 
@@ -885,12 +1414,17 @@
                     <div class="sound-option">
                         <i class="fas fa-microphone-alt"></i>
                         <h4>Recorded Voice</h4>
-                        <p>Human voice counting in English</p>
+                        <p>Human voice counting in English: "10, 5, 4, 3, 2, 1, GO!"</p>
                     </div>
                     <div class="sound-option">
                         <i class="fas fa-volume-mute"></i>
                         <h4>No Sound</h4>
-                        <p>Visual effects only</p>
+                        <p>Visual effects only for noisy areas</p>
+                    </div>
+                    <div class="sound-option">
+                        <i class="fas fa-bluetooth"></i>
+                        <h4>External speaker</h4>
+                        <p>Connect Bluetooth speaker for louder volume</p>
                     </div>
                 </div>
             </div>
@@ -925,8 +1459,30 @@
                             <td>Decrease time</td>
                             <td>Subtracts 5 seconds from current time</td>
                         </tr>
+                        <tr>
+                            <td><kbd>S</kbd></td>
+                            <td>Toggle sound</td>
+                            <td>Turns sound on/off</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>F</kbd></td>
+                            <td>Fullscreen</td>
+                            <td>Toggles fullscreen mode</td>
+                        </tr>
                     </table>
                 </div>
+            </div>
+
+            <div class="version-note">
+                <h4><i class="fas fa-code-branch"></i> Upcoming versions</h4>
+                <p><strong>ITT (Individual Time Trial) version in development:</strong></p>
+                <ul>
+                    <li>Inclusion of race number and name per rider</li>
+                    <li>Custom start time assignment</li>
+                    <li>Integration with timing systems</li>
+                    <li>Advanced data export</li>
+                </ul>
+                <p>This special version for time trials will be available soon.</p>
             </div>
 
             <div class="section">
@@ -934,10 +1490,23 @@
                 <div class="troubleshooting">
                     <h4><i class="fas fa-exclamation-triangle"></i> Common problems</h4>
                     <ul>
-                        <li><strong>No sound is heard:</strong> Make sure browser volume is on and you have allowed audio playback</li>
+                        <li><strong>No sound is heard:</strong> 
+                            <ul>
+                                <li>Make sure browser volume is on</li>
+                                <li>Allow audio playback in the browser</li>
+                                <li>Check Bluetooth connection if using external speaker</li>
+                            </ul>
+                        </li>
                         <li><strong>Screen turns off:</strong> The application includes a system to keep the screen active</li>
-                        <li><strong>Data is not saved:</strong> Data is automatically saved in your browser</li>
+                        <li><strong>Data is not saved:</strong> Data is automatically saved in your browser (LocalStorage)</li>
                         <li><strong>Countdown is not accurate:</strong> Use the sync function in the configuration menu</li>
+                        <li><strong>Bluetooth connectivity issues:</strong>
+                            <ul>
+                                <li>Pair the speaker before opening the application</li>
+                                <li>Make sure the device is within range</li>
+                                <li>Restart connection if there are audio problems</li>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -954,12 +1523,82 @@
             <div class="intro-box">
                 <h4><i class="fas fa-info-circle"></i> Note du Développeur</h4>
                 <p>Cette application a été développée par Roberto Benet, commissaire du comité catalan, pour que tout arbitre puisse l'utiliser dans les événements sportifs gratuitement. Je suis ouvert à tout type d'amélioration ou d'implémentation de nouvelles fonctionnalités.</p>
+                <p>Suivant la série d'Apps Web, cette application est conçue pour aider aux départs en descente ou autres départs chronométrés. Pour les CLM (Contre-la-Montre) je prépare une version qui permettra d'inclure le dossard et le nom de chaque coureur.</p>
                 <p>Si vous trouvez cette application utile, je vous invite à explorer mes autres applications disponibles sur <a href="https://rbenet71.github.io/Web" target="_blank" style="color: #3498db; text-decoration: underline;">https://rbenet71.github.io/Web</a>.</p>
             </div>
 
             <div class="section">
                 <h2><i class="fas fa-info-circle"></i> Qu'est-ce que Compte à Rebours?</h2>
                 <p>Compte à Rebours est une application professionnelle pour contrôler les départs de course dans les événements sportifs. Il fournit un compte à rebours visuel et sonore pour organiser des départs échelonnés de coureurs ou participants.</p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-laptop"></i> Configurations matérielles recommandées</h2>
+                <p>L'application est conçue pour fonctionner sur plusieurs appareils, permettant une flexibilité selon vos besoins:</p>
+                
+                <div class="hardware-grid">
+                    <div class="hardware-item">
+                        <i class="fas fa-laptop"></i>
+                        <h4>Ordinateur portable</h4>
+                        <p>Pour le contrôle principal</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-tablet-alt"></i>
+                        <h4>Tablette</h4>
+                        <p>Pour affichage secondaire</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h4>Téléphone</h4>
+                        <p>Pour contrôle portable</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-tv"></i>
+                        <h4>Écran TV</h4>
+                        <p>Pour affichage public</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-bluetooth"></i>
+                        <h4>Haut-parleur Bluetooth</h4>
+                        <p>Pour audio amplifié</p>
+                    </div>
+                </div>
+                
+                <div class="tip-box">
+                    <h4><i class="fas fa-lightbulb"></i> Idées de configuration</h4>
+                    <ul>
+                        <li><strong>Configuration basique:</strong> Utilisez un ordinateur portable connecté à un grand écran TV</li>
+                        <li><strong>Configuration mobile:</strong> Tablette + haut-parleur Bluetooth pour une portabilité maximale</li>
+                        <li><strong>Configuration double:</strong> Ordinateur pour contrôle + tablette pour affichage en ligne de départ</li>
+                        <li><strong>Configuration professionnelle:</strong> Tous les appareils connectés et synchronisés</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-running"></i> Types de courses compatibles</h2>
+                <div class="use-case-grid">
+                    <div class="use-case-card">
+                        <i class="fas fa-mountain"></i>
+                        <h4>Descentes</h4>
+                        <p>Départs échelonnés en descente de montagne</p>
+                    </div>
+                    <div class="use-case-card">
+                        <i class="fas fa-road"></i>
+                        <h4>Contre-la-montre</h4>
+                        <p>Départs individuels avec intervalles</p>
+                    </div>
+                    <div class="use-case-card">
+                        <i class="fas fa-users"></i>
+                        <h4>Départs massifs</h4>
+                        <p>Groupes qui partent avec intervalles</p>
+                    </div>
+                    <div class="use-case-card">
+                        <i class="fas fa-flag-checkered"></i>
+                        <h4>Autres disciplines</h4>
+                        <p>Tout sport avec départs chronométrés</p>
+                    </div>
+                </div>
             </div>
 
             <div class="section">
@@ -982,16 +1621,40 @@
                         <div class="feature-card">
                             <h4><i class="fas fa-equals"></i> Toujours égal</h4>
                             <p>Tous les coureurs partent avec le même intervalle de temps</p>
+                            <p><strong>Exemple:</strong> Chaque coureur part toutes les 15 secondes</p>
                         </div>
                         <div class="feature-card">
                             <h4><i class="fas fa-list-ol"></i> Plusieurs intervalles</h4>
                             <p>Configurez différents intervalles pour des groupes de coureurs</p>
+                            <p><strong>Exemple:</strong> Du 1 au 10: chaque 10s, du 11 au 50: chaque 20s</p>
                         </div>
+                    </div>
+                    
+                    <div class="example-cadence">
+                        <h4><i class="fas fa-calculator"></i> Exemple pratique de configuration par sections</h4>
+                        <p>Pour une course avec 60 participants:</p>
+                        <div class="cadence-example">
+                            <p><strong>Section 1:</strong> Dossards 1-3 → Toutes les 10 secondes</p>
+                            <p><strong>Section 2:</strong> Dossards 4-20 → Toutes les 20 secondes</p>
+                            <p><strong>Section 3:</strong> Dossards 21-60 → Toutes les 15 secondes</p>
+                        </div>
+                        <p>Cette configuration permet une densité plus élevée au début et à la fin, avec un intervalle plus large au centre pour éviter les encombrements.</p>
                     </div>
                 </div>
 
                 <div class="step-box">
                     <span class="step-number">3</span>
+                    <strong>Configurer l'audio</strong>
+                    <ul>
+                        <li><strong>Haut-parleur Bluetooth:</strong> Connectez un haut-parleur pour que le son atteigne toute la ligne de départ</li>
+                        <li><strong>Bips électroniques:</strong> Sons précis pour chaque seconde</li>
+                        <li><strong>Voix enregistrée:</strong> Compte à rebours vocal "10, 5, 4, 3, 2, 1, DÉPART!"</li>
+                        <li><strong>Sans son:</strong> Seulement indicateurs visuels pour environnements bruyants</li>
+                    </ul>
+                </div>
+
+                <div class="step-box">
+                    <span class="step-number">4</span>
                     <strong>Démarrer le compte à rebours</strong>
                     <ol>
                         <li>Définissez à partir de quel coureur commencer</li>
@@ -999,6 +1662,27 @@
                         <li>L'écran passera en mode d'exécution</li>
                         <li>Tout est prêt à partir!</li>
                     </ol>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-clipboard-list"></i> Liste des départs et exportation</h2>
+                <div class="list-export">
+                    <h4><i class="fas fa-file-excel"></i> Fonctionnalités avancées</h4>
+                    <ul>
+                        <li><strong>Liste complète:</strong> À la fin de la course, obtenez une liste détaillée de tous les départs</li>
+                        <li><strong>Ajouter des dossards:</strong> Vous pouvez attribuer des numéros de dossard à chaque position de départ</li>
+                        <li><strong>Annotations personnalisées:</strong> Ajoutez des observations spécifiques pour chaque coureur</li>
+                        <li><strong>Exportation vers Excel:</strong> Exportez la liste complète au format CSV/Excel pour traitement</li>
+                        <li><strong>Utilisation ultérieure:</strong> Les données exportées peuvent être utilisées pour:
+                            <ul>
+                                <li>Calcul des temps finaux</li>
+                                <li>Génération de classements</li>
+                                <li>Statistiques de course</li>
+                                <li>Rapports officiels</li>
+                            </ul>
+                        </li>
+                    </ul>
                 </div>
             </div>
 
@@ -1039,12 +1723,17 @@
                     <div class="sound-option">
                         <i class="fas fa-microphone-alt"></i>
                         <h4>Voix enregistrée</h4>
-                        <p>Voix humaine comptant en français</p>
+                        <p>Voix humaine comptant en français: "10, 5, 4, 3, 2, 1, DÉPART!"</p>
                     </div>
                     <div class="sound-option">
                         <i class="fas fa-volume-mute"></i>
                         <h4>Sans son</h4>
-                        <p>Effets visuels seulement</p>
+                        <p>Effets visuels seulement pour zones bruyantes</p>
+                    </div>
+                    <div class="sound-option">
+                        <i class="fas fa-bluetooth"></i>
+                        <h4>Haut-parleur externe</h4>
+                        <p>Connectez un haut-parleur Bluetooth pour plus de volume</p>
                     </div>
                 </div>
             </div>
@@ -1079,8 +1768,30 @@
                             <td>Réduire temps</td>
                             <td>Soustrait 5 secondes du temps actuel</td>
                         </tr>
+                        <tr>
+                            <td><kbd>S</kbd></td>
+                            <td>Basculer son</td>
+                            <td>Active/désactive le son</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>F</kbd></td>
+                            <td>Plein écran</td>
+                            <td>Bascule le mode plein écran</td>
+                        </tr>
                     </table>
                 </div>
+            </div>
+
+            <div class="version-note">
+                <h4><i class="fas fa-code-branch"></i> Versions à venir</h4>
+                <p><strong>Version CLM (Contre-la-Montre) en développement:</strong></p>
+                <ul>
+                    <li>Inclusion du dossard et du nom par coureur</li>
+                    <li>Attribution personnalisée des heures de départ</li>
+                    <li>Intégration avec systèmes de chronométrage</li>
+                    <li>Exportation avancée de données</li>
+                </ul>
+                <p>Cette version spéciale pour contre-la-montre sera bientôt disponible.</p>
             </div>
 
             <div class="section">
@@ -1088,10 +1799,23 @@
                 <div class="troubleshooting">
                     <h4><i class="fas fa-exclamation-triangle"></i> Problèmes courants</h4>
                     <ul>
-                        <li><strong>Aucun son n'est entendu:</strong> Assurez-vous que le volume du navigateur est activé et que vous avez autorisé la lecture audio</li>
+                        <li><strong>Aucun son n'est entendu:</strong> 
+                            <ul>
+                                <li>Assurez-vous que le volume du navigateur est activé</li>
+                                <li>Autorisez la lecture audio dans le navigateur</li>
+                                <li>Vérifiez la connexion Bluetooth si vous utilisez un haut-parleur externe</li>
+                            </ul>
+                        </li>
                         <li><strong>L'écran s'éteint:</strong> L'application inclut un système pour garder l'écran actif</li>
-                        <li><strong>Les données ne sont pas sauvegardées:</strong> Les données sont automatiquement enregistrées dans votre navigateur</li>
+                        <li><strong>Les données ne sont pas sauvegardées:</strong> Les données sont automatiquement enregistrées dans votre navigateur (LocalStorage)</li>
                         <li><strong>Le compte à rebours n'est pas précis:</strong> Utilisez la fonction de synchronisation dans le menu de configuration</li>
+                        <li><strong>Problèmes de connectivité Bluetooth:</strong>
+                            <ul>
+                                <li>Appairez le haut-parleur avant d'ouvrir l'application</li>
+                                <li>Assurez-vous que l'appareil est à portée</li>
+                                <li>Redémarrez la connexion s'il y a des problèmes audio</li>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
             </div>
