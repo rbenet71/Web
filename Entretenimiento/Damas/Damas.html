@@ -3,101 +3,1217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Próximamente - [NOMBRE APP]</title>
+    <title>Damas PWA</title>
+    <meta name="description" content="Juego de damas como PWA - Juega offline contra la IA o un amigo">
+    <meta name="theme-color" content="#2c3e50">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>♟️</text></svg>">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        * {
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
+            color: #ecf0f1;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
         }
-        
-        .container {
+
+        header {
             text-align: center;
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            max-width: 500px;
-            width: 90%;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 800px;
         }
-        
+
         h1 {
-            color: #2c3e50;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: #f1c40f;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
             margin-bottom: 20px;
         }
-        
-        p {
-            color: #7f8c8d;
-            line-height: 1.6;
-            margin-bottom: 30px;
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 1000px;
+            gap: 25px;
         }
-        
-        .icon {
-            font-size: 4rem;
-            color: #3498db;
+
+        @media (min-width: 900px) {
+            .container {
+                flex-direction: row;
+                align-items: flex-start;
+                justify-content: center;
+            }
+        }
+
+        .game-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .controls-section {
+            background-color: rgba(44, 62, 80, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            width: 100%;
+            max-width: 350px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 20px;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .player-info {
+            text-align: center;
+            padding: 10px 20px;
+            border-radius: 8px;
+            min-width: 150px;
+        }
+
+        .player-info.active {
+            background-color: rgba(241, 196, 15, 0.2);
+            border: 2px solid #f1c40f;
+        }
+
+        .player-name {
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+
+        .player-pieces {
+            font-size: 1.2rem;
+            margin-top: 5px;
+        }
+
+        #game-board {
+            width: 100%;
+            max-width: 500px;
+            height: 500px;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            border: 4px solid #7f8c8d;
+            border-radius: 5px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
             margin-bottom: 20px;
         }
-        
-        .button {
-            background: linear-gradient(135deg, #3498db, #2980b9);
+
+        .cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cell.dark {
+            background-color: #8b4513;
+        }
+
+        .cell.light {
+            background-color: #f5deb3;
+        }
+
+        .piece {
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .piece:hover {
+            transform: scale(1.05);
+        }
+
+        .piece.player1 {
+            background: radial-gradient(circle at 30% 30%, #ecf0f1, #bdc3c7);
+            border: 2px solid #95a5a6;
+        }
+
+        .piece.player2 {
+            background: radial-gradient(circle at 30% 30%, #2c3e50, #000);
+            border: 2px solid #34495e;
+        }
+
+        .piece.king::after {
+            content: "♔";
+            font-size: 1.8rem;
+            color: #f1c40f;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .piece.player1.king::after {
+            color: #e74c3c;
+        }
+
+        .cell.valid-move {
+            position: relative;
+        }
+
+        .cell.valid-move::after {
+            content: "";
+            position: absolute;
+            width: 30%;
+            height: 30%;
+            background-color: rgba(46, 204, 113, 0.7);
+            border-radius: 50%;
+        }
+
+        .cell.valid-capture::after {
+            content: "";
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            border: 4px solid rgba(231, 76, 60, 0.8);
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
+
+        .controls-section h2 {
+            color: #f1c40f;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 2px solid #f1c40f;
+            padding-bottom: 10px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin: 12px 0;
+            background-color: #3498db;
             color: white;
             border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            font-size: 1rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
             cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            text-align: center;
         }
-        
-        .button:hover {
+
+        .btn:hover {
+            background-color: #2980b9;
             transform: translateY(-2px);
         }
-        
-        .progress {
-            background: #ecf0f1;
-            height: 10px;
-            border-radius: 5px;
-            margin: 30px 0;
-            overflow: hidden;
+
+        .btn:active {
+            transform: translateY(1px);
         }
-        
-        .progress-bar {
-            background: linear-gradient(90deg, #2ecc71, #27ae60);
-            height: 100%;
-            width: 60%;
-            animation: progressAnimation 2s ease-in-out infinite alternate;
+
+        .btn-danger {
+            background-color: #e74c3c;
         }
-        
-        @keyframes progressAnimation {
-            0% { width: 60%; }
-            100% { width: 70%; }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-success {
+            background-color: #2ecc71;
+        }
+
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+
+        .btn-warning {
+            background-color: #f39c12;
+        }
+
+        .btn-warning:hover {
+            background-color: #d35400;
+        }
+
+        .game-mode-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            padding: 12px;
+            background-color: #34495e;
+            border: 2px solid #7f8c8d;
+            border-radius: 8px;
+            color: #ecf0f1;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            background-color: #1abc9c;
+            border-color: #16a085;
+        }
+
+        .difficulty-selector {
+            margin: 20px 0;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            background-color: #34495e;
+            color: #ecf0f1;
+            border: 2px solid #7f8c8d;
+            font-size: 1rem;
+        }
+
+        .status-message {
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-message.winner {
+            background-color: rgba(46, 204, 113, 0.3);
+            color: #2ecc71;
+            font-weight: bold;
+        }
+
+        .pwa-install {
+            background-color: rgba(241, 196, 15, 0.2);
+            border: 2px dashed #f1c40f;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .pwa-install button {
+            background-color: #f1c40f;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .pwa-install button:hover {
+            background-color: #f39c12;
+        }
+
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        /* Animación para movimientos */
+        @keyframes movePiece {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .piece.moved {
+            animation: movePiece 0.5s ease;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            #game-board {
+                max-width: 90vw;
+                height: 90vw;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .player-info {
+                min-width: auto;
+            }
         }
     </style>
 </head>
 <body>
+    <header>
+        <h1>♟️ Damas PWA</h1>
+        <p class="subtitle">Juego de damas como Aplicación Web Progresiva - Juega offline o contra un amigo</p>
+    </header>
+
     <div class="container">
-        <div class="icon">
-            <i class="fas fa-tools"></i>
-        </div>
-        <h1>Próximamente</h1>
-        <p>Esta aplicación está en desarrollo. Estamos trabajando para ofrecerte la mejor herramienta.</p>
+        <section class="game-section">
+            <div class="game-info">
+                <div id="player1-info" class="player-info active">
+                    <div class="player-name">Jugador 1 (Blancas)</div>
+                    <div class="player-pieces">Piezas: <span id="player1-pieces">12</span></div>
+                </div>
+                <div id="player2-info" class="player-info">
+                    <div class="player-name">Jugador 2 (Negras)</div>
+                    <div class="player-pieces">Piezas: <span id="player2-pieces">12</span></div>
+                </div>
+            </div>
+            
+            <div id="game-board"></div>
+            
+            <div id="status-message" class="status-message">
+                Turno del Jugador 1 (Blancas)
+            </div>
+        </section>
         
-        <div class="progress">
-            <div class="progress-bar"></div>
-        </div>
-        
-        <a href="../index.html" class="button">
-            <i class="fas fa-arrow-left"></i> Volver al inicio
-        </a>
+        <section class="controls-section">
+            <h2>Controles del Juego</h2>
+            
+            <div class="game-mode-selector">
+                <button id="mode-pvp" class="mode-btn active">Jugador vs Jugador</button>
+                <button id="mode-ai" class="mode-btn">Jugar contra IA</button>
+            </div>
+            
+            <div id="ai-difficulty" class="difficulty-selector" style="display: none;">
+                <label for="difficulty">Dificultad de la IA:</label>
+                <select id="difficulty">
+                    <option value="easy">Fácil</option>
+                    <option value="medium" selected>Medio</option>
+                    <option value="hard">Difícil</option>
+                </select>
+            </div>
+            
+            <button id="new-game" class="btn btn-success">Nuevo Juego</button>
+            <button id="undo-move" class="btn btn-warning">Deshacer Movimiento</button>
+            <button id="hint" class="btn">Sugerencia</button>
+            <button id="rules" class="btn">Ver Reglas</button>
+            
+            <div class="pwa-install">
+                <p>Instala esta PWA para jugar offline</p>
+                <button id="install-btn" class="btn">Instalar App</button>
+            </div>
+        </section>
     </div>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+    <footer>
+        <p>Damas PWA - Aplicación Web Progresiva - Funciona offline</p>
+        <p>Desarrollada como ejemplo de PWA</p>
+    </footer>
+
+    <script>
+        // Variables del juego
+        let gameBoard = [];
+        let currentPlayer = 1; // 1 para jugador 1 (blancas), 2 para jugador 2 (negras)
+        let selectedPiece = null;
+        let validMoves = [];
+        let gameMode = 'pvp'; // 'pvp' o 'ai'
+        let gameHistory = [];
+        let gameActive = true;
+        let aiDifficulty = 'medium';
+
+        // Inicializar el juego
+        function initGame() {
+            createBoard();
+            resetGame();
+            renderBoard();
+            setupEventListeners();
+            updateStatusMessage(`Turno del Jugador ${currentPlayer} (${currentPlayer === 1 ? 'Blancas' : 'Negras'})`);
+            
+            // Registrar service worker para PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registrado con éxito:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Error al registrar Service Worker:', error);
+                    });
+            }
+        }
+
+        // Crear el tablero de damas
+        function createBoard() {
+            const board = document.getElementById('game-board');
+            board.innerHTML = '';
+            
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = `cell ${(row + col) % 2 === 0 ? 'light' : 'dark'}`;
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    
+                    // Solo las casillas oscuras pueden tener piezas
+                    if ((row + col) % 2 === 1) {
+                        cell.addEventListener('click', () => handleCellClick(row, col));
+                    }
+                    
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        // Reiniciar el juego
+        function resetGame() {
+            gameBoard = [];
+            currentPlayer = 1;
+            selectedPiece = null;
+            validMoves = [];
+            gameHistory = [];
+            gameActive = true;
+            
+            // Inicializar tablero vacío
+            for (let row = 0; row < 8; row++) {
+                gameBoard[row] = [];
+                for (let col = 0; col < 8; col++) {
+                    gameBoard[row][col] = null;
+                }
+            }
+            
+            // Colocar piezas del jugador 1 (blancas) en las primeras 3 filas
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 8; col++) {
+                    if ((row + col) % 2 === 1) {
+                        gameBoard[row][col] = { player: 1, king: false };
+                    }
+                }
+            }
+            
+            // Colocar piezas del jugador 2 (negras) en las últimas 3 filas
+            for (let row = 5; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    if ((row + col) % 2 === 1) {
+                        gameBoard[row][col] = { player: 2, king: false };
+                    }
+                }
+            }
+            
+            updatePlayerInfo();
+        }
+
+        // Renderizar el tablero
+        function renderBoard() {
+            // Guardar el estado actual en el historial antes de renderizar
+            if (gameActive) {
+                saveGameState();
+            }
+            
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.innerHTML = '';
+                cell.classList.remove('valid-move', 'valid-capture');
+                
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                
+                const piece = gameBoard[row][col];
+                if (piece) {
+                    const pieceElement = document.createElement('div');
+                    pieceElement.className = `piece player${piece.player} ${piece.king ? 'king' : ''}`;
+                    pieceElement.dataset.row = row;
+                    pieceElement.dataset.col = col;
+                    
+                    // Añadir evento de clic para seleccionar pieza
+                    if (piece.player === currentPlayer && gameActive) {
+                        pieceElement.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            handlePieceClick(row, col);
+                        });
+                    }
+                    
+                    cell.appendChild(pieceElement);
+                }
+            });
+            
+            // Resaltar movimientos válidos
+            validMoves.forEach(move => {
+                const cell = document.querySelector(`.cell[data-row="${move.row}"][data-col="${move.col}"]`);
+                if (cell) {
+                    if (move.capture) {
+                        cell.classList.add('valid-capture');
+                    } else {
+                        cell.classList.add('valid-move');
+                    }
+                }
+            });
+            
+            // Actualizar información de jugadores
+            updatePlayerInfo();
+        }
+
+        // Manejar clic en una pieza
+        function handlePieceClick(row, col) {
+            if (!gameActive) return;
+            
+            // Si ya hay una pieza seleccionada, limpiar selección
+            if (selectedPiece && selectedPiece.row === row && selectedPiece.col === col) {
+                selectedPiece = null;
+                validMoves = [];
+                renderBoard();
+                return;
+            }
+            
+            // Seleccionar nueva pieza
+            selectedPiece = { row, col };
+            validMoves = getValidMoves(row, col);
+            renderBoard();
+            
+            // Resaltar la pieza seleccionada
+            const pieceElement = document.querySelector(`.piece[data-row="${row}"][data-col="${col}"]`);
+            if (pieceElement) {
+                pieceElement.style.boxShadow = '0 0 0 3px #f1c40f';
+            }
+        }
+
+        // Manejar clic en una celda
+        function handleCellClick(row, col) {
+            if (!gameActive || !selectedPiece) return;
+            
+            // Verificar si el movimiento es válido
+            const move = validMoves.find(m => m.row === row && m.col === col);
+            if (!move) return;
+            
+            // Realizar movimiento
+            makeMove(selectedPiece.row, selectedPiece.col, row, col, move.capture);
+        }
+
+        // Obtener movimientos válidos para una pieza
+        function getValidMoves(row, col) {
+            const piece = gameBoard[row][col];
+            if (!piece) return [];
+            
+            const moves = [];
+            const directions = piece.king 
+                ? [[-1, -1], [-1, 1], [1, -1], [1, 1]] 
+                : (piece.player === 1 ? [[1, -1], [1, 1]] : [[-1, -1], [-1, 1]]);
+            
+            // Verificar movimientos simples
+            for (const [dr, dc] of directions) {
+                const newRow = row + dr;
+                const newCol = col + dc;
+                
+                if (isValidPosition(newRow, newCol) && !gameBoard[newRow][newCol]) {
+                    moves.push({ row: newRow, col: newCol, capture: false });
+                }
+            }
+            
+            // Verificar capturas
+            const captures = getCaptureMoves(row, col, piece.player, piece.king);
+            moves.push(...captures);
+            
+            // Si hay capturas disponibles, solo permitir capturas (regla de captura obligatoria)
+            const captureMoves = moves.filter(m => m.capture);
+            if (captureMoves.length > 0) {
+                return captureMoves;
+            }
+            
+            return moves;
+        }
+
+        // Obtener movimientos de captura
+        function getCaptureMoves(row, col, player, isKing, visited = new Set()) {
+            const key = `${row},${col}`;
+            if (visited.has(key)) return [];
+            visited.add(key);
+            
+            const moves = [];
+            const directions = isKing 
+                ? [[-1, -1], [-1, 1], [1, -1], [1, 1]] 
+                : (player === 1 ? [[1, -1], [1, 1]] : [[-1, -1], [-1, 1]]);
+            
+            for (const [dr, dc] of directions) {
+                const jumpRow = row + dr;
+                const jumpCol = col + dc;
+                const landRow = row + 2 * dr;
+                const landCol = col + 2 * dc;
+                
+                if (isValidPosition(jumpRow, jumpCol) && isValidPosition(landRow, landCol)) {
+                    const jumpedPiece = gameBoard[jumpRow][jumpCol];
+                    if (jumpedPiece && jumpedPiece.player !== player && !gameBoard[landRow][landCol]) {
+                        // Verificar capturas múltiples
+                        const newMoves = [{ row: landRow, col: landCol, capture: true, jumped: {row: jumpRow, col: jumpCol} }];
+                        
+                        // Si la pieza es reina, puede continuar capturando en cualquier dirección
+                        const additionalCaptures = getCaptureMoves(landRow, landCol, player, isKing, new Set(visited));
+                        additionalCaptures.forEach(move => {
+                            move.captureChain = [...(move.captureChain || []), {row: jumpRow, col: jumpCol}];
+                        });
+                        
+                        moves.push(...newMoves, ...additionalCaptures);
+                    }
+                }
+            }
+            
+            return moves;
+        }
+
+        // Realizar un movimiento
+        function makeMove(fromRow, fromCol, toRow, toCol, isCapture) {
+            const piece = gameBoard[fromRow][fromCol];
+            gameBoard[toRow][toCol] = {...piece};
+            gameBoard[fromRow][fromCol] = null;
+            
+            // Si es captura, eliminar la pieza saltada
+            if (isCapture) {
+                const dr = Math.sign(toRow - fromRow);
+                const dc = Math.sign(toCol - fromCol);
+                let captureRow = fromRow + dr;
+                let captureCol = fromCol + dc;
+                
+                // Encontrar la pieza a capturar (puede estar a más de una casilla de distancia en cadenas de captura)
+                while (captureRow !== toRow || captureCol !== toCol) {
+                    if (gameBoard[captureRow][captureCol]) {
+                        gameBoard[captureRow][captureCol] = null;
+                        break;
+                    }
+                    captureRow += dr;
+                    captureCol += dc;
+                }
+            }
+            
+            // Coronar si llega al extremo opuesto
+            if (!piece.king) {
+                if ((piece.player === 1 && toRow === 7) || (piece.player === 2 && toRow === 0)) {
+                    gameBoard[toRow][toCol].king = true;
+                }
+            }
+            
+            // Añadir animación a la pieza movida
+            const pieceElement = document.querySelector(`.piece[data-row="${toRow}"][data-col="${toCol}"]`);
+            if (pieceElement) {
+                pieceElement.classList.add('moved');
+                setTimeout(() => pieceElement.classList.remove('moved'), 500);
+            }
+            
+            // Cambiar turno si no hay más capturas disponibles
+            const canCaptureAgain = getCaptureMoves(toRow, toCol, piece.player, piece.king).length > 0;
+            
+            if (!isCapture || !canCaptureAgain) {
+                currentPlayer = currentPlayer === 1 ? 2 : 1;
+                selectedPiece = null;
+                validMoves = [];
+                
+                // Si es modo IA y es el turno de la IA
+                if (gameMode === 'ai' && currentPlayer === 2 && gameActive) {
+                    setTimeout(makeAIMove, 500);
+                }
+            } else {
+                // Continuar capturando con la misma pieza
+                selectedPiece = { row: toRow, col: toCol };
+                validMoves = getValidMoves(toRow, toCol);
+            }
+            
+            renderBoard();
+            checkGameOver();
+            
+            if (gameActive) {
+                updateStatusMessage(`Turno del Jugador ${currentPlayer} (${currentPlayer === 1 ? 'Blancas' : 'Negras'})`);
+            }
+        }
+
+        // Verificar si el juego ha terminado
+        function checkGameOver() {
+            const player1Pieces = countPieces(1);
+            const player2Pieces = countPieces(2);
+            
+            if (player1Pieces === 0) {
+                endGame(2);
+                return;
+            }
+            
+            if (player2Pieces === 0) {
+                endGame(1);
+                return;
+            }
+            
+            // Verificar si el jugador actual tiene movimientos válidos
+            if (!hasValidMoves(currentPlayer)) {
+                endGame(currentPlayer === 1 ? 2 : 1);
+            }
+        }
+
+        // Contar piezas de un jugador
+        function countPieces(player) {
+            let count = 0;
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    if (gameBoard[row][col] && gameBoard[row][col].player === player) {
+                        count++;
+                    }
+                }
+            }
+            return count;
+        }
+
+        // Verificar si un jugador tiene movimientos válidos
+        function hasValidMoves(player) {
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const piece = gameBoard[row][col];
+                    if (piece && piece.player === player) {
+                        if (getValidMoves(row, col).length > 0) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        // Finalizar el juego
+        function endGame(winner) {
+            gameActive = false;
+            const winnerName = winner === 1 ? 'Jugador 1 (Blancas)' : 'Jugador 2 (Negras)';
+            updateStatusMessage(`¡${winnerName} gana!`, true);
+            
+            // Mostrar confeti para el ganador
+            showConfetti();
+        }
+
+        // Mostrar confeti
+        function showConfetti() {
+            const confettiCount = 100;
+            const colors = ['#f1c40f', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6'];
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.borderRadius = '50%';
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.top = '-20px';
+                confetti.style.zIndex = '9999';
+                confetti.style.pointerEvents = 'none';
+                
+                document.body.appendChild(confetti);
+                
+                // Animación
+                const animation = confetti.animate([
+                    { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+                    { transform: `translateY(${window.innerHeight + 20}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+                ], {
+                    duration: 1000 + Math.random() * 2000,
+                    easing: 'cubic-bezier(0.215, 0.610, 0.355, 1)'
+                });
+                
+                animation.onfinish = () => confetti.remove();
+            }
+        }
+
+        // Verificar si una posición es válida
+        function isValidPosition(row, col) {
+            return row >= 0 && row < 8 && col >= 0 && col < 8;
+        }
+
+        // Actualizar información de los jugadores
+        function updatePlayerInfo() {
+            document.getElementById('player1-pieces').textContent = countPieces(1);
+            document.getElementById('player2-pieces').textContent = countPieces(2);
+            
+            // Actualizar jugador activo
+            document.getElementById('player1-info').classList.toggle('active', currentPlayer === 1);
+            document.getElementById('player2-info').classList.toggle('active', currentPlayer === 2);
+        }
+
+        // Actualizar mensaje de estado
+        function updateStatusMessage(message, isWinner = false) {
+            const statusElement = document.getElementById('status-message');
+            statusElement.textContent = message;
+            statusElement.classList.toggle('winner', isWinner);
+        }
+
+        // Guardar estado del juego en el historial
+        function saveGameState() {
+            // Crear una copia profunda del tablero
+            const boardCopy = JSON.parse(JSON.stringify(gameBoard));
+            gameHistory.push({
+                board: boardCopy,
+                player: currentPlayer,
+                selectedPiece: selectedPiece ? {...selectedPiece} : null
+            });
+            
+            // Mantener solo los últimos 20 estados
+            if (gameHistory.length > 20) {
+                gameHistory.shift();
+            }
+        }
+
+        // Deshacer movimiento
+        function undoMove() {
+            if (gameHistory.length < 2 || !gameActive) return;
+            
+            // Remover el estado actual
+            gameHistory.pop();
+            
+            // Obtener el estado anterior
+            const prevState = gameHistory.pop();
+            
+            // Restaurar el estado
+            gameBoard = JSON.parse(JSON.stringify(prevState.board));
+            currentPlayer = prevState.player;
+            selectedPiece = prevState.selectedPiece ? {...prevState.selectedPiece} : null;
+            validMoves = selectedPiece ? getValidMoves(selectedPiece.row, selectedPiece.col) : [];
+            
+            renderBoard();
+            updateStatusMessage(`Turno del Jugador ${currentPlayer} (${currentPlayer === 1 ? 'Blancas' : 'Negras'})`);
+        }
+
+        // Movimiento de la IA
+        function makeAIMove() {
+            if (!gameActive || currentPlayer !== 2) return;
+            
+            // Encontrar todas las piezas de la IA
+            const aiPieces = [];
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const piece = gameBoard[row][col];
+                    if (piece && piece.player === 2) {
+                        aiPieces.push({ row, col, piece });
+                    }
+                }
+            }
+            
+            // Obtener todos los movimientos posibles
+            const allMoves = [];
+            aiPieces.forEach(({ row, col, piece }) => {
+                const moves = getValidMoves(row, col);
+                moves.forEach(move => {
+                    allMoves.push({
+                        from: { row, col },
+                        to: { row: move.row, col: move.col },
+                        capture: move.capture,
+                        piece: piece
+                    });
+                });
+            });
+            
+            if (allMoves.length === 0) return;
+            
+            // Filtrar capturas si existen
+            const captureMoves = allMoves.filter(m => m.capture);
+            const movesToConsider = captureMoves.length > 0 ? captureMoves : allMoves;
+            
+            // Seleccionar movimiento según dificultad
+            let selectedMove;
+            if (aiDifficulty === 'easy') {
+                // Movimiento aleatorio
+                selectedMove = movesToConsider[Math.floor(Math.random() * movesToConsider.length)];
+            } else if (aiDifficulty === 'medium') {
+                // Priorizar capturas, luego movimientos que hagan reina
+                const kingingMoves = movesToConsider.filter(m => 
+                    !m.piece.king && m.to.row === 0
+                );
+                
+                if (kingingMoves.length > 0) {
+                    selectedMove = kingingMoves[Math.floor(Math.random() * kingingMoves.length)];
+                } else {
+                    // Priorizar capturas sobre movimientos simples
+                    if (captureMoves.length > 0) {
+                        selectedMove = captureMoves[Math.floor(Math.random() * captureMoves.length)];
+                    } else {
+                        selectedMove = movesToConsider[Math.floor(Math.random() * movesToConsider.length)];
+                    }
+                }
+            } else { // hard
+                // Buscar el movimiento que capture más piezas
+                let maxCaptures = 0;
+                const bestMoves = [];
+                
+                movesToConsider.forEach(move => {
+                    // Simular el movimiento y contar capturas en cadena
+                    const simulatedCaptures = simulateCaptures(move);
+                    if (simulatedCaptures > maxCaptures) {
+                        maxCaptures = simulatedCaptures;
+                        bestMoves.length = 0;
+                        bestMoves.push(move);
+                    } else if (simulatedCaptures === maxCaptures) {
+                        bestMoves.push(move);
+                    }
+                });
+                
+                selectedMove = bestMoves.length > 0 
+                    ? bestMoves[Math.floor(Math.random() * bestMoves.length)]
+                    : movesToConsider[Math.floor(Math.random() * movesToConsider.length)];
+            }
+            
+            // Realizar el movimiento seleccionado
+            if (selectedMove) {
+                selectedPiece = { row: selectedMove.from.row, col: selectedMove.from.col };
+                makeMove(
+                    selectedMove.from.row, 
+                    selectedMove.from.col, 
+                    selectedMove.to.row, 
+                    selectedMove.to.col, 
+                    selectedMove.capture
+                );
+            }
+        }
+
+        // Simular capturas en cadena para evaluar movimientos
+        function simulateCaptures(move) {
+            // Crear una copia del tablero para simulación
+            const tempBoard = JSON.parse(JSON.stringify(gameBoard));
+            
+            // Realizar el movimiento inicial
+            const piece = tempBoard[move.from.row][move.from.col];
+            tempBoard[move.to.row][move.to.col] = {...piece};
+            tempBoard[move.from.row][move.from.col] = null;
+            
+            let captures = move.capture ? 1 : 0;
+            
+            // Si es captura, verificar si puede continuar capturando
+            if (move.capture) {
+                // Encontrar y eliminar la pieza capturada
+                const dr = Math.sign(move.to.row - move.from.row);
+                const dc = Math.sign(move.to.col - move.from.col);
+                let captureRow = move.from.row + dr;
+                let captureCol = move.from.col + dc;
+                
+                while (captureRow !== move.to.row || captureCol !== move.to.col) {
+                    if (tempBoard[captureRow][captureCol]) {
+                        tempBoard[captureRow][captureCol] = null;
+                        break;
+                    }
+                    captureRow += dr;
+                    captureCol += dc;
+                }
+                
+                // Verificar capturas adicionales
+                const additionalCaptures = getCaptureMovesForSimulation(
+                    tempBoard, move.to.row, move.to.col, piece.player, piece.king
+                );
+                captures += additionalCaptures;
+            }
+            
+            return captures;
+        }
+
+        // Obtener capturas para simulación
+        function getCaptureMovesForSimulation(board, row, col, player, isKing, visited = new Set()) {
+            const key = `${row},${col}`;
+            if (visited.has(key)) return 0;
+            visited.add(key);
+            
+            let maxCaptures = 0;
+            const directions = isKing 
+                ? [[-1, -1], [-1, 1], [1, -1], [1, 1]] 
+                : (player === 1 ? [[1, -1], [1, 1]] : [[-1, -1], [-1, 1]]);
+            
+            for (const [dr, dc] of directions) {
+                const jumpRow = row + dr;
+                const jumpCol = col + dc;
+                const landRow = row + 2 * dr;
+                const landCol = col + 2 * dc;
+                
+                if (isValidPosition(jumpRow, jumpCol) && isValidPosition(landRow, landCol)) {
+                    const jumpedPiece = board[jumpRow][jumpCol];
+                    if (jumpedPiece && jumpedPiece.player !== player && !board[landRow][landCol]) {
+                        // Realizar captura en la simulación
+                        const newBoard = JSON.parse(JSON.stringify(board));
+                        newBoard[landRow][landCol] = {...newBoard[row][col]};
+                        newBoard[row][col] = null;
+                        newBoard[jumpRow][jumpCol] = null;
+                        
+                        // Continuar capturando
+                        const additionalCaptures = 1 + getCaptureMovesForSimulation(
+                            newBoard, landRow, landCol, player, isKing, new Set(visited)
+                        );
+                        
+                        maxCaptures = Math.max(maxCaptures, additionalCaptures);
+                    }
+                }
+            }
+            
+            return maxCaptures;
+        }
+
+        // Mostrar sugerencia
+        function showHint() {
+            if (!gameActive || gameMode === 'ai' && currentPlayer === 2) return;
+            
+            // Encontrar todas las piezas del jugador actual
+            const playerPieces = [];
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const piece = gameBoard[row][col];
+                    if (piece && piece.player === currentPlayer) {
+                        playerPieces.push({ row, col, piece });
+                    }
+                }
+            }
+            
+            // Obtener todos los movimientos posibles
+            const allMoves = [];
+            playerPieces.forEach(({ row, col, piece }) => {
+                const moves = getValidMoves(row, col);
+                moves.forEach(move => {
+                    allMoves.push({
+                        from: { row, col },
+                        to: { row: move.row, col: move.col },
+                        capture: move.capture,
+                        piece: piece
+                    });
+                });
+            });
+            
+            if (allMoves.length === 0) return;
+            
+            // Seleccionar el mejor movimiento (priorizar capturas)
+            const captureMoves = allMoves.filter(m => m.capture);
+            const movesToConsider = captureMoves.length > 0 ? captureMoves : allMoves;
+            
+            // Seleccionar un movimiento aleatorio de los mejores
+            const bestMove = movesToConsider[Math.floor(Math.random() * movesToConsider.length)];
+            
+            // Resaltar la pieza y el movimiento sugerido
+            selectedPiece = { row: bestMove.from.row, col: bestMove.from.col };
+            validMoves = [{ row: bestMove.to.row, col: bestMove.to.col, capture: bestMove.capture }];
+            
+            renderBoard();
+            
+            // Resaltar la pieza seleccionada
+            const pieceElement = document.querySelector(`.piece[data-row="${bestMove.from.row}"][data-col="${bestMove.from.col}"]`);
+            if (pieceElement) {
+                pieceElement.style.boxShadow = '0 0 0 3px #2ecc71';
+            }
+            
+            updateStatusMessage(`Sugerencia: Mueve de (${bestMove.from.col+1},${bestMove.from.row+1}) a (${bestMove.to.col+1},${bestMove.to.row+1})`);
+            
+            // Quitar la sugerencia después de 3 segundos
+            setTimeout(() => {
+                if (selectedPiece && selectedPiece.row === bestMove.from.row && selectedPiece.col === bestMove.from.col) {
+                    selectedPiece = null;
+                    validMoves = [];
+                    renderBoard();
+                    updateStatusMessage(`Turno del Jugador ${currentPlayer} (${currentPlayer === 1 ? 'Blancas' : 'Negras'})`);
+                }
+            }, 3000);
+        }
+
+        // Mostrar reglas del juego
+        function showRules() {
+            const rules = `
+                REGLAS DE DAMAS:
+                
+                1. Cada jugador comienza con 12 piezas.
+                2. Las piezas solo se mueven en diagonal hacia adelante (las reinas pueden moverse en cualquier dirección diagonal).
+                3. Para capturar una pieza enemiga, debes saltar sobre ella a una casilla vacía.
+                4. Las capturas son obligatorias cuando están disponibles.
+                5. Si una pieza llega al lado opuesto del tablero, se convierte en reina.
+                6. Las reinas pueden moverse y capturar en cualquier dirección diagonal.
+                7. Gana el jugador que capture todas las piezas del oponente o las inmovilice.
+                
+                CONTROLES:
+                - Haz clic en una pieza para seleccionarla
+                - Haz clic en una casilla resaltada para mover la pieza
+                - Usa "Deshacer" para revertir un movimiento
+                - Usa "Sugerencia" para obtener ayuda
+            `;
+            
+            alert(rules);
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Botones de modo de juego
+            document.getElementById('mode-pvp').addEventListener('click', () => {
+                gameMode = 'pvp';
+                document.getElementById('mode-pvp').classList.add('active');
+                document.getElementById('mode-ai').classList.remove('active');
+                document.getElementById('ai-difficulty').style.display = 'none';
+                resetGame();
+            });
+            
+            document.getElementById('mode-ai').addEventListener('click', () => {
+                gameMode = 'ai';
+                document.getElementById('mode-ai').classList.add('active');
+                document.getElementById('mode-pvp').classList.remove('active');
+                document.getElementById('ai-difficulty').style.display = 'block';
+                resetGame();
+            });
+            
+            // Dificultad de la IA
+            document.getElementById('difficulty').addEventListener('change', (e) => {
+                aiDifficulty = e.target.value;
+            });
+            
+            // Botones de control
+            document.getElementById('new-game').addEventListener('click', resetGame);
+            document.getElementById('undo-move').addEventListener('click', undoMove);
+            document.getElementById('hint').addEventListener('click', showHint);
+            document.getElementById('rules').addEventListener('click', showRules);
+            
+            // Botón de instalación PWA
+            let deferredPrompt;
+            const installBtn = document.getElementById('install-btn');
+            
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                installBtn.style.display = 'block';
+            });
+            
+            installBtn.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    installBtn.style.display = 'none';
+                }
+                
+                deferredPrompt = null;
+            });
+            
+            // Ocultar botón de instalación si la app ya está instalada
+            window.addEventListener('appinstalled', () => {
+                installBtn.style.display = 'none';
+            });
+            
+            // Verificar si la app ya está instalada
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                installBtn.style.display = 'none';
+            }
+        }
+
+        // Inicializar el juego cuando se carga la página
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
 </body>
 </html>
