@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="tetris.css">
     <link rel="manifest" href="tetris_manifest.json">
     <meta name="theme-color" content="#2c3e50">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
@@ -21,41 +22,93 @@
 
         <main>
             <div class="game-area">
-                <canvas id="tetris" width="300" height="600"></canvas>
+                <div class="game-container">
+                    <canvas id="tetris" width="300" height="600"></canvas>
+                </div>
                 <div class="side-panel">
                     <div class="next-piece">
-                        <h3>Siguiente:</h3>
+                        <h3><i class="fas fa-arrow-right"></i> Siguiente:</h3>
                         <canvas id="nextPiece" width="120" height="120"></canvas>
                     </div>
                     
-                    <div class="controls">
-                        <h3>Controles:</h3>
+                    <div class="controls-info">
+                        <h3><i class="fas fa-gamepad"></i> Controles:</h3>
                         <ul>
-                            <li>← → : Mover</li>
-                            <li>↑ : Rotar</li>
-                            <li>↓ : Bajar rápido</li>
-                            <li>Espacio : Caída instantánea</li>
-                            <li>P : Pausar</li>
+                            <li><i class="fas fa-hand-point-up"></i> Toca la pantalla para mover</li>
+                            <li><i class="fas fa-rotate"></i> Doble toque para rotar</li>
+                            <li><i class="fas fa-hand-pointer"></i> Usa los botones abajo</li>
                         </ul>
                     </div>
-
-                    <div class="buttons">
-                        <button id="startBtn" class="btn">Comenzar</button>
-                        <button id="pauseBtn" class="btn">Pausar</button>
-                        <button id="resetBtn" class="btn">Reiniciar</button>
-                    </div>
                 </div>
+            </div>
+
+            <!-- CONTROLES TÁCTILES -->
+            <div class="touch-controls">
+                <div class="touch-row">
+                    <!-- Botón de rotación -->
+                    <button class="touch-btn rotate-btn" id="rotateBtn">
+                        <i class="fas fa-redo"></i>
+                        <span>Rotar</span>
+                    </button>
+                </div>
+                
+                <div class="touch-row">
+                    <!-- Movimiento izquierda -->
+                    <button class="touch-btn move-btn" id="leftBtn">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Izquierda</span>
+                    </button>
+                    
+                    <!-- Botón de caída rápida -->
+                    <button class="touch-btn drop-btn" id="downBtn">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>Bajar</span>
+                    </button>
+                    
+                    <!-- Movimiento derecha -->
+                    <button class="touch-btn move-btn" id="rightBtn">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>Derecha</span>
+                    </button>
+                </div>
+                
+                <div class="touch-row">
+                    <!-- Botón de hard drop -->
+                    <button class="touch-btn hard-drop-btn" id="hardDropBtn">
+                        <i class="fas fa-angle-double-down"></i>
+                        <span>Caída Rápida</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- BOTONES DE CONTROL DEL JUEGO -->
+            <div class="game-controls">
+                <button id="startBtn" class="game-btn start-btn">
+                    <i class="fas fa-play"></i> Comenzar
+                </button>
+                <button id="pauseBtn" class="game-btn pause-btn">
+                    <i class="fas fa-pause"></i> Pausar
+                </button>
+                <button id="resetBtn" class="game-btn reset-btn">
+                    <i class="fas fa-redo"></i> Reiniciar
+                </button>
+                <button id="soundBtn" class="game-btn sound-btn">
+                    <i class="fas fa-volume-up"></i> Sonido
+                </button>
             </div>
         </main>
 
         <footer>
-            <p>Instala esta PWA para jugar offline!</p>
-            <button id="installBtn" class="install-btn" hidden>Instalar App</button>
+            <p><i class="fas fa-mobile-alt"></i> Instala esta PWA para jugar offline!</p>
+            <button id="installBtn" class="install-btn" hidden>
+                <i class="fas fa-download"></i> Instalar App
+            </button>
         </footer>
     </div>
-
+    <script src="sounds.js"></script>
     <script src="tetris.js"></script>
-    <script>
+
+<script>
         // PWA Installation
         let deferredPrompt;
         const installBtn = document.getElementById('installBtn');
@@ -78,6 +131,12 @@
             navigator.serviceWorker.register('tetris_sw.js')
                 .then(() => console.log('Service Worker registrado'))
                 .catch(err => console.log('Error:', err));
+        }
+
+        // Detectar si es móvil
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile) {
+            document.body.classList.add('mobile');
         }
     </script>
 </body>

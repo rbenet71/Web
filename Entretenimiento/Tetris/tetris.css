@@ -174,3 +174,329 @@ footer {
         height: auto;
     }
 }
+/* ... (mantén todos los estilos anteriores) ... */
+
+/* CONTROLES TÁCTILES */
+.touch-controls {
+    display: none; /* Oculto por defecto en desktop */
+    flex-direction: column;
+    gap: 15px;
+    margin: 25px auto;
+    max-width: 500px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.touch-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.touch-btn {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 15px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 100px;
+    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.touch-btn:active {
+    transform: scale(0.95);
+}
+
+.touch-btn i {
+    font-size: 1.8em;
+    margin-bottom: 5px;
+}
+
+/* Botones específicos */
+.move-btn {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    flex: 1;
+}
+
+.rotate-btn {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: white;
+}
+
+.drop-btn {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
+}
+
+.hard-drop-btn {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    width: 100%;
+}
+
+/* CONTROLES DEL JUEGO */
+.game-controls {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.game-btn {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.game-btn i {
+    font-size: 1.2em;
+}
+
+.start-btn {
+    background: linear-gradient(135deg, #00b894, #00a085);
+    color: white;
+}
+
+.pause-btn {
+    background: linear-gradient(135deg, #fdcb6e, #f9a825);
+    color: #2d3436;
+}
+
+.reset-btn {
+    background: linear-gradient(135deg, #e17055, #d63031);
+    color: white;
+}
+
+.sound-btn {
+    background: linear-gradient(135deg, #6c5ce7, #5b4fcf);
+    color: white;
+}
+
+.game-btn:active {
+    transform: scale(0.95);
+}
+
+/* SWIPES PARA MÓVIL */
+.game-container {
+    position: relative;
+    width: fit-content;
+    margin: 0 auto;
+}
+
+/* Instrucciones para swipe */
+.swipe-instruction {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    display: none;
+    z-index: 100;
+}
+
+/* RESPONSIVE PARA MÓVIL */
+@media (max-width: 768px) {
+    .game-area {
+        flex-direction: column;
+    }
+    
+    .side-panel {
+        order: -1;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+    
+    #tetris {
+        width: 100%;
+        max-width: 300px;
+        height: auto;
+    }
+    
+    /* Mostrar controles táctiles en móvil */
+    .touch-controls {
+        display: flex;
+    }
+    
+    /* Ajustar botones para móvil */
+    .touch-btn {
+        padding: 20px;
+        min-width: 80px;
+    }
+    
+    .game-btn {
+        padding: 12px 20px;
+        font-size: 1em;
+    }
+    
+    /* Ajustar canvas para móvil */
+    .game-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        overflow: hidden;
+    }
+}
+
+/* Para pantallas muy pequeñas */
+@media (max-width: 480px) {
+    .touch-btn {
+        padding: 15px;
+        min-width: 70px;
+        font-size: 0.9em;
+    }
+    
+    .touch-btn i {
+        font-size: 1.5em;
+    }
+    
+    .touch-row {
+        gap: 10px;
+    }
+    
+    .game-controls {
+        gap: 10px;
+    }
+    
+    .game-btn {
+        padding: 10px 15px;
+        font-size: 0.9em;
+    }
+}
+
+/* Estilos cuando es móvil */
+body.mobile .touch-controls {
+    display: flex;
+}
+
+/* Animación para feedback táctil */
+@keyframes buttonPress {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+
+.button-press {
+    animation: buttonPress 0.2s ease;
+}
+
+/* Deshabilitar selección de texto en botones */
+.touch-btn, .game-btn {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Estilos adicionales para mejor visualización */
+
+.game-container {
+    display: flex;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.controls-info ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.controls-info li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    font-size: 0.9em;
+}
+
+.controls-info li i {
+    color: #00b894;
+    width: 20px;
+    text-align: center;
+}
+
+/* Asegurar que los controles táctiles se vean en móvil */
+@media (max-width: 768px) {
+    .touch-controls {
+        display: flex !important;
+    }
+    
+    .game-controls {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .game-btn {
+        flex: 1;
+        min-width: 140px;
+        max-width: 200px;
+        justify-content: center;
+    }
+}
+
+/* Estilos para cuando el juego está pausado o terminado */
+.game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 100;
+}
+
+/* Mejorar botones de instalación */
+.install-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #6c5ce7, #5b4fcf);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1em;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+}
+
+.install-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* Feedback visual para móvil */
+.touch-btn:active, .game-btn:active {
+    transform: scale(0.95);
+    transition: transform 0.1s;
+}
