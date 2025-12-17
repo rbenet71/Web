@@ -3,101 +3,1453 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Próximamente - [NOMBRE APP]</title>
+    <title>Solitario Klondike - PWA</title>
+    <meta name="description" content="Juego de Solitario Klondike PWA - Juega offline">
+    <meta name="theme-color" content="#2c3e50">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🃏</text></svg>">
+    <link rel="manifest" href="./manifest.json">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a5f23 0%, #0d3312 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        header {
+            text-align: center;
+            padding: 15px 0;
+            margin-bottom: 10px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            color: #f1c40f;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #ecf0f1;
+            margin-bottom: 15px;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: #bdc3c7;
+        }
+
+        .info-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #f1c40f;
+        }
+
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        button:disabled {
+            background-color: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #new-game {
+            background-color: #2ecc71;
+        }
+
+        #new-game:hover {
+            background-color: #27ae60;
+        }
+
+        #hint-btn {
+            background-color: #9b59b6;
+        }
+
+        #hint-btn:hover {
+            background-color: #8e44ad;
+        }
+
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .foundations, .tableau {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .foundation, .tableau-column {
+            width: 100px;
+            height: 140px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        
-        .container {
-            text-align: center;
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            max-width: 500px;
-            width: 90%;
+
+        .foundation {
+            background-color: rgba(255, 255, 255, 0.05);
         }
-        
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-        
-        p {
-            color: #7f8c8d;
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-        
-        .icon {
-            font-size: 4rem;
-            color: #3498db;
-            margin-bottom: 20px;
-        }
-        
-        .button {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            font-size: 1rem;
+
+        .stock {
+            position: relative;
             cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: transform 0.3s ease;
         }
-        
-        .button:hover {
-            transform: translateY(-2px);
+
+        .stock::after {
+            content: "🃏";
+            font-size: 3rem;
+            opacity: 0.8;
         }
-        
-        .progress {
-            background: #ecf0f1;
-            height: 10px;
-            border-radius: 5px;
-            margin: 30px 0;
-            overflow: hidden;
+
+        .waste {
+            position: relative;
         }
-        
-        .progress-bar {
-            background: linear-gradient(90deg, #2ecc71, #27ae60);
+
+        .card {
+            width: 100px;
+            height: 140px;
+            background-color: white;
+            border-radius: 8px;
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card.red {
+            color: #e74c3c;
+        }
+
+        .card.black {
+            color: #2c3e50;
+        }
+
+        .card-corner {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card-corner.bottom {
+            transform: rotate(180deg);
+        }
+
+        .card-center {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+        }
+
+        .card.back {
+            background: linear-gradient(45deg, #3498db, #2c3e50);
+            color: transparent;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+        }
+
+        .card.back::after {
+            content: "🃏";
+        }
+
+        .card.empty {
+            background-color: transparent;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            box-shadow: none;
+            cursor: default;
+        }
+
+        .card.empty:hover {
+            transform: none;
+        }
+
+        .tableau-column {
+            min-height: 140px;
+            align-items: flex-start;
+            padding-top: 10px;
+            position: relative;
+        }
+
+        .tableau-column .card {
+            margin-top: -100px;
+        }
+
+        .tableau-column .card:first-child {
+            margin-top: 0;
+        }
+
+        .card.selected {
+            outline: 3px solid #f1c40f;
+            z-index: 100;
+        }
+
+        .card.valid-move {
+            outline: 3px dashed #2ecc71;
+        }
+
+        .instructions {
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .instructions h3 {
+            color: #f1c40f;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .pwa-install {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            cursor: pointer;
+        }
+
+        .pwa-install.show {
+            display: flex;
+        }
+
+        .pwa-install:hover {
+            background-color: #34495e;
+        }
+
+        .win-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
-            width: 60%;
-            animation: progressAnimation 2s ease-in-out infinite alternate;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
         }
-        
-        @keyframes progressAnimation {
-            0% { width: 60%; }
-            100% { width: 70%; }
+
+        .win-message.show {
+            display: flex;
+        }
+
+        .win-content {
+            background: linear-gradient(135deg, #2c3e50, #1a5f23);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .win-content h2 {
+            font-size: 3rem;
+            color: #f1c40f;
+            margin-bottom: 20px;
+        }
+
+        .win-content p {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .game-info {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .foundations, .tableau {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .foundation, .tableau-column {
+                width: 70px;
+                height: 98px;
+            }
+            
+            .card {
+                width: 70px;
+                height: 98px;
+                padding: 5px;
+            }
+            
+            .card-corner {
+                font-size: 1rem;
+            }
+            
+            .card-center {
+                font-size: 1.8rem;
+            }
+            
+            .tableau-column .card {
+                margin-top: -70px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .game-controls {
+                gap: 10px;
+            }
+            
+            button {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .foundation, .tableau-column {
+                width: 60px;
+                height: 84px;
+            }
+            
+            .card {
+                width: 60px;
+                height: 84px;
+            }
+            
+            .card-corner {
+                font-size: 0.8rem;
+            }
+            
+            .card-center {
+                font-size: 1.5rem;
+            }
+            
+            .tableau-column .card {
+                margin-top: -60px;
+            }
+        }
+
+        /* Animación para las cartas */
+        @keyframes dealCard {
+            0% { transform: scale(0.5) rotate(0deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .card.dealing {
+            animation: dealCard 0.3s ease-out;
+        }
+
+        /* Efecto de arrastre */
+        .card.dragging {
+            opacity: 0.8;
+            transform: rotate(5deg);
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="icon">
-            <i class="fas fa-tools"></i>
-        </div>
-        <h1>Próximamente</h1>
-        <p>Esta aplicación está en desarrollo. Estamos trabajando para ofrecerte la mejor herramienta.</p>
+        <header>
+            <h1>🎴 Solitario Klondike</h1>
+            <p class="subtitle">Juego clásico de cartas - PWA offline</p>
+        </header>
         
-        <div class="progress">
-            <div class="progress-bar"></div>
+        <div class="game-info">
+            <div class="info-item">
+                <span class="info-label">MOVIMIENTOS</span>
+                <span id="moves" class="info-value">0</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">TIEMPO</span>
+                <span id="timer" class="info-value">00:00</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">PUNTUACIÓN</span>
+                <span id="score" class="info-value">0</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">CARTAS RESTANTES</span>
+                <span id="remaining" class="info-value">24</span>
+            </div>
         </div>
         
-        <a href="../index.html" class="button">
-            <i class="fas fa-arrow-left"></i> Volver al inicio
-        </a>
+        <div class="game-controls">
+            <button id="new-game">Nuevo Juego</button>
+            <button id="undo-btn" disabled>Deshacer</button>
+            <button id="hint-btn">Pista</button>
+            <button id="auto-complete" disabled>Auto-Completar</button>
+        </div>
+        
+        <div class="game-area">
+            <div class="foundations">
+                <div class="stock foundation" id="stock"></div>
+                <div class="waste foundation" id="waste"></div>
+                <div class="foundation" id="foundation-1"></div>
+                <div class="foundation" id="foundation-2"></div>
+                <div class="foundation" id="foundation-3"></div>
+                <div class="foundation" id="foundation-4"></div>
+            </div>
+            
+            <div class="tableau">
+                <div class="tableau-column" id="tableau-1"></div>
+                <div class="tableau-column" id="tableau-2"></div>
+                <div class="tableau-column" id="tableau-3"></div>
+                <div class="tableau-column" id="tableau-4"></div>
+                <div class="tableau-column" id="tableau-5"></div>
+                <div class="tableau-column" id="tableau-6"></div>
+                <div class="tableau-column" id="tableau-7"></div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>📋 Cómo jugar Solitario Klondike</h3>
+            <ul>
+                <li><strong>Objetivo:</strong> Mover todas las cartas a los cuatro pilares de fundación (parte superior derecha) ordenados por palo y de As a Rey.</li>
+                <li><strong>Tableau:</strong> Las 7 columnas inferiores deben ordenarse en colores alternos (rojo/negro) en orden descendente.</li>
+                <li><strong>Stock:</strong> Haz clic en el mazo (parte superior izquierda) para revelar cartas y moverlas al waste o al tableau.</li>
+                <li><strong>Movimiento:</strong> Haz clic en una carta para seleccionarla, luego haz clic en donde quieras moverla.</li>
+                <li><strong>Rey:</strong> Solo un Rey (K) puede colocarse en un espacio vacío del tableau.</li>
+            </ul>
+        </div>
     </div>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <div class="pwa-install" id="installPWA">
+        <span>📱 Instalar App</span>
+    </div>
+    
+    <div class="win-message" id="winMessage">
+        <div class="win-content">
+            <h2>¡Felicidades! 🎉</h2>
+            <p>Has completado el Solitario en <span id="winTime">00:00</span> con <span id="winMoves">0</span> movimientos.</p>
+            <p>Puntuación final: <span id="winScore">0</span></p>
+            <button id="play-again">Jugar Otra Vez</button>
+        </div>
+    </div>
+
+    <script>
+        // Variables del juego
+        let gameState = {
+            stock: [],
+            waste: [],
+            foundations: [[], [], [], []],
+            tableau: [[], [], [], [], [], [], []],
+            moves: 0,
+            score: 0,
+            time: 0,
+            timerInterval: null,
+            selectedCard: null,
+            selectedSource: null,
+            moveHistory: [],
+            gameStarted: false,
+            gameCompleted: false
+        };
+
+        // Constantes del juego
+        const SUITS = ['♠', '♣', '♥', '♦'];
+        const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        const COLORS = {
+            '♠': 'black',
+            '♣': 'black',
+            '♥': 'red',
+            '♦': 'red'
+        };
+
+        // Elementos DOM
+        const movesElement = document.getElementById('moves');
+        const timerElement = document.getElementById('timer');
+        const scoreElement = document.getElementById('score');
+        const remainingElement = document.getElementById('remaining');
+        const newGameButton = document.getElementById('new-game');
+        const undoButton = document.getElementById('undo-btn');
+        const hintButton = document.getElementById('hint-btn');
+        const autoCompleteButton = document.getElementById('auto-complete');
+        const stockElement = document.getElementById('stock');
+        const wasteElement = document.getElementById('waste');
+        const foundationsElements = [
+            document.getElementById('foundation-1'),
+            document.getElementById('foundation-2'),
+            document.getElementById('foundation-3'),
+            document.getElementById('foundation-4')
+        ];
+        const tableauElements = [
+            document.getElementById('tableau-1'),
+            document.getElementById('tableau-2'),
+            document.getElementById('tableau-3'),
+            document.getElementById('tableau-4'),
+            document.getElementById('tableau-5'),
+            document.getElementById('tableau-6'),
+            document.getElementById('tableau-7')
+        ];
+        const winMessage = document.getElementById('winMessage');
+        const winTime = document.getElementById('winTime');
+        const winMoves = document.getElementById('winMoves');
+        const winScore = document.getElementById('winScore');
+        const playAgainButton = document.getElementById('play-again');
+        const installPWA = document.getElementById('installPWA');
+
+        // Inicializar el juego
+        function initGame() {
+            resetGame();
+            createDeck();
+            shuffleDeck();
+            dealCards();
+            updateUI();
+            startTimer();
+            gameState.gameStarted = true;
+            
+            // Guardar estado inicial
+            saveGameState();
+        }
+
+        // Reiniciar el juego
+        function resetGame() {
+            clearInterval(gameState.timerInterval);
+            
+            gameState = {
+                stock: [],
+                waste: [],
+                foundations: [[], [], [], []],
+                tableau: [[], [], [], [], [], [], []],
+                moves: 0,
+                score: 0,
+                time: 0,
+                timerInterval: null,
+                selectedCard: null,
+                selectedSource: null,
+                moveHistory: [],
+                gameStarted: false,
+                gameCompleted: false
+            };
+            
+            // Limpiar UI
+            stockElement.innerHTML = '';
+            wasteElement.innerHTML = '';
+            foundationsElements.forEach(el => el.innerHTML = '');
+            tableauElements.forEach(el => el.innerHTML = '');
+            
+            movesElement.textContent = '0';
+            timerElement.textContent = '00:00';
+            scoreElement.textContent = '0';
+            remainingElement.textContent = '24';
+            undoButton.disabled = true;
+            autoCompleteButton.disabled = true;
+            
+            winMessage.classList.remove('show');
+        }
+
+        // Crear baraja
+        function createDeck() {
+            const deck = [];
+            for (let suit of SUITS) {
+                for (let rank of RANKS) {
+                    deck.push({
+                        suit,
+                        rank,
+                        color: COLORS[suit],
+                        id: `${rank}-${suit}`
+                    });
+                }
+            }
+            gameState.stock = deck;
+        }
+
+        // Barajar cartas
+        function shuffleDeck() {
+            for (let i = gameState.stock.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [gameState.stock[i], gameState.stock[j]] = [gameState.stock[j], gameState.stock[i]];
+            }
+        }
+
+        // Repartir cartas
+        function dealCards() {
+            // Repartir en el tableau
+            for (let i = 0; i < 7; i++) {
+                for (let j = 0; j <= i; j++) {
+                    const card = gameState.stock.pop();
+                    if (j === i) {
+                        // Última carta de cada columna boca arriba
+                        card.faceUp = true;
+                    } else {
+                        card.faceUp = false;
+                    }
+                    gameState.tableau[i].push(card);
+                }
+            }
+            
+            // Las cartas restantes van al stock
+            gameState.stock.forEach(card => {
+                card.faceUp = false;
+            });
+        }
+
+        // Actualizar la interfaz
+        function updateUI() {
+            // Actualizar stock
+            stockElement.innerHTML = '';
+            if (gameState.stock.length > 0) {
+                const cardElement = createCardElement({faceUp: false}, 'stock');
+                stockElement.appendChild(cardElement);
+            }
+            
+            // Actualizar waste
+            wasteElement.innerHTML = '';
+            if (gameState.waste.length > 0) {
+                const card = gameState.waste[gameState.waste.length - 1];
+                const cardElement = createCardElement(card, 'waste');
+                wasteElement.appendChild(cardElement);
+            }
+            
+            // Actualizar foundations
+            foundationsElements.forEach((el, index) => {
+                el.innerHTML = '';
+                if (gameState.foundations[index].length > 0) {
+                    const card = gameState.foundations[index][gameState.foundations[index].length - 1];
+                    const cardElement = createCardElement(card, `foundation-${index}`);
+                    el.appendChild(cardElement);
+                }
+            });
+            
+            // Actualizar tableau
+            tableauElements.forEach((el, index) => {
+                el.innerHTML = '';
+                const column = gameState.tableau[index];
+                
+                if (column.length === 0) {
+                    // Columna vacía
+                    const emptyCard = document.createElement('div');
+                    emptyCard.className = 'card empty';
+                    el.appendChild(emptyCard);
+                } else {
+                    // Mostrar cartas de la columna
+                    column.forEach((card, cardIndex) => {
+                        const cardElement = createCardElement(card, `tableau-${index}-${cardIndex}`);
+                        if (card.faceUp) {
+                            cardElement.classList.remove('back');
+                        }
+                        el.appendChild(cardElement);
+                    });
+                }
+            });
+            
+            // Actualizar información del juego
+            movesElement.textContent = gameState.moves;
+            scoreElement.textContent = gameState.score;
+            
+            const remainingCards = gameState.stock.length + gameState.waste.length;
+            remainingElement.textContent = remainingCards;
+            
+            // Actualizar botones
+            undoButton.disabled = gameState.moveHistory.length === 0;
+            
+            // Verificar si el juego está completo
+            checkGameCompletion();
+        }
+
+        // Crear elemento de carta
+        function createCardElement(card, id) {
+            const cardElement = document.createElement('div');
+            cardElement.className = `card ${card.color || ''} ${card.faceUp === false ? 'back' : ''}`;
+            cardElement.dataset.id = id;
+            
+            if (card.faceUp !== false) {
+                cardElement.innerHTML = `
+                    <div class="card-corner">
+                        <div>${card.rank}</div>
+                        <div>${card.suit}</div>
+                    </div>
+                    <div class="card-center">${card.suit}</div>
+                    <div class="card-corner bottom">
+                        <div>${card.rank}</div>
+                        <div>${card.suit}</div>
+                    </div>
+                `;
+            }
+            
+            // Añadir eventos
+            cardElement.addEventListener('click', handleCardClick);
+            
+            // Para dispositivos táctiles
+            cardElement.addEventListener('touchstart', handleTouchStart, {passive: true});
+            
+            return cardElement;
+        }
+
+        // Manejar clic en carta
+        function handleCardClick(e) {
+            if (gameState.gameCompleted) return;
+            
+            const cardElement = e.currentTarget;
+            const cardId = cardElement.dataset.id;
+            
+            // Si ya hay una carta seleccionada, intentar mover
+            if (gameState.selectedCard) {
+                moveCard(cardId);
+                return;
+            }
+            
+            // Deseleccionar cualquier carta seleccionada previamente
+            document.querySelectorAll('.card.selected').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Seleccionar carta
+            selectCard(cardId);
+        }
+
+        // Seleccionar carta
+        function selectCard(cardId) {
+            const [sourceType, ...params] = cardId.split('-');
+            
+            let card = null;
+            let source = null;
+            
+            switch(sourceType) {
+                case 'stock':
+                    // No se puede seleccionar una carta boca abajo del stock
+                    return;
+                    
+                case 'waste':
+                    if (gameState.waste.length > 0) {
+                        card = gameState.waste[gameState.waste.length - 1];
+                        source = {type: 'waste', index: gameState.waste.length - 1};
+                    }
+                    break;
+                    
+                case 'foundation':
+                    const foundationIndex = parseInt(params[0]);
+                    if (gameState.foundations[foundationIndex].length > 0) {
+                        card = gameState.foundations[foundationIndex][gameState.foundations[foundationIndex].length - 1];
+                        source = {type: 'foundation', index: foundationIndex};
+                    }
+                    break;
+                    
+                case 'tableau':
+                    const columnIndex = parseInt(params[0]);
+                    const cardIndex = parseInt(params[1]);
+                    const column = gameState.tableau[columnIndex];
+                    
+                    // Solo se puede seleccionar cartas boca arriba
+                    if (cardIndex >= 0 && cardIndex < column.length && column[cardIndex].faceUp) {
+                        card = column[cardIndex];
+                        source = {type: 'tableau', column: columnIndex, index: cardIndex};
+                    }
+                    break;
+            }
+            
+            if (card) {
+                gameState.selectedCard = card;
+                gameState.selectedSource = source;
+                
+                // Resaltar carta seleccionada
+                const cardElement = document.querySelector(`[data-id="${cardId}"]`);
+                if (cardElement) {
+                    cardElement.classList.add('selected');
+                }
+                
+                // Mostrar movimientos válidos
+                highlightValidMoves(card);
+            }
+        }
+
+        // Resaltar movimientos válidos
+        function highlightValidMoves(card) {
+            // Para foundations
+            foundationsElements.forEach((el, index) => {
+                if (isValidFoundationMove(card, index)) {
+                    el.classList.add('valid-move');
+                }
+            });
+            
+            // Para tableau
+            tableauElements.forEach((el, index) => {
+                if (isValidTableauMove(card, index)) {
+                    el.classList.add('valid-move');
+                }
+            });
+        }
+
+        // Mover carta
+        function moveCard(destinationId) {
+            const [destType, ...params] = destinationId.split('-');
+            
+            let validMove = false;
+            let destination = null;
+            
+            // Verificar si el movimiento es válido
+            if (gameState.selectedCard) {
+                switch(destType) {
+                    case 'foundation':
+                        const foundationIndex = parseInt(params[0]);
+                        validMove = isValidFoundationMove(gameState.selectedCard, foundationIndex);
+                        destination = {type: 'foundation', index: foundationIndex};
+                        break;
+                        
+                    case 'tableau':
+                        const columnIndex = parseInt(params[0]);
+                        validMove = isValidTableauMove(gameState.selectedCard, columnIndex);
+                        destination = {type: 'tableau', column: columnIndex};
+                        break;
+                        
+                    case 'waste':
+                    case 'stock':
+                        // No se puede mover a estos lugares
+                        break;
+                }
+            }
+            
+            if (validMove && gameState.selectedCard && gameState.selectedSource) {
+                // Guardar estado actual para deshacer
+                saveMoveToHistory();
+                
+                // Realizar movimiento
+                performMove(gameState.selectedSource, destination);
+                
+                // Actualizar contadores
+                gameState.moves++;
+                
+                // Calcular puntuación
+                updateScore(destination);
+                
+                // Actualizar UI
+                updateUI();
+                
+                // Limpiar selección
+                clearSelection();
+            } else {
+                // Si no es un movimiento válido, limpiar selección
+                clearSelection();
+            }
+        }
+
+        // Verificar movimiento válido a foundation
+        function isValidFoundationMove(card, foundationIndex) {
+            const foundation = gameState.foundations[foundationIndex];
+            
+            // Si la fundación está vacía, solo se puede colocar un As
+            if (foundation.length === 0) {
+                return card.rank === 'A';
+            }
+            
+            // Obtener la carta superior de la fundación
+            const topCard = foundation[foundation.length - 1];
+            
+            // Verificar mismo palo y siguiente rango
+            const rankIndex = RANKS.indexOf(card.rank);
+            const topRankIndex = RANKS.indexOf(topCard.rank);
+            
+            return card.suit === topCard.suit && rankIndex === topRankIndex + 1;
+        }
+
+        // Verificar movimiento válido a tableau
+        function isValidTableauMove(card, columnIndex) {
+            const column = gameState.tableau[columnIndex];
+            
+            // Si la columna está vacía, solo se puede colocar un Rey
+            if (column.length === 0) {
+                return card.rank === 'K';
+            }
+            
+            // Obtener la última carta de la columna
+            const lastCard = column[column.length - 1];
+            
+            // Verificar color alterno y rango descendente
+            const rankIndex = RANKS.indexOf(card.rank);
+            const lastRankIndex = RANKS.indexOf(lastCard.rank);
+            
+            return card.color !== lastCard.color && rankIndex === lastRankIndex - 1;
+        }
+
+        // Realizar movimiento
+        function performMove(source, destination) {
+            let card = null;
+            
+            // Obtener carta desde la fuente
+            switch(source.type) {
+                case 'waste':
+                    card = gameState.waste.pop();
+                    break;
+                    
+                case 'foundation':
+                    card = gameState.foundations[source.index].pop();
+                    break;
+                    
+                case 'tableau':
+                    // Obtener carta y todas las cartas debajo de ella
+                    const column = gameState.tableau[source.column];
+                    card = column.splice(source.index);
+                    
+                    // Si solo movemos una carta
+                    if (card.length === 1) {
+                        card = card[0];
+                        
+                        // Voltear la nueva última carta si existe
+                        if (column.length > 0) {
+                            const newLastCard = column[column.length - 1];
+                            if (!newLastCard.faceUp) {
+                                newLastCard.faceUp = true;
+                                gameState.score += 5; // Puntos por voltear carta
+                            }
+                        }
+                    } else {
+                        // Movemos múltiples cartas
+                        // Para simplificar, solo movemos la carta superior en esta implementación
+                        card = card[0];
+                    }
+                    break;
+            }
+            
+            // Colocar carta en el destino
+            if (card) {
+                switch(destination.type) {
+                    case 'foundation':
+                        gameState.foundations[destination.index].push(card);
+                        break;
+                        
+                    case 'tableau':
+                        gameState.tableau[destination.column].push(card);
+                        break;
+                }
+            }
+        }
+
+        // Actualizar puntuación
+        function updateScore(destination) {
+            // Puntos por mover carta a foundation
+            if (destination.type === 'foundation') {
+                gameState.score += 10;
+            }
+            
+            // Puntos por mover carta de waste a tableau
+            if (gameState.selectedSource.type === 'waste' && destination.type === 'tableau') {
+                gameState.score += 5;
+            }
+            
+            // Puntos por mover carta de tableau a tableau
+            if (gameState.selectedSource.type === 'tableau' && destination.type === 'tableau') {
+                gameState.score += 5;
+            }
+            
+            // Penalización por tiempo
+            if (gameState.time > 600) { // Después de 10 minutos
+                gameState.score = Math.max(0, gameState.score - 1);
+            }
+        }
+
+        // Limpiar selección
+        function clearSelection() {
+            gameState.selectedCard = null;
+            gameState.selectedSource = null;
+            
+            // Remover resaltados
+            document.querySelectorAll('.selected, .valid-move').forEach(el => {
+                el.classList.remove('selected', 'valid-move');
+            });
+        }
+
+        // Guardar movimiento en el historial
+        function saveMoveToHistory() {
+            // Para simplificar, guardamos todo el estado del juego
+            const stateCopy = JSON.parse(JSON.stringify({
+                stock: [...gameState.stock],
+                waste: [...gameState.waste],
+                foundations: gameState.foundations.map(f => [...f]),
+                tableau: gameState.tableau.map(t => [...t]),
+                moves: gameState.moves,
+                score: gameState.score,
+                time: gameState.time
+            }));
+            
+            gameState.moveHistory.push(stateCopy);
+        }
+
+        // Deshacer movimiento
+        function undoMove() {
+            if (gameState.moveHistory.length > 0) {
+                const previousState = gameState.moveHistory.pop();
+                
+                gameState.stock = previousState.stock;
+                gameState.waste = previousState.waste;
+                gameState.foundations = previousState.foundations;
+                gameState.tableau = previousState.tableau;
+                gameState.moves = previousState.moves;
+                gameState.score = previousState.score;
+                gameState.time = previousState.time;
+                
+                updateUI();
+            }
+        }
+
+        // Tomar carta del stock
+        function drawFromStock() {
+            if (gameState.stock.length === 0) {
+                // Si el stock está vacío, reciclar el waste
+                if (gameState.waste.length > 0) {
+                    saveMoveToHistory();
+                    
+                    // Voltear todas las cartas del waste y ponerlas en el stock
+                    gameState.waste.forEach(card => {
+                        card.faceUp = false;
+                    });
+                    
+                    gameState.stock = [...gameState.waste.reverse()];
+                    gameState.waste = [];
+                    gameState.moves++;
+                    
+                    updateUI();
+                }
+            } else {
+                saveMoveToHistory();
+                
+                // Tomar carta del stock
+                const card = gameState.stock.pop();
+                card.faceUp = true;
+                gameState.waste.push(card);
+                gameState.moves++;
+                
+                updateUI();
+            }
+        }
+
+        // Comprobar si el juego está completo
+        function checkGameCompletion() {
+            // El juego está completo cuando todas las fundaciones tienen 13 cartas
+            const isComplete = gameState.foundations.every(foundation => foundation.length === 13);
+            
+            if (isComplete && !gameState.gameCompleted) {
+                gameState.gameCompleted = true;
+                clearInterval(gameState.timerInterval);
+                
+                // Bonificación por completar el juego
+                gameState.score += 1000;
+                
+                // Mostrar mensaje de victoria
+                winTime.textContent = formatTime(gameState.time);
+                winMoves.textContent = gameState.moves;
+                winScore.textContent = gameState.score;
+                winMessage.classList.add('show');
+                
+                // Guardar mejor puntuación
+                saveBestScore();
+            }
+            
+            // Habilitar auto-completar si es posible
+            autoCompleteButton.disabled = !canAutoComplete();
+        }
+
+        // Auto-completar juego
+        function autoComplete() {
+            if (!canAutoComplete()) return;
+            
+            // Mover automáticamente cartas a las fundaciones
+            let moved = true;
+            
+            while (moved) {
+                moved = false;
+                
+                // Verificar waste
+                if (gameState.waste.length > 0) {
+                    const card = gameState.waste[gameState.waste.length - 1];
+                    for (let i = 0; i < 4; i++) {
+                        if (isValidFoundationMove(card, i)) {
+                            saveMoveToHistory();
+                            performMove({type: 'waste', index: gameState.waste.length - 1}, {type: 'foundation', index: i});
+                            gameState.moves++;
+                            updateScore({type: 'foundation', index: i});
+                            moved = true;
+                            break;
+                        }
+                    }
+                }
+                
+                // Verificar tableau
+                for (let col = 0; col < 7; col++) {
+                    const column = gameState.tableau[col];
+                    if (column.length > 0) {
+                        const card = column[column.length - 1];
+                        if (card.faceUp) {
+                            for (let i = 0; i < 4; i++) {
+                                if (isValidFoundationMove(card, i)) {
+                                    saveMoveToHistory();
+                                    performMove({type: 'tableau', column: col, index: column.length - 1}, {type: 'foundation', index: i});
+                                    gameState.moves++;
+                                    updateScore({type: 'foundation', index: i});
+                                    moved = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Si movimos alguna carta, actualizar UI
+                if (moved) {
+                    updateUI();
+                }
+            }
+        }
+
+        // Verificar si se puede auto-completar
+        function canAutoComplete() {
+            // Solo se puede auto-completar cuando todas las cartas están boca arriba
+            // y hay movimientos posibles a las fundaciones
+            let hasPossibleMove = false;
+            
+            // Verificar waste
+            if (gameState.waste.length > 0) {
+                const card = gameState.waste[gameState.waste.length - 1];
+                for (let i = 0; i < 4; i++) {
+                    if (isValidFoundationMove(card, i)) {
+                        hasPossibleMove = true;
+                        break;
+                    }
+                }
+            }
+            
+            // Verificar tableau
+            if (!hasPossibleMove) {
+                for (let col = 0; col < 7; col++) {
+                    const column = gameState.tableau[col];
+                    if (column.length > 0) {
+                        const card = column[column.length - 1];
+                        if (card.faceUp) {
+                            for (let i = 0; i < 4; i++) {
+                                if (isValidFoundationMove(card, i)) {
+                                    hasPossibleMove = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (hasPossibleMove) break;
+                }
+            }
+            
+            return hasPossibleMove && !gameState.gameCompleted;
+        }
+
+        // Dar una pista
+        function giveHint() {
+            if (gameState.gameCompleted) return;
+            
+            clearSelection();
+            
+            // Buscar un movimiento posible
+            let hintFound = false;
+            
+            // 1. Verificar waste a foundation
+            if (gameState.waste.length > 0) {
+                const card = gameState.waste[gameState.waste.length - 1];
+                for (let i = 0; i < 4; i++) {
+                    if (isValidFoundationMove(card, i)) {
+                        selectCard(`waste`);
+                        hintFound = true;
+                        break;
+                    }
+                }
+            }
+            
+            // 2. Verificar tableau a foundation
+            if (!hintFound) {
+                for (let col = 0; col < 7; col++) {
+                    const column = gameState.tableau[col];
+                    if (column.length > 0) {
+                        const card = column[column.length - 1];
+                        if (card.faceUp) {
+                            for (let i = 0; i < 4; i++) {
+                                if (isValidFoundationMove(card, i)) {
+                                    selectCard(`tableau-${col}-${column.length - 1}`);
+                                    hintFound = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (hintFound) break;
+                }
+            }
+            
+            // 3. Verificar waste a tableau
+            if (!hintFound && gameState.waste.length > 0) {
+                const card = gameState.waste[gameState.waste.length - 1];
+                for (let col = 0; col < 7; col++) {
+                    if (isValidTableauMove(card, col)) {
+                        selectCard(`waste`);
+                        hintFound = true;
+                        break;
+                    }
+                }
+            }
+            
+            // 4. Verificar tableau a tableau
+            if (!hintFound) {
+                for (let col = 0; col < 7; col++) {
+                    const column = gameState.tableau[col];
+                    for (let idx = 0; idx < column.length; idx++) {
+                        const card = column[idx];
+                        if (card.faceUp) {
+                            for (let destCol = 0; destCol < 7; destCol++) {
+                                if (destCol !== col && isValidTableauMove(card, destCol)) {
+                                    selectCard(`tableau-${col}-${idx}`);
+                                    hintFound = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (hintFound) break;
+                    }
+                    if (hintFound) break;
+                }
+            }
+            
+            // 5. Verificar stock
+            if (!hintFound && gameState.stock.length > 0) {
+                // Sugerir tomar carta del stock
+                stockElement.classList.add('selected');
+                setTimeout(() => {
+                    stockElement.classList.remove('selected');
+                }, 1000);
+                hintFound = true;
+            }
+            
+            // Si no se encontró ninguna pista
+            if (!hintFound) {
+                alert("No hay movimientos disponibles. Intenta reciclar el waste o reinicia el juego.");
+            }
+        }
+
+        // Temporizador
+        function startTimer() {
+            clearInterval(gameState.timerInterval);
+            gameState.timerInterval = setInterval(() => {
+                gameState.time++;
+                timerElement.textContent = formatTime(gameState.time);
+                
+                // Guardar estado cada 10 segundos
+                if (gameState.time % 10 === 0) {
+                    saveGameState();
+                }
+            }, 1000);
+        }
+
+        // Formatear tiempo
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Guardar mejor puntuación
+        function saveBestScore() {
+            const bestScore = localStorage.getItem('solitario_best_score') || 0;
+            if (gameState.score > bestScore) {
+                localStorage.setItem('solitario_best_score', gameState.score);
+                localStorage.setItem('solitario_best_time', gameState.time);
+                localStorage.setItem('solitario_best_moves', gameState.moves);
+            }
+        }
+
+        // Guardar estado del juego
+        function saveGameState() {
+            const gameData = {
+                state: gameState,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('solitario_saved_game', JSON.stringify(gameData));
+        }
+
+        // Cargar estado del juego guardado
+        function loadSavedGame() {
+            const savedGame = localStorage.getItem('solitario_saved_game');
+            if (savedGame) {
+                try {
+                    const gameData = JSON.parse(savedGame);
+                    
+                    // Solo cargar si se guardó hace menos de 24 horas
+                    if (Date.now() - gameData.timestamp < 24 * 60 * 60 * 1000) {
+                        if (confirm("¿Deseas continuar tu partida guardada?")) {
+                            Object.assign(gameState, gameData.state);
+                            updateUI();
+                            startTimer();
+                            gameState.gameStarted = true;
+                            return true;
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error al cargar partida guardada:", e);
+                }
+            }
+            return false;
+        }
+
+        // Manejar inicio táctil
+        function handleTouchStart(e) {
+            // Prevenir zoom en dispositivos táctiles
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }
+
+        // Event Listeners
+        newGameButton.addEventListener('click', initGame);
+        undoButton.addEventListener('click', undoMove);
+        hintButton.addEventListener('click', giveHint);
+        autoCompleteButton.addEventListener('click', autoComplete);
+        playAgainButton.addEventListener('click', () => {
+            winMessage.classList.remove('show');
+            initGame();
+        });
+
+        // Stock click
+        stockElement.addEventListener('click', () => {
+            if (!gameState.gameCompleted) {
+                drawFromStock();
+            }
+        });
+
+        // PWA Install
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installPWA.classList.add('show');
+        });
+
+        installPWA.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    installPWA.classList.remove('show');
+                }
+                deferredPrompt = null;
+            }
+        });
+
+        // Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+            });
+        }
+
+        // Cargar partida guardada al inicio o comenzar nueva
+        window.addEventListener('load', () => {
+            if (!loadSavedGame()) {
+                initGame();
+            }
+        });
+
+        // Manejar cierre de página para guardar estado
+        window.addEventListener('beforeunload', () => {
+            if (gameState.gameStarted && !gameState.gameCompleted) {
+                saveGameState();
+            }
+        });
+    </script>
 </body>
 </html>
