@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marcianitos PWA</title>
+    <meta name="theme-color" content="#0a0a2a">
+    <link rel="manifest" href="Marcianitos_manifest.json">
+    <link rel="stylesheet" href="Marcianitos.css">
+    <link rel="icon" href="Marcianitos.png">
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 MARCIANITOS PWA</h1>
+        <div class="info">
+            <p>Puntuación: <span id="score">0</span></p>
+            <p>Vidas: <span id="lives">3</span></p>
+            <button id="pauseBtn">Pausa</button>
+        </div>
+
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+        <div class="controls">
+            <p>Controles: ← → (movimiento) | ESPACIO (disparar)</p>
+            <p>Juego offline habilitado. ¡Instala esta PWA!</p>
+        </div>
+
+        <div class="install-btn">
+            <button id="installButton" style="display:none;">📲 Instalar App</button>
+        </div>
+    </div>
+
+    <script src="Marcianitos.js"></script>
+    <script>
+        // Registrar Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('Marcianitos_sw.js')
+                .then(reg => console.log('SW registrado:', reg))
+                .catch(err => console.log('Error SW:', err));
+        }
+
+        // Botón de instalación
+        let deferredPrompt;
+        const installBtn = document.getElementById('installButton');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'block';
+        });
+
+        installBtn.addEventListener('click', () => {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(() => {
+                installBtn.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
