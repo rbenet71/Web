@@ -3,101 +3,1125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Próximamente - [NOMBRE APP]</title>
+    <title>Sudoku PWA</title>
+    <meta name="description" content="Sudoku PWA - Juego de lógica instalable">
+    <meta name="theme-color" content="#4a6fa5">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAI0lEQVRYhe3BAQEAAACDIP6vbooAAAAgEAEOWWB3hQABAgQIECBAgEAZwTyQA8pPWOIAAAAASUVORK5CYII=">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --light-color: #f8f9fa;
+            --dark-color: #333;
+            --correct-color: #4CAF50;
+            --incorrect-color: #f44336;
+            --highlight-color: #ffeb3b;
+            --border-color: #ccc;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 20px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
-        
-        .container {
+
+        header {
             text-align: center;
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            max-width: 500px;
-            width: 90%;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 800px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
+
         h1 {
-            color: #2c3e50;
-            margin-bottom: 20px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
-        
-        p {
-            color: #7f8c8d;
-            line-height: 1.6;
-            margin-bottom: 30px;
+
+        .app-icon {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            border-radius: 8px;
         }
-        
-        .icon {
-            font-size: 4rem;
-            color: #3498db;
-            margin-bottom: 20px;
+
+        .subtitle {
+            color: var(--secondary-color);
+            font-size: 1rem;
+            margin-bottom: 15px;
         }
-        
-        .button {
-            background: linear-gradient(135deg, #3498db, #2980b9);
+
+        .pwa-info {
+            background-color: #e8f4fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .install-btn {
+            background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            font-size: 1rem;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: transform 0.3s ease;
-        }
-        
-        .button:hover {
-            transform: translateY(-2px);
-        }
-        
-        .progress {
-            background: #ecf0f1;
-            height: 10px;
+            padding: 8px 15px;
             border-radius: 5px;
-            margin: 30px 0;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .install-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+            gap: 20px;
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .game-container {
+                grid-template-columns: 1fr 300px;
+            }
+        }
+
+        .sudoku-board {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            grid-template-rows: repeat(9, 1fr);
+            gap: 0;
+            width: 100%;
+            max-width: min(450px, 90vw);
+            margin: 0 auto;
+            border: 3px solid var(--dark-color);
+            aspect-ratio: 1;
+        }
+
+        .cell {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1rem, 3vw, 1.8rem);
+            font-weight: bold;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.2s;
             overflow: hidden;
         }
-        
-        .progress-bar {
-            background: linear-gradient(90deg, #2ecc71, #27ae60);
-            height: 100%;
-            width: 60%;
-            animation: progressAnimation 2s ease-in-out infinite alternate;
+
+        .cell:hover {
+            background-color: rgba(74, 111, 165, 0.1);
         }
-        
-        @keyframes progressAnimation {
-            0% { width: 60%; }
-            100% { width: 70%; }
+
+        .cell.selected {
+            background-color: var(--highlight-color);
+        }
+
+        .cell.prefilled {
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        .cell.user-filled {
+            color: var(--primary-color);
+        }
+
+        .cell.error {
+            background-color: rgba(244, 67, 54, 0.2);
+        }
+
+        .cell:nth-child(3n) {
+            border-right: 3px solid var(--dark-color);
+        }
+
+        .cell:nth-child(9n) {
+            border-right: none;
+        }
+
+        .cell:nth-child(n+19):nth-child(-n+27),
+        .cell:nth-child(n+46):nth-child(-n+54) {
+            border-bottom: 3px solid var(--dark-color);
+        }
+
+        .controls {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .diff-btn {
+            flex: 1;
+            min-width: 70px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .diff-btn:hover {
+            background-color: #d8d8d8;
+        }
+
+        .diff-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+
+        .number-selector {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .num-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid var(--primary-color);
+            background-color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            margin: 0 auto;
+        }
+
+        .num-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .num-btn.clear {
+            width: auto;
+            height: auto;
+            border-radius: 5px;
+            padding: 10px 15px;
+            font-size: 0.9rem;
+            grid-column: span 2;
+            margin: 0;
+        }
+
+        .game-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .game-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .check-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .solve-btn {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .new-game-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .game-btn:hover {
+            opacity: 0.9;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .timer, .mistakes {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .status {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+
+        .game-status {
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+            min-height: 24px;
+            font-size: 0.95rem;
+        }
+
+        .solved {
+            color: var(--correct-color);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            width: 100%;
+            max-width: 800px;
+            padding: 15px;
+        }
+
+        .offline-notice {
+            background-color: #ffeb3b;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .board {
+                max-width: 95vw;
+            }
+            
+            .cell {
+                font-size: clamp(0.9rem, 4vw, 1.5rem);
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .controls {
+                padding: 15px;
+            }
+            
+            .num-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+            }
+            
+            .number-selector {
+                gap: 6px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .cell {
+                font-size: clamp(0.8rem, 4.5vw, 1.3rem);
+            }
+            
+            .num-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+            
+            .game-btn {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+            
+            .num-btn.clear {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 350px) {
+            .num-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 0.9rem;
+            }
+            
+            .number-selector {
+                gap: 4px;
+            }
+        }
+        .home-btn {
+            background-color: #c3cfe2; /* Un color que combina con tu fondo */
+            color: var(--dark-color);
+            margin-top: 10px; /* Un pequeño espacio superior */
+        }
+        .home-btn:hover {
+            background-color: #b0bcd6; /* Un tono ligeramente más oscuro al pasar el ratón */
         }
     </style>
 </head>
 <body>
+    <header>
+        <h1>
+            <img src="Sudoku.png" alt="Logo Sudoku" class="app-icon" id="appIcon">
+            Sudoku PWA
+        </h1>
+        <p class="subtitle">Un juego de lógica clásico, ahora como aplicación web progresiva</p>
+        <div class="pwa-info">
+            <span>✅ Esta app funciona offline y se puede instalar</span>
+            <button class="install-btn" id="installButton" style="display:none;">Instalar App</button>
+        </div>
+    </header>
+
     <div class="container">
-        <div class="icon">
-            <i class="fas fa-tools"></i>
+        <div class="game-info">
+            <div class="timer">⏱️ Tiempo: <span id="timer">00:00</span></div>
+            <div class="status" id="gameStatus">Selecciona una dificultad</div>
+            <div class="mistakes">❌ Errores: <span id="mistakes">0</span></div>
         </div>
-        <h1>Próximamente</h1>
-        <p>Esta aplicación está en desarrollo. Estamos trabajando para ofrecerte la mejor herramienta.</p>
-        
-        <div class="progress">
-            <div class="progress-bar"></div>
+
+        <div class="game-container">
+            <div class="sudoku-board">
+                <div class="board" id="sudokuBoard"></div>
+                <div class="game-status" id="statusMessage"></div>
+            </div>
+
+            <div class="controls">
+                <div class="difficulty-selector">
+                    <h3>Dificultad</h3>
+                    <div class="difficulty-buttons">
+                        <button class="diff-btn active" data-difficulty="easy">Fácil</button>
+                        <button class="diff-btn" data-difficulty="medium">Medio</button>
+                        <button class="diff-btn" data-difficulty="hard">Difícil</button>
+                        <button class="diff-btn" data-difficulty="expert">Experto</button>
+                    </div>
+                </div>
+
+                <div class="number-selector-container">
+                    <h3>Seleccionar número</h3>
+                    <div class="number-selector">
+                        <button class="num-btn" data-number="1">1</button>
+                        <button class="num-btn" data-number="2">2</button>
+                        <button class="num-btn" data-number="3">3</button>
+                        <button class="num-btn" data-number="4">4</button>
+                        <button class="num-btn" data-number="5">5</button>
+                        <button class="num-btn" data-number="6">6</button>
+                        <button class="num-btn" data-number="7">7</button>
+                        <button class="num-btn" data-number="8">8</button>
+                        <button class="num-btn" data-number="9">9</button>
+                        <button class="num-btn clear" id="clearBtn">Borrar</button>
+                    </div>
+                </div>
+
+                <div class="game-buttons">
+                    <button class="game-btn check-btn" id="checkBtn">Verificar solución</button>
+                    <button class="game-btn solve-btn" id="solveBtn">Resolver celda</button>
+                    <button class="game-btn new-game-btn" id="newGameBtn">Nuevo juego</button>
+                </div>
+            </div>
         </div>
-        
-        <a href="../index.html" class="button">
-            <i class="fas fa-arrow-left"></i> Volver al inicio
-        </a>
     </div>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+    <div class="offline-notice" id="offlineNotice">
+        ⚠️ Estás en modo offline. La aplicación sigue funcionando.
+    </div>
+
+    <footer>
+        <button class="game-btn home-btn" id="homeBtn" onclick="window.open('https://rbenet71.github.io/Web', '_self')">
+    ← Volver a App Roberto
+</button>
+        <p>Sudoku PWA - Una aplicación web progresiva que funciona sin conexión</p>
+        <p>Desarrollada con HTML, CSS y JavaScript</p>
+    </footer>
+
+    <script>
+        // Elementos del DOM
+        const sudokuBoard = document.getElementById('sudokuBoard');
+        const timerElement = document.getElementById('timer');
+        const mistakesElement = document.getElementById('mistakes');
+        const gameStatusElement = document.getElementById('gameStatus');
+        const statusMessageElement = document.getElementById('statusMessage');
+        const difficultyButtons = document.querySelectorAll('.diff-btn');
+        const numberButtons = document.querySelectorAll('.num-btn');
+        const clearBtn = document.getElementById('clearBtn');
+        const checkBtn = document.getElementById('checkBtn');
+        const solveBtn = document.getElementById('solveBtn');
+        const newGameBtn = document.getElementById('newGameBtn');
+        const installButton = document.getElementById('installButton');
+        const offlineNotice = document.getElementById('offlineNotice');
+        const appIcon = document.getElementById('appIcon');
+
+        // Variables del juego
+        let selectedCell = null;
+        let gameBoard = [];
+        let solutionBoard = [];
+        let initialBoard = [];
+        let mistakes = 0;
+        let timer = 0;
+        let timerInterval = null;
+        let currentDifficulty = 'easy';
+        let isGameSolved = false;
+
+        // Inicializar el juego
+        function initGame() {
+            createBoard();
+            generateNewGame();
+            setupEventListeners();
+            updateGameStatus();
+            startTimer();
+            
+            // Manejar icono alternativo si Sudoku.png no carga
+            appIcon.onerror = function() {
+                this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" fill="%234a6fa5" stroke="%23166088" stroke-width="2"/><text x="50" y="60" text-anchor="middle" font-family="Arial" font-size="40" fill="white">S</text></svg>';
+                this.alt = 'Logo Sudoku Alternativo';
+            };
+            
+            // Verificar si estamos offline
+            updateOfflineStatus();
+            window.addEventListener('online', updateOfflineStatus);
+            window.addEventListener('offline', updateOfflineStatus);
+            
+            // PWA: Registrar service worker si es compatible
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js').catch(error => {
+                    console.log('Error al registrar Service Worker:', error);
+                });
+            }
+            
+            // PWA: Manejar instalación
+            setupInstallPrompt();
+        }
+
+        // Crear el tablero visual con mejor manejo de tamaño
+        function createBoard() {
+            sudokuBoard.innerHTML = '';
+            for (let i = 0; i < 81; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.index = i;
+                cell.dataset.row = Math.floor(i / 9);
+                cell.dataset.col = i % 9;
+                cell.addEventListener('click', () => selectCell(cell));
+                sudokuBoard.appendChild(cell);
+            }
+            
+            // Ajustar dinámicamente el tamaño de fuente según el tamaño de la celda
+            adjustCellFontSize();
+            window.addEventListener('resize', adjustCellFontSize);
+        }
+
+        // Ajustar tamaño de fuente de las celdas dinámicamente
+        function adjustCellFontSize() {
+            const cells = document.querySelectorAll('.cell');
+            if (cells.length === 0) return;
+            
+            // Obtener el tamaño de una celda
+            const cell = cells[0];
+            const cellWidth = cell.offsetWidth;
+            
+            // Calcular tamaño de fuente basado en el ancho de la celda
+            // Queremos que el número ocupe aproximadamente el 70% del ancho de la celda
+            const baseFontSize = cellWidth * 0.7;
+            
+            // Limitar el tamaño máximo y mínimo
+            const fontSize = Math.max(12, Math.min(baseFontSize, 32));
+            
+            // Aplicar a todas las celdas
+            cells.forEach(c => {
+                c.style.fontSize = `${fontSize}px`;
+            });
+        }
+
+        // Generar un nuevo juego
+        function generateNewGame() {
+            // Reiniciar variables del juego
+            selectedCell = null;
+            mistakes = 0;
+            timer = 0;
+            isGameSolved = false;
+            mistakesElement.textContent = mistakes;
+            statusMessageElement.textContent = '';
+            statusMessageElement.className = 'game-status';
+            
+            // Detener y reiniciar el temporizador
+            if (timerInterval) clearInterval(timerInterval);
+            startTimer();
+            
+            // Generar un tablero de Sudoku válido
+            generateValidBoard();
+            
+            // Crear un tablero con celdas vacías según la dificultad
+            createPuzzle();
+            
+            // Actualizar la visualización
+            updateBoardDisplay();
+            updateGameStatus();
+            
+            // Ajustar tamaño de fuente después de actualizar el tablero
+            setTimeout(adjustCellFontSize, 100);
+        }
+
+        // Generar un tablero de Sudoku válido
+        function generateValidBoard() {
+            // Tablero base vacío
+            gameBoard = Array(9).fill().map(() => Array(9).fill(0));
+            
+            // Rellenar la diagonal con números aleatorios (patrón común para generar Sudokus)
+            fillDiagonal();
+            
+            // Completar el resto del tablero
+            solveSudoku(gameBoard);
+            
+            // Guardar la solución
+            solutionBoard = gameBoard.map(row => [...row]);
+            
+            // Guardar el tablero inicial (para saber qué celdas son prefijadas)
+            initialBoard = gameBoard.map(row => [...row]);
+        }
+
+        // Rellenar los cuadros diagonales (0,0; 1,1; 2,2)
+        function fillDiagonal() {
+            for (let i = 0; i < 9; i += 3) {
+                fillBox(i, i);
+            }
+        }
+
+        // Rellenar un cuadro 3x3
+        function fillBox(row, col) {
+            let numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+            shuffleArray(numbers);
+            
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    gameBoard[row + i][col + j] = numbers.pop();
+                }
+            }
+        }
+
+        // Mezclar un array (algoritmo de Fisher-Yates)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Resolver Sudoku usando backtracking
+        function solveSudoku(board) {
+            const empty = findEmptyCell(board);
+            if (!empty) return true; // Tablero completo
+            
+            const [row, col] = empty;
+            
+            for (let num = 1; num <= 9; num++) {
+                if (isValidMove(board, row, col, num)) {
+                    board[row][col] = num;
+                    
+                    if (solveSudoku(board)) {
+                        return true;
+                    }
+                    
+                    board[row][col] = 0; // Deshacer si no lleva a solución
+                }
+            }
+            
+            return false; // No hay solución
+        }
+
+        // Encontrar una celda vacía
+        function findEmptyCell(board) {
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    if (board[row][col] === 0) {
+                        return [row, col];
+                    }
+                }
+            }
+            return null;
+        }
+
+        // Verificar si un movimiento es válido
+        function isValidMove(board, row, col, num) {
+            // Verificar fila
+            for (let x = 0; x < 9; x++) {
+                if (board[row][x] === num) return false;
+            }
+            
+            // Verificar columna
+            for (let x = 0; x < 9; x++) {
+                if (board[x][col] === num) return false;
+            }
+            
+            // Verificar cuadro 3x3
+            const boxRow = Math.floor(row / 3) * 3;
+            const boxCol = Math.floor(col / 3) * 3;
+            
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (board[boxRow + i][boxCol + j] === num) return false;
+                }
+            }
+            
+            return true;
+        }
+
+        // Crear un puzzle eliminando celdas según la dificultad
+        function createPuzzle() {
+            // Determinar cuántas celdas eliminar según la dificultad
+            let cellsToRemove;
+            switch (currentDifficulty) {
+                case 'easy': cellsToRemove = 40; break;
+                case 'medium': cellsToRemove = 50; break;
+                case 'hard': cellsToRemove = 55; break;
+                case 'expert': cellsToRemove = 60; break;
+                default: cellsToRemove = 40;
+            }
+            
+            // Copiar el tablero solución
+            let puzzleBoard = solutionBoard.map(row => [...row]);
+            
+            // Eliminar celdas aleatoriamente
+            let removed = 0;
+            while (removed < cellsToRemove) {
+                const row = Math.floor(Math.random() * 9);
+                const col = Math.floor(Math.random() * 9);
+                
+                if (puzzleBoard[row][col] !== 0) {
+                    puzzleBoard[row][col] = 0;
+                    removed++;
+                }
+            }
+            
+            // Actualizar el tablero de juego
+            gameBoard = puzzleBoard;
+            initialBoard = puzzleBoard.map(row => [...row]);
+        }
+
+        // Actualizar la visualización del tablero
+        function updateBoardDisplay() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                const index = parseInt(cell.dataset.index);
+                const row = Math.floor(index / 9);
+                const col = index % 9;
+                const value = gameBoard[row][col];
+                
+                // Limpiar clases
+                cell.className = 'cell';
+                if (selectedCell === cell) cell.classList.add('selected');
+                
+                // Establecer el valor y las clases apropiadas
+                if (value !== 0) {
+                    cell.textContent = value;
+                    if (initialBoard[row][col] !== 0) {
+                        cell.classList.add('prefilled');
+                    } else {
+                        cell.classList.add('user-filled');
+                        
+                        // Verificar si el valor es correcto
+                        if (value !== solutionBoard[row][col]) {
+                            cell.classList.add('error');
+                        }
+                    }
+                } else {
+                    cell.textContent = '';
+                }
+            });
+        }
+
+        // Seleccionar una celda
+        function selectCell(cell) {
+            if (isGameSolved) return;
+            
+            // Deseleccionar celda anterior
+            if (selectedCell) {
+                selectedCell.classList.remove('selected');
+            }
+            
+            // Seleccionar nueva celda
+            selectedCell = cell;
+            cell.classList.add('selected');
+            
+            // Actualizar estado del juego
+            updateGameStatus();
+        }
+
+        // Colocar un número en la celda seleccionada
+        function placeNumber(number) {
+            if (!selectedCell || isGameSolved) return;
+            
+            const index = parseInt(selectedCell.dataset.index);
+            const row = Math.floor(index / 9);
+            const col = index % 9;
+            
+            // No permitir modificar celdas prefijadas
+            if (initialBoard[row][col] !== 0) {
+                statusMessageElement.textContent = 'No puedes modificar números iniciales';
+                statusMessageElement.style.color = 'var(--incorrect-color)';
+                return;
+            }
+            
+            // Si el número es 0, borrar la celda
+            if (number === 0) {
+                gameBoard[row][col] = 0;
+                selectedCell.textContent = '';
+                selectedCell.classList.remove('user-filled', 'error');
+            } else {
+                // Colocar el número
+                gameBoard[row][col] = number;
+                selectedCell.textContent = number;
+                selectedCell.classList.add('user-filled');
+                
+                // Verificar si es correcto
+                if (number !== solutionBoard[row][col]) {
+                    selectedCell.classList.add('error');
+                    mistakes++;
+                    mistakesElement.textContent = mistakes;
+                    statusMessageElement.textContent = 'Número incorrecto';
+                    statusMessageElement.style.color = 'var(--incorrect-color)';
+                } else {
+                    selectedCell.classList.remove('error');
+                    statusMessageElement.textContent = '¡Correcto!';
+                    statusMessageElement.style.color = 'var(--correct-color)';
+                    
+                    // Verificar si el juego está completo
+                    if (checkGameComplete()) {
+                        gameSolved();
+                    }
+                }
+            }
+            
+            updateGameStatus();
+        }
+
+        // Verificar si el juego está completo
+        function checkGameComplete() {
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    if (gameBoard[row][col] !== solutionBoard[row][col]) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        // El juego ha sido resuelto
+        function gameSolved() {
+            isGameSolved = true;
+            clearInterval(timerInterval);
+            statusMessageElement.textContent = '¡Felicidades! Has resuelto el Sudoku.';
+            statusMessageElement.className = 'game-status solved';
+            gameStatusElement.textContent = '¡Juego Completado!';
+            
+            // Guardar estadísticas en localStorage
+            saveGameStats();
+        }
+
+        // Verificar la solución actual
+        function checkSolution() {
+            if (isGameSolved) return;
+            
+            let hasErrors = false;
+            
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    const value = gameBoard[row][col];
+                    if (value !== 0 && value !== solutionBoard[row][col]) {
+                        hasErrors = true;
+                    }
+                }
+            }
+            
+            if (hasErrors) {
+                statusMessageElement.textContent = 'Hay errores en tu solución';
+                statusMessageElement.style.color = 'var(--incorrect-color)';
+            } else {
+                statusMessageElement.textContent = '¡Todo correcto hasta ahora!';
+                statusMessageElement.style.color = 'var(--correct-color)';
+            }
+        }
+
+        // Resolver la celda seleccionada
+        function solveCell() {
+            if (!selectedCell || isGameSolved) return;
+            
+            const index = parseInt(selectedCell.dataset.index);
+            const row = Math.floor(index / 9);
+            const col = index % 9;
+            
+            // No permitir modificar celdas prefijadas
+            if (initialBoard[row][col] !== 0) {
+                statusMessageElement.textContent = 'Esta celda ya tiene un número inicial';
+                statusMessageElement.style.color = 'var(--incorrect-color)';
+                return;
+            }
+            
+            // Colocar la solución
+            const solution = solutionBoard[row][col];
+            placeNumber(solution);
+        }
+
+        // Actualizar el estado del juego
+        function updateGameStatus() {
+            if (isGameSolved) return;
+            
+            let emptyCells = 0;
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    if (gameBoard[row][col] === 0) emptyCells++;
+                }
+            }
+            
+            if (emptyCells === 0) {
+                gameStatusElement.textContent = 'Completa el tablero';
+            } else {
+                gameStatusElement.textContent = `Celdas vacías: ${emptyCells}`;
+            }
+        }
+
+        // Iniciar el temporizador
+        function startTimer() {
+            timer = 0;
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timer++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        // Actualizar la visualización del temporizador
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timer / 60).toString().padStart(2, '0');
+            const seconds = (timer % 60).toString().padStart(2, '0');
+            timerElement.textContent = `${minutes}:${seconds}`;
+        }
+
+        // Guardar estadísticas del juego
+        function saveGameStats() {
+            const stats = {
+                lastGameTime: timer,
+                lastGameMistakes: mistakes,
+                lastGameDifficulty: currentDifficulty,
+                lastGameDate: new Date().toISOString()
+            };
+            
+            try {
+                localStorage.setItem('sudokuStats', JSON.stringify(stats));
+            } catch (e) {
+                console.log('No se pudo guardar las estadísticas:', e);
+            }
+        }
+
+        // Configurar eventos
+        function setupEventListeners() {
+            // Botones de dificultad
+            difficultyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    difficultyButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    currentDifficulty = button.dataset.difficulty;
+                    generateNewGame();
+                });
+            });
+            
+            // Botones de números
+            numberButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const number = button.dataset.number;
+                    if (number) {
+                        placeNumber(parseInt(number));
+                    }
+                });
+            });
+            
+            // Botón de borrar
+            clearBtn.addEventListener('click', () => {
+                placeNumber(0);
+            });
+            
+            // Botón de verificar
+            checkBtn.addEventListener('click', checkSolution);
+            
+            // Botón de resolver celda
+            solveBtn.addEventListener('click', solveCell);
+            
+            // Botón de nuevo juego
+            newGameBtn.addEventListener('click', generateNewGame);
+            
+            // Navegación con teclado
+            document.addEventListener('keydown', (e) => {
+                if (isGameSolved) return;
+                
+                // Números del 1 al 9
+                if (e.key >= '1' && e.key <= '9') {
+                    placeNumber(parseInt(e.key));
+                }
+                
+                // Tecla 0 o Delete/Backspace para borrar
+                if (e.key === '0' || e.key === 'Delete' || e.key === 'Backspace') {
+                    placeNumber(0);
+                }
+                
+                // Navegación con flechas
+                if (selectedCell) {
+                    const index = parseInt(selectedCell.dataset.index);
+                    let newIndex = index;
+                    
+                    switch (e.key) {
+                        case 'ArrowUp': newIndex = index - 9; break;
+                        case 'ArrowDown': newIndex = index + 9; break;
+                        case 'ArrowLeft': newIndex = index - 1; break;
+                        case 'ArrowRight': newIndex = index + 1; break;
+                    }
+                    
+                    // Validar que el nuevo índice esté dentro del tablero
+                    if (newIndex >= 0 && newIndex < 81) {
+                        const newCell = document.querySelector(`.cell[data-index="${newIndex}"]`);
+                        if (newCell) {
+                            selectCell(newCell);
+                        }
+                    }
+                }
+            });
+        }
+
+        // PWA: Configurar el prompt de instalación
+        let deferredPrompt;
+        
+        function setupInstallPrompt() {
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                installButton.style.display = 'block';
+                
+                installButton.addEventListener('click', () => {
+                    installButton.style.display = 'none';
+                    deferredPrompt.prompt();
+                    
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            console.log('Usuario instaló la PWA');
+                        }
+                        deferredPrompt = null;
+                    });
+                });
+            });
+            
+            window.addEventListener('appinstalled', () => {
+                installButton.style.display = 'none';
+                console.log('PWA instalada');
+            });
+        }
+
+        // Actualizar estado de conexión
+        function updateOfflineStatus() {
+            if (!navigator.onLine) {
+                offlineNotice.style.display = 'block';
+            } else {
+                offlineNotice.style.display = 'none';
+            }
+        }
+
+        // Inicializar la aplicación cuando se carga la página
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
 </body>
 </html>
