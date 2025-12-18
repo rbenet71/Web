@@ -36,10 +36,10 @@ const APP_RESOURCES = {
     'https://rbenet71.github.io/Web/Crono_80_manifest.json'
   ],
   'cronollegadas': [
-    'https://rbenet71.github.io/Web/Crono_Llegadas.html',
-    'https://rbenet71.github.io/Web/Crono_Llegadas_manifest.json',
-    'https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png',
-    'https://rbenet71.github.io/Web/Crono_Llegadas_Ayuda.html'
+    'https://rbenet71.github.io/Web/Árbitro/Crono_Llegadas/Crono_Llegadas.html',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_Llegadas/Crono_Llegadas_manifest.json',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_Llegadas/Crono_Llegadas_192x192.png',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_Llegadas/Crono_Llegadas_Ayuda.html'
   ],
   'crono_tops': [
     'https://rbenet71.github.io/Web/crono_tops.html',
@@ -193,12 +193,12 @@ self.addEventListener('fetch', event => {
   // Determinar qué aplicación está siendo solicitada
   let targetApp = null;
   
-  if (url.pathname.includes('Calculadora_Tiempos')) {
+  if (url.pathname.includes('Calculadora_Tiempos') || url.pathname.includes('Calculadora_Tiempos')) {
     targetApp = 'calculadora';
-  } else if (url.pathname.includes('Crono_80')) {
+  } else if (url.pathname.includes('Crono_80') || url.pathname.includes('Crono_80')) {
     targetApp = 'crono80';
-  } else if (url.pathname.includes('Crono_Llegadas')) {
-    targetApp = 'cronollegadas';
+  } else if (url.pathname.includes('Crono_Llegadas') || url.pathname.includes('Crono_Llegadas')) {
+  targetApp = 'cronollegadas';
   } else if (url.pathname.includes('crono_tops')) {
     targetApp = 'crono_tops';
   } else if (url.pathname.includes('Crono_cuenta_atras')) {
@@ -276,7 +276,7 @@ async function getFallbackPage(appName) {
   const cacheNames = {
     'calculadora': 'https://rbenet71.github.io/WebÁrbitro/Calculadora_Tiempos/Calculadora_Tiempos.html',
     'crono80': 'https://rbenet71.github.io/Web/Árbitro/Crono_80/Crono_80.html',
-    'cronollegadas': 'https://rbenet71.github.io/Web/Crono_Llegadas.html',
+    'cronollegadas': 'https://rbenet71.github.io/Árbitro/Crono_Llegadas/Web/Crono_Llegadas.html',
     'crono_tops': 'https://rbenet71.github.io/Web/crono_tops.html',
     'crono_cuenta_atras': 'https://rbenet71.github.io/Web/Árbitro/crono_cuenta_atras/Crono_cuenta_atras.html',
     'gps': 'https://rbenet71.github.io/Web/Ciclismo/GPS/GPS.html', 

@@ -59,10 +59,10 @@
       "name": "Crono Llegadas",
       "short_name": "Llegadas",
       "description": "Cronómetro para control de llegadas",
-      "url": "https://rbenet71.github.io/Web/Crono_Llegadas.html",
+      "url": "https://rbenet71.github.io/Web/Árbitro/Crono_Llegadas/Crono_Llegadas.html",
       "icons": [
         {
-          "src": "https://rbenet71.github.io/Web/Crono_Llegadas_192x192.png",
+          "src": "https://rbenet71.github.io/Web/Árbitro/Crono_Llegadas/Crono_Llegadas_192x192.png",
           "sizes": "192x192"
         }
       ]
