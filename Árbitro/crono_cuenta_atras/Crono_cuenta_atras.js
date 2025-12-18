@@ -1131,7 +1131,7 @@ let sortState = {
 // ============================================
 // FUNCIONES PRINCIPALES
 // ============================================
-.
+
 function initApp() {
     console.log("Inicializando aplicación...");
     
