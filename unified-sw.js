@@ -200,9 +200,9 @@ self.addEventListener('fetch', event => {
     targetApp = 'crono80';
   } else if (url.pathname.includes('Crono_Llegadas')) {
   targetApp = 'cronollegadas';
-  } else if (url.pathname.includes('crono_tops') ) {
+  } else if (url.pathname.includes('Crono_tops') ) {
     targetApp = 'crono_tops';
-  } else if (url.pathname.includes('Crono_cuenta_atras')) {
+  } else if (url.pathname.includes('crono_cuenta_atras')) {
     targetApp = 'crono_cuenta_atras';
   } else if (url.pathname.includes('GPS') ) {
     targetApp = 'gps';
