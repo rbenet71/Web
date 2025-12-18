@@ -3,49 +3,648 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirección - Calculadora de Tiempos</title>
+    <title>Calculadora de Tiempos - Ciclismo V1</title>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CV925PMBQV"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-CV925PMBQV');
+    </script>
+
+	<!-- Iconos para la aplicación -->
+	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png">
+	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png">
+
+	<!-- Iconos para PWA -->
+	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2">
+	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2">
+	<link rel="icon" type="image/png" sizes="192x192" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2">
+	<link rel="icon" type="image/png" sizes="512x512" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2">
+	<link rel="apple-touch-icon" sizes="192x192" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2">
+	<meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2">
+	
+	<!-- Configuración para PWA (Progressive Web App) -->
+	<meta name="theme-color" content="#2c3e50">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="Crono 80%">
+	<meta name="msapplication-TileColor" content="#2c3e50">
+	<meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Calculadora_Tiempos.png">
+
+	<!-- Manifest para PWA -->
+	<link rel="manifest" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_manifest.json">
     <style>
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
             background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
+            padding: 12px;
+        }
+        
+        .calculator {
+            background-color: #2c3e50;
+            border-radius: 10px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 256px; /* Reducido de 320px */
+            padding: 16px;
+            color: white;
+        }
+        
+        .display {
+            background-color: #1a252f;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+            color: #fff;
+            min-height: 112px; /* Reducido de 140px */
             display: flex;
             flex-direction: column;
+            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+            position: relative; /* Añadido para posicionar el indicador de modo */
+        }
+        
+        .current-operation {
+            font-size: 11px; /* Reducido de 14px */
+            min-height: 16px;
+            margin-bottom: 10px;
+            color: #7f8c8d;
+            text-align: right;
+        }
+        
+        .current-input {
+            font-size: 21px; /* Reducido de 26px */
+            min-height: 26px;
+            margin-bottom: 10px;
+            text-align: right;
+            font-weight: bold;
+            color: #ecf0f1;
+        }
+        
+        .history {
+            font-size: 10px; /* Reducido de 12px */
+            color: #95a5a6;
+            height: 48px; /* Reducido de 60px */
+            overflow-y: auto;
+            border-top: 1px solid #34495e;
+            padding-top: 6px;
+        }
+        
+        .history-item {
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #34495e;
+            text-align: right;
+        }
+        
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px; /* Reducido de 10px */
+            margin-bottom: 8px;
+        }
+        
+        button {
+            background-color: #34495e;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 11px; /* Reducido de 14px */
+            padding: 11px 0; /* Reducido de 14px */
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:hover {
+            background-color: #4a6583;
+            transform: translateY(-1px);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .unit-btn {
+            background-color: #2980b9;
+        }
+        
+        .unit-btn:hover {
+            background-color: #3498db;
+        }
+        
+        .unit-btn.active {
+            background-color: #1abc9c;
+            box-shadow: 0 0 6px #1abc9c;
+        }
+        
+        .memory-btn {
+            background-color: #27ae60;
+        }
+        
+        .memory-btn:hover {
+            background-color: #2ecc71;
+        }
+        
+        .operation-btn {
+            background-color: #e67e22;
+        }
+        
+        .operation-btn:hover {
+            background-color: #f39c12;
+        }
+        
+        .equals-btn {
+            background-color: #c0392b;
+        }
+        
+        .equals-btn:hover {
+            background-color: #e74c3c;
+        }
+        
+        .clear-btn {
+            background-color: #8e44ad;
+        }
+        
+        .clear-btn:hover {
+            background-color: #9b59b6;
+        }
+        
+        .special-btn {
+            background-color: #16a085;
+        }
+        
+        .special-btn:hover {
+            background-color: #1abc9c;
+        }
+        
+        /* Eliminada la clase .zero-btn ya que 0 ahora ocupa solo un espacio */
+        
+        .special-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px; /* Reducido de 10px */
+            margin-top: 8px;
+        }
+        
+        .title {
+            text-align: center;
+            margin-bottom: 12px;
+            color: white;
+            font-size: 15px; /* Reducido de 19px */
+            font-weight: bold;
+        }
+        
+        .history::-webkit-scrollbar {
+            width: 5px; /* Reducido de 6px */
+        }
+        
+        .history::-webkit-scrollbar-track {
+            background: #34495e;
+            border-radius: 2px;
+        }
+        
+        .history::-webkit-scrollbar-thumb {
+            background: #7f8c8d;
+            border-radius: 2px;
+        }
+        
+        .history::-webkit-scrollbar-thumb:hover {
+            background: #95a5a6;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: #2c3e50;
+            padding: 16px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 320px; /* Reducido de 400px */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-title {
+            text-align: center;
+            margin-bottom: 12px;
+            color: white;
+            font-size: 14px; /* Reducido de 18px */
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+            border: 1px solid #34495e;
+            background-color: #1a252f;
+            color: white;
+            font-size: 13px; /* Reducido de 16px */
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .modal-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .modal-cancel {
+            background-color: #7f8c8d;
+            color: white;
+        }
+        
+        .modal-calculate {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        /* Nuevos estilos para el header */
+        .calculator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .language-selector {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        
+        .flag {
+            width: 20px; /* Reducido de 25px */
+            height: 14px; /* Reducido de 17px */
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+            border: 1px solid #ccc;
+        }
+        
+        .flag.active {
+            opacity: 1;
+            border: 2px solid #3498db;
+        }
+        
+        .flag-catalunya {
+            background: linear-gradient(
+                to bottom,
+                #ffcd00 0%, #ffcd00 10%,
+                #da121a 10%, #da121a 20%,
+                #ffcd00 20%, #ffcd00 30%,
+                #da121a 30%, #da121a 40%,
+                #ffcd00 40%, #ffcd00 50%,
+                #da121a 50%, #da121a 60%,
+                #ffcd00 60%, #ffcd00 70%,
+                #da121a 70%, #da121a 80%,
+                #ffcd00 80%, #ffcd00 90%,
+                #da121a 90%, #da121a 100%
+            );
+        }
+        
+        .help-icon {
+            font-size: 1rem; /* Reducido de 1.2rem */
+            cursor: pointer;
+            color: #3498db;
+            margin-left: 4px;
+            transition: all 0.3s;
+        }
+        
+        .help-icon:hover {
+            transform: scale(1.1);
+            color: #2c3e50;
+        }
+        
+        /* Footer */
+        .calculator-footer {
+            text-align: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #34495e;
+            color: #95a5a6;
+            font-size: 10px; /* Reducido de 12px */
+        }
+        
+        .calculator-footer a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .calculator-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .btn-help {
+            background-color: #3498db;
+            color: white;
+            padding: 6px 13px; /* Reducido de 8px 16px */
+            margin-top: 8px;
+            width: 100%;
+            font-size: 11px;
+        }
+        
+        .btn-install {
+            background-color: #9b59b6;
+            color: white;
+            padding: 6px 13px;
+            margin-top: 8px;
+            width: 100%;
+            font-size: 11px;
+        }
+        
+        .btn-suggestions {
+            background-color: #3498db;
+            color: white;
+            padding: 6px 13px;
+            margin-top: 8px;
+            width: 100%;
+            font-size: 11px;
+        }
+        
+        .btn-install:hover {
+            background-color: #8e44ad;
+        }
+        
+        .btn-suggestions:hover {
+            background-color: #2980b9;
+        }
+        
+        /* Nuevos estilos para el indicador de modo en el display */
+        .display-mode-indicator {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            font-size: 9px;
+            color: #7f8c8d;
+            font-weight: normal;
+        }
+        
+        /* Estilos para el modal de instalación */
+        .install-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .install-modal-content {
+            background-color: #2c3e50;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .install-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .install-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            min-height: 40px;
+        }
+        
+        .install-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .install-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .install-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .install-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            min-width: 100px;
+        }
+        
+        .install-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .install-secondary {
+            background-color: #7f8c8d;
+            color: white;
+        }
+        
+        .install-instructions {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #34495e;
+            border-radius: 5px;
+            font-size: 10px;
+            text-align: left;
+        }
+        
+        .install-instructions h4 {
+            margin-bottom: 5px;
+            color: #ecf0f1;
+        }
+        
+        /* Modal de sugerencias (nuevo) */
+        .suggestions-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            text-align: center;
         }
         
-        .container {
-            max-width: 600px;
-            background: rgba(44, 62, 80, 0.95);
+        .suggestions-modal-content {
+            background: white;
             border-radius: 15px;
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
         
-        h1 {
-            color: #3498db;
-            margin-bottom: 20px;
-            font-size: 2.5rem;
+        .suggestions-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .suggestions-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.8rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .suggestions-title {
+            color: #333;
+            font-size: 1.4rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .suggestions-subtitle {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .suggestions-input, .suggestions-textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        .suggestions-input:focus, .suggestions-textarea:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+        
+        .suggestions-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #f44336;
+        }
+        
+        .prefilled-field {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            padding: 0.8rem;
+            border-radius: 8px;
+            color: #2196F3;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+        
+        .suggestions-btn-modal {
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            color: white;
+            border: none;
+            padding: 0.9rem;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+        }
+        
+        .suggestions-btn-modal:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+        
+        .suggestions-btn-modal:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            text-align: center;
+            margin: 1rem 0;
+            display: none;
         }
         
         .spinner {
-            border: 5px solid rgba(255, 255, 255, 0.3);
+            border: 3px solid rgba(33, 150, 243, 0.2);
+            border-top: 3px solid #2196F3;
             border-radius: 50%;
-            border-top: 5px solid #3498db;
-            width: 60px;
-            height: 60px;
+            width: 25px;
+            height: 25px;
             animation: spin 1s linear infinite;
-            margin: 30px auto;
+            margin: 0 auto 0.5rem;
         }
         
         @keyframes spin {
@@ -54,169 +653,1877 @@
         }
         
         .message {
-            margin: 20px 0;
-            font-size: 1.1rem;
-            line-height: 1.6;
-        }
-        
-        .btn {
-            display: inline-block;
-            background: #3498db;
-            color: white;
-            padding: 14px 30px;
-            text-decoration: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
             border-radius: 8px;
-            margin-top: 20px;
-            font-weight: bold;
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 1000;
+            max-width: 280px;
+            animation: slideIn 0.3s ease;
         }
         
-        .btn:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
         
-        .details {
-            background: rgba(52, 73, 94, 0.7);
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 30px;
-            text-align: left;
+        .message.success {
+            background: #4CAF50;
         }
         
-        .details h3 {
-            color: #2ecc71;
-            margin-bottom: 10px;
+        .message.error {
+            background: #f44336;
         }
         
-        .details ul {
-            margin-left: 20px;
-            margin-bottom: 15px;
+        .message.info {
+            background: #2196F3;
         }
         
-        .details li {
-            margin-bottom: 8px;
+        .hint {
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
         }
         
-        .warning {
-            background: rgba(231, 76, 60, 0.2);
-            border-left: 4px solid #e74c3c;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 20px;
-            text-align: left;
+        .city-examples {
+            color: #666;
+            font-size: 0.75rem;
+            margin-top: 0.4rem;
+            font-style: italic;
         }
         
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
+        /* Nuevo estilo para el botón de borrar un carácter */
+        .backspace-btn {
+            background-color: #9b59b6;
+        }
+        
+        .backspace-btn:hover {
+            background-color: #8e44ad;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>¡Nueva Ubicación!</h1>
-        
-        <div class="message">
-            <p>La Calculadora de Tiempos se ha movido a una nueva ubicación para mejor organización. Una vez en ella dale al botón de instalar de nuevo</p>
-            <p>Estás siendo redirigido automáticamente...</p>
+    <div class="calculator">
+        <div class="calculator-header">
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png" 
+             alt="Logo" 
+             style="width: 24px; height: 24px; border-radius: 4px;">
+        <div class="title">Calculadora de Tiempos</div>
+    </div>
+            <div class="language-selector">
+                <img src="https://flagcdn.com/w40/es.png" class="flag active" id="flag-es" data-lang="es">
+                <div class="flag flag-catalunya" id="flag-ca" data-lang="ca"></div>
+                <img src="https://flagcdn.com/w40/gb.png" class="flag" id="flag-en" data-lang="en">
+                <img src="https://flagcdn.com/w40/fr.png" class="flag" id="flag-fr" data-lang="fr">
+                <span class="help-icon" id="help-icon-header" title="Ayuda">❓</span>
+            </div>
+        </div>
+        <div class="display">
+            <div class="display-mode-indicator" id="displayModeIndicator">Modo: Decimal</div>
+            <div class="current-operation" id="currentOperation"></div>
+            <div class="current-input" id="currentInput">0</div>
+            <div class="history" id="history"></div>
         </div>
         
-        <div class="spinner"></div>
-        
-        <div class="message">
-            <p>Si la redirección no funciona en unos segundos, haz clic en el botón:</p>
-        </div>
-        
-        <a href="https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos.html" id="redirect-link" class="btn">
-            Ir a la nueva Calculadora
-        </a>
-        
-        <div class="warning">
-            <p><strong>Importante:</strong> La URL antigua dejará de funcionar próximamente.</p>
-            <p>Por favor, actualiza tus marcadores y enlaces.</p>
-        </div>
-        
-        <div class="details">
-            <h3>¿Qué ha cambiado?</h3>
-            <ul>
-                <li><strong>Nueva URL:</strong> <code>https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos.html</code></li>
-                <li><strong>Misma funcionalidad:</strong> Todas las características siguen disponibles</li>
-                <li><strong>Mejor organización:</strong> Ahora está en la carpeta de herramientas para árbitros</li>
-                <li><strong>Actualizaciones:</strong> Todas las futuras mejoras estarán en la nueva ubicación</li>
-            </ul>
+        <div class="buttons">
+            <button class="unit-btn" id="hourBtn" data-unit="hour">Hora</button>
+            <button class="unit-btn" id="minuteBtn" data-unit="minute">Minuto</button>
+            <button class="unit-btn" id="secondBtn" data-unit="second">Segundo</button>
+            <button class="unit-btn active" id="decimalBtn" data-unit="decimal">Decimal</button>
             
-            <h3>Para usuarios que instalaron la app:</h3>
-            <ul>
-                <li>La app PWA seguirá funcionando desde la nueva ubicación</li>
-                <li>Puedes reinstalarla desde la nueva URL para obtener actualizaciones futuras</li>
-                <li>El icono seguirá funcionando hasta que decidas actualizarlo</li>
-            </ul>
+            <button class="memory-btn" data-memory="m+">M+</button>
+            <button class="memory-btn" data-memory="mc">Mc</button>
+            <button class="memory-btn" data-memory="mr">Mr</button>
+            <button class="operation-btn" data-operation="%">%</button>
+            
+            <button class="clear-btn" data-clear="c">C</button>
+            <button class="clear-btn" data-clear="ce">CE</button>
+            <button class="backspace-btn" data-backspace="backspace">←</button>
+            <button class="operation-btn" data-operation="*">×</button>
+            
+            <button data-number="7">7</button>
+            <button data-number="8">8</button>
+            <button data-number="9">9</button>
+            <button class="operation-btn" data-operation="/">÷</button>
+            
+            <button data-number="4">4</button>
+            <button data-number="5">5</button>
+            <button data-number="6">6</button>
+            <button class="operation-btn" data-operation="-">-</button>
+            
+            <button data-number="1">1</button>
+            <button data-number="2">2</button>
+            <button data-number="3">3</button>
+            <button class="operation-btn" data-operation="+">+</button>
+            
+            <!-- Fila modificada: 0 ocupa solo un espacio, %+ se mueve debajo del 1 -->
+            <button data-number="0">0</button>
+            <button data-decimal>.</button>
+            <button class="operation-btn" data-operation="%+">%+</button>
+            <button class="equals-btn" data-equals>=</button>
         </div>
         
-        <div class="message" style="margin-top: 30px; font-size: 0.9rem; opacity: 0.8;">
-            <p>Esta aplicación ha sido desarrollada por Roberto Benet para árbitros de ciclismo.</p>
-            <p>2025 © Copyright - <a href="https://rbenet71.github.io/Web/" style="color: #3498db;" target="_blank">Ver todas mis aplicaciones</a></p>
+        <div class="special-buttons">
+            <button class="special-btn" id="averageBtn">Cálculo Promedio</button>
+            <button class="special-btn" id="lapsBtn">Número de Vueltas</button>
+        </div>
+        
+        <button class="btn-help" id="btn-help">Ayuda</button>
+        <button class="btn-install" id="btn-install">Instalar App</button>
+        <button class="btn-suggestions" id="btn-suggestions">Actualizaciones/Sugerencias</button>
+        
+        <div class="calculator-footer">
+            <p>
+                <span id="copyright-text">2025 © Copyright</span>
+                <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
+                    Roberto Benet - rbenet71@gmail.com - V_11_12_2025
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Modal para Cálculo de Promedio -->
+    <div class="modal" id="averageModal">
+        <div class="modal-content">
+            <div class="modal-title">Cálculo de Promedio (km/h)</div>
+            <input type="number" class="modal-input" id="distanceInput" placeholder="Distancia en km" step="0.1">
+            <input type="text" class="modal-input" id="timeInput" placeholder="Tiempo (ej: 1h 30m 45s)">
+            <div class="modal-buttons">
+                <button class="modal-btn modal-cancel" id="cancelAverage">Cancelar</button>
+                <button class="modal-btn modal-calculate" id="calculateAverage">Calcular</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Cálculo de Vueltas -->
+    <div class="modal" id="lapsModal">
+        <div class="modal-content">
+            <div class="modal-title">Cálculo de Número de Vueltas</div>
+            <input type="text" class="modal-input" id="lapTimeInput" placeholder="Tiempo por vuelta (ej: 5m 30s)">
+            <input type="text" class="modal-input" id="targetTimeInput" placeholder="Tiempo objetivo (ej: 1h 30m)">
+            <div class="modal-buttons">
+                <button class="modal-btn modal-cancel" id="cancelLaps">Cancelar</button>
+                <button class="modal-btn modal-calculate" id="calculateLaps">Calcular</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Instalación -->
+    <div class="install-modal" id="installModal">
+        <div class="install-modal-content">
+            <div class="install-icon" id="installIcon">📱</div>
+            <div class="install-message" id="installMessage"></div>
+            <div class="install-buttons">
+                <button class="install-btn install-primary" id="installActionBtn">Instalar</button>
+                <button class="install-btn install-secondary" id="installCancelBtn">Cerrar</button>
+            </div>
+            <div class="install-instructions" id="installInstructions">
+                <h4 id="instructionsTitle">Instrucciones de instalación</h4>
+                <div id="instructionsList">
+                    <!-- Las instrucciones se llenarán dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de sugerencias (nuevo) -->
+    <div class="suggestions-modal" id="suggestionsModal">
+        <div class="suggestions-modal-content">
+            <div class="suggestions-header">
+                <div class="suggestions-icon">
+                    📱
+                </div>
+                <h1 class="suggestions-title" id="suggestions-title">Calculadora de Tiempos</h1>
+                <p class="suggestions-subtitle" id="suggestions-subtitle">Envía tus comentarios</p>
+            </div>
+            
+            <form id="suggestionForm">
+                <div class="form-group">
+                    <label for="email-suggestions" class="required" id="email-label">Facilítanos tu email para mantenerte informado de las actualizaciones</label>
+                    <input type="email" id="email-suggestions" class="suggestions-input" placeholder="tu@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="city-suggestions" class="required" id="city-label">Ciudad</label>
+                    <input type="text" id="city-suggestions" class="suggestions-input" placeholder="Ej: Madrid" required>
+                    <div class="city-examples" id="city-examples">Madrid, Barcelona, Valencia, etc.</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="suggestion-text" id="suggestion-label">Sugerencias para mejorar la aplicación</label>
+                    <textarea id="suggestion-text" class="suggestions-textarea" placeholder="Tus ideas para mejorar la app..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label id="program-label">Programa</label>
+                    <div class="prefilled-field">Calculadora de Tiempos</div>
+                </div>
+                
+                <div class="loading" id="loading-suggestions">
+                    <div class="spinner"></div>
+                    <p id="loading-text">Enviando...</p>
+                </div>
+                
+                <button type="button" id="submitBtn-suggestions" class="suggestions-btn-modal">
+                    📤 Enviar
+                </button>
+            </form>
         </div>
     </div>
     
+    <div id="message" class="message"></div>
+
     <script>
-        // Redirección automática
-        const nuevaURL = "https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos.html";
+        // Variables globales para el sistema de idiomas
+        let currentLanguage = 'es';
         
-        // Redirección inmediata para instalaciones PWA
-        if (window.location.search.includes('utm_source=pwa') || 
-            window.location.search.includes('source=pwa') ||
-            window.navigator.standalone) {
-            window.location.replace(nuevaURL);
+        // Textos en diferentes idiomas (ampliados con textos de sugerencias y francés)
+        const translations = {
+            es: {
+                appTitle: "Calculadora de Tiempos",
+                modeDecimal: "Modo: Decimal",
+                modeTime: "Modo: Tiempo",
+                averageCalc: "Cálculo Promedio",
+                lapsCalc: "Número de Vueltas",
+                helpButton: "Ayuda",
+                installButton: "Instalar App",
+                suggestionsButton: "Actualizaciones/Sugerencias",
+                averageModalTitle: "Cálculo de Promedio (km/h)",
+                distancePlaceholder: "Distancia en km",
+                timePlaceholder: "Tiempo (ej: 1h 30m 45s)",
+                lapsModalTitle: "Cálculo de Número de Vueltas",
+                lapTimePlaceholder: "Tiempo por vuelta (ej: 5m 30s)",
+                targetTimePlaceholder: "Tiempo objetivo (ej: 1h 30m)",
+                cancelButton: "Cancelar",
+                calculateButton: "Calcular",
+                hourButton: "Hora",
+                minuteButton: "Minuto",
+                secondButton: "Segundo",
+                decimalButton: "Decimal",
+                installTitle: "Instalar App",
+                installSubtitle: "Añade un acceso directo a tu dispositivo",
+                installAction: "Instalar",
+                installClose: "Cerrar",
+                iosInstructionsTitle: "Instalar en iPhone/iPad",
+                iosInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Se abrirá el menú de compartir</li>
+                    <li>Desplázate y selecciona <strong>"Añadir a Pantalla de Inicio"</strong></li>
+                    <li>Pulsa <strong>"Añadir"</strong> para confirmar</li>
+                </ol>`,
+                androidInstructionsTitle: "Instalar en Android",
+                androidInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Se instalará automáticamente como app PWA</li>
+                    <li>La app aparecerá en tu pantalla de inicio</li>
+                </ol>`,
+                windowsInstructionsTitle: "Crear Acceso Directo en Windows",
+                windowsInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Se descargará un archivo .url</li>
+                    <li>Ábrelo para crear el acceso directo en tu escritorio</li>
+                </ol>`,
+                otherInstructionsTitle: "Instalar App",
+                otherInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botón "Instalar"</li>
+                    <li>Sigue las instrucciones de tu navegador</li>
+                </ol>`,
+                // Textos para sugerencias
+                suggestionsTitle: "Calculadora de Tiempos",
+                suggestionsSubtitle: "Envía tus comentarios",
+                emailLabel: "Facilítanos tu email para mantenerte informado de las actualizaciones",
+                cityLabel: "Ciudad",
+                suggestionLabel: "Sugerencias para mejorar la aplicación",
+                programLabel: "Programa",
+                submitButton: "📤 Enviar",
+                sendingText: "Enviando...",
+                successMessage: "✅ Enviado correctamente",
+                errorMessage: "❌ Error al enviar",
+                invalidEmail: "Email no válido",
+                invalidCity: "Ciudad no válida",
+                enterEmail: "Ingresa tu email",
+                enterCity: "Escribe tu ciudad",
+                cityExamples: "Madrid, Barcelona, Valencia, etc."
+            },
+            ca: {
+                appTitle: "Calculadora de Temps",
+                modeDecimal: "Mode: Decimal",
+                modeTime: "Mode: Temps",
+                averageCalc: "Càlcul Promig",
+                lapsCalc: "Nombre de Voltes",
+                helpButton: "Ajuda",
+                installButton: "Instal·lar App",
+                suggestionsButton: "Actualitzacions/Suggeriments",
+                averageModalTitle: "Càlcul de Promig (km/h)",
+                distancePlaceholder: "Distància en km",
+                timePlaceholder: "Temps (ex: 1h 30m 45s)",
+                lapsModalTitle: "Càlcul de Nombre de Voltes",
+                lapTimePlaceholder: "Temps per volta (ex: 5m 30s)",
+                targetTimePlaceholder: "Temps objectiu (ex: 1h 30m)",
+                cancelButton: "Cancel·lar",
+                calculateButton: "Calcular",
+                hourButton: "Hora",
+                minuteButton: "Minut",
+                secondButton: "Segon",
+                decimalButton: "Decimal",
+                installTitle: "Instal·lar App",
+                installSubtitle: "Afegeix un accés directe al teu dispositiu",
+                installAction: "Instal·lar",
+                installClose: "Tancar",
+                iosInstructionsTitle: "Instal·lar a iPhone/iPad",
+                iosInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botó "Instal·lar"</li>
+                    <li>S'obrirà el menú de compartir</li>
+                    <li>Desplaça't i selecciona <strong>"Afegeix a la pantalla d'inici"</strong></li>
+                    <li>Prem <strong>"Afegeix"</strong> per confirmar</li>
+                </ol>`,
+                androidInstructionsTitle: "Instal·lar a Android",
+                androidInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botó "Instal·lar"</li>
+                    <li>S'instal·larà automàticament com a app PWA</li>
+                    <li>L'app apareixerà a la teva pantalla d'inici</li>
+                </ol>`,
+                windowsInstructionsTitle: "Crear Accés Directe a Windows",
+                windowsInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botó "Instal·lar"</li>
+                    <li>Es descarregarà un arxiu .url</li>
+                    <li>Obre'l per crear l'accés directe al teu escriptori</li>
+                </ol>`,
+                otherInstructionsTitle: "Instal·lar App",
+                otherInstructions: `<ol style="padding-left: 15px;">
+                    <li>Toca el botó "Instal·lar"</li>
+                    <li>Segueix les instruccions del teu navegador</li>
+                </ol>`,
+                // Textos para sugerencias
+                suggestionsTitle: "Calculadora de Temps",
+                suggestionsSubtitle: "Envia els teus comentaris",
+                emailLabel: "Facilita'ns el teu email per mantenir-te informat de les actualitzacions",
+                cityLabel: "Ciutat",
+                suggestionLabel: "Suggeriments per millorar l'aplicació",
+                programLabel: "Programa",
+                submitButton: "📤 Enviar",
+                sendingText: "Enviant...",
+                successMessage: "✅ Enviat correctament",
+                errorMessage: "❌ Error en enviar",
+                invalidEmail: "Email no vàlid",
+                invalidCity: "Ciutat no vàlida",
+                enterEmail: "Introdueix el teu email",
+                enterCity: "Escriu la teva ciutat",
+                cityExamples: "Madrid, Barcelona, València, etc."
+            },
+            en: {
+                appTitle: "Time Calculator",
+                modeDecimal: "Mode: Decimal",
+                modeTime: "Mode: Time",
+                averageCalc: "Average Calculation",
+                lapsCalc: "Number of Laps",
+                helpButton: "Help",
+                installButton: "Install App",
+                suggestionsButton: "Updates/Suggestions",
+                averageModalTitle: "Average Calculation (km/h)",
+                distancePlaceholder: "Distance in km",
+                timePlaceholder: "Time (ex: 1h 30m 45s)",
+                lapsModalTitle: "Number of Laps Calculation",
+                lapTimePlaceholder: "Time per lap (ex: 5m 30s)",
+                targetTimePlaceholder: "Target time (ex: 1h 30m)",
+                cancelButton: "Cancel",
+                calculateButton: "Calculate",
+                hourButton: "Hour",
+                minuteButton: "Minute",
+                secondButton: "Second",
+                decimalButton: "Decimal",
+                installTitle: "Install App",
+                installSubtitle: "Add a shortcut to your device",
+                installAction: "Install",
+                installClose: "Close",
+                iosInstructionsTitle: "Install on iPhone/iPad",
+                iosInstructions: `<ol style="padding-left: 15px;">
+                    <li>Tap the "Install" button</li>
+                    <li>The share menu will open</li>
+                    <li>Scroll and select <strong>"Add to Home Screen"</strong></li>
+                    <li>Tap <strong>"Add"</strong> to confirm</li>
+                </ol>`,
+                androidInstructionsTitle: "Install on Android",
+                androidInstructions: `<ol style="padding-left: 15px;">
+                    <li>Tap the "Install" button</li>
+                    <li>It will automatically install as a PWA</li>
+                    <li>The app will appear on your home screen</li>
+                </ol>`,
+                windowsInstructionsTitle: "Create Shortcut on Windows",
+                windowsInstructions: `<ol style="padding-left: 15px;">
+                    <li>Tap the "Install" button</li>
+                    <li>A .url file will be downloaded</li>
+                    <li>Open it to create the shortcut on your desktop</li>
+                </ol>`,
+                otherInstructionsTitle: "Install App",
+                otherInstructions: `<ol style="padding-left: 15px;">
+                    <li>Tap the "Install" button</li>
+                    <li>Follow your browser instructions</li>
+                </ol>`,
+                // Textos para sugerencias
+                suggestionsTitle: "Time Calculator",
+                suggestionsSubtitle: "Send your comments",
+                emailLabel: "Provide your email to stay informed about updates",
+                cityLabel: "City",
+                suggestionLabel: "Suggestions to improve the application",
+                programLabel: "Program",
+                submitButton: "📤 Send",
+                sendingText: "Sending...",
+                successMessage: "✅ Sent successfully",
+                errorMessage: "❌ Error sending",
+                invalidEmail: "Invalid email",
+                invalidCity: "Invalid city",
+                enterEmail: "Enter your email",
+                enterCity: "Write your city",
+                cityExamples: "Madrid, Barcelona, Valencia, etc."
+            },
+            fr: {
+                appTitle: "Calculateur de Temps",
+                modeDecimal: "Mode: Décimal",
+                modeTime: "Mode: Temps",
+                averageCalc: "Calcul Moyenne",
+                lapsCalc: "Nombre de Tours",
+                helpButton: "Aide",
+                installButton: "Installer App",
+                suggestionsButton: "Mises à jour/Suggestions",
+                averageModalTitle: "Calcul de Moyenne (km/h)",
+                distancePlaceholder: "Distance en km",
+                timePlaceholder: "Temps (ex: 1h 30m 45s)",
+                lapsModalTitle: "Calcul du Nombre de Tours",
+                lapTimePlaceholder: "Temps par tour (ex: 5m 30s)",
+                targetTimePlaceholder: "Temps cible (ex: 1h 30m)",
+                cancelButton: "Annuler",
+                calculateButton: "Calculer",
+                hourButton: "Heure",
+                minuteButton: "Minute",
+                secondButton: "Seconde",
+                decimalButton: "Décimal",
+                installTitle: "Installer l'App",
+                installSubtitle: "Ajoutez un raccourci à votre appareil",
+                installAction: "Installer",
+                installClose: "Fermer",
+                iosInstructionsTitle: "Installer sur iPhone/iPad",
+                iosInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Le menu de partage s'ouvrira</li>
+                    <li>Faites défiler et sélectionnez <strong>"Ajouter à l'écran d'accueil"</strong></li>
+                    <li>Appuyez sur <strong>"Ajouter"</strong> para confirmar</li>
+                </ol>`,
+                androidInstructionsTitle: "Installer sur Android",
+                androidInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Il s'installera automatiquement en tant qu'application PWA</li>
+                    <li>L'application apparaîtra sur votre écran d'accueil</li>
+                </ol>`,
+                windowsInstructionsTitle: "Créer un Raccourci sur Windows",
+                windowsInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le bouton "Installer"</li>
+                    <li>Un fichier .url sera téléchargé</li>
+                    <li>Ouvrez-le pour créer le raccourci sur votre bureau</li>
+                </ol>`,
+                otherInstructionsTitle: "Installer l'App",
+                otherInstructions: `<ol style="padding-left: 15px;">
+                    <li>Appuyez sur le botón "Installer"</li>
+                    <li>Suivez les instructions de votre navigateur</li>
+                </ol>`,
+                // Textos para sugerencias
+                suggestionsTitle: "Calculateur de Temps",
+                suggestionsSubtitle: "Envoyez vos commentaires",
+                emailLabel: "Fournissez votre email pour rester informé des mises à jour",
+                cityLabel: "Ville",
+                suggestionLabel: "Suggestions pour améliorer l'application",
+                programLabel: "Programme",
+                submitButton: "📤 Envoyer",
+                sendingText: "Envoi en cours...",
+                successMessage: "✅ Envoyé avec succès",
+                errorMessage: "❌ Erreur d'envoi",
+                invalidEmail: "Email non valide",
+                invalidCity: "Ville non valide",
+                enterEmail: "Entrez votre email",
+                enterCity: "Écrivez votre ville",
+                cityExamples: "Paris, Lyon, Marseille, etc."
+            }
+        };
+
+        // Función para actualizar idioma
+        function updateLanguage(lang) {
+            currentLanguage = lang;
+            
+            // Actualizar textos
+            document.querySelector('.title').textContent = translations[lang].appTitle;
+            document.getElementById('displayModeIndicator').textContent = translations[lang].modeDecimal;
+            document.getElementById('averageBtn').textContent = translations[lang].averageCalc;
+            document.getElementById('lapsBtn').textContent = translations[lang].lapsCalc;
+            document.getElementById('btn-help').textContent = translations[lang].helpButton;
+            document.getElementById('btn-install').textContent = translations[lang].installButton;
+            document.getElementById('btn-suggestions').textContent = translations[lang].suggestionsButton;
+            
+            // Actualizar textos de modales
+            document.querySelector('#averageModal .modal-title').textContent = translations[lang].averageModalTitle;
+            document.getElementById('distanceInput').placeholder = translations[lang].distancePlaceholder;
+            document.getElementById('timeInput').placeholder = translations[lang].timePlaceholder;
+            document.getElementById('cancelAverage').textContent = translations[lang].cancelButton;
+            document.getElementById('calculateAverage').textContent = translations[lang].calculateButton;
+            
+            document.querySelector('#lapsModal .modal-title').textContent = translations[lang].lapsModalTitle;
+            document.getElementById('lapTimeInput').placeholder = translations[lang].lapTimePlaceholder;
+            document.getElementById('targetTimeInput').placeholder = translations[lang].targetTimePlaceholder;
+            document.getElementById('cancelLaps').textContent = translations[lang].cancelButton;
+            document.getElementById('calculateLaps').textContent = translations[lang].calculateButton;
+            
+            // Actualizar botones de unidad
+            document.getElementById('hourBtn').textContent = translations[lang].hourButton;
+            document.getElementById('minuteBtn').textContent = translations[lang].minuteButton;
+            document.getElementById('secondBtn').textContent = translations[lang].secondButton;
+            document.getElementById('decimalBtn').textContent = translations[lang].decimalButton;
+            
+            // Actualizar banderas activas
+            document.querySelectorAll('.flag').forEach(flag => {
+                flag.classList.remove('active');
+            });
+            document.getElementById('flag-' + lang).classList.add('active');
+            
+            // Actualizar textos de sugerencias
+            if (window.suggestionsSystem) {
+                window.suggestionsSystem.updateLanguage(lang);
+            }
         }
         
-        // Redirección con cuenta regresiva
-        let segundos = 8;
-        const countdownElement = document.createElement('div');
-        countdownElement.className = 'message';
-        countdownElement.id = 'countdown';
-        countdownElement.innerHTML = `Redirigiendo en <strong>${segundos}</strong> segundos...`;
-        document.querySelector('.spinner').after(countdownElement);
-        
-        const intervalo = setInterval(() => {
-            segundos--;
-            countdownElement.innerHTML = `Redirigiendo en <strong>${segundos}</strong> segundos...`;
-            
-            if (segundos <= 0) {
-                clearInterval(intervalo);
-                window.location.replace(nuevaURL);
+        // Función para abrir el archivo de ayuda
+        function openHelpFile() {
+            window.open('https://rbenet71.github.io/Web/Calculadora_Tiempos_Ayuda.html', '_blank');
+        }
+
+        // Sistema de instalación de app
+        class AppInstaller {
+            constructor() {
+                this.installModal = document.getElementById('installModal');
+                this.installIcon = document.getElementById('installIcon');
+                this.installMessage = document.getElementById('installMessage');
+                this.installActionBtn = document.getElementById('installActionBtn');
+                this.installCancelBtn = document.getElementById('installCancelBtn');
+                this.instructionsTitle = document.getElementById('instructionsTitle');
+                this.instructionsList = document.getElementById('instructionsList');
+                
+                this.deferredPrompt = null;
+                this.platform = this.detectPlatform();
+                
+                this.initialize();
             }
-        }, 1000);
-        
-        // Manejo especial para usuarios PWA
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(registrations => {
-                registrations.forEach(registration => {
-                    // Actualizar el service worker para redirigir
-                    registration.update();
+            
+            initialize() {
+                this.attachEventListeners();
+                this.setupForPlatform();
+            }
+            
+            detectPlatform() {
+                const userAgent = navigator.userAgent.toLowerCase();
+                
+                if (/iphone|ipad|ipod/.test(userAgent)) {
+                    return 'iOS';
+                } else if (/android/.test(userAgent)) {
+                    return 'Android';
+                } else if (/windows/.test(userAgent)) {
+                    return 'Windows';
+                } else {
+                    return 'Other';
+                }
+            }
+            
+            setupForPlatform() {
+                switch(this.platform) {
+                    case 'iOS':
+                        this.setupIOS();
+                        break;
+                    case 'Android':
+                        this.setupAndroid();
+                        break;
+                    case 'Windows':
+                        this.setupWindows();
+                        break;
+                    default:
+                        this.setupOther();
+                }
+            }
+            
+            setupIOS() {
+                this.installIcon.textContent = '📱';
+                this.installActionBtn.textContent = translations[currentLanguage].installAction;
+                this.instructionsTitle.textContent = translations[currentLanguage].iosInstructionsTitle;
+                this.instructionsList.innerHTML = translations[currentLanguage].iosInstructions;
+            }
+            
+            setupAndroid() {
+                this.installIcon.textContent = '🤖';
+                this.installActionBtn.textContent = translations[currentLanguage].installAction;
+                this.instructionsTitle.textContent = translations[currentLanguage].androidInstructionsTitle;
+                this.instructionsList.innerHTML = translations[currentLanguage].androidInstructions;
+                
+                // Escuchar evento de instalación PWA
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    this.deferredPrompt = e;
                 });
+            }
+            
+            setupWindows() {
+                this.installIcon.textContent = '💻';
+                this.installActionBtn.textContent = translations[currentLanguage].installAction;
+                this.instructionsTitle.textContent = translations[currentLanguage].windowsInstructionsTitle;
+                this.instructionsList.innerHTML = translations[currentLanguage].windowsInstructions;
+            }
+            
+            setupOther() {
+                this.installIcon.textContent = '🌐';
+                this.installActionBtn.textContent = translations[currentLanguage].installAction;
+                this.instructionsTitle.textContent = translations[currentLanguage].otherInstructionsTitle;
+                this.instructionsList.innerHTML = translations[currentLanguage].otherInstructions;
+            }
+            
+            attachEventListeners() {
+                // Botón para abrir modal de instalación
+                document.getElementById('btn-install').addEventListener('click', () => {
+                    this.showInstallModal();
+                });
+                
+                // Botones del modal
+                this.installActionBtn.addEventListener('click', () => {
+                    this.handleInstall();
+                });
+                
+                this.installCancelBtn.addEventListener('click', () => {
+                    this.hideInstallModal();
+                });
+                
+                // Cerrar modal al hacer clic fuera
+                window.addEventListener('click', (e) => {
+                    if (e.target === this.installModal) {
+                        this.hideInstallModal();
+                    }
+                });
+            }
+            
+            showInstallModal() {
+                this.installModal.style.display = 'flex';
+                this.showMessage(translations[currentLanguage].installSubtitle, true);
+            }
+            
+            hideInstallModal() {
+                this.installModal.style.display = 'none';
+            }
+            
+            showMessage(message, isInfo = true) {
+                this.installMessage.textContent = message;
+                this.installMessage.className = `install-message ${isInfo ? 'install-info' : 'install-success'}`;
+            }
+            
+            async handleInstall() {
+                switch(this.platform) {
+                    case 'iOS':
+                        this.installIOS();
+                        break;
+                    case 'Android':
+                        await this.installAndroid();
+                        break;
+                    case 'Windows':
+                        this.installWindows();
+                        break;
+                    default:
+                        this.installOther();
+                }
+            }
+            
+            installIOS() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: document.title,
+                        text: translations[currentLanguage].installSubtitle,
+                        url: window.location.href
+                    })
+                    .then(() => {
+                        this.showMessage('✅ ' + (currentLanguage === 'fr' ? 'Sélectionnez maintenant "Ajouter à l\'écran d\'accueil"' : 
+                                               currentLanguage === 'en' ? 'Now select "Add to Home Screen"' :
+                                               currentLanguage === 'ca' ? 'Ara selecciona "Afegeix a la pantalla d\'inici"' :
+                                               'Ahora selecciona "Añadir a Pantalla de Inicio"'), false);
+                    })
+                    .catch((error) => {
+                        if (error.name !== 'AbortError') {
+                            this.showMessage('❌ ' + (currentLanguage === 'fr' ? 'Impossible d\'ouvrir le menu de partage' :
+                                               currentLanguage === 'en' ? 'Could not open share menu' :
+                                               currentLanguage === 'ca' ? 'No s\'ha pogut obrir el menú de compartir' :
+                                               'No se pudo abrir el menú de compartir'), true);
+                        }
+                    });
+                } else {
+                    this.showMessage('❌ ' + (currentLanguage === 'fr' ? 'Votre navigateur ne supporte pas cette fonction' :
+                                           currentLanguage === 'en' ? 'Your browser does not support this function' :
+                                           currentLanguage === 'ca' ? 'El teu navegador no suporta aquesta funció' :
+                                           'Tu navegador no soporta esta función'), true);
+                }
+            }
+            
+            async installAndroid() {
+                if (this.deferredPrompt) {
+                    try {
+                        this.deferredPrompt.prompt();
+                        const { outcome } = await this.deferredPrompt.userChoice;
+                        
+                        if (outcome === 'accepted') {
+                            this.showMessage('✅ ' + (currentLanguage === 'fr' ? 'App installée avec succès' :
+                                                   currentLanguage === 'en' ? 'App installed successfully' :
+                                                   currentLanguage === 'ca' ? 'App instal·lada correctament' :
+                                                   'App instalada correctamente'), false);
+                            this.installActionBtn.style.display = 'none';
+                        } else {
+                            this.showMessage(currentLanguage === 'fr' ? 'Installation annulée' :
+                                            currentLanguage === 'en' ? 'Installation cancelled' :
+                                            currentLanguage === 'ca' ? 'Instal·lació cancel·lada' :
+                                            'Instalación cancelada', true);
+                        }
+                        this.deferredPrompt = null;
+                    } catch (error) {
+                        this.showMessage('❌ ' + (currentLanguage === 'fr' ? 'Erreur d\'installation' :
+                                               currentLanguage === 'en' ? 'Installation error' :
+                                               currentLanguage === 'ca' ? 'Error en la instal·lació' :
+                                               'Error en la instalación'), true);
+                    }
+                } else {
+                    this.showMessage('🔧 ' + (currentLanguage === 'fr' ? 'Votre navigateur supporte l\'installation PWA' :
+                                           currentLanguage === 'en' ? 'Your browser supports PWA installation' :
+                                           currentLanguage === 'ca' ? 'El teu navegador suporta instal·lació PWA' :
+                                           'Tu navegador soporta instalación PWA'), false);
+                }
+            }
+            
+            installWindows() {
+                // Crear y descargar archivo .url para acceso directo
+                const urlContent = `[InternetShortcut]
+URL=${window.location.href}
+IconIndex=0
+IDList=`;
+                
+                const blob = new Blob([urlContent], { type: 'application/internet-shortcut' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${document.title}.url`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.showMessage('✅ ' + (currentLanguage === 'fr' ? 'Fichier de raccourci téléchargé' :
+                                       currentLanguage === 'en' ? 'Shortcut file downloaded' :
+                                       currentLanguage === 'ca' ? 'Arxiu d\'accés directe descarregat' :
+                                       'Archivo de acceso directo descargado'), false);
+            }
+            
+            installOther() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: document.title,
+                        text: translations[currentLanguage].installSubtitle,
+                        url: window.location.href
+                    });
+                } else {
+                    this.showMessage('⭐ ' + (currentLanguage === 'fr' ? 'Utilisez le menu de votre navegador para crear un raccourci' :
+                                           currentLanguage === 'en' ? 'Use your browser menu to create a shortcut' :
+                                           currentLanguage === 'ca' ? 'Utilitza el menú del teu navegador per crear un accés directe' :
+                                           'Usa el menú de tu navegador para crear un acceso directo'), false);
+                }
+            }
+        }
+        
+        // Sistema de sugerencias
+        class SuggestionsSystem {
+            constructor() {
+                this.modal = document.getElementById('suggestionsModal');
+                this.submitBtn = document.getElementById('submitBtn-suggestions');
+                this.loading = document.getElementById('loading-suggestions');
+                this.message = document.getElementById('message');
+                this.emailInput = document.getElementById('email-suggestions');
+                this.cityInput = document.getElementById('city-suggestions');
+                this.suggestionInput = document.getElementById('suggestion-text');
+                this.currentLanguage = 'es';
+                
+                // Configuración del formulario
+                this.FORM_ENDPOINT = "https://docs.google.com/forms/d/e/1FAIpQLSeLeD6lAmBweVOubmEqydUONe6mutpQLlFSU_zKfHEhjhZVLg/formResponse";
+                this.FIELD_IDS = {
+                    email: "entry.1597282778",
+                    ciudad: "entry.1552097675",
+                    sugerencia: "entry.48109616",
+                    programa: "entry.1706983066",
+                    fecha: "entry.1734009197",
+                    hora: "entry.686693357"
+                };
+                
+                this.initialize();
+            }
+            
+            initialize() {
+                this.attachEventListeners();
+            }
+            
+            attachEventListeners() {
+                // Botón para abrir modal de sugerencias
+                document.getElementById('btn-suggestions').addEventListener('click', () => {
+                    this.showModal();
+                });
+                
+                // Botón de enviar
+                this.submitBtn.addEventListener('click', () => {
+                    this.submitForm();
+                });
+                
+                // Cerrar modal al hacer clic fuera
+                window.addEventListener('click', (e) => {
+                    if (e.target === this.modal) {
+                        this.hideModal();
+                    }
+                });
+                
+                // Atajos de teclado
+                this.suggestionInput.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 'Enter') {
+                        this.submitForm();
+                    }
+                });
+                
+                this.cityInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.suggestionInput.focus();
+                    }
+                });
+                
+                this.emailInput.addEventListener('blur', () => {
+                    if (this.emailInput.value && !this.isValidEmail(this.emailInput.value)) {
+                        this.emailInput.style.borderColor = '#f44336';
+                    } else {
+                        this.emailInput.style.borderColor = '#e0e0e0';
+                    }
+                });
+                
+                this.cityInput.addEventListener('blur', () => {
+                    if (this.cityInput.value.trim()) {
+                        this.cityInput.value = this.formatCity(this.cityInput.value);
+                    }
+                });
+            }
+            
+            showModal() {
+                this.modal.style.display = 'flex';
+                this.updateTexts();
+                // Limpiar campos al abrir
+                this.emailInput.value = '';
+                this.cityInput.value = '';
+                this.suggestionInput.value = '';
+            }
+            
+            hideModal() {
+                this.modal.style.display = 'none';
+            }
+            
+            updateTexts() {
+                const lang = this.currentLanguage;
+                document.getElementById('suggestions-title').textContent = translations[lang].suggestionsTitle;
+                document.getElementById('suggestions-subtitle').textContent = translations[lang].suggestionsSubtitle;
+                document.getElementById('email-label').innerHTML = translations[lang].emailLabel + '<span class="required"></span>';
+                document.getElementById('city-label').innerHTML = translations[lang].cityLabel + '<span class="required"></span>';
+                document.getElementById('suggestion-label').textContent = translations[lang].suggestionLabel;
+                document.getElementById('program-label').textContent = translations[lang].programLabel;
+                this.submitBtn.textContent = translations[lang].submitButton;
+                document.getElementById('loading-text').textContent = translations[lang].sendingText;
+                document.getElementById('city-examples').textContent = translations[lang].cityExamples;
+                
+                // Actualizar placeholders
+                this.emailInput.placeholder = "tu@email.com";
+                if (lang === 'en') {
+                    this.cityInput.placeholder = "Ex: Madrid";
+                    this.suggestionInput.placeholder = "Your ideas to improve the app...";
+                } else if (lang === 'ca') {
+                    this.cityInput.placeholder = "Ex: Madrid";
+                    this.suggestionInput.placeholder = "Les teves idees per millorar l'app...";
+                } else if (lang === 'fr') {
+                    this.cityInput.placeholder = "Ex: Paris";
+                    this.suggestionInput.placeholder = "Vos idées pour améliorer l'application...";
+                } else {
+                    this.cityInput.placeholder = "Ej: Madrid";
+                    this.suggestionInput.placeholder = "Tus ideas para mejorar la app...";
+                }
+            }
+            
+            getCurrentDate() {
+                const now = new Date();
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const year = now.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+            
+            getCurrentTime() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                return `${hours}:${minutes}:${seconds}`;
+            }
+            
+            showMessage(text, type = 'success') {
+                this.message.textContent = text;
+                this.message.className = `message ${type}`;
+                this.message.style.display = 'block';
+                
+                setTimeout(() => {
+                    this.message.style.display = 'none';
+                }, 4000);
+            }
+            
+            isValidEmail(email) {
+                if (!email) return false;
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
+            
+            isValidCity(city) {
+                if (!city) return false;
+                city = city.trim();
+                return city.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛçÇ\s\-]+$/.test(city);
+            }
+            
+            formatCity(city) {
+                if (!city) return '';
+                return city.trim().replace(/\b\w/g, char => char.toUpperCase());
+            }
+            
+            async submitForm() {
+                const email = this.emailInput.value.trim();
+                let city = this.cityInput.value.trim();
+                const suggestion = this.suggestionInput.value.trim();
+                
+                const fecha = this.getCurrentDate();
+                const hora = this.getCurrentTime();
+                
+                // Validaciones
+                if (!email) {
+                    this.showMessage(translations[this.currentLanguage].enterEmail, 'error');
+                    this.emailInput.focus();
+                    return;
+                }
+                
+                if (!this.isValidEmail(email)) {
+                    this.showMessage(translations[this.currentLanguage].invalidEmail, 'error');
+                    this.emailInput.focus();
+                    return;
+                }
+                
+                if (!city) {
+                    this.showMessage(translations[this.currentLanguage].enterCity, 'error');
+                    this.cityInput.focus();
+                    return;
+                }
+                
+                if (!this.isValidCity(city)) {
+                    this.showMessage(translations[this.currentLanguage].invalidCity, 'error');
+                    this.cityInput.focus();
+                    return;
+                }
+                
+                city = this.formatCity(city);
+                
+                // Mostrar carga
+                this.submitBtn.disabled = true;
+                this.loading.style.display = 'block';
+                
+                try {
+                    const formData = new FormData();
+                    
+                    formData.append(this.FIELD_IDS.email, email);
+                    formData.append(this.FIELD_IDS.ciudad, city);
+                    formData.append(this.FIELD_IDS.sugerencia, suggestion || "(sin sugerencia)");
+                    formData.append(this.FIELD_IDS.programa, "Calculadora de Tiempos"); // CAMBIADO A "Calculadora de Tiempos"
+                    formData.append(this.FIELD_IDS.fecha, fecha);
+                    formData.append(this.FIELD_IDS.hora, hora);
+                    
+                    await fetch(this.FORM_ENDPOINT, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: formData
+                    });
+                    
+                    this.showMessage(translations[this.currentLanguage].successMessage, 'success');
+                    
+                    // Limpiar campos
+                    this.emailInput.value = '';
+                    this.cityInput.value = '';
+                    this.suggestionInput.value = '';
+                    
+                    // Cerrar modal después de un tiempo
+                    setTimeout(() => {
+                        this.hideModal();
+                    }, 1500);
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.showMessage(translations[this.currentLanguage].errorMessage, 'error');
+                } finally {
+                    this.submitBtn.disabled = false;
+                    this.loading.style.display = 'none';
+                }
+            }
+            
+            updateLanguage(lang) {
+                this.currentLanguage = lang;
+                this.updateTexts();
+            }
+        }
+        
+        class TimeCalculator {
+            constructor() {
+                this.currentInput = '0';
+                this.previousInput = '';
+                this.operation = null;
+                this.mode = 'decimal';
+                this.memory = 0;
+                this.memoryMode = 'decimal';
+                this.history = [];
+                this.waitingForNewInput = false;
+                
+                // Variables para modo tiempo
+                this.timeInput = {
+                    hours: 0,
+                    minutes: 0,
+                    seconds: 0
+                };
+                this.currentNumber = '';
+                this.isBuildingTime = false;
+                this.operationMode = 'decimal';
+                this.lastResult = null;
+                
+                // Modales
+                this.averageModal = document.getElementById('averageModal');
+                this.lapsModal = document.getElementById('lapsModal');
+                
+                this.initializeElements();
+                this.attachEventListeners();
+                this.updateDisplay();
+            }
+            
+            initializeElements() {
+                this.currentInputElement = document.getElementById('currentInput');
+                this.currentOperationElement = document.getElementById('currentOperation');
+                this.historyElement = document.getElementById('history');
+                this.displayModeIndicator = document.getElementById('displayModeIndicator');
+                this.hourBtn = document.getElementById('hourBtn');
+                this.minuteBtn = document.getElementById('minuteBtn');
+                this.secondBtn = document.getElementById('secondBtn');
+                this.decimalBtn = document.getElementById('decimalBtn');
+            }
+            
+            attachEventListeners() {
+                document.querySelectorAll('[data-number]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        this.inputNumber(button.getAttribute('data-number'));
+                    });
+                });
+                
+                document.querySelector('[data-decimal]').addEventListener('click', () => {
+                    this.inputDecimal();
+                });
+                
+                document.querySelectorAll('[data-operation]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        this.inputOperation(button.getAttribute('data-operation'));
+                    });
+                });
+                
+                document.querySelector('[data-equals]').addEventListener('click', () => {
+                    this.calculate();
+                });
+                
+                document.querySelectorAll('[data-memory]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        this.handleMemory(button.getAttribute('data-memory'));
+                    });
+                });
+                
+                document.querySelectorAll('[data-unit]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        this.setUnit(button.getAttribute('data-unit'));
+                    });
+                });
+                
+                document.querySelectorAll('[data-clear]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        this.handleClear(button.getAttribute('data-clear'));
+                    });
+                });
+                
+                // Evento para el nuevo botón de borrar un carácter
+                document.querySelector('[data-backspace]').addEventListener('click', () => {
+                    this.handleBackspace();
+                });
+                
+                // Eventos para botones especiales
+                document.getElementById('averageBtn').addEventListener('click', () => {
+                    this.showAverageModal();
+                });
+                
+                document.getElementById('lapsBtn').addEventListener('click', () => {
+                    this.showLapsModal();
+                });
+                
+                // Eventos para modales
+                document.getElementById('cancelAverage').addEventListener('click', () => {
+                    this.hideAverageModal();
+                });
+                
+                document.getElementById('calculateAverage').addEventListener('click', () => {
+                    this.calculateAverage();
+                });
+                
+                document.getElementById('cancelLaps').addEventListener('click', () => {
+                    this.hideLapsModal();
+                });
+                
+                document.getElementById('calculateLaps').addEventListener('click', () => {
+                    this.calculateLaps();
+                });
+                
+                // Eventos para ayuda
+                document.getElementById('btn-help').addEventListener('click', openHelpFile);
+                document.getElementById('help-icon-header').addEventListener('click', openHelpFile);
+                
+                // Eventos para cambio de idioma
+                document.querySelectorAll('.flag').forEach(flag => {
+                    flag.addEventListener('click', function() {
+                        const lang = this.getAttribute('data-lang');
+                        updateLanguage(lang);
+                        // Guardar idioma seleccionado
+                        localStorage.setItem('timeCalcLanguage', lang);
+                    });
+                });
+                
+                // Cerrar modales al hacer clic fuera
+                window.addEventListener('click', (e) => {
+                    if (e.target === this.averageModal) {
+                        this.hideAverageModal();
+                    }
+                    if (e.target === this.lapsModal) {
+                        this.hideLapsModal();
+                    }
+                });
+            }
+            
+            handleBackspace() {
+                if (this.mode === 'decimal') {
+                    // Modo decimal: eliminar el último carácter
+                    if (this.currentInput.length > 1) {
+                        this.currentInput = this.currentInput.slice(0, -1);
+                    } else {
+                        this.currentInput = '0';
+                    }
+                } else {
+                    // Modo tiempo
+                    if (this.isBuildingTime && this.currentNumber.length > 0) {
+                        // Estamos construyendo un número, eliminar el último dígito
+                        this.currentNumber = this.currentNumber.slice(0, -1);
+                        if (this.currentNumber.length === 0) {
+                            this.isBuildingTime = false;
+                            // Mostrar el tiempo actual sin el número en construcción
+                            this.currentInput = this.formatTimeInput();
+                        } else {
+                            // Mostrar el tiempo actual + el número que queda
+                            const timeDisplay = this.formatTimeInput();
+                            if (timeDisplay !== '0') {
+                                this.currentInput = timeDisplay + ' ' + this.currentNumber;
+                            } else {
+                                this.currentInput = this.currentNumber;
+                            }
+                        }
+                    } else if (this.currentInput !== '0') {
+                        // No estamos construyendo un número, eliminar el último componente de tiempo
+                        const timeStr = this.currentInput;
+                        const parts = timeStr.split(' ');
+                        
+                        if (parts.length > 0) {
+                            const lastPart = parts[parts.length - 1];
+                            const unit = lastPart.slice(-1); // 'h', 'm' o 's'
+                            const value = parseInt(lastPart.slice(0, -1));
+                            
+                            // Actualizar el valor de tiempo correspondiente
+                            if (unit === 'h') {
+                                this.timeInput.hours = 0;
+                            } else if (unit === 'm') {
+                                this.timeInput.minutes = 0;
+                            } else if (unit === 's') {
+                                this.timeInput.seconds = 0;
+                            }
+                            
+                            // Reconstruir el display
+                            this.currentInput = this.formatTimeInput();
+                        }
+                    }
+                }
+                
+                this.waitingForNewInput = false;
+                this.lastResult = null;
+                this.updateDisplay();
+            }
+            
+            showAverageModal() {
+                document.getElementById('distanceInput').value = '';
+                document.getElementById('timeInput').value = '';
+                this.averageModal.style.display = 'flex';
+            }
+            
+            hideAverageModal() {
+                this.averageModal.style.display = 'none';
+            }
+            
+            showLapsModal() {
+                document.getElementById('lapTimeInput').value = '';
+                document.getElementById('targetTimeInput').value = '';
+                this.lapsModal.style.display = 'flex';
+            }
+            
+            hideLapsModal() {
+                this.lapsModal.style.display = 'none';
+            }
+            
+            calculateAverage() {
+                const distance = parseFloat(document.getElementById('distanceInput').value);
+                const timeStr = document.getElementById('timeInput').value;
+                
+                if (!distance || !timeStr) {
+                    alert(currentLanguage === 'fr' ? 'Veuillez remplir tous les champs' :
+                          currentLanguage === 'en' ? 'Please fill in all fields' :
+                          currentLanguage === 'ca' ? 'Si us plau, ompliu tots els camps' :
+                          'Por favor, complete todos los campos');
+                    return;
+                }
+                
+                const timeInSeconds = this.parseTimeToSeconds(timeStr);
+                const timeInHours = timeInSeconds / 3600;
+                const average = distance / timeInHours;
+                
+                this.addToHistory(`${translations[currentLanguage].averageCalc}: ${distance}km / ${this.formatTime(timeInSeconds)} = ${average.toFixed(2)} km/h`);
+                this.currentInput = average.toFixed(2);
+                this.waitingForNewInput = true;
+                this.updateDisplay();
+                this.hideAverageModal();
+            }
+            
+            calculateLaps() {
+                const lapTimeStr = document.getElementById('lapTimeInput').value;
+                const targetTimeStr = document.getElementById('targetTimeInput').value;
+                
+                if (!lapTimeStr || !targetTimeStr) {
+                    alert(currentLanguage === 'fr' ? 'Veuillez remplir tous les champs' :
+                          currentLanguage === 'en' ? 'Please fill in all fields' :
+                          currentLanguage === 'ca' ? 'Si us plau, ompliu tots els camps' :
+                          'Por favor, complete todos los campos');
+                    return;
+                }
+                
+                const lapTimeInSeconds = this.parseTimeToSeconds(lapTimeStr);
+                const targetTimeInSeconds = this.parseTimeToSeconds(targetTimeStr);
+                
+                if (lapTimeInSeconds === 0) {
+                    alert(currentLanguage === 'fr' ? 'Le temps par tour ne peut pas être zéro' :
+                          currentLanguage === 'en' ? 'Time per lap cannot be zero' :
+                          currentLanguage === 'ca' ? 'El temps per volta no pot ser zero' :
+                          'El tiempo por vuelta no puede ser cero');
+                    return;
+                }
+                
+                const exactLaps = targetTimeInSeconds / lapTimeInSeconds;
+                let roundedLaps = Math.floor(exactLaps);
+                
+                // Si la parte decimal es mayor o igual a 0.5, redondear hacia arriba
+                if (exactLaps - roundedLaps >= 0.5) {
+                    roundedLaps = Math.ceil(exactLaps);
+                }
+                
+                this.addToHistory(`${translations[currentLanguage].lapsCalc}: ${this.formatTime(targetTimeInSeconds)} / ${this.formatTime(lapTimeInSeconds)} = ${roundedLaps} ${currentLanguage === 'fr' ? 'tours' : currentLanguage === 'en' ? 'laps' : currentLanguage === 'ca' ? 'voltes' : 'vueltas'}`);
+                this.currentInput = roundedLaps.toString();
+                this.waitingForNewInput = true;
+                this.updateDisplay();
+                this.hideLapsModal();
+            }
+            
+            inputNumber(number) {
+                if (this.mode === 'decimal') {
+                    if (this.waitingForNewInput) {
+                        this.currentInput = number;
+                        this.waitingForNewInput = false;
+                        this.lastResult = null;
+                    } else {
+                        this.currentInput = this.currentInput === '0' ? number : this.currentInput + number;
+                    }
+                } else {
+                    // Modo tiempo - acumular números pero mantener el display del tiempo completo
+                    if (!this.isBuildingTime || this.waitingForNewInput) {
+                        this.currentNumber = '';
+                        this.isBuildingTime = true;
+                        this.waitingForNewInput = false;
+                        this.lastResult = null;
+                    }
+                    this.currentNumber += number;
+                    
+                    // Mostrar el tiempo completo + el número que se está introduciendo (sin el signo +)
+                    const timeDisplay = this.formatTimeInput();
+                    if (timeDisplay !== '0') {
+                        this.currentInput = timeDisplay + ' ' + this.currentNumber;
+                    } else {
+                        this.currentInput = this.currentNumber;
+                    }
+                }
+                this.updateDisplay();
+            }
+            
+            setUnit(unit) {
+                // Actualizar botones activos
+                this.hourBtn.classList.remove('active');
+                this.minuteBtn.classList.remove('active');
+                this.secondBtn.classList.remove('active');
+                this.decimalBtn.classList.remove('active');
+                
+                if (unit === 'decimal') {
+                    this.mode = 'decimal';
+                    this.displayModeIndicator.textContent = translations[currentLanguage].modeDecimal;
+                    this.decimalBtn.classList.add('active');
+                    this.currentInput = '0';
+                    this.currentNumber = '';
+                    this.isBuildingTime = false;
+                    this.resetTimeInput();
+                } else {
+                    this.mode = 'time';
+                    this.displayModeIndicator.textContent = translations[currentLanguage].modeTime;
+                    
+                    // Activar el botón correspondiente
+                    document.getElementById(unit + 'Btn').classList.add('active');
+                    
+                    // SIEMPRE asignar el número actual a la unidad, incluso si estamos empezando
+                    if (this.currentNumber && this.currentNumber !== '0') {
+                        const value = parseInt(this.currentNumber);
+                        
+                        if (unit === 'hour') {
+                            this.timeInput.hours = value;
+                        } else if (unit === 'minute') {
+                            this.timeInput.minutes = value;
+                        } else if (unit === 'second') {
+                            this.timeInput.seconds = value;
+                        }
+                        
+                        this.currentNumber = '';
+                        this.isBuildingTime = false;
+                    } else if (this.currentInput !== '0' && !isNaN(this.currentInput)) {
+                        // Si currentInput tiene un número válido (no es '0' y no es NaN)
+                        const value = parseInt(this.currentInput);
+                        
+                        if (unit === 'hour') {
+                            this.timeInput.hours = value;
+                        } else if (unit === 'minute') {
+                            this.timeInput.minutes = value;
+                        } else if (unit === 'second') {
+                            this.timeInput.seconds = value;
+                        }
+                    }
+                    
+                    // Mostrar el tiempo actual
+                    this.currentInput = this.formatTimeInput();
+                }
+                this.updateDisplay();
+            }
+            
+            formatTimeInput() {
+                let parts = [];
+                if (this.timeInput.hours > 0) parts.push(this.timeInput.hours + 'h');
+                if (this.timeInput.minutes > 0) parts.push(this.timeInput.minutes + 'm');
+                if (this.timeInput.seconds > 0) parts.push(this.timeInput.seconds + 's');
+                
+                return parts.length > 0 ? parts.join(' ') : '0';
+            }
+            
+            getTimeInSeconds() {
+                return this.timeInput.hours * 3600 + 
+                       this.timeInput.minutes * 60 + 
+                       this.timeInput.seconds;
+            }
+            
+            resetTimeInput() {
+                this.timeInput = { hours: 0, minutes: 0, seconds: 0 };
+            }
+            
+            inputDecimal() {
+                if (this.mode === 'decimal') {
+                    if (this.waitingForNewInput) {
+                        this.currentInput = '0.';
+                        this.waitingForNewInput = false;
+                        this.lastResult = null;
+                    } else if (this.currentInput.indexOf('.') === -1) {
+                        this.currentInput += '.';
+                    }
+                }
+                this.updateDisplay();
+            }
+            
+            inputOperation(op) {
+                // Si hay un último resultado y estamos empezando nueva operación, usarlo
+                if (this.lastResult && this.waitingForNewInput && !this.operation) {
+                    this.previousInput = this.lastResult.toString();
+                    this.currentInput = this.lastResult.toString();
+                }
+                
+                if (this.operation && !this.waitingForNewInput) {
+                    this.calculate();
+                }
+                
+                // Guardar el modo actual al iniciar la operación
+                this.operationMode = this.mode;
+                
+                // Limpiar la línea de entrada actual después de pulsar una operación
+                if (this.mode === 'time') {
+                    const seconds = this.getTimeInSeconds();
+                    this.previousInput = seconds.toString(); // Guardar en segundos para cálculo
+                    // Mostrar el tiempo formateado en la línea de operación
+                    const displayTime = this.formatTimeInput();
+                    this.currentOperationElement.textContent = `${displayTime} ${op}`;
+                    // Limpiar la línea de entrada actual
+                    this.currentInput = '0';
+                    this.resetTimeInput();
+                } else {
+                    this.previousInput = this.currentInput;
+                    this.currentOperationElement.textContent = `${this.currentInput} ${op}`;
+                    this.currentInput = '0';
+                }
+                
+                this.operation = op;
+                this.waitingForNewInput = true;
+                this.lastResult = null;
+                
+                this.updateDisplay();
+            }
+            
+            calculate() {
+                if (!this.operation || this.waitingForNewInput) return;
+                
+                let prev = this.parseTimeToSeconds(this.previousInput);
+                let current;
+                
+                // Para operaciones de porcentaje, SIEMPRE tratar el valor actual como número decimal
+                if (this.operation === '%' || this.operation === '%+') {
+                    // En operaciones de porcentaje, el valor actual debe ser un número, no tiempo
+                    if (this.mode === 'time') {
+                        // Si estamos en modo tiempo, tomar el número actual como valor decimal
+                        current = parseFloat(this.currentNumber || this.currentInput);
+                        if (isNaN(current)) current = 0;
+                    } else {
+                        current = parseFloat(this.currentInput);
+                    }
+                } else {
+                    // Para otras operaciones, usar la lógica normal
+                    if (this.mode === 'time') {
+                        current = this.getTimeInSeconds();
+                    } else {
+                        current = this.parseTimeToSeconds(this.currentInput);
+                    }
+                }
+                
+                let result;
+                let operationString = '';
+                
+                switch (this.operation) {
+                    case '+':
+                        result = prev + current;
+                        operationString = `${this.formatTimeForOperation(this.previousInput)} + ${this.formatTimeForOperation(this.currentInput)}`;
+                        break;
+                    case '-':
+                        result = prev - current;
+                        operationString = `${this.formatTimeForOperation(this.previousInput)} - ${this.formatTimeForOperation(this.currentInput)}`;
+                        break;
+                    case '*':
+                        result = prev * current;
+                        operationString = `${this.formatTimeForOperation(this.previousInput)} × ${this.formatTimeForOperation(this.currentInput)}`;
+                        break;
+                    case '/':
+                        if (current === 0) {
+                            alert(currentLanguage === 'fr' ? "Erreur: Division par zéro" :
+                                  currentLanguage === 'en' ? "Error: Division by zero" :
+                                  currentLanguage === 'ca' ? "Error: Divisió per zero" :
+                                  "Error: División por cero");
+                            return;
+                        }
+                        result = prev / current;
+                        operationString = `${this.formatTimeForOperation(this.previousInput)} ÷ ${this.formatTimeForOperation(this.currentInput)}`;
+                        break;
+                    case '%':
+                        result = prev * (current / 100);
+                        operationString = `${this.formatTimeForOperation(this.previousInput)} % ${current}`;
+                        break;
+                    case '%+':
+                        result = prev * (1 + current / 100);
+                        operationString = `${this.formatTimeForOperation(this.previousInput)} %+ ${current}`;
+                        break;
+                    default:
+                        return;
+                }
+                
+                // Resto del código permanece igual...
+                let displayResult;
+                let historyResult;
+                
+                if (this.operationMode === 'time') {
+                    displayResult = this.formatTime(result);
+                    historyResult = `${operationString} = ${displayResult}`;
+                } else {
+                    displayResult = result.toString();
+                    historyResult = `${operationString} = ${displayResult}`;
+                }
+                
+                this.currentInput = displayResult;
+                this.addToHistory(historyResult);
+                
+                this.lastResult = result;
+                this.operation = null;
+                this.previousInput = '';
+                this.waitingForNewInput = true;
+                this.resetTimeInput();
+                this.currentOperationElement.textContent = '';
+                this.updateDisplay();
+            }            
+            parseTimeToSeconds(timeStr) {
+                if (typeof timeStr === 'number') return timeStr;
+                
+                // Si es un número decimal normal
+                if (!isNaN(timeStr)) return parseFloat(timeStr);
+                
+                // Parsear formato de tiempo (1h 30m 45s)
+                let seconds = 0;
+                const hoursMatch = timeStr.match(/(\d+)h/);
+                const minutesMatch = timeStr.match(/(\d+)m/);
+                const secondsMatch = timeStr.match(/(\d+)s/);
+                
+                if (hoursMatch) seconds += parseInt(hoursMatch[1]) * 3600;
+                if (minutesMatch) seconds += parseInt(minutesMatch[1]) * 60;
+                if (secondsMatch) seconds += parseInt(secondsMatch[1]);
+                
+                return seconds;
+            }
+            
+            formatTimeForOperation(value) {
+                // Solo formatear como tiempo si estamos en modo tiempo
+                if (this.mode === 'time') {
+                    // Si el valor ya está en formato tiempo, mantenerlo
+                    if (isNaN(value)) {
+                        return value;
+                    }
+                    // Si es un número (segundos), convertirlo a formato tiempo
+                    const numValue = parseFloat(value);
+                    return this.formatTime(numValue);
+                } else {
+                    // En modo decimal, mostrar solo el número
+                    if (isNaN(value)) {
+                        // Si viene en formato tiempo, convertirlo a número
+                        return this.parseTimeToSeconds(value).toString();
+                    }
+                    return value;
+                }
+            }
+            
+            formatTimeForHistory(value) {
+                // Para el historial, mostrar cada elemento con su conversión a segundos
+                if (isNaN(value)) {
+                    const seconds = this.parseTimeToSeconds(value);
+                    // Asegurar que el tiempo esté completo (con horas, minutos y segundos)
+                    const formattedTime = this.ensureCompleteTimeFormat(value);
+                    return `${formattedTime} (${seconds}s)`;
+                }
+                const numValue = parseFloat(value);
+                const formattedTime = this.formatTime(numValue);
+                return `${formattedTime} (${Math.round(numValue)}s)`;
+            }
+            
+            // Función: Asegurar que el formato de tiempo sea completo
+            ensureCompleteTimeFormat(timeStr) {
+                if (isNaN(timeStr)) {
+                    // Ya está en formato tiempo, verificar si está completo
+                    let hours = 0, minutes = 0, seconds = 0;
+                    
+                    const hoursMatch = timeStr.match(/(\d+)h/);
+                    const minutesMatch = timeStr.match(/(\d+)m/);
+                    const secondsMatch = timeStr.match(/(\d+)s/);
+                    
+                    if (hoursMatch) hours = parseInt(hoursMatch[1]);
+                    if (minutesMatch) minutes = parseInt(minutesMatch[1]);
+                    if (secondsMatch) seconds = parseInt(secondsMatch[1]);
+                    
+                    // Reconstruir el formato completo
+                    let parts = [];
+                    if (hours > 0) parts.push(hours + 'h');
+                    if (minutes > 0 || hours > 0) parts.push(minutes.toString().padStart(2, '0') + 'm');
+                    parts.push(seconds.toString().padStart(2, '0') + 's');
+                    
+                    return parts.join(' ');
+                } else {
+                    // Es un número, convertirlo a formato tiempo completo
+                    const numValue = parseFloat(timeStr);
+                    return this.formatTime(numValue);
+                }
+            }
+            
+            handleMemory(memoryOp) {
+                switch (memoryOp) {
+                    case 'm+':
+                        // Sumar a la memoria y preparar para nueva entrada
+                        const currentValue = this.parseTimeToSeconds(this.currentInput);
+                        this.memory += currentValue;
+                        this.memoryMode = this.mode;
+                        
+                        // Añadir al historial la operación de memoria
+                        this.addToHistory(`M+ (${this.formatTimeForOperation(this.currentInput)}) = ${this.formatTime(this.memory)}`);
+                        
+                        // Preparar para nueva entrada (como una operación)
+                        this.waitingForNewInput = true;
+                        this.currentNumber = '';
+                        this.isBuildingTime = false;
+                        this.resetTimeInput();
+                        this.currentInput = '0';
+                        this.lastResult = null;
+                        break;
+                    case 'mc':
+                        this.memory = 0;
+                        this.memoryMode = 'decimal';
+                        this.addToHistory('MC (Memoria limpiada)');
+                        break;
+                    case 'mr':
+                        // Recuperar formateando según el modo actual
+                        if (this.mode === 'time') {
+                            this.currentInput = this.formatTime(this.memory);
+                        } else {
+                            this.currentInput = this.memory.toString();
+                        }
+                        this.waitingForNewInput = true;
+                        this.currentNumber = '';
+                        this.isBuildingTime = false;
+                        this.resetTimeInput();
+                        this.lastResult = null;
+                        this.addToHistory(`MR = ${this.formatTimeForOperation(this.currentInput)}`);
+                        break;
+                }
+                this.updateDisplay();
+            }
+            
+            handleClear(clearType) {
+                if (clearType === 'c') {
+                    this.currentInput = '0';
+                    this.previousInput = '';
+                    this.operation = null;
+                    this.currentNumber = '';
+                    this.isBuildingTime = false;
+                    this.resetTimeInput();
+                    this.hourBtn.classList.remove('active');
+                    this.minuteBtn.classList.remove('active');
+                    this.secondBtn.classList.remove('active');
+                    this.decimalBtn.classList.add('active');
+                    this.mode = 'decimal';
+                    this.displayModeIndicator.textContent = translations[currentLanguage].modeDecimal;
+                    this.operationMode = 'decimal';
+                    this.lastResult = null;
+                    this.currentOperationElement.textContent = '';
+                } else if (clearType === 'ce') {
+                    this.currentInput = '0';
+                    this.currentNumber = '';
+                    this.isBuildingTime = false;
+                    this.resetTimeInput();
+                    this.lastResult = null;
+                }
+                this.updateDisplay();
+            }
+            
+            formatTime(totalSeconds) {
+                let hours = Math.floor(totalSeconds / 3600);
+                let minutes = Math.floor((totalSeconds % 3600) / 60);
+                let seconds = Math.floor(totalSeconds % 60);
+                let milliseconds = Math.round((totalSeconds % 1) * 1000);
+                
+                let parts = [];
+                if (hours > 0) {
+                    parts.push(hours + 'h');
+                    parts.push(minutes.toString().padStart(2, '0') + 'm');
+                    parts.push(seconds.toString().padStart(2, '0') + 's');
+                } else if (minutes > 0) {
+                    parts.push(minutes + 'm');
+                    parts.push(seconds.toString().padStart(2, '0') + 's');
+                } else {
+                    parts.push(seconds + 's');
+                }
+                
+                if (milliseconds > 0) parts.push(milliseconds.toString().padStart(3, '0') + 'ms');
+                
+                return parts.join(' ');
+            }
+            
+            addToHistory(operation) {
+                this.history.unshift(operation);
+                if (this.history.length > 20) this.history.pop();
+                this.updateHistoryDisplay();
+            }
+            
+            updateDisplay() {
+                this.currentInputElement.textContent = this.currentInput;
+                
+                // La línea de operación ahora se actualiza directamente en inputOperation()
+                // para mostrar inmediatamente la operación
+            }
+            
+            updateHistoryDisplay() {
+                this.historyElement.innerHTML = '';
+                this.history.slice(0, 3).forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'history-item';
+                    div.textContent = item;
+                    this.historyElement.appendChild(div);
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Cargar idioma guardado
+            const savedLanguage = localStorage.getItem('timeCalcLanguage');
+            if (savedLanguage) {
+                currentLanguage = savedLanguage;
+            }
+
+            // Actualizar idioma
+            updateLanguage(currentLanguage);
+            
+            // Inicializar calculadora
+            new TimeCalculator();
+            
+            // Inicializar instalador de app
+            new AppInstaller();
+            
+            // Inicializar sistema de sugerencias
+            window.suggestionsSystem = new SuggestionsSystem();
+            
+            // Mostrar mensaje informativo después de un tiempo
+            setTimeout(() => {
+                const message = currentLanguage === 'fr' ? 'Partagez vos idées pour améliorer la calculatrice' :
+                              currentLanguage === 'en' ? 'Share your ideas to improve the calculator' :
+                              currentLanguage === 'ca' ? 'Comparteix les teves idees per millorar la calculadora' :
+                              'Comparte tus ideas para mejorar la calculadora';
+                window.suggestionsSystem.showMessage(message, 'info');
+            }, 1000);
+        });
+		// Registrar el Service Worker
+        // Registro específico para Calculadora
+        if ('serviceWorker' in navigator) {
+        // Solo registrar para Calculadora_Tiempos
+        if (window.location.href.includes('Calculadora_Tiempos')) {
+            navigator.serviceWorker.register('/Web/unified-sw.js')
+            .then(function(registration) {
+                console.log('ServiceWorker Calculadora registrado: ', registration.scope);
+            })
+            .catch(function(error) {
+                console.log('Error al registrar ServiceWorker Calculadora: ', error);
             });
         }
-        
-        // Guardar en localStorage para futuras visitas
-        localStorage.setItem('calculadora_redirected', 'true');
-        localStorage.setItem('calculadora_nueva_url', nuevaURL);
-        
-        // Botón manual
-        document.getElementById('redirect-link').addEventListener('click', function(e) {
-            e.preventDefault();
-            window.location.replace(this.href);
-        });
+        }
+		// Escuchar mensajes del Service Worker
+		navigator.serviceWorker.addEventListener('message', event => {
+		  if (event.data && event.data.type === 'SW_UPDATED') {
+		    console.log('Service Worker actualizado a versión:', event.data.version);
+		    showUpdateNotification();
+		  }
+		});
+		
+		// Mostrar notificación de actualización
+		function showUpdateNotification() {
+		  const message = currentLanguage === 'fr' ? '¡Hay una nueva versión disponible! ¿Quieres actualizar ahora?' :
+                        currentLanguage === 'en' ? 'There is a new version available! Do you want to update now?' :
+                        currentLanguage === 'ca' ? '¡Hi ha una nova versió disponible! Vols actualitzar ara?' :
+                        '¡Hay una nueva versión disponible! ¿Quieres actualizar ahora?';
+		  
+		  if (confirm(message)) {
+		    // Forzar la actualización
+		    if ('serviceWorker' in navigator) {
+		      navigator.serviceWorker.ready.then(registration => {
+		        // Enviar mensaje al SW para que se active
+		        registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
+		        
+		        // Recargar la página después de un breve delay
+		        setTimeout(() => {
+		          window.location.reload();
+		        }, 500);
+		      });
+		    } else {
+		      window.location.reload();
+		    }
+		  }
+		}
+		
+		// Verificar actualización al cargar la página
+		window.addEventListener('load', () => {
+		  if ('serviceWorker' in navigator) {
+		    navigator.serviceWorker.ready.then(registration => {
+		      if (registration.waiting) {
+		        // Hay una actualización esperando
+		        showUpdateNotification();
+		      }
+		    });
+		  }
+		});
+		// Botón manual para buscar actualizaciones (opcional)
+		function addUpdateButton() {
+		  const updateBtn = document.createElement('button');
+		  updateBtn.textContent = currentLanguage === 'fr' ? '🔄 Rechercher des mises à jour' :
+                                currentLanguage === 'en' ? '🔄 Check for Updates' :
+                                currentLanguage === 'ca' ? '🔄 Buscar Actualitzacions' :
+                                '🔄 Buscar Actualizaciones';
+		  updateBtn.style.cssText = `
+		    position: fixed;
+		    bottom: 10px;
+		    right: 10px;
+		    z-index: 1000;
+		    padding: 8px 12px;
+		    background: #3498db;
+		    color: white;
+		    border: none;
+		    border-radius: 5px;
+		    cursor: pointer;
+		    font-size: 12px;
+		  `;
+		  updateBtn.onclick = checkForUpdates;
+		  document.body.appendChild(updateBtn);
+		}
+		
+		function checkForUpdates() {
+		  if ('serviceWorker' in navigator) {
+		    navigator.serviceWorker.ready.then(registration => {
+		      registration.update().then(() => {
+		        alert(currentLanguage === 'fr' ? 'Recherche de mises à jour terminée' :
+                    currentLanguage === 'en' ? 'Update check completed' :
+                    currentLanguage === 'ca' ? 'Cerca d\'actualitzacions completada' :
+                    'Búsqueda de actualizaciones completada');
+		      });
+		    });
+		  } else {
+		    alert(currentLanguage === 'fr' ? 'Service Worker non disponible' :
+                currentLanguage === 'en' ? 'Service Worker not available' :
+                currentLanguage === 'ca' ? 'Service Worker no disponible' :
+                'Service Worker no disponible');
+		  }
+		}
+
+
     </script>
 </body>
 </html>
