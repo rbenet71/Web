@@ -19,12 +19,12 @@ const APP_CACHES = {
 
 const APP_RESOURCES = {
   'calculadora': [
-    'https://rbenet71.github.io/Web/Calculadora_Tiempos.html',
-    'https://rbenet71.github.io/Web/Calculadora_Tiempos_manifest.json',
-    'https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png',
+    'https://rbenet71.github.io/Web/Árbitro/Caluladora_Tiempos/Calculadora_Tiempos.html',
+    'https://rbenet71.github.io/Web/Árbitro/Caluladora_Tiempos/Calculadora_Tiempos_manifest.json',
+    'https://rbenet71.github.io/Web/Árbitro/Caluladora_Tiempos/Calculadora_Tiempos_192x192.png',
     'https://flagcdn.com/w40/es.png',
     'https://flagcdn.com/w40/gb.png',
-    'https://rbenet71.github.io/Web/Calculadora_Tiempos_Ayuda.html'
+    'https://rbenet71.github.io/Web/Árbitro/Caluladora_Tiempos/Calculadora_Tiempos_Ayuda.html'
   ],
   'crono80': [
     'https://rbenet71.github.io/Web/Crono_80.html',
