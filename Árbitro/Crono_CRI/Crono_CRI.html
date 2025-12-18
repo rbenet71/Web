@@ -166,20 +166,10 @@
             <!-- Tarjeta 2: Configuración de tiempos -->
             <div class="app-card time-config-card">
                 <div class="card-header">
-                    <h2><i class="fas fa-clock"></i> <span id="card-time-title">Configuración de Tiempos</span></h2>
+                    <h2><i class="fas fa-clock"></i> <span id="card-time-title">Configuración de Tiempo</span></h2>
                 </div>
                 <div class="card-body">
                     <div class="config-section">
-                        <div class="time-mode-selector">
-                            <button class="btn btn-primary responsive-btn mode-btn" id="same-interval-btn">
-                                <i class="fas fa-equals"></i>
-                                <span id="same-interval-text">Siempre igual</span>
-                            </button>
-                            <button class="btn btn-warning responsive-btn mode-btn" id="variable-interval-btn">
-                                <i class="fas fa-list-ol"></i>
-                                <span id="variable-interval-text">Varios tramos</span>
-                            </button>
-                        </div>
                         <!-- Configuración de intervalo único -->
                         <div id="single-interval-config" class="time-inputs">
                             <div class="form-group">
@@ -199,46 +189,17 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Configuración de intervalos variables -->
-                        <div id="variable-interval-config" class="time-inputs" style="display: none;">
-                            <div class="form-group">
-                                <div class="section-title">
-                                    <i class="fas fa-plus-circle"></i>
-                                    <span id="add-interval-label">Añadir nuevo tramo</span>
-                                </div>
-                                <div class="form-row">
-                                    <div class="input-with-unit">
-                                        <input type="number" id="from-corredor" class="form-control form-control-sm" min="1" value="1">
-                                        <span class="unit">desde</span>
-                                    </div>
-                                    <div class="input-with-unit">
-                                        <input type="number" id="to-corredor" class="form-control form-control-sm" min="1" value="10">
-                                        <span class="unit" id="to-text">hasta</span>
-                                    </div>
-                                    <div class="input-with-unit">
-                                        <input type="number" id="var-minutes" class="form-control form-control-sm" min="0" value="1">
-                                        <span class="unit">min</span>
-                                    </div>
-                                    <div class="input-with-unit">
-                                        <input type="number" id="var-seconds" class="form-control form-control-sm" min="0" max="59" value="0">
-                                        <span class="unit">seg</span>
-                                    </div>
-                                    <button class="btn btn-success responsive-btn" id="add-interval-btn">
-                                        <i class="fas fa-plus"></i>
-                                        <span id="add-interval-text">Añadir</span>
-                                    </button>
-                                </div>
+                        
+                        <!-- Mensaje informativo -->
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: var(--border-radius); margin-top: 20px; border-left: 4px solid var(--secondary);">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                <i class="fas fa-info-circle" style="color: var(--secondary); font-size: 1.2rem;"></i>
+                                <span style="font-weight: 600; color: var(--dark);">Modo simplificado</span>
                             </div>
-                            <div class="form-group">
-                                <div class="section-title" >
-                                    <i class="fas fa-list-ul"></i>
-                                    <span  id="configured-sections-label">Tramos configurados</span>
-                                </div>
-                                <div id="intervals-list">
-                                    <!-- Los intervalos se agregarán aquí dinámicamente -->
-                                </div>
-                            </div>
+                            <p style="color: var(--gray); font-size: 0.95rem; line-height: 1.5; margin: 0;">
+                                Todos los corredores saldrán con el mismo intervalo de tiempo configurado arriba. 
+                                Para configuraciones más complejas, puedes ajustar el tiempo del próximo corredor haciendo doble clic en el número durante la cuenta atrás.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -525,60 +486,7 @@
             </div>
         </div>
     </div>
-    <!-- Modal de edición de tramo (añadir después del modal de ajuste de tiempos) -->
-    <div class="modal" id="edit-interval-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="edit-interval-modal-title">Editar Tiempo por Tramo</h3>
-                <button class="modal-close" id="edit-interval-modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="edit-interval-form" class="edit-interval-form">
-                    <div class="edit-interval-row">
-                        <label class="edit-interval-label" for="edit-from-corredor">Desde:</label>
-                        <input type="number" 
-                            id="edit-from-corredor" 
-                            class="form-control edit-interval-input" 
-                            min="1" 
-                            required>
-                    </div>
-                    <div class="edit-interval-row">
-                        <label class="edit-interval-label" for="edit-to-corredor">Hasta:</label>
-                        <input type="number" 
-                            id="edit-to-corredor" 
-                            class="form-control edit-interval-input" 
-                            min="1" 
-                            required>
-                    </div>
-                    <div class="edit-interval-row">
-                        <label class="edit-interval-label" for="edit-interval-minutes">Minutos:</label>
-                        <input type="number" 
-                            id="edit-interval-minutes" 
-                            class="form-control edit-interval-input" 
-                            min="0" 
-                            required>
-                    </div>
-                    <div class="edit-interval-row">
-                        <label class="edit-interval-label" for="edit-interval-seconds">Segundos:</label>
-                        <input type="number" 
-                            id="edit-interval-seconds" 
-                            class="form-control edit-interval-input" 
-                            min="0" 
-                            max="59" 
-                            required>
-                    </div>
-                    <div class="edit-interval-buttons">
-                        <button type="button" class="btn btn-success" id="save-edit-interval-btn">
-                            <i class="fas fa-save"></i> Guardar Cambios
-                        </button>
-                        <button type="button" class="btn btn-outline" id="cancel-edit-interval-btn">
-                            Cancelar
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+
     <!-- Modal de confirmación limpiar salidas -->
     <div class="modal" id="clear-departures-modal">
         <div class="modal-content">

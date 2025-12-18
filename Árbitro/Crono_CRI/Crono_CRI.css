@@ -1604,40 +1604,6 @@ textarea.config-input {
     border: 1px dashed #dee2e6;
 }
 
-.interval-row {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 15px;
-    background: white;
-    border-radius: var(--border-radius);
-    margin-bottom: 12px;
-    border: 1px solid #e9ecef;
-    transition: all 0.3s ease;
-}
-
-.interval-row:hover {
-    border-color: var(--secondary);
-    background: #f8fafc;
-}
-
-.interval-info {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.interval-range {
-    font-weight: 600;
-    color: var(--primary);
-    min-width: 140px;
-}
-
-.interval-time {
-    color: var(--secondary);
-    font-weight: 600;
-}
 
 /* Añade esto en la sección CSS */
 .notes-edit-container {
@@ -1917,13 +1883,7 @@ textarea.config-input {
         padding: 16px 30px;
         font-size: 1.1rem;
     }
-    
-    .interval-info {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
-    }
-    
+   
     .departures-header {
         flex-direction: column;
         gap: 15px;
@@ -2119,119 +2079,6 @@ textarea.config-input {
     }
 }
 
-/* =========================================== */
-/* ESTILOS PARA TRAMOS - ACTUALIZADOS */
-/* =========================================== */
-.interval-info {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    min-width: 0; /* Permite que se comprima */
-}
-
-.interval-range {
-    font-weight: 600;
-    color: var(--primary);
-    min-width: 120px; /* Reducido */
-    white-space: nowrap;
-}
-
-.interval-time {
-    color: var(--secondary);
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-/* Eliminar los elementos que ya no queremos */
-.interval-status,
-.interval-corredors {
-    display: none !important;
-}
-
-/* Contenedor de acciones de intervalo - AHORA RESPONSIVE */
-.interval-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap; /* Permite que los botones bajen */
-    justify-content: flex-end;
-    min-width: 140px; /* Ancho mínimo para dos botones */
-}
-
-/* Botones de intervalo más compactos */
-.edit-interval-btn,
-.remove-interval-btn {
-    padding: 6px 10px !important;
-    font-size: 12px !important;
-    min-width: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-}
-
-/* Ocultar texto del botón en pantallas pequeñas */
-.edit-interval-btn .btn-text,
-.remove-interval-btn .btn-text {
-    display: inline;
-}
-
-/* En pantallas muy pequeñas, mostrar solo iconos */
-@media (max-width: 480px) {
-    .edit-interval-btn .btn-text,
-    .remove-interval-btn .btn-text {
-        display: none;
-    }
-    
-    .edit-interval-btn,
-    .remove-interval-btn {
-        min-width: 40px;
-        padding: 6px 8px !important;
-    }
-    
-    .edit-interval-btn i,
-    .remove-interval-btn i {
-        margin: 0;
-    }
-}
-
-/* Para pantallas medianas donde el espacio es limitado */
-@media (max-width: 768px) {
-    .interval-row {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-    }
-    
-    .interval-info {
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-    
-    .interval-range {
-        min-width: 100px;
-    }
-    
-    .interval-actions {
-        width: 100%;
-        justify-content: flex-start;
-        margin-top: 5px;
-    }
-}
-
-/* Para pantallas muy estrechas */
-@media (max-width: 360px) {
-    .interval-info {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .interval-range,
-    .interval-time {
-        width: 100%;
-    }
-}
 
 /* =========================================== */
 /* NUEVOS ESTILOS PARA CONFIGURACIÓN DE AUDIO - SIMPLIFICADO */

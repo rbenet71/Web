@@ -27,44 +27,6 @@ function sendSuggestion() {
 }
 
 // ============================================
-// FUNCIONES DE MANEJO DE INTERVALOS
-// ============================================
-function handleRemoveInterval(index) {
-    const t = translations[appState.currentLanguage];
-    
-    if (!isNaN(index) && index >= 0 && index < appState.intervals.length) {
-        const interval = appState.intervals[index];
-        const confirmMessage = t.confirmDeleteInterval.replace('{from}', interval.from).replace('{to}', interval.to);
-        
-        if (confirm(confirmMessage)) {
-            appState.intervals.splice(index, 1);
-            renderIntervalsList();
-            
-            intervalConfig.variableMode = {
-                intervals: [...appState.intervals],
-                saved: true
-            };
-            saveIntervalConfig();
-            
-            if (appState.currentRace) {
-                appState.currentRace.intervals = [...appState.intervals];
-                saveRaceData();
-            }
-            
-            if (appState.countdownActive) {
-                updateCurrentInterval();
-                saveAppState();
-            }
-            
-            showMessage(t.intervalDeleted, 'success');
-            console.log("Intervalo eliminado. Total restante:", appState.intervals.length);
-            
-            setTimeout(() => { setupSpecificIntervalListeners(); }, 100);
-        }
-    }
-}
-
-// ============================================
 // FUNCIONES UTILITARIAS
 // ============================================
 function showMessage(text, type = 'info') {
@@ -188,42 +150,6 @@ function setupCountdownResize() {
     });
 }
 
-// ============================================
-// CONFIGURACIÓN DE INTERVALOS
-// ============================================
-const intervalConfig = {
-    singleMode: { minutes: 1, seconds: 0, saved: false },
-    variableMode: { intervals: [], saved: false }
-};
-
-function loadIntervalConfig() {
-    const savedConfig = localStorage.getItem('countdown-interval-config');
-    
-    if (savedConfig) {
-        try {
-            const config = JSON.parse(savedConfig);
-            
-            if (config.singleMode) {
-                intervalConfig.singleMode = config.singleMode;
-            }
-            
-            if (config.variableMode) {
-                intervalConfig.variableMode = config.variableMode;
-            }
-        } catch (e) {
-            console.error("Error cargando configuración:", e);
-        }
-    }
-}
-
-function saveIntervalConfig() {
-    localStorage.setItem('countdown-interval-config', JSON.stringify(intervalConfig));
-}
-
-function updateIntervalCount() {
-    const count = appState.intervals.length;
-    console.log("Total de intervalos configurados:", count);
-}
 
 // ============================================
 // FUNCIONES DE PWA Y SERVICEWORKER

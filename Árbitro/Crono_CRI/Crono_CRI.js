@@ -34,13 +34,14 @@ window.savingNotesIndex = null;
 // ============================================
 // INICIALIZACIÓN
 // ============================================
+// En la función initApp():
 function initApp() {
     console.log("Inicializando aplicación...");
     
     loadLanguagePreference();
     loadRacesFromStorage();
     loadAppState();
-    loadIntervalConfig();
+    // loadIntervalConfig(); // ELIMINAR esta línea
     loadAudioPreferences();
     
     setTimeout(() => verifyAudioFiles(), 500);
@@ -62,12 +63,12 @@ function initApp() {
     adjustCountdownSize();
     adjustInfoCornersSize();
     
-    setupIntervalsEvents();
-    setupEditIntervalModalEvents();
+    // setupIntervalsEvents(); // ELIMINAR
+    // setupEditIntervalModalEvents(); // ELIMINAR
     setupEventListeners();
     setupAudioEventListeners();
     
-    setTimeout(() => setupSpecificIntervalListeners(), 500);
+    // setTimeout(() => setupSpecificIntervalListeners(), 500); // ELIMINAR
     
     document.addEventListener('click', initAudioOnInteraction);
     document.addEventListener('keydown', initAudioOnInteraction);
@@ -77,6 +78,186 @@ function initApp() {
     console.log(`Tipo de audio: ${appState.audioType}`);
 }
 
+// En loadAppState():
+function loadAppState() {
+    const savedState = localStorage.getItem('countdown-app-state');
+    if (savedState) {
+        const state = JSON.parse(savedState);
+        
+        appState.departedCount = state.departedCount || 0;
+        appState.nextCorredorTime = state.nextCorredorTime || 60;
+        appState.accumulatedTime = state.accumulatedTime || 0;
+        appState.raceStartTime = state.raceStartTime || null;
+        
+        if (state.departureTimes && state.departureTimes.length > 0 && state.raceStartTime) {
+            appState.departureTimes = state.departureTimes.map(departure => {
+                if (departure.timeValue) return departure;
+                
+                const elapsedSeconds = Math.floor((departure.timestamp - state.raceStartTime) / 1000);
+                const hours = Math.floor(elapsedSeconds / 3600);
+                const minutes = Math.floor((elapsedSeconds % 3600) / 60);
+                const seconds = elapsedSeconds % 60;
+                
+                return {
+                    ...departure,
+                    timeValue: `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`,
+                    elapsedSeconds: elapsedSeconds
+                };
+            });
+        } else {
+            appState.departureTimes = state.departureTimes || [];
+        }
+        
+        appState.countdownActive = false;
+        appState.countdownValue = 0;
+        appState.countdownPaused = false;
+        
+        document.getElementById('start-position').value = appState.departedCount + 1;
+        
+        console.log("Estado cargado, salidos:", appState.departedCount);
+    }
+}
+
+// En setupEventListeners(), eliminar todas las referencias a tramos:
+function setupEventListeners() {
+    console.log("Configurando event listeners...");
+    
+    document.querySelectorAll('.flag').forEach(flag => {
+        flag.addEventListener('click', function() {
+            const lang = this.getAttribute('data-lang');
+            appState.currentLanguage = lang;
+            localStorage.setItem('countdown-language', lang);
+            updateLanguageUI();
+            updateSalidaText();
+            console.log(`Idioma cambiado a: ${lang}`);
+        });
+    });
+    
+    // ELIMINAR estas referencias:
+    // document.getElementById('same-interval-btn').addEventListener('click', ...);
+    // document.getElementById('variable-interval-btn').addEventListener('click', ...);
+    // document.getElementById('add-interval-btn').addEventListener('click', ...);
+    
+    // También eliminar en el modal de ajustes la referencia a isVariableMode:
+    document.getElementById('save-adjustments-btn').addEventListener('click', () => {
+        const t = translations[appState.currentLanguage];
+        
+        const newNextTime = parseInt(document.getElementById('adjust-next-time').value) || 60;
+        const newDeparted = parseInt(document.getElementById('adjust-departed').value) || 0;
+        
+        if (newNextTime <= 0 || newDeparted < 0) {
+            showMessage(t.invalidValues, 'error');
+            return;
+        }
+        
+        appState.departedCount = newDeparted;
+        appState.nextCorredorTime = newNextTime; // Actualizar directamente
+        
+        document.getElementById('start-position').value = newDeparted + 1;
+        
+        const displayElement = document.getElementById('next-corredor-time');
+        if (displayElement) {
+            if (newNextTime >= 60) {
+                const minutes = Math.floor(newNextTime / 60);
+                const seconds = newNextTime % 60;
+                displayElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                displayElement.textContent = newNextTime + "s";
+            }
+        }
+        
+        document.getElementById('departed-count').textContent = newDeparted;
+        updateCountdownDisplay();
+        
+        document.getElementById('adjust-times-modal').classList.remove('active');
+        resumeCountdownVisual();
+        saveAppState();
+        
+        const message = t.adjustmentsSaved
+            .replace('{seconds}', newNextTime)
+            .replace('{corredor}', newDeparted + 1);
+        showMessage(message, 'success');
+    });
+    
+    // Eliminar la referencia a intervalos en el doble clic:
+    document.getElementById('next-corredor-time').addEventListener('dblclick', function(e) {
+        e.stopPropagation();
+
+        if (!canModifyDuringCountdown()) {
+            return;
+        }
+
+        const t = translations[appState.currentLanguage];
+
+        if (!appState.countdownActive) {
+            showMessage(t.countdownNotActive, 'warning');
+            return;
+        }
+        
+        const currentText = this.textContent;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'inline-edit-input';
+        input.value = currentText;
+        input.placeholder = 'Ej: 1:30 o 90';
+        
+        this.innerHTML = '';
+        this.appendChild(input);
+        input.focus();
+        input.select();
+        
+        const finishEdit = () => {
+            const value = input.value.trim();
+            let seconds = 0;
+            
+            if (value.includes(':')) {
+                const parts = value.split(':');
+                const mins = parseInt(parts[0]) || 0;
+                const secs = parseInt(parts[1]) || 0;
+                seconds = mins * 60 + secs;
+            } else if (value.toLowerCase().includes('min')) {
+                const mins = parseInt(value) || 0;
+                seconds = mins * 60;
+            } else {
+                seconds = parseInt(value) || 0;
+            }
+            
+            if (seconds <= 0) {
+                showMessage(t.enterValidTime, 'error');
+                this.textContent = currentText;
+                return;
+            }
+            
+            // Actualizar directamente (sin tramos)
+            appState.nextCorredorTime = seconds;
+            
+            const displayText = seconds >= 60 ? 
+                `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, '0')}` : 
+                seconds + "s";
+            
+            this.textContent = displayText;
+            
+            saveAppState();
+            if (appState.currentRace) {
+                saveRaceData();
+            }
+            
+            const message = t.timeUpdated
+                .replace('{seconds}', seconds)
+                .replace('{corredor}', appState.departedCount + 2);
+            showMessage(message, 'success');
+        };
+        
+        input.addEventListener('blur', finishEdit);
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                finishEdit();
+            }
+        });
+    });
+    
+    // Resto del código (mantener lo que sí funciona)...
+}
 // ============================================
 // FUNCIONES DE CARGA Y GUARDADO
 // ============================================
@@ -145,8 +326,7 @@ function loadRaceData() {
     if (!appState.currentRace) {
         appState.departureTimes = [];
         appState.departedCount = 0;
-        appState.intervals = [];
-        appState.isVariableMode = false;
+        appState.nextCorredorTime = 60;
         
         document.getElementById('departed-count').textContent = appState.departedCount;
         document.getElementById('start-position').value = appState.departedCount + 1;
@@ -157,71 +337,20 @@ function loadRaceData() {
     appState.departureTimes = appState.currentRace.departures || [];
     appState.departedCount = appState.departureTimes.length > 0 ? 
         Math.max(...appState.departureTimes.map(d => d.corredor)) : 0;
-    appState.intervals = appState.currentRace.intervals || [];
     
     document.getElementById('departed-count').textContent = appState.departedCount;
     document.getElementById('start-position').value = appState.departedCount + 1;
     
-    const cadenceMode = appState.currentRace.cadenceMode || 'single';
-    appState.isVariableMode = (cadenceMode === 'variable');
+    // Configuración de intervalo único
+    const minutes = parseInt(document.getElementById('interval-minutes').value) || 1;
+    const seconds = parseInt(document.getElementById('interval-seconds').value) || 0;
+    appState.nextCorredorTime = minutes * 60 + seconds;
     
-    if (appState.isVariableMode) {
-        document.getElementById('single-interval-config').style.display = 'none';
-        document.getElementById('variable-interval-config').style.display = 'block';
-        document.getElementById('same-interval-btn').classList.remove('active');
-        document.getElementById('variable-interval-btn').classList.add('active');
-        
-        if (appState.intervals.length > 0) {
-            intervalConfig.variableMode = {
-                intervals: [...appState.intervals],
-                saved: true
-            };
-            updateCurrentInterval();
-            renderIntervalsList();
-        } else {
-            appState.intervals = [];
-            renderIntervalsList();
-        }
-    } else {
-        document.getElementById('single-interval-config').style.display = 'block';
-        document.getElementById('variable-interval-config').style.display = 'none';
-        document.getElementById('same-interval-btn').classList.add('active');
-        document.getElementById('variable-interval-btn').classList.remove('active');
-        
-        if (appState.intervals.length > 0 && appState.intervals[0]) {
-            const firstInterval = appState.intervals[0];
-            document.getElementById('interval-minutes').value = firstInterval.minutes;
-            document.getElementById('interval-seconds').value = firstInterval.seconds;
-            
-            intervalConfig.singleMode = {
-                minutes: firstInterval.minutes,
-                seconds: firstInterval.seconds,
-                saved: true
-            };
-            appState.nextCorredorTime = firstInterval.totalSeconds;
-        } else {
-            const defaultMinutes = intervalConfig.singleMode.minutes || 1;
-            const defaultSeconds = intervalConfig.singleMode.seconds || 0;
-            const defaultTotalSeconds = defaultMinutes * 60 + defaultSeconds;
-            
-            document.getElementById('interval-minutes').value = defaultMinutes;
-            document.getElementById('interval-seconds').value = defaultSeconds;
-            
-            appState.intervals = [];
-            appState.nextCorredorTime = defaultTotalSeconds;
-            
-            console.log("Modo single sin intervalos guardados - usando valores por defecto");
-        }
-    }
-    
-    updateCurrentInterval();
     updateNextCorredorDisplay();
     renderDeparturesList();
     
     console.log("Datos cargados para carrera:", appState.currentRace.name);
-    console.log("Modo:", cadenceMode);
     console.log("Salidas:", appState.departureTimes.length);
-    console.log("Intervalos en appState:", appState.intervals.length);
 }
 
 function saveAppState() {
@@ -231,13 +360,10 @@ function saveAppState() {
             countdownValue: appState.countdownValue,
             departedCount: appState.departedCount,
             nextCorredorTime: appState.nextCorredorTime,
-            intervals: appState.intervals,
-            currentIntervalIndex: appState.currentIntervalIndex,
             departureTimes: appState.departureTimes,
             raceStartTime: appState.raceStartTime,
             accumulatedTime: appState.accumulatedTime,
-            countdownPaused: appState.countdownPaused,
-            isVariableMode: appState.isVariableMode
+            countdownPaused: appState.countdownPaused
         }));
     } else {
         localStorage.removeItem('countdown-app-state');
@@ -502,20 +628,8 @@ function startCountdown() {
         return;
     }
     
-    const isVariableMode = document.getElementById('variable-interval-config').style.display !== 'none';
-    appState.isVariableMode = isVariableMode;
-    
-    if (isVariableMode && appState.intervals.length === 0) {
-        showMessage(t.configureAtLeastOneInterval, 'error');
-        return;
-    }
-    
+    // Siempre modo único
     updateCadenceTime();
-    
-    if (appState.intervals.length === 0) {
-        showMessage(t.noIntervalsConfigured, 'error');
-        return;
-    }
     
     document.querySelectorAll('.hide-on-countdown').forEach(el => {
         el.style.display = 'none';
@@ -540,8 +654,6 @@ function startCountdown() {
         }
     }
     
-    updateCurrentInterval();
-    
     appState.countdownActive = true;
     appState.countdownPaused = false;
     appState.countdownValue = appState.nextCorredorTime;
@@ -565,42 +677,21 @@ function startCountdown() {
     
     keepScreenAwake();
     
-    if (!isVariableMode && appState.currentRace) {
-        appState.currentRace.intervals = [...appState.intervals];
-        saveRaceData();
-    }
-    
     saveAppState();
     
     showMessage(t.countdownStarted, 'success');
     console.log("Cuenta atrás iniciada correctamente.");
-    console.log("Posición inicial:", startPosition, "Salidos:", appState.departedCount);
-    console.log("Tiempo inicial:", appState.nextCorredorTime, "segundos");
 }
 
+
 function updateCadenceTime() {
-    const isVariableMode = document.getElementById('variable-interval-config').style.display !== 'none';
-    appState.isVariableMode = isVariableMode;
+    const minutes = parseInt(document.getElementById('interval-minutes').value) || 0;
+    const seconds = parseInt(document.getElementById('interval-seconds').value) || 0;
+    const totalSeconds = minutes * 60 + seconds;
     
-    if (!isVariableMode) {
-        const minutes = parseInt(document.getElementById('interval-minutes').value) || 0;
-        const seconds = parseInt(document.getElementById('interval-seconds').value) || 0;
-        const totalSeconds = minutes * 60 + seconds;
-        
-        appState.nextCorredorTime = totalSeconds;
-        
-        appState.intervals = [{
-            from: 1,
-            to: 9999,
-            minutes: minutes,
-            seconds: seconds,
-            totalSeconds: totalSeconds
-        }];
-        
-        console.log("Intervalo único creado para cuenta atrás:", minutes, "min", seconds, "seg");
-    } else {
-        updateCurrentInterval();
-    }
+    appState.nextCorredorTime = totalSeconds;
+    
+    console.log("Intervalo único configurado:", minutes, "min", seconds, "seg");
     
     updateNextCorredorDisplay();
 }
@@ -864,349 +955,6 @@ function pauseCountdownVisual() {
 function resumeCountdownVisual() {
     appState.countdownPaused = false;
     appState.configModalOpen = false;
-}
-
-// ============================================
-// FUNCIONES DE CONFIGURACIÓN
-// ============================================
-function switchToSingleMode() {
-    if (document.getElementById('variable-interval-config').style.display !== 'none') {
-        if (appState.currentRace) {
-            appState.currentRace.intervals = [...appState.intervals];
-            appState.currentRace.cadenceMode = 'variable';
-            saveRaceData();
-        }
-        
-        intervalConfig.variableMode = {
-            intervals: [...appState.intervals],
-            saved: true
-        };
-        saveIntervalConfig();
-    }
-    
-    document.getElementById('interval-minutes').value = intervalConfig.singleMode.minutes;
-    document.getElementById('interval-seconds').value = intervalConfig.singleMode.seconds;
-    
-    document.getElementById('single-interval-config').style.display = 'block';
-    document.getElementById('variable-interval-config').style.display = 'none';
-    
-    document.getElementById('same-interval-btn').classList.add('active');
-    document.getElementById('variable-interval-btn').classList.remove('active');
-    
-    const totalSeconds = intervalConfig.singleMode.minutes * 60 + intervalConfig.singleMode.seconds;
-    
-    appState.isVariableMode = false;
-    
-    if (appState.currentRace) {
-        appState.currentRace.cadenceMode = 'single';
-        if (appState.intervals.length > 0) {
-            appState.currentRace.intervals = [...appState.intervals];
-        } else {
-            appState.currentRace.intervals = [];
-        }
-        saveRaceData();
-    }
-    
-    appState.nextCorredorTime = totalSeconds;
-    updateNextCorredorDisplay();
-    
-    console.log("Modo single activado. Intervalos:", appState.intervals.length);
-}
-
-function switchToVariableMode() {
-    const currentMinutes = parseInt(document.getElementById('interval-minutes').value) || 0;
-    const currentSeconds = parseInt(document.getElementById('interval-seconds').value) || 0;
-    
-    intervalConfig.singleMode = {
-        minutes: currentMinutes,
-        seconds: currentSeconds,
-        saved: true
-    };
-    saveIntervalConfig();
-    
-    document.getElementById('single-interval-config').style.display = 'none';
-    document.getElementById('variable-interval-config').style.display = 'block';
-    
-    document.getElementById('same-interval-btn').classList.remove('active');
-    document.getElementById('variable-interval-btn').classList.add('active');
-    
-    appState.isVariableMode = true;
-    
-    if (appState.currentRace && appState.currentRace.intervals && appState.currentRace.intervals.length > 0) {
-        appState.intervals = [...appState.currentRace.intervals];
-        renderIntervalsList();
-    } else if (intervalConfig.variableMode.saved && intervalConfig.variableMode.intervals.length > 0) {
-        appState.intervals = [...intervalConfig.variableMode.intervals];
-        renderIntervalsList();
-        
-        if (appState.currentRace) {
-            appState.currentRace.cadenceMode = 'variable';
-            appState.currentRace.intervals = [...appState.intervals];
-            saveRaceData();
-        }
-    } else {
-        appState.intervals = [];
-        renderIntervalsList();
-    }
-    
-    console.log("Modo variable activado. Intervalos:", appState.intervals.length);
-}
-
-function addVariableInterval() {
-    const t = translations[appState.currentLanguage];
-    
-    const from = parseInt(document.getElementById('from-corredor').value) || 1;
-    const to = parseInt(document.getElementById('to-corredor').value) || 10;
-    const minutes = parseInt(document.getElementById('var-minutes').value) || 0;
-    const seconds = parseInt(document.getElementById('var-seconds').value) || 0;
-    
-    if (from > to) {
-        showMessage(t.fromMustBeLessThanTo, 'error');
-        return;
-    }
-    
-    if (minutes === 0 && seconds === 0) {
-        showMessage(t.enterValidTimeValue, 'error');
-        return;
-    }
-    
-    for (const interval of appState.intervals) {
-        if ((from >= interval.from && from <= interval.to) ||
-            (to >= interval.from && to <= interval.to) ||
-            (from <= interval.from && to >= interval.to)) {
-            showMessage(`${t.intervalOverlaps} ${interval.from}-${interval.to}`, 'error');
-            return;
-        }
-    }
-    
-    const totalSeconds = minutes * 60 + seconds;
-    
-    const newInterval = {
-        from: from,
-        to: to,
-        minutes: minutes,
-        seconds: seconds,
-        totalSeconds: totalSeconds
-    };
-    
-    appState.intervals.push(newInterval);
-    
-    appState.intervals.sort((a, b) => a.from - b.from);
-    
-    renderIntervalsList();
-    
-    if (appState.currentRace) {
-        appState.currentRace.cadenceMode = 'variable';
-        appState.currentRace.intervals = [...appState.intervals];
-        saveRaceData();
-    }
-    
-    intervalConfig.variableMode = {
-        intervals: [...appState.intervals],
-        saved: true
-    };
-    saveIntervalConfig();
-    
-    document.getElementById('from-corredor').value = to + 1;
-    document.getElementById('to-corredor').value = to + 10;
-    document.getElementById('var-minutes').value = 1;
-    document.getElementById('var-seconds').value = 0;
-
-    setTimeout(() => { refreshIntervalButtons(); }, 100);
-    
-    showMessage(t.intervalAdded, 'success');
-}
-
-// ============================================
-// FUNCIONES DE INTERVALOS VARIABLES
-// ============================================
-function updateFutureIntervals(startFromCorredor, newSeconds) {
-    console.log(`Actualizando intervalos futuros desde corredor ${startFromCorredor} a ${newSeconds}s`);
-    
-    const intervalsToModify = [];
-    const originalIntervals = [...appState.intervals];
-    appState.intervals = [];
-    
-    originalIntervals.forEach((interval, originalIndex) => {
-        if (interval.from >= startFromCorredor) {
-            appState.intervals.push({
-                from: interval.from,
-                to: interval.to,
-                minutes: Math.floor(newSeconds / 60),
-                seconds: newSeconds % 60,
-                totalSeconds: newSeconds
-            });
-        } else if (interval.to >= startFromCorredor) {
-            const beforeInterval = {
-                from: interval.from,
-                to: startFromCorredor - 1,
-                minutes: interval.minutes,
-                seconds: interval.seconds,
-                totalSeconds: interval.totalSeconds
-            };
-            
-            const afterInterval = {
-                from: startFromCorredor,
-                to: interval.to,
-                minutes: Math.floor(newSeconds / 60),
-                seconds: newSeconds % 60,
-                totalSeconds: newSeconds
-            };
-            
-            appState.intervals.push(beforeInterval);
-            appState.intervals.push(afterInterval);
-        } else {
-            appState.intervals.push({...interval});
-        }
-    });
-    
-    appState.intervals.sort((a, b) => a.from - b.from);
-    
-    const mergedIntervals = [];
-    for (let i = 0; i < appState.intervals.length; i++) {
-        if (mergedIntervals.length === 0) {
-            mergedIntervals.push({...appState.intervals[i]});
-        } else {
-            const lastInterval = mergedIntervals[mergedIntervals.length - 1];
-            const currentInterval = appState.intervals[i];
-            
-            if (lastInterval.to + 1 === currentInterval.from && 
-                lastInterval.totalSeconds === currentInterval.totalSeconds) {
-                lastInterval.to = currentInterval.to;
-            } else {
-                mergedIntervals.push({...currentInterval});
-            }
-        }
-    }
-    
-    appState.intervals = mergedIntervals;
-    
-    intervalConfig.variableMode = {
-        intervals: [...appState.intervals],
-        saved: true
-    };
-    saveIntervalConfig();
-    
-    setTimeout(() => { updateNextCorredorDisplay(); }, 100);
-    
-    console.log("Intervalos futuros actualizados:", appState.intervals);
-}
-
-function updateSingleIntervalForFuture(startFromCorredor, newSeconds) {
-    console.log(`Actualizando modo single para futuros desde corredor ${startFromCorredor} a ${newSeconds}s`);
-    
-    if (appState.intervals.length === 0) {
-        appState.intervals.push({
-            from: 1,
-            to: startFromCorredor - 1,
-            minutes: Math.floor(appState.nextCorredorTime / 60),
-            seconds: appState.nextCorredorTime % 60,
-            totalSeconds: appState.nextCorredorTime
-        });
-        
-        appState.intervals.push({
-            from: startFromCorredor,
-            to: 9999,
-            minutes: Math.floor(newSeconds / 60),
-            seconds: newSeconds % 60,
-            totalSeconds: newSeconds
-        });
-    } else if (appState.intervals.length === 1) {
-        const currentInterval = appState.intervals[0];
-        
-        if (currentInterval.from < startFromCorredor) {
-            const beforeInterval = {
-                from: currentInterval.from,
-                to: startFromCorredor - 1,
-                minutes: currentInterval.minutes,
-                seconds: currentInterval.seconds,
-                totalSeconds: currentInterval.totalSeconds
-            };
-            
-            const afterInterval = {
-                from: startFromCorredor,
-                to: 9999,
-                minutes: Math.floor(newSeconds / 60),
-                seconds: newSeconds % 60,
-                totalSeconds: newSeconds
-            };
-            
-            appState.intervals = [beforeInterval, afterInterval];
-        } else {
-            appState.intervals[0] = {
-                from: startFromCorredor,
-                to: 9999,
-                minutes: Math.floor(newSeconds / 60),
-                seconds: newSeconds % 60,
-                totalSeconds: newSeconds
-            };
-        }
-    } else {
-        for (let i = 0; i < appState.intervals.length; i++) {
-            const interval = appState.intervals[i];
-            
-            if (interval.from >= startFromCorredor) {
-                appState.intervals[i] = {
-                    from: interval.from,
-                    to: interval.to,
-                    minutes: Math.floor(newSeconds / 60),
-                    seconds: newSeconds % 60,
-                    totalSeconds: newSeconds
-                };
-            } else if (interval.to >= startFromCorredor) {
-                const beforeInterval = {
-                    from: interval.from,
-                    to: startFromCorredor - 1,
-                    minutes: interval.minutes,
-                    seconds: interval.seconds,
-                    totalSeconds: interval.totalSeconds
-                };
-                
-                const afterInterval = {
-                    from: startFromCorredor,
-                    to: interval.to,
-                    minutes: Math.floor(newSeconds / 60),
-                    seconds: newSeconds % 60,
-                    totalSeconds: newSeconds
-                };
-                
-                appState.intervals.splice(i, 1, beforeInterval, afterInterval);
-                i++;
-            }
-        }
-        
-        appState.intervals.sort((a, b) => a.from - b.from);
-        
-        const mergedIntervals = [];
-        for (let i = 0; i < appState.intervals.length; i++) {
-            if (mergedIntervals.length === 0) {
-                mergedIntervals.push({...appState.intervals[i]});
-            } else {
-                const lastInterval = mergedIntervals[mergedIntervals.length - 1];
-                const currentInterval = appState.intervals[i];
-                
-                if (lastInterval.to + 1 === currentInterval.from && 
-                    lastInterval.totalSeconds === currentInterval.totalSeconds) {
-                    lastInterval.to = currentInterval.to;
-                } else {
-                    mergedIntervals.push({...currentInterval});
-                }
-            }
-        }
-        
-        appState.intervals = mergedIntervals;
-    }
-    
-    intervalConfig.singleMode = {
-        minutes: Math.floor(newSeconds / 60),
-        seconds: newSeconds % 60,
-        saved: true
-    };
-    saveIntervalConfig();
-    
-    setTimeout(() => { updateNextCorredorDisplay(); }, 100);
-    
-    console.log("Intervalos después de actualización single para futuros:", appState.intervals);
 }
 
 // ============================================
@@ -1483,21 +1231,6 @@ function setupEventListeners() {
         deleteCurrentRace();
     });
 
-    document.getElementById('same-interval-btn').addEventListener('click', function() {
-        switchToSingleMode();
-        if (appState.currentRace) {
-            saveRaceData();
-        }
-    });
-    
-    document.getElementById('variable-interval-btn').addEventListener('click', function() {
-        switchToVariableMode();
-        if (appState.currentRace) {
-            saveRaceData();
-        }
-    });
-    
-    document.getElementById('add-interval-btn').addEventListener('click', addVariableInterval);
     
     document.getElementById('start-position').addEventListener('change', function() {
         const position = parseInt(this.value) || 1;
@@ -1718,369 +1451,6 @@ function setupEventListeners() {
     document.getElementById('adjust-departed').addEventListener('click', function(e) {
         e.stopPropagation();
     });
-}
-
-function setupIntervalsEvents() {
-    console.log("Configurando eventos de intervalos...");
-    
-    document.addEventListener('click', function(e) {
-        const isInNotesContainer = e.target.closest('.notes-edit-container');
-        const isNotesButton = e.target.closest('.save-notes-btn') || e.target.closest('.cancel-notes-btn');
-        const isNotesInput = e.target.closest('.departure-notes-input');
-        
-        if (isInNotesContainer || isNotesButton || isNotesInput) {
-            console.log("Evento en área de notas - ignorando eventos de intervalos");
-            return;
-        }
-        
-        const deleteButton = e.target.closest('.remove-interval-btn');
-        if (deleteButton) {
-            console.log("Botón ELIMINAR detectado (después de verificación de notas)");
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const index = parseInt(deleteButton.getAttribute('data-index'));
-            console.log("Índice del intervalo a eliminar:", index);
-            
-            if (!isNaN(index) && index >= 0 && index < appState.intervals.length) {
-                console.log("Procesando eliminación para índice:", index);
-                
-                const interval = appState.intervals[index];
-                const t = translations[appState.currentLanguage];
-                const confirmMessage = t.confirmDeleteInterval.replace('{from}', interval.from).replace('{to}', interval.to);
-                
-                if (confirm(confirmMessage)) {
-                    appState.intervals.splice(index, 1);
-                    
-                    renderIntervalsList();
-                    
-                    intervalConfig.variableMode = {
-                        intervals: [...appState.intervals],
-                        saved: true
-                    };
-                    saveIntervalConfig();
-                    
-                    if (appState.currentRace) {
-                        appState.currentRace.intervals = [...appState.intervals];
-                        saveRaceData();
-                    }
-                    
-                    if (appState.countdownActive) {
-                        updateCurrentInterval();
-                        saveAppState();
-                    }
-                    
-                    showMessage(t.intervalDeleted, 'success');
-                    console.log("Intervalo eliminado. Total restante:", appState.intervals.length);
-                }
-            } else {
-                console.error("Índice inválido:", index);
-            }
-            return false;
-        }
-        
-        const editButton = e.target.closest('.edit-interval-btn');
-        if (editButton) {
-            console.log("Botón EDITAR detectado (después de verificación de notas)");
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const index = parseInt(editButton.getAttribute('data-index'));
-            console.log("Índice del intervalo a editar:", index);
-            
-            if (!isNaN(index) && index >= 0 && index < appState.intervals.length) {
-                console.log("Abriendo modal para editar intervalo:", index);
-                openEditIntervalModal(index);
-            } else {
-                console.error("Índice inválido para editar:", index);
-            }
-            return false;
-        }
-    });
-    
-    document.addEventListener('dblclick', function(e) {
-        const isInNotesContainer = e.target.closest('.notes-edit-container');
-        const isNotesButton = e.target.closest('.save-notes-btn') || e.target.closest('.cancel-notes-btn');
-        const isNotesInput = e.target.closest('.departure-notes-input');
-        
-        if (isInNotesContainer || isNotesButton || isNotesInput) {
-            console.log("Doble clic en área de notas - ignorando");
-            return;
-        }
-        
-        const row = e.target.closest('.interval-row');
-        if (row && !e.target.closest('button')) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const index = parseInt(row.getAttribute('data-index'));
-            
-            if (!isNaN(index) && index >= 0 && index < appState.intervals.length) {
-                console.log("DOBLE CLIC en fila para editar intervalo:", index);
-                openEditIntervalModal(index);
-            }
-        }
-    });
-    
-    console.log("Eventos de intervalos configurados correctamente");
-}
-
-function setupEditIntervalModalEvents() {
-    console.log("Configurando eventos del modal de edición...");
-    
-    document.addEventListener('click', function(e) {
-        if (e.target && e.target.id === 'save-edit-interval-btn') {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log("Botón Guardar Cambios clickeado");
-            saveEditedInterval();
-        }
-        
-        if (e.target && e.target.id === 'cancel-edit-interval-btn') {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log("Botón Cancelar clickeado");
-            cancelEditInterval();
-        }
-        
-        if (e.target && e.target.id === 'edit-interval-modal-close') {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log("Botón Cerrar modal clickeado");
-            cancelEditInterval();
-        }
-    });
-    
-    document.getElementById('edit-interval-modal').addEventListener('click', (e) => {
-        if (e.target === document.getElementById('edit-interval-modal')) {
-            cancelEditInterval();
-        }
-    });
-    
-    document.getElementById('edit-interval-form').addEventListener('click', (e) => {
-        e.stopPropagation();
-    });
-    
-    document.querySelectorAll('.edit-interval-input').forEach(input => {
-        input.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
-    });
-    
-    document.getElementById('edit-interval-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log("Formulario de edición enviado");
-        saveEditedInterval();
-    });
-    
-    const saveBtn = document.getElementById('save-edit-interval-btn');
-    const cancelBtn = document.getElementById('cancel-edit-interval-btn');
-    const closeBtn = document.getElementById('edit-interval-modal-close');
-    
-    if (saveBtn) {
-        saveBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            saveEditedInterval();
-        });
-    }
-    
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            cancelEditInterval();
-        });
-    }
-    
-    if (closeBtn) {
-        closeBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            cancelEditInterval();
-        });
-    }
-}
-
-function setupSpecificIntervalListeners() {
-    console.log("Configurando listeners específicos para intervalos...");
-    
-    document.querySelectorAll('.remove-interval-btn').forEach(button => {
-        button.addEventListener('click', function(e) {
-            console.log("Evento click directo en botón eliminar");
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const index = parseInt(this.getAttribute('data-index'));
-            handleRemoveInterval(index);
-        });
-    });
-    
-    document.querySelectorAll('.edit-interval-btn').forEach(button => {
-        button.addEventListener('click', function(e) {
-            console.log("Evento click directo en botón editar");
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const index = parseInt(this.getAttribute('data-index'));
-            if (!isNaN(index)) {
-                openEditIntervalModal(index);
-            }
-        });
-    });
-}
-
-function refreshIntervalButtons() {
-    document.querySelectorAll('.remove-interval-btn').forEach(btn => {
-        const newBtn = btn.cloneNode(true);
-        btn.parentNode.replaceChild(newBtn, btn);
-    });
-    
-    document.querySelectorAll('.edit-interval-btn').forEach(btn => {
-        const newBtn = btn.cloneNode(true);
-        btn.parentNode.replaceChild(newBtn, btn);
-    });
-    
-    setupSpecificIntervalListeners();
-}
-
-// ============================================
-// FUNCIONES DE EDICIÓN DE INTERVALOS
-// ============================================
-let editingIntervalIndex = -1;
-
-function openEditIntervalModal(index) {
-    console.log("Abriendo modal de edición para índice:", index);
-    
-    const t = translations[appState.currentLanguage];
-    
-    if (index < 0 || index >= appState.intervals.length) {
-        console.error("Índice inválido:", index);
-        showMessage(t.noIntervalSelected, 'error');
-        return;
-    }
-    
-    const interval = appState.intervals[index];
-    console.log("Intervalo a editar:", interval);
-    
-    editingIntervalIndex = index;
-    
-    document.getElementById('edit-from-corredor').value = interval.from;
-    document.getElementById('edit-to-corredor').value = interval.to;
-    document.getElementById('edit-interval-minutes').value = interval.minutes;
-    document.getElementById('edit-interval-seconds').value = interval.seconds;
-    
-    document.getElementById('edit-interval-modal').classList.add('active');
-    document.getElementById('edit-from-corredor').focus();
-    
-    console.log("Modal abierto correctamente");
-}
-
-function closeEditIntervalModal() {
-    console.log("Cerrando modal de edición de intervalo");
-    
-    editingIntervalIndex = -1;
-    
-    document.getElementById('edit-from-corredor').value = '';
-    document.getElementById('edit-to-corredor').value = '';
-    document.getElementById('edit-interval-minutes').value = '';
-    document.getElementById('edit-interval-seconds').value = '';
-    
-    document.getElementById('edit-interval-modal').classList.remove('active');
-    
-    console.log("Modal cerrado");
-}
-
-function saveEditedInterval() {
-    console.log("saveEditedInterval iniciado, índice:", editingIntervalIndex);
-    
-    const t = translations[appState.currentLanguage];
-    
-    if (editingIntervalIndex < 0 || editingIntervalIndex >= appState.intervals.length) {
-        console.error("No hay tramo seleccionado para editar");
-        showMessage(t.noIntervalSelected, 'error');
-        closeEditIntervalModal();
-        return;
-    }
-    
-    const from = parseInt(document.getElementById('edit-from-corredor').value) || 1;
-    const to = parseInt(document.getElementById('edit-to-corredor').value) || 10;
-    const minutes = parseInt(document.getElementById('edit-interval-minutes').value) || 0;
-    const seconds = parseInt(document.getElementById('edit-interval-seconds').value) || 0;
-    
-    console.log("Valores del formulario:", {from, to, minutes, seconds});
-    
-    if (from > to) {
-        showMessage(t.fromMustBeLessThanTo, 'error');
-        return;
-    }
-    
-    if (minutes === 0 && seconds === 0) {
-        showMessage(t.enterValidTimeValue, 'error');
-        return;
-    }
-    
-    for (let i = 0; i < appState.intervals.length; i++) {
-        if (i === editingIntervalIndex) continue;
-        
-        const interval = appState.intervals[i];
-        if ((from >= interval.from && from <= interval.to) ||
-            (to >= interval.from && to <= interval.to) ||
-            (from <= interval.from && to >= interval.to)) {
-            showMessage(`${t.intervalOverlaps} ${interval.from}-${interval.to}`, 'error');
-            return;
-        }
-    }
-    
-    const totalSeconds = minutes * 60 + seconds;
-    
-    const updatedInterval = {
-        from: from,
-        to: to,
-        minutes: minutes,
-        seconds: seconds,
-        totalSeconds: totalSeconds
-    };
-    
-    console.log("Intervalo actualizado:", updatedInterval);
-    
-    appState.intervals[editingIntervalIndex] = updatedInterval;
-    
-    appState.intervals.sort((a, b) => a.from - b.from);
-    
-    const newIndex = appState.intervals.findIndex(interval => 
-        interval.from === from && interval.to === to && interval.totalSeconds === totalSeconds
-    );
-    
-    console.log("Nuevo índice después de ordenar:", newIndex);
-    
-    renderIntervalsList();
-    
-    intervalConfig.variableMode = {
-        intervals: [...appState.intervals],
-        saved: true
-    };
-    saveIntervalConfig();
-    
-    if (appState.currentRace) {
-        appState.currentRace.intervals = [...appState.intervals];
-        saveRaceData();
-    }
-    
-    if (appState.countdownActive) {
-        updateCurrentInterval();
-        saveAppState();
-    }
-    
-    closeEditIntervalModal();
-    showMessage(t.intervalUpdated, 'success');
-    console.log("Intervalo guardado correctamente");
-}
-
-function cancelEditInterval() {
-    console.log("Cancelando edición de intervalo");
-    closeEditIntervalModal();
 }
 
 // ============================================

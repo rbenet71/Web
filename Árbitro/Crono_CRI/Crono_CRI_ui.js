@@ -278,14 +278,11 @@ function updateLanguageUI() {
     document.getElementById('new-race-text').textContent = t.newRaceText;
     document.getElementById('delete-race-text').textContent = t.deleteRaceText;
     document.getElementById('card-time-title').textContent = t.cardTimeTitle;
-    document.getElementById('same-interval-text').textContent = t.sameIntervalText;
-    document.getElementById('variable-interval-text').textContent = t.variableIntervalText;
+    
+    // SOLO MANTENER ESTOS (eliminar referencias a tramos variables)
     document.getElementById('interval-time-label').textContent = t.intervalTimeLabel;
     document.getElementById('minutes-text').textContent = t.minutesText;
     document.getElementById('seconds-text').textContent = t.secondsText;
-    document.getElementById('add-interval-label').textContent = t.addIntervalLabel;
-    document.getElementById('to-text').textContent = t.toText;
-    document.getElementById('add-interval-text').textContent = t.addIntervalText;
     
     document.getElementById('start-from-x-text').textContent = t.currentPositionText;
     
@@ -310,38 +307,54 @@ function updateLanguageUI() {
     document.querySelectorAll('.flag').forEach(flag => {
         flag.classList.remove('active');
     });
-    document.getElementById('flag-' + lang).classList.add('active');
+    
+    // Verificar que el elemento existe antes de usarlo
+    const flagElement = document.getElementById('flag-' + lang);
+    if (flagElement) {
+        flagElement.classList.add('active');
+    } else {
+        console.warn(`Elemento flag-${lang} no encontrado`);
+    }
     
     updateModalTexts();
 }
-
 function updateModalTexts() {
     const t = translations[appState.currentLanguage];
     
-    document.getElementById('help-modal-title').textContent = t.helpModalTitle;
-    document.getElementById('help-modal-text1').textContent = t.helpModalText1;
-    document.getElementById('help-modal-subtitle1').textContent = t.helpModalSubtitle1;
-    document.getElementById('help-modal-subtitle2').textContent = t.helpModalSubtitle2;
-    document.getElementById('help-modal-subtitle3').textContent = t.helpModalSubtitle3;
-    document.getElementById('help-modal-text2').textContent = t.helpModalText2;
-    document.getElementById('help-modal-ok').textContent = t.understood;
+    // Función auxiliar para establecer texto solo si el elemento existe
+    function setTextIfExists(elementId, text) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = text;
+        } else {
+            console.warn(`Elemento ${elementId} no encontrado para establecer texto`);
+        }
+    }
     
-    document.getElementById('red-background-text').textContent = t.redBackground;
-    document.getElementById('yellow-background-text').textContent = t.yellowBackground;
-    document.getElementById('green-background-text').textContent = t.greenBackground;
-    document.getElementById('red-numbers-text').textContent = t.redNumbers;
-    document.getElementById('countdown-normal-desc').textContent = t.countdownNormalDesc;
-    document.getElementById('configured-sections-label').textContent = t.configuredSections;
-    document.getElementById('countdown-warning-desc').textContent = t.countdownWarningDesc;
-    document.getElementById('countdown-critical-desc').textContent = t.countdownCriticalDesc;
-    document.getElementById('countdown-salida-desc').textContent = t.countdownSalidaDesc;
+    // Usar la función auxiliar para todos los elementos
+    setTextIfExists('help-modal-title', t.helpModalTitle);
+    setTextIfExists('help-modal-text1', t.helpModalText1);
+    setTextIfExists('help-modal-subtitle1', t.helpModalSubtitle1);
+    setTextIfExists('help-modal-subtitle2', t.helpModalSubtitle2);
+    setTextIfExists('help-modal-subtitle3', t.helpModalSubtitle3);
+    setTextIfExists('help-modal-text2', t.helpModalText2);
+    setTextIfExists('help-modal-ok', t.understood);
     
-    document.getElementById('beep-high-text').textContent = t.beepHigh;
-    document.getElementById('beep-high-desc').textContent = t.beepHighDesc;
-    document.getElementById('beep-every-second-text').textContent = t.beepEverySecond;
-    document.getElementById('beep-every-second-desc').textContent = t.beepEverySecondDesc;
-    document.getElementById('beep-low-text').textContent = t.beepLow;
-    document.getElementById('beep-low-desc').textContent = t.beepLowDesc;
+    setTextIfExists('red-background-text', t.redBackground);
+    setTextIfExists('yellow-background-text', t.yellowBackground);
+    setTextIfExists('green-background-text', t.greenBackground);
+    setTextIfExists('red-numbers-text', t.redNumbers);
+    setTextIfExists('countdown-normal-desc', t.countdownNormalDesc);
+    setTextIfExists('countdown-warning-desc', t.countdownWarningDesc);
+    setTextIfExists('countdown-critical-desc', t.countdownCriticalDesc);
+    setTextIfExists('countdown-salida-desc', t.countdownSalidaDesc);
+    
+    setTextIfExists('beep-high-text', t.beepHigh);
+    setTextIfExists('beep-high-desc', t.beepHighDesc);
+    setTextIfExists('beep-every-second-text', t.beepEverySecond);
+    setTextIfExists('beep-every-second-desc', t.beepEverySecondDesc);
+    setTextIfExists('beep-low-text', t.beepLow);
+    setTextIfExists('beep-low-desc', t.beepLowDesc);
     
     const helpList = document.getElementById('help-modal-list');
     if (helpList) {
@@ -354,113 +367,59 @@ function updateModalTexts() {
         });
     }
     
-    document.getElementById('edit-interval-modal-title').textContent = t.editIntervalModalTitle;
-    document.getElementById('departure-header-dorsal').textContent = t.departureHeaderDorsal;
-    document.getElementById('departure-header-time').textContent = t.departureHeaderTime;
-    document.getElementById('departure-header-notes').textContent = t.departureHeaderNotes;
-    document.getElementById('departure-header-date').textContent = t.departureHeaderDate;
-    document.getElementById('no-departures-text').textContent = t.noDeparturesText;
+    setTextIfExists('departure-header-dorsal', t.departureHeaderDorsal);
+    setTextIfExists('departure-header-time', t.departureHeaderTime);
+    setTextIfExists('departure-header-notes', t.departureHeaderNotes);
+    setTextIfExists('departure-header-date', t.departureHeaderDate);
+    setTextIfExists('no-departures-text', t.noDeparturesText);
     
     if (appState.departureTimes.length > 0) renderDeparturesList();
     
-    document.getElementById('delete-race-modal-title').textContent = t.deleteRaceModalTitle;
-    document.getElementById('delete-race-modal-text').textContent = t.deleteRaceModalText;
-    document.getElementById('delete-race-confirm-btn').textContent = t.deleteConfirm;
-    document.getElementById('delete-race-cancel-btn').textContent = t.cancel;
+    setTextIfExists('delete-race-modal-title', t.deleteRaceModalTitle);
+    setTextIfExists('delete-race-modal-text', t.deleteRaceModalText);
+    setTextIfExists('delete-race-confirm-btn', t.deleteConfirm);
+    setTextIfExists('delete-race-cancel-btn', t.cancel);
     
-    document.getElementById('clear-departures-modal-title').textContent = t.clearDeparturesModalTitle;
-    document.getElementById('clear-departures-modal-text').textContent = t.clearDeparturesModalText;
-    document.getElementById('clear-departures-confirm-btn').textContent = t.clear;
-    document.getElementById('clear-departures-cancel-btn').textContent = t.cancel;
+    setTextIfExists('clear-departures-modal-title', t.clearDeparturesModalTitle);
+    setTextIfExists('clear-departures-modal-text', t.clearDeparturesModalText);
+    setTextIfExists('clear-departures-confirm-btn', t.clear);
+    setTextIfExists('clear-departures-cancel-btn', t.cancel);
     
-    document.getElementById('suggestions-modal-title').textContent = t.suggestionsModalTitle;
-    document.getElementById('suggestion-email-label').textContent = t.suggestionEmailLabel;
-    document.getElementById('suggestion-text-label').textContent = t.suggestionTextLabel;
-    document.getElementById('send-suggestion-btn').textContent = t.sendSuggestion;
-    document.getElementById('cancel-suggestion-btn').textContent = t.cancel;
+    setTextIfExists('suggestions-modal-title', t.suggestionsModalTitle);
+    setTextIfExists('suggestion-email-label', t.suggestionEmailLabel);
+    setTextIfExists('suggestion-text-label', t.suggestionTextLabel);
+    setTextIfExists('send-suggestion-btn', t.sendSuggestion);
+    setTextIfExists('cancel-suggestion-btn', t.cancel);
     
-    document.getElementById('new-race-modal-title').textContent = t.newRaceModalTitle;
-    document.getElementById('new-race-name-label').textContent = t.newRaceNameLabel;
-    document.getElementById('new-race-desc-label').textContent = t.newRaceDescLabel;
-    document.getElementById('create-race-btn').textContent = t.createRace;
-    document.getElementById('cancel-create-race-btn').textContent = t.cancel;
+    setTextIfExists('new-race-modal-title', t.newRaceModalTitle);
+    setTextIfExists('new-race-name-label', t.newRaceNameLabel);
+    setTextIfExists('new-race-desc-label', t.newRaceDescLabel);
+    setTextIfExists('create-race-btn', t.createRace);
+    setTextIfExists('cancel-create-race-btn', t.cancel);
     
-    document.getElementById('restart-modal-title').textContent = t.restartModalTitle;
-    document.getElementById('restart-modal-text').textContent = t.restartModalText;
-    document.getElementById('restart-confirm-btn').textContent = t.restartConfirm;
-    document.getElementById('restart-cancel-btn').textContent = t.cancel;
+    setTextIfExists('restart-modal-title', t.restartModalTitle);
+    setTextIfExists('restart-modal-text', t.restartModalText);
+    setTextIfExists('restart-confirm-btn', t.restartConfirm);
+    setTextIfExists('restart-cancel-btn', t.cancel);
 
     const helpModalText = document.querySelector('#help-modal .modal-body');
     if (helpModalText) {
-        const audioSection = document.createElement('div');
-        audioSection.innerHTML = `
-            <h4 id="help-modal-subtitle3">Opciones de sonido:</h4>
-            <ul>
-                <li><strong>Sonidos Beep:</strong> Beeps electrónicos para cada segundo</li>
-                <li><strong>Voz grabada:</strong> Voz humana contando en tu idioma (es, en, ca, fr)</li>
-                <li><strong>Sin sonido:</strong> Solo efectos visuales</li>
-            </ul>
-        `;
-        helpModalText.appendChild(audioSection);
+        // Verificar si ya existe la sección de audio para no duplicarla
+        let audioSection = document.querySelector('#help-modal .modal-body .audio-info-section');
+        if (!audioSection) {
+            audioSection = document.createElement('div');
+            audioSection.className = 'audio-info-section';
+            audioSection.innerHTML = `
+                <h4>Opciones de sonido:</h4>
+                <ul>
+                    <li><strong>Sonidos Beep:</strong> Beeps electrónicos para cada segundo</li>
+                    <li><strong>Voz grabada:</strong> Voz humana contando en tu idioma (es, en, ca, fr)</li>
+                    <li><strong>Sin sonido:</strong> Solo efectos visuales</li>
+                </ul>
+            `;
+            helpModalText.appendChild(audioSection);
+        }
     }
-}
-
-function renderIntervalsList() {
-    const container = document.getElementById('intervals-list');
-    container.innerHTML = '';
-    
-    const sortedIntervals = [...appState.intervals].sort((a, b) => a.from - b.from);
-    
-    sortedIntervals.forEach((interval, index) => {
-        const row = document.createElement('div');
-        row.className = 'interval-row';
-        row.setAttribute('data-index', index);
-        row.innerHTML = `
-            <div class="interval-info">
-                <div class="interval-range">
-                    <strong>${interval.from} - ${interval.to}</strong>
-                </div>
-                <div class="interval-time">
-                    <i class="fas fa-clock"></i> 
-                    ${interval.minutes}min ${interval.seconds.toString().padStart(2, '0')}s
-                </div>
-            </div>
-            <div class="interval-actions">
-                <button class="btn btn-secondary btn-sm edit-interval-btn" 
-                        data-index="${index}" 
-                        title="Editar este tramo"
-                        onclick="event.stopPropagation();">
-                    <i class="fas fa-edit"></i>
-                    <span class="btn-text">Editar</span>
-                </button>
-                <button class="btn btn-danger btn-sm remove-interval-btn" 
-                        data-index="${index}" 
-                        title="Eliminar este tramo"
-                        onclick="event.stopPropagation();">
-                    <i class="fas fa-trash"></i>
-                    <span class="btn-text">Eliminar</span>
-                </button>
-            </div>
-        `;
-        updateIntervalCount();
-
-        setTimeout(() => { refreshIntervalButtons(); }, 100);
-        container.appendChild(row);
-    });
-    
-    if (appState.intervals.length === 0) {
-        const emptyMessage = document.createElement('div');
-        emptyMessage.className = 'empty-state';
-        emptyMessage.innerHTML = `
-            <i class="fas fa-plus-circle" style="font-size: 2rem; color: var(--gray); margin-bottom: 10px;"></i>
-            <p style="color: var(--gray); font-style: italic;">
-                No hay tramos configurados. Añade el primer tramo usando el formulario superior.
-            </p>
-        `;
-        container.appendChild(emptyMessage);
-    }
-    
-    updateIntervalCount();
 }
 
 // ============================================
