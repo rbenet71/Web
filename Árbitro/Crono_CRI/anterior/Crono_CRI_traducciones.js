@@ -603,7 +603,7 @@ function preloadVoiceAudios() {
     console.log("Precargando audios de voz .ogg...");
     
     const languages = ['es', 'en', 'ca', 'fr'];
-    const numbers = [10, 5, 4, 3, 2, 1, 0];
+    const numbers = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
     
     let loadedCount = 0;
     const totalToLoad = languages.length * numbers.length;
@@ -734,7 +734,7 @@ function verifyAudioFiles() {
     console.log("CONVENCIÓN: 0.ogg = audio de SALIDA\n");
     
     const languages = ['es', 'en', 'ca', 'fr'];
-    const requiredNumbers = [10, 5, 4, 3, 2, 1, 0];
+    const requiredNumbers = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
     
     languages.forEach(lang => {
         console.log(`\n📁 Idioma: ${lang.toUpperCase()}`);

@@ -237,18 +237,20 @@ function setupServiceWorker() {
         return;
     }
     
-    // Verificar el protocolo actual
-    const protocol = window.location.protocol;
-    const isFileProtocol = protocol === 'file:';
-    const isLocalhost = window.location.hostname === 'localhost' || 
-                       window.location.hostname === '127.0.0.1';
-    const isHttps = protocol === 'https:';
+    // Verificar si estamos en un entorno válido para Service Workers
+    const currentUrl = window.location.href;
+    const isLocalhost = currentUrl.includes('localhost') || 
+                       currentUrl.includes('127.0.0.1');
+    const isHttps = currentUrl.startsWith('https://');
+    const isFileProtocol = currentUrl.startsWith('file://');
     
     // Los Service Workers NO funcionan con file://
     if (isFileProtocol) {
-        console.log('ℹ️ ServiceWorker no disponible para protocolo file://');
-        console.log('   La aplicación funcionará normalmente, pero sin funciones PWA.');
-        console.log('   Para probar PWA, ejecuta desde un servidor local.');
+        console.log('⚠️ ServiceWorker no disponible para protocolo file://');
+        console.log('   Para probar Service Workers, usa un servidor local como:');
+        console.log('   - Python: python -m http.server');
+        console.log('   - Node.js: npx serve');
+        console.log('   - PHP: php -S localhost:8000');
         return;
     }
     
@@ -256,29 +258,20 @@ function setupServiceWorker() {
     if (isLocalhost || isHttps) {
         navigator.serviceWorker.register('sw.js')
             .then(registration => {
-                console.log('✅ ServiceWorker registrado exitosamente:', registration.scope);
+                console.log('✅ ServiceWorker registrado:', registration.scope);
                 
                 // Verificar actualizaciones
                 registration.addEventListener('updatefound', () => {
-                    console.log('🔄 Nueva versión del ServiceWorker encontrada');
-                    const newWorker = registration.installing;
-                    
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            console.log('📱 Nueva versión lista para instalar');
-                            appState.updateAvailable = true;
-                            showUpdateNotification();
-                        }
-                    });
+                    console.log('Nueva versión del ServiceWorker disponible');
+                    appState.updateAvailable = true;
+                    showUpdateNotification();
                 });
             })
             .catch(error => {
-                console.log('❌ Error registrando ServiceWorker:', error.name, '-', error.message);
-                console.log('   Esto es normal si el archivo sw.js no existe o tiene errores.');
+                console.log('❌ Error registrando ServiceWorker:', error.message);
             });
     } else {
         console.log('⚠️ ServiceWorker requiere HTTPS o localhost');
-        console.log('   Protocolo actual:', protocol);
     }
 }
 
