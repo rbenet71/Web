@@ -16,16 +16,16 @@
     </script>
 
 	<!-- Iconos para la aplicación -->
-	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png">
-	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png">
+	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos_192x192.png">
+	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos_192x192.png">
 
 	<!-- Iconos para PWA -->
-	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2">
-	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2">
-	<link rel="icon" type="image/png" sizes="192x192" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2">
-	<link rel="icon" type="image/png" sizes="512x512" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2">
-	<link rel="apple-touch-icon" sizes="192x192" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2">
-	<meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png?v=2">
+	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos_192x192.png?v=2">
+	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos_192x192.png?v=2">
+	<link rel="icon" type="image/png" sizes="192x192" href="https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos_192x192.png?v=2">
+	<link rel="icon" type="image/png" sizes="512x512" href="https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos_192x192.png?v=2">
+	<link rel="apple-touch-icon" sizes="192x192" href="https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos_192x192.png?v=2">
+	<meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos_192x192.png?v=2">
 	
 	<!-- Configuración para PWA (Progressive Web App) -->
 	<meta name="theme-color" content="#2c3e50">
@@ -33,10 +33,10 @@
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<meta name="apple-mobile-web-app-title" content="Crono 80%">
 	<meta name="msapplication-TileColor" content="#2c3e50">
-	<meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Calculadora_Tiempos.png">
+	<meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos.png">
 
 	<!-- Manifest para PWA -->
-	<link rel="manifest" href="https://rbenet71.github.io/Web/Calculadora_Tiempos_manifest.json">
+	<link rel="manifest" href="https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos_manifest.json">
     <style>
         * {
             box-sizing: border-box;
@@ -711,7 +711,7 @@
     <div class="calculator">
         <div class="calculator-header">
     <div style="display: flex; align-items: center; gap: 8px;">
-        <img src="https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png" 
+        <img src="https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos_192x192.png" 
              alt="Logo" 
              style="width: 24px; height: 24px; border-radius: 4px;">
         <div class="title">Calculadora de Tiempos</div>
@@ -782,7 +782,7 @@
             <p>
                 <span id="copyright-text">2025 © Copyright</span>
                 <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                    Roberto Benet - rbenet71@gmail.com - V_11_12_2025
+                    Roberto Benet - rbenet71@gmail.com - V_18_12_2025
                 </a>
             </p>
         </div>
@@ -1197,7 +1197,7 @@
         
         // Función para abrir el archivo de ayuda
         function openHelpFile() {
-            window.open('https://rbenet71.github.io/Web/Calculadora_Tiempos_Ayuda.html', '_blank');
+            window.open('https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos_Ayuda.html', '_blank');
         }
 
         // Sistema de instalación de app
@@ -2428,7 +2428,7 @@ IDList=`;
         if ('serviceWorker' in navigator) {
         // Solo registrar para Calculadora_Tiempos
         if (window.location.href.includes('Calculadora_Tiempos')) {
-            navigator.serviceWorker.register('/Web/unified-sw.js')
+            navigator.serviceWorker.register('https://rbenet71.github.io/Web/unified-sw.js')
             .then(function(registration) {
                 console.log('ServiceWorker Calculadora registrado: ', registration.scope);
             })
