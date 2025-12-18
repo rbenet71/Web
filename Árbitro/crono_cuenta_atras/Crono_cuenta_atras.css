@@ -2366,3 +2366,71 @@ textarea.config-input {
         font-size: 1.3rem;
     }
 }
+/* =========================================== */
+/* HORA DEL SISTEMA SOBRE EL BOTÓN INICIAR */
+/* =========================================== */
+.system-time-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.system-time-display {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+    color: var(--white);
+    padding: 12px 25px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 180px;
+    justify-content: center;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.system-time-display:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.system-time-display i {
+    color: var(--success);
+    font-size: 1.2rem;
+}
+
+.system-time-display span {
+    font-family: 'Courier New', monospace;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* Responsive para la hora del sistema */
+@media (max-width: 768px) {
+    .system-time-display {
+        font-size: 1.2rem;
+        padding: 10px 20px;
+        min-width: 160px;
+    }
+    
+    .system-time-display i {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .system-time-display {
+        font-size: 1.1rem;
+        padding: 8px 15px;
+        min-width: 140px;
+        letter-spacing: 1px;
+    }
+}

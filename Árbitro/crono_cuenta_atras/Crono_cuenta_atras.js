@@ -4065,16 +4065,23 @@ document.addEventListener('keydown', (e) => {
 
 // ============================================
 // FUNCIÓN PARA ACTUALIZAR HORA ACTUAL
-// ============================================
 function updateCurrentTime() {
     const now = new Date();
     const hours = now.getHours().toString().padStart(2, '0');
     const minutes = now.getMinutes().toString().padStart(2, '0');
     const seconds = now.getSeconds().toString().padStart(2, '0');
+    const timeStr = `${hours}:${minutes}:${seconds}`;
     
-    const display = document.getElementById('current-time-value');
-    if (display) {
-        display.textContent = `${hours}:${minutes}:${seconds}`;
+    // Actualizar en la pantalla de cuenta atrás (si existe)
+    const countdownDisplay = document.getElementById('current-time-value');
+    if (countdownDisplay) {
+        countdownDisplay.textContent = timeStr;
+    }
+    
+    // Actualizar encima del botón (si existe)
+    const systemTimeDisplay = document.getElementById('current-system-time');
+    if (systemTimeDisplay) {
+        systemTimeDisplay.textContent = timeStr;
     }
 }
 
