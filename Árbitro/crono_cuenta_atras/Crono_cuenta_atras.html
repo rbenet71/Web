@@ -249,7 +249,7 @@
                 <div class="system-time-container">
                     <div class="system-time-display">
                         <i class="fas fa-clock"> </i>
-                        <span id="current-time-value"> 00:00:00</span>  <!-- Este es el elemento -->
+                        <span id="current-system-time"> 00:00:00</span>  <!-- Este es el elemento -->
                     </div>
                 </div>
                 <button class="btn btn-success btn-lg start-main-btn" id="start-countdown-btn">
@@ -497,11 +497,6 @@
                     <label for="adjust-departed">Corredores salidos:</label>
                     <input type="number" id="adjust-departed" class="config-input" min="0" value="0">
                 </div>
-                <!-- ELIMINAR ESTE CAMPO -->
-                <!-- <div class="config-line" style="flex-direction: column; align-items: stretch;">
-                    <label for="adjust-current-time">Tiempo actual (segundos):</label>
-                    <input type="number" id="adjust-current-time" class="config-input" min="0" value="60">
-                </div> -->
                 <div class="modal-buttons-container">
                     <button class="btn btn-success" id="save-adjustments-btn">
                         <i class="fas fa-save"></i> Guardar ajustes

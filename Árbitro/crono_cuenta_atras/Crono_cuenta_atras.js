@@ -4084,6 +4084,7 @@ function updateCurrentTime() {
         systemTimeDisplay.textContent = timeStr;
     }
 }
+updateCurrentTime()
 
 let editingIntervalIndex = -1;
 
