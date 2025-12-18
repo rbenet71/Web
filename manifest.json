@@ -71,10 +71,10 @@
       "name": "Crono 80%",
       "short_name": "80%",
       "description": "Cronómetro del 80% para competiciones",
-      "url": "https://rbenet71.github.io/Web/Crono_80.html",
+      "url": "https://rbenet71.github.io/Web/Árbitro/Crono_80/Crono_80.html",
       "icons": [
         {
-          "src": "https://rbenet71.github.io/Web/Crono_80_192x192.png",
+          "src": "https://rbenet71.github.io/Web/Árbitro/Crono_80/Crono_80_192x192.png",
           "sizes": "192x192"
         }
       ]

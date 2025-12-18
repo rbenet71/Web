@@ -3,8 +3,8 @@
 // Versión: 2.2 (corregida - sin bucle de activación)
 
 const APP_CACHES = {
-  'calculadora': 'calculadora-tiempos-v1.1',
-  'crono80': 'crono-80-v1.2',
+  'calculadora': 'calculadora-tiempos-v1.2',
+  'crono80': 'crono-80-v1.3',
   'cronollegadas': 'crono-llegadas-v1.2',
   'crono_tops': 'crono-tops-v1.0',
   'crono_cuenta_atras': 'crono-cuenta-atras-v1.0', 
@@ -27,10 +27,13 @@ const APP_RESOURCES = {
     'https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos_Ayuda.html'
   ],
   'crono80': [
+    'https://rbenet71.github.io/Web/Árbitro/Crono_80/Crono_80.html', // NUEVA RUTA
+    'https://rbenet71.github.io/Web/Árbitro/Crono_80/Crono_80_192x192.png', // NUEVA RUTA
+    'https://rbenet71.github.io/Web/Árbitro/Crono_80/Crono_80_manifest.json', // NUEVA RUTA
+    'https://rbenet71.github.io/Web/Árbitro/Crono_80/Crono_80_Ayuda.html', // NUEVA RUTA
+    // Mantén la ruta antigua como fallback temporalmente
     'https://rbenet71.github.io/Web/Crono_80.html',
-    'https://rbenet71.github.io/Web/Crono_80_192x192.png',
-    'https://rbenet71.github.io/Web/Crono_80_manifest.json',
-    'https://rbenet71.github.io/Web/Crono_80_Ayuda.html'
+    'https://rbenet71.github.io/Web/Crono_80_manifest.json'
   ],
   'cronollegadas': [
     'https://rbenet71.github.io/Web/Crono_Llegadas.html',
@@ -271,11 +274,17 @@ self.addEventListener('fetch', event => {
 // Función para obtener páginas de respaldo
 async function getFallbackPage(appName) {
   const cacheNames = {
-    'calculadora': 'https://rbenet71.github.io/Web/Calculadora_Tiempos.html',
-    'crono80': 'https://rbenet71.github.io/Web/Crono_80.html',
+    'calculadora': 'https://rbenet71.github.io/WebÁrbitro/Calculadora_Tiempos/Calculadora_Tiempos.html',
+    'crono80': 'https://rbenet71.github.io/Web/Árbitro/Crono_80/Crono_80.html',
     'cronollegadas': 'https://rbenet71.github.io/Web/Crono_Llegadas.html',
     'crono_tops': 'https://rbenet71.github.io/Web/crono_tops.html',
     'crono_cuenta_atras': 'https://rbenet71.github.io/Web/Árbitro/crono_cuenta_atras/Crono_cuenta_atras.html',
+    'gps': 'https://rbenet71.github.io/Web/Ciclismo/GPS/GPS.html', 
+    'damas': 'https://rbenet71.github.io/Web/Entretenimiento/Damas/Damas.html', 
+    'marcianitos': 'https://rbenet71.github.io/Web/Entretenimiento/Marcianitos/Marcianitos.html', 
+    'solitario': 'https://rbenet71.github.io/Web/Entretenimiento/Solitario/Solitario.html', 
+    'sudoku': 'https://rbenet71.github.io/Web/Entretenimiento/Sudoku/Sudoku.html', 
+    'tetris': 'https://rbenet71.github.io/Web/Entretenimiento/Tetris/Tetris.html', 
     'index': 'https://rbenet71.github.io/Web/index.html'
   };
   
