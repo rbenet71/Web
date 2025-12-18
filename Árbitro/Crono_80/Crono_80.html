@@ -1047,6 +1047,73 @@
                 justify-content: center;
             }
         }
+        /* Mensaje de recordatorio de salvapantallas */
+        .screensaver-reminder {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 9999;
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+            animation: fadeInOut 5s ease-in-out forwards;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .screensaver-icon {
+            font-size: 48px;
+            animation: pulse 2s infinite;
+        }
+
+        .screensaver-reminder h3 {
+            font-size: 20px;
+            margin: 0;
+            color: white;
+            font-weight: 600;
+        }
+
+        .screensaver-reminder p {
+            font-size: 14px;
+            margin: 0;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.4;
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            10% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            90% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+                display: none;
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -2006,6 +2073,73 @@
         const editRiderModal = document.getElementById('edit-rider-modal');
         const resumeOptionsModal = document.getElementById('resume-options-modal');
         const suggestionsModal = document.getElementById('suggestions-modal');
+
+        function initApp() {         
+            // Mostrar recordatorio de salvapantallas después de 1 segundo
+            setTimeout(() => {
+                showScreensaverReminder();
+            }, 1000);
+        }
+        function showScreensaverReminder() {
+            // Puedes usar los textos traducidos de Crono Llegadas
+            // O usar textos específicos si ya tienes traducciones
+            const reminderText = {
+                es: {
+                    title: "Recuerda desactivar el Salvapantallas",
+                    instructions: "Configuración → Pantalla → Salvapantallas → Desactivar",
+                    timeout: "Este mensaje desaparecerá en 3 segundos"
+                },
+                ca: {
+                    title: "Recorda desactivar el Salvapantalles",
+                    instructions: "Configuració → Pantalla → Salvapantalles → Desactivar",
+                    timeout: "Aquest missatge desapareixerà en 3 segons"
+                },
+                en: {
+                    title: "Remember to disable Screensaver",
+                    instructions: "Settings → Display → Screensaver → Disable",
+                    timeout: "This message will disappear in 3 seconds"
+                },
+                fr: {
+                    title: "N'oubliez pas de désactiver l'économiseur d'écran",
+                    instructions: "Paramètres → Affichage → Économiseur d'écran → Désactiver",
+                    timeout: "Ce message disparaîtra dans 3 secondes"
+                }
+            };
+            
+            // Determinar idioma actual (ajusta según tu variable de idioma)
+            const currentLang = 'es'; // Cambia esto por tu variable de idioma
+            const t = reminderText[currentLang];
+            
+            // Crear el elemento del mensaje
+            const reminderDiv = document.createElement('div');
+            reminderDiv.className = 'screensaver-reminder';
+            reminderDiv.id = 'screensaver-reminder';
+            
+            reminderDiv.innerHTML = `
+                <div class="screensaver-icon">⏰</div>
+                <h3>${t.title}</h3>
+                <p>${t.instructions}</p>
+                <div style="font-size: 12px; color: rgba(255, 255, 255, 0.7); margin-top: 5px;">
+                    ${t.timeout}
+                </div>
+            `;
+            
+            // Añadir al body
+            document.body.appendChild(reminderDiv);
+            
+            // Eliminar automáticamente después de 5 segundos
+            setTimeout(() => {
+                const reminder = document.getElementById('screensaver-reminder');
+                if (reminder) {
+                    reminder.remove();
+                }
+            }, 3000);
+            
+            // Opcional: también cerrar al hacer clic
+            reminderDiv.addEventListener('click', function() {
+                this.remove();
+            });
+        }
 
         // Funciones de sonido
         function playButtonSound() {
@@ -4340,6 +4474,8 @@
             
             // Registrar el Service Worker
             registerServiceWorker();
+
+            showScreensaverReminder();
         });
     </script>
     <!-- Botones en la parte inferior -->
