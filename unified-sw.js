@@ -8,6 +8,12 @@ const APP_CACHES = {
   'cronollegadas': 'crono-llegadas-v1.2',
   'crono_tops': 'crono-tops-v1.0',
   'crono_cuenta_atras': 'crono-cuenta-atras-v1.0', 
+  'gps': 'GPS-v1.0', 
+  'damas': 'Damas-v1.0', 
+  'marcianitos': 'Marcianitos-v1.0', 
+  'solitario': 'Solitario-v1.0', 
+  'sudoku': 'Sudoku-v1.0', 
+  'tetris': 'Tetris-v1.0', 
   'index': 'index-page-v1.0'
 };
 
@@ -73,9 +79,46 @@ const APP_RESOURCES = {
     'https://rbenet71.github.io/Web/Árbitro/crono_cuenta_atras/audio/fr_0.ogg',
 
   ],
+  'gps': [
+    'https://rbenet71.github.io/Web/Ciclismo/GPS/GPS.html',
+    'https://rbenet71.github.io/Web/Ciclismo/GPS/GPS.png',
+    'https://rbenet71.github.io/Web/Ciclismo/GPS/GPS_manifest.json',
+  ],
+  'damas': [
+    'https://rbenet71.github.io/Web/Entretenimiento/Damas/Damas.html',
+    'https://rbenet71.github.io/Web/Entretenimiento/Damas/Damas.png',
+  ],
+    'marcianitos': [
+    'https://rbenet71.github.io/Web/Entretenimiento/Marcianitos/Marcianitos.html',
+    'https://rbenet71.github.io/Web/Entretenimiento/Marcianitos/Marcianitos.png',
+    'https://rbenet71.github.io/Web/Entretenimiento/Marcianitos/Marcianitos.css',
+    'https://rbenet71.github.io/Web/Entretenimiento/Marcianitos/Marcianitos.js',
+    'https://rbenet71.github.io/Web/Entretenimiento/Marcianitos/Marcianitos_manifest.json',
+  ],
+  'solitario': [
+    'https://rbenet71.github.io/Web/Entretenimiento/Solitario/Solitario.html',
+    'https://rbenet71.github.io/Web/Entretenimiento/Solitario/solitario.png',
+  ],
+  'sudoku': [
+    'https://rbenet71.github.io/Web/Entretenimiento/Sudoku/Sudoku.html',
+    'https://rbenet71.github.io/Web/Entretenimiento/Sudoku/Sudoku.png',
+    'https://rbenet71.github.io/Web/Entretenimiento/Sudoku/Sudoku_ws.js',
+    'https://rbenet71.github.io/Web/Entretenimiento/Sudoku/Sudoku_manifest.json',
+  ],
+  'tetris': [
+    'https://rbenet71.github.io/Web/Entretenimiento/Tetris/Tetris.html',
+    'https://rbenet71.github.io/Web/Entretenimiento/Tetris/icon/icon-512x512.png',
+    'https://rbenet71.github.io/Web/Entretenimiento/Tetris/tetris.css',
+    'https://rbenet71.github.io/Web/Entretenimiento/Tetris/tetris.js',
+    'https://rbenet71.github.io/Web/Entretenimiento/Tetris/tetris_ws.js',
+    'https://rbenet71.github.io/Web/Entretenimiento/Tetris/sounds.js',
+    'https://rbenet71.github.io/Web/Entretenimiento/Tetris/tetris_manifest.json',
+  ],
   'index': [
     'https://rbenet71.github.io/Web/',
     'https://rbenet71.github.io/Web/index.html',
+    'https://rbenet71.github.io/Web/manifest.json',
+    'https://rbenet71.github.io/Web/RBB.jpg',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
   ]
 };
