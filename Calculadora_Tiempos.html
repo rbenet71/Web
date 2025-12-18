@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirección - Calculadora de Tiempos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 600px;
+            background: rgba(44, 62, 80, 0.95);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        h1 {
+            color: #3498db;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+        
+        .spinner {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 5px solid #3498db;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .message {
+            margin: 20px 0;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 14px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .details {
+            background: rgba(52, 73, 94, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .details h3 {
+            color: #2ecc71;
+            margin-bottom: 10px;
+        }
+        
+        .details ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .details li {
+            margin-bottom: 8px;
+        }
+        
+        .warning {
+            background: rgba(231, 76, 60, 0.2);
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>¡Nueva Ubicación!</h1>
+        
+        <div class="message">
+            <p>La Calculadora de Tiempos se ha movido a una nueva ubicación para mejor organización. Una vez en ella dale al botón de instalar de nuevo</p>
+            <p>Estás siendo redirigido automáticamente...</p>
+        </div>
+        
+        <div class="spinner"></div>
+        
+        <div class="message">
+            <p>Si la redirección no funciona en unos segundos, haz clic en el botón:</p>
+        </div>
+        
+        <a href="https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos.html" id="redirect-link" class="btn">
+            Ir a la nueva Calculadora
+        </a>
+        
+        <div class="warning">
+            <p><strong>Importante:</strong> La URL antigua dejará de funcionar próximamente.</p>
+            <p>Por favor, actualiza tus marcadores y enlaces.</p>
+        </div>
+        
+        <div class="details">
+            <h3>¿Qué ha cambiado?</h3>
+            <ul>
+                <li><strong>Nueva URL:</strong> <code>https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos.html</code></li>
+                <li><strong>Misma funcionalidad:</strong> Todas las características siguen disponibles</li>
+                <li><strong>Mejor organización:</strong> Ahora está en la carpeta de herramientas para árbitros</li>
+                <li><strong>Actualizaciones:</strong> Todas las futuras mejoras estarán en la nueva ubicación</li>
+            </ul>
+            
+            <h3>Para usuarios que instalaron la app:</h3>
+            <ul>
+                <li>La app PWA seguirá funcionando desde la nueva ubicación</li>
+                <li>Puedes reinstalarla desde la nueva URL para obtener actualizaciones futuras</li>
+                <li>El icono seguirá funcionando hasta que decidas actualizarlo</li>
+            </ul>
+        </div>
+        
+        <div class="message" style="margin-top: 30px; font-size: 0.9rem; opacity: 0.8;">
+            <p>Esta aplicación ha sido desarrollada por Roberto Benet para árbitros de ciclismo.</p>
+            <p>2025 © Copyright - <a href="https://rbenet71.github.io/Web/" style="color: #3498db;" target="_blank">Ver todas mis aplicaciones</a></p>
+        </div>
+    </div>
+    
+    <script>
+        // Redirección automática
+        const nuevaURL = "https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos.html";
+        
+        // Redirección inmediata para instalaciones PWA
+        if (window.location.search.includes('utm_source=pwa') || 
+            window.location.search.includes('source=pwa') ||
+            window.navigator.standalone) {
+            window.location.replace(nuevaURL);
+        }
+        
+        // Redirección con cuenta regresiva
+        let segundos = 8;
+        const countdownElement = document.createElement('div');
+        countdownElement.className = 'message';
+        countdownElement.id = 'countdown';
+        countdownElement.innerHTML = `Redirigiendo en <strong>${segundos}</strong> segundos...`;
+        document.querySelector('.spinner').after(countdownElement);
+        
+        const intervalo = setInterval(() => {
+            segundos--;
+            countdownElement.innerHTML = `Redirigiendo en <strong>${segundos}</strong> segundos...`;
+            
+            if (segundos <= 0) {
+                clearInterval(intervalo);
+                window.location.replace(nuevaURL);
+            }
+        }, 1000);
+        
+        // Manejo especial para usuarios PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                registrations.forEach(registration => {
+                    // Actualizar el service worker para redirigir
+                    registration.update();
+                });
+            });
+        }
+        
+        // Guardar en localStorage para futuras visitas
+        localStorage.setItem('calculadora_redirected', 'true');
+        localStorage.setItem('calculadora_nueva_url', nuevaURL);
+        
+        // Botón manual
+        document.getElementById('redirect-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.replace(this.href);
+        });
+    </script>
+</body>
+</html>
