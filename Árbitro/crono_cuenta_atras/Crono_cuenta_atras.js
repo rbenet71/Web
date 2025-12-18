@@ -3897,7 +3897,7 @@ function setupEventListeners() {
 
 function setupServiceWorker() {
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('../unified-sw.js', {scope: '/Web/'})
+        navigator.serviceWorker.register('https://rbenet71.github.io/Web/unified-sw.js', {scope: '/Web/'})
             .then(registration => {
                 console.log('ServiceWorker registrado:', registration.scope);
                 

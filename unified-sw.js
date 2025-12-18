@@ -42,10 +42,11 @@ const APP_RESOURCES = {
     'https://rbenet71.github.io/Web/Árbitro/Crono_Llegadas/Crono_Llegadas_Ayuda.html'
   ],
   'crono_tops': [
-    'https://rbenet71.github.io/Web/crono_tops.html',
-    'https://rbenet71.github.io/Web/crono_tops_manifest.json',
-    'https://rbenet71.github.io/Web/crono_tops_192x192.png',
-    'https://rbenet71.github.io/Web/crono_tops_Ayuda.html'
+    'https://rbenet71.github.io/Web/Árbitro/Crono_Tops/Crono_Tops.html',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_Tops/Crono_Tops_manifest.json',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_Tops/Crono_Tops_192x192.png',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_Tops/Crono_Tops_512x512.png',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_Tops/Crono_Tops_Ayuda.html'
   ],
     'crono_cuenta_atras': [
     'https://rbenet71.github.io/Web/Árbitro/crono_cuenta_atras/Crono_cuenta_atras.html',
@@ -175,7 +176,7 @@ self.addEventListener('activate', event => {
           client.postMessage({
             type: 'SW_UPDATED',
             version: '2.2',
-            apps: ['calculadora', 'crono80', 'cronollegadas', 'crono_tops', 'index']
+            apps: ['calculadora', 'crono80', 'cronollegadas', 'crono_tops','crono_cuenta_atras','gps','damas','marcianitos','solitario','sudoku','tetris','index']
           });
         });
       })
@@ -193,16 +194,28 @@ self.addEventListener('fetch', event => {
   // Determinar qué aplicación está siendo solicitada
   let targetApp = null;
   
-  if (url.pathname.includes('Calculadora_Tiempos') || url.pathname.includes('Calculadora_Tiempos')) {
+  if (url.pathname.includes('Calculadora_Tiempos') ) {
     targetApp = 'calculadora';
-  } else if (url.pathname.includes('Crono_80') || url.pathname.includes('Crono_80')) {
+  } else if (url.pathname.includes('Crono_80') ) {
     targetApp = 'crono80';
-  } else if (url.pathname.includes('Crono_Llegadas') || url.pathname.includes('Crono_Llegadas')) {
+  } else if (url.pathname.includes('Crono_Llegadas')) {
   targetApp = 'cronollegadas';
-  } else if (url.pathname.includes('crono_tops')) {
+  } else if (url.pathname.includes('crono_tops') ) {
     targetApp = 'crono_tops';
   } else if (url.pathname.includes('Crono_cuenta_atras')) {
     targetApp = 'crono_cuenta_atras';
+  } else if (url.pathname.includes('GPS') ) {
+    targetApp = 'gps';
+  } else if (url.pathname.includes('Damas')) {
+  targetApp = 'damas';
+  } else if (url.pathname.includes('Marcianitos')) {
+  targetApp = 'marcianitos';
+  } else if (url.pathname.includes('Solitario')) {
+  targetApp = 'solitario';
+  } else if (url.pathname.includes('Sudoku')) {
+  targetApp = 'sodoku';
+    } else if (url.pathname.includes('Tetris')) {
+  targetApp = 'tetris';
   } else if (url.pathname.includes('index.html') || url.pathname === '/Web/' || url.pathname === '/Web') {
     targetApp = 'index';
   }
@@ -277,7 +290,7 @@ async function getFallbackPage(appName) {
     'calculadora': 'https://rbenet71.github.io/WebÁrbitro/Calculadora_Tiempos/Calculadora_Tiempos.html',
     'crono80': 'https://rbenet71.github.io/Web/Árbitro/Crono_80/Crono_80.html',
     'cronollegadas': 'https://rbenet71.github.io/Árbitro/Crono_Llegadas/Web/Crono_Llegadas.html',
-    'crono_tops': 'https://rbenet71.github.io/Web/crono_tops.html',
+    'crono_tops': 'https://rbenet71.github.io/Web/Árbitro/Crono_Tops/crono_tops.html',
     'crono_cuenta_atras': 'https://rbenet71.github.io/Web/Árbitro/crono_cuenta_atras/Crono_cuenta_atras.html',
     'gps': 'https://rbenet71.github.io/Web/Ciclismo/GPS/GPS.html', 
     'damas': 'https://rbenet71.github.io/Web/Entretenimiento/Damas/Damas.html', 

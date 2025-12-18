@@ -4446,6 +4446,31 @@
             }
         }
 
+        function setupServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                if (window.location.href.includes('Crono_Tops')) {
+                    navigator.serviceWorker.register('https://rbenet71.github.io/Web/unified-sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker Crono Tops registrado: ', registration.scope);
+                        
+                        navigator.serviceWorker.addEventListener('message', event => {
+                          if (event.data && event.data.type === 'SW_UPDATED') {
+                            console.log('Service Worker actualizado a versión:', event.data.version);
+                            showUpdateNotification();
+                          }
+                        });
+                        
+                        setInterval(() => {
+                            registration.update();
+                        }, 60 * 60 * 1000);
+                        
+                    }).catch(function(error) {
+                        console.log('Error al registrar ServiceWorker Crono Tops: ', error);
+                    });
+                }
+            }
+        }
+        
         function installWindows() {
             // Crear y descargar archivo .url para acceso directo
             const urlContent = `[InternetShortcut]
