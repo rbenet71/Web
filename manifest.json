@@ -1,7 +1,7 @@
 {
-  "name": "Aplicaciones Roberto Benet",
+  "name": "Aplicaciones Roberto Benet - PWA Unificada",
   "short_name": "App Roberto",
-  "description": "Aplicaciones web para árbitros y ciclismo - Calculadora de tiempos, cronómetros y más",
+  "description": "Aplicaciones web para árbitros y ciclismo - Calculadora de tiempos, cronómetros y más. Todas las aplicaciones funcionan offline gracias al Service Worker unificado.",
   "start_url": "https://rbenet71.github.io/Web/",
   "display": "standalone",
   "background_color": "#2c3e50",
@@ -36,21 +36,45 @@
       "type": "image/png"
     }
   ],
-  "categories": ["sports", "productivity", "utilities"],
+  "categories": ["sports", "productivity", "utilities", "entertainment"],
   "lang": "es",
   "dir": "ltr",
   "prefer_related_applications": false,
   "related_applications": [],
   "scope": "https://rbenet71.github.io/Web/",
+  
+  // Información sobre el Service Worker unificado (propiedad personalizada)
+  "serviceworker": {
+    "src": "https://rbenet71.github.io/Web/unified-sw.js",
+    "scope": "/Web/",
+    "type": "module",
+    "update_via_cache": "none"
+  },
+  
+  // Aplicaciones incluidas en el Service Worker unificado
+  "offline_apps": [
+    "calculadora", 
+    "crono80", 
+    "cronollegadas", 
+    "crono_tops",
+    "crono_cuenta_atras",
+    "gps",
+    "damas", 
+    "marcianitos", 
+    "solitario", 
+    "sudoku", 
+    "tetris"
+  ],
+  
   "shortcuts": [
     {
       "name": "Calculadora de Tiempos",
       "short_name": "Calculadora",
       "description": "Calculadora de tiempos para competiciones",
-      "url": "https://rbenet71.github.io/Web/Calculadora_Tiempos.html",
+      "url": "https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos.html",
       "icons": [
         {
-          "src": "https://rbenet71.github.io/Web/Calculadora_Tiempos_192x192.png",
+          "src": "https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos_192x192.png",
           "sizes": "192x192"
         }
       ]
@@ -75,6 +99,18 @@
       "icons": [
         {
           "src": "https://rbenet71.github.io/Web/Árbitro/Crono_80/Crono_80_192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Cuenta Atrás",
+      "short_name": "Cuenta Atrás",
+      "description": "Cronómetro de cuenta atrás con audio multilingüe",
+      "url": "https://rbenet71.github.io/Web/Árbitro/crono_cuenta_atras/Crono_cuenta_atras.html",
+      "icons": [
+        {
+          "src": "https://rbenet71.github.io/Web/Árbitro/crono_cuenta_atras/Crono_cuenta_atras_192_192.png",
           "sizes": "192x192"
         }
       ]
