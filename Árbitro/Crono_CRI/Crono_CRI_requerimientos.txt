@@ -1,0 +1,53 @@
+Crono CRI
+
+Quiero crear una app para ayudar a las salidas de las contra relojes de ciclismo.
+
+Partiendo de la app cuenta atrás, la diferencia es que se importará un Excel con todos los datos de la cri, por tanto se ha de mantener diseño y estructura igual y solo añadir la parte de entrada de datos de corredores y tiempos de salida. Además en la pantalla de cuenta atrás se mostrarán los datos del corredor.
+
+iconos: Crono_CRI_192x192.png Crono_CRI_512x512.png
+
+Vamos a detallar.
+Hemos de crear una opción de importar orden de salida.
+El fichero será un xlsx con las siguientes columnas
+Número de orden
+Dorsal
+Tiempo de salida ( respecto al tiempo del crono) 
+Hora de salida ( según hora del día)
+Nombre
+Apellido
+
+Habrá un campo para fijar a que hora se empieza la cuenta atras y es a esa hora que el programa automaticamente arrancará la pantalla de cuenta atras.
+
+El crono hará las cuentas atrás en función de este Excel y del campo tiempo de salida.
+
+Se ha de poder introducir manualmente el orden de salida, siendo únicamente obligatorio el dorsal y tiempo de salida, al crear nuevo registro ha de calcular el nuevo tiempo de salida en función de cuánto fue la última vez la diferencia entre el corredor anterior y al previo a ese.
+
+El usuario ha de poder modificar los datos del orden de salida, borrar la importación realizada.
+
+Que haya la opción de crear el Excel vacío para que el usuario lo rellene
+
+En la pantalla de cuenta atrás se mostrará en la parte superior lo mismo, pero en la parte inferior de la pantalla : número de dorsal, apellido,”,”, nombre, hora de salida y tiempo de salida del próximo corredor. 
+Debajo de la cuenta atrás, el dorsal, nombre y apellido del corredor actual. El tamaño del texto ha de ser 1/5 del tiempo del crono.
+
+La opción de exportar, exportará el número de dorsal, nombre apellido, hora y tiempo real salida, hora y tiempo previsto de salida.
+
+El inicio del crono que tengas tres opciones desde el primer corredor, desde el número del siguiente dorsal del último dorsal que salió o desde el dorsal que indique el usuario.
+
+Crono-cri/
+├── Crono_CRI.html
+├── Crono_CRI_manifest.json
+├── Crono_CRI.css
+├── Crono_CRI.js
+    Crono_CRI_ui.js
+    Crono_CRI_utilidades.js
+    Crono_CRI_traducciones.js
+├── Crono_CRI_ws.js
+├── Crono_CRI_192x192.png      # Icono 192x192
+├── Crono_CRI_512x512.png      # Icono 512x512
+├── Crono_CRI_maskable_192x192.png  # (Opcional)
+├── Crono_CRI_maskable_512x512.png  # (Opcional)
+├── audio/
+│   ├── es_10.ogg
+│   ├── es_5.ogg
+│   └── ...
+└── plantilla-cri.xlsx

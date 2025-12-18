@@ -1,0 +1,2436 @@
+:root {
+    --primary: #2c3e50;
+    --secondary: #3498db;
+    --accent: #FF0000;
+    --success: #2ecc71;
+    --warning: #f39c12;
+    --danger: #e74c3c;
+    --light: #ecf0f1;
+    --dark: #2c3e50;
+    --gray: #95a5a6;
+    --light-gray: #f8f9fa;
+    --border-radius: 8px;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.15);
+    --red-bg: #FF0000;
+    --orange-bg: #FFFF00;
+    --green-bg: #00FF00;
+    --black-transparent: rgba(0, 0, 0, 0.7);
+    --white: #FFFFFF;
+}
+
+
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    color: #333;
+    line-height: 1.6;
+    min-height: 100vh;
+    transition: background-color 0.5s ease;
+}
+/* Estados de cuenta atrás con colores PUROS y fondo uniforme */
+body.countdown-normal {
+    background-color: var(--red-bg) !important;
+    background: var(--red-bg) !important;
+}
+
+body.countdown-warning {
+    background-color: var(--orange-bg) !important;
+    background: var(--orange-bg) !important;
+}
+
+body.countdown-critical {
+    background-color: var(--orange-bg) !important;
+    background: var(--orange-bg) !important;
+    animation: pulse-orange 1s infinite;
+}
+
+body.countdown-salida {
+    background-color: var(--green-bg) !important;
+    background: var(--green-bg) !important;
+}
+
+@keyframes pulse-orange {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+/* ANIMACIÓN AGRESIVA para últimos 5 segundos - VERSIÓN ORIGINAL */
+@keyframes aggressive-pulse {
+    0%, 100% { 
+        transform: scale(1);
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    }
+    25% { 
+        transform: scale(1.1);
+        text-shadow: 0 0 30px rgba(255, 255, 255, 1);
+    }
+    50% { 
+        transform: scale(1.05);
+        text-shadow: 0 0 40px rgba(255, 255, 255, 1);
+    }
+    75% { 
+        transform: scale(1.15);
+        text-shadow: 0 0 50px rgba(255, 0, 0, 1);
+    }
+}
+
+/* Clase para números agresivos en últimos 5 segundos - VERSIÓN ORIGINAL */
+.aggressive-numbers .countdown-display {
+    animation: aggressive-pulse 0.5s infinite ;
+    font-size: 35vw !important;
+    color: #ff0000 !important;
+    text-shadow: 0 0 30px rgba(255, 0, 0, 0.9);
+    transition: all 0.3s ease !important;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* =========================================== */
+/* HEADER REDISEÑADO - MÁS ELEGANTE */
+/* =========================================== */
+.app-header {
+    background: linear-gradient(135deg, var(--primary) 0%, #1a2530 100%);
+    color: white;
+    padding: 12px 0;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.app-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--secondary), var(--success), var(--warning), var(--danger));
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.app-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 0;
+}
+
+.app-logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 3px solid var(--secondary);
+    box-shadow: 0 0 15px rgba(52, 152, 219, 0.4);
+    transition: transform 0.3s ease;
+}
+
+.app-logo:hover {
+    transform: rotate(10deg);
+}
+
+.app-title h1 {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #fff, var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.language-selector {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.languages-label {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.flag {
+    width: 32px;
+    height: 22px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.flag:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.flag.active {
+    opacity: 1;
+    border: 2px solid var(--secondary);
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.6);
+}
+
+.flag-catalunya {
+    background: linear-gradient(
+        to bottom,
+        #ffcd00 0%, #ffcd00 10%,
+        #da121a 10%, #da121a 20%,
+        #ffcd00 20%, #ffcd00 30%,
+        #da121a 30%, #da121a 40%,
+        #ffcd00 40%, #ffcd00 50%,
+        #da121a 50%, #da121a 60%,
+        #ffcd00 60%, #ffcd00 70%,
+        #da121a 70%, #da121a 80%,
+        #ffcd00 80%, #ffcd00 90%,
+        #da121a 90%, #da121a 100%
+    );
+}
+
+.help-icon {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    padding: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.help-icon:hover {
+    color: var(--secondary);
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(15deg);
+}
+
+/* =========================================== */
+/* CONTENIDO PRINCIPAL - REDISEÑADO COMPLETO */
+/* =========================================== */
+.main-content {
+    padding: 10px 0;
+    min-height: calc(100vh - 200px);
+}
+
+.app-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.app-card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-5px);
+}
+
+.card-header {
+    padding: 2px 10px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #e9ecef;
+}
+
+.card-header h2 {
+    color: var(--primary);
+    font-size: 1.2rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+}
+
+.card-header h2 i {
+    color: var(--secondary);
+    font-size: 1.2rem;
+}
+
+.card-body {
+    padding: 30px;
+}
+
+/* =========================================== */
+/* SECCIONES DE CONFIGURACIÓN - ORGANIZADAS */
+/* =========================================== */
+.config-section {
+    margin-bottom: 10px;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    color: var(--primary);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+}
+
+.section-title i {
+    color: var(--secondary);
+}
+
+/* Formularios mejorados */
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--dark);
+    font-size: 1rem;
+    min-width: 180px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #fff;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.form-control-sm {
+    padding: 10px 14px;
+    font-size: 0.95rem;
+}
+
+.form-inline-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input-with-unit {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.input-with-unit input {
+    width: 80px;
+    text-align: center;
+}
+
+.unit {
+    color: var(--gray);
+    font-weight: 500;
+    min-width: 70px;
+}
+
+/* =========================================== */
+/* BOTONES REDISEÑADOS - CONSISTENTES */
+/* =========================================== */
+.btn {
+    padding: 14px 28px;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    min-height: 50px;
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+}
+
+.btn:focus:not(:active)::after {
+    animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(20, 20);
+        opacity: 0;
+    }
+}
+
+.btn-sm {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    min-height: 42px;
+}
+
+.btn-lg {
+    padding: 18px 40px;
+    font-size: 1.2rem;
+    min-height: 60px;
+}
+
+.btn-block {
+    width: 100%;
+    display: flex;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--secondary) 0%, #2980b9 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2980b9 0%, #1c5a7a 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(52, 152, 219, 0.4);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success) 0%, #27ae60 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(46, 204, 113, 0.4);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, var(--warning) 0%, #d68910 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+}
+
+.btn-warning:hover {
+    background: linear-gradient(135deg, #d68910 0%, #a8640a 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(243, 156, 18, 0.4);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #c0392b 0%, #922b21 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(231, 76, 60, 0.4);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid #e0e0e0;
+    color: var(--dark);
+}
+
+.btn-outline:hover {
+    background: #f8f9fa;
+    border-color: var(--secondary);
+    color: var(--secondary);
+}
+
+/* =========================================== */
+/* ESTILOS UNIFICADOS PARA BOTONES RESPONSIVE */
+/* =========================================== */
+
+/* Contenedores de botones en grid - estilo unificado */
+.buttons-responsive-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    width: 100%;
+}
+
+/* Botón responsive - estilo similar a footer-btn pero con colores variables */
+.responsive-btn {
+    width: 100%;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.responsive-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+}
+
+.responsive-btn:focus:not(:active)::after {
+    animation: ripple 1s ease-out;
+}
+
+.responsive-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+.responsive-btn:active {
+    transform: translateY(-1px);
+}
+
+.responsive-btn i {
+    font-size: 1.1rem;
+}
+
+/* Variantes de color para responsive-btn */
+.responsive-btn.btn-primary {
+    background: linear-gradient(135deg, var(--secondary) 0%, #2980b9 100%);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.responsive-btn.btn-primary:hover {
+    background: linear-gradient(135deg, #2980b9 0%, #1c5a7a 100%);
+    box-shadow: 0 6px 18px rgba(52, 152, 219, 0.4);
+}
+
+.responsive-btn.btn-success {
+    background: linear-gradient(135deg, var(--success) 0%, #27ae60 100%);
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+
+.responsive-btn.btn-success:hover {
+    background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+    box-shadow: 0 6px 18px rgba(46, 204, 113, 0.4);
+}
+
+.responsive-btn.btn-warning {
+    background: linear-gradient(135deg, var(--warning) 0%, #d68910 100%);
+    box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+}
+
+.responsive-btn.btn-warning:hover {
+    background: linear-gradient(135deg, #d68910 0%, #a8640a 100%);
+    box-shadow: 0 6px 18px rgba(243, 156, 18, 0.4);
+}
+
+.responsive-btn.btn-danger {
+    background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.responsive-btn.btn-danger:hover {
+    background: linear-gradient(135deg, #c0392b 0%, #922b21 100%);
+    box-shadow: 0 6px 18px rgba(231, 76, 60, 0.4);
+}
+
+/* =========================================== */
+/* ACTUALIZAR SELECTORES EXISTENTES */
+/* =========================================== */
+
+/* Botones de gestión de carrera - REEMPLAZADO POR GRID */
+.race-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: var(--light-gray);
+    border-radius: 8px;
+}
+
+/* El select en grid */
+.race-selector select {
+    grid-column: 1 / -1;
+    padding: 10px 15px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    width: 100%;
+}
+
+/* Botones en el selector de carrera como responsive-btn */
+.race-selector .btn {
+    width: 100%;
+    min-height: 48px;
+    margin: 0;
+}
+
+/* =========================================== */
+/* TARJETA DE CONFIGURACIÓN DE TIEMPOS - ACTUALIZADO */
+/* =========================================== */
+
+.time-config-card {
+    border-left: 5px solid var(--success); 
+}
+
+/* Selector de modo de tiempo como grid */
+.time-mode-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    align-items: center;
+    padding: 10px 0;
+    margin-bottom: 20px;
+}
+
+/* Botones de modo como responsive-btn */
+.mode-btn {
+    width: 100%;
+    min-height: 48px;
+    margin: 0;
+    font-size: clamp(0.8rem, 2vw, 1rem);
+    padding: 12px 15px;
+    text-align: center;
+}
+
+.mode-btn.active {
+    background: linear-gradient(135deg, var(--primary) 0%, #1a2530 100%) !important;
+    box-shadow: 0 0 15px rgba(52, 152, 219, 0.5) !important;
+    transform: scale(1.05);
+}
+
+/* Contenedor de botones en departures-header como grid */
+.departures-header .btn-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    width: 100%;
+}
+
+/* Los botones dentro de departures-header como responsive-btn */
+.departures-header .btn {
+    width: 100%;
+    min-height: 48px;
+    margin: 0;
+}
+
+/* =========================================== */
+/* BOTÓN DE INICIO PRINCIPAL - DESTACADO */
+/* =========================================== */
+.start-main-btn-container {
+    text-align: center;
+    margin: 40px 0;
+    padding: 30px;
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(52, 152, 219, 0.1) 100%);
+    border-radius: var(--border-radius);
+    border: 2px dashed var(--success);
+}
+
+.start-main-btn {
+    min-width: 300px;
+    padding: 22px 50px;
+    font-size: 1.2rem;
+    background: linear-gradient(135deg, var(--success) 0%, var(--secondary) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.start-main-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.7s ease;
+}
+
+.start-main-btn:hover::before {
+    left: 100%;
+}
+
+/* Botón de reinicio/salida en grid */
+#exit-complete-btn {
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto 0;
+    min-height: 48px;
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+    border: none;
+}
+
+#exit-complete-btn:hover {
+    background: linear-gradient(135deg, #8e44ad 0%, #732d91 100%);
+    transform: translateY(-3px);
+}
+
+/* =========================================== */
+/* TABLA DE SALIDAS REGISTRADAS */
+/* =========================================== */
+.departures-card {
+    border-left: 5px solid var(--danger);
+}
+
+.departures-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.departures-table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #e9ecef;
+    border-radius: var(--border-radius);
+}
+
+.departures-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.departures-table th {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: var(--primary);
+    font-weight: 600;
+    padding: 15px 12px;
+    text-align: left;
+    border-bottom: 2px solid #dee2e6;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    cursor: pointer;
+    user-select: none;
+}
+
+.departures-table th:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+}
+
+.departures-table th.sortable {
+    position: relative;
+    padding-right: 30px;
+}
+
+.departures-table th.sortable::after {
+    content: '↕';
+    position: absolute;
+    right: 10px;
+    opacity: 0.5;
+    font-size: 12px;
+}
+
+.departures-table th.sortable.asc::after {
+    content: '↑';
+    opacity: 1;
+}
+
+.departures-table th.sortable.desc::after {
+    content: '↓';
+    opacity: 1;
+}
+
+.departures-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f1f1f1;
+    font-variant-numeric: tabular-nums;
+    transition: background 0.2s ease;
+}
+
+.departures-table tr:last-child td {
+    border-bottom: none;
+}
+
+.departures-table tr:hover td {
+    background: #f8fafc;
+}
+
+.departure-number-cell {
+    font-weight: 600;
+    color: var(--primary);
+    width: 120px;
+}
+
+.departure-time-cell {
+    color: var(--dark);
+    width: 160px;
+}
+
+.departure-notes-cell {
+    color: var(--gray);
+    min-width: 200px;
+}
+
+.departure-notes-input {
+    width: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #fff;
+    transition: all 0.3s;
+}
+
+.departure-notes-input:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+}
+
+.departure-notes-display {
+    padding: 8px 0;
+    min-height: 36px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.departure-notes-display:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.departure-notes-display.empty {
+    color: #aaa;
+    font-style: italic;
+}
+
+.save-notes-btn {
+    margin-top: 5px;
+    padding: 6px 12px;
+    font-size: 12px;
+    background: var(--success);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.save-notes-btn:hover {
+    background: #27ae60;
+}
+
+.cancel-notes-btn {
+    margin-top: 5px;
+    margin-left: 5px;
+    padding: 6px 12px;
+    font-size: 12px;
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.cancel-notes-btn:hover {
+    background: #c0392b;
+}
+
+/* Estado vacío */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--gray);
+    grid-column: 1 / -1;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+/* ================================================ */
+/* PANTALLA DE EJECUCIÓN - CON ELEMENTOS PEGADOS A ESQUINAS */
+/* ================================================ */
+
+.countdown-screen {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 1000;
+    transition: background-color 0.5s ease;
+}
+
+.countdown-screen.active {
+    display: block;
+}
+
+/* Contenedor principal que centra el número */
+.countdown-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+}
+
+/* Display principal de cuenta atrás - CENTRADO VERTICALMENTE */
+.countdown-display {
+    font-size: 30vw;
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    font-variant-numeric: tabular-nums;
+    margin: 0;
+    line-height: 1;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+/* Texto "Próxima salida en" - CENTRADO EN ESPACIO DISPONIBLE */
+.countdown-label {
+    color: white;
+    text-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    font-weight: 600;
+    box-sizing: border-box;
+    transition: opacity 0.3s ease;
+    position: absolute;
+    top: 10px; /* PEGADO AL EXTREMO SUPERIOR */
+    left: 0;
+    right: 0;
+    z-index: 10;
+    margin: 0;
+    padding: 0 120px; /* ESPACIO REDUCIDO para esquinas pegadas */
+    line-height: 50px; 
+    height: 50px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4vw;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* Elementos de información en pantalla - PEGADOS A ESQUINAS CON TAMAÑO DINÁMICO */
+.info-corner {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 0; /* SIN BORDES REDONDEADOS para esquinas */
+    text-align: center;
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    min-width: 160px;
+    min-height: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+    /* TAMAÑO DINÁMICO BASADO EN PANTALLA */
+    width: auto;
+    max-width: 25vw;
+    padding: 0.8vw 1.2vw;
+}
+
+.info-corner:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    transform: scale(1.05);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ESQUINA SUPERIOR IZQUIERDA - PEGADA AL EXTREMO */
+.top-left {
+    top: 0;
+    left: 0;
+    border-top-left-radius: 0;
+    border-bottom-right-radius: 10px;
+}
+
+/* ESQUINA INFERIOR IZQUIERDA - PEGADA AL EXTREMO */
+.bottom-left {
+    bottom: 0;
+    left: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 10px;
+}
+
+/* ESQUINA INFERIOR DERECHA - PEGADA AL EXTREMO */
+.bottom-right {
+    bottom: 0;
+    right: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: 10px;
+}
+
+.info-label {
+    font-size: clamp(10px, 1.2vw, 16px);
+    opacity: 0.8;
+    margin-bottom: 2px;
+    display: block;
+    line-height: 1.1;
+}
+
+.info-value {
+    font-size: clamp(14px, 2vw, 24px);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+/* ESTILO ESPECIAL PARA HORA ACTUAL */
+#current-time-value {
+    font-size: clamp(12px, 1.8vw, 22px);
+    color: #4CAF50;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+
+/* Icono de configuración - ESQUINA SUPERIOR DERECHA PEGADA */
+.config-toggle {
+    position: absolute;
+    top: 0; /* PEGADO AL EXTREMO SUPERIOR */
+    right: 0; /* PEGADO AL EXTREMO DERECHO */
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    width: clamp(40px, 5vw, 50px);
+    height: clamp(40px, 5vw, 50px);
+    border-radius: 0; /* SIN BORDES REDONDEADOS */
+    border-bottom-left-radius: 10px; /* Solo esquina inferior izquierda redondeada */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(16px, 2vw, 20px);
+    cursor: pointer;
+    transition: all 0.3s;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    z-index: 1002;
+}
+
+.config-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    transform: scale(1.1) rotate(90deg);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Display de SALIDA - AJUSTADO AUTOMÁTICAMENTE A LA PANTALLA */
+.salida-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 1003;
+    animation: salida-pulse 0.5s infinite alternate;
+    text-align: center;
+    line-height: 1.1;
+    margin: 0;
+    padding: 0;
+    /* TAMAÑO DINÁMICO que se ajusta automáticamente */
+    font-size: 20vw; /* Tamaño base */
+    max-width: 90%; /* Nunca más del 90% del ancho */
+    max-height: 90%; /* Nunca más del 90% del alto */
+    overflow: hidden;
+    word-wrap: break-word;
+    white-space: normal;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+}
+
+/* Clase para calcular tamaño óptimo - se añadirá con JavaScript */
+.salida-display.auto-size {
+    font-size: min(20vw, 20vh); /* Usa el menor entre ancho y alto */
+    padding: 0 5%;
+}
+
+@keyframes salida-pulse {
+    from {
+        transform: translate(-50%, -50%) scale(1);
+        text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+    }
+    to {
+        transform: translate(-50%, -50%) scale(1.1);
+        text-shadow: 0 0 60px rgba(255, 255, 255, 1);
+    }
+}
+
+.salida-display.show {
+    opacity: 1;
+}
+
+/* Ajuste para cuando se muestra SALIDA */
+.countdown-screen.countdown-salida-active .countdown-container {
+    justify-content: center; /* Mantiene centrado verticalmente */
+}
+
+.countdown-screen.countdown-salida-active .countdown-label {
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* CORRECCIÓN: Ocultar número detrás de SALIDA */
+.countdown-screen.countdown-salida-active .countdown-display {
+    display: none !important;
+}
+
+.countdown-screen.countdown-salida-active .salida-display.show {
+    display: flex !important;
+    opacity: 1 !important;
+}
+
+/* =========================================== */
+/* FOOTER REDISEÑADO */
+/* =========================================== */
+.app-footer {
+    background: linear-gradient(135deg, var(--primary) 0%, #1a2530 100%);
+    color: white;
+    padding: 30px 0;
+    margin-top: 40px;
+    border-top: 4px solid var(--secondary);
+}
+
+.footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 25px;
+}
+
+.footer-left {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Ajusta automáticamente */
+    gap: 10px;
+    width: 100%;
+}
+
+/* =========================================== */
+/* BOTONES DEL FOOTER - ESTILO UNIFICADO */
+/* =========================================== */
+.footer-btn {
+    width: 100%;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    white-space: nowrap;
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); /* Color morado elegante */
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+}
+
+.footer-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%);
+    transform-origin: 50% 50%;
+}
+
+.footer-btn:focus:not(:active)::after {
+    animation: ripple 1s ease-out;
+}
+
+.footer-btn:hover {
+    background: linear-gradient(135deg, #8e44ad 0%, #732d91 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(155, 89, 182, 0.4);
+}
+
+.footer-btn:active {
+    transform: translateY(-1px);
+}
+
+.footer-btn i {
+    font-size: 1.1rem;
+}
+
+/* Para mantener la disposición grid del footer */
+.footer-left {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    width: 100%;
+}
+
+/* =========================================== */
+/* MODALES (ESTILOS MEJORADOS) */
+/* =========================================== */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+}
+
+.modal.active {
+    display: flex;
+    animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: white;
+    border-radius: 15px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from { transform: translateY(-30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+    padding: 25px 30px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, var(--primary) 0%, #1a2530 100%);
+    color: white;
+    border-radius: 15px 15px 0 0;
+}
+
+.modal-header h3 {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.modal-close {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: white;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+.modal-body {
+    padding: 30px;
+}
+
+.modal-footer {
+    padding: 20px 30px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    background: #f8f9fa;
+    border-radius: 0 0 15px 15px;
+}
+
+/* Config modal durante cuenta atrás */
+.config-modal-during-countdown {
+    background-color: rgba(0, 0, 0, 0.85) !important;
+}
+
+.config-modal-during-countdown .modal-content {
+    background: var(--primary) !important;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+/* CONTENEDOR */
+.modal-buttons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+/* BOTONES */
+.modal-buttons-container .btn {
+    width: 100% !important; /* Ocupa todo el ancho */
+    min-height: 55px;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Texto a la izquierda */
+    text-align: left;
+    font-size: 1rem;
+    border-radius: 8px;
+}
+
+/* ÍCONOS */
+.modal-buttons-container .btn i {
+    margin-right: 12px;
+    min-width: 24px;
+    font-size: 1.1rem;
+}
+
+/* =========================================== */
+/* ESTILOS PARA EL MODAL DE NUEVA CARRERA */
+/* =========================================== */
+.config-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.config-input:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.config-line {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.config-line label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--dark);
+    font-size: 1rem;
+}
+
+.config-input::placeholder {
+    color: #aaa;
+    opacity: 0.7;
+}
+
+textarea.config-input {
+    min-height: 100px;
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+/* Estilos específicos para el modal de nueva carrera */
+#new-race-modal .modal-content {
+    max-width: 500px;
+}
+
+#new-race-name-label,
+#new-race-desc-label {
+    color: var(--dark);
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+}
+
+#new-race-name,
+#new-race-description {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+#new-race-description {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 768px) {
+    .config-input {
+        padding: 10px 12px;
+        font-size: 0.95rem;
+    }
+    
+    #new-race-modal .modal-content {
+        width: 95%;
+        max-width: 95%;
+    }
+}
+
+@media (max-width: 480px) {
+    .config-input {
+        padding: 8px 10px;
+        font-size: 0.9rem;
+    }
+    
+    #new-race-modal .modal-content {
+        width: 98%;
+        max-width: 98%;
+    }
+}
+
+
+/* =========================================== */
+/* MENSAJES DE ESTADO */
+/* =========================================== */
+.message {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    padding: 18px 24px;
+    border-radius: var(--border-radius);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    display: none;
+    z-index: 3000;
+    max-width: 400px;
+    animation: slideIn 0.3s ease;
+    backdrop-filter: blur(10px);
+    border-left: 5px solid;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.message.success {
+    background: rgba(46, 204, 113, 0.95);
+    border-left-color: #27ae60;
+}
+
+.message.error {
+    background: rgba(231, 76, 60, 0.95);
+    border-left-color: #c0392b;
+}
+
+.message.warning {
+    background: rgba(243, 156, 18, 0.95);
+    border-left-color: #d68910;
+    color: #333;
+}
+
+.message.info {
+    background: rgba(52, 152, 219, 0.95);
+    border-left-color: #2980b9;
+}
+
+/* =========================================== */
+/* EDITORES INLINE */
+/* =========================================== */
+.inline-edit {
+    cursor: pointer;
+    padding: 0px;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+}
+
+.inline-edit:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.inline-edit-input {
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: inherit;
+    font-weight: inherit;
+    text-align: center;
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+}
+
+/* =========================================== */
+/* OCULTAR ELEMENTOS EN EJECUCIÓN */
+/* =========================================== */
+.hide-on-countdown {
+    transition: opacity 0.3s;
+}
+
+.countdown-screen.active ~ .hide-on-countdown {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* =========================================== */
+/* PUNTO DE INICIO SIMPLIFICADO */
+/* =========================================== */
+.start-point-simple {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: var(--border-radius);
+    border: 1px solid #e9ecef;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.start-point-simple .form-inline-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.start-point-simple input {
+    font-weight: 600;
+    color: var(--primary);
+    width: 100px;
+    text-align: center;
+}
+
+/* =========================================== */
+/* TIME INPUTS PARA INTERVALOS */
+/* =========================================== */
+.time-inputs {
+    background: #f8f9fa;
+    padding: 2px;
+    border-radius: var(--border-radius);
+    border: 1px dashed #dee2e6;
+}
+
+.interval-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: var(--border-radius);
+    margin-bottom: 12px;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.interval-row:hover {
+    border-color: var(--secondary);
+    background: #f8fafc;
+}
+
+.interval-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.interval-range {
+    font-weight: 600;
+    color: var(--primary);
+    min-width: 140px;
+}
+
+.interval-time {
+    color: var(--secondary);
+    font-weight: 600;
+}
+
+/* Añade esto en la sección CSS */
+.notes-edit-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.notes-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.departure-notes-input {
+    width: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #fff;
+    transition: all 0.3s;
+    resize: vertical;
+    min-height: 60px;
+    max-height: 120px;
+}
+
+.departure-notes-input:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+}
+
+.save-notes-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    background: var(--success);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+    min-width: 70px;
+}
+
+.save-notes-btn:hover {
+    background: #27ae60;
+}
+
+.cancel-notes-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+    min-width: 70px;
+}
+
+.cancel-notes-btn:hover {
+    background: #c0392b;
+}
+
+.departure-notes-display {
+    padding: 8px;
+    min-height: 36px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s;
+    border: 1px solid transparent;
+}
+
+.departure-notes-display:hover {
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px dashed #ddd;
+}
+
+.departure-notes-display.empty {
+    color: #aaa;
+    font-style: italic;
+}
+
+/* =========================================== */
+/* RESPONSIVE */
+/* =========================================== */
+@media (max-width: 992px) {
+    .form-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .form-label {
+        min-width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+    }
+    
+    .mode-btn {
+        min-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    
+    .app-title h1 {
+        font-size: 24px;
+    }
+    
+    .language-selector {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .card-body {
+        padding: 10px;
+    }
+    
+    .modal-content {
+        width: 95%;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+    
+    .footer-left {
+        justify-content: center;
+    }
+    
+    .copyright {
+        font-size: 14px;
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .copyright a {
+        color: var(--secondary);
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .copyright a:hover {
+        color: white;
+        text-decoration: underline;
+    }
+    
+    .start-main-btn {
+        min-width: 100%;
+        padding: 18px 30px;
+    }
+    
+    /* Responsive para pantalla de ejecución */
+    .countdown-display {
+        font-size: 40vw;
+    }
+    
+    .aggressive-numbers .countdown-display {
+        font-size: 45vw !important;
+    }
+    
+    /* Texto "Próxima salida en" en móviles */
+    .countdown-label {
+        top: 0;
+        height: 45px;
+        line-height: 45px;
+        padding: 0 100px; /* Espacio reducido */
+        font-size: 5vw;
+    }
+    
+    /* Ajustes para info-corner en móviles */
+    .info-corner {
+        min-width: 140px;
+        min-height: 45px;
+        padding: 6px 10px;
+        max-width: 30vw;
+    }
+    
+    .config-toggle {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+    }
+    
+    .info-label {
+        font-size: 10px;
+    }
+    
+    .info-value {
+        font-size: 16px;
+    }
+    
+    #current-time-value {
+        font-size: 14px;
+    }
+    
+    /* SALIDA ajustado automáticamente para móviles */
+    .salida-display {
+        font-size: min(18vw, 18vh); /* Se ajusta al menor dimension */
+        max-width: 95%;
+        max-height: 95%;
+    }
+    
+    /* Ajustes tabla de salidas en móviles */
+    .departures-table th,
+    .departures-table td {
+        padding: 8px 6px;
+        font-size: 0.9rem;
+    }
+    
+    .departure-number-cell {
+        width: 80px;
+    }
+    
+    .departure-time-cell {
+        width: 130px;
+    }
+    
+    .departure-notes-cell {
+        min-width: 150px;
+    }
+    
+    .departures-table th.sortable::after {
+        right: 5px;
+        font-size: 10px;
+    }
+    
+    /* Botones responsive en móviles */
+    .buttons-responsive-container,
+    .race-selector,
+    .time-mode-selector,
+    .departures-header .btn-group,
+    .footer-left {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+    }
+    
+    .responsive-btn,
+    .footer-btn {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 480px) {
+    .app-title {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    
+    .app-logo {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .btn {
+        padding: 12px 20px;
+        font-size: 0.95rem;
+    }
+    
+    .btn-lg {
+        padding: 16px 30px;
+        font-size: 1.1rem;
+    }
+    
+    .interval-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .departures-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    
+    .message {
+        left: 15px;
+        right: 15px;
+        max-width: none;
+    }
+    
+    .start-options {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    /* Responsive para pantalla de ejecución - móviles pequeños */
+    .countdown-display {
+        font-size: 50vw;
+    }
+    
+    .aggressive-numbers .countdown-display {
+        font-size: 55vw !important;
+    }
+    
+    /* Texto "Próxima salida en" en móviles pequeños */
+    .countdown-label {
+        top: 0;
+        height: 40px;
+        line-height: 40px;
+        padding: 0 80px; /* Espacio mínimo */
+        font-size: 6vw;
+    }
+    
+    /* Ajustes para info-corner en móviles pequeños */
+    .info-corner {
+        min-width: 120px;
+        min-height: 40px;
+        padding: 4px 8px;
+        max-width: 35vw;
+    }
+    
+    .config-toggle {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .info-label {
+        font-size: 9px;
+        margin-bottom: 1px;
+    }
+    
+    .info-value {
+        font-size: 14px;
+    }
+    
+    #current-time-value {
+        font-size: 12px;
+    }
+    
+    /* SALIDA en móviles pequeños - ajuste más agresivo */
+    .salida-display {
+        font-size: min(16vw, 16vh);
+        max-width: 98%;
+        max-height: 98%;
+        padding: 0 3%;
+    }
+    
+    /* Ajustes tabla de salidas en móviles pequeños */
+    .departures-table {
+        font-size: 12px !important; /* Tamaño de fuente fijo */
+    }
+
+    .departures-table th {
+        font-size: 12px;
+        padding: 10px 8px;
+    }
+
+    .departures-table td {
+        font-size: 12px;
+        padding: 8px 6px;
+    }
+    
+    .departure-dorsal-cell {
+        font-weight: 600;
+        color: var(--primary);
+        width: 100px;
+    }
+
+    .departure-time-value-cell {
+        color: var(--dark);
+        width: 120px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .departure-notes-cell {
+        color: var(--gray);
+        min-width: 200px;
+    }
+
+    .departure-date-cell {
+        color: var(--secondary);
+        width: 150px;
+        font-size: 11px;
+    }
+    
+    /* Botones responsive en móviles pequeños */
+    .buttons-responsive-container,
+    .race-selector,
+    .time-mode-selector,
+    .departures-header .btn-group,
+    .footer-left {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .responsive-btn,
+    .footer-btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        min-height: 40px;
+    }
+    
+    /* Ocultar texto si no cabe en pantallas muy pequeñas */
+    @media (max-width: 360px) {
+        .countdown-label {
+            font-size: 5.5vw;
+            padding: 0 70px;
+        }
+        
+        .info-corner {
+            min-width: 110px;
+            min-height: 35px;
+            padding: 3px 6px;
+            max-width: 40vw;
+        }
+        
+        .config-toggle {
+            width: 35px;
+            height: 35px;
+            font-size: 14px;
+        }
+        
+        .salida-display {
+            font-size: min(14vw, 14vh);
+            max-width: 99%;
+        }
+        
+        .departures-table {
+            font-size: 0.75rem;
+        }
+        
+        .departure-notes-input {
+            font-size: 0.75rem;
+            padding: 6px 8px;
+        }
+        
+        .save-notes-btn,
+        .cancel-notes-btn {
+            font-size: 10px;
+            padding: 4px 8px;
+        }
+    }
+}
+
+/* Orientación horizontal específica */
+@media (max-height: 500px) and (orientation: landscape) {
+    .salida-display {
+        font-size: min(15vw, 15vh); /* Más pequeño en landscape */
+        max-width: 85%;
+    }
+    
+    .countdown-label {
+        height: 35px;
+        line-height: 35px;
+        font-size: 4vw;
+    }
+    
+    .info-corner {
+        min-height: 35px;
+    }
+    
+    .config-toggle {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+    
+    .departures-table-container {
+        max-height: 250px;
+    }
+}
+
+/* =========================================== */
+/* ESTILOS PARA TRAMOS - ACTUALIZADOS */
+/* =========================================== */
+.interval-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 0; /* Permite que se comprima */
+}
+
+.interval-range {
+    font-weight: 600;
+    color: var(--primary);
+    min-width: 120px; /* Reducido */
+    white-space: nowrap;
+}
+
+.interval-time {
+    color: var(--secondary);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Eliminar los elementos que ya no queremos */
+.interval-status,
+.interval-corredors {
+    display: none !important;
+}
+
+/* Contenedor de acciones de intervalo - AHORA RESPONSIVE */
+.interval-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap; /* Permite que los botones bajen */
+    justify-content: flex-end;
+    min-width: 140px; /* Ancho mínimo para dos botones */
+}
+
+/* Botones de intervalo más compactos */
+.edit-interval-btn,
+.remove-interval-btn {
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+    min-width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+/* Ocultar texto del botón en pantallas pequeñas */
+.edit-interval-btn .btn-text,
+.remove-interval-btn .btn-text {
+    display: inline;
+}
+
+/* En pantallas muy pequeñas, mostrar solo iconos */
+@media (max-width: 480px) {
+    .edit-interval-btn .btn-text,
+    .remove-interval-btn .btn-text {
+        display: none;
+    }
+    
+    .edit-interval-btn,
+    .remove-interval-btn {
+        min-width: 40px;
+        padding: 6px 8px !important;
+    }
+    
+    .edit-interval-btn i,
+    .remove-interval-btn i {
+        margin: 0;
+    }
+}
+
+/* Para pantallas medianas donde el espacio es limitado */
+@media (max-width: 768px) {
+    .interval-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .interval-info {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .interval-range {
+        min-width: 100px;
+    }
+    
+    .interval-actions {
+        width: 100%;
+        justify-content: flex-start;
+        margin-top: 5px;
+    }
+}
+
+/* Para pantallas muy estrechas */
+@media (max-width: 360px) {
+    .interval-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .interval-range,
+    .interval-time {
+        width: 100%;
+    }
+}
+
+/* =========================================== */
+/* NUEVOS ESTILOS PARA CONFIGURACIÓN DE AUDIO - SIMPLIFICADO */
+/* =========================================== */
+.audio-config-section {
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+    padding: 15px;
+    margin-top: 15px;
+    border: 1px solid #e9ecef;
+}
+
+.audio-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.audio-option {
+    background: white;
+    border: 2px solid #e0e0e0;  
+    border-radius: var(--border-radius);
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+}
+
+.audio-option:hover {
+    border-color: var(--secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.1);
+}
+
+.audio-option.active {
+    border-color: var(--success);
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(52, 152, 219, 0.1) 100%);
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.15);
+}
+
+.audio-option i {
+    font-size: 1.5rem;
+    color: var(--primary);
+}
+
+.audio-option.active i {
+    color: var(--success);
+}
+
+.audio-option .option-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--dark);
+    line-height: 1.2;
+}
+
+/* Texto de descripción oculto por defecto, mostrado en tooltip */
+.audio-option .option-desc {
+    display: none;
+}
+
+/* Tooltip al pasar el cursor */
+.audio-option:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 8px;
+    pointer-events: none;
+}
+
+.audio-option:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    margin-bottom: -4px;
+    pointer-events: none;
+}
+
+.audio-test-btn {
+    margin-top: 15px;
+    padding: 8px 16px;
+    background: var(--secondary);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    transition: all 0.3s;
+    font-size: 0.95rem;
+}
+
+.audio-test-btn:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+/* Responsive para configuración de audio */
+@media (max-width: 768px) {
+    .audio-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .audio-option {
+        padding: 12px;
+    }
+    
+    .audio-option i {
+        font-size: 1.3rem;
+    }
+}
+/* =========================================== */
+/* HORA DEL SISTEMA SOBRE EL BOTÓN INICIAR */
+/* =========================================== */
+.system-time-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.system-time-display {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+    color: var(--white);
+    padding: 12px 25px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 180px;
+    justify-content: center;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.system-time-display:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.system-time-display i {
+    color: var(--success);
+    font-size: 1.2rem;
+}
+
+.system-time-display span {
+    font-family: 'Courier New', monospace;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* Responsive para la hora del sistema */
+@media (max-width: 768px) {
+    .system-time-display {
+        font-size: 1.2rem;
+        padding: 10px 20px;
+        min-width: 160px;
+    }
+    
+    .system-time-display i {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .system-time-display {
+        font-size: 1.1rem;
+        padding: 8px 15px;
+        min-width: 140px;
+        letter-spacing: 1px;
+    }
+}

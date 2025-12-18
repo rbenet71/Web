@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Crono Cuenta Atrás - Control de Salidas para Carreras</title>
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CV925PMBQV"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-CV925PMBQV');
+    </script>
+
+    <!-- Iconos -->
+    <link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_512_512.png">
+    <link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_512x512.png">
+    
+    <!-- PWA -->
+    <meta name="theme-color" content="#FF0000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Crono Cuenta Atrás">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="Crono_CRI.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #FF0000;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --gray: #95a5a6;
+            --light-gray: #f8f9fa;
+            --border-radius: 8px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.15);
+            --red-bg: #FF0000;
+            --orange-bg: #FFFF00;
+            --green-bg: #00FF00;
+            --black-transparent: rgba(0, 0, 0, 0.7);
+            --white: #FFFFFF;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            transition: background-color 0.5s ease;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- =========================================== -->
+    <!-- HEADER -->
+    <!-- =========================================== -->
+    <header class="app-header hide-on-countdown">
+        <div class="container">
+            <div class="header-content">
+                <div class="app-title">
+                    <img src="https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_512x512.png" 
+                         alt="Logo Crono Cuenta Atrás" 
+                         class="app-logo">
+                    <h1 id="app-title-text">Crono Cuenta Atrás</h1>
+                </div>
+                <div class="header-controls">
+                    <div class="language-selector">
+                        <div class="languages-label" id="languages-label">Idioma / Language</div>
+                        <img src="https://flagcdn.com/w40/es.png" class="flag active" id="flag-es" data-lang="es">
+                        <div class="flag flag-catalunya" id="flag-ca" data-lang="ca"></div>
+                        <img src="https://flagcdn.com/w40/gb.png" class="flag" id="flag-en" data-lang="en">
+                        <img src="https://flagcdn.com/w40/fr.png" class="flag" id="flag-fr" data-lang="fr">
+                        <i class="fas fa-question-circle help-icon" id="help-icon-header" title="Ayuda"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- =========================================== -->
+    <!-- CONTENIDO PRINCIPAL - CONFIGURACIÓN -->
+    <!-- =========================================== -->
+    <main class="main-content hide-on-countdown">
+        <div class="container">
+            <!-- Tarjeta 1: Gestión de carrera -->
+            <div class="app-card race-management-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-flag-checkered"></i> <span id="card-race-title">Gestión de Carrera</span></h2>
+                </div>
+                <div class="race-selector">
+                    <select id="race-select" class="form-control">
+                        <option value="">-- Selecciona una carrera --</option>
+                    </select>
+                    <button class="btn btn-primary responsive-btn" id="new-race-btn">
+                        <i class="fas fa-plus"></i>
+                        <span id="new-race-text">Nueva</span>
+                    </button>
+                    <button class="btn btn-danger responsive-btn" id="delete-race-btn">
+                        <i class="fas fa-trash"></i>
+                        <span id="delete-race-text">Eliminar</span>
+                    </button>
+                </div>
+            </div>
+            <!-- =========================================== -->
+            <!-- NUEVA TARJETA: CONFIGURACIÓN DE AUDIO -->
+            <!-- =========================================== -->
+            <div class="app-card audio-config-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-volume-up"></i> <span id="audio-config-title">Configuración de Audio</span></h2>
+                </div>
+                <div class="card-body">
+                    <div class="config-section">
+                        <div class="audio-config-section">
+                            <div class="audio-options" id="audio-options">
+                                <div class="audio-option active" 
+                                    data-audio-type="beep"
+                                    title="Beeps electrónicos para cada segundo">
+                                    <i class="fas fa-bell"></i>
+                                    <div class="option-title" id="beep-option-title">Sonidos Beep</div>
+                                </div>
+                                
+                                <div class="audio-option" 
+                                    data-audio-type="voice"
+                                    title="Voz humana contando en tu idioma">
+                                    <i class="fas fa-microphone-alt"></i>
+                                    <div class="option-title" id="voice-option-title">Voz grabada</div>
+                                </div>
+                                
+                                <div class="audio-option" 
+                                    data-audio-type="none"
+                                    title="Solo efectos visuales">
+                                    <i class="fas fa-volume-mute"></i>
+                                    <div class="option-title" id="mute-option-title">Sin sonido</div>
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: center; margin-top: 15px;">
+                                <button class="audio-test-btn" id="test-audio-btn">
+                                    <i class="fas fa-play-circle"></i>
+                                    <span id="test-audio-text">Probar sonido actual</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta 2: Configuración de tiempos -->
+            <div class="app-card time-config-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-clock"></i> <span id="card-time-title">Configuración de Tiempos</span></h2>
+                </div>
+                <div class="card-body">
+                    <div class="config-section">
+                        <div class="time-mode-selector">
+                            <button class="btn btn-primary responsive-btn mode-btn" id="same-interval-btn">
+                                <i class="fas fa-equals"></i>
+                                <span id="same-interval-text">Siempre igual</span>
+                            </button>
+                            <button class="btn btn-warning responsive-btn mode-btn" id="variable-interval-btn">
+                                <i class="fas fa-list-ol"></i>
+                                <span id="variable-interval-text">Varios tramos</span>
+                            </button>
+                        </div>
+                        <!-- Configuración de intervalo único -->
+                        <div id="single-interval-config" class="time-inputs">
+                            <div class="form-group">
+                                <div class="section-title">
+                                    <i class="fas fa-stopwatch"></i>
+                                    <span id="interval-time-label">Tiempo entre salidas</span>
+                                </div>
+                                <div class="form-row">
+                                    <div class="input-with-unit">
+                                        <input type="number" id="interval-minutes" class="form-control form-control-sm" min="0" value="1">
+                                        <span class="unit" id="minutes-text">minutos</span>
+                                    </div>
+                                    <div class="input-with-unit">
+                                        <input type="number" id="interval-seconds" class="form-control form-control-sm" min="0" max="59" value="0">
+                                        <span class="unit" id="seconds-text">segundos</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Configuración de intervalos variables -->
+                        <div id="variable-interval-config" class="time-inputs" style="display: none;">
+                            <div class="form-group">
+                                <div class="section-title">
+                                    <i class="fas fa-plus-circle"></i>
+                                    <span id="add-interval-label">Añadir nuevo tramo</span>
+                                </div>
+                                <div class="form-row">
+                                    <div class="input-with-unit">
+                                        <input type="number" id="from-corredor" class="form-control form-control-sm" min="1" value="1">
+                                        <span class="unit">desde</span>
+                                    </div>
+                                    <div class="input-with-unit">
+                                        <input type="number" id="to-corredor" class="form-control form-control-sm" min="1" value="10">
+                                        <span class="unit" id="to-text">hasta</span>
+                                    </div>
+                                    <div class="input-with-unit">
+                                        <input type="number" id="var-minutes" class="form-control form-control-sm" min="0" value="1">
+                                        <span class="unit">min</span>
+                                    </div>
+                                    <div class="input-with-unit">
+                                        <input type="number" id="var-seconds" class="form-control form-control-sm" min="0" max="59" value="0">
+                                        <span class="unit">seg</span>
+                                    </div>
+                                    <button class="btn btn-success responsive-btn" id="add-interval-btn">
+                                        <i class="fas fa-plus"></i>
+                                        <span id="add-interval-text">Añadir</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="section-title" >
+                                    <i class="fas fa-list-ul"></i>
+                                    <span  id="configured-sections-label">Tramos configurados</span>
+                                </div>
+                                <div id="intervals-list">
+                                    <!-- Los intervalos se agregarán aquí dinámicamente -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón principal de inicio -->
+            <div class="start-main-btn-container">
+                <div class="system-time-container">
+                    <div class="system-time-display">
+                        <i class="fas fa-clock"> </i>
+                        <span id="current-system-time"> 00:00:00</span>  <!-- Este es el elemento -->
+                    </div>
+                </div>
+                <button class="btn btn-success btn-lg start-main-btn" id="start-countdown-btn">
+                    <i class="fas fa-rocket"></i>
+                    <span id="start-countdown-text">INICIAR CUENTA ATRÁS</span>
+                </button>
+                
+                <!-- =========================================== -->
+                <!-- PUNTO DE INICIO SIMPLIFICADO -->
+                <!-- =========================================== -->
+                <div class="start-point-simple">
+                    <div class="form-inline-group">
+                        <span id="start-from-x-text">Posición actual:</span>
+                        <input type="number" id="start-position" class="form-control form-control-sm" min="1" value="1">
+                    </div>
+                </div>
+                
+                <button class="btn btn-danger responsive-btn btn-block" id="exit-complete-btn" style="max-width: 400px; margin: 20px auto 0;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span id="exit-complete-text">REINICIAR</span>
+                </button>
+            </div>
+
+            <!-- Tarjeta 4: Salidas registradas -->
+            <div class="app-card departures-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-history"></i> <span id="card-departures-title">Salidas Registradas</span></h2>
+                </div>
+                <div class="card-body">
+                    <div class="config-section">
+                        <div class="departures-header">
+                            <div class="btn-group">
+                                <button class="btn btn-danger responsive-btn" id="clear-departures-btn">
+                                    <i class="fas fa-broom"></i>
+                                    <span id="clear-departures-text">Limpiar lista</span>
+                                </button>
+                                <button class="btn btn-success responsive-btn" id="export-excel-btn">
+                                    <i class="fas fa-file-excel"></i>
+                                    <span id="export-excel-text">Exportar Excel</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="departures-table-container" class="departures-table-container">
+                            <table class="departures-table" id="departures-table">
+                                <thead>
+                                    <tr>
+                                        <th class="sortable" data-sort="dorsal" id="departure-header-dorsal">Salida</th>
+                                        <th class="sortable" data-sort="timeValue" id="departure-header-time">Tiempo</th>
+                                        <th class="sortable" data-sort="notes" id="departure-header-notes">Nota</th>
+                                        <th class="sortable" data-sort="date" id="departure-header-date">Hora</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="departures-table-body">
+                                    <!-- Las filas se agregarán aquí dinámicamente -->
+                                </tbody>
+                            </table>
+                            <div id="departures-empty" class="empty-state" style="display: none;">
+                                <i class="fas fa-clock"></i>
+                                <p id="no-departures-text">No hay salidas registradas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- =========================================== -->
+    <!-- PANTALLA DE EJECUCIÓN (REDISEÑADA) -->
+    <!-- =========================================== -->
+    <div class="countdown-screen" id="countdown-screen">
+        <div class="config-toggle" id="config-toggle">
+            <i class="fas fa-cog"></i>
+        </div>
+
+        <div class="countdown-container">
+            <div class="countdown-label" id="countdown-label">Salida en</div>
+            <div class="countdown-display" id="countdown-display">60</div>
+        </div>
+
+        <div class="info-corner top-left">
+            <span class="info-label" id="total-time-label">Tiempo total</span>
+            <div class="info-value" id="total-time-value">00:00:00</div>
+            <div class="info-value" id="current-time-value">00:00:00</div>
+        </div>
+        
+        <div class="info-corner bottom-left">
+            <span class="info-label" id="next-corredor-label">Próximo sale a</span>
+            <div class="info-value inline-edit" id="next-corredor-time">1:00</div>
+        </div>
+        
+        <div class="info-corner bottom-right">
+            <span class="info-label" id="departed-label">Salidos</span>
+            <div class="info-value inline-edit" id="departed-count">0</div>
+        </div>
+
+        <div class="salida-display" id="salida-display">SALIDA</div>
+    </div>
+
+    <!-- =========================================== -->
+    <!-- FOOTER -->
+    <!-- =========================================== -->
+    <footer class="app-footer hide-on-countdown">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <button class="footer-btn" id="footer-help-btn">
+                        <i class="fas fa-question-circle"></i>
+                        <span id="help-text">Ayuda</span>
+                    </button>
+                    <button class="footer-btn" id="suggestions-btn">
+                        <i class="fas fa-lightbulb"></i>
+                        <span id="suggestions-text">Sugerencias</span>
+                    </button>
+                    <button class="footer-btn" id="install-btn">
+                        <i class="fas fa-download"></i>
+                        <span id="install-text">Instalar App</span>
+                    </button>
+                    <button class="footer-btn" id="update-btn">
+                        <i class="fas fa-sync-alt"></i>
+                        <span id="update-text">Buscar actualizaciones</span>
+                    </button>
+                </div>
+                <div class="copyright" id="copyright-text">
+                    2025 © Copyright 
+                    <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
+                        Roberto Benet - rbenet71@gmail.com - V_18_12_2025
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- =========================================== -->
+    <!-- MODALES -->
+    <!-- =========================================== -->
+    
+    <!-- Modal de ayuda -->
+    <div class="modal" id="help-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="help-modal-title">Ayuda de Crono Cuenta Atrás</h3>
+                <button class="modal-close" id="help-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="help-modal-text1">Crono Cuenta Atrás es una aplicación para controlar las salidas en carreras con cuenta atrás visual y sonora.</p>
+                
+                <h4 id="help-modal-subtitle1">Cómo usar:</h4>
+                <ul id="help-modal-list">
+                    <li><strong>Selecciona una carrera</strong> o crea una nueva</li>
+                    <li><strong>Configura la cadencia de salida</strong> (siempre igual o por tramos)</li>
+                    <li><strong>Inicia desde el corredor 1</strong> o desde una posición específica</li>
+                    <li><strong>Pulsa "INICIAR CUENTA ATRÁS"</strong> para comenzar</li>
+                    <li><strong>La pantalla cambiará</strong> mostrando la cuenta atrás grande</li>
+                    <li><strong>Cuando llegue a cero</strong> se mostrará "SALIDA" y comenzará la cuenta para el siguiente</li>
+                </ul>
+                
+                <h4 id="help-modal-subtitle2">Indicadores visuales:</h4>
+                <ul>
+                    <li><strong id="red-background-text">Fondo ROJO:</strong> <span id="countdown-normal-desc">Cuenta atrás normal</span></li>
+                    <li><strong id="yellow-background-text">Fondo AMARILLO:</strong> <span id="countdown-warning-desc">Últimos 10 segundos</span></li>
+                    <li><strong id="green-background-text">Fondo VERDE:</strong> <span id="countdown-salida-desc">Momento de salida (2 segundos)</span></li>
+                    <li><strong id="red-numbers-text">Números ROJOS pulsantes:</strong> <span id="countdown-critical-desc">Últimos 5 segundos</span></li>
+                </ul>
+                
+                <h4 id="help-modal-subtitle3">Sonidos:</h4>
+                <ul>
+                    <li><strong id="beep-high-text">Beep agudo:</strong> <span id="beep-high-desc">Al llegar a 10 segundos</span></li>
+                    <li><strong id="beep-every-second-text">Beep cada segundo:</strong> <span id="beep-every-second-desc">Últimos 5 segundos</span></li>
+                    <li><strong id="beep-low-text">Beep grave:</strong> <span id="beep-low-desc">Al llegar a cero</span></li>
+                </ul>
+                
+                <p id="help-modal-text2">Los 2 segundos de "SALIDA" se restan automáticamente del tiempo de la siguiente cuenta atrás.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="help-modal-ok">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Al final de los modales (después del modal de nueva carrera, línea ~1650) -->
+    <!-- Modal de confirmación reiniciar/salir -->
+    <div class="modal" id="restart-confirm-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="restart-modal-title">Confirmar reinicio completo</h3>
+                <button class="modal-close" id="restart-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="restart-modal-text">¿Estás seguro de que quieres reiniciar completamente? Esta acción:</p>
+                <ul style="margin: 15px 0; padding-left: 20px;">
+                    <li>Detendrá la cuenta atrás si está activa</li>
+                    <li>Borrará todos los datos de la sesión actual</li>
+                    <li>Reiniciará los contadores a cero</li>
+                    <li>Volverá a la pantalla de configuración inicial</li>
+                </ul>
+                <p style="color: var(--danger); font-weight: 600;">
+                    Esta acción no se puede deshacer.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="restart-confirm-btn">Sí, reiniciar completamente</button>
+                <button class="btn" id="restart-cancel-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <!-- Modal de configuración durante cuenta atrás -->
+    <div class="modal" id="config-during-countdown-modal">
+        <div class="modal-content config-modal-during-countdown">
+            <div class="modal-header">
+                <h3>Configuración</h3>
+                <button class="modal-close" id="config-during-countdown-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>La cuenta atrás continúa en segundo plano.</p>
+                <div class="modal-buttons-container">
+                    <button class="btn btn-success" id="resume-countdown-btn">
+                        <i class="fas fa-play"></i> Continuar viendo
+                    </button>
+                    <button class="btn btn-warning" id="stop-countdown-btn">
+                        <i class="fas fa-stop"></i> Detener cuenta atrás
+                    </button>
+                    <button class="btn btn-primary" id="adjust-times-btn">
+                        <i class="fas fa-edit"></i> Ajustar tiempos
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de ajuste de tiempos -->
+    <div class="modal" id="adjust-times-modal">
+        <div class="modal-content config-modal-during-countdown">
+            <div class="modal-header">
+                <h3>Ajustar Tiempos</h3>
+                <button class="modal-close" id="adjust-times-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="config-line" style="flex-direction: column; align-items: stretch;">
+                    <label for="adjust-next-time">Próximo tiempo (segundos):</label>
+                    <input type="number" id="adjust-next-time" class="config-input" min="1" value="60">
+                </div>
+                <div class="config-line" style="flex-direction: column; align-items: stretch;">
+                    <label for="adjust-departed">Corredores salidos:</label>
+                    <input type="number" id="adjust-departed" class="config-input" min="0" value="0">
+                </div>
+                <div class="modal-buttons-container">
+                    <button class="btn btn-success" id="save-adjustments-btn">
+                        <i class="fas fa-save"></i> Guardar ajustes
+                    </button>
+                    <button class="btn" id="cancel-adjustments-btn">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación eliminar carrera -->
+    <div class="modal" id="delete-race-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="delete-race-modal-title">Confirmar eliminación</h3>
+                <button class="modal-close" id="delete-race-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="delete-race-modal-text">¿Estás seguro de que quieres eliminar esta carrera? Todos los datos se perderán.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="delete-race-confirm-btn">Eliminar</button>
+                <button class="btn" id="delete-race-cancel-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <!-- Modal de edición de tramo (añadir después del modal de ajuste de tiempos) -->
+    <div class="modal" id="edit-interval-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="edit-interval-modal-title">Editar Tiempo por Tramo</h3>
+                <button class="modal-close" id="edit-interval-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-interval-form" class="edit-interval-form">
+                    <div class="edit-interval-row">
+                        <label class="edit-interval-label" for="edit-from-corredor">Desde:</label>
+                        <input type="number" 
+                            id="edit-from-corredor" 
+                            class="form-control edit-interval-input" 
+                            min="1" 
+                            required>
+                    </div>
+                    <div class="edit-interval-row">
+                        <label class="edit-interval-label" for="edit-to-corredor">Hasta:</label>
+                        <input type="number" 
+                            id="edit-to-corredor" 
+                            class="form-control edit-interval-input" 
+                            min="1" 
+                            required>
+                    </div>
+                    <div class="edit-interval-row">
+                        <label class="edit-interval-label" for="edit-interval-minutes">Minutos:</label>
+                        <input type="number" 
+                            id="edit-interval-minutes" 
+                            class="form-control edit-interval-input" 
+                            min="0" 
+                            required>
+                    </div>
+                    <div class="edit-interval-row">
+                        <label class="edit-interval-label" for="edit-interval-seconds">Segundos:</label>
+                        <input type="number" 
+                            id="edit-interval-seconds" 
+                            class="form-control edit-interval-input" 
+                            min="0" 
+                            max="59" 
+                            required>
+                    </div>
+                    <div class="edit-interval-buttons">
+                        <button type="button" class="btn btn-success" id="save-edit-interval-btn">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                        <button type="button" class="btn btn-outline" id="cancel-edit-interval-btn">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Modal de confirmación limpiar salidas -->
+    <div class="modal" id="clear-departures-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="clear-departures-modal-title">Confirmar limpieza</h3>
+                <button class="modal-close" id="clear-departures-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="clear-departures-modal-text">¿Estás seguro de que quieres limpiar la lista de salidas? Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="clear-departures-confirm-btn">Limpiar</button>
+                <button class="btn" id="clear-departures-cancel-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de sugerencias -->
+    <div class="modal" id="suggestions-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="suggestions-modal-title">Enviar sugerencias</h3>
+                <button class="modal-close" id="suggestions-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="suggestion-form">
+                    <div class="config-line" style="flex-direction: column; align-items: stretch;">
+                        <label for="suggestion-email" id="suggestion-email-label">Email (opcional):</label>
+                        <input type="email" id="suggestion-email" class="config-input" placeholder="tu@email.com">
+                    </div>
+                    <div class="config-line" style="flex-direction: column; align-items: stretch;">
+                        <label for="suggestion-text" id="suggestion-text-label">Sugerencias:</label>
+                        <textarea id="suggestion-text" class="config-input" rows="5" placeholder="Tus ideas para mejorar la aplicación..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="send-suggestion-btn">Enviar</button>
+                <button class="btn" id="cancel-suggestion-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de nueva carrera -->
+    <!-- Modal de nueva carrera -->
+    <div class="modal" id="new-race-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="new-race-modal-title">Nueva carrera</h3>
+                <button class="modal-close" id="new-race-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="new-race-name" id="new-race-name-label">Nombre de la carrera:</label>
+                    <input type="text" 
+                        id="new-race-name" 
+                        class="form-control config-input" 
+                        placeholder="Ej: Carrera MTB 2025"
+                        maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label for="new-race-description" id="new-race-desc-label">Descripción (opcional):</label>
+                    <textarea id="new-race-description" 
+                            class="form-control config-input" 
+                            rows="4" 
+                            placeholder="Información adicional sobre la carrera..."
+                            maxlength="500"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" id="create-race-btn">Crear carrera</button>
+                <button class="btn btn-outline" id="cancel-create-race-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video oculto para mantener pantalla activa -->
+    <video id="keep-alive-video" style="display: none;" muted playsinline>
+        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+    </video>
+
+    <!-- Mensajes flotantes -->
+    <div id="message" class="message"></div>
+
+    <!-- =========================================== -->
+    <!-- SCRIPT JAVASCRIPT CORREGIDO -->
+    <!-- =========================================== -->
+    <!-- Scripts -->
+    <script src="Crono_CRI_traducciones.js"></script>
+    <script src="Crono_CRI_ui.js"></script>
+    <script src="Crono_CRI_utilidades.js"></script>
+    <script src="Crono_CRI.js"></script>
+    
+    <!-- Inicialización -->
+    <script>
+        // Inicializar la aplicación cuando se cargue la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const app = new CronoCRI();
+            app.init();
+        });
+    </script>
+
+    <!-- Script para XLSX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</body>
+</html>
