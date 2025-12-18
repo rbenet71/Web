@@ -2426,16 +2426,21 @@ IDList=`;
 		// Registrar el Service Worker
         // Registro específico para Calculadora
         if ('serviceWorker' in navigator) {
-        // Solo registrar para Calculadora_Tiempos
-        if (window.location.href.includes('Calculadora_Tiempos')) {
-            navigator.serviceWorker.register('https://rbenet71.github.io/Web/unified-sw.js')
-            .then(function(registration) {
-                console.log('ServiceWorker Calculadora registrado: ', registration.scope);
-            })
-            .catch(function(error) {
-                console.log('Error al registrar ServiceWorker Calculadora: ', error);
-            });
-        }
+            // Solo registrar para Calculadora_Tiempos
+            if (window.location.href.includes('Calculadora_Tiempos')) {
+                // Verificar que estemos en HTTPS o localhost
+                if (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    navigator.serviceWorker.register('https://rbenet71.github.io/Web/unified-sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker Calculadora registrado: ', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.log('Error al registrar ServiceWorker Calculadora: ', error);
+                    });
+                } else {
+                    console.log('ServiceWorker no compatible en este protocolo:', window.location.protocol);
+                }
+            }
         }
 		// Escuchar mensajes del Service Worker
 		navigator.serviceWorker.addEventListener('message', event => {

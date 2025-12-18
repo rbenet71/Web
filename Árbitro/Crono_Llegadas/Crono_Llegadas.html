@@ -3163,60 +3163,90 @@
             currentLanguage = lang;
             const t = translations[lang];
             
+            // Actualizar elementos que siempre existen
             document.getElementById('app-title').textContent = t.appTitle;
-            languagesLabel.textContent = t.languagesLabel;
-            btnStart.textContent = isRunning ? t.stopButton : t.startButton;
-            btnLap.textContent = t.lapButton;
-            btnReset.textContent = t.resetButton;
-            btnHelp.textContent = t.helpButton;
-            btnExport.textContent = t.exportCutsButton;
-            btnExportDorsales.textContent = t.exportDorsalsButton;
-            btnNewRace.textContent = t.newRaceButton;
-            btnDeleteRace.textContent = t.deleteRaceButton;
-            btnSuggestions.textContent = t.suggestionsButton;
-            millisecondsLabel.textContent = t.millisecondsLabel;
+            if (languagesLabel) languagesLabel.textContent = t.languagesLabel;
+            if (btnStart) btnStart.textContent = isRunning ? t.stopButton : t.startButton;
+            if (btnLap) btnLap.textContent = t.lapButton;
+            if (btnReset) btnReset.textContent = t.resetButton;
+            if (btnHelp) btnHelp.textContent = t.helpButton;
+            if (btnExport) btnExport.textContent = t.exportCutsButton;
+            if (btnExportDorsales) btnExportDorsales.textContent = t.exportDorsalsButton;
+            if (btnNewRace) btnNewRace.textContent = t.newRaceButton;
+            if (btnDeleteRace) btnDeleteRace.textContent = t.deleteRaceButton;
+            if (btnSuggestions) btnSuggestions.textContent = t.suggestionsButton;
+            if (millisecondsLabel) millisecondsLabel.textContent = t.millisecondsLabel;
             
-            cortesTabButton.textContent = t.cutsTab;
-            dorsalesTabButton.textContent = t.dorsalsTab;
-            parametrosTabButton.textContent = t.parametersTab;
+            if (cortesTabButton) cortesTabButton.textContent = t.cutsTab;
+            if (dorsalesTabButton) dorsalesTabButton.textContent = t.dorsalsTab;
+            if (parametrosTabButton) parametrosTabButton.textContent = t.parametersTab;
             
-            // Actualizar textos en el orden nuevo
-            document.querySelectorAll('.parameter-group label')[0].textContent = t.closurePercentageLabel;
-            document.querySelectorAll('.parameter-group label')[1].textContent = t.timeLabel;
-            document.querySelectorAll('.parameter-group label')[2].textContent = t.startTimeLabel;
-            document.querySelectorAll('.parameter-group label')[3].textContent = t.startTimeHistoryLabel;
-            document.querySelector('#sort-dorsal').innerHTML = t.dorsalHeader;
-            document.querySelector('#sort-time').innerHTML = t.timeHeader;
-            document.querySelector('#sort-cut').innerHTML = t.cutHeader;
-                        
-            setStartBtn.textContent = t.setStartTimeButton;
-            setElapsedBtn.textContent = t.setTimeButton;
+            // Actualizar textos de parámetros - SOLO SI EXISTEN
+            const paramLabels = document.querySelectorAll('.parameter-group label');
+            if (paramLabels.length >= 4) {
+                paramLabels[0].textContent = t.closurePercentageLabel;
+                paramLabels[1].textContent = t.timeLabel;
+                paramLabels[2].textContent = t.startTimeLabel;
+                paramLabels[3].textContent = t.startTimeHistoryLabel;
+            }
             
-            startTimeDisplay.textContent = t.startTimeDisplay + (startTimeValue || t.notSet);
+            // Actualizar cabeceras de tabla dorsales - SOLO SI EXISTEN
+            const sortDorsalElement = document.querySelector('#sort-dorsal');
+            const sortTimeElement = document.querySelector('#sort-time');
+            const sortCutElement = document.querySelector('#sort-cut');
             
+            if (sortDorsalElement) sortDorsalElement.innerHTML = t.dorsalHeader;
+            if (sortTimeElement) sortTimeElement.innerHTML = t.timeHeader;
+            if (sortCutElement) sortCutElement.innerHTML = t.cutHeader;
             
-            document.querySelector('#dorsales-tab .help-text').textContent = t.assignHelp;
+            if (setStartBtn) setStartBtn.textContent = t.setStartTimeButton;
+            if (setElapsedBtn) setElapsedBtn.textContent = t.setTimeButton;
             
-            const firstOption = raceSelector.querySelector('option');
+            if (startTimeDisplay) {
+                startTimeDisplay.textContent = t.startTimeDisplay + (startTimeValue || t.notSet);
+            }
+            
+            // Actualizar texto de ayuda en pestaña dorsales
+            const assignHelpElement = document.querySelector('#dorsales-tab .help-text');
+            if (assignHelpElement) {
+                assignHelpElement.textContent = t.assignHelp;
+            }
+            
+            // Actualizar selector de carreras
+            const firstOption = raceSelector ? raceSelector.querySelector('option') : null;
             if (firstOption) {
                 firstOption.textContent = t.selectRace;
             }
             
-            document.getElementById('new-race-modal-title').textContent = t.newRaceModalTitle;
-            document.getElementById('race-name-label').textContent = t.raceNameLabel;
-            document.getElementById('delete-race-modal-title').textContent = t.deleteRaceModalTitle;
-            document.getElementById('delete-race-modal-text').textContent = t.deleteRaceModalText;
-            document.getElementById('cancel-new-race').textContent = t.cancelButton;
-            document.getElementById('confirm-new-race').textContent = t.createButton;
-            document.getElementById('cancel-delete-race').textContent = t.cancelButton;
-            document.getElementById('confirm-delete-race').textContent = t.confirmButton;
+            // Actualizar modales
+            const newRaceModalTitle = document.getElementById('new-race-modal-title');
+            const raceNameLabel = document.getElementById('race-name-label');
+            const deleteRaceModalTitle = document.getElementById('delete-race-modal-title');
+            const deleteRaceModalText = document.getElementById('delete-race-modal-text');
+            const cancelNewRaceBtn = document.getElementById('cancel-new-race');
+            const confirmNewRaceBtn = document.getElementById('confirm-new-race');
+            const cancelDeleteRaceBtn = document.getElementById('cancel-delete-race');
+            const confirmDeleteRaceBtn = document.getElementById('confirm-delete-race');
             
-            document.getElementById('race-name-input').placeholder = t.raceNamePlaceholder;
+            if (newRaceModalTitle) newRaceModalTitle.textContent = t.newRaceModalTitle;
+            if (raceNameLabel) raceNameLabel.textContent = t.raceNameLabel;
+            if (deleteRaceModalTitle) deleteRaceModalTitle.textContent = t.deleteRaceModalTitle;
+            if (deleteRaceModalText) deleteRaceModalText.textContent = t.deleteRaceModalText;
+            if (cancelNewRaceBtn) cancelNewRaceBtn.textContent = t.cancelButton;
+            if (confirmNewRaceBtn) confirmNewRaceBtn.textContent = t.createButton;
+            if (cancelDeleteRaceBtn) cancelDeleteRaceBtn.textContent = t.cancelButton;
+            if (confirmDeleteRaceBtn) confirmDeleteRaceBtn.textContent = t.confirmButton;
+            
+            const raceNameInput = document.getElementById('race-name-input');
+            if (raceNameInput) raceNameInput.placeholder = t.raceNamePlaceholder;
+            
             // Actualizar texto del botón de instalación
-            document.getElementById('install-btn-text').textContent = t.installButton;  
+            const installBtnText = document.getElementById('install-btn-text');
+            if (installBtnText) installBtnText.textContent = t.installButton;  
             
             updateTimeLimitDisplay();
             
+            // Actualizar banderas activas
             document.querySelectorAll('.flag').forEach(flag => {
                 flag.classList.remove('active');
             });
@@ -3234,6 +3264,7 @@
             // Renderizar historial con el nuevo idioma
             renderStartTimeHistory();
         }
+
 
         // ==============================================
         // FUNCIONES EXISTENTES (REPARADAS)
@@ -3287,7 +3318,10 @@
                 updateButtonsState();
             }
             
-            updateLanguage(currentLanguage);
+            // Llamar a updateLanguage después de un breve retraso para asegurar que los elementos DOM estén listos
+            setTimeout(() => {
+                updateLanguage(currentLanguage);
+            }, 100);
             
             btnStart.addEventListener('click', toggleChrono);
             btnLap.addEventListener('click', recordLap);
@@ -3346,6 +3380,7 @@
                     e.target.select();
                 }
             });
+            
             // Eventos para el botón de instalación
             document.getElementById('install-btn').addEventListener('click', showInstallModal);
             document.getElementById('installActionBtn').addEventListener('click', handleInstall);
@@ -3361,8 +3396,52 @@
                 e.preventDefault();
                 deferredPrompt = e;
             });
+            
+            // Mostrar recordatorio de salvapantallas
             showScreensaverReminder();
+            
+            // Inicializar Service Worker
+            setupServiceWorker();
         });
+
+        function setupServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                if (window.location.href.includes('Crono_Llegadas')) {
+                    navigator.serviceWorker.register('https://rbenet71.github.io/Web/unified-sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker Crono Llegadas registrado: ', registration.scope);
+                        
+                        navigator.serviceWorker.addEventListener('message', event => {
+                            if (event.data && event.data.type === 'SW_UPDATED') {
+                                console.log('Service Worker actualizado a versión:', event.data.version);
+                                showUpdateNotification();
+                            }
+                        });
+                        
+                        setInterval(() => {
+                            registration.update();
+                        }, 60 * 60 * 1000);
+                        
+                    }).catch(function(error) {
+                        console.log('Error al registrar ServiceWorker Crono Llegadas: ', error);
+                    });
+                }
+            }
+        }
+
+        function showUpdateNotification() {
+            const t = translations[currentLanguage];
+            const notification = document.createElement('div');
+            notification.className = 'message info';
+            notification.textContent = '📱 Nueva versión disponible. Actualiza la app.';
+            notification.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        }
 
         function calculateTimeLimit() {
             if (!isRaceSelected() || firstLapTimeMs <= 0) return;
@@ -3667,17 +3746,20 @@
     function renderTable() {
         sortDorsalData();
         
+        // USAR LAS TRADUCCIONES ACTUALES
+        const t = translations[currentLanguage];
+        
         // Crear cabecera compacta
         dorsalListElement.innerHTML = `
             <div class="dorsal-table-header">
                 <div class="dorsal-header-cell sortable" data-sort="dorsal" id="sort-dorsal">
-                    Dorsal
+                    ${t.dorsalHeader}
                 </div>
                 <div class="dorsal-header-cell sortable" data-sort="time" id="sort-time">
-                    Tiempo
+                    ${t.timeHeader}
                 </div>
                 <div class="dorsal-header-cell sortable" data-sort="cut" id="sort-cut">
-                    Corte
+                    ${t.cutHeader}
                 </div>
                 <div class="dorsal-header-cell"></div>
             </div>
