@@ -1,6 +1,7 @@
 Crono CRI
 
 Quiero crear una app para ayudar a las salidas de las contra relojes de ciclismo.
+
 Partiendo de la app cuenta atrás, la diferencia es que se importará un Excel con todos los datos de la cri, por tanto se ha de mantener diseño y estructura igual y solo añadir la parte de entrada de datos de corredores y tiempos de salida. Además en la pantalla de cuenta atrás se mostrarán los datos del corredor.
 
 iconos: Crono_CRI_192x192.png Crono_CRI_512x512.png
@@ -15,7 +16,7 @@ Hora de salida ( según hora del día)
 Nombre
 Apellido
 
-Habrá un campo para fijar a que hora se empieza la cuenta atras.
+Habrá un campo para fijar a que hora se empieza la cuenta atras y es a esa hora que el programa automaticamente arrancará la pantalla de cuenta atras.
 
 El crono hará las cuentas atrás en función de este Excel y del campo tiempo de salida.
 
@@ -35,9 +36,12 @@ El inicio del crono que tengas tres opciones desde el primer corredor, desde el 
 Crono-cri/
 ├── Crono_CRI.html
 ├── Crono_CRI_manifest.json
-├── styles.css
-├── script.js
-├── service-worker.js
+├── Crono_CRI.css
+├── Crono_CRI.js
+    Crono_CRI_ui.js
+    Crono_CRI_utilidades.js
+    Crono_CRI_traducciones.js
+├── Crono_CRI_ws.js
 ├── Crono_CRI_192x192.png      # Icono 192x192
 ├── Crono_CRI_512x512.png      # Icono 512x512
 ├── Crono_CRI_maskable_192x192.png  # (Opcional)
