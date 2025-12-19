@@ -46,14 +46,24 @@ function initApp() {
     setTimeout(() => preloadVoiceAudios(), 1000);
     
     loadRaceData();
-
-    initModeSlider()
+    
+    initModeSlider();
     
     updateLanguageUI();
     updateSalidaText();
     renderRacesSelect();
     setupSorting();
     
+    // AGREGAR AQUÍ LOS INTERVALOS PARA EL RELOJ
+    // Actualizar hora del sistema cada segundo
+    updateSystemTimeDisplay(); // Ejecutar inmediatamente
+    setInterval(updateSystemTimeDisplay, 1000);
+    
+    // Actualizar diferencia de tiempo cada segundo
+    updateTimeDifference(); // Ejecutar inmediatamente  
+    setInterval(updateTimeDifference, 1000);
+    
+    // Los intervalos existentes
     setInterval(updateTotalTime, 1000);
     setInterval(updateCurrentTime, 1000);
     
@@ -82,7 +92,6 @@ function initApp() {
     console.log(`Idioma inicial: ${appState.currentLanguage}`);
     console.log(`Tipo de audio: ${appState.audioType}`);
 }
-
 // AGREGAR ESTA NUEVA FUNCIÓN
 function setupModalEventListeners() {
     console.log("Configurando event listeners de modales...");
