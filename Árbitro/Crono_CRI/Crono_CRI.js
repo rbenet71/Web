@@ -194,6 +194,14 @@ function setupEventListeners() {
         document.getElementById('restart-confirm-modal').classList.remove('active');
     });
 
+    document.getElementById('delete-race-cancel-btn').addEventListener('click', () => {
+        document.getElementById('delete-race-modal').classList.remove('active');
+    });
+
+    document.getElementById('delete-race-modal-close').addEventListener('click', () => {
+        document.getElementById('delete-race-modal').classList.remove('active');
+    });
+
     document.getElementById('restart-confirm-btn').addEventListener('click', () => {
         const t = translations[appState.currentLanguage];
         
@@ -316,9 +324,7 @@ function setupEventListeners() {
         document.getElementById('delete-race-modal').classList.add('active');
     });
     
-    document.getElementById('delete-race-confirm-btn').addEventListener('click', () => {
-        deleteCurrentRace();
-    });
+
     
     document.getElementById('new-race-modal-close').addEventListener('click', () => {
         document.getElementById('new-race-modal').classList.remove('active');

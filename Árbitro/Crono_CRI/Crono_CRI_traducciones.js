@@ -8,6 +8,7 @@ const translations = {
         appTitle: "Crono CRI",
         languagesLabel: "Idioma / Language",
         
+        
         // Tarjetas
         cardRaceTitle: "Gestión de Carrera",
         cardTimeTitle: "Configuración de Tiempo",
@@ -18,7 +19,9 @@ const translations = {
         // Botones de carrera
         newRaceText: "Nueva",
         deleteRaceText: "Eliminar",
-        
+        deleteRaceConfirmBtn: "Eliminar",
+        deleteRaceCancelBtn:'Cancelar',
+
         // Configuración de audio
         beepOptionTitle: "Sonidos Beep",
         voiceOptionTitle: "Voz grabada",
@@ -323,6 +326,8 @@ const translations = {
         // Botones de carrera
         newRaceText: "Nova",
         deleteRaceText: "Eliminar",
+        deleteRaceConfirmBtn: "Eliminar",
+        deleteRaceCancelBtn:'Cancelar',
         
         // Configuración de audio
         beepOptionTitle: "Sons Beep",
@@ -626,7 +631,9 @@ const translations = {
         // Botones de carrera
         newRaceText: "New",
         deleteRaceText: "Delete",
-        
+        deleteRaceConfirmBtn: "Delete",
+        deleteRaceCancelBtn:'Cancel',
+
         // Configuración de audio
         beepOptionTitle: "Beep Sounds",
         voiceOptionTitle: "Recorded Voice",
@@ -929,7 +936,9 @@ const translations = {
         // Botones de carrera
         newRaceText: "Nouvelle",
         deleteRaceText: "Supprimer",
-        
+        deleteRaceConfirmBtn: "Supprimer",
+        deleteRaceCancelBtn: "Annuler",
+
         // Configuración de audio
         beepOptionTitle: "Sons Beep",
         voiceOptionTitle: "Voix enregistrée",
@@ -1485,10 +1494,14 @@ if (rankingTable) {
     // ============================================
     
     updateSalidaText();
+    updateModalTexts();
     
     console.log("UI actualizada al idioma:", lang);
 }
 
+// ===========================================
+// ACTUALIZAR FUNCIÓN updateModalTexts()
+// ===========================================
 function updateModalTexts() {
     const t = translations[appState.currentLanguage];
     
@@ -1497,6 +1510,14 @@ function updateModalTexts() {
         const element = document.getElementById(elementId);
         if (element) {
             element.textContent = text;
+        }
+    }
+    
+    // Función para establecer placeholder
+    function setPlaceholderIfExists(elementId, placeholder) {
+        const element = document.getElementById(elementId);
+        if (element && placeholder) {
+            element.placeholder = placeholder;
         }
     }
     
@@ -1541,15 +1562,15 @@ function updateModalTexts() {
     // Actualizar modales varios
     setTextIfExists('delete-race-modal-title', t.deleteRaceModalTitle);
     setTextIfExists('delete-race-modal-text', t.deleteRaceModalText);
-    setTextIfExists('delete-race-confirm-btn', t.deleteConfirm);
-    setTextIfExists('delete-race-cancel-btn', t.cancelButtonText || t.cancel);
+    setTextIfExists('delete-race-confirm-btn', t.deleteConfirm || t.deleteRaceConfirmBtn);
+    setTextIfExists('delete-race-cancel-btn', t.deleteRaceCancelBtn || t.cancelButtonText || t.cancel);
 
     setTextIfExists('new-race-text', t.newRaceText);
     setTextIfExists('delete-race-text', t.deleteRaceText);
     
     setTextIfExists('clear-departures-modal-title', t.clearDeparturesModalTitle);
     setTextIfExists('clear-departures-modal-text', t.clearDeparturesModalText);
-    setTextIfExists('clear-departures-confirm-btn', t.clear);
+    setTextIfExists('clear-departures-confirm-btn', t.clear || t.clearDeparturesText);
     setTextIfExists('clear-departures-cancel-btn', t.cancelButtonText || t.cancel);
     
     setTextIfExists('suggestions-modal-title', t.suggestionsModalTitle);
@@ -1561,11 +1582,53 @@ function updateModalTexts() {
     setTextIfExists('new-race-modal-title', t.newRaceModalTitle);
     setTextIfExists('new-race-name-label', t.newRaceNameLabel);
     setTextIfExists('new-race-desc-label', t.newRaceDescLabel);
-    setTextIfExists('create-race-btn', t.createRace);
-    setTextIfExists('cancel-create-race-btn', t.cancelButtonText || t.cancel);
+    setTextIfExists('create-race-btn', t.createRace || "Crear carrera");
+    // IMPORTANTE: Aquí está el problema - en HTML el ID es 'cancel-create-race-btn'
+    setTextIfExists('cancel-create-race-btn', t.cancelButtonText || t.cancel || "Cancelar");
     
     setTextIfExists('restart-modal-title', t.restartModalTitle);
     setTextIfExists('restart-modal-text', t.restartModalText);
     setTextIfExists('restart-confirm-btn', t.restartConfirm);
     setTextIfExists('restart-cancel-btn', t.cancelButtonText || t.cancel);
+    
+    // Actualizar placeholders para modal de nueva carrera
+    setPlaceholderIfExists('new-race-name', t.newRaceNameLabel || "Ej: Carrera MTB 2025");
+    setPlaceholderIfExists('new-race-description', t.newRaceDescLabel || "Información adicional sobre la carrera...");
+    
+    // ============================================
+    // ACTUALIZAR MODALES NUEVOS (LLEGADAS)
+    // ============================================
+    
+    // Modal de registro de llegada
+    setTextIfExists('register-llegada-modal-title', t.registerLlegadaModalTitle);
+    setTextIfExists('llegada-dorsal-label', t.llegadaDorsalLabel);
+    setTextIfExists('llegada-hora-label', t.llegadaHoraLabel);
+    setTextIfExists('llegada-notas-label', t.llegadaNotasLabel);
+    setTextIfExists('confirm-llegada-btn', t.confirmLlegadaBtn);
+    setTextIfExists('cancel-llegada-btn', t.cancelLlegadaBtn || t.cancelButtonText || t.cancel);
+    
+    // Modal de importación de salidas
+    setTextIfExists('import-salidas-modal-title', t.importSalidasModalTitle);
+    setTextIfExists('import-salidas-modal-text', t.importSalidasModalText);
+    setTextIfExists('confirm-import-salidas-btn', t.confirmImportSalidasBtn);
+    setTextIfExists('cancel-import-salidas-btn', t.cancelImportSalidasBtn || t.cancelButtonText || t.cancel);
+    
+    // Modal de clasificación
+    setTextIfExists('ranking-modal-title', t.rankingModalTitle);
+    setTextIfExists('no-ranking-text', t.noRankingText);
+    setTextIfExists('export-ranking-btn', t.exportRankingBtn);
+    setTextIfExists('close-ranking-btn', t.closeRankingBtn);
+    
+    // Actualizar headers de tabla de ranking
+    const rankingTable = document.getElementById('ranking-table');
+    if (rankingTable) {
+        const rankingHeaders = rankingTable.querySelectorAll('th');
+        if (rankingHeaders.length >= 5) {
+            if (rankingHeaders[0]) rankingHeaders[0].textContent = t.rankingPos || 'Pos';
+            if (rankingHeaders[1]) rankingHeaders[1].textContent = t.rankingDorsal || 'Dorsal';
+            if (rankingHeaders[2]) rankingHeaders[2].textContent = t.rankingNombre || 'Nombre';
+            if (rankingHeaders[3]) rankingHeaders[3].textContent = t.rankingTiempo || 'Tiempo';
+            if (rankingHeaders[4]) rankingHeaders[4].textContent = t.rankingDiferencia || 'Diferencia';
+        }
+    }
 }
