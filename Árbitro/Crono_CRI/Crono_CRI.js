@@ -64,51 +64,6 @@ function initApp() {
     setupEventListeners();
     setupAudioEventListeners();
     
-    // Cargar modo guardado
-    const savedMode = localStorage.getItem('app-mode') || 'salida';
-    setTimeout(() => {
-        changeMode(savedMode);
-    }, 100);
-    
-    document.addEventListener('click', initAudioOnInteraction);
-    document.addEventListener('keydown', initAudioOnInteraction);
-    
-    console.log("Aplicación inicializada.");
-    console.log(`Idioma inicial: ${appState.currentLanguage}`);
-    console.log(`Tipo de audio: ${appState.audioType}`);
-}
-
-// AGREGAR ESTA NUEVA FUNCIÓN
-function initApp() {
-    console.log("Inicializando aplicación...");
-    
-    loadLanguagePreference();
-    loadRacesFromStorage();
-    loadAppState();
-    loadAudioPreferences();
-    
-    setTimeout(() => verifyAudioFiles(), 500);
-    setTimeout(() => preloadVoiceAudios(), 1000);
-
-    loadRaceData();
-    
-    updateLanguageUI();
-    updateSalidaText();
-    renderRacesSelect();
-    setupSorting();
-    
-    setInterval(updateTotalTime, 1000);
-    setInterval(updateCurrentTime, 1000);
-    
-    setupServiceWorker();
-    setupPWA();
-    setupCountdownResize();
-    adjustCountdownSize();
-    adjustInfoCornersSize();
-    
-    setupEventListeners();
-    setupAudioEventListeners();
-    
     // AGREGAR AQUÍ LOS LISTENERS ESPECÍFICOS DE MODALES
     setupModalEventListeners();
     
@@ -124,6 +79,19 @@ function initApp() {
     console.log("Aplicación inicializada.");
     console.log(`Idioma inicial: ${appState.currentLanguage}`);
     console.log(`Tipo de audio: ${appState.audioType}`);
+}
+
+// AGREGAR ESTA NUEVA FUNCIÓN
+function setupModalEventListeners() {
+    console.log("Configurando event listeners de modales...");
+    
+    // Botón de crear carrera
+    document.getElementById('create-race-btn').addEventListener('click', createNewRace);
+    
+    // Botón de eliminar carrera
+    document.getElementById('delete-race-confirm-btn').addEventListener('click', deleteCurrentRace);
+    
+    console.log("Event listeners de modales configurados.");
 }
 
 // AGREGAR ESTA NUEVA FUNCIÓN
@@ -2051,15 +2019,22 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// ============================================
+// INICIALIZACIÓN DEL MODO LLEGADAS
+// ============================================
 function initLlegadasMode() {
+    console.log("Inicializando modo llegadas...");
+    
+    // Cargar estado guardado
+    loadLlegadasState();
+    
     // Inicializar cronómetro
-    updateLlegadasTimer();
+    updateLlegadasTimerDisplay();
     
-    // Cargar llegadas guardadas
-    loadLlegadasData();
+    // Renderizar lista si hay datos
+    renderLlegadasList();
     
-    // Event listeners para modo llegadas
-    setupLlegadasEventListeners();
+    console.log("Modo llegadas inicializado");
 }
 
 function setupLlegadasEventListeners() {

@@ -351,11 +351,6 @@ function preloadVoiceAudios() {
             audio.addEventListener('canplaythrough', () => {
                 appState.voiceAudioCache[lang][num] = audio;
                 loadedCount++;
-                console.log(`✅ Audio cargado: ${lang}_${num}.ogg (${loadedCount}/${totalToLoad})`);
-                
-                if (num === 0) {
-                    console.log(`   (Este es el audio de SALIDA para ${lang})`);
-                }
             });
             
             audio.addEventListener('error', (e) => {
@@ -376,26 +371,12 @@ function preloadVoiceAudios() {
     setTimeout(() => {
         console.log(`\n=== RESUMEN DE CARGA DE AUDIOS ===`);
         console.log(`Cargados: ${loadedCount}/${totalToLoad}`);
-        
-        languages.forEach(lang => {
-            console.log(`\nIdioma: ${lang}`);
-            const loadedNumbers = Object.keys(appState.voiceAudioCache[lang] || {}).length;
-            console.log(`  Números cargados: ${loadedNumbers}/11`);
-            
-            if (appState.voiceAudioCache[lang][0]) {
-                console.log(`  ✅ Audio de SALIDA (0.ogg): CARGADO`);
-            } else {
-                console.log(`  ❌ Audio de SALIDA (0.ogg): FALTA`);
-            }
-        });
     }, 3000);
 }
 
 function playVoiceAudio(number) {
     if (appState.audioType !== 'voice') return;
-    
-    console.log(`🔊 Reproduciendo: ${appState.currentLanguage}_${number}.ogg`);
-    
+       
     try {
         const lang = appState.currentLanguage;
         
@@ -475,14 +456,7 @@ function verifyAudioFiles() {
             const audio = new Audio();
             const url = `audio/${lang}_${num}.ogg`;
             audio.src = url;
-            
-            audio.addEventListener('canplaythrough', () => {
-                if (num === 0) {
-                    console.log(`  ✅ ${lang}_${num}.ogg - SALIDA ✓`);
-                } else {
-                    console.log(`  ✅ ${lang}_${num}.ogg`);
-                }
-            });
+        
             
             audio.addEventListener('error', (e) => {
                 if (num === 0) {

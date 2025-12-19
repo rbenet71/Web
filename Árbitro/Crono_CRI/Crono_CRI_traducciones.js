@@ -1,3 +1,4 @@
+
 // ===========================================
 // TRADUCCIONES MULTI-IDIOMA - COMPLETO Y CORREGIDO
 // ===========================================
@@ -12,7 +13,7 @@ const translations = {
         cardTimeTitle: "Configuración de Tiempo",
         cardDeparturesTitle: "Salidas Registradas",
         audioConfigTitle: "Configuración de Audio",
-        'card-start-order-title': "Orden de Salida",
+        cardStartOrderTitle: "Orden de Salida",
         
         // Botones de carrera
         newRaceText: "Nueva",
@@ -128,37 +129,37 @@ const translations = {
         nextCorredorLabel: "Próximo sale a",
         departedLabel: "Salidos",
         
-        // Orden de salida - NUEVAS TRADUCCIONES (CON GUIONES PARA EL HTML)
-        'time-config-label': "Configuración de Horarios",
-        'first-start-label': "Hora Salida Primer Corredor:",
-        'current-time-label': "Hora del Sistema:",
-        'time-diff-label': "Inicio Cuenta atrás en:",
-        'total-riders-label': "Total Corredores:",
-        'actions-label': "Acciones",
-        'order-table-label': "Orden de Salida",
-        'create-template-text': "Crear Plantilla",
-        'import-order-text': "Importar Orden",
-        'delete-order-text': "Eliminar Orden",
-        'export-order-text': "Exportar Orden",
-        'add-rider-text': "Añadir Corredor",
-        'no-start-order-text': "No hay corredores en el orden de salida",
+        // Orden de salida - NUEVAS TRADUCCIONES (EN CAMELCASE)
+        timeConfigLabel: "Configuración de Horarios",
+        firstStartLabel: "Hora Salida Primer Corredor:",
+        currentTimeLabel: "Hora del Sistema:",
+        timeDiffLabel: "Inicio Cuenta atrás en:",
+        totalRidersLabel: "Total Corredores:",
+        actionsLabel: "Acciones",
+        orderTableLabel: "Orden de Salida",
+        createTemplateText: "Crear Plantilla",
+        importOrderText: "Importar Orden",
+        deleteOrderText: "Eliminar Orden",
+        exportOrderText: "Exportar Orden",
+        addRiderText: "Añadir Corredor",
+        noStartOrderText: "No hay corredores en el orden de salida",
         
-        // Headers de tabla orden de salida (CON GUIONES)
-        'order-header': "Orden",
-        'dorsal-header': "Dorsal",
-        'crono-salida-header': "Crono Salida",
-        'hora-salida-header': "Hora Salida",
-        'nombre-header': "Nombre",
-        'apellidos-header': "Apellidos",
-        'chip-header': "Chip",
-        'hora-real-header': "Hora Salida Real",
-        'crono-real-header': "Crono Salida Real",
-        'hora-prevista-header': "Hora Salida Prevista",
-        'crono-prevista-header': "Crono Salida Prevista",
-        'hora-importado-header': "Hora Salida Importado",
-        'crono-importado-header': "Crono Salida Importado",
-        'crono-segundos-header': "Crono Segundos",
-        'hora-segundos-header': "Hora Segundos",
+        // Headers de tabla orden de salida (EN CAMELCASE)
+        orderHeader: "Orden",
+        dorsalHeader: "Dorsal",
+        cronoSalidaHeader: "Crono Salida",
+        horaSalidaHeader: "Hora Salida",
+        nombreHeader: "Nombre",
+        apellidosHeader: "Apellidos",
+        chipHeader: "Chip",
+        horaRealHeader: "Hora Salida Real",
+        cronoRealHeader: "Crono Salida Real",
+        horaPrevistaHeader: "Hora Salida Prevista",
+        cronoPrevistaHeader: "Crono Salida Prevista",
+        horaImportadoHeader: "Hora Salida Importado",
+        cronoImportadoHeader: "Crono Salida Importado",
+        cronoSegundosHeader: "Crono Segundos",
+        horaSegundosHeader: "Hora Segundos",
         
         // Mensajes orden de salida
         templateCreated: "Plantilla Excel creada correctamente",
@@ -196,38 +197,10 @@ const translations = {
         countdownlabel: "Salida en",
         currentPositionText: "Posición actual:",
         
-        // Alias para compatibilidad (sin guiones)
-        timeConfigLabel: "Configuración de Horarios",
-        firstStartLabel: "Hora Salida Primer Corredor:",
-        currentTimeLabel: "Hora del Sistema:",
-        totalRidersLabel: "Total Corredores:",
-        actionsLabel: "Acciones",
-        orderTableLabel: "Orden de Salida",
-        createTemplateText: "Crear Plantilla",
-        importOrderText: "Importar Orden",
-        deleteOrderText: "Eliminar Orden",
-        exportOrderText: "Exportar Orden",
-        addRiderText: "Añadir Corredor",
-        noStartOrderText: "No hay corredores en el orden de salida",
-        
-        // Alias para headers de tabla
-        orderHeader: "Orden",
-        dorsalHeader: "Dorsal",
-        cronoSalidaHeader: "Crono Salida",
-        horaSalidaHeader: "Hora Salida",
-        nombreHeader: "Nombre",
-        apellidosHeader: "Apellidos",
-        chipHeader: "Chip",
-        horaRealHeader: "Hora Salida Real",
-        cronoRealHeader: "Crono Salida Real",
-        horaPrevistaHeader: "Hora Salida Prevista",
-        cronoPrevistaHeader: "Crono Salida Prevista",
-        horaImportadoHeader: "Hora Salida Importado",
-        cronoImportadoHeader: "Crono Salida Importado",
-        cronoSegundosHeader: "Crono Segundos",
-        horaSegundosHeader: "Hora Segundos",
+        // Para compatibilidad (manteniendo los alias)
         startTimeUpdated: "Hora de inicio actualizada y guardada",
-                // ============================================
+        
+        // ============================================
         // NUEVAS TRADUCCIONES PARA SELECTOR DE MODO
         // ============================================
         modeSelectorTitle: "Seleccionar Modo de Operación",
@@ -345,7 +318,7 @@ const translations = {
         cardTimeTitle: "Configuració de Temps",
         cardDeparturesTitle: "Sortides Registrades",
         audioConfigTitle: "Configuració d'Àudio",
-        'card-start-order-title': "Ordre de Sortida",
+        cardStartOrderTitle: "Ordre de Sortida",
         
         // Botones de carrera
         newRaceText: "Nova",
@@ -461,37 +434,37 @@ const translations = {
         nextCorredorLabel: "Proper surt a",
         departedLabel: "Sortits",
         
-        // Orden de salida - NUEVAS TRADUCCIONES (CON GUIONES)
-        'time-config-label': "Configuració d'Horaris",
-        'first-start-label': "Hora Sortida Primer Corredor:",
-        'current-time-label': "Hora del Sistema:",
-        'time-diff-label': "Inici Compte enrere en:",
-        'total-riders-label': "Total Corredors:",
-        'actions-label': "Accions",
-        'order-table-label': "Ordre de Sortida",
-        'create-template-text': "Crear Plantilla",
-        'import-order-text': "Importar Ordre",
-        'delete-order-text': "Eliminar Ordre",
-        'export-order-text': "Exportar Ordre",
-        'add-rider-text': "Afegir Corredor",
-        'no-start-order-text': "No hi ha corredors en l'ordre de sortida",
+        // Orden de salida (CAMELCASE)
+        timeConfigLabel: "Configuració d'Horaris",
+        firstStartLabel: "Hora Sortida Primer Corredor:",
+        currentTimeLabel: "Hora del Sistema:",
+        timeDiffLabel: "Inici Compte enrere en:",
+        totalRidersLabel: "Total Corredors:",
+        actionsLabel: "Accions",
+        orderTableLabel: "Ordre de Sortida",
+        createTemplateText: "Crear Plantilla",
+        importOrderText: "Importar Ordre",
+        deleteOrderText: "Eliminar Ordre",
+        exportOrderText: "Exportar Ordre",
+        addRiderText: "Afegir Corredor",
+        noStartOrderText: "No hi ha corredors en l'ordre de sortida",
         
-        // Headers de tabla orden de salida (CON GUIONES)
-        'order-header': "Ordre",
-        'dorsal-header': "Dorsal",
-        'crono-salida-header': "Crono Sortida",
-        'hora-salida-header': "Hora Sortida",
-        'nombre-header': "Nom",
-        'apellidos-header': "Cognoms",
-        'chip-header': "Xip",
-        'hora-real-header': "Hora Sortida Real",
-        'crono-real-header': "Crono Sortida Real",
-        'hora-prevista-header': "Hora Sortida Prevista",
-        'crono-prevista-header': "Crono Sortida Prevista",
-        'hora-importado-header': "Hora Sortida Importat",
-        'crono-importado-header': "Crono Sortida Importat",
-        'crono-segundos-header': "Crono Segons",
-        'hora-segundos-header': "Hora Segons",
+        // Headers de tabla orden de salida (CAMELCASE)
+        orderHeader: "Ordre",
+        dorsalHeader: "Dorsal",
+        cronoSalidaHeader: "Crono Sortida",
+        horaSalidaHeader: "Hora Sortida",
+        nombreHeader: "Nom",
+        apellidosHeader: "Cognoms",
+        chipHeader: "Xip",
+        horaRealHeader: "Hora Sortida Real",
+        cronoRealHeader: "Crono Sortida Real",
+        horaPrevistaHeader: "Hora Sortida Prevista",
+        cronoPrevistaHeader: "Crono Sortida Prevista",
+        horaImportadoHeader: "Hora Sortida Importat",
+        cronoImportadoHeader: "Crono Sortida Importat",
+        cronoSegundosHeader: "Crono Segons",
+        horaSegundosHeader: "Hora Segons",
         
         // Mensajes orden de salida
         templateCreated: "Plantilla Excel creada correctament",
@@ -529,7 +502,8 @@ const translations = {
         countdownlabel: "Sortida en",
         currentPositionText: "Posició actual:",
         startTimeUpdated: "Hora d'inici actualitzada i guardada",
-                // ============================================
+        
+        // ============================================
         // NUEVAS TRADUCCIONES PARA SELECTOR DE MODO
         // ============================================
         modeSelectorTitle: "Seleccionar Mode d'Operació",
@@ -647,7 +621,7 @@ const translations = {
         cardTimeTitle: "Time Configuration",
         cardDeparturesTitle: "Registered Departures",
         audioConfigTitle: "Audio Configuration",
-        'card-start-order-title': "Start Order",
+        cardStartOrderTitle: "Start Order",
         
         // Botones de carrera
         newRaceText: "New",
@@ -763,37 +737,37 @@ const translations = {
         nextCorredorLabel: "Next departs at",
         departedLabel: "Departed",
         
-        // Orden de salida - NUEVAS TRADUCCIONES (CON GUIONES)
-        'time-config-label': "Schedule Configuration",
-        'first-start-label': "First Rider Departure Time:",
-        'current-time-label': "System Time:",
-        'time-diff-label': "Start Countdown in:",
-        'total-riders-label': "Total Riders:",
-        'actions-label': "Actions",
-        'order-table-label': "Start Order",
-        'create-template-text': "Create Template",
-        'import-order-text': "Import Order",
-        'delete-order-text': "Delete Order",
-        'export-order-text': "Export Order",
-        'add-rider-text': "Add Rider",
-        'no-start-order-text': "No riders in start order",
+        // Orden de salida (CAMELCASE)
+        timeConfigLabel: "Schedule Configuration",
+        firstStartLabel: "First Rider Departure Time:",
+        currentTimeLabel: "System Time:",
+        timeDiffLabel: "Start Countdown in:",
+        totalRidersLabel: "Total Riders:",
+        actionsLabel: "Actions",
+        orderTableLabel: "Start Order",
+        createTemplateText: "Create Template",
+        importOrderText: "Import Order",
+        deleteOrderText: "Delete Order",
+        exportOrderText: "Export Order",
+        addRiderText: "Add Rider",
+        noStartOrderText: "No riders in start order",
         
-        // Headers de tabla orden de salida (CON GUIONES)
-        'order-header': "Order",
-        'dorsal-header': "Number",
-        'crono-salida-header': "Departure Time",
-        'hora-salida-header': "Departure Hour",
-        'nombre-header': "First Name",
-        'apellidos-header': "Last Name",
-        'chip-header': "Chip",
-        'hora-real-header': "Real Departure Hour",
-        'crono-real-header': "Real Departure Time",
-        'hora-prevista-header': "Scheduled Hour",
-        'crono-prevista-header': "Scheduled Time",
-        'hora-importado-header': "Imported Hour",
-        'crono-importado-header': "Imported Time",
-        'crono-segundos-header': "Time Seconds",
-        'hora-segundos-header': "Hour Seconds",
+        // Headers de tabla orden de salida (CAMELCASE)
+        orderHeader: "Order",
+        dorsalHeader: "Number",
+        cronoSalidaHeader: "Departure Time",
+        horaSalidaHeader: "Departure Hour",
+        nombreHeader: "First Name",
+        apellidosHeader: "Last Name",
+        chipHeader: "Chip",
+        horaRealHeader: "Real Departure Hour",
+        cronoRealHeader: "Real Departure Time",
+        horaPrevistaHeader: "Scheduled Hour",
+        cronoPrevistaHeader: "Scheduled Time",
+        horaImportadoHeader: "Imported Hour",
+        cronoImportadoHeader: "Imported Time",
+        cronoSegundosHeader: "Time Seconds",
+        horaSegundosHeader: "Hour Seconds",
         
         // Mensajes orden de salida
         templateCreated: "Excel template created successfully",
@@ -831,7 +805,8 @@ const translations = {
         countdownlabel: "Departure in",
         currentPositionText: "Current position:",
         startTimeUpdated: "Start time updated and saved",
-         // ============================================
+        
+        // ============================================
         // NEW TRANSLATIONS FOR MODE SELECTOR
         // ============================================
         modeSelectorTitle: "Select Operation Mode",
@@ -949,7 +924,7 @@ const translations = {
         cardTimeTitle: "Configuration du Temps",
         cardDeparturesTitle: "Départs Enregistrés",
         audioConfigTitle: "Configuration Audio",
-        'card-start-order-title': "Ordre de Départ",
+        cardStartOrderTitle: "Ordre de Départ",
         
         // Botones de carrera
         newRaceText: "Nouvelle",
@@ -1065,37 +1040,37 @@ const translations = {
         nextCorredorLabel: "Prochain départ à",
         departedLabel: "Partis",
         
-        // Orden de salida - NUEVAS TRADUCCIONES (CON GUIONES)
-        'time-config-label': "Configuration des Horaires",
-        'first-start-label': "Heure Départ Premier Coureur:",
-        'current-time-label': "Heure du Système:",
-        'time-diff-label': "Début compte à rebours dans:",
-        'total-riders-label': "Total Coureurs:",
-        'actions-label': "Actions",
-        'order-table-label': "Ordre de Départ",
-        'create-template-text': "Créer Modèle",
-        'import-order-text': "Importer Ordre",
-        'delete-order-text': "Supprimer Ordre",
-        'export-order-text': "Exporter Ordre",
-        'add-rider-text': "Ajouter Coureur",
-        'no-start-order-text': "Aucun coureur dans l'ordre de départ",
+        // Orden de salida (CAMELCASE)
+        timeConfigLabel: "Configuration des Horaires",
+        firstStartLabel: "Heure Départ Premier Coureur:",
+        currentTimeLabel: "Heure du Système:",
+        timeDiffLabel: "Début compte à rebours dans:",
+        totalRidersLabel: "Total Coureurs:",
+        actionsLabel: "Actions",
+        orderTableLabel: "Ordre de Départ",
+        createTemplateText: "Créer Modèle",
+        importOrderText: "Importer Ordre",
+        deleteOrderText: "Supprimer Ordre",
+        exportOrderText: "Exporter Ordre",
+        addRiderText: "Ajouter Coureur",
+        noStartOrderText: "Aucun coureur dans l'ordre de départ",
         
-        // Headers de tabla orden de salida (CON GUIONES)
-        'order-header': "Ordre",
-        'dorsal-header': "Dossard",
-        'crono-salida-header': "Chrono Départ",
-        'hora-salida-header': "Heure Départ",
-        'nombre-header': "Prénom",
-        'apellidos-header': "Nom",
-        'chip-header': "Puce",
-        'hora-real-header': "Heure Départ Réel",
-        'crono-real-header': "Chrono Départ Réel",
-        'hora-prevista-header': "Heure Prévue",
-        'crono-prevista-header': "Chrono Prévu",
-        'hora-importado-header': "Heure Importée",
-        'crono-importado-header': "Chrono Importé",
-        'crono-segundos-header': "Chrono Secondes",
-        'hora-segundos-header': "Heure Secondes",
+        // Headers de tabla orden de salida (CAMELCASE)
+        orderHeader: "Ordre",
+        dorsalHeader: "Dossard",
+        cronoSalidaHeader: "Chrono Départ",
+        horaSalidaHeader: "Heure Départ",
+        nombreHeader: "Prénom",
+        apellidosHeader: "Nom",
+        chipHeader: "Puce",
+        horaRealHeader: "Heure Départ Réel",
+        cronoRealHeader: "Chrono Départ Réel",
+        horaPrevistaHeader: "Heure Prévue",
+        cronoPrevistaHeader: "Chrono Prévu",
+        horaImportadoHeader: "Heure Importée",
+        cronoImportadoHeader: "Chrono Importé",
+        cronoSegundosHeader: "Chrono Secondes",
+        horaSegundosHeader: "Heure Secondes",
         
         // Mensajes orden de salida
         templateCreated: "Modèle Excel créé avec succès",
@@ -1133,7 +1108,8 @@ const translations = {
         countdownlabel: "Départ dans",
         currentPositionText: "Position actuelle:",
         startTimeUpdated: "Heure de départ mise à jour et enregistrée",
-                // ============================================
+        
+        // ============================================
         // NOUVELLES TRADUCTIONS POUR LE SELECTEUR DE MODE
         // ============================================
         modeSelectorTitle: "Sélectionner le Mode d'Opération",
@@ -1229,7 +1205,7 @@ const translations = {
         timerStopped: "Chronomètre arrêté",
         rankingGenerated: "Classement généré avec {count} coureurs",
         llegadasExported: "Arrivées exportées vers Excel",
-        rankingExported: "Classement exporté vers Excel",
+        rankingExported: "Classement exportée vers Excel",
         
         // ============================================
         // TRADUCTIONS POUR LES VALIDATIONS
@@ -1241,7 +1217,6 @@ const translations = {
         selectFileFirst: "Sélectionnez d'abord un fichier",
     }
 };
-
 
 function updateLanguageUI() {
     const lang = appState.currentLanguage;
@@ -1398,6 +1373,17 @@ function updateLanguageUI() {
     // ============================================
     // ACTUALIZAR MODALES
     // ============================================
+     // Header
+    document.getElementById('app-title-text').textContent = t.appTitle;
+    document.getElementById('languages-label').textContent = t.languagesLabel;
+    
+    // ============================================
+    // ACTUALIZAR BOTONES DE GESTIÓN DE CARRERA
+    // ============================================
+    
+    // Botones de carrera - IMPORTANTE: actualizar los spans dentro de los botones
+    document.getElementById('new-race-text').textContent = t.newRaceText;
+    document.getElementById('delete-race-text').textContent = t.deleteRaceText;
     
     // Modal de ayuda
     document.getElementById('help-modal-title').textContent = t.helpModalTitle;
@@ -1465,13 +1451,6 @@ function updateLanguageUI() {
     document.getElementById('import-salidas-modal-text').textContent = t.importSalidasModalText;
     document.getElementById('confirm-import-salidas-btn').textContent = t.confirmImportSalidasBtn;
     document.getElementById('cancel-import-salidas-btn').textContent = t.cancelImportSalidasBtn;
-
-    const importPreviewTitle = document.getElementById('import-preview-title');
-    if (importPreviewTitle) {
-        importPreviewTitle.textContent = t.importPreviewTitle || 'Vista previa de datos:';
-    } else {
-        console.warn('Elemento import-preview-title no encontrado');
-    }
     
     // Modal de clasificación
     document.getElementById('ranking-modal-title').textContent = t.rankingModalTitle;
@@ -1564,6 +1543,9 @@ function updateModalTexts() {
     setTextIfExists('delete-race-modal-text', t.deleteRaceModalText);
     setTextIfExists('delete-race-confirm-btn', t.deleteConfirm);
     setTextIfExists('delete-race-cancel-btn', t.cancelButtonText || t.cancel);
+
+    setTextIfExists('new-race-text', t.newRaceText);
+    setTextIfExists('delete-race-text', t.deleteRaceText);
     
     setTextIfExists('clear-departures-modal-title', t.clearDeparturesModalTitle);
     setTextIfExists('clear-departures-modal-text', t.clearDeparturesModalText);
