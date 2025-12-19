@@ -259,168 +259,6 @@ function setupSorting() {
     });
 }
 
-function updateLanguageUI() {
-    const lang = appState.currentLanguage;
-    const t = translations[lang];
-
-    document.getElementById('audio-config-title').textContent = t.audioConfigTitle;
-    document.getElementById('beep-option-title').textContent = t.beepOptionTitle;
-    document.getElementById('test-audio-text').textContent = t.testAudioText;
-
-    document.querySelectorAll('.audio-option').forEach(option => {
-        option.classList.remove('active');
-    });
-    document.querySelector(`.audio-option[data-audio-type="${appState.audioType}"]`).classList.add('active');
-
-    document.getElementById('app-title-text').textContent = t.appTitle;
-    document.getElementById('languages-label').textContent = t.languagesLabel;
-    document.getElementById('card-race-title').textContent = t.cardRaceTitle;
-    document.getElementById('new-race-text').textContent = t.newRaceText;
-    document.getElementById('delete-race-text').textContent = t.deleteRaceText;
-    document.getElementById('card-time-title').textContent = t.cardTimeTitle;
-    
-    // SOLO MANTENER ESTOS (eliminar referencias a tramos variables)
-    document.getElementById('interval-time-label').textContent = t.intervalTimeLabel;
-    document.getElementById('minutes-text').textContent = t.minutesText;
-    document.getElementById('seconds-text').textContent = t.secondsText;
-    
-    document.getElementById('start-from-x-text').textContent = t.currentPositionText;
-    
-    document.getElementById('card-departures-title').textContent = t.cardDeparturesTitle;
-    document.getElementById('clear-departures-text').textContent = t.clearDeparturesText;
-    document.getElementById('export-excel-text').textContent = t.exportExcelText;
-    document.getElementById('start-countdown-text').textContent = t.startCountdownText;
-    document.getElementById('exit-complete-text').textContent = t.exitCompleteText;
-    document.getElementById('total-time-label').textContent = t.totalTimeLabel;
-    document.getElementById('countdown-label').textContent = t.countdownlabel;
-    
-    document.getElementById('next-corredor-label').textContent = t.nextCorredorLabel;
-    document.getElementById('departed-label').textContent = t.departedLabel;
-    document.getElementById('help-text').textContent = t.helpText;
-    document.getElementById('suggestions-text').textContent = t.suggestionsText;
-    document.getElementById('install-text').textContent = t.installText;
-    document.getElementById('update-text').textContent = t.updateText;
-
-    const salidaDisplay = document.getElementById('salida-display');
-    if (salidaDisplay) salidaDisplay.textContent = t.salidaText;
-    
-    document.querySelectorAll('.flag').forEach(flag => {
-        flag.classList.remove('active');
-    });
-    
-    // Verificar que el elemento existe antes de usarlo
-    const flagElement = document.getElementById('flag-' + lang);
-    if (flagElement) {
-        flagElement.classList.add('active');
-    } else {
-        console.warn(`Elemento flag-${lang} no encontrado`);
-    }
-    
-    updateModalTexts();
-}
-function updateModalTexts() {
-    const t = translations[appState.currentLanguage];
-    
-    // Función auxiliar para establecer texto solo si el elemento existe
-    function setTextIfExists(elementId, text) {
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.textContent = text;
-        } else {
-            console.warn(`Elemento ${elementId} no encontrado para establecer texto`);
-        }
-    }
-    
-    // Usar la función auxiliar para todos los elementos
-    setTextIfExists('help-modal-title', t.helpModalTitle);
-    setTextIfExists('help-modal-text1', t.helpModalText1);
-    setTextIfExists('help-modal-subtitle1', t.helpModalSubtitle1);
-    setTextIfExists('help-modal-subtitle2', t.helpModalSubtitle2);
-    setTextIfExists('help-modal-subtitle3', t.helpModalSubtitle3);
-    setTextIfExists('help-modal-text2', t.helpModalText2);
-    setTextIfExists('help-modal-ok', t.understood);
-    
-    setTextIfExists('red-background-text', t.redBackground);
-    setTextIfExists('yellow-background-text', t.yellowBackground);
-    setTextIfExists('green-background-text', t.greenBackground);
-    setTextIfExists('red-numbers-text', t.redNumbers);
-    setTextIfExists('countdown-normal-desc', t.countdownNormalDesc);
-    setTextIfExists('countdown-warning-desc', t.countdownWarningDesc);
-    setTextIfExists('countdown-critical-desc', t.countdownCriticalDesc);
-    setTextIfExists('countdown-salida-desc', t.countdownSalidaDesc);
-    
-    setTextIfExists('beep-high-text', t.beepHigh);
-    setTextIfExists('beep-high-desc', t.beepHighDesc);
-    setTextIfExists('beep-every-second-text', t.beepEverySecond);
-    setTextIfExists('beep-every-second-desc', t.beepEverySecondDesc);
-    setTextIfExists('beep-low-text', t.beepLow);
-    setTextIfExists('beep-low-desc', t.beepLowDesc);
-    
-    const helpList = document.getElementById('help-modal-list');
-    if (helpList) {
-        helpList.innerHTML = '';
-        t.helpModalList.forEach(item => {
-            const li = document.createElement('li');
-            li.textContent = item;
-            li.style.marginBottom = '8px';
-            helpList.appendChild(li);
-        });
-    }
-    
-    setTextIfExists('departure-header-dorsal', t.departureHeaderDorsal);
-    setTextIfExists('departure-header-time', t.departureHeaderTime);
-    setTextIfExists('departure-header-notes', t.departureHeaderNotes);
-    setTextIfExists('departure-header-date', t.departureHeaderDate);
-    setTextIfExists('no-departures-text', t.noDeparturesText);
-    
-    if (appState.departureTimes.length > 0) renderDeparturesList();
-    
-    setTextIfExists('delete-race-modal-title', t.deleteRaceModalTitle);
-    setTextIfExists('delete-race-modal-text', t.deleteRaceModalText);
-    setTextIfExists('delete-race-confirm-btn', t.deleteConfirm);
-    setTextIfExists('delete-race-cancel-btn', t.cancel);
-    
-    setTextIfExists('clear-departures-modal-title', t.clearDeparturesModalTitle);
-    setTextIfExists('clear-departures-modal-text', t.clearDeparturesModalText);
-    setTextIfExists('clear-departures-confirm-btn', t.clear);
-    setTextIfExists('clear-departures-cancel-btn', t.cancel);
-    
-    setTextIfExists('suggestions-modal-title', t.suggestionsModalTitle);
-    setTextIfExists('suggestion-email-label', t.suggestionEmailLabel);
-    setTextIfExists('suggestion-text-label', t.suggestionTextLabel);
-    setTextIfExists('send-suggestion-btn', t.sendSuggestion);
-    setTextIfExists('cancel-suggestion-btn', t.cancel);
-    
-    setTextIfExists('new-race-modal-title', t.newRaceModalTitle);
-    setTextIfExists('new-race-name-label', t.newRaceNameLabel);
-    setTextIfExists('new-race-desc-label', t.newRaceDescLabel);
-    setTextIfExists('create-race-btn', t.createRace);
-    setTextIfExists('cancel-create-race-btn', t.cancel);
-    
-    setTextIfExists('restart-modal-title', t.restartModalTitle);
-    setTextIfExists('restart-modal-text', t.restartModalText);
-    setTextIfExists('restart-confirm-btn', t.restartConfirm);
-    setTextIfExists('restart-cancel-btn', t.cancel);
-
-    const helpModalText = document.querySelector('#help-modal .modal-body');
-    if (helpModalText) {
-        // Verificar si ya existe la sección de audio para no duplicarla
-        let audioSection = document.querySelector('#help-modal .modal-body .audio-info-section');
-        if (!audioSection) {
-            audioSection = document.createElement('div');
-            audioSection.className = 'audio-info-section';
-            audioSection.innerHTML = `
-                <h4>Opciones de sonido:</h4>
-                <ul>
-                    <li><strong>Sonidos Beep:</strong> Beeps electrónicos para cada segundo</li>
-                    <li><strong>Voz grabada:</strong> Voz humana contando en tu idioma (es, en, ca, fr)</li>
-                    <li><strong>Sin sonido:</strong> Solo efectos visuales</li>
-                </ul>
-            `;
-            helpModalText.appendChild(audioSection);
-        }
-    }
-}
 
 // ============================================
 // FUNCIÓN PARA ACTUALIZAR HORA ACTUAL
@@ -440,3 +278,493 @@ function updateCurrentTime() {
 }
 
 updateCurrentTime();
+
+// ============================================
+// FUNCIONES DE SONIDO
+// ============================================
+function generateBeep(frequency, duration, type = 'sine') {
+    try {
+        if (!appState.audioContext) {
+            appState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        if (appState.audioContext.state === 'suspended') {
+            appState.audioContext.resume();
+        }
+        
+        const oscillator = appState.audioContext.createOscillator();
+        const gainNode = appState.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(appState.audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(frequency, appState.audioContext.currentTime);
+        oscillator.type = type;
+        
+        gainNode.gain.setValueAtTime(0.3, appState.audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, appState.audioContext.currentTime + duration);
+        
+        oscillator.start(appState.audioContext.currentTime);
+        oscillator.stop(appState.audioContext.currentTime + duration);
+        
+    } catch (error) {
+        console.log("Error generando beep:", error);
+    }
+}
+
+function initAudioOnInteraction() {
+    if (!appState.audioContext) {
+        appState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    
+    if (appState.audioContext.state === 'suspended') {
+        appState.audioContext.resume().then(() => {
+            generateBeep(440, 0.1);
+        });
+    }
+    
+    document.removeEventListener('click', initAudioOnInteraction);
+    document.removeEventListener('keydown', initAudioOnInteraction);
+}
+
+
+// ============================================
+// FUNCIONES DE AUDIO MEJORADAS
+// ============================================
+function preloadVoiceAudios() {
+    console.log("Precargando audios de voz .ogg...");
+    
+    const languages = ['es', 'en', 'ca', 'fr'];
+    const numbers = [10, 5, 4, 3, 2, 1, 0];
+    
+    let loadedCount = 0;
+    const totalToLoad = languages.length * numbers.length;
+    
+    languages.forEach(lang => {
+        appState.voiceAudioCache[lang] = {};
+        
+        numbers.forEach(num => {
+            const audio = new Audio();
+            audio.preload = 'auto';
+            audio.src = `audio/${lang}_${num}.ogg`;
+            
+            audio.addEventListener('canplaythrough', () => {
+                appState.voiceAudioCache[lang][num] = audio;
+                loadedCount++;
+                console.log(`✅ Audio cargado: ${lang}_${num}.ogg (${loadedCount}/${totalToLoad})`);
+                
+                if (num === 0) {
+                    console.log(`   (Este es el audio de SALIDA para ${lang})`);
+                }
+            });
+            
+            audio.addEventListener('error', (e) => {
+                console.error(`❌ ERROR cargando ${audio.src}:`, e.type);
+                console.error("  Verifica que exista: audio/" + lang + "_" + num + ".ogg");
+                
+                if (num === 0) {
+                    console.error("  IMPORTANTE: El archivo 0.ogg es para 'SALIDA'/'GO'/'DÉPART'");
+                }
+                
+                loadedCount++;
+            });
+            
+            audio.load();
+        });
+    });
+    
+    setTimeout(() => {
+        console.log(`\n=== RESUMEN DE CARGA DE AUDIOS ===`);
+        console.log(`Cargados: ${loadedCount}/${totalToLoad}`);
+        
+        languages.forEach(lang => {
+            console.log(`\nIdioma: ${lang}`);
+            const loadedNumbers = Object.keys(appState.voiceAudioCache[lang] || {}).length;
+            console.log(`  Números cargados: ${loadedNumbers}/11`);
+            
+            if (appState.voiceAudioCache[lang][0]) {
+                console.log(`  ✅ Audio de SALIDA (0.ogg): CARGADO`);
+            } else {
+                console.log(`  ❌ Audio de SALIDA (0.ogg): FALTA`);
+            }
+        });
+    }, 3000);
+}
+
+function playVoiceAudio(number) {
+    if (appState.audioType !== 'voice') return;
+    
+    console.log(`🔊 Reproduciendo: ${appState.currentLanguage}_${number}.ogg`);
+    
+    try {
+        const lang = appState.currentLanguage;
+        
+        if (appState.voiceAudioCache[lang] && appState.voiceAudioCache[lang][number]) {
+            const audio = appState.voiceAudioCache[lang][number];
+            audio.currentTime = 0;
+            
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.warn(`Error reproduciendo audio precargado ${lang}_${number}:`, error);
+                    loadAndPlayAudioDirectly(lang, number);
+                });
+            }
+        } else {
+            loadAndPlayAudioDirectly(lang, number);
+        }
+        
+    } catch (error) {
+        console.error("❌ Error crítico en playVoiceAudio:", error);
+        generateBeep(500, 0.3, 'sine');
+    }
+}
+
+function loadAndPlayAudioDirectly(lang, number) {
+    console.log(`📥 Cargando directamente: ${lang}_${number}.ogg`);
+    
+    const audio = new Audio();
+    audio.src = `audio/${lang}_${number}.ogg`;
+    
+    audio.play().then(() => {
+        console.log(`✅ Audio reproducido directamente: ${lang}_${number}.ogg`);
+    }).catch(error => {
+        console.error(`❌ Error reproduciendo ${lang}_${number}.ogg:`, error);
+        
+        if (error.name === 'NotAllowedError') {
+            console.error("  El usuario no ha interactuado con la página");
+            console.error("  Haz clic en la página primero");
+        } else if (error.name === 'NotFoundError') {
+            console.error("  El archivo no se encuentra");
+            console.error("  Verifica la ruta: " + audio.src);
+        }
+        
+        generateBeep(500, 0.3, 'sine');
+    });
+}
+
+function playSalidaVoice() {
+    if (appState.audioType !== 'voice') return;
+    
+    console.log(`🔊 Reproduciendo SALIDA (${appState.currentLanguage}_0.ogg)`);
+    playVoiceAudio(0);
+}
+
+function loadAndPlaySalidaDirectly(lang) {
+    const audio = new Audio();
+    audio.src = `audio/${lang}_salida.ogg`;
+    
+    audio.play().catch(error => {
+        console.error(`❌ Error reproduciendo salida ${lang}:`, error);
+        generateBeep(800, 1.5, 'sine');
+    });
+}
+
+function verifyAudioFiles() {
+    console.log("=== VERIFICACIÓN DE ARCHIVOS .ogg ===");
+    console.log("CONVENCIÓN: 0.ogg = audio de SALIDA\n");
+    
+    const languages = ['es', 'en', 'ca', 'fr'];
+    const requiredNumbers = [10, 5, 4, 3, 2, 1, 0];
+    
+    languages.forEach(lang => {
+        console.log(`\n📁 Idioma: ${lang.toUpperCase()}`);
+        
+        requiredNumbers.forEach(num => {
+            const audio = new Audio();
+            const url = `audio/${lang}_${num}.ogg`;
+            audio.src = url;
+            
+            audio.addEventListener('canplaythrough', () => {
+                if (num === 0) {
+                    console.log(`  ✅ ${lang}_${num}.ogg - SALIDA ✓`);
+                } else {
+                    console.log(`  ✅ ${lang}_${num}.ogg`);
+                }
+            });
+            
+            audio.addEventListener('error', (e) => {
+                if (num === 0) {
+                    console.log(`  ❌ ${lang}_${num}.ogg - SALIDA (FALTA!)`);
+                } else {
+                    console.log(`  ❌ ${lang}_${num}.ogg`);
+                }
+                console.log(`      Ruta probada: ${url}`);
+            });
+            
+            audio.load();
+        });
+    });
+}
+
+function fallbackVoiceAudio(number, lang) {
+    console.log(`Usando fallback para: ${lang}_${number}`);
+    
+    const audio = new Audio();
+    const formats = ['.mp3', '.ogg', '.wav'];
+    
+    for (const format of formats) {
+        audio.src = `audio/${lang}_${number}${format}`;
+        
+        audio.addEventListener('error', () => {
+            console.log(`Formato ${format} no funciona para ${lang}_${number}`);
+        });
+        
+        audio.addEventListener('canplaythrough', () => {
+            console.log(`Formato ${format} funciona para ${lang}_${number}`);
+            audio.play().catch(e => {
+                console.warn("Error reproduciendo fallback:", e);
+                generateBeep(500, 0.3, 'sine');
+            });
+            return;
+        });
+        
+        audio.load();
+    }
+}
+
+function fallbackSalidaVoice(lang) {
+    const audio = new Audio();
+    const formats = ['.mp3', '.ogg', '.wav'];
+    
+    for (const format of formats) {
+        audio.src = `audio/${lang}_salida${format}`;
+        
+        audio.addEventListener('canplaythrough', () => {
+            audio.play().catch(e => {
+                console.warn("Error reproduciendo salida fallback:", e);
+                generateBeep(800, 1.5, 'sine');
+            });
+            return;
+        });
+        
+        audio.addEventListener('error', () => {
+            console.log(`Formato ${format} no funciona para salida ${lang}`);
+        });
+        
+        audio.load();
+    }
+}
+
+function playSound(type) {
+    if (appState.audioType === 'none') return;
+    
+    try {
+        switch(type) {
+            case 'warning':
+                if (appState.audioType === 'beep') {
+                    generateBeep(300, 1.5, 'square');
+                } else if (appState.audioType === 'voice') {
+                    playVoiceAudio(10);
+                }
+                break;
+                
+            case 'critical':
+                if (appState.audioType === 'beep') {
+                    generateBeep(500, 0.3, 'sine');
+                } else if (appState.audioType === 'voice') {
+                    playVoiceAudio(5);
+                }
+                break;
+                
+            case 'salida':
+                if (appState.audioType === 'beep') {
+                    generateBeep(800, 1.5, 'sine');
+                } else if (appState.audioType === 'voice') {
+                    playVoiceAudio(0);
+                }
+                break;
+                
+            case 'beep':
+                if (appState.audioType === 'beep') {
+                    generateBeep(500, 0.3, 'sine');
+                }
+                break;
+                
+            case 'number':
+                if (appState.audioType === 'voice' && appState.countdownValue >= 0) {
+                    if (appState.countdownValue <= 4 && appState.countdownValue > 0) {
+                        playVoiceAudio(appState.countdownValue);
+                    }
+                }
+                break;
+        }
+    } catch (error) {
+        console.log("Error en playSound:", error);
+    }
+}
+
+function testCurrentAudio() {
+    const t = translations[appState.currentLanguage];
+    
+    console.clear();
+    console.log("=== PRUEBA COMPLETA DE AUDIO ===");
+    console.log("Idioma:", appState.currentLanguage);
+    console.log("Tipo de audio:", appState.audioType);
+    console.log("Convención: 0.ogg = SALIDA/GO/DÉPART/SORTIDA\n");
+    
+    if (appState.audioType === 'none') {
+        showMessage("Modo sin sonido activado", 'info');
+        return;
+    }
+    
+    if (appState.audioType === 'beep') {
+        console.log("Probando beeps...");
+        generateBeep(300, 0.5, 'square');
+        setTimeout(() => generateBeep(500, 0.3, 'sine'), 600);
+        setTimeout(() => generateBeep(800, 1.5, 'sine'), 1200);
+        
+        showMessage("Probando sonido beep", 'info');
+        
+    } else if (appState.audioType === 'voice') {
+        console.log("Probando secuencia de carrera completa:");
+        
+        console.log("1. Advertencia (10 segundos)...");
+        playVoiceAudio(10);
+        
+        setTimeout(() => {
+            console.log("2. Cinco segundos...");
+            playVoiceAudio(5);
+        }, 1500);
+        
+        setTimeout(() => {
+            console.log("3. Cuatro...");
+            playVoiceAudio(4);
+        }, 3000);
+        
+        setTimeout(() => {
+            console.log("4. Tres...");
+            playVoiceAudio(3);
+        }, 4500);
+        
+        setTimeout(() => {
+            console.log("5. Dos...");
+            playVoiceAudio(2);
+        }, 6000);
+        
+        setTimeout(() => {
+            console.log("6. Uno...");
+            playVoiceAudio(1);
+        }, 7500);
+        
+        setTimeout(() => {
+            console.log("7. ¡SALIDA! (0)...");
+            playVoiceAudio(0);
+        }, 9000);
+        
+        showMessage(`Probando voz en ${appState.currentLanguage}`, 'info');
+    }
+}
+
+function checkAvailableAudioFiles() {
+    console.log("=== VERIFICANDO ARCHIVOS DE AUDIO ===");
+    
+    const languages = ['es', 'en', 'ca', 'fr'];
+    const testNumbers = [10, 5, 1];
+    
+    languages.forEach(lang => {
+        console.log(`\n📁 Idioma: ${lang}`);
+        
+        testNumbers.forEach(num => {
+            const formats = ['.mp3', '.ogg', '.wav'];
+            formats.forEach(format => {
+                const audio = new Audio();
+                const url = `audio/${lang}_${num}${format}`;
+                
+                audio.addEventListener('canplaythrough', () => {
+                    console.log(`  ✅ ${lang}_${num}${format} - DISPONIBLE`);
+                });
+                
+                audio.addEventListener('error', (e) => {
+                    console.log(`  ❌ ${lang}_${num}${format} - NO DISPONIBLE (${e.type})`);
+                });
+                
+                audio.src = url;
+                audio.load();
+            });
+        });
+        
+        const formats = ['.mp3', '.ogg', '.wav'];
+        formats.forEach(format => {
+            const audio = new Audio();
+            const url = `audio/${lang}_salida${format}`;
+            
+            audio.addEventListener('canplaythrough', () => {
+                console.log(`  ✅ ${lang}_salida${format} - DISPONIBLE`);
+            });
+            
+            audio.addEventListener('error', (e) => {
+                console.log(`  ❌ ${lang}_salida${format} - NO DISPONIBLE (${e.type})`);
+            });
+            
+            audio.src = url;
+            audio.load();
+        });
+    });
+}
+
+function selectAudioType(audioType) {
+    appState.audioType = audioType;
+    
+    document.querySelectorAll('.audio-option').forEach(option => {
+        option.classList.remove('active');
+    });
+    
+    document.querySelector(`.audio-option[data-audio-type="${audioType}"]`).classList.add('active');
+    
+    localStorage.setItem('countdown-audio-type', audioType);
+    
+    console.log("Tipo de audio seleccionado:", audioType);
+}
+
+function loadAudioPreferences() {
+    const savedAudioType = localStorage.getItem('countdown-audio-type');
+    if (savedAudioType && ['beep', 'voice', 'none'].includes(savedAudioType)) {
+        appState.audioType = savedAudioType;
+    }
+}
+
+function showExpectedFilenames() {
+    console.log("=== NOMBRES DE ARCHIVOS ESPERADOS ===");
+    console.log("(Para carpeta audio/)\n");
+    
+    const languages = {
+        'es': 'Español',
+        'en': 'English', 
+        'ca': 'Català',
+        'fr': 'Français'
+    };
+    
+    Object.entries(languages).forEach(([code, name]) => {
+        console.log(`\n${name} (${code}):`);
+        console.log(`  ${code}_10.ogg  → "diez" / "ten" / "deu" / "dix"`);
+        console.log(`  ${code}_9.ogg   → "nueve" / "nine" / "nou" / "neuf"`);
+        console.log(`  ${code}_8.ogg   → "ocho" / "eight" / "vuit" / "huit"`);
+        console.log(`  ${code}_7.ogg   → "siete" / "seven" / "set" / "sept"`);
+        console.log(`  ${code}_6.ogg   → "seis" / "six" / "sis" / "six"`);
+        console.log(`  ${code}_5.ogg   → "cinco" / "five" / "cinc" / "cinq"`);
+        console.log(`  ${code}_4.ogg   → "cuatro" / "four" / "quatre" / "quatre"`);
+        console.log(`  ${code}_3.ogg   → "tres" / "three" / "tres" / "trois"`);
+        console.log(`  ${code}_2.ogg   → "dos" / "two" / "dos" / "deux"`);
+        console.log(`  ${code}_1.ogg   → "uno" / "one" / "un" / "un"`);
+        console.log(`  ${code}_0.ogg   → "¡SALIDA!" / "GO!" / "SORTIDA!" / "DÉPART!"`);
+    });
+    
+    console.log("\n=== TOTAL DE ARCHIVOS NECESARIOS ===");
+    console.log("4 idiomas × 11 números = 44 archivos .ogg");
+}
+
+// ============================================
+// CONFIGURACIÓN DE AUDIO
+// ============================================
+function setupAudioEventListeners() {
+    document.querySelectorAll('.audio-option').forEach(option => {
+        option.addEventListener('click', function() {
+            const audioType = this.getAttribute('data-audio-type');
+            selectAudioType(audioType);
+        });
+    });
+    
+    document.getElementById('test-audio-btn').addEventListener('click', testCurrentAudio);
+}

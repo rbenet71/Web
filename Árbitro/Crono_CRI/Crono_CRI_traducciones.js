@@ -1,1038 +1,1589 @@
-// ============================================
-// TRADUCCIONES ACTUALIZADAS COMPLETAS
-// ============================================
+// ===========================================
+// TRADUCCIONES MULTI-IDIOMA - COMPLETO Y CORREGIDO
+// ===========================================
 const translations = {
     es: {
+        // Títulos generales
         appTitle: "Crono CRI",
         languagesLabel: "Idioma / Language",
+        
+        // Tarjetas
         cardRaceTitle: "Gestión de Carrera",
+        cardTimeTitle: "Configuración de Tiempo",
+        cardDeparturesTitle: "Salidas Registradas",
+        audioConfigTitle: "Configuración de Audio",
+        'card-start-order-title': "Orden de Salida",
+        
+        // Botones de carrera
         newRaceText: "Nueva",
         deleteRaceText: "Eliminar",
-        cardTimeTitle: "Configuración de Tiempos",
-        cadenceTitle: "Cadencia de salida",
-        sameIntervalText: "Siempre igual",
-        variableIntervalText: "Varios tramos",
+        
+        // Configuración de audio
+        beepOptionTitle: "Sonidos Beep",
+        voiceOptionTitle: "Voz grabada",
+        muteOptionTitle: "Sin sonido",
+        testAudioText: "Probar sonido actual",
+        
+        // Configuración de tiempo
         intervalTimeLabel: "Tiempo entre salidas",
         minutesText: "minutos",
         secondsText: "segundos",
-        addIntervalLabel: "Añadir nuevo tramo",
-        toText: "hasta",
-        addIntervalText: "Añadir",
-        currentPositionText: "Posición actual:",
-        cardStartTitle: "Punto de Inicio",
-        startFromLabel: "Iniciar desde",
-        startFromZeroText: "Comenzar desde el corredor 1",
-        startFromXText: "O desde la posición:",
-        cardDeparturesTitle: "Salidas Registradas",
-        clearDeparturesText: "Limpiar lista",
-        exportExcelText: "Exportar Excel",
+        
+        // Posición inicial
+        startFromXText: "Posición actual:",
         startCountdownText: "INICIAR CUENTA ATRÁS",
         exitCompleteText: "REINICIAR",
-        totalTimeLabel: "Tiempo total",
-        countdownlabel: "Salida en",
-        nextCorredorLabel: "Próximo sale a",
-        departedLabel: "Salidos",
-        helpText: "Ayuda",
-        suggestionsText: "Sugerencias",
-        installText: "Instalar App",
-        updateText: "Buscar actualizaciones",
-        helpModalTitle: "Ayuda de Crono Cuenta Atrás",
-        helpModalText1: "Crono Cuenta Atrás es una aplicación para controlar las salidas en carreras con cuenta atrás visual y sonora.",
-        helpModalSubtitle1: "Cómo usar:",
-        helpModalList: [
-            "Selecciona una carrera o crea una nueva",
-            "Configura la cadencia de salida (siempre igual o por tramos)",
-            "Inicia desde el corredor 1 o desde una posición específica",
-            "Pulsa 'INICIAR CUENTA ATRÁS' para comenzar",
-            "La pantalla cambiará mostrando la cuenta atrás grande",
-            "Cuando llegue a cero se mostrará 'SALIDA' y comenzará la cuenta para el siguiente"
-        ],
-        helpModalSubtitle2: "Indicadores visuales:",
-        helpModalSubtitle3: "Sonidos:",
-        helpModalText2: "Los 2 segundos de 'SALIDA' se restan automáticamente del tiempo de la siguiente cuenta atrás.",
-        deleteRaceModalTitle: "Confirmar eliminación",
-        deleteRaceModalText: "¿Estás seguro de que quieres eliminar esta carrera? Todos los datos se perderán.",
-        clearDeparturesModalTitle: "Confirmar limpieza",
-        clearDeparturesModalText: "¿Estás seguro de que quieres limpiar la lista de salidas? Esta acción no se puede deshacer.",
-        suggestionsModalTitle: "Enviar sugerencias",
-        suggestionEmailLabel: "Email (opcional):",
-        suggestionTextLabel: "Sugerencias:",
-        newRaceModalTitle: "Nueva carrera",
-        newRaceNameLabel: "Nombre de la carrera:",
-        newRaceDescLabel: "Descripción (opcional):",
-        restartModalTitle: "Confirmar reinicio completo",
-        restartModalText: "¿Estás seguro de que quieres reiniciar completamente? Esta acción:",
-        deleteConfirm: "Eliminar",
-        cancel: "Cancelar",
-        understood: "Entendido",
-        createRace: "Crear carrera",
-        sendSuggestion: "Enviar",
-        clear: "Limpiar",
-        restartConfirm: "Sí, reiniciar completamente",
-        selectRaceFirst: "Por favor, selecciona una carrera primero",
-        countdownStarted: "Cuenta atrás iniciada",
-        countdownStopped: "Cuenta atrás detenida",
-        raceCreated: "Carrera creada correctamente",
-        raceDeleted: "Carrera eliminada",
-        departuresCleared: "Lista de salidas limpiada",
-        intervalAdded: "Tramo añadido",
-        excelExported: "Excel exportado correctamente",
-        suggestionSent: "Sugerencia enviada",
-        updateChecked: "Actualización verificada",
-        intervalSaved: "Configuración de tramos guardada",
-        intervalLoaded: "Configuración de tramos cargada",
-        sessionRestarted: "Sesión reiniciada completamente",
+        
+        // Lista de salidas
+        clearDeparturesText: "Limpiar lista",
+        exportExcelText: "Exportar Excel",
+        noDeparturesText: "No hay salidas registradas",
         departureHeaderDorsal: "Salida",
         departureHeaderTime: "Tiempo",
         departureHeaderNotes: "Nota",
         departureHeaderDate: "Hora",
-        departurePlaceholder: "Dorsal o aclaración",
-        noDeparturesText: "No hay salidas registradas",
+        
+        // Footer
+        helpText: "Ayuda",
+        suggestionsText: "Sugerencias",
+        installText: "Instalar App",
+        updateText: "Buscar actualizaciones",
+        copyrightText: "2025 © Copyright ",
+        copyrightLink: "Roberto Benet - rbenet71@gmail.com - V_18_12_2025",
+        
+        // Modal de ayuda
+        helpModalTitle: "Ayuda de Crono CRI",
+        helpModalText1: "Crono CRI es una aplicación para controlar las salidas en carreras con cuenta atrás visual y sonora.",
+        helpModalSubtitle1: "Cómo usar:",
+        helpModalList: `<li><strong>Selecciona una carrera</strong> o crea una nueva</li>
+                        <li><strong>Configura la cadencia de salida</strong> (siempre igual o por tramos)</li>
+                        <li><strong>Inicia desde el corredor 1</strong> o desde una posición específica</li>
+                        <li><strong>Pulsa "INICIAR CUENTA ATRÁS"</strong> para comenzar</li>
+                        <li><strong>La pantalla cambiará</strong> mostrando la cuenta atrás grande</li>
+                        <li><strong>Cuando llegue a cero</strong> se mostrará "SALIDA" y comenzará la cuenta para el siguiente</li>`,
+        helpModalSubtitle2: "Indicadores visuales:",
+        redBackgroundText: "Fondo ROJO:",
+        countdownNormalDesc: "Cuenta atrás normal",
+        yellowBackgroundText: "Fondo AMARILLO:",
+        countdownWarningDesc: "Últimos 10 segundos",
+        greenBackgroundText: "Fondo VERDE:",
+        countdownSalidaDesc: "Momento de salida (2 segundos)",
+        redNumbersText: "Números ROJOS pulsantes:",
+        countdownCriticalDesc: "Últimos 5 segundos",
+        helpModalSubtitle3: "Sonidos:",
+        beepHighText: "Beep agudo:",
+        beepHighDesc: "Al llegar a 10 segundos",
+        beepEverySecondText: "Beep cada segundo:",
+        beepEverySecondDesc: "Últimos 5 segundos",
+        beepLowText: "Beep grave:",
+        beepLowDesc: "Al llegar a cero",
+        helpModalText2: "Los 2 segundos de \"SALIDA\" se restan automáticamente del tiempo de la siguiente cuenta atrás.",
+        
+        // Modal nueva carrera
+        newRaceModalTitle: "Nueva carrera",
+        newRaceNameLabel: "Nombre de la carrera:",
+        newRaceDescLabel: "Descripción (opcional):",
+        
+        // Modal eliminar carrera
+        deleteRaceModalTitle: "Confirmar eliminación",
+        deleteRaceModalText: "¿Estás seguro de que quieres eliminar esta carrera? Todos los datos se perderán.",
+        
+        // Modal limpiar salidas
+        clearDeparturesModalTitle: "Confirmar limpieza",
+        clearDeparturesModalText: "¿Estás seguro de que quieres limpiar la lista de salidas? Esta acción no se puede deshacer.",
+        
+        // Modal sugerencias
+        suggestionsModalTitle: "Enviar sugerencias",
+        suggestionEmailLabel: "Email (opcional):",
+        suggestionTextLabel: "Sugerencias:",
+        
+        // Modal reiniciar
+        restartModalTitle: "Confirmar reinicio completo",
+        restartModalText: "¿Estás seguro de que quieres reiniciar completamente? Esta acción:",
+        
+        // Mensajes
+        raceCreated: "Carrera creada correctamente",
+        raceDeleted: "Carrera eliminada",
+        departuresCleared: "Lista de salidas limpiada",
+        excelExported: "Datos exportados a Excel",
+        sessionRestarted: "Sesión reiniciada completamente",
+        countdownStarted: "Cuenta atrás iniciada",
+        countdownStopped: "Cuenta atrás detenida",
+        updateChecked: "Buscando actualizaciones...",
+        adjustmentsSaved: "Ajustes guardados. Próximo corredor ({corredor}) saldrá en {seconds} segundos",
+        timeUpdated: "Tiempo actualizado. Próximo corredor ({corredor}) saldrá en {seconds} segundos",
+        enterValidTime: "Introduce un tiempo válido",
+        selectRaceFirst: "Selecciona una carrera primero",
+        enterRaceName: "Introduce un nombre para la carrera",
+        listAlreadyEmpty: "La lista ya está vacía",
+        noDataToExport: "No hay datos para exportar",
+        waitCountdownEnd: "Espera a que termine la cuenta atrás actual",
+        countdownNotActive: "La cuenta atrás no está activa",
+        invalidValues: "Valores inválidos",
+        importError: "Error al importar el archivo",
+        
+        // Pantalla de ejecución
+        salidaText: "SALIDA",
+        totalTimeLabel: "Tiempo total",
+        nextCorredorLabel: "Próximo sale a",
+        departedLabel: "Salidos",
+        
+        // Orden de salida - NUEVAS TRADUCCIONES (CON GUIONES PARA EL HTML)
+        'time-config-label': "Configuración de Horarios",
+        'first-start-label': "Hora Salida Primer Corredor:",
+        'current-time-label': "Hora del Sistema:",
+        'time-diff-label': "Inicio Cuenta atrás en:",
+        'total-riders-label': "Total Corredores:",
+        'actions-label': "Acciones",
+        'order-table-label': "Orden de Salida",
+        'create-template-text': "Crear Plantilla",
+        'import-order-text': "Importar Orden",
+        'delete-order-text': "Eliminar Orden",
+        'export-order-text': "Exportar Orden",
+        'add-rider-text': "Añadir Corredor",
+        'no-start-order-text': "No hay corredores en el orden de salida",
+        
+        // Headers de tabla orden de salida (CON GUIONES)
+        'order-header': "Orden",
+        'dorsal-header': "Dorsal",
+        'crono-salida-header': "Crono Salida",
+        'hora-salida-header': "Hora Salida",
+        'nombre-header': "Nombre",
+        'apellidos-header': "Apellidos",
+        'chip-header': "Chip",
+        'hora-real-header': "Hora Salida Real",
+        'crono-real-header': "Crono Salida Real",
+        'hora-prevista-header': "Hora Salida Prevista",
+        'crono-prevista-header': "Crono Salida Prevista",
+        'hora-importado-header': "Hora Salida Importado",
+        'crono-importado-header': "Crono Salida Importado",
+        'crono-segundos-header': "Crono Segundos",
+        'hora-segundos-header': "Hora Segundos",
+        
+        // Mensajes orden de salida
+        templateCreated: "Plantilla Excel creada correctamente",
+        orderImported: "Orden de salida importado correctamente ({count} corredores)",
+        orderDeleted: "Orden de salida eliminado",
+        orderExported: "Orden de salida exportado a Excel",
+        riderAdded: "Corredor añadido al orden de salida",
+        riderDeleted: "Corredor eliminado",
+        enterValidTimeOrder: "Introduce una hora válida",
+        selectOrderFirst: "Selecciona un orden de salida primero",
+        dataSaved: "Datos guardados correctamente",
+        confirmDeleteOrder: "¿Estás seguro de eliminar el orden de salida?",
+        
+        // Mensajes de error/success
+        success: "¡Éxito!",
+        error: "Error",
+        warning: "Advertencia",
+        info: "Información",
+
+        // Para los botones de acción:
+        understood: "Entendido",
         saveButtonText: "Guardar",
         cancelButtonText: "Cancelar",
-        editIntervalModalTitle: "Editar Tiempo por Tramo",
-        salidaText: "SALIDA",
+        clear: "Limpiar",
+        deleteConfirm: "Eliminar",
+        sendSuggestion: "Enviar",
+        createRace: "Crear carrera",
+        restartConfirm: "Sí, reiniciar completamente",
+        cancel: "Cancelar",
+
+        // Para las notas de salidas:
+        departurePlaceholder: "Escribe una nota...",
+
+        // Para etiquetas de cuenta atrás:
+        countdownlabel: "Salida en",
+        currentPositionText: "Posición actual:",
         
-        // NUEVAS TRADUCCIONES AÑADIDAS:
-        beepHigh: "Beep agudo",
-        beepHighDesc: "Al llegar a 10 segundos",
-        beepEverySecond: "Beep cada segundo",
-        beepEverySecondDesc: "Últimos 5 segundos",
-        beepLow: "Beep grave",
-        beepLowDesc: "Al llegar a cero",
-        configureAtLeastOneInterval: "Debes configurar al menos un tramo para el modo 'Varios tramos'",
-        noIntervalsConfigured: "Error: No hay intervalos configurados",
-        noDataToExport: "No hay datos para exportar",
-        listAlreadyEmpty: "La lista ya está vacía",
-        cannotModifyLastSeconds: "No se puede modificar durante los últimos 12 segundos",
-        countdownNotActive: "La cuenta atrás no está activa",
-        enterValidTime: "Ingresa un tiempo válido (mayor que 0)",
-        enterRaceName: "Ingresa un nombre para la carrera",
-        fromMustBeLessThanTo: "El corredor 'desde' debe ser menor o igual que 'hasta'",
-        enterValidTimeValue: "Ingresa un tiempo válido",
-        intervalOverlaps: "Este tramo se solapa con el tramo existente",
-        invalidValues: "Valores no válidos",
-        adjustmentsSaved: "Ajustes guardados. Tiempo: {seconds}s desde corredor {corredor}",
-        waitCountdownEnd: "Espera a que termine la cuenta atrás (menos de 12 segundos)",
-        timeUpdated: "Tiempo actualizado a {seconds}s para corredors desde {corredor} en adelante",
-        noIntervalSelected: "No hay tramo seleccionado para editar",
-        intervalUpdated: "Tramo actualizado correctamente",
-        intervalDeleted: "Tramo eliminado correctamente",
-        confirmDeleteInterval: "¿Estás seguro de que quieres eliminar el tramo {from}-{to}?",
-        redBackground: "Fondo ROJO:",
-        yellowBackground: "Fondo AMARILLO:",
-        greenBackground: "Fondo VERDE:",
-        redNumbers: "Números ROJOS pulsantes:",
-        countdownNormalDesc: "Cuenta atrás normal",
-        countdownWarningDesc: "Últimos 10 segundos",
-        countdownCriticalDesc: "Últimos 5 segundos",
-        countdownSalidaDesc: "Momento de salida (2 segundos)",
-        configuredSections: "Tramos configurados",        
-        audioConfigTitle: "Configuración de Audio",
-        audioModeLabel: "Tipo de sonido para cuenta atrás",
+        // Alias para compatibilidad (sin guiones)
+        timeConfigLabel: "Configuración de Horarios",
+        firstStartLabel: "Hora Salida Primer Corredor:",
+        currentTimeLabel: "Hora del Sistema:",
+        totalRidersLabel: "Total Corredores:",
+        actionsLabel: "Acciones",
+        orderTableLabel: "Orden de Salida",
+        createTemplateText: "Crear Plantilla",
+        importOrderText: "Importar Orden",
+        deleteOrderText: "Eliminar Orden",
+        exportOrderText: "Exportar Orden",
+        addRiderText: "Añadir Corredor",
+        noStartOrderText: "No hay corredores en el orden de salida",
+        
+        // Alias para headers de tabla
+        orderHeader: "Orden",
+        dorsalHeader: "Dorsal",
+        cronoSalidaHeader: "Crono Salida",
+        horaSalidaHeader: "Hora Salida",
+        nombreHeader: "Nombre",
+        apellidosHeader: "Apellidos",
+        chipHeader: "Chip",
+        horaRealHeader: "Hora Salida Real",
+        cronoRealHeader: "Crono Salida Real",
+        horaPrevistaHeader: "Hora Salida Prevista",
+        cronoPrevistaHeader: "Crono Salida Prevista",
+        horaImportadoHeader: "Hora Salida Importado",
+        cronoImportadoHeader: "Crono Salida Importado",
+        cronoSegundosHeader: "Crono Segundos",
+        horaSegundosHeader: "Hora Segundos",
+        startTimeUpdated: "Hora de inicio actualizada y guardada",
+                // ============================================
+        // NUEVAS TRADUCCIONES PARA SELECTOR DE MODO
+        // ============================================
+        modeSelectorTitle: "Seleccionar Modo de Operación",
+        modeSalidaTitle: "Modo Salida",
+        modeSalidaDesc: "Control de salidas con cuenta atrás",
+        modeLlegadasTitle: "Modo Llegadas",
+        modeLlegadasDesc: "Control de tiempos de llegada",
+        modeChanged: "Cambiado al modo {mode}",
+        
+        // ============================================
+        // NUEVAS TRADUCCIONES PARA MODO LLEGADAS
+        // ============================================
+        llegadasTimerTitle: "Cronómetro de Llegadas",
+        llegadasTimerLabel: "Tiempo desde salida del primer corredor:",
+        startLlegadasText: "Iniciar Cronómetro",
+        stopLlegadasText: "Detener",
+        registerLlegadaText: "Registrar Llegada",
+        importLlegadasText: "Importar Salidas",
+        llegadasListTitle: "Llegadas Registradas",
+        clearLlegadasText: "Limpiar llegadas",
+        exportLlegadasText: "Exportar Excel",
+        showRankingText: "Ver Clasificación",
+        noLlegadasText: "No hay llegadas registradas",
+        
+        // ============================================
+        // TRADUCCIONES PARA REGISTRO DE LLEGADAS
+        // ============================================
+        registerLlegadaModalTitle: "Registrar Llegada",
+        llegadaDorsalLabel: "Dorsal del corredor:",
+        llegadaHoraLabel: "Hora de llegada:",
+        llegadaNotasLabel: "Notas (opcional):",
+        confirmLlegadaBtn: "Registrar Llegada",
+        cancelLlegadaBtn: "Cancelar",
+        quickRegisterTitle: "Registrar llegada rápida",
+        
+        // ============================================
+        // TRADUCCIONES PARA IMPORTACIÓN DE SALIDAS
+        // ============================================
+        importSalidasModalTitle: "Importar Datos de Salidas",
+        importSalidasModalText: "Selecciona el archivo Excel con los datos de salidas de los corredores.",
+        confirmImportSalidasBtn: "Importar",
+        cancelImportSalidasBtn: "Cancelar",
+        importPreviewTitle: "Vista previa de datos:",
+        importSuccess: "Datos de salidas importados correctamente ({count} corredores)",
+        importError: "Error al importar los datos",
+        startTimerFirst: "Primero inicia el cronómetro de llegadas",
+        noDataImported: "No se pudieron importar datos de salidas",
+        
+        // ============================================
+        // TRADUCCIONES PARA CLASIFICACIÓN
+        // ============================================
+        rankingModalTitle: "Clasificación de la Carrera",
+        noRankingText: "No hay suficientes datos para generar la clasificación",
+        rankingPos: "Pos",
+        rankingDorsal: "Dorsal",
+        rankingNombre: "Nombre",
+        rankingTiempo: "Tiempo Crono",
+        rankingDiferencia: "Diferencia",
+        exportRankingBtn: "Exportar Clasificación",
+        closeRankingBtn: "Cerrar",
+        
+        // ============================================
+        // TRADUCCIONES PARA CABECERAS DE TABLAS (LLEGADAS)
+        // ============================================
+        llegadaHeaderDorsal: "Dorsal",
+        llegadaHeaderNombre: "Nombre",
+        llegadaHeaderSalida: "Hora Salida",
+        llegadaHeaderLlegada: "Hora Llegada",
+        llegadaHeaderCrono: "Tiempo Crono",
+        llegadaHeaderNotas: "Notas",
+        
+        // ============================================
+        // TRADUCCIONES PARA CONFIGURACIÓN DE AUDIO
+        // ============================================
+        audioConfigTitle: "Configuración de Audio para Salidas",
         beepOptionTitle: "Sonidos Beep",
-        beepOptionDesc: "Beeps electrónicos para cada segundo",
         voiceOptionTitle: "Voz grabada",
-        voiceOptionDesc: "Voz humana contando en tu idioma",
         muteOptionTitle: "Sin sonido",
-        muteOptionDesc: "Solo efectos visuales",
-        testAudioText: "Probar sonido actual"
+        testAudioText: "Probar sonido actual",
+        
+        // ============================================
+        // TRADUCCIONES PARA CONFIGURACIÓN DE TIEMPO
+        // ============================================
+        cardTimeTitle: "Configuración de Tiempo para Salidas",
+        
+        // ============================================
+        // TRADUCCIONES PARA MENSAJES DE ESTADO (LLEGADAS)
+        // ============================================
+        llegadaRegistered: "Llegada registrada para dorsal {dorsal}",
+        llegadaAlreadyExists: "Ya existe una llegada registrada para el dorsal {dorsal}",
+        llegadasCleared: "Lista de llegadas limpiada",
+        timerStarted: "Cronómetro de llegadas iniciado",
+        timerStopped: "Cronómetro detenido",
+        rankingGenerated: "Clasificación generada con {count} corredores",
+        llegadasExported: "Llegadas exportadas a Excel",
+        rankingExported: "Clasificación exportada a Excel",
+        
+        // ============================================
+        // TRADUCCIONES PARA VALIDACIONES
+        // ============================================
+        enterDorsal: "Introduce un número de dorsal válido",
+        invalidDorsal: "Dorsal no válido",
+        noStartTimeData: "No hay datos de hora de salida para este dorsal",
+        confirmClearLlegadas: "¿Estás seguro de que quieres limpiar todas las llegadas registradas?",
+        selectFileFirst: "Primero selecciona un archivo",
     },
+
     ca: {
+        // Títulos generales
         appTitle: "Crono CRI",
         languagesLabel: "Idioma / Language",
+        
+        // Tarjetas
         cardRaceTitle: "Gestió de Cursa",
+        cardTimeTitle: "Configuració de Temps",
+        cardDeparturesTitle: "Sortides Registrades",
+        audioConfigTitle: "Configuració d'Àudio",
+        'card-start-order-title': "Ordre de Sortida",
+        
+        // Botones de carrera
         newRaceText: "Nova",
         deleteRaceText: "Eliminar",
-        cardTimeTitle: "Configuració de Temps",
-        cadenceTitle: "Cadència de sortida",
-        sameIntervalText: "Sempre igual",
-        variableIntervalText: "Varis trams",
+        
+        // Configuración de audio
+        beepOptionTitle: "Sons Beep",
+        voiceOptionTitle: "Veü gravada",
+        muteOptionTitle: "Sense so",
+        testAudioText: "Provar so actual",
+        
+        // Configuración de tiempo
         intervalTimeLabel: "Temps entre sortides",
         minutesText: "minuts",
         secondsText: "segons",
-        addIntervalLabel: "Afegir nou tram",
-        toText: "fins a",
-        addIntervalText: "Afegir",
-        currentPositionText: "Posició actual:",
-        cardStartTitle: "Punt d'Inici",
-        startFromLabel: "Iniciar des de",
-        startFromZeroText: "Començar des del corredor 1",
-        startFromXText: "O des de la posició:",
-        cardDeparturesTitle: "Sortides Registrades",
-        clearDeparturesText: "Netejar llista",
-        exportExcelText: "Exportar Excel",
+        
+        // Posición inicial
+        startFromXText: "Posició actual:",
         startCountdownText: "INICIAR COMPTE ENRERE",
         exitCompleteText: "REINICIAR",
-        totalTimeLabel: "Temps total",
-        countdownlabel: "Sortida en",
-        nextCorredorLabel: "Pròxim surt a",
-        departedLabel: "Sortits",
-        helpText: "Ajuda",
-        suggestionsText: "Suggeriments",
-        installText: "Instal·lar App",
-        updateText: "Cercar actualitzacions",
-        helpModalTitle: "Ajuda de Crono Compte Enrere",
-        helpModalText1: "Crono Compte Enrere és una aplicació per controlar les sortides en curses amb compte enrere visual i sonor.",
-        helpModalSubtitle1: "Com usar:",
-        helpModalList: [
-            "Selecciona una cursa o crea'n una de nova",
-            "Configura la cadència de sortida (sempre igual o per trams)",
-            "Inicia des del corredor 1 o des d'una posició específica",
-            "Prem 'INICIAR COMPTE ENRERE' per començar",
-            "La pantalla canviarà mostrant el compte enrere gran",
-            "Quan arribi a zero es mostrarà 'SORTIDA' i començarà el compte per al següent"
-        ],
-        helpModalSubtitle2: "Indicadors visuals:",
-        helpModalSubtitle3: "Sons:",
-        helpModalText2: "Els 2 segons de 'SORTIDA' es resten automàticament del temps del compte enrere següent.",
-        deleteRaceModalTitle: "Confirmar eliminació",
-        deleteRaceModalText: "Estàs segur que vols eliminar aquesta cursa? Totes les dades es perdran.",
-        clearDeparturesModalTitle: "Confirmar neteja",
-        clearDeparturesModalText: "Estàs segur que vols netejar la llista de sortides? Aquesta acció no es pot desfer.",
-        suggestionsModalTitle: "Enviar suggeriments",
-        suggestionEmailLabel: "Email (opcional):",
-        suggestionTextLabel: "Suggeriments:",
-        newRaceModalTitle: "Nova cursa",
-        newRaceNameLabel: "Nom de la cursa:",
-        newRaceDescLabel: "Descripció (opcional):",
-        restartModalTitle: "Confirmar reinici complet",
-        restartModalText: "Estàs segur que vols reiniciar completament? Aquesta acció:",
-        deleteConfirm: "Eliminar",
-        cancel: "Cancel·lar",
-        understood: "Entès",
-        createRace: "Crear cursa",
-        sendSuggestion: "Enviar",
-        clear: "Netejar",
-        restartConfirm: "Sí, reiniciar completament",
-        selectRaceFirst: "Si us plau, selecciona una cursa primer",
-        countdownStarted: "Compte enrere iniciat",
-        countdownStopped: "Compte enrere aturat",
-        raceCreated: "Cursa creada correctament",
-        raceDeleted: "Cursa eliminada",
-        departuresCleared: "Llista de sortides netejada",
-        intervalAdded: "Tram afegit",
-        excelExported: "Excel exportat correctament",
-        suggestionSent: "Suggeriment enviat",
-        updateChecked: "Actualització verificada",
-        intervalSaved: "Configuració de trams guardada",
-        intervalLoaded: "Configuració de trams carregada",
-        sessionRestarted: "Sessió reiniciada completament",
+        
+        // Lista de salidas
+        clearDeparturesText: "Netejar llista",
+        exportExcelText: "Exportar Excel",
+        noDeparturesText: "No hi ha sortides registrades",
         departureHeaderDorsal: "Sortida",
         departureHeaderTime: "Temps",
         departureHeaderNotes: "Nota",
         departureHeaderDate: "Hora",
-        departurePlaceholder: "Dorsal o aclaració",
-        noDeparturesText: "No hi ha sortides registrades",
-        saveButtonText: "Desar",
-        cancelButtonText: "Cancel·lar",
-        editIntervalModalTitle: "Editar Temps per Tram",
-        salidaText: "SORTIDA",
         
-        // NUEVAS TRADUCCIONES AÑADIDAS:
-        beepHigh: "Beep agut",
-        beepHighDesc: "En arribar a 10 segons",
-        beepEverySecond: "Beep cada segon",
-        beepEverySecondDesc: "Últims 5 segons",
-        beepLow: "Beep greu",
-        beepLowDesc: "En arribar a zero",
-        configureAtLeastOneInterval: "Has de configurar almenys un tram per al mode 'Varis trams'",
-        noIntervalsConfigured: "Error: No hi ha trams configurats",
-        noDataToExport: "No hi ha dades per exportar",
-        listAlreadyEmpty: "La llista ja està buida",
-        cannotModifyLastSeconds: "No es pot modificar durant els últims 12 segons",
-        countdownNotActive: "El compte enrere no està actiu",
-        enterValidTime: "Introdueix un temps vàlid (major que 0)",
-        enterRaceName: "Introdueix un nom per a la cursa",
-        fromMustBeLessThanTo: "El corredor 'des de' ha de ser menor o igual que 'fins a'",
-        enterValidTimeValue: "Introdueix un temps vàlid",
-        intervalOverlaps: "Aquest tram se solapa amb el tram existent",
-        invalidValues: "Valors no vàlids",
-        adjustmentsSaved: "Ajustos desats. Temps: {seconds}s des del corredor {corredor}",
-        waitCountdownEnd: "Espera que acabi el compte enrere (menys de 12 segons)",
-        timeUpdated: "Temps actualitzat a {seconds}s per a corredors des del {corredor} en endavant",
-        noIntervalSelected: "No hi ha tram seleccionat per editar",
-        intervalUpdated: "Tram actualitzat correctament",
-        intervalDeleted: "Tram eliminat correctament",
-        confirmDeleteInterval: "Estàs segur que vols eliminar el tram {from}-{to}?",
-        redBackground: "Fons VERMELL:",
-        yellowBackground: "Fons GROC:",
-        greenBackground: "Fons VERD:",
-        redNumbers: "Números VERMELLS pulsants:",
+        // Footer
+        helpText: "Ajuda",
+        suggestionsText: "Suggeriments",
+        installText: "Instal·lar App",
+        updateText: "Buscar actualitzacions",
+        copyrightText: "2025 © Copyright ",
+        copyrightLink: "Roberto Benet - rbenet71@gmail.com - V_18_12_2025",
+        
+        // Modal de ayuda
+        helpModalTitle: "Ajuda de Crono CRI",
+        helpModalText1: "Crono CRI és una aplicació per controlar les sortides en curses amb compte enrere visual i sonor.",
+        helpModalSubtitle1: "Com usar:",
+        helpModalList: `<li><strong>Selecciona una cursa</strong> o crea una de nova</li>
+                        <li><strong>Configura la cadència de sortida</strong> (sempre igual o per trams)</li>
+                        <li><strong>Inicia des del corredor 1</strong> o des d'una posició específica</li>
+                        <li><strong>Prem \"INICIAR COMPTE ENRERE\"</strong> per començar</li>
+                        <li><strong>La pantalla canviarà</strong> mostrant el compte enrere gran</li>
+                        <li><strong>Quan arribi a zero</strong> es mostrarà \"SORTIDA\" i començarà el compte per al següent</li>`,
+        helpModalSubtitle2: "Indicadors visuals:",
+        redBackgroundText: "Fons VERMELL:",
         countdownNormalDesc: "Compte enrere normal",
+        yellowBackgroundText: "Fons GROC:",
         countdownWarningDesc: "Últims 10 segons",
-        countdownCriticalDesc: "Últims 5 segundos",
-        countdownSalidaDesc: "Momento de sortida (2 segons)",
-        configuredSections: "Trams configurats",
-        audioConfigTitle: "Configuració d'Àudio",
-        audioModeLabel: "Tipus de so per al compte enrere",
+        greenBackgroundText: "Fons VERD:",
+        countdownSalidaDesc: "Moment de sortida (2 segons)",
+        redNumbersText: "Números VERMELLS pulsants:",
+        countdownCriticalDesc: "Últims 5 segons",
+        helpModalSubtitle3: "Sons:",
+        beepHighText: "Beep agut:",
+        beepHighDesc: "En arribar a 10 segons",
+        beepEverySecondText: "Beep cada segon:",
+        beepEverySecondDesc: "Últims 5 segons",
+        beepLowText: "Beep greu:",
+        beepLowDesc: "En arribar a zero",
+        helpModalText2: "Els 2 segons de \"SORTIDA\" es resten automàticament del temps del següent compte enrere.",
+        
+        // Modal nueva carrera
+        newRaceModalTitle: "Nova cursa",
+        newRaceNameLabel: "Nom de la cursa:",
+        newRaceDescLabel: "Descripció (opcional):",
+        
+        // Modal eliminar carrera
+        deleteRaceModalTitle: "Confirmar eliminació",
+        deleteRaceModalText: "Esteu segur que voleu eliminar aquesta cursa? Totes les dades es perdran.",
+        
+        // Modal limpiar salidas
+        clearDeparturesModalTitle: "Confirmar neteja",
+        clearDeparturesModalText: "Esteu segur que voleu netejar la llista de sortides? Aquesta acció no es pot desfer.",
+        
+        // Modal sugerencias
+        suggestionsModalTitle: "Enviar suggeriments",
+        suggestionEmailLabel: "Email (opcional):",
+        suggestionTextLabel: "Suggeriments:",
+        
+        // Modal reiniciar
+        restartModalTitle: "Confirmar reinici complet",
+        restartModalText: "Esteu segur que voleu reiniciar completament? Aquesta acció:",
+        
+        // Mensajes
+        raceCreated: "Cursa creada correctament",
+        raceDeleted: "Cursa eliminada",
+        departuresCleared: "Llista de sortides netejada",
+        excelExported: "Dades exportades a Excel",
+        sessionRestarted: "Sessió reiniciada completament",
+        countdownStarted: "Compte enrere iniciat",
+        countdownStopped: "Compte enrere aturat",
+        updateChecked: "Buscant actualitzacions...",
+        adjustmentsSaved: "Ajustos guardats. Proper corredor ({corredor}) sortirà en {seconds} segons",
+        timeUpdated: "Temps actualitzat. Proper corredor ({corredor}) sortirà en {seconds} segons",
+        enterValidTime: "Introdueix un temps vàlid",
+        selectRaceFirst: "Selecciona una cursa primer",
+        enterRaceName: "Introdueix un nom per a la cursa",
+        listAlreadyEmpty: "La llista ja està buida",
+        noDataToExport: "No hi ha dades per exportar",
+        waitCountdownEnd: "Espera que acabi el compte enrere actual",
+        countdownNotActive: "El compte enrere no està actiu",
+        invalidValues: "Valors invàlids",
+        importError: "Error en importar el fitxer",
+        
+        // Pantalla de ejecución
+        salidaText: "SORTIDA",
+        totalTimeLabel: "Temps total",
+        nextCorredorLabel: "Proper surt a",
+        departedLabel: "Sortits",
+        
+        // Orden de salida - NUEVAS TRADUCCIONES (CON GUIONES)
+        'time-config-label': "Configuració d'Horaris",
+        'first-start-label': "Hora Sortida Primer Corredor:",
+        'current-time-label': "Hora del Sistema:",
+        'time-diff-label': "Inici Compte enrere en:",
+        'total-riders-label': "Total Corredors:",
+        'actions-label': "Accions",
+        'order-table-label': "Ordre de Sortida",
+        'create-template-text': "Crear Plantilla",
+        'import-order-text': "Importar Ordre",
+        'delete-order-text': "Eliminar Ordre",
+        'export-order-text': "Exportar Ordre",
+        'add-rider-text': "Afegir Corredor",
+        'no-start-order-text': "No hi ha corredors en l'ordre de sortida",
+        
+        // Headers de tabla orden de salida (CON GUIONES)
+        'order-header': "Ordre",
+        'dorsal-header': "Dorsal",
+        'crono-salida-header': "Crono Sortida",
+        'hora-salida-header': "Hora Sortida",
+        'nombre-header': "Nom",
+        'apellidos-header': "Cognoms",
+        'chip-header': "Xip",
+        'hora-real-header': "Hora Sortida Real",
+        'crono-real-header': "Crono Sortida Real",
+        'hora-prevista-header': "Hora Sortida Prevista",
+        'crono-prevista-header': "Crono Sortida Prevista",
+        'hora-importado-header': "Hora Sortida Importat",
+        'crono-importado-header': "Crono Sortida Importat",
+        'crono-segundos-header': "Crono Segons",
+        'hora-segundos-header': "Hora Segons",
+        
+        // Mensajes orden de salida
+        templateCreated: "Plantilla Excel creada correctament",
+        orderImported: "Ordre de sortida importat correctament ({count} corredors)",
+        orderDeleted: "Ordre de sortida eliminat",
+        orderExported: "Ordre de sortida exportat a Excel",
+        riderAdded: "Corredor afegit a l'ordre de sortida",
+        riderDeleted: "Corredor eliminat",
+        enterValidTimeOrder: "Introdueix una hora vàlida",
+        selectOrderFirst: "Selecciona un ordre de sortida primer",
+        dataSaved: "Dades guardades correctament",
+        confirmDeleteOrder: "Esteu segur d'eliminar l'ordre de sortida?",
+        
+        // Mensajes de error/success
+        success: "Èxit!",
+        error: "Error",
+        warning: "Advertència",
+        info: "Informació",
+
+        // Para los botones de acción:
+        understood: "Entès",
+        saveButtonText: "Guardar",
+        cancelButtonText: "Cancel·lar",
+        clear: "Netejar",
+        deleteConfirm: "Eliminar",
+        sendSuggestion: "Enviar",
+        createRace: "Crear cursa",
+        restartConfirm: "Sí, reiniciar completament",
+        cancel: "Cancel·lar",
+
+        // Para las notas de salidas:
+        departurePlaceholder: "Escriu una nota...",
+
+        // Para etiquetas de cuenta atrás:
+        countdownlabel: "Sortida en",
+        currentPositionText: "Posició actual:",
+        startTimeUpdated: "Hora d'inici actualitzada i guardada",
+                // ============================================
+        // NUEVAS TRADUCCIONES PARA SELECTOR DE MODO
+        // ============================================
+        modeSelectorTitle: "Seleccionar Mode d'Operació",
+        modeSalidaTitle: "Mode Sortida",
+        modeSalidaDesc: "Control de sortides amb compte enrere",
+        modeLlegadasTitle: "Mode Arribades",
+        modeLlegadasDesc: "Control de temps d'arribada",
+        modeChanged: "Canviat al mode {mode}",
+        
+        // ============================================
+        // NUEVAS TRADUCCIONES PARA MODO LLEGADAS
+        // ============================================
+        llegadasTimerTitle: "Cronòmetre d'Arribades",
+        llegadasTimerLabel: "Temps des de sortida del primer corredor:",
+        startLlegadasText: "Iniciar Cronòmetre",
+        stopLlegadasText: "Aturar",
+        registerLlegadaText: "Registrar Arribada",
+        importLlegadasText: "Importar Sortides",
+        llegadasListTitle: "Arribades Registrades",
+        clearLlegadasText: "Netejar arribades",
+        exportLlegadasText: "Exportar Excel",
+        showRankingText: "Veure Classificació",
+        noLlegadasText: "No hi ha arribades registrades",
+        
+        // ============================================
+        // TRADUCCIONES PARA REGISTRO DE LLEGADAS
+        // ============================================
+        registerLlegadaModalTitle: "Registrar Arribada",
+        llegadaDorsalLabel: "Dorsal del corredor:",
+        llegadaHoraLabel: "Hora d'arribada:",
+        llegadaNotasLabel: "Notes (opcional):",
+        confirmLlegadaBtn: "Registrar Arribada",
+        cancelLlegadaBtn: "Cancel·lar",
+        quickRegisterTitle: "Registrar arribada ràpida",
+        
+        // ============================================
+        // TRADUCCIONES PARA IMPORTACIÓN DE SALIDAS
+        // ============================================
+        importSalidasModalTitle: "Importar Dades de Sortides",
+        importSalidasModalText: "Selecciona el fitxer Excel amb les dades de sortides dels corredors.",
+        confirmImportSalidasBtn: "Importar",
+        cancelImportSalidasBtn: "Cancel·lar",
+        importPreviewTitle: "Vista prèvia de dades:",
+        importSuccess: "Dades de sortides importades correctament ({count} corredors)",
+        importError: "Error en importar les dades",
+        startTimerFirst: "Primer inicia el cronòmetre d'arribades",
+        noDataImported: "No es van poder importar dades de sortides",
+        
+        // ============================================
+        // TRADUCCIONES PARA CLASIFICACIÓN
+        // ============================================
+        rankingModalTitle: "Classificació de la Cursa",
+        noRankingText: "No hi ha suficients dades per generar la classificació",
+        rankingPos: "Pos",
+        rankingDorsal: "Dorsal",
+        rankingNombre: "Nom",
+        rankingTiempo: "Temps Crono",
+        rankingDiferencia: "Diferència",
+        exportRankingBtn: "Exportar Classificació",
+        closeRankingBtn: "Tancar",
+        
+        // ============================================
+        // TRADUCCIONES PARA CABECERAS DE TABLAS (LLEGADAS)
+        // ============================================
+        llegadaHeaderDorsal: "Dorsal",
+        llegadaHeaderNombre: "Nom",
+        llegadaHeaderSalida: "Hora Sortida",
+        llegadaHeaderLlegada: "Hora Arribada",
+        llegadaHeaderCrono: "Temps Crono",
+        llegadaHeaderNotas: "Notes",
+        
+        // ============================================
+        // TRADUCCIONES PARA CONFIGURACIÓN DE AUDIO
+        // ============================================
+        audioConfigTitle: "Configuració d'Àudio per a Sortides",
         beepOptionTitle: "Sons Beep",
-        beepOptionDesc: "Beeps electrònics per a cada segon",
-        voiceOptionTitle: "Veure enregistrada",
-        voiceOptionDesc: "Veure humana comptant en la teva llengua",
+        voiceOptionTitle: "Veu gravada",
         muteOptionTitle: "Sense so",
-        muteOptionDesc: "Només efectes visuals",
-        testAudioText: "Provar so actual"
+        testAudioText: "Provar so actual",
+        
+        // ============================================
+        // TRADUCCIONES PARA CONFIGURACIÓN DE TIEMPO
+        // ============================================
+        cardTimeTitle: "Configuració de Temps per a Sortides",
+        
+        // ============================================
+        // TRADUCCIONES PARA MENSAJES DE ESTADO (LLEGADAS)
+        // ============================================
+        llegadaRegistered: "Arribada registrada per a dorsal {dorsal}",
+        llegadaAlreadyExists: "Ja existeix una arribada registrada per al dorsal {dorsal}",
+        llegadasCleared: "Llista d'arribades netejada",
+        timerStarted: "Cronòmetre d'arribades iniciat",
+        timerStopped: "Cronòmetre aturat",
+        rankingGenerated: "Classificació generada amb {count} corredors",
+        llegadasExported: "Arribades exportades a Excel",
+        rankingExported: "Classificació exportada a Excel",
+        
+        // ============================================
+        // TRADUCCIONES PARA VALIDACIONES
+        // ============================================
+        enterDorsal: "Introdueix un número de dorsal vàlid",
+        invalidDorsal: "Dorsal no vàlid",
+        noStartTimeData: "No hi ha dades d'hora de sortida per a aquest dorsal",
+        confirmClearLlegadas: "Estàs segur que vols netejar totes les arribades registrades?",
+        selectFileFirst: "Primer selecciona un fitxer",
     },
+
     en: {
-        appTitle: "CRI Timer",
+        // Títulos generales
+        appTitle: "Crono CRI",
         languagesLabel: "Language / Idioma",
+        
+        // Tarjetas
         cardRaceTitle: "Race Management",
+        cardTimeTitle: "Time Configuration",
+        cardDeparturesTitle: "Registered Departures",
+        audioConfigTitle: "Audio Configuration",
+        'card-start-order-title': "Start Order",
+        
+        // Botones de carrera
         newRaceText: "New",
         deleteRaceText: "Delete",
-        cardTimeTitle: "Time Configuration",
-        cadenceTitle: "Start cadence",
-        sameIntervalText: "Always the same",
-        variableIntervalText: "Multiple intervals",
-        intervalTimeLabel: "Time between starts",
+        
+        // Configuración de audio
+        beepOptionTitle: "Beep Sounds",
+        voiceOptionTitle: "Recorded Voice",
+        muteOptionTitle: "No Sound",
+        testAudioText: "Test Current Sound",
+        
+        // Configuración de tiempo
+        intervalTimeLabel: "Time between departures",
         minutesText: "minutes",
         secondsText: "seconds",
-        addIntervalLabel: "Add new interval",
-        toText: "to",
-        addIntervalText: "Add",
-        currentPositionText: "Current position:",
-        cardStartTitle: "Starting Point",
-        startFromLabel: "Start from",
-        startFromZeroText: "Start from racer 1",
-        startFromXText: "Or from position:",
-        cardDeparturesTitle: "Registered Departures",
+        
+        // Posición inicial
+        startFromXText: "Current position:",
+        startCountdownText: "START COUNTDOWN",
+        exitCompleteText: "RESET",
+        
+        // Lista de salidas
         clearDeparturesText: "Clear list",
         exportExcelText: "Export Excel",
-        startCountdownText: "START COUNTDOWN",
-        exitCompleteText: "RESTART",
-        totalTimeLabel: "Total time",
-        countdownlabel: "Starts in",
-        nextCorredorLabel: "Next starts in",
-        departedLabel: "Departed",
-        helpText: "Help",
-        suggestionsText: "Suggestions",
-        installText: "Install App",
-        updateText: "Check for updates",
-        helpModalTitle: "Countdown Timer Help",
-        helpModalText1: "Countdown Timer is an application to control race starts with visual and sound countdown.",
-        helpModalSubtitle1: "How to use:",
-        helpModalList: [
-            "Select a race or create a new one",
-            "Configure start cadence (same or multiple intervals)",
-            "Start from racer 1 or from specific position",
-            "Press 'START COUNTDOWN' to begin",
-            "Screen will change showing big countdown",
-            "When it reaches zero 'START' will show and countdown for next begins"
-        ],
-        helpModalSubtitle2: "Visual indicators:",
-        helpModalSubtitle3: "Sounds:",
-        helpModalText2: "The 2 seconds of 'START' are automatically subtracted from the next countdown time.",
-        deleteRaceModalTitle: "Confirm deletion",
-        deleteRaceModalText: "Are you sure you want to delete this race? All data will be lost.",
-        clearDeparturesModalTitle: "Confirm cleanup",
-        clearDeparturesModalText: "Are you sure you want to clear the starts list? This action cannot be undone.",
-        suggestionsModalTitle: "Send suggestions",
-        suggestionEmailLabel: "Email (optional):",
-        suggestionTextLabel: "Suggestions:",
-        newRaceModalTitle: "New race",
-        newRaceNameLabel: "Race name:",
-        newRaceDescLabel: "Description (optional):",
-        restartModalTitle: "Confirm complete restart",
-        restartModalText: "Are you sure you want to restart completely? This action:",
-        deleteConfirm: "Delete",
-        cancel: "Cancel",
-        understood: "Understood",
-        createRace: "Create race",
-        sendSuggestion: "Send",
-        clear: "Clear",
-        restartConfirm: "Yes, restart completely",
-        selectRaceFirst: "Please select a race first",
-        countdownStarted: "Countdown started",
-        countdownStopped: "Countdown stopped",
-        raceCreated: "Race created successfully",
-        raceDeleted: "Race deleted",
-        departuresCleared: "Starts list cleared",
-        intervalAdded: "Interval added",
-        excelExported: "Excel exported successfully",
-        suggestionSent: "Suggestion sent",
-        updateChecked: "Update checked",
-        intervalSaved: "Interval configuration saved",
-        intervalLoaded: "Interval configuration loaded",
-        sessionRestarted: "Session restarted completely",
-        departureHeaderDorsal: "Start",
+        noDeparturesText: "No departures registered",
+        departureHeaderDorsal: "Departure",
         departureHeaderTime: "Time",
         departureHeaderNotes: "Note",
         departureHeaderDate: "Time",
-        departurePlaceholder: "Bib number or note",
-        noDeparturesText: "No departures recorded",
+        
+        // Footer
+        helpText: "Help",
+        suggestionsText: "Suggestions",
+        installText: "Install App",
+        updateText: "Check for Updates",
+        copyrightText: "2025 © Copyright ",
+        copyrightLink: "Roberto Benet - rbenet71@gmail.com - V_18_12_2025",
+        
+        // Modal de ayuda
+        helpModalTitle: "Crono CRI Help",
+        helpModalText1: "Crono CRI is an application to control race departures with visual and sound countdown.",
+        helpModalSubtitle1: "How to use:",
+        helpModalList: `<li><strong>Select a race</strong> or create a new one</li>
+                        <li><strong>Configure departure cadence</strong> (always same or by segments)</li>
+                        <li><strong>Start from rider 1</strong> or from a specific position</li>
+                        <li><strong>Press \"START COUNTDOWN\"</strong> to begin</li>
+                        <li><strong>The screen will change</strong> showing the big countdown</li>
+                        <li><strong>When it reaches zero</strong> it will show \"DEPARTURE\" and start the count for the next</li>`,
+        helpModalSubtitle2: "Visual indicators:",
+        redBackgroundText: "RED background:",
+        countdownNormalDesc: "Normal countdown",
+        yellowBackgroundText: "YELLOW background:",
+        countdownWarningDesc: "Last 10 seconds",
+        greenBackgroundText: "GREEN background:",
+        countdownSalidaDesc: "Departure moment (2 seconds)",
+        redNumbersText: "RED pulsing numbers:",
+        countdownCriticalDesc: "Last 5 seconds",
+        helpModalSubtitle3: "Sounds:",
+        beepHighText: "High beep:",
+        beepHighDesc: "When reaching 10 seconds",
+        beepEverySecondText: "Beep every second:",
+        beepEverySecondDesc: "Last 5 seconds",
+        beepLowText: "Low beep:",
+        beepLowDesc: "When reaching zero",
+        helpModalText2: "The 2 seconds of \"DEPARTURE\" are automatically subtracted from the next countdown time.",
+        
+        // Modal nueva carrera
+        newRaceModalTitle: "New Race",
+        newRaceNameLabel: "Race name:",
+        newRaceDescLabel: "Description (optional):",
+        
+        // Modal eliminar carrera
+        deleteRaceModalTitle: "Confirm deletion",
+        deleteRaceModalText: "Are you sure you want to delete this race? All data will be lost.",
+        
+        // Modal limpiar salidas
+        clearDeparturesModalTitle: "Confirm cleanup",
+        clearDeparturesModalText: "Are you sure you want to clear the departures list? This action cannot be undone.",
+        
+        // Modal sugerencias
+        suggestionsModalTitle: "Send Suggestions",
+        suggestionEmailLabel: "Email (optional):",
+        suggestionTextLabel: "Suggestions:",
+        
+        // Modal reiniciar
+        restartModalTitle: "Confirm complete reset",
+        restartModalText: "Are you sure you want to completely reset? This action:",
+        
+        // Mensajes
+        raceCreated: "Race created successfully",
+        raceDeleted: "Race deleted",
+        departuresCleared: "Departures list cleared",
+        excelExported: "Data exported to Excel",
+        sessionRestarted: "Session completely restarted",
+        countdownStarted: "Countdown started",
+        countdownStopped: "Countdown stopped",
+        updateChecked: "Checking for updates...",
+        adjustmentsSaved: "Adjustments saved. Next rider ({corredor}) will depart in {seconds} seconds",
+        timeUpdated: "Time updated. Next rider ({corredor}) will depart in {seconds} seconds",
+        enterValidTime: "Enter a valid time",
+        selectRaceFirst: "Select a race first",
+        enterRaceName: "Enter a name for the race",
+        listAlreadyEmpty: "The list is already empty",
+        noDataToExport: "No data to export",
+        waitCountdownEnd: "Wait for the current countdown to end",
+        countdownNotActive: "Countdown is not active",
+        invalidValues: "Invalid values",
+        importError: "Error importing file",
+        
+        // Pantalla de ejecución
+        salidaText: "DEPARTURE",
+        totalTimeLabel: "Total time",
+        nextCorredorLabel: "Next departs at",
+        departedLabel: "Departed",
+        
+        // Orden de salida - NUEVAS TRADUCCIONES (CON GUIONES)
+        'time-config-label': "Schedule Configuration",
+        'first-start-label': "First Rider Departure Time:",
+        'current-time-label': "System Time:",
+        'time-diff-label': "Start Countdown in:",
+        'total-riders-label': "Total Riders:",
+        'actions-label': "Actions",
+        'order-table-label': "Start Order",
+        'create-template-text': "Create Template",
+        'import-order-text': "Import Order",
+        'delete-order-text': "Delete Order",
+        'export-order-text': "Export Order",
+        'add-rider-text': "Add Rider",
+        'no-start-order-text': "No riders in start order",
+        
+        // Headers de tabla orden de salida (CON GUIONES)
+        'order-header': "Order",
+        'dorsal-header': "Number",
+        'crono-salida-header': "Departure Time",
+        'hora-salida-header': "Departure Hour",
+        'nombre-header': "First Name",
+        'apellidos-header': "Last Name",
+        'chip-header': "Chip",
+        'hora-real-header': "Real Departure Hour",
+        'crono-real-header': "Real Departure Time",
+        'hora-prevista-header': "Scheduled Hour",
+        'crono-prevista-header': "Scheduled Time",
+        'hora-importado-header': "Imported Hour",
+        'crono-importado-header': "Imported Time",
+        'crono-segundos-header': "Time Seconds",
+        'hora-segundos-header': "Hour Seconds",
+        
+        // Mensajes orden de salida
+        templateCreated: "Excel template created successfully",
+        orderImported: "Start order imported successfully ({count} riders)",
+        orderDeleted: "Start order deleted",
+        orderExported: "Start order exported to Excel",
+        riderAdded: "Rider added to start order",
+        riderDeleted: "Rider deleted",
+        enterValidTimeOrder: "Enter a valid time",
+        selectOrderFirst: "Select a start order first",
+        dataSaved: "Data saved successfully",
+        confirmDeleteOrder: "Are you sure to delete the start order?",
+        
+        // Mensajes de error/success
+        success: "Success!",
+        error: "Error",
+        warning: "Warning",
+        info: "Information",
+
+        // Para los botones de acción:
+        understood: "Understood",
         saveButtonText: "Save",
         cancelButtonText: "Cancel",
-        editIntervalModalTitle: "Edit Time per Interval",
-        salidaText: "GO !!!!",
+        clear: "Clear",
+        deleteConfirm: "Delete",
+        sendSuggestion: "Send",
+        createRace: "Create race",
+        restartConfirm: "Yes, reset completely",
+        cancel: "Cancel",
+
+        // Para las notas de salidas:
+        departurePlaceholder: "Write a note...",
+
+        // Para etiquetas de cuenta atrás:
+        countdownlabel: "Departure in",
+        currentPositionText: "Current position:",
+        startTimeUpdated: "Start time updated and saved",
+         // ============================================
+        // NEW TRANSLATIONS FOR MODE SELECTOR
+        // ============================================
+        modeSelectorTitle: "Select Operation Mode",
+        modeSalidaTitle: "Start Mode",
+        modeSalidaDesc: "Start control with countdown",
+        modeLlegadasTitle: "Finish Mode",
+        modeLlegadasDesc: "Finish time control",
+        modeChanged: "Switched to {mode} mode",
         
-        // NUEVAS TRADUCCIONES AÑADIDAS:
-        beepHigh: "High beep",
-        beepHighDesc: "When reaching 10 seconds",
-        beepEverySecond: "Beep every second",
-        beepEverySecondDesc: "Last 5 seconds",
-        beepLow: "Low beep",
-        beepLowDesc: "When reaching zero",
-        configureAtLeastOneInterval: "You must configure at least one interval for 'Multiple intervals' mode",
-        noIntervalsConfigured: "Error: No intervals configured",
-        noDataToExport: "No data to export",
-        listAlreadyEmpty: "The list is already empty",
-        cannotModifyLastSeconds: "Cannot modify during the last 12 seconds",
-        countdownNotActive: "Countdown is not active",
-        enterValidTime: "Enter a valid time (greater than 0)",
-        enterRaceName: "Enter a race name",
-        fromMustBeLessThanTo: "From' corredor must be less than or equal to 'To'",
-        enterValidTimeValue: "Enter a valid time",
-        intervalOverlaps: "This interval overlaps with existing interval",
-        invalidValues: "Invalid values",
-        adjustmentsSaved: "Adjustments saved. Time: {seconds}s from corredor {corredor}",
-        waitCountdownEnd: "Wait for countdown to end (less than 12 seconds)",
-        timeUpdated: "Time updated to {seconds}s for corredors from {corredor} onwards",
-        noIntervalSelected: "No interval selected for editing",
-        intervalUpdated: "Interval updated successfully",
-        intervalDeleted: "Interval deleted successfully",
-        confirmDeleteInterval: "Are you sure you want to delete interval {from}-{to}?",
-        redBackground: "RED background:",
-        yellowBackground: "YELLOW background:",
-        greenBackground: "GREEN background:",
-        redNumbers: "RED pulsing numbers:",
-        countdownNormalDesc: "Normal countdown",
-        countdownWarningDesc: "Last 10 seconds",
-        countdownCriticalDesc: "Last 5 seconds",
-        countdownSalidaDesc: "Start moment (2 seconds)",
-        configuredSections: "Configured intervals",
-        audioConfigTitle: "Audio Configuration",
-        audioModeLabel: "Sound type for countdown",
+        // ============================================
+        // NEW TRANSLATIONS FOR FINISH MODE
+        // ============================================
+        llegadasTimerTitle: "Finish Timer",
+        llegadasTimerLabel: "Time since first rider start:",
+        startLlegadasText: "Start Timer",
+        stopLlegadasText: "Stop",
+        registerLlegadaText: "Register Finish",
+        importLlegadasText: "Import Starts",
+        llegadasListTitle: "Registered Finishes",
+        clearLlegadasText: "Clear finishes",
+        exportLlegadasText: "Export Excel",
+        showRankingText: "View Ranking",
+        noLlegadasText: "No finishes registered",
+        
+        // ============================================
+        // TRANSLATIONS FOR FINISH REGISTRATION
+        // ============================================
+        registerLlegadaModalTitle: "Register Finish",
+        llegadaDorsalLabel: "Rider number:",
+        llegadaHoraLabel: "Finish time:",
+        llegadaNotasLabel: "Notes (optional):",
+        confirmLlegadaBtn: "Register Finish",
+        cancelLlegadaBtn: "Cancel",
+        quickRegisterTitle: "Quick finish registration",
+        
+        // ============================================
+        // TRANSLATIONS FOR START DATA IMPORT
+        // ============================================
+        importSalidasModalTitle: "Import Start Data",
+        importSalidasModalText: "Select the Excel file with riders start data.",
+        confirmImportSalidasBtn: "Import",
+        cancelImportSalidasBtn: "Cancel",
+        importPreviewTitle: "Data preview:",
+        importSuccess: "Start data imported successfully ({count} riders)",
+        importError: "Error importing data",
+        startTimerFirst: "First start the finish timer",
+        noDataImported: "Could not import start data",
+        
+        // ============================================
+        // TRANSLATIONS FOR RANKING
+        // ============================================
+        rankingModalTitle: "Race Ranking",
+        noRankingText: "Not enough data to generate ranking",
+        rankingPos: "Pos",
+        rankingDorsal: "Number",
+        rankingNombre: "Name",
+        rankingTiempo: "Time",
+        rankingDiferencia: "Gap",
+        exportRankingBtn: "Export Ranking",
+        closeRankingBtn: "Close",
+        
+        // ============================================
+        // TRANSLATIONS FOR TABLE HEADERS (FINISHES)
+        // ============================================
+        llegadaHeaderDorsal: "Number",
+        llegadaHeaderNombre: "Name",
+        llegadaHeaderSalida: "Start Time",
+        llegadaHeaderLlegada: "Finish Time",
+        llegadaHeaderCrono: "Race Time",
+        llegadaHeaderNotas: "Notes",
+        
+        // ============================================
+        // TRANSLATIONS FOR AUDIO CONFIGURATION
+        // ============================================
+        audioConfigTitle: "Audio Configuration for Starts",
         beepOptionTitle: "Beep Sounds",
-        beepOptionDesc: "Electronic beeps for each second",
         voiceOptionTitle: "Recorded Voice",
-        voiceOptionDesc: "Human voice counting in your language",
         muteOptionTitle: "No Sound",
-        muteOptionDesc: "Visual effects only",
-        testAudioText: "Test current sound"
+        testAudioText: "Test current sound",
+        
+        // ============================================
+        // TRANSLATIONS FOR TIME CONFIGURATION
+        // ============================================
+        cardTimeTitle: "Time Configuration for Starts",
+        
+        // ============================================
+        // TRANSLATIONS FOR STATUS MESSAGES (FINISHES)
+        // ============================================
+        llegadaRegistered: "Finish registered for number {dorsal}",
+        llegadaAlreadyExists: "Finish already registered for number {dorsal}",
+        llegadasCleared: "Finish list cleared",
+        timerStarted: "Finish timer started",
+        timerStopped: "Timer stopped",
+        rankingGenerated: "Ranking generated with {count} riders",
+        llegadasExported: "Finishes exported to Excel",
+        rankingExported: "Ranking exported to Excel",
+        
+        // ============================================
+        // TRANSLATIONS FOR VALIDATIONS
+        // ============================================
+        enterDorsal: "Enter a valid rider number",
+        invalidDorsal: "Invalid rider number",
+        noStartTimeData: "No start time data for this rider number",
+        confirmClearLlegadas: "Are you sure you want to clear all registered finishes?",
+        selectFileFirst: "First select a file",
     },
+
     fr: {
+        // Títulos generales
         appTitle: "Crono CRI",
         languagesLabel: "Langue / Language",
+        
+        // Tarjetas
         cardRaceTitle: "Gestion de Course",
+        cardTimeTitle: "Configuration du Temps",
+        cardDeparturesTitle: "Départs Enregistrés",
+        audioConfigTitle: "Configuration Audio",
+        'card-start-order-title': "Ordre de Départ",
+        
+        // Botones de carrera
         newRaceText: "Nouvelle",
         deleteRaceText: "Supprimer",
-        cardTimeTitle: "Configuration des Temps",
-        cadenceTitle: "Cadence de départ",
-        sameIntervalText: "Toujours égal",
-        variableIntervalText: "Plusieurs intervalles",
+        
+        // Configuración de audio
+        beepOptionTitle: "Sons Beep",
+        voiceOptionTitle: "Voix enregistrée",
+        muteOptionTitle: "Sans son",
+        testAudioText: "Tester le son actuel",
+        
+        // Configuración de tiempo
         intervalTimeLabel: "Temps entre départs",
         minutesText: "minutes",
         secondsText: "secondes",
-        addIntervalLabel: "Ajouter nouvel intervalle",
-        toText: "à",
-        addIntervalText: "Ajouter",
-        currentPositionText: "Position actuelle:",
-        cardStartTitle: "Point de Départ",
-        startFromLabel: "Démarrer depuis",
-        startFromZeroText: "Démarrer depuis le coureur 1",
-        startFromXText: "Ou desde la posición:",
-        cardDeparturesTitle: "Départs Enregistrés",
-        clearDeparturesText: "Effacer liste",
+        
+        // Posición inicial
+        startFromXText: "Position actuelle:",
+        startCountdownText: "DÉMARRER LE COMPTE À REBOURS",
+        exitCompleteText: "RÉINITIALISER",
+        
+        // Lista de salidas
+        clearDeparturesText: "Effacer la liste",
         exportExcelText: "Exporter Excel",
-        startCountdownText: "DÉMARRER COMPTE À REBOURS",
-        exitCompleteText: "REDÉMARRER",
-        totalTimeLabel: "Temps total",
-        countdownlabel: "Départ dans",
-        nextCorredorLabel: "Prochain départ dans",
-        departedLabel: "Partis",
-        helpText: "Aide",
-        suggestionsText: "Suggestions",
-        installText: "Installer App",
-        updateText: "Vérifier mises à jour",
-        helpModalTitle: "Aide Compte à Rebours",
-        helpModalText1: "Compte à Rebours est une application pour contrôler les départs de course con cuenta atrás visuel et sonore.",
-        helpModalSubtitle1: "Comment utiliser:",
-        helpModalList: [
-            "Sélectionnez une course ou créez-en une nouvelle",
-            "Configurez la cadence de départ (toujours égal ou plusieurs intervalles)",
-            "Démarrez depuis le coureur 1 ou desde una position específica",
-            "Appuyez sur 'DÉMARRER COMPTE À REBOURS' pour commencer",
-            "L'écran changera montrant le compte à rebours grand",
-            "Quand il atteint zéro 'DÉPART' s'affichera et le compte pour le suivant commencera"
-        ],
-        helpModalSubtitle2: "Indicateurs visuels:",
-        helpModalSubtitle3: "Sons:",
-        helpModalText2: "Les 2 secondes de 'DÉPART' sont automatiquement soustraites du temps du compte à rebours suivant.",
-        deleteRaceModalTitle: "Confirmer suppression",
-        deleteRaceModalText: "Êtes-vous sûr de vouloir supprimer cette course? Toutes les données seront perdues.",
-        clearDeparturesModalTitle: "Confirmer nettoyage",
-        clearDeparturesModalText: "Êtes-vous sûr de vouloir nettoyer la liste des départs? Cette action ne peut pas être annulée.",
-        suggestionsModalTitle: "Envoyer suggestions",
-        suggestionEmailLabel: "Email (optionnel):",
-        suggestionTextLabel: "Suggestions:",
-        newRaceModalTitle: "Nouvelle course",
-        newRaceNameLabel: "Nom de la course:",
-        newRaceDescLabel: "Description (optionnel):",
-        restartModalTitle: "Confirmer redémarrage complet",
-        restartModalText: "Êtes-vous sûr de vouloir redémarrer complètement? Cette action:",
-        deleteConfirm: "Supprimer",
-        cancel: "Annuler",
-        understood: "Compris",
-        createRace: "Créer course",
-        sendSuggestion: "Envoyer",
-        clear: "Nettoyer",
-        restartConfirm: "Oui, redémarrer completement",
-        selectRaceFirst: "Veuillez sélectionner une course d'abord",
-        countdownStarted: "Compte à rebours démarré",
-        countdownStopped: "Compte à rebours arrêté",
-        raceCreated: "Course créée avec succès",
-        raceDeleted: "Course supprimée",
-        departuresCleared: "Liste des départs nettoyée",
-        intervalAdded: "Intervalle ajouté",
-        excelExported: "Excel exporté avec succès",
-        suggestionSent: "Suggestion envoyée",
-        updateChecked: "Mise à jour vérifiée",
-        intervalSaved: "Configuration des intervalles sauvegardée",
-        intervalLoaded: "Configuration des intervalles chargée",
-        sessionRestarted: "Session redémarrée complètement",
+        noDeparturesText: "Aucun départ enregistré",
         departureHeaderDorsal: "Départ",
         departureHeaderTime: "Temps",
         departureHeaderNotes: "Note",
         departureHeaderDate: "Heure",
-        departurePlaceholder: "Dossard ou remarque",
-        noDeparturesText: "Aucun départ enregistré",
+        
+        // Footer
+        helpText: "Aide",
+        suggestionsText: "Suggestions",
+        installText: "Installer App",
+        updateText: "Rechercher mises à jour",
+        copyrightText: "2025 © Copyright ",
+        copyrightLink: "Roberto Benet - rbenet71@gmail.com - V_18_12_2025",
+        
+        // Modal de ayuda
+        helpModalTitle: "Aide de Crono CRI",
+        helpModalText1: "Crono CRI est une application pour contrôler les départs de courses avec compte à rebours visuel et sonore.",
+        helpModalSubtitle1: "Comment utiliser:",
+        helpModalList: `<li><strong>Sélectionnez une course</strong> ou créez-en une nouvelle</li>
+                        <li><strong>Configurez la cadence de départ</strong> (toujours égale ou par tronçons)</li>
+                        <li><strong>Commencez depuis le coureur 1</strong> ou depuis une position spécifique</li>
+                        <li><strong>Appuyez sur \"DÉMARRER LE COMPTE À REBOURS\"</strong> pour commencer</li>
+                        <li><strong>L'écran changera</strong> affichant le grand compte à rebours</li>
+                        <li><strong>Quand il atteint zéro</strong> il affichera \"DÉPART\" et commencera le compte pour le suivant</li>`,
+        helpModalSubtitle2: "Indicateurs visuels:",
+        redBackgroundText: "Fond ROUGE:",
+        countdownNormalDesc: "Compte à rebours normal",
+        yellowBackgroundText: "Fond JAUNE:",
+        countdownWarningDesc: "Dernières 10 secondes",
+        greenBackgroundText: "Fond VERT:",
+        countdownSalidaDesc: "Moment du départ (2 secondes)",
+        redNumbersText: "Nombres ROUGES pulsants:",
+        countdownCriticalDesc: "Dernières 5 secondes",
+        helpModalSubtitle3: "Sons:",
+        beepHighText: "Bip aigu:",
+        beepHighDesc: "En atteignant 10 secondes",
+        beepEverySecondText: "Bip chaque seconde:",
+        beepEverySecondDesc: "Dernières 5 secondes",
+        beepLowText: "Bip grave:",
+        beepLowDesc: "En atteignant zéro",
+        helpModalText2: "Les 2 secondes de \"DÉPART\" sont automatiquement soustraites du temps du prochain compte à rebours.",
+        
+        // Modal nueva carrera
+        newRaceModalTitle: "Nouvelle course",
+        newRaceNameLabel: "Nom de la course:",
+        newRaceDescLabel: "Description (optionnel):",
+        
+        // Modal eliminar carrera
+        deleteRaceModalTitle: "Confirmer la suppression",
+        deleteRaceModalText: "Êtes-vous sûr de vouloir supprimer cette course? Toutes les données seront perdues.",
+        
+        // Modal limpiar salidas
+        clearDeparturesModalTitle: "Confirmer le nettoyage",
+        clearDeparturesModalText: "Êtes-vous sûr de vouloir effacer la liste des départs? Cette action ne peut pas être annulée.",
+        
+        // Modal sugerencias
+        suggestionsModalTitle: "Envoyer des suggestions",
+        suggestionEmailLabel: "Email (optionnel):",
+        suggestionTextLabel: "Suggestions:",
+        
+        // Modal reiniciar
+        restartModalTitle: "Confirmer la réinitialisation complète",
+        restartModalText: "Êtes-vous sûr de vouloir réinitialiser complètement? Cette action:",
+        
+        // Mensajes
+        raceCreated: "Course créée avec succès",
+        raceDeleted: "Course supprimée",
+        departuresCleared: "Liste des départs effacée",
+        excelExported: "Données exportées vers Excel",
+        sessionRestarted: "Session complètement réinitialisée",
+        countdownStarted: "Compte à rebours démarré",
+        countdownStopped: "Compte à rebours arrêté",
+        updateChecked: "Recherche de mises à jour...",
+        adjustmentsSaved: "Ajustements enregistrés. Prochain coureur ({corredor}) partira dans {seconds} secondes",
+        timeUpdated: "Temps mis à jour. Prochain coureur ({corredor}) partira dans {seconds} secondes",
+        enterValidTime: "Entrez un temps valide",
+        selectRaceFirst: "Sélectionnez d'abord une course",
+        enterRaceName: "Entrez un nom pour la course",
+        listAlreadyEmpty: "La liste est déjà vide",
+        noDataToExport: "Aucune donnée à exporter",
+        waitCountdownEnd: "Attendez que le compte à rebours actuel se termine",
+        countdownNotActive: "Le compte à rebours n'est pas actif",
+        invalidValues: "Valeurs invalides",
+        importError: "Erreur lors de l'importation du fichier",
+        
+        // Pantalla de ejecución
+        salidaText: "DÉPART",
+        totalTimeLabel: "Temps total",
+        nextCorredorLabel: "Prochain départ à",
+        departedLabel: "Partis",
+        
+        // Orden de salida - NUEVAS TRADUCCIONES (CON GUIONES)
+        'time-config-label': "Configuration des Horaires",
+        'first-start-label': "Heure Départ Premier Coureur:",
+        'current-time-label': "Heure du Système:",
+        'time-diff-label': "Début compte à rebours dans:",
+        'total-riders-label': "Total Coureurs:",
+        'actions-label': "Actions",
+        'order-table-label': "Ordre de Départ",
+        'create-template-text': "Créer Modèle",
+        'import-order-text': "Importer Ordre",
+        'delete-order-text': "Supprimer Ordre",
+        'export-order-text': "Exporter Ordre",
+        'add-rider-text': "Ajouter Coureur",
+        'no-start-order-text': "Aucun coureur dans l'ordre de départ",
+        
+        // Headers de tabla orden de salida (CON GUIONES)
+        'order-header': "Ordre",
+        'dorsal-header': "Dossard",
+        'crono-salida-header': "Chrono Départ",
+        'hora-salida-header': "Heure Départ",
+        'nombre-header': "Prénom",
+        'apellidos-header': "Nom",
+        'chip-header': "Puce",
+        'hora-real-header': "Heure Départ Réel",
+        'crono-real-header': "Chrono Départ Réel",
+        'hora-prevista-header': "Heure Prévue",
+        'crono-prevista-header': "Chrono Prévu",
+        'hora-importado-header': "Heure Importée",
+        'crono-importado-header': "Chrono Importé",
+        'crono-segundos-header': "Chrono Secondes",
+        'hora-segundos-header': "Heure Secondes",
+        
+        // Mensajes orden de salida
+        templateCreated: "Modèle Excel créé avec succès",
+        orderImported: "Ordre de départ importé avec succès ({count} coureurs)",
+        orderDeleted: "Ordre de départ supprimé",
+        orderExported: "Ordre de départ exporté vers Excel",
+        riderAdded: "Coureur ajouté à l'ordre de départ",
+        riderDeleted: "Coureur supprimé",
+        enterValidTimeOrder: "Entrez une heure valide",
+        selectOrderFirst: "Sélectionnez d'abord un ordre de départ",
+        dataSaved: "Données enregistrées avec succès",
+        confirmDeleteOrder: "Êtes-vous sûr de supprimer l'ordre de départ?",
+        
+        // Mensajes de error/success
+        success: "Succès!",
+        error: "Erreur",
+        warning: "Avertissement",
+        info: "Information",
+
+        // Para los botones de acción:
+        understood: "Compris",
         saveButtonText: "Enregistrer",
         cancelButtonText: "Annuler",
-        editIntervalModalTitle: "Modifier Temps par Intervalle",
-        salidaText: "DÉPART",
+        clear: "Effacer",
+        deleteConfirm: "Supprimer",
+        sendSuggestion: "Envoyer",
+        createRace: "Créer course",
+        restartConfirm: "Oui, réinitialiser complètement",
+        cancel: "Annuler",
+
+        // Para las notas de salidas:
+        departurePlaceholder: "Écrire une note...",
+
+        // Para etiquetas de cuenta atrás:
+        countdownlabel: "Départ dans",
+        currentPositionText: "Position actuelle:",
+        startTimeUpdated: "Heure de départ mise à jour et enregistrée",
+                // ============================================
+        // NOUVELLES TRADUCTIONS POUR LE SELECTEUR DE MODE
+        // ============================================
+        modeSelectorTitle: "Sélectionner le Mode d'Opération",
+        modeSalidaTitle: "Mode Départ",
+        modeSalidaDesc: "Contrôle des départs avec compte à rebours",
+        modeLlegadasTitle: "Mode Arrivée",
+        modeLlegadasDesc: "Contrôle des temps d'arrivée",
+        modeChanged: "Passé en mode {mode}",
         
-        // NUEVAS TRADUCCIONES AÑADIDAS:
-        beepHigh: "Beep aigu",
-        beepHighDesc: "En atteignant 10 secondes",
-        beepEverySecond: "Beep chaque seconde",
-        beepEverySecondDesc: "Dernières 5 secondes",
-        beepLow: "Beep grave",
-        beepLowDesc: "En atteignant zéro",
-        configureAtLeastOneInterval: "Vous devez configurer au moins un intervalle pour le mode 'Plusieurs intervalles'",
-        noIntervalsConfigured: "Erreur: Aucun intervalle configuré",
-        noDataToExport: "Aucune donnée à exporter",
-        listAlreadyEmpty: "La liste est déjà vide",
-        cannotModifyLastSeconds: "Impossible de modifier pendant les 12 dernières secondes",
-        countdownNotActive: "Le compte à rebours n'est pas actif",
-        enterValidTime: "Entrez un temps valide (supérieur à 0)",
-        enterRaceName: "Entrez un nom de course",
-        fromMustBeLessThanTo: "Le corredor 'De' doit être inférieur ou égal à 'À'",
-        enterValidTimeValue: "Entrez un temps valide",
-        intervalOverlaps: "Cet intervalle chevauche l'intervalle existent",
-        invalidValues: "Valeurs non valides",
-        adjustmentsSaved: "Ajustements enregistrés. Temps: {seconds}s depuis le corredor {corredor}",
-        waitCountdownEnd: "Attendez la fin du compte à rebours (moins de 12 secondes)",
-        timeUpdated: "Temps mis à jour à {seconds}s pour les corredors à partir de {corredor}",
-        noIntervalSelected: "Aucun intervalle sélectionné pour modification",
-        intervalUpdated: "Intervalle mis à jour avec succès",
-        intervalDeleted: "Intervalle supprimé avec succès",
-        confirmDeleteInterval: "Êtes-vous sûr de vouloir supprimer l'intervalle {from}-{to}?",
-        redBackground: "Fond ROUGE:",
-        yellowBackground: "Fond JAUNE:",
-        greenBackground: "Fond VERT:",
-        redNumbers: "Chiffres ROUGES pulsants:",
-        countdownNormalDesc: "Compte à rebours normal",
-        countdownWarningDesc: "Dernières 10 secondes",
-        countdownCriticalDesc: "Dernières 5 secondes",
-        countdownSalidaDesc: "Moment de départ (2 secondes)",
-        configuredSections: "Intervalles configurés",
-        audioConfigTitle: "Configuration Audio",
-        audioModeLabel: "Type de son pour le compte à rebours",
+        // ============================================
+        // NOUVELLES TRADUCTIONS POUR LE MODE ARRIVÉES
+        // ============================================
+        llegadasTimerTitle: "Chronomètre d'Arrivées",
+        llegadasTimerLabel: "Temps depuis le départ du premier coureur :",
+        startLlegadasText: "Démarrer Chronomètre",
+        stopLlegadasText: "Arrêter",
+        registerLlegadaText: "Enregistrer Arrivée",
+        importLlegadasText: "Importer Départs",
+        llegadasListTitle: "Arrivées Enregistrées",
+        clearLlegadasText: "Effacer les arrivées",
+        exportLlegadasText: "Exporter Excel",
+        showRankingText: "Voir Classement",
+        noLlegadasText: "Aucune arrivée enregistrée",
+        
+        // ============================================
+        // TRADUCTIONS POUR L'ENREGISTREMENT DES ARRIVÉES
+        // ============================================
+        registerLlegadaModalTitle: "Enregistrer Arrivée",
+        llegadaDorsalLabel: "Dossard du coureur :",
+        llegadaHoraLabel: "Heure d'arrivée :",
+        llegadaNotasLabel: "Notes (optionnel) :",
+        confirmLlegadaBtn: "Enregistrer Arrivée",
+        cancelLlegadaBtn: "Annuler",
+        quickRegisterTitle: "Enregistrement rapide d'arrivée",
+        
+        // ============================================
+        // TRADUCTIONS POUR L'IMPORTATION DES DÉPARTS
+        // ============================================
+        importSalidasModalTitle: "Importer Données de Départs",
+        importSalidasModalText: "Sélectionnez le fichier Excel avec les données de départ des coureurs.",
+        confirmImportSalidasBtn: "Importer",
+        cancelImportSalidasBtn: "Annuler",
+        importPreviewTitle: "Aperçu des données :",
+        importSuccess: "Données de départ importées avec succès ({count} coureurs)",
+        importError: "Erreur lors de l'importation des données",
+        startTimerFirst: "D'abord démarrez le chronomètre d'arrivées",
+        noDataImported: "Impossible d'importer les données de départ",
+        
+        // ============================================
+        // TRADUCTIONS POUR LE CLASSEMENT
+        // ============================================
+        rankingModalTitle: "Classement de la Course",
+        noRankingText: "Pas assez de données pour générer le classement",
+        rankingPos: "Pos",
+        rankingDorsal: "Dossard",
+        rankingNombre: "Nom",
+        rankingTiempo: "Temps Chrono",
+        rankingDiferencia: "Écart",
+        exportRankingBtn: "Exporter Classement",
+        closeRankingBtn: "Fermer",
+        
+        // ============================================
+        // TRADUCTIONS POUR LES EN-TÊTES DE TABLEAU (ARRIVÉES)
+        // ============================================
+        llegadaHeaderDorsal: "Dossard",
+        llegadaHeaderNombre: "Nom",
+        llegadaHeaderSalida: "Heure Départ",
+        llegadaHeaderLlegada: "Heure Arrivée",
+        llegadaHeaderCrono: "Temps Chrono",
+        llegadaHeaderNotas: "Notes",
+        
+        // ============================================
+        // TRADUCTIONS POUR LA CONFIGURATION AUDIO
+        // ============================================
+        audioConfigTitle: "Configuration Audio pour les Départs",
         beepOptionTitle: "Sons Beep",
-        beepOptionDesc: "Bips électroniques pour chaque seconde",
         voiceOptionTitle: "Voix enregistrée",
-        voiceOptionDesc: "Voix humaine comptant dans votre langue",
         muteOptionTitle: "Sans son",
-        muteOptionDesc: "Effets visuels seulement",
-        testAudioText: "Tester le son actuel"
+        testAudioText: "Tester le son actuel",
+        
+        // ============================================
+        // TRADUCTIONS POUR LA CONFIGURATION DU TEMPS
+        // ============================================
+        cardTimeTitle: "Configuration du Temps pour les Départs",
+        
+        // ============================================
+        // TRADUCTIONS POUR LES MESSAGES D'ÉTAT (ARRIVÉES)
+        // ============================================
+        llegadaRegistered: "Arrivée enregistrée pour le dossard {dorsal}",
+        llegadaAlreadyExists: "Arrivée déjà enregistrée pour le dossard {dorsal}",
+        llegadasCleared: "Liste des arrivées effacée",
+        timerStarted: "Chronomètre d'arrivées démarré",
+        timerStopped: "Chronomètre arrêté",
+        rankingGenerated: "Classement généré avec {count} coureurs",
+        llegadasExported: "Arrivées exportées vers Excel",
+        rankingExported: "Classement exporté vers Excel",
+        
+        // ============================================
+        // TRADUCTIONS POUR LES VALIDATIONS
+        // ============================================
+        enterDorsal: "Entrez un numéro de dossard valide",
+        invalidDorsal: "Dossard non valide",
+        noStartTimeData: "Pas de données d'heure de départ pour ce dossard",
+        confirmClearLlegadas: "Êtes-vous sûr de vouloir effacer toutes les arrivées enregistrées?",
+        selectFileFirst: "Sélectionnez d'abord un fichier",
     }
 };
 
-// ============================================
-// FUNCIONES DE SONIDO
-// ============================================
-function generateBeep(frequency, duration, type = 'sine') {
-    try {
-        if (!appState.audioContext) {
-            appState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        
-        if (appState.audioContext.state === 'suspended') {
-            appState.audioContext.resume();
-        }
-        
-        const oscillator = appState.audioContext.createOscillator();
-        const gainNode = appState.audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(appState.audioContext.destination);
-        
-        oscillator.frequency.setValueAtTime(frequency, appState.audioContext.currentTime);
-        oscillator.type = type;
-        
-        gainNode.gain.setValueAtTime(0.3, appState.audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, appState.audioContext.currentTime + duration);
-        
-        oscillator.start(appState.audioContext.currentTime);
-        oscillator.stop(appState.audioContext.currentTime + duration);
-        
-    } catch (error) {
-        console.log("Error generando beep:", error);
-    }
-}
 
-function initAudioOnInteraction() {
-    if (!appState.audioContext) {
-        appState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    }
+function updateLanguageUI() {
+    const lang = appState.currentLanguage;
+    const t = translations[lang];
     
-    if (appState.audioContext.state === 'suspended') {
-        appState.audioContext.resume().then(() => {
-            generateBeep(440, 0.1);
-        });
-    }
+    console.log(`Actualizando UI al idioma: ${lang}`);
     
-    document.removeEventListener('click', initAudioOnInteraction);
-    document.removeEventListener('keydown', initAudioOnInteraction);
-}
-
-// ============================================
-// FUNCIONES DE AUDIO MEJORADAS
-// ============================================
-function preloadVoiceAudios() {
-    console.log("Precargando audios de voz .ogg...");
-    
-    const languages = ['es', 'en', 'ca', 'fr'];
-    const numbers = [10, 5, 4, 3, 2, 1, 0];
-    
-    let loadedCount = 0;
-    const totalToLoad = languages.length * numbers.length;
-    
-    languages.forEach(lang => {
-        appState.voiceAudioCache[lang] = {};
-        
-        numbers.forEach(num => {
-            const audio = new Audio();
-            audio.preload = 'auto';
-            audio.src = `audio/${lang}_${num}.ogg`;
-            
-            audio.addEventListener('canplaythrough', () => {
-                appState.voiceAudioCache[lang][num] = audio;
-                loadedCount++;
-                console.log(`✅ Audio cargado: ${lang}_${num}.ogg (${loadedCount}/${totalToLoad})`);
-                
-                if (num === 0) {
-                    console.log(`   (Este es el audio de SALIDA para ${lang})`);
-                }
-            });
-            
-            audio.addEventListener('error', (e) => {
-                console.error(`❌ ERROR cargando ${audio.src}:`, e.type);
-                console.error("  Verifica que exista: audio/" + lang + "_" + num + ".ogg");
-                
-                if (num === 0) {
-                    console.error("  IMPORTANTE: El archivo 0.ogg es para 'SALIDA'/'GO'/'DÉPART'");
-                }
-                
-                loadedCount++;
-            });
-            
-            audio.load();
-        });
+    // Actualizar banderas activas
+    document.querySelectorAll('.flag').forEach(flag => {
+        flag.classList.remove('active');
     });
+    document.getElementById(`flag-${lang}`).classList.add('active');
     
-    setTimeout(() => {
-        console.log(`\n=== RESUMEN DE CARGA DE AUDIOS ===`);
-        console.log(`Cargados: ${loadedCount}/${totalToLoad}`);
-        
-        languages.forEach(lang => {
-            console.log(`\nIdioma: ${lang}`);
-            const loadedNumbers = Object.keys(appState.voiceAudioCache[lang] || {}).length;
-            console.log(`  Números cargados: ${loadedNumbers}/11`);
-            
-            if (appState.voiceAudioCache[lang][0]) {
-                console.log(`  ✅ Audio de SALIDA (0.ogg): CARGADO`);
-            } else {
-                console.log(`  ❌ Audio de SALIDA (0.ogg): FALTA`);
-            }
-        });
-    }, 3000);
-}
+    // ============================================
+    // ACTUALIZAR ELEMENTOS EXISTENTES
+    // ============================================
+    
+    // Header
+    document.getElementById('app-title-text').textContent = t.appTitle;
+    document.getElementById('languages-label').textContent = t.languagesLabel;
+    document.getElementById('help-icon-header').title = t.helpIconTitle;
+    
+    // Gestión de carrera
+    document.getElementById('card-race-title').textContent = t.cardRaceTitle;
+    document.getElementById('new-race-text').textContent = t.newRaceText;
+    document.getElementById('delete-race-text').textContent = t.deleteRaceText;
+    
+    // Orden de salida
+    document.getElementById('card-start-order-title').textContent = t.cardStartOrderTitle;
+    document.getElementById('first-start-label').textContent = t.firstStartLabel;
+    document.getElementById('current-time-label').textContent = t.currentTimeLabel;
+    document.getElementById('time-diff-label').textContent = t.timeDiffLabel;
+    document.getElementById('total-riders-label').textContent = t.totalRidersLabel;
+    
+    // Botones de orden de salida
+    document.getElementById('create-template-text').textContent = t.createTemplateText;
+    document.getElementById('import-order-text').textContent = t.importOrderText;
+    document.getElementById('delete-order-text').textContent = t.deleteOrderText;
+    document.getElementById('export-order-text').textContent = t.exportOrderText;
+    document.getElementById('add-rider-text').textContent = t.addRiderText;
+    document.getElementById('order-table-label').textContent = t.orderTableLabel;
+    document.getElementById('no-start-order-text').textContent = t.noStartOrderText;
+    
+    // Cabeceras de tabla de orden de salida
+    document.getElementById('order-header').textContent = t.orderHeader;
+    document.getElementById('dorsal-header').textContent = t.dorsalHeader;
+    document.getElementById('crono-salida-header').textContent = t.cronoSalidaHeader;
+    document.getElementById('hora-salida-header').textContent = t.horaSalidaHeader;
+    document.getElementById('nombre-header').textContent = t.nombreHeader;
+    document.getElementById('apellidos-header').textContent = t.apellidosHeader;
+    document.getElementById('chip-header').textContent = t.chipHeader;
+    document.getElementById('hora-real-header').textContent = t.horaRealHeader;
+    document.getElementById('crono-real-header').textContent = t.cronoRealHeader;
+    document.getElementById('hora-prevista-header').textContent = t.horaPrevistaHeader;
+    document.getElementById('crono-prevista-header').textContent = t.cronoPrevistaHeader;
+    document.getElementById('hora-importado-header').textContent = t.horaImportadoHeader;
+    document.getElementById('crono-importado-header').textContent = t.cronoImportadoHeader;
+    document.getElementById('crono-segundos-header').textContent = t.cronoSegundosHeader;
+    document.getElementById('hora-segundos-header').textContent = t.horaSegundosHeader;
+    
+    // ============================================
+    // ACTUALIZAR NUEVOS ELEMENTOS (SELECTOR DE MODO)
+    // ============================================
+    
+    document.getElementById('mode-selector-title').textContent = t.modeSelectorTitle;
+    document.getElementById('mode-salida-title').textContent = t.modeSalidaTitle;
+    document.getElementById('mode-salida-desc').textContent = t.modeSalidaDesc;
+    document.getElementById('mode-llegadas-title').textContent = t.modeLlegadasTitle;
+    document.getElementById('mode-llegadas-desc').textContent = t.modeLlegadasDesc;
+    
+    // ============================================
+    // ACTUALIZAR ELEMENTOS DEL MODO SALIDA
+    // ============================================
+    
+    // Configuración de tiempo
+    document.getElementById('card-time-title').textContent = t.cardTimeTitle;
+    document.getElementById('interval-time-label').textContent = t.intervalTimeLabel;
+    document.getElementById('minutes-text').textContent = t.minutesText;
+    document.getElementById('seconds-text').textContent = t.secondsText;
+    
+    // Configuración de audio
+    document.getElementById('audio-config-title').textContent = t.audioConfigTitle;
+    document.getElementById('beep-option-title').textContent = t.beepOptionTitle;
+    document.getElementById('voice-option-title').textContent = t.voiceOptionTitle;
+    document.getElementById('mute-option-title').textContent = t.muteOptionTitle;
+    document.getElementById('test-audio-text').textContent = t.testAudioText;
+    
+    // Botón de inicio
+    document.getElementById('start-countdown-text').textContent = t.startCountdownText;
+    document.getElementById('start-from-x-text').textContent = t.startFromXText;
+    document.getElementById('exit-complete-text').textContent = t.exitCompleteText;
+    
+    // Salidas registradas
+    document.getElementById('card-departures-title').textContent = t.cardDeparturesTitle;
+    document.getElementById('clear-departures-text').textContent = t.clearDeparturesText;
+    document.getElementById('export-excel-text').textContent = t.exportExcelText;
+    document.getElementById('no-departures-text').textContent = t.noDeparturesText;
+    
+    // Cabeceras de tabla de salidas
+    document.getElementById('departure-header-dorsal').textContent = t.departureHeaderDorsal;
+    document.getElementById('departure-header-time').textContent = t.departureHeaderTime;
+    document.getElementById('departure-header-notes').textContent = t.departureHeaderNotes;
+    document.getElementById('departure-header-date').textContent = t.departureHeaderDate;
+    
+    // ============================================
+    // ACTUALIZAR ELEMENTOS DEL MODO LLEGADAS
+    // ============================================
+    
+    // Cronómetro principal
+    document.getElementById('llegadas-timer-title').textContent = t.llegadasTimerTitle;
+    document.getElementById('llegadas-timer-label').textContent = t.llegadasTimerLabel;
+    document.getElementById('start-llegadas-text').textContent = t.startLlegadasText;
+    document.getElementById('stop-llegadas-text').textContent = t.stopLlegadasText;
+    document.getElementById('register-llegada-text').textContent = t.registerLlegadaText;
+    document.getElementById('import-llegadas-text').textContent = t.importLlegadasText;
+    
+    // Tabla de llegadas
+    document.getElementById('llegadas-list-title').textContent = t.llegadasListTitle;
+    document.getElementById('clear-llegadas-text').textContent = t.clearLlegadasText;
+    document.getElementById('export-llegadas-text').textContent = t.exportLlegadasText;
+    document.getElementById('show-ranking-text').textContent = t.showRankingText;
+    document.getElementById('no-llegadas-text').textContent = t.noLlegadasText;
+    
+    // Cabeceras de tabla de llegadas
+    document.getElementById('llegada-header-dorsal').textContent = t.llegadaHeaderDorsal;
+    document.getElementById('llegada-header-nombre').textContent = t.llegadaHeaderNombre;
+    document.getElementById('llegada-header-salida').textContent = t.llegadaHeaderSalida;
+    document.getElementById('llegada-header-llegada').textContent = t.llegadaHeaderLlegada;
+    document.getElementById('llegada-header-crono').textContent = t.llegadaHeaderCrono;
+    document.getElementById('llegada-header-notas').textContent = t.llegadaHeaderNotas;
+    
+    // Botón flotante
+    document.getElementById('quick-register-btn').title = t.quickRegisterTitle;
+    
+    // ============================================
+    // ACTUALIZAR PANTALLA DE CUENTA ATRÁS
+    // ============================================
+    
+    document.getElementById('countdown-label').textContent = t.countdownLabel;
+    document.getElementById('total-time-label').textContent = t.totalTimeLabel;
+    document.getElementById('next-corredor-label').textContent = t.nextCorredorLabel;
+    document.getElementById('departed-label').textContent = t.departedLabel;
+    
+    // ============================================
+    // ACTUALIZAR FOOTER
+    // ============================================
+    
+    document.getElementById('help-text').textContent = t.helpText;
+    document.getElementById('suggestions-text').textContent = t.suggestionsText;
+    document.getElementById('install-text').textContent = t.installText;
+    document.getElementById('update-text').textContent = t.updateText;
 
-function playVoiceAudio(number) {
-    if (appState.audioType !== 'voice') return;
     
-    console.log(`🔊 Reproduciendo: ${appState.currentLanguage}_${number}.ogg`);
+    // ============================================
+    // ACTUALIZAR MODALES
+    // ============================================
     
-    try {
-        const lang = appState.currentLanguage;
-        
-        if (appState.voiceAudioCache[lang] && appState.voiceAudioCache[lang][number]) {
-            const audio = appState.voiceAudioCache[lang][number];
-            audio.currentTime = 0;
-            
-            const playPromise = audio.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    console.warn(`Error reproduciendo audio precargado ${lang}_${number}:`, error);
-                    loadAndPlayAudioDirectly(lang, number);
-                });
-            }
-        } else {
-            loadAndPlayAudioDirectly(lang, number);
-        }
-        
-    } catch (error) {
-        console.error("❌ Error crítico en playVoiceAudio:", error);
-        generateBeep(500, 0.3, 'sine');
+    // Modal de ayuda
+    document.getElementById('help-modal-title').textContent = t.helpModalTitle;
+    document.getElementById('help-modal-text1').textContent = t.helpModalText1;
+    document.getElementById('help-modal-subtitle1').textContent = t.helpModalSubtitle1;
+    document.getElementById('help-modal-list').innerHTML = t.helpModalList;
+    document.getElementById('help-modal-subtitle2').textContent = t.helpModalSubtitle2;
+    document.getElementById('red-background-text').textContent = t.redBackgroundText;
+    document.getElementById('countdown-normal-desc').textContent = t.countdownNormalDesc;
+    document.getElementById('yellow-background-text').textContent = t.yellowBackgroundText;
+    document.getElementById('countdown-warning-desc').textContent = t.countdownWarningDesc;
+    document.getElementById('green-background-text').textContent = t.greenBackgroundText;
+    document.getElementById('countdown-salida-desc').textContent = t.countdownSalidaDesc;
+    document.getElementById('red-numbers-text').textContent = t.redNumbersText;
+    document.getElementById('countdown-critical-desc').textContent = t.countdownCriticalDesc;
+    document.getElementById('help-modal-subtitle3').textContent = t.helpModalSubtitle3;
+    document.getElementById('beep-high-text').textContent = t.beepHighText;
+    document.getElementById('beep-high-desc').textContent = t.beepHighDesc;
+    document.getElementById('beep-every-second-text').textContent = t.beepEverySecondText;
+    document.getElementById('beep-every-second-desc').textContent = t.beepEverySecondDesc;
+    document.getElementById('beep-low-text').textContent = t.beepLowText;
+    document.getElementById('beep-low-desc').textContent = t.beepLowDesc;
+    document.getElementById('help-modal-text2').textContent = t.helpModalText2;
+    document.getElementById('help-modal-ok').textContent = t.helpModalOk;
+    
+    // Modal de reinicio
+    document.getElementById('restart-modal-title').textContent = t.restartModalTitle;
+    document.getElementById('restart-modal-text').textContent = t.restartModalText;
+    document.getElementById('restart-confirm-btn').textContent = t.restartConfirmBtn;
+    document.getElementById('restart-cancel-btn').textContent = t.restartCancelBtn;
+    
+    // Modal de eliminar carrera
+    document.getElementById('delete-race-modal-title').textContent = t.deleteRaceModalTitle;
+    document.getElementById('delete-race-modal-text').textContent = t.deleteRaceModalText;
+    document.getElementById('delete-race-confirm-btn').textContent = t.deleteRaceConfirmBtn;
+    document.getElementById('delete-race-cancel-btn').textContent = t.deleteRaceCancelBtn;
+    
+    // Modal de limpiar salidas
+    document.getElementById('clear-departures-modal-title').textContent = t.clearDeparturesModalTitle;
+    document.getElementById('clear-departures-modal-text').textContent = t.clearDeparturesModalText;
+    document.getElementById('clear-departures-confirm-btn').textContent = t.clearDeparturesConfirmBtn;
+    document.getElementById('clear-departures-cancel-btn').textContent = t.clearDeparturesCancelBtn;
+    
+    // Modal de nueva carrera
+    document.getElementById('new-race-modal-title').textContent = t.newRaceModalTitle;
+    document.getElementById('new-race-name-label').textContent = t.newRaceNameLabel;
+    document.getElementById('new-race-desc-label').textContent = t.newRaceDescLabel;
+    document.getElementById('create-race-btn').textContent = t.createRaceBtn;
+    document.getElementById('cancel-create-race-btn').textContent = t.cancelCreateRaceBtn;
+    
+    // ============================================
+    // ACTUALIZAR NUEVOS MODALES (LLEGADAS)
+    // ============================================
+    
+    // Modal de registro de llegada
+    document.getElementById('register-llegada-modal-title').textContent = t.registerLlegadaModalTitle;
+    document.getElementById('llegada-dorsal-label').textContent = t.llegadaDorsalLabel;
+    document.getElementById('llegada-hora-label').textContent = t.llegadaHoraLabel;
+    document.getElementById('llegada-notas-label').textContent = t.llegadaNotasLabel;
+    document.getElementById('confirm-llegada-btn').textContent = t.confirmLlegadaBtn;
+    document.getElementById('cancel-llegada-btn').textContent = t.cancelLlegadaBtn;
+    
+    // Modal de importación de salidas
+    document.getElementById('import-salidas-modal-title').textContent = t.importSalidasModalTitle;
+    document.getElementById('import-salidas-modal-text').textContent = t.importSalidasModalText;
+    document.getElementById('confirm-import-salidas-btn').textContent = t.confirmImportSalidasBtn;
+    document.getElementById('cancel-import-salidas-btn').textContent = t.cancelImportSalidasBtn;
+
+    const importPreviewTitle = document.getElementById('import-preview-title');
+    if (importPreviewTitle) {
+        importPreviewTitle.textContent = t.importPreviewTitle || 'Vista previa de datos:';
+    } else {
+        console.warn('Elemento import-preview-title no encontrado');
+    }
+    
+    // Modal de clasificación
+    document.getElementById('ranking-modal-title').textContent = t.rankingModalTitle;
+    document.getElementById('no-ranking-text').textContent = t.noRankingText;
+    document.getElementById('export-ranking-btn').textContent = t.exportRankingBtn;
+    document.getElementById('close-ranking-btn').textContent = t.closeRankingBtn;
+    
+const rankingTable = document.getElementById('ranking-table');
+if (rankingTable) {
+    const rankingHeaders = rankingTable.querySelectorAll('th');
+    if (rankingHeaders.length >= 5) {
+        if (rankingHeaders[0]) rankingHeaders[0].textContent = t.rankingPos || 'Pos';
+        if (rankingHeaders[1]) rankingHeaders[1].textContent = t.rankingDorsal || 'Dorsal';
+        if (rankingHeaders[2]) rankingHeaders[2].textContent = t.rankingNombre || 'Nombre';
+        if (rankingHeaders[3]) rankingHeaders[3].textContent = t.rankingTiempo || 'Tiempo';
+        if (rankingHeaders[4]) rankingHeaders[4].textContent = t.rankingDiferencia || 'Diferencia';
     }
 }
-
-function loadAndPlayAudioDirectly(lang, number) {
-    console.log(`📥 Cargando directamente: ${lang}_${number}.ogg`);
     
-    const audio = new Audio();
-    audio.src = `audio/${lang}_${number}.ogg`;
+    // ============================================
+    // ACTUALIZAR SELECTORES (OPTIONS)
+    // ============================================
     
-    audio.play().then(() => {
-        console.log(`✅ Audio reproducido directamente: ${lang}_${number}.ogg`);
-    }).catch(error => {
-        console.error(`❌ Error reproduciendo ${lang}_${number}.ogg:`, error);
-        
-        if (error.name === 'NotAllowedError') {
-            console.error("  El usuario no ha interactuado con la página");
-            console.error("  Haz clic en la página primero");
-        } else if (error.name === 'NotFoundError') {
-            console.error("  El archivo no se encuentra");
-            console.error("  Verifica la ruta: " + audio.src);
-        }
-        
-        generateBeep(500, 0.3, 'sine');
-    });
-}
-
-function playSalidaVoice() {
-    if (appState.audioType !== 'voice') return;
-    
-    console.log(`🔊 Reproduciendo SALIDA (${appState.currentLanguage}_0.ogg)`);
-    playVoiceAudio(0);
-}
-
-function loadAndPlaySalidaDirectly(lang) {
-    const audio = new Audio();
-    audio.src = `audio/${lang}_salida.ogg`;
-    
-    audio.play().catch(error => {
-        console.error(`❌ Error reproduciendo salida ${lang}:`, error);
-        generateBeep(800, 1.5, 'sine');
-    });
-}
-
-function verifyAudioFiles() {
-    console.log("=== VERIFICACIÓN DE ARCHIVOS .ogg ===");
-    console.log("CONVENCIÓN: 0.ogg = audio de SALIDA\n");
-    
-    const languages = ['es', 'en', 'ca', 'fr'];
-    const requiredNumbers = [10, 5, 4, 3, 2, 1, 0];
-    
-    languages.forEach(lang => {
-        console.log(`\n📁 Idioma: ${lang.toUpperCase()}`);
-        
-        requiredNumbers.forEach(num => {
-            const audio = new Audio();
-            const url = `audio/${lang}_${num}.ogg`;
-            audio.src = url;
-            
-            audio.addEventListener('canplaythrough', () => {
-                if (num === 0) {
-                    console.log(`  ✅ ${lang}_${num}.ogg - SALIDA ✓`);
-                } else {
-                    console.log(`  ✅ ${lang}_${num}.ogg`);
-                }
-            });
-            
-            audio.addEventListener('error', (e) => {
-                if (num === 0) {
-                    console.log(`  ❌ ${lang}_${num}.ogg - SALIDA (FALTA!)`);
-                } else {
-                    console.log(`  ❌ ${lang}_${num}.ogg`);
-                }
-                console.log(`      Ruta probada: ${url}`);
-            });
-            
-            audio.load();
-        });
-    });
-}
-
-function fallbackVoiceAudio(number, lang) {
-    console.log(`Usando fallback para: ${lang}_${number}`);
-    
-    const audio = new Audio();
-    const formats = ['.mp3', '.ogg', '.wav'];
-    
-    for (const format of formats) {
-        audio.src = `audio/${lang}_${number}${format}`;
-        
-        audio.addEventListener('error', () => {
-            console.log(`Formato ${format} no funciona para ${lang}_${number}`);
-        });
-        
-        audio.addEventListener('canplaythrough', () => {
-            console.log(`Formato ${format} funciona para ${lang}_${number}`);
-            audio.play().catch(e => {
-                console.warn("Error reproduciendo fallback:", e);
-                generateBeep(500, 0.3, 'sine');
-            });
-            return;
-        });
-        
-        audio.load();
+    // Selector de carrera
+    const raceSelect = document.getElementById('race-select');
+    if (raceSelect && raceSelect.options.length > 0) {
+        raceSelect.options[0].text = t.selectRaceOption;
     }
-}
-
-function fallbackSalidaVoice(lang) {
-    const audio = new Audio();
-    const formats = ['.mp3', '.ogg', '.wav'];
     
-    for (const format of formats) {
-        audio.src = `audio/${lang}_salida${format}`;
-        
-        audio.addEventListener('canplaythrough', () => {
-            audio.play().catch(e => {
-                console.warn("Error reproduciendo salida fallback:", e);
-                generateBeep(800, 1.5, 'sine');
-            });
-            return;
-        });
-        
-        audio.addEventListener('error', () => {
-            console.log(`Formato ${format} no funciona para salida ${lang}`);
-        });
-        
-        audio.load();
-    }
-}
-
-function playSound(type) {
-    if (appState.audioType === 'none') return;
+    // ============================================
+    // ACTUALIZAR SALIDA TEXT
+    // ============================================
     
-    try {
-        switch(type) {
-            case 'warning':
-                if (appState.audioType === 'beep') {
-                    generateBeep(300, 1.5, 'square');
-                } else if (appState.audioType === 'voice') {
-                    playVoiceAudio(10);
-                }
-                break;
-                
-            case 'critical':
-                if (appState.audioType === 'beep') {
-                    generateBeep(500, 0.3, 'sine');
-                } else if (appState.audioType === 'voice') {
-                    playVoiceAudio(5);
-                }
-                break;
-                
-            case 'salida':
-                if (appState.audioType === 'beep') {
-                    generateBeep(800, 1.5, 'sine');
-                } else if (appState.audioType === 'voice') {
-                    playVoiceAudio(0);
-                }
-                break;
-                
-            case 'beep':
-                if (appState.audioType === 'beep') {
-                    generateBeep(500, 0.3, 'sine');
-                }
-                break;
-                
-            case 'number':
-                if (appState.audioType === 'voice' && appState.countdownValue >= 0) {
-                    if (appState.countdownValue <= 4 && appState.countdownValue > 0) {
-                        playVoiceAudio(appState.countdownValue);
-                    }
-                }
-                break;
-        }
-    } catch (error) {
-        console.log("Error en playSound:", error);
-    }
+    updateSalidaText();
+    
+    console.log("UI actualizada al idioma:", lang);
 }
 
-function testCurrentAudio() {
+function updateModalTexts() {
     const t = translations[appState.currentLanguage];
     
-    console.clear();
-    console.log("=== PRUEBA COMPLETA DE AUDIO ===");
-    console.log("Idioma:", appState.currentLanguage);
-    console.log("Tipo de audio:", appState.audioType);
-    console.log("Convención: 0.ogg = SALIDA/GO/DÉPART/SORTIDA\n");
-    
-    if (appState.audioType === 'none') {
-        showMessage("Modo sin sonido activado", 'info');
-        return;
+    // Función auxiliar para establecer texto
+    function setTextIfExists(elementId, text) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = text;
+        }
     }
     
-    if (appState.audioType === 'beep') {
-        console.log("Probando beeps...");
-        generateBeep(300, 0.5, 'square');
-        setTimeout(() => generateBeep(500, 0.3, 'sine'), 600);
-        setTimeout(() => generateBeep(800, 1.5, 'sine'), 1200);
-        
-        showMessage("Probando sonido beep", 'info');
-        
-    } else if (appState.audioType === 'voice') {
-        console.log("Probando secuencia de carrera completa:");
-        
-        console.log("1. Advertencia (10 segundos)...");
-        playVoiceAudio(10);
-        
-        setTimeout(() => {
-            console.log("2. Cinco segundos...");
-            playVoiceAudio(5);
-        }, 1500);
-        
-        setTimeout(() => {
-            console.log("3. Cuatro...");
-            playVoiceAudio(4);
-        }, 3000);
-        
-        setTimeout(() => {
-            console.log("4. Tres...");
-            playVoiceAudio(3);
-        }, 4500);
-        
-        setTimeout(() => {
-            console.log("5. Dos...");
-            playVoiceAudio(2);
-        }, 6000);
-        
-        setTimeout(() => {
-            console.log("6. Uno...");
-            playVoiceAudio(1);
-        }, 7500);
-        
-        setTimeout(() => {
-            console.log("7. ¡SALIDA! (0)...");
-            playVoiceAudio(0);
-        }, 9000);
-        
-        showMessage(`Probando voz en ${appState.currentLanguage}`, 'info');
+    // Actualizar modal de ayuda
+    setTextIfExists('help-modal-title', t.helpModalTitle);
+    setTextIfExists('help-modal-text1', t.helpModalText1);
+    setTextIfExists('help-modal-subtitle1', t.helpModalSubtitle1);
+    setTextIfExists('help-modal-subtitle2', t.helpModalSubtitle2);
+    setTextIfExists('help-modal-subtitle3', t.helpModalSubtitle3);
+    setTextIfExists('help-modal-text2', t.helpModalText2);
+    setTextIfExists('help-modal-ok', t.understood);
+    
+    setTextIfExists('red-background-text', t.redBackgroundText);
+    setTextIfExists('yellow-background-text', t.yellowBackgroundText);
+    setTextIfExists('green-background-text', t.greenBackgroundText);
+    setTextIfExists('red-numbers-text', t.redNumbersText);
+    setTextIfExists('countdown-normal-desc', t.countdownNormalDesc);
+    setTextIfExists('countdown-warning-desc', t.countdownWarningDesc);
+    setTextIfExists('countdown-critical-desc', t.countdownCriticalDesc);
+    setTextIfExists('countdown-salida-desc', t.countdownSalidaDesc);
+    
+    setTextIfExists('beep-high-text', t.beepHighText);
+    setTextIfExists('beep-high-desc', t.beepHighDesc);
+    setTextIfExists('beep-every-second-text', t.beepEverySecondText);
+    setTextIfExists('beep-every-second-desc', t.beepEverySecondDesc);
+    setTextIfExists('beep-low-text', t.beepLowText);
+    setTextIfExists('beep-low-desc', t.beepLowDesc);
+    
+    // Actualizar lista del modal de ayuda
+    const helpList = document.getElementById('help-modal-list');
+    if (helpList) {
+        helpList.innerHTML = t.helpModalList;
     }
-}
-
-function checkAvailableAudioFiles() {
-    console.log("=== VERIFICANDO ARCHIVOS DE AUDIO ===");
     
-    const languages = ['es', 'en', 'ca', 'fr'];
-    const testNumbers = [10, 5, 1];
+    // Actualizar headers de la tabla de salidas
+    setTextIfExists('departure-header-dorsal', t.departureHeaderDorsal);
+    setTextIfExists('departure-header-time', t.departureHeaderTime);
+    setTextIfExists('departure-header-notes', t.departureHeaderNotes);
+    setTextIfExists('departure-header-date', t.departureHeaderDate);
+    setTextIfExists('no-departures-text', t.noDeparturesText);
     
-    languages.forEach(lang => {
-        console.log(`\n📁 Idioma: ${lang}`);
-        
-        testNumbers.forEach(num => {
-            const formats = ['.mp3', '.ogg', '.wav'];
-            formats.forEach(format => {
-                const audio = new Audio();
-                const url = `audio/${lang}_${num}${format}`;
-                
-                audio.addEventListener('canplaythrough', () => {
-                    console.log(`  ✅ ${lang}_${num}${format} - DISPONIBLE`);
-                });
-                
-                audio.addEventListener('error', (e) => {
-                    console.log(`  ❌ ${lang}_${num}${format} - NO DISPONIBLE (${e.type})`);
-                });
-                
-                audio.src = url;
-                audio.load();
-            });
-        });
-        
-        const formats = ['.mp3', '.ogg', '.wav'];
-        formats.forEach(format => {
-            const audio = new Audio();
-            const url = `audio/${lang}_salida${format}`;
-            
-            audio.addEventListener('canplaythrough', () => {
-                console.log(`  ✅ ${lang}_salida${format} - DISPONIBLE`);
-            });
-            
-            audio.addEventListener('error', (e) => {
-                console.log(`  ❌ ${lang}_salida${format} - NO DISPONIBLE (${e.type})`);
-            });
-            
-            audio.src = url;
-            audio.load();
-        });
-    });
-}
-
-function selectAudioType(audioType) {
-    appState.audioType = audioType;
+    // Actualizar modales varios
+    setTextIfExists('delete-race-modal-title', t.deleteRaceModalTitle);
+    setTextIfExists('delete-race-modal-text', t.deleteRaceModalText);
+    setTextIfExists('delete-race-confirm-btn', t.deleteConfirm);
+    setTextIfExists('delete-race-cancel-btn', t.cancelButtonText || t.cancel);
     
-    document.querySelectorAll('.audio-option').forEach(option => {
-        option.classList.remove('active');
-    });
+    setTextIfExists('clear-departures-modal-title', t.clearDeparturesModalTitle);
+    setTextIfExists('clear-departures-modal-text', t.clearDeparturesModalText);
+    setTextIfExists('clear-departures-confirm-btn', t.clear);
+    setTextIfExists('clear-departures-cancel-btn', t.cancelButtonText || t.cancel);
     
-    document.querySelector(`.audio-option[data-audio-type="${audioType}"]`).classList.add('active');
+    setTextIfExists('suggestions-modal-title', t.suggestionsModalTitle);
+    setTextIfExists('suggestion-email-label', t.suggestionEmailLabel);
+    setTextIfExists('suggestion-text-label', t.suggestionTextLabel);
+    setTextIfExists('send-suggestion-btn', t.sendSuggestion);
+    setTextIfExists('cancel-suggestion-btn', t.cancelButtonText || t.cancel);
     
-    localStorage.setItem('countdown-audio-type', audioType);
+    setTextIfExists('new-race-modal-title', t.newRaceModalTitle);
+    setTextIfExists('new-race-name-label', t.newRaceNameLabel);
+    setTextIfExists('new-race-desc-label', t.newRaceDescLabel);
+    setTextIfExists('create-race-btn', t.createRace);
+    setTextIfExists('cancel-create-race-btn', t.cancelButtonText || t.cancel);
     
-    console.log("Tipo de audio seleccionado:", audioType);
-}
-
-function loadAudioPreferences() {
-    const savedAudioType = localStorage.getItem('countdown-audio-type');
-    if (savedAudioType && ['beep', 'voice', 'none'].includes(savedAudioType)) {
-        appState.audioType = savedAudioType;
-    }
-}
-
-function showExpectedFilenames() {
-    console.log("=== NOMBRES DE ARCHIVOS ESPERADOS ===");
-    console.log("(Para carpeta audio/)\n");
-    
-    const languages = {
-        'es': 'Español',
-        'en': 'English', 
-        'ca': 'Català',
-        'fr': 'Français'
-    };
-    
-    Object.entries(languages).forEach(([code, name]) => {
-        console.log(`\n${name} (${code}):`);
-        console.log(`  ${code}_10.ogg  → "diez" / "ten" / "deu" / "dix"`);
-        console.log(`  ${code}_9.ogg   → "nueve" / "nine" / "nou" / "neuf"`);
-        console.log(`  ${code}_8.ogg   → "ocho" / "eight" / "vuit" / "huit"`);
-        console.log(`  ${code}_7.ogg   → "siete" / "seven" / "set" / "sept"`);
-        console.log(`  ${code}_6.ogg   → "seis" / "six" / "sis" / "six"`);
-        console.log(`  ${code}_5.ogg   → "cinco" / "five" / "cinc" / "cinq"`);
-        console.log(`  ${code}_4.ogg   → "cuatro" / "four" / "quatre" / "quatre"`);
-        console.log(`  ${code}_3.ogg   → "tres" / "three" / "tres" / "trois"`);
-        console.log(`  ${code}_2.ogg   → "dos" / "two" / "dos" / "deux"`);
-        console.log(`  ${code}_1.ogg   → "uno" / "one" / "un" / "un"`);
-        console.log(`  ${code}_0.ogg   → "¡SALIDA!" / "GO!" / "SORTIDA!" / "DÉPART!"`);
-    });
-    
-    console.log("\n=== TOTAL DE ARCHIVOS NECESARIOS ===");
-    console.log("4 idiomas × 11 números = 44 archivos .ogg");
-}
-
-// ============================================
-// CONFIGURACIÓN DE AUDIO
-// ============================================
-function setupAudioEventListeners() {
-    document.querySelectorAll('.audio-option').forEach(option => {
-        option.addEventListener('click', function() {
-            const audioType = this.getAttribute('data-audio-type');
-            selectAudioType(audioType);
-        });
-    });
-    
-    document.getElementById('test-audio-btn').addEventListener('click', testCurrentAudio);
+    setTextIfExists('restart-modal-title', t.restartModalTitle);
+    setTextIfExists('restart-modal-text', t.restartModalText);
+    setTextIfExists('restart-confirm-btn', t.restartConfirm);
+    setTextIfExists('restart-cancel-btn', t.cancelButtonText || t.cancel);
 }

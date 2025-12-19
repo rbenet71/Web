@@ -66,6 +66,211 @@
             transition: background-color 0.5s ease;
         }
 
+        /* Nuevos estilos para el selector de modo */
+        .mode-selector-card {
+            border-left: 5px solid #9b59b6;
+            margin-bottom: 20px;
+        }
+
+        .mode-selector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .mode-option {
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .mode-option:hover {
+            border-color: var(--secondary);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .mode-option.active {
+            border-color: var(--success);
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.05) 0%, rgba(52, 152, 219, 0.05) 100%);
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+        }
+
+        .mode-option i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .mode-option.active i {
+            color: var(--success);
+        }
+
+        .mode-option h3 {
+            font-size: 1.5rem;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .mode-option p {
+            color: var(--gray);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* Contenedores de modo */
+        .mode-content {
+            display: none;
+        }
+
+        .mode-content.active {
+            display: block;
+        }
+
+        /* Estilos para el modo llegadas */
+        .llegadas-main-timer {
+            text-align: center;
+            margin: 30px 0;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--primary) 0%, #1a2530 100%);
+            border-radius: var(--border-radius);
+            color: white;
+        }
+
+        .llegadas-timer-display {
+            font-size: 4rem;
+            font-weight: 900;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            color: var(--success);
+            text-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .llegadas-timer-label {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .llegadas-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        /* Tabla de llegadas */
+        .llegadas-table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+        }
+
+        .llegadas-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .llegadas-table th {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: var(--primary);
+            font-weight: 600;
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .llegadas-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f1f1;
+            font-variant-numeric: tabular-nums;
+            transition: background 0.2s ease;
+        }
+
+        .llegadas-table tr:hover td {
+            background: #f8fafc;
+        }
+
+        /* Botón de registro rápido */
+        .quick-register-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--success) 0%, #27ae60 100%);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(46, 204, 113, 0.3);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .quick-register-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 30px rgba(46, 204, 113, 0.4);
+        }
+
+        /* Responsive para modo selector */
+        @media (max-width: 768px) {
+            .mode-selector-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .mode-option {
+                padding: 20px;
+            }
+            
+            .mode-option i {
+                font-size: 2.5rem;
+            }
+            
+            .mode-option h3 {
+                font-size: 1.3rem;
+            }
+            
+            .llegadas-timer-display {
+                font-size: 3rem;
+            }
+            
+            .llegadas-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .quick-register-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 70px;
+                height: 70px;
+                font-size: 1.3rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -119,163 +324,372 @@
                     </button>
                 </div>
             </div>
+
             <!-- =========================================== -->
-            <!-- NUEVA TARJETA: CONFIGURACIÓN DE AUDIO -->
+            <!-- NUEVA TARJETA: GESTIÓN DEL ORDEN DE SALIDA -->
             <!-- =========================================== -->
-            <div class="app-card audio-config-card">
+            <div class="app-card start-order-card">
                 <div class="card-header">
-                    <h2><i class="fas fa-volume-up"></i> <span id="audio-config-title">Configuración de Audio</span></h2>
+                    <h2><i class="fas fa-list-ol"></i> <span id="card-start-order-title">Orden de Salida</span></h2>
                 </div>
                 <div class="card-body">
+                    <!-- Bloque 1 - Configuración de horarios -->
                     <div class="config-section">
-                        <div class="audio-config-section">
-                            <div class="audio-options" id="audio-options">
-                                <div class="audio-option active" 
-                                    data-audio-type="beep"
-                                    title="Beeps electrónicos para cada segundo">
-                                    <i class="fas fa-bell"></i>
-                                    <div class="option-title" id="beep-option-title">Sonidos Beep</div>
-                                </div>
-                                
-                                <div class="audio-option" 
-                                    data-audio-type="voice"
-                                    title="Voz humana contando en tu idioma">
-                                    <i class="fas fa-microphone-alt"></i>
-                                    <div class="option-title" id="voice-option-title">Voz grabada</div>
-                                </div>
-                                
-                                <div class="audio-option" 
-                                    data-audio-type="none"
-                                    title="Solo efectos visuales">
-                                    <i class="fas fa-volume-mute"></i>
-                                    <div class="option-title" id="mute-option-title">Sin sonido</div>
-                                </div>
+                        <div class="time-config-grid">
+                            <div class="time-config-item">
+                                <label for="first-start-time" class="form-label" id="first-start-label">Hora Salida Primer Corredor:</label>
+                                <input type="time" id="first-start-time" class="form-control" value="09:00">
                             </div>
-                            
-                            <div style="text-align: center; margin-top: 15px;">
-                                <button class="audio-test-btn" id="test-audio-btn">
-                                    <i class="fas fa-play-circle"></i>
-                                    <span id="test-audio-text">Probar sonido actual</span>
-                                </button>
+                            <div class="time-config-item">
+                                <label class="form-label" id="current-time-label">Hora del Sistema:</label>
+                                <div class="time-display" id="current-system-time-display">00:00:00</div>
+                            </div>
+                            <div class="time-config-item">
+                                <label class="form-label" id="time-diff-label">Inicio Cuenta atrás en:</label>
+                                <div class="time-display" id="time-difference-display">00:00:00</div>
+                            </div>
+                            <div class="time-config-item">
+                                <label for="total-riders" class="form-label" id="total-riders-label">Total Corredores:</label>
+                                <input type="number" id="total-riders" class="form-control" min="1" value="1">
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Tarjeta 2: Configuración de tiempos -->
-            <div class="app-card time-config-card">
-                <div class="card-header">
-                    <h2><i class="fas fa-clock"></i> <span id="card-time-title">Configuración de Tiempo</span></h2>
-                </div>
-                <div class="card-body">
+                    
+                    <!-- Bloque 2 - Botones de acción -->
                     <div class="config-section">
-                        <!-- Configuración de intervalo único -->
-                        <div id="single-interval-config" class="time-inputs">
-                            <div class="form-group">
-                                <div class="section-title">
-                                    <i class="fas fa-stopwatch"></i>
-                                    <span id="interval-time-label">Tiempo entre salidas</span>
-                                </div>
-                                <div class="form-row">
-                                    <div class="input-with-unit">
-                                        <input type="number" id="interval-minutes" class="form-control form-control-sm" min="0" value="1">
-                                        <span class="unit" id="minutes-text">minutos</span>
-                                    </div>
-                                    <div class="input-with-unit">
-                                        <input type="number" id="interval-seconds" class="form-control form-control-sm" min="0" max="59" value="0">
-                                        <span class="unit" id="seconds-text">segundos</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Mensaje informativo -->
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: var(--border-radius); margin-top: 20px; border-left: 4px solid var(--secondary);">
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                                <i class="fas fa-info-circle" style="color: var(--secondary); font-size: 1.2rem;"></i>
-                                <span style="font-weight: 600; color: var(--dark);">Modo simplificado</span>
-                            </div>
-                            <p style="color: var(--gray); font-size: 0.95rem; line-height: 1.5; margin: 0;">
-                                Todos los corredores saldrán con el mismo intervalo de tiempo configurado arriba. 
-                                Para configuraciones más complejas, puedes ajustar el tiempo del próximo corredor haciendo doble clic en el número durante la cuenta atrás.
-                            </p>
+                        <div class="buttons-responsive-container">
+                            <button class="responsive-btn btn-primary" id="create-template-btn">
+                                <i class="fas fa-file-excel"></i>
+                                <span id="create-template-text">Crear Plantilla</span>
+                            </button>
+                            <button class="responsive-btn btn-success" id="import-order-btn">
+                                <i class="fas fa-file-import"></i>
+                                <span id="import-order-text">Importar Orden</span>
+                            </button>
+                            <button class="responsive-btn btn-danger" id="delete-order-btn">
+                                <i class="fas fa-trash"></i>
+                                <span id="delete-order-text">Eliminar Orden</span>
+                            </button>
+                            <button class="responsive-btn btn-warning" id="export-order-btn">
+                                <i class="fas fa-file-export"></i>
+                                <span id="export-order-text">Exportar Orden</span>
+                            </button>
+                            <button class="responsive-btn btn-info" id="add-rider-btn">
+                                <i class="fas fa-user-plus"></i>
+                                <span id="add-rider-text">Añadir Corredor</span>
+                            </button>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Botón principal de inicio -->
-            <div class="start-main-btn-container">
-                <div class="system-time-container">
-                    <div class="system-time-display">
-                        <i class="fas fa-clock"> </i>
-                        <span id="current-system-time"> 00:00:00</span>  <!-- Este es el elemento -->
-                    </div>
-                </div>
-                <button class="btn btn-success btn-lg start-main-btn" id="start-countdown-btn">
-                    <i class="fas fa-rocket"></i>
-                    <span id="start-countdown-text">INICIAR CUENTA ATRÁS</span>
-                </button>
-                
-                <!-- =========================================== -->
-                <!-- PUNTO DE INICIO SIMPLIFICADO -->
-                <!-- =========================================== -->
-                <div class="start-point-simple">
-                    <div class="form-inline-group">
-                        <span id="start-from-x-text">Posición actual:</span>
-                        <input type="number" id="start-position" class="form-control form-control-sm" min="1" value="1">
-                    </div>
-                </div>
-                
-                <button class="btn btn-danger responsive-btn btn-block" id="exit-complete-btn" style="max-width: 400px; margin: 20px auto 0;">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span id="exit-complete-text">REINICIAR</span>
-                </button>
-            </div>
-
-            <!-- Tarjeta 4: Salidas registradas -->
-            <div class="app-card departures-card">
-                <div class="card-header">
-                    <h2><i class="fas fa-history"></i> <span id="card-departures-title">Salidas Registradas</span></h2>
-                </div>
-                <div class="card-body">
+                    
+                    <!-- Bloque 3 - Tabla de orden de salida -->
                     <div class="config-section">
-                        <div class="departures-header">
-                            <div class="btn-group">
-                                <button class="btn btn-danger responsive-btn" id="clear-departures-btn">
-                                    <i class="fas fa-broom"></i>
-                                    <span id="clear-departures-text">Limpiar lista</span>
-                                </button>
-                                <button class="btn btn-success responsive-btn" id="export-excel-btn">
-                                    <i class="fas fa-file-excel"></i>
-                                    <span id="export-excel-text">Exportar Excel</span>
-                                </button>
-                            </div>
+                        <div class="section-title">
+                            <i class="fas fa-table"></i>
+                            <span id="order-table-label">Orden de Salida</span>
                         </div>
-                        <div id="departures-table-container" class="departures-table-container">
-                            <table class="departures-table" id="departures-table">
+                        <div class="start-order-table-container" id="start-order-table-container">
+                            <table class="start-order-table" id="start-order-table">
                                 <thead>
                                     <tr>
-                                        <th class="sortable" data-sort="dorsal" id="departure-header-dorsal">Salida</th>
-                                        <th class="sortable" data-sort="timeValue" id="departure-header-time">Tiempo</th>
-                                        <th class="sortable" data-sort="notes" id="departure-header-notes">Nota</th>
-                                        <th class="sortable" data-sort="date" id="departure-header-date">Hora</th>
+                                        <th class="sortable" data-sort="order" id="order-header">Orden</th>
+                                        <th class="sortable" data-sort="dorsal" id="dorsal-header">Dorsal</th>
+                                        <th class="sortable" data-sort="cronoSalida" id="crono-salida-header">Crono Salida</th>
+                                        <th class="sortable" data-sort="horaSalida" id="hora-salida-header">Hora Salida</th>
+                                        <th class="sortable" data-sort="nombre" id="nombre-header">Nombre</th>
+                                        <th class="sortable" data-sort="apellidos" id="apellidos-header">Apellidos</th>
+                                        <th class="sortable" data-sort="chip" id="chip-header">Chip</th>
+                                        <th class="sortable" data-sort="horaSalidaReal" id="hora-real-header">Hora Salida Real</th>
+                                        <th class="sortable" data-sort="cronoSalidaReal" id="crono-real-header">Crono Salida Real</th>
+                                        <th class="sortable" data-sort="horaSalidaPrevista" id="hora-prevista-header">Hora Salida Prevista</th>
+                                        <th class="sortable" data-sort="cronoSalidaPrevista" id="crono-prevista-header">Crono Salida Prevista</th>
+                                        <th class="sortable" data-sort="horaSalidaImportado" id="hora-importado-header">Hora Salida Importado</th>
+                                        <th class="sortable" data-sort="cronoSalidaImportado" id="crono-importado-header">Crono Salida Importado</th>
+                                        <th class="sortable" data-sort="cronoSegundos" id="crono-segundos-header">Crono Segundos</th>
+                                        <th class="sortable" data-sort="horaSegundos" id="hora-segundos-header">Hora Segundos</th>
                                     </tr>
                                 </thead>
-                                <tbody id="departures-table-body">
+                                <tbody id="start-order-table-body">
                                     <!-- Las filas se agregarán aquí dinámicamente -->
                                 </tbody>
                             </table>
-                            <div id="departures-empty" class="empty-state" style="display: none;">
-                                <i class="fas fa-clock"></i>
-                                <p id="no-departures-text">No hay salidas registradas</p>
+                            <div id="start-order-empty" class="empty-state" style="display: none;">
+                                <i class="fas fa-users"></i>
+                                <p id="no-start-order-text">No hay corredores en el orden de salida</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- =========================================== -->
+            <!-- SELECTOR DE MODO DE OPERACIÓN -->
+            <!-- =========================================== -->
+            <div class="app-card mode-selector-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-cogs"></i> <span id="mode-selector-title">Seleccionar Modo de Operación</span></h2>
+                </div>
+                <div class="card-body">
+                    <div class="mode-selector-grid">
+                        <div class="mode-option active" data-mode="salida">
+                            <i class="fas fa-flag-checkered"></i>
+                            <h3 id="mode-salida-title">Modo Salida</h3>
+                            <p id="mode-salida-desc">Control de salidas con cuenta atrás</p>
+                        </div>
+                        <div class="mode-option" data-mode="llegadas">
+                            <i class="fas fa-stopwatch"></i>
+                            <h3 id="mode-llegadas-title">Modo Llegadas</h3>
+                            <p id="mode-llegadas-desc">Control de tiempos de llegada</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================================== -->
+            <!-- CONTENIDO DEL MODO SALIDA -->
+            <!-- =========================================== -->
+            <div id="mode-salida-content" class="mode-content active">
+                <!-- Tarjeta de Configuración de Tiempos (Modo Salida) -->
+                <div class="app-card time-config-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-clock"></i> <span id="card-time-title">Configuración de Tiempo para Salidas</span></h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="config-section">
+                            <!-- Configuración de intervalo único -->
+                            <div id="single-interval-config" class="time-inputs">
+                                <div class="form-group">
+                                    <div class="section-title">
+                                        <i class="fas fa-stopwatch"></i>
+                                        <span id="interval-time-label">Tiempo entre salidas</span>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="input-with-unit">
+                                            <input type="number" id="interval-minutes" class="form-control form-control-sm" min="0" value="1">
+                                            <span class="unit" id="minutes-text">minutos</span>
+                                        </div>
+                                        <div class="input-with-unit">
+                                            <input type="number" id="interval-seconds" class="form-control form-control-sm" min="0" max="59" value="0">
+                                            <span class="unit" id="seconds-text">segundos</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Mensaje informativo -->
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: var(--border-radius); margin-top: 20px; border-left: 4px solid var(--secondary);">
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                    <i class="fas fa-info-circle" style="color: var(--secondary); font-size: 1.2rem;"></i>
+                                    <span style="font-weight: 600; color: var(--dark);">Modo simplificado</span>
+                                </div>
+                                <p style="color: var(--gray); font-size: 0.95rem; line-height: 1.5; margin: 0;">
+                                    Todos los corredores saldrán con el mismo intervalo de tiempo configurado arriba. 
+                                    Para configuraciones más complejas, puedes ajustar el tiempo del próximo corredor haciendo doble clic en el número durante la cuenta atrás.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta de Configuración de Audio (Modo Salida) -->
+                <div class="app-card audio-config-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-volume-up"></i> <span id="audio-config-title">Configuración de Audio para Salidas</span></h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="config-section">
+                            <div class="audio-config-section">
+                                <div class="audio-options" id="audio-options">
+                                    <div class="audio-option active" 
+                                        data-audio-type="beep"
+                                        title="Beeps electrónicos para cada segundo">
+                                        <i class="fas fa-bell"></i>
+                                        <div class="option-title" id="beep-option-title">Sonidos Beep</div>
+                                    </div>
+                                    
+                                    <div class="audio-option" 
+                                        data-audio-type="voice"
+                                        title="Voz humana contando en tu idioma">
+                                        <i class="fas fa-microphone-alt"></i>
+                                        <div class="option-title" id="voice-option-title">Voz grabada</div>
+                                    </div>
+                                    
+                                    <div class="audio-option" 
+                                        data-audio-type="none"
+                                        title="Solo efectos visuales">
+                                        <i class="fas fa-volume-mute"></i>
+                                        <div class="option-title" id="mute-option-title">Sin sonido</div>
+                                    </div>
+                                </div>
+                                
+                                <div style="text-align: center; margin-top: 15px;">
+                                    <button class="audio-test-btn" id="test-audio-btn">
+                                        <i class="fas fa-play-circle"></i>
+                                        <span id="test-audio-text">Probar sonido actual</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón principal de inicio (Modo Salida) -->
+                <div class="start-main-btn-container">
+                    <div class="system-time-container">
+                        <div class="system-time-display">
+                            <i class="fas fa-clock"> </i>
+                            <span id="current-system-time"> 00:00:00</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-success btn-lg start-main-btn" id="start-countdown-btn">
+                        <i class="fas fa-rocket"></i>
+                        <span id="start-countdown-text">INICIAR CUENTA ATRÁS</span>
+                    </button>
+                    
+                    <!-- Punto de inicio simplificado -->
+                    <div class="start-point-simple">
+                        <div class="form-inline-group">
+                            <span id="start-from-x-text">Posición actual:</span>
+                            <input type="number" id="start-position" class="form-control form-control-sm" min="1" value="1">
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-danger responsive-btn btn-block" id="exit-complete-btn" style="max-width: 400px; margin: 20px auto 0;">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span id="exit-complete-text">REINICIAR</span>
+                    </button>
+                </div>
+
+                <!-- Tarjeta de Salidas Registradas (Modo Salida) -->
+                <div class="app-card departures-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-history"></i> <span id="card-departures-title">Salidas Registradas</span></h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="config-section">
+                            <div class="departures-header">
+                                <div class="btn-group">
+                                    <button class="btn btn-danger responsive-btn" id="clear-departures-btn">
+                                        <i class="fas fa-broom"></i>
+                                        <span id="clear-departures-text">Limpiar lista</span>
+                                    </button>
+                                    <button class="btn btn-success responsive-btn" id="export-excel-btn">
+                                        <i class="fas fa-file-excel"></i>
+                                        <span id="export-excel-text">Exportar Excel</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="departures-table-container" class="departures-table-container">
+                                <table class="departures-table" id="departures-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="sortable" data-sort="dorsal" id="departure-header-dorsal">Salida</th>
+                                            <th class="sortable" data-sort="timeValue" id="departure-header-time">Tiempo</th>
+                                            <th class="sortable" data-sort="notes" id="departure-header-notes">Nota</th>
+                                            <th class="sortable" data-sort="date" id="departure-header-date">Hora</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="departures-table-body">
+                                        <!-- Las filas se agregarán aquí dinámicamente -->
+                                    </tbody>
+                                </table>
+                                <div id="departures-empty" class="empty-state" style="display: none;">
+                                    <i class="fas fa-clock"></i>
+                                    <p id="no-departures-text">No hay salidas registradas</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================================== -->
+            <!-- CONTENIDO DEL MODO LLEGADAS -->
+            <!-- =========================================== -->
+            <div id="mode-llegadas-content" class="mode-content">
+                <!-- Cronómetro principal (Modo Llegadas) -->
+                <div class="app-card llegadas-timer-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-stopwatch"></i> <span id="llegadas-timer-title">Cronómetro de Llegadas</span></h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="llegadas-main-timer">
+                            <div class="llegadas-timer-label" id="llegadas-timer-label">
+                                Tiempo desde salida del primer corredor:
+                            </div>
+                            <div class="llegadas-timer-display" id="llegadas-timer-display">00:00:00</div>
+                            
+                            <div class="llegadas-controls">
+                                <button class="btn btn-success" id="start-llegadas-btn">
+                                    <i class="fas fa-play"></i>
+                                    <span id="start-llegadas-text">Iniciar Cronómetro</span>
+                                </button>
+                                <button class="btn btn-danger" id="stop-llegadas-btn">
+                                    <i class="fas fa-stop"></i>
+                                    <span id="stop-llegadas-text">Detener</span>
+                                </button>
+                                <button class="btn btn-primary" id="register-llegada-btn">
+                                    <i class="fas fa-user-check"></i>
+                                    <span id="register-llegada-text">Registrar Llegada</span>
+                                </button>
+                                <button class="btn btn-warning" id="import-llegadas-btn">
+                                    <i class="fas fa-file-import"></i>
+                                    <span id="import-llegadas-text">Importar Salidas</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de llegadas registradas (Modo Llegadas) -->
+                <div class="app-card llegadas-list-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-list-ol"></i> <span id="llegadas-list-title">Llegadas Registradas</span></h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="llegadas-table-container">
+                            <table class="llegadas-table" id="llegadas-table">
+                                <thead>
+                                    <tr>
+                                        <th class="sortable" data-sort="dorsal" id="llegada-header-dorsal">Dorsal</th>
+                                        <th class="sortable" data-sort="nombre" id="llegada-header-nombre">Nombre</th>
+                                        <th class="sortable" data-sort="horaSalida" id="llegada-header-salida">Hora Salida</th>
+                                        <th class="sortable" data-sort="horaLlegada" id="llegada-header-llegada">Hora Llegada</th>
+                                        <th class="sortable" data-sort="tiempoCrono" id="llegada-header-crono">Tiempo Crono</th>
+                                        <th class="sortable" data-sort="notas" id="llegada-header-notas">Notas</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="llegadas-table-body">
+                                    <!-- Las filas se agregarán aquí dinámicamente -->
+                                </tbody>
+                            </table>
+                            <div id="llegadas-empty" class="empty-state">
+                                <i class="fas fa-clock"></i>
+                                <p id="no-llegadas-text">No hay llegadas registradas</p>
+                            </div>
+                        </div>
+                        
+                        <div class="llegadas-actions" style="margin-top: 20px; display: flex; gap: 15px; flex-wrap: wrap;">
+                            <button class="btn btn-danger" id="clear-llegadas-btn">
+                                <i class="fas fa-broom"></i>
+                                <span id="clear-llegadas-text">Limpiar llegadas</span>
+                            </button>
+                            <button class="btn btn-success" id="export-llegadas-btn">
+                                <i class="fas fa-file-excel"></i>
+                                <span id="export-llegadas-text">Exportar Excel</span>
+                            </button>
+                            <button class="btn btn-info" id="show-ranking-btn">
+                                <i class="fas fa-trophy"></i>
+                                <span id="show-ranking-text">Ver Clasificación</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón flotante para registro rápido -->
+                <button class="quick-register-btn" id="quick-register-btn" title="Registrar llegada rápida">
+                    <i class="fas fa-flag-checkered"></i>
+                </button>
+            </div>
         </div>
     </main>
 
@@ -392,7 +806,6 @@
         </div>
     </div>
 
-    <!-- Al final de los modales (después del modal de nueva carrera, línea ~1650) -->
     <!-- Modal de confirmación reiniciar/salir -->
     <div class="modal" id="restart-confirm-modal">
         <div class="modal-content">
@@ -418,6 +831,7 @@
             </div>
         </div>
     </div>
+
     <!-- Modal de configuración durante cuenta atrás -->
     <div class="modal" id="config-during-countdown-modal">
         <div class="modal-content config-modal-during-countdown">
@@ -531,7 +945,6 @@
     </div>
 
     <!-- Modal de nueva carrera -->
-    <!-- Modal de nueva carrera -->
     <div class="modal" id="new-race-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -559,6 +972,96 @@
             <div class="modal-footer">
                 <button class="btn btn-success" id="create-race-btn">Crear carrera</button>
                 <button class="btn btn-outline" id="cancel-create-race-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para registro de llegada -->
+    <div class="modal" id="register-llegada-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="register-llegada-modal-title">Registrar Llegada</h3>
+                <button class="modal-close" id="register-llegada-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="llegada-form">
+                    <div class="config-line" style="flex-direction: column; align-items: stretch;">
+                        <label for="llegada-dorsal" id="llegada-dorsal-label">Dorsal del corredor:</label>
+                        <input type="number" id="llegada-dorsal" class="config-input" min="1" placeholder="Ej: 101">
+                    </div>
+                    <div class="config-line" style="flex-direction: column; align-items: stretch;">
+                        <label for="llegada-hora" id="llegada-hora-label">Hora de llegada:</label>
+                        <input type="text" id="llegada-hora" class="config-input" value="00:00:00" readonly>
+                    </div>
+                    <div class="config-line" style="flex-direction: column; align-items: stretch;">
+                        <label for="llegada-notas" id="llegada-notas-label">Notas (opcional):</label>
+                        <textarea id="llegada-notas" class="config-input" rows="3" placeholder="Observaciones sobre la llegada..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" id="confirm-llegada-btn">Registrar Llegada</button>
+                <button class="btn" id="cancel-llegada-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de importación de salidas para llegadas -->
+    <div class="modal" id="import-salidas-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="import-salidas-modal-title">Importar Datos de Salidas</h3>
+                <button class="modal-close" id="import-salidas-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="import-salidas-modal-text">Selecciona el archivo Excel con los datos de salidas de los corredores.</p>
+                <input type="file" id="salidas-file-input" accept=".xlsx,.xls,.csv" style="width: 100%; padding: 10px; margin-top: 10px;">
+                <div id="import-preview" style="margin-top: 20px; display: none;">
+                    <h4>Vista previa de datos:</h4>
+                    <div id="import-preview-content" style="max-height: 200px; overflow-y: auto;"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="confirm-import-salidas-btn">Importar</button>
+                <button class="btn" id="cancel-import-salidas-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de clasificación -->
+    <div class="modal" id="ranking-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="ranking-modal-title">Clasificación de la Carrera</h3>
+                <button class="modal-close" id="ranking-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="ranking-table-container">
+                    <table class="llegadas-table" id="ranking-table">
+                        <thead>
+                            <tr>
+                                <th>Pos</th>
+                                <th>Dorsal</th>
+                                <th>Nombre</th>
+                                <th>Tiempo Crono</th>
+                                <th>Diferencia</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ranking-table-body">
+                            <!-- Las filas se agregarán aquí dinámicamente -->
+                        </tbody>
+                    </table>
+                    <div id="ranking-empty" class="empty-state">
+                        <i class="fas fa-trophy"></i>
+                        <p id="no-ranking-text">No hay suficientes datos para generar la clasificación</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" id="export-ranking-btn">
+                    <i class="fas fa-file-excel"></i> Exportar Clasificación
+                </button>
+                <button class="btn" id="close-ranking-btn">Cerrar</button>
             </div>
         </div>
     </div>

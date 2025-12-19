@@ -35,6 +35,24 @@ Debajo de la cuenta atrás, el dorsal, nombre y apellido del corredor actual. El
 La opción de exportar, exportará el número de dorsal, nombre apellido, hora y tiempo real salida, hora y tiempo previsto de salida.
 
 El inicio del crono que tengas tres opciones desde el primer corredor, desde el número del siguiente dorsal del último dorsal que salió o desde el dorsal que indique el usuario.
+************************************
+Realizar la parte gráfica de añadir la opción de Gestión del Orden de salida:
+Estará después del bloque de Gestión de Carrera
+
+Tendrá 4 bloques:
+Bloque 1 - título - Orden de Salida
+Bloque 2 - Hora Salida Primer Corredor (valor modificable), Hora del Día (sin titulo, solo mostrar la hora del sistema), diferencia entre estos dos tiempos (Hora de Salda+1min+hora del sistema - sin titulo) y Total Corredores.
+Bloque 3 - Botones de Acción: Crear Plantilla Importación, Importar Orden Salida, Eliminar Orden de Salida,Exportar Orden de Salida y Añadir Corredor
+Bloque 4 - Una tabla con el Orden de salida - Columnas: Orden, Dorsal, Crono Salida, Hora Salida, Nombre, Apellidos, Chip, Hora Salida Real, Crono Salida Real, Hora Salida Prevista, Crono Salida Prevista, Hora Salida Importado, Crono Salida Importado, Crono Salida Segundos, Hora Salida Segundos
+Cada fila se podrá modificar, y las columnas se podran ordenar (de momento no programemos)
+
+----
+El programa de cri sera un programa para la ayuda para realizar Carreras de Contrareloj. Tendrá tres partes, gestión general, gestión salidas y gestión de llegadas 
+En la gestión general, definiremos los datos comunes, esto es idioma, datos carrera y orden de salida.
+En gestión de salidas, mostraremos el reloj de cuenta atrás y el listado de salidos.
+En gestión de carreras, tendremos un cronómetro para saber la hora de llegada de cada corredor, importaremos tiempos de salida y por la diferencia entre llegada y salida obtendremos el tiempo de la crono y a partir de aquí tendremos una clasificación, que mostraremos en nuestro dispositivo o en pantalla externa. 
+Otras consideraciones: Más adelante intentaremos que un dispositivo externo nos diga el dorsal y tiempo de cada corredor que llega o sale. El programa a base de importación/exportacion de Excel compartirá la información entre salidas y llegadas, que estarán en dispositivos diferentes.
+
 
 Crono-cri/
 ├── Crono_CRI.html
@@ -54,3 +72,13 @@ Crono-cri/
 │   ├── es_5.ogg
 │   └── ...
 └── plantilla-cri.xlsx
+
+Para empezar vamos a dejar el programa tal y como esta, pero vamos a:
+seguido al grupo de orden de salida, habra la elección de si se va a estar en Modo Salida o Modo Llegadas.
+Cuando se elija un modo, debajo aparecerá el contenido que expongo despues.
+
+Dentro del Modo Salida Habrá la Configuración de Audio (mover el antiguo aqui), Ultimo Corredor en Salir y Salidas Registradas  (mover el antiguo aqui)
+Al llegar Inicio Cuenta atrás en: a cero se activará la pantalla de cuenta atras que ya existe.
+
+Dentro del modo de Llegadas habrá un Cronometro (Diferencia entre Hora actual del sistema-Hora Salida Primer Corredor:
+) con un boton pulsador
