@@ -326,6 +326,29 @@
             </div>
 
             <!-- =========================================== -->
+            <!-- SELECTOR DE MODO DE OPERACIÓN -->
+            <!-- =========================================== -->
+            <div class="app-card mode-selector-simple-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-cogs"></i> <span id="mode-selector-title">Modo de Operación</span></h2>
+                </div>
+                <div class="card-body">
+                    <div class="mode-slider-container">
+                        <div class="mode-slider">
+                            <div class="mode-slider-option active" data-mode="salida">
+                                <span id="mode-salida-text">SALIDAS</span>  <!-- ← Agregado ID -->
+                            </div>
+                            <div class="mode-slider-option" data-mode="llegadas">
+                                <span id="mode-llegadas-text">LLEGADAS</span>  <!-- ← Agregado ID -->
+                            </div>
+                            <div class="mode-slider-track"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- =========================================== -->
             <!-- NUEVA TARJETA: GESTIÓN DEL ORDEN DE SALIDA -->
             <!-- =========================================== -->
             <div class="app-card start-order-card">
@@ -416,29 +439,6 @@
                                 <i class="fas fa-users"></i>
                                 <p id="no-start-order-text">No hay corredores en el orden de salida</p>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- =========================================== -->
-            <!-- SELECTOR DE MODO DE OPERACIÓN -->
-            <!-- =========================================== -->
-            <div class="app-card mode-selector-card">
-                <div class="card-header">
-                    <h2><i class="fas fa-cogs"></i> <span id="mode-selector-title">Seleccionar Modo de Operación</span></h2>
-                </div>
-                <div class="card-body">
-                    <div class="mode-selector-grid">
-                        <div class="mode-option active" data-mode="salida">
-                            <i class="fas fa-flag-checkered"></i>
-                            <h3 id="mode-salida-title">Modo Salida</h3>
-                            <p id="mode-salida-desc">Control de salidas con cuenta atrás</p>
-                        </div>
-                        <div class="mode-option" data-mode="llegadas">
-                            <i class="fas fa-stopwatch"></i>
-                            <h3 id="mode-llegadas-title">Modo Llegadas</h3>
-                            <p id="mode-llegadas-desc">Control de tiempos de llegada</p>
                         </div>
                     </div>
                 </div>

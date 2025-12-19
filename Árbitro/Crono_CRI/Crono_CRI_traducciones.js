@@ -15,6 +15,9 @@ const translations = {
         cardDeparturesTitle: "Salidas Registradas",
         audioConfigTitle: "Configuración de Audio",
         cardStartOrderTitle: "Orden de Salida",
+
+        modeSalidaText: "SALIDAS",         // Español
+        modeLlegadasText: "LLEGADAS",      // Español
         
         // Botones de carrera
         newRaceText: "Nueva",
@@ -206,8 +209,7 @@ const translations = {
         // ============================================
         // NUEVAS TRADUCCIONES PARA SELECTOR DE MODO
         // ============================================
-        modeSelectorTitle: "Seleccionar Modo de Operación",
-        modeSalidaTitle: "Modo Salida",
+        modeSelectorTitle: "Modo de Operación",
         modeSalidaDesc: "Control de salidas con cuenta atrás",
         modeLlegadasTitle: "Modo Llegadas",
         modeLlegadasDesc: "Control de tiempos de llegada",
@@ -323,6 +325,9 @@ const translations = {
         audioConfigTitle: "Configuració d'Àudio",
         cardStartOrderTitle: "Ordre de Sortida",
         
+        modeSalidaText: "SORTIDES",        // Catalán
+        modeLlegadasText: "ARRIBADES",     // Catalán
+
         // Botones de carrera
         newRaceText: "Nova",
         deleteRaceText: "Eliminar",
@@ -511,8 +516,7 @@ const translations = {
         // ============================================
         // NUEVAS TRADUCCIONES PARA SELECTOR DE MODO
         // ============================================
-        modeSelectorTitle: "Seleccionar Mode d'Operació",
-        modeSalidaTitle: "Mode Sortida",
+        modeSelectorTitle: "Mode d'Operació",
         modeSalidaDesc: "Control de sortides amb compte enrere",
         modeLlegadasTitle: "Mode Arribades",
         modeLlegadasDesc: "Control de temps d'arribada",
@@ -633,6 +637,9 @@ const translations = {
         deleteRaceText: "Delete",
         deleteRaceConfirmBtn: "Delete",
         deleteRaceCancelBtn:'Cancel',
+
+        modeSalidaText: "STARTS",          // Inglés
+        modeLlegadasText: "FINISHES",      // Inglés
 
         // Configuración de audio
         beepOptionTitle: "Beep Sounds",
@@ -816,8 +823,7 @@ const translations = {
         // ============================================
         // NEW TRANSLATIONS FOR MODE SELECTOR
         // ============================================
-        modeSelectorTitle: "Select Operation Mode",
-        modeSalidaTitle: "Start Mode",
+        modeSelectorTitle: "Operation Mode",
         modeSalidaDesc: "Start control with countdown",
         modeLlegadasTitle: "Finish Mode",
         modeLlegadasDesc: "Finish time control",
@@ -937,7 +943,10 @@ const translations = {
         newRaceText: "Nouvelle",
         deleteRaceText: "Supprimer",
         deleteRaceConfirmBtn: "Supprimer",
-        deleteRaceCancelBtn: "Annuler",
+        deleteRaceCancelBtn:'Cancel',
+        
+        modeSalidaText: "DÉPARTS",         // Francés
+        modeLlegadasText: "ARRIVÉES",      // Francés
 
         // Configuración de audio
         beepOptionTitle: "Sons Beep",
@@ -1121,8 +1130,7 @@ const translations = {
         // ============================================
         // NOUVELLES TRADUCTIONS POUR LE SELECTEUR DE MODE
         // ============================================
-        modeSelectorTitle: "Sélectionner le Mode d'Opération",
-        modeSalidaTitle: "Mode Départ",
+        modeSelectorTitle: "Mode d'Opération",
         modeSalidaDesc: "Contrôle des départs avec compte à rebours",
         modeLlegadasTitle: "Mode Arrivée",
         modeLlegadasDesc: "Contrôle des temps d'arrivée",
@@ -1224,6 +1232,7 @@ const translations = {
         noStartTimeData: "Pas de données d'heure de départ pour ce dossard",
         confirmClearLlegadas: "Êtes-vous sûr de vouloir effacer toutes les arrivées enregistrées?",
         selectFileFirst: "Sélectionnez d'abord un fichier",
+
     }
 };
 
@@ -1260,6 +1269,7 @@ function updateLanguageUI() {
     document.getElementById('time-diff-label').textContent = t.timeDiffLabel;
     document.getElementById('total-riders-label').textContent = t.totalRidersLabel;
     
+    
     // Botones de orden de salida
     document.getElementById('create-template-text').textContent = t.createTemplateText;
     document.getElementById('import-order-text').textContent = t.importOrderText;
@@ -1285,16 +1295,6 @@ function updateLanguageUI() {
     document.getElementById('crono-importado-header').textContent = t.cronoImportadoHeader;
     document.getElementById('crono-segundos-header').textContent = t.cronoSegundosHeader;
     document.getElementById('hora-segundos-header').textContent = t.horaSegundosHeader;
-    
-    // ============================================
-    // ACTUALIZAR NUEVOS ELEMENTOS (SELECTOR DE MODO)
-    // ============================================
-    
-    document.getElementById('mode-selector-title').textContent = t.modeSelectorTitle;
-    document.getElementById('mode-salida-title').textContent = t.modeSalidaTitle;
-    document.getElementById('mode-salida-desc').textContent = t.modeSalidaDesc;
-    document.getElementById('mode-llegadas-title').textContent = t.modeLlegadasTitle;
-    document.getElementById('mode-llegadas-desc').textContent = t.modeLlegadasDesc;
     
     // ============================================
     // ACTUALIZAR ELEMENTOS DEL MODO SALIDA
@@ -1489,6 +1489,7 @@ if (rankingTable) {
         raceSelect.options[0].text = t.selectRaceOption;
     }
     
+    
     // ============================================
     // ACTUALIZAR SALIDA TEXT
     // ============================================
@@ -1530,6 +1531,10 @@ function updateModalTexts() {
     setTextIfExists('help-modal-text2', t.helpModalText2);
     setTextIfExists('help-modal-ok', t.understood);
     
+    setTextIfExists('mode-selector-title', t.modeSelectorTitle);
+    setTextIfExists('mode-salida-text', t.modeSalidaText);
+    setTextIfExists('mode-llegadas-text', t.modeLlegadasText);
+
     setTextIfExists('red-background-text', t.redBackgroundText);
     setTextIfExists('yellow-background-text', t.yellowBackgroundText);
     setTextIfExists('green-background-text', t.greenBackgroundText);

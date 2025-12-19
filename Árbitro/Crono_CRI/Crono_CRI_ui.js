@@ -742,3 +742,44 @@ function setupAudioEventListeners() {
     
     document.getElementById('test-audio-btn').addEventListener('click', testCurrentAudio);
 }
+
+// Manejar el nuevo selector de modo deslizante
+
+function initModeSlider() {
+    const slider = document.querySelector('.mode-slider');
+    const options = document.querySelectorAll('.mode-slider-option');
+    const track = document.querySelector('.mode-slider-track');
+    const salidaContent = document.getElementById('mode-salida-content');
+    const llegadasContent = document.getElementById('mode-llegadas-content');
+        
+    options.forEach(option => {
+        option.addEventListener('click', function() {
+            const mode = this.dataset.mode;
+            
+            // Actualizar estado visual
+            options.forEach(opt => opt.classList.remove('active'));
+            this.classList.add('active');
+            slider.dataset.mode = mode;
+            
+            // Mostrar/ocultar contenido
+            if (mode === 'salida') {
+                salidaContent.classList.add('active');
+                llegadasContent.classList.remove('active');
+            } else {
+                salidaContent.classList.remove('active');
+                llegadasContent.classList.add('active');
+            }
+            
+            // Guardar preferencia
+            localStorage.setItem('selectedMode', mode);
+        });
+    });
+    
+    // Cargar modo guardado
+    const savedMode = localStorage.getItem('selectedMode') || 'salida';
+    const savedOption = document.querySelector(`.mode-slider-option[data-mode="${savedMode}"]`);
+    if (savedOption) {
+        savedOption.click();
+    }
+}
+

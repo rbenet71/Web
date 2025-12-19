@@ -46,6 +46,8 @@ function initApp() {
     setTimeout(() => preloadVoiceAudios(), 1000);
     
     loadRaceData();
+
+    initModeSlider()
     
     updateLanguageUI();
     updateSalidaText();
@@ -2686,12 +2688,13 @@ function changeMode(mode) {
     document.querySelectorAll('.mode-option').forEach(opt => {
         opt.classList.remove('active');
     });
-    document.querySelector(`.mode-option[data-mode="${mode}"]`).classList.add('active');
+    //document.querySelector(`.mode-option[data-mode="${mode}"]`).classList.add('active');
     
     // Mostrar/ocultar contenido
     document.querySelectorAll('.mode-content').forEach(content => {
         content.classList.remove('active');
     });
+    
     document.getElementById(`mode-${mode}-content`).classList.add('active');
     
     // Guardar preferencia
