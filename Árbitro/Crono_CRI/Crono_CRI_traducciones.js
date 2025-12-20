@@ -137,9 +137,9 @@ const translations = {
         
         // Orden de salida - NUEVAS TRADUCCIONES (EN CAMELCASE)
         timeConfigLabel: "Configuración de Horarios",
-        firstStartLabel: "Hora Salida Primer Corredor:",
-        currentTimeLabel: "Hora del Sistema:",
-        timeDiffLabel: "Inicio Cuenta atrás en:",
+        firstStartLabel: "Salida Primero:",
+        currentTimeLabel: "Hora:",
+        timeDiffLabel: "Cuenta atrás en:",
         totalRidersLabel: "Total Corredores:",
         actionsLabel: "Acciones",
         orderTableLabel: "Orden de Salida",
@@ -311,6 +311,20 @@ const translations = {
         noStartTimeData: "No hay datos de hora de salida para este dorsal",
         confirmClearLlegadas: "¿Estás seguro de que quieres limpiar todas las llegadas registradas?",
         selectFileFirst: "Primero selecciona un archivo",
+        
+        // ============================================
+        // EXPORTA EXCEL
+        // ============================================
+        templateCreatedCustom: "Plantilla creada con {count} corredores, intervalo {interval}, inicio {startTime}",
+        enterValidRiders: "Por favor, introduce un número válido de corredores (1-1000)",
+        enterValidInterval: "Por favor, introduce un intervalo válido (HH:MM:SS)",
+        enterValidStartTime: "Por favor, introduce una hora de inicio válida (HH:MM:SS)",
+        configTemplateTitle: "Configurar Plantilla de Salida",
+        numRidersLabel: "Número de corredores:",
+        intervalLabel: "Intervalo entre salidas (HH:MM:SS):",
+        startTimeLabel: "Hora de inicio (HH:MM:SS):",
+        intervalExample: "Ej: 00:01:00 para 1 minuto, 00:02:30 para 2 minutos y 30 segundos",
+        startTimeExample: "Ej: 09:00:00 para las 9 de la mañana",
     },
 
     ca: {
@@ -446,9 +460,9 @@ const translations = {
         
         // Orden de salida (CAMELCASE)
         timeConfigLabel: "Configuració d'Horaris",
-        firstStartLabel: "Hora Sortida Primer Corredor:",
-        currentTimeLabel: "Hora del Sistema:",
-        timeDiffLabel: "Inici Compte enrere en:",
+        firstStartLabel: "Sortida Primer:",
+        currentTimeLabel: "Hora:",
+        timeDiffLabel: "Compte enrere en:",
         totalRidersLabel: "Total Corredors:",
         actionsLabel: "Accions",
         orderTableLabel: "Ordre de Sortida",
@@ -618,6 +632,20 @@ const translations = {
         noStartTimeData: "No hi ha dades d'hora de sortida per a aquest dorsal",
         confirmClearLlegadas: "Estàs segur que vols netejar totes les arribades registrades?",
         selectFileFirst: "Primer selecciona un fitxer",
+
+        // ============================================
+        // EXPORTA EXCEL
+        // ============================================
+        templateCreatedCustom: "Plantilla creada amb {count} corredors, interval {interval}, inici {startTime}",
+        enterValidRiders: "Si us plau, introdueix un nombre vàlid de corredors (1-1000)",
+        enterValidInterval: "Si us plau, introdueix un interval vàlid (HH:MM:SS)",
+        enterValidStartTime: "Si us plau, introdueix una hora d'inici vàlida (HH:MM:SS)",
+        configTemplateTitle: "Configurar Plantilla de Sortida",
+        numRidersLabel: "Nombre de corredors:",
+        intervalLabel: "Interval entre sortides (HH:MM:SS):",
+        startTimeLabel: "Hora d'inici (HH:MM:SS):",
+        intervalExample: "Ex: 00:01:00 per a 1 minut, 00:02:30 per a 2 minuts i 30 segons",
+        startTimeExample: "Ex: 09:00:00 per a les 9 del matí",
     },
 
     en: {
@@ -753,9 +781,9 @@ const translations = {
         
         // Orden de salida (CAMELCASE)
         timeConfigLabel: "Schedule Configuration",
-        firstStartLabel: "First Rider Departure Time:",
-        currentTimeLabel: "System Time:",
-        timeDiffLabel: "Start Countdown in:",
+        firstStartLabel: "First Starts:",
+        currentTimeLabel: "Time:",
+        timeDiffLabel: "Countdown in:",
         totalRidersLabel: "Total Riders:",
         actionsLabel: "Actions",
         orderTableLabel: "Start Order",
@@ -925,6 +953,20 @@ const translations = {
         noStartTimeData: "No start time data for this rider number",
         confirmClearLlegadas: "Are you sure you want to clear all registered finishes?",
         selectFileFirst: "First select a file",
+
+        // ============================================
+        // EXPORTA EXCEL
+        // ============================================
+        templateCreatedCustom: "Template created with {count} riders, interval {interval}, start {startTime}",
+        enterValidRiders: "Please enter a valid number of riders (1-1000)",
+        enterValidInterval: "Please enter a valid interval (HH:MM:SS)",
+        enterValidStartTime: "Please enter a valid start time (HH:MM:SS)",
+        configTemplateTitle: "Configure Start Template",
+        numRidersLabel: "Number of riders:",
+        intervalLabel: "Interval between starts (HH:MM:SS):",
+        startTimeLabel: "Start time (HH:MM:SS):",
+        intervalExample: "Ex: 00:01:00 for 1 minute, 00:02:30 for 2 minutes and 30 seconds",
+        startTimeExample: "Ex: 09:00:00 for 9 AM",
     },
 
     fr: {
@@ -1060,9 +1102,9 @@ const translations = {
         
         // Orden de salida (CAMELCASE)
         timeConfigLabel: "Configuration des Horaires",
-        firstStartLabel: "Heure Départ Premier Coureur:",
-        currentTimeLabel: "Heure du Système:",
-        timeDiffLabel: "Début compte à rebours dans:",
+        firstStartLabel: "Départ Premier:",
+        currentTimeLabel: "Heure:",
+        timeDiffLabel: "compte à rebours:",
         totalRidersLabel: "Total Coureurs:",
         actionsLabel: "Actions",
         orderTableLabel: "Ordre de Départ",
@@ -1232,7 +1274,21 @@ const translations = {
         noStartTimeData: "Pas de données d'heure de départ pour ce dossard",
         confirmClearLlegadas: "Êtes-vous sûr de vouloir effacer toutes les arrivées enregistrées?",
         selectFileFirst: "Sélectionnez d'abord un fichier",
+        
+        // ============================================
+        // EXPORTA EXCEL
+        // ============================================
 
+        templateCreatedCustom: "Modèle créé avec {count} coureurs, intervalle {interval}, début {startTime}",
+        enterValidRiders: "Veuillez entrer un nombre valide de coureurs (1-1000)",
+        enterValidInterval: "Veuillez entrer un intervalle valide (HH:MM:SS)",
+        enterValidStartTime: "Veuillez entrer une heure de début valide (HH:MM:SS)",
+        configTemplateTitle: "Configurer le Modèle de Départ",
+        numRidersLabel: "Nombre de coureurs :",
+        intervalLabel: "Intervalle entre les départs (HH:MM:SS) :",
+        startTimeLabel: "Heure de début (HH:MM:SS) :",
+        intervalExample: "Ex : 00:01:00 pour 1 minute, 00:02:30 pour 2 minutes et 30 secondes",
+        startTimeExample: "Ex : 09:00:00 pour 9 heures du matin",
     }
 };
 

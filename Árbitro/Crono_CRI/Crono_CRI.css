@@ -833,7 +833,7 @@ textarea.config-input {
 .time-config-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, auto));
-    gap: 10px;
+    gap: 1px;
     align-items: end;
     margin-bottom: 10px;
 }

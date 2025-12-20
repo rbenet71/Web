@@ -1644,36 +1644,191 @@ function updateTimeDifference() {
     document.getElementById('time-difference-display').textContent = diffString;
 }
 
+
+
+
+
 function createStartOrderTemplate() {
     const t = translations[appState.currentLanguage];
     
-    const data = [
-        ['Orden', 'Dorsal', 'Nombre', 'Apellidos', 'Chip', 'Hora Salida', 'Crono Salida'],
-        [1, 101, 'Juan', 'Pérez', 'CHIP001', '09:00:00', '00:00:00'],
-        [2, 102, 'María', 'González', 'CHIP002', '09:01:00', '00:01:00'],
-        [3, 103, 'Carlos', 'Rodríguez', 'CHIP003', '09:02:00', '00:02:00']
-    ];
+    // Mostrar modal de configuración
+    document.getElementById('template-config-modal').classList.add('active');
     
-    const ws = XLSX.utils.aoa_to_sheet(data);
+    // Configurar botones del modal
+    document.getElementById('generate-template-btn').onclick = function() {
+        generateTemplateFromUserInput();
+    };
+    
+    document.getElementById('cancel-template-btn').onclick = function() {
+        document.getElementById('template-config-modal').classList.remove('active');
+    };
+    
+    document.getElementById('template-config-modal-close').onclick = function() {
+        document.getElementById('template-config-modal').classList.remove('active');
+    };
+}
+
+function generateTemplateFromUserInput() {
+    const t = translations[appState.currentLanguage];
+    
+    // Obtener valores del usuario
+    const numCorredores = parseInt(document.getElementById('template-num-corredores').value) || 10;
+    const intervalo = document.getElementById('template-intervalo').value || '00:01:00';
+    const horaInicio = document.getElementById('template-hora-inicio').value || '09:00:00';
+    
+    // Validar valores
+    if (numCorredores <= 0 || numCorredores > 1000) {
+        showMessage(t.enterValidRiders, 'error');
+        return;
+    }
+    
+    if (!isValidTime(intervalo)) {
+        showMessage(t.enterValidInterval, 'error');
+        return;
+    }
+    
+    if (!isValidTime(horaInicio)) {
+        showMessage(t.enterValidStartTime, 'error');
+        return;
+    }
+    
+    // Cerrar modal
+    document.getElementById('template-config-modal').classList.remove('active');
+    
+    // Convertir intervalo a valor numérico de Excel
+    const intervaloExcel = timeToExcelValue(intervalo);
+    const horaInicioExcel = timeToExcelValue(horaInicio);
+    
+    // Crear encabezados
+    const headers = ['Orden', 'Dorsal', 'Crono Salida', 'Hora Salida', 'Diferencia', 'Nombre', 'Apellidos', 'Chip', 
+                    'Hora Salida Real', 'Crono Salida Real', 'Hora Salida Prevista', 'Crono Salida Prevista', 
+                    'Hora Salida Importado', 'Crono Salida Importado', 'Crono Segundos', 'Hora Segundos'];
+    
+    // Crear los datos
+    const data = [headers];
+    
+    for (let i = 1; i <= numCorredores; i++) {
+        const row = new Array(headers.length).fill('');
+        
+        // Orden
+        row[0] = i;
+        
+        // Crono Salida (C)
+        if (i === 1) {
+            row[2] = { t: 'n', v: 0, z: 'hh:mm:ss' }; // 00:00:00
+        } else {
+            row[2] = { t: 'n', f: `C${i}+E${i+1}`, z: 'hh:mm:ss' };
+        }
+        
+        // Hora Salida (D)
+        if (i === 1) {
+            row[3] = { t: 'n', v: horaInicioExcel, z: 'hh:mm:ss' }; // Hora inicio del usuario
+        } else {
+            row[3] = { t: 'n', f: `D${i}+E${i+1}`, z: 'hh:mm:ss' };
+        }
+        
+        // Diferencia (E)
+        if (i === 1) {
+            row[4] = { t: 'n', v: 0, z: 'hh:mm:ss' }; // 00:00:00
+        } else {
+            row[4] = { t: 'n', v: intervaloExcel, z: 'hh:mm:ss' }; // Intervalo del usuario
+        }
+        
+        // Crono Segundos (O) - columna 14
+        row[14] = { t: 'n', f: `HOUR(C${i+1})*3600 + MINUTE(C${i+1})*60 + SECOND(C${i+1})` };
+        
+        // Hora Segundos (P) - columna 15
+        row[15] = { t: 'n', f: `HOUR(D${i+1})*3600 + MINUTE(D${i+1})*60 + SECOND(D${i+1})` };
+        
+        data.push(row);
+    }
+    
+    // Crear worksheet
+    const ws = XLSX.utils.aoa_to_sheet(data, { cellStyles: true });
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Plantilla Salida");
     
+    // Ajustar anchos
     const colWidths = [
-        {wch: 8},  // Orden
-        {wch: 8},  // Dorsal
-        {wch: 15}, // Nombre
-        {wch: 20}, // Apellidos
-        {wch: 12}, // Chip
-        {wch: 12}, // Hora Salida
-        {wch: 12}  // Crono Salida
+        {wch: 8}, {wch: 8}, {wch: 12}, {wch: 12}, {wch: 12},
+        {wch: 15}, {wch: 20}, {wch: 12}, {wch: 12}, {wch: 12},
+        {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}
     ];
     ws['!cols'] = colWidths;
     
-    const filename = `plantilla_orden_salida_${new Date().toISOString().split('T')[0]}.xlsx`;
+    // Aplicar formato HORA a las columnas C, D, E e I-N
+    for (let r = 1; r <= numCorredores; r++) {
+        // Columnas C, D, E (2, 3, 4)
+        for (let c = 2; c <= 4; c++) {
+            const cell = XLSX.utils.encode_cell({r: r, c: c});
+            if (ws[cell]) {
+                // Asegurar formato de hora
+                ws[cell].z = ws[cell].z || 'hh:mm:ss';
+                if (!ws[cell].s) ws[cell].s = {};
+                ws[cell].s.numFmt = 'hh:mm:ss';
+            }
+        }
+        
+        // Columnas I-N (8-13) - solo formato, vacías
+        for (let c = 8; c <= 13; c++) {
+            const cell = XLSX.utils.encode_cell({r: r, c: c});
+            if (!ws[cell]) {
+                ws[cell] = { t: 's', v: '' };
+            }
+            ws[cell].z = 'hh:mm:ss';
+            if (!ws[cell].s) ws[cell].s = {};
+            ws[cell].s.numFmt = 'hh:mm:ss';
+        }
+    }
+    
+    // Auto-filtro
+    ws['!autofilter'] = {
+        ref: XLSX.utils.encode_range({
+            s: { r: 0, c: 0 },
+            e: { r: numCorredores, c: headers.length - 1 }
+        })
+    };
+    
+    // Generar nombre del archivo
+    const dateStr = new Date().toISOString().split('T')[0];
+    const filename = `plantilla_orden_salida_${numCorredores}_corredores_${dateStr}.xlsx`;
+    
+    // Guardar archivo
     XLSX.writeFile(wb, filename);
     
-    showMessage(t.templateCreated, 'success');
+    // Mostrar mensaje de éxito
+    const message = t.templateCreatedCustom
+        .replace('{count}', numCorredores)
+        .replace('{interval}', intervalo)
+        .replace('{startTime}', horaInicio);
+    
+    showMessage(message, 'success');
+    
+    console.log(`Plantilla creada con ${numCorredores} corredores, intervalo ${intervalo}, inicio ${horaInicio}`);
 }
+
+// Función para validar formato de tiempo HH:MM:SS
+function isValidTime(timeStr) {
+    const regex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/;
+    return regex.test(timeStr);
+}
+
+// Función para convertir tiempo HH:MM:SS a valor numérico de Excel
+function timeToExcelValue(timeStr) {
+    if (!timeStr) return 0;
+    
+    const parts = timeStr.split(':');
+    if (parts.length !== 3) return 0;
+    
+    const hours = parseInt(parts[0]) || 0;
+    const minutes = parseInt(parts[1]) || 0;
+    const seconds = parseInt(parts[2]) || 0;
+    
+    // En Excel: 1 = 24 horas, 1/24 = 1 hora, 1/24/60 = 1 minuto, 1/24/60/60 = 1 segundo
+    return (hours / 24) + (minutes / 24 / 60) + (seconds / 24 / 60 / 60);
+}
+
+
 
 function importStartOrder() {
     const t = translations[appState.currentLanguage];
@@ -1694,31 +1849,52 @@ function importStartOrder() {
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                 const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
                 
-                // Procesar los datos
+                if (jsonData.length < 2) {
+                    showMessage(t.fileEmpty, 'error');
+                    return;
+                }
+                
+                // Verificar que el archivo tenga los encabezados correctos
+                const headers = jsonData[0];
+                const expectedHeaders = ['Orden', 'Dorsal', 'Crono Salida', 'Hora Salida', 'Nombre', 'Apellidos', 'Chip'];
+                
+                // Procesar los datos (ahora con todos los campos)
                 startOrderData = [];
                 for (let i = 1; i < jsonData.length; i++) {
                     const row = jsonData[i];
                     if (row && row.length >= 7) {
                         const rider = {
-                            order: parseInt(row[0]) || i,
+                            order: parseInt(row[0]) || (i),
                             dorsal: parseInt(row[1]) || 0,
-                            nombre: row[2] || '',
-                            apellidos: row[3] || '',
-                            chip: row[4] || '',
-                            horaSalida: row[5] || '',
-                            cronoSalida: row[6] || '',
-                            horaSalidaReal: '',
-                            cronoSalidaReal: '',
-                            horaSalidaPrevista: '',
-                            cronoSalidaPrevista: '',
-                            horaSalidaImportado: row[5] || '',
-                            cronoSalidaImportado: row[6] || '',
-                            cronoSegundos: timeToSeconds(row[6]),
-                            horaSegundos: timeToSeconds(row[5])
+                            cronoSalida: row[2] || '',
+                            horaSalida: row[3] || '',
+                            nombre: row[4] || '',
+                            apellidos: row[5] || '',
+                            chip: row[6] || '',
+                            horaSalidaReal: row[7] || '',
+                            cronoSalidaReal: row[8] || '',
+                            horaSalidaPrevista: row[9] || '',
+                            cronoSalidaPrevista: row[10] || '',
+                            horaSalidaImportado: row[11] || '',
+                            cronoSalidaImportado: row[12] || '',
+                            cronoSegundos: timeToSeconds(row[2]),
+                            horaSegundos: timeToSeconds(row[3])
                         };
+                        
+                        // Si faltan valores, calcularlos
+                        if (!rider.horaSalida) {
+                            rider.horaSalida = calculateStartTime(i-1);
+                        }
+                        if (!rider.cronoSalida) {
+                            rider.cronoSalida = secondsToTime((i-1) * 60);
+                        }
+                        
                         startOrderData.push(rider);
                     }
                 }
+                
+                // Ordenar por número de orden
+                startOrderData.sort((a, b) => a.order - b.order);
                 
                 document.getElementById('total-riders').value = startOrderData.length;
                 updateStartOrderTable();
@@ -1736,6 +1912,7 @@ function importStartOrder() {
     
     input.click();
 }
+
 
 function deleteStartOrder() {
     const t = translations[appState.currentLanguage];
@@ -1762,22 +1939,22 @@ function exportStartOrder() {
         return;
     }
     
+    // Usar los mismos campos que la plantilla
     const data = [
-        ['Orden', 'Dorsal', 'Nombre', 'Apellidos', 'Chip', 
-         'Hora Salida', 'Crono Salida', 'Hora Salida Real', 'Crono Salida Real',
-         'Hora Salida Prevista', 'Crono Salida Prevista', 'Hora Salida Importado', 'Crono Salida Importado',
-         'Crono Segundos', 'Hora Segundos']
+        ['Orden', 'Dorsal', 'Crono Salida', 'Hora Salida', 'Nombre', 'Apellidos', 'Chip', 
+         'Hora Salida Real', 'Crono Salida Real', 'Hora Salida Prevista', 'Crono Salida Prevista', 
+         'Hora Salida Importado', 'Crono Salida Importado', 'Crono Segundos', 'Hora Segundos']
     ];
     
     startOrderData.forEach(rider => {
         data.push([
             rider.order,
             rider.dorsal,
+            rider.cronoSalida,
+            rider.horaSalida,
             rider.nombre,
             rider.apellidos,
             rider.chip,
-            rider.horaSalida,
-            rider.cronoSalida,
             rider.horaSalidaReal,
             rider.cronoSalidaReal,
             rider.horaSalidaPrevista,
@@ -1793,7 +1970,35 @@ function exportStartOrder() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Orden Salida");
     
-    const filename = `orden_salida_${new Date().toISOString().split('T')[0]}.xlsx`;
+    // Mismo formato que la plantilla
+    const colWidths = [
+        {wch: 8}, {wch: 8}, {wch: 12}, {wch: 12}, {wch: 15}, {wch: 20}, {wch: 12},
+        {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}
+    ];
+    ws['!cols'] = colWidths;
+    
+    // Formatear encabezados
+    const headerRow = 0;
+    for (let C = 0; C < data[0].length; C++) {
+        const cellAddress = XLSX.utils.encode_cell({r: headerRow, c: C});
+        if (ws[cellAddress]) {
+            ws[cellAddress].s = {
+                font: { bold: true, color: { rgb: "FFFFFF" } },
+                fill: { fgColor: { rgb: "2C3E50" } },
+                alignment: { horizontal: "center" }
+            };
+        }
+    }
+    
+    // Auto-filtro para facilitar la navegación
+    ws['!autofilter'] = {
+        ref: XLSX.utils.encode_range({
+            s: { r: 0, c: 0 },
+            e: { r: startOrderData.length, c: data[0].length - 1 }
+        })
+    };
+    
+    const filename = `orden_salida_${appState.currentRace ? appState.currentRace.name.replace(/[^a-z0-9]/gi, '_') : 'sin_nombre'}_${new Date().toISOString().split('T')[0]}.xlsx`;
     XLSX.writeFile(wb, filename);
     
     showMessage(t.orderExported, 'success');

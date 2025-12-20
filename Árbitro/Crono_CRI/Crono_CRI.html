@@ -523,6 +523,49 @@
     <!-- MODALES -->
     <!-- =========================================== -->
     
+    
+    <!-- Modal de configuración de plantilla -->
+    <div id="template-config-modal" class="modal">
+        <div class="modal-content medium-modal">
+            <div class="modal-header">
+                <h3>Configurar Plantilla de Salida</h3>
+                <span id="template-config-modal-close" class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="template-num-corredores">Número de corredores:</label>
+                    <input type="number" id="template-num-corredores" 
+                        min="1" max="1000" value="10" 
+                        class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="template-intervalo">Intervalo entre salidas (HH:MM:SS):</label>
+                    <input type="text" id="template-intervalo" 
+                        value="00:01:00" 
+                        placeholder="00:01:00"
+                        class="form-control" 
+                        pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}">
+                    <small class="form-text">Ej: 00:01:00 para 1 minuto, 00:02:30 para 2 minutos y 30 segundos</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="template-hora-inicio">Hora de inicio (HH:MM:SS):</label>
+                    <input type="text" id="template-hora-inicio" 
+                        value="09:00:00" 
+                        placeholder="09:00:00"
+                        class="form-control" 
+                        pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}">
+                    <small class="form-text">Ej: 09:00:00 para las 9 de la mañana</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-template-btn" class="btn btn-secondary">Cancelar</button>
+                <button id="generate-template-btn" class="btn btn-primary">Generar Plantilla</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Modal de ayuda -->
     <div class="modal" id="help-modal">
         <div class="modal-content">
