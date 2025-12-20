@@ -301,7 +301,28 @@ const translations = {
         onlyFirst: "Solo el primero",
         allTimesUpdated: "Todas las horas de salida actualizadas",
         timeChangeCancelled: "Cambio cancelado",
-        onlyFirstUpdated: "Solo se actualizó el primer corredor"
+        onlyFirstUpdated: "Solo se actualizó el primer corredor",
+        
+        // Botones de copia de seguridad en gestión de carrera
+        backupRaceText: "Copia Seguridad",
+        restoreRaceText: "Restaurar",
+
+        // Mensajes específicos de copia por carrera
+        backupRaceSuccess: "Copia de seguridad de la carrera creada exitosamente",
+        restoreRaceSuccess: "Carrera restaurada exitosamente",
+        noRaceSelectedForBackup: "Selecciona una carrera primero para hacer la copia",
+        backupRaceContains: "La copia contiene: {departures} salidas, {order} en orden, {llegadas} llegadas",
+        restoreOptionsTitle: "Opciones de restauración",
+        whatToRestore: "¿Qué datos restaurar?",
+        restoreDepartures: "Datos de salidas",
+        restoreStartOrder: "Orden de salida",
+        restoreLlegadas: "Datos de llegadas",
+        restoreConfig: "Configuración",
+        restoreOptionReplace: "Reemplazar carrera existente",
+        restoreOptionRename: "Crear como nueva carrera",
+        raceAlreadyExists: "Ya existe una carrera con este nombre",
+        restoringToNewRace: "Se creará como nueva carrera",
+        restoringToExisting: "Se reemplazará la carrera existente"
     },
 
     ca: {
@@ -639,13 +660,82 @@ const translations = {
         onlyFirst: "Només el primer",
         allTimesUpdated: "Totes les hores de sortida actualitzades",
         timeChangeCancelled: "Canvi cancel·lat",
-        onlyFirstUpdated: "Només s'ha actualitzat el primer corredor"
+        onlyFirstUpdated: "Només s'ha actualitzat el primer corredor",
 
+        // Botones de copia de seguridad en gestión de carrera
+        backupRaceText: "Còpia Seguretat",
+        restoreRaceText: "Restaurar",
+        
+        // Mensajes de copia de seguridad
+        backupRaceSuccess: "Còpia de seguretat de la cursa creada exitosament",
+        restoreRaceSuccess: "Cursa restaurada exitosament",
+        noRaceSelectedForBackup: "Selecciona una cursa primer per a fer la còpia",
+        backupRaceContains: "La còpia conté: {departures} sortides, {order} en ordre, {llegadas} arribades",
+        restoreOptionsTitle: "Opcions de restauració",
+        whatToRestore: "Quines dades restaurar?",
+        restoreDepartures: "Dades de sortides",
+        restoreStartOrder: "Ordre de sortida",
+        restoreLlegadas: "Dades d'arribades",
+        restoreConfig: "Configuració",
+        restoreOptionReplace: "Reemplaçar cursa existent",
+        restoreOptionRename: "Crear com a nova cursa",
+        raceAlreadyExists: "Ja existeix una cursa amb aquest nom",
+        restoringToNewRace: "Es crearà com a nova cursa",
+        restoringToExisting: "Es reemplaçarà la cursa existent"
 
 
     },
 
     en: {
+        appTitle: "Crono CRI",
+        languagesLabel: "Idioma / Language",
+        
+        // Tarjetas
+        cardRaceTitle: "Gestió de Cursa",
+        cardTimeTitle: "Configuració de Temps",
+        cardDeparturesTitle: "Sortides Registrades",
+        audioConfigTitle: "Configuració d'Àudio",
+        cardStartOrderTitle: "Ordre de Sortida",
+        
+        modeSalidaText: "SORTIDES",        // Catalán
+        modeLlegadasText: "ARRIBADES",     // Catalán
+
+        // Botones de carrera
+        newRaceText: "Nova",
+        deleteRaceText: "Eliminar",
+        deleteRaceConfirmBtn: "Eliminar",
+        deleteRaceCancelBtn:'Cancelar',
+        
+        // Configuración de audio
+        beepOptionTitle: "Sons Beep",
+        voiceOptionTitle: "Veü gravada",
+        muteOptionTitle: "Sense so",
+        testAudioText: "Provar so actual",
+        
+        // Configuración de tiempo
+        intervalTimeLabel: "Temps entre sortides",
+        minutesText: "minuts",
+        secondsText: "segons",
+        
+        // Posición inicial
+        startFromXText: "Posició actual:",
+        startCountdownText: "INICIAR COMPTE ENRERE",
+        exitCompleteText: "REINICIAR",
+        
+        // Lista de salidas
+        clearDeparturesText: "Netejar llista",
+        exportExcelText: "Exportar Excel",
+        noDeparturesText: "No hi ha sortides registrades",
+        departureHeaderDorsal: "Sortida",
+        departureHeaderTime: "Temps",
+        departureHeaderNotes: "Nota",
+        departureHeaderDate: "Hora",
+        
+        // Footer
+        helpText: "Ajuda",
+        suggestionsText: "Suggeriments",
+        installText: "Instal·lar App",
+
         updateText: "Check for Updates",
         copyrightText: "2025 © Copyright ",
         copyrightLink: "Roberto Benet - rbenet71@gmail.com - V_18_12_2025",
@@ -932,6 +1022,28 @@ const translations = {
         allTimesUpdated: "All departure times updated",
         timeChangeCancelled: "Change cancelled",
         onlyFirstUpdated: "Only the first rider updated",
+
+        // Botones de copia de seguridad en gestión de carrera
+        backupRaceText: "Backup",
+        restoreRaceText: "Restore",
+        
+        // Mensajes específicos de copia por carrera
+        backupRaceSuccess: "Race backup created successfully",
+        restoreRaceSuccess: "Race restored successfully",
+        noRaceSelectedForBackup: "Select a race first to make the backup",
+        backupRaceContains: "Backup contains: {departures} departures, {order} in order, {llegadas} finishes",
+        restoreOptionsTitle: "Restoration options",
+        whatToRestore: "What data to restore?",
+        restoreDepartures: "Departures data",
+        restoreStartOrder: "Start order",
+        restoreLlegadas: "Finish data",
+        restoreConfig: "Configuration",
+        restoreOptionReplace: "Replace existing race",
+        restoreOptionRename: "Create as new race",
+        raceAlreadyExists: "A race with this name already exists",
+        restoringToNewRace: "Will be created as a new race",
+        restoringToExisting: "Will replace the existing race"
+
 
     },
 
@@ -1270,7 +1382,28 @@ const translations = {
         onlyFirst: "Seulement le premier",
         allTimesUpdated: "Toutes les heures de départ mises à jour",
         timeChangeCancelled: "Changement annulé",
-        onlyFirstUpdated: "Seul le premier coureur a été mis à jour"
+        onlyFirstUpdated: "Seul le premier coureur a été mis à jour",
+
+        // Botones de copia de seguridad en gestión de carrera
+        backupRaceText: "Sauvegarde",
+        restoreRaceText: "Restaurer",
+        
+        // Mensajes específicos de copia por carrera
+        backupRaceSuccess: "Sauvegarde de la course créée avec succès",
+        restoreRaceSuccess: "Course restaurée avec succès",
+        noRaceSelectedForBackup: "Sélectionnez d'abord une course pour faire la sauvegarde",
+        backupRaceContains: "La sauvegarde contient: {departures} départs, {order} en ordre, {llegadas} arrivées",
+        restoreOptionsTitle: "Options de restauration",
+        whatToRestore: "Quelles données restaurer?",
+        restoreDepartures: "Données des départs",
+        restoreStartOrder: "Ordre de départ",
+        restoreLlegadas: "Données d'arrivées",
+        restoreConfig: "Configuration",
+        restoreOptionReplace: "Remplacer la course existante",
+        restoreOptionRename: "Créer comme nouvelle course",
+        raceAlreadyExists: "Une course avec ce nom existe déjà",
+        restoringToNewRace: "Sera créée comme nouvelle course",
+        restoringToExisting: "Remplacera la course existante"
     }
 };
 
@@ -1309,6 +1442,8 @@ function updateRaceManagementCard(t) {
     document.getElementById('card-race-title').textContent = t.cardRaceTitle;
     document.getElementById('new-race-text').textContent = t.newRaceText;
     document.getElementById('delete-race-text').textContent = t.deleteRaceText;
+    document.getElementById('backup-race-text').textContent = t.backupRaceText;
+    document.getElementById('restore-race-text').textContent = t.restoreRaceText;
 }
 
 function updateStartOrderCard(t) {

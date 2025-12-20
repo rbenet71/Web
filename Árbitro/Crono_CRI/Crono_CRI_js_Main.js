@@ -85,12 +85,16 @@ function initApp() {
     if (typeof setupSorting === 'function') setupSorting();
     if (typeof setupLlegadasEventListeners === 'function') setupLlegadasEventListeners();
     if (typeof setupStartOrderEventListeners === 'function') setupStartOrderEventListeners();
+    if (typeof initBackupModule === 'function') {setTimeout(initBackupModule, 1500);
+    }
     
     // Inicializar timers
     setInterval(updateSystemTimeDisplay, 1000);
     setInterval(updateTimeDifference, 1000);
     setInterval(updateTotalTime, 1000);
     setInterval(updateCurrentTime, 1000);
+
+    
     
     // Inicializar modo slider
     setTimeout(() => {

@@ -60,33 +60,45 @@
     <main class="main-content hide-on-countdown">
         <div class="container">
             
-            <!-- Tarjeta 1: Gestión de carrera -->
-            <div class="app-card race-management-card">
-                <div class="card-header">
-                    <h2><i class="fas fa-flag-checkered"></i> <span id="card-race-title">Gestión de Carrera</span></h2>
-                    <div class="card-header-controls">
-                        <button class="card-toggle-btn" data-target="race-management-card" title="Minimizar/Expandir">
-                            <i class="fas fa-chevron-up"></i>
-                        </button>
-                        <span class="card-collapse-indicator"><i class="fas fa-chevron-down"></i></span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="race-selector">
-                        <select id="race-select" class="form-control">
-                            <option value="">-- Selecciona una carrera --</option>
-                        </select>
-                        <button class="btn btn-primary responsive-btn race-action-btn" id="new-race-btn">
-                            <i class="fas fa-plus"></i>
-                            <span class="race-btn-text" id="new-race-text">Nueva</span>
-                        </button>
-                        <button class="btn btn-danger responsive-btn race-action-btn" id="delete-race-btn">
-                            <i class="fas fa-trash"></i>
-                            <span class="race-btn-text" id="delete-race-text">Eliminar</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
+<!-- =========================================== -->
+<!-- Tarjeta 1: Gestión de carrera -->
+<!-- =========================================== -->
+<div class="app-card race-management-card">
+    <div class="card-header">
+        <h2><i class="fas fa-flag-checkered"></i> <span id="card-race-title">Gestión de Carrera</span></h2>
+        <div class="card-header-controls">
+            <button class="card-toggle-btn" data-target="race-management-card" title="Minimizar/Expandir">
+                <i class="fas fa-chevron-up"></i>
+            </button>
+            <span class="card-collapse-indicator"><i class="fas fa-chevron-down"></i></span>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="race-selector">
+            <select id="race-select" class="form-control">
+                <option value="">-- Selecciona una carrera --</option>
+            </select>
+            <button class="btn btn-primary responsive-btn race-action-btn" id="new-race-btn">
+                <i class="fas fa-plus"></i>
+                <span class="race-btn-text" id="new-race-text">Nueva</span>
+            </button>
+            <button class="btn btn-danger responsive-btn race-action-btn" id="delete-race-btn">
+                <i class="fas fa-trash"></i>
+                <span class="race-btn-text" id="delete-race-text">Eliminar</span>
+            </button>
+            
+            <!-- NUEVOS BOTONES DE COPIA DE SEGURIDAD -->
+            <button class="btn btn-info responsive-btn race-action-btn" id="backup-race-btn" title="Crear copia de seguridad">
+                <i class="fas fa-save"></i>
+                <span class="race-btn-text" id="backup-race-text">Copia Seguridad</span>
+            </button>
+            <button class="btn btn-warning responsive-btn race-action-btn" id="restore-race-btn" title="Restaurar desde copia">
+                <i class="fas fa-file-import"></i>
+                <span class="race-btn-text" id="restore-race-text">Restaurar</span>
+            </button>
+        </div>
+    </div>
+</div>
 
             <!-- =========================================== -->
             <!-- SELECTOR DE MODO DE OPERACIÓN -->
