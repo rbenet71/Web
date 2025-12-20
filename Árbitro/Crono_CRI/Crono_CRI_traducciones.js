@@ -325,6 +325,14 @@ const translations = {
         startTimeLabel: "Hora de inicio (HH:MM:SS):",
         intervalExample: "Ej: 00:01:00 para 1 minuto, 00:02:30 para 2 minutos y 30 segundos",
         startTimeExample: "Ej: 09:00:00 para las 9 de la mañana",
+
+
+        cardRaceTitle: "Gestión de Carrera",
+        modeSelectorTitle: "Modo de Operación",
+        cardStartOrderTitle: "Orden de Salida",
+        modeSelectorTitle: "Modo de Operación",
+        modeSalidaTitle: "Salidas",  // Para español
+        modeLlegadasTitle: "Llegadas", // Para español
     },
 
     ca: {
@@ -646,6 +654,12 @@ const translations = {
         startTimeLabel: "Hora d'inici (HH:MM:SS):",
         intervalExample: "Ex: 00:01:00 per a 1 minut, 00:02:30 per a 2 minuts i 30 segons",
         startTimeExample: "Ex: 09:00:00 per a les 9 del matí",
+
+        cardRaceTitle: "Gestió de Cursa",
+        modeSelectorTitle: "Mode d'Operació",
+        cardStartOrderTitle: "Ordre de Sortida",
+        modeSalidaTitle: "Sortides",  // Para catalán  
+        modeLlegadasTitle: "Arribades", // Para catalán
     },
 
     en: {
@@ -967,6 +981,12 @@ const translations = {
         startTimeLabel: "Start time (HH:MM:SS):",
         intervalExample: "Ex: 00:01:00 for 1 minute, 00:02:30 for 2 minutes and 30 seconds",
         startTimeExample: "Ex: 09:00:00 for 9 AM",
+
+        cardRaceTitle: "Race Management",
+        modeSelectorTitle: "Operation Mode",
+        cardStartOrderTitle: "Start Order",
+        modeSalidaTitle: "Starts",  // Para inglés
+        modeLlegadasTitle: "Finishes", // Para inglés
     },
 
     fr: {
@@ -1289,6 +1309,12 @@ const translations = {
         startTimeLabel: "Heure de début (HH:MM:SS) :",
         intervalExample: "Ex : 00:01:00 pour 1 minute, 00:02:30 pour 2 minutes et 30 secondes",
         startTimeExample: "Ex : 09:00:00 pour 9 heures du matin",
+
+        cardRaceTitle: "Gestion de Course",
+        modeSelectorTitle: "Mode d'Opération",
+        cardStartOrderTitle: "Ordre de Départ",
+        modeSalidaTitle: "Départs",  // Para francés
+        modeLlegadasTitle: "Arrivées", // Para francés
     }
 };
 
@@ -1523,6 +1549,10 @@ function updateLanguageUI() {
     document.getElementById('export-ranking-btn').textContent = t.exportRankingBtn;
     document.getElementById('close-ranking-btn').textContent = t.closeRankingBtn;
     
+    updateModeSelectorCardTitle();
+    updateRaceManagementCardTitle();
+    updateStartOrderCardTitle();
+
 const rankingTable = document.getElementById('ranking-table');
 if (rankingTable) {
     const rankingHeaders = rankingTable.querySelectorAll('th');

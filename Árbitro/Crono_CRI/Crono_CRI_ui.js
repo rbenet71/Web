@@ -772,6 +772,11 @@ function initModeSlider() {
             
             // Guardar preferencia
             localStorage.setItem('selectedMode', mode);
+            
+            // ACTUALIZAR TÍTULO DEL SELECTOR DE MODO
+            setTimeout(() => {
+                updateModeSelectorCardTitle();
+            }, 50);
         });
     });
     
@@ -782,4 +787,100 @@ function initModeSlider() {
         savedOption.click();
     }
 }
+// ============================================
+// FUNCIONES PARA ACTUALIZAR TÍTULOS DE TARJETAS
+// ============================================
 
+function updateCardTitles() {
+    updateRaceManagementCardTitle();
+    updateModeSelectorCardTitle();
+    updateStartOrderCardTitle();
+}
+
+function updateRaceManagementCardTitle() {
+    const cardTitleElement = document.querySelector('#card-race-title');
+    if (!cardTitleElement) return;
+    
+    const t = translations[appState.currentLanguage];
+    let raceName = appState.currentRace ? appState.currentRace.name : '';
+    
+    // Si no hay carrera seleccionada, mostrar solo el título básico
+    if (!raceName || raceName.trim() === '') {
+        cardTitleElement.textContent = t.cardRaceTitle || 'Gestión de Carrera';
+    } else {
+        // Formato: "Gestión de Carrera - Nombre de la carrera"
+        cardTitleElement.textContent = `${t.cardRaceTitle || 'Gestión de Carrera'} - ${raceName}`;
+    }
+}
+
+function updateModeSelectorCardTitle() {
+    console.log("Actualizando título del selector de modo...");
+    
+    // Primero intentar encontrar el título por ID
+    let cardTitleElement = document.querySelector('#mode-selector-title');
+    
+    // Si no se encuentra por ID, buscar alternativamente
+    if (!cardTitleElement) {
+        console.warn("Elemento #mode-selector-title no encontrado, buscando alternativamente...");
+        const card = document.querySelector('.mode-selector-simple-card');
+        if (card) {
+            const header = card.querySelector('.card-header h2 span');
+            if (header) {
+                cardTitleElement = header;
+                console.log("Encontrado título alternativamente en modo-selector-simple-card");
+            }
+        }
+    }
+    
+    if (!cardTitleElement) {
+        console.error("No se pudo encontrar el elemento del título del selector de modo");
+        return;
+    }
+    
+    const t = translations[appState.currentLanguage];
+    const modeSalidaContent = document.getElementById('mode-salida-content');
+    let modeText = '';
+    
+    // Determinar qué modo está activo
+    if (modeSalidaContent && modeSalidaContent.classList.contains('active')) {
+        modeText = t.modeSalidaTitle || 'Salidas';
+    } else {
+        modeText = t.modeLlegadasTitle || 'Llegadas';
+    }
+    
+    // Formato: "Modo de Operación - [Salidas/Llegadas]"
+    const newTitle = `${t.modeSelectorTitle || 'Modo de Operación'} - ${modeText}`;
+    cardTitleElement.textContent = newTitle;
+    
+    console.log(`Título actualizado: "${newTitle}" (Idioma: ${appState.currentLanguage}, Modo: ${modeText})`);
+}
+function updateStartOrderCardTitle() {
+    const cardTitleElement = document.querySelector('#card-start-order-title');
+    if (!cardTitleElement) return;
+    
+    const t = translations[appState.currentLanguage];
+    const timeDifference = document.getElementById('time-difference-display')?.textContent || '00:00:00';
+    const firstStartTime = document.getElementById('first-start-time')?.value || '09:00';
+    
+    // Formato: "Orden de Salida (HH:MM | HH:MM:SS)"
+    cardTitleElement.textContent = `${t.cardStartOrderTitle || 'Orden de Salida'} (${firstStartTime} | ${timeDifference})`;
+}
+
+// ============================================
+// FUNCIONES PARA ACTUALIZAR TÍTULOS CUANDO CAMBIAN LOS DATOS
+// ============================================
+
+// Llamar esta función cuando cambie la carrera
+function onRaceChanged() {
+    updateRaceManagementCardTitle();
+}
+
+// Llamar esta función cuando cambie el modo
+function onModeChanged() {
+    updateModeSelectorCardTitle();
+}
+
+// Llamar esta función cuando cambien los tiempos
+function onTimesChanged() {
+    updateStartOrderCardTitle();
+}

@@ -33,7 +33,6 @@ window.savingNotesIndex = null;
 // ============================================
 // INICIALIZACIÓN
 // ============================================
-
 function initApp() {
     console.log("Inicializando aplicación...");
     
@@ -80,13 +79,20 @@ function initApp() {
     setupModalEventListeners();
     
     // Configurar botones de minimizar/expandir
-    setupCardToggles(); // <-- AÑADE ESTA LÍNEA
+    setupCardToggles();
     
     // Cargar modo guardado
     const savedMode = localStorage.getItem('app-mode') || 'salida';
     setTimeout(() => {
         changeMode(savedMode); // Esto mostrará/ocultará los elementos correctos
+        
+        // AÑADE ESTO para actualizar el título después de cambiar el modo
+        updateModeSelectorCardTitle(); // <-- AÑADE ESTA LÍNEA
     }, 100);
+    
+    setTimeout(() => {
+        updateCardTitles();
+    }, 500);
     
     document.addEventListener('click', initAudioOnInteraction);
     document.addEventListener('keydown', initAudioOnInteraction);
@@ -308,6 +314,7 @@ function setupEventListeners() {
             appState.currentRace = appState.races[index];
             loadRaceData();
             saveRacesToStorage();
+            onRaceChanged();
             
             console.log("Cambiada a carrera:", appState.currentRace.name);
         } else {
@@ -350,6 +357,7 @@ function setupEventListeners() {
         document.getElementById('new-race-modal').classList.remove('active');
     });
 
+    
     // ============================================
     // LISTENERS PARA ORDEN DE SALIDA
     // ============================================
@@ -369,6 +377,7 @@ function setupEventListeners() {
             saveRaceData();
             const t = translations[appState.currentLanguage];
             showMessage(t.startTimeUpdated, 'success');
+            onTimesChanged(); // Llamar después de cambiar el tiempo
         }
     });
     
@@ -944,6 +953,7 @@ function loadRaceData() {
     updateNextCorredorDisplay();
     renderDeparturesList();
     updateTimeDifference(); // Actualizar diferencia de tiempo
+    updateRaceManagementCardTitle();
     
     console.log("Datos cargados para carrera:", appState.currentRace.name);
     console.log("Hora inicio:", document.getElementById('first-start-time').value);
@@ -1840,6 +1850,7 @@ function updateTimeDifference() {
     
     const diffString = `${diffHours.toString().padStart(2, '0')}:${diffMinutes.toString().padStart(2, '0')}:${diffSecs.toString().padStart(2, '0')}`;
     document.getElementById('time-difference-display').textContent = diffString;
+    updateStartOrderCardTitle();
 }
 
 
@@ -3248,7 +3259,6 @@ function secondsToTime(totalSeconds) {
     
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
-
 // Cambiar modo de operación
 // ============================================
 // FUNCIONES UTILITARIAS ADICIONALES
@@ -3276,50 +3286,38 @@ function changeMode(mode) {
         modeSlider.setAttribute('data-mode', mode);
     }
     
-    // 3. Ocultar TODOS los elementos de ambos modos usando la clase 'active'
-    // Ocultar el contenedor completo del modo salida
+    // 3. Ocultar/Mostrar contenido de modos
     const salidaContent = document.getElementById('mode-salida-content');
-    if (salidaContent) {
-        salidaContent.classList.remove('active');
-    }
-    
-    // Ocultar el contenedor completo del modo llegadas
     const llegadasContent = document.getElementById('mode-llegadas-content');
-    if (llegadasContent) {
-        llegadasContent.classList.remove('active');
-    }
     
-    // Ocultar botón flotante de llegadas
+    if (salidaContent) salidaContent.classList.remove('active');
+    if (llegadasContent) llegadasContent.classList.remove('active');
+    
     const quickRegisterBtn = document.getElementById('quick-register-btn');
-    if (quickRegisterBtn) {
-        quickRegisterBtn.style.display = 'none';
-    }
+    if (quickRegisterBtn) quickRegisterBtn.style.display = 'none';
     
-    // 4. Mostrar SOLO los elementos del modo seleccionado usando la clase 'active'
+    // 4. Mostrar contenido del modo seleccionado
     if (mode === 'salida') {
         console.log('Mostrando modo SALIDA');
-        if (salidaContent) {
-            salidaContent.classList.add('active');
-        }
+        if (salidaContent) salidaContent.classList.add('active');
     } else if (mode === 'llegadas') {
         console.log('Mostrando modo LLEGADAS');
-        if (llegadasContent) {
-            llegadasContent.classList.add('active');
-        }
+        if (llegadasContent) llegadasContent.classList.add('active');
         
-        // Mostrar botón flotante solo en modo llegadas
-        if (quickRegisterBtn) {
-            quickRegisterBtn.style.display = 'flex';
-        }
+        if (quickRegisterBtn) quickRegisterBtn.style.display = 'flex';
         
-        // Inicializar modo llegadas
         initLlegadasMode();
     }
     
-    // 5. Guardar preferencia
+    // 5. ACTUALIZAR TÍTULO DEL SELECTOR DE MODO - AÑADIR CON TIMEOUT
+    setTimeout(() => {
+        updateModeSelectorCardTitle();
+    }, 50); // Pequeño retardo para asegurar que el DOM se actualizó
+    
+    // 6. Guardar preferencia
     localStorage.setItem('app-mode', mode);
     
-    // 6. Mostrar mensaje traducido
+    // 7. Mostrar mensaje traducido
     const modeName = mode === 'salida' ? t.modeSalidaTitle : t.modeLlegadasTitle;
     showMessage(t.modeChanged.replace('{mode}', modeName), 'info');
     
