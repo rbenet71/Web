@@ -1366,76 +1366,50 @@ function setupTimeChangeModalEvents(modal, newTime, oldTime) {
 
 function updateAllStartTimes(newTime, oldTime) {
     console.log('Actualizando todas las horas de salida...');
-    console.log('Nueva hora:', newTime);
-    console.log('Hora anterior:', oldTime);
     
-    if (!validateTime(newTime)) {
-        console.error('Hora nueva inválida:', newTime);
+    if (!validateTime(newTime) || !startOrderData || startOrderData.length === 0) {
         return;
     }
     
-    // Si no hay datos en la tabla, simplemente actualizamos la hora de inicio
-    if (!startOrderData || startOrderData.length === 0) {
-        console.log('No hay datos en la tabla, solo se actualiza la hora de inicio');
-        return;
-    }
+    const oldFirstSeconds = timeToSeconds(oldTime);
+    const newFirstSeconds = timeToSeconds(newTime);
     
-    // Calcular la diferencia en segundos
-    const oldSeconds = timeToSeconds(oldTime);
-    const newSeconds = timeToSeconds(newTime);
-    const difference = newSeconds - oldSeconds;
-    
-    console.log('Diferencia en segundos:', difference);
-    console.log('Número de corredores:', startOrderData.length);
-    
-    // Actualizar todas las horas en la tabla
+    // Calcular y almacenar diferencias antes de cambiar
+    const differences = [];
     startOrderData.forEach((rider, index) => {
-        if (rider.horaSegundos) {
-            // Aplicar la diferencia
-            rider.horaSegundos += difference;
-            
-            // Convertir de nuevo a formato HH:MM:SS
-            rider.horaSalida = secondsToTime(rider.horaSegundos);
-            
-            console.log(`Corredor ${index + 1}: ${rider.horaSalida} (${rider.horaSegundos}s)`);
-        }
+        differences[index] = (rider.horaSegundos || 0) - oldFirstSeconds;
     });
     
-    // Actualizar la hora original
-    originalTimeValue = newTime;
+    // Aplicar nuevas horas manteniendo diferencias y actualizando horaSegundos
+    startOrderData.forEach((rider, index) => {
+        // Calcular nuevos segundos
+        rider.horaSegundos = newFirstSeconds + differences[index];
+        
+        // Convertir a formato HH:MM:SS
+        rider.horaSalida = secondsToTime(rider.horaSegundos);
+        
+        console.log(`Corredor ${index + 1}: Diferencia ${differences[index]}s -> ${rider.horaSalida} (${rider.horaSegundos}s)`);
+    });
     
-    // Actualizar la UI
+    // Actualizar valores
+    originalTimeValue = newTime;
+    document.getElementById('first-start-time').value = newTime;
+    
+    // Actualizar UI y guardar
     if (typeof updateStartOrderUI === 'function') {
-        console.log('Llamando a updateStartOrderUI...');
         updateStartOrderUI();
     } else {
-        console.error('Función updateStartOrderUI no encontrada');
-        // Si no existe, actualizar la tabla directamente
         updateStartOrderTable();
     }
     
-    // Guardar los datos
     if (typeof saveStartOrderData === 'function') {
         saveStartOrderData();
-    } else {
-        console.error('Función saveStartOrderData no encontrada');
     }
     
-    // Forzar un renderizado adicional después de un pequeño retraso
-    setTimeout(() => {
-        console.log('Forzando actualización de tabla...');
-        if (typeof updateStartOrderTable === 'function') {
-            updateStartOrderTable();
-        }
-        
-        // Actualizar el título de la tarjeta
-        if (typeof onTimesChanged === 'function') {
-            onTimesChanged();
-        }
-    }, 100);
-    
-    console.log('Todas las horas actualizadas correctamente');
+    console.log('Actualización completada manteniendo diferencias exactas');
 }
+
+
 // Funciones auxiliares (si no existen)
 function timeToSeconds(timeStr) {
     if (!timeStr || timeStr === '') return 0;
