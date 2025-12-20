@@ -1336,6 +1336,49 @@ function updateCountdown() {
     
     if (appState.countdownValue <= 0) {
         handleCountdownZero();
+        
+        // AGREGAR: Si estamos en modo salida, iniciar automáticamente la cuenta atrás
+        const modeSalidaContent = document.getElementById('mode-salida-content');
+        if (modeSalidaContent && modeSalidaContent.classList.contains('active')) {
+            // Si ya estamos en modo salida, preparar el siguiente conteo automáticamente
+            // La función handleCountdownZero() ya registra la salida y prepara el siguiente
+            // Pero si no está activo el countdown principal, lo iniciamos
+            
+            if (!appState.countdownActive) {
+                // Pequeña pausa para mostrar "SALIDA" antes de iniciar el siguiente
+                setTimeout(() => {
+                    // Verificar que haya una carrera seleccionada antes de iniciar
+                    if (appState.currentRace) {
+                        // Iniciar el siguiente conteo automáticamente
+                        appState.countdownValue = appState.nextCorredorTime;
+                        appState.countdownActive = true;
+                        appState.countdownPaused = false;
+                        
+                        // Actualizar display
+                        updateCountdownDisplay();
+                        
+                        // Restaurar estilos
+                        document.body.classList.remove('countdown-salida');
+                        document.body.classList.add('countdown-normal');
+                        
+                        document.getElementById('countdown-label').style.opacity = '1';
+                        document.getElementById('countdown-label').style.visibility = 'visible';
+                        
+                        // Iniciar el intervalo nuevamente
+                        if (appState.countdownInterval) {
+                            clearInterval(appState.countdownInterval);
+                        }
+                        appState.countdownInterval = setInterval(updateCountdown, 1000);
+                        
+                        // Guardar estado
+                        saveAppState();
+                        
+                        console.log("Cuenta atrás automática iniciada para siguiente corredor");
+                    }
+                }, 1500); // Pausa de 1.5 segundos después de mostrar "SALIDA"
+            }
+        }
+        
         return;
     }
     
@@ -1395,8 +1438,17 @@ function updateCountdownDisplay() {
     adjustCountdownSize();
 }
 
+function isSalidaModeActive() {
+    const modeSalidaContent = document.getElementById('mode-salida-content');
+    return modeSalidaContent && modeSalidaContent.classList.contains('active');
+}
+
 function handleCountdownZero() {
-    clearInterval(appState.countdownInterval);
+    // Limpiar el intervalo actual
+    if (appState.countdownInterval) {
+        clearInterval(appState.countdownInterval);
+        appState.countdownInterval = null;
+    }
     
     const countdownScreen = document.getElementById('countdown-screen');
     countdownScreen.classList.add('countdown-salida-active');
@@ -1412,17 +1464,40 @@ function handleCountdownZero() {
     
     playSound('salida');
     
+    // Registrar la salida del corredor actual
     registerDeparture();
     
+    // Añadir el tiempo del corredor actual al acumulado
     appState.accumulatedTime += appState.nextCorredorTime;
     
+    // Incrementar el contador de salidos
+    appState.departedCount++;
+    document.getElementById('departed-count').textContent = appState.departedCount;
+    document.getElementById('start-position').value = appState.departedCount + 1;
+    
+    // Actualizar intervalo para el próximo corredor
+    updateCurrentInterval();
+    
+    // Guardar estado
+    saveAppState();
+    if (appState.currentRace) {
+        saveRaceData();
+    }
+    
+    // Actualizar lista de salidas
+    renderDeparturesList();
+    
+    console.log(`Corredor ${appState.departedCount} salió. Próximo: ${appState.departedCount + 1}`);
+    
+    // Configurar timeout para mostrar "SALIDA"
     appState.salidaTimeout = setTimeout(() => {
         salidaDisplay.classList.remove('show');
         countdownScreen.classList.remove('countdown-salida-active');
-        prepareNextCountdown();
+        
+        // AGREGAR: Ya no llamamos a prepareNextCountdown() aquí
+        // En su lugar, el control vuelve a updateCountdown() para manejar el inicio automático
     }, 2000);
 }
-
 function canModifyDuringCountdown() {
     const t = translations[appState.currentLanguage];
     
@@ -1625,10 +1700,17 @@ function updateTimeDifference() {
     const firstStartTime = document.getElementById('first-start-time').value;
     if (!firstStartTime) return;
     
-    const [hours, minutes] = firstStartTime.split(':').map(Number);
+    // Extraer horas, minutos y segundos
+    const timeParts = firstStartTime.split(':');
+    let hours = 0, minutes = 0, seconds = 0;
+    
+    if (timeParts.length >= 1) hours = parseInt(timeParts[0]) || 0;
+    if (timeParts.length >= 2) minutes = parseInt(timeParts[1]) || 0;
+    if (timeParts.length >= 3) seconds = parseInt(timeParts[2]) || 0;
+    
     const now = new Date();
     const startTime = new Date(now);
-    startTime.setHours(hours, minutes, 0, 0);
+    startTime.setHours(hours, minutes, seconds, 0);
     
     if (startTime < now) {
         startTime.setDate(startTime.getDate() + 1);
@@ -1643,7 +1725,6 @@ function updateTimeDifference() {
     const diffString = `${diffHours.toString().padStart(2, '0')}:${diffMinutes.toString().padStart(2, '0')}:${diffSecs.toString().padStart(2, '0')}`;
     document.getElementById('time-difference-display').textContent = diffString;
 }
-
 
 
 
@@ -2304,10 +2385,17 @@ function calculateStartTime(index) {
     const firstStartTime = document.getElementById('first-start-time').value;
     if (!firstStartTime) return '09:00:00';
     
-    const [hours, minutes] = firstStartTime.split(':').map(Number);
+    // Extraer horas, minutos y segundos del formato HH:MM:SS
+    const timeParts = firstStartTime.split(':');
+    let hours = 0, minutes = 0, seconds = 0;
+    
+    if (timeParts.length >= 1) hours = parseInt(timeParts[0]) || 0;
+    if (timeParts.length >= 2) minutes = parseInt(timeParts[1]) || 0;
+    if (timeParts.length >= 3) seconds = parseInt(timeParts[2]) || 0;
+    
     const interval = 60; // 1 minuto entre salidas
     
-    const totalSeconds = (hours * 3600) + (minutes * 60) + (index * interval);
+    const totalSeconds = (hours * 3600) + (minutes * 60) + seconds + (index * interval);
     const newHours = Math.floor(totalSeconds / 3600) % 24;
     const newMinutes = Math.floor((totalSeconds % 3600) / 60);
     const newSeconds = totalSeconds % 60;

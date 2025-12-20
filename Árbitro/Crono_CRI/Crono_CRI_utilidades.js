@@ -229,3 +229,30 @@ function installPWA() {
         });
     }
 }
+
+
+// Función para formatear hora con segundos
+function formatTimeWithSeconds(timeStr) {
+    if (!timeStr) return '00:00:00';
+    
+    const parts = timeStr.split(':');
+    if (parts.length === 3) {
+        // Ya tiene segundos, asegurar formato de 2 dígitos
+        const hours = parts[0].padStart(2, '0');
+        const minutes = parts[1].padStart(2, '0');
+        const seconds = parts[2].padStart(2, '0');
+        return `${hours}:${minutes}:${seconds}`;
+    } else if (parts.length === 2) {
+        // Solo tiene horas y minutos, agregar segundos
+        return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}:00`;
+    }
+    return '00:00:00';
+}
+
+// En loadRaceData, formatear el tiempo de inicio
+if (appState.currentRace.firstStartTime) {
+    const formattedTime = formatTimeWithSeconds(appState.currentRace.firstStartTime);
+    document.getElementById('first-start-time').value = formattedTime;
+} else {
+    document.getElementById('first-start-time').value = '09:00:00';
+}
