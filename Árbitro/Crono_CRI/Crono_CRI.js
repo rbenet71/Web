@@ -82,7 +82,7 @@ function initApp() {
     // Cargar modo guardado
     const savedMode = localStorage.getItem('app-mode') || 'salida';
     setTimeout(() => {
-        changeMode(savedMode);
+        changeMode(savedMode); // Esto mostrará/ocultará los elementos correctos
     }, 100);
     
     document.addEventListener('click', initAudioOnInteraction);
@@ -92,6 +92,8 @@ function initApp() {
     console.log(`Idioma inicial: ${appState.currentLanguage}`);
     console.log(`Tipo de audio: ${appState.audioType}`);
 }
+
+
 // AGREGAR ESTA NUEVA FUNCIÓN
 function setupModalEventListeners() {
     console.log("Configurando event listeners de modales...");
@@ -3134,33 +3136,78 @@ function secondsToTime(totalSeconds) {
 }
 
 // Cambiar modo de operación
+// ============================================
+// FUNCIONES UTILITARIAS ADICIONALES
+// ============================================
+
+// Cambiar modo de operación
 function changeMode(mode) {
     const t = translations[appState.currentLanguage];
     
-    // Actualizar opciones activas
-    document.querySelectorAll('.mode-option').forEach(opt => {
+    console.log(`Cambiando a modo: ${mode}`);
+    
+    // 1. Actualizar opciones activas del slider de modo
+    document.querySelectorAll('.mode-slider-option').forEach(opt => {
         opt.classList.remove('active');
     });
-    //document.querySelector(`.mode-option[data-mode="${mode}"]`).classList.add('active');
     
-    // Mostrar/ocultar contenido
-    document.querySelectorAll('.mode-content').forEach(content => {
-        content.classList.remove('active');
-    });
+    const activeOption = document.querySelector(`.mode-slider-option[data-mode="${mode}"]`);
+    if (activeOption) {
+        activeOption.classList.add('active');
+    }
     
-    document.getElementById(`mode-${mode}-content`).classList.add('active');
+    // 2. Actualizar el atributo data-mode del slider para la animación
+    const modeSlider = document.querySelector('.mode-slider');
+    if (modeSlider) {
+        modeSlider.setAttribute('data-mode', mode);
+    }
     
-    // Guardar preferencia
-    localStorage.setItem('app-mode', mode);
+    // 3. Ocultar TODOS los elementos de ambos modos usando la clase 'active'
+    // Ocultar el contenedor completo del modo salida
+    const salidaContent = document.getElementById('mode-salida-content');
+    if (salidaContent) {
+        salidaContent.classList.remove('active');
+    }
     
-    // Si cambia a modo llegadas, inicializarlo
-    if (mode === 'llegadas') {
+    // Ocultar el contenedor completo del modo llegadas
+    const llegadasContent = document.getElementById('mode-llegadas-content');
+    if (llegadasContent) {
+        llegadasContent.classList.remove('active');
+    }
+    
+    // Ocultar botón flotante de llegadas
+    const quickRegisterBtn = document.getElementById('quick-register-btn');
+    if (quickRegisterBtn) {
+        quickRegisterBtn.style.display = 'none';
+    }
+    
+    // 4. Mostrar SOLO los elementos del modo seleccionado usando la clase 'active'
+    if (mode === 'salida') {
+        console.log('Mostrando modo SALIDA');
+        if (salidaContent) {
+            salidaContent.classList.add('active');
+        }
+    } else if (mode === 'llegadas') {
+        console.log('Mostrando modo LLEGADAS');
+        if (llegadasContent) {
+            llegadasContent.classList.add('active');
+        }
+        
+        // Mostrar botón flotante solo en modo llegadas
+        if (quickRegisterBtn) {
+            quickRegisterBtn.style.display = 'flex';
+        }
+        
+        // Inicializar modo llegadas
         initLlegadasMode();
     }
     
-    // Mostrar mensaje traducido
+    // 5. Guardar preferencia
+    localStorage.setItem('app-mode', mode);
+    
+    // 6. Mostrar mensaje traducido
     const modeName = mode === 'salida' ? t.modeSalidaTitle : t.modeLlegadasTitle;
     showMessage(t.modeChanged.replace('{mode}', modeName), 'info');
     
-    console.log(`Modo cambiado a: ${mode}`);
+    console.log(`Modo cambiado correctamente a: ${mode}`);
 }

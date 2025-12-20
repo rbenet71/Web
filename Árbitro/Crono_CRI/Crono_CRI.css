@@ -410,6 +410,26 @@ body.countdown-salida {
 }
 
 /* =========================================== */
+/* CONTENEDORES DE MODO (SALIDA/LLEGADAS) */
+/* =========================================== */
+.mode-content {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mode-content.active {
+    display: block;
+    opacity: 1;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* =========================================== */
 /* CONFIGURACIÓN Y FORMULARIOS */
 /* =========================================== */
 .config-section {
