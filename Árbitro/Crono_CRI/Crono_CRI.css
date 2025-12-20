@@ -130,7 +130,76 @@ body.countdown-salida {
         opacity: 0;
     }
 }
+/* =========================================== */
+/* BOTONES DE MINIMIZAR/EXPANDIR */
+/* =========================================== */
+.card-header {
+    position: relative;
+    padding-right: 50px; /* Espacio para los botones */
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
+.card-header-controls {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.card-toggle-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    color: var(--primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+    padding: 0;
+    margin: 0;
+}
+
+.card-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: var(--secondary);
+    transform: scale(1.1);
+}
+
+.card-collapse-indicator {
+    color: var(--gray);
+    font-size: 0.8rem;
+    opacity: 0.5;
+    transition: transform 0.3s ease;
+    display: none; /* Ocultamos este por ahora, podemos usarlo después */
+}
+
+.card-collapse-indicator.collapsed {
+    transform: rotate(180deg);
+}
+
+.card-body.collapsed {
+    display: none;
+    height: 0;
+    overflow: hidden;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Para tarjetas con fondos de gradiente */
+.card-header h2 {
+    flex: 1;
+    margin: 0;
+}
 /* =========================================== */
 /* HEADER - LOGO, IDIOMA, AYUDA */
 /* =========================================== */

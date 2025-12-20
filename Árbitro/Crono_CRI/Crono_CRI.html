@@ -65,15 +65,23 @@
     <!-- =========================================== -->
     <main class="main-content hide-on-countdown">
         <div class="container">
+            
             <!-- Tarjeta 1: Gestión de carrera -->
             <div class="app-card race-management-card">
                 <div class="card-header">
                     <h2><i class="fas fa-flag-checkered"></i> <span id="card-race-title">Gestión de Carrera</span></h2>
+                    <div class="card-header-controls">
+                        <button class="card-toggle-btn" data-target="race-management-card" title="Minimizar/Expandir">
+                            <i class="fas fa-chevron-up"></i>
+                        </button>
+                        <span class="card-collapse-indicator"><i class="fas fa-chevron-down"></i></span>
+                    </div>
                 </div>
-                <div class="race-selector">
-                    <select id="race-select" class="form-control">
-                        <option value="">-- Selecciona una carrera --</option>
-                    </select>
+                <div class="card-body">
+                    <div class="race-selector">
+                        <select id="race-select" class="form-control">
+                            <option value="">-- Selecciona una carrera --</option>
+                        </select>
                         <button class="btn btn-primary responsive-btn race-action-btn" id="new-race-btn">
                             <i class="fas fa-plus"></i>
                             <span class="race-btn-text" id="new-race-text">Nueva</span>
@@ -82,6 +90,7 @@
                             <i class="fas fa-trash"></i>
                             <span class="race-btn-text" id="delete-race-text">Eliminar</span>
                         </button>
+                    </div>
                 </div>
             </div>
 
@@ -91,20 +100,25 @@
             <div class="app-card mode-selector-simple-card">
                 <div class="card-header">
                     <h2><i class="fas fa-cogs"></i> <span id="mode-selector-title">Modo de Operación</span></h2>
+                    <div class="card-header-controls">
+                        <button class="card-toggle-btn" data-target="mode-selector-simple-card" title="Minimizar/Expandir">
+                            <i class="fas fa-chevron-up"></i>
+                        </button>
+                        <span class="card-collapse-indicator"><i class="fas fa-chevron-down"></i></span>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="mode-slider-container">
                         <div class="mode-slider">
                             <div class="mode-slider-option active" data-mode="salida">
-                                <span id="mode-salida-text">SALIDAS</span>  <!-- ← Agregado ID -->
+                                <span id="mode-salida-text">SALIDAS</span>
                             </div>
                             <div class="mode-slider-option" data-mode="llegadas">
-                                <span id="mode-llegadas-text">LLEGADAS</span>  <!-- ← Agregado ID -->
+                                <span id="mode-llegadas-text">LLEGADAS</span>
                             </div>
                             <div class="mode-slider-track"></div>
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -114,6 +128,12 @@
             <div class="app-card start-order-card">
                 <div class="card-header">
                     <h2><i class="fas fa-list-ol"></i> <span id="card-start-order-title">Orden de Salida</span></h2>
+                    <div class="card-header-controls">
+                        <button class="card-toggle-btn" data-target="start-order-card" title="Minimizar/Expandir">
+                            <i class="fas fa-chevron-up"></i>
+                        </button>
+                        <span class="card-collapse-indicator"><i class="fas fa-chevron-down"></i></span>
+                    </div>
                 </div>
                 <div class="card-body">
                     <!-- Bloque 1 - Configuración de horarios -->

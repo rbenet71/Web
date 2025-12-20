@@ -79,6 +79,9 @@ function initApp() {
     // AGREGAR AQUÍ LOS LISTENERS ESPECÍFICOS DE MODALES
     setupModalEventListeners();
     
+    // Configurar botones de minimizar/expandir
+    setupCardToggles(); // <-- AÑADE ESTA LÍNEA
+    
     // Cargar modo guardado
     const savedMode = localStorage.getItem('app-mode') || 'salida';
     setTimeout(() => {
@@ -92,7 +95,6 @@ function initApp() {
     console.log(`Idioma inicial: ${appState.currentLanguage}`);
     console.log(`Tipo de audio: ${appState.audioType}`);
 }
-
 
 // AGREGAR ESTA NUEVA FUNCIÓN
 function setupModalEventListeners() {
@@ -179,7 +181,8 @@ function setupEventListeners() {
             console.log(`Idioma cambiado a: ${lang}`);
         });
     });
-    
+    document.getElementById('expand-all-btn')?.addEventListener('click', () => toggleAllCards('expand'));
+    document.getElementById('collapse-all-btn')?.addEventListener('click', () => toggleAllCards('collapse'));
     // ============================================
     // LISTENERS PARA SELECTOR DE MODO
     // ============================================
@@ -1668,6 +1671,117 @@ function updateSalidaText() {
     if (salidaDisplay) {
         salidaDisplay.textContent = t.salidaText;
     }
+}
+// ============================================
+// FUNCIONES PARA MINIMIZAR/EXPANDIR BLOQUES
+// ============================================
+
+function setupCardToggles() {
+    console.log("Configurando botones de minimizar/expandir...");
+    
+    // Cargar estado guardado de tarjetas minimizadas
+    loadCardStates();
+    
+    // Añadir event listeners a todos los botones de toggle
+    document.querySelectorAll('.card-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            
+            const targetClass = this.getAttribute('data-target');
+            const card = document.querySelector(`.${targetClass}`);
+            
+            if (!card) return;
+            
+            const cardBody = card.querySelector('.card-body');
+            const icon = this.querySelector('i');
+            const indicator = card.querySelector('.card-collapse-indicator');
+            
+            if (cardBody.classList.contains('collapsed')) {
+                // Expandir
+                cardBody.classList.remove('collapsed');
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+                if (indicator) indicator.classList.remove('collapsed');
+                
+                // Guardar estado
+                saveCardState(targetClass, false);
+            } else {
+                // Minimizar
+                cardBody.classList.add('collapsed');
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+                if (indicator) indicator.classList.add('collapsed');
+                
+                // Guardar estado
+                saveCardState(targetClass, true);
+            }
+        });
+    });
+    
+    console.log("Botones de minimizar/expandir configurados.");
+}
+
+function saveCardState(cardClass, isCollapsed) {
+    const cardStates = JSON.parse(localStorage.getItem('card-states') || '{}');
+    cardStates[cardClass] = isCollapsed;
+    localStorage.setItem('card-states', JSON.stringify(cardStates));
+}
+
+function loadCardStates() {
+    const cardStates = JSON.parse(localStorage.getItem('card-states') || '{}');
+    
+    Object.keys(cardStates).forEach(cardClass => {
+        const card = document.querySelector(`.${cardClass}`);
+        if (!card) return;
+        
+        const cardBody = card.querySelector('.card-body');
+        const toggleBtn = card.querySelector('.card-toggle-btn');
+        const indicator = card.querySelector('.card-collapse-indicator');
+        
+        if (cardBody && toggleBtn && cardStates[cardClass]) {
+            cardBody.classList.add('collapsed');
+            const icon = toggleBtn.querySelector('i');
+            if (icon) {
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+            if (indicator) indicator.classList.add('collapsed');
+        }
+    });
+}
+
+function toggleAllCards(action) {
+    // action: 'expand' o 'collapse'
+    document.querySelectorAll('.app-card').forEach(card => {
+        const cardBody = card.querySelector('.card-body');
+        const toggleBtn = card.querySelector('.card-toggle-btn');
+        const indicator = card.querySelector('.card-collapse-indicator');
+        
+        if (!cardBody || !toggleBtn) return;
+        
+        const cardClass = card.className.split(' ').find(cn => cn.includes('-card'));
+        if (!cardClass) return;
+        
+        if (action === 'collapse' && !cardBody.classList.contains('collapsed')) {
+            cardBody.classList.add('collapsed');
+            const icon = toggleBtn.querySelector('i');
+            if (icon) {
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+            if (indicator) indicator.classList.add('collapsed');
+            saveCardState(cardClass, true);
+        } else if (action === 'expand' && cardBody.classList.contains('collapsed')) {
+            cardBody.classList.remove('collapsed');
+            const icon = toggleBtn.querySelector('i');
+            if (icon) {
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            }
+            if (indicator) indicator.classList.remove('collapsed');
+            saveCardState(cardClass, false);
+        }
+    });
 }
 
 function renderRacesSelect() {
