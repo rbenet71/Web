@@ -1854,53 +1854,141 @@ function importStartOrder() {
                     return;
                 }
                 
-                // Verificar que el archivo tenga los encabezados correctos
+                // Verificar formato (encabezados esperados)
                 const headers = jsonData[0];
-                const expectedHeaders = ['Orden', 'Dorsal', 'Crono Salida', 'Hora Salida', 'Nombre', 'Apellidos', 'Chip'];
+                const expectedHeaders = [
+                    'Orden', 'Dorsal', 'Crono Salida', 'Hora Salida', 'Diferencia', 
+                    'Nombre', 'Apellidos', 'Chip', 'Hora Salida Real', 'Crono Salida Real', 
+                    'Hora Salida Prevista', 'Crono Salida Prevista', 'Hora Salida Importado', 
+                    'Crono Salida Importado', 'Crono Segundos', 'Hora Segundos'
+                ];
                 
-                // Procesar los datos (ahora con todos los campos)
+                console.log("Encabezados encontrados:", headers);
+                console.log("Total de columnas:", headers.length);
+                
+                // Mapeo de índices de columnas
+                const columnIndexes = {};
+                headers.forEach((header, index) => {
+                    if (header) {
+                        const cleanHeader = header.toString().trim();
+                        columnIndexes[cleanHeader] = index;
+                    }
+                });
+                
+                // Procesar los datos
                 startOrderData = [];
                 for (let i = 1; i < jsonData.length; i++) {
                     const row = jsonData[i];
-                    if (row && row.length >= 7) {
-                        const rider = {
-                            order: parseInt(row[0]) || (i),
-                            dorsal: parseInt(row[1]) || 0,
-                            cronoSalida: row[2] || '',
-                            horaSalida: row[3] || '',
-                            nombre: row[4] || '',
-                            apellidos: row[5] || '',
-                            chip: row[6] || '',
-                            horaSalidaReal: row[7] || '',
-                            cronoSalidaReal: row[8] || '',
-                            horaSalidaPrevista: row[9] || '',
-                            cronoSalidaPrevista: row[10] || '',
-                            horaSalidaImportado: row[11] || '',
-                            cronoSalidaImportado: row[12] || '',
-                            cronoSegundos: timeToSeconds(row[2]),
-                            horaSegundos: timeToSeconds(row[3])
-                        };
+                    if (!row || row.length === 0) continue;
+                    
+                    const rider = {
+                        // Columnas básicas
+                        order: getCellValue(row, columnIndexes['Orden']) || (i),
+                        dorsal: getCellValue(row, columnIndexes['Dorsal']) || 0,
                         
-                        // Si faltan valores, calcularlos
-                        if (!rider.horaSalida) {
-                            rider.horaSalida = calculateStartTime(i-1);
-                        }
-                        if (!rider.cronoSalida) {
-                            rider.cronoSalida = secondsToTime((i-1) * 60);
-                        }
+                        // Tiempos de salida
+                        cronoSalida: formatTimeValue(getCellValue(row, columnIndexes['Crono Salida'])),
+                        horaSalida: formatTimeValue(getCellValue(row, columnIndexes['Hora Salida'])),
                         
-                        startOrderData.push(rider);
+                        // Información personal
+                        nombre: getCellValue(row, columnIndexes['Nombre']) || '',
+                        apellidos: getCellValue(row, columnIndexes['Apellidos']) || '',
+                        chip: getCellValue(row, columnIndexes['Chip']) || '',
+                        
+                        // Tiempos reales
+                        horaSalidaReal: formatTimeValue(getCellValue(row, columnIndexes['Hora Salida Real'])),
+                        cronoSalidaReal: formatTimeValue(getCellValue(row, columnIndexes['Crono Salida Real'])),
+                        
+                        // Tiempos previstos
+                        horaSalidaPrevista: formatTimeValue(getCellValue(row, columnIndexes['Hora Salida Prevista'])),
+                        cronoSalidaPrevista: formatTimeValue(getCellValue(row, columnIndexes['Crono Salida Prevista'])),
+                        
+                        // Tiempos importados
+                        horaSalidaImportado: formatTimeValue(getCellValue(row, columnIndexes['Hora Salida Importado'])),
+                        cronoSalidaImportado: formatTimeValue(getCellValue(row, columnIndexes['Crono Salida Importado'])),
+                        
+                        // Segundos
+                        cronoSegundos: parseInt(getCellValue(row, columnIndexes['Crono Segundos'])) || 0,
+                        horaSegundos: parseInt(getCellValue(row, columnIndexes['Hora Segundos'])) || 0
+                    };
+                    
+                    // CON CONDICIONANTES ESPECIALES
+                    
+                    // 1. Si faltan valores críticos (horaSalida y cronoSalida), calcularlos
+                    if (!rider.horaSalida || rider.horaSalida === '00:00:00' || rider.horaSalida === '') {
+                        rider.horaSalida = calculateStartTime(i-1);
                     }
+                    if (!rider.cronoSalida || rider.cronoSalida === '00:00:00' || rider.cronoSalida === '') {
+                        rider.cronoSalida = secondsToTime((i-1) * 60);
+                    }
+                    
+                    // 2. CONDICIONANTE 1: Si Hora Salida Importado y Crono Salida Importado están vacíos,
+                    // rellenarlos con Hora Salida y Crono Salida
+                    if (!rider.horaSalidaImportado || rider.horaSalidaImportado === '00:00:00' || rider.horaSalidaImportado === '') {
+                        rider.horaSalidaImportado = rider.horaSalida;
+                    }
+                    if (!rider.cronoSalidaImportado || rider.cronoSalidaImportado === '00:00:00' || rider.cronoSalidaImportado === '') {
+                        rider.cronoSalidaImportado = rider.cronoSalida;
+                    }
+                    
+                    // 3. CONDICIONANTE 2: Si Hora Salida Prevista y Crono Salida Prevista están vacíos,
+                    // rellenarlos con Hora Salida y Crono Salida
+                    if (!rider.horaSalidaPrevista || rider.horaSalidaPrevista === '00:00:00' || rider.horaSalidaPrevista === '') {
+                        rider.horaSalidaPrevista = rider.horaSalida;
+                    }
+                    if (!rider.cronoSalidaPrevista || rider.cronoSalidaPrevista === '00:00:00' || rider.cronoSalidaPrevista === '') {
+                        rider.cronoSalidaPrevista = rider.cronoSalida;
+                    }
+                    
+                    // 4. Replicar las mismas reglas para tiempos reales si están vacíos
+                    if (!rider.horaSalidaReal || rider.horaSalidaReal === '00:00:00' || rider.horaSalidaReal === '') {
+                        rider.horaSalidaReal = rider.horaSalida;
+                    }
+                    if (!rider.cronoSalidaReal || rider.cronoSalidaReal === '00:00:00' || rider.cronoSalidaReal === '') {
+                        rider.cronoSalidaReal = rider.cronoSalida;
+                    }
+                    
+                    // 5. Calcular segundos si no están presentes
+                    if (!rider.cronoSegundos || rider.cronoSegundos === 0) {
+                        rider.cronoSegundos = timeToSeconds(rider.cronoSalida);
+                    }
+                    if (!rider.horaSegundos || rider.horaSegundos === 0) {
+                        rider.horaSegundos = timeToSeconds(rider.horaSalida);
+                    }
+                    
+                    startOrderData.push(rider);
                 }
                 
                 // Ordenar por número de orden
                 startOrderData.sort((a, b) => a.order - b.order);
                 
-                document.getElementById('total-riders').value = startOrderData.length;
+                // ACTUALIZAR TOTAL DE CORREDORES CON EL VALOR DE LOS REGISTROS IMPORTADOS
+                const totalCorredores = startOrderData.length;
+                document.getElementById('total-riders').value = totalCorredores;
+                console.log(`Total de corredores actualizado a: ${totalCorredores}`);
+                
+                // Actualizar hora de inicio basada en el primer corredor
+                if (startOrderData.length > 0 && startOrderData[0].horaSalida) {
+                    // Extraer solo HH:MM de HH:MM:SS
+                    const firstTime = startOrderData[0].horaSalida;
+                    const timeParts = firstTime.split(':');
+                    if (timeParts.length >= 2) {
+                        const horaInicioValue = `${timeParts[0]}:${timeParts[1]}`;
+                        document.getElementById('first-start-time').value = horaInicioValue;
+                        console.log(`Hora de inicio actualizada a: ${horaInicioValue}`);
+                    }
+                }
+                
+                // Actualizar la interfaz
                 updateStartOrderTable();
                 saveStartOrderData();
                 
-                showMessage(t.orderImported.replace('{count}', startOrderData.length), 'success');
+                // Mostrar mensaje de éxito
+                const message = t.orderImported.replace('{count}', startOrderData.length);
+                showMessage(message, 'success');
+                
+                console.log(`Orden de salida importado: ${startOrderData.length} corredores`);
+                
             } catch (error) {
                 console.error('Error importing file:', error);
                 showMessage(t.importError, 'error');
@@ -1913,6 +2001,48 @@ function importStartOrder() {
     input.click();
 }
 
+// Función auxiliar para obtener valores de celdas
+function getCellValue(row, index) {
+    if (index === undefined || index < 0) return null;
+    return row[index] !== undefined ? row[index] : null;
+}
+
+// Función auxiliar para formatear valores de tiempo
+function formatTimeValue(value) {
+    if (!value && value !== 0) return '';
+    
+    // Si es un número (formato Excel)
+    if (typeof value === 'number') {
+        // Convertir valor decimal de Excel a tiempo
+        const totalSeconds = Math.round(value * 86400); // 24 horas * 60 minutos * 60 segundos
+        const hours = Math.floor(totalSeconds / 3600) % 24;
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    // Si ya es un string de tiempo
+    if (typeof value === 'string') {
+        // Limpiar el string
+        let timeStr = value.trim();
+        
+        // Añadir segundos si faltan
+        if (timeStr.match(/^\d{1,2}:\d{2}$/)) {
+            timeStr += ':00';
+        }
+        
+        // Verificar formato HH:MM:SS
+        if (timeStr.match(/^\d{1,2}:\d{2}:\d{2}$/)) {
+            const parts = timeStr.split(':');
+            const hours = parseInt(parts[0]).toString().padStart(2, '0');
+            const minutes = parseInt(parts[1]).toString().padStart(2, '0');
+            const seconds = parseInt(parts[2]).toString().padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        }
+    }
+    
+    return '';
+}
 
 function deleteStartOrder() {
     const t = translations[appState.currentLanguage];
@@ -1922,13 +2052,34 @@ function deleteStartOrder() {
         return;
     }
     
-    if (confirm(t.confirmDeleteOrder)) {
-        startOrderData = [];
-        updateStartOrderTable();
-        document.getElementById('total-riders').value = 1;
-        saveStartOrderData();
-        showMessage(t.orderDeleted, 'success');
+    // Usar confirm con un mensaje claro
+    const userConfirmed = window.confirm(t.confirmDeleteOrder || "¿Estás seguro de que quieres eliminar TODO el orden de salida? Esta acción no se puede deshacer.");
+    
+    if (!userConfirmed) {
+        return; // El usuario canceló
     }
+    
+    // Eliminar los datos
+    startOrderData = [];
+    
+    // Actualizar el total de corredores a 1 (valor mínimo)
+    document.getElementById('total-riders').value = 1;
+    
+    // Actualizar la tabla (mostrará estado vacío)
+    updateStartOrderTable();
+    
+    // Guardar los cambios
+    saveStartOrderData();
+    
+    // También actualizar en la carrera actual si existe
+    if (appState.currentRace) {
+        saveRaceData();
+    }
+    
+    // Mostrar mensaje de éxito
+    showMessage(t.orderDeleted, 'success');
+    
+    console.log("Orden de salida eliminado completamente");
 }
 
 function exportStartOrder() {
