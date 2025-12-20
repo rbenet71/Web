@@ -51,11 +51,13 @@ let startOrderData = [];
 // ============================================
 // INICIALIZACIÓN PRINCIPAL
 // ============================================
-// ============================================
-// INICIALIZACIÓN PRINCIPAL
-// ============================================
 function initApp() {
     console.log("Inicializando aplicación Crono CRI...");
+    
+    // Variables para controlar inicializaciones únicas
+    let mainListenersConfigured = false;
+    let startOrderListenersConfigured = false;
+    let backupModuleInitialized = false;
     
     // Limpiar datos antiguos
     if (typeof cleanupOldData === 'function') cleanupOldData();
@@ -76,16 +78,33 @@ function initApp() {
     // Configurar inputs de tiempo mejorados (INTEGRADO EN SALIDAS)
     if (typeof setupTimeInputs === 'function') setupTimeInputs();
     
-    // Configurar TODOS los listeners
-    if (typeof setupEventListeners === 'function') setupEventListeners();
+    // Configurar TODOS los listeners (solo una vez)
+    if (typeof setupEventListeners === 'function' && !mainListenersConfigured) {
+        setupEventListeners();
+        mainListenersConfigured = true;
+    }
+    
     if (typeof setupCardToggles === 'function') setupCardToggles();
     if (typeof setupAudioEventListeners === 'function') setupAudioEventListeners();
     if (typeof setupModalEventListeners === 'function') setupModalEventListeners();
     if (typeof setupModalActionListeners === 'function') setupModalActionListeners();
     if (typeof setupSorting === 'function') setupSorting();
     if (typeof setupLlegadasEventListeners === 'function') setupLlegadasEventListeners();
-    if (typeof setupStartOrderEventListeners === 'function') setupStartOrderEventListeners();
-    if (typeof initBackupModule === 'function') {setTimeout(initBackupModule, 1500);
+    
+    // Configurar listeners de orden de salida (solo una vez)
+    if (typeof setupStartOrderEventListeners === 'function' && !startOrderListenersConfigured) {
+        setupStartOrderEventListeners();
+        startOrderListenersConfigured = true;
+    }
+    
+    // Configurar módulo de backup (solo una vez)
+    if (typeof initBackupModule === 'function' && !window.backupModuleInitialized) {
+        setTimeout(initBackupModule, 1500);
+    }
+    
+    // Configurar eventos del formulario de carrera
+    if (typeof setupRaceFormEvents === 'function') {
+        setTimeout(setupRaceFormEvents, 500);
     }
     
     // Inicializar timers
@@ -93,9 +112,8 @@ function initApp() {
     setInterval(updateTimeDifference, 1000);
     setInterval(updateTotalTime, 1000);
     setInterval(updateCurrentTime, 1000);
+    
 
-    
-    
     // Inicializar modo slider
     setTimeout(() => {
         if (typeof initModeSlider === 'function') initModeSlider();
@@ -120,12 +138,17 @@ function initApp() {
     
     console.log("Aplicación inicializada correctamente");
 }
+
+
 // Guardar estado antes de cerrar
 window.addEventListener('beforeunload', () => {
     if (appState.countdownActive) {
         if (typeof saveLastUpdate === 'function') saveLastUpdate();
     }
 });
+// ============================================
+// EVENT LISTENERS PRINCIPALES
+// ============================================
 // ============================================
 // EVENT LISTENERS PRINCIPALES
 // ============================================
@@ -154,7 +177,9 @@ function setupEventListeners() {
     document.getElementById('new-race-btn').addEventListener('click', () => {
         document.getElementById('new-race-modal').classList.add('active');
         document.getElementById('new-race-name').focus();
+        
     });
+    document.getElementById('edit-race-btn').addEventListener('click', editRaceDetails);
     
     // Botón de eliminar carrera
     document.getElementById('delete-race-btn').addEventListener('click', () => {
@@ -170,16 +195,25 @@ function setupEventListeners() {
     document.getElementById('help-icon-header').addEventListener('click', function() {
         window.open('Crono_CRI_ayuda.html', '_blank');
     });
-     setupStartOrderEventListeners();
+    
+    // NOTA: setupStartOrderEventListeners() se elimina de aquí
+    // Se llamará directamente desde initApp()
+    
     // Atajos de teclado
     document.addEventListener('keydown', handleKeyboardShortcuts);
     
     console.log("Event listeners principales configurados");
 }
+
 // ============================================
 // EVENT LISTENERS PARA ORDEN DE SALIDA
 // ============================================
 function setupStartOrderEventListeners() {
+    
+    if (window.startOrderListenersConfigured) {
+        console.log("Event listeners de orden de salida ya configurados");
+        return;
+    }
     console.log("Configurando event listeners de orden de salida...");
     
     // Botón para crear plantilla
@@ -242,6 +276,7 @@ function setupStartOrderEventListeners() {
         startCountdownBtn.addEventListener('click', startCountdown);
     }
     
+    window.startOrderListenersConfigured = true;
     console.log("Event listeners de orden de salida configurados.");
 }
 

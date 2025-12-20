@@ -322,7 +322,55 @@ const translations = {
         restoreOptionRename: "Crear como nueva carrera",
         raceAlreadyExists: "Ya existe una carrera con este nombre",
         restoringToNewRace: "Se creará como nueva carrera",
-        restoringToExisting: "Se reemplazará la carrera existente"
+        restoringToExisting: "Se reemplazará la carrera existente",
+
+        // Modal nueva carrera - campos extendidos
+        newRaceDateLabel: "Fecha de la carrera:",
+        newRaceCategoryLabel: "Categoría:",
+        newRaceOrganizerLabel: "Organizador/Club:",
+        newRaceLocationLabel: "Población/Lugar:",
+        newRaceModalityLabel: "Modalidad de carrera:",
+        newRaceOtherModalityLabel: "Especificar modalidad:",
+        newRaceDescriptionLabel: "Descripción/Notas:",
+
+        // Opciones de categoría
+        categorySelect: "-- Selecciona categoría --",
+        categoryElite: "Élite",
+        categoryMaster: "Master",
+        categoryJunior: "Junior",
+        categoryCadete: "Cadete",
+        categoryInfantil: "Infantil",
+        categoryFemenino: "Femenino",
+        categoryMixto: "Mixto",
+        categoryAficionado: "Aficionado",
+        categoryOtro: "Otro",
+
+        // Modalidades
+        modalityCri: "CRI (Contrarreloj Individual)",
+        modalityCre: "CRE (Contrarreloj por Equipos)",
+        modalityDescenso: "Descenso (Downhill)",
+        modalityOtras: "Otras modalidades",
+        modalityOtherPlaceholder: "Ej: Maratón, Enduro, XCO...",
+
+        // Secciones del formulario
+        formSectionBasic: "Información básica",
+        formSectionOrganization: "Organización",
+        formSectionModality: "Modalidad de carrera",
+        formSectionAdditional: "Información adicional",
+
+        // Mensajes de validación
+        requiredField: "Campo obligatorio",
+        enterValidDate: "Introduce una fecha válida",
+
+        editRaceText: "Editar",
+        editRaceTitle: "Editar carrera",
+        saveChanges: "Guardar cambios",
+        raceUpdated: "Carrera actualizada correctamente",
+
+        backupCreated: "Copia de seguridad guardada como {filename}",
+        creatingBackup: "Creando copia de seguridad...",
+        noRaceSelected: "Selecciona una carrera primero",
+
     },
 
     ca: {
@@ -681,8 +729,53 @@ const translations = {
         restoreOptionRename: "Crear com a nova cursa",
         raceAlreadyExists: "Ja existeix una cursa amb aquest nom",
         restoringToNewRace: "Es crearà com a nova cursa",
-        restoringToExisting: "Es reemplaçarà la cursa existent"
+        restoringToExisting: "Es reemplaçarà la cursa existent",
 
+        // Modal nueva carrera - campos extendidos
+        newRaceDateLabel: "Data de la cursa:",
+        newRaceCategoryLabel: "Categoria:",
+        newRaceOrganizerLabel: "Organitzador/Club:",
+        newRaceLocationLabel: "Població/Lloc:",
+        newRaceModalityLabel: "Modalitat de cursa:",
+        newRaceOtherModalityLabel: "Especificar modalitat:",
+        newRaceDescriptionLabel: "Descripció/Notes:",
+
+        // Opciones de categoría
+        categorySelect: "-- Selecciona categoria --",
+        categoryElite: "Èlite",
+        categoryMaster: "Master",
+        categoryJunior: "Junior",
+        categoryCadete: "Cadet",
+        categoryInfantil: "Infantil",
+        categoryFemenino: "Femení",
+        categoryMixto: "Mixt",
+        categoryAficionado: "Aficionat",
+        categoryOtro: "Altres",
+
+        // Modalidades
+        modalityCri: "CRI (Contrarellotge Individual)",
+        modalityCre: "CRE (Contrarellotge per Equips)",
+        modalityDescenso: "Descens (Downhill)",
+        modalityOtras: "Altres modalitats",
+        modalityOtherPlaceholder: "Ex: Marató, Enduro, XCO...",
+
+        // Secciones del formulario
+        formSectionBasic: "Informació bàsica",
+        formSectionOrganization: "Organització",
+        formSectionModality: "Modalitat de cursa",
+        formSectionAdditional: "Informació adicional",
+
+        // Mensajes de validación
+        requiredField: "Camp obligatori",
+        enterValidDate: "Introdueix una data vàlida",
+        editRaceText: "Editar",
+        editRaceTitle: "Editar cursa",
+        saveChanges: "Guardar canvis",
+        raceUpdated: "Cursa actualitzada correctament",
+        
+        backupCreated: "Còpia de seguretat guardada com {filename}",
+        creatingBackup: "Creant còpia de seguretat...",
+        noRaceSelected: "Selecciona una cursa primer",
 
     },
 
@@ -1042,7 +1135,53 @@ const translations = {
         restoreOptionRename: "Create as new race",
         raceAlreadyExists: "A race with this name already exists",
         restoringToNewRace: "Will be created as a new race",
-        restoringToExisting: "Will replace the existing race"
+        restoringToExisting: "Will replace the existing race",
+
+        // Modal nueva carrera - campos extendidos
+        newRaceDateLabel: "Race date:",
+        newRaceCategoryLabel: "Category:",
+        newRaceOrganizerLabel: "Organizer/Club:",
+        newRaceLocationLabel: "Location/Place:",
+        newRaceModalityLabel: "Race modality:",
+        newRaceOtherModalityLabel: "Specify modality:",
+        newRaceDescriptionLabel: "Description/Notes:",
+
+        // Opciones de categoría
+        categorySelect: "-- Select category --",
+        categoryElite: "Elite",
+        categoryMaster: "Master",
+        categoryJunior: "Junior",
+        categoryCadete: "Cadet",
+        categoryInfantil: "Youth",
+        categoryFemenino: "Women",
+        categoryMixto: "Mixed",
+        categoryAficionado: "Amateur",
+        categoryOtro: "Other",
+
+        // Modalidades
+        modalityCri: "CRI (Individual Time Trial)",
+        modalityCre: "CRE (Team Time Trial)",
+        modalityDescenso: "Downhill",
+        modalityOtras: "Other modalities",
+        modalityOtherPlaceholder: "Ex: Marathon, Enduro, XCO...",
+
+        // Secciones del formulario
+        formSectionBasic: "Basic information",
+        formSectionOrganization: "Organization",
+        formSectionModality: "Race modality",
+        formSectionAdditional: "Additional information",
+
+        // Mensajes de validación
+        requiredField: "Required field",
+        enterValidDate: "Enter a valid date",
+        editRaceText: "Edit",
+        editRaceTitle: "Edit race",
+        saveChanges: "Save changes",
+        raceUpdated: "Race updated successfully",
+
+        backupCreated: "Backup saved as {filename}",
+        creatingBackup: "Creating backup...",
+        noRaceSelected: "Select a race first",
 
 
     },
@@ -1403,7 +1542,54 @@ const translations = {
         restoreOptionRename: "Créer comme nouvelle course",
         raceAlreadyExists: "Une course avec ce nom existe déjà",
         restoringToNewRace: "Sera créée comme nouvelle course",
-        restoringToExisting: "Remplacera la course existante"
+        restoringToExisting: "Remplacera la course existante",
+
+        // Modal nueva carrera - campos extendidos
+        newRaceDateLabel: "Date de la course:",
+        newRaceCategoryLabel: "Catégorie:",
+        newRaceOrganizerLabel: "Organisateur/Club:",
+        newRaceLocationLabel: "Lieu:",
+        newRaceModalityLabel: "Modalité de course:",
+        newRaceOtherModalityLabel: "Préciser la modalité:",
+        newRaceDescriptionLabel: "Description/Notes:",
+
+        // Opciones de categoría
+        categorySelect: "-- Sélectionnez une catégorie --",
+        categoryElite: "Élite",
+        categoryMaster: "Master",
+        categoryJunior: "Junior",
+        categoryCadete: "Cadet",
+        categoryInfantil: "Jeune",
+        categoryFemenino: "Féminin",
+        categoryMixto: "Mixte",
+        categoryAficionado: "Amateur",
+        categoryOtro: "Autre",
+
+        // Modalidades
+        modalityCri: "CRI (Contre-la-montre Individuel)",
+        modalityCre: "CRE (Contre-la-montre par Équipes)",
+        modalityDescenso: "Descente (Downhill)",
+        modalityOtras: "Autres modalités",
+        modalityOtherPlaceholder: "Ex: Marathon, Enduro, XCO...",
+
+        // Secciones del formulario
+        formSectionBasic: "Informations de base",
+        formSectionOrganization: "Organisation",
+        formSectionModality: "Modalité de course",
+        formSectionAdditional: "Informations supplémentaires",
+
+        // Mensajes de validación
+        requiredField: "Champ obligatoire",
+        enterValidDate: "Entrez une date valide",
+
+        editRaceText: "Modifier",
+        editRaceTitle: "Modifier la course",
+        saveChanges: "Enregistrer les modifications",
+        raceUpdated: "Course mise à jour avec succès",
+
+        backupCreated: "Sauvegarde enregistrée sous {filename}",
+        creatingBackup: "Création de la sauvegarde...",
+        noRaceSelected: "Sélectionnez d'abord une course",
     }
 };
 

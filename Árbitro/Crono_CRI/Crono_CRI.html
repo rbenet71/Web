@@ -86,7 +86,10 @@
                 <i class="fas fa-trash"></i>
                 <span class="race-btn-text" id="delete-race-text">Eliminar</span>
             </button>
-            
+            <button class="btn btn-secondary responsive-btn race-action-btn" id="edit-race-btn" title="Editar datos de la carrera">
+                <i class="fas fa-edit"></i>
+                <span class="race-btn-text" id="edit-race-text">Editar</span>
+            </button>
             <!-- NUEVOS BOTONES DE COPIA DE SEGURIDAD -->
             <button class="btn btn-info responsive-btn race-action-btn" id="backup-race-btn" title="Crear copia de seguridad">
                 <i class="fas fa-save"></i>
@@ -775,27 +778,133 @@
 
     <!-- Modal de nueva carrera -->
     <div class="modal" id="new-race-modal">
-        <div class="modal-content">
+        <div class="modal-content medium-modal">
             <div class="modal-header">
                 <h3 id="new-race-modal-title">Nueva carrera</h3>
                 <button class="modal-close" id="new-race-modal-close">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label for="new-race-name" id="new-race-name-label">Nombre de la carrera:</label>
-                    <input type="text" 
-                        id="new-race-name" 
-                        class="form-control config-input" 
-                        placeholder="Ej: Carrera MTB 2025"
-                        maxlength="100">
-                </div>
-                <div class="form-group">
-                    <label for="new-race-description" id="new-race-desc-label">Descripción (opcional):</label>
-                        <textarea id="new-race-description" 
-                            class="form-control config-input" 
-                            rows="4" 
-                            placeholder="Información adicional sobre la carrera..."
-                            maxlength="500"></textarea>
+                <div class="race-form-container">
+                    <div class="form-section">
+                        <h4><i class="fas fa-info-circle"></i> Información básica</h4>
+                        <div class="form-group">
+                            <label for="new-race-name" id="new-race-name-label">Nombre de la carrera*:</label>
+                            <input type="text" 
+                                id="new-race-name" 
+                                class="form-control config-input" 
+                                placeholder="Ej: Carrera MTB 2025"
+                                maxlength="100"
+                                required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group half-width">
+                                <label for="new-race-date" id="new-race-date-label">Fecha de la carrera:</label>
+                                <input type="date" 
+                                    id="new-race-date" 
+                                    class="form-control config-input"
+                                    value="${new Date().toISOString().split('T')[0]}">
+                            </div>
+                            
+                            <div class="form-group half-width">
+                                <label for="new-race-category" id="new-race-category-label">Categoría:</label>
+                                <select id="new-race-category" class="form-control config-input">
+                                    <option value="">-- Selecciona categoría --</option>
+                                    <option value="Elite">Élite</option>
+                                    <option value="Master">Master</option>
+                                    <option value="Junior">Junior</option>
+                                    <option value="Cadete">Cadete</option>
+                                    <option value="Infantil">Infantil</option>
+                                    <option value="Femenino">Femenino</option>
+                                    <option value="Mixto">Mixto</option>
+                                    <option value="Aficionado">Aficionado</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-users"></i> Organización</h4>
+                        <div class="form-group">
+                            <label for="new-race-organizer" id="new-race-organizer-label">Organizador/Club:</label>
+                            <input type="text" 
+                                id="new-race-organizer" 
+                                class="form-control config-input" 
+                                placeholder="Ej: Club Ciclista Local"
+                                maxlength="100">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="new-race-location" id="new-race-location-label">Población/Lugar:</label>
+                            <input type="text" 
+                                id="new-race-location" 
+                                class="form-control config-input" 
+                                placeholder="Ej: Barcelona, Montaña X"
+                                maxlength="100">
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-flag-checkered"></i> Modalidad de carrera</h4>
+                        <div class="modality-options">
+                            <div class="modality-option">
+                                <input type="radio" id="modality-cri" name="modality" value="CRI" checked>
+                                <label for="modality-cri">
+                                    <i class="fas fa-stopwatch"></i>
+                                    <span>CRI (Contrarreloj Individual)</span>
+                                </label>
+                            </div>
+                            <div class="modality-option">
+                                <input type="radio" id="modality-cre" name="modality" value="CRE">
+                                <label for="modality-cre">
+                                    <i class="fas fa-users"></i>
+                                    <span>CRE (Contrarreloj por Equipos)</span>
+                                </label>
+                            </div>
+                            <div class="modality-option">
+                                <input type="radio" id="modality-descenso" name="modality" value="Descenso">
+                                <label for="modality-descenso">
+                                    <i class="fas fa-mountain"></i>
+                                    <span>Descenso (Downhill)</span>
+                                </label>
+                            </div>
+                            <div class="modality-option">
+                                <input type="radio" id="modality-otras" name="modality" value="Otras">
+                                <label for="modality-otras">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                    <span>Otras modalidades</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" id="other-modality-container" style="display: none;">
+                            <label for="new-race-other-modality" id="new-race-other-modality-label">Especificar modalidad:</label>
+                            <input type="text" 
+                                id="new-race-other-modality" 
+                                class="form-control config-input" 
+                                placeholder="Ej: Maratón, Enduro, XCO..."
+                                maxlength="50">
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4><i class="fas fa-file-alt"></i> Información adicional</h4>
+                        <div class="form-group">
+                            <label for="new-race-description" id="new-race-desc-label">Descripción/Notas:</label>
+                            <textarea id="new-race-description" 
+                                class="form-control config-input" 
+                                rows="4" 
+                                placeholder="Información adicional sobre la carrera, recorrido, normas especiales..."
+                                maxlength="500"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section" style="background: #f8f9fa; padding: 15px; border-radius: var(--border-radius); margin-top: 20px;">
+                        <p style="font-size: 0.9rem; color: var(--gray); margin: 0;">
+                            <i class="fas fa-info-circle"></i> Los campos marcados con * son obligatorios.
+                        </p>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">

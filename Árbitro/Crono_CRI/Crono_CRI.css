@@ -2730,6 +2730,177 @@ input[type="time"][step="1"]::-webkit-datetime-edit-second-field {
         max-height: 200px;
     }
 }
+/* =========================================== */
+/* ESTILOS PARA FORMULARIO DE NUEVA CARRERA */
+/* =========================================== */
+
+.race-form-container {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.race-form-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.race-form-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.race-form-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.race-form-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.form-section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.form-section h4 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--dark);
+    font-size: 1.1rem;
+}
+
+.form-section h4 i {
+    color: var(--primary);
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.form-group.half-width {
+    flex: 1;
+}
+
+/* Opciones de modalidad */
+.modality-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.modality-option {
+    position: relative;
+}
+
+.modality-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.modality-option label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.modality-option label:hover {
+    background: #e8f4fd;
+    border-color: var(--primary-light);
+}
+
+.modality-option input[type="radio"]:checked + label {
+    background: #e8f4fd;
+    border-color: var(--primary);
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.modality-option label i {
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .form-group.half-width {
+        width: 100%;
+    }
+    
+    .modality-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .medium-modal {
+        width: 95%;
+        max-width: 95%;
+        margin: 10px auto;
+    }
+    
+    .race-form-container {
+        max-height: 60vh;
+    }
+}
+
+/* Modal más grande para el formulario */
+.medium-modal {
+    max-width: 700px;
+    width: 90%;
+}
+
+/* Estilos para validación de formulario */
+.invalid-input {
+    border-color: var(--danger) !important;
+    background-color: #fff5f5 !important;
+}
+
+.required-field::after {
+    content: " *";
+    color: var(--danger);
+}
+
+/* Campo de fecha */
+input[type="date"] {
+    font-family: inherit;
+    padding: 8px 12px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
 
 /* 19/12/2025
 He organizado el CSS en las siguientes secciones principales:

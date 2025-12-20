@@ -1575,19 +1575,6 @@ function showTimeValidationMessage(input, message) {
             messageEl.remove();
         }
     }, 3000);
-}
+};
 
-// ============================================
-// INICIALIZACIÓN EN EL MÓDULO PRINCIPAL
-// ============================================
-// Agrega esto al final del archivo Crono_CRI_js_Salidas.js
-
-// Inicializar cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        if (typeof setupTimeInputs === 'function') {
-            setupTimeInputs();
-        }
-    }, 500);
-});
 

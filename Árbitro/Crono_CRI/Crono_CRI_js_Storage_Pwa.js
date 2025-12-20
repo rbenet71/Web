@@ -239,30 +239,67 @@ function saveStartOrderData() {
 function createNewRace() {
     const t = translations[appState.currentLanguage];
     
+    // Obtener valores del formulario
     const name = document.getElementById('new-race-name').value.trim();
+    const date = document.getElementById('new-race-date').value;
+    const category = document.getElementById('new-race-category').value;
+    const organizer = document.getElementById('new-race-organizer').value.trim();
+    const location = document.getElementById('new-race-location').value.trim();
+    const description = document.getElementById('new-race-description').value.trim();
+    
+    // Obtener modalidad
+    const modalityInput = document.querySelector('input[name="modality"]:checked');
+    let modality = modalityInput ? modalityInput.value : 'CRI';
+    let otherModality = '';
+    
+    if (modality === 'Otras') {
+        otherModality = document.getElementById('new-race-other-modality').value.trim();
+        if (otherModality) {
+            modality = otherModality;
+        }
+    }
+    
+    // Validaciones
     if (!name) {
         showMessage(t.enterRaceName, 'error');
         return;
     }
     
-    const description = document.getElementById('new-race-description').value.trim();
+    if (!date) {
+        showMessage(t.enterValidDate, 'error');
+        return;
+    }
+    
+    // Obtener hora de inicio predeterminada
     const firstStartTime = document.getElementById('first-start-time').value || "09:00:00";
     
+    // Crear objeto de carrera con todos los datos
     const newRace = {
         id: Date.now(),
         name: name,
+        date: date,
+        category: category,
+        organizer: organizer,
+        location: location,
+        modality: modality,
         description: description,
         firstStartTime: firstStartTime,
         createdAt: new Date().toISOString(),
         lastModified: new Date().toISOString(),
         departures: [],
         intervals: [],
-        startOrder: []
+        startOrder: [],
+        metadata: {
+            originalModality: modalityInput ? modalityInput.value : 'CRI',
+            otherModality: otherModality
+        }
     };
     
+    // Añadir a la lista de carreras
     appState.races.push(newRace);
     appState.currentRace = newRace;
     
+    // Resetear datos de estado
     appState.departureTimes = [];
     appState.departedCount = 0;
     appState.intervals = [];
@@ -272,21 +309,39 @@ function createNewRace() {
     document.getElementById('total-riders').value = 1;
     updateStartOrderTable();
     
+    // Actualizar UI
     document.getElementById('departed-count').textContent = 0;
     document.getElementById('start-position').value = 1;
     renderDeparturesList();
     
+    // Guardar y actualizar
     saveRacesToStorage();
     renderRacesSelect();
     
+    // Cerrar modal y limpiar formulario
     document.getElementById('new-race-modal').classList.remove('active');
-    document.getElementById('new-race-name').value = '';
-    document.getElementById('new-race-description').value = '';
+    resetRaceForm();
     
+    // Mostrar mensaje de éxito
     showMessage(t.raceCreated, 'success');
     
-    console.log("Nueva carrera creada:", name);
-    console.log("Hora inicio:", firstStartTime);
+    console.log("Nueva carrera creada:", newRace);
+}
+
+
+function resetRaceForm() {
+    // Limpiar todos los campos del formulario
+    document.getElementById('new-race-name').value = '';
+    document.getElementById('new-race-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('new-race-category').value = '';
+    document.getElementById('new-race-organizer').value = '';
+    document.getElementById('new-race-location').value = '';
+    document.getElementById('new-race-description').value = '';
+    
+    // Resetear modalidad a CRI por defecto
+    document.getElementById('modality-cri').checked = true;
+    document.getElementById('new-race-other-modality').value = '';
+    document.getElementById('other-modality-container').style.display = 'none';
 }
 
 function deleteCurrentRace() {
@@ -681,14 +736,22 @@ function createRaceBackup() {
     
     // Verificar si hay una carrera seleccionada
     if (!appState.currentRace) {
-        showMessage(t.noRaceSelected, 'warning');
+        showMessage(t.noRaceSelected || 'No hay carrera seleccionada', 'warning');
         return;
     }
     
     // Mostrar mensaje de progreso
-    showMessage(t.creatingBackup, 'info');
+    showMessage(t.creatingBackup || 'Creando copia de seguridad...', 'info');
     
-    // Preparar datos específicos de la carrera
+    // Buscar la carrera completa en el array de carreras
+    const raceInArray = appState.races.find(r => r.id === appState.currentRace.id);
+    
+    if (!raceInArray) {
+        showMessage('No se encontraron datos completos de la carrera', 'error');
+        return;
+    }
+    
+    // Preparar datos COMPLETOS de la carrera
     const raceBackupData = {
         version: '1.0',
         appName: 'Crono CRI',
@@ -696,43 +759,58 @@ function createRaceBackup() {
         exportVersion: 'V_19_12_2025',
         dataType: 'single-race',
         race: {
-            // Copiar todos los datos de la carrera actual
-            id: appState.currentRace.id,
-            name: appState.currentRace.name,
-            description: appState.currentRace.description || '',
-            firstStartTime: appState.currentRace.firstStartTime || '09:00:00',
-            createdAt: appState.currentRace.createdAt,
+            // Copiar TODOS los datos de la carrera del array
+            id: raceInArray.id,
+            name: raceInArray.name,
+            date: raceInArray.date || new Date().toISOString().split('T')[0],
+            category: raceInArray.category || '',
+            organizer: raceInArray.organizer || '',
+            location: raceInArray.location || '',
+            modality: raceInArray.modality || 'CRI',
+            description: raceInArray.description || '',
+            firstStartTime: raceInArray.firstStartTime || '09:00:00',
+            createdAt: raceInArray.createdAt,
             lastModified: new Date().toISOString(),
-            departures: appState.currentRace.departures ? [...appState.currentRace.departures] : [],
-            intervals: appState.currentRace.intervals ? [...appState.currentRace.intervals] : [],
-            startOrder: appState.currentRace.startOrder ? [...appState.currentRace.startOrder] : []
+            departures: raceInArray.departures ? [...raceInArray.departures] : [],
+            intervals: raceInArray.intervals ? [...raceInArray.intervals] : [],
+            startOrder: raceInArray.startOrder ? [...raceInArray.startOrder] : [],
+            metadata: raceInArray.metadata || {},
+            
+            // Incluir todos los datos adicionales que pueda tener
+            ...(raceInArray.llegadas && { llegadas: [...raceInArray.llegadas] })
         },
         // Incluir también datos del estado actual relacionados con esta carrera
         currentState: {
             departureTimes: appState.departureTimes ? [...appState.departureTimes] : [],
             departedCount: appState.departedCount,
             raceStartTime: appState.raceStartTime,
-            nextCorredorTime: appState.nextCorredorTime
+            nextCorredorTime: appState.nextCorredorTime,
+            countdownActive: appState.countdownActive,
+            countdownPaused: appState.countdownPaused,
+            countdownValue: appState.countdownValue
         },
         metadata: {
-            raceName: appState.currentRace.name,
-            totalDepartures: appState.currentRace.departures ? appState.currentRace.departures.length : 0,
-            totalInStartOrder: appState.currentRace.startOrder ? appState.currentRace.startOrder.length : 0,
+            raceName: raceInArray.name,
+            raceDate: raceInArray.date,
+            raceCategory: raceInArray.category,
+            raceModality: raceInArray.modality,
+            totalDepartures: raceInArray.departures ? raceInArray.departures.length : 0,
+            totalInStartOrder: raceInArray.startOrder ? raceInArray.startOrder.length : 0,
             backupDate: new Date().toLocaleDateString('es-ES'),
             backupTime: new Date().toLocaleTimeString('es-ES')
         }
     };
     
-    // Si estamos en modo llegadas y hay datos para esta carrera, incluirlos
-    if (llegadasState.importedSalidas && llegadasState.importedSalidas.length > 0) {
-        // Filtrar llegadas que pertenecen a esta carrera (basado en datos de salida)
+    // Incluir datos de llegadas del estado global si existen para esta carrera
+    if (llegadasState.llegadas && llegadasState.llegadas.length > 0) {
+        // Filtrar llegadas por carrera (si tienes un campo de identificación de carrera)
         const raceLlegadas = llegadasState.llegadas.filter(llegada => {
-            // Aquí podrías añadir lógica para filtrar por carrera si tienes un campo de identificación
+            // Añadir lógica de filtrado si es necesario
             return true; // Por ahora incluye todas
         });
         
         if (raceLlegadas.length > 0) {
-            raceBackupData.race.llegadas = raceLlegadas;
+            raceBackupData.race.llegadas = [...raceLlegadas];
             raceBackupData.metadata.totalLlegadas = raceLlegadas.length;
         }
     }
@@ -745,7 +823,7 @@ function createRaceBackup() {
     // Crear nombre del archivo
     const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
     const timeStr = new Date().toTimeString().split(' ')[0].replace(/:/g, '').substring(0, 4);
-    const safeRaceName = appState.currentRace.name
+    const safeRaceName = raceInArray.name
         .replace(/[^a-z0-9]/gi, '_')
         .substring(0, 30);
     const filename = `crono_cri_${safeRaceName}_${dateStr}_${timeStr}.json`;
@@ -768,8 +846,11 @@ function createRaceBackup() {
         URL.revokeObjectURL(url);
     }, 100);
     
-    // Mostrar mensaje de éxito
-    const successMessage = t.backupCreated.replace('{filename}', filename);
+    // Mostrar mensaje de éxito - CORREGIDO
+    const successMessage = t.backupCreated ? 
+        t.backupCreated.replace('{filename}', filename) : 
+        `Copia de seguridad creada: ${filename}`;
+    
     let detailMessage = `${totalDepartures} salidas`;
     
     if (totalInOrder > 0) {
@@ -780,10 +861,35 @@ function createRaceBackup() {
         detailMessage += `, ${totalLlegadas} llegadas`;
     }
     
+    // Añadir información básica de la carrera
+    detailMessage += ` | ${raceInArray.name}`;
+    if (raceInArray.date) {
+        detailMessage += ` (${raceInArray.date})`;
+    }
+    if (raceInArray.category) {
+        detailMessage += ` - ${raceInArray.category}`;
+    }
+    
     showMessage(`${successMessage} - ${detailMessage}`, 'success');
     
     console.log("Copia de seguridad de carrera creada:", filename);
-    console.log("Contenido:", raceBackupData.metadata);
+    console.log("Carrera:", raceInArray.name, "ID:", raceInArray.id);
+    console.log("Datos incluidos:", raceBackupData.metadata);
+    
+    // Mostrar detalles en consola para depuración
+    console.log("Detalles completos de la carrera guardada:", {
+        nombre: raceInArray.name,
+        fecha: raceInArray.date,
+        categoria: raceInArray.category,
+        modalidad: raceInArray.modality,
+        organizador: raceInArray.organizer,
+        ubicacion: raceInArray.location,
+        descripcion: raceInArray.description,
+        horaInicio: raceInArray.firstStartTime,
+        salidas: totalDepartures,
+        ordenSalida: totalInOrder,
+        llegadas: totalLlegadas
+    });
 }
 
 function restoreRaceFromBackup() {
@@ -1047,14 +1153,20 @@ function performRaceRestore(backupData, restoreOption, selectedData, existingRac
             }
         }
         
-        // Preparar datos restaurados
+        // Preparar datos restaurados COMPLETOS
         let restoredRace = {
             id: backupData.race.id,
             name: backupData.race.name,
+            date: backupData.race.date || new Date().toISOString().split('T')[0],
+            category: backupData.race.category || '',
+            organizer: backupData.race.organizer || '',
+            location: backupData.race.location || '',
+            modality: backupData.race.modality || 'CRI',
             description: backupData.race.description || '',
             firstStartTime: backupData.race.firstStartTime || '09:00:00',
             createdAt: backupData.race.createdAt,
-            lastModified: new Date().toISOString()
+            lastModified: new Date().toISOString(),
+            metadata: backupData.race.metadata || {}
         };
         
         // Aplicar datos seleccionados
@@ -1076,6 +1188,10 @@ function performRaceRestore(backupData, restoreOption, selectedData, existingRac
         
         if (selectedData.includes('config')) {
             restoredRace.intervals = backupData.race.intervals ? [...backupData.race.intervals] : [];
+            // También restaurar configuración si existe
+            if (backupData.race.firstStartTime) {
+                restoredRace.firstStartTime = backupData.race.firstStartTime;
+            }
         } else {
             restoredRace.intervals = [];
         }
@@ -1094,8 +1210,12 @@ function performRaceRestore(backupData, restoreOption, selectedData, existingRac
             
         } else if (restoreOption === 'replace' && existingRaceIndex !== -1) {
             // Reemplazar carrera existente
-            restoredRace.id = appState.races[existingRaceIndex].id; // Mantener ID original
-            restoredRace.createdAt = appState.races[existingRaceIndex].createdAt; // Mantener fecha creación
+            const originalId = appState.races[existingRaceIndex].id;
+            const originalCreatedAt = appState.races[existingRaceIndex].createdAt;
+            
+            // Preservar ID y fecha de creación original
+            restoredRace.id = originalId;
+            restoredRace.createdAt = originalCreatedAt;
             
             appState.races[existingRaceIndex] = restoredRace;
             
@@ -1135,6 +1255,15 @@ function performRaceRestore(backupData, restoreOption, selectedData, existingRac
             if (selectedData.includes('startOrder') && backupData.race.startOrder) {
                 startOrderData = [...backupData.race.startOrder];
             }
+            
+            // Actualizar campos en la UI si es necesario
+            if (selectedData.includes('config')) {
+                // Actualizar hora de inicio en el input
+                const firstStartTimeInput = document.getElementById('first-start-time');
+                if (firstStartTimeInput && restoredRace.firstStartTime) {
+                    firstStartTimeInput.value = restoredRace.firstStartTime;
+                }
+            }
         }
         
         // Guardar en localStorage
@@ -1151,6 +1280,7 @@ function performRaceRestore(backupData, restoreOption, selectedData, existingRac
             renderDeparturesList();
             renderLlegadasList();
             updateStartOrderTable();
+            updateRaceManagementCardTitle();
         }
         
         // Mostrar mensaje de éxito
@@ -1170,8 +1300,15 @@ function performRaceRestore(backupData, restoreOption, selectedData, existingRac
         
         showMessage(`${successMessage} ${detailMessage}`, 'success');
         
-        console.log("Carrera restaurada:", restoredRace.name);
-        console.log("Datos incluidos:", selectedData);
+        console.log("Carrera restaurada COMPLETA:", {
+            nombre: restoredRace.name,
+            fecha: restoredRace.date,
+            categoria: restoredRace.category,
+            modalidad: restoredRace.modality,
+            salidas: restoredRace.departures.length,
+            ordenSalida: restoredRace.startOrder.length,
+            llegadas: restoredRace.llegadas ? restoredRace.llegadas.length : 0
+        });
         
     } catch (error) {
         console.error('Error restoring race data:', error);
@@ -1368,12 +1505,185 @@ function addRaceRestoreModalStyles() {
 
 // Añadir esta función al archivo principal (Main.js)
 function initBackupModule() {
+    // Verificar si ya se inicializó
+    if (window.backupModuleInitialized) {
+        console.log("Módulo de backup ya inicializado");
+        return;
+    }
+    
     if (typeof setupBackupEventListeners === 'function') {
         setupBackupEventListeners();
+        window.backupModuleInitialized = true;
+        console.log("Módulo de backup inicializado");
     }
 }
 
-// Inicializar cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(initBackupModule, 1000);
-});
+function setupRaceFormEvents() {
+    // Verificar si ya se configuró
+    if (window.raceFormEventsConfigured) {
+        console.log("Eventos del formulario de carrera ya configurados");
+        return;
+    }
+    
+    console.log("Configurando eventos del formulario de carrera...");
+    
+    // Mostrar/ocultar campo de "Otras modalidades"
+    document.querySelectorAll('input[name="modality"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const otherContainer = document.getElementById('other-modality-container');
+            if (this.value === 'Otras') {
+                otherContainer.style.display = 'block';
+                document.getElementById('new-race-other-modality').focus();
+            } else {
+                otherContainer.style.display = 'none';
+                document.getElementById('new-race-other-modality').value = '';
+            }
+        });
+    });
+    
+    // Validación en tiempo real del nombre
+    const nameInput = document.getElementById('new-race-name');
+    if (nameInput) {
+        nameInput.addEventListener('blur', function() {
+            if (!this.value.trim()) {
+                this.classList.add('invalid-input');
+            } else {
+                this.classList.remove('invalid-input');
+            }
+        });
+    }
+    
+    window.raceFormEventsConfigured = true;
+    console.log("Eventos del formulario de carrera configurados");
+}
+
+function editRaceDetails() {
+    if (!appState.currentRace) {
+        showMessage("Selecciona una carrera primero", 'warning');
+        return;
+    }
+    
+    const t = translations[appState.currentLanguage];
+    
+    // Llenar el formulario con los datos actuales
+    document.getElementById('new-race-name').value = appState.currentRace.name;
+    document.getElementById('new-race-date').value = appState.currentRace.date || new Date().toISOString().split('T')[0];
+    document.getElementById('new-race-category').value = appState.currentRace.category || '';
+    document.getElementById('new-race-organizer').value = appState.currentRace.organizer || '';
+    document.getElementById('new-race-location').value = appState.currentRace.location || '';
+    document.getElementById('new-race-description').value = appState.currentRace.description || '';
+    
+    // Configurar modalidad
+    const modality = appState.currentRace.modality || 'CRI';
+    const originalModality = appState.currentRace.metadata?.originalModality || 'CRI';
+    
+    if (originalModality === 'CRI') {
+        document.getElementById('modality-cri').checked = true;
+    } else if (originalModality === 'CRE') {
+        document.getElementById('modality-cre').checked = true;
+    } else if (originalModality === 'Descenso') {
+        document.getElementById('modality-descenso').checked = true;
+    } else if (originalModality === 'Otras') {
+        document.getElementById('modality-otras').checked = true;
+        document.getElementById('new-race-other-modality').value = modality;
+        document.getElementById('other-modality-container').style.display = 'block';
+    } else {
+        // Si es una modalidad personalizada
+        document.getElementById('modality-otras').checked = true;
+        document.getElementById('new-race-other-modality').value = modality;
+        document.getElementById('other-modality-container').style.display = 'block';
+    }
+    
+    // Cambiar título del modal
+    document.getElementById('new-race-modal-title').textContent = t.editRaceTitle || 'Editar carrera';
+    
+    // Cambiar botón
+    const createBtn = document.getElementById('create-race-btn');
+    createBtn.textContent = t.saveChanges || 'Guardar cambios';
+    createBtn.onclick = saveRaceChanges;
+    
+    // Mostrar modal
+    document.getElementById('new-race-modal').classList.add('active');
+    document.getElementById('new-race-name').focus();
+}
+
+function saveRaceChanges() {
+    const t = translations[appState.currentLanguage];
+    
+    // Obtener valores del formulario
+    const name = document.getElementById('new-race-name').value.trim();
+    const date = document.getElementById('new-race-date').value;
+    const category = document.getElementById('new-race-category').value;
+    const organizer = document.getElementById('new-race-organizer').value.trim();
+    const location = document.getElementById('new-race-location').value.trim();
+    const description = document.getElementById('new-race-description').value.trim();
+    
+    // Obtener modalidad
+    const modalityInput = document.querySelector('input[name="modality"]:checked');
+    let modality = modalityInput ? modalityInput.value : 'CRI';
+    let otherModality = '';
+    
+    if (modality === 'Otras') {
+        otherModality = document.getElementById('new-race-other-modality').value.trim();
+        if (otherModality) {
+            modality = otherModality;
+        }
+    }
+    
+    // Validaciones
+    if (!name) {
+        showMessage(t.enterRaceName, 'error');
+        return;
+    }
+    
+    if (!date) {
+        showMessage(t.enterValidDate, 'error');
+        return;
+    }
+    
+    // Actualizar carrera actual
+    appState.currentRace.name = name;
+    appState.currentRace.date = date;
+    appState.currentRace.category = category;
+    appState.currentRace.organizer = organizer;
+    appState.currentRace.location = location;
+    appState.currentRace.modality = modality;
+    appState.currentRace.description = description;
+    appState.currentRace.lastModified = new Date().toISOString();
+    
+    if (!appState.currentRace.metadata) {
+        appState.currentRace.metadata = {};
+    }
+    appState.currentRace.metadata.originalModality = modalityInput ? modalityInput.value : 'CRI';
+    appState.currentRace.metadata.otherModality = otherModality;
+    
+    // Actualizar en el array de carreras
+    const raceIndex = appState.races.findIndex(r => r.id === appState.currentRace.id);
+    if (raceIndex !== -1) {
+        appState.races[raceIndex] = { ...appState.currentRace };
+    }
+    
+    // Guardar cambios
+    saveRacesToStorage();
+    renderRacesSelect();
+    
+    // Cerrar modal y resetear
+    document.getElementById('new-race-modal').classList.remove('active');
+    resetRaceForm();
+    
+    // Restaurar botón original
+    const createBtn = document.getElementById('create-race-btn');
+    createBtn.textContent = t.createRace || 'Crear carrera';
+    createBtn.onclick = createNewRace;
+    
+    // Actualizar título del modal
+    document.getElementById('new-race-modal-title').textContent = t.newRaceModalTitle || 'Nueva carrera';
+    
+    // Mostrar mensaje de éxito
+    showMessage(t.raceUpdated || 'Carrera actualizada correctamente', 'success');
+    
+    // Actualizar título de la tarjeta
+    updateRaceManagementCardTitle();
+    
+    console.log("Carrera actualizada:", appState.currentRace);
+}
