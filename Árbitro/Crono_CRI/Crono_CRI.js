@@ -36,63 +36,62 @@ window.savingNotesIndex = null;
 function initApp() {
     console.log("Inicializando aplicación...");
     
+    // Limpiar datos antiguos
+    cleanupOldData();
+    
     loadLanguagePreference();
     loadRacesFromStorage();
     loadAppState();
     loadAudioPreferences();
     
-    setTimeout(() => verifyAudioFiles(), 500);
-    setTimeout(() => preloadVoiceAudios(), 1000);
-    
-    loadRaceData();
-    
-    initModeSlider();
-    
+    // Inicializar UI básica
     updateLanguageUI();
     updateSalidaText();
     renderRacesSelect();
+    
+    loadRaceData();
+    
+    // Configurar listeners básicos
     setupSorting();
+    setupEventListeners();
+    setupAudioEventListeners();
+    setupModalEventListeners();
+    setupCardToggles();
     
-    // AGREGAR AQUÍ LOS INTERVALOS PARA EL RELOJ
-    // Actualizar hora del sistema cada segundo
-    updateSystemTimeDisplay(); // Ejecutar inmediatamente
+    // Inicializar timers
+    updateSystemTimeDisplay();
     setInterval(updateSystemTimeDisplay, 1000);
-    
-    // Actualizar diferencia de tiempo cada segundo
-    updateTimeDifference(); // Ejecutar inmediatamente  
+    updateTimeDifference();
     setInterval(updateTimeDifference, 1000);
-    
-    // Los intervalos existentes
     setInterval(updateTotalTime, 1000);
     setInterval(updateCurrentTime, 1000);
     
+    // Configurar PWA y Service Worker
     setupServiceWorker();
     setupPWA();
     setupCountdownResize();
     adjustCountdownSize();
     adjustInfoCornersSize();
     
-    setupEventListeners();
-    setupAudioEventListeners();
-    
-    // AGREGAR AQUÍ LOS LISTENERS ESPECÍFICOS DE MODALES
-    setupModalEventListeners();
-    
-    // Configurar botones de minimizar/expandir
-    setupCardToggles();
-    
-    // Cargar modo guardado
-    const savedMode = localStorage.getItem('app-mode') || 'salida';
+    // Inicializar el selector de modo
     setTimeout(() => {
-        changeMode(savedMode); // Esto mostrará/ocultará los elementos correctos
+        initModeSlider();
         
-        // AÑADE ESTO para actualizar el título después de cambiar el modo
-        updateModeSelectorCardTitle(); // <-- AÑADE ESTA LÍNEA
-    }, 100);
+        // NO llamar a changeMode() aquí - el slider ya maneja la inicialización
+        // Solo verificar que el modo sea correcto
+        setTimeout(() => {
+            const currentMode = localStorage.getItem('app-mode') || 'salida';
+            console.log(`Verificación final: modo actual = ${currentMode}`);
+            
+            // Actualizar títulos
+            updateCardTitles();
+            console.log("Títulos actualizados después de inicialización");
+        }, 300);
+    }, 300);
     
-    setTimeout(() => {
-        updateCardTitles();
-    }, 500);
+    // Precargar audios
+    setTimeout(() => verifyAudioFiles(), 1500);
+    setTimeout(() => preloadVoiceAudios(), 2000);
     
     document.addEventListener('click', initAudioOnInteraction);
     document.addEventListener('keydown', initAudioOnInteraction);
@@ -101,7 +100,6 @@ function initApp() {
     console.log(`Idioma inicial: ${appState.currentLanguage}`);
     console.log(`Tipo de audio: ${appState.audioType}`);
 }
-
 // AGREGAR ESTA NUEVA FUNCIÓN
 function setupModalEventListeners() {
     console.log("Configurando event listeners de modales...");
@@ -3265,61 +3263,39 @@ function secondsToTime(totalSeconds) {
 // ============================================
 
 // Cambiar modo de operación
+// Variable global para controlar si estamos en medio de un cambio de modo
+let isModeChanging = false;
+
 function changeMode(mode) {
+    // Prevenir ciclos infinitos
+    if (isModeChanging) {
+        console.log("Ya hay un cambio de modo en progreso, ignorando...");
+        return;
+    }
+    
+    isModeChanging = true;
+    
     const t = translations[appState.currentLanguage];
     
-    console.log(`Cambiando a modo: ${mode}`);
+    console.log(`Cambiando a modo: ${mode} desde changeMode()`);
     
-    // 1. Actualizar opciones activas del slider de modo
-    document.querySelectorAll('.mode-slider-option').forEach(opt => {
-        opt.classList.remove('active');
-    });
-    
-    const activeOption = document.querySelector(`.mode-slider-option[data-mode="${mode}"]`);
-    if (activeOption) {
-        activeOption.classList.add('active');
+    // Encontrar la opción del slider
+    const targetOption = document.querySelector(`.mode-slider-option[data-mode="${mode}"]`);
+    if (targetOption) {
+        // Simular clic
+        targetOption.click();
+    } else {
+        console.error(`Opción para modo ${mode} no encontrada`);
     }
     
-    // 2. Actualizar el atributo data-mode del slider para la animación
-    const modeSlider = document.querySelector('.mode-slider');
-    if (modeSlider) {
-        modeSlider.setAttribute('data-mode', mode);
-    }
-    
-    // 3. Ocultar/Mostrar contenido de modos
-    const salidaContent = document.getElementById('mode-salida-content');
-    const llegadasContent = document.getElementById('mode-llegadas-content');
-    
-    if (salidaContent) salidaContent.classList.remove('active');
-    if (llegadasContent) llegadasContent.classList.remove('active');
-    
-    const quickRegisterBtn = document.getElementById('quick-register-btn');
-    if (quickRegisterBtn) quickRegisterBtn.style.display = 'none';
-    
-    // 4. Mostrar contenido del modo seleccionado
-    if (mode === 'salida') {
-        console.log('Mostrando modo SALIDA');
-        if (salidaContent) salidaContent.classList.add('active');
-    } else if (mode === 'llegadas') {
-        console.log('Mostrando modo LLEGADAS');
-        if (llegadasContent) llegadasContent.classList.add('active');
-        
-        if (quickRegisterBtn) quickRegisterBtn.style.display = 'flex';
-        
-        initLlegadasMode();
-    }
-    
-    // 5. ACTUALIZAR TÍTULO DEL SELECTOR DE MODO - AÑADIR CON TIMEOUT
-    setTimeout(() => {
-        updateModeSelectorCardTitle();
-    }, 50); // Pequeño retardo para asegurar que el DOM se actualizó
-    
-    // 6. Guardar preferencia
-    localStorage.setItem('app-mode', mode);
-    
-    // 7. Mostrar mensaje traducido
+    // Mostrar mensaje
     const modeName = mode === 'salida' ? t.modeSalidaTitle : t.modeLlegadasTitle;
     showMessage(t.modeChanged.replace('{mode}', modeName), 'info');
+    
+    // Permitir siguiente cambio después de un tiempo
+    setTimeout(() => {
+        isModeChanging = false;
+    }, 500);
     
     console.log(`Modo cambiado correctamente a: ${mode}`);
 }

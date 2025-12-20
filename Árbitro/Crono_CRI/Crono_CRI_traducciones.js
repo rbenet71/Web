@@ -1548,8 +1548,7 @@ function updateLanguageUI() {
     document.getElementById('no-ranking-text').textContent = t.noRankingText;
     document.getElementById('export-ranking-btn').textContent = t.exportRankingBtn;
     document.getElementById('close-ranking-btn').textContent = t.closeRankingBtn;
-    
-    updateModeSelectorCardTitle();
+
     updateRaceManagementCardTitle();
     updateStartOrderCardTitle();
 

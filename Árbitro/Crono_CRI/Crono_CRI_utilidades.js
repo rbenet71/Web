@@ -249,10 +249,55 @@ function formatTimeWithSeconds(timeStr) {
     return '00:00:00';
 }
 
-// En loadRaceData, formatear el tiempo de inicio
-if (appState.currentRace.firstStartTime) {
-    const formattedTime = formatTimeWithSeconds(appState.currentRace.firstStartTime);
-    document.getElementById('first-start-time').value = formattedTime;
-} else {
-    document.getElementById('first-start-time').value = '09:00:00';
+function debugModeState() {
+    console.log("=== DEPURACIÓN DE ESTADO DE MODO ===");
+    
+    // Verificar slider
+    const slider = document.querySelector('.mode-slider');
+    const activeOption = document.querySelector('.mode-slider-option.active');
+    console.log("Slider data-mode:", slider ? slider.dataset.mode : "No encontrado");
+    console.log("Opción activa:", activeOption ? activeOption.dataset.mode : "No encontrada");
+    
+    // Verificar contenido visible
+    const salidaContent = document.getElementById('mode-salida-content');
+    const llegadasContent = document.getElementById('mode-llegadas-content');
+    console.log("Contenido salida activo:", salidaContent ? salidaContent.classList.contains('active') : "No encontrado");
+    console.log("Contenido llegadas activo:", llegadasContent ? llegadasContent.classList.contains('active') : "No encontrado");
+    
+    // Verificar localStorage
+    console.log("app-mode en localStorage:", localStorage.getItem('app-mode'));
+    console.log("selectedMode en localStorage:", localStorage.getItem('selectedMode'));
+    
+    console.log("=== FIN DEPURACIÓN ===");
+}
+function cleanupOldData() {
+    console.log("Limpiando datos antiguos...");
+    
+    // Eliminar claves duplicadas
+    const oldKeys = ['selectedMode', 'mode', 'appMode'];
+    oldKeys.forEach(key => {
+        if (localStorage.getItem(key)) {
+            console.log(`Eliminando clave antigua: ${key}`);
+            localStorage.removeItem(key);
+        }
+    });
+    
+    // Unificar en 'app-mode' si hay datos en otras claves
+    const possibleModes = {
+        'selectedMode': localStorage.getItem('selectedMode'),
+        'mode': localStorage.getItem('mode'),
+        'appMode': localStorage.getItem('appMode')
+    };
+    
+    // Encontrar el primer modo válido
+    for (const [key, value] of Object.entries(possibleModes)) {
+        if (value && (value === 'salida' || value === 'llegadas')) {
+            console.log(`Migrando modo de ${key}=${value} a app-mode`);
+            localStorage.setItem('app-mode', value);
+            localStorage.removeItem(key);
+            break;
+        }
+    }
+    
+    console.log("Limpieza de datos completada");
 }

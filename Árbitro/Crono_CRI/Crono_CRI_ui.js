@@ -746,47 +746,109 @@ function setupAudioEventListeners() {
 // Manejar el nuevo selector de modo deslizante
 
 function initModeSlider() {
+    
     const slider = document.querySelector('.mode-slider');
     const options = document.querySelectorAll('.mode-slider-option');
-    const track = document.querySelector('.mode-slider-track');
     const salidaContent = document.getElementById('mode-salida-content');
     const llegadasContent = document.getElementById('mode-llegadas-content');
+    
+    
+    console.log("Inicializando selector de modo...");
+    
+    // Variable para prevenir inicialización múltiple
+    let isInitializing = false;
+    
+    // Cargar modo guardado
+    const savedMode = localStorage.getItem('app-mode') || 'salida';
+    console.log(`Selector de modo: modo guardado (app-mode) = ${savedMode}`);
+    
+    // Función para cambiar modo
+    const changeModeInternal = function(mode, isInitialLoad = false) {
+        if (isInitializing && !isInitialLoad) {
+            console.log("Selector de modo: ignorando cambio durante inicialización");
+            return;
+        }
         
+        console.log(`Selector de modo: cambiando a ${mode} (inicial: ${isInitialLoad})`);
+        
+        // Actualizar estado visual del slider
+        options.forEach(opt => opt.classList.remove('active'));
+        this.classList.add('active');
+        if (slider) slider.dataset.mode = mode;
+        
+        // Mostrar/ocultar contenido
+        if (mode === 'salida') {
+            if (salidaContent) salidaContent.classList.add('active');
+            if (llegadasContent) llegadasContent.classList.remove('active');
+        } else {
+            if (salidaContent) salidaContent.classList.remove('active');
+            if (llegadasContent) llegadasContent.classList.add('active');
+        }
+        
+        // Guardar preferencia (solo si no es carga inicial)
+        if (!isInitialLoad) {
+            localStorage.setItem('app-mode', mode);
+        }
+        
+        // Actualizar título
+        setTimeout(() => {
+            updateModeSelectorCardTitle();
+        }, 50);
+    };
+    
+    // Añadir event listeners
     options.forEach(option => {
         option.addEventListener('click', function() {
             const mode = this.dataset.mode;
-            
-            // Actualizar estado visual
-            options.forEach(opt => opt.classList.remove('active'));
-            this.classList.add('active');
-            slider.dataset.mode = mode;
-            
-            // Mostrar/ocultar contenido
-            if (mode === 'salida') {
-                salidaContent.classList.add('active');
-                llegadasContent.classList.remove('active');
-            } else {
-                salidaContent.classList.remove('active');
-                llegadasContent.classList.add('active');
-            }
-            
-            // Guardar preferencia
-            localStorage.setItem('selectedMode', mode);
-            
-            // ACTUALIZAR TÍTULO DEL SELECTOR DE MODO
-            setTimeout(() => {
-                updateModeSelectorCardTitle();
-            }, 50);
+            changeModeInternal.call(this, mode, false);
         });
     });
     
-    // Cargar modo guardado
-    const savedMode = localStorage.getItem('selectedMode') || 'salida';
-    const savedOption = document.querySelector(`.mode-slider-option[data-mode="${savedMode}"]`);
-    if (savedOption) {
-        savedOption.click();
-    }
+    // Marcar que estamos en proceso de inicialización
+    isInitializing = true;
+    
+    // Aplicar modo guardado SIN usar click() para evitar múltiples eventos
+    setTimeout(() => {
+        const savedOption = document.querySelector(`.mode-slider-option[data-mode="${savedMode}"]`);
+        if (savedOption) {
+            // Aplicar directamente sin disparar eventos
+            options.forEach(opt => opt.classList.remove('active'));
+            savedOption.classList.add('active');
+            if (slider) slider.dataset.mode = savedMode;
+            
+            // Mostrar contenido correspondiente
+            if (savedMode === 'salida') {
+                if (salidaContent) salidaContent.classList.add('active');
+                if (llegadasContent) llegadasContent.classList.remove('active');
+            } else {
+                if (salidaContent) salidaContent.classList.remove('active');
+                if (llegadasContent) llegadasContent.classList.add('active');
+            }
+            
+            console.log(`Selector de modo: modo ${savedMode} establecido directamente`);
+        } else {
+            // Establecer salida por defecto
+            const defaultOption = document.querySelector('.mode-slider-option[data-mode="salida"]');
+            if (defaultOption) {
+                options.forEach(opt => opt.classList.remove('active'));
+                defaultOption.classList.add('active');
+                if (slider) slider.dataset.mode = 'salida';
+                if (salidaContent) salidaContent.classList.add('active');
+                if (llegadasContent) llegadasContent.classList.remove('active');
+                console.log("Selector de modo: salida establecida por defecto");
+            }
+        }
+        
+        // Finalizar inicialización y actualizar título
+        isInitializing = false;
+        setTimeout(() => {
+            updateModeSelectorCardTitle();
+        }, 100);
+    }, 50);
+    
+    console.log("Selector de modo inicializado");
 }
+
 // ============================================
 // FUNCIONES PARA ACTUALIZAR TÍTULOS DE TARJETAS
 // ============================================
@@ -816,36 +878,42 @@ function updateRaceManagementCardTitle() {
 function updateModeSelectorCardTitle() {
     console.log("Actualizando título del selector de modo...");
     
-    // Primero intentar encontrar el título por ID
-    let cardTitleElement = document.querySelector('#mode-selector-title');
-    
-    // Si no se encuentra por ID, buscar alternativamente
-    if (!cardTitleElement) {
-        console.warn("Elemento #mode-selector-title no encontrado, buscando alternativamente...");
-        const card = document.querySelector('.mode-selector-simple-card');
-        if (card) {
-            const header = card.querySelector('.card-header h2 span');
-            if (header) {
-                cardTitleElement = header;
-                console.log("Encontrado título alternativamente en modo-selector-simple-card");
-            }
-        }
+    // Esperar a que el DOM esté listo
+    if (!document.getElementById('mode-selector-title')) {
+        console.warn("Elemento #mode-selector-title no disponible aún");
+        return;
     }
     
+    // Buscar el título
+    const cardTitleElement = document.getElementById('mode-selector-title');
     if (!cardTitleElement) {
         console.error("No se pudo encontrar el elemento del título del selector de modo");
         return;
     }
     
     const t = translations[appState.currentLanguage];
-    const modeSalidaContent = document.getElementById('mode-salida-content');
+    
+    // Determinar el modo activo de manera más precisa
     let modeText = '';
     
-    // Determinar qué modo está activo
-    if (modeSalidaContent && modeSalidaContent.classList.contains('active')) {
-        modeText = t.modeSalidaTitle || 'Salidas';
+    // Verificar qué contenido está visible usando múltiples métodos
+    const modeSlider = document.querySelector('.mode-slider');
+    const activeModeOption = document.querySelector('.mode-slider-option.active');
+    
+    if (modeSlider && activeModeOption) {
+        // Usar el modo del slider como fuente principal
+        const mode = activeModeOption.getAttribute('data-mode');
+        modeText = (mode === 'salida') ? t.modeSalidaTitle : t.modeLlegadasTitle;
+        console.log(`Modo detectado desde slider: ${mode} -> ${modeText}`);
     } else {
-        modeText = t.modeLlegadasTitle || 'Llegadas';
+        // Fallback: verificar contenido visible
+        const salidaContent = document.getElementById('mode-salida-content');
+        if (salidaContent && salidaContent.classList.contains('active')) {
+            modeText = t.modeSalidaTitle || 'Salidas';
+        } else {
+            modeText = t.modeLlegadasTitle || 'Llegadas';
+        }
+        console.log(`Modo detectado desde contenido: ${modeText}`);
     }
     
     // Formato: "Modo de Operación - [Salidas/Llegadas]"
@@ -854,6 +922,7 @@ function updateModeSelectorCardTitle() {
     
     console.log(`Título actualizado: "${newTitle}" (Idioma: ${appState.currentLanguage}, Modo: ${modeText})`);
 }
+
 function updateStartOrderCardTitle() {
     const cardTitleElement = document.querySelector('#card-start-order-title');
     if (!cardTitleElement) return;
