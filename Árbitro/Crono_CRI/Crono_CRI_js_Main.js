@@ -1,0 +1,289 @@
+// ============================================
+// PUNTO DE ENTRADA Y CONFIGURACIÓN GLOBAL
+// ============================================
+
+// ESTADO DE LA APLICACIÓN
+const appState = {
+    audioType: 'beep',
+    voiceAudioCache: {},
+    currentLanguage: 'es',
+    currentRace: null,
+    races: [],
+    countdownActive: false,
+    countdownValue: 0,
+    countdownInterval: null,
+    raceStartTime: null,
+    departedCount: 0,
+    nextCorredorTime: 60,
+    intervals: [],
+    currentIntervalIndex: 0,
+    departureTimes: [],
+    audioContext: null,
+    isSalidaShowing: false,
+    salidaTimeout: null,
+    deferredPrompt: null,
+    updateAvailable: false,
+    countdownPaused: false,
+    accumulatedTime: 0,
+    configModalOpen: false,
+    variableIntervalConfig: { intervals: [], saved: false },
+    soundEnabled: true,
+    aggressiveMode: false
+};
+
+// ESTADO DEL MODO LLEGADAS
+let llegadasState = {
+    timerActive: false,
+    startTime: null,
+    currentTime: 0,
+    timerInterval: null,
+    llegadas: [],
+    importedSalidas: [],
+    timerStarted: false
+};
+
+// ESTADO DE ORDENACIÓN
+let sortState = { column: 'time', direction: 'desc' };
+
+// DATOS DE ORDEN DE SALIDA
+let startOrderData = [];
+
+// ============================================
+// INICIALIZACIÓN PRINCIPAL
+// ============================================
+// ============================================
+// INICIALIZACIÓN PRINCIPAL
+// ============================================
+function initApp() {
+    console.log("Inicializando aplicación Crono CRI...");
+    
+    // Limpiar datos antiguos
+    if (typeof cleanupOldData === 'function') cleanupOldData();
+    
+    // Cargar preferencias
+    if (typeof loadLanguagePreference === 'function') loadLanguagePreference();
+    if (typeof loadRacesFromStorage === 'function') loadRacesFromStorage();
+    if (typeof loadAppState === 'function') loadAppState();
+    if (typeof loadAudioPreferences === 'function') loadAudioPreferences();
+    
+    // Inicializar UI
+    if (typeof updateLanguageUI === 'function') updateLanguageUI();
+    if (typeof updateSalidaText === 'function') updateSalidaText();
+    if (typeof renderRacesSelect === 'function') renderRacesSelect();
+    if (typeof loadRaceData === 'function') loadRaceData();
+    if (typeof loadStartOrderData === 'function') loadStartOrderData();
+
+    // Configurar inputs de tiempo mejorados (INTEGRADO EN SALIDAS)
+    if (typeof setupTimeInputs === 'function') setupTimeInputs();
+    
+    // Configurar TODOS los listeners
+    if (typeof setupEventListeners === 'function') setupEventListeners();
+    if (typeof setupCardToggles === 'function') setupCardToggles();
+    if (typeof setupAudioEventListeners === 'function') setupAudioEventListeners();
+    if (typeof setupModalEventListeners === 'function') setupModalEventListeners();
+    if (typeof setupModalActionListeners === 'function') setupModalActionListeners();
+    if (typeof setupSorting === 'function') setupSorting();
+    if (typeof setupLlegadasEventListeners === 'function') setupLlegadasEventListeners();
+    if (typeof setupStartOrderEventListeners === 'function') setupStartOrderEventListeners();
+    
+    // Inicializar timers
+    setInterval(updateSystemTimeDisplay, 1000);
+    setInterval(updateTimeDifference, 1000);
+    setInterval(updateTotalTime, 1000);
+    setInterval(updateCurrentTime, 1000);
+    
+    // Inicializar modo slider
+    setTimeout(() => {
+        if (typeof initModeSlider === 'function') initModeSlider();
+    }, 300);
+    
+    // Precargar audios
+    setTimeout(() => {
+        if (typeof verifyAudioFiles === 'function') verifyAudioFiles();
+    }, 1500);
+    setTimeout(() => {
+        if (typeof preloadVoiceAudios === 'function') preloadVoiceAudios();
+    }, 2000);
+    
+    // Configurar PWA
+    if (typeof setupServiceWorker === 'function') setupServiceWorker();
+    if (typeof setupPWA === 'function') setupPWA();
+    if (typeof setupCountdownResize === 'function') setupCountdownResize();
+    
+    // Eventos de audio
+    document.addEventListener('click', initAudioOnInteraction);
+    document.addEventListener('keydown', initAudioOnInteraction);
+    
+    console.log("Aplicación inicializada correctamente");
+}
+// Guardar estado antes de cerrar
+window.addEventListener('beforeunload', () => {
+    if (appState.countdownActive) {
+        if (typeof saveLastUpdate === 'function') saveLastUpdate();
+    }
+});
+// ============================================
+// EVENT LISTENERS PRINCIPALES
+// ============================================
+function setupEventListeners() {
+    console.log("Configurando event listeners principales...");
+    
+    // Idiomas
+    document.querySelectorAll('.flag').forEach(flag => {
+        flag.addEventListener('click', function() {
+            const lang = this.getAttribute('data-lang');
+            appState.currentLanguage = lang;
+            localStorage.setItem('countdown-language', lang);
+            updateLanguageUI();
+            updateSalidaText();
+        });
+    });
+    
+    // Botones de expandir/colapsar
+    document.getElementById('expand-all-btn')?.addEventListener('click', () => toggleAllCards('expand'));
+    document.getElementById('collapse-all-btn')?.addEventListener('click', () => toggleAllCards('collapse'));
+    
+    // Selector de carrera
+    document.getElementById('race-select').addEventListener('change', handleRaceChange);
+    
+    // Botón de nueva carrera
+    document.getElementById('new-race-btn').addEventListener('click', () => {
+        document.getElementById('new-race-modal').classList.add('active');
+        document.getElementById('new-race-name').focus();
+    });
+    
+    // Botón de eliminar carrera
+    document.getElementById('delete-race-btn').addEventListener('click', () => {
+        const t = translations[appState.currentLanguage];
+        if (!appState.currentRace) {
+            showMessage(t.selectRaceFirst, 'error');
+            return;
+        }
+        document.getElementById('delete-race-modal').classList.add('active');
+    });
+    
+    // Botón de ayuda
+    document.getElementById('help-icon-header').addEventListener('click', function() {
+        window.open('Crono_CRI_ayuda.html', '_blank');
+    });
+     setupStartOrderEventListeners();
+    // Atajos de teclado
+    document.addEventListener('keydown', handleKeyboardShortcuts);
+    
+    console.log("Event listeners principales configurados");
+}
+// ============================================
+// EVENT LISTENERS PARA ORDEN DE SALIDA
+// ============================================
+function setupStartOrderEventListeners() {
+    console.log("Configurando event listeners de orden de salida...");
+    
+    // Botón para crear plantilla
+    const createTemplateBtn = document.getElementById('create-template-btn');
+    if (createTemplateBtn && typeof createStartOrderTemplate === 'function') {
+        createTemplateBtn.addEventListener('click', createStartOrderTemplate);
+    }
+    
+    // Botón para importar orden
+    const importOrderBtn = document.getElementById('import-order-btn');
+    if (importOrderBtn && typeof importStartOrder === 'function') {
+        importOrderBtn.addEventListener('click', importStartOrder);
+    }
+    
+    // Botón para eliminar orden
+    const deleteOrderBtn = document.getElementById('delete-order-btn');
+    if (deleteOrderBtn && typeof deleteStartOrder === 'function') {
+        deleteOrderBtn.addEventListener('click', deleteStartOrder);
+    }
+    
+    // Botón para exportar orden
+    const exportOrderBtn = document.getElementById('export-order-btn');
+    if (exportOrderBtn && typeof exportStartOrder === 'function') {
+        exportOrderBtn.addEventListener('click', exportStartOrder);
+    }
+    
+    // Botón para añadir corredor
+    const addRiderBtn = document.getElementById('add-rider-btn');
+    if (addRiderBtn && typeof addNewRider === 'function') {
+        addRiderBtn.addEventListener('click', addNewRider);
+    }
+    
+    // Botón para limpiar lista
+    const clearDeparturesBtn = document.getElementById('clear-departures-btn');
+    if (clearDeparturesBtn) {
+        clearDeparturesBtn.addEventListener('click', () => {
+            const modal = document.getElementById('clear-departures-modal');
+            if (modal) modal.classList.add('active');
+        });
+    }
+    
+    // Botón para exportar a Excel
+    const exportExcelBtn = document.getElementById('export-excel-btn');
+    if (exportExcelBtn && typeof exportToExcel === 'function') {
+        exportExcelBtn.addEventListener('click', exportToExcel);
+    }
+    
+    // Botón para reiniciar completamente
+    const exitCompleteBtn = document.getElementById('exit-complete-btn');
+    if (exitCompleteBtn) {
+        exitCompleteBtn.addEventListener('click', () => {
+            const modal = document.getElementById('restart-confirm-modal');
+            if (modal) modal.classList.add('active');
+        });
+    }
+    
+    // Botón para iniciar cuenta atrás
+    const startCountdownBtn = document.getElementById('start-countdown-btn');
+    if (startCountdownBtn && typeof startCountdown === 'function') {
+        startCountdownBtn.addEventListener('click', startCountdown);
+    }
+    
+    console.log("Event listeners de orden de salida configurados.");
+}
+
+// ============================================
+// MANEJADORES DE EVENTOS
+// ============================================
+function handleRaceChange() {
+    const index = parseInt(this.value);
+    if (index >= 0 && index < appState.races.length) {
+        if (appState.currentRace) {
+            saveRaceData();
+        }
+        
+        appState.currentRace = appState.races[index];
+        loadRaceData();
+        saveRacesToStorage();
+        onRaceChanged();
+    } else {
+        appState.currentRace = null;
+        appState.departureTimes = [];
+        appState.departedCount = 0;
+        appState.intervals = [];
+        
+        document.getElementById('departed-count').textContent = 0;
+        document.getElementById('start-position').value = 1;
+        renderDeparturesList();
+    }
+}
+
+function handleKeyboardShortcuts(e) {
+    // ESC para pausar cuenta atrás
+    if (e.key === 'Escape' && appState.countdownActive && !appState.configModalOpen) {
+        pauseCountdownVisual();
+        document.getElementById('config-during-countdown-modal').classList.add('active');
+    }
+    
+    // Ctrl+Enter para iniciar cuenta atrás
+    if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('start-countdown-btn').click();
+    }
+    
+    // Tecla L para registro rápido de llegada
+    if ((e.key === 'l' || e.key === 'L') && 
+        document.getElementById('mode-llegadas-content').classList.contains('active') && 
+        llegadasState.timerActive) {
+        showQuickRegisterLlegada();
+    }
+}

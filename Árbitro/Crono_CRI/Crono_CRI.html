@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="mobile-web-app-capable" content="yes">
     <title>Crono CRI - Control de Salidas para Carreras</title>
     
     <!-- Google tag (gtag.js) -->
@@ -23,15 +22,10 @@
     
     <!-- PWA -->
     <meta name="theme-color" content="#FF0000">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Crono CRI">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="Crono_CRI.css">
-    <style>
-
-    </style>
 </head>
 <body>
     <!-- =========================================== -->
@@ -141,7 +135,8 @@
                         <div class="time-config-grid">
                             <div class="time-config-item">
                                 <label for="first-start-time" class="form-label" id="first-start-label">Hora Salida Primer Corredor:</label>
-                                <input type="time" id="first-start-time" class="form-control" value="09:00:00" step="1">
+                                <input type="text" id="first-start-time" class="form-control" 
+       placeholder="HH:MM:SS" value="09:00:00">
                             </div>
                             <div class="time-config-item">
                                 <label class="form-label" id="current-time-label">Hora del Sistema:</label>
@@ -543,7 +538,6 @@
     <!-- MODALES -->
     <!-- =========================================== -->
     
-    
     <!-- Modal de configuración de plantilla -->
     <div id="template-config-modal" class="modal">
         <div class="modal-content medium-modal">
@@ -715,7 +709,7 @@
                 <button class="modal-close" id="delete-race-modal-close">&times;</button>
             </div>
             <div class="modal-body">
-                <p id="delete-race-modal-text">¿Estás seguro de que quieres eliminar esta carrera? Todos los datos se perderán.</p>
+                <p id="delete-race-modal-text">¿Estás seguro de que quieres eliminar esta carrera?</p>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-danger" id="delete-race-confirm-btn">Eliminar</button>
@@ -785,7 +779,7 @@
                 </div>
                 <div class="form-group">
                     <label for="new-race-description" id="new-race-desc-label">Descripción (opcional):</label>
-                    <textarea id="new-race-description" 
+                        <textarea id="new-race-description" 
                             class="form-control config-input" 
                             rows="4" 
                             placeholder="Información adicional sobre la carrera..."
@@ -794,8 +788,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-success" id="create-race-btn">Crear carrera</button>
-                <!-- Este ID es diferente en tu HTML y en las traducciones -->
-                <button class="btn btn-outline" id="cancel-create-race-btn">Cancelar</button>
+                <button class="btn" id="cancel-create-race-btn">Cancelar</button>
             </div>
         </div>
     </div>
@@ -899,15 +892,24 @@
     <div id="message" class="message"></div>
 
     <!-- =========================================== -->
-    <!-- SCRIPT JAVASCRIPT CORREGIDO -->
+    <!-- SCRIPT JAVASCRIPT -->
     <!-- =========================================== -->
-    <!-- Scripts -->
-    <script src="Crono_CRI_traducciones.js"></script>
-    <script src="Crono_CRI_ui.js"></script>
-    <script src="Crono_CRI_utilidades.js"></script>
-    <script src="Crono_CRI.js"></script>
-    
+    <script src="Crono_CRI_js_Main.js"></script>
+    <script src="Crono_CRI_js_Traducciones.js"></script>
+    <script src="Crono_CRI_js_Utilidades.js"></script>
+    <script src="Crono_CRI_js_UI.js"></script>
+    <script src="Crono_CRI_js_Salidas.js"></script>
+    <script src="Crono_CRI_js_Llegadas.js"></script>
+    <script src="Crono_CRI_js_Storage_Pwa.js"></script>
+
     <!-- Script para XLSX -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script>
+    // Inicializar cuando todo esté cargado
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(initApp, 100);
+    });
+    </script>
 </body>
 </html>

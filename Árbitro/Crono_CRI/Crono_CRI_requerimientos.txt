@@ -46,6 +46,33 @@ Bloque 3 - Botones de Acción: Crear Plantilla Importación, Importar Orden Sali
 Bloque 4 - Una tabla con el Orden de salida - Columnas: Orden, Dorsal, Crono Salida, Hora Salida, Nombre, Apellidos, Chip, Hora Salida Real, Crono Salida Real, Hora Salida Prevista, Crono Salida Prevista, Hora Salida Importado, Crono Salida Importado, Crono Salida Segundos, Hora Salida Segundos
 Cada fila se podrá modificar, y las columnas se podran ordenar (de momento no programemos)
 
+
+estamos trabajando muy bien en equipo para hacer el crono_cri, pero cada vez los procesos de cambios se vuelven muy complicados porque los ficheros estan muy grandes.
+Creo que lo bueno seria trabajar con ficheros no muy grandes para que te los pueda enviar y los puedas analizar, pero si creamos muchos entonces yo pierdo el control de que ficheros te tengo que enviar para que tu tengas claro donde se han de hacer las modificaciones.
+también seria interesante que en el inicio de estos archivos te pongas indicaciones que te ayuden a saber que si cambias algo sepas en que archivos estan y me los pidas. hay veces que me dices que una función se tiene que crear porque la llama una parte del archivo y no ves esa función en los arhivos que te envio.
+Bajo mi punto de vista habria los siguientes siguiendo los criterios de cuando se realice un cambio tener que enviar el manor numero de ficheros, y que esos ficheros tengan un tamaño pequ´ño para facilitarme el envio a ti.
+
+CRI_js_general.js - aquí estarían las funciones que van a ser llamadas por cualquier otra parte del programa con asiduidad, o que van  a ser necesitadas de cambiar (initapp,...)
+CRI_js_traducciones - aquí estaria todo lo que tiene que ver con las traducciones - const translations = { es: {, pdateModalTexts() , updateLanguageUI() 
+CRI_js_salidas - aquí todas las  funciones que tengan que ver con los procesos de salidas (orden de salida, cuenta atras, etc...)
+CRI_js_llegadas - aquí todas las otras funciones que tengan que ver con las llegadas.
+
+y ya tengo las dudas de si crear 
+CRI_js_utilidades.js - para tener aquí todas aquellas funciones secundarias, que una vez definidas, es muy poco probable que se tengan que modificar cuando evolucionemos la app, por ejemplo los temas de sonido, etc...
+
+CRI_js_UI.js - para aquellas funciones auxiliares de la interfaz gráfica.
+
+
+Dime que te parece y que propuesta me haces.
+crono_cri/
+├── Crono_CRI_js_Main.js            # Punto de entrada principal - Configuración y estado global
+├── Crono_CRI_js_Traducciones.js    # Traducciones y funciones de idioma
+├── Crono_CRI_js_Salidas.js         # Todo el módulo de salidas
+├── Crono_CRI_js_Llegadas.js        # Todo el módulo de llegadas
+├── Crono_CRI_js_Ui.js              # Interfaces y componentes UI
+├── Crono_CRI_js_Utils.js           # Utilidades generales (sonido, Excel, etc.)
+└── Crono_CRI_js_Storage_Pwa.js     # Funciones de persistencia (localStorage) Funcionalidades PWA/Service Worker
+
 ----
 El programa de cri sera un programa para la ayuda para realizar Carreras de Contrareloj. Tendrá tres partes, gestión general, gestión salidas y gestión de llegadas 
 En la gestión general, definiremos los datos comunes, esto es idioma, datos carrera y orden de salida.
