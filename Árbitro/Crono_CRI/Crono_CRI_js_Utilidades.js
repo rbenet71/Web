@@ -1021,10 +1021,10 @@ function generateStartOrderPDF() {
     try {
         // Obtener datos de la carrera
         const race = appState.currentRace || {};
-        const raceName = race.name || "Carrera sin nombre";
-        const location = race.location || "Lugar no especificado";
-        const eventType = race.eventType || "Tipo de prueba no especificado";
-        const category = race.category || "Categoría no especificada";
+        const raceName = race.name || t.raceWithoutName;
+        const location = race.location || t.unspecifiedLocation;
+        const eventType = race.eventType || t.unspecifiedEventType;
+        const category = race.category || t.unspecifiedCategory;
         
         // Obtener fechas
         const eventDate = race.date ? new Date(race.date) : new Date();
@@ -1041,6 +1041,64 @@ function generateStartOrderPDF() {
         const lastStartTime = lastRider ? lastRider.horaSalida : "00:00:00";
         const totalRiders = startOrderData.length;
         
+        // FUNCIÓN PARA FORMATEAR CRONO
+        function formatCronoForPDF(rider) {
+            if (rider.order === 1) {
+                return "00:00:00";
+            }
+            
+            if (rider.timeDisplay && rider.timeDisplay !== "--:--:--") {
+                const timeParts = rider.timeDisplay.split(':');
+                if (timeParts.length === 2) {
+                    return `00:${rider.timeDisplay}`;
+                }
+                return rider.timeDisplay;
+            }
+            
+            const seconds = rider.cronoSegundos || 0;
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // FUNCIÓN MEJORADA PARA TEXTO LARGO (usa todo el espacio disponible)
+        function handleLongText(text, columnWidth, padding = 4) {
+            if (!text) return "";
+            
+            // Ancho disponible para texto (columna - padding)
+            const availableWidth = columnWidth - padding;
+            
+            // En jsPDF, aproximadamente 2.5mm por carácter en fuente size 9
+            const charsPerMM = 0.8; // 1mm ≈ 0.4 caracteres (2.5mm por char)
+            const maxChars = Math.floor(availableWidth * charsPerMM);
+            
+            console.log(`Texto: "${text.substring(0, 20)}...", Ancho disp: ${availableWidth}mm, Max chars: ${maxChars}, Longitud: ${text.length}`);
+            
+            // Si el texto cabe completamente, devolverlo
+            if (text.length <= maxChars) {
+                return text;
+            }
+            
+            // Si no cabe, truncar inteligentemente
+            // Buscar último espacio antes del límite
+            let truncateAt = maxChars - 3; // Dejar espacio para "..."
+            
+            // Buscar un espacio para no cortar palabras
+            if (truncateAt > 20) { // Solo si hay suficiente texto
+                let lastSpace = text.lastIndexOf(' ', truncateAt);
+                if (lastSpace > maxChars * 0.7) { // Si el espacio está en una posición razonable
+                    truncateAt = lastSpace;
+                }
+            }
+            
+            // Asegurar mínimo de 10 caracteres
+            truncateAt = Math.max(10, truncateAt);
+            
+            return text.substring(0, truncateAt) + "...";
+        }
+        
         // CREAR PDF
         let { jsPDF } = window.jspdf;
         let doc = new jsPDF({
@@ -1054,16 +1112,36 @@ function generateStartOrderPDF() {
         const margin = 20;
         const contentWidth = pageWidth - 2 * margin;
         
-        // CONFIGURACIÓN DE COLUMNAS (CENTRAR TABLA)
-        const columnWidths = [12, 15, 35, 35, 25, 18];
-        const totalTableWidth = columnWidths.reduce((sum, width) => sum + width, 0);
+        // ANCHOS OPTIMIZADOS (más espacio para NOMBRE/APELLIDOS)
+        const posWidth = 12;        // POS
+        const dorsalWidth = 15;     // DORSAL  
+        const horaSalidaWidth = 25; // HORA SALIDA (HH:MM:SS)
+        const cronoWidth = 25;      // CRONO (HH:MM:SS)
+        
+        // ANCHOS MÁXIMOS POSIBLES para NOMBRE y APELLIDOS
+        // Calcular espacio restante después de columnas fijas
+        const fixedWidths = posWidth + dorsalWidth + horaSalidaWidth + cronoWidth;
+        const remainingWidth = contentWidth - fixedWidths;
+        
+        // Distribuir: 45% para NOMBRE, 55% para APELLIDOS
+        const nombreWidth = Math.floor(remainingWidth * 0.45);
+        const apellidosWidth = Math.floor(remainingWidth * 0.55);
+        
+        // Ancho total de la tabla
+        const totalTableWidth = fixedWidths + nombreWidth + apellidosWidth;
         
         // Calcular margen izquierdo para centrar tabla
         const tableMarginLeft = margin + (contentWidth - totalTableWidth) / 2;
         
+        // Array de anchos de columna
+        const columnWidths = [posWidth, dorsalWidth, nombreWidth, apellidosWidth, horaSalidaWidth, cronoWidth];
+        
+        console.log(`PDF - Anchos: NOMBRE=${nombreWidth}mm, APELLIDOS=${apellidosWidth}mm, Total=${totalTableWidth}mm`);
+        console.log(`Esto permite ~${Math.floor(nombreWidth * 0.4)} chars en NOMBRE y ~${Math.floor(apellidosWidth * 0.4)} chars en APELLIDOS`);
+        
         // CALCULAR FILAS POR PÁGINA
         const headerHeight = 50;
-        const footerHeight = 15; // SIEMPRE espacio para pie
+        const footerHeight = 15;
         const rowHeight = 6;
         const availableHeight = pageHeight - headerHeight - footerHeight - 20;
         const maxRowsPerPage = Math.floor(availableHeight / rowHeight);
@@ -1077,56 +1155,71 @@ function generateStartOrderPDF() {
         let lastDifference = null;
         let useGrayBackground = false;
         
-        // FUNCIÓN PARA DIBUJAR CABECERA
+        // FUNCIÓN PARA DIBUJAR CABECERA (CON TRADUCCIONES)
         function drawPageHeader() {
             let y = 15;
             
             // 1. NOMBRE DE LA PRUEBA (centrado) - AZUL
             doc.setFontSize(18);
             doc.setFont("helvetica", "bold");
-            doc.setTextColor(66, 133, 244); // Azul solo para el título
+            doc.setTextColor(66, 133, 244);
             doc.text(raceName.toUpperCase(), pageWidth / 2, y, { align: "center" });
             y += 8;
             
-            // 2. "ORDEN DE SALIDA" (centrado) - NEGRO
+            // 2. "ORDEN DE SALIDA" (centrado) - NEGRO (usar traducción)
             doc.setFontSize(16);
-            doc.setTextColor(0, 0, 0); // Restablecer a negro
-            doc.text("ORDEN DE SALIDA", pageWidth / 2, y, { align: "center" });
+            doc.setTextColor(0, 0, 0);
+            const orderTitle = t.startOrder || "ORDEN DE SALIDA";
+            doc.text(orderTitle.toUpperCase(), pageWidth / 2, y, { align: "center" });
             y += 15;
             
             // 3. LÍNEA 1: Lugar (izquierda) y Fecha (derecha)
             doc.setFontSize(10);
             doc.setFont("helvetica", "normal");
-            doc.text(`Lugar: ${location}`, margin, y);
-            doc.text(`Fecha: ${dateStr}`, pageWidth - margin, y, { align: "right" });
+            const locationText = `${t.location || "Lugar"}: ${location}`;
+            const dateText = `${t.date || "Fecha"}: ${dateStr}`;
+            doc.text(locationText, margin, y);
+            doc.text(dateText, pageWidth - margin, y, { align: "right" });
             y += 6;
             
             // 4. LÍNEA 2: Tipo de prueba (izquierda) y Total Corredores (derecha)
             const tipoCategoria = `${eventType} - ${category}`;
+            const totalRidersText = `${t.totalRiders || "Total Corredores"}: ${totalRiders}`;
             doc.text(tipoCategoria, margin, y);
-            doc.text(`Total Corredores: ${totalRiders}`, pageWidth - margin, y, { align: "right" });
+            doc.text(totalRidersText, pageWidth - margin, y, { align: "right" });
             y += 6;
             
-            // 5. LÍNEA 3: Salidas
-            doc.text(`Salida Primer Corredor: ${firstStartTime}`, margin, y);
-            doc.text(`Salida Último Corredor: ${lastStartTime}`, pageWidth - margin, y, { align: "right" });
+            // 5. LÍNEA 3: Salidas (usar traducciones)
+            const firstDepartureText = `${t.firstDeparture || "Salida Primer Corredor"}: ${firstStartTime}`;
+            const lastDepartureText = `${t.lastDeparture || "Salida Último Corredor"}: ${lastStartTime}`;
+            doc.text(firstDepartureText, margin, y);
+            doc.text(lastDepartureText, pageWidth - margin, y, { align: "right" });
             y += 10;
             
             return y;
         }
         
-        // FUNCIÓN PARA DIBUJAR CABECERA DE TABLA
+        // FUNCIÓN PARA DIBUJAR CABECERA DE TABLA (CON TRADUCCIONES)
         function drawTableHeaders(startY) {
             // Fondo azul para cabecera
             doc.setFillColor(66, 133, 244);
             doc.rect(tableMarginLeft, startY - 3, totalTableWidth, 8, 'F');
             
-            // Texto de cabeceras en blanco
+            // Texto de cabeceras en blanco (usar traducciones)
             doc.setFontSize(10);
             doc.setFont("helvetica", "bold");
             doc.setTextColor(255, 255, 255);
             
-            const headers = ["POS", "DORSAL", "NOMBRE", "APELLIDOS", "HORA SALIDA", "CRONO"];
+            // Usar traducciones para cabeceras de tabla
+            const headers = [
+                t.position || "POS",
+                t.bibNumber || "DORSAL", 
+                t.name || "NOMBRE",
+                t.surname || "APELLIDOS",
+                t.startTime || "HORA SALIDA",
+                t.time || "CRONO"
+            ];
+            
             const aligns = ["center", "center", "left", "left", "center", "center"];
             let xPosition = tableMarginLeft;
             
@@ -1142,29 +1235,24 @@ function generateStartOrderPDF() {
             return startY + 8;
         }
         
-        // FUNCIÓN PARA OBTENER DIFERENCIA DEL CORREDOR
+        // FUNCIÓN PARA OBTENER DIFERENCIA
         function getRiderDifference(rider) {
-            // Usa el valor de diferencia o crono salida para agrupar
             return rider.diferencia || rider.cronoSalida || rider.cronoSegundos || 0;
         }
         
         // FUNCIÓN PARA DIBUJAR UNA FILA DE DATOS
         function drawDataRow(rider, startY, rowNumber, currentDifference) {
-            // Determinar si debemos usar fondo gris basado en cambio de diferencia
             if (lastDifference !== null && currentDifference !== lastDifference) {
-                useGrayBackground = !useGrayBackground; // Alternar cuando cambia diferencia
+                useGrayBackground = !useGrayBackground;
             }
             
-            // Aplicar fondo gris si corresponde
             if (useGrayBackground) {
-                doc.setFillColor(225, 238, 255); // Gris para diferencia cambiada
+                doc.setFillColor(240, 240, 240);
                 doc.rect(tableMarginLeft, startY - 2, totalTableWidth, rowHeight, 'F');
             }
             
-            // Actualizar última diferencia
             lastDifference = currentDifference;
             
-            // Texto de la fila
             doc.setFontSize(9);
             doc.setFont("helvetica", "normal");
             doc.setTextColor(0, 0, 0);
@@ -1180,25 +1268,27 @@ function generateStartOrderPDF() {
             doc.text(rider.dorsal.toString(), xPosition + (columnWidths[1] / 2), startY + 2, { align: "center" });
             xPosition += columnWidths[1];
             
-            // NOMBRE
+            // NOMBRE (usa TODO el espacio disponible)
             const nombre = rider.nombre || "";
-            doc.text(nombre, xPosition + 2, startY + 2);
+            const adjustedNombre = handleLongText(nombre, columnWidths[2]);
+            doc.text(adjustedNombre, xPosition + 2, startY + 2);
             xPosition += columnWidths[2];
             
-            // APELLIDOS
+            // APELLIDOS (usa TODO el espacio disponible)
             const apellidos = rider.apellidos || "";
-            doc.text(apellidos, xPosition + 2, startY + 2);
+            const adjustedApellidos = handleLongText(apellidos, columnWidths[3]);
+            doc.text(adjustedApellidos, xPosition + 2, startY + 2);
             xPosition += columnWidths[3];
             
             // HORA SALIDA
-            doc.text(rider.horaSalida || "00:00:00", xPosition + (columnWidths[4] / 2), startY + 2, { align: "center" });
+            const horaSalida = rider.horaSalida || "00:00:00";
+            doc.text(horaSalida, xPosition + (columnWidths[4] / 2), startY + 2, { align: "center" });
             xPosition += columnWidths[4];
             
             // CRONO
-            const timeForDisplay = rider.timeDisplay || formatTimeForPDF(rider.cronoSegundos || 0);
+            const timeForDisplay = formatCronoForPDF(rider);
             doc.text(timeForDisplay, xPosition + (columnWidths[5] / 2), startY + 2, { align: "center" });
             
-            // Línea sutil entre filas
             doc.setDrawColor(220, 220, 220);
             doc.setLineWidth(0.2);
             doc.line(tableMarginLeft, startY + 4, tableMarginLeft + totalTableWidth, startY + 4);
@@ -1206,9 +1296,8 @@ function generateStartOrderPDF() {
             return startY + rowHeight;
         }
         
-        // FUNCIÓN PARA DIBUJAR PIE DE PÁGINA (SIEMPRE)
+        // FUNCIÓN PARA PIE DE PÁGINA
         function drawPageFooter(pageNum, totalPages) {
-            // Fecha y hora actual (sin "Generado:")
             const now = new Date();
             const timeStr = now.toLocaleTimeString('es-ES', { 
                 hour: '2-digit', 
@@ -1217,16 +1306,16 @@ function generateStartOrderPDF() {
             });
             const dateStr = now.toLocaleDateString('es-ES');
             
-            // Dibujar con separación adecuada
             doc.setFontSize(8);
             doc.setFont("helvetica", "normal");
             doc.setTextColor(100, 100, 100);
             
-            // Fecha y hora en izquierda (10mm desde abajo)
+            // Fecha y hora
             doc.text(`${timeStr} - ${dateStr}`, margin, pageHeight - 10);
             
-            // Número de página en derecha (10mm desde abajo)
-            doc.text(`Página ${pageNum} de ${totalPages}`, pageWidth - margin, pageHeight - 10, { align: "right" });
+            // Número de página (usar traducción si existe)
+            const pageText = t.page || "Página";
+            doc.text(`${pageText} ${pageNum} ${t.of || "de"} ${totalPages}`, pageWidth - margin, pageHeight - 10, { align: "right" });
         }
         
         // DIBUJAR PRIMERA PÁGINA
@@ -1235,35 +1324,24 @@ function generateStartOrderPDF() {
         
         // PROCESAR TODAS LAS FILAS
         startOrderData.forEach((rider, index) => {
-            // Verificar si necesitamos nueva página
             if (rowIndex >= maxRowsPerPage) {
-                // Dibujar pie de página en la página actual
                 drawPageFooter(pageNumber, totalPages);
-                
-                // Nueva página
                 doc.addPage();
                 pageNumber++;
                 rowIndex = 0;
-                
-                // Reiniciar variables de control de diferencia para nueva página
                 lastDifference = null;
                 useGrayBackground = false;
                 
-                // Dibujar cabecera en nueva página
                 currentY = 15;
                 currentY = drawPageHeader();
                 currentY = drawTableHeaders(currentY);
             }
             
-            // Obtener diferencia actual
             const currentDifference = getRiderDifference(rider);
-            
-            // Dibujar fila actual
             currentY = drawDataRow(rider, currentY, rowIndex + 1, currentDifference);
             rowIndex++;
         });
         
-        // Dibujar pie de página en la última página (SIEMPRE)
         drawPageFooter(pageNumber, totalPages);
         
         // Guardar PDF
@@ -1280,7 +1358,6 @@ function generateStartOrderPDF() {
         showMessage(t.pdfExportError || 'Error al generar PDF', 'error');
     }
 }
-
 
 // Función auxiliar para obtener diferencia formateada para PDF
 function getRiderDifferenceForPDF(rider) {

@@ -516,7 +516,22 @@ const translations = {
         deleteWarning: 'Esta acción no se puede deshacer.',
         confirmDelete: 'Sí, eliminar todo',
         deleteCancelled: 'Eliminación cancelada',
-        moreRiders: 'más corredores...'
+        moreRiders: 'más corredores...',
+
+        startOrder: "ORDEN DE SALIDA",
+        location: "Lugar",
+        date: "Fecha",
+        totalRiders: "Total Corredores",
+        firstDeparture: "Salida Primer Corredor",
+        lastDeparture: "Salida Último Corredor",
+        position: "POS",
+        bibNumber: "DORSAL",
+        name: "NOMBRE",
+        surname: "APELLIDOS",
+        startTime: "HORA SALIDA",
+        time: "CRONO",
+        page: "Página",
+        of: "de",
 
     },
 
@@ -1073,7 +1088,22 @@ const translations = {
         deleteWarning:"Aquesta acció no es pot desfer.",
         confirmDelete:"Sí, eliminar tot",
         deleteCancelled:"Eliminació cancel·lada",
-        moreRiders:"més corredors..."   
+        moreRiders:"més corredors...",
+        
+        startOrder:"ORDRE DE SORTIDA",
+        location:"Lloc",
+        date:"Data",
+        totalRiders:"Total Corredors",
+        firstDeparture:"Sortida Primer Corredor",
+        lastDeparture:"Sortida Últim Corredor",
+        position:"POS",
+        bibNumber:"DORSAL",
+        name:"NOM",
+        surname:"COGNOMS",
+        startTime:"HORA SORTIDA",
+        time:"CRONO",
+        page:"Pàgina",
+        of:"de",   
     },
 
     en: {
@@ -1593,8 +1623,8 @@ const translations = {
 
         positionSection: 'Rider Position',
         riderDataSection: 'Rider Data',
-        dorsalLabel: 'Bib Number:',
-        dorsalPlaceholder: 'Bib number',
+        dorsalLabel: 'Bib:',
+        dorsalPlaceholder: 'Bib',
         dorsalRequired: 'Bib number is required',
         chipLabel: 'Chip:',
         chipPlaceholder: 'Chip number',
@@ -1624,7 +1654,22 @@ const translations = {
         deleteWarning:"This action cannot be undone.",
         confirmDelete:"Yes, delete all",
         deleteCancelled:"Deletion cancelled",
-        moreRiders:"more riders..."
+        moreRiders:"more riders...",
+
+        startOrder:"START ORDER",
+        location:"Location",
+        date:"Date",
+        totalRiders:"Total Riders",
+        firstDeparture:"First Rider Start",
+        lastDeparture:"Last Rider Start",
+        position:"POS",
+        bibNumber:"BIB",
+        name:"NAME",
+        surname:"SURNAME",
+        startTime:"START TIME",
+        time:"TIME",
+        page:"Page",
+        of:"of",
     },
 
     fr: {
@@ -2190,13 +2235,29 @@ const translations = {
         importCancelled: 'Importation annulée',
         ridersWillBeDeleted: 'coureurs seront supprimés',
         importProceedWarning: 'Toutes les données actuelles seront remplacées par les données du fichier Excel',    
-        
+
         deleteOrderTitle:"Supprimer l'Ordre de Départ",
         confirmDeleteOrder:"Êtes-vous sûr de vouloir supprimer TOUT l'ordre de départ?",
         deleteWarning:"Cette action ne peut pas être annulée.",
         confirmDelete:"Oui, tout supprimer",
         deleteCancelled:"Suppression annulée",
-        moreRiders:"plus de coureurs..."    
+        moreRiders:"plus de coureurs...",
+        
+        startOrder:"ORDRE DE DÉPART",
+        location:"Lieu",
+        date:"Date",
+        totalRiders:"Total Coureurs",
+        firstDeparture:"Départ Premier Coureur",
+        lastDeparture:"Départ Dernier Coureur",
+        position:"POS",
+        bibNumber:"DORSAL",
+        name:"NOM",
+        surname:"PRÉNOMS",
+        startTime:"HEURE DE DÉPART",
+        time:"CRONO",
+        page:"Page",
+        of:"de"
+
     }
 };
 
