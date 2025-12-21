@@ -88,6 +88,21 @@ estion carrera
 copias de seuridad
 generar pDF de salida
 
+las columnas de la tabla orden de salida han de tener globos de ayuda:
+
+Orden - posición en la que saldrá el corredor
+Crono salida - Tiempo de Cronometro en el que saldrá el corredor. El programa utiliza este valor para dar las salidas.
+Hora salida - hora prevista de salida, es información, no se utiliza.
+Hora salida real - será la hora del dia en la que efectivamente salió el corredor.
+Crono salida real - será la hora del crono en la que efectivamente salió el corredor.
+Hora salida prevista - será la hora del dia en la que estava previsto que saliese el corredor. La variación vendra por si se modificó la hora de salida del corredor o la diferencia (si se cambia la hora de salida del primero no se modificará).
+Crono salida prevista - será la hora del crono en la que estava previsto que saliese el corredor. La variación vendra por si se modificó la hora de salida del corredor o la diferencia (si se cambia la hora de salida del primero no se modificará).
+Hora salida importado - será la hora del dia que estava en el excel que se importó.
+Crono salida importado - será la hora del crono que estava en el excel que se importó.
+
+
+quiero añadir dos campos más en el excel y la tabla de orden de salida y es la conversion a segundos de la hora real de salida y el crono real de salida, esas columnas se llamaran Crono Salida Real Segundos y Hora Salida Real Segundos
+
 ----
 El programa de cri sera un programa para la ayuda para realizar Carreras de Contrareloj. Tendrá tres partes, gestión general, gestión salidas y gestión de llegadas 
 En la gestión general, definiremos los datos comunes, esto es idioma, datos carrera y orden de salida.
@@ -122,20 +137,5 @@ Crono-cri/
 └── plantilla-cri.xlsx
 
 Para empezar vamos a dejar el programa tal y como esta, pero vamos a:
-
-las columnas de la tabla orden de salida han de tener globos de ayuda:
-
-Orden - posición en la que saldrá el corredor
-Crono salida - Tiempo de Cronometro en el que saldrá el corredor. El programa utiliza este valor para dar las salidas.
-Hora salida - hora prevista de salida, es información, no se utiliza.
-Hora salida real - será la hora del dia en la que efectivamente salió el corredor.
-Crono salida real - será la hora del crono en la que efectivamente salió el corredor.
-Hora salida prevista - será la hora del dia en la que estava previsto que saliese el corredor. La variación vendra por si se modificó la hora de salida del corredor o la diferencia (si se cambia la hora de salida del primero no se modificará).
-Crono salida prevista - será la hora del crono en la que estava previsto que saliese el corredor. La variación vendra por si se modificó la hora de salida del corredor o la diferencia (si se cambia la hora de salida del primero no se modificará).
-Hora salida importado - será la hora del dia que estava en el excel que se importó.
-Crono salida importado - será la hora del crono que estava en el excel que se importó.
-
-
-quiero añadir dos campos más en el excel y la tabla de orden de salida y es la conversion a segundos de la hora real de salida y el crono real de salida, esas columnas se llamaran Crono Salida Real Segundos y Hora Salida Real Segundos
 
 al introducir manualmente un corredor preguntamos si lo pone al principio o en que posición, en función donde vaya se calcula a los siguientes corredores su hora de salida teniendo en cuenta que el corredor añadido tendrá la diferencia igual al anterior corredor. y a la vez se actualiza el valor en segundos de lo que hemos modificado

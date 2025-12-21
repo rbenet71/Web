@@ -441,6 +441,26 @@ const translations = {
         pdfError: "Error al generar PDF",
         cronoRealSegundosHeader: "Crono Salida Real Segundos",
         horaRealSegundosHeader: "Hora Salida Real Segundos",
+
+        // Agregar en cada objeto de idioma (es, ca, en, fr) esta sección:
+
+        // Tooltips para columnas de orden de salida
+        orderTooltip: "Posición en la que saldrá el corredor",
+        dorsalTooltip: "Número de dorsal del corredor",
+        cronosalidaTooltip: "Tiempo de Cronómetro en el que saldrá el corredor. El programa utiliza este valor para dar las salidas.",
+        horasalidaTooltip: "Hora prevista de salida, es información, no se utiliza para controlar salidas.",
+        nombreTooltip: "Nombre del corredor",
+        apellidosTooltip: "Apellidos del corredor",
+        chipTooltip: "Número de chip del corredor",
+        horarealTooltip: "Hora del día en la que efectivamente salió el corredor",
+        cronorealTooltip: "Hora del cronómetro en la que efectivamente salió el corredor",
+        horaprevistaTooltip: "Hora del día prevista de salida. Variará si se modifica la hora de salida del corredor individual.",
+        cronoprevistaTooltip: "Hora del cronómetro prevista de salida. Variará si se modifica la hora de salida del corredor individual.",
+        horaimportadoTooltip: "Hora del día que estaba en el Excel importado",
+        cronoimportadoTooltip: "Hora del cronómetro que estaba en el Excel importado",
+        cronosegundosTooltip: "Crono Salida en segundos (para cálculos internos)",
+        horasegundosTooltip: "Hora Salida en segundos (para cálculos internos)",
+        horarealsegundosTooltip: "Hora Salida Real en segundos (para cálculos internos)",
     },
 
     ca: {
@@ -918,6 +938,24 @@ const translations = {
         pdfError: "Error generant PDF",
         cronoRealSegundosHeader: "Crono Sortida Real Segons",
         horaRealSegundosHeader: "Hora Sortida Real Segons",
+
+        // Tooltips para columnas de orden de salida
+        orderTooltip: "Posició en la que sortirà el corredor",
+        dorsalTooltip: "Número de dorsal del corredor",
+        cronosalidaTooltip: "Temps de Cronòmetre en el que sortirà el corredor. El programa utilitza aquest valor per donar les sortides.",
+        horasalidaTooltip: "Hora prevista de sortida, és informació, no s'utilitza per controlar sortides.",
+        nombreTooltip: "Nom del corredor",
+        apellidosTooltip: "Cognoms del corredor",
+        chipTooltip: "Número de xip del corredor",
+        horarealTooltip: "Hora del dia en la que efectivament sortí el corredor",
+        cronorealTooltip: "Hora del cronòmetre en la que efectivament sortí el corredor",
+        horaprevistaTooltip: "Hora del dia prevista de sortida. Variarà si es modifica l'hora de sortida del corredor individual.",
+        cronoprevistaTooltip: "Hora del cronòmetre prevista de sortida. Variarà si es modifica l'hora de sortida del corredor individual.",
+        horaimportadoTooltip: "Hora del dia que estava en l'Excel importat",
+        cronoimportadoTooltip: "Hora del cronòmetre que estava en l'Excel importat",
+        cronosegundosTooltip: "Crono Sortida en segons (per a càlculs interns)",
+        horasegundosTooltip: "Hora Sortida en segons (per a càlculs interns)",
+        horarealsegundosTooltip: "Hora Sortida Real en segons (per a càlculs interns)",
         
     },
 
@@ -1396,6 +1434,24 @@ const translations = {
 
         cronoRealSegundosHeader: "Crono Departure Real Seconds",
         horaRealSegundosHeader: "Hour Departure Real Seconds",
+
+        // Tooltips para columnas de orden de salida
+        orderTooltip: "Position in which the rider will start",
+        dorsalTooltip: "Rider's bib number",
+        cronosalidaTooltip: "Stopwatch time at which the rider will start. The program uses this value to give the starts.",
+        horasalidaTooltip: "Scheduled departure time, it's information only, not used to control starts.",
+        nombreTooltip: "Rider's first name",
+        apellidosTooltip: "Rider's last name",
+        chipTooltip: "Chip number of the rider",
+        horarealTooltip: "Actual time of day when the rider started",
+        cronorealTooltip: "Actual stopwatch time when the rider started",
+        horaprevistaTooltip: "Scheduled time of day for departure. Will vary if the individual rider's start time is modified.",
+        cronoprevistaTooltip: "Scheduled stopwatch time for departure. Will vary if the individual rider's start time is modified.",
+        horaimportadoTooltip: "Time of day from the imported Excel file",
+        cronoimportadoTooltip: "Stopwatch time from the imported Excel file",
+        cronosegundosTooltip: "Departure Time in seconds (for internal calculations)",
+        horasegundosTooltip: "Departure Hour in seconds (for internal calculations)",
+        horarealsegundosTooltip: "Real Departure Hour in seconds (for internal calculations)",
 
     },
 
@@ -1891,6 +1947,24 @@ const translations = {
         pdfError: "Erreur génération PDF",
         cronoRealSegundosHeader: "Crono Départ Réel Secondes",
         horaRealSegundosHeader: "Heure Départ Réel Secondes",
+
+        // Tooltips para columnas de orden de salida
+        orderTooltip: "Position à laquelle le coureur partira",
+        dorsalTooltip: "Numéro de dossard du coureur",
+        cronosalidaTooltip: "Temps du chronomètre auquel le coureur partira. Le programme utilise cette valeur pour donner les départs.",
+        horasalidaTooltip: "Heure de départ prévue, c'est une information uniquement, non utilisée pour contrôler les départs.",
+        nombreTooltip: "Prénom du coureur",
+        apellidosTooltip: "Nom du coureur",
+        chipTooltip: "Numéro de puce du coureur",
+        horarealTooltip: "Heure réelle du jour à laquelle le coureur est parti",
+        cronorealTooltip: "Temps réel du chronomètre auquel le coureur est parti",
+        horaprevistaTooltip: "Heure prévue du jour pour le départ. Variera si l'heure de départ individuelle du coureur est modifiée.",
+        cronoprevistaTooltip: "Temps prévu du chronomètre pour le départ. Variera si l'heure de départ individuelle du coureur est modifiée.",
+        horaimportadoTooltip: "Heure du jour provenant du fichier Excel importé",
+        cronoimportadoTooltip: "Temps du chronomètre provenant du fichier Excel importé",
+        cronosegundosTooltip: "Temps de départ en secondes (pour calculs internes)",
+        horasegundosTooltip: "Heure de départ en secondes (pour calculs internes)",
+        horarealsegundosTooltip: "Heure réelle de départ en secondes (pour calculs internes)",
     }
 };
 
@@ -1929,18 +2003,20 @@ function updateLanguageUI() {
     // 6. Actualizar textos de modales
     updateModalTexts(t);
     
-    // 7. Actualizar títulos específicos de tablas
+    // 7. Actualizar títulos de tablas
     updateTableHeaders(t);
     
-    // 8. Actualizar botones y elementos específicos
+    // 8. Actualizar tooltips de tablas (NUEVO)
+    updateTableTooltips();
+    
+    // 9. Actualizar botones y elementos específicos
     updateButtonsAndSpecificElements(t);
     
-    // 9. Forzar actualización de títulos de tarjetas
+    // 10. Forzar actualización de títulos de tarjetas
     updateCardTitles();
     
     console.log("UI completamente actualizada al idioma:", lang);
 }
-
 // ===========================================
 // FUNCIONES AUXILIARES PARA ACTUALIZACIÓN
 // ===========================================
@@ -2206,5 +2282,35 @@ function setTextIfExists(elementId, text) {
     }
 }
 
-// Elimina la versión anterior si existe en UI.js
-// y mantén solo esta versión unificada en Traducciones.js
+function updateTableTooltips() {
+    const t = translations[appState.currentLanguage];
+    
+    // Mapeo de IDs de columnas a claves de traducción
+    const tooltipMap = {
+        'orderHeader': t.orderTooltip,
+        'dorsalHeader': t.dorsalTooltip,
+        'cronosalidaHeader': t.cronosalidaTooltip,
+        'horasalidaHeader': t.horasalidaTooltip,
+        'nombreHeader': t.nombreTooltip,
+        'apellidosHeader': t.apellidosTooltip,
+        'chipHeader': t.chipTooltip,
+        'horarealHeader': t.horarealTooltip,
+        'cronorealHeader': t.cronorealTooltip,
+        'horaprevistaHeader': t.horaprevistaTooltip,
+        'cronoprevistaHeader': t.cronoprevistaTooltip,
+        'horaimportadoHeader': t.horaimportadoTooltip,
+        'cronoimportadoHeader': t.cronoimportadoTooltip,
+        'cronosegundosHeader': t.cronosegundosTooltip,
+        'horasegundosHeader': t.horasegundosTooltip,
+        'horarealsegundosHeader': t.horarealsegundosTooltip
+    };
+    
+    Object.keys(tooltipMap).forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.title = tooltipMap[id];
+        }
+    });
+    
+    console.log("Tooltips de tabla actualizados");
+}
