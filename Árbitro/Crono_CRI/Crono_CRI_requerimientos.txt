@@ -111,6 +111,10 @@ traducir PDF
 cuando editas datos de carrera crea una nueva
 cuando hay scroll en orden de salida mantener la cabecera
 
+los unicos valores que se pueden modificar en la tabla de orden de salida son: dorsal,diferencia, nombre, apellidos, chip - deshabilitar posicion y habilitar diferencia
+
+el primer  orredor diferencia 00:00:00
+
 -------------------------------------------------
 
 El programa de cri sera un programa para la ayuda para realizar Carreras de Contrareloj. Tendrá tres partes, gestión general, gestión salidas y gestión de llegadas 
@@ -152,12 +156,13 @@ Para empezar vamos a dejar el programa tal y como esta, pero vamos a:
 
 al introducir manualmente un corredor preguntamos si lo pone al principio o en que posición, en función donde vaya se calcula a los siguientes corredores su hora de salida teniendo en cuenta que el corredor añadido tendrá la diferencia igual al anterior corredor. y a la vez se actualiza el valor en segundos de lo que hemos modificado
 
+al introducir manualmente un corredor 
 al introducir un corredor si es el primero o posición 1, se le pone crono salida 00:00:00 y en hora de salida la salida prevista del primer corredor y al que ahora sera segundo registro le pones como valor de diferencia el del tercero. y vuelves a calcular el valor de crono salida como crono del anterior más el campo diferncia y hora salida como hora salida anterior mas diferencia. y ademas actualizas tambien con esos valores hora salida prevista y crono prevista
 
 al introducir el ultimo corredor u otra posición ponemos como datos, el valor diferencia seria el valor del registro anterior, y sobre los valores anteriores añadimos la diferencia para crono salida, hora salida, y hora salida prevista y crono salida prevista, en hora salida importado y crono salda importado lo dejamos en blanco y convertimos a segundos crono salida y hora salida. Si hay registros depués del añadido recalculamos los tiempos de las mismas columnas, NO modificamos importado.
 
+
+al actualizar los datos de la tabla desaparecen
+
 en la tabla orde de saldidan
 
-los unicos valores que se pueden modificar en la tabla de orden de salida son: dorsal,diferencia, nombre, apellidos, chip - deshabilitar posicion y habilitar diferencia
-
-el primer  orredor diferencia 00:00:00
