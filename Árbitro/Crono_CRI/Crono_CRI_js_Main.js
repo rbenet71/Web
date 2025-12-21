@@ -107,6 +107,13 @@ function initApp() {
         setTimeout(setupRaceFormEvents, 500);
     }
     
+    // Inicializar módulo PDF (después de que todo esté cargado)
+    setTimeout(() => {
+        if (typeof initPDFModule === 'function') {
+            initPDFModule();
+        }
+    }, 1000);
+    
     // Inicializar timers
     setInterval(updateSystemTimeDisplay, 1000);
     setInterval(updateTimeDifference, 1000);
@@ -208,6 +215,9 @@ function setupEventListeners() {
 // ============================================
 // EVENT LISTENERS PARA ORDEN DE SALIDA
 // ============================================
+// ============================================
+// EVENT LISTENERS PARA ORDEN DE SALIDA
+// ============================================
 function setupStartOrderEventListeners() {
     
     if (window.startOrderListenersConfigured) {
@@ -240,6 +250,12 @@ function setupStartOrderEventListeners() {
         exportOrderBtn.addEventListener('click', exportStartOrder);
     }
     
+    const exportPDFBtn = document.getElementById('export-order-pdf-btn');
+    if (exportPDFBtn) {
+        console.log("Configurando botón de exportar PDF...");
+        exportPDFBtn.addEventListener('click', generateStartOrderPDF);
+    }
+   
     // Botón para añadir corredor
     const addRiderBtn = document.getElementById('add-rider-btn');
     if (addRiderBtn && typeof addNewRider === 'function') {
@@ -275,10 +291,11 @@ function setupStartOrderEventListeners() {
     if (startCountdownBtn && typeof startCountdown === 'function') {
         startCountdownBtn.addEventListener('click', startCountdown);
     }
-    
+
     window.startOrderListenersConfigured = true;
     console.log("Event listeners de orden de salida configurados.");
 }
+
 
 // ============================================
 // MANEJADORES DE EVENTOS

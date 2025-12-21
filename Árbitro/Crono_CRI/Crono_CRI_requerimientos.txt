@@ -73,6 +73,19 @@ crono_cri/
 ├── Crono_CRI_js_Utils.js           # Utilidades generales (sonido, Excel, etc.)
 └── Crono_CRI_js_Storage_Pwa.js     # Funciones de persistencia (localStorage) Funcionalidades PWA/Service Worker
 
+seguido al grupo de orden de salida, habra la elección de si se va a estar en Modo Salida o Modo Llegadas.
+Cuando se elija un modo, debajo aparecerá el contenido que expongo despues.
+
+Dentro del Modo Salida Habrá la Configuración de Audio (mover el antiguo aqui), Ultimo Corredor en Salir y Salidas Registradas  (mover el antiguo aqui)
+Al llegar Inicio Cuenta atrás en: a cero se activará la pantalla de cuenta atras que ya existe.
+
+Dentro del modo de Llegadas habrá un Cronometro (Diferencia entre Hora actual del sistema-Hora Salida Primer Corredor:
+) con un boton pulsador
+
+estion carrera
+copias de seuridad
+generar pDF de salida
+
 ----
 El programa de cri sera un programa para la ayuda para realizar Carreras de Contrareloj. Tendrá tres partes, gestión general, gestión salidas y gestión de llegadas 
 En la gestión general, definiremos los datos comunes, esto es idioma, datos carrera y orden de salida.
@@ -107,11 +120,19 @@ Crono-cri/
 └── plantilla-cri.xlsx
 
 Para empezar vamos a dejar el programa tal y como esta, pero vamos a:
-seguido al grupo de orden de salida, habra la elección de si se va a estar en Modo Salida o Modo Llegadas.
-Cuando se elija un modo, debajo aparecerá el contenido que expongo despues.
 
-Dentro del Modo Salida Habrá la Configuración de Audio (mover el antiguo aqui), Ultimo Corredor en Salir y Salidas Registradas  (mover el antiguo aqui)
-Al llegar Inicio Cuenta atrás en: a cero se activará la pantalla de cuenta atras que ya existe.
+las columnas de la tabla orden de salida han de tener globos de ayuda:
 
-Dentro del modo de Llegadas habrá un Cronometro (Diferencia entre Hora actual del sistema-Hora Salida Primer Corredor:
-) con un boton pulsador
+Orden - posición en la que saldrá el corredor
+Crono salida - Tiempo de Cronometro en el que saldrá el corredor. El programa utiliza este valor para dar las salidas.
+Hora salida - hora prevista de salida, es información, no se utiliza.
+Hora salida real - será la hora del dia en la que efectivamente salió el corredor.
+Crono salida real - será la hora del crono en la que efectivamente salió el corredor.
+Hora salida prevista - será la hora del dia en la que estava previsto que saliese el corredor. La variación vendra por si se modificó la hora de salida del corredor o la diferencia (si se cambia la hora de salida del primero no se modificará).
+Crono salida prevista - será la hora del crono en la que estava previsto que saliese el corredor. La variación vendra por si se modificó la hora de salida del corredor o la diferencia (si se cambia la hora de salida del primero no se modificará).
+Hora salida importado - será la hora del dia que estava en el excel que se importó.
+Crono salida importado - será la hora del crono que estava en el excel que se importó.
+
+
+
+al introducir manualmente un corredor preguntamos si lo pone al principio o en que posición, en función donde vaya se calcula a los siguientes corredores su hora de salida teniendo en cuenta que el corredor añadido tendrá la diferencia igual al anterior corredor.

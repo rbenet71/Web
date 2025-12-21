@@ -60,48 +60,48 @@
     <main class="main-content hide-on-countdown">
         <div class="container">
             
-<!-- =========================================== -->
-<!-- Tarjeta 1: Gestión de carrera -->
-<!-- =========================================== -->
-<div class="app-card race-management-card">
-    <div class="card-header">
-        <h2><i class="fas fa-flag-checkered"></i> <span id="card-race-title">Gestión de Carrera</span></h2>
-        <div class="card-header-controls">
-            <button class="card-toggle-btn" data-target="race-management-card" title="Minimizar/Expandir">
-                <i class="fas fa-chevron-up"></i>
-            </button>
-            <span class="card-collapse-indicator"><i class="fas fa-chevron-down"></i></span>
-        </div>
-    </div>
-    <div class="card-body">
-        <div class="race-selector">
-            <select id="race-select" class="form-control">
-                <option value="">-- Selecciona una carrera --</option>
-            </select>
-            <button class="btn btn-primary responsive-btn race-action-btn" id="new-race-btn">
-                <i class="fas fa-plus"></i>
-                <span class="race-btn-text" id="new-race-text">Nueva</span>
-            </button>
-            <button class="btn btn-danger responsive-btn race-action-btn" id="delete-race-btn">
-                <i class="fas fa-trash"></i>
-                <span class="race-btn-text" id="delete-race-text">Eliminar</span>
-            </button>
-            <button class="btn btn-secondary responsive-btn race-action-btn" id="edit-race-btn" title="Editar datos de la carrera">
-                <i class="fas fa-edit"></i>
-                <span class="race-btn-text" id="edit-race-text">Editar</span>
-            </button>
-            <!-- NUEVOS BOTONES DE COPIA DE SEGURIDAD -->
-            <button class="btn btn-info responsive-btn race-action-btn" id="backup-race-btn" title="Crear copia de seguridad">
-                <i class="fas fa-save"></i>
-                <span class="race-btn-text" id="backup-race-text">Copia Seguridad</span>
-            </button>
-            <button class="btn btn-warning responsive-btn race-action-btn" id="restore-race-btn" title="Restaurar desde copia">
-                <i class="fas fa-file-import"></i>
-                <span class="race-btn-text" id="restore-race-text">Restaurar</span>
-            </button>
-        </div>
-    </div>
-</div>
+            <!-- =========================================== -->
+            <!-- Tarjeta 1: Gestión de carrera -->
+            <!-- =========================================== -->
+            <div class="app-card race-management-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-flag-checkered"></i> <span id="card-race-title">Gestión de Carrera</span></h2>
+                    <div class="card-header-controls">
+                        <button class="card-toggle-btn" data-target="race-management-card" title="Minimizar/Expandir">
+                            <i class="fas fa-chevron-up"></i>
+                        </button>
+                        <span class="card-collapse-indicator"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="race-selector">
+                        <select id="race-select" class="form-control">
+                            <option value="">-- Selecciona una carrera --</option>
+                        </select>
+                        <button class="btn btn-primary responsive-btn race-action-btn" id="new-race-btn">
+                            <i class="fas fa-plus"></i>
+                            <span class="race-btn-text" id="new-race-text">Nueva</span>
+                        </button>
+                        <button class="btn btn-danger responsive-btn race-action-btn" id="delete-race-btn">
+                            <i class="fas fa-trash"></i>
+                            <span class="race-btn-text" id="delete-race-text">Eliminar</span>
+                        </button>
+                        <button class="btn btn-secondary responsive-btn race-action-btn" id="edit-race-btn" title="Editar datos de la carrera">
+                            <i class="fas fa-edit"></i>
+                            <span class="race-btn-text" id="edit-race-text">Editar</span>
+                        </button>
+                        <!-- NUEVOS BOTONES DE COPIA DE SEGURIDAD -->
+                        <button class="btn btn-info responsive-btn race-action-btn" id="backup-race-btn" title="Crear copia de seguridad">
+                            <i class="fas fa-save"></i>
+                            <span class="race-btn-text" id="backup-race-text">Copia Seguridad</span>
+                        </button>
+                        <button class="btn btn-warning responsive-btn race-action-btn" id="restore-race-btn" title="Restaurar desde copia">
+                            <i class="fas fa-file-import"></i>
+                            <span class="race-btn-text" id="restore-race-text">Restaurar</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <!-- =========================================== -->
             <!-- SELECTOR DE MODO DE OPERACIÓN -->
@@ -168,6 +168,7 @@
                         </div>
                     </div>
                     
+
                     <!-- Bloque 2 - Botones de acción -->
                     <div class="config-section">
                         <div class="buttons-responsive-container">
@@ -184,8 +185,13 @@
                                 <span id="delete-order-text">Eliminar Orden</span>
                             </button>
                             <button class="responsive-btn btn-warning" id="export-order-btn">
-                                <i class="fas fa-file-export"></i>
-                                <span id="export-order-text">Exportar Orden</span>
+                                <i class="fas fa-file-excel"></i>
+                                <span id="export-order-text">Exportar Excel</span>
+                            </button>
+                            <!-- NUEVO BOTÓN PARA EXPORTAR A PDF -->
+                            <button class="responsive-btn btn-danger" id="export-order-pdf-btn">
+                                <i class="fas fa-file-pdf"></i>
+                                <span id="export-order-pdf-text">Exportar PDF</span>
                             </button>
                             <button class="responsive-btn btn-info" id="add-rider-btn">
                                 <i class="fas fa-user-plus"></i>
@@ -1025,6 +1031,8 @@
 
     <!-- Script para XLSX -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
     <script>
     // Inicializar cuando todo esté cargado

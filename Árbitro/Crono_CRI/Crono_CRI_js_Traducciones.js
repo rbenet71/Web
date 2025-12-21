@@ -4,7 +4,7 @@
 const translations = {
     es: {
         // Títulos generales
-        appTitle: "Crono CRI",
+        appTitle: "Crono CRI - en Construcción",
         languagesLabel: "Idioma / Language",
         
         // Tarjetas
@@ -144,7 +144,7 @@ const translations = {
         createTemplateText: "Crear Plantilla",
         importOrderText: "Importar Orden",
         deleteOrderText: "Eliminar Orden",
-        exportOrderText: "Exportar Orden",
+        exportOrderText: "Exportar Excel",
         addRiderText: "Añadir Corredor",
         noStartOrderText: "No hay corredores en el orden de salida",
         
@@ -371,11 +371,80 @@ const translations = {
         creatingBackup: "Creando copia de seguridad...",
         noRaceSelected: "Selecciona una carrera primero",
 
+        // PDF Export
+        creatingPDF: "Generando PDF...",
+        exportPDF: "Exportar PDF",
+        pdfGenerated: "PDF generado: {filename} - {count} corredores",
+        
+        // Backup/restore (por si faltan)
+        backupCreated: "Copia de seguridad guardada como {filename}",
+        creatingBackup: "Creando copia de seguridad...",
+        noRaceSelected: "Selecciona una carrera primero",
+        restoreTitle: "Restaurar carrera desde copia",
+        restoreWarning: "Esta acción reemplazará los datos actuales de la carrera",
+        restoreSuccess: "Carrera restaurada correctamente",
+        restoreError: "Error al restaurar la carrera",
+        confirmRestore: "¿Confirmar restauración?",
+        cancel: "Cancelar",
+        
+        // Race management (por si faltan)
+        enterRaceName: "Introduce un nombre para la carrera",
+        enterValidDate: "Introduce una fecha válida",
+        raceCreated: "Carrera creada correctamente",
+        raceUpdated: "Carrera actualizada correctamente",
+        raceDeleted: "Carrera eliminada correctamente",
+        selectRaceFirst: "Selecciona una carrera primero",
+        departuresCleared: "Salidas reiniciadas correctamente",
+        sessionRestarted: "Sesión reiniciada completamente",
+        
+        // Start order
+        listAlreadyEmpty: "La lista ya está vacía",
+        confirmDeleteOrder: "¿Eliminar TODO el orden de salida? Esta acción no se puede deshacer.",
+        orderDeleted: "Orden de salida eliminado",
+        riderAdded: "Corredor añadido",
+        
+        // Modals
+        editRaceTitle: "Editar carrera",
+        saveChanges: "Guardar cambios",
+        createRace: "Crear carrera",
+        newRaceModalTitle: "Nueva carrera",
+        
+        // Suggestions
+        suggestionTextLabel: "Introduce tu sugerencia",
+        suggestionSent: "Sugerencia enviada",
+        
+        // Time management
+        timeChangeCancelled: "Cambio de hora cancelado",
+        
+        // Update notification
+        updateAvailable: "Nueva versión disponible",
+
+        creatingPDF: 'Generando PDF del orden de salida...',
+        pdfGenerated: 'PDF generado: {filename} ({count} corredores)',
+        pdfError: 'Error al generar el PDF',
+        pdfLibraryMissing: 'La librería PDF no está cargada',
+        noStartOrderData: 'No hay datos de orden de salida para generar PDF',
+        pdfOrderOfStart: "ORDEN DE SALIDA",
+        position: "POS",
+        number: "DORSAL",
+        name: "NOMBRE",
+        surname: "APELLIDOS",
+        startTime: "HORA SALIDA",
+        crono: "CRONO",
+        riders: "Corredores",
+        start: "Inicio",
+        final: "Final",
+        generated: "Generado",
+        page: "Página",
+        of: "de",
+        pdfGenerated: "PDF generado",
+        pdfError: "Error al generar PDF",
+
     },
 
     ca: {
         // Títulos generales
-        appTitle: "Crono CRI",
+        appTitle: "Crono CRI - en construcció",
         languagesLabel: "Idioma / Language",
         
         // Tarjetas
@@ -515,7 +584,7 @@ const translations = {
         createTemplateText: "Crear Plantilla",
         importOrderText: "Importar Ordre",
         deleteOrderText: "Eliminar Ordre",
-        exportOrderText: "Exportar Ordre",
+        exportOrderText: "Exportar Excel",
         addRiderText: "Afegir Corredor",
         noStartOrderText: "No hi ha corredors en l'ordre de sortida",
         
@@ -777,59 +846,129 @@ const translations = {
         creatingBackup: "Creant còpia de seguretat...",
         noRaceSelected: "Selecciona una cursa primer",
 
+        // PDF Export
+        creatingPDF: "Generant PDF...",
+        exportPDF: "Exportar PDF",
+        pdfGenerated: "PDF generat: {filename} - {count} corredors",
+        
+        // Backup/restore
+        backupCreated: "Còpia de seguretat guardada com {filename}",
+        creatingBackup: "Creant còpia de seguretat...",
+        noRaceSelected: "Selecciona una cursa primer",
+        restoreTitle: "Restaurar cursa des de còpia",
+        restoreWarning: "Aquesta acció reemplaçarà les dades actuals de la cursa",
+        restoreSuccess: "Cursa restaurada correctament",
+        restoreError: "Error al restaurar la cursa",
+        confirmRestore: "¿Confirmar restauració?",
+        cancel: "Cancel·lar",
+        
+        // Race management
+        enterRaceName: "Introdueix un nom per a la cursa",
+        enterValidDate: "Introdueix una data vàlida",
+        raceCreated: "Cursa creada correctament",
+        raceUpdated: "Cursa actualitzada correctament",
+        raceDeleted: "Cursa eliminada correctament",
+        selectRaceFirst: "Selecciona una cursa primer",
+        departuresCleared: "Sortides reiniciades correctament",
+        sessionRestarted: "Sessió reiniciada completament",
+        
+        // Start order
+        listAlreadyEmpty: "La llista ja està buida",
+        confirmDeleteOrder: "¿Eliminar TOT l'ordre de sortida? Aquesta acció no es pot desfer.",
+        orderDeleted: "Ordre de sortida eliminat",
+        riderAdded: "Corredor afegit",
+        
+        // Modals
+        editRaceTitle: "Editar cursa",
+        saveChanges: "Guardar canvis",
+        createRace: "Crear cursa",
+        newRaceModalTitle: "Nova cursa",
+        
+        // Suggestions
+        suggestionTextLabel: "Introdueix la teva suggerència",
+        suggestionSent: "Suggerència enviada",
+        
+        // Time management
+        timeChangeCancelled: "Canvi d'hora cancel·lat",
+        
+        // Update notification
+        updateAvailable: "Nova versió disponible",
+
+        creatingPDF: 'Generant PDF de l\'ordre de sortida...',
+        pdfGenerated: 'PDF generat: {filename} ({count} corredors)',
+        pdfError: 'Error al generar el PDF',
+        pdfLibraryMissing: 'La llibreria PDF no està carregada',
+        noStartOrderData: 'No hi ha dades d\'ordre de sortida per generar PDF',
+
+        pdfOrderOfStart: "ORDRE DE SORTIDA",
+        position: "POS",
+        number: "DORSAL",
+        name: "NOM",
+        surname: "COGNOMS",
+        startTime: "HORA SORTIDA",
+        crono: "CRONO",
+        riders: "Corredors",
+        start: "Inici",
+        final: "Final",
+        generated: "Generat",
+        page: "Pàgina",
+        of: "de",
+        pdfGenerated: "PDF generat",
+        pdfError: "Error generant PDF",
+        
     },
 
     en: {
-        appTitle: "Crono CRI",
-        languagesLabel: "Idioma / Language",
+        appTitle: "Crono CRI - under construction",
+        languagesLabel: "Language / Idioma",
         
         // Tarjetas
-        cardRaceTitle: "Gestió de Cursa",
-        cardTimeTitle: "Configuració de Temps",
-        cardDeparturesTitle: "Sortides Registrades",
-        audioConfigTitle: "Configuració d'Àudio",
-        cardStartOrderTitle: "Ordre de Sortida",
+        cardRaceTitle: "Race Management",
+        cardTimeTitle: "Time Configuration",
+        cardDeparturesTitle: "Registered Departures",
+        audioConfigTitle: "Audio Configuration",
+        cardStartOrderTitle: "Start Order",
         
-        modeSalidaText: "SORTIDES",        // Catalán
-        modeLlegadasText: "ARRIBADES",     // Catalán
-
         // Botones de carrera
-        newRaceText: "Nova",
-        deleteRaceText: "Eliminar",
-        deleteRaceConfirmBtn: "Eliminar",
-        deleteRaceCancelBtn:'Cancelar',
-        
+        newRaceText: "New",
+        deleteRaceText: "Delete",
+        deleteRaceConfirmBtn: "Delete",
+        deleteRaceCancelBtn:'Cancel',
+
+        modeSalidaText: "STARTS",          // Inglés
+        modeLlegadasText: "FINISHES",      // Inglés
+
         // Configuración de audio
-        beepOptionTitle: "Sons Beep",
-        voiceOptionTitle: "Veü gravada",
-        muteOptionTitle: "Sense so",
-        testAudioText: "Provar so actual",
+        beepOptionTitle: "Beep Sounds",
+        voiceOptionTitle: "Recorded Voice",
+        muteOptionTitle: "No Sound",
+        testAudioText: "Test Current Sound",
         
         // Configuración de tiempo
-        intervalTimeLabel: "Temps entre sortides",
-        minutesText: "minuts",
-        secondsText: "segons",
+        intervalTimeLabel: "Time between departures",
+        minutesText: "minutes",
+        secondsText: "seconds",
         
         // Posición inicial
-        startFromXText: "Posició actual:",
-        startCountdownText: "INICIAR COMPTE ENRERE",
-        exitCompleteText: "REINICIAR",
+        startFromXText: "Current position:",
+        startCountdownText: "START COUNTDOWN",
+        exitCompleteText: "RESET",
         
         // Lista de salidas
-        clearDeparturesText: "Netejar llista",
-        exportExcelText: "Exportar Excel",
-        noDeparturesText: "No hi ha sortides registrades",
-        departureHeaderDorsal: "Sortida",
-        departureHeaderTime: "Temps",
-        departureHeaderNotes: "Nota",
-        departureHeaderDate: "Hora",
+        clearDeparturesText: "Clear list",
+        exportExcelText: "Export Excel",
+        noDeparturesText: "No departures registered",
+        departureHeaderDorsal: "Departure",
+        departureHeaderTime: "Time",
+        departureHeaderNotes: "Note",
+        departureHeaderDate: "Time",
         
         // Footer
-        helpText: "Ajuda",
-        suggestionsText: "Suggeriments",
-        installText: "Instal·lar App",
-
+        helpText: "Help",
+        suggestionsText: "Suggestions",
+        installText: "Install App",
         updateText: "Check for Updates",
+
         copyrightText: "2025 © Copyright ",
         copyrightLink: "Roberto Benet - rbenet71@gmail.com - V_18_12_2025",
         
@@ -921,7 +1060,7 @@ const translations = {
         createTemplateText: "Create Template",
         importOrderText: "Import Order",
         deleteOrderText: "Delete Order",
-        exportOrderText: "Export Order",
+        exportOrderText: "Export Excel",
         addRiderText: "Add Rider",
         noStartOrderText: "No riders in start order",
         
@@ -1183,11 +1322,79 @@ const translations = {
         creatingBackup: "Creating backup...",
         noRaceSelected: "Select a race first",
 
+        creatingPDF: "Generating PDF...",
+        exportPDF: "Export PDF",
+        pdfGenerated: "PDF generated: {filename} - {count} riders",
+        
+        // Backup/restore
+        backupCreated: "Backup saved as {filename}",
+        creatingBackup: "Creating backup...",
+        noRaceSelected: "Select a race first",
+        restoreTitle: "Restore race from backup",
+        restoreWarning: "This action will replace current race data",
+        restoreSuccess: "Race restored successfully",
+        restoreError: "Error restoring race",
+        confirmRestore: "Confirm restoration?",
+        cancel: "Cancel",
+        
+        // Race management
+        enterRaceName: "Enter a race name",
+        enterValidDate: "Enter a valid date",
+        raceCreated: "Race created successfully",
+        raceUpdated: "Race updated successfully",
+        raceDeleted: "Race deleted successfully",
+        selectRaceFirst: "Select a race first",
+        departuresCleared: "Departures reset successfully",
+        sessionRestarted: "Session completely restarted",
+        
+        // Start order
+        listAlreadyEmpty: "The list is already empty",
+        confirmDeleteOrder: "Delete ALL start order? This action cannot be undone.",
+        orderDeleted: "Start order deleted",
+        riderAdded: "Rider added",
+        
+        // Modals
+        editRaceTitle: "Edit race",
+        saveChanges: "Save changes",
+        createRace: "Create race",
+        newRaceModalTitle: "New race",
+        
+        // Suggestions
+        suggestionTextLabel: "Enter your suggestion",
+        suggestionSent: "Suggestion sent",
+        
+        // Time management
+        timeChangeCancelled: "Time change cancelled",
+        
+        // Update notification
+        updateAvailable: "New version available",
+
+        creatingPDF: 'Generating start order PDF...',
+        pdfGenerated: 'PDF generated: {filename} ({count} riders)',
+        pdfError: 'Error generating PDF',
+        pdfLibraryMissing: 'PDF library not loaded',
+        noStartOrderData: 'No start order data to generate PDF',
+
+        pdfOrderOfStart: "START ORDER",
+        position: "POS",
+        number: "NUMBER",
+        name: "NAME",
+        surname: "SURNAME",
+        startTime: "START TIME",
+        crono: "TIME",
+        riders: "Riders",
+        start: "Start",
+        final: "Final",
+        generated: "Generated",
+        page: "Page",
+        of: "of",
+        pdfGenerated: "PDF generated",
+        pdfError: "Error generating PDF",
 
     },
 
     fr: {
-        appTitle: "Crono CRI",
+        appTitle: "Crono CRI - under construction",
         languagesLabel: "Langue / Language",
         
         // Tarjetas
@@ -1327,7 +1534,7 @@ const translations = {
         createTemplateText: "Créer Modèle",
         importOrderText: "Importer Ordre",
         deleteOrderText: "Supprimer Ordre",
-        exportOrderText: "Exporter Ordre",
+        exportOrderText: "Exporter Excel",
         addRiderText: "Ajouter Coureur",
         noStartOrderText: "Aucun coureur dans l'ordre de départ",
         
@@ -1590,6 +1797,92 @@ const translations = {
         backupCreated: "Sauvegarde enregistrée sous {filename}",
         creatingBackup: "Création de la sauvegarde...",
         noRaceSelected: "Sélectionnez d'abord une course",
+
+        creatingPDF: "Génération du PDF...",
+        exportPDF: "Exporter PDF",
+        pdfGenerated: "PDF généré: {filename} - {count} coureurs",
+        
+        // Backup/restore
+        backupCreated: "Sauvegarde enregistrée sous {filename}",
+        creatingBackup: "Création de la sauvegarde...",
+        noRaceSelected: "Sélectionnez d'abord une course",
+        restoreTitle: "Restaurer la course depuis la sauvegarde",
+        restoreWarning: "Cette action remplacera les données actuelles de la course",
+        restoreSuccess: "Course restaurée avec succès",
+        restoreError: "Erreur lors de la restauration de la course",
+        confirmRestore: "Confirmer la restauration?",
+        cancel: "Annuler",
+        
+        // Race management
+        enterRaceName: "Entrez un nom pour la course",
+        enterValidDate: "Entrez une date valide",
+        raceCreated: "Course créée avec succès",
+        raceUpdated: "Course mise à jour avec succès",
+        raceDeleted: "Course supprimée avec succès",
+        selectRaceFirst: "Sélectionnez d'abord une course",
+        departuresCleared: "Départs réinitialisés avec succès",
+        sessionRestarted: "Session complètement redémarrée",
+        
+        // Start order
+        listAlreadyEmpty: "La liste est déjà vide",
+        confirmDeleteOrder: "Supprimer TOUT l'ordre de départ? Cette action ne peut pas être annulée.",
+        orderDeleted: "Ordre de départ supprimé",
+        riderAdded: "Coureur ajouté",
+        
+        // Modals
+        editRaceTitle: "Modifier la course",
+        saveChanges: "Enregistrer les modifications",
+        createRace: "Créer une course",
+        newRaceModalTitle: "Nouvelle course",
+        
+        // Suggestions
+        suggestionTextLabel: "Entrez votre suggestion",
+        suggestionSent: "Suggestion envoyée",
+        
+        // Time management
+        timeChangeCancelled: "Changement d'heure annulé",
+        
+        // Update notification
+        updateAvailable: "Nouvelle version disponible",      
+
+        creatingPDF: 'Génération du PDF de l\'ordre de départ...',
+        pdfGenerated: 'PDF généré: {filename} ({count} coureurs)',
+        pdfError: 'Erreur lors de la génération du PDF',
+        pdfLibraryMissing: 'La bibliothèque PDF n\'est pas chargée',
+        noStartOrderData: 'Aucune donnée d\'ordre de départ pour générer le PDF',
+
+        pdfOrderOfStart: "ORDRE DE SORTIDA",
+        position: "POS",
+        number: "DORSAL",
+        name: "NOM",
+        surname: "COGNOMS",
+        startTime: "HORA SORTIDA",
+        crono: "CRONO",
+        riders: "Corredors",
+        start: "Inici",
+        final: "Final",
+        generated: "Generat",
+        page: "Pàgina",
+        of: "de",
+        pdfGenerated: "PDF generat",
+        pdfError: "Error generant PDF",
+
+        // Para francés (fr):
+        pdfOrderOfStart: "ORDRE DE DÉPART",
+        position: "POS",
+        number: "DOSSARD",
+        name: "NOM",
+        surname: "PRÉNOM",
+        startTime: "HEURE DÉPART",
+        crono: "CHRONO",
+        riders: "Coureurs",
+        start: "Début",
+        final: "Fin",
+        generated: "Généré",
+        page: "Page",
+        of: "de",
+        pdfGenerated: "PDF généré",
+        pdfError: "Erreur génération PDF",
     }
 };
 

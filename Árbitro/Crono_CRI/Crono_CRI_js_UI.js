@@ -890,3 +890,33 @@ function setupModalActionListeners() {
     
     console.log("✅ Listeners de acciones de modales configurados");
 }
+
+// ============================================
+// FUNCIÓN PARA CONFIGURAR BOTÓN DE EXPORTAR PDF
+// ============================================
+function setupPDFExportButton() {
+    console.log("Configurando botón de exportar PDF...");
+    
+    // Buscar el contenedor de exportación de Excel
+    const excelButton = document.getElementById('export-excel-btn');
+    if (!excelButton) {
+        console.error("No se encontró el botón de exportar Excel");
+        return;
+    }
+    
+    // Crear botón de PDF junto al de Excel
+    const pdfButton = document.createElement('button');
+    pdfButton.id = 'export-pdf-btn';
+    pdfButton.className = 'btn btn-info';
+    pdfButton.innerHTML = '<i class="fas fa-file-pdf"></i> PDF';
+    pdfButton.title = 'Generar PDF del orden de salida';
+    pdfButton.style.marginLeft = '8px';
+    
+    // Añadir event listener
+    pdfButton.addEventListener('click', generateStartOrderPDF);
+    
+    // Insertar después del botón de Excel
+    excelButton.parentNode.insertBefore(pdfButton, excelButton.nextSibling);
+    
+    console.log("Botón de exportar PDF configurado junto al de Excel");
+}
