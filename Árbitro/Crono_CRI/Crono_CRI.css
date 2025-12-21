@@ -3019,6 +3019,18 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     color: white !important;
 }
 
+.start-order-table tr.difference-changed {
+    background-color: #f5f5f5 !important;
+}
+
+.start-order-table tr.difference-changed:nth-child(even) {
+    background-color: #ffffff !important;
+}
+
+.start-order-table tr.difference-changed:hover {
+    background-color: #e8f4fd !important;
+}
+
 /* 19/12/2025
 He organizado el CSS en las siguientes secciones principales:
 Reset y variables globales - Estilos base y variables CSS

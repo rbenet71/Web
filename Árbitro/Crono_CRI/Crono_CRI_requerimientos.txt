@@ -137,7 +137,19 @@ Crono-cri/
 └── plantilla-cri.xlsx
 
 scroll orden de salida mantener la cabecera
+cuando editas datos de carrera crea una nueva
 
 Para empezar vamos a dejar el programa tal y como esta, pero vamos a:
 
 al introducir manualmente un corredor preguntamos si lo pone al principio o en que posición, en función donde vaya se calcula a los siguientes corredores su hora de salida teniendo en cuenta que el corredor añadido tendrá la diferencia igual al anterior corredor. y a la vez se actualiza el valor en segundos de lo que hemos modificado
+
+al introducir un corredor si es el primero o posición 1, se le pone crono salida 00:00:00 y en hora de salida la salida prevista del primer corredor y al que ahora sera segundo registro le pones como valor de diferencia el del tercero. y vuelves a calcular el valor de crono salida como crono del anterior más el campo diferncia y hora salida como hora salida anterior mas diferencia. y ademas actualizas tambien con esos valores hora salida prevista y crono prevista
+
+al introducir el ultimo corredor u otra posición ponemos como datos, el valor diferencia seria el valor del registro anterior, y sobre los valores anteriores añadimos la diferencia para crono salida, hora salida, y hora salida prevista y crono salida prevista, en hora salida importado y crono salda importado lo dejamos en blanco y convertimos a segundos crono salida y hora salida. Si hay registros depués del añadido recalculamos los tiempos de las mismas columnas, NO modificamos importado.
+
+
+los unicos valores que se pueden modificar en la tabla de orden de salida son: dorsal,diferencia, nombre, apellidos, chip
+
+te digo como lo quiero, primero el nombre de la prueba, debajo Orden de Salida, y esto centrado en la página, luego jusitificado (sin titulo) a la izquierda lugar, y al lado fecha, debajo tipo prueba y al lado categoria y Total Corredores: y su valor, al lado Salida Primer Corredor: y al lado Salida último Corredor. la cabecera de la tabla la quiero del mismo color que el ejemplo azul creo que es, y los titulos y valores de pos, dorsal, hora salida y crono centrado, y apellidos y nombre jsutificado izquierda, y automatiza el calculo del numero de registros que caben en una hoja
+
+doc.setFillColor(230, 230, 230); // Gris medio

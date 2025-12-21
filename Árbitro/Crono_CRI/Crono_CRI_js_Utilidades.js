@@ -1009,499 +1009,413 @@ function saveLastUpdate() {
 // ============================================
 // FUNCIÓN PARA GENERAR PDF DEL ORDEN DE SALIDA (MEJORADA)
 // ============================================
+
 function generateStartOrderPDF() {
     const t = translations[appState.currentLanguage];
     
-    // Verificar si hay una carrera seleccionada
-    if (!appState.currentRace) {
-        showMessage(t.noRaceSelected || 'Selecciona una carrera primero', 'warning');
-        return;
-    }
-    
-    // Verificar si hay datos de orden de salida
     if (!startOrderData || startOrderData.length === 0) {
-        showMessage(t.noStartOrderData || 'No hay datos de orden de salida para exportar', 'warning');
+        showMessage(t.noDataToExport, 'error');
         return;
     }
-    
-    // Verificar que jsPDF esté disponible
-    if (typeof jspdf === 'undefined') {
-        console.error("jsPDF no está disponible");
-        showMessage(t.pdfLibraryMissing || 'La librería PDF no está cargada', 'error');
-        return;
-    }
-    
-    // Mostrar mensaje de progreso
-    showMessage(t.creatingPDF || 'Generando PDF...', 'info');
-    
+
     try {
-        // Crear documento PDF
-        const { jsPDF } = jspdf;
-        const doc = new jsPDF({
+        // Obtener datos de la carrera
+        const race = appState.currentRace || {};
+        const raceName = race.name || "Carrera sin nombre";
+        const location = race.location || "Lugar no especificado";
+        const eventType = race.eventType || "Tipo de prueba no especificado";
+        const category = race.category || "Categoría no especificada";
+        
+        // Obtener fechas
+        const eventDate = race.date ? new Date(race.date) : new Date();
+        const dateStr = eventDate.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+        
+        // Obtener tiempos de salida
+        const firstRider = startOrderData[0];
+        const lastRider = startOrderData[startOrderData.length - 1];
+        const firstStartTime = firstRider ? firstRider.horaSalida : "00:00:00";
+        const lastStartTime = lastRider ? lastRider.horaSalida : "00:00:00";
+        const totalRiders = startOrderData.length;
+        
+        // CREAR PDF
+        let { jsPDF } = window.jspdf;
+        let doc = new jsPDF({
             orientation: 'portrait',
             unit: 'mm',
             format: 'a4'
         });
+
+        const pageWidth = doc.internal.pageSize.width;
+        const pageHeight = doc.internal.pageSize.height;
+        const margin = 20;
+        const contentWidth = pageWidth - 2 * margin;
         
-        // Obtener datos de la carrera
-        const race = appState.currentRace;
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const margin = 10;
+        // CONFIGURACIÓN DE COLUMNAS (CENTRAR TABLA)
+        const columnWidths = [12, 15, 35, 35, 25, 18];
+        const totalTableWidth = columnWidths.reduce((sum, width) => sum + width, 0);
         
-        // Configurar fuente y colores
-        const primaryColor = [41, 128, 185];
-        const textColor = [44, 62, 80];
-        const lightGray = [248, 249, 250];
+        // Calcular margen izquierdo para centrar tabla
+        const tableMarginLeft = margin + (contentWidth - totalTableWidth) / 2;
         
-        let yPos = margin;
+        // CALCULAR FILAS POR PÁGINA
+        const headerHeight = 50;
+        const footerHeight = 15; // SIEMPRE espacio para pie
+        const rowHeight = 6;
+        const availableHeight = pageHeight - headerHeight - footerHeight - 20;
+        const maxRowsPerPage = Math.floor(availableHeight / rowHeight);
+        const totalPages = Math.ceil(totalRiders / maxRowsPerPage);
         
-        // ============================
-        // CABECERA COMPACTA (CON TRADUCCIONES)
-        // ============================
-        doc.setFontSize(16);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-        doc.text(race.name.toUpperCase(), pageWidth / 2, yPos, { align: 'center' });
+        let pageNumber = 1;
+        let currentY = 15;
+        let rowIndex = 0;
         
-        doc.setFontSize(12);
-        doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-        // Usar texto traducido
-        const orderText = t.pdfOrderOfStart || 'ORDEN DE SALIDA';
-        doc.text(orderText, pageWidth / 2, yPos + 5, { align: 'center' });
+        // Variables para control de cambio de diferencia
+        let lastDifference = null;
+        let useGrayBackground = false;
         
-        yPos += 10;
-        
-        // ============================
-        // INFORMACIÓN BÁSICA
-        // ============================
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'normal');
-        
-        // Línea 1: Organizador y Población
-        let line1 = '';
-        if (race.organizer) line1 += race.organizer;
-        if (race.location) line1 += (line1 ? ' - ' : '') + race.location;
-        if (line1) {
-            doc.text(line1, pageWidth / 2, yPos, { align: 'center' });
-            yPos += 4;
+        // FUNCIÓN PARA DIBUJAR CABECERA
+        function drawPageHeader() {
+            let y = 15;
+            
+            // 1. NOMBRE DE LA PRUEBA (centrado) - AZUL
+            doc.setFontSize(18);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(66, 133, 244); // Azul solo para el título
+            doc.text(raceName.toUpperCase(), pageWidth / 2, y, { align: "center" });
+            y += 8;
+            
+            // 2. "ORDEN DE SALIDA" (centrado) - NEGRO
+            doc.setFontSize(16);
+            doc.setTextColor(0, 0, 0); // Restablecer a negro
+            doc.text("ORDEN DE SALIDA", pageWidth / 2, y, { align: "center" });
+            y += 15;
+            
+            // 3. LÍNEA 1: Lugar (izquierda) y Fecha (derecha)
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Lugar: ${location}`, margin, y);
+            doc.text(`Fecha: ${dateStr}`, pageWidth - margin, y, { align: "right" });
+            y += 6;
+            
+            // 4. LÍNEA 2: Tipo de prueba (izquierda) y Total Corredores (derecha)
+            const tipoCategoria = `${eventType} - ${category}`;
+            doc.text(tipoCategoria, margin, y);
+            doc.text(`Total Corredores: ${totalRiders}`, pageWidth - margin, y, { align: "right" });
+            y += 6;
+            
+            // 5. LÍNEA 3: Salidas
+            doc.text(`Salida Primer Corredor: ${firstStartTime}`, margin, y);
+            doc.text(`Salida Último Corredor: ${lastStartTime}`, pageWidth - margin, y, { align: "right" });
+            y += 10;
+            
+            return y;
         }
         
-        // Línea 2: Fecha
-        if (race.date) {
-            const formattedDate = formatDateShort(race.date);
-            doc.text(formattedDate, pageWidth / 2, yPos, { align: 'center' });
-            yPos += 4;
-        }
-        
-        // Línea divisoria
-        doc.setDrawColor(200, 200, 200);
-        doc.line(margin, yPos, pageWidth - margin, yPos);
-        yPos += 6;
-        
-        // ============================
-        // DATOS TÉCNICOS (CON TRADUCCIONES)
-        // ============================
-        doc.setFontSize(8);
-        
-        // Modalidad, Categoría y Total (traducido)
-        let techInfo = '';
-        if (race.modality) techInfo += race.modality;
-        if (race.category) techInfo += (techInfo ? ' - ' : '') + race.category;
-        if (techInfo) techInfo += ` | `;
-        techInfo += `${t.riders || 'Corredores'}: ${startOrderData.length}`;
-        
-        // Hora de inicio (traducido)
-        const startTime = race.firstStartTime || '09:00:00';
-        const startText = t.start || 'Inicio';
-        const timesInfo = `${startText}: ${startTime}`;
-        
-        doc.text(techInfo, margin, yPos);
-        doc.text(timesInfo, pageWidth - margin, yPos, { align: 'right' });
-        
-        yPos += 6;
-        
-        // ============================
-        // PREPARAR DATOS PARA LA TABLA (CON TRADUCCIONES)
-        // ============================
-        const tableData = [];
-        // Usar textos traducidos para encabezados
-        const tableHeaders = [
-            t.position || 'POS',
-            t.number || 'DORSAL',
-            t.name || 'NOMBRE',
-            t.surname || 'APELLIDOS',
-            t.startTime || 'HORA SALIDA',
-            t.crono || 'CRONO'
-        ];
-        
-        startOrderData.forEach((rider, index) => {
-            // USAR VALORES DIRECTOS DE LA TABLA, SIN CÁLCULOS
-            const horaSalida = rider.horaSalida || '00:00:00';
+        // FUNCIÓN PARA DIBUJAR CABECERA DE TABLA
+        function drawTableHeaders(startY) {
+            // Fondo azul para cabecera
+            doc.setFillColor(66, 133, 244);
+            doc.rect(tableMarginLeft, startY - 3, totalTableWidth, 8, 'F');
             
-            // SOLUCIÓN: Solo corregir el primer corredor
-            let cronoDisplay;
-            
-            if (index === 0) {
-                // Primer corredor SIEMPRE 00:00 en el PDF
-                cronoDisplay = '00:00';
-            } else {
-                // Para los demás, usar EXACTAMENTE el valor de la tabla
-                const cronoSalida = rider.cronoSalida || '00:00:00';
-                
-                // Solo formatear para PDF (HH:MM:SS → MM:SS)
-                if (cronoSalida && cronoSalida.includes(':')) {
-                    const parts = cronoSalida.split(':');
-                    if (parts.length === 3) {
-                        const horas = parseInt(parts[0]) || 0;
-                        const minutos = parseInt(parts[1]) || 0;
-                        const segundos = parseInt(parts[2]) || 0;
-                        
-                        if (horas === 0) {
-                            // Formato MM:SS (sin horas)
-                            cronoDisplay = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
-                        } else {
-                            // Formato H:MM:SS (con horas)
-                            cronoDisplay = `${horas}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
-                        }
-                    } else {
-                        cronoDisplay = cronoSalida;
-                    }
-                } else if (cronoSalida && !isNaN(cronoSalida)) {
-                    // Si es un número (segundos), convertirlo a MM:SS
-                    const segundos = parseInt(cronoSalida) || 0;
-                    const minutos = Math.floor(segundos / 60);
-                    const segsRestantes = segundos % 60;
-                    cronoDisplay = `${minutos.toString().padStart(2, '0')}:${segsRestantes.toString().padStart(2, '0')}`;
-                } else {
-                    cronoDisplay = cronoSalida || '00:00';
-                }
-            }
-            
-            tableData.push([
-                (index + 1).toString(),
-                rider.dorsal ? rider.dorsal.toString() : '--',
-                rider.nombre ? rider.nombre.trim() : '--',
-                rider.apellidos ? rider.apellidos.trim() : '--',
-                horaSalida,       // ← VALOR DIRECTO de la tabla
-                cronoDisplay      // ← VALOR AJUSTADO solo para primer corredor
-            ]);
-            
-            // Debug
-            console.log(`Corredor ${index + 1}: hora=${horaSalida}, cronoTabla=${rider.cronoSalida}, cronoPDF=${cronoDisplay}`);
-        });
-        
-        // Anchos de columna para centrar la tabla
-        const colWidths = [12, 18, 38, 48, 25, 18];
-        const totalTableWidth = colWidths.reduce((a, b) => a + b, 0);
-        const tableStartX = (pageWidth - totalTableWidth) / 2;
-        
-        // Función para dibujar encabezados de tabla
-        function drawTableHeaders(yPosition) {
-            doc.setFontSize(8);
-            doc.setFont('helvetica', 'bold');
+            // Texto de cabeceras en blanco
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "bold");
             doc.setTextColor(255, 255, 255);
             
-            let xPos = tableStartX;
-            tableHeaders.forEach((header, i) => {
-                const cellWidth = colWidths[i];
-                
-                // Dibujar fondo de celda
-                doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-                doc.rect(xPos, yPosition, cellWidth, 5.5, 'F');
-                
-                // Dibujar texto centrado
-                const centerX = xPos + (cellWidth / 2);
-                doc.text(header, centerX, yPosition + 3.5, { align: 'center' });
-                
-                xPos += cellWidth;
+            const headers = ["POS", "DORSAL", "NOMBRE", "APELLIDOS", "HORA SALIDA", "CRONO"];
+            const aligns = ["center", "center", "left", "left", "center", "center"];
+            let xPosition = tableMarginLeft;
+            
+            headers.forEach((header, index) => {
+                if (aligns[index] === "center") {
+                    doc.text(header, xPosition + (columnWidths[index] / 2), startY + 1, { align: "center" });
+                } else {
+                    doc.text(header, xPosition + 2, startY + 1);
+                }
+                xPosition += columnWidths[index];
             });
+            
+            return startY + 8;
         }
         
-        // Función para dibujar el pie de página (CON TRADUCCIONES)
-        function drawFooter(pageNum, totalPages) {
-            const footerY = pageHeight - 8;
-            
-            // Fecha y hora actual (formato local)
-            const now = new Date();
-            const generatedTime = now.toLocaleTimeString('es-ES', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            });
-            const generatedDate = now.toLocaleDateString('es-ES');
-            
-            // Usar texto traducido si existe
-            const generatedText = t.generated || 'Generado';
-            
-            doc.setFontSize(7);
-            doc.setFont('helvetica', 'normal');
-            doc.setTextColor(120, 120, 120);
-            
-            // Hora y fecha (izquierda) - con texto traducido
-            doc.text(`${generatedText}: ${generatedTime} - ${generatedDate}`, margin, footerY);
-            
-            // Número de página (derecha) - texto traducido
-            const pageText = t.page || 'Página';
-            const ofText = t.of || 'de';
-            const pageString = `${pageText} ${pageNum} ${ofText} ${totalPages}`;
-            doc.text(pageString, pageWidth - margin, footerY, { align: 'right' });
+        // FUNCIÓN PARA OBTENER DIFERENCIA DEL CORREDOR
+        function getRiderDifference(rider) {
+            // Usa el valor de diferencia o crono salida para agrupar
+            return rider.diferencia || rider.cronoSalida || rider.cronoSegundos || 0;
         }
         
-        // Calcular número total de páginas ANTES de dibujar
-        const rowsPerPage = 35;
-        const totalPages = Math.ceil(startOrderData.length / rowsPerPage);
-        
-        // Dibujar pie de página en la primera página
-        drawFooter(1, totalPages);
-        
-        // Dibujar encabezados de tabla en la primera página
-        drawTableHeaders(yPos);
-        const initialTableY = yPos;
-        yPos += 5.5;
-        
-        // Verificar si AutoTable está disponible
-        if (typeof doc.autoTable === 'function') {
-            // Variable para controlar si ya dibujamos encabezados manualmente
-            let headersDrawnOnFirstPage = false;
-            
-            // Configurar AutoTable
-            const tableOptions = {
-                startY: yPos,
-                head: [tableHeaders],
-                body: tableData,
-                margin: { 
-                    left: tableStartX, 
-                    right: pageWidth - tableStartX - totalTableWidth 
-                },
-                tableWidth: totalTableWidth,
-                theme: 'grid',
-                // NO mostrar encabezados automáticamente (los dibujamos manualmente)
-                showHead: 'never',
-                headStyles: {
-                    fillColor: primaryColor,
-                    textColor: 255,
-                    fontStyle: 'bold',
-                    fontSize: 8,
-                    cellPadding: 2,
-                    halign: 'center',
-                    valign: 'middle',
-                    lineWidth: 0.1
-                },
-                bodyStyles: {
-                    fontSize: 7.5,
-                    cellPadding: 1.5,
-                    textColor: textColor,
-                    lineColor: [200, 200, 200],
-                    valign: 'middle',
-                    lineWidth: 0.1
-                },
-                columnStyles: {
-                    0: { 
-                        cellWidth: colWidths[0],
-                        halign: 'center',
-                        minCellWidth: colWidths[0]
-                    },
-                    1: { 
-                        cellWidth: colWidths[1],
-                        halign: 'center',
-                        minCellWidth: colWidths[1]
-                    },
-                    2: { 
-                        cellWidth: colWidths[2],
-                        halign: 'left',
-                        minCellWidth: colWidths[2]
-                    },
-                    3: { 
-                        cellWidth: colWidths[3],
-                        halign: 'left',
-                        minCellWidth: colWidths[3]
-                    },
-                    4: { 
-                        cellWidth: colWidths[4],
-                        halign: 'center',
-                        minCellWidth: colWidths[4]
-                    },
-                    5: { 
-                        cellWidth: colWidths[5],
-                        halign: 'center',
-                        minCellWidth: colWidths[5]
-                    }
-                },
-                styles: {
-                    overflow: 'linebreak',
-                    cellPadding: 1.5,
-                    lineWidth: 0.1,
-                    lineColor: [200, 200, 200],
-                    font: 'helvetica',
-                    fontStyle: 'normal'
-                },
-                // Configuración de páginas
-                rowPageBreak: 'auto',
-                // Margen para el pie de página
-                margin: { 
-                    top: yPos, 
-                    bottom: 12, 
-                    left: tableStartX, 
-                    right: pageWidth - tableStartX - totalTableWidth 
-                },
-                
-                // Callback ANTES de dibujar cada página
-                willDrawPage: function(data) {
-                    // Dibujar encabezados manualmente en TODAS las páginas
-                    if (!headersDrawnOnFirstPage) {
-                        // Primera página - usar posición inicial
-                        drawTableHeaders(initialTableY);
-                        headersDrawnOnFirstPage = true;
-                    } else {
-                        // Páginas siguientes - dibujar encabezados arriba
-                        const headerY = margin;
-                        drawTableHeaders(headerY);
-                    }
-                },
-                
-                // Callback DESPUÉS de dibujar cada página
-                didDrawPage: function(data) {
-                    // Dibujar pie de página
-                    drawFooter(data.pageNumber, totalPages);
-                },
-                
-                willDrawCell: function(data) {
-                    // Resaltar cada 5 filas
-                    if (data.row.index > 0 && data.row.index % 5 === 0) {
-                        data.cell.styles.fillColor = lightGray;
-                    }
-                    
-                    // Resaltar primera fila en primera página
-                    if (data.row.index === 0 && data.pageNumber === 1) {
-                        data.cell.styles.fontStyle = 'bold';
-                        data.cell.styles.fillColor = [240, 248, 255];
-                    }
-                    
-                    // Asegurar que el dorsal quede en una línea
-                    if (data.column.index === 1 && data.cell.text) {
-                        if (data.cell.text.length > 6) {
-                            data.cell.text = data.cell.text.substring(0, 6);
-                        }
-                    }
-                    
-                    // Truncar texto largo en nombre/apellidos
-                    if ((data.column.index === 2 || data.column.index === 3) && data.cell.text) {
-                        if (data.cell.text.length > 20) {
-                            data.cell.text = data.cell.text.substring(0, 20) + '...';
-                        }
-                    }
-                }
-            };
-            
-            // Crear la tabla
-            doc.autoTable(tableOptions);
-            
-        } else {
-            // Fallback: tabla manual sin AutoTable
-            console.log("AutoTable no disponible, usando método manual");
-            
-            // Función para dibujar una página de la tabla
-            function drawTablePage(startIndex, pageNum) {
-                // Si no es la primera página, añadir nueva página y dibujar encabezados
-                if (pageNum > 1) {
-                    doc.addPage();
-                    yPos = margin;
-                    
-                    // Dibujar encabezados al principio de la página
-                    drawTableHeaders(yPos);
-                    yPos += 5.5;
-                    
-                    // Dibujar pie de página
-                    drawFooter(pageNum, totalPages);
-                }
-                
-                // Dibujar filas
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(7.5);
-                doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-                
-                const rowsOnThisPage = Math.min(rowsPerPage, tableData.length - startIndex);
-                
-                for (let i = 0; i < rowsOnThisPage; i++) {
-                    const rowIndex = startIndex + i;
-                    const row = tableData[rowIndex];
-                    
-                    // Verificar si necesitamos nueva página
-                    if (yPos > pageHeight - 20) {
-                        // Dibujar página siguiente
-                        drawTablePage(rowIndex, pageNum + 1);
-                        return;
-                    }
-                    
-                    // Resaltar cada 5 filas
-                    if (rowIndex > 0 && rowIndex % 5 === 0) {
-                        doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-                        doc.rect(tableStartX, yPos - 3.5, totalTableWidth, 5.5, 'F');
-                    }
-                    
-                    // Dibujar celdas
-                    let xPos = tableStartX;
-                    row.forEach((cell, colIndex) => {
-                        const cellWidth = colWidths[colIndex];
-                        const align = (colIndex === 0 || colIndex === 1 || colIndex === 4 || colIndex === 5) ? 'center' : 'left';
-                        
-                        // Truncar texto si es necesario
-                        let displayText = cell;
-                        if (colIndex === 1 && cell && cell.length > 6) {
-                            displayText = cell.substring(0, 6);
-                        } else if ((colIndex === 2 || colIndex === 3) && cell && cell.length > 20) {
-                            displayText = cell.substring(0, 20) + '...';
-                        }
-                        
-                        const textX = align === 'center' ? xPos + (cellWidth / 2) : xPos + 1;
-                        
-                        doc.text(displayText, textX, yPos + 3.5, { align: align });
-                        xPos += cellWidth;
-                    });
-                    
-                    // Línea divisoria
-                    doc.setDrawColor(220, 220, 220);
-                    doc.line(tableStartX, yPos + 5.5, tableStartX + totalTableWidth, yPos + 5.5);
-                    
-                    yPos += 5.5;
-                }
-                
-                // Si es la última página de esta llamada, dibujar pie de página
-                if (startIndex + rowsOnThisPage >= tableData.length) {
-                    drawFooter(pageNum, totalPages);
-                }
+        // FUNCIÓN PARA DIBUJAR UNA FILA DE DATOS
+        function drawDataRow(rider, startY, rowNumber, currentDifference) {
+            // Determinar si debemos usar fondo gris basado en cambio de diferencia
+            if (lastDifference !== null && currentDifference !== lastDifference) {
+                useGrayBackground = !useGrayBackground; // Alternar cuando cambia diferencia
             }
             
-            // Empezar a dibujar la tabla
-            drawTablePage(0, 1);
+            // Aplicar fondo gris si corresponde
+            if (useGrayBackground) {
+                doc.setFillColor(225, 238, 255); // Gris para diferencia cambiada
+                doc.rect(tableMarginLeft, startY - 2, totalTableWidth, rowHeight, 'F');
+            }
+            
+            // Actualizar última diferencia
+            lastDifference = currentDifference;
+            
+            // Texto de la fila
+            doc.setFontSize(9);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(0, 0, 0);
+            
+            const aligns = ["center", "center", "left", "left", "center", "center"];
+            let xPosition = tableMarginLeft;
+            
+            // POS
+            doc.text(rider.order.toString(), xPosition + (columnWidths[0] / 2), startY + 2, { align: "center" });
+            xPosition += columnWidths[0];
+            
+            // DORSAL
+            doc.text(rider.dorsal.toString(), xPosition + (columnWidths[1] / 2), startY + 2, { align: "center" });
+            xPosition += columnWidths[1];
+            
+            // NOMBRE
+            const nombre = rider.nombre || "";
+            doc.text(nombre, xPosition + 2, startY + 2);
+            xPosition += columnWidths[2];
+            
+            // APELLIDOS
+            const apellidos = rider.apellidos || "";
+            doc.text(apellidos, xPosition + 2, startY + 2);
+            xPosition += columnWidths[3];
+            
+            // HORA SALIDA
+            doc.text(rider.horaSalida || "00:00:00", xPosition + (columnWidths[4] / 2), startY + 2, { align: "center" });
+            xPosition += columnWidths[4];
+            
+            // CRONO
+            const timeForDisplay = rider.timeDisplay || formatTimeForPDF(rider.cronoSegundos || 0);
+            doc.text(timeForDisplay, xPosition + (columnWidths[5] / 2), startY + 2, { align: "center" });
+            
+            // Línea sutil entre filas
+            doc.setDrawColor(220, 220, 220);
+            doc.setLineWidth(0.2);
+            doc.line(tableMarginLeft, startY + 4, tableMarginLeft + totalTableWidth, startY + 4);
+            
+            return startY + rowHeight;
         }
         
-        // ============================
-        // GUARDAR EL PDF
-        // ============================
-        const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
-        const safeRaceName = race.name
-            .replace(/[^a-z0-9ñÑáéíóúÁÉÍÓÚ\s]/gi, '_')
-            .replace(/\s+/g, '_')
-            .substring(0, 30);
-        const filename = `Orden_Salida_${safeRaceName}_${dateStr}.pdf`;
+        // FUNCIÓN PARA DIBUJAR PIE DE PÁGINA (SIEMPRE)
+        function drawPageFooter(pageNum, totalPages) {
+            // Fecha y hora actual (sin "Generado:")
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('es-ES', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false
+            });
+            const dateStr = now.toLocaleDateString('es-ES');
+            
+            // Dibujar con separación adecuada
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(100, 100, 100);
+            
+            // Fecha y hora en izquierda (10mm desde abajo)
+            doc.text(`${timeStr} - ${dateStr}`, margin, pageHeight - 10);
+            
+            // Número de página en derecha (10mm desde abajo)
+            doc.text(`Página ${pageNum} de ${totalPages}`, pageWidth - margin, pageHeight - 10, { align: "right" });
+        }
         
-        doc.save(filename);
+        // DIBUJAR PRIMERA PÁGINA
+        currentY = drawPageHeader();
+        currentY = drawTableHeaders(currentY);
         
-        showMessage(`✅ ${t.pdfGenerated || 'PDF generado'}: ${filename}`, 'success');
-        
-        console.log("PDF generado exitosamente:", {
-            archivo: filename,
-            carrera: race.name,
-            corredores: startOrderData.length,
-            paginas: totalPages,
-            idioma: appState.currentLanguage
+        // PROCESAR TODAS LAS FILAS
+        startOrderData.forEach((rider, index) => {
+            // Verificar si necesitamos nueva página
+            if (rowIndex >= maxRowsPerPage) {
+                // Dibujar pie de página en la página actual
+                drawPageFooter(pageNumber, totalPages);
+                
+                // Nueva página
+                doc.addPage();
+                pageNumber++;
+                rowIndex = 0;
+                
+                // Reiniciar variables de control de diferencia para nueva página
+                lastDifference = null;
+                useGrayBackground = false;
+                
+                // Dibujar cabecera en nueva página
+                currentY = 15;
+                currentY = drawPageHeader();
+                currentY = drawTableHeaders(currentY);
+            }
+            
+            // Obtener diferencia actual
+            const currentDifference = getRiderDifference(rider);
+            
+            // Dibujar fila actual
+            currentY = drawDataRow(rider, currentY, rowIndex + 1, currentDifference);
+            rowIndex++;
         });
         
+        // Dibujar pie de página en la última página (SIEMPRE)
+        drawPageFooter(pageNumber, totalPages);
+        
+        // Guardar PDF
+        const now = new Date();
+        const dateFileStr = now.toISOString().split('T')[0];
+        const fileName = `orden_salida_${raceName.replace(/\s+/g, '_')}_${dateFileStr}.pdf`;
+        
+        doc.save(fileName);
+        
+        showMessage(t.pdfExportedSuccess, 'success');
+        
     } catch (error) {
-        console.error('Error generando PDF:', error);
-        showMessage(`❌ ${t.pdfError || 'Error'}: ${error.message}`, 'error');
+        console.error('Error generating PDF:', error);
+        showMessage(t.pdfExportError || 'Error al generar PDF', 'error');
     }
+}
+
+
+// Función auxiliar para obtener diferencia formateada para PDF
+function getRiderDifferenceForPDF(rider) {
+    if (rider.diferencia && rider.diferencia !== '' && rider.diferencia !== '00:00:00') {
+        // Extraer solo la parte numérica para comparación
+        const match = rider.diferencia.match(/(\d{2}:\d{2}:\d{2})/);
+        return match ? match[1] : rider.diferencia;
+    }
+    
+    // Calcular diferencia si hay datos reales y previstos
+    const horaRealSegundos = rider.horaSalidaRealSegundos || timeToSeconds(rider.horaSalidaReal) || 0;
+    const horaPrevistaSegundos = rider.horaSegundos || timeToSeconds(rider.horaSalida) || 0;
+    
+    if (horaRealSegundos > 0 && horaPrevistaSegundos > 0) {
+        const diferencia = horaRealSegundos - horaPrevistaSegundos;
+        return diferencia !== 0 ? `DIFF:${diferencia}` : 'DIFF:0';
+    }
+    
+    return 'NO_DIFF';
+}
+
+// Función para formatear tiempo para PDF (base 60) - Asegúrate de que existe
+function formatTimeForPDF(totalSeconds) {
+    if (!totalSeconds && totalSeconds !== 0) return '00:00';
+    
+    const secs = Math.abs(Math.round(totalSeconds));
+    const hours = Math.floor(secs / 3600);
+    const minutes = Math.floor((secs % 3600) / 60);
+    const seconds = secs % 60;
+    
+    if (hours > 0) {
+        return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    } else if (minutes > 0 || seconds > 0) {
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    } else {
+        return '00:00';
+    }
+}
+
+// Función para convertir tiempo a segundos (debe existir)
+function timeToSeconds(timeStr) {
+    if (!timeStr || timeStr === '') return 0;
+    
+    let formattedTime = timeStr;
+    if (!formattedTime.includes(':')) {
+        formattedTime = '00:00:00';
+    }
+    
+    const parts = formattedTime.split(':');
+    if (parts.length === 2) {
+        parts.push('00');
+    }
+    
+    const hours = parseInt(parts[0]) || 0;
+    const minutes = parseInt(parts[1]) || 0;
+    const seconds = parseInt(parts[2]) || 0;
+    
+    return (hours * 3600) + (minutes * 60) + seconds;
+}
+
+// Función auxiliar para pie de página
+function drawPageFooter() {
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(150, 150, 150);
+    
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    const dateStr = now.toLocaleDateString('es-ES');
+    
+    doc.text(`Generated: ${timeStr} - ${dateStr}`, 15, pageHeight - 10);
+    doc.text(`Crono CRI`, pageWidth / 2, pageHeight - 10, { align: "center" });
+}
+
+// Función auxiliar para obtener diferencia formateada para PDF
+function getRiderDifferenceForPDF(rider) {
+    if (rider.diferencia && rider.diferencia !== '' && rider.diferencia !== '00:00:00') {
+        // Extraer solo la parte numérica para comparación
+        const match = rider.diferencia.match(/(\d{2}:\d{2}:\d{2})/);
+        return match ? match[1] : rider.diferencia;
+    }
+    
+    // Calcular diferencia si hay datos reales y previstos
+    const horaRealSegundos = rider.horaSalidaRealSegundos || timeToSeconds(rider.horaSalidaReal) || 0;
+    const horaPrevistaSegundos = rider.horaSegundos || timeToSeconds(rider.horaSalida) || 0;
+    
+    if (horaRealSegundos > 0 && horaPrevistaSegundos > 0) {
+        const diferencia = horaRealSegundos - horaPrevistaSegundos;
+        return diferencia !== 0 ? `DIFF:${diferencia}` : 'DIFF:0';
+    }
+    
+    return 'NO_DIFF';
+}
+
+// Función para formatear tiempo para PDF (base 60)
+function formatTimeForPDF(totalSeconds) {
+    if (!totalSeconds && totalSeconds !== 0) return '00:00';
+    
+    const secs = Math.abs(Math.round(totalSeconds));
+    const hours = Math.floor(secs / 3600);
+    const minutes = Math.floor((secs % 3600) / 60);
+    const seconds = secs % 60;
+    
+    if (hours > 0) {
+        return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    } else if (minutes > 0 || seconds > 0) {
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    } else {
+        return '00:00';
+    }
+}
+
+// Función auxiliar para obtener la diferencia formateada
+function getRiderDifferenceDisplay(rider) {
+    if (rider.diferencia && rider.diferencia !== '' && rider.diferencia !== '00:00:00') {
+        return rider.diferencia;
+    }
+    
+    // Calcular diferencia si hay datos reales y previstos
+    const horaRealSegundos = rider.horaSalidaRealSegundos || timeToSeconds(rider.horaSalidaReal) || 0;
+    const horaPrevistaSegundos = rider.horaSegundos || timeToSeconds(rider.horaSalida) || 0;
+    
+    if (horaRealSegundos > 0 && horaPrevistaSegundos > 0) {
+        const diferencia = horaRealSegundos - horaPrevistaSegundos;
+        if (diferencia !== 0) {
+            const diferenciaAbs = Math.abs(diferencia);
+            const signo = diferencia > 0 ? '+' : '-';
+            return `${secondsToTime(diferenciaAbs)} ${signo}`;
+        }
+    }
+    
+    return '--:--:--';
 }
 
 // Función auxiliar para formatear fecha corta
@@ -1666,15 +1580,12 @@ function generateSimpleStartOrderPDF() {
     
     console.log("Generando PDF del orden de salida...");
     
-    // Mostrar mensaje de progreso
     showMessage(t.creatingPDF || 'Generando PDF...', 'info');
     
     try {
-        // Verificar si jsPDF está disponible
         if (typeof jspdf === 'undefined') {
             console.log("jsPDF no está cargado, cargando dinámicamente...");
             
-            // Cargar jsPDF dinámicamente
             const script = document.createElement('script');
             script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
             script.onload = function() {
@@ -1688,106 +1599,133 @@ function generateSimpleStartOrderPDF() {
             return;
         }
         
-        // Usar jsPDF directamente (sin window.jspdf)
         const { jsPDF } = jspdf;
         const doc = new jsPDF();
         const race = appState.currentRace;
         
-        let yPos = 20;
+        // Variables para controlar cambios en la diferencia
+        let lastDiferencia = null;
+        let rowColorIndex = 0; // 0 = blanco, 1 = gris claro
+        const lightGray = [248, 249, 250]; // Gris claro
+        const white = [255, 255, 255]; // Blanco
         
-        // Título
-        doc.setFontSize(18);
-        doc.setFont('helvetica', 'bold');
-        doc.text('ORDEN DE SALIDA', 105, yPos, { align: 'center' });
-        yPos += 10;
-        
-        // Línea
-        doc.setLineWidth(0.5);
-        doc.line(20, yPos, 190, yPos);
-        yPos += 15;
-        
-        // Datos de la carrera
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Carrera:', 20, yPos);
-        doc.setFont('helvetica', 'normal');
-        doc.text(race.name || 'Sin nombre', 50, yPos);
-        yPos += 8;
-        
-        if (race.date) {
+        // Función para dibujar encabezados
+        function drawHeaders(y) {
+            doc.setFontSize(10);
             doc.setFont('helvetica', 'bold');
-            doc.text('Fecha:', 20, yPos);
-            doc.setFont('helvetica', 'normal');
-            doc.text(race.date, 50, yPos);
-            yPos += 8;
+            doc.text('Pos', 20, y);
+            doc.text('Crono', 35, y);
+            doc.text('Hora', 55, y);
+            doc.text('Dorsal', 75, y);
+            doc.text('Nombre', 95, y);
+            doc.text('Apellidos', 140, y);
         }
         
-        doc.setFont('helvetica', 'bold');
-        doc.text('Hora inicio:', 20, yPos);
-        doc.setFont('helvetica', 'normal');
-        doc.text(race.firstStartTime || '09:00:00', 50, yPos);
-        yPos += 8;
+        // Función para dibujar cabecera de carrera
+        function drawRaceHeader(y) {
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text('ORDEN DE SALIDA', 105, y, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.text(race.name || 'Sin nombre', 105, y + 10, { align: 'center' });
+            
+            if (race.date) {
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text(race.date, 105, y + 16, { align: 'center' });
+            }
+            
+            doc.setFontSize(10);
+            doc.text(`Hora inicio: ${race.firstStartTime || '09:00:00'}`, 105, y + 22, { align: 'center' });
+            doc.text(`Total corredores: ${startOrderData.length}`, 105, y + 28, { align: 'center' });
+            
+            doc.setDrawColor(200, 200, 200);
+            doc.line(20, y + 32, 190, y + 32);
+            
+            return y + 35;
+        }
         
-        doc.setFont('helvetica', 'bold');
-        doc.text('Total corredores:', 20, yPos);
-        doc.setFont('helvetica', 'normal');
-        doc.text(startOrderData.length.toString(), 60, yPos);
-        yPos += 15;
+        let yPos = 20;
+        let currentPage = 1;
+        let rowsOnThisPage = 0;
+        const maxRowsPerPage = 35;
         
-        // Encabezados de la tabla
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Pos', 20, yPos);
-        doc.text('Crono', 35, yPos);
-        doc.text('Hora', 55, yPos);
-        doc.text('Dorsal', 75, yPos);
-        doc.text('Nombre', 95, yPos);
-        doc.text('Apellidos', 140, yPos);
+        // Dibujar cabecera en la primera página
+        yPos = drawRaceHeader(yPos);
+        
+        // Dibujar encabezados de columnas en la primera página
+        drawHeaders(yPos);
         yPos += 7;
-        
-        // Línea de encabezado
-        doc.setLineWidth(0.3);
+        doc.setDrawColor(200, 200, 200);
         doc.line(20, yPos, 190, yPos);
         yPos += 10;
         
-        // Datos de los corredores - USAR VALORES DIRECTOS DE LA TABLA
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(9);
         
-        startOrderData.forEach((rider, index) => {
+        // Procesar todos los corredores
+        for (let index = 0; index < startOrderData.length; index++) {
+            const rider = startOrderData[index];
+            const diferencia = rider.diferencia || '--:--:--';
+            
             // Verificar si necesitamos nueva página
-            if (yPos > 270) {
+            if (rowsOnThisPage >= maxRowsPerPage || yPos > 270) {
+                // Nueva página
                 doc.addPage();
+                currentPage++;
+                rowsOnThisPage = 0;
                 yPos = 20;
                 
-                // Encabezados en nueva página
+                // Dibujar número de página en la cabecera
                 doc.setFontSize(10);
-                doc.setFont('helvetica', 'bold');
-                doc.text('Pos', 20, yPos);
-                doc.text('Crono', 35, yPos);
-                doc.text('Hora', 55, yPos);
-                doc.text('Dorsal', 75, yPos);
-                doc.text('Nombre', 95, yPos);
-                doc.text('Apellidos', 140, yPos);
+                doc.setFont('helvetica', 'italic');
+                doc.setTextColor(150, 150, 150);
+                doc.text(`Página ${currentPage}`, 185, 15, { align: 'right' });
+                doc.setTextColor(0, 0, 0);
+                
+                // Dibujar encabezados de columnas en la nueva página
+                drawHeaders(yPos);
+                yPos += 7;
+                doc.setDrawColor(200, 200, 200);
+                doc.line(20, yPos, 190, yPos);
                 yPos += 10;
+                
                 doc.setFont('helvetica', 'normal');
                 doc.setFontSize(9);
             }
             
-            // USAR VALORES DIRECTOS DE LA TABLA
+            // Determinar si la diferencia cambió
+            if (diferencia !== lastDiferencia) {
+                // Alternar color cuando cambia la diferencia
+                rowColorIndex = rowColorIndex === 0 ? 1 : 0;
+                lastDiferencia = diferencia;
+            }
+            
+            // Asignar color de fondo según rowColorIndex
+            const backgroundColor = rowColorIndex === 0 ? white : lightGray;
+            
+            // Dibujar fondo de fila
+            doc.setFillColor(backgroundColor[0], backgroundColor[1], backgroundColor[2]);
+            doc.rect(20, yPos - 5, 170, 7, 'F');
+            
+            // Dibujar borde de separación cada 5 filas
+            if (index > 0 && index % 5 === 0) {
+                doc.setDrawColor(150, 150, 150);
+                doc.setLineWidth(0.3);
+                doc.line(20, yPos - 5, 190, yPos - 5);
+                doc.setLineWidth(0.1);
+            }
+            
             const horaSalida = rider.horaSalida || '00:00:00';
             
-            // SOLUCIÓN: Solo corregir el primer corredor
             let cronoDisplay;
             
             if (index === 0) {
-                // Primer corredor SIEMPRE 00:00
                 cronoDisplay = '00:00';
             } else {
-                // Para los demás, usar EXACTAMENTE el valor de la tabla
                 const cronoSalida = rider.cronoSalida || '00:00:00';
                 
-                // Solo formatear para PDF
                 if (cronoSalida && cronoSalida.includes(':')) {
                     const parts = cronoSalida.split(':');
                     if (parts.length === 3) {
@@ -1796,17 +1734,14 @@ function generateSimpleStartOrderPDF() {
                         const segundos = parseInt(parts[2]) || 0;
                         
                         if (horas === 0) {
-                            // Formato MM:SS (sin horas)
                             cronoDisplay = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
                         } else {
-                            // Formato H:MM:SS (con horas)
                             cronoDisplay = `${horas}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
                         }
                     } else {
                         cronoDisplay = cronoSalida;
                     }
                 } else if (cronoSalida && !isNaN(cronoSalida)) {
-                    // Si es un número (segundos), convertirlo a MM:SS
                     const segundos = parseInt(cronoSalida) || 0;
                     const minutos = Math.floor(segundos / 60);
                     const segsRestantes = segundos % 60;
@@ -1818,14 +1753,29 @@ function generateSimpleStartOrderPDF() {
             
             // Mostrar datos
             doc.text((index + 1).toString(), 20, yPos);
-            doc.text(cronoDisplay, 35, yPos);  // ← VALOR AJUSTADO solo para primer corredor
-            doc.text(horaSalida, 55, yPos);    // ← VALOR DIRECTO de la tabla
+            doc.text(cronoDisplay, 35, yPos);
+            doc.text(horaSalida, 55, yPos);
             doc.text(rider.dorsal ? rider.dorsal.toString() : '-', 75, yPos);
-            doc.text(rider.nombre || '-', 95, yPos);
-            doc.text(rider.apellidos || '-', 140, yPos);
+            
+            // Truncar nombres si son muy largos
+            let nombre = rider.nombre || '-';
+            let apellidos = rider.apellidos || '-';
+            
+            if (nombre.length > 15) nombre = nombre.substring(0, 15) + '...';
+            if (apellidos.length > 20) apellidos = apellidos.substring(0, 20) + '...';
+            
+            doc.text(nombre, 95, yPos);
+            doc.text(apellidos, 140, yPos);
+            
+            // Línea divisoria entre filas
+            doc.setDrawColor(220, 220, 220);
+            doc.line(20, yPos + 2, 190, yPos + 2);
             
             yPos += 7;
-        });
+            rowsOnThisPage++;
+            
+            console.log(`Corredor ${index + 1}: diferencia=${diferencia}, colorIndex=${rowColorIndex}`);
+        }
         
         // Pie de página
         doc.setFontSize(8);
@@ -1833,11 +1783,9 @@ function generateSimpleStartOrderPDF() {
         doc.text(`Generado: ${new Date().toLocaleString('es-ES')}`, 105, 285, { align: 'center' });
         doc.text('Crono CRI - Sistema de Cronometraje', 105, 290, { align: 'center' });
         
-        // Guardar el PDF
         const filename = `Orden_Salida_${race.name.replace(/[^a-z0-9ñÑáéíóúÁÉÍÓÚ\s]/gi, '_').substring(0, 30)}_${new Date().toISOString().split('T')[0]}.pdf`;
         doc.save(filename);
         
-        // Mostrar mensaje de éxito
         showMessage(`✅ PDF generado exitosamente: ${filename}`, 'success');
         
         console.log("PDF simplificado generado exitosamente:", filename);
@@ -1847,7 +1795,6 @@ function generateSimpleStartOrderPDF() {
         showMessage(`❌ Error al generar el PDF: ${error.message}`, 'error');
     }
 }
-
 // ============================================
 // CONFIGURAR BOTÓN DE PDF (VERSIÓN SIMPLIFICADA)
 // ============================================
@@ -1986,4 +1933,67 @@ function parsePDFTime(timeStr) {
     }
     
     return 0;
+}
+
+// Función auxiliar para obtener el índice original
+function getOriginalIndex(order, dorsal) {
+    const originalIndex = startOrderData.findIndex(rider => 
+        rider.order == order && rider.dorsal == dorsal
+    );
+    return originalIndex !== -1 ? originalIndex : 0;
+}
+
+// Función para formatear tiempo
+function formatTimeValue(timeStr) {
+    if (!timeStr) return '00:00:00';
+    
+    // Asegurar formato HH:MM:SS
+    let formattedTime = timeStr.toString().trim();
+    
+    if (!formattedTime.includes(':')) {
+        return '00:00:00';
+    }
+    
+    const parts = formattedTime.split(':');
+    if (parts.length === 2) {
+        // Formato HH:MM -> agregar :00
+        parts.push('00');
+    }
+    
+    // Asegurar 2 dígitos
+    const hours = parts[0].padStart(2, '0');
+    const minutes = parts[1].padStart(2, '0');
+    const seconds = parts[2] ? parts[2].padStart(2, '0') : '00';
+    
+    return `${hours}:${minutes}:${seconds}`;
+}
+
+// Función para convertir segundos a tiempo
+function secondsToTime(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Función para convertir tiempo a segundos
+function timeToSeconds(timeStr) {
+    if (!timeStr || timeStr === '') return 0;
+    
+    let formattedTime = timeStr;
+    if (!formattedTime.includes(':')) {
+        formattedTime = '00:00:00';
+    }
+    
+    const parts = formattedTime.split(':');
+    if (parts.length === 2) {
+        parts.push('00');
+    }
+    
+    const hours = parseInt(parts[0]) || 0;
+    const minutes = parseInt(parts[1]) || 0;
+    const seconds = parseInt(parts[2]) || 0;
+    
+    return (hours * 3600) + (minutes * 60) + seconds;
 }

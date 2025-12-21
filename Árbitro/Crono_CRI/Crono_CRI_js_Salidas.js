@@ -1827,8 +1827,24 @@ function updateStartOrderTable() {
     const sortedData = sortStartOrderData([...startOrderData]);
     
     let html = '';
-    sortedData.forEach((rider, index) => {
-        // Calcular diferencia (si hay datos reales y previstos O si hay diferencia importada)
+    let lastDifference = null;
+    let rowClass = '';
+    
+    sortedData.forEach((rider, displayIndex) => {
+        // Calcular diferencia actual para esta fila
+        const currentDifference = getRiderDifferenceValue(rider);
+        
+        // Determinar clase CSS basada en cambio de diferencia
+        if (lastDifference !== null && currentDifference !== lastDifference) {
+            // Cambió la diferencia - alternar clase
+            rowClass = rowClass === 'difference-changed' ? '' : 'difference-changed';
+        } else if (lastDifference === null) {
+            // Primera fila
+            rowClass = '';
+        }
+        // Si la diferencia es igual, mantener la misma clase
+        
+        // Calcular HTML de diferencia para mostrar
         let diferenciaHtml = '';
         
         // Primero verificar si hay diferencia importada
@@ -1878,8 +1894,10 @@ function updateStartOrderTable() {
             }
         }
         
+        const originalIndex = getOriginalIndex(rider.order, rider.dorsal);
+        
         html += `
-        <tr data-index="${getOriginalIndex(rider.order, rider.dorsal)}">
+        <tr data-index="${originalIndex}" class="${rowClass}">
             <td class="number-cell editable" data-field="order">${rider.order}</td>
             <td class="number-cell editable" data-field="dorsal">${rider.dorsal}</td>
             <td class="time-cell sortable" data-sort="cronoSalida">${rider.cronoSalida}</td>
@@ -1908,6 +1926,9 @@ function updateStartOrderTable() {
             <td class="number-cell sortable" data-sort="horaSalidaRealSegundos">${rider.horaSalidaRealSegundos}</td>
         </tr>
         `;
+        
+        // Guardar diferencia actual para comparar con la siguiente fila
+        lastDifference = currentDifference;
     });
     
     tableBody.innerHTML = html;
@@ -1919,6 +1940,116 @@ function updateStartOrderTable() {
     
     // Actualizar indicadores de ordenación
     updateStartOrderSortIndicators();
+    
+    // Asegurarse de que los estilos CSS estén aplicados
+    ensureDifferenceStyles();
+}
+
+// Función auxiliar para obtener el valor de diferencia para comparación
+function getRiderDifferenceValue(rider) {
+    // Esta función devuelve un valor único para comparar si la diferencia cambió
+    if (rider.diferencia && rider.diferencia !== '' && rider.diferencia !== '00:00:00') {
+        // Extraer solo la parte del tiempo (sin el signo)
+        const match = rider.diferencia.match(/(\d{2}:\d{2}:\d{2})/);
+        if (match) {
+            return match[1]; // Devuelve solo el tiempo
+        }
+        return rider.diferencia;
+    }
+    
+    // Calcular diferencia numérica para comparación
+    const horaRealSegundos = rider.horaSalidaRealSegundos || timeToSeconds(rider.horaSalidaReal) || 0;
+    const horaPrevistaSegundos = rider.horaSegundos || timeToSeconds(rider.horaSalida) || 0;
+    
+    if (horaRealSegundos > 0 && horaPrevistaSegundos > 0) {
+        const diferencia = horaRealSegundos - horaPrevistaSegundos;
+        return diferencia; // Valor numérico para comparación
+    }
+    
+    return null;
+}
+
+// Función auxiliar para asegurar que los estilos CSS estén presentes
+function ensureDifferenceStyles() {
+    if (document.getElementById('difference-styles')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'difference-styles';
+    style.textContent = `
+        /* Estilos para filas con cambio de diferencia */
+        .start-order-table tr.difference-changed {
+            background-color: #f8f9fa !important;
+            transition: background-color 0.3s ease;
+        }
+        
+        .start-order-table tr.difference-changed:nth-child(even) {
+            background-color: #e9ecef !important;
+        }
+        
+        .start-order-table tr.difference-changed:hover {
+            background-color: #e8f4fd !important;
+        }
+        
+        /* Estilos específicos para celdas en filas resaltadas */
+        .start-order-table tr.difference-changed td {
+            border-left: 2px solid #dee2e6;
+            border-right: 2px solid #dee2e6;
+        }
+        
+        .start-order-table tr.difference-changed td:first-child {
+            border-left: 2px solid #007bff;
+            background-color: #f1f8ff;
+        }
+        
+        .start-order-table tr.difference-changed td:last-child {
+            border-right: 2px solid #007bff;
+        }
+        
+        /* Mejora visual para las celdas de diferencia */
+        .diferencia-cell {
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .diferencia.positiva {
+            color: #28a745;
+            background-color: #d4edda;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+        
+        .diferencia.negativa {
+            color: #dc3545;
+            background-color: #f8d7da;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+        
+        .diferencia.cero {
+            color: #6c757d;
+            background-color: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .diferencia.vacia {
+            color: #adb5bd;
+            font-style: italic;
+        }
+        
+        /* Indicador visual de cambio en la primera celda */
+        .start-order-table tr.difference-changed td.number-cell:first-child::before {
+            content: '↕';
+            display: inline-block;
+            margin-right: 5px;
+            color: #007bff;
+            font-weight: bold;
+        }
+    `;
+    
+    document.head.appendChild(style);
 }
 
 // Función auxiliar para obtener el índice original
@@ -3913,4 +4044,39 @@ function calculateStartTimeForPosition(position) {
     }
     
     return horaSalida;
+}
+
+// En el mismo archivo o en tu archivo CSS, añade:
+function addAlternatingRowStyles() {
+    if (document.getElementById('alternating-row-styles')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'alternating-row-styles';
+    style.textContent = `
+        /* Filas alternadas en la tabla de orden de salida */
+        .start-order-table tbody tr.row-even {
+            background-color: #ffffff; /* Blanco */
+        }
+        
+        .start-order-table tbody tr.row-odd {
+            background-color: #f8f9fa; /* Gris claro */
+        }
+        
+        /* Efecto hover */
+        .start-order-table tbody tr.row-even:hover,
+        .start-order-table tbody tr.row-odd:hover {
+            background-color: #e8f4fd; /* Azul claro al pasar el ratón */
+        }
+        
+        /* Mejorar contraste para celdas editables */
+        .start-order-table tbody tr.row-odd td.editable:hover {
+            background-color: #e2e6ea;
+        }
+        
+        .start-order-table tbody tr.row-even td.editable:hover {
+            background-color: #f0f0f0;
+        }
+    `;
+    
+    document.head.appendChild(style);
 }

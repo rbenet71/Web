@@ -149,6 +149,8 @@ function initApp() {
     // Eventos de audio
     document.addEventListener('click', initAudioOnInteraction);
     document.addEventListener('keydown', initAudioOnInteraction);
+
+    addAlternatingRowStyles();
     
     console.log("Aplicación inicializada correctamente");
 }
