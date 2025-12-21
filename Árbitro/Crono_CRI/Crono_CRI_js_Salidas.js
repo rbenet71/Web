@@ -611,166 +611,6 @@ function generateTemplateFromUserInput() {
     createExcelTemplate(numCorredores, intervalo, horaInicio);
 }
 
-function createExcelTemplate(numCorredores, intervalo, horaInicio) {
-    const t = translations[appState.currentLanguage];
-    
-    // Convertir a segundos para cálculos
-    const intervaloSeconds = timeToSeconds(intervalo);
-    const horaInicioSeconds = timeToSeconds(horaInicio);
-    
-    // Crear encabezados CORREGIDOS - incluyendo columna TIME en base 60
-    const headers = [
-        'Orden', 'Dorsal', 'Crono Salida', 'Hora Salida', 'Diferencia', 'Nombre', 'Apellidos', 'Chip', 
-        'Hora Salida Real', 'Crono Salida Real', 
-        'Hora Salida Prevista', 'Crono Salida Prevista', 
-        'Hora Salida Importado', 'Crono Salida Importado', 
-        'Crono Segundos', 'Hora Segundos',
-        'Crono Salida Real Segundos', 'Hora Salida Real Segundos',
-        'TIME' // NUEVA COLUMNA para el formato del PDF
-    ];
-    
-    // Crear los datos
-    const data = [headers];
-    
-    for (let i = 1; i <= numCorredores; i++) {
-        const row = new Array(headers.length).fill('');
-        const excelRow = i + 1;
-        
-        // Orden (A)
-        row[0] = i;
-        
-        // Dorsal (B) - VACÍO
-        row[1] = '';  // Vacío para llenar manualmente
-        
-        // Crono Salida (C) - FÓRMULA: =SI(A2=1,0,C1+E2)
-        if (i === 1) {
-            row[2] = { t: 'n', v: 0, z: 'hh:mm:ss' };
-        } else {
-            row[2] = { 
-                t: 'n', 
-                f: `IF(${XLSX.utils.encode_col(0)}${excelRow}=1,0,${XLSX.utils.encode_col(2)}${excelRow-1}+${XLSX.utils.encode_col(4)}${excelRow})`,
-                z: 'hh:mm:ss' 
-            };
-        }
-        
-        // Hora Salida (D) - FÓRMULA: =SI(A2=1,hora_inicio,D1+E2)
-        if (i === 1) {
-            const horaExcel = horaInicioSeconds / 86400;
-            row[3] = { t: 'n', v: horaExcel, z: 'hh:mm:ss' };
-        } else {
-            row[3] = { 
-                t: 'n', 
-                f: `IF(${XLSX.utils.encode_col(0)}${excelRow}=1,${horaInicioSeconds/86400},${XLSX.utils.encode_col(3)}${excelRow-1}+${XLSX.utils.encode_col(4)}${excelRow})`,
-                z: 'hh:mm:ss' 
-            };
-        }
-        
-        // Diferencia (E) - VALOR: intervalo (en formato tiempo Excel)
-        if (i === 1) {
-            row[4] = { t: 'n', v: 0, z: 'hh:mm:ss' };
-        } else {
-            row[4] = { t: 'n', v: intervaloSeconds / 86400, z: 'hh:mm:ss' };
-        }
-        
-        // Nombre, Apellidos, Chip (F, G, H) - VACÍOS
-        row[5] = '';
-        row[6] = '';
-        row[7] = '';
-        
-        // Hora Salida Real (I) - VACÍO
-        row[8] = '';
-        
-        // Crono Salida Real (J) - VACÍO
-        row[9] = '';
-        
-        // Hora Salida Prevista (K) - VACÍO
-        row[10] = '';
-        
-        // Crono Salida Prevista (L) - VACÍO
-        row[11] = '';
-        
-        // Hora Salida Importado (M) - VACÍO
-        row[12] = '';
-        
-        // Crono Salida Importado (N) - VACÍO
-        row[13] = '';
-        
-        // Crono Segundos (O) - FÓRMULA: =HORA(C2)*3600+MINUTO(C2)*60+SEGUNDO(C2)
-        row[14] = { 
-            t: 'n', 
-            f: `HOUR(${XLSX.utils.encode_col(2)}${excelRow})*3600+MINUTE(${XLSX.utils.encode_col(2)}${excelRow})*60+SECOND(${XLSX.utils.encode_col(2)}${excelRow})`
-        };
-        
-        // Hora Segundos (P) - FÓRMULA: =HORA(D2)*3600+MINUTO(D2)*60+SEGUNDO(D2)
-        row[15] = { 
-            t: 'n', 
-            f: `HOUR(${XLSX.utils.encode_col(3)}${excelRow})*3600+MINUTE(${XLSX.utils.encode_col(3)}${excelRow})*60+SECOND(${XLSX.utils.encode_col(3)}${excelRow})`
-        };
-        
-        // Crono Salida Real Segundos (Q) - FÓRMULA: =SI(J2="",0,HORA(J2)*3600+MINUTO(J2)*60+SEGUNDO(J2))
-        row[16] = { 
-            t: 'n', 
-            f: `IF(${XLSX.utils.encode_col(9)}${excelRow}="",0,HOUR(${XLSX.utils.encode_col(9)}${excelRow})*3600+MINUTE(${XLSX.utils.encode_col(9)}${excelRow})*60+SECOND(${XLSX.utils.encode_col(9)}${excelRow}))`
-        };
-        
-        // Hora Salida Real Segundos (R) - FÓRMULA: =SI(I2="",0,HORA(I2)*3600+MINUTO(I2)*60+SEGUNDO(I2))
-        row[17] = { 
-            t: 'n', 
-            f: `IF(${XLSX.utils.encode_col(8)}${excelRow}="",0,HOUR(${XLSX.utils.encode_col(8)}${excelRow})*3600+MINUTE(${XLSX.utils.encode_col(8)}${excelRow})*60+SECOND(${XLSX.utils.encode_col(8)}${excelRow}))`
-        };
-        
-        // COLUMNA TIME (S) - Formato especial para PDF (base 60, MM:SS o H:MM:SS)
-        // Calcular tiempo acumulado en segundos
-        const tiempoAcumuladoSegundos = (i - 1) * intervaloSeconds;
-        
-        // Crear fórmula para formato base 60
-        row[18] = { 
-            t: 's', // Texto para evitar cálculos erróneos de Excel
-            v: formatTimeForPDF(tiempoAcumuladoSegundos),
-            z: '@' // Formato de texto
-        };
-        
-        data.push(row);
-    }
-    
-    // Crear worksheet
-    const ws = XLSX.utils.aoa_to_sheet(data, { cellStyles: true });
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Plantilla Salida");
-    
-    // Ajustar anchos
-    const colWidths = [
-        {wch: 8}, {wch: 8}, {wch: 12}, {wch: 12}, {wch: 12},
-        {wch: 15}, {wch: 20}, {wch: 12}, {wch: 12}, {wch: 12},
-        {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12},
-        {wch: 12}, {wch: 12}, {wch: 10}, {wch: 10},
-        {wch: 8} // Ancho para columna TIME
-    ];
-    ws['!cols'] = colWidths;
-    
-    // Auto-filtro
-    ws['!autofilter'] = {
-        ref: XLSX.utils.encode_range({
-            s: { r: 0, c: 0 },
-            e: { r: numCorredores, c: headers.length - 1 }
-        })
-    };
-    
-    // Generar nombre del archivo
-    const dateStr = new Date().toISOString().split('T')[0];
-    const filename = `plantilla_orden_salida_${numCorredores}_corredores_${dateStr}.xlsx`;
-    
-    // Guardar archivo
-    XLSX.writeFile(wb, filename);
-    
-    // Mostrar mensaje de éxito
-    const message = t.templateCreatedCustom
-        .replace('{count}', numCorredores)
-        .replace('{interval}', intervalo)
-        .replace('{startTime}', horaInicio);
-    
-    showMessage(message, 'success');
-}
 
 // ============================================
 // FUNCIÓN AUXILIAR PARA FORMATEAR TIEMPO PARA PDF (BASE 60)
@@ -1800,7 +1640,7 @@ function updateStartOrderUI() {
 
 function updateStartOrderTable() {
     // Control de logs - activar solo en desarrollo
-    const DEBUG_MODE = false; // Cambiar a true para debugging
+    const DEBUG_MODE = false;
     
     if (DEBUG_MODE) {
         console.log("=== updateStartOrderTable llamada ===");
@@ -1832,11 +1672,6 @@ function updateStartOrderTable() {
     
     // Ordenar datos según el estado de ordenación
     const sortedData = sortStartOrderData([...startOrderData]);
-    
-    if (DEBUG_MODE && sortedData.length > 0) {
-        console.log("Datos ordenados, primeros 3:", sortedData.slice(0, 3));
-        console.log("Últimos 3:", sortedData.slice(-3));
-    }
     
     let html = '';
     let processedRiders = 0;
@@ -1891,7 +1726,50 @@ function updateStartOrderTable() {
             const horaRealSegundos = rider.horaSalidaRealSegundos || timeToSeconds(rider.horaSalidaReal) || 0;
             const horaPrevistaSegundos = rider.horaSegundos || timeToSeconds(rider.horaSalida) || 0;
             
-            if (horaRealSegundos > 0 && horaPrevistaSegundos > 0) {
+            // CASO ESPECIAL: Para el segundo corredor cuando se añade uno en primera posición
+            if (rider.order === 2 && startOrderData.length > 1) {
+                const primerCorredor = startOrderData.find(r => r.order === 1);
+                
+                // Si el corredor no tiene diferencia, asignar una por defecto
+                if ((!rider.diferencia || rider.diferencia === '' || rider.diferencia === '00:00:00' || rider.diferencia.includes('--:--:--')) && 
+                    primerCorredor && primerCorredor.diferencia === '00:00:00') {
+                    
+                    // Asignar diferencia por defecto para el segundo corredor
+                    diferenciaValue = '00:01:00';
+                    diferenciaSign = ' (+)';
+                    diferenciaClass = 'positiva';
+                    diferenciaHtml = `<span class="diferencia ${diferenciaClass}" data-value="${diferenciaValue}">${diferenciaValue}${diferenciaSign}</span>`;
+                    
+                    // Actualizar los datos del corredor
+                    rider.diferencia = diferenciaValue + diferenciaSign;
+                    rider.diferenciaSegundos = 60;
+                    isDiferenciaEditable = true;
+                    
+                    if (DEBUG_MODE) {
+                        console.log('Segundo corredor - Diferencia establecida por defecto:', rider.diferencia);
+                    }
+                } else if (horaRealSegundos > 0 && horaPrevistaSegundos > 0) {
+                    // Calcular diferencia real
+                    const diferencia = horaRealSegundos - horaPrevistaSegundos;
+                    if (diferencia !== 0) {
+                        const diferenciaAbs = Math.abs(diferencia);
+                        diferenciaSign = diferencia > 0 ? ' (+)' : ' (-)';
+                        diferenciaClass = diferencia > 0 ? 'positiva' : 'negativa';
+                        diferenciaValue = secondsToTime(diferenciaAbs);
+                        diferenciaHtml = `<span class="diferencia ${diferenciaClass}" data-value="${diferenciaValue}">${diferenciaValue}${diferenciaSign}</span>`;
+                        isDiferenciaEditable = true;
+                    } else {
+                        diferenciaValue = '00:00:00';
+                        diferenciaHtml = `<span class="diferencia cero" data-value="00:00:00">00:00:00</span>`;
+                        if (isFirstRider) {
+                            isDiferenciaEditable = false;
+                        }
+                    }
+                } else {
+                    diferenciaHtml = `<span class="diferencia vacia editable" data-value="">--:--:--</span>`;
+                    isDiferenciaEditable = true;
+                }
+            } else if (horaRealSegundos > 0 && horaPrevistaSegundos > 0) {
                 const diferencia = horaRealSegundos - horaPrevistaSegundos;
                 if (diferencia !== 0) {
                     const diferenciaAbs = Math.abs(diferencia);
@@ -1899,22 +1777,15 @@ function updateStartOrderTable() {
                     diferenciaClass = diferencia > 0 ? 'positiva' : 'negativa';
                     diferenciaValue = secondsToTime(diferenciaAbs);
                     diferenciaHtml = `<span class="diferencia ${diferenciaClass}" data-value="${diferenciaValue}">${diferenciaValue}${diferenciaSign}</span>`;
-                    
-                    // Si no es el primer corredor, hacer editable
-                    if (!isFirstRider) {
-                        isDiferenciaEditable = true;
-                    }
+                    isDiferenciaEditable = true;
                 } else {
-                    // Diferencia cero
                     diferenciaValue = '00:00:00';
                     diferenciaHtml = `<span class="diferencia cero" data-value="00:00:00">00:00:00</span>`;
-                    // Primer corredor o diferencia 0 no es editable
                     if (isFirstRider) {
                         isDiferenciaEditable = false;
                     }
                 }
             } else {
-                // Sin datos para calcular diferencia
                 if (isFirstRider) {
                     // Primer corredor - siempre 00:00:00
                     diferenciaValue = '00:00:00';
@@ -1936,6 +1807,10 @@ function updateStartOrderTable() {
             });
             errorsCount++;
         }
+        
+        // Formatear campos importados - si están vacíos, mostrar vacío
+        const horaImportadoDisplay = rider.horaSalidaImportado || '';
+        const cronoImportadoDisplay = rider.cronoSalidaImportado || '';
         
         // Generar HTML de la fila con campos editables/no editables
         html += `
@@ -1975,8 +1850,15 @@ function updateStartOrderTable() {
             <td class="time-cell not-editable">${rider.cronoSalidaReal || ''}</td>
             <td class="time-cell sortable not-editable" data-sort="horaSalidaPrevista">${rider.horaSalidaPrevista || rider.horaSalida || '00:00:00'}</td>
             <td class="time-cell sortable not-editable" data-sort="cronoSalidaPrevista">${rider.cronoSalidaPrevista || rider.cronoSalida || '00:00:00'}</td>
-            <td class="time-cell not-editable">${rider.horaSalidaImportado || rider.horaSalida || ''}</td>
-            <td class="time-cell not-editable">${rider.cronoSalidaImportado || rider.cronoSalida || ''}</td>
+            
+            <!-- CAMPOS IMPORTADOS - SIEMPRE VACÍOS PARA NUEVOS CORREDORES -->
+            <td class="time-cell not-editable importado-cell">
+                ${horaImportadoDisplay}
+            </td>
+            <td class="time-cell not-editable importado-cell">
+                ${cronoImportadoDisplay}
+            </td>
+            
             <td class="number-cell sortable not-editable" data-sort="cronoSegundos">${rider.cronoSegundos || 0}</td>
             <td class="number-cell sortable not-editable" data-sort="horaSegundos">${rider.horaSegundos || 0}</td>
             <td class="number-cell sortable not-editable" data-sort="cronoSalidaRealSegundos">${rider.cronoSalidaRealSegundos || 0}</td>
@@ -1997,6 +1879,9 @@ function updateStartOrderTable() {
         
         // Añadir estilos de filas alternas
         addAlternatingRowStyles();
+        
+        // Añadir estilos para celdas importadas vacías
+        addImportadoCellStyles();
     }
     
     if (DEBUG_MODE) {
@@ -2006,6 +1891,29 @@ function updateStartOrderTable() {
         console.log(`Celdas en tabla: ${tableBody.children.length}`);
     }
 }
+
+// Función auxiliar para añadir estilos a celdas importadas
+function addImportadoCellStyles() {
+    // Verificar si ya existen los estilos
+    if (document.getElementById('importado-cell-styles')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'importado-cell-styles';
+    style.textContent = `
+        .importado-cell {
+            font-style: italic;
+            color: #adb5bd;
+        }
+        
+        .importado-cell:empty::before {
+            content: "--";
+            color: #adb5bd;
+            font-style: italic;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 // ============================================
 // VARIABLES GLOBALES PARA THROTTLING
 // ============================================
@@ -3900,7 +3808,127 @@ function setupRiderPositionModalEvents(modal) {
         }
     });
     
-    // ... resto del código para botones confirmar/cancelar ...
+    // ============================================
+    // CONFIGURACIÓN DE BOTONES DE CONFIRMAR Y CANCELAR
+    // ============================================
+    
+    // Confirmar - Añadir corredor
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log("Botón confirmar clickeado");
+            
+            // Obtener datos del formulario
+            const positionType = positionSelect ? positionSelect.value : 'end';
+            let position;
+            
+            if (positionType === 'end') {
+                position = startOrderData.length + 1;
+            } else if (positionType === 'beginning') {
+                position = 1;
+            } else if (positionType === 'specific') {
+                position = specificInput ? parseInt(specificInput.value) || startOrderData.length + 1 : startOrderData.length + 1;
+                if (position < 1) position = 1;
+                if (position > startOrderData.length + 1) position = startOrderData.length + 1;
+            } else {
+                position = startOrderData.length + 1;
+            }
+            
+            // Obtener datos del corredor
+            const riderData = {
+                dorsal: parseInt(dorsalInput.value) || position,
+                nombre: nameInput.value.trim(),
+                apellidos: surnameInput.value.trim(),
+                chip: chipInput.value.trim()
+            };
+            
+            console.log("Datos del corredor:", riderData);
+            console.log("Posición:", position);
+            
+            // Validar dorsal
+            const dorsalExistente = startOrderData.find(rider => rider.dorsal == riderData.dorsal);
+            if (dorsalExistente) {
+                showMessage(`El dorsal ${riderData.dorsal} ya está asignado a otro corredor`, 'warning');
+                return;
+            }
+            
+            // Cerrar modal
+            modal.classList.remove('active');
+            setTimeout(() => {
+                if (modal.parentNode) {
+                    modal.remove();
+                }
+            }, 300);
+            
+            // Añadir corredor
+            createNewRiderAtPosition(position, riderData);
+        });
+    }
+    
+    // Cancelar - Cerrar modal
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log("Botón cancelar clickeado");
+            
+            modal.classList.remove('active');
+            setTimeout(() => {
+                if (modal.parentNode) {
+                    modal.remove();
+                }
+            }, 300);
+            
+            showMessage('Operación cancelada', 'info');
+        });
+    }
+    
+    // Cerrar con la X
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log("Botón cerrar clickeado");
+            
+            modal.classList.remove('active');
+            setTimeout(() => {
+                if (modal.parentNode) {
+                    modal.remove();
+                }
+            }, 300);
+            
+            showMessage('Operación cancelada', 'info');
+        });
+    }
+    
+    // Cerrar al hacer clic fuera del modal
+    modal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.remove('active');
+            setTimeout(() => {
+                if (this.parentNode) {
+                    this.remove();
+                }
+            }, 300);
+            
+            showMessage('Operación cancelada', 'info');
+        }
+    });
+    
+    // Prevenir que el evento se propague al contenido
+    const modalContent = modal.querySelector('.modal-content');
+    if (modalContent) {
+        modalContent.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+    
+    // Añadir estilos si no existen
+    addRiderPositionStyles();
 }
 
 function findNextAvailableDorsal() {
@@ -3937,12 +3965,13 @@ function updateRiderPreview() {
     const previewPosition = modal.querySelector('#preview-position');
     const previewDorsal = modal.querySelector('#preview-dorsal');
     const previewTime = modal.querySelector('#preview-time');
-    const previewCrono = modal.querySelector('#preview-crono'); // Si tienes este elemento
+    const previewCrono = modal.querySelector('#preview-crono');
     const previewName = modal.querySelector('#preview-name');
     const previewSurname = modal.querySelector('#preview-surname');
     const previewChip = modal.querySelector('#preview-chip');
+    const previewDiferencia = modal.querySelector('#preview-diferencia');
     
-    // Calcular posición - ¡ESTA PARTE FALTA Y CAUSA EL ERROR!
+    // Calcular posición
     let position;
     const positionType = positionSelect ? positionSelect.value : 'end';
     
@@ -3955,7 +3984,7 @@ function updateRiderPreview() {
         if (position < 1) position = 1;
         if (position > startOrderData.length + 1) position = startOrderData.length + 1;
     } else {
-        position = startOrderData.length + 1; // Valor por defecto
+        position = startOrderData.length + 1;
     }
     
     // Actualizar vista previa de posición
@@ -3991,35 +4020,63 @@ function updateRiderPreview() {
             cronoSalida = '00:00:00';
             horaSalida = document.getElementById('first-start-time') ? document.getElementById('first-start-time').value || '09:00:00' : '09:00:00';
             diferencia = '00:00:00';
-        } else if (position <= startOrderData.length + 1) {
-            // CORREDOR EN CUALQUIER OTRA POSICIÓN
+            
+            // Si ya hay corredores, mostrar la diferencia que tendría el corredor desplazado
+            const primerCorredorActual = startOrderData[0];
+            if (primerCorredorActual && primerCorredorActual.diferencia && 
+                primerCorredorActual.diferencia !== '' && 
+                primerCorredorActual.diferencia !== '00:00:00') {
+                
+                diferencia = primerCorredorActual.diferencia;
+                console.log('Vista previa - Posición 1: Mostrando diferencia del corredor desplazado:', diferencia);
+            }
+        } else if (position <= startOrderData.length) {
+            // Insertar en medio - usar el corredor anterior como referencia
             const corredorAnterior = startOrderData[position - 2];
             
-            if (corredorAnterior) {
-                // Determinar diferencia a usar
-                if (position - 1 < startOrderData.length) {
-                    // Si hay un corredor después de esta posición, usar SU diferencia
-                    const siguienteCorredor = startOrderData[position - 1];
-                    diferencia = siguienteCorredor.diferencia || '00:01:00';
-                } else {
-                    // Si es el último, usar la diferencia del anterior
-                    diferencia = corredorAnterior.diferencia || '00:01:00';
-                }
-                
-                // Limpiar signos de la diferencia para cálculos
-                const diferenciaLimpia = diferencia.replace(/ \([+-]\)/g, '').trim();
-                const diferenciaSegundos = timeToSeconds(diferenciaLimpia) || 60;
-                
-                // Calcular crono salida: crono del anterior + diferencia
-                const cronoAnteriorSegundos = corredorAnterior.cronoSegundos || timeToSeconds(corredorAnterior.cronoSalida) || 0;
-                const cronoSegundos = cronoAnteriorSegundos + diferenciaSegundos;
-                cronoSalida = secondsToTime(cronoSegundos);
-                
-                // Calcular hora salida: hora del anterior + diferencia
-                const horaAnteriorSegundos = corredorAnterior.horaSegundos || timeToSeconds(corredorAnterior.horaSalida) || 0;
-                const horaSegundos = horaAnteriorSegundos + diferenciaSegundos;
-                horaSalida = secondsToTime(horaSegundos);
+            // Determinar diferencia a usar
+            if (position - 1 < startOrderData.length) {
+                // Si hay un corredor después de esta posición, usar SU diferencia
+                const siguienteCorredor = startOrderData[position - 1];
+                diferencia = siguienteCorredor.diferencia || '00:01:00';
+            } else {
+                // Si es el último, usar la diferencia del anterior
+                diferencia = corredorAnterior.diferencia || '00:01:00';
             }
+            
+            // Limpiar signos de la diferencia para cálculos
+            const diferenciaLimpia = diferencia.replace(/ \([+-]\)/g, '').trim();
+            const diferenciaSegundos = timeToSeconds(diferenciaLimpia) || 60;
+            
+            // Calcular crono salida: crono del anterior + diferencia
+            const cronoAnteriorSegundos = corredorAnterior.cronoSegundos || timeToSeconds(corredorAnterior.cronoSalida) || 0;
+            const cronoSegundos = cronoAnteriorSegundos + diferenciaSegundos;
+            cronoSalida = secondsToTime(cronoSegundos);
+            
+            // Calcular hora salida: hora del anterior + diferencia
+            const horaAnteriorSegundos = corredorAnterior.horaSegundos || timeToSeconds(corredorAnterior.horaSalida) || 0;
+            const horaSegundos = horaAnteriorSegundos + diferenciaSegundos;
+            horaSalida = secondsToTime(horaSegundos);
+        } else {
+            // Añadir al final - usar el último corredor como referencia
+            const ultimoCorredor = startOrderData[startOrderData.length - 1];
+            
+            // Usar la diferencia del último corredor
+            diferencia = ultimoCorredor.diferencia || '00:01:00';
+            
+            // Limpiar signos de la diferencia para cálculos
+            const diferenciaLimpia = diferencia.replace(/ \([+-]\)/g, '').trim();
+            const diferenciaSegundos = timeToSeconds(diferenciaLimpia) || 60;
+            
+            // Calcular crono salida: crono del último + diferencia
+            const cronoAnteriorSegundos = ultimoCorredor.cronoSegundos || timeToSeconds(ultimoCorredor.cronoSalida) || 0;
+            const cronoSegundos = cronoAnteriorSegundos + diferenciaSegundos;
+            cronoSalida = secondsToTime(cronoSegundos);
+            
+            // Calcular hora salida: hora del último + diferencia
+            const horaAnteriorSegundos = ultimoCorredor.horaSegundos || timeToSeconds(ultimoCorredor.horaSalida) || 0;
+            const horaSegundos = horaAnteriorSegundos + diferenciaSegundos;
+            horaSalida = secondsToTime(horaSegundos);
         }
     } else {
         // NO HAY CORREDORES EXISTENTES (primer corredor de la tabla)
@@ -4033,15 +4090,20 @@ function updateRiderPreview() {
         previewTime.textContent = horaSalida;
     }
     
-    // Si tienes un elemento para mostrar crono salida
     if (previewCrono) {
         previewCrono.textContent = cronoSalida;
     }
     
-    // También mostrar la diferencia si tienes un elemento para ello
-    const previewDiferencia = modal.querySelector('#preview-diferencia');
     if (previewDiferencia) {
-        previewDiferencia.textContent = diferencia || '00:00:00';
+        // Mostrar diferencia con formato
+        let diferenciaDisplay = diferencia;
+        if (diferencia === '00:00:00' || !diferencia) {
+            diferenciaDisplay = '00:00:00';
+        } else if (!diferencia.includes('(+)') && !diferencia.includes('(-)')) {
+            // Si no tiene signo, añadirlo como positivo por defecto
+            diferenciaDisplay = diferencia + ' (+)';
+        }
+        previewDiferencia.textContent = diferenciaDisplay;
     }
     
     // Actualizar specific input con el valor calculado
@@ -4060,54 +4122,75 @@ function updateRiderPreview() {
 }
 
 function createNewRiderAtPosition(position, riderData = {}) {
+    console.log(`=== createNewRiderAtPosition llamada para posición ${position} ===`);
+    
     const t = translations[appState.currentLanguage];
     
     // Validar posición
     if (position < 1) position = 1;
     if (position > startOrderData.length + 1) position = startOrderData.length + 1;
     
-    // Calcular valores según la posición
-    let cronoSalida, horaSalida, diferencia, cronoSalidaSegundos, horaSalidaSegundos;
+    console.log(`Posición validada: ${position}, total corredores actual: ${startOrderData.length}`);
     
-    // INICIALMENTE VACÍO para campos reales
-    let horaSalidaReal = '';
-    let cronoSalidaReal = '';
+    // Variables para el nuevo corredor
+    let cronoSalida = '00:00:00';
+    let horaSalida = '09:00:00';
+    let diferencia = '00:00:00';
+    let cronoSegundos = 0;
+    let horaSegundos = 0;
     
-    if (position === 1) {
-        // PRIMER CORREDOR
-        cronoSalida = '00:00:00';
-        cronoSalidaSegundos = 0;
-        
-        horaSalida = document.getElementById('first-start-time').value || '09:00:00';
-        horaSalidaSegundos = timeToSeconds(horaSalida);
-        
-        diferencia = '00:00:00';
-        
-        console.log('Añadiendo primer corredor - Campos reales VACÍOS');
-    } else {
-        // CORREDOR EN CUALQUIER OTRA POSICIÓN
-        const corredorAnterior = startOrderData[position - 2];
-        
-        // Diferencia: valor del registro anterior (si existe)
-        if (position - 1 < startOrderData.length) {
-            const siguienteCorredor = startOrderData[position - 1];
-            diferencia = siguienteCorredor.diferencia || '00:01:00';
-        } else {
+    // Si hay corredores existentes, calcular basándose en ellos
+    if (startOrderData.length > 0) {
+        if (position === 1) {
+            // Insertar al principio
+            horaSalida = document.getElementById('first-start-time').value || '09:00:00';
+            horaSegundos = timeToSeconds(horaSalida);
+            diferencia = '00:00:00';
+            
+            console.log(`Añadiendo al principio. Hora: ${horaSalida}`);
+        } else if (position <= startOrderData.length) {
+            // Insertar en medio
+            const corredorAnterior = startOrderData[position - 2];
             diferencia = corredorAnterior.diferencia || '00:01:00';
+            
+            // Calcular diferencia en segundos
+            let diferenciaLimpia = diferencia.replace(/ \([+-]\)/g, '').trim();
+            let diferenciaSegundos = timeToSeconds(diferenciaLimpia) || 60;
+            
+            // Calcular nuevos valores
+            cronoSegundos = corredorAnterior.cronoSegundos + diferenciaSegundos;
+            horaSegundos = corredorAnterior.horaSegundos + diferenciaSegundos;
+            
+            cronoSalida = secondsToTime(cronoSegundos);
+            horaSalida = secondsToTime(horaSegundos);
+            
+            console.log(`Añadiendo en medio. Usando diferencia: ${diferencia}`);
+        } else {
+            // Añadir al final
+            const ultimoCorredor = startOrderData[startOrderData.length - 1];
+            diferencia = ultimoCorredor.diferencia || '00:01:00';
+            
+            // Calcular diferencia en segundos
+            let diferenciaLimpia = diferencia.replace(/ \([+-]\)/g, '').trim();
+            let diferenciaSegundos = timeToSeconds(diferenciaLimpia) || 60;
+            
+            // Calcular nuevos valores
+            cronoSegundos = ultimoCorredor.cronoSegundos + diferenciaSegundos;
+            horaSegundos = ultimoCorredor.horaSegundos + diferenciaSegundos;
+            
+            cronoSalida = secondsToTime(cronoSegundos);
+            horaSalida = secondsToTime(horaSegundos);
+            
+            console.log(`Añadiendo al final. Usando diferencia: ${diferencia}`);
         }
-        
-        const diferenciaSegundos = timeToSeconds(diferencia.replace(/ \([+-]\)/g, '').trim()) || 60;
-        
-        // Crono salida: crono del anterior + diferencia
-        cronoSalidaSegundos = corredorAnterior.cronoSegundos + diferenciaSegundos;
-        cronoSalida = secondsToTime(cronoSalidaSegundos);
-        
-        // Hora salida: hora del anterior + diferencia
-        horaSalidaSegundos = corredorAnterior.horaSegundos + diferenciaSegundos;
-        horaSalida = secondsToTime(horaSalidaSegundos);
+    } else {
+        // Primer corredor de la tabla
+        horaSalida = document.getElementById('first-start-time').value || '09:00:00';
+        horaSegundos = timeToSeconds(horaSalida);
+        console.log(`Primer corredor de la tabla. Hora: ${horaSalida}`);
     }
     
-    // Crear nuevo corredor con los datos proporcionados
+    // Crear nuevo corredor
     const nuevoCorredor = {
         order: position,
         dorsal: riderData.dorsal || position,
@@ -4121,100 +4204,95 @@ function createNewRiderAtPosition(position, riderData = {}) {
         apellidos: riderData.apellidos || '',
         chip: riderData.chip || '',
         
-        // Campos reales - VACÍOS (NO se modifican)
-        horaSalidaReal: '',  // <-- VACÍO
-        cronoSalidaReal: '', // <-- VACÍO
+        // Campos reales - VACÍOS
+        horaSalidaReal: '',
+        cronoSalidaReal: '',
         cronoSalidaRealSegundos: 0,
         horaSalidaRealSegundos: 0,
         
-        // Campos previstas (iguales a los principales)
+        // Campos previstas
         horaSalidaPrevista: horaSalida,
         cronoSalidaPrevista: cronoSalida,
         
-        // Campos importados VACÍOS
+        // Campos importados - SIEMPRE VACÍOS para nuevos corredores
         horaSalidaImportado: '',
         cronoSalidaImportado: '',
         
         // Segundos
-        cronoSegundos: cronoSalidaSegundos,
-        horaSegundos: horaSalidaSegundos,
+        cronoSegundos: cronoSegundos,
+        horaSegundos: horaSegundos,
         diferenciaSegundos: timeToSeconds(diferencia.replace(/ \([+-]\)/g, '').trim()) || 0
     };
     
-    // Insertar corredor en la posición especificada
+    console.log('Nuevo corredor creado:', {
+        order: nuevoCorredor.order,
+        dorsal: nuevoCorredor.dorsal,
+        horaSalida: nuevoCorredor.horaSalida,
+        cronoSalida: nuevoCorredor.cronoSalida,
+        diferencia: nuevoCorredor.diferencia,
+        horaSalidaImportado: nuevoCorredor.horaSalidaImportado,
+        cronoSalidaImportado: nuevoCorredor.cronoSalidaImportado
+    });
+    
+    // Insertar corredor
     startOrderData.splice(position - 1, 0, nuevoCorredor);
     
-    // Si añadimos en posición 1, necesitamos recalcular el segundo corredor
-    if (position === 1 && startOrderData.length > 1) {
-        const segundoCorredor = startOrderData[1];
-        
-        // El segundo corredor debe tomar la diferencia del tercero (si existe)
-        if (startOrderData.length > 2) {
-            const tercerCorredor = startOrderData[2];
-            segundoCorredor.diferencia = tercerCorredor.diferencia || '00:01:00';
-        } else {
-            segundoCorredor.diferencia = '00:01:00';
-        }
-        
-        const diferenciaSegundos = timeToSeconds(segundoCorredor.diferencia.replace(/ \([+-]\)/g, '').trim()) || 60;
-        
-        // Recalcular crono salida y hora salida del segundo
-        segundoCorredor.cronoSegundos = diferenciaSegundos;
-        segundoCorredor.cronoSalida = secondsToTime(segundoCorredor.cronoSegundos);
-        
-        segundoCorredor.horaSegundos = timeToSeconds(nuevoCorredor.horaSalida) + diferenciaSegundos;
-        segundoCorredor.horaSalida = secondsToTime(segundoCorredor.horaSegundos);
-        
-        // Actualizar campos previstas
-        segundoCorredor.horaSalidaPrevista = segundoCorredor.horaSalida;
-        segundoCorredor.cronoSalidaPrevista = segundoCorredor.cronoSalida;
-        
-        console.log('Recalculado segundo corredor - Campos reales NO modificados');
+    // Recalcular órdenes de todos los corredores
+    for (let i = 0; i < startOrderData.length; i++) {
+        startOrderData[i].order = i + 1;
     }
     
-    // Recalcular corredores siguientes (solo campos principales y previstos)
-    recalculateFollowingRiders(position + 1);
+    // Si no es el primer corredor y no tiene diferencia, asignar una
+    if (position > 1 && (!nuevoCorredor.diferencia || nuevoCorredor.diferencia === '')) {
+        nuevoCorredor.diferencia = '00:01:00 (+)';
+        nuevoCorredor.diferenciaSegundos = 60;
+    }
     
     // Actualizar UI
     updateStartOrderUI();
     
     // Guardar datos
-    saveStartOrderData();
+    if (typeof saveStartOrderData === 'function') {
+        saveStartOrderData();
+    }
     
     // Mostrar mensaje
-    const message = t.riderAddedDetails 
-        ? t.riderAddedDetails
-            .replace('{position}', position)
-            .replace('{dorsal}', nuevoCorredor.dorsal)
-            .replace('{name}', nuevoCorredor.nombre || 'Sin nombre')
-            .replace('{time}', nuevoCorredor.horaSalida)
-        : t.riderAddedAtPosition.replace('{position}', position);
-    
+    const message = t.riderAddedAtPosition ? t.riderAddedAtPosition.replace('{position}', position) : `Corredor añadido en posición ${position}`;
     showMessage(message, 'success');
+    
+    console.log(`=== createNewRiderAtPosition completada ===`);
     
     return nuevoCorredor;
 }
 
+
 function recalculateFollowingRiders(fromPosition) {
-    console.log(`=== recalculateFollowingRiders(fromPosition: ${fromPosition}) ===`);
+    console.log(`=== Recalculando corredores desde posición ${fromPosition} ===`);
     
-    // Si fromPosition es mayor que el número de corredores, no hay nada que recalcular
-    if (fromPosition >= startOrderData.length) {
+    if (fromPosition > startOrderData.length) {
         console.log('No hay corredores para recalcular');
         return;
     }
     
-    // Recalcular desde la posición especificada hacia adelante
-    for (let i = fromPosition; i < startOrderData.length; i++) {
+    // Ajustar fromPosition para que sea base 0
+    const startIndex = Math.max(0, fromPosition - 1);
+    
+    for (let i = startIndex; i < startOrderData.length; i++) {
+        // Si es el primer corredor, saltar (ya que no tiene anterior)
+        if (i === 0) {
+            // Solo actualizar el orden
+            startOrderData[i].order = 1;
+            console.log(`Corredor 1: Orden establecido a 1`);
+            continue;
+        }
+        
         const corredorActual = startOrderData[i];
         const corredorAnterior = startOrderData[i - 1];
-        
-        console.log(`Procesando corredor ${i + 1} (posición actual: ${corredorActual.order})`);
         
         // 1. Actualizar orden
         const ordenAnterior = corredorActual.order;
         corredorActual.order = i + 1;
-        console.log(`  Orden actualizado: ${ordenAnterior} → ${corredorActual.order}`);
+        console.log(`Corredor ${i + 1}: Orden actualizado ${ordenAnterior} → ${corredorActual.order}`);
         
         // 2. Determinar diferencia a usar
         let diferencia = corredorActual.diferencia;
@@ -4242,15 +4320,7 @@ function recalculateFollowingRiders(fromPosition) {
         const cronoAnteriorSegundos = corredorAnterior.cronoSegundos || timeToSeconds(corredorAnterior.cronoSalida) || 0;
         const horaAnteriorSegundos = corredorAnterior.horaSegundos || timeToSeconds(corredorAnterior.horaSalida) || 0;
         
-        console.log(`  Valores anteriores:`, {
-            cronoAnterior: corredorAnterior.cronoSalida,
-            horaAnterior: corredorAnterior.horaSalida,
-            cronoAnteriorSegundos,
-            horaAnteriorSegundos
-        });
-        
         // 5. Calcular nuevos valores principales
-        
         // Crono salida: crono del anterior + diferencia
         const nuevoCronoSegundos = cronoAnteriorSegundos + diferenciaSegundos;
         corredorActual.cronoSegundos = nuevoCronoSegundos;
@@ -4261,79 +4331,23 @@ function recalculateFollowingRiders(fromPosition) {
         corredorActual.horaSegundos = nuevaHoraSegundos;
         corredorActual.horaSalida = secondsToTime(nuevaHoraSegundos);
         
-        console.log(`  Nuevos valores calculados:`, {
-            cronoSalida: corredorActual.cronoSalida,
-            horaSalida: corredorActual.horaSalida,
-            cronoSegundos: nuevoCronoSegundos,
-            horaSegundos: nuevaHoraSegundos
-        });
+        console.log(`  Crono: ${corredorAnterior.cronoSalida} + ${diferencia} → ${corredorActual.cronoSalida}`);
+        console.log(`  Hora: ${corredorAnterior.horaSalida} + ${diferencia} → ${corredorActual.horaSalida}`);
         
         // 6. Actualizar campos previstas (iguales a los principales)
         corredorActual.horaSalidaPrevista = corredorActual.horaSalida;
         corredorActual.cronoSalidaPrevista = corredorActual.cronoSalida;
-        console.log(`  Campos previstas actualizados`);
         
         // 7. NO modificar campos reales - PRESERVAR valores existentes
-        // Guardar valores anteriores de campos reales para logging
-        const horaRealAnterior = corredorActual.horaSalidaReal;
-        const cronoRealAnterior = corredorActual.cronoSalidaReal;
-        
-        // Campos reales SE MANTIENEN COMO ESTÁN - NO SE MODIFICAN
-        if (!corredorActual.horaSalidaReal || corredorActual.horaSalidaReal === '') {
-            // Si está vacío, queda vacío - NO lo llenamos
-            console.log(`  horaSalidaReal: VACÍO (no se modifica)`);
-        } else {
-            console.log(`  horaSalidaReal: PRESERVADO "${corredorActual.horaSalidaReal}"`);
-        }
-        
-        if (!corredorActual.cronoSalidaReal || corredorActual.cronoSalidaReal === '') {
-            console.log(`  cronoSalidaReal: VACÍO (no se modifica)`);
-        } else {
-            console.log(`  cronoSalidaReal: PRESERVADO "${corredorActual.cronoSalidaReal}"`);
-        }
-        
-        // También preservar los segundos reales
-        console.log(`  horaSalidaRealSegundos: PRESERVADO ${corredorActual.horaSalidaRealSegundos || 0}`);
-        console.log(`  cronoSalidaRealSegundos: PRESERVADO ${corredorActual.cronoSalidaRealSegundos || 0}`);
+        console.log(`  Campos reales preservados: horaSalidaReal="${corredorActual.horaSalidaReal}", cronoSalidaReal="${corredorActual.cronoSalidaReal}"`);
         
         // 8. NO modificar campos importados - PRESERVAR valores existentes
-        if (corredorActual.horaSalidaImportado && corredorActual.horaSalidaImportado !== '') {
-            console.log(`  horaSalidaImportado: PRESERVADO "${corredorActual.horaSalidaImportado}"`);
-        } else {
-            console.log(`  horaSalidaImportado: VACÍO (no se modifica)`);
-        }
+        console.log(`  Campos importados preservados: horaSalidaImportado="${corredorActual.horaSalidaImportado}", cronoSalidaImportado="${corredorActual.cronoSalidaImportado}"`);
         
-        if (corredorActual.cronoSalidaImportado && corredorActual.cronoSalidaImportado !== '') {
-            console.log(`  cronoSalidaImportado: PRESERVADO "${corredorActual.cronoSalidaImportado}"`);
-        } else {
-            console.log(`  cronoSalidaImportado: VACÍO (no se modifica)`);
-        }
-        
-        // 9. Actualizar dorsal si sigue la secuencia automática
-        if (corredorActual.dorsal === i) {
-            const dorsalAnterior = corredorActual.dorsal;
-            corredorActual.dorsal = i + 1;
-            console.log(`  Dorsal actualizado: ${dorsalAnterior} → ${corredorActual.dorsal} (secuencia automática)`);
-        } else {
-            console.log(`  Dorsal mantenido: ${corredorActual.dorsal}`);
-        }
-        
-        // 10. Actualizar diferenciaSegundos si no existe
-        if (!corredorActual.diferenciaSegundos || corredorActual.diferenciaSegundos === 0) {
-            corredorActual.diferenciaSegundos = diferenciaSegundos;
-            // Aplicar signo si corresponde
-            if (diferencia.includes('(-)')) {
-                corredorActual.diferenciaSegundos = -Math.abs(corredorActual.diferenciaSegundos);
-            }
-            console.log(`  diferenciaSegundos establecido: ${corredorActual.diferenciaSegundos}`);
-        }
-        
-        console.log(`--- Corredor ${i + 1} procesado correctamente ---\n`);
+        console.log(`--- Corredor ${i + 1} recalculado correctamente ---\n`);
     }
     
-    console.log(`=== Recalculo completado para ${startOrderData.length - fromPosition + 1} corredores ===`);
-    console.log('NOTA: Campos reales (horaSalidaReal, cronoSalidaReal) NO fueron modificados');
-    console.log('NOTA: Campos importados (horaSalidaImportado, cronoSalidaImportado) NO fueron modificados\n');
+    console.log(`=== Recalculo completado para ${startOrderData.length - startIndex} corredores ===`);
 }
 
 function addRiderPositionStyles() {
@@ -5282,4 +5296,49 @@ function recalculateFollowingRidersSimplified(fromPosition) {
     }
     
     console.log(`Recálculo completado. Campos reales e importados preservados.`);
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function secondsToTime(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function timeToSeconds(timeStr) {
+    if (!timeStr || timeStr === '') return 0;
+    
+    let formattedTime = timeStr;
+    if (!formattedTime.includes(':')) {
+        formattedTime = '00:00:00';
+    }
+    
+    const parts = formattedTime.split(':');
+    if (parts.length === 2) {
+        parts.push('00');
+    }
+    
+    const hours = parseInt(parts[0]) || 0;
+    const minutes = parseInt(parts[1]) || 0;
+    const seconds = parseInt(parts[2]) || 0;
+    
+    return (hours * 3600) + (minutes * 60) + seconds;
+}
+
+// Función para obtener el índice original
+function getOriginalIndex(order, dorsal) {
+    if (!startOrderData || startOrderData.length === 0) return 0;
+    
+    const originalIndex = startOrderData.findIndex(rider => 
+        rider.order == order && rider.dorsal == dorsal
+    );
+    return originalIndex !== -1 ? originalIndex : 0;
 }

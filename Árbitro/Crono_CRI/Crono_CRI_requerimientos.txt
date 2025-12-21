@@ -115,6 +115,9 @@ los unicos valores que se pueden modificar en la tabla de orden de salida son: d
 
 el primer  orredor diferencia 00:00:00
 
+
+al actualizar los datos de la tabla desaparecen
+
 -------------------------------------------------
 
 El programa de cri sera un programa para la ayuda para realizar Carreras de Contrareloj. Tendrá tres partes, gestión general, gestión salidas y gestión de llegadas 
@@ -161,8 +164,6 @@ al introducir un corredor si es el primero o posición 1, se le pone crono salid
 
 al introducir el ultimo corredor u otra posición ponemos como datos, el valor diferencia seria el valor del registro anterior, y sobre los valores anteriores añadimos la diferencia para crono salida, hora salida, y hora salida prevista y crono salida prevista, en hora salida importado y crono salda importado lo dejamos en blanco y convertimos a segundos crono salida y hora salida. Si hay registros depués del añadido recalculamos los tiempos de las mismas columnas, NO modificamos importado.
 
-
-al actualizar los datos de la tabla desaparecen
-
+al importar excel actualizar hora de salida primer corredor
 en la tabla orde de saldidan
 

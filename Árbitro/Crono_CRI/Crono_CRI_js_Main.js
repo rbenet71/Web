@@ -76,17 +76,17 @@ function initApp() {
     if (typeof updateSalidaText === 'function') updateSalidaText();
     if (typeof renderRacesSelect === 'function') renderRacesSelect();
     
-    // Asegurar el orden correcto de carga
-    if (typeof loadStartOrderData === 'function') {
-        loadStartOrderData(); // Cargar primero los datos de orden
+    // MODIFICACIÓN: Cargar datos de carrera PRIMERO
+    if (typeof loadRaceData === 'function') {
+        loadRaceData();
     }
     
-    if (typeof loadRaceData === 'function') {
-        // Pequeño retraso para asegurar que startOrderData esté cargado
-        setTimeout(() => {
-            loadRaceData();
-        }, 50);
-    }
+    // MODIFICACIÓN: Luego cargar orden de salida (después de que la carrera esté cargada)
+    setTimeout(() => {
+        if (typeof loadStartOrderData === 'function') {
+            loadStartOrderData();
+        }
+    }, 100);
 
     // Configurar inputs de tiempo mejorados (INTEGRADO EN SALIDAS)
     if (typeof setupTimeInputs === 'function') setupTimeInputs();
@@ -162,6 +162,28 @@ function initApp() {
     // Eventos de audio
     document.addEventListener('click', initAudioOnInteraction);
     document.addEventListener('keydown', initAudioOnInteraction);
+    
+    // ============================================
+    // NUEVO: INICIALIZAR TARJETA DE GESTIÓN DE CARRERA
+    // ============================================
+    
+    // Inicializar tarjeta de gestión de carrera
+    if (typeof initRaceManagementCard === 'function') {
+        initRaceManagementCard();
+        console.log("Tarjeta de gestión de carrera inicializada");
+    }
+    
+    // Actualizar título inicial de la tarjeta de gestión
+    if (typeof updateRaceManagementCardTitle === 'function') {
+        setTimeout(() => {
+            updateRaceManagementCardTitle();
+            console.log("Título de gestión de carrera actualizado inicialmente");
+        }, 150);
+    }
+    
+    // ============================================
+    // FIN DE NUEVAS ADICIONES
+    // ============================================
     
     // Marcar como inicializada después de un pequeño retraso
     setTimeout(() => {
@@ -342,6 +364,11 @@ function handleRaceChange() {
         loadRaceData();
         saveRacesToStorage();
         onRaceChanged();
+        
+        // AÑADIR ESTO: Actualizar título de la tarjeta de gestión
+        if (typeof updateRaceManagementCardTitle === 'function') {
+            updateRaceManagementCardTitle();
+        }
     } else {
         appState.currentRace = null;
         appState.departureTimes = [];
@@ -351,8 +378,15 @@ function handleRaceChange() {
         document.getElementById('departed-count').textContent = 0;
         document.getElementById('start-position').value = 1;
         renderDeparturesList();
+        
+        // AÑADIR ESTO: Actualizar título de la tarjeta de gestión cuando no hay carrera
+        if (typeof updateRaceManagementCardTitle === 'function') {
+            updateRaceManagementCardTitle();
+        }
     }
 }
+
+
 
 function handleKeyboardShortcuts(e) {
     // ESC para pausar cuenta atrás

@@ -113,38 +113,75 @@ function loadRaceData() {
         }
         
         renderDeparturesList();
+        
+        // AÑADIR ESTO: Actualizar título de la tarjeta de gestión
+        if (typeof updateRaceManagementCardTitle === 'function') {
+            updateRaceManagementCardTitle();
+        }
     } else {
         console.log("No hay datos guardados para esta carrera");
+        
+        // AÑADIR ESTO: Actualizar título incluso si no hay datos
+        if (typeof updateRaceManagementCardTitle === 'function') {
+            updateRaceManagementCardTitle();
+        }
     }
 }
+
+
+
+
 // Cargar datos del orden de salida
 function loadStartOrderData() {
-    // Primero intentar cargar desde localStorage (para compatibilidad)
-    const savedData = localStorage.getItem('start-order-data');
-    if (savedData) {
-        try {
-            startOrderData = JSON.parse(savedData);
-        } catch (e) {
-            console.error("Error parsing start order data:", e);
+    console.log("Cargando datos de orden de salida...");
+    
+    // Primero verificar si ya hay carrera actual con datos
+    if (appState.currentRace && appState.currentRace.startOrder && appState.currentRace.startOrder.length > 0) {
+        console.log("Cargando desde datos de carrera actual:", appState.currentRace.name);
+        startOrderData = [...appState.currentRace.startOrder];
+    } 
+    // Luego intentar desde localStorage (para compatibilidad)
+    else {
+        const savedData = localStorage.getItem('start-order-data');
+        if (savedData) {
+            try {
+                startOrderData = JSON.parse(savedData);
+                console.log("Cargado desde localStorage:", startOrderData.length, "corredores");
+            } catch (e) {
+                console.error("Error parsing start order data:", e);
+                startOrderData = [];
+            }
+        } else {
+            console.log("No hay datos de orden de salida guardados");
             startOrderData = [];
         }
     }
     
-    // Si hay carrera actual y tiene datos de orden de salida, sobreescribir
-    if (appState.currentRace && appState.currentRace.startOrder) {
-        startOrderData = appState.currentRace.startOrder;
-    }
-    
+    // Actualizar UI
     if (startOrderData.length > 0) {
         document.getElementById('total-riders').value = startOrderData.length;
+        console.log("Actualizando tabla con", startOrderData.length, "corredores");
         updateStartOrderTableThrottled();
+    } else {
+        console.log("No hay corredores en el orden de salida");
+        updateStartOrderTableThrottled(); // Esto limpiará la tabla vacía
     }
     
+    // Actualizar UI de orden de salida
     if (typeof updateStartOrderUI === 'function') {
-        updateStartOrderUI();
+        setTimeout(() => {
+            updateStartOrderUI();
+            console.log("UI de orden de salida actualizada");
+        }, 50);
     }
     
     console.log("Orden de salida cargado:", startOrderData.length, "corredores");
+    
+    // Guardar los datos cargados en la carrera actual si existe
+    if (appState.currentRace && startOrderData.length > 0) {
+        saveRaceData();
+        console.log("Datos de orden guardados en la carrera actual");
+    }
 }
 
 // Guardar estado de la aplicación
@@ -311,6 +348,11 @@ function createNewRace() {
     saveRacesToStorage();
     renderRacesSelect();
     
+    // AÑADIR ESTO: Actualizar título de la tarjeta de gestión
+    if (typeof updateRaceManagementCardTitle === 'function') {
+        updateRaceManagementCardTitle();
+    }
+    
     // Cerrar modal y limpiar formulario
     document.getElementById('new-race-modal').classList.remove('active');
     resetRaceForm();
@@ -320,7 +362,6 @@ function createNewRace() {
     
     console.log("Nueva carrera creada:", newRace);
 }
-
 
 function resetRaceForm() {
     // Limpiar todos los campos del formulario
@@ -388,6 +429,11 @@ function deleteCurrentRace() {
         saveRacesToStorage();
         renderRacesSelect();
         renderDeparturesList();
+        
+        // AÑADIR ESTO: Actualizar título de la tarjeta de gestión
+        if (typeof updateRaceManagementCardTitle === 'function') {
+            updateRaceManagementCardTitle();
+        }
         
         const deleteModal = document.getElementById('delete-race-modal');
         if (deleteModal) {
@@ -1640,6 +1686,11 @@ function performRaceRestore(backupData, restoreOption, selectedData, existingRac
                     firstStartTimeInput.value = restoredRace.firstStartTime;
                 }
             }
+            
+            // AÑADIR ESTO: Actualizar título de la tarjeta de gestión
+            if (typeof updateRaceManagementCardTitle === 'function') {
+                updateRaceManagementCardTitle();
+            }
         }
         
         // Guardar en localStorage
@@ -1932,6 +1983,7 @@ function setupRaceFormEvents() {
     window.raceFormEventsConfigured = true;
     console.log("Eventos del formulario de carrera configurados");
 }
+
 // ============================================
 // FUNCIÓN PARA EDITAR DETALLES DE LA CARRERA
 // ============================================
@@ -2068,7 +2120,6 @@ function editRaceDetails() {
     
     console.log("Editando carrera:", race.name, "ID:", race.id);
 }
-
 // ============================================
 // FUNCIÓN PARA GUARDAR CARRERA EDITADA (CON VALIDACIÓN)
 // ============================================
@@ -2182,8 +2233,10 @@ function saveEditedRace() {
     // Actualizar el selector de carreras
     renderRacesSelect();
     
-    // Actualizar título de la tarjeta de gestión
-    updateRaceManagementCardTitle();
+    // AÑADIR ESTO: Actualizar título de la tarjeta de gestión
+    if (typeof updateRaceManagementCardTitle === 'function') {
+        updateRaceManagementCardTitle();
+    }
     
     // Cerrar modal
     modal.classList.remove('active');
@@ -2199,7 +2252,6 @@ function saveEditedRace() {
         modality: updatedRace.modality
     });
 }
-
 function saveRaceChanges() {
     const t = translations[appState.currentLanguage];
     
@@ -2260,6 +2312,11 @@ function saveRaceChanges() {
     saveRacesToStorage();
     renderRacesSelect();
     
+    // AÑADIR ESTO: Actualizar título de la tarjeta de gestión
+    if (typeof updateRaceManagementCardTitle === 'function') {
+        updateRaceManagementCardTitle();
+    }
+    
     // Cerrar modal y resetear
     document.getElementById('new-race-modal').classList.remove('active');
     resetRaceForm();
@@ -2279,4 +2336,165 @@ function saveRaceChanges() {
     updateRaceManagementCardTitle();
     
     console.log("Carrera actualizada:", appState.currentRace);
+}
+// ========
+// 
+//====================================
+// FUNCIÓN PARA ACTUALIZAR EL TÍTULO DE LA TARJETA DE GESTIÓN
+// ============================================
+function updateRaceManagementCardTitle() {
+    const titleElement = document.getElementById('card-race-title');
+    
+    if (!titleElement) {
+        console.log("Elemento del título de gestión no encontrado");
+        return;
+    }
+    
+    if (appState.currentRace && appState.currentRace.name) {
+        const t = translations[appState.currentLanguage];
+        
+        // Verificar si hay llegadas para mostrar el contador
+        const llegadasCount = llegadasState.llegadas ? llegadasState.llegadas.length : 0;
+        const hasLlegadas = llegadasCount > 0;
+        
+        // Crear el título con el nombre de la carrera
+        let titleHTML = `<i class="fas fa-flag-checkered"></i> ${appState.currentRace.name}`;
+        
+        // Añadir información adicional si está disponible
+        if (appState.currentRace.date) {
+            titleHTML += ` <span class="race-date">(${appState.currentRace.date})</span>`;
+        }
+        
+        // Añadir contador de llegadas si existen
+        if (hasLlegadas) {
+            titleHTML += ` <span class="llegadas-badge" title="${t.llegadasCount || 'Llegadas registradas'}">
+                <i class="fas fa-flag"></i> ${llegadasCount}
+            </span>`;
+        }
+        
+        // Añadir indicador de actividad si el countdown está activo
+        if (appState.countdownActive) {
+            titleHTML += ` <span class="active-badge" title="${t.countdownActive || 'Cuenta atrás activa'}">
+                <i class="fas fa-play-circle"></i>
+            </span>`;
+        }
+        
+        titleElement.innerHTML = titleHTML;
+        
+        // Añadir clase para styling si es necesario
+        titleElement.classList.add('race-title-active');
+        
+        console.log("Título de gestión actualizado:", appState.currentRace.name);
+    } else {
+        // Si no hay carrera seleccionada, mostrar el título por defecto
+        const t = translations[appState.currentLanguage];
+        titleElement.innerHTML = `<i class="fas fa-flag-checkered"></i> ${t.raceManagement || 'Gestión de Carrera'}`;
+        titleElement.classList.remove('race-title-active');
+        
+        console.log("Título de gestión restablecido (no hay carrera seleccionada)");
+    }
+}
+
+// ============================================
+// AÑADIR ESTILOS PARA EL TÍTULO DE GESTIÓN
+// ============================================
+function addRaceManagementCardStyles() {
+    if (document.getElementById('race-management-styles')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'race-management-styles';
+    style.textContent = `
+        /* Estilos para el título de gestión de carrera */
+        #rcard-race-title{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+            padding: 10px 0;
+            transition: all 0.3s ease;
+        }
+        
+        #card-race-title.race-title-active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        #card-race-title.race-title-active i {
+            font-size: 1.2em;
+        }
+        
+        .race-date {
+            font-size: 0.85em;
+            color: var(--gray);
+            font-weight: normal;
+            margin-left: 5px;
+        }
+        
+        .llegadas-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--success);
+            color: white;
+            font-size: 0.75em;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 10px;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+        
+        .llegadas-badge i {
+            font-size: 0.9em;
+        }
+        
+        .active-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--danger);
+            color: white;
+            font-size: 0.75em;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 10px;
+            font-weight: 600;
+            vertical-align: middle;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .active-badge i {
+            font-size: 0.9em;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+    `;
+    
+    document.head.appendChild(style);
+    console.log("Estilos del título de gestión añadidos");
+}
+
+// ============================================
+// ACTUALIZAR INICIALIZACIÓN
+// ============================================
+// Añadir esta llamada a la inicialización de la aplicación
+// En la función initApp (en tu archivo principal) o en DOMContentLoaded:
+
+function initRaceManagementCard() {
+    console.log("Inicializando tarjeta de gestión de carrera...");
+    
+    // Añadir estilos
+    addRaceManagementCardStyles();
+    
+    // Actualizar título inicial
+    updateRaceManagementCardTitle();
+    
+    // Establecer intervalo para actualizar dinámicamente (opcional)
+    setInterval(updateRaceManagementCardTitle, 5000);
+    
+    console.log("Tarjeta de gestión de carrera inicializada");
 }
