@@ -2730,6 +2730,11 @@ input[type="time"][step="1"]::-webkit-datetime-edit-second-field {
         max-height: 200px;
     }
 }
+
+/* =========================================== */
+/* ESTILOS PARA FORMULARIO DE NUEVA CARRERA */
+/* =========================================== */
+
 /* =========================================== */
 /* ESTILOS PARA FORMULARIO DE NUEVA CARRERA */
 /* =========================================== */
@@ -2740,6 +2745,19 @@ input[type="time"][step="1"]::-webkit-datetime-edit-second-field {
     padding-right: 10px;
 }
 
+/* Eliminar el scroll del modal-body cuando hay race-form-container */
+.modal-body:has(.race-form-container) {
+    overflow-y: hidden !important;
+    padding: 10 !important;
+}
+
+/* Ajustar el race-form-container para llenar el espacio */
+.modal-body .race-form-container {
+    max-height: calc(70vh - 40px); /* Restar espacio del header del modal */
+    height: 100%;
+}
+
+/* Estilos para el scrollbar */
 .race-form-container::-webkit-scrollbar {
     width: 8px;
 }
@@ -2756,6 +2774,22 @@ input[type="time"][step="1"]::-webkit-datetime-edit-second-field {
 
 .race-form-container::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
+}
+
+/* Asegurar que el modal-content no tenga overflow innecesario */
+.medium-modal .modal-content {
+    overflow: hidden; /* Solo una barra de scroll */
+}
+
+/* Para modales con formularios largos */
+.modal-body.with-scroll {
+    overflow-y: auto;
+    max-height: 60vh;
+}
+
+/* Quitar el scroll del modal-body cuando el formulario tiene scroll */
+.modal-body:not(.with-scroll) {
+    overflow-y: visible;
 }
 
 .form-section {
