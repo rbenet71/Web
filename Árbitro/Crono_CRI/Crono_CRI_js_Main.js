@@ -107,6 +107,13 @@ function initApp() {
         setTimeout(setupRaceFormEvents, 500);
     }
     
+    // Configurar ordenación para tabla de orden de salida
+    setTimeout(() => {
+        if (typeof setupStartOrderTableSorting === 'function') {
+            setupStartOrderTableSorting();
+        }
+    }, 500);
+    
     // Inicializar módulo PDF (después de que todo esté cargado)
     setTimeout(() => {
         if (typeof initPDFModule === 'function') {
@@ -343,3 +350,10 @@ function handleKeyboardShortcuts(e) {
         showQuickRegisterLlegada();
     }
 }
+// ============================================
+// ESTADO DE ORDENACIÓN PARA TABLA DE ORDEN DE SALIDA
+// ============================================
+let startOrderSortState = { 
+    column: 'order', 
+    direction: 'asc' 
+};

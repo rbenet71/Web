@@ -942,10 +942,13 @@ function updateStartOrderTable() {
     
     emptyState.style.display = 'none';
     
+    // Ordenar datos según el estado de ordenación
+    const sortedData = sortStartOrderData([...startOrderData]);
+    
     let html = '';
-    startOrderData.forEach((rider, index) => {
+    sortedData.forEach((rider, index) => {
         html += `
-        <tr data-index="${index}">
+        <tr data-index="${getOriginalIndex(rider.order, rider.dorsal)}">
             <td class="number-cell editable" data-field="order">${rider.order}</td>
             <td class="number-cell editable" data-field="dorsal">${rider.dorsal}</td>
             <td class="time-cell editable" data-field="cronoSalida">${rider.cronoSalida}</td>
@@ -975,6 +978,72 @@ function updateStartOrderTable() {
     // Añadir event listeners para edición
     document.querySelectorAll('.start-order-table td.editable').forEach(cell => {
         cell.addEventListener('click', handleTableCellClick);
+    });
+    
+    // Actualizar indicadores de ordenación
+    updateStartOrderSortIndicators();
+}
+
+// Función auxiliar para obtener el índice original
+function getOriginalIndex(order, dorsal) {
+    const originalIndex = startOrderData.findIndex(rider => 
+        rider.order == order && rider.dorsal == dorsal
+    );
+    return originalIndex !== -1 ? originalIndex : 0;
+}
+
+// Función para ordenar los datos
+function sortStartOrderData(data) {
+    return data.sort((a, b) => {
+        let valueA, valueB;
+        
+        switch(startOrderSortState.column) {
+            case 'order':
+                valueA = parseInt(a.order) || 0;
+                valueB = parseInt(b.order) || 0;
+                break;
+            case 'dorsal':
+                valueA = parseInt(a.dorsal) || 0;
+                valueB = parseInt(b.dorsal) || 0;
+                break;
+            case 'nombre':
+                valueA = (a.nombre || '').toLowerCase();
+                valueB = (b.nombre || '').toLowerCase();
+                break;
+            case 'apellidos':
+                valueA = (a.apellidos || '').toLowerCase();
+                valueB = (b.apellidos || '').toLowerCase();
+                break;
+            case 'chip':
+                valueA = (a.chip || '').toLowerCase();
+                valueB = (b.chip || '').toLowerCase();
+                break;
+            case 'horaSalida':
+                valueA = a.horaSegundos || timeToSeconds(a.horaSalida) || 0;
+                valueB = b.horaSegundos || timeToSeconds(b.horaSalida) || 0;
+                break;
+            case 'cronoSalida':
+                valueA = a.cronoSegundos || timeToSeconds(a.cronoSalida) || 0;
+                valueB = b.cronoSegundos || timeToSeconds(b.cronoSalida) || 0;
+                break;
+            case 'horaSalidaReal':
+                valueA = a.horaSalidaRealSegundos || timeToSeconds(a.horaSalidaReal) || 0;
+                valueB = b.horaSalidaRealSegundos || timeToSeconds(b.horaSalidaReal) || 0;
+                break;
+            case 'cronoSalidaReal':
+                valueA = a.cronoSalidaRealSegundos || timeToSeconds(a.cronoSalidaReal) || 0;
+                valueB = b.cronoSalidaRealSegundos || timeToSeconds(b.cronoSalidaReal) || 0;
+                break;
+            default:
+                valueA = parseInt(a.order) || 0;
+                valueB = parseInt(b.order) || 0;
+        }
+        
+        if (startOrderSortState.direction === 'asc') {
+            return valueA > valueB ? 1 : (valueA < valueB ? -1 : 0);
+        } else {
+            return valueA < valueB ? 1 : (valueA > valueB ? -1 : 0);
+        }
     });
 }
 
@@ -1609,4 +1678,54 @@ function showTimeValidationMessage(input, message) {
     }, 3000);
 };
 
+
+// ============================================
+// FUNCIONES DE ORDENACIÓN PARA TABLA DE ORDEN DE SALIDA
+// ============================================
+
+function setupStartOrderTableSorting() {
+    console.log("Configurando ordenación para tabla de orden de salida...");
+    
+    const sortableHeaders = document.querySelectorAll('.start-order-table th.sortable');
+    console.log(`Encontrados ${sortableHeaders.length} encabezados ordenables`);
+    
+    if (sortableHeaders.length === 0) {
+        console.warn("⚠️ No se encontraron encabezados con clase 'sortable'");
+        console.warn("Los encabezados deben tener: class='sortable' y data-sort='nombre_campo'");
+    }
+    
+    sortableHeaders.forEach((th, index) => {
+        const column = th.getAttribute('data-sort');
+        const text = th.textContent.trim();
+        console.log(`Encabezado ${index + 1}: "${text}" -> data-sort="${column}"`);
+        
+        th.addEventListener('click', function() {
+            console.log(`Clic en columna: ${column} (${text})`);
+            console.log(`Estado actual: columna=${startOrderSortState.column}, dirección=${startOrderSortState.direction}`);
+            
+            if (startOrderSortState.column === column) {
+                startOrderSortState.direction = startOrderSortState.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                startOrderSortState.column = column;
+                startOrderSortState.direction = 'asc';
+            }
+            
+            console.log(`Nuevo estado: columna=${startOrderSortState.column}, dirección=${startOrderSortState.direction}`);
+            
+            updateStartOrderTable();
+        });
+    });
+    
+    console.log("Ordenación configurada");
+}
+
+function updateStartOrderSortIndicators() {
+    document.querySelectorAll('.start-order-table th.sortable').forEach(th => {
+        th.classList.remove('asc', 'desc');
+        const column = th.getAttribute('data-sort');
+        if (column === startOrderSortState.column) {
+            th.classList.add(startOrderSortState.direction);
+        }
+    });
+}
 
