@@ -136,5 +136,6 @@ Hora salida importado - será la hora del dia que estava en el excel que se impo
 Crono salida importado - será la hora del crono que estava en el excel que se importó.
 
 
+quiero añadir dos campos más en el excel y la tabla de orden de salida y es la conversion a segundos de la hora real de salida y el crono real de salida, esas columnas se llamaran Crono Salida Real Segundos y Hora Salida Real Segundos
 
-al introducir manualmente un corredor preguntamos si lo pone al principio o en que posición, en función donde vaya se calcula a los siguientes corredores su hora de salida teniendo en cuenta que el corredor añadido tendrá la diferencia igual al anterior corredor.
+al introducir manualmente un corredor preguntamos si lo pone al principio o en que posición, en función donde vaya se calcula a los siguientes corredores su hora de salida teniendo en cuenta que el corredor añadido tendrá la diferencia igual al anterior corredor. y a la vez se actualiza el valor en segundos de lo que hemos modificado

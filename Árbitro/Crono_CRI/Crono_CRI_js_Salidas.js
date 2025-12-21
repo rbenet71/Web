@@ -618,10 +618,13 @@ function createExcelTemplate(numCorredores, intervalo, horaInicio) {
     const intervaloExcel = timeToExcelValue(intervalo);
     const horaInicioExcel = timeToExcelValue(horaInicio);
     
-    // Crear encabezados
+    // Crear encabezados - AÑADIR LOS NUEVOS CAMPOS
     const headers = ['Orden', 'Dorsal', 'Crono Salida', 'Hora Salida', 'Diferencia', 'Nombre', 'Apellidos', 'Chip', 
-                    'Hora Salida Real', 'Crono Salida Real', 'Hora Salida Prevista', 'Crono Salida Prevista', 
-                    'Hora Salida Importado', 'Crono Salida Importado', 'Crono Segundos', 'Hora Segundos'];
+                    'Hora Salida Real', 'Crono Salida Real', 
+                    'Crono Salida Real Segundos', 'Hora Salida Real Segundos',  // NUEVOS CAMPOS
+                    'Hora Salida Prevista', 'Crono Salida Prevista', 
+                    'Hora Salida Importado', 'Crono Salida Importado', 
+                    'Crono Segundos', 'Hora Segundos'];
     
     // Crear los datos
     const data = [headers];
@@ -653,11 +656,17 @@ function createExcelTemplate(numCorredores, intervalo, horaInicio) {
             row[4] = { t: 'n', v: intervaloExcel, z: 'hh:mm:ss' };
         }
         
-        // Crono Segundos (O)
-        row[14] = { t: 'n', f: `HOUR(C${i+1})*3600 + MINUTE(C${i+1})*60 + SECOND(C${i+1})` };
+        // Crono Salida Real Segundos (K) - fórmula para convertir tiempo a segundos
+        row[10] = { t: 'n', f: `HOUR(I${i+1})*3600 + MINUTE(I${i+1})*60 + SECOND(I${i+1})` };
         
-        // Hora Segundos (P)
-        row[15] = { t: 'n', f: `HOUR(D${i+1})*3600 + MINUTE(D${i+1})*60 + SECOND(D${i+1})` };
+        // Hora Salida Real Segundos (L) - fórmula para convertir tiempo a segundos
+        row[11] = { t: 'n', f: `HOUR(H${i+1})*3600 + MINUTE(H${i+1})*60 + SECOND(H${i+1})` };
+        
+        // Crono Segundos (Q)
+        row[16] = { t: 'n', f: `HOUR(C${i+1})*3600 + MINUTE(C${i+1})*60 + SECOND(C${i+1})` };
+        
+        // Hora Segundos (R)
+        row[17] = { t: 'n', f: `HOUR(D${i+1})*3600 + MINUTE(D${i+1})*60 + SECOND(D${i+1})` };
         
         data.push(row);
     }
@@ -667,26 +676,21 @@ function createExcelTemplate(numCorredores, intervalo, horaInicio) {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Plantilla Salida");
     
-    // Ajustar anchos
+    // Ajustar anchos - actualizar para incluir nuevas columnas
     const colWidths = [
         {wch: 8}, {wch: 8}, {wch: 12}, {wch: 12}, {wch: 12},
         {wch: 15}, {wch: 20}, {wch: 12}, {wch: 12}, {wch: 12},
+        {wch: 10}, {wch: 10},  // Nuevas columnas para segundos reales
         {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}
     ];
     ws['!cols'] = colWidths;
     
-    // Aplicar formato HORA
+    // Aplicar formato HORA a las columnas de tiempo
     for (let r = 1; r <= numCorredores; r++) {
-        for (let c = 2; c <= 4; c++) {
-            const cell = XLSX.utils.encode_cell({r: r, c: c});
-            if (ws[cell]) {
-                ws[cell].z = ws[cell].z || 'hh:mm:ss';
-                if (!ws[cell].s) ws[cell].s = {};
-                ws[cell].s.numFmt = 'hh:mm:ss';
-            }
-        }
+        // Columnas de tiempo (C, D, H, I, M, N, O, P)
+        const timeColumns = [2, 3, 8, 9, 12, 13, 14, 15];
         
-        for (let c = 8; c <= 13; c++) {
+        timeColumns.forEach(c => {
             const cell = XLSX.utils.encode_cell({r: r, c: c});
             if (!ws[cell]) {
                 ws[cell] = { t: 's', v: '' };
@@ -694,7 +698,17 @@ function createExcelTemplate(numCorredores, intervalo, horaInicio) {
             ws[cell].z = 'hh:mm:ss';
             if (!ws[cell].s) ws[cell].s = {};
             ws[cell].s.numFmt = 'hh:mm:ss';
-        }
+        });
+        
+        // Columnas de segundos (K, L, Q, R) - números enteros
+        const secondsColumns = [10, 11, 16, 17];
+        secondsColumns.forEach(c => {
+            const cell = XLSX.utils.encode_cell({r: r, c: c});
+            if (ws[cell] && !ws[cell].s) ws[cell].s = {};
+            if (ws[cell] && ws[cell].s) {
+                ws[cell].s.numFmt = '0';
+            }
+        });
     }
     
     // Auto-filtro
@@ -804,6 +818,11 @@ function createRiderFromRow(row, columnIndexes, index) {
         chip: getCellValue(row, columnIndexes['Chip']) || '',
         horaSalidaReal: formatTimeValue(getCellValue(row, columnIndexes['Hora Salida Real'])),
         cronoSalidaReal: formatTimeValue(getCellValue(row, columnIndexes['Crono Salida Real'])),
+        
+        // NUEVOS CAMPOS PARA SEGUNDOS
+        cronoSalidaRealSegundos: parseInt(getCellValue(row, columnIndexes['Crono Salida Real Segundos'])) || 0,
+        horaSalidaRealSegundos: parseInt(getCellValue(row, columnIndexes['Hora Salida Real Segundos'])) || 0,
+        
         horaSalidaPrevista: formatTimeValue(getCellValue(row, columnIndexes['Hora Salida Prevista'])),
         cronoSalidaPrevista: formatTimeValue(getCellValue(row, columnIndexes['Crono Salida Prevista'])),
         horaSalidaImportado: formatTimeValue(getCellValue(row, columnIndexes['Hora Salida Importado'])),
@@ -812,7 +831,7 @@ function createRiderFromRow(row, columnIndexes, index) {
         horaSegundos: parseInt(getCellValue(row, columnIndexes['Hora Segundos'])) || 0
     };
     
-    // Aplicar lógica de relleno automático
+    // Aplicar lógica de relleno automático (modificar esta función)
     applyImportRules(rider, index - 1);
     
     return rider;
@@ -857,6 +876,14 @@ function applyImportRules(rider, index) {
     }
     if (!rider.horaSegundos || rider.horaSegundos === 0) {
         rider.horaSegundos = timeToSeconds(rider.horaSalida);
+    }
+    
+    // 6. CALCULAR LOS NUEVOS SEGUNDOS REALES SI NO EXISTEN
+    if (!rider.cronoSalidaRealSegundos || rider.cronoSalidaRealSegundos === 0) {
+        rider.cronoSalidaRealSegundos = timeToSeconds(rider.cronoSalidaReal);
+    }
+    if (!rider.horaSalidaRealSegundos || rider.horaSalidaRealSegundos === 0) {
+        rider.horaSalidaRealSegundos = timeToSeconds(rider.horaSalidaReal);
     }
 }
 
@@ -928,6 +955,11 @@ function updateStartOrderTable() {
             <td class="editable" data-field="chip">${rider.chip}</td>
             <td class="time-cell editable" data-field="horaSalidaReal">${rider.horaSalidaReal}</td>
             <td class="time-cell editable" data-field="cronoSalidaReal">${rider.cronoSalidaReal}</td>
+            
+            <!-- NUEVOS CAMPOS - solo lectura -->
+            <td class="number-cell">${rider.cronoSalidaRealSegundos}</td>
+            <td class="number-cell">${rider.horaSalidaRealSegundos}</td>
+            
             <td class="time-cell">${rider.horaSalidaPrevista}</td>
             <td class="time-cell">${rider.cronoSalidaPrevista}</td>
             <td class="time-cell">${rider.horaSalidaImportado}</td>

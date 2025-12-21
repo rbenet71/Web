@@ -259,62 +259,6 @@ function setupSorting() {
     });
 }
 
-function updateLanguageUI() {
-    const lang = appState.currentLanguage;
-    const t = translations[lang];
-
-    document.getElementById('audio-config-title').textContent = t.audioConfigTitle;
-    document.getElementById('beep-option-title').textContent = t.beepOptionTitle;
-    document.getElementById('test-audio-text').textContent = t.testAudioText;
-
-    document.querySelectorAll('.audio-option').forEach(option => {
-        option.classList.remove('active');
-    });
-    document.querySelector(`.audio-option[data-audio-type="${appState.audioType}"]`).classList.add('active');
-
-    document.getElementById('app-title-text').textContent = t.appTitle;
-    document.getElementById('languages-label').textContent = t.languagesLabel;
-    document.getElementById('card-race-title').textContent = t.cardRaceTitle;
-    document.getElementById('new-race-text').textContent = t.newRaceText;
-    document.getElementById('delete-race-text').textContent = t.deleteRaceText;
-    document.getElementById('card-time-title').textContent = t.cardTimeTitle;
-    document.getElementById('same-interval-text').textContent = t.sameIntervalText;
-    document.getElementById('variable-interval-text').textContent = t.variableIntervalText;
-    document.getElementById('interval-time-label').textContent = t.intervalTimeLabel;
-    document.getElementById('minutes-text').textContent = t.minutesText;
-    document.getElementById('seconds-text').textContent = t.secondsText;
-    document.getElementById('add-interval-label').textContent = t.addIntervalLabel;
-    document.getElementById('to-text').textContent = t.toText;
-    document.getElementById('add-interval-text').textContent = t.addIntervalText;
-    
-    document.getElementById('start-from-x-text').textContent = t.currentPositionText;
-    
-    document.getElementById('card-departures-title').textContent = t.cardDeparturesTitle;
-    document.getElementById('clear-departures-text').textContent = t.clearDeparturesText;
-    document.getElementById('export-excel-text').textContent = t.exportExcelText;
-    document.getElementById('start-countdown-text').textContent = t.startCountdownText;
-    document.getElementById('exit-complete-text').textContent = t.exitCompleteText;
-    document.getElementById('total-time-label').textContent = t.totalTimeLabel;
-    document.getElementById('countdown-label').textContent = t.countdownlabel;
-    
-    document.getElementById('next-corredor-label').textContent = t.nextCorredorLabel;
-    document.getElementById('departed-label').textContent = t.departedLabel;
-    document.getElementById('help-text').textContent = t.helpText;
-    document.getElementById('suggestions-text').textContent = t.suggestionsText;
-    document.getElementById('install-text').textContent = t.installText;
-    document.getElementById('update-text').textContent = t.updateText;
-
-    const salidaDisplay = document.getElementById('salida-display');
-    if (salidaDisplay) salidaDisplay.textContent = t.salidaText;
-    
-    document.querySelectorAll('.flag').forEach(flag => {
-        flag.classList.remove('active');
-    });
-    document.getElementById('flag-' + lang).classList.add('active');
-    
-    updateModalTexts();
-}
-
 function updateModalTexts() {
     const t = translations[appState.currentLanguage];
     

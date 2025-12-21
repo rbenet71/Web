@@ -439,7 +439,8 @@ const translations = {
         of: "de",
         pdfGenerated: "PDF generado",
         pdfError: "Error al generar PDF",
-
+        cronoRealSegundosHeader: "Crono Salida Real Segundos",
+        horaRealSegundosHeader: "Hora Salida Real Segundos",
     },
 
     ca: {
@@ -915,6 +916,8 @@ const translations = {
         of: "de",
         pdfGenerated: "PDF generat",
         pdfError: "Error generant PDF",
+        cronoRealSegundosHeader: "Crono Sortida Real Segons",
+        horaRealSegundosHeader: "Hora Sortida Real Segons",
         
     },
 
@@ -1390,6 +1393,9 @@ const translations = {
         of: "of",
         pdfGenerated: "PDF generated",
         pdfError: "Error generating PDF",
+
+        cronoRealSegundosHeader: "Crono Departure Real Seconds",
+        horaRealSegundosHeader: "Hour Departure Real Seconds",
 
     },
 
@@ -1883,11 +1889,13 @@ const translations = {
         of: "de",
         pdfGenerated: "PDF généré",
         pdfError: "Erreur génération PDF",
+        cronoRealSegundosHeader: "Crono Départ Réel Secondes",
+        horaRealSegundosHeader: "Heure Départ Réel Secondes",
     }
 };
 
 // ===========================================
-// FUNCIONES DE ACTUALIZACIÓN DE IDIOMA
+// FUNCIÓN UNIFICADA DE ACTUALIZACIÓN DE IDIOMA
 // ===========================================
 function updateLanguageUI() {
     const lang = appState.currentLanguage;
@@ -1895,94 +1903,149 @@ function updateLanguageUI() {
     
     console.log(`Actualizando UI al idioma: ${lang}`);
     
-    // Actualizar banderas activas
+    // 1. Actualizar banderas activas
     document.querySelectorAll('.flag').forEach(flag => {
         flag.classList.remove('active');
     });
-    document.getElementById(`flag-${lang}`).classList.add('active');
+    const activeFlag = document.getElementById(`flag-${lang}`);
+    if (activeFlag) {
+        activeFlag.classList.add('active');
+    }
     
-    // Actualizar elementos principales
+    // 2. Actualizar título principal
     updateAppTitle(t);
+    
+    // 3. Actualizar tarjetas principales
     updateRaceManagementCard(t);
     updateStartOrderCard(t);
     updateModeContent(t);
-    updateFooter(t);
-    updateModalTexts();
     
-    console.log("UI actualizada al idioma:", lang);
+    // 4. Actualizar pies de página
+    updateFooter(t);
+    
+    // 5. Actualizar textos en la pantalla de cuenta atrás
+    updateSalidaText();
+    
+    // 6. Actualizar textos de modales
+    updateModalTexts(t);
+    
+    // 7. Actualizar títulos específicos de tablas
+    updateTableHeaders(t);
+    
+    // 8. Actualizar botones y elementos específicos
+    updateButtonsAndSpecificElements(t);
+    
+    // 9. Forzar actualización de títulos de tarjetas
+    updateCardTitles();
+    
+    console.log("UI completamente actualizada al idioma:", lang);
 }
 
+// ===========================================
+// FUNCIONES AUXILIARES PARA ACTUALIZACIÓN
+// ===========================================
 function updateAppTitle(t) {
-    document.getElementById('app-title-text').textContent = t.appTitle;
-    document.getElementById('languages-label').textContent = t.languagesLabel;
+    const appTitle = document.getElementById('app-title-text');
+    const languagesLabel = document.getElementById('languages-label');
+    
+    if (appTitle) appTitle.textContent = t.appTitle;
+    if (languagesLabel) languagesLabel.textContent = t.languagesLabel;
 }
 
 function updateRaceManagementCard(t) {
-    document.getElementById('card-race-title').textContent = t.cardRaceTitle;
-    document.getElementById('new-race-text').textContent = t.newRaceText;
-    document.getElementById('delete-race-text').textContent = t.deleteRaceText;
-    document.getElementById('backup-race-text').textContent = t.backupRaceText;
-    document.getElementById('restore-race-text').textContent = t.restoreRaceText;
+    const elements = {
+        'card-race-title': t.cardRaceTitle,
+        'new-race-text': t.newRaceText,
+        'edit-race-text': t.editRaceText || 'Editar',
+        'delete-race-text': t.deleteRaceText,
+        'backup-race-text': t.backupRaceText || 'Copia Seguridad',
+        'restore-race-text': t.restoreRaceText || 'Restaurar'
+    };
+    
+    Object.keys(elements).forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.textContent = elements[id];
+    });
 }
 
 function updateStartOrderCard(t) {
-    document.getElementById('card-start-order-title').textContent = t.cardStartOrderTitle;
-    document.getElementById('first-start-label').textContent = t.firstStartLabel;
-    document.getElementById('current-time-label').textContent = t.currentTimeLabel;
-    document.getElementById('time-diff-label').textContent = t.timeDiffLabel;
-    document.getElementById('total-riders-label').textContent = t.totalRidersLabel;
-    document.getElementById('create-template-text').textContent = t.createTemplateText;
-    document.getElementById('import-order-text').textContent = t.importOrderText;
-    document.getElementById('delete-order-text').textContent = t.deleteOrderText;
-    document.getElementById('export-order-text').textContent = t.exportOrderText;
-    document.getElementById('add-rider-text').textContent = t.addRiderText;
-    document.getElementById('order-table-label').textContent = t.orderTableLabel;
-    document.getElementById('no-start-order-text').textContent = t.noStartOrderText;
+    const elements = {
+        'card-start-order-title': t.cardStartOrderTitle,
+        'first-start-label': t.firstStartLabel,
+        'current-time-label': t.currentTimeLabel,
+        'time-diff-label': t.timeDiffLabel,
+        'total-riders-label': t.totalRidersLabel,
+        'create-template-text': t.createTemplateText,
+        'import-order-text': t.importOrderText,
+        'delete-order-text': t.deleteOrderText,
+        'export-order-text': t.exportOrderText,
+        'add-rider-text': t.addRiderText,
+        'order-table-label': t.orderTableLabel,
+        'no-start-order-text': t.noStartOrderText,
+        'export-pdf-btn': t.exportPDF || 'Exportar PDF'
+    };
+    
+    Object.keys(elements).forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            if (element.tagName === 'BUTTON' && element.querySelector('i')) {
+                // Preservar el ícono si existe
+                const icon = element.querySelector('i').cloneNode(true);
+                element.textContent = '';
+                element.appendChild(icon);
+                element.appendChild(document.createTextNode(` ${elements[id]}`));
+            } else {
+                element.textContent = elements[id];
+            }
+        }
+    });
 }
 
 function updateModeContent(t) {
     // Selector de modo
-    document.getElementById('mode-selector-title').textContent = t.modeSelectorTitle;
-    document.getElementById('mode-salida-text').textContent = t.modeSalidaText;
-    document.getElementById('mode-llegadas-text').textContent = t.modeLlegadasText;
+    setTextIfExists('mode-selector-title', t.modeSelectorTitle);
+    setTextIfExists('mode-salida-text', t.modeSalidaText);
+    setTextIfExists('mode-llegadas-text', t.modeLlegadasText);
     
     // Contenido salidas
-    document.getElementById('card-time-title').textContent = t.cardTimeTitle;
-    document.getElementById('interval-time-label').textContent = t.intervalTimeLabel;
-    document.getElementById('minutes-text').textContent = t.minutesText;
-    document.getElementById('seconds-text').textContent = t.secondsText;
-    document.getElementById('audio-config-title').textContent = t.audioConfigTitle;
-    document.getElementById('beep-option-title').textContent = t.beepOptionTitle;
-    document.getElementById('voice-option-title').textContent = t.voiceOptionTitle;
-    document.getElementById('mute-option-title').textContent = t.muteOptionTitle;
-    document.getElementById('test-audio-text').textContent = t.testAudioText;
-    document.getElementById('start-countdown-text').textContent = t.startCountdownText;
-    document.getElementById('start-from-x-text').textContent = t.startFromXText;
-    document.getElementById('exit-complete-text').textContent = t.exitCompleteText;
-    document.getElementById('card-departures-title').textContent = t.cardDeparturesTitle;
-    document.getElementById('clear-departures-text').textContent = t.clearDeparturesText;
-    document.getElementById('export-excel-text').textContent = t.exportExcelText;
-    document.getElementById('no-departures-text').textContent = t.noDeparturesText;
+    setTextIfExists('card-time-title', t.cardTimeTitle);
+    setTextIfExists('interval-time-label', t.intervalTimeLabel);
+    setTextIfExists('minutes-text', t.minutesText);
+    setTextIfExists('seconds-text', t.secondsText);
+    setTextIfExists('audio-config-title', t.audioConfigTitle);
+    setTextIfExists('beep-option-title', t.beepOptionTitle);
+    setTextIfExists('voice-option-title', t.voiceOptionTitle);
+    setTextIfExists('mute-option-title', t.muteOptionTitle);
+    setTextIfExists('test-audio-text', t.testAudioText);
+    setTextIfExists('start-countdown-text', t.startCountdownText);
+    setTextIfExists('start-from-x-text', t.startFromXText);
+    setTextIfExists('exit-complete-text', t.exitCompleteText);
+    setTextIfExists('card-departures-title', t.cardDeparturesTitle);
+    setTextIfExists('clear-departures-text', t.clearDeparturesText);
+    setTextIfExists('export-excel-text', t.exportExcelText);
+    setTextIfExists('no-departures-text', t.noDeparturesText);
     
     // Contenido llegadas
-    document.getElementById('llegadas-timer-title').textContent = t.llegadasTimerTitle;
-    document.getElementById('llegadas-timer-label').textContent = t.llegadasTimerLabel;
-    document.getElementById('start-llegadas-text').textContent = t.startLlegadasText;
-    document.getElementById('stop-llegadas-text').textContent = t.stopLlegadasText;
-    document.getElementById('register-llegada-text').textContent = t.registerLlegadaText;
-    document.getElementById('import-llegadas-text').textContent = t.importLlegadasText;
-    document.getElementById('llegadas-list-title').textContent = t.llegadasListTitle;
-    document.getElementById('clear-llegadas-text').textContent = t.clearLlegadasText;
-    document.getElementById('export-llegadas-text').textContent = t.exportLlegadasText;
-    document.getElementById('show-ranking-text').textContent = t.showRankingText;
-    document.getElementById('no-llegadas-text').textContent = t.noLlegadasText;
+    setTextIfExists('llegadas-timer-title', t.llegadasTimerTitle);
+    setTextIfExists('llegadas-timer-label', t.llegadasTimerLabel);
+    setTextIfExists('start-llegadas-text', t.startLlegadasText);
+    setTextIfExists('stop-llegadas-text', t.stopLlegadasText);
+    setTextIfExists('register-llegada-text', t.registerLlegadaText);
+    setTextIfExists('import-llegadas-text', t.importLlegadasText);
+    setTextIfExists('llegadas-list-title', t.llegadasListTitle);
+    setTextIfExists('clear-llegadas-text', t.clearLlegadasText);
+    setTextIfExists('export-llegadas-text', t.exportLlegadasText);
+    setTextIfExists('show-ranking-text', t.showRankingText);
+    setTextIfExists('no-llegadas-text', t.noLlegadasText);
 }
 
 function updateFooter(t) {
-    document.getElementById('help-text').textContent = t.helpText;
-    document.getElementById('suggestions-text').textContent = t.suggestionsText;
-    document.getElementById('install-text').textContent = t.installText;
-    document.getElementById('update-text').textContent = t.updateText;
+    setTextIfExists('help-text', t.helpText);
+    setTextIfExists('suggestions-text', t.suggestionsText);
+    setTextIfExists('install-text', t.installText);
+    setTextIfExists('update-text', t.updateText);
+    setTextIfExists('copyright-text', t.copyrightText);
+    setTextIfExists('copyright-link', t.copyrightLink);
 }
 
 function updateSalidaText() {
@@ -1993,25 +2056,155 @@ function updateSalidaText() {
     }
 }
 
-function updateModalTexts() {
-    const t = translations[appState.currentLanguage];
-    
-    // Función auxiliar
+function updateModalTexts(t) {
+    // Función auxiliar reutilizable
     function setTextIfExists(elementId, text) {
         const element = document.getElementById(elementId);
         if (element) element.textContent = text;
     }
     
-    // Actualizar modales principales
-    setTextIfExists('help-modal-title', t.helpModalTitle);
-    setTextIfExists('delete-race-modal-title', t.deleteRaceModalTitle);
-    setTextIfExists('new-race-modal-title', t.newRaceModalTitle);
-    setTextIfExists('clear-departures-modal-title', t.clearDeparturesModalTitle);
-    setTextIfExists('restart-modal-title', t.restartModalTitle);
-    setTextIfExists('suggestions-modal-title', t.suggestionsModalTitle);
+    function setPlaceholderIfExists(elementId, text) {
+        const element = document.getElementById(elementId);
+        if (element) element.placeholder = text;
+    }
     
-    // Actualizar modales de llegadas
+    function setHTMLIfExists(elementId, html) {
+        const element = document.getElementById(elementId);
+        if (element) element.innerHTML = html;
+    }
+    
+    // Modal de ayuda
+    setTextIfExists('help-modal-title', t.helpModalTitle);
+    setTextIfExists('help-modal-text1', t.helpModalText1);
+    setTextIfExists('help-modal-subtitle1', t.helpModalSubtitle1);
+    setHTMLIfExists('help-modal-list', t.helpModalList);
+    setTextIfExists('help-modal-subtitle2', t.helpModalSubtitle2);
+    setTextIfExists('help-modal-subtitle3', t.helpModalSubtitle3);
+    setTextIfExists('help-modal-text2', t.helpModalText2);
+    setTextIfExists('help-modal-ok', t.understood || 'Entendido');
+    
+    // Modal nueva carrera
+    setTextIfExists('new-race-modal-title', t.newRaceModalTitle);
+    setTextIfExists('new-race-name-label', t.newRaceNameLabel);
+    setPlaceholderIfExists('new-race-name', t.enterRaceName);
+    setTextIfExists('new-race-date-label', t.newRaceDateLabel);
+    setTextIfExists('new-race-category-label', t.newRaceCategoryLabel);
+    setTextIfExists('new-race-organizer-label', t.newRaceOrganizerLabel);
+    setTextIfExists('new-race-location-label', t.newRaceLocationLabel);
+    setTextIfExists('new-race-modality-label', t.newRaceModalityLabel);
+    setTextIfExists('new-race-description-label', t.newRaceDescriptionLabel);
+    setTextIfExists('create-race-btn', t.createRace);
+    setTextIfExists('cancel-create-race-btn', t.cancel);
+    
+    // Modal eliminar carrera
+    setTextIfExists('delete-race-modal-title', t.deleteRaceModalTitle);
+    setTextIfExists('delete-race-modal-text', t.deleteRaceModalText);
+    setTextIfExists('delete-race-confirm-btn', t.deleteConfirm);
+    setTextIfExists('delete-race-cancel-btn', t.cancel);
+    
+    // Modal limpiar salidas
+    setTextIfExists('clear-departures-modal-title', t.clearDeparturesModalTitle);
+    setTextIfExists('clear-departures-modal-text', t.clearDeparturesModalText);
+    setTextIfExists('clear-departures-confirm-btn', t.clear);
+    setTextIfExists('clear-departures-cancel-btn', t.cancel);
+    
+    // Modal sugerencias
+    setTextIfExists('suggestions-modal-title', t.suggestionsModalTitle);
+    setTextIfExists('suggestion-email-label', t.suggestionEmailLabel);
+    setTextIfExists('suggestion-text-label', t.suggestionTextLabel);
+    setTextIfExists('send-suggestion-btn', t.sendSuggestion);
+    setTextIfExists('cancel-suggestion-btn', t.cancel);
+    
+    // Modal reiniciar
+    setTextIfExists('restart-modal-title', t.restartModalTitle);
+    setTextIfExists('restart-modal-text', t.restartModalText);
+    setTextIfExists('restart-confirm-btn', t.restartConfirm);
+    setTextIfExists('restart-cancel-btn', t.cancel);
+    
+    // Modal llegadas
     setTextIfExists('register-llegada-modal-title', t.registerLlegadaModalTitle);
+    setTextIfExists('llegada-dorsal-label', t.llegadaDorsalLabel);
+    setTextIfExists('llegada-hora-label', t.llegadaHoraLabel);
+    setTextIfExists('llegada-notas-label', t.llegadaNotasLabel);
+    setTextIfExists('confirm-llegada-btn', t.confirmLlegadaBtn);
+    setTextIfExists('cancel-llegada-btn', t.cancelLlegadaBtn);
+    
+    // Modal importación salidas
     setTextIfExists('import-salidas-modal-title', t.importSalidasModalTitle);
+    setTextIfExists('import-salidas-modal-text', t.importSalidasModalText);
+    setTextIfExists('import-preview-title', t.importPreviewTitle);
+    setTextIfExists('confirm-import-salidas-btn', t.confirmImportSalidasBtn);
+    setTextIfExists('cancel-import-salidas-btn', t.cancelImportSalidasBtn);
+    
+    // Modal clasificación
     setTextIfExists('ranking-modal-title', t.rankingModalTitle);
+    setTextIfExists('no-ranking-text', t.noRankingText);
+    setTextIfExists('export-ranking-btn', t.exportRankingBtn);
+    setTextIfExists('close-ranking-btn', t.closeRankingBtn);
 }
+
+function updateTableHeaders(t) {
+    // Actualizar TODAS las cabeceras de tabla de orden de salida
+    const headerMap = {
+        // Columnas principales - IDs sin guiones
+        'orderHeader': t.orderHeader,
+        'dorsalHeader': t.dorsalHeader,
+        'cronosalidaHeader': t.cronoSalidaHeader,
+        'horasalidaHeader': t.horaSalidaHeader,
+        'nombreHeader': t.nombreHeader,
+        'apellidosHeader': t.apellidosHeader,
+        'chipHeader': t.chipHeader,
+        'horarealHeader': t.horaRealHeader,
+        'cronorealHeader': t.cronoRealHeader,
+        'horaprevistaHeader': t.horaPrevistaHeader,
+        'cronoprevistaHeader': t.cronoPrevistaHeader,
+        'horaimportadoHeader': t.horaImportadoHeader,
+        'cronoimportadoHeader': t.cronoImportadoHeader,
+        'cronosegundosHeader': t.cronoSegundosHeader,
+        'horasegundosHeader': t.horaSegundosHeader,
+        'horarealsegundosHeader': t.horaRealSegundosHeader
+    };
+    
+    Object.keys(headerMap).forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = headerMap[id];
+        }
+    });
+    
+    console.log("Cabeceras de tabla actualizadas:", Object.keys(headerMap).length, "columnas");
+}
+
+function updateButtonsAndSpecificElements(t) {
+    // Actualizar botones de acción generales
+    setTextIfExists('save-button', t.saveButtonText);
+    setTextIfExists('cancel-button', t.cancelButtonText);
+    setTextIfExists('clear-button', t.clear);
+    setTextIfExists('delete-button', t.deleteConfirm);
+    
+    // Actualizar textos específicos
+    setTextIfExists('departure-placeholder', t.departurePlaceholder);
+    setTextIfExists('countdown-label', t.countdownlabel);
+    setTextIfExists('current-position-text', t.currentPositionText);
+    setTextIfExists('total-time-label', t.totalTimeLabel);
+    setTextIfExists('next-corredor-label', t.nextCorredorLabel);
+    setTextIfExists('departed-label', t.departedLabel);
+}
+
+// Función auxiliar genérica
+function setTextIfExists(elementId, text) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        // Para elementos de entrada, actualizar placeholder si es apropiado
+        if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+            if (!element.value || element.value === element.placeholder) {
+                element.placeholder = text;
+            }
+        } else {
+            element.textContent = text;
+        }
+    }
+}
+
+// Elimina la versión anterior si existe en UI.js
+// y mantén solo esta versión unificada en Traducciones.js
