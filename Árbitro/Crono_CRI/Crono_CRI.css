@@ -3031,6 +3031,57 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     background-color: #e8f4fd !important;
 }
 
+/* =========================================== */
+/* TABLA DE ORDEN DE SALIDA CON CABECERA FIJA */
+/* =========================================== */
+
+.start-order-table-container {
+    max-height: 350px;
+    overflow-y: auto;
+    overflow-x: auto;
+    border: 1px solid #e9ecef;
+    border-radius: var(--border-radius);
+    margin-top: 10px;
+    position: relative; /* Añadido para contexto de posicionamiento */
+}
+
+.table-scroll-wrapper {
+    overflow: auto;
+    max-height: 300px;
+}
+
+.start-order-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1100px;
+    font-size: 0.75rem;
+}
+
+.start-order-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.start-order-table th {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: var(--primary);
+    font-weight: 600;
+    padding: 8px 6px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+/* Eliminamos el antiguo estilo sticky del th individual */
+.start-order-table th {
+    position: static;
+}
+
 /* 19/12/2025
 He organizado el CSS en las siguientes secciones principales:
 Reset y variables globales - Estilos base y variables CSS

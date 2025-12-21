@@ -136,6 +136,8 @@ Otras consideraciones: Más adelante intentaremos que un dispositivo externo nos
 en la importacion hay unos condicionantes si la Hora Salida Importado	Crono Salida Importado estan vacios, entonces lo rellenamos con Hora salida y con Crono salida, y lo mismo si Hora Salida Prevista	Crono Salida Prevista estan vacios
 Al acabar la importación actulizas el total de corredores con el valor de los registros importados
 
+al importar excel actualizar hora de salida primer corredor
+
 Importado - valor cuando Importado
 Prevista - valor que se puede cambiar una vez importado
 Real - valor real
@@ -162,9 +164,5 @@ Crono-cri/
 
 Para empezar vamos a dejar el programa tal y como esta, pero vamos a:
 
-
-
-al importar excel actualizar hora de salida primer corredor
-ctrl+f5
-en la tabla orde de saldidan
+en la tabla orde de saldida bloquear cabecera campos
 
