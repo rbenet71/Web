@@ -158,6 +158,6 @@ al introducir el ultimo corredor u otra posición ponemos como datos, el valor d
 
 en la tabla orde de saldidan
 
-los unicos valores que se pueden modificar en la tabla de orden de salida son: dorsal,diferencia, nombre, apellidos, chip
+los unicos valores que se pueden modificar en la tabla de orden de salida son: dorsal,diferencia, nombre, apellidos, chip - deshabilitar posicion y habilitar diferencia
 
 el primer  orredor diferencia 00:00:00

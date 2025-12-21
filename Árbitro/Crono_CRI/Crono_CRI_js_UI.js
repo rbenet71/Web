@@ -523,63 +523,6 @@ function showMessage(text, type = 'info') {
     }, 3000);
 }
 
-// ============================================
-// FUNCIONES DE EDICIÓN DE CELDAS
-// ============================================
-function handleTableCellClick(e) {
-    const cell = e.target;
-    const field = cell.getAttribute('data-field');
-    const rowIndex = cell.closest('tr').getAttribute('data-index');
-    const currentValue = cell.textContent;
-    
-    let input;
-    if (field === 'horaSalida' || field === 'horaSalidaReal' || 
-        field === 'cronoSalida' || field === 'cronoSalidaReal') {
-        input = document.createElement('input');
-        input.type = 'time';
-        input.step = '1';
-        input.value = currentValue;
-    } else if (field === 'order' || field === 'dorsal' || field === 'cronoSegundos' || field === 'horaSegundos') {
-        input = document.createElement('input');
-        input.type = 'number';
-        input.value = currentValue;
-    } else {
-        input = document.createElement('input');
-        input.type = 'text';
-        input.value = currentValue;
-    }
-    
-    input.className = 'table-edit-input';
-    
-    cell.innerHTML = '';
-    cell.appendChild(input);
-    input.focus();
-    input.select();
-    
-    const finishEdit = () => {
-        const newValue = input.value.trim();
-        cell.textContent = newValue;
-        
-        // Actualizar los datos
-        startOrderData[rowIndex][field] = newValue;
-        
-        // Si es un tiempo, actualizar también los segundos
-        if (field === 'horaSalida' || field === 'horaSalidaReal') {
-            startOrderData[rowIndex][field + 'Segundos'] = timeToSeconds(newValue);
-        } else if (field === 'cronoSalida' || field === 'cronoSalidaReal') {
-            startOrderData[rowIndex][field + 'Segundos'] = timeToSeconds(newValue);
-        }
-        
-        saveStartOrderData();
-    };
-    
-    input.addEventListener('blur', finishEdit);
-    input.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            finishEdit();
-        }
-    });
-}
 
 // ============================================
 // FUNCIONES DE CAMBIO DE MODO

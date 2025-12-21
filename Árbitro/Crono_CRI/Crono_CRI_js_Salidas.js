@@ -1846,31 +1846,46 @@ function updateStartOrderTable() {
     sortedData.forEach((rider, index) => {
         processedRiders++;
         
+        // Determinar si es el primer corredor
+        const isFirstRider = rider.order === 1;
+        
         // Calcular diferencia (si hay datos reales y previstos O si hay diferencia importada)
         let diferenciaHtml = '';
+        let diferenciaClass = 'cero';
+        let diferenciaValue = '';
+        let diferenciaSign = '';
+        let isDiferenciaEditable = !isFirstRider; // No editable para primer corredor
         
-        // Primero verificar si hay diferencia importada
+        // Primero verificar si hay diferencia importada o calculada
         if (rider.diferencia && rider.diferencia !== '' && rider.diferencia !== '00:00:00') {
-            // Usar la diferencia importada
-            let claseDiferencia = 'cero';
-            let textoDiferencia = rider.diferencia;
+            // Ya tiene diferencia asignada
+            let valorLimpio = rider.diferencia;
             
-            // Determinar clase CSS basada en el signo
             if (rider.diferencia.includes('(+)')) {
-                claseDiferencia = 'positiva';
-                textoDiferencia = rider.diferencia.replace('(+)', '').trim() + ' (+)';
+                diferenciaClass = 'positiva';
+                diferenciaSign = ' (+)';
+                valorLimpio = rider.diferencia.replace('(+)', '').trim();
             } else if (rider.diferencia.includes('(-)')) {
-                claseDiferencia = 'negativa';
-                textoDiferencia = rider.diferencia.replace('(-)', '').trim() + ' (-)';
+                diferenciaClass = 'negativa';
+                diferenciaSign = ' (-)';
+                valorLimpio = rider.diferencia.replace('(-)', '').trim();
             } else if (rider.diferencia.includes('+')) {
-                claseDiferencia = 'positiva';
-                textoDiferencia = rider.diferencia.replace('+', '').trim() + ' (+)';
+                diferenciaClass = 'positiva';
+                diferenciaSign = ' (+)';
+                valorLimpio = rider.diferencia.replace('+', '').trim();
             } else if (rider.diferencia.includes('-')) {
-                claseDiferencia = 'negativa';
-                textoDiferencia = rider.diferencia.replace('-', '').trim() + ' (-)';
+                diferenciaClass = 'negativa';
+                diferenciaSign = ' (-)';
+                valorLimpio = rider.diferencia.replace('-', '').trim();
             }
             
-            diferenciaHtml = `<span class="diferencia ${claseDiferencia}">${textoDiferencia}</span>`;
+            diferenciaValue = valorLimpio;
+            diferenciaHtml = `<span class="diferencia ${diferenciaClass}" data-value="${diferenciaValue}">${valorLimpio}${diferenciaSign}</span>`;
+            
+            // Si no es el primer corredor, hacer editable
+            if (!isFirstRider) {
+                isDiferenciaEditable = true;
+            }
         } else {
             // Calcular diferencia (si hay datos reales y previstos)
             const horaRealSegundos = rider.horaSalidaRealSegundos || timeToSeconds(rider.horaSalidaReal) || 0;
@@ -1880,14 +1895,36 @@ function updateStartOrderTable() {
                 const diferencia = horaRealSegundos - horaPrevistaSegundos;
                 if (diferencia !== 0) {
                     const diferenciaAbs = Math.abs(diferencia);
-                    const signo = diferencia > 0 ? '+' : '-';
-                    const clase = diferencia > 0 ? 'positiva' : 'negativa';
-                    diferenciaHtml = `<span class="diferencia ${clase}">${secondsToTime(diferenciaAbs)} ${signo}</span>`;
+                    diferenciaSign = diferencia > 0 ? ' (+)' : ' (-)';
+                    diferenciaClass = diferencia > 0 ? 'positiva' : 'negativa';
+                    diferenciaValue = secondsToTime(diferenciaAbs);
+                    diferenciaHtml = `<span class="diferencia ${diferenciaClass}" data-value="${diferenciaValue}">${diferenciaValue}${diferenciaSign}</span>`;
+                    
+                    // Si no es el primer corredor, hacer editable
+                    if (!isFirstRider) {
+                        isDiferenciaEditable = true;
+                    }
                 } else {
-                    diferenciaHtml = '<span class="diferencia cero">00:00:00</span>';
+                    // Diferencia cero
+                    diferenciaValue = '00:00:00';
+                    diferenciaHtml = `<span class="diferencia cero" data-value="00:00:00">00:00:00</span>`;
+                    // Primer corredor o diferencia 0 no es editable
+                    if (isFirstRider) {
+                        isDiferenciaEditable = false;
+                    }
                 }
             } else {
-                diferenciaHtml = '<span class="diferencia vacia">--:--:--</span>';
+                // Sin datos para calcular diferencia
+                if (isFirstRider) {
+                    // Primer corredor - siempre 00:00:00
+                    diferenciaValue = '00:00:00';
+                    diferenciaHtml = `<span class="diferencia cero" data-value="00:00:00">00:00:00</span>`;
+                    isDiferenciaEditable = false;
+                } else {
+                    // Otro corredor sin datos - mostrar vacío y editable
+                    diferenciaHtml = `<span class="diferencia vacia editable" data-value="">--:--:--</span>`;
+                    isDiferenciaEditable = true;
+                }
             }
         }
         
@@ -1900,35 +1937,50 @@ function updateStartOrderTable() {
             errorsCount++;
         }
         
-        // Generar HTML de la fila
+        // Generar HTML de la fila con campos editables/no editables
         html += `
         <tr data-index="${getOriginalIndex(rider.order, rider.dorsal)}">
-            <td class="number-cell editable" data-field="order">${rider.order || ''}</td>
+            <!-- ORDEN - NO EDITABLE -->
+            <td class="number-cell not-editable" data-field="order">${rider.order || ''}</td>
+            
+            <!-- DORSAL - EDITABLE -->
             <td class="number-cell editable" data-field="dorsal">${rider.dorsal || ''}</td>
-            <td class="time-cell sortable" data-sort="cronoSalida">${rider.cronoSalida || '00:00:00'}</td>
-            <td class="time-cell sortable" data-sort="horaSalida">${rider.horaSalida || '00:00:00'}</td>
-            <td class="diferencia-cell sortable" data-sort="diferencia">${diferenciaHtml}</td>
+            
+            <!-- CRONO SALIDA - NO EDITABLE -->
+            <td class="time-cell sortable not-editable" data-sort="cronoSalida">${rider.cronoSalida || '00:00:00'}</td>
+            
+            <!-- HORA SALIDA - NO EDITABLE -->
+            <td class="time-cell sortable not-editable" data-sort="horaSalida">${rider.horaSalida || '00:00:00'}</td>
+            
+            <!-- DIFERENCIA - EDITABLE (excepto primer corredor) -->
+            <td class="diferencia-cell sortable ${isDiferenciaEditable ? 'editable' : 'not-editable'}" 
+                data-field="diferencia" 
+                data-sort="diferencia"
+                data-is-first="${isFirstRider}"
+                data-original-value="${diferenciaValue}">
+                ${diferenciaHtml}
+            </td>
+            
+            <!-- NOMBRE - EDITABLE -->
             <td class="name-cell editable" data-field="nombre">${escapeHtml(rider.nombre || '')}</td>
+            
+            <!-- APELLIDOS - EDITABLE -->
             <td class="name-cell editable" data-field="apellidos">${escapeHtml(rider.apellidos || '')}</td>
+            
+            <!-- CHIP - EDITABLE -->
             <td class="editable" data-field="chip">${escapeHtml(rider.chip || '')}</td>
-            <td class="time-cell editable" data-field="horaSalidaReal">${rider.horaSalidaReal || ''}</td>
-            <td class="time-cell editable" data-field="cronoSalidaReal">${rider.cronoSalidaReal || ''}</td>
             
-            <!-- COLUMNAS PREVISTAS -->
-            <td class="time-cell sortable" data-sort="horaSalidaPrevista">${rider.horaSalidaPrevista || rider.horaSalida || '00:00:00'}</td>
-            <td class="time-cell sortable" data-sort="cronoSalidaPrevista">${rider.cronoSalidaPrevista || rider.cronoSalida || '00:00:00'}</td>
-            
-            <!-- COLUMNAS IMPORTADAS -->
-            <td class="time-cell editable" data-field="horaSalidaImportado">${rider.horaSalidaImportado || rider.horaSalida || ''}</td>
-            <td class="time-cell editable" data-field="cronoSalidaImportado">${rider.cronoSalidaImportado || rider.cronoSalida || ''}</td>
-            
-            <!-- CAMPOS DE SEGUNDOS -->
-            <td class="number-cell sortable" data-sort="cronoSegundos">${rider.cronoSegundos || 0}</td>
-            <td class="number-cell sortable" data-sort="horaSegundos">${rider.horaSegundos || 0}</td>
-            
-            <!-- CAMPOS DE SEGUNDOS REALES -->
-            <td class="number-cell sortable" data-sort="cronoSalidaRealSegundos">${rider.cronoSalidaRealSegundos || 0}</td>
-            <td class="number-cell sortable" data-sort="horaSalidaRealSegundos">${rider.horaSalidaRealSegundos || 0}</td>
+            <!-- RESTANTE DE CAMPOS - NO EDITABLES -->
+            <td class="time-cell not-editable">${rider.horaSalidaReal || ''}</td>
+            <td class="time-cell not-editable">${rider.cronoSalidaReal || ''}</td>
+            <td class="time-cell sortable not-editable" data-sort="horaSalidaPrevista">${rider.horaSalidaPrevista || rider.horaSalida || '00:00:00'}</td>
+            <td class="time-cell sortable not-editable" data-sort="cronoSalidaPrevista">${rider.cronoSalidaPrevista || rider.cronoSalida || '00:00:00'}</td>
+            <td class="time-cell not-editable">${rider.horaSalidaImportado || rider.horaSalida || ''}</td>
+            <td class="time-cell not-editable">${rider.cronoSalidaImportado || rider.cronoSalida || ''}</td>
+            <td class="number-cell sortable not-editable" data-sort="cronoSegundos">${rider.cronoSegundos || 0}</td>
+            <td class="number-cell sortable not-editable" data-sort="horaSegundos">${rider.horaSegundos || 0}</td>
+            <td class="number-cell sortable not-editable" data-sort="cronoSalidaRealSegundos">${rider.cronoSalidaRealSegundos || 0}</td>
+            <td class="number-cell sortable not-editable" data-sort="horaSalidaRealSegundos">${rider.horaSalidaRealSegundos || 0}</td>
         </tr>
         `;
     });
@@ -1954,7 +2006,6 @@ function updateStartOrderTable() {
         console.log(`Celdas en tabla: ${tableBody.children.length}`);
     }
 }
-
 // ============================================
 // VARIABLES GLOBALES PARA THROTTLING
 // ============================================
@@ -2095,12 +2146,670 @@ function setupEventDelegation() {
 }
 
 // Handler único para todos los clics en la tabla
+// ============================================
+// FUNCIÓN handleTableClick CORREGIDA
+// ============================================
 function handleTableClick(event) {
-    const cell = event.target.closest('.editable');
-    if (cell) {
-        event.stopPropagation();
-        handleTableCellClick(event);
+    console.log("=== handleTableClick llamada ===");
+    console.log("Elemento clicado:", event.target);
+    console.log("Clase del elemento:", event.target.className);
+    console.log("Tag del elemento:", event.target.tagName);
+    
+    const t = translations[appState.currentLanguage];
+    
+    // 1. Verificar si es un clic en un span de diferencia
+    const target = event.target;
+    
+    // Si es un span con clase 'diferencia'
+    if (target.classList && target.classList.contains('diferencia')) {
+        console.log("Clic en elemento con clase 'diferencia'");
+        
+        // Obtener la celda padre
+        const cell = target.closest('td');
+        if (!cell) {
+            console.error("No se encontró la celda padre");
+            return;
+        }
+        
+        console.log("Celda encontrada:", cell);
+        console.log("¿Celda es editable?", cell.classList.contains('editable'));
+        
+        // Verificar si la celda padre es editable
+        if (cell.classList.contains('editable')) {
+            console.log("Celda padre es editable, procediendo...");
+            
+            if (cell.classList.contains('editing')) {
+                console.log("Ya está en edición, saliendo");
+                return;
+            }
+            
+            const row = cell.closest('tr');
+            if (!row) {
+                console.error("No se encontró la fila padre");
+                return;
+            }
+            
+            const index = parseInt(row.getAttribute('data-index'));
+            console.log("Índice del corredor:", index);
+            
+            const isFirstRider = cell.getAttribute('data-is-first') === 'true';
+            console.log("Es primer corredor?", isFirstRider);
+            
+            // Si es el primer corredor, no permitir edición
+            if (isFirstRider) {
+                console.log("Primer corredor - no editable");
+                showMessage(t.firstRiderNoDifference || 'El primer corredor no puede tener diferencia', 'info');
+                return;
+            }
+            
+            // Obtener valor actual
+            let currentValue = target.getAttribute('data-value') || '';
+            console.log("Valor actual (data-value):", currentValue);
+            
+            if (currentValue === '--:--:--' || currentValue === '') {
+                currentValue = '';
+                console.log("Valor limpiado a vacío");
+            } else {
+                // Limpiar signos si existen
+                currentValue = currentValue.replace(/ \([+-]\)/g, '').trim();
+                console.log("Valor después de limpiar signos:", currentValue);
+            }
+            
+            // Iniciar edición
+            console.log("Iniciando edición con valor:", currentValue);
+            startDiferenciaEditing(cell, index, currentValue);
+            return;
+        }
     }
+    
+    // 2. Verificar si es un clic en una celda editable
+    const cell = event.target.closest('.editable');
+    console.log("Celda editable encontrada?", cell);
+    
+    if (!cell) {
+        console.log("No es una celda editable, saliendo");
+        return;
+    }
+    
+    console.log("Celda encontrada:", cell);
+    console.log("Celda tiene clase editing?", cell.classList.contains('editing'));
+    
+    if (cell.classList.contains('editing')) {
+        console.log("Ya está en edición, saliendo");
+        return;
+    }
+    
+    event.stopPropagation();
+    
+    const field = cell.getAttribute('data-field');
+    console.log("Campo de la celda:", field);
+    
+    const allowedFields = ['dorsal', 'nombre', 'apellidos', 'chip'];
+    
+    // Solo permitir edición de campos específicos (excluyendo diferencia que ya manejamos)
+    if (!allowedFields.includes(field)) {
+        console.log("Campo no permitido para edición:", field);
+        return;
+    }
+    
+    console.log("Campo permitido, procediendo...");
+    
+    const row = cell.closest('tr');
+    const index = parseInt(row.getAttribute('data-index'));
+    console.log("Índice del corredor:", index);
+    
+    // Comenzar edición normal
+    console.log("Iniciando edición normal para campo:", field);
+    startCellEditing(cell, index, field);
+}
+
+// ============================================
+// FUNCIÓN startDiferenciaEditing SIMPLIFICADA
+// ============================================
+function startDiferenciaEditing(cell, index, currentValue) {
+    console.log("=== startDiferenciaEditing llamada ===");
+    console.log("Celda:", cell);
+    console.log("Índice:", index);
+    console.log("Valor actual:", currentValue);
+    
+    const originalHTML = cell.innerHTML;
+    console.log("HTML original guardado");
+    
+    // Crear input simple para edición directa
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = currentValue;
+    input.className = 'diferencia-input';
+    input.placeholder = 'MM:SS o HH:MM:SS';
+    input.style.cssText = 'width: 100%; height: 100%; padding: 4px 8px; border: 2px solid #4dabf7; border-radius: 4px; font-family: "Courier New", monospace; font-size: 14px; box-sizing: border-box;';
+    console.log("Input creado con valor:", currentValue);
+    
+    // Reemplazar contenido de la celda
+    cell.innerHTML = '';
+    cell.appendChild(input);
+    cell.classList.add('editing');
+    console.log("Celda actualizada con modo edición");
+    
+    // Enfocar el input y seleccionar todo el texto
+    setTimeout(() => {
+        input.focus();
+        input.select();
+        console.log("Input enfocado y seleccionado");
+    }, 10);
+    
+    // Función para guardar la diferencia
+    const guardarDiferencia = () => {
+        console.log("=== guardarDiferencia llamada ===");
+        
+        let valor = input.value.trim();
+        console.log("Valor del input:", valor);
+        
+        // Si el input está vacío, establecer diferencia a 0
+        if (valor === '' || valor === '00:00:00' || valor === '0') {
+            valor = '00:00:00';
+            console.log("Valor vacío, establecido a 00:00:00");
+        }
+        
+        // Si hay valor, validarlo
+        if (valor && valor !== '00:00:00') {
+            console.log("Validando valor:", valor);
+            
+            // Intentar parsear diferentes formatos
+            let segundos = 0;
+            
+            // Formato "MM:SS"
+            if (/^\d{1,3}:\d{2}$/.test(valor)) {
+                const partes = valor.split(':');
+                const minutos = parseInt(partes[0]) || 0;
+                const segs = parseInt(partes[1]) || 0;
+                segundos = (minutos * 60) + segs;
+                console.log("Formato MM:SS detectado:", minutos, "min", segs, "seg ->", segundos, "segundos");
+            }
+            // Formato "HH:MM:SS"
+            else if (/^\d{1,3}:\d{2}:\d{2}$/.test(valor)) {
+                const partes = valor.split(':');
+                const horas = parseInt(partes[0]) || 0;
+                const minutos = parseInt(partes[1]) || 0;
+                const segs = parseInt(partes[2]) || 0;
+                segundos = (horas * 3600) + (minutos * 60) + segs;
+                console.log("Formato HH:MM:SS detectado:", horas, "h", minutos, "min", segs, "seg ->", segundos, "segundos");
+            }
+            // Solo número (asumir segundos)
+            else if (/^\d+$/.test(valor)) {
+                segundos = parseInt(valor) || 0;
+                console.log("Número detectado, interpretado como segundos:", segundos);
+            } else {
+                console.log("Formato no reconocido:", valor);
+                showMessage('Formato inválido. Use MM:SS o HH:MM:SS', 'error');
+                cell.classList.remove('editing');
+                cell.innerHTML = originalHTML;
+                return;
+            }
+            
+            // Convertir segundos a formato HH:MM:SS
+            const horas = Math.floor(segundos / 3600);
+            const minutos = Math.floor((segundos % 3600) / 60);
+            const segs = segundos % 60;
+            valor = `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segs.toString().padStart(2, '0')}`;
+            console.log("Convertido a formato HH:MM:SS:", valor);
+        }
+        
+        // Actualizar datos
+        if (index >= 0 && index < startOrderData.length) {
+            console.log("Actualizando corredor en índice:", index);
+            const rider = startOrderData[index];
+            
+            // Determinar si es diferencia positiva o negativa
+            // Por defecto será positiva (+), pero el usuario puede añadir manualmente signo
+            let signo = '+';
+            
+            // Si el usuario escribió un signo, extraerlo
+            const userInput = input.value.trim();
+            if (userInput.startsWith('-') || userInput.includes('(-)')) {
+                signo = '-';
+                console.log("Signo negativo detectado");
+            } else if (userInput.startsWith('+') || userInput.includes('(+)')) {
+                signo = '+';
+                console.log("Signo positivo detectado");
+            }
+            
+            // Guardar diferencia
+            if (valor === '00:00:00') {
+                rider.diferencia = '00:00:00';
+                rider.diferenciaSegundos = 0;
+                console.log("Diferencia establecida a 00:00:00");
+            } else {
+                // Determinar texto a mostrar (con o sin signo)
+                let textoDiferencia;
+                if (userInput.includes('(+)') || userInput.includes('(-)')) {
+                    // Si ya tiene signo en paréntesis, mantenerlo
+                    textoDiferencia = valor + (signo === '+' ? ' (+)' : ' (-)');
+                } else if (userInput.startsWith('+') || userInput.startsWith('-')) {
+                    // Si tiene signo al inicio, convertirlo a formato con paréntesis
+                    textoDiferencia = valor + (signo === '+' ? ' (+)' : ' (-)');
+                } else {
+                    // Por defecto, diferencia positiva
+                    textoDiferencia = valor + ' (+)';
+                }
+                
+                rider.diferencia = textoDiferencia;
+                rider.diferenciaSegundos = timeToSeconds(valor) * (signo === '+' ? 1 : -1);
+                console.log("Diferencia establecida:", rider.diferencia, "Segundos:", rider.diferenciaSegundos);
+            }
+            
+            // Actualizar UI y guardar
+            console.log("Actualizando UI...");
+            updateStartOrderUI();
+            if (typeof saveStartOrderData === 'function') {
+                console.log("Guardando datos...");
+                saveStartOrderData();
+            }
+            
+            showMessage('Diferencia actualizada', 'success');
+            console.log("Operación completada con éxito");
+        } else {
+            console.error("Índice fuera de rango:", index);
+            cell.classList.remove('editing');
+            cell.innerHTML = originalHTML;
+        }
+    };
+    
+    // Eventos del input
+    input.addEventListener('keydown', (e) => {
+        console.log("Tecla presionada en input:", e.key);
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            console.log("Enter presionado - guardando");
+            guardarDiferencia();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            console.log("Escape presionado - cancelando");
+            cell.classList.remove('editing');
+            cell.innerHTML = originalHTML;
+        }
+    });
+    
+    input.addEventListener('blur', () => {
+        console.log("Input perdió el foco - guardando automáticamente");
+        // Pequeño delay para manejar clics en otras celdas
+        setTimeout(() => {
+            if (cell.classList.contains('editing')) {
+                guardarDiferencia();
+            }
+        }, 100);
+    });
+    
+    console.log("=== startDiferenciaEditing completada ===");
+}
+// Función simplificada para edición normal de celdas
+function startCellEditing(cell, index, field) {
+    const originalValue = cell.textContent.trim();
+    const input = document.createElement('input');
+    
+    // Configurar input según el campo
+    if (field === 'dorsal') {
+        input.type = 'number';
+        input.min = '1';
+    } else {
+        input.type = 'text';
+    }
+    
+    input.value = originalValue;
+    input.className = 'cell-edit-input';
+    
+    // Guardar contexto
+    cell.setAttribute('data-original-value', originalValue);
+    cell.innerHTML = '';
+    cell.appendChild(input);
+    cell.classList.add('editing');
+    
+    // Enfocar
+    setTimeout(() => {
+        input.focus();
+        input.select();
+    }, 10);
+    
+    // Eventos
+    const finalizarEdicion = () => {
+        const newValue = input.value.trim();
+        
+        if (newValue !== originalValue && index >= 0 && index < startOrderData.length) {
+            const rider = startOrderData[index];
+            
+            // Validar dorsal
+            if (field === 'dorsal') {
+                const numDorsal = parseInt(newValue);
+                if (isNaN(numDorsal) || numDorsal < 1) {
+                    showMessage('Dorsal inválido. Debe ser un número mayor que 0', 'error');
+                    cancelarEdicion();
+                    return;
+                }
+                
+                // Verificar si el dorsal ya existe (excepto para este corredor)
+                const dorsalExistente = startOrderData.find((r, i) => 
+                    i !== index && r.dorsal == numDorsal
+                );
+                
+                if (dorsalExistente) {
+                    showMessage(`El dorsal ${numDorsal} ya está asignado a otro corredor`, 'warning');
+                    cancelarEdicion();
+                    return;
+                }
+                
+                rider[field] = numDorsal;
+            } else {
+                rider[field] = newValue;
+            }
+            
+            // Actualizar y guardar
+            updateStartOrderUI();
+            saveStartOrderData();
+            showMessage('Campo actualizado', 'success');
+        }
+        
+        cell.classList.remove('editing');
+        cell.textContent = newValue || originalValue;
+    };
+    
+    const cancelarEdicion = () => {
+        cell.classList.remove('editing');
+        cell.textContent = originalValue;
+    };
+    
+    input.addEventListener('blur', finalizarEdicion);
+    
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            finalizarEdicion();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            cancelarEdicion();
+        }
+    });
+}
+
+// Añadir estilos para los botones de diferencia
+function addDiferenciaEditStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .diferencia-edit-container {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px;
+        }
+        
+        .diferencia-input {
+            padding: 4px 8px;
+            border: 2px solid #4dabf7;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .diferencia-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .diferencia-btn:hover {
+            transform: scale(1.1);
+            opacity: 0.9;
+        }
+        
+        .diferencia-btn.positivo {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .diferencia-btn.negativo {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .diferencia-btn.cero {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .diferencia-btn.aceptar {
+            background-color: #007bff;
+            color: white;
+            margin-left: 5px;
+        }
+        
+        .diferencia-btn.cancelar {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .diferencia.editable {
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            min-width: 70px;
+            text-align: center;
+        }
+        
+        .diferencia.editable:hover {
+            background-color: #e3f2fd;
+            box-shadow: 0 0 0 1px #4dabf7;
+        }
+        
+        .diferencia.positiva {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .diferencia.negativa {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .diferencia.cero {
+            background-color: #e9ecef;
+            color: #6c757d;
+            border: 1px solid #dee2e6;
+        }
+        
+        .diferencia.vacia {
+            background-color: #f8f9fa;
+            color: #adb5bd;
+            border: 1px dashed #dee2e6;
+            font-style: italic;
+        }
+        
+        .editable:not(.not-editable) {
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .editable:not(.not-editable):hover::after {
+            content: "✏️";
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 10px;
+            opacity: 0.7;
+        }
+        
+        .not-editable {
+            background-color: #f8f9fa !important;
+            color: #6c757d !important;
+            cursor: default !important;
+            user-select: none !important;
+        }
+        
+        .editing {
+            background-color: #fff3cd !important;
+            padding: 0 !important;
+        }
+        
+        .cell-edit-input {
+            width: 100%;
+            height: 100%;
+            border: 2px solid #4dabf7;
+            padding: 4px 8px;
+            font-size: inherit;
+            font-family: inherit;
+            box-sizing: border-box;
+            border-radius: 4px;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Llamar a esta función durante la inicialización
+addDiferenciaEditStyles();
+function handleTableCellClickForDiferencia(cell, diferenciaSpan) {
+    const row = cell.closest('tr');
+    const index = parseInt(row.getAttribute('data-index'));
+    const field = 'diferencia';
+    
+    // Si ya está editando, no hacer nada
+    if (cell.classList.contains('editing')) return;
+    
+    // Obtener el valor actual
+    let currentValue = diferenciaSpan.textContent.trim();
+    
+    // Limpiar signos (+) y (-) para la edición
+    if (currentValue.includes(' (+)')) {
+        currentValue = currentValue.replace(' (+)', '').trim();
+    } else if (currentValue.includes(' (-)')) {
+        currentValue = currentValue.replace(' (-)', '').trim();
+    }
+    
+    // Si es "--:--:--" o similar, usar valor vacío
+    if (currentValue === '--:--:--') {
+        currentValue = '';
+    }
+    
+    // Comenzar edición
+    startCellEditingForDiferencia(cell, index, field, currentValue);
+}
+
+function startCellEditingForDiferencia(cell, index, field, currentValue) {
+    const originalValue = cell.innerHTML;
+    
+    // Crear input para edición
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = currentValue;
+    input.className = 'cell-edit-input';
+    input.placeholder = 'HH:MM:SS';
+    input.pattern = '([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]';
+    
+    // Guardar contexto de edición
+    cell.setAttribute('data-original-value', originalValue);
+    cell.innerHTML = '';
+    cell.appendChild(input);
+    cell.classList.add('editing');
+    
+    // Enfocar y seleccionar
+    setTimeout(() => {
+        input.focus();
+        input.select();
+    }, 10);
+    
+    // Configurar eventos del input
+    input.addEventListener('blur', function() {
+        finishCellEditingForDiferencia(cell, index, field, this.value, originalValue);
+    });
+    
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            finishCellEditingForDiferencia(cell, index, field, this.value, originalValue);
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            cancelCellEditing(cell, originalValue);
+        }
+    });
+}
+
+function finishCellEditingForDiferencia(cell, index, field, newValue, originalValue) {
+    // Si no hubo cambios, cancelar
+    if (newValue === '' || newValue === '00:00:00' || newValue === '0') {
+        // Para primer corredor, siempre 00:00:00
+        if (index >= 0 && index < startOrderData.length) {
+            const rider = startOrderData[index];
+            if (rider.order === 1) {
+                newValue = '00:00:00';
+            }
+        }
+    }
+    
+    // Validar formato de tiempo
+    if (newValue && newValue !== '' && newValue !== '00:00:00') {
+        if (!validateTimeFormat(newValue)) {
+            const t = translations[appState.currentLanguage];
+            showMessage(t.enterValidTime || 'Formato de tiempo inválido. Use HH:MM:SS o HH:MM', 'error');
+            cancelCellEditing(cell, originalValue);
+            return;
+        }
+        
+        // Asegurar formato HH:MM:SS
+        if (newValue.length === 5) {
+            newValue += ':00';
+        }
+    }
+    
+    // Actualizar los datos
+    if (index >= 0 && index < startOrderData.length) {
+        const rider = startOrderData[index];
+        
+        // Si es el primer corredor y se intenta poner diferencia diferente de 0
+        if (rider.order === 1 && newValue !== '' && newValue !== '00:00:00' && newValue !== '0') {
+            const t = translations[appState.currentLanguage];
+            showMessage(t.firstRiderNoDifference || 'El primer corredor no puede tener diferencia', 'warning');
+            newValue = '00:00:00';
+        }
+        
+        // Actualizar campo diferencia
+        rider.diferencia = newValue;
+        
+        // Si tiene valor, agregar signo
+        if (newValue && newValue !== '' && newValue !== '00:00:00') {
+            // Por defecto positivo, pero en realidad debería venir del usuario
+            // Podríamos añadir un modo para seleccionar + o -
+            rider.diferencia = newValue + ' (+)';
+        }
+        
+        // Actualizar UI
+        updateStartOrderUI();
+        
+        // Guardar datos
+        if (typeof saveStartOrderData === 'function') {
+            saveStartOrderData();
+        }
+    }
+    
+    // Finalizar edición visualmente
+    cell.classList.remove('editing');
+    cell.removeAttribute('data-original-value');
+    
+    // No actualizamos directamente la celda, porque updateStartOrderUI lo hará
+}
+
+function validateTimeFormat(timeStr) {
+    if (!timeStr) return true; // Permitir vacío
+    
+    // Permitir formato HH:MM o HH:MM:SS
+    const regex = /^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/;
+    return regex.test(timeStr);
 }
 
 // Función para escapar HTML (seguridad)
@@ -3753,18 +4462,36 @@ function addRiderPositionStyles() {
 // ============================================
 
 function handleTableCellClick(e) {
-    if (!e.target.classList.contains('editable')) return;
+    // SOLO permitir edición de campos específicos
+    const allowedFields = ['dorsal', 'diferencia', 'nombre', 'apellidos', 'chip'];
     
     const cell = e.target;
-    const row = cell.closest('tr');
-    const index = parseInt(row.getAttribute('data-index'));
+    
+    // Verificar si es un campo editable permitido
+    if (!cell.classList.contains('editable') || !cell.hasAttribute('data-field')) {
+        return;
+    }
+    
     const field = cell.getAttribute('data-field');
+    
+    // Si no está en la lista de campos permitidos, no permitir edición
+    if (!allowedFields.includes(field)) {
+        return;
+    }
     
     // Si ya está editando, no hacer nada
     if (cell.classList.contains('editing')) return;
     
+    const row = cell.closest('tr');
+    const index = parseInt(row.getAttribute('data-index'));
+    
     // Comenzar edición
-    startCellEditing(cell, index, field);
+    if (field === 'diferencia') {
+        // Manejo especial para diferencia
+        handleTableCellClickForDiferencia(cell, cell.querySelector('.diferencia') || cell);
+    } else {
+        startCellEditing(cell, index, field);
+    }
 }
 
 function startCellEditing(cell, index, field) {
@@ -4130,3 +4857,185 @@ function calculateStartTimeForPosition(position) {
     
     return horaSalida;
 }
+
+// Añade esto en la función addAlternatingRowStyles o en otro lugar donde añadas estilos
+function addCellEditStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .not-editable {
+            background-color: #f5f5f5 !important;
+            color: #666 !important;
+            cursor: not-allowed !important;
+            user-select: none !important;
+        }
+        
+        .editable {
+            cursor: pointer !important;
+            transition: background-color 0.2s !important;
+        }
+        
+        .editable:hover {
+            background-color: #e3f2fd !important;
+        }
+        
+        .editing {
+            background-color: #fff3cd !important;
+            padding: 0 !important;
+        }
+        
+        .cell-edit-input {
+            width: 100% !important;
+            height: 100% !important;
+            border: 2px solid #4dabf7 !important;
+            padding: 4px 8px !important;
+            font-size: inherit !important;
+            font-family: inherit !important;
+            box-sizing: border-box !important;
+        }
+        
+        .diferencia.editable {
+            cursor: pointer !important;
+            border: 1px dashed #ccc !important;
+            padding: 2px 4px !important;
+            border-radius: 3px !important;
+        }
+        
+        .diferencia.editable:hover {
+            background-color: #e3f2fd !important;
+            border-color: #4dabf7 !important;
+        }
+        
+        /* Colores para diferencias */
+        .diferencia.positiva {
+            color: #28a745 !important;
+            font-weight: bold !important;
+        }
+        
+        .diferencia.negativa {
+            color: #dc3545 !important;
+            font-weight: bold !important;
+        }
+        
+        .diferencia.cero {
+            color: #6c757d !important;
+        }
+        
+        .diferencia.vacia {
+            color: #adb5bd !important;
+            font-style: italic !important;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Llama a esta función durante la inicialización
+addCellEditStyles();
+
+function addDiferenciaEditStyles() {
+    if (document.getElementById('diferencia-edit-styles')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'diferencia-edit-styles';
+    style.textContent = `
+        .diferencia-edit-container {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px;
+            background-color: #fff3cd;
+        }
+        
+        .diferencia.editable {
+            cursor: pointer !important;
+            border: 1px dashed #ccc !important;
+            padding: 2px 4px !important;
+            border-radius: 3px !important;
+            min-width: 80px !important;
+            display: inline-block !important;
+            text-align: center !important;
+            font-family: 'Courier New', monospace !important;
+            font-weight: bold !important;
+            transition: all 0.2s !important;
+        }
+        
+        .diferencia.editable:hover {
+            background-color: #e3f2fd !important;
+            border-color: #4dabf7 !important;
+            transform: scale(1.02);
+        }
+        
+        .diferencia.positiva {
+            background-color: #d4edda !important;
+            color: #155724 !important;
+            border: 1px solid #c3e6cb !important;
+        }
+        
+        .diferencia.negativa {
+            background-color: #f8d7da !important;
+            color: #721c24 !important;
+            border: 1px solid #f5c6cb !important;
+        }
+        
+        .diferencia.cero {
+            background-color: #e9ecef !important;
+            color: #6c757d !important;
+            border: 1px solid #dee2e6 !important;
+        }
+        
+        .diferencia.vacia {
+            background-color: #f8f9fa !important;
+            color: #adb5bd !important;
+            border: 1px dashed #dee2e6 !important;
+            font-style: italic !important;
+        }
+        
+        /* Estilos para botones de edición */
+        .diferencia-btn {
+            min-width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .diferencia-btn:hover {
+            transform: scale(1.1);
+            opacity: 0.9;
+        }
+        
+        .diferencia-btn.positivo {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .diferencia-btn.negativo {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .diferencia-btn.cero {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .diferencia-btn.aceptar {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .diferencia-btn.cancelar {
+            background-color: #ffc107;
+            color: #212529;
+        }
+    `;
+    document.head.appendChild(style);
+    console.log("Estilos de diferencia añadidos");
+}
+
+// Llama a esta función durante la inicialización
+addDiferenciaEditStyles();
