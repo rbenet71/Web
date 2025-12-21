@@ -200,46 +200,49 @@
                         </div>
                     </div>
                     
-                    <!-- Bloque 3 - Tabla de orden de salida -->
-                    <div class="config-section">
-                        <div class="section-title">
-                            <i class="fas fa-table"></i>
-                            <span id="order-table-label">Orden de Salida</span>
-                        </div>
-                        <div class="start-order-table-container" id="start-order-table-container">
-                            <table class="start-order-table" id="start-order-table">
-                                <thead>
-                                    <tr>
-                                        <th class="sortable" data-sort="order" id="orderHeader">Orden</th>
-                                        <th class="sortable" data-sort="dorsal" id="dorsalHeader">Dorsal</th>
-                                        <th class="sortable" data-sort="cronoSalida" id="cronoSalidaHeader">Crono Salida</th>
-                                        <th class="sortable" data-sort="horaSalida" id="horaSalidaHeader">Hora Salida</th>
-                                        <th class="sortable" data-sort="diferencia" id="diferenciaHeader">Diferencia</th>
-                                        <th class="sortable" data-sort="nombre" id="nombreHeader">Nombre</th>
-                                        <th class="sortable" data-sort="apellidos" id="apellidosHeader">Apellidos</th>
-                                        <th class="sortable" data-sort="chip" id="chipHeader">Chip</th>
-                                        <th class="sortable" data-sort="horaSalidaReal" id="horaRealHeader">Hora Salida Real</th>
-                                        <th class="sortable" data-sort="cronoSalidaReal" id="cronoRealHeader">Crono Salida Real</th>
-                                        <th class="sortable" data-sort="horaSalidaPrevista" id="horaPrevistaHeader">Hora Salida Prevista</th>
-                                        <th class="sortable" data-sort="cronoSalidaPrevista" id="cronoPrevistaHeader">Crono Salida Prevista</th>
-                                        <th class="sortable" data-sort="horaSalidaImportado" id="horaImportadoHeader">Hora Salida Importado</th>
-                                        <th class="sortable" data-sort="cronoSalidaImportado" id="cronoImportadoHeader">Crono Salida Importado</th>
-                                        <th class="sortable" data-sort="cronoSegundos" id="cronoSegundosHeader">Crono Segundos</th>
-                                        <th class="sortable" data-sort="horaSegundos" id="horaSegundosHeader">Hora Segundos</th>
-                                        <th class="sortable" data-sort="cronoSalidaRealSegundos" id="cronoRealSegundosHeader">Crono Salida Real Segundos</th>
-                                        <th class="sortable" data-sort="horaSalidaRealSegundos" id="horaRealSegundosHeader">Hora Salida Real Segundos</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="start-order-table-body">
-                                    <!-- Las filas se agregarán aquí dinámicamente -->
-                                </tbody>
-                            </table>
-                            <div id="start-order-empty" class="empty-state" style="display: none;">
-                                <i class="fas fa-users"></i>
-                                <p id="no-start-order-text">No hay corredores en el orden de salida</p>
-                            </div>
-                        </div>
-                    </div>
+<!-- Bloque 3 - Tabla de orden de salida -->
+<div class="config-section">
+    <div class="section-title">
+        <i class="fas fa-table"></i>
+        <span id="order-table-label">Orden de Salida</span>
+    </div>
+    <div class="start-order-table-container" id="start-order-table-container">
+        <!-- CONTENEDOR CON SCROLL Y CABECERA FIJA -->
+        <div class="table-scroll-wrapper">
+            <table class="start-order-table" id="start-order-table">
+                <thead>
+                    <tr>
+                        <th class="sortable" data-sort="order" id="orderHeader">Orden</th>
+                        <th class="sortable" data-sort="dorsal" id="dorsalHeader">Dorsal</th>
+                        <th class="sortable" data-sort="cronoSalida" id="cronoSalidaHeader">Crono Salida</th>
+                        <th class="sortable" data-sort="horaSalida" id="horaSalidaHeader">Hora Salida</th>
+                        <th class="sortable" data-sort="diferencia" id="diferenciaHeader">Diferencia</th>
+                        <th class="sortable" data-sort="nombre" id="nombreHeader">Nombre</th>
+                        <th class="sortable" data-sort="apellidos" id="apellidosHeader">Apellidos</th>
+                        <th class="sortable" data-sort="chip" id="chipHeader">Chip</th>
+                        <th class="sortable" data-sort="horaSalidaReal" id="horaRealHeader">Hora Salida Real</th>
+                        <th class="sortable" data-sort="cronoSalidaReal" id="cronoRealHeader">Crono Salida Real</th>
+                        <th class="sortable" data-sort="horaSalidaPrevista" id="horaPrevistaHeader">Hora Salida Prevista</th>
+                        <th class="sortable" data-sort="cronoSalidaPrevista" id="cronoPrevistaHeader">Crono Salida Prevista</th>
+                        <th class="sortable" data-sort="horaSalidaImportado" id="horaImportadoHeader">Hora Salida Importado</th>
+                        <th class="sortable" data-sort="cronoSalidaImportado" id="cronoImportadoHeader">Crono Salida Importado</th>
+                        <th class="sortable" data-sort="cronoSegundos" id="cronoSegundosHeader">Crono Segundos</th>
+                        <th class="sortable" data-sort="horaSegundos" id="horaSegundosHeader">Hora Segundos</th>
+                        <th class="sortable" data-sort="cronoSalidaRealSegundos" id="cronoRealSegundosHeader">Crono Salida Real Segundos</th>
+                        <th class="sortable" data-sort="horaSalidaRealSegundos" id="horaRealSegundosHeader">Hora Salida Real Segundos</th>
+                    </tr>
+                </thead>
+                <tbody id="start-order-table-body">
+                    <!-- Las filas se agregarán aquí dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        <div id="start-order-empty" class="empty-state" style="display: none;">
+            <i class="fas fa-users"></i>
+            <p id="no-start-order-text">No hay corredores en el orden de salida</p>
+        </div>
+    </div>
+</div>
                 </div>
             </div>
 
@@ -562,92 +565,92 @@
     <!-- MODALES -->
     <!-- =========================================== -->
 
-    <!-- Modal para Editar Carrera -->
-    <div id="edit-race-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-edit"></i> <span id="edit-race-modal-title">Editar Carrera</span></h3>
-                <button id="edit-race-modal-close" class="modal-close">&times;</button>
+<!-- Modal para Editar Carrera -->
+<div id="edit-race-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> <span id="edit-race-modal-title">Editar Carrera</span></h3>
+            <button id="edit-race-modal-close" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="edit-race-name">Nombre de la carrera *</label>
+                <input type="text" id="edit-race-name" class="form-control" 
+                       placeholder="Ej: Media Maratón Ciudad" maxlength="100">
             </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="edit-race-name">Nombre de la carrera *</label>
-                    <input type="text" id="edit-race-name" class="form-control" 
-                        placeholder="Ej: Media Maratón Ciudad" maxlength="100">
+            
+            <div class="form-group">
+                <label for="edit-race-category">Categoría</label>
+                <input type="text" id="edit-race-category" class="form-control" 
+                       placeholder="Ej: Élite, Máster 40, etc." maxlength="50">
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-race-organizer">Organizador</label>
+                <input type="text" id="edit-race-organizer" class="form-control" 
+                       placeholder="Club, federación..." maxlength="100">
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-race-location">Ubicación</label>
+                <input type="text" id="edit-race-location" class="form-control" 
+                       placeholder="Ej: Parque Central" maxlength="100">
+            </div>
+            
+            <div class="form-group">
+                <label for="edit-race-date">Fecha</label>
+                <input type="date" id="edit-race-date" class="form-control">
+            </div>
+            
+            <!-- Modalidad -->
+            <div class="form-group">
+                <label>Modalidad:</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="edit-modality" id="edit-modality-cri" value="CRI" checked>
+                        <span class="radio-label">CRI</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="edit-modality" id="edit-modality-cre" value="CRE">
+                        <span class="radio-label">CRE</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="edit-modality" id="edit-modality-descenso" value="Descenso">
+                        <span class="radio-label">Descenso</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="edit-modality" id="edit-modality-otras" value="Otras">
+                        <span class="radio-label">Otras</span>
+                    </label>
                 </div>
-                
-                <div class="form-group">
-                    <label for="edit-race-category">Categoría</label>
-                    <input type="text" id="edit-race-category" class="form-control" 
-                        placeholder="Ej: Élite, Máster 40, etc." maxlength="50">
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit-race-organizer">Organizador</label>
-                    <input type="text" id="edit-race-organizer" class="form-control" 
-                        placeholder="Club, federación..." maxlength="100">
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit-race-location">Ubicación</label>
-                    <input type="text" id="edit-race-location" class="form-control" 
-                        placeholder="Ej: Parque Central" maxlength="100">
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit-race-date">Fecha</label>
-                    <input type="date" id="edit-race-date" class="form-control">
-                </div>
-                
-                <!-- Modalidad -->
-                <div class="form-group">
-                    <label>Modalidad:</label>
-                    <div class="radio-group">
-                        <label class="radio-option">
-                            <input type="radio" name="edit-modality" id="edit-modality-cri" value="CRI" checked>
-                            <span class="radio-label">CRI</span>
-                        </label>
-                        <label class="radio-option">
-                            <input type="radio" name="edit-modality" id="edit-modality-cre" value="CRE">
-                            <span class="radio-label">CRE</span>
-                        </label>
-                        <label class="radio-option">
-                            <input type="radio" name="edit-modality" id="edit-modality-descenso" value="Descenso">
-                            <span class="radio-label">Descenso</span>
-                        </label>
-                        <label class="radio-option">
-                            <input type="radio" name="edit-modality" id="edit-modality-otras" value="Otras">
-                            <span class="radio-label">Otras</span>
-                        </label>
-                    </div>
-                    <div id="edit-other-modality-container" class="form-group" style="display: none; margin-top: 10px;">
-                        <input type="text" id="edit-race-other-modality" class="form-control" 
-                            placeholder="Especifica la modalidad..." maxlength="50">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="edit-race-description">Descripción / Notas</label>
-                    <textarea id="edit-race-description" class="form-control" rows="3" 
-                            placeholder="Información adicional sobre la carrera..."></textarea>
-                </div>
-                
-                <!-- Información de creación -->
-                <div class="creation-info" style="font-size: 0.85rem; color: #6c757d; margin-top: 20px; padding-top: 10px; border-top: 1px solid #eee;">
-                    <p><i class="fas fa-calendar-plus"></i> Creada: <span id="edit-race-created-at"></span></p>
-                    <p><i class="fas fa-edit"></i> Última modificación: <span id="edit-race-last-modified"></span></p>
+                <div id="edit-other-modality-container" class="form-group" style="display: none; margin-top: 10px;">
+                    <input type="text" id="edit-race-other-modality" class="form-control" 
+                           placeholder="Especifica la modalidad..." maxlength="50">
                 </div>
             </div>
-            <div class="modal-footer">
-                <button id="save-edit-race-btn" class="btn btn-success">
-                    <i class="fas fa-save"></i> Guardar Cambios
-                </button>
-                <button id="cancel-edit-race-btn" class="btn btn-danger">
-                    <i class="fas fa-times"></i> Cancelar
-                </button>
+            
+            <div class="form-group">
+                <label for="edit-race-description">Descripción / Notas</label>
+                <textarea id="edit-race-description" class="form-control" rows="3" 
+                          placeholder="Información adicional sobre la carrera..."></textarea>
+            </div>
+            
+            <!-- Información de creación -->
+            <div class="creation-info" style="font-size: 0.85rem; color: #6c757d; margin-top: 20px; padding-top: 10px; border-top: 1px solid #eee;">
+                <p><i class="fas fa-calendar-plus"></i> Creada: <span id="edit-race-created-at"></span></p>
+                <p><i class="fas fa-edit"></i> Última modificación: <span id="edit-race-last-modified"></span></p>
             </div>
         </div>
+        <div class="modal-footer">
+            <button id="save-edit-race-btn" class="btn btn-success">
+                <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+            <button id="cancel-edit-race-btn" class="btn btn-danger">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+        </div>
     </div>
+</div>
     
     <!-- Modal de configuración de plantilla -->
     <div id="template-config-modal" class="modal">

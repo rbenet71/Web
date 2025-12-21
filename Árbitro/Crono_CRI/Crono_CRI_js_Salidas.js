@@ -1768,83 +1768,85 @@ function applyImportRules(rider, index) {
 }
 
 function updateStartOrderUI() {
-    const totalCorredores = startOrderData.length;
-    document.getElementById('total-riders').value = totalCorredores;
+    console.log("=== updateStartOrderUI llamada ===");
+    console.log("startOrderData.length:", startOrderData.length);
     
-    // Actualizar hora de inicio basada en el primer corredor
-    if (startOrderData.length > 0 && startOrderData[0].horaSalida) {
-        const firstTime = startOrderData[0].horaSalida;
-        
-        // Asegurar formato HH:MM:SS completo
-        let horaInicioValue = firstTime;
-        
-        // Si solo tiene formato HH:MM, agregar :00
-        if (horaInicioValue && horaInicioValue.length === 5) {
-            horaInicioValue += ':00';
-        }
-        
-        // Si no tiene segundos, agregarlos
-        const parts = horaInicioValue.split(':');
-        if (parts.length === 2) {
-            horaInicioValue += ':00';
-        }
-        
-        // Validar y formatear correctamente
-        horaInicioValue = formatTimeValue(horaInicioValue);
-        
-        document.getElementById('first-start-time').value = horaInicioValue;
-        
-        // Actualizar el valor original también
-        originalTimeValue = horaInicioValue;
-        
-        console.log('Hora de inicio actualizada desde Excel:', horaInicioValue);
+    // Actualizar hora de inicio en el input
+    const startTimeInput = document.getElementById('start-time');
+    if (startTimeInput && appState.raceStartTime) {
+        startTimeInput.value = appState.raceStartTime;
+        console.log("Hora de inicio actualizada:", appState.raceStartTime);
     }
     
-    // Actualizar tabla
-    updateStartOrderTable();
+    // Actualizar display del próximo corredor
+    updateNextCorredorDisplay();
     
-    // Guardar datos
-    if (typeof saveStartOrderData === 'function') {
-        saveStartOrderData();
+    // Renderizar la tabla
+    console.log("Llamando a updateStartOrderTable...");
+    
+    // DECIDIR QUÉ VERSIÓN USAR
+    if (startOrderData.length > 0 && !window.appInitialized) {
+        // Primera ejecución durante inicialización - usar versión crítica
+        console.log("Primera ejecución durante inicialización - usando versión crítica");
+        updateStartOrderTableCritical();
+    } else {
+        // Ejecuciones posteriores - usar versión throttled
+        console.log("Ejecución normal - usando versión throttled");
+        updateStartOrderTableThrottled();
     }
+    
+    console.log("=== updateStartOrderUI completada ===");
 }
 
 function updateStartOrderTable() {
+    // Control de logs - activar solo en desarrollo
+    const DEBUG_MODE = false; // Cambiar a true para debugging
+    
+    if (DEBUG_MODE) {
+        console.log("=== updateStartOrderTable llamada ===");
+    }
+    
+    const tableWrapper = document.querySelector('.table-scroll-wrapper');
     const tableBody = document.getElementById('start-order-table-body');
     const emptyState = document.getElementById('start-order-empty');
     
-    if (!tableBody || !emptyState) return;
-    
-    if (startOrderData.length === 0) {
-        tableBody.innerHTML = '';
-        emptyState.style.display = 'block';
+    if (!tableBody || !emptyState) {
+        console.error("Elementos de tabla no encontrados!");
         return;
     }
     
+    if (startOrderData.length === 0) {
+        if (DEBUG_MODE) console.log("No hay datos, mostrando estado vacío");
+        tableBody.innerHTML = '';
+        emptyState.style.display = 'block';
+        if (tableWrapper) tableWrapper.style.display = 'none';
+        return;
+    }
+    
+    if (DEBUG_MODE) {
+        console.log(`Hay ${startOrderData.length} corredores para mostrar`);
+    }
+    
     emptyState.style.display = 'none';
+    if (tableWrapper) tableWrapper.style.display = 'block';
     
     // Ordenar datos según el estado de ordenación
     const sortedData = sortStartOrderData([...startOrderData]);
     
-    let html = '';
-    let lastDifference = null;
-    let rowClass = '';
+    if (DEBUG_MODE && sortedData.length > 0) {
+        console.log("Datos ordenados, primeros 3:", sortedData.slice(0, 3));
+        console.log("Últimos 3:", sortedData.slice(-3));
+    }
     
-    sortedData.forEach((rider, displayIndex) => {
-        // Calcular diferencia actual para esta fila
-        const currentDifference = getRiderDifferenceValue(rider);
+    let html = '';
+    let processedRiders = 0;
+    let errorsCount = 0;
+    
+    // Procesar todos los corredores
+    sortedData.forEach((rider, index) => {
+        processedRiders++;
         
-        // Determinar clase CSS basada en cambio de diferencia
-        if (lastDifference !== null && currentDifference !== lastDifference) {
-            // Cambió la diferencia - alternar clase
-            rowClass = rowClass === 'difference-changed' ? '' : 'difference-changed';
-        } else if (lastDifference === null) {
-            // Primera fila
-            rowClass = '';
-        }
-        // Si la diferencia es igual, mantener la misma clase
-        
-        // Calcular HTML de diferencia para mostrar
+        // Calcular diferencia (si hay datos reales y previstos O si hay diferencia importada)
         let diferenciaHtml = '';
         
         // Primero verificar si hay diferencia importada
@@ -1856,7 +1858,6 @@ function updateStartOrderTable() {
             // Determinar clase CSS basada en el signo
             if (rider.diferencia.includes('(+)')) {
                 claseDiferencia = 'positiva';
-                // Asegurar formato: "00:01:00 (+)"
                 textoDiferencia = rider.diferencia.replace('(+)', '').trim() + ' (+)';
             } else if (rider.diferencia.includes('(-)')) {
                 claseDiferencia = 'negativa';
@@ -1869,9 +1870,7 @@ function updateStartOrderTable() {
                 textoDiferencia = rider.diferencia.replace('-', '').trim() + ' (-)';
             }
             
-            diferenciaHtml = `<span class="diferencia ${claseDiferencia}">
-                ${textoDiferencia}
-            </span>`;
+            diferenciaHtml = `<span class="diferencia ${claseDiferencia}">${textoDiferencia}</span>`;
         } else {
             // Calcular diferencia (si hay datos reales y previstos)
             const horaRealSegundos = rider.horaSalidaRealSegundos || timeToSeconds(rider.horaSalidaReal) || 0;
@@ -1883,9 +1882,7 @@ function updateStartOrderTable() {
                     const diferenciaAbs = Math.abs(diferencia);
                     const signo = diferencia > 0 ? '+' : '-';
                     const clase = diferencia > 0 ? 'positiva' : 'negativa';
-                    diferenciaHtml = `<span class="diferencia ${clase}">
-                        ${secondsToTime(diferenciaAbs)} ${signo}
-                    </span>`;
+                    diferenciaHtml = `<span class="diferencia ${clase}">${secondsToTime(diferenciaAbs)} ${signo}</span>`;
                 } else {
                     diferenciaHtml = '<span class="diferencia cero">00:00:00</span>';
                 }
@@ -1894,164 +1891,252 @@ function updateStartOrderTable() {
             }
         }
         
-        const originalIndex = getOriginalIndex(rider.order, rider.dorsal);
+        // Verificar datos críticos (solo en debug)
+        if (DEBUG_MODE && (!rider.horaSalida || !rider.cronoSalida)) {
+            console.warn(`Corredor ${index + 1} (dorsal ${rider.dorsal}) tiene datos incompletos:`, {
+                horaSalida: rider.horaSalida,
+                cronoSalida: rider.cronoSalida
+            });
+            errorsCount++;
+        }
         
+        // Generar HTML de la fila
         html += `
-        <tr data-index="${originalIndex}" class="${rowClass}">
-            <td class="number-cell editable" data-field="order">${rider.order}</td>
-            <td class="number-cell editable" data-field="dorsal">${rider.dorsal}</td>
-            <td class="time-cell sortable" data-sort="cronoSalida">${rider.cronoSalida}</td>
-            <td class="time-cell sortable" data-sort="horaSalida">${rider.horaSalida}</td>
+        <tr data-index="${getOriginalIndex(rider.order, rider.dorsal)}">
+            <td class="number-cell editable" data-field="order">${rider.order || ''}</td>
+            <td class="number-cell editable" data-field="dorsal">${rider.dorsal || ''}</td>
+            <td class="time-cell sortable" data-sort="cronoSalida">${rider.cronoSalida || '00:00:00'}</td>
+            <td class="time-cell sortable" data-sort="horaSalida">${rider.horaSalida || '00:00:00'}</td>
             <td class="diferencia-cell sortable" data-sort="diferencia">${diferenciaHtml}</td>
-            <td class="name-cell editable" data-field="nombre">${rider.nombre}</td>
-            <td class="name-cell editable" data-field="apellidos">${rider.apellidos}</td>
-            <td class="editable" data-field="chip">${rider.chip}</td>
-            <td class="time-cell editable" data-field="horaSalidaReal">${rider.horaSalidaReal}</td>
-            <td class="time-cell editable" data-field="cronoSalidaReal">${rider.cronoSalidaReal}</td>
+            <td class="name-cell editable" data-field="nombre">${escapeHtml(rider.nombre || '')}</td>
+            <td class="name-cell editable" data-field="apellidos">${escapeHtml(rider.apellidos || '')}</td>
+            <td class="editable" data-field="chip">${escapeHtml(rider.chip || '')}</td>
+            <td class="time-cell editable" data-field="horaSalidaReal">${rider.horaSalidaReal || ''}</td>
+            <td class="time-cell editable" data-field="cronoSalidaReal">${rider.cronoSalidaReal || ''}</td>
             
             <!-- COLUMNAS PREVISTAS -->
-            <td class="time-cell sortable" data-sort="horaSalidaPrevista">${rider.horaSalidaPrevista}</td>
-            <td class="time-cell sortable" data-sort="cronoSalidaPrevista">${rider.cronoSalidaPrevista}</td>
+            <td class="time-cell sortable" data-sort="horaSalidaPrevista">${rider.horaSalidaPrevista || rider.horaSalida || '00:00:00'}</td>
+            <td class="time-cell sortable" data-sort="cronoSalidaPrevista">${rider.cronoSalidaPrevista || rider.cronoSalida || '00:00:00'}</td>
             
             <!-- COLUMNAS IMPORTADAS -->
-            <td class="time-cell editable" data-field="horaSalidaImportado">${rider.horaSalidaImportado}</td>
-            <td class="time-cell editable" data-field="cronoSalidaImportado">${rider.cronoSalidaImportado}</td>
+            <td class="time-cell editable" data-field="horaSalidaImportado">${rider.horaSalidaImportado || rider.horaSalida || ''}</td>
+            <td class="time-cell editable" data-field="cronoSalidaImportado">${rider.cronoSalidaImportado || rider.cronoSalida || ''}</td>
             
             <!-- CAMPOS DE SEGUNDOS -->
-            <td class="number-cell sortable" data-sort="cronoSegundos">${rider.cronoSegundos}</td>
-            <td class="number-cell sortable" data-sort="horaSegundos">${rider.horaSegundos}</td>
+            <td class="number-cell sortable" data-sort="cronoSegundos">${rider.cronoSegundos || 0}</td>
+            <td class="number-cell sortable" data-sort="horaSegundos">${rider.horaSegundos || 0}</td>
             
             <!-- CAMPOS DE SEGUNDOS REALES -->
-            <td class="number-cell sortable" data-sort="cronoSalidaRealSegundos">${rider.cronoSalidaRealSegundos}</td>
-            <td class="number-cell sortable" data-sort="horaSalidaRealSegundos">${rider.horaSalidaRealSegundos}</td>
+            <td class="number-cell sortable" data-sort="cronoSalidaRealSegundos">${rider.cronoSalidaRealSegundos || 0}</td>
+            <td class="number-cell sortable" data-sort="horaSalidaRealSegundos">${rider.horaSalidaRealSegundos || 0}</td>
         </tr>
         `;
-        
-        // Guardar diferencia actual para comparar con la siguiente fila
-        lastDifference = currentDifference;
     });
     
-    tableBody.innerHTML = html;
+    // Insertar HTML (forma más eficiente)
+    if (html) {
+        tableBody.innerHTML = html;
+        
+        // Usar event delegation en lugar de listeners individuales
+        setupEventDelegation();
+        
+        // Actualizar indicadores de ordenación
+        updateStartOrderSortIndicators();
+        
+        // Añadir estilos de filas alternas
+        addAlternatingRowStyles();
+    }
     
-    // Añadir event listeners para edición
-    document.querySelectorAll('.start-order-table td.editable').forEach(cell => {
-        cell.addEventListener('click', handleTableCellClick);
+    if (DEBUG_MODE) {
+        console.log("=== updateStartOrderTable completada ===");
+        console.log(`Procesados: ${processedRiders} corredores`);
+        console.log(`Errores: ${errorsCount}`);
+        console.log(`Celdas en tabla: ${tableBody.children.length}`);
+    }
+}
+
+// ============================================
+// VARIABLES GLOBALES PARA THROTTLING
+// ============================================
+
+// Variables para throttling de updateStartOrderTable
+let updateStartOrderTablePending = false;
+let updateStartOrderTableTimeout = null;
+let lastUpdateTime = 0; // <-- AÑADIR ESTA LÍNEA
+
+const UPDATE_THROTTLE_DELAY = 50; // 50ms mínimo entre actualizaciones
+
+// ============================================
+// VERSIÓN THROTTLED DE updateStartOrderTable
+// ============================================
+function updateStartOrderTableThrottled(force = false) {
+    const now = Date.now();
+    const timeSinceLastUpdate = now - lastUpdateTime;
+    
+    // Si es forzada o ha pasado suficiente tiempo, ejecutar inmediatamente
+    if (force || timeSinceLastUpdate > UPDATE_THROTTLE_DELAY * 2) {
+        console.log("updateStartOrderTable: Ejecución inmediata (force o tiempo suficiente)");
+        
+        // Limpiar timeout pendiente
+        if (updateStartOrderTableTimeout) {
+            clearTimeout(updateStartOrderTableTimeout);
+            updateStartOrderTableTimeout = null;
+        }
+        
+        // Ejecutar directamente
+        updateStartOrderTable();
+        lastUpdateTime = now;
+        updateStartOrderTablePending = false;
+        return;
+    }
+    
+    // Si ya hay una actualización pendiente, solo registrar
+    if (updateStartOrderTablePending) {
+        console.log("updateStartOrderTable: Actualización ya programada, omitiendo llamada extra");
+        return;
+    }
+    
+    // Marcar como pendiente
+    updateStartOrderTablePending = true;
+    console.log("updateStartOrderTable: Programando ejecución en", UPDATE_THROTTLE_DELAY, "ms");
+    
+    // Limpiar timeout anterior si existe
+    if (updateStartOrderTableTimeout) {
+        clearTimeout(updateStartOrderTableTimeout);
+    }
+    
+    // Programar la ejecución
+    updateStartOrderTableTimeout = setTimeout(() => {
+        console.log("updateStartOrderTable: Ejecutando versión throttled...");
+        
+        try {
+            updateStartOrderTable();
+            lastUpdateTime = Date.now();
+        } catch (error) {
+            console.error("Error en updateStartOrderTableThrottled:", error);
+        }
+        
+        // Resetear estado
+        updateStartOrderTablePending = false;
+        updateStartOrderTableTimeout = null;
+        
+    }, UPDATE_THROTTLE_DELAY);
+}
+// ============================================
+// FUNCIÓN PARA EJECUCIÓN CRÍTICA
+// ============================================
+
+function updateStartOrderTableCritical() {
+    console.log("updateStartOrderTableCritical: Ejecución CRÍTICA");
+    
+    // Cancelar cualquier ejecución pendiente
+    if (updateStartOrderTableTimeout) {
+        clearTimeout(updateStartOrderTableTimeout);
+        updateStartOrderTableTimeout = null;
+    }
+    
+    // Ejecutar inmediatamente
+    updateStartOrderTable();
+    lastUpdateOrderTableTime = Date.now();
+    updateStartOrderTablePending = false;
+}
+
+// ============================================
+// FUNCIÓN PARA EJECUCIÓN CRÍTICA
+// ============================================
+
+function updateStartOrderTableCritical() {
+    console.log("updateStartOrderTable: Ejecución CRÍTICA (inmediata)");
+    
+    // Cancelar cualquier ejecución pendiente
+    if (updateStartOrderTableTimeout) {
+        clearTimeout(updateStartOrderTableTimeout);
+        updateStartOrderTableTimeout = null;
+    }
+    
+    // Ejecutar inmediatamente
+    updateStartOrderTable();
+    lastUpdateTime = Date.now();
+    updateStartOrderTablePending = false;
+}
+
+// ============================================
+// FUNCIÓN DE FUERZA (para casos críticos)
+// ============================================
+
+function updateStartOrderTableImmediate() {
+    console.log("updateStartOrderTable: Ejecución inmediata forzada");
+    
+    // Limpiar timeout si existe
+    if (updateStartOrderTableTimeout) {
+        clearTimeout(updateStartOrderTableTimeout);
+        updateStartOrderTableTimeout = null;
+    }
+    
+    // Ejecutar inmediatamente
+    updateStartOrderTableThrottled(); 
+    updateStartOrderTablePending = false;
+}
+
+// ===========================================
+// FUNCIONES AUXILIARES OPTIMIZADAS
+// ===========================================
+
+// Event delegation para manejar clics en celdas editables
+function setupEventDelegation() {
+    const tableBody = document.getElementById('start-order-table-body');
+    if (!tableBody) return;
+    
+    // Eliminar listeners anteriores para evitar duplicados
+    tableBody.removeEventListener('click', handleTableClick);
+    
+    // Añadir un solo listener para toda la tabla
+    tableBody.addEventListener('click', handleTableClick);
+}
+
+// Handler único para todos los clics en la tabla
+function handleTableClick(event) {
+    const cell = event.target.closest('.editable');
+    if (cell) {
+        event.stopPropagation();
+        handleTableCellClick(event);
+    }
+}
+
+// Función para escapar HTML (seguridad)
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Función para evitar múltiples llamadas (throttle)
+const UPDATE_THROTTLE_MS = 50; // 50ms mínimo entre actualizaciones
+
+
+// Función para añadir estilos de filas alternas (si no existe)
+function addAlternatingRowStyles() {
+    const rows = document.querySelectorAll('#start-order-table-body tr');
+    rows.forEach((row, index) => {
+        row.classList.remove('even', 'odd');
+        if (index % 2 === 0) {
+            row.classList.add('even');
+        } else {
+            row.classList.add('odd');
+        }
     });
-    
-    // Actualizar indicadores de ordenación
-    updateStartOrderSortIndicators();
-    
-    // Asegurarse de que los estilos CSS estén aplicados
-    ensureDifferenceStyles();
 }
 
-// Función auxiliar para obtener el valor de diferencia para comparación
-function getRiderDifferenceValue(rider) {
-    // Esta función devuelve un valor único para comparar si la diferencia cambió
-    if (rider.diferencia && rider.diferencia !== '' && rider.diferencia !== '00:00:00') {
-        // Extraer solo la parte del tiempo (sin el signo)
-        const match = rider.diferencia.match(/(\d{2}:\d{2}:\d{2})/);
-        if (match) {
-            return match[1]; // Devuelve solo el tiempo
-        }
-        return rider.diferencia;
-    }
+// Función para obtener el índice original
+function getOriginalIndex(order, dorsal) {
+    if (!startOrderData || startOrderData.length === 0) return 0;
     
-    // Calcular diferencia numérica para comparación
-    const horaRealSegundos = rider.horaSalidaRealSegundos || timeToSeconds(rider.horaSalidaReal) || 0;
-    const horaPrevistaSegundos = rider.horaSegundos || timeToSeconds(rider.horaSalida) || 0;
-    
-    if (horaRealSegundos > 0 && horaPrevistaSegundos > 0) {
-        const diferencia = horaRealSegundos - horaPrevistaSegundos;
-        return diferencia; // Valor numérico para comparación
-    }
-    
-    return null;
+    const originalIndex = startOrderData.findIndex(rider => 
+        rider.order == order && rider.dorsal == dorsal
+    );
+    return originalIndex !== -1 ? originalIndex : 0;
 }
-
-// Función auxiliar para asegurar que los estilos CSS estén presentes
-function ensureDifferenceStyles() {
-    if (document.getElementById('difference-styles')) return;
-    
-    const style = document.createElement('style');
-    style.id = 'difference-styles';
-    style.textContent = `
-        /* Estilos para filas con cambio de diferencia */
-        .start-order-table tr.difference-changed {
-            background-color: #f8f9fa !important;
-            transition: background-color 0.3s ease;
-        }
-        
-        .start-order-table tr.difference-changed:nth-child(even) {
-            background-color: #e9ecef !important;
-        }
-        
-        .start-order-table tr.difference-changed:hover {
-            background-color: #e8f4fd !important;
-        }
-        
-        /* Estilos específicos para celdas en filas resaltadas */
-        .start-order-table tr.difference-changed td {
-            border-left: 2px solid #dee2e6;
-            border-right: 2px solid #dee2e6;
-        }
-        
-        .start-order-table tr.difference-changed td:first-child {
-            border-left: 2px solid #007bff;
-            background-color: #f1f8ff;
-        }
-        
-        .start-order-table tr.difference-changed td:last-child {
-            border-right: 2px solid #007bff;
-        }
-        
-        /* Mejora visual para las celdas de diferencia */
-        .diferencia-cell {
-            font-weight: 600;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .diferencia.positiva {
-            color: #28a745;
-            background-color: #d4edda;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 700;
-        }
-        
-        .diferencia.negativa {
-            color: #dc3545;
-            background-color: #f8d7da;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 700;
-        }
-        
-        .diferencia.cero {
-            color: #6c757d;
-            background-color: #f8f9fa;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-        
-        .diferencia.vacia {
-            color: #adb5bd;
-            font-style: italic;
-        }
-        
-        /* Indicador visual de cambio en la primera celda */
-        .start-order-table tr.difference-changed td.number-cell:first-child::before {
-            content: '↕';
-            display: inline-block;
-            margin-right: 5px;
-            color: #007bff;
-            font-weight: bold;
-        }
-    `;
-    
-    document.head.appendChild(style);
-}
-
 // Función auxiliar para obtener el índice original
 function getOriginalIndex(order, dorsal) {
     const originalIndex = startOrderData.findIndex(rider => 
@@ -2615,7 +2700,7 @@ function updateAllStartTimes(newTime, oldTime) {
     if (typeof updateStartOrderUI === 'function') {
         updateStartOrderUI();
     } else {
-        updateStartOrderTable();
+        updateStartOrderTableThrottled(); 
     }
     
     if (typeof saveStartOrderData === 'function') {
@@ -2827,7 +2912,7 @@ function setupStartOrderTableSorting() {
             
             console.log(`Nuevo estado: columna=${startOrderSortState.column}, dirección=${startOrderSortState.direction}`);
             
-            updateStartOrderTable();
+            updateStartOrderTableThrottled(); 
         });
     });
     
@@ -4044,39 +4129,4 @@ function calculateStartTimeForPosition(position) {
     }
     
     return horaSalida;
-}
-
-// En el mismo archivo o en tu archivo CSS, añade:
-function addAlternatingRowStyles() {
-    if (document.getElementById('alternating-row-styles')) return;
-    
-    const style = document.createElement('style');
-    style.id = 'alternating-row-styles';
-    style.textContent = `
-        /* Filas alternadas en la tabla de orden de salida */
-        .start-order-table tbody tr.row-even {
-            background-color: #ffffff; /* Blanco */
-        }
-        
-        .start-order-table tbody tr.row-odd {
-            background-color: #f8f9fa; /* Gris claro */
-        }
-        
-        /* Efecto hover */
-        .start-order-table tbody tr.row-even:hover,
-        .start-order-table tbody tr.row-odd:hover {
-            background-color: #e8f4fd; /* Azul claro al pasar el ratón */
-        }
-        
-        /* Mejorar contraste para celdas editables */
-        .start-order-table tbody tr.row-odd td.editable:hover {
-            background-color: #e2e6ea;
-        }
-        
-        .start-order-table tbody tr.row-even td.editable:hover {
-            background-color: #f0f0f0;
-        }
-    `;
-    
-    document.head.appendChild(style);
 }

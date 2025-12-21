@@ -221,21 +221,28 @@ function renderLlegadasList() {
     
     emptyState.style.display = 'none';
     
-    let html = '';
+    // Usar DocumentFragment para mejor rendimiento
+    const fragment = document.createDocumentFragment();
+    
     llegadasState.llegadas.forEach((llegada, index) => {
-        html += `
-        <tr data-index="${index}">
+        const row = document.createElement('tr');
+        row.setAttribute('data-index', index);
+        
+        row.innerHTML = `
             <td>${llegada.dorsal}</td>
             <td>${getNombreFromDorsal(llegada.dorsal)}</td>
             <td>${llegada.horaSalida || '--:--:--'}</td>
             <td>${llegada.horaLlegada || '--:--:--'}</td>
             <td>${llegada.tiempoCrono || '--:--:--'}</td>
             <td>${llegada.notas || ''}</td>
-        </tr>
         `;
+        
+        fragment.appendChild(row);
     });
     
-    tableBody.innerHTML = html;
+    // Limpiar y añadir todo de una vez
+    tableBody.innerHTML = '';
+    tableBody.appendChild(fragment);
 }
 
 function getNombreFromDorsal(dorsal) {

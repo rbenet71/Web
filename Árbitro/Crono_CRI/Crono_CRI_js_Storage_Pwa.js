@@ -72,62 +72,51 @@ function loadAppState() {
 // Cargar datos de la carrera actual
 function loadRaceData() {
     if (!appState.currentRace) {
-        appState.departureTimes = [];
-        appState.departedCount = 0;
-        appState.nextCorredorTime = 60;
-        startOrderData = [];
-        
-        document.getElementById('departed-count').textContent = appState.departedCount;
-        document.getElementById('start-position').value = appState.departedCount + 1;
-        document.getElementById('first-start-time').value = "09:00:00";
-        document.getElementById('total-riders').value = 1;
-        
-        updateStartOrderTable();
-        renderDeparturesList();
+        console.log("No hay carrera seleccionada para cargar datos");
         return;
     }
     
-    appState.departureTimes = appState.currentRace.departures || [];
-    appState.departedCount = appState.departureTimes.length > 0 ? 
-        Math.max(...appState.departureTimes.map(d => d.corredor)) : 0;
+    console.log("Cargando datos para carrera:", appState.currentRace.name);
     
-    document.getElementById('departed-count').textContent = appState.departedCount;
-    document.getElementById('start-position').value = appState.departedCount + 1;
-    
-    // Configuración de intervalo único
-    const minutes = parseInt(document.getElementById('interval-minutes').value) || 1;
-    const seconds = parseInt(document.getElementById('interval-seconds').value) || 0;
-    appState.nextCorredorTime = minutes * 60 + seconds;
-    
-    // CARGAR HORA DE INICIO DE LA CARRERA
-    if (appState.currentRace.firstStartTime) {
-        document.getElementById('first-start-time').value = appState.currentRace.firstStartTime;
+    // Cargar datos específicos de la carrera
+    const raceData = localStorage.getItem(`race-${appState.currentRace.id}`);
+    if (raceData) {
+        const data = JSON.parse(raceData);
+        
+        appState.raceStartTime = data.raceStartTime || '';
+        appState.departureTimes = data.departureTimes || [];
+        appState.departedCount = data.departedCount || 0;
+        appState.intervals = data.intervals || [];
+        
+        console.log("Hora inicio:", appState.raceStartTime);
+        console.log("Salidas:", appState.departedCount);
+        
+        // Actualizar UI con los datos cargados
+        if (document.getElementById('start-time')) {
+            document.getElementById('start-time').value = appState.raceStartTime || '';
+        }
+        
+        document.getElementById('departed-count').textContent = appState.departedCount;
+        
+        // Asegurar que startOrderData esté cargado antes de llamar a updateStartOrderUI
+        if (typeof startOrderData !== 'undefined' && startOrderData.length > 0) {
+            console.log("startOrderData ya cargado, llamando a updateStartOrderUI");
+            updateStartOrderUI();
+        } else {
+            console.log("startOrderData no está disponible aún, posponiendo updateStartOrderUI");
+            // Posponer la actualización hasta que startOrderData esté listo
+            setTimeout(() => {
+                if (typeof startOrderData !== 'undefined' && startOrderData.length > 0) {
+                    updateStartOrderUI();
+                }
+            }, 100);
+        }
+        
+        renderDeparturesList();
     } else {
-        document.getElementById('first-start-time').value = "09:00:00";
+        console.log("No hay datos guardados para esta carrera");
     }
-    
-    // Cargar datos del orden de salida si existen
-    if (appState.currentRace.startOrder && appState.currentRace.startOrder.length > 0) {
-        startOrderData = appState.currentRace.startOrder;
-        document.getElementById('total-riders').value = startOrderData.length;
-    } else {
-        startOrderData = [];
-        document.getElementById('total-riders').value = 1;
-    }
-    
-    // Actualizar todas las interfaces
-    updateStartOrderTable();
-    updateNextCorredorDisplay();
-    renderDeparturesList();
-    updateTimeDifference();
-    updateRaceManagementCardTitle();
-    
-    console.log("Datos cargados para carrera:", appState.currentRace.name);
-    console.log("Hora inicio:", document.getElementById('first-start-time').value);
-    console.log("Salidas:", appState.departureTimes.length);
-    console.log("Orden de salida:", startOrderData.length, "corredores");
 }
-
 // Cargar datos del orden de salida
 function loadStartOrderData() {
     // Primero intentar cargar desde localStorage (para compatibilidad)
@@ -148,7 +137,11 @@ function loadStartOrderData() {
     
     if (startOrderData.length > 0) {
         document.getElementById('total-riders').value = startOrderData.length;
-        updateStartOrderTable();
+        updateStartOrderTableThrottled();
+    }
+    
+    if (typeof updateStartOrderUI === 'function') {
+        updateStartOrderUI();
     }
     
     console.log("Orden de salida cargado:", startOrderData.length, "corredores");
@@ -307,7 +300,7 @@ function createNewRace() {
     // Resetear datos de orden de salida
     startOrderData = [];
     document.getElementById('total-riders').value = 1;
-    updateStartOrderTable();
+    updateStartOrderTableThrottled();
     
     // Actualizar UI
     document.getElementById('departed-count').textContent = 0;
@@ -372,7 +365,7 @@ function deleteCurrentRace() {
         startOrderData = [];
         document.getElementById('first-start-time').value = "09:00:00";
         document.getElementById('total-riders').value = 1;
-        updateStartOrderTable();
+        updateStartOrderTableThrottled();
         
         const startPositionInput = document.getElementById('start-position');
         if (startPositionInput) {
@@ -733,7 +726,7 @@ function setupDeleteOrderModalEvents(modal) {
         
         // Actualizar UI
         document.getElementById('total-riders').value = 1;
-        updateStartOrderTable();
+        updateStartOrderTableThrottled();
         
         // Guardar los cambios
         if (typeof saveStartOrderData === 'function') {
@@ -1050,7 +1043,7 @@ function addNewRider() {
     
     startOrderData.push(newRider);
     document.getElementById('total-riders').value = startOrderData.length;
-    updateStartOrderTable();
+    updateStartOrderTableThrottled();
     saveStartOrderData();
     
     showMessage(t.riderAdded, 'success');
@@ -1065,7 +1058,7 @@ function updateStartOrderTimes() {
         rider.horaSegundos = timeToSeconds(rider.horaSalida);
     });
     
-    updateStartOrderTable();
+    updateStartOrderTableThrottled();
     
     // Guardar automáticamente si hay una carrera seleccionada
     if (appState.currentRace) {
@@ -1662,7 +1655,7 @@ function performRaceRestore(backupData, restoreOption, selectedData, existingRac
             loadRaceData();
             renderDeparturesList();
             renderLlegadasList();
-            updateStartOrderTable();
+            updateStartOrderTableThrottled();
             updateRaceManagementCardTitle();
         }
         

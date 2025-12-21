@@ -108,6 +108,8 @@ te digo como lo quiero, primero el nombre de la prueba, debajo Orden de Salida, 
 
 
 traducir PDF
+cuando editas datos de carrera crea una nueva
+cuando hay scroll en orden de salida mantener la cabecera
 
 -------------------------------------------------
 
@@ -143,8 +145,8 @@ Crono-cri/
 │   └── ...
 └── plantilla-cri.xlsx
 
-scroll orden de salida mantener la cabecera
-cuando editas datos de carrera crea una nueva
+
+
 
 Para empezar vamos a dejar el programa tal y como esta, pero vamos a:
 
@@ -154,5 +156,8 @@ al introducir un corredor si es el primero o posición 1, se le pone crono salid
 
 al introducir el ultimo corredor u otra posición ponemos como datos, el valor diferencia seria el valor del registro anterior, y sobre los valores anteriores añadimos la diferencia para crono salida, hora salida, y hora salida prevista y crono salida prevista, en hora salida importado y crono salda importado lo dejamos en blanco y convertimos a segundos crono salida y hora salida. Si hay registros depués del añadido recalculamos los tiempos de las mismas columnas, NO modificamos importado.
 
+en la tabla orde de saldidan
 
 los unicos valores que se pueden modificar en la tabla de orden de salida son: dorsal,diferencia, nombre, apellidos, chip
+
+el primer  orredor diferencia 00:00:00

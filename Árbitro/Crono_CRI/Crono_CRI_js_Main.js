@@ -59,6 +59,9 @@ function initApp() {
     let startOrderListenersConfigured = false;
     let backupModuleInitialized = false;
     
+    // Marcar que la app no está completamente inicializada aún
+    window.appInitialized = false;
+    
     // Limpiar datos antiguos
     if (typeof cleanupOldData === 'function') cleanupOldData();
     
@@ -72,8 +75,18 @@ function initApp() {
     if (typeof updateLanguageUI === 'function') updateLanguageUI();
     if (typeof updateSalidaText === 'function') updateSalidaText();
     if (typeof renderRacesSelect === 'function') renderRacesSelect();
-    if (typeof loadRaceData === 'function') loadRaceData();
-    if (typeof loadStartOrderData === 'function') loadStartOrderData();
+    
+    // Asegurar el orden correcto de carga
+    if (typeof loadStartOrderData === 'function') {
+        loadStartOrderData(); // Cargar primero los datos de orden
+    }
+    
+    if (typeof loadRaceData === 'function') {
+        // Pequeño retraso para asegurar que startOrderData esté cargado
+        setTimeout(() => {
+            loadRaceData();
+        }, 50);
+    }
 
     // Configurar inputs de tiempo mejorados (INTEGRADO EN SALIDAS)
     if (typeof setupTimeInputs === 'function') setupTimeInputs();
@@ -149,12 +162,15 @@ function initApp() {
     // Eventos de audio
     document.addEventListener('click', initAudioOnInteraction);
     document.addEventListener('keydown', initAudioOnInteraction);
-
-    addAlternatingRowStyles();
     
-    console.log("Aplicación inicializada correctamente");
+    // Marcar como inicializada después de un pequeño retraso
+    setTimeout(() => {
+        window.appInitialized = true;
+        console.log("Aplicación inicializada correctamente (marcada como appInitialized=true)");
+    }, 500);
+    
+    console.log("Aplicación inicializando...");
 }
-
 
 // Guardar estado antes de cerrar
 window.addEventListener('beforeunload', () => {

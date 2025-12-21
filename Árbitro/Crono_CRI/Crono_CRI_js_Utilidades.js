@@ -2085,3 +2085,51 @@ function timeToSeconds(timeStr) {
     
     return (hours * 3600) + (minutes * 60) + seconds;
 }
+
+// En Crono_CRI_js_Salidas.js, agrega estas funciones:
+
+let savedScrollPosition = 0;
+
+function saveScrollPosition() {
+    const tableWrapper = document.querySelector('.table-scroll-wrapper');
+    if (tableWrapper) {
+        savedScrollPosition = tableWrapper.scrollTop;
+    }
+}
+
+function restoreScrollPosition() {
+    const tableWrapper = document.querySelector('.table-scroll-wrapper');
+    if (tableWrapper) {
+        tableWrapper.scrollTop = savedScrollPosition;
+    }
+}
+
+function setupTableScrollListeners() {
+    const tableWrapper = document.querySelector('.table-scroll-wrapper');
+    if (tableWrapper) {
+        // Guardar posición al hacer scroll
+        tableWrapper.addEventListener('scroll', function() {
+            savedScrollPosition = this.scrollTop;
+        });
+        
+        // Ajustar tamaño del wrapper dinámicamente
+        adjustTableWrapperHeight();
+        
+        // Reajustar en redimensionamiento
+        window.addEventListener('resize', adjustTableWrapperHeight);
+    }
+}
+
+function adjustTableWrapperHeight() {
+    const tableWrapper = document.querySelector('.table-scroll-wrapper');
+    if (!tableWrapper) return;
+    
+    const viewportHeight = window.innerHeight;
+    const containerTop = tableWrapper.getBoundingClientRect().top;
+    const availableHeight = viewportHeight - containerTop - 30; // 30px de margen
+    
+    // Establecer altura máxima dinámica
+    const maxHeight = Math.min(availableHeight, 500); // Máximo 500px
+    tableWrapper.style.maxHeight = `${maxHeight}px`;
+}
+
