@@ -1242,13 +1242,24 @@ function generateStartOrderPDF() {
         
         // FUNCIÓN PARA DIBUJAR UNA FILA DE DATOS
         function drawDataRow(rider, startY, rowNumber, currentDifference) {
-            if (lastDifference !== null && currentDifference !== lastDifference) {
-                useGrayBackground = !useGrayBackground;
+            // Para las DOS PRIMERAS filas, siempre blanco
+            if (rowNumber <= 2) {
+                useGrayBackground = false;
+            } 
+            // A partir del TERCER corredor, verificar cambio
+            else if (currentDifference !== lastDifference) {
+                useGrayBackground = !useGrayBackground; // Alternar cuando cambia diferencia
             }
             
+            // Aplicar fondo gris si corresponde
             if (useGrayBackground) {
-                doc.setFillColor(240, 240, 240);
+                doc.setFillColor(224, 255, 255);
                 doc.rect(tableMarginLeft, startY - 2, totalTableWidth, rowHeight, 'F');
+            }
+            
+            // Actualizar última diferencia SOLO si no es la primera fila
+            if (rowNumber >= 2) {
+                lastDifference = currentDifference;
             }
             
             lastDifference = currentDifference;
