@@ -1391,137 +1391,6 @@ function secondsToTime(totalSeconds) {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
-// ============================================
-// CONFIGURAR BOTÓN DE PDF EN LA INTERFAZ
-// ============================================
-function setupPDFExportButton() {
-    console.log("Configurando botón de exportar PDF...");
-    
-    // Buscar el contenedor de exportación
-    const exportContainer = document.querySelector('.start-order-actions');
-    if (!exportContainer) {
-        console.error("No se encontró el contenedor de acciones de orden de salida");
-        return;
-    }
-    
-    // Verificar si el botón ya existe
-    if (document.getElementById('export-pdf-btn')) {
-        console.log("El botón de PDF ya existe");
-        return;
-    }
-    
-    // Crear botón de PDF
-    const pdfButton = document.createElement('button');
-    pdfButton.id = 'export-pdf-btn';
-    pdfButton.className = 'btn btn-pdf';
-    pdfButton.innerHTML = '<i class="fas fa-file-pdf"></i> Generar PDF';
-    pdfButton.title = 'Generar PDF del orden de salida con todos los datos de la carrera';
-    
-    // Añadir estilos específicos
-    pdfButton.style.backgroundColor = '#e74c3c';
-    pdfButton.style.color = 'white';
-    pdfButton.style.border = 'none';
-    pdfButton.style.marginLeft = '8px';
-    pdfButton.style.padding = '8px 15px';
-    pdfButton.style.borderRadius = '4px';
-    pdfButton.style.cursor = 'pointer';
-    pdfButton.style.fontWeight = 'bold';
-    pdfButton.style.transition = 'all 0.3s';
-    
-    // Efecto hover
-    pdfButton.onmouseover = function() {
-        this.style.backgroundColor = '#c0392b';
-        this.style.transform = 'translateY(-2px)';
-        this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
-    };
-    
-    pdfButton.onmouseout = function() {
-        this.style.backgroundColor = '#e74c3c';
-        this.style.transform = 'translateY(0)';
-        this.style.boxShadow = 'none';
-    };
-    
-    // Añadir event listener - USAR LA FUNCIÓN SIMPLE POR AHORA
-    pdfButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        // Añadir efecto de clic
-        this.style.backgroundColor = '#a93226';
-        setTimeout(() => {
-            this.style.backgroundColor = '#e74c3c';
-        }, 150);
-        
-        // Llamar a la función SIMPLE de generación de PDF
-        generateSimpleStartOrderPDF();
-    });
-    
-    // Insertar después del botón de Excel
-    const excelButton = document.getElementById('export-excel-btn');
-    if (excelButton && excelButton.parentNode) {
-        excelButton.parentNode.insertBefore(pdfButton, excelButton.nextSibling);
-    } else {
-        // Si no hay botón de Excel, añadir al final
-        exportContainer.appendChild(pdfButton);
-    }
-    
-    console.log("Botón de exportar PDF configurado exitosamente");
-}
-
-// ============================================
-// INICIALIZAR MÓDULO PDF MEJORADO
-// ============================================
-function initPDFModule() {
-    console.log("Inicializando módulo PDF mejorado...");
-    
-    // Configurar botón de PDF
-    setTimeout(() => {
-        setupPDFExportButton();
-    }, 1000);
-    
-    // Añadir estilos CSS para el botón
-    const style = document.createElement('style');
-    style.id = 'pdf-button-styles';
-    style.textContent = `
-        .btn-pdf {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .btn-pdf:hover {
-            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-        
-        .btn-pdf:active {
-            transform: translateY(0);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-        
-        .btn-pdf i {
-            margin-right: 5px;
-        }
-    `;
-    
-    document.head.appendChild(style);
-    
-    // Verificar dependencias
-    setTimeout(() => {
-        if (typeof window.jspdf === 'undefined') {
-            console.warn("jsPDF no está cargado. El botón de PDF funcionará pero intentará cargar la librería cuando sea necesario.");
-        }
-    }, 2000);
-    
-    console.log("✅ Módulo PDF inicializado correctamente");
-}
 
 // ============================================
 // FUNCIÓN SIMPLIFICADA DE GENERACIÓN DE PDF (VERSIÓN ROBUSTA)
@@ -1690,71 +1559,45 @@ function generateSimpleStartOrderPDF() {
 // ============================================
 // CONFIGURAR BOTÓN DE PDF (VERSIÓN SIMPLIFICADA)
 // ============================================
+// ============================================
+// CONFIGURAR BOTÓN DE PDF (VERSIÓN SIMPLIFICADA)
+// ============================================
 function setupPDFExportButton() {
     console.log("Configurando botón de exportar PDF...");
     
-    // Buscar el contenedor de exportación
-    const exportContainer = document.querySelector('.start-order-actions');
-    if (!exportContainer) {
-        console.error("No se encontró el contenedor de acciones de orden de salida");
+    // Buscar el botón de exportar PDF que ya existe en el HTML
+    const pdfButton = document.getElementById('export-order-pdf-btn');
+    
+    if (!pdfButton) {
+        console.error("No se encontró el botón de exportar PDF en el DOM");
         return;
     }
     
-    // Verificar si el botón ya existe
-    if (document.getElementById('export-pdf-btn')) {
-        console.log("El botón de PDF ya existe, reconfigurando...");
-        // Actualizar el event listener existente
-        const existingBtn = document.getElementById('export-pdf-btn');
-        existingBtn.onclick = handlePDFExport;
-        return;
-    }
+    // Verificar si ya tiene un event listener (para evitar duplicados)
+    const newButton = pdfButton.cloneNode(true);
+    pdfButton.parentNode.replaceChild(newButton, pdfButton);
     
-    // Crear botón de PDF
-    const pdfButton = document.createElement('button');
-    pdfButton.id = 'export-pdf-btn';
-    pdfButton.className = 'btn btn-pdf';
-    pdfButton.innerHTML = '<i class="fas fa-file-pdf"></i> Generar PDF';
-    pdfButton.title = 'Generar PDF del orden de salida con todos los datos de la carrera';
-    
-    // Añadir estilos específicos
-    pdfButton.style.backgroundColor = '#e74c3c';
-    pdfButton.style.color = 'white';
-    pdfButton.style.border = 'none';
-    pdfButton.style.marginLeft = '8px';
-    pdfButton.style.padding = '8px 15px';
-    pdfButton.style.borderRadius = '4px';
-    pdfButton.style.cursor = 'pointer';
-    pdfButton.style.fontWeight = 'bold';
-    pdfButton.style.transition = 'all 0.3s';
-    pdfButton.style.display = 'flex';
-    pdfButton.style.alignItems = 'center';
-    pdfButton.style.justifyContent = 'center';
-    pdfButton.style.gap = '5px';
-    
-    // Efecto hover
-    pdfButton.onmouseover = function() {
-        this.style.backgroundColor = '#c0392b';
-        this.style.transform = 'translateY(-2px)';
-        this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
-    };
-    
-    pdfButton.onmouseout = function() {
-        this.style.backgroundColor = '#e74c3c';
-        this.style.transform = 'translateY(0)';
-        this.style.boxShadow = 'none';
-    };
-    
-    // Añadir event listener
-    pdfButton.addEventListener('click', handlePDFExport);
-    
-    // Insertar después del botón de Excel
-    const excelButton = document.getElementById('export-excel-btn');
-    if (excelButton && excelButton.parentNode) {
-        excelButton.parentNode.insertBefore(pdfButton, excelButton.nextSibling);
-    } else {
-        // Si no hay botón de Excel, añadir al final
-        exportContainer.appendChild(pdfButton);
-    }
+    // Configurar el evento click
+    newButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Añadir efecto visual de clic
+        this.style.backgroundColor = '#a93226';
+        setTimeout(() => {
+            this.style.backgroundColor = '#e74c3c';
+        }, 150);
+        
+        // Llamar a la función de generación de PDF
+        if (typeof generateStartOrderPDF === 'function') {
+            generateStartOrderPDF();
+        } else if (typeof generateSimpleStartOrderPDF === 'function') {
+            generateSimpleStartOrderPDF();
+        } else {
+            console.error("No se encontró la función de generación de PDF");
+            showMessage('Error: Función de PDF no disponible', 'error');
+        }
+    });
     
     console.log("✅ Botón de exportar PDF configurado exitosamente");
 }
@@ -1780,49 +1623,17 @@ function handlePDFExport(e) {
 function initPDFModule() {
     console.log("Inicializando módulo PDF...");
     
+    // Control para evitar inicialización múltiple
+    if (window.pdfModuleInitialized) {
+        console.log("Módulo PDF ya inicializado");
+        return;
+    }
+    
     // Configurar botón de PDF después de un pequeño retraso
     setTimeout(() => {
         setupPDFExportButton();
-    }, 1000);
+    }, 500);
     
-    // Añadir estilos CSS para el botón
-    if (!document.getElementById('pdf-button-styles')) {
-        const style = document.createElement('style');
-        style.id = 'pdf-button-styles';
-        style.textContent = `
-            .btn-pdf {
-                background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-                color: white;
-                border: none;
-                padding: 8px 15px;
-                border-radius: 4px;
-                cursor: pointer;
-                font-weight: bold;
-                transition: all 0.3s;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 5px;
-            }
-            
-            .btn-pdf:hover {
-                background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
-                transform: translateY(-2px);
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            }
-            
-            .btn-pdf:active {
-                transform: translateY(0);
-                box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            }
-            
-            .btn-pdf i {
-                margin-right: 5px;
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
+    window.pdfModuleInitialized = true;
     console.log("✅ Módulo PDF inicializado correctamente");
 }

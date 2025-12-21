@@ -1,11 +1,22 @@
 // ============================================
 // MÓDULO DE INTERFAZ DE USUARIO
 // ============================================
-
+let uiInitialized = {
+    cardToggles: false,
+    modeSlider: false,
+    modalEvents: false,
+    modalActions: false,
+    pdfExport: false
+};
 // ============================================
 // FUNCIONES DE TARJETAS EXPANDIBLES
 // ============================================
 function setupCardToggles() {
+    if (uiInitialized.cardToggles) {
+        console.log("Card toggles ya configurados");
+        return;
+    }
+    uiInitialized.cardToggles = true;
     console.log("Configurando botones de minimizar/expandir...");
     
     // Cargar estado guardado de tarjetas minimizadas
@@ -217,6 +228,11 @@ function onTimesChanged() {
 // SELECTOR DE MODO DESLIZANTE
 // ============================================
 function initModeSlider() {
+    if (uiInitialized.modeSlider) {
+        console.log("Mode slider ya inicializado");
+        return;
+    }
+    uiInitialized.modeSlider = true;
     const slider = document.querySelector('.mode-slider');
     const options = document.querySelectorAll('.mode-slider-option');
     const salidaContent = document.getElementById('mode-salida-content');
@@ -633,6 +649,11 @@ function debugModeState() {
 // FUNCIONES DE MANEJO DE MODALES (MOVIDAS A UI.js)
 // ============================================
 function setupModalEventListeners() {
+    if (uiInitialized.modalEvents) {
+        console.log("Modal event listeners ya configurados");
+        return;
+    }
+    uiInitialized.modalEvents = true;
     console.log("Configurando listeners de modales...");
     
     // Función genérica para cerrar modales
@@ -789,6 +810,11 @@ function debugModalButtons() {
 // FUNCIONES DE ACCIONES DE MODALES
 // ============================================
 function setupModalActionListeners() {
+    if (uiInitialized.modalActions) {
+        console.log("Modal action listeners ya configurados");
+        return;
+    }
+    uiInitialized.modalActions = true;
     console.log("Configurando listeners de acciones de modales...");
     
     // Verificar que las funciones existen
@@ -889,34 +915,4 @@ function setupModalActionListeners() {
     }
     
     console.log("✅ Listeners de acciones de modales configurados");
-}
-
-// ============================================
-// FUNCIÓN PARA CONFIGURAR BOTÓN DE EXPORTAR PDF
-// ============================================
-function setupPDFExportButton() {
-    console.log("Configurando botón de exportar PDF...");
-    
-    // Buscar el contenedor de exportación de Excel
-    const excelButton = document.getElementById('export-excel-btn');
-    if (!excelButton) {
-        console.error("No se encontró el botón de exportar Excel");
-        return;
-    }
-    
-    // Crear botón de PDF junto al de Excel
-    const pdfButton = document.createElement('button');
-    pdfButton.id = 'export-pdf-btn';
-    pdfButton.className = 'btn btn-info';
-    pdfButton.innerHTML = '<i class="fas fa-file-pdf"></i> PDF';
-    pdfButton.title = 'Generar PDF del orden de salida';
-    pdfButton.style.marginLeft = '8px';
-    
-    // Añadir event listener
-    pdfButton.addEventListener('click', generateStartOrderPDF);
-    
-    // Insertar después del botón de Excel
-    excelButton.parentNode.insertBefore(pdfButton, excelButton.nextSibling);
-    
-    console.log("Botón de exportar PDF configurado junto al de Excel");
 }
