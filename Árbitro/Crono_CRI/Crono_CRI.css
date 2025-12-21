@@ -3031,6 +3031,64 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     background-color: #e8f4fd !important;
 }
 
+/* Estilos para el modal de edición */
+#edit-race-modal .modal-content {
+    max-width: 600px;
+}
+
+.creation-info {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.creation-info p {
+    margin: 5px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.creation-info i {
+    width: 16px;
+    color: var(--primary);
+}
+
+/* Grupo de radios para modalidad */
+.radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.radio-option:hover {
+    border-color: var(--primary);
+    background: #e8f4fd;
+}
+
+.radio-option input[type="radio"]:checked + .radio-label {
+    color: var(--primary);
+    font-weight: 600;
+}
+
 /* 19/12/2025
 He organizado el CSS en las siguientes secciones principales:
 Reset y variables globales - Estilos base y variables CSS

@@ -561,6 +561,93 @@
     <!-- =========================================== -->
     <!-- MODALES -->
     <!-- =========================================== -->
+
+    <!-- Modal para Editar Carrera -->
+    <div id="edit-race-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> <span id="edit-race-modal-title">Editar Carrera</span></h3>
+                <button id="edit-race-modal-close" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="edit-race-name">Nombre de la carrera *</label>
+                    <input type="text" id="edit-race-name" class="form-control" 
+                        placeholder="Ej: Media Maratón Ciudad" maxlength="100">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-race-category">Categoría</label>
+                    <input type="text" id="edit-race-category" class="form-control" 
+                        placeholder="Ej: Élite, Máster 40, etc." maxlength="50">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-race-organizer">Organizador</label>
+                    <input type="text" id="edit-race-organizer" class="form-control" 
+                        placeholder="Club, federación..." maxlength="100">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-race-location">Ubicación</label>
+                    <input type="text" id="edit-race-location" class="form-control" 
+                        placeholder="Ej: Parque Central" maxlength="100">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-race-date">Fecha</label>
+                    <input type="date" id="edit-race-date" class="form-control">
+                </div>
+                
+                <!-- Modalidad -->
+                <div class="form-group">
+                    <label>Modalidad:</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="edit-modality" id="edit-modality-cri" value="CRI" checked>
+                            <span class="radio-label">CRI</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="edit-modality" id="edit-modality-cre" value="CRE">
+                            <span class="radio-label">CRE</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="edit-modality" id="edit-modality-descenso" value="Descenso">
+                            <span class="radio-label">Descenso</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="edit-modality" id="edit-modality-otras" value="Otras">
+                            <span class="radio-label">Otras</span>
+                        </label>
+                    </div>
+                    <div id="edit-other-modality-container" class="form-group" style="display: none; margin-top: 10px;">
+                        <input type="text" id="edit-race-other-modality" class="form-control" 
+                            placeholder="Especifica la modalidad..." maxlength="50">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-race-description">Descripción / Notas</label>
+                    <textarea id="edit-race-description" class="form-control" rows="3" 
+                            placeholder="Información adicional sobre la carrera..."></textarea>
+                </div>
+                
+                <!-- Información de creación -->
+                <div class="creation-info" style="font-size: 0.85rem; color: #6c757d; margin-top: 20px; padding-top: 10px; border-top: 1px solid #eee;">
+                    <p><i class="fas fa-calendar-plus"></i> Creada: <span id="edit-race-created-at"></span></p>
+                    <p><i class="fas fa-edit"></i> Última modificación: <span id="edit-race-last-modified"></span></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-edit-race-btn" class="btn btn-success">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
+                <button id="cancel-edit-race-btn" class="btn btn-danger">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
     
     <!-- Modal de configuración de plantilla -->
     <div id="template-config-modal" class="modal">

@@ -1939,55 +1939,272 @@ function setupRaceFormEvents() {
     window.raceFormEventsConfigured = true;
     console.log("Eventos del formulario de carrera configurados");
 }
-
+// ============================================
+// FUNCIÓN PARA EDITAR DETALLES DE LA CARRERA
+// ============================================
 function editRaceDetails() {
+    const t = translations[appState.currentLanguage];
+    
     if (!appState.currentRace) {
-        showMessage("Selecciona una carrera primero", 'warning');
+        showMessage(t.selectRaceFirst || 'Selecciona una carrera primero', 'error');
         return;
     }
     
-    const t = translations[appState.currentLanguage];
+    const race = appState.currentRace;
+    const modal = document.getElementById('edit-race-modal');
     
-    // Llenar el formulario con los datos actuales
-    document.getElementById('new-race-name').value = appState.currentRace.name;
-    document.getElementById('new-race-date').value = appState.currentRace.date || new Date().toISOString().split('T')[0];
-    document.getElementById('new-race-category').value = appState.currentRace.category || '';
-    document.getElementById('new-race-organizer').value = appState.currentRace.organizer || '';
-    document.getElementById('new-race-location').value = appState.currentRace.location || '';
-    document.getElementById('new-race-description').value = appState.currentRace.description || '';
-    
-    // Configurar modalidad
-    const modality = appState.currentRace.modality || 'CRI';
-    const originalModality = appState.currentRace.metadata?.originalModality || 'CRI';
-    
-    if (originalModality === 'CRI') {
-        document.getElementById('modality-cri').checked = true;
-    } else if (originalModality === 'CRE') {
-        document.getElementById('modality-cre').checked = true;
-    } else if (originalModality === 'Descenso') {
-        document.getElementById('modality-descenso').checked = true;
-    } else if (originalModality === 'Otras') {
-        document.getElementById('modality-otras').checked = true;
-        document.getElementById('new-race-other-modality').value = modality;
-        document.getElementById('other-modality-container').style.display = 'block';
-    } else {
-        // Si es una modalidad personalizada
-        document.getElementById('modality-otras').checked = true;
-        document.getElementById('new-race-other-modality').value = modality;
-        document.getElementById('other-modality-container').style.display = 'block';
+    if (!modal) {
+        console.error("Modal de edición de carrera no encontrado");
+        showMessage("Error: No se puede abrir el editor", 'error');
+        return;
     }
     
-    // Cambiar título del modal
-    document.getElementById('new-race-modal-title').textContent = t.editRaceTitle || 'Editar carrera';
+    // Llenar el formulario con los datos actuales
+    document.getElementById('edit-race-name').value = race.name;
+    document.getElementById('edit-race-category').value = race.category || '';
+    document.getElementById('edit-race-organizer').value = race.organizer || '';
+    document.getElementById('edit-race-location').value = race.location || '';
+    document.getElementById('edit-race-date').value = race.date || new Date().toISOString().split('T')[0];
+    document.getElementById('edit-race-description').value = race.description || '';
     
-    // Cambiar botón
-    const createBtn = document.getElementById('create-race-btn');
-    createBtn.textContent = t.saveChanges || 'Guardar cambios';
-    createBtn.onclick = saveRaceChanges;
+    // Configurar modalidad
+    const modality = race.modality || 'CRI';
+    const originalModality = race.metadata?.originalModality || 'CRI';
+    
+    // Resetear todos los radios primero
+    document.querySelectorAll('input[name="edit-modality"]').forEach(radio => {
+        radio.checked = false;
+    });
+    
+    if (originalModality === 'CRI') {
+        document.getElementById('edit-modality-cri').checked = true;
+    } else if (originalModality === 'CRE') {
+        document.getElementById('edit-modality-cre').checked = true;
+    } else if (originalModality === 'Descenso') {
+        document.getElementById('edit-modality-descenso').checked = true;
+    } else if (originalModality === 'Otras') {
+        document.getElementById('edit-modality-otras').checked = true;
+        document.getElementById('edit-race-other-modality').value = modality;
+        document.getElementById('edit-other-modality-container').style.display = 'block';
+    } else {
+        // Si es una modalidad personalizada
+        document.getElementById('edit-modality-otras').checked = true;
+        document.getElementById('edit-race-other-modality').value = modality;
+        document.getElementById('edit-other-modality-container').style.display = 'block';
+    }
+    
+    // Mostrar/ocultar campo de otras modalidades
+    const otherContainer = document.getElementById('edit-other-modality-container');
+    if (originalModality === 'Otras' || !['CRI', 'CRE', 'Descenso'].includes(originalModality)) {
+        otherContainer.style.display = 'block';
+    } else {
+        otherContainer.style.display = 'none';
+    }
+    
+    // Mostrar información de creación
+    if (race.createdAt) {
+        const createdDate = new Date(race.createdAt);
+        document.getElementById('edit-race-created-at').textContent = 
+            createdDate.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+    }
+    
+    if (race.lastModified) {
+        const modifiedDate = new Date(race.lastModified);
+        document.getElementById('edit-race-last-modified').textContent = 
+            modifiedDate.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+    }
+    
+    // Configurar eventos de modalidad
+    document.querySelectorAll('input[name="edit-modality"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const otherEditContainer = document.getElementById('edit-other-modality-container');
+            if (this.value === 'Otras') {
+                otherEditContainer.style.display = 'block';
+                document.getElementById('edit-race-other-modality').focus();
+            } else {
+                otherEditContainer.style.display = 'none';
+                document.getElementById('edit-race-other-modality').value = '';
+            }
+        });
+    });
+    
+    // Configurar botón de guardar
+    const saveBtn = modal.querySelector('#save-edit-race-btn');
+    if (saveBtn) {
+        saveBtn.onclick = saveEditedRace;
+    }
+    
+    // Configurar botón de cancelar
+    const cancelBtn = modal.querySelector('#cancel-edit-race-btn');
+    if (cancelBtn) {
+        cancelBtn.onclick = function() {
+            modal.classList.remove('active');
+        };
+    }
+    
+    // Configurar cierre del modal
+    const closeBtn = modal.querySelector('#edit-race-modal-close');
+    if (closeBtn) {
+        closeBtn.onclick = function() {
+            modal.classList.remove('active');
+        };
+    }
+    
+    // Cerrar al hacer clic fuera
+    modal.onclick = function(e) {
+        if (e.target === this) {
+            modal.classList.remove('active');
+        }
+    };
     
     // Mostrar modal
-    document.getElementById('new-race-modal').classList.add('active');
-    document.getElementById('new-race-name').focus();
+    modal.classList.add('active');
+    document.getElementById('edit-race-name').focus();
+    
+    console.log("Editando carrera:", race.name, "ID:", race.id);
+}
+
+// ============================================
+// FUNCIÓN PARA GUARDAR CARRERA EDITADA (CON VALIDACIÓN)
+// ============================================
+function saveEditedRace() {
+    const t = translations[appState.currentLanguage];
+    const modal = document.getElementById('edit-race-modal');
+    
+    // Verificar que el modal existe
+    if (!modal) {
+        console.error("Modal de edición no encontrado");
+        showMessage("Error: No se puede guardar los cambios", 'error');
+        return;
+    }
+    
+    // Obtener elementos con verificación
+    const nameElement = document.getElementById('edit-race-name');
+    const categoryElement = document.getElementById('edit-race-category');
+    const organizerElement = document.getElementById('edit-race-organizer');
+    const locationElement = document.getElementById('edit-race-location');
+    const dateElement = document.getElementById('edit-race-date');
+    const descriptionElement = document.getElementById('edit-race-description');
+    const otherModalityElement = document.getElementById('edit-race-other-modality');
+    
+    // Verificar que todos los elementos requeridos existen
+    if (!nameElement || !dateElement) {
+        console.error("Elementos del formulario no encontrados");
+        console.log("Elementos encontrados:", {
+            nameElement: !!nameElement,
+            categoryElement: !!categoryElement,
+            organizerElement: !!organizerElement,
+            locationElement: !!locationElement,
+            dateElement: !!dateElement,
+            descriptionElement: !!descriptionElement,
+            otherModalityElement: !!otherModalityElement
+        });
+        showMessage("Error: Formulario incompleto", 'error');
+        return;
+    }
+    
+    // Obtener valores del formulario
+    const name = nameElement.value.trim();
+    const category = categoryElement ? categoryElement.value.trim() : '';
+    const organizer = organizerElement ? organizerElement.value.trim() : '';
+    const location = locationElement ? locationElement.value.trim() : '';
+    const date = dateElement.value;
+    const description = descriptionElement ? descriptionElement.value.trim() : '';
+    
+    // Obtener modalidad
+    const modalityInput = document.querySelector('input[name="edit-modality"]:checked');
+    let modality = modalityInput ? modalityInput.value : 'CRI';
+    let otherModality = '';
+    
+    if (modality === 'Otras' && otherModalityElement) {
+        otherModality = otherModalityElement.value.trim();
+        if (otherModality) {
+            modality = otherModality;
+        }
+    }
+    
+    // Validaciones
+    if (!name) {
+        showMessage(t.enterRaceName || 'Introduce un nombre para la carrera', 'error');
+        nameElement.focus();
+        return;
+    }
+    
+    if (!date) {
+        showMessage(t.enterValidDate || 'Introduce una fecha válida', 'error');
+        dateElement.focus();
+        return;
+    }
+    
+    // Buscar el índice de la carrera actual
+    const raceIndex = appState.races.findIndex(r => r.id === appState.currentRace.id);
+    
+    if (raceIndex === -1) {
+        showMessage(t.raceNotFound || 'Carrera no encontrada', 'error');
+        modal.classList.remove('active');
+        return;
+    }
+    
+    // Crear copia actualizada de la carrera
+    const updatedRace = {
+        ...appState.currentRace, // Mantener todas las propiedades existentes
+        name: name,
+        category: category,
+        organizer: organizer,
+        location: location,
+        date: date,
+        modality: modality,
+        description: description,
+        lastModified: new Date().toISOString()
+    };
+    
+    // Actualizar metadata si existe
+    if (!updatedRace.metadata) {
+        updatedRace.metadata = {};
+    }
+    updatedRace.metadata.originalModality = modalityInput ? modalityInput.value : 'CRI';
+    updatedRace.metadata.otherModality = otherModality;
+    
+    // Actualizar la carrera en el array
+    appState.races[raceIndex] = updatedRace;
+    
+    // Actualizar la carrera actual
+    appState.currentRace = updatedRace;
+    
+    // Guardar en localStorage
+    saveRacesToStorage();
+    
+    // Actualizar el selector de carreras
+    renderRacesSelect();
+    
+    // Actualizar título de la tarjeta de gestión
+    updateRaceManagementCardTitle();
+    
+    // Cerrar modal
+    modal.classList.remove('active');
+    
+    // Mostrar mensaje de éxito
+    showMessage(t.raceUpdated || 'Carrera actualizada correctamente', 'success');
+    
+    console.log(`Carrera "${name}" actualizada correctamente`, {
+        id: updatedRace.id,
+        name: updatedRace.name,
+        date: updatedRace.date,
+        category: updatedRace.category,
+        modality: updatedRace.modality
+    });
 }
 
 function saveRaceChanges() {

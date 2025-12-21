@@ -106,7 +106,11 @@ quiero añadir dos campos más en el excel y la tabla de orden de salida y es la
 
 te digo como lo quiero, primero el nombre de la prueba, debajo Orden de Salida, y esto centrado en la página, luego jusitificado (sin titulo) a la izquierda lugar, y al lado fecha, debajo tipo prueba y al lado categoria y Total Corredores: y su valor, al lado Salida Primer Corredor: y al lado Salida último Corredor. la cabecera de la tabla la quiero del mismo color que el ejemplo azul creo que es, y los titulos y valores de pos, dorsal, hora salida y crono centrado, y apellidos y nombre jsutificado izquierda, y automatiza el calculo del numero de registros que caben en una hoja
 
-----
+
+traducir PDF
+
+-------------------------------------------------
+
 El programa de cri sera un programa para la ayuda para realizar Carreras de Contrareloj. Tendrá tres partes, gestión general, gestión salidas y gestión de llegadas 
 En la gestión general, definiremos los datos comunes, esto es idioma, datos carrera y orden de salida.
 En gestión de salidas, mostraremos el reloj de cuenta atrás y el listado de salidos.
@@ -152,6 +156,3 @@ al introducir el ultimo corredor u otra posición ponemos como datos, el valor d
 
 
 los unicos valores que se pueden modificar en la tabla de orden de salida son: dorsal,diferencia, nombre, apellidos, chip
-
-
-traducir PDF
