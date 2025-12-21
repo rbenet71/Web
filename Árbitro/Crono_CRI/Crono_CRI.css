@@ -2902,6 +2902,89 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     opacity: 1;
 }
 
+/* =========================================== */
+/* ESTILOS PARA BOTONES ESPECÍFICOS - NUEVA SECCIÓN */
+/* =========================================== */
+
+/* Botón btn-secondary - para botones de edición */
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3) !important;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #484e53 100%) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 6px 18px rgba(108, 117, 125, 0.4) !important;
+    color: white !important;
+}
+
+.btn-secondary:active {
+    background: linear-gradient(135deg, #484e53 0%, #3a3f44 100%) !important;
+}
+
+/* Botón btn-info - para botón "Añadir corredor" */
+.btn-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3) !important;
+}
+
+.btn-info:hover {
+    background: linear-gradient(135deg, #138496 0%, #117a8b 100%) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 6px 18px rgba(23, 162, 184, 0.4) !important;
+    color: white !important;
+}
+
+.btn-info:active {
+    background: linear-gradient(135deg, #117a8b 0%, #0f6674 100%) !important;
+}
+
+/* Versiones responsive de estos botones */
+.responsive-btn.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3) !important;
+}
+
+.responsive-btn.btn-secondary:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #484e53 100%) !important;
+    box-shadow: 0 6px 18px rgba(108, 117, 125, 0.4) !important;
+    color: white !important;
+}
+
+.responsive-btn.btn-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3) !important;
+}
+
+.responsive-btn.btn-info:hover {
+    background: linear-gradient(135deg, #138496 0%, #117a8b 100%) !important;
+    box-shadow: 0 6px 18px rgba(23, 162, 184, 0.4) !important;
+    color: white !important;
+}
+
+/* Estilos para botones dentro de contenedores específicos */
+.race-action-btn.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+    color: white !important;
+}
+
+.buttons-responsive-container .btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+    color: white !important;
+}
+
+.buttons-responsive-container .btn-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
+    color: white !important;
+}
+
 /* 19/12/2025
 He organizado el CSS en las siguientes secciones principales:
 Reset y variables globales - Estilos base y variables CSS

@@ -1,5 +1,7 @@
 Crono CRI
 
+#### Traspasar a otras app - cerrar bloques, botones en grid
+
 Quiero crear una app para ayudar a las salidas de las contra relojes de ciclismo.
 
 Partiendo de la app cuenta atrás, la diferencia es que se importará un Excel con todos los datos de la cri, por tanto se ha de mantener diseño y estructura igual y solo añadir la parte de entrada de datos de corredores y tiempos de salida. Además en la pantalla de cuenta atrás se mostrarán los datos del corredor.
