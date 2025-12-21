@@ -222,9 +222,6 @@ function setupEventListeners() {
 // ============================================
 // EVENT LISTENERS PARA ORDEN DE SALIDA
 // ============================================
-// ============================================
-// EVENT LISTENERS PARA ORDEN DE SALIDA
-// ============================================
 function setupStartOrderEventListeners() {
     
     if (window.startOrderListenersConfigured) {
@@ -263,10 +260,20 @@ function setupStartOrderEventListeners() {
         exportPDFBtn.addEventListener('click', generateStartOrderPDF);
     }
    
-    // Botón para añadir corredor
+    // BOTÓN AÑADIR CORREDOR - USANDO LA NUEVA FUNCIÓN
     const addRiderBtn = document.getElementById('add-rider-btn');
-    if (addRiderBtn && typeof addNewRider === 'function') {
-        addRiderBtn.addEventListener('click', addNewRider);
+    if (addRiderBtn) {
+        console.log("Configurando botón añadir corredor con nueva funcionalidad...");
+        addRiderBtn.addEventListener('click', function() {
+            console.log("Botón añadir corredor clickeado");
+            if (typeof showRiderPositionModal === 'function') {
+                showRiderPositionModal();
+            } else if (typeof addNewRider === 'function') {
+                addNewRider(); // Fallback a la versión antigua
+            } else {
+                console.error("Función addNewRider no encontrada");
+            }
+        });
     }
     
     // Botón para limpiar lista
@@ -302,7 +309,6 @@ function setupStartOrderEventListeners() {
     window.startOrderListenersConfigured = true;
     console.log("Event listeners de orden de salida configurados.");
 }
-
 
 // ============================================
 // MANEJADORES DE EVENTOS

@@ -609,38 +609,421 @@ function deleteStartOrder() {
     const t = translations[appState.currentLanguage];
     
     if (startOrderData.length === 0) {
-        showMessage(t.listAlreadyEmpty, 'info');
+        showMessage(t.listAlreadyEmpty || 'La lista ya está vacía', 'info');
         return;
     }
     
-    // Usar confirm con un mensaje claro
-    const userConfirmed = window.confirm(t.confirmDeleteOrder || "¿Estás seguro de que quieres eliminar TODO el orden de salida? Esta acción no se puede deshacer.");
+    // Crear modal personalizado en lugar de window.confirm
+    createDeleteOrderConfirmationModal();
+}
+
+function createDeleteOrderConfirmationModal() {
+    const t = translations[appState.currentLanguage];
     
-    if (!userConfirmed) {
-        return; // El usuario canceló
+    // Crear modal de confirmación
+    const modal = document.createElement('div');
+    modal.id = 'delete-order-confirm-modal';
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> ${t.deleteOrderTitle || 'Eliminar Orden de Salida'}</h3>
+                <button class="modal-close" id="delete-order-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="delete-confirm-message">
+                    <div class="warning-icon-large">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <div class="warning-content">
+                        <p class="warning-title">${t.confirmDeleteOrder || '¿Estás seguro de que quieres eliminar TODO el orden de salida?'}</p>
+                        <p class="warning-subtitle">${t.deleteWarning || 'Esta acción no se puede deshacer.'}</p>
+                        
+                        <div class="delete-stats">
+                            <div class="stat-item">
+                                <i class="fas fa-users"></i>
+                                <span class="stat-label">Corredores:</span>
+                                <span class="stat-value">${startOrderData.length}</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-list-ol"></i>
+                                <span class="stat-label">Datos:</span>
+                                <span class="stat-value">${startOrderData.length} registros</span>
+                            </div>
+                        </div>
+                        
+                        <div class="data-preview-small">
+                            <h4>Vista previa de datos a eliminar:</h4>
+                            <div class="preview-scroll">
+                                ${getOrderPreviewForModal()}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="confirm-delete-order-btn">
+                    <i class="fas fa-trash"></i>
+                    ${t.confirmDelete || 'Sí, eliminar todo'}
+                </button>
+                <button class="btn btn-secondary" id="cancel-delete-order-btn">
+                    <i class="fas fa-times"></i>
+                    ${t.cancelButtonText || 'Cancelar'}
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Configurar eventos del modal
+    setupDeleteOrderModalEvents(modal);
+    
+    // Mostrar el modal
+    setTimeout(() => {
+        modal.classList.add('active');
+    }, 10);
+    
+    // Añadir estilos si no existen
+    addDeleteOrderModalStyles();
+}
+
+function getOrderPreviewForModal() {
+    // Mostrar solo los primeros 3 corredores como vista previa
+    const previewCount = Math.min(3, startOrderData.length);
+    let html = '<table class="mini-preview-table">';
+    
+    for (let i = 0; i < previewCount; i++) {
+        const rider = startOrderData[i];
+        html += `
+        <tr>
+            <td class="preview-order">${rider.order}</td>
+            <td class="preview-dorsal">${rider.dorsal}</td>
+            <td class="preview-name">${rider.nombre || ''} ${rider.apellidos || ''}</td>
+            <td class="preview-time">${rider.horaSalida || ''}</td>
+        </tr>
+        `;
     }
     
-    // Eliminar los datos
-    startOrderData = [];
+    html += '</table>';
     
-    // Actualizar el total de corredores a 1 (valor mínimo)
-    document.getElementById('total-riders').value = 1;
-    
-    // Actualizar la tabla (mostrará estado vacío)
-    updateStartOrderTable();
-    
-    // Guardar los cambios
-    saveStartOrderData();
-    
-    // También actualizar en la carrera actual si existe
-    if (appState.currentRace) {
-        saveRaceData();
+    if (startOrderData.length > 3) {
+        html += `
+        <div class="preview-more-info">
+            <i class="fas fa-ellipsis-h"></i>
+            ${startOrderData.length - 3} ${translations[appState.currentLanguage].moreRiders || 'más corredores...'}
+        </div>
+        `;
     }
     
-    // Mostrar mensaje de éxito
-    showMessage(t.orderDeleted, 'success');
+    return html;
+}
+
+function setupDeleteOrderModalEvents(modal) {
+    const confirmBtn = modal.querySelector('#confirm-delete-order-btn');
+    const cancelBtn = modal.querySelector('#cancel-delete-order-btn');
+    const closeBtn = modal.querySelector('#delete-order-close');
     
-    console.log("Orden de salida eliminado completamente");
+    // Confirmar eliminación
+    confirmBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        // Eliminar todos los datos
+        startOrderData = [];
+        
+        // Actualizar UI
+        document.getElementById('total-riders').value = 1;
+        updateStartOrderTable();
+        
+        // Guardar los cambios
+        if (typeof saveStartOrderData === 'function') {
+            saveStartOrderData();
+        }
+        
+        // También actualizar en la carrera actual si existe
+        if (appState.currentRace) {
+            saveRaceData();
+        }
+        
+        // Cerrar modal
+        modal.classList.remove('active');
+        setTimeout(() => {
+            if (modal.parentNode) {
+                modal.remove();
+            }
+        }, 300);
+        
+        // Mostrar mensaje de éxito
+        const t = translations[appState.currentLanguage];
+        showMessage(t.orderDeleted || 'Orden de salida eliminado correctamente', 'success');
+        
+        console.log("Orden de salida eliminado completamente");
+    });
+    
+    // Cancelar eliminación
+    cancelBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        modal.classList.remove('active');
+        setTimeout(() => {
+            if (modal.parentNode) {
+                modal.remove();
+            }
+        }, 300);
+        
+        const t = translations[appState.currentLanguage];
+        showMessage(t.deleteCancelled || 'Eliminación cancelada', 'info');
+    });
+    
+    // Cerrar con la X
+    closeBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        modal.classList.remove('active');
+        setTimeout(() => {
+            if (modal.parentNode) {
+                modal.remove();
+            }
+        }, 300);
+    });
+    
+    // Cerrar al hacer clic fuera
+    modal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.remove('active');
+            setTimeout(() => {
+                if (this.parentNode) {
+                    this.remove();
+                }
+            }, 300);
+        }
+    });
+    
+    // Prevenir que el evento se propague al contenido
+    modal.querySelector('.modal-content').addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+}
+
+function addDeleteOrderModalStyles() {
+    if (document.getElementById('delete-order-modal-styles')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'delete-order-modal-styles';
+    style.textContent = `
+        /* Estilos para el modal de eliminar orden */
+        #delete-order-confirm-modal .modal-content {
+            max-width: 500px;
+        }
+        
+        .delete-confirm-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 20px 10px;
+        }
+        
+        .warning-icon-large {
+            font-size: 3.5rem;
+            color: #dc3545;
+            margin-bottom: 20px;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(220, 53, 69, 0.1);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .warning-content {
+            width: 100%;
+        }
+        
+        .warning-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--danger);
+            margin-bottom: 10px;
+        }
+        
+        .warning-subtitle {
+            font-size: 1rem;
+            color: var(--gray);
+            margin-bottom: 25px;
+        }
+        
+        .delete-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: var(--border-radius);
+            border: 1px solid #dee2e6;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stat-item i {
+            font-size: 1.8rem;
+            color: var(--danger);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--danger);
+        }
+        
+        .data-preview-small {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: var(--border-radius);
+            border: 1px solid #dee2e6;
+        }
+        
+        .data-preview-small h4 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: var(--gray-dark);
+            font-size: 1rem;
+            text-align: center;
+        }
+        
+        .preview-scroll {
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        
+        .mini-preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        
+        .mini-preview-table tr {
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .mini-preview-table tr:last-child {
+            border-bottom: none;
+        }
+        
+        .mini-preview-table td {
+            padding: 8px 5px;
+            text-align: left;
+        }
+        
+        .preview-order {
+            width: 20%;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .preview-dorsal {
+            width: 15%;
+            font-weight: 600;
+            color: var(--info);
+        }
+        
+        .preview-name {
+            width: 45%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--dark);
+        }
+        
+        .preview-time {
+            width: 20%;
+            font-family: 'Courier New', monospace;
+            color: var(--success);
+        }
+        
+        .preview-more-info {
+            text-align: center;
+            padding: 10px;
+            color: var(--gray);
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+        
+        .preview-more-info i {
+            margin-right: 5px;
+        }
+        
+        /* Scrollbar personalizada */
+        .preview-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .preview-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .preview-scroll::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        
+        .preview-scroll::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Modal footer específico */
+        #delete-order-confirm-modal .modal-footer {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            #delete-order-confirm-modal .modal-content {
+                margin: 15px;
+                width: calc(100% - 30px);
+            }
+            
+            .delete-stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            #delete-order-confirm-modal .modal-footer {
+                flex-direction: column;
+            }
+            
+            #delete-order-confirm-modal .modal-footer button {
+                width: 100%;
+            }
+        }
+    `;
+    
+    document.head.appendChild(style);
 }
 
 function addNewRider() {

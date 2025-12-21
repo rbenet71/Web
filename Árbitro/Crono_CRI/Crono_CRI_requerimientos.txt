@@ -136,6 +136,8 @@ Crono-cri/
 │   └── ...
 └── plantilla-cri.xlsx
 
+scroll orden de salida mantener la cabecera
+
 Para empezar vamos a dejar el programa tal y como esta, pero vamos a:
 
 al introducir manualmente un corredor preguntamos si lo pone al principio o en que posición, en función donde vaya se calcula a los siguientes corredores su hora de salida teniendo en cuenta que el corredor añadido tendrá la diferencia igual al anterior corredor. y a la vez se actualiza el valor en segundos de lo que hemos modificado

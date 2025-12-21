@@ -640,79 +640,303 @@ function exportToExcel() {
     showMessage(t.excelExported, 'success');
 }
 
+// ============================================
+// FUNCIÓN PARA EXPORTAR ORDEN DE SALIDA A EXCEL
+// ============================================
+
+// ============================================
+// FUNCIÓN PARA EXPORTAR ORDEN DE SALIDA A EXCEL
+// ============================================
+
+// ============================================
+// FUNCIÓN PARA EXPORTAR ORDEN DE SALIDA A EXCEL
+// ============================================
+
 function exportStartOrder() {
     const t = translations[appState.currentLanguage];
     
-    if (startOrderData.length === 0) {
-        showMessage(t.noDataToExport, 'warning');
+    if (!startOrderData || startOrderData.length === 0) {
+        showMessage(t.noOrderToExport || 'No hay datos para exportar', 'warning');
         return;
     }
     
-    // Usar los mismos campos que la plantilla
-    const data = [
-        ['Orden', 'Dorsal', 'Crono Salida', 'Hora Salida', 'Nombre', 'Apellidos', 'Chip', 
-         'Hora Salida Real', 'Crono Salida Real', 'Hora Salida Prevista', 'Crono Salida Prevista', 
-         'Hora Salida Importado', 'Crono Salida Importado', 'Crono Segundos', 'Hora Segundos']
+    // Mostrar mensaje de progreso
+    showMessage(t.exportingOrder || 'Exportando orden de salida...', 'info');
+    
+    // Crear encabezados CORREGIDOS (19 columnas - INCLUYENDO DIFERENCIA)
+    const headers = [
+        'Orden', 
+        'Dorsal', 
+        'Crono Salida', 
+        'Hora Salida', 
+        'Diferencia',  // COLUMNA AÑADIDA
+        'Nombre', 
+        'Apellidos', 
+        'Chip', 
+        'Hora Salida Real', 
+        'Crono Salida Real', 
+        'Hora Salida Prevista', 
+        'Crono Salida Prevista', 
+        'Hora Salida Importado', 
+        'Crono Salida Importado', 
+        'Crono Segundos', 
+        'Hora Segundos',
+        'Crono Salida Real Segundos', 
+        'Hora Salida Real Segundos',
+        'Diferencia Segundos'  // NUEVA: Segundos de diferencia para cálculos
     ];
     
+    // Crear los datos
+    const data = [headers];
+    
+    // Añadir todas las filas de datos
     startOrderData.forEach(rider => {
-        data.push([
-            rider.order,
-            rider.dorsal,
-            rider.cronoSalida,
-            rider.horaSalida,
-            rider.nombre,
-            rider.apellidos,
-            rider.chip,
-            rider.horaSalidaReal,
-            rider.cronoSalidaReal,
-            rider.horaSalidaPrevista,
-            rider.cronoSalidaPrevista,
-            rider.horaSalidaImportado,
-            rider.cronoSalidaImportado,
-            rider.cronoSegundos,
-            rider.horaSegundos
-        ]);
+        // Calcular valores que puedan faltar
+        const cronoSegundos = rider.cronoSegundos || timeToSeconds(rider.cronoSalida) || 0;
+        const horaSegundos = rider.horaSegundos || timeToSeconds(rider.horaSalida) || 0;
+        const cronoRealSegundos = rider.cronoSalidaRealSegundos || timeToSeconds(rider.cronoSalidaReal) || 0;
+        const horaRealSegundos = rider.horaSalidaRealSegundos || timeToSeconds(rider.horaSalidaReal) || 0;
+        const cronoPrevistoSegundos = timeToSeconds(rider.cronoSalidaPrevista) || cronoSegundos;
+        const horaPrevistaSegundos = timeToSeconds(rider.horaSalidaPrevista) || horaSegundos;
+        
+        // Calcular diferencia - PRIMERO intentar usar la diferencia del rider
+        let diferenciaFormato = '';
+        let diferenciaSegundos = 0;
+        
+        if (rider.diferencia && rider.diferencia !== '' && rider.diferencia !== '00:00:00') {
+            // Usar la diferencia existente del rider
+            diferenciaFormato = rider.diferencia;
+            
+            // Extraer segundos de la diferencia (formato: "00:01:00 (+)" o "00:01:00 (-)")
+            const diffMatch = rider.diferencia.match(/(\d{2}:\d{2}:\d{2})/);
+            if (diffMatch) {
+                diferenciaSegundos = timeToSeconds(diffMatch[1]);
+                // Aplicar signo
+                if (rider.diferencia.includes('(-)') || rider.diferencia.includes('-')) {
+                    diferenciaSegundos = -Math.abs(diferenciaSegundos);
+                } else if (rider.diferencia.includes('(+)') || rider.diferencia.includes('+')) {
+                    diferenciaSegundos = Math.abs(diferenciaSegundos);
+                }
+            }
+        } 
+        // Si no hay diferencia pero hay datos reales y previstos, calcularla
+        else if (horaRealSegundos > 0 && horaPrevistaSegundos > 0) {
+            diferenciaSegundos = horaRealSegundos - horaPrevistaSegundos;
+            if (diferenciaSegundos !== 0) {
+                diferenciaFormato = secondsToTime(Math.abs(diferenciaSegundos)) + 
+                    (diferenciaSegundos > 0 ? ' (+)' : ' (-)');
+            } else {
+                diferenciaFormato = '00:00:00';
+            }
+        }
+        // Si hay diferenciaSegundos en el rider, usarla
+        else if (rider.diferenciaSegundos && rider.diferenciaSegundos !== 0) {
+            diferenciaSegundos = rider.diferenciaSegundos;
+            diferenciaFormato = secondsToTime(Math.abs(diferenciaSegundos)) + 
+                (diferenciaSegundos > 0 ? ' (+)' : ' (-)');
+        }
+        // Si no hay datos para calcular diferencia
+        else {
+            diferenciaFormato = '';
+            diferenciaSegundos = 0;
+        }
+        
+        const row = [
+            rider.order || '',
+            rider.dorsal || '',
+            formatTimeValue(rider.cronoSalida) || '00:00:00',
+            formatTimeValue(rider.horaSalida) || '09:00:00',
+            diferenciaFormato,  // COLUMNA 5: Diferencia formateada
+            rider.nombre || '',
+            rider.apellidos || '',
+            rider.chip || '',
+            formatTimeValue(rider.horaSalidaReal) || '',
+            formatTimeValue(rider.cronoSalidaReal) || '',
+            formatTimeValue(rider.horaSalidaPrevista) || formatTimeValue(rider.horaSalida) || '09:00:00',
+            formatTimeValue(rider.cronoSalidaPrevista) || formatTimeValue(rider.cronoSalida) || '00:00:00',
+            formatTimeValue(rider.horaSalidaImportado) || '',
+            formatTimeValue(rider.cronoSalidaImportado) || '',
+            cronoSegundos,
+            horaSegundos,
+            cronoRealSegundos,
+            horaRealSegundos,
+            diferenciaSegundos  // ÚLTIMA COLUMNA: Diferencia en segundos (para cálculos)
+        ];
+        
+        data.push(row);
     });
     
-    const ws = XLSX.utils.aoa_to_sheet(data);
+    // Crear worksheet
+    const ws = XLSX.utils.aoa_to_sheet(data, { cellStyles: true });
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Orden Salida");
     
-    // Mismo formato que la plantilla
+    // Nombre de la hoja
+    const sheetName = appState.currentRace ? 
+        `Orden_Salida_${appState.currentRace.name.substring(0, 25)}` : 
+        'Orden_Salida';
+    
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    
+    // Ajustar anchos de columna CORREGIDOS (19 columnas)
     const colWidths = [
-        {wch: 8}, {wch: 8}, {wch: 12}, {wch: 12}, {wch: 15}, {wch: 20}, {wch: 12},
-        {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}
+        {wch: 8},   // 1. Orden
+        {wch: 8},   // 2. Dorsal
+        {wch: 12},  // 3. Crono Salida
+        {wch: 12},  // 4. Hora Salida
+        {wch: 15},  // 5. Diferencia (NUEVA COLUMNA)
+        {wch: 15},  // 6. Nombre
+        {wch: 20},  // 7. Apellidos
+        {wch: 12},  // 8. Chip
+        {wch: 12},  // 9. Hora Salida Real
+        {wch: 12},  // 10. Crono Salida Real
+        {wch: 12},  // 11. Hora Salida Prevista
+        {wch: 12},  // 12. Crono Salida Prevista
+        {wch: 12},  // 13. Hora Salida Importado
+        {wch: 12},  // 14. Crono Salida Importado
+        {wch: 12},  // 15. Crono Segundos
+        {wch: 12},  // 16. Hora Segundos
+        {wch: 12},  // 17. Crono Salida Real Segundos
+        {wch: 12},  // 18. Hora Salida Real Segundos
+        {wch: 12}   // 19. Diferencia Segundos
     ];
     ws['!cols'] = colWidths;
     
-    // Formatear encabezados
-    const headerRow = 0;
-    for (let C = 0; C < data[0].length; C++) {
-        const cellAddress = XLSX.utils.encode_cell({r: headerRow, c: C});
-        if (ws[cellAddress]) {
-            ws[cellAddress].s = {
-                font: { bold: true, color: { rgb: "FFFFFF" } },
-                fill: { fgColor: { rgb: "2C3E50" } },
-                alignment: { horizontal: "center" }
-            };
-        }
-    }
-    
-    // Auto-filtro para facilitar la navegación
+    // Auto-filtro
     ws['!autofilter'] = {
         ref: XLSX.utils.encode_range({
             s: { r: 0, c: 0 },
-            e: { r: startOrderData.length, c: data[0].length - 1 }
+            e: { r: startOrderData.length, c: headers.length - 1 }
         })
     };
     
-    const filename = `orden_salida_${appState.currentRace ? appState.currentRace.name.replace(/[^a-z0-9]/gi, '_') : 'sin_nombre'}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    // Formato de número para columnas de segundos
+    const numberColumns = [14, 15, 16, 17, 18]; // Índices de columnas de segundos (0-based): 14-18
+    
+    // Aplicar formato a las filas
+    for (let i = 1; i <= startOrderData.length; i++) {
+        numberColumns.forEach(colIndex => {
+            const cellRef = XLSX.utils.encode_cell({ r: i, c: colIndex });
+            if (ws[cellRef]) {
+                ws[cellRef].z = '0';
+            }
+        });
+        
+        // Formato tiempo para columnas de tiempo
+        const timeColumns = [2, 3, 8, 9, 10, 11, 12, 13]; // Índices de columnas de tiempo
+        timeColumns.forEach(colIndex => {
+            const cellRef = XLSX.utils.encode_cell({ r: i, c: colIndex });
+            if (ws[cellRef] && ws[cellRef].v && ws[cellRef].v !== '') {
+                // Si es un número (valor Excel), mantener formato tiempo
+                if (typeof ws[cellRef].v === 'number') {
+                    ws[cellRef].z = 'hh:mm:ss';
+                }
+            }
+        });
+        
+        // Formato especial para columna de Diferencia (columna 4, índice 4)
+        const diferenciaCellRef = XLSX.utils.encode_cell({ r: i, c: 4 });
+        if (ws[diferenciaCellRef] && ws[diferenciaCellRef].v) {
+            // Aplicar formato de texto para mantener los signos (+)/(-)
+            ws[diferenciaCellRef].t = 's'; // Tipo string
+        }
+    }
+    
+    // Generar nombre del archivo
+    const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
+    const timeStr = new Date().toTimeString().split(' ')[0].replace(/:/g, '').substring(0, 4);
+    
+    let filename;
+    if (appState.currentRace) {
+        const safeRaceName = appState.currentRace.name
+            .replace(/[^a-z0-9]/gi, '_')
+            .substring(0, 30);
+        filename = `orden_salida_${safeRaceName}_${dateStr}_${timeStr}.xlsx`;
+    } else {
+        filename = `orden_salida_${dateStr}_${timeStr}.xlsx`;
+    }
+    
+    // Guardar archivo
     XLSX.writeFile(wb, filename);
     
-    showMessage(t.orderExported, 'success');
+    // Mostrar mensaje de éxito con estadísticas
+    const statsMessage = `${t.orderExported || 'Orden de salida exportado'} - ${startOrderData.length} corredores, ${headers.length} columnas`;
+    showMessage(statsMessage, 'success');
+    
+    console.log("Orden de salida exportado:", filename);
+    console.log("Columnas exportadas:", headers.length);
+    console.log("Estructura de columnas:", headers);
+    
+    // Log detallado del primer corredor para verificar diferencia
+    if (startOrderData.length > 0) {
+        const firstRider = startOrderData[0];
+        console.log("Primer corredor exportado - Diferencia:", {
+            order: firstRider.order,
+            dorsal: firstRider.dorsal,
+            diferencia: firstRider.diferencia,
+            diferenciaSegundos: firstRider.diferenciaSegundos,
+            horaSalida: firstRider.horaSalida,
+            horaSalidaReal: firstRider.horaSalidaReal,
+            exportadoComo: data[1][4] // Valor en la fila de datos
+        });
+    }
 }
 
+
+// Función auxiliar para formatear tiempo (asegurar formato HH:MM:SS)
+function formatTimeValue(timeStr) {
+    // Si es undefined, null o vacío, devolver cadena vacía
+    if (timeStr === undefined || timeStr === null || timeStr === '') {
+        return '';
+    }
+    
+    // Si ya es un string con signos de diferencia, devolverlo tal cual
+    if (typeof timeStr === 'string' && (timeStr.includes('(+)') || timeStr.includes('(-)'))) {
+        return timeStr;
+    }
+    
+    // Convertir a string si es un número
+    if (typeof timeStr === 'number') {
+        // Si es un número de Excel (formato de fecha/hora), convertirlo a string
+        // En Excel, 1 = 24 horas, 0.0416666666666667 = 1 hora
+        if (timeStr < 1 && timeStr > 0) {
+            // Es un valor de tiempo de Excel
+            const totalSeconds = Math.round(timeStr * 86400); // 86400 segundos en un día
+            return secondsToTime(totalSeconds);
+        } else {
+            // Es un número de segundos
+            return secondsToTime(timeStr);
+        }
+    }
+    
+    // Asegurarnos de que es un string
+    timeStr = String(timeStr).trim();
+    
+    // Si ya tiene formato HH:MM:SS, devolverlo
+    if (timeStr.includes(':') && timeStr.length >= 8) {
+        return timeStr;
+    }
+    
+    // Si es un número string, convertirlo a tiempo
+    if (!isNaN(timeStr) && timeStr !== '') {
+        return secondsToTime(parseInt(timeStr));
+    }
+    
+    // Si es HH:MM, agregar :00
+    if (timeStr.includes(':') && timeStr.length === 5) {
+        return timeStr + ':00';
+    }
+    
+    // Para otros casos, devolver el string original
+    return timeStr;
+}
+function excelTimeToSeconds(excelTime) {
+    // Excel almacena el tiempo como fracción de un día
+    // 1 = 24 horas, 0.0416666666666667 = 1 hora, 0.000694444444444444 = 1 minuto
+    if (typeof excelTime === 'number' && excelTime < 1) {
+        return Math.round(excelTime * 86400); // 86400 segundos en un día
+    }
+    return 0;
+}
 // ============================================
 // FUNCIONES DE MANTENIMIENTO DE PANTALLA
 // ============================================
@@ -825,26 +1049,6 @@ function generateStartOrderPDF() {
         const pageHeight = doc.internal.pageSize.getHeight();
         const margin = 10;
         
-        // Calcular hora final del último corredor
-        const startTime = race.firstStartTime || '09:00:00';
-        const startTimeSeconds = timeToSeconds(startTime);
-        let lastRiderTime = 0;
-        
-        if (startOrderData.length > 0) {
-            startOrderData.forEach(rider => {
-                if (rider.cronoSegundos > lastRiderTime) {
-                    lastRiderTime = rider.cronoSegundos;
-                }
-            });
-        }
-        
-        const endTimeSeconds = startTimeSeconds + lastRiderTime;
-        const endTime = secondsToTime(endTimeSeconds);
-        
-        // Calcular número total de páginas ANTES de dibujar
-        const rowsPerPage = 35;
-        const totalPages = Math.ceil(startOrderData.length / rowsPerPage);
-        
         // Configurar fuente y colores
         const primaryColor = [41, 128, 185];
         const textColor = [44, 62, 80];
@@ -907,10 +1111,10 @@ function generateStartOrderPDF() {
         if (techInfo) techInfo += ` | `;
         techInfo += `${t.riders || 'Corredores'}: ${startOrderData.length}`;
         
-        // Horas de inicio y fin (traducido)
+        // Hora de inicio (traducido)
+        const startTime = race.firstStartTime || '09:00:00';
         const startText = t.start || 'Inicio';
-        const finalText = t.final || 'Final';
-        const timesInfo = `${startText}: ${startTime} | ${finalText}: ${endTime}`;
+        const timesInfo = `${startText}: ${startTime}`;
         
         doc.text(techInfo, margin, yPos);
         doc.text(timesInfo, pageWidth - margin, yPos, { align: 'right' });
@@ -932,18 +1136,59 @@ function generateStartOrderPDF() {
         ];
         
         startOrderData.forEach((rider, index) => {
-            const riderStartSeconds = startTimeSeconds + (rider.cronoSegundos || 0);
-            const riderStartTime = secondsToTime(riderStartSeconds);
-            const cronoDisplay = secondsToMMSS(rider.cronoSegundos || 0);
+            // USAR VALORES DIRECTOS DE LA TABLA, SIN CÁLCULOS
+            const horaSalida = rider.horaSalida || '00:00:00';
+            
+            // SOLUCIÓN: Solo corregir el primer corredor
+            let cronoDisplay;
+            
+            if (index === 0) {
+                // Primer corredor SIEMPRE 00:00 en el PDF
+                cronoDisplay = '00:00';
+            } else {
+                // Para los demás, usar EXACTAMENTE el valor de la tabla
+                const cronoSalida = rider.cronoSalida || '00:00:00';
+                
+                // Solo formatear para PDF (HH:MM:SS → MM:SS)
+                if (cronoSalida && cronoSalida.includes(':')) {
+                    const parts = cronoSalida.split(':');
+                    if (parts.length === 3) {
+                        const horas = parseInt(parts[0]) || 0;
+                        const minutos = parseInt(parts[1]) || 0;
+                        const segundos = parseInt(parts[2]) || 0;
+                        
+                        if (horas === 0) {
+                            // Formato MM:SS (sin horas)
+                            cronoDisplay = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+                        } else {
+                            // Formato H:MM:SS (con horas)
+                            cronoDisplay = `${horas}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+                        }
+                    } else {
+                        cronoDisplay = cronoSalida;
+                    }
+                } else if (cronoSalida && !isNaN(cronoSalida)) {
+                    // Si es un número (segundos), convertirlo a MM:SS
+                    const segundos = parseInt(cronoSalida) || 0;
+                    const minutos = Math.floor(segundos / 60);
+                    const segsRestantes = segundos % 60;
+                    cronoDisplay = `${minutos.toString().padStart(2, '0')}:${segsRestantes.toString().padStart(2, '0')}`;
+                } else {
+                    cronoDisplay = cronoSalida || '00:00';
+                }
+            }
             
             tableData.push([
                 (index + 1).toString(),
                 rider.dorsal ? rider.dorsal.toString() : '--',
                 rider.nombre ? rider.nombre.trim() : '--',
                 rider.apellidos ? rider.apellidos.trim() : '--',
-                riderStartTime,
-                cronoDisplay
+                horaSalida,       // ← VALOR DIRECTO de la tabla
+                cronoDisplay      // ← VALOR AJUSTADO solo para primer corredor
             ]);
+            
+            // Debug
+            console.log(`Corredor ${index + 1}: hora=${horaSalida}, cronoTabla=${rider.cronoSalida}, cronoPDF=${cronoDisplay}`);
         });
         
         // Anchos de columna para centrar la tabla
@@ -974,7 +1219,7 @@ function generateStartOrderPDF() {
         }
         
         // Función para dibujar el pie de página (CON TRADUCCIONES)
-        function drawFooter(pageNum) {
+        function drawFooter(pageNum, totalPages) {
             const footerY = pageHeight - 8;
             
             // Fecha y hora actual (formato local)
@@ -1002,8 +1247,12 @@ function generateStartOrderPDF() {
             doc.text(pageString, pageWidth - margin, footerY, { align: 'right' });
         }
         
+        // Calcular número total de páginas ANTES de dibujar
+        const rowsPerPage = 35;
+        const totalPages = Math.ceil(startOrderData.length / rowsPerPage);
+        
         // Dibujar pie de página en la primera página
-        drawFooter(1);
+        drawFooter(1, totalPages);
         
         // Dibujar encabezados de tabla en la primera página
         drawTableHeaders(yPos);
@@ -1113,7 +1362,7 @@ function generateStartOrderPDF() {
                 // Callback DESPUÉS de dibujar cada página
                 didDrawPage: function(data) {
                     // Dibujar pie de página
-                    drawFooter(data.pageNumber);
+                    drawFooter(data.pageNumber, totalPages);
                 },
                 
                 willDrawCell: function(data) {
@@ -1163,7 +1412,7 @@ function generateStartOrderPDF() {
                     yPos += 5.5;
                     
                     // Dibujar pie de página
-                    drawFooter(pageNum);
+                    drawFooter(pageNum, totalPages);
                 }
                 
                 // Dibujar filas
@@ -1198,9 +1447,9 @@ function generateStartOrderPDF() {
                         
                         // Truncar texto si es necesario
                         let displayText = cell;
-                        if (colIndex === 1 && cell.length > 6) {
+                        if (colIndex === 1 && cell && cell.length > 6) {
                             displayText = cell.substring(0, 6);
-                        } else if ((colIndex === 2 || colIndex === 3) && cell.length > 20) {
+                        } else if ((colIndex === 2 || colIndex === 3) && cell && cell.length > 20) {
                             displayText = cell.substring(0, 20) + '...';
                         }
                         
@@ -1219,7 +1468,7 @@ function generateStartOrderPDF() {
                 
                 // Si es la última página de esta llamada, dibujar pie de página
                 if (startIndex + rowsOnThisPage >= tableData.length) {
-                    drawFooter(pageNum);
+                    drawFooter(pageNum, totalPages);
                 }
             }
             
@@ -1351,12 +1600,19 @@ function formatDateForDisplay(dateString) {
 }
 
 // Función para convertir segundos a formato MM:SS
+// Función para convertir segundos a formato MM:SS (CORREGIDA)
 function secondsToMMSS(seconds) {
     if (!seconds && seconds !== 0) return '00:00';
     
-    const mins = Math.floor(Math.abs(seconds) / 60);
-    const secs = Math.abs(seconds) % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    // Asegurarnos de que sea un número entero
+    const secs = Math.abs(Math.round(seconds));
+    
+    // Calcular minutos y segundos
+    const mins = Math.floor(secs / 60);
+    const remainingSecs = secs % 60;
+    
+    // Formatear como MM:SS
+    return `${mins.toString().padStart(2, '0')}:${remainingSecs.toString().padStart(2, '0')}`;
 }
 
 // Función para convertir tiempo a segundos
@@ -1436,7 +1692,6 @@ function generateSimpleStartOrderPDF() {
         const { jsPDF } = jspdf;
         const doc = new jsPDF();
         const race = appState.currentRace;
-        const startTime = race.firstStartTime || '09:00:00';
         
         let yPos = 20;
         
@@ -1470,7 +1725,7 @@ function generateSimpleStartOrderPDF() {
         doc.setFont('helvetica', 'bold');
         doc.text('Hora inicio:', 20, yPos);
         doc.setFont('helvetica', 'normal');
-        doc.text(startTime, 50, yPos);
+        doc.text(race.firstStartTime || '09:00:00', 50, yPos);
         yPos += 8;
         
         doc.setFont('helvetica', 'bold');
@@ -1495,7 +1750,7 @@ function generateSimpleStartOrderPDF() {
         doc.line(20, yPos, 190, yPos);
         yPos += 10;
         
-        // Datos de los corredores
+        // Datos de los corredores - USAR VALORES DIRECTOS DE LA TABLA
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(9);
         
@@ -1519,15 +1774,52 @@ function generateSimpleStartOrderPDF() {
                 doc.setFontSize(9);
             }
             
-            // Calcular hora de salida para este corredor
-            const startTimeSeconds = timeToSeconds(startTime);
-            const riderStartSeconds = startTimeSeconds + (rider.cronoSegundos || 0);
-            const riderStartTime = secondsToTime(riderStartSeconds);
+            // USAR VALORES DIRECTOS DE LA TABLA
+            const horaSalida = rider.horaSalida || '00:00:00';
+            
+            // SOLUCIÓN: Solo corregir el primer corredor
+            let cronoDisplay;
+            
+            if (index === 0) {
+                // Primer corredor SIEMPRE 00:00
+                cronoDisplay = '00:00';
+            } else {
+                // Para los demás, usar EXACTAMENTE el valor de la tabla
+                const cronoSalida = rider.cronoSalida || '00:00:00';
+                
+                // Solo formatear para PDF
+                if (cronoSalida && cronoSalida.includes(':')) {
+                    const parts = cronoSalida.split(':');
+                    if (parts.length === 3) {
+                        const horas = parseInt(parts[0]) || 0;
+                        const minutos = parseInt(parts[1]) || 0;
+                        const segundos = parseInt(parts[2]) || 0;
+                        
+                        if (horas === 0) {
+                            // Formato MM:SS (sin horas)
+                            cronoDisplay = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+                        } else {
+                            // Formato H:MM:SS (con horas)
+                            cronoDisplay = `${horas}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+                        }
+                    } else {
+                        cronoDisplay = cronoSalida;
+                    }
+                } else if (cronoSalida && !isNaN(cronoSalida)) {
+                    // Si es un número (segundos), convertirlo a MM:SS
+                    const segundos = parseInt(cronoSalida) || 0;
+                    const minutos = Math.floor(segundos / 60);
+                    const segsRestantes = segundos % 60;
+                    cronoDisplay = `${minutos.toString().padStart(2, '0')}:${segsRestantes.toString().padStart(2, '0')}`;
+                } else {
+                    cronoDisplay = cronoSalida || '00:00';
+                }
+            }
             
             // Mostrar datos
             doc.text((index + 1).toString(), 20, yPos);
-            doc.text(secondsToMMSS(rider.cronoSegundos || 0), 35, yPos);
-            doc.text(riderStartTime, 55, yPos);
+            doc.text(cronoDisplay, 35, yPos);  // ← VALOR AJUSTADO solo para primer corredor
+            doc.text(horaSalida, 55, yPos);    // ← VALOR DIRECTO de la tabla
             doc.text(rider.dorsal ? rider.dorsal.toString() : '-', 75, yPos);
             doc.text(rider.nombre || '-', 95, yPos);
             doc.text(rider.apellidos || '-', 140, yPos);
@@ -1548,10 +1840,10 @@ function generateSimpleStartOrderPDF() {
         // Mostrar mensaje de éxito
         showMessage(`✅ PDF generado exitosamente: ${filename}`, 'success');
         
-        console.log("PDF generado exitosamente:", filename);
+        console.log("PDF simplificado generado exitosamente:", filename);
         
     } catch (error) {
-        console.error('Error generando PDF:', error);
+        console.error('Error generando PDF simplificado:', error);
         showMessage(`❌ Error al generar el PDF: ${error.message}`, 'error');
     }
 }
@@ -1636,4 +1928,62 @@ function initPDFModule() {
     
     window.pdfModuleInitialized = true;
     console.log("✅ Módulo PDF inicializado correctamente");
+}
+
+// ============================================
+// FUNCIÓN PARA FORMATEAR TIEMPOS CORRECTAMENTE
+// ============================================
+
+function formatTimeForDisplay(totalSeconds, format = 'HH:MM:SS') {
+    if (!totalSeconds && totalSeconds !== 0) return '00:00:00';
+    
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    switch(format) {
+        case 'HH:MM:SS':
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        case 'MM:SS':
+            if (hours > 0) {
+                // Si hay horas, mostrarlas
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        case 'TIME_COLUMN': // Para la columna TIME del PDF
+            if (totalSeconds < 3600) {
+                // Menos de 1 hora: mostrar MM:SS
+                return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                // Más de 1 hora: mostrar H:MM:SS
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+        
+        default:
+            return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+}
+
+// Función auxiliar para convertir tiempos del PDF
+function parsePDFTime(timeStr) {
+    // Si viene del PDF en formato "01:00" (minutos:segundos)
+    if (timeStr && timeStr.includes(':') && timeStr.length === 5) {
+        const parts = timeStr.split(':');
+        const minutes = parseInt(parts[0]) || 0;
+        const seconds = parseInt(parts[1]) || 0;
+        return (minutes * 60) + seconds;
+    }
+    
+    // Si viene en formato "00:01:00" (horas:minutos:segundos)
+    if (timeStr && timeStr.includes(':') && timeStr.length === 8) {
+        const parts = timeStr.split(':');
+        const hours = parseInt(parts[0]) || 0;
+        const minutes = parseInt(parts[1]) || 0;
+        const seconds = parseInt(parts[2]) || 0;
+        return (hours * 3600) + (minutes * 60) + seconds;
+    }
+    
+    return 0;
 }
