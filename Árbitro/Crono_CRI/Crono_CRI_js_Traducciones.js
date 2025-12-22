@@ -532,6 +532,16 @@ const translations = {
         time: "CRONO",
         page: "Página",
         of: "de",
+    
+        "confirmChange": "Confirmar Cambio",
+        "changeDifferenceQuestion": "¿Cambiar diferencia de",
+        "toText": "a",
+        "willUpdateTimes": "Se actualizarán las horas y crono de salida de este corredor y los siguientes.",
+        "yesChange": "Sí, cambiar",
+        "noCancel": "No, cancelar",
+        "differenceUpdated": "Diferencia actualizada correctamente",
+        "changeCancelled": "Cambio cancelado",
+        "errorIndexOutOfRange": "Error: Índice de corredor inválido"
 
     },
 

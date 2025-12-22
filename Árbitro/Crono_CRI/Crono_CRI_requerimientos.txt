@@ -125,6 +125,8 @@ al introducir un corredor si es el primero o posición 1, se le pone crono salid
 
 al introducir el ultimo corredor u otra posición ponemos como datos, el valor diferencia seria el valor del registro anterior, y sobre los valores anteriores añadimos la diferencia para crono salida, hora salida, y hora salida prevista y crono salida prevista, en hora salida importado y crono salda importado lo dejamos en blanco y convertimos a segundos crono salida y hora salida. Si hay registros depués del añadido recalculamos los tiempos de las mismas columnas, NO modificamos importado.
 
+en la tabla orde de saldida bloquear cabecera campos
+
 -------------------------------------------------
 
 El programa de cri sera un programa para la ayuda para realizar Carreras de Contrareloj. Tendrá tres partes, gestión general, gestión salidas y gestión de llegadas 
@@ -164,5 +166,6 @@ Crono-cri/
 
 Para empezar vamos a dejar el programa tal y como esta, pero vamos a:
 
-en la tabla orde de saldida bloquear cabecera campos
+en la tabla orden de salida al modificar el campo diferencia avisamos que si es correcto el cambio, se calcuran las nuevas crono salida, hora salida, crono salida previsto, hora salida prevista. y si es que si ejecutamos el cambio
+
 
