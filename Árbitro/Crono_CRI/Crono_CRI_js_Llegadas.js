@@ -1,6 +1,38 @@
 // ============================================
 // MÓDULO DE LLEGADAS - CRONÓMETRO Y REGISTRO
 // ============================================
+// DESCRIPCIÓN: Sistema completo de llegadas con cronómetro y clasificación
+// RESPONSABILIDADES:
+// 1. Cronómetro independiente para registro de llegadas
+// 2. Sistema de registro manual y rápido de llegadas
+// 3. Importación de datos de salidas para cálculo automático
+// 4. Clasificación automática por tiempos crono
+// 5. Exportación a Excel de llegadas y clasificación
+// 6. Persistencia del estado del cronómetro y registros
+//
+// FUNCIONES CRÍTICAS EXPORTADAS:
+// - startLlegadasTimer() - Inicia cronómetro de llegadas
+// - showQuickRegisterLlegada() - Registro rápido con dorsal
+// - importSalidasForLlegadas() - Importa datos de salidas
+// - showRankingModal() - Muestra clasificación ordenada
+// - exportLlegadasToExcel() - Exporta llegadas a Excel
+//
+// DEPENDENCIAS:
+// - llegadasState (global) - Estado específico del módulo
+// - appState (global) - Estado principal
+// - translations (global) - Traducciones
+// - startOrderData (global) - Para obtener nombres de corredores
+// - timeToSeconds()/secondsToTime() - Conversiones de tiempo
+//
+// ARCHIVOS RELACIONADOS:
+// → Main.js: Inicialización y listeners
+// → Storage_Pwa.js: Guarda datos de llegadas en carrera
+// → UI.js: Modales y componentes visuales
+// ============================================
+
+// ============================================
+// MÓDULO DE LLEGADAS - CRONÓMETRO Y REGISTRO
+// ============================================
 
 // ============================================
 // FUNCIONES DEL CRONÓMETRO DE LLEGADAS

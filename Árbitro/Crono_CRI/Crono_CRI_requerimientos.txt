@@ -52,6 +52,7 @@ Cada fila se podrá modificar, y las columnas se podran ordenar (de momento no p
 estamos trabajando muy bien en equipo para hacer el crono_cri, pero cada vez los procesos de cambios se vuelven muy complicados porque los ficheros estan muy grandes.
 Creo que lo bueno seria trabajar con ficheros no muy grandes para que te los pueda enviar y los puedas analizar, pero si creamos muchos entonces yo pierdo el control de que ficheros te tengo que enviar para que tu tengas claro donde se han de hacer las modificaciones.
 también seria interesante que en el inicio de estos archivos te pongas indicaciones que te ayuden a saber que si cambias algo sepas en que archivos estan y me los pidas. hay veces que me dices que una función se tiene que crear porque la llama una parte del archivo y no ves esa función en los arhivos que te envio.
+
 Bajo mi punto de vista habria los siguientes siguiendo los criterios de cuando se realice un cambio tener que enviar el manor numero de ficheros, y que esos ficheros tengan un tamaño pequ´ño para facilitarme el envio a ti.
 
 CRI_js_general.js - aquí estarían las funciones que van a ser llamadas por cualquier otra parte del programa con asiduidad, o que van  a ser necesitadas de cambiar (initapp,...)
@@ -69,7 +70,7 @@ Dime que te parece y que propuesta me haces.
 crono_cri/
 ├── Crono_CRI_js_Main.js            # Punto de entrada principal - Configuración y estado global
 ├── Crono_CRI_js_Traducciones.js    # Traducciones y funciones de idioma
-├── Crono_CRI_js_Salidas.js         # Todo el módulo de salidas
+├── Crono_CRI_js_Salidas1 ,2, 3, 4.js         # Todo el módulo de salidas
 ├── Crono_CRI_js_Llegadas.js        # Todo el módulo de llegadas
 ├── Crono_CRI_js_Ui.js              # Interfaces y componentes UI
 ├── Crono_CRI_js_Utils.js           # Utilidades generales (sonido, Excel, etc.)

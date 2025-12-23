@@ -1,3 +1,46 @@
+<!-- =========================================== -->
+<!-- ARCHIVO: Crono_CRI.html -->
+<!-- =========================================== -->
+<!-- DESCRIPCIÓN: HTML principal de la aplicación Crono CRI -->
+<!-- RESPONSABILIDADES:
+   1. Estructura completa de la aplicación web
+   2. Inclusión de todos los recursos externos (CSS, JS, bibliotecas)
+   3. Definición de modales, tarjetas y componentes UI
+   4. PWA: Metadatos para instalación como aplicación
+   5. Integración con Google Analytics
+   
+ELEMENTOS PRINCIPALES:
+   - Header con logo y selector de idioma
+   - Tarjetas de configuración de carrera
+   - Selector de modo Salida/Llegadas
+   - Tabla de orden de salida (19 columnas)
+   - Pantalla de cuenta atrás en pantalla completa
+   - Footer con botones de utilidad
+   - 15+ modales para diversas funcionalidades
+   - Sistema de mensajes flotantes
+
+TECNOLOGÍAS INCLUIDAS:
+   - Font Awesome 6.4.0 (iconos)
+   - XLSX 0.18.5 (exportación Excel)
+   - jsPDF 2.5.1 (exportación PDF)
+   - Google Analytics (G-CV925PMBQV)
+
+ARCHIVOS RELACIONADOS:
+   → Crono_CRI.css: Estilos principales
+   → Crono_CRI_js_*.js: 8 archivos JavaScript modulares
+   ← Todos los recursos externos CDN
+   → Recursos locales (audio/, imágenes)
+   
+ESTRUCTURA MODULAR:
+   - Main.js: Núcleo de la aplicación
+   - Traducciones.js: Sistema multilingüe (4 idiomas)
+   - Utilidades.js: Funciones generales
+   - UI.js: Interfaz de usuario
+   - Salidas_*.js: 4 módulos para gestión de salidas
+   - Llegadas.js: Sistema de llegadas
+   - Storage_Pwa.js: Almacenamiento y PWA
+-->
+<!-- =========================================== -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -899,10 +942,12 @@
                         <div class="form-row">
                             <div class="form-group half-width">
                                 <label for="new-race-date" id="new-race-date-label">Fecha de la carrera:</label>
+                                <input type="date" id="new-race-date" value="" required>
+                                <!--
                                 <input type="date" 
                                     id="new-race-date" 
                                     class="form-control config-input"
-                                    value="${new Date().toISOString().split('T')[0]}">
+                                    value="${new Date().toISOString().split('T')[0]}">-->
                             </div>
                             
                             <div class="form-group half-width">
@@ -1118,8 +1163,13 @@
     <script src="Crono_CRI_js_Traducciones.js"></script>
     <script src="Crono_CRI_js_Utilidades.js"></script>
     <script src="Crono_CRI_js_UI.js"></script>
-    <script src="Crono_CRI_js_Salidas.js"></script>
+    <!-- <script src="Crono_CRI_js_Salidas.js"></script> -->
+    <script src="Crono_CRI_js_Salidas_1.js"></script>
+    <script src="Crono_CRI_js_Salidas_2.js"></script>
+    <script src="Crono_CRI_js_Salidas_3.js"></script>
+    <script src="Crono_CRI_js_Salidas_4.js"></script>
     <script src="Crono_CRI_js_Llegadas.js"></script>
+    
     <script src="Crono_CRI_js_Storage_Pwa.js"></script>
 
     <!-- Script para XLSX -->

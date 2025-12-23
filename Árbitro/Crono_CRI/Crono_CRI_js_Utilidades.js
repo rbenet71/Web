@@ -1,4 +1,48 @@
 // ============================================
+// ARCHIVO: Crono_CRI_js_Utilidades.js
+// ============================================
+// DESCRIPCIÓN: Módulo central de utilidades para sistema de cronometraje
+// RESPONSABILIDADES:
+//   1. Manejo de conversiones tiempo ↔ segundos ↔ Excel
+//   2. Sistema de audio multilingüe (beep/voz/none)
+//   3. Exportación a Excel y PDF con formatos profesionales
+//   4. Utilidades generales de mantenimiento y persistencia
+//   5. Funciones auxiliares de formato y validación
+// 
+// FUNCIONES CRÍTICAS EXPORTADAS:
+//   - timeToSeconds() / secondsToTime()    - Conversiones tiempo↔segundos
+//   - exportToExcel()                      - Exporta datos de salidas
+//   - exportStartOrder()                   - Exporta orden con 19 columnas
+//   - generateStartOrderPDF()              - Genera PDF profesional
+//   - playSound() / playVoiceAudio()       - Sistema de audio
+//   - initAudioOnInteraction()             - Inicializa contexto de audio
+// 
+// SISTEMA DE AUDIO:
+//   ✓ Tres modos: beep, voice, none
+//   ✓ 4 idiomas: es, en, ca, fr
+//   ✓ Precarga inteligente de archivos OGG
+//   ✓ Fallback a beep si falla voz
+//   ✓ Verificación de archivos disponibles
+// 
+// EXPORTACIONES:
+//   ✓ Excel: 19 columnas con diferencias (+/-)
+//   ✓ PDF: Diseño profesional con colores alternados
+//   ✓ Validación estricta de formatos de tiempo
+// 
+// PROTECCIONES IMPLEMENTADAS:
+//   ✓ Validación regex para formatos HH:MM:SS
+//   ✓ Manejo de errores en reproducción de audio
+//   ✓ Limpieza de datos antiguos en localStorage
+//   ✓ Precarga de librerías dinámicas (jsPDF)
+// 
+// ARCHIVOS RELACIONADOS:
+//   ← Todos los módulos: Usan funciones de utilidad
+//   → Salidas_*.js: Proporciona conversiones tiempo
+//   → UI_*.js: Usa funciones de sonido y formato
+//   → Excel_*.js: Usa funciones de exportación
+// ============================================
+
+// ============================================
 // MÓDULO DE UTILIDADES GENERALES
 // ============================================
 

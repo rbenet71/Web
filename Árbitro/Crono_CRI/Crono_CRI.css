@@ -1,4 +1,70 @@
 /* =========================================== */
+/* ARCHIVO: Crono_CRI.css */
+/* =========================================== */
+/* DESCRIPCIÓN: Hoja de estilos principal de Crono CRI */
+/* RESPONSABILIDADES:
+   1. Estilos visuales completos de la aplicación
+   2. Sistema responsive para móviles y desktop
+   3. Animaciones para cuenta atrás y transiciones
+   4. Estados de color para diferentes modos
+   5. Estilos de componentes reutilizables
+
+CARACTERÍSTICAS PRINCIPALES:
+   - Diseño responsive con media queries específicas
+   - Sistema de colores basado en variables CSS
+   - 4 estados de cuenta atrás con animaciones
+   - Tablas con cabeceras fijas y scroll
+   - Botones responsive con grids flexibles
+   - Modales con backdrop blur
+   - Efectos hover y focus accesibles
+
+SECCIONES ORGANIZADAS:
+   [1] RESET Y VARIABLES - Estilos base y variables CSS
+   [2] ANIMACIONES - Todas las animaciones de la aplicación
+   [3] HEADER - Logo, selector de idioma, ayuda
+   [4] TARJETAS - Estructura común de tarjetas
+   [5] SELECTOR DE MODO - Salida vs Llegadas
+   [6] FORMULARIOS - Campos de entrada y etiquetas
+   [7] BOTONES - Estilos generales y específicos
+   [8] ORDEN DE SALIDA - Tabla compleja (19 columnas)
+   [9] CUENTA ATRÁS - Pantalla completa con estados
+   [10] MODO LLEGADAS - Cronómetro y tablas
+   [11] FOOTER - Pie de página con utilidades
+   [12] MODALES - 15+ ventanas emergentes
+   [13] RESPONSIVE - 4 breakpoints específicos
+
+BREAKPOINTS DEFINIDOS:
+   - 992px: Tabletas grandes
+   - 768px: Tabletas pequeñas
+   - 480px: Teléfonos móviles
+   - 360px: Teléfonos muy pequeños
+
+VARIABLES CSS:
+   --primary, --secondary, --accent: Colores principales
+   --success, --warning, --danger: Estados
+   --red-bg, --orange-bg, --green-bg: Estados cuenta atrás
+   --border-radius, --shadow: Constantes de diseño
+
+ESTADOS DE CUENTA ATRÁS:
+   countdown-normal: Fondo ROJO (normal)
+   countdown-warning: Fondo AMARILLO (últimos 10s)
+   countdown-critical: Fondo AMARILLO + animación (últimos 5s)
+   countdown-salida: Fondo VERDE (salida activa)
+*/
+/* =========================================== */
+
+/* RESET Y VARIABLES GLOBALES */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+:root {
+    /* Variables de color... */
+}
+/* =========================================== */
 /* RESET Y VARIABLES GLOBALES */
 /* =========================================== */
 * {

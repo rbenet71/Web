@@ -1,0 +1,43 @@
+Quiero crear un carnet de socio para un club en formato digital para poder agregar en el wallet del iOS o android (fichero pkpass).
+La app quiero que sea pwa y se ejecute 100% en local.
+La idea es que los datos de estén en un Excel y a partir de ahí se generen en un directorio un fichero por cada socio. El
+Nombre del archivo será apellidos,nombre.
+En la parte visible, tiene que aparecer el logo del club (logo.jpg), la foto de cara (foto.jpg), nombre, apellidos, número de socio, carnet vigente si o no y carnet del año xxxx.
+En los detalles estarán los siguientes datos:
+Dirección 
+Cp
+Población 
+DNI
+Fecha nacimiento
+Email
+Teléfono
+Número registro 
+
+Emisor del carnet: nombre, dirección, teléfono y email, ubicación en Google
+Es posible que el vigente se consulte en un fichero externo y si no hay conexión diga vigencia por confirmar.
+Las fotos de los socios estan en una carpeta local cuya ruta en el excel
+
+Programa control de acceso a una zona vip.
+Tengo una zona vip que me gustaría que el controlador de accesos tuviera una pwa para controlar acceso (saber si el pase digital es correcto, si ya ha entrado y pueda sacar un listado de todos los que han venido) 
+Para eso también tendré que crear una pwa para la creación y gestión de esos pases personalizados por cada invitado. Serán para un día en concreto. 
+Quiero una cosa sencilla y funcional estamos hablando de unas 100 invitaciones por día, durante 7 días.
+
+estrucutra
+
+carnet-club/
+├── index.html              # App PWA
+├── style.css              # Estilos
+├── app.js                # Lógica principal
+├── sw.js                 # Service Worker
+├── manifest.json         # Config PWA
+├── logo.jpg              # Logo del club
+├── assets/              # Recursos estáticos
+│   └── iconos/
+├── data/                # Datos y fotos
+│   ├── socios.xlsx     # Excel con datos
+│   └── fotos/          # CARPETA YA EXISTENTE
+│       ├── perez_juan.jpg
+│       └── garcia_maria.jpg
+├── generador.js        # Script Node para PKPASS
+└── carnets/           # Carnets generados PKPASS
+    └── [apellidos,nombre].pkpass

@@ -1,3 +1,25 @@
+// ============================================
+// SERVICE WORKER PARA PWA
+// ============================================
+// DESCRIPCIÓN: Service Worker para funcionalidades PWA y cache
+// RESPONSABILIDADES:
+// 1. Cache de recursos estáticos para funcionamiento offline
+// 2. Instalación como aplicación PWA
+// 3. Actualizaciones automáticas de caché
+// 4. Servicio de recursos en modo offline
+//
+// CARACTERÍSTICAS:
+// - Cache: 'crono-cri-v1' con todos los recursos esenciales
+// - Recursos: HTML, CSS, JS, imágenes, librerías CDN
+// - Estrategia: Cache-first con fallback a network
+// - Limpieza: Elimina caches antiguos en activación
+//
+// INTEGRACIÓN:
+// → Storage_Pwa.js: setupServiceWorker() registra este archivo
+// → Crono_CRI.html: Referenciado en el registro PWA
+// → Crono_CRI_manifest.json: Configuración de la PWA
+// ============================================
+
 // Service Worker similar al original pero con cache específico
 const CACHE_NAME = 'crono-cri-v1';
 const urlsToCache = [

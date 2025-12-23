@@ -1,6 +1,43 @@
 // ============================================
 // PUNTO DE ENTRADA Y CONFIGURACIÓN GLOBAL
 // ============================================
+// DESCRIPCIÓN: Punto de entrada principal y configuración global
+// RESPONSABILIDADES:
+// 1. Definición de estados globales de la aplicación
+// 2. Inicialización coordinada de todos los módulos
+// 3. Configuración de event listeners principales
+// 4. Gestión de dependencias y orden de inicialización
+// 5. Atajos de teclado globales
+//
+// ESTADOS GLOBALES DEFINIDOS:
+// - appState: Estado principal (carrera, countdown, audio, etc.)
+// - llegadasState: Estado específico del módulo de llegadas
+// - sortState: Estado de ordenación de tablas
+// - startOrderData: Datos de orden de salida (array)
+//
+// FUNCIONES CRÍTICAS:
+// - initApp(): Inicialización principal coordinada
+// - setupEventListeners(): Configura listeners globales
+// - setupStartOrderEventListeners(): Listeners específicos de orden
+// - handleRaceChange(): Gestor de cambio de carrera
+//
+// DEPENDENCIAS:
+// → Todos los módulos: Los inicializa en orden específico
+// → appState: Referenciado por todos los módulos
+// → translations: Sistema de internacionalización
+//
+// ORDEN DE INICIALIZACIÓN:
+// 1. Carga preferencias y datos guardados
+// 2. Inicialización UI básica
+// 3. Carga datos de carrera y orden de salida
+// 4. Configuración de listeners
+// 5. Inicialización de módulos especializados
+// 6. Configuración PWA y timers
+// ============================================
+
+// ============================================
+// PUNTO DE ENTRADA Y CONFIGURACIÓN GLOBAL
+// ============================================
 
 // ESTADO DE LA APLICACIÓN
 const appState = {
@@ -49,7 +86,7 @@ let sortState = { column: 'time', direction: 'desc' };
 let startOrderData = [];
 
 // ============================================
-// INICIALIZACIÓN PRINCIPAL
+// INICIALIZACIÓN PRINCIPAL - VERSIÓN CORREGIDA
 // ============================================
 function initApp() {
     console.log("Inicializando aplicación Crono CRI...");
@@ -65,30 +102,62 @@ function initApp() {
     // Limpiar datos antiguos
     if (typeof cleanupOldData === 'function') cleanupOldData();
     
-    // Cargar preferencias
+    // Cargar preferencias básicas
     if (typeof loadLanguagePreference === 'function') loadLanguagePreference();
     if (typeof loadRacesFromStorage === 'function') loadRacesFromStorage();
     if (typeof loadAppState === 'function') loadAppState();
     if (typeof loadAudioPreferences === 'function') loadAudioPreferences();
     
-    // Inicializar UI
+    // Inicializar UI básica
     if (typeof updateLanguageUI === 'function') updateLanguageUI();
     if (typeof updateSalidaText === 'function') updateSalidaText();
     if (typeof renderRacesSelect === 'function') renderRacesSelect();
     
-    // MODIFICACIÓN: Cargar datos de carrera PRIMERO
+    // ============================================
+    // CORRECCIÓN CRÍTICA: CARGAR DATOS EN ORDEN CORRECTO
+    // ============================================
+    
+    // Primero: Cargar los datos de la carrera actual
     if (typeof loadRaceData === 'function') {
+        console.log("Cargando datos de carrera...");
         loadRaceData();
     }
     
-    // MODIFICACIÓN: Luego cargar orden de salida (después de que la carrera esté cargada)
+    // Segundo: Esperar a que la carrera se cargue antes de cargar el orden de salida
     setTimeout(() => {
+        console.log("Cargando orden de salida después de carrera...");
+        
+        // Asegurarnos de que startOrderData se cargue desde la carrera actual
         if (typeof loadStartOrderData === 'function') {
             loadStartOrderData();
+        } else {
+            console.error("ERROR: loadStartOrderData no está disponible");
         }
-    }, 100);
-
-    // Configurar inputs de tiempo mejorados (INTEGRADO EN SALIDAS)
+        
+        // Después de cargar el orden, actualizar la tabla
+        setTimeout(() => {
+            console.log("Actualizando tabla de orden de salida...");
+            console.log("startOrderData disponible?", typeof startOrderData !== 'undefined');
+            console.log("Número de corredores en startOrderData:", startOrderData ? startOrderData.length : 0);
+            
+            if (typeof updateStartOrderTableThrottled === 'function') {
+                updateStartOrderTableThrottled(true); // Forzar actualización inmediata
+            } else if (typeof updateStartOrderTable === 'function') {
+                updateStartOrderTable();
+            }
+            
+            // Actualizar UI relacionada con el orden de salida
+            if (typeof updateStartOrderUI === 'function') {
+                updateStartOrderUI();
+            }
+        }, 100);
+    }, 150); // Esperar a que loadRaceData termine
+    
+    // ============================================
+    // CONTINUAR CON EL RESTO DE LA INICIALIZACIÓN
+    // ============================================
+    
+    // Configurar inputs de tiempo mejorados
     if (typeof setupTimeInputs === 'function') setupTimeInputs();
     
     // Configurar TODOS los listeners (solo una vez)
@@ -127,7 +196,7 @@ function initApp() {
         }
     }, 500);
     
-    // Inicializar módulo PDF (después de que todo esté cargado)
+    // Inicializar módulo PDF
     setTimeout(() => {
         if (typeof initPDFModule === 'function') {
             initPDFModule();
@@ -140,7 +209,6 @@ function initApp() {
     setInterval(updateTotalTime, 1000);
     setInterval(updateCurrentTime, 1000);
     
-
     // Inicializar modo slider
     setTimeout(() => {
         if (typeof initModeSlider === 'function') initModeSlider();
@@ -163,10 +231,6 @@ function initApp() {
     document.addEventListener('click', initAudioOnInteraction);
     document.addEventListener('keydown', initAudioOnInteraction);
     
-    // ============================================
-    // NUEVO: INICIALIZAR TARJETA DE GESTIÓN DE CARRERA
-    // ============================================
-    
     // Inicializar tarjeta de gestión de carrera
     if (typeof initRaceManagementCard === 'function') {
         initRaceManagementCard();
@@ -178,18 +242,17 @@ function initApp() {
         setTimeout(() => {
             updateRaceManagementCardTitle();
             console.log("Título de gestión de carrera actualizado inicialmente");
-        }, 150);
+        }, 200); // Dar más tiempo después de cargar la carrera
     }
     
-    // ============================================
-    // FIN DE NUEVAS ADICIONES
-    // ============================================
-    
-    // Marcar como inicializada después de un pequeño retraso
+    // Marcar como inicializada después de que todo esté listo
     setTimeout(() => {
         window.appInitialized = true;
-        console.log("Aplicación inicializada correctamente (marcada como appInitialized=true)");
-    }, 500);
+        console.log("Aplicación inicializada correctamente");
+        console.log("Estado final:");
+        console.log("- Carrera actual:", appState.currentRace ? appState.currentRace.name : "Ninguna");
+        console.log("- Corredores en orden de salida:", startOrderData ? startOrderData.length : 0);
+    }, 300);
     
     console.log("Aplicación inicializando...");
 }
@@ -207,56 +270,253 @@ window.addEventListener('beforeunload', () => {
 // EVENT LISTENERS PRINCIPALES
 // ============================================
 function setupEventListeners() {
-    console.log("Configurando event listeners principales...");
+    console.log('Configurando event listeners principales...');
     
-    // Idiomas
-    document.querySelectorAll('.flag').forEach(flag => {
-        flag.addEventListener('click', function() {
-            const lang = this.getAttribute('data-lang');
-            appState.currentLanguage = lang;
-            localStorage.setItem('countdown-language', lang);
-            updateLanguageUI();
-            updateSalidaText();
+    // 1. Selector de idioma
+    const languageSelector = document.getElementById('language-selector');
+    if (languageSelector) {
+        languageSelector.addEventListener('change', function(e) {
+            const newLanguage = e.target.value;
+            if (window.appState && window.appState.currentLanguage !== newLanguage) {
+                window.appState.currentLanguage = newLanguage;
+                if (typeof updateLanguageUI === 'function') {
+                    updateLanguageUI();
+                }
+                // Guardar preferencia de idioma
+                localStorage.setItem('cri_language', newLanguage);
+                console.log('Idioma cambiado a:', newLanguage);
+            }
         });
-    });
+    }
     
-    // Botones de expandir/colapsar
-    document.getElementById('expand-all-btn')?.addEventListener('click', () => toggleAllCards('expand'));
-    document.getElementById('collapse-all-btn')?.addEventListener('click', () => toggleAllCards('collapse'));
+    // 2. Configuración de audio
+    const audioTypeSelector = document.getElementById('audio-type-selector');
+    if (audioTypeSelector) {
+        audioTypeSelector.addEventListener('change', function(e) {
+            if (window.appState) {
+                window.appState.audioType = e.target.value;
+                // Opcional: Guardar preferencia
+                localStorage.setItem('cri_audio_type', e.target.value);
+            }
+        });
+    }
     
-    // Selector de carrera
-    document.getElementById('race-select').addEventListener('change', handleRaceChange);
+    // 3. Cambio de carrera
+    const raceSelector = document.getElementById('race-selector');
+    if (raceSelector) {
+        raceSelector.addEventListener('change', handleRaceChange);
+    }
     
-    // Botón de nueva carrera
-    document.getElementById('new-race-btn').addEventListener('click', () => {
-        document.getElementById('new-race-modal').classList.add('active');
-        document.getElementById('new-race-name').focus();
-        
-    });
-    document.getElementById('edit-race-btn').addEventListener('click', editRaceDetails);
+    // 4. Botón de nueva carrera
+    const newRaceBtn = document.getElementById('new-race-btn');
+    if (newRaceBtn) {
+        newRaceBtn.addEventListener('click', function() {
+            // Lógica para crear nueva carrera
+            if (typeof showNewRaceModal === 'function') {
+                showNewRaceModal();
+            } else {
+                console.warn('Función showNewRaceModal no disponible');
+            }
+        });
+    }
     
-    // Botón de eliminar carrera
-    document.getElementById('delete-race-btn').addEventListener('click', () => {
-        const t = translations[appState.currentLanguage];
-        if (!appState.currentRace) {
-            showMessage(t.selectRaceFirst, 'error');
+    // 5. Botón de editar carrera
+    const editRaceBtn = document.getElementById('edit-race-btn');
+    if (editRaceBtn) {
+        editRaceBtn.addEventListener('click', function() {
+            if (typeof editRaceDetails === 'function') {
+                editRaceDetails();
+            }
+        });
+    }
+    
+    // 6. Botón de eliminar carrera
+    const deleteRaceBtn = document.getElementById('delete-race-btn');
+    if (deleteRaceBtn) {
+        deleteRaceBtn.addEventListener('click', function() {
+            if (typeof deleteCurrentRace === 'function') {
+                deleteCurrentRace();
+            }
+        });
+    }
+    
+    // 7. Botón de importar Excel
+    const importExcelBtn = document.getElementById('import-excel-btn');
+    if (importExcelBtn) {
+        importExcelBtn.addEventListener('click', function() {
+            if (typeof importExcelTemplate === 'function') {
+                importExcelTemplate();
+            }
+        });
+    }
+    
+    // 8. Botón de exportar Excel
+    const exportExcelBtn = document.getElementById('export-excel-btn');
+    if (exportExcelBtn) {
+        exportExcelBtn.addEventListener('click', function() {
+            if (typeof exportStartOrder === 'function') {
+                exportStartOrder();
+            }
+        });
+    }
+    
+    // 9. Botón de exportar PDF
+    const exportPdfBtn = document.getElementById('export-pdf-btn');
+    if (exportPdfBtn) {
+        exportPdfBtn.addEventListener('click', function() {
+            if (typeof generateStartOrderPDF === 'function') {
+                generateStartOrderPDF();
+            }
+        });
+    }
+    
+    // 11. Botón de copia de seguridad
+    const backupBtn = document.getElementById('backup-btn');
+    if (backupBtn) {
+        backupBtn.addEventListener('click', function() {
+            if (typeof createRaceBackup === 'function') {
+                createRaceBackup();
+            }
+        });
+    }
+    
+    // 12. Botón de restaurar backup
+    const restoreBtn = document.getElementById('restore-btn');
+    if (restoreBtn) {
+        restoreBtn.addEventListener('click', function() {
+            if (typeof restoreRaceFromBackup === 'function') {
+                restoreRaceFromBackup();
+            }
+        });
+    }
+    
+    // 13. Botón de limpiar datos
+    const clearDataBtn = document.getElementById('clear-data-btn');
+    if (clearDataBtn) {
+        clearDataBtn.addEventListener('click', function() {
+            if (typeof clearAppData === 'function') {
+                clearAppData();
+            }
+        });
+    }
+    
+    // 14. Botón de ayuda/información
+    const helpBtn = document.getElementById('help-btn');
+    if (helpBtn) {
+        helpBtn.addEventListener('click', function() {
+            if (typeof showHelpModal === 'function') {
+                showHelpModal();
+            }
+        });
+    }
+    
+    // 15. Atajos de teclado globales
+    document.addEventListener('keydown', function(e) {
+        // Solo si no hay inputs activos
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
             return;
         }
-        document.getElementById('delete-race-modal').classList.add('active');
+        
+        switch(e.key) {
+            case ' ': // Espacio - Iniciar/pausar cuenta atrás
+                if (typeof toggleCountdown === 'function') {
+                    toggleCountdown();
+                }
+                break;
+            case 'Enter': // Enter - Registrar salida
+                if (typeof registerDeparture === 'function') {
+                    registerDeparture();
+                }
+                break;
+            case 'Escape': // Escape - Cancelar modales
+                const activeModal = document.querySelector('.modal.show');
+                if (activeModal) {
+                    const closeBtn = activeModal.querySelector('.modal-close, .btn-cancel');
+                    if (closeBtn) {
+                        closeBtn.click();
+                    }
+                }
+                break;
+            case 'r': // R - Resetear cuenta atrás (con Ctrl)
+                if (e.ctrlKey && typeof resetCountdown === 'function') {
+                    resetCountdown();
+                }
+                break;
+            case 's': // S - Siguiente intervalo (con Ctrl)
+                if (e.ctrlKey && typeof nextInterval === 'function') {
+                    nextInterval();
+                }
+                break;
+        }
     });
     
-    // Botón de ayuda
-    document.getElementById('help-icon-header').addEventListener('click', function() {
-        window.open('Crono_CRI_ayuda.html', '_blank');
+    // 16. Listeners específicos para orden de salida
+    setupStartOrderEventListeners();
+    
+    // 17. Listener para cambio de modo (salidas/llegadas)
+    const modeSlider = document.getElementById('mode-slider');
+    if (modeSlider) {
+        modeSlider.addEventListener('change', function(e) {
+            if (window.isModeChanging) return;
+            window.isModeChanging = true;
+            
+            const newMode = e.target.checked ? 'llegadas' : 'salidas';
+            console.log('Cambiando modo a:', newMode);
+            
+            // Lógica de cambio de modo
+            if (typeof switchAppMode === 'function') {
+                switchAppMode(newMode);
+            }
+            
+            setTimeout(() => {
+                window.isModeChanging = false;
+            }, 100);
+        });
+    }
+    
+    // 18. Listener para instalación PWA
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Previene que el navegador muestre el prompt automático
+        e.preventDefault();
+        // Guarda el evento para poder mostrarlo más tarde
+        window.deferredPrompt = e;
+        
+        // Opcional: Mostrar botón de instalación
+        const installBtn = document.getElementById('install-btn');
+        if (installBtn) {
+            installBtn.style.display = 'block';
+            installBtn.addEventListener('click', async () => {
+                if (window.deferredPrompt) {
+                    window.deferredPrompt.prompt();
+                    const { outcome } = await window.deferredPrompt.userChoice;
+                    console.log(`User response to the install prompt: ${outcome}`);
+                    window.deferredPrompt = null;
+                }
+            });
+        }
     });
     
-    // NOTA: setupStartOrderEventListeners() se elimina de aquí
-    // Se llamará directamente desde initApp()
+    // 19. Listener para actualizaciones del Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (window.updateAvailable) {
+                // Mostrar notificación de actualización disponible
+                if (typeof showMessage === 'function') {
+                    showMessage('Nueva versión disponible. Recarga la página.', 'info');
+                }
+            }
+        });
+    }
     
-    // Atajos de teclado
-    document.addEventListener('keydown', handleKeyboardShortcuts);
+    // 20. Listener para visibilidad de página (pausar cuenta atrás cuando no está visible)
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden && window.appState && window.appState.countdownActive) {
+            console.log('Página no visible, considerando pausar cuenta atrás...');
+            // Aquí podrías pausar automáticamente el countdown
+        }
+    });
     
-    console.log("Event listeners principales configurados");
+    console.log('Event listeners principales configurados');
 }
 
 // ============================================

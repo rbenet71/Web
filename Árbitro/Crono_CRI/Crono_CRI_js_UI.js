@@ -1,6 +1,37 @@
 // ============================================
 // MÓDULO DE INTERFAZ DE USUARIO
 // ============================================
+// DESCRIPCIÓN: Gestión completa de la interfaz y componentes visuales
+// RESPONSABILIDADES:
+// 1. Sistema de tarjetas expandibles con persistencia
+// 2. Selector de modo deslizante (salidas/llegadas)
+// 3. Gestión de modales y cierres automatizados
+// 4. Actualización dinámica de títulos y displays
+// 5. Redimensionamiento responsive del countdown
+// 6. Sistema de notificaciones y mensajes
+//
+// FUNCIONES CRÍTICAS EXPORTADAS:
+// - setupCardToggles() - Configura tarjetas expandibles
+// - initModeSlider() - Inicializa selector de modo
+// - setupModalEventListeners() - Gestión automática de modales
+// - adjustCountdownSize() - Redimensiona countdown responsive
+// - showMessage() - Sistema de notificaciones
+// - updateRaceManagementCardTitle() - Título dinámico de carrera
+//
+// DEPENDENCIAS:
+// - appState (global) - Estado de la aplicación
+// - translations (global) - Traducciones
+// - window.localStorage - Persistencia de estados UI
+//
+// ARCHIVOS RELACIONADOS:
+// → Main.js: Inicialización principal
+// → Storage_Pwa.js: Usa updateRaceManagementCardTitle()
+// → Todos los módulos: Proporciona componentes UI
+// ============================================
+
+// ============================================
+// MÓDULO DE INTERFAZ DE USUARIO
+// ============================================
 let uiInitialized = {
     cardToggles: false,
     modeSlider: false,

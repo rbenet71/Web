@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carnet Club - Generador</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="logo.jpg">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <img src="logo.jpg" alt="Logo Club" class="logo">
+            <h1>Generador de Carnets</h1>
+            <p class="subtitle">Club Deportivo - Temporada 2024</p>
+        </header>
+
+        <main class="app-main">
+            <!-- Paso 1: Cargar Excel -->
+            <section class="step" id="step1">
+                <h2>1. Cargar Datos</h2>
+                <div class="file-upload">
+                    <input type="file" id="excelInput" accept=".xlsx,.xls" hidden>
+                    <button class="btn btn-primary" id="btnCargarExcel">
+                        📁 Seleccionar Excel
+                    </button>
+                    <p class="file-info" id="fileInfo">No hay archivo seleccionado</p>
+                </div>
+                
+                <div class="vigencia-check">
+                    <label>
+                        <input type="checkbox" id="checkOnline" checked>
+                        Verificar vigencia online
+                    </label>
+                    <small>Si no hay conexión, se mostrará "Por confirmar"</small>
+                </div>
+            </section>
+
+            <!-- Paso 2: Seleccionar Socio -->
+            <section class="step" id="step2" style="display: none;">
+                <h2>2. Seleccionar Socio</h2>
+                <div class="search-box">
+                    <input type="text" id="searchBox" placeholder="Buscar por nombre, apellidos o número...">
+                </div>
+                
+                <div class="socios-list" id="sociosList">
+                    <!-- Lista dinámica -->
+                </div>
+            </section>
+
+            <!-- Paso 3: Vista Previa -->
+            <section class="step" id="step3" style="display: none;">
+                <h2>3. Vista Previa del Carnet</h2>
+                
+                <div class="carnet-preview">
+                    <div class="carnet-front">
+                        <div class="carnet-header">
+                            <img src="logo.jpg" alt="Logo" class="carnet-logo">
+                            <div class="club-info">
+                                <h3>CLUB DEPORTIVO</h3>
+                                <p>Carnet de Socio Oficial</p>
+                            </div>
+                        </div>
+                        
+                        <div class="carnet-body">
+                            <div class="foto-socio">
+                                <img id="previewFoto" src="" alt="Foto" class="foto">
+                                <div class="numero-socio" id="previewNumero">#000</div>
+                            </div>
+                            
+                            <div class="datos-socio">
+                                <h4 id="previewNombreCompleto">Nombre Apellidos</h4>
+                                <div class="estado-carnet">
+                                    <span class="badge" id="previewVigente">VIGENTE</span>
+                                    <span class="anio" id="previewAnio">2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="carnet-back">
+                        <h4>DETALLES DEL SOCIO</h4>
+                        <div class="detalles-grid">
+                            <div><strong>DNI:</strong> <span id="previewDNI">-</span></div>
+                            <div><strong>Teléfono:</strong> <span id="previewTelefono">-</span></div>
+                            <div><strong>Email:</strong> <span id="previewEmail">-</span></div>
+                            <div><strong>Dirección:</strong> <span id="previewDireccion">-</span></div>
+                            <div><strong>CP:</strong> <span id="previewCP">-</span></div>
+                            <div><strong>Población:</strong> <span id="previewPoblacion">-</span></div>
+                            <div><strong>Nacimiento:</strong> <span id="previewNacimiento">-</span></div>
+                            <div><strong>Registro:</strong> <span id="previewRegistro">-</span></div>
+                        </div>
+                        
+                        <div class="emisor-info">
+                            <hr>
+                            <p><strong>Club Deportivo Ejemplo</strong></p>
+                            <p>Calle Principal 123 • 28001 Madrid</p>
+                            <p>📞 912 345 678 • ✉️ info@clubdeportivo.es</p>
+                            <a href="https://maps.google.com/?q=Club+Deportivo+Madrid" target="_blank">📍 Ver ubicación</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="acciones">
+                    <button class="btn btn-secondary" id="btnVolverLista">
+                        ← Volver a la lista
+                    </button>
+                    <button class="btn btn-primary" id="btnGenerarCarnet">
+                        🎫 Generar Carnet PKPASS
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <div class="status" id="appStatus">Listo para comenzar</div>
+            <p class="info">App 100% local • Sin servidor • Offline disponible</p>
+        </footer>
+    </div>
+
+    <!-- Librerías -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
