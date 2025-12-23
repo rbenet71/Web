@@ -2278,48 +2278,58 @@ function updateLanguageUI() {
     const lang = appState.currentLanguage;
     const t = translations[lang];
     
-    console.log(`Actualizando UI al idioma: ${lang}`);
-    
-    // 1. Actualizar banderas activas
+    // 1. BANDERAS
     document.querySelectorAll('.flag').forEach(flag => {
         flag.classList.remove('active');
     });
     const activeFlag = document.getElementById(`flag-${lang}`);
-    if (activeFlag) {
-        activeFlag.classList.add('active');
-    }
+    if (activeFlag) activeFlag.classList.add('active');
     
-    // 2. Actualizar título principal
-    updateAppTitle(t);
+    // 2. TÍTULO PRINCIPAL
+    setTextIfExists('app-title-text', t.appTitle);
+    setTextIfExists('languages-label', t.languagesLabel);
     
-    // 3. Actualizar tarjetas principales
+    // 3. TARJETAS PRINCIPALES
     updateRaceManagementCard(t);
     updateStartOrderCard(t);
     updateModeContent(t);
     
-    // 4. Actualizar pies de página
+    // 4. PIE DE PÁGINA
     updateFooter(t);
     
-    // 5. Actualizar textos en la pantalla de cuenta atrás
-    updateSalidaText();
+    // 5. TEXTO "SALIDA" EN COUNTDOWN
+    const salidaDisplay = document.getElementById('salida-display');
+    if (salidaDisplay) salidaDisplay.textContent = t.salidaText;
     
-    // 6. Actualizar textos de modales
+    // 6. MODALES
     updateModalTexts(t);
     
-    // 7. Actualizar títulos de tablas
+    // 7. TABLAS
     updateTableHeaders(t);
-    
-    // 8. Actualizar tooltips de tablas (NUEVO)
     updateTableTooltips();
     
-    // 9. Actualizar botones y elementos específicos
+    // 8. BOTONES ESPECÍFICOS
     updateButtonsAndSpecificElements(t);
     
-    // 10. Forzar actualización de títulos de tarjetas
-    updateCardTitles();
+    // 9. TÍTULOS DINÁMICOS
+    if (typeof updateRaceManagementCardTitle === 'function') updateRaceManagementCardTitle();
+    if (typeof updateModeSelectorCardTitle === 'function') updateModeSelectorCardTitle();
+    if (typeof updateStartOrderCardTitle === 'function') updateStartOrderCardTitle();
     
-    console.log("UI completamente actualizada al idioma:", lang);
+    // 10. SELECTOR DROPDOWN
+    const languageSelector = document.getElementById('language-selector');
+    if (languageSelector && languageSelector.value !== lang) {
+        languageSelector.value = lang;
+    }
+    
+    // 11. PLACEHOLDERS
+    const departureNotes = document.getElementById('departure-notes');
+    if (departureNotes) departureNotes.placeholder = t.departurePlaceholder;
+    
+    console.log(`UI actualizada al idioma: ${lang}`);
 }
+
+
 // ===========================================
 // FUNCIONES AUXILIARES PARA ACTUALIZACIÓN
 // ===========================================
