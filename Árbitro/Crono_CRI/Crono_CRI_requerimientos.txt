@@ -164,7 +164,6 @@ Crono-cri/
 │   └── ...
 └── plantilla-cri.xlsx
 
-Recordar El Idioma, el modo y el sonido.
 
 Para empezar vamos a dejar el programa tal y como esta, pero vamos a:
 

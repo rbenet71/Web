@@ -254,6 +254,9 @@ function initApp() {
         console.log("- Corredores en orden de salida:", startOrderData ? startOrderData.length : 0);
     }, 300);
     
+    // Configurar botones de idioma
+    setupLanguageButtons();
+    
     console.log("Aplicación inicializando...");
 }
 
@@ -272,17 +275,7 @@ window.addEventListener('beforeunload', () => {
 function setupEventListeners() {
     console.log('Configurando event listeners principales...');
     
-    // ============================================
-    // LISTENERS PARA BANDERAS (NUEVO - CRÍTICO)
-    // ============================================
-    console.log('Configurando listeners para banderas...');
-    
-    document.querySelectorAll('.flag').forEach(flag => {
-        flag.addEventListener('click', handleFlagClick);
-        console.log(`  Listener agregado a bandera: ${flag.id}`);
-    });
-    
-    // 1. Selector de idioma dropdown
+    // 1. Selector de idioma
     const languageSelector = document.getElementById('language-selector');
     if (languageSelector) {
         languageSelector.addEventListener('change', function(e) {
@@ -292,6 +285,7 @@ function setupEventListeners() {
                 if (typeof updateLanguageUI === 'function') {
                     updateLanguageUI();
                 }
+                // Guardar preferencia de idioma
                 localStorage.setItem('cri_language', newLanguage);
                 console.log('Idioma cambiado a:', newLanguage);
             }
@@ -304,6 +298,7 @@ function setupEventListeners() {
         audioTypeSelector.addEventListener('change', function(e) {
             if (window.appState) {
                 window.appState.audioType = e.target.value;
+                // Opcional: Guardar preferencia
                 localStorage.setItem('cri_audio_type', e.target.value);
             }
         });
@@ -319,6 +314,7 @@ function setupEventListeners() {
     const newRaceBtn = document.getElementById('new-race-btn');
     if (newRaceBtn) {
         newRaceBtn.addEventListener('click', function() {
+            // Lógica para crear nueva carrera
             if (typeof showNewRaceModal === 'function') {
                 showNewRaceModal();
             } else {
@@ -419,22 +415,23 @@ function setupEventListeners() {
     
     // 15. Atajos de teclado globales
     document.addEventListener('keydown', function(e) {
+        // Solo si no hay inputs activos
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
             return;
         }
         
         switch(e.key) {
-            case ' ':
+            case ' ': // Espacio - Iniciar/pausar cuenta atrás
                 if (typeof toggleCountdown === 'function') {
                     toggleCountdown();
                 }
                 break;
-            case 'Enter':
+            case 'Enter': // Enter - Registrar salida
                 if (typeof registerDeparture === 'function') {
                     registerDeparture();
                 }
                 break;
-            case 'Escape':
+            case 'Escape': // Escape - Cancelar modales
                 const activeModal = document.querySelector('.modal.show');
                 if (activeModal) {
                     const closeBtn = activeModal.querySelector('.modal-close, .btn-cancel');
@@ -443,12 +440,12 @@ function setupEventListeners() {
                     }
                 }
                 break;
-            case 'r':
+            case 'r': // R - Resetear cuenta atrás (con Ctrl)
                 if (e.ctrlKey && typeof resetCountdown === 'function') {
                     resetCountdown();
                 }
                 break;
-            case 's':
+            case 's': // S - Siguiente intervalo (con Ctrl)
                 if (e.ctrlKey && typeof nextInterval === 'function') {
                     nextInterval();
                 }
@@ -469,6 +466,7 @@ function setupEventListeners() {
             const newMode = e.target.checked ? 'llegadas' : 'salidas';
             console.log('Cambiando modo a:', newMode);
             
+            // Lógica de cambio de modo
             if (typeof switchAppMode === 'function') {
                 switchAppMode(newMode);
             }
@@ -481,9 +479,12 @@ function setupEventListeners() {
     
     // 18. Listener para instalación PWA
     window.addEventListener('beforeinstallprompt', (e) => {
+        // Previene que el navegador muestre el prompt automático
         e.preventDefault();
+        // Guarda el evento para poder mostrarlo más tarde
         window.deferredPrompt = e;
         
+        // Opcional: Mostrar botón de instalación
         const installBtn = document.getElementById('install-btn');
         if (installBtn) {
             installBtn.style.display = 'block';
@@ -502,6 +503,7 @@ function setupEventListeners() {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.addEventListener('controllerchange', () => {
             if (window.updateAvailable) {
+                // Mostrar notificación de actualización disponible
                 if (typeof showMessage === 'function') {
                     showMessage('Nueva versión disponible. Recarga la página.', 'info');
                 }
@@ -509,15 +511,17 @@ function setupEventListeners() {
         });
     }
     
-    // 20. Listener para visibilidad de página
+    // 20. Listener para visibilidad de página (pausar cuenta atrás cuando no está visible)
     document.addEventListener('visibilitychange', function() {
         if (document.hidden && window.appState && window.appState.countdownActive) {
             console.log('Página no visible, considerando pausar cuenta atrás...');
+            // Aquí podrías pausar automáticamente el countdown
         }
     });
     
     console.log('Event listeners principales configurados');
 }
+
 // ============================================
 // EVENT LISTENERS PARA ORDEN DE SALIDA
 // ============================================
@@ -674,92 +678,3 @@ let startOrderSortState = {
     column: 'order', 
     direction: 'asc' 
 };
-
-
-function setupEventListeners() {
-    console.log('Configurando event listeners principales...');
-    
-    // ============================================
-    // LISTENERS PARA BANDERAS (NUEVO - CRÍTICO)
-    // ============================================
-    console.log('Configurando listeners para banderas...');
-    
-    document.querySelectorAll('.flag').forEach(flag => {
-        // Remover listeners existentes para evitar duplicados
-        flag.removeEventListener('click', handleFlagClick);
-        
-        // Agregar nuevo listener
-        flag.addEventListener('click', handleFlagClick);
-        console.log(`  Listener agregado a bandera: ${flag.id}`);
-    });
-    
-    // ============================================
-    // RESTO DEL CÓDIGO EXISTENTE...
-    // ============================================
-    // 1. Selector de idioma
-    const languageSelector = document.getElementById('language-selector');
-    if (languageSelector) {
-        languageSelector.addEventListener('change', function(e) {
-            const newLanguage = e.target.value;
-            if (window.appState && window.appState.currentLanguage !== newLanguage) {
-                window.appState.currentLanguage = newLanguage;
-                if (typeof updateLanguageUI === 'function') {
-                    updateLanguageUI();
-                }
-                localStorage.setItem('cri_language', newLanguage);
-                console.log('Idioma cambiado a:', newLanguage);
-            }
-        });
-    }
-    
-    // ... resto del código existente
-}
-
-// ============================================
-// FUNCIÓN PARA MANEJAR CLICS EN BANDERAS
-// ============================================
-function handleFlagClick(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const flag = e.currentTarget;
-    const lang = flag.getAttribute('data-lang') || flag.id.replace('flag-', '');
-    
-    console.log(`Bandera clickeada: ${flag.id}, cambiar a idioma ${lang}`);
-    
-    // USAR appState directamente, no window.appState
-    if (!appState) {
-        console.error('appState no está disponible');
-        return;
-    }
-    
-    if (appState.currentLanguage === lang) {
-        console.log(`Ya estamos en idioma ${lang}`);
-        return;
-    }
-    
-    // Cambiar idioma
-    appState.currentLanguage = lang;
-    
-    // Guardar preferencia
-    localStorage.setItem('cri_language', lang);
-    
-    // Actualizar UI
-    if (typeof updateLanguageUI === 'function') {
-        updateLanguageUI();
-    }
-    
-    // Actualizar selector dropdown si existe
-    const languageSelector = document.getElementById('language-selector');
-    if (languageSelector && languageSelector.value !== lang) {
-        languageSelector.value = lang;
-    }
-    
-    console.log(`Idioma cambiado a: ${lang}`);
-    
-    // Mostrar mensaje de confirmación
-    if (typeof showMessage === 'function') {
-        const t = translations[lang] || translations.es;
-        showMessage(`Idioma cambiado a ${t.languagesLabel.split(' / ')[0]}`, 'success');
-    }
-}

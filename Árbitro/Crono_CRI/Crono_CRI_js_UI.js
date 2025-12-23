@@ -890,3 +890,84 @@ function setupModalActionListeners() {
     
     console.log("✅ Listeners de acciones de modales configurados");
 }
+
+
+// ============================================
+// FUNCIONES DE IDIOMA - AÑADIR A Main.js o UI.js
+// ============================================
+
+function setupLanguageButtons() {
+    console.log("Configurando botones de idioma...");
+    
+    // Obtener todos los botones de idioma
+    const languageButtons = document.querySelectorAll('.flag');
+    
+    // Para cada botón de idioma
+    languageButtons.forEach(button => {
+        // Quitar cualquier listener anterior
+        button.removeEventListener('click', handleLanguageChange);
+        // Añadir nuevo listener
+        button.addEventListener('click', handleLanguageChange);
+    });
+    
+    // También configurar el botón de ayuda
+    const helpButton = document.getElementById('help-icon-header');
+    if (helpButton) {
+        helpButton.removeEventListener('click', showHelpModal);
+        helpButton.addEventListener('click', showHelpModal);
+    }
+    
+    console.log("Botones de idioma configurados:", languageButtons.length);
+}
+
+function handleLanguageChange(event) {
+    const lang = event.currentTarget.getAttribute('data-lang');
+    console.log("Cambiando idioma a:", lang);
+    
+    // Verificar que el idioma existe en las traducciones
+    if (!translations[lang]) {
+        console.error("Idioma no encontrado:", lang);
+        return;
+    }
+    
+    // Cambiar el idioma actual
+    appState.currentLanguage = lang;
+    
+    // Guardar preferencia en localStorage
+    localStorage.setItem('countdown-language', lang);
+    
+    // Actualizar bandera activa visualmente
+    updateActiveLanguageFlag(lang);
+    
+    // Actualizar toda la interfaz en el nuevo idioma
+    updateLanguageUI();
+    
+    // Recargar datos de la carrera para actualizar textos dinámicos
+    if (typeof loadRaceData === 'function') {
+        loadRaceData();
+    }
+    
+    console.log("Idioma cambiado exitosamente a:", lang);
+}
+
+function updateActiveLanguageFlag(lang) {
+    // Remover clase active de todas las banderas
+    const allFlags = document.querySelectorAll('.flag');
+    allFlags.forEach(flag => {
+        flag.classList.remove('active');
+    });
+    
+    // Añadir clase active a la bandera seleccionada
+    const activeFlag = document.getElementById(`flag-${lang}`);
+    if (activeFlag) {
+        activeFlag.classList.add('active');
+    }
+}
+
+function showHelpModal() {
+    const helpModal = document.getElementById('help-modal');
+    if (helpModal) {
+        helpModal.classList.add('active');
+    }
+}
+
