@@ -781,6 +781,9 @@ function setupModalActionListeners() {
         console.log("Listeners de acciones de modales ya configurados");
         return;
     }
+
+    // Marcar como configurado inmediatamente
+    window.modalActionListenersConfigured = true;
     
     // 1. Botón de crear carrera
     const createRaceBtn = document.getElementById('create-race-btn');
@@ -1020,16 +1023,45 @@ function setupModalActionListeners() {
     // 16. Botón de importar orden de salida
     const importOrderBtn = document.getElementById('import-order-btn');
     if (importOrderBtn) {
-        console.log("✅ Configurando import-order-btn");
-        importOrderBtn.addEventListener('click', function(e) {
+        console.log("✅ Configurando import-order-btn con prevención de múltiples listeners");
+        
+        // **SOLUCIÓN CRÍTICA: Reemplazar el botón para eliminar TODOS los listeners**
+        const newBtn = importOrderBtn.cloneNode(true); // Clonar manteniendo atributos
+        importOrderBtn.parentNode.replaceChild(newBtn, importOrderBtn);
+        
+        console.log("✅ Botón import-order-btn clonado - listeners HTML antiguos eliminados");
+        
+        // Obtener la referencia actualizada
+        const currentImportBtn = document.getElementById('import-order-btn');
+        
+        // Configurar UN ÚNICO listener
+        let isImportClickInProgress = false;
+        
+        currentImportBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            console.log("Importar orden de salida clickeado");
+            e.stopPropagation();
+            
+            if (isImportClickInProgress) {
+                console.log("⚠️ Click en importación ya en progreso, ignorando");
+                return;
+            }
+            
+            isImportClickInProgress = true;
+            console.log("🖱️ ÚNICO listener de import-order-btn ejecutado");
             
             // Verificar que la función existe
             if (typeof importStartOrder === 'function') {
                 importStartOrder();
             }
+            
+            // Permitir siguiente click después de 1 segundo
+            setTimeout(() => {
+                isImportClickInProgress = false;
+                console.log("✅ Listener de importación listo para nuevo click");
+            }, 1000);
         });
+        
+        console.log("✅ import-order-btn configurado con prevención de duplicados");
     }
     
     // 17. Botón de crear plantilla Excel
@@ -1242,3 +1274,67 @@ function handleRacesSelectChange(event) {
     console.log("🔄 Cambiando a carrera ID:", selectedRaceId);
     handleRaceChange(selectedRaceId);
 }
+
+// Añadir esta función al final de UI.js para depuración y limpieza
+function checkDuplicateImportListeners() {
+    console.log("🔍 Verificando listeners duplicados en import-order-btn...");
+    
+    const importBtn = document.getElementById('import-order-btn');
+    if (!importBtn) {
+        console.log("⚠️ Botón import-order-btn no encontrado");
+        return;
+    }
+    
+    // Obtener todos los event listeners (usando hack para debugging)
+    const listeners = getEventListeners ? getEventListeners(importBtn) : null;
+    
+    if (listeners && listeners.click) {
+        console.log(`⚠️ Encontrados ${listeners.click.length} listeners de click en import-order-btn`);
+        
+        if (listeners.click.length > 1) {
+            console.log("🚨 MÚLTIPLES LISTENERS DETECTADOS - Limpiando...");
+            
+            // Clonar y reemplazar el botón para eliminar todos los listeners
+            const newBtn = importBtn.cloneNode(true);
+            importBtn.parentNode.replaceChild(newBtn, importBtn);
+            
+            console.log("✅ Botón clonado - listeners antiguos eliminados");
+            
+            // Ahora configurar un único listener
+            setupSingleImportListener();
+        }
+    } else {
+        console.log("✅ Solo un listener o no se puede verificar (getEventListeners no disponible)");
+    }
+}
+
+function setupSingleImportListener() {
+    const importBtn = document.getElementById('import-order-btn');
+    if (!importBtn) return;
+    
+    let isImporting = false;
+    
+    importBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (isImporting) {
+            console.log("🔄 Importación ya en progreso, ignorando click");
+            return;
+        }
+        
+        isImporting = true;
+        console.log("📥 Único listener de importación ejecutado");
+        
+        if (typeof importStartOrder === 'function') {
+            importStartOrder();
+        }
+        
+        setTimeout(() => {
+            isImporting = false;
+        }, 1000);
+    });
+}
+
+// Llamar esta función después de inicializar la aplicación
+// setTimeout(checkDuplicateImportListeners, 1000);

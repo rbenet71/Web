@@ -1410,6 +1410,9 @@ function timeToExcelValue(timeStr) {
 }
 
 function importStartOrder() {
+    console.log("🚨 =============== importStartOrder() INICIANDO ===============");
+    console.log("🚨 Llamada #" + (window.importCallCount = (window.importCallCount || 0) + 1));
+    console.log("🚨 Stack trace:", new Error().stack);
     const t = translations[appState.currentLanguage];
     
     // VERIFICAR SI HAY CARRERA SELECCIONADA
@@ -1621,16 +1624,35 @@ function setupImportConfirmationModalEvents(modal) {
     });
 }
 
+
+// En Salidas_1.js, modificar la función proceedWithImport() (línea ~994):
+
 function proceedWithImport() {
+        console.log("🚨 =============== proceedWithImport() INICIANDO ===============");
+    console.log("🚨 Llamada #" + (window.proceedImportCount = (window.proceedImportCount || 0) + 1));
     const t = translations[appState.currentLanguage];
+    
+    // VERIFICAR SI YA HAY UN INPUT FILE ABIERTO
+    if (window.importFileInput && document.body.contains(window.importFileInput)) {
+        console.log("⚠️ Ya hay un input file abierto, ignorando llamado duplicado");
+        return;
+    }
     
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.xlsx,.xls,.csv';
+    input.style.display = 'none';
+    
+    // Guardar referencia global para verificar duplicados
+    window.importFileInput = input;
     
     input.onchange = (e) => {
         const file = e.target.files[0];
-        if (!file) return;
+        if (!file) {
+            // Limpiar referencia si no se seleccionó archivo
+            window.importFileInput = null;
+            return;
+        }
         
         const reader = new FileReader();
         reader.onload = (event) => {
@@ -1648,7 +1670,7 @@ function proceedWithImport() {
                 // Procesar los datos
                 processImportedOrderData(jsonData);
                 
-                // Mostrar mensaje de éxito con detalles
+                // Mostrar mensaje de éxito
                 const message = t.orderImported 
                     ? t.orderImported.replace('{count}', startOrderData.length)
                     : `Se importaron ${startOrderData.length} corredores correctamente`;
@@ -1664,8 +1686,34 @@ function proceedWithImport() {
         reader.readAsArrayBuffer(file);
     };
     
+    input.onclick = () => {
+        // Limpiar referencia al cerrar el diálogo
+        setTimeout(() => {
+            if (!input.files || input.files.length === 0) {
+                window.importFileInput = null;
+                // Remover el input del DOM después de usar
+                setTimeout(() => {
+                    if (input.parentNode) {
+                        input.parentNode.removeChild(input);
+                    }
+                }, 100);
+            }
+        }, 1000);
+    };
+    
+    // Añadir al DOM y hacer click
+    document.body.appendChild(input);
     input.click();
+    
+    // Remover después de usar
+    setTimeout(() => {
+        if (input.parentNode && (!input.files || input.files.length === 0)) {
+            input.parentNode.removeChild(input);
+            window.importFileInput = null;
+        }
+    }, 5000); // Remover después de 5 segundos por si acaso
 }
+
 
 function addImportConfirmationStyles() {
     if (document.getElementById('import-confirmation-styles')) return;
