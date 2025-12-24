@@ -1345,3 +1345,15 @@ Fecha de corrección: [Fecha actual]
 Módulo afectado: Storage_Pwa.js
 Funciones corregidas: loadRaceData(), initializeEmptyData()
 Estado: RESUELTO ✅
+
+¿QUÉ APRENDIMOS?
+El problema tenía dos causas:
+Faltaba la traducción diferenciaHeader en catalán
+La función updateTableHeaders original no manejaba todas las columnas
+La solución fue:
+Agregar la traducción faltante al objeto translations.ca
+Reemplazar completamente la función buggy con una versión robusta
+El sistema ahora es más robusto:
+Muestra logs informativos
+Maneja todas las 18 columnas
+Es más fácil de depurar en el futuro

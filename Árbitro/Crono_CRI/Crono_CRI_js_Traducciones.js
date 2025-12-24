@@ -541,7 +541,8 @@ const translations = {
         "noCancel": "No, cancelar",
         "differenceUpdated": "Diferencia actualizada correctamente",
         "changeCancelled": "Cambio cancelado",
-        "errorIndexOutOfRange": "Error: Índice de corredor inválido"
+        "errorIndexOutOfRange": "Error: Índice de corredor inválido",
+        diferenciaHeader: "Diferencia",
 
     },
 
@@ -1114,6 +1115,7 @@ const translations = {
         time:"CRONO",
         page:"Pàgina",
         of:"de",   
+        diferenciaHeader: "Diferència",
     },
 
     en: {
@@ -1680,6 +1682,8 @@ const translations = {
         time:"TIME",
         page:"Page",
         of:"of",
+
+        diferenciaHeader: "Gap",
     },
 
     fr: {
@@ -2266,7 +2270,8 @@ const translations = {
         startTime:"HEURE DE DÉPART",
         time:"CRONO",
         page:"Page",
-        of:"de"
+        of:"de",
+        diferenciaHeader:"Diferencia"
 
     }
 };
@@ -2523,36 +2528,38 @@ function updateModalTexts(t) {
 }
 
 function updateTableHeaders(t) {
-    // Actualizar TODAS las cabeceras de tabla de orden de salida
-    const headerMap = {
-        // Columnas principales - IDs sin guiones
-        'orderHeader': t.orderHeader,
-        'dorsalHeader': t.dorsalHeader,
-        'cronosalidaHeader': t.cronoSalidaHeader,
-        'horasalidaHeader': t.horaSalidaHeader,
-        'nombreHeader': t.nombreHeader,
-        'apellidosHeader': t.apellidosHeader,
-        'chipHeader': t.chipHeader,
-        'horarealHeader': t.horaRealHeader,
-        'cronorealHeader': t.cronoRealHeader,
-        'horaprevistaHeader': t.horaPrevistaHeader,
-        'cronoprevistaHeader': t.cronoPrevistaHeader,
-        'horaimportadoHeader': t.horaImportadoHeader,
-        'cronoimportadoHeader': t.cronoImportadoHeader,
-        'cronosegundosHeader': t.cronoSegundosHeader,
-        'horasegundosHeader': t.horaSegundosHeader,
-        'horarealsegundosHeader': t.horaRealSegundosHeader
-    };
+    console.log("=== ACTUALIZANDO CABECERAS DE TABLA ===");
+    console.log("Idioma:", appState.currentLanguage);
     
-    Object.keys(headerMap).forEach(id => {
+    // Lista completa de IDs
+    const headerIds = [
+        'orderHeader', 'dorsalHeader', 'cronoSalidaHeader', 'horaSalidaHeader',
+        'diferenciaHeader', 'nombreHeader', 'apellidosHeader', 'chipHeader',
+        'horaRealHeader', 'cronoRealHeader', 'horaPrevistaHeader', 'cronoPrevistaHeader',
+        'horaImportadoHeader', 'cronoImportadoHeader', 'cronoSegundosHeader',
+        'horaSegundosHeader', 'cronoRealSegundosHeader', 'horaRealSegundosHeader'
+    ];
+    
+    let updated = 0;
+    headerIds.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
-            element.textContent = headerMap[id];
+            const translation = t[id];
+            if (translation) {
+                element.textContent = translation;
+                updated++;
+            }
         }
     });
     
-    console.log("Cabeceras de tabla actualizadas:", Object.keys(headerMap).length, "columnas");
+    console.log(`Cabeceras de tabla actualizadas: ${updated} de ${headerIds.length} columnas`);
+    
+    // También actualizar tooltips si existen
+    if (typeof updateTableTooltips === 'function') {
+        updateTableTooltips(t);
+    }
 }
+
 
 function updateButtonsAndSpecificElements(t) {
     // Actualizar botones de acción generales
