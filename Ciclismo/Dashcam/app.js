@@ -1,5 +1,5 @@
 // Dashcam PWA - Grabación con datos GPS incorporados permanentemente en el video
-// Archivo completo
+// Archivo completo corregido
 
 class DashcamApp {
     constructor() {
@@ -12,11 +12,11 @@ class DashcamApp {
             startTime: null,
             currentTime: 0,
             totalSize: 0,
-            activeTab: 'videos',
             selectedVideos: new Set(),
             selectedGPX: new Set(),
             currentVideo: null,
             currentGPX: null,
+            activeTab: 'videos', // <-- IMPORTANTE: añadido para tabs
             settings: {
                 segmentDuration: 5,
                 videoQuality: '720p',
@@ -97,12 +97,6 @@ class DashcamApp {
             mainCanvas: document.getElementById('mainCanvas'),
             overlayCanvas: document.getElementById('overlayCanvas'),
             overlayCtx: null,
-
-            // Tabs y contenido
-            tabVideos: document.getElementById('tabVideos'),
-            tabGPX: document.getElementById('tabGPX'),
-            videosTab: document.getElementById('videosTab'),
-            gpxTab: document.getElementById('gpxTab'),
             
             // Controles principales
             recordBtn: document.getElementById('recordBtn'),
@@ -124,6 +118,12 @@ class DashcamApp {
             galleryPanel: document.getElementById('galleryPanel'),
             settingsPanel: document.getElementById('settingsPanel'),
             videoPlayer: document.getElementById('videoPlayer'),
+            
+            // Tabs y contenido - NUEVO: IDs específicos
+            tabVideos: document.getElementById('tabVideos'),
+            tabGPX: document.getElementById('tabGPX'),
+            videosTab: document.getElementById('videosTab'),
+            gpxTab: document.getElementById('gpxTab'),
             
             // Galería - Vídeos
             videosList: document.getElementById('videosList'),
@@ -159,12 +159,7 @@ class DashcamApp {
             exportVideo: document.getElementById('exportVideo'),
             shareVideo: document.getElementById('shareVideo'),
             deleteVideo: document.getElementById('deleteVideo'),
-            closePlayer: document.getElementById('closePlayer'),
-            
-            // Tabs
-            videosTab: document.getElementById('videosTab'),
-            gpxTab: document.getElementById('gpxTab'),
-            tabButtons: document.querySelectorAll('.tab-btn')
+            closePlayer: document.getElementById('closePlayer')
         };
     }
 
@@ -692,6 +687,20 @@ class DashcamApp {
         return '';
     }
 
+    // ============ CONTROL DE GRABACIÓN ============
+
+    toggleRecording() {
+        if (this.state.isRecording) {
+            if (this.state.isPaused) {
+                this.resumeRecording();
+            } else {
+                this.pauseRecording();
+            }
+        } else {
+            this.startRecording();
+        }
+    }
+
     // ============ GUARDADO DE DATOS ============
 
     async saveVideoSegment() {
@@ -1053,6 +1062,7 @@ class DashcamApp {
             request.onerror = () => reject(request.error);
         });
     }
+
 
     // ============ EVENTOS ============
 
@@ -1727,65 +1737,3 @@ document.addEventListener('DOMContentLoaded', () => {
     window.dashcamApp = new DashcamApp();
 });
 
-// Método para cambiar entre tabs
-switchTab(tabName) {
-    console.log('Cambiando tab a:', tabName);
-    
-    this.state.activeTab = tabName;
-    
-    // Actualizar botones de tab
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        const isActive = btn.dataset.tab === tabName;
-        btn.classList.toggle('active', isActive);
-    });
-    
-    // Mostrar/ocultar contenido
-    const videosContent = document.getElementById('videosContent');
-    const gpxContent = document.getElementById('gpxContent');
-    
-    if (tabName === 'videos') {
-        videosContent.classList.add('active');
-        gpxContent.classList.remove('active');
-        // Cargar videos si no están cargados
-        if (this.state.videos.length === 0) {
-            this.loadVideos();
-        }
-    } else {
-        videosContent.classList.remove('active');
-        gpxContent.classList.add('active');
-        // Cargar GPX si no están cargados
-        if (this.state.gpxTracks.length === 0) {
-            this.loadGPXTracks();
-        }
-    }
-}
-
-
-
-// Método para cambiar tabs
-switchTab(tabName) {
-    console.log('Cambiando a tab:', tabName);
-    
-    // Actualizar estado
-    this.state.activeTab = tabName;
-    
-    // Actualizar botones de tab
-    if (tabName === 'videos') {
-        this.elements.tabVideos.classList.add('active');
-        this.elements.tabGPX.classList.remove('active');
-        this.elements.videosTab.classList.add('active');
-        this.elements.gpxTab.classList.remove('active');
-    } else {
-        this.elements.tabVideos.classList.remove('active');
-        this.elements.tabGPX.classList.add('active');
-        this.elements.videosTab.classList.remove('active');
-        this.elements.gpxTab.classList.add('active');
-    }
-    
-    // Cargar datos si es necesario
-    if (tabName === 'videos' && this.state.videos.length === 0) {
-        this.loadVideos();
-    } else if (tabName === 'gpx' && this.state.gpxTracks.length === 0) {
-        this.loadGPXTracks();
-    }
-}
