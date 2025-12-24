@@ -2,11 +2,12 @@
     "name": "Dashcam PWA",
     "short_name": "Dashcam",
     "description": "Dashcam para móvil con GPS y GPX",
-    "start_url": "/",
+    "start_url": "https://rbenet71.github.io/Web/Ciclismo/Dashcam/Index.html",
     "display": "standalone",
     "orientation": "landscape",
     "background_color": "#000000",
     "theme_color": "#00a8ff",
+    "scope": "/Web/Ciclismo/Dashcam/",
     "icons": [
         {
             "src": "icons/icon-192.png",
