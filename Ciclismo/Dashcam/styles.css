@@ -18,11 +18,12 @@ body {
     flex-direction: column;
 }
 
-/* Vista de cámara */
+/* Vista de cámara - AHORA OCUPA 70% */
 .camera-view {
-    flex: 1;
+    flex: 0 0 70vh; /* Altura fija de 70% de la pantalla */
     position: relative;
     background: black;
+    overflow: hidden;
 }
 
 #videoPreview {
@@ -40,19 +41,33 @@ body {
     pointer-events: none;
 }
 
-/* Controles */
+/* Controles - AHORA OCUPA 30% */
 .controls {
-    background: rgba(0, 0, 0, 0.9);
-    padding: 10px;
+    flex: 0 0 30vh; /* Altura fija de 30% de la pantalla */
+    background: rgba(0, 0, 0, 0.95);
+    padding: 10px 15px;
     border-top: 2px solid #00a8ff;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
 }
 
 .status-bar {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     font-size: 12px;
     margin-bottom: 10px;
     color: #00a8ff;
+    gap: 8px;
+}
+
+.status, .gps-status, .storage-status, .battery-status {
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    min-width: 100px;
+    text-align: center;
 }
 
 .buttons {
@@ -60,10 +75,11 @@ body {
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
     margin-bottom: 10px;
+    flex-shrink: 0; /* Evita que se reduzcan */
 }
 
 .btn {
-    padding: 15px 5px;
+    padding: 12px 5px;
     border: none;
     border-radius: 10px;
     background: #1e272e;
@@ -73,7 +89,15 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 5px;
+    min-height: 60px;
+    transition: all 0.2s;
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 168, 255, 0.3);
 }
 
 .btn:disabled {
@@ -105,12 +129,20 @@ body {
 .recording-info {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
-    font-size: 11px;
+    gap: 8px;
+    font-size: 12px;
     text-align: center;
     background: rgba(0, 168, 255, 0.1);
-    padding: 8px;
+    padding: 10px;
     border-radius: 8px;
+    margin-top: auto; /* Empuja hacia abajo */
+}
+
+.recording-info > div {
+    padding: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+    font-weight: 500;
 }
 
 /* Paneles */
@@ -120,7 +152,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.95);
+    background: rgba(0, 0, 0, 0.98);
     padding: 20px;
     z-index: 1000;
     display: flex;
@@ -138,6 +170,7 @@ body {
     margin-bottom: 20px;
     padding-bottom: 15px;
     border-bottom: 2px solid #00a8ff;
+    flex-shrink: 0;
 }
 
 .close-btn {
@@ -146,7 +179,9 @@ body {
     color: white;
     font-size: 24px;
     cursor: pointer;
-    padding: 5px;
+    padding: 5px 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Tabs */
@@ -154,20 +189,23 @@ body {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
+    flex-shrink: 0;
 }
 
 .tab-btn {
     flex: 1;
-    padding: 10px;
+    padding: 12px;
     background: #1e272e;
     border: none;
     color: white;
     border-radius: 8px;
     cursor: pointer;
+    font-weight: 500;
 }
 
 .tab-btn.active {
     background: #00a8ff;
+    box-shadow: 0 4px 8px rgba(0, 168, 255, 0.3);
 }
 
 /* Galería */
@@ -175,24 +213,27 @@ body {
     display: flex;
     gap: 10px;
     margin-bottom: 15px;
+    flex-shrink: 0;
 }
 
 .gallery-controls input {
     flex: 1;
-    padding: 10px;
+    padding: 12px;
     background: #1e272e;
     border: 1px solid #00a8ff;
     color: white;
     border-radius: 8px;
+    font-size: 14px;
 }
 
 .gallery-controls button {
-    padding: 10px;
+    padding: 12px 15px;
     background: #353b48;
     border: none;
     color: white;
     border-radius: 8px;
     cursor: pointer;
+    font-weight: 500;
 }
 
 .files-list {
@@ -208,10 +249,12 @@ body {
     border-radius: 10px;
     border-left: 4px solid #00a8ff;
     cursor: pointer;
+    transition: all 0.2s;
 }
 
 .file-item:hover {
     background: #2d3436;
+    transform: translateX(5px);
 }
 
 .file-item.selected {
@@ -221,12 +264,19 @@ body {
 .file-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 5px;
+    align-items: flex-start;
+    margin-bottom: 8px;
 }
 
 .file-title {
     font-weight: bold;
     color: #00a8ff;
+    font-size: 16px;
+}
+
+.file-time {
+    font-size: 12px;
+    color: #aaa;
 }
 
 .file-details {
@@ -235,19 +285,41 @@ body {
     gap: 10px;
     font-size: 12px;
     color: #aaa;
+    margin-bottom: 10px;
 }
 
 .file-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 10px;
     padding-top: 10px;
     border-top: 1px solid #333;
 }
 
+.file-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .file-checkbox input {
-    margin-right: 8px;
+    width: 18px;
+    height: 18px;
+    accent-color: #00a8ff;
+}
+
+.play-btn, .view-btn {
+    padding: 8px 15px;
+    background: #00a8ff;
+    border: none;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.play-btn:hover, .view-btn:hover {
+    background: #0097e6;
 }
 
 /* Panel acciones */
@@ -256,10 +328,12 @@ body {
     gap: 10px;
     padding-top: 20px;
     border-top: 1px solid #333;
+    flex-shrink: 0;
 }
 
 .panel-actions .btn {
     flex: 1;
+    min-height: 50px;
 }
 
 .export-btn {
@@ -282,6 +356,7 @@ body {
 .settings-content {
     flex: 1;
     overflow-y: auto;
+    margin-bottom: 20px;
 }
 
 .setting {
@@ -293,27 +368,31 @@ body {
 
 .setting label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     color: #00a8ff;
+    font-weight: 500;
 }
 
 .setting select {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     background: #2d3436;
     border: 1px solid #00a8ff;
     color: white;
     border-radius: 8px;
+    font-size: 16px;
 }
 
 .setting input[type="checkbox"] {
-    margin-right: 10px;
-    transform: scale(1.2);
+    margin-right: 12px;
+    transform: scale(1.3);
+    accent-color: #00a8ff;
 }
 
 /* Reproductor de video */
 #playbackVideo {
     width: 100%;
+    max-height: 50vh;
     border-radius: 10px;
     margin-bottom: 20px;
     background: black;
@@ -324,6 +403,10 @@ body {
     padding: 15px;
     border-radius: 10px;
     margin-bottom: 20px;
+}
+
+.video-info p {
+    margin: 5px 0;
 }
 
 /* Notificaciones */
@@ -338,6 +421,7 @@ body {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     z-index: 2000;
     animation: slideIn 0.3s ease-out;
+    max-width: 300px;
 }
 
 @keyframes slideIn {
@@ -370,6 +454,7 @@ body {
 
 ::-webkit-scrollbar-track {
     background: #1e272e;
+    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -377,8 +462,33 @@ body {
     border-radius: 4px;
 }
 
-/* Responsive */
+::-webkit-scrollbar-thumb:hover {
+    background: #0097e6;
+}
+
+/* Estados vacíos */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.empty-state div:first-child {
+    font-size: 48px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+/* Responsive mejorado */
 @media (max-width: 768px) {
+    .camera-view {
+        flex: 0 0 60vh; /* 60% en móviles */
+    }
+    
+    .controls {
+        flex: 0 0 40vh; /* 40% en móviles */
+    }
+    
     .buttons {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -389,5 +499,77 @@ body {
     
     .file-details {
         grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .status-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .status, .gps-status, .storage-status, .battery-status {
+        min-width: 100%;
+    }
+    
+    .gallery-controls {
+        flex-direction: column;
+    }
+    
+    .gallery-controls button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .camera-view {
+        flex: 0 0 55vh;
+    }
+    
+    .controls {
+        flex: 0 0 45vh;
+        padding: 8px;
+    }
+    
+    .panel-header h3 {
+        font-size: 18px;
+    }
+    
+    .file-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .tabs {
+        flex-direction: column;
+    }
+    
+    .panel-actions {
+        flex-direction: column;
+    }
+    
+    .panel-actions .btn {
+        width: 100%;
+    }
+}
+
+/* Para tablets en landscape */
+@media (orientation: landscape) and (max-height: 600px) {
+    .camera-view {
+        flex: 0 0 70vh;
+    }
+    
+    .controls {
+        flex: 0 0 30vh;
+    }
+    
+    .buttons {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .btn {
+        padding: 8px 3px;
+        min-height: 50px;
+    }
+    
+    .btn-text {
+        font-size: 11px;
     }
 }
