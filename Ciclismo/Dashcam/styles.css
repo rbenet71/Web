@@ -1,3 +1,4 @@
+/* RESET Y CONFIGURACIÓN BASE */
 * {
     margin: 0;
     padding: 0;
@@ -6,32 +7,47 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #000;
+    background: #000000;
     color: white;
     height: 100vh;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .container {
     height: 100vh;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
-/* Vista de cámara - 65% de la pantalla */
+/* ============ VISTA DE CÁMARA ============ */
 .camera-view {
-    flex: 0 0 65vh;
+    flex: 0 0 65vh; /* 65% de la altura */
     position: relative;
-    background: black;
+    background: #000000;
     overflow: hidden;
 }
 
+/* Video de preview (solo para vista previa) */
 #videoPreview {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transform: scaleX(-1); /* Espejo para parecer cámara trasera */
 }
 
+/* Canvas principal - PARA GRABACIÓN CON DATOS */
+#mainCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Debajo del overlay */
+}
+
+/* Canvas de overlay - solo indicadores temporales */
 #overlayCanvas {
     position: absolute;
     top: 0;
@@ -39,11 +55,12 @@ body {
     width: 100%;
     height: 100%;
     pointer-events: none;
+    z-index: 2; /* Encima del main canvas */
 }
 
-/* Controles - 35% de la pantalla */
+/* ============ CONTROLES ============ */
 .controls {
-    flex: 0 0 35vh;
+    flex: 0 0 35vh; /* 35% de la altura */
     background: rgba(0, 0, 0, 0.95);
     border-top: 2px solid #00a8ff;
     display: flex;
@@ -59,13 +76,13 @@ body {
     overflow-y: auto;
 }
 
+/* Barra de estado */
 .status-bar {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
     margin-bottom: 12px;
     font-size: 12px;
-    color: #00a8ff;
 }
 
 .status, .gps-status, .storage-status, .battery-status {
@@ -77,6 +94,27 @@ body {
     flex: 1;
 }
 
+.status {
+    color: #00ff88;
+    border-left: 3px solid #00ff88;
+}
+
+.gps-status {
+    color: #00a8ff;
+    border-left: 3px solid #00a8ff;
+}
+
+.storage-status {
+    color: #ffcc00;
+    border-left: 3px solid #ffcc00;
+}
+
+.battery-status {
+    color: #ff5555;
+    border-left: 3px solid #ff5555;
+}
+
+/* Botones principales */
 .buttons {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -132,6 +170,7 @@ body {
     background: linear-gradient(135deg, #353b48, #2f3640);
 }
 
+/* Información de grabación */
 .recording-info {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -165,6 +204,7 @@ body {
     z-index: 1000;
     display: flex;
     flex-direction: column;
+    animation: panelSlideIn 0.3s ease-out;
 }
 
 .hidden {
@@ -183,7 +223,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     padding-bottom: 15px;
     border-bottom: 2px solid #00a8ff;
     flex-shrink: 0;
@@ -192,6 +232,7 @@ body {
 .panel-header h3 {
     margin: 0;
     font-size: 20px;
+    color: #00a8ff;
 }
 
 .close-btn {
@@ -204,15 +245,18 @@ body {
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.1);
     flex-shrink: 0;
+    transition: background 0.2s;
 }
 
-/* ============ GALERÍA - ESTRUCTURA CORREGIDA ============ */
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
 
-/* Tabs */
+/* ============ TABS ============ */
 .tabs {
     display: flex;
     gap: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     flex-shrink: 0;
 }
 
@@ -225,6 +269,7 @@ body {
     border-radius: 8px;
     cursor: pointer;
     font-weight: 500;
+    transition: all 0.2s;
 }
 
 .tab-btn.active {
@@ -232,28 +277,33 @@ body {
     box-shadow: 0 4px 8px rgba(0, 168, 255, 0.3);
 }
 
-/* CONTENEDOR PRINCIPAL DE GALERÍA CON SCROLL */
-.gallery-main-content {
+/* ============ CONTENIDO DE PANELES ============ */
+.panel-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    position: relative;
+    overflow-y: auto;
+    margin-bottom: 20px;
 }
 
-/* Contenido de tabs - AHORA CON SCROLL PROPIO */
 .tab-content {
     display: none;
     flex: 1;
     flex-direction: column;
-    overflow: hidden;
 }
 
 .tab-content.active {
     display: flex;
 }
 
-/* Controles de galería */
+/* Galería */
+.gallery-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
 .gallery-controls {
     display: flex;
     gap: 10px;
@@ -269,7 +319,7 @@ body {
     color: white;
     border-radius: 8px;
     font-size: 14px;
-    min-width: 0; /* Importante para flex */
+    min-width: 0;
 }
 
 .selection-buttons {
@@ -286,14 +336,19 @@ body {
     cursor: pointer;
     font-weight: 500;
     white-space: nowrap;
+    transition: background 0.2s;
 }
 
-/* ============ LISTA DE ARCHIVOS CON SCROLL ============ */
+.gallery-controls button:hover {
+    background: #2d3436;
+}
+
+/* Lista de archivos */
 .files-list {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     padding-right: 8px;
 }
 
@@ -378,20 +433,37 @@ body {
     cursor: pointer;
     font-weight: 500;
     white-space: nowrap;
+    transition: background 0.2s;
 }
 
 .play-btn:hover, .view-btn:hover {
     background: #0097e6;
 }
 
-/* ============ CONFIGURACIÓN ============ */
-.panel-content {
+/* Estados vacíos */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    justify-content: center;
+    align-items: center;
 }
 
+.empty-state div:first-child {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.empty-state p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+/* ============ CONFIGURACIÓN ============ */
 .settings-content {
     flex: 1;
     overflow-y: auto;
@@ -428,7 +500,7 @@ body {
     accent-color: #00a8ff;
 }
 
-/* Reproductor de video */
+/* ============ REPRODUCTOR DE VIDEO ============ */
 #playbackVideo {
     width: 100%;
     max-height: 50vh;
@@ -448,13 +520,14 @@ body {
 
 .video-info p {
     margin: 5px 0;
+    color: #00a8ff;
 }
 
-/* Panel acciones */
+/* ============ ACCIONES DEL PANEL ============ */
 .panel-actions {
     display: flex;
     gap: 10px;
-    padding-top: 15px;
+    padding-top: 20px;
     border-top: 1px solid #333;
     flex-shrink: 0;
 }
@@ -493,6 +566,18 @@ body {
     z-index: 2000;
     animation: slideIn 0.3s ease-out;
     max-width: 300px;
+}
+
+/* ============ ANIMACIONES ============ */
+@keyframes panelSlideIn {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 @keyframes slideIn {
@@ -538,29 +623,6 @@ body {
     background: #0097e6;
 }
 
-/* Estados vacíos */
-.empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #666;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.empty-state div:first-child {
-    font-size: 64px;
-    margin-bottom: 20px;
-    opacity: 0.3;
-}
-
-.empty-state p {
-    margin: 5px 0;
-    font-size: 16px;
-}
-
 /* ============ RESPONSIVE ============ */
 @media (max-width: 768px) {
     .camera-view {
@@ -598,6 +660,10 @@ body {
     .panel-container {
         padding: 15px;
     }
+    
+    .panel-header h3 {
+        font-size: 18px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -607,10 +673,15 @@ body {
     
     .controls {
         flex: 0 0 45vh;
+        padding: 0;
     }
     
     .btn-text {
         font-size: 12px;
+    }
+    
+    .btn-icon {
+        font-size: 20px;
     }
     
     .panel-actions {
@@ -628,9 +699,18 @@ body {
     .file-details {
         grid-template-columns: 1fr;
     }
+    
+    .status-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .status, .gps-status, .storage-status, .battery-status {
+        min-width: 100%;
+    }
 }
 
-/* Para tablets landscape */
+/* Para tablets en landscape */
 @media (orientation: landscape) and (max-height: 600px) {
     .camera-view {
         flex: 0 0 70vh;
@@ -647,5 +727,30 @@ body {
     
     .btn-text {
         font-size: 11px;
+    }
+    
+    .recording-info {
+        font-size: 10px;
+        padding: 8px;
+    }
+}
+
+/* Para pantallas muy altas */
+@media (min-height: 1000px) {
+    .camera-view {
+        flex: 0 0 70vh;
+    }
+    
+    .controls {
+        flex: 0 0 30vh;
+    }
+    
+    .btn {
+        min-height: 80px;
+        padding: 15px 5px;
+    }
+    
+    .btn-text {
+        font-size: 15px;
     }
 }
