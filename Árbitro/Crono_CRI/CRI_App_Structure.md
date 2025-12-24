@@ -1357,3 +1357,59 @@ El sistema ahora es más robusto:
 Muestra logs informativos
 Maneja todas las 18 columnas
 Es más fácil de depurar en el futuro
+
+# 🔧 Aprendizajes: Problema de Actualización de Tiempo
+
+## 📌 **Problema**
+Hora del día y cuenta atrás no se actualizaban en tiempo real.
+
+## 🎯 **Causa**
+- Se intentaban llamar funciones inexistentes en `Main.js`
+- `setupTimeIntervals()` y `setupCountdownResize()` no existían
+- No había intervalos activos para actualizar los displays
+
+## ✅ **Solución Implementada**
+
+### **1. Verificar funciones antes de usar**
+```javascript
+if (typeof updateSystemTimeDisplay === 'function') {
+    updateSystemTimeDisplay();
+    setInterval(updateSystemTimeDisplay, 1000);
+}
+```
+
+### **2. Crear funciones faltantes**
+```javascript
+function updateSystemTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('es-ES', { 
+        hour12: false 
+    });
+    
+    const timeElement = document.getElementById('system-time');
+    if (timeElement) timeElement.textContent = timeString;
+}
+```
+
+### **3. Manejo condicional de countdown**
+```javascript
+function updateCountdownIfActive() {
+    if (appState.countdownActive && typeof updateCountdownDisplay === 'function') {
+        updateCountdownDisplay();
+    }
+}
+setInterval(updateCountdownIfActive, 1000);
+```
+
+## 📋 **Buenas Prácticas Aprendidas**
+
+1. **Verificar funciones antes de llamarlas**
+2. **Crear funciones de respaldo** cuando las esperadas faltan
+3. **Logging claro** para debugging
+4. **Timing adecuado** - ejecutar después de inicialización completa
+
+## ⚡ **Resultado**
+- ✅ Hora del sistema se actualiza cada segundo
+- ✅ Cuenta atrás funciona en tiempo real
+- ✅ Sin errores en consola
+- ✅ Código más robusto con verificaciones

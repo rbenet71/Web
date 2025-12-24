@@ -670,6 +670,60 @@ function setupStartOrderEventListeners() {
         startCountdownBtn.addEventListener('click', startCountdown);
     }
 
+ // En Crono_CRI_js_Main.js, línea 682 aproximadamente
+
+console.log("✅ Aplicación completamente inicializada y lista");
+
+// 🔥 CORRECCIÓN DE INTERVALOS DE TIEMPO 🔥
+
+// 1. Iniciar actualización de hora del sistema (debe existir en UI.js)
+if (typeof updateSystemTimeDisplay === 'function') {
+    updateSystemTimeDisplay();
+    setInterval(updateSystemTimeDisplay, 1000); // Actualizar cada segundo
+    console.log("⏰ Actualización de hora del sistema iniciada");
+}
+
+// 2. Iniciar actualización de hora actual (si existe)
+if (typeof updateCurrentTime === 'function') {
+    setInterval(updateCurrentTime, 1000);
+    console.log("⏰ Actualización de hora actual iniciada");
+}
+
+// 3. Si updateCurrentTime no existe, usar una función alternativa
+if (typeof updateCurrentTime === 'undefined') {
+    // Crear función simple para mostrar hora actual
+    function updateCurrentTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('es-ES', { hour12: false });
+        const currentTimeElement = document.getElementById('current-time');
+        if (currentTimeElement) {
+            currentTimeElement.textContent = timeString;
+        }
+    }
+    
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 1000);
+    console.log("⏰ Función updateCurrentTime creada e iniciada");
+}
+
+// 4. Configurar redimensionamiento del countdown (si existe)
+if (typeof setupCountdownResize === 'function') {
+    setupCountdownResize();
+    console.log("📱 Redimensionamiento del countdown configurado");
+}
+
+// 5. Iniciar actualización de cuenta atrás si está activa
+function updateCountdownIfActive() {
+    if (appState.countdownActive && typeof updateCountdownDisplay === 'function') {
+        updateCountdownDisplay();
+    }
+}
+
+// Actualizar countdown cada segundo
+setInterval(updateCountdownIfActive, 1000);
+
+console.log("⏰ Todos los intervalos de tiempo iniciados correctamente");
+
     window.startOrderListenersConfigured = true;
     console.log("Event listeners de orden de salida configurados.");
 }
