@@ -317,18 +317,56 @@ let updateStartOrderTablePending = false;
 let updateStartOrderTableTimeout = null;
 let lastUpdateTime = 0; // <-- AÑADIR ESTA LÍNEA
 
+// 🔴 NUEVAS VARIABLES PARA PROTECCIÓN
+let updateStartOrderTableExecuting = false;  // Evita ejecuciones simultáneas
+let lastForceUpdateTime = 0;                // Controla updates forzados
+const MIN_FORCE_UPDATE_INTERVAL = 100;      // Mínimo 100ms entre updates forzados
+
 const UPDATE_THROTTLE_DELAY = 50; // 50ms mínimo entre actualizaciones
 
 // ============================================
 // VERSIÓN THROTTLED DE updateStartOrderTable
 // ============================================
+// ============================================
+// VERSIÓN THROTTLED MEJORADA DE updateStartOrderTable
+// ============================================
 function updateStartOrderTableThrottled(force = false) {
     const now = Date.now();
+    
+    // 🔴 PROTECCIÓN 1: Evitar ejecuciones simultáneas
+    if (updateStartOrderTableExecuting) {
+        console.warn("⚠️ updateStartOrderTable ya está ejecutándose, omitiendo llamada duplicada");
+        
+        // Si es forzado y está ejecutando, programar para después
+        if (force) {
+            console.log("⚠️ Forzado mientras se ejecuta, programando nueva ejecución");
+            setTimeout(() => {
+                updateStartOrderTableThrottled(true);
+            }, UPDATE_THROTTLE_DELAY);
+        }
+        return;
+    }
+    
+    // 🔴 PROTECCIÓN 2: Controlar updates forzados muy frecuentes
+    if (force) {
+        const timeSinceLastForceUpdate = now - lastForceUpdateTime;
+        if (timeSinceLastForceUpdate < MIN_FORCE_UPDATE_INTERVAL) {
+            console.warn(`⚠️ Updates forzados demasiado frecuentes (${timeSinceLastForceUpdate}ms), posponiendo...`);
+            
+            // Posponer este update forzado
+            setTimeout(() => {
+                updateStartOrderTableThrottled(true);
+            }, MIN_FORCE_UPDATE_INTERVAL - timeSinceLastForceUpdate);
+            return;
+        }
+        lastForceUpdateTime = now;
+    }
+    
     const timeSinceLastUpdate = now - lastUpdateTime;
     
     // Si es forzada o ha pasado suficiente tiempo, ejecutar inmediatamente
     if (force || timeSinceLastUpdate > UPDATE_THROTTLE_DELAY || !lastUpdateTime) {
-        console.log("updateStartOrderTable: Ejecución inmediata (force o tiempo suficiente)");
+        console.log("updateStartOrderTableThrottled: Ejecución " + (force ? "forzada" : "inmediata"));
         
         // Limpiar timeout anterior si existe
         if (updateStartOrderTableTimeout) {
@@ -336,45 +374,90 @@ function updateStartOrderTableThrottled(force = false) {
             updateStartOrderTableTimeout = null;
         }
         
-        // Resetear estado
+        // Resetear estado de pendiente
         updateStartOrderTablePending = false;
         
-        // Ejecutar directamente
-        updateStartOrderTable();
+        // Marcar como ejecutando
+        updateStartOrderTableExecuting = true;
+        
+        // Ejecutar directamente con manejo de errores
+        try {
+            updateStartOrderTable();
+        } catch (error) {
+            console.error("❌ Error en updateStartOrderTable:", error);
+        } finally {
+            // Desmarcar después de un pequeño delay
+            setTimeout(() => {
+                updateStartOrderTableExecuting = false;
+            }, 10);
+        }
+        
         lastUpdateTime = now;
         return;
     }
     
-    // Si ya hay una actualización pendiente, solo registrar
+    // 🔴 PROTECCIÓN 3: Si ya hay una actualización pendiente
     if (updateStartOrderTablePending) {
-        console.log("updateStartOrderTable: Actualización ya programada, omitiendo llamada extra");
+        console.log("updateStartOrderTableThrottled: Ya hay actualización pendiente");
+        
+        // Si es forzado y ya hay uno pendiente, reemplazarlo
+        if (force && updateStartOrderTableTimeout) {
+            console.log("updateStartOrderTableThrottled: Reemplazando update pendiente con uno forzado");
+            clearTimeout(updateStartOrderTableTimeout);
+            updateStartOrderTableTimeout = null;
+            
+            // Programar nuevo timeout inmediato
+            updateStartOrderTableTimeout = setTimeout(() => {
+                executeUpdateStartOrderTable();
+            }, 10);
+        }
         return;
     }
     
     // Marcar como pendiente
     updateStartOrderTablePending = true;
-    console.log("updateStartOrderTable: Programando ejecución en", UPDATE_THROTTLE_DELAY, "ms");
+    console.log("updateStartOrderTableThrottled: Programando ejecución en", UPDATE_THROTTLE_DELAY, "ms");
     
     // Programar la ejecución
     updateStartOrderTableTimeout = setTimeout(() => {
-        console.log("updateStartOrderTable: Ejecutando versión throttled...");
-        
-        try {
-            updateStartOrderTable();
-            lastUpdateTime = Date.now();
-        } catch (error) {
-            console.error("Error en updateStartOrderTableThrottled:", error);
-        }
-        
-        // Resetear estado
-        updateStartOrderTablePending = false;
-        updateStartOrderTableTimeout = null;
-        
+        executeUpdateStartOrderTable();
     }, UPDATE_THROTTLE_DELAY);
 }
 
-
 // ============================================
+// FUNCIÓN AUXILIAR PARA EJECUCIÓN CONTROLADA
+// ============================================
+function executeUpdateStartOrderTable() {
+    console.log("updateStartOrderTableThrottled: Ejecutando versión throttled...");
+    
+    // 🔴 Verificar nuevamente antes de ejecutar
+    if (updateStartOrderTableExecuting) {
+        console.warn("⚠️ Ya se está ejecutando, cancelando esta llamada");
+        updateStartOrderTablePending = false;
+        updateStartOrderTableTimeout = null;
+        return;
+    }
+    
+    // Marcar como ejecutando
+    updateStartOrderTableExecuting = true;
+    
+    try {
+        updateStartOrderTable();
+    } catch (error) {
+        console.error("❌ Error en updateStartOrderTable throttled:", error);
+    } finally {
+        // Desmarcar después de un pequeño delay
+        setTimeout(() => {
+            updateStartOrderTableExecuting = false;
+        }, 10);
+    }
+    
+    // Resetear estado
+    lastUpdateTime = Date.now();
+    updateStartOrderTablePending = false;
+    updateStartOrderTableTimeout = null;
+}
+    // ============================================
 // FUNCIÓN PARA EJECUCIÓN CRÍTICA
 // ============================================
 

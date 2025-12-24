@@ -2045,21 +2045,194 @@ function updateStartOrderUI() {
     console.log("=== updateStartOrderUI llamada ===");
     console.log("startOrderData.length:", startOrderData.length);
     
-    if (startOrderData.length > 0) {
-        const primerCorredor = startOrderData[0];
-        // ... resto del código ...
+    // 🔴 PROTECCIÓN CONTRA MÚLTIPLES LLAMADAS SIMULTÁNEAS
+    if (window.updatingStartOrderUI) {
+        console.warn("⚠️ updateStartOrderUI ya está ejecutándose, omitiendo llamada duplicada");
+        return;
     }
     
-    // SIEMPRE actualizar la tabla al final
-    if (typeof updateStartOrderTableThrottled === 'function') {
+    window.updatingStartOrderUI = true;
+    
+    try {
+        if (startOrderData.length > 0) {
+            const primerCorredor = startOrderData[0];
+            
+            // Actualizar hora de inicio desde el primer corredor
+            let horaPrimeraSalida = primerCorredor.horaSalida || 
+                                   primerCorredor.horaSalidaImportado || 
+                                   primerCorredor.horaSalidaPrevista || 
+                                   '09:00:00';
+            
+            // Formatear hora correctamente
+            horaPrimeraSalida = formatTimeValue(horaPrimeraSalida);
+            
+            // Actualizar input de hora de inicio
+            const firstStartTimeInput = document.getElementById('first-start-time');
+            if (firstStartTimeInput) {
+                const horaActual = firstStartTimeInput.value;
+                if (horaActual !== horaPrimeraSalida) {
+                    firstStartTimeInput.value = horaPrimeraSalida;
+                    console.log(`✅ Hora de inicio actualizada: ${horaPrimeraSalida}`);
+                    
+                    // Disparar evento de cambio para actualizar cálculos
+                    firstStartTimeInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            }
+            
+            // También actualizar el campo de hora de salida del primer corredor si existe
+            const firstRiderTimeCell = document.querySelector('.start-order-table tbody tr:first-child .hora-salida-cell');
+            if (firstRiderTimeCell) {
+                firstRiderTimeCell.textContent = horaPrimeraSalida;
+            }
+        }
+        
+        // Actualizar total de corredores en múltiples lugares
+        const totalCorredores = startOrderData.length;
+        console.log(`📊 Total de corredores: ${totalCorredores}`);
+        
+        // Lista de elementos a actualizar
+        const updateElements = [
+            { id: 'total-corredores-display', type: 'text' },
+            { id: 'total-riders', type: 'input' },
+            { id: 'total-riders-display', type: 'text' },
+            { id: 'total-corredores-value', type: 'text' },
+            { id: 'riders-count', type: 'text' }
+        ];
+        
+        updateElements.forEach(item => {
+            const element = document.getElementById(item.id);
+            if (element) {
+                if (item.type === 'input' && element.tagName === 'INPUT') {
+                    if (element.value !== totalCorredores.toString()) {
+                        element.value = totalCorredores;
+                        console.log(`✅ Input ${item.id} actualizado a: ${totalCorredores}`);
+                    }
+                } else {
+                    if (element.textContent !== totalCorredores.toString()) {
+                        element.textContent = totalCorredores;
+                        console.log(`✅ Elemento ${item.id} actualizado a: ${totalCorredores}`);
+                    }
+                }
+            }
+        });
+        
+        // Actualizar contador en el botón de exportar si existe
+        const exportBtn = document.getElementById('export-order-btn');
+        if (exportBtn) {
+            const badge = exportBtn.querySelector('.badge') || document.createElement('span');
+            if (!badge.classList.contains('badge')) {
+                badge.className = 'badge';
+                exportBtn.appendChild(badge);
+            }
+            badge.textContent = totalCorredores;
+            badge.style.display = totalCorredores > 0 ? 'inline-block' : 'none';
+        }
+        
+        // 🔴 PROTECCIÓN: Controlar la llamada a updateStartOrderTableThrottled
+        if (typeof updateStartOrderTableThrottled === 'function') {
+            // Limpiar cualquier throttling pendiente para evitar acumulación
+            if (window.updateStartOrderTableTimeout) {
+                clearTimeout(window.updateStartOrderTableTimeout);
+                window.updateStartOrderTableTimeout = null;
+            }
+            
+            // Pequeño delay para asegurar que todos los datos están actualizados
+            setTimeout(() => {
+                // Usar la versión "force" para ejecución inmediata
+                updateStartOrderTableThrottled(true);
+                console.log("✅ Tabla actualizada inmediatamente");
+            }, 20);
+        }
+        
+        // Actualizar diferencia de tiempo si la función existe
+        if (typeof updateTimeDifference === 'function') {
+            setTimeout(() => {
+                updateTimeDifference();
+                console.log("✅ Diferencia de tiempo actualizada");
+            }, 150);
+        }
+        
+        // Actualizar display del próximo corredor
+        if (typeof updateNextCorredorDisplay === 'function') {
+            setTimeout(() => {
+                updateNextCorredorDisplay();
+                console.log("✅ Display de próximo corredor actualizado");
+            }, 200);
+        }
+        
+        // Guardar FINAL en la CARRERA ESPECÍFICA (NO en localStorage global)
         setTimeout(() => {
-            updateStartOrderTableThrottled();
-        }, 10);
+            try {
+                if (appState.currentRace) {
+                    // Actualizar en memoria
+                    appState.currentRace.startOrder = [...startOrderData];
+                    appState.currentRace.totalRiders = startOrderData.length;
+                    appState.currentRace.lastModified = new Date().toISOString();
+                    
+                    // Guardar usando saveRaceData (que guarda en la carrera específica)
+                    if (typeof saveRaceData === 'function') {
+                        saveRaceData();
+                        console.log(`✅ Guardado final en carrera: "${appState.currentRace.name}"`);
+                    } else {
+                        // Fallback: guardar manualmente en carrera específica
+                        const raceKey = `race-${appState.currentRace.id}`;
+                        const existingData = localStorage.getItem(raceKey);
+                        let raceData = {};
+                        
+                        if (existingData) {
+                            try {
+                                raceData = JSON.parse(existingData);
+                            } catch (e) {
+                                console.warn("⚠️ Error parseando datos existentes");
+                            }
+                        }
+                        
+                        raceData.startOrderData = [...startOrderData];
+                        raceData.lastUpdate = new Date().toISOString();
+                        
+                        localStorage.setItem(raceKey, JSON.stringify(raceData));
+                        console.log(`✅ Guardado manual en ${raceKey}`);
+                    }
+                    
+                    // ELIMINAR cualquier dato global antiguo (evitar mezcla)
+                    localStorage.removeItem('cri_start_order_data_final');
+                    console.log("🗑️ Datos globales antiguos eliminados");
+                }
+            } catch (error) {
+                console.error("❌ Error en guardado final:", error);
+            }
+        }, 1000);
+        
+        // Actualizar título de la tarjeta de gestión
+        if (typeof updateRaceManagementCardTitle === 'function') {
+            setTimeout(() => {
+                updateRaceManagementCardTitle();
+                console.log("✅ Título de gestión actualizado");
+            }, 300);
+        }
+        
+        // Actualizar estadísticas si existen
+        if (typeof updateStartOrderStats === 'function') {
+            setTimeout(() => {
+                updateStartOrderStats();
+                console.log("✅ Estadísticas actualizadas");
+            }, 400);
+        }
+        
+        console.log("✅ UI completamente actualizada");
+        
+    } catch (error) {
+        console.error("❌ Error en updateStartOrderUI:", error);
+    } finally {
+        // 🔴 LIMPIAR LA PROTECCIÓN DESPUÉS DE UN TIEMPO
+        setTimeout(() => {
+            window.updatingStartOrderUI = false;
+            console.log("🔄 Protección de updateStartOrderUI desactivada");
+        }, 100);
     }
     
     console.log("=== updateStartOrderUI completada ===");
 }
-
 
 // ============================================
 // FUNCIÓN PARA LIMPIAR DATOS AL CAMBIAR DE CARRERA
