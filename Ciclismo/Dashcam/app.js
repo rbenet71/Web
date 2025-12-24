@@ -1,3 +1,6 @@
+// Dashcam PWA - Archivo principal
+// PARTE 1/3
+
 class DashcamApp {
     constructor() {
         // Estado de la aplicación
@@ -5,65 +8,50 @@ class DashcamApp {
             isRecording: false,
             isPaused: false,
             currentSegment: null,
-            segments: [],
             gpsTrack: [],
             startTime: null,
             currentTime: 0,
             totalSize: 0,
+            selectedVideos: new Set(),
+            selectedGPX: new Set(),
+            currentVideo: null,
+            currentGPX: null,
             settings: {
-                segmentDuration: 5, // minutos
-                videoQuality: 'medium',
-                maxStorage: 5, // GB
+                segmentDuration: 5,
+                videoQuality: '720p',
+                gpxInterval: 5,
                 overlayEnabled: true,
-                audioEnabled: true,
-                autoStart: true
-            }
-        };
-
-        // Referencias a elementos DOM
-        this.elements = {
-            videoPreview: document.getElementById('videoPreview'),
-            overlayCanvas: document.getElementById('overlayCanvas'),
-            overlayCtx: null,
-            recordBtn: document.getElementById('recordBtn'),
-            stopBtn: document.getElementById('stopBtn'),
-            pauseBtn: document.getElementById('pauseBtn'),
-            settingsBtn: document.getElementById('settingsBtn'),
-            settingsPanel: document.getElementById('settingsPanel'),
-            filesPanel: document.getElementById('filesPanel'),
-            status: document.getElementById('status'),
-            gpsStatus: document.getElementById('gpsStatus'),
-            storageStatus: document.getElementById('storageStatus'),
-            batteryStatus: document.getElementById('batteryStatus'),
-            recordingTime: document.getElementById('recordingTime'),
-            fileSize: document.getElementById('fileSize'),
-            currentSpeed: document.getElementById('currentSpeed'),
-            coordinates: document.getElementById('coordinates')
+                audioEnabled: true
+            },
+            videos: [],
+            gpxTracks: []
         };
 
         // Variables de control
         this.mediaRecorder = null;
         this.mediaStream = null;
         this.gpsWatchId = null;
+        this.gpxInterval = null;
         this.currentPosition = null;
+        this.lastGPXPoint = null;
+        this.gpxPoints = [];
         this.recordedChunks = [];
         this.segmentTimer = null;
         this.updateInterval = null;
         this.db = null;
-        this.batteryManager = null;
 
-        // Inicialización
+        // Inicializar
         this.init();
     }
 
     async init() {
-        console.log('Inicializando Dashcam PWA...');
+        console.log('🚀 Iniciando Dashcam PWA');
+        
+        // Inicializar elementos DOM
+        this.initElements();
         
         // Inicializar canvas
         this.elements.overlayCtx = this.elements.overlayCanvas.getContext('2d');
-        
-        // Cargar configuración
-        await this.loadSettings();
         
         // Inicializar base de datos
         await this.initDatabase();
@@ -80,12 +68,81 @@ class DashcamApp {
         // Iniciar monitoreo
         this.startMonitoring();
         
-        // Iniciar automáticamente si está configurado
-        if (this.state.settings.autoStart) {
-            setTimeout(() => this.startRecording(), 1000);
-        }
+        // Cargar galería
+        await this.loadGallery();
         
         this.showNotification('Dashcam lista para usar');
+    }
+
+    initElements() {
+        this.elements = {
+            // Vista de cámara
+            videoPreview: document.getElementById('videoPreview'),
+            overlayCanvas: document.getElementById('overlayCanvas'),
+            overlayCtx: null,
+            
+            // Controles principales
+            recordBtn: document.getElementById('recordBtn'),
+            stopBtn: document.getElementById('stopBtn'),
+            galleryBtn: document.getElementById('galleryBtn'),
+            settingsBtn: document.getElementById('settingsBtn'),
+            
+            // Paneles
+            galleryPanel: document.getElementById('galleryPanel'),
+            settingsPanel: document.getElementById('settingsPanel'),
+            videoPlayer: document.getElementById('videoPlayer'),
+            
+            // Elementos de estado
+            status: document.getElementById('status'),
+            gpsStatus: document.getElementById('gpsStatus'),
+            storageStatus: document.getElementById('storageStatus'),
+            batteryStatus: document.getElementById('batteryStatus'),
+            recordingTime: document.getElementById('recordingTime'),
+            fileSize: document.getElementById('fileSize'),
+            currentSpeed: document.getElementById('currentSpeed'),
+            coordinates: document.getElementById('coordinates'),
+            
+            // Galería - Vídeos
+            videosList: document.getElementById('videosList'),
+            searchVideos: document.getElementById('searchVideos'),
+            selectAllVideos: document.getElementById('selectAllVideos'),
+            deselectAllVideos: document.getElementById('deselectAllVideos'),
+            
+            // Galería - GPX
+            gpxList: document.getElementById('gpxList'),
+            searchGPX: document.getElementById('searchGPX'),
+            selectAllGPX: document.getElementById('selectAllGPX'),
+            deselectAllGPX: document.getElementById('deselectAllGPX'),
+            
+            // Botones de acción
+            exportBtn: document.getElementById('exportBtn'),
+            shareBtn: document.getElementById('shareBtn'),
+            deleteBtn: document.getElementById('deleteBtn'),
+            closeGallery: document.getElementById('closeGallery'),
+            
+            // Configuración
+            segmentDuration: document.getElementById('segmentDuration'),
+            videoQuality: document.getElementById('videoQuality'),
+            gpxInterval: document.getElementById('gpxInterval'),
+            overlayEnabled: document.getElementById('overlayEnabled'),
+            audioEnabled: document.getElementById('audioEnabled'),
+            saveSettings: document.getElementById('saveSettings'),
+            closeSettings: document.getElementById('closeSettings'),
+            
+            // Reproductor
+            playbackVideo: document.getElementById('playbackVideo'),
+            videoTitle: document.getElementById('videoTitle'),
+            videoDetails: document.getElementById('videoDetails'),
+            exportVideo: document.getElementById('exportVideo'),
+            shareVideo: document.getElementById('shareVideo'),
+            deleteVideo: document.getElementById('deleteVideo'),
+            closePlayer: document.getElementById('closePlayer'),
+            
+            // Tabs
+            videosTab: document.getElementById('videosTab'),
+            gpxTab: document.getElementById('gpxTab'),
+            tabButtons: document.querySelectorAll('.tab-btn')
+        };
     }
 
     async initDatabase() {
@@ -95,23 +152,25 @@ class DashcamApp {
             request.onupgradeneeded = (event) => {
                 this.db = event.target.result;
                 
+                // Store para vídeos
                 if (!this.db.objectStoreNames.contains('videos')) {
                     const videoStore = this.db.createObjectStore('videos', {
                         keyPath: 'id',
                         autoIncrement: true
                     });
                     videoStore.createIndex('timestamp', 'timestamp', { unique: false });
-                    videoStore.createIndex('duration', 'duration', { unique: false });
                 }
                 
+                // Store para tracks GPX
                 if (!this.db.objectStoreNames.contains('gpxTracks')) {
                     const gpxStore = this.db.createObjectStore('gpxTracks', {
                         keyPath: 'id',
                         autoIncrement: true
                     });
-                    gpxStore.createIndex('videoId', 'videoId', { unique: false });
+                    gpxStore.createIndex('timestamp', 'timestamp', { unique: false });
                 }
                 
+                // Store para configuración
                 if (!this.db.objectStoreNames.contains('settings')) {
                     this.db.createObjectStore('settings', { keyPath: 'name' });
                 }
@@ -119,78 +178,62 @@ class DashcamApp {
             
             request.onsuccess = (event) => {
                 this.db = event.target.result;
-                console.log('Base de datos inicializada');
+                console.log('✅ Base de datos lista');
                 resolve();
             };
             
             request.onerror = (event) => {
-                console.error('Error inicializando base de datos:', event.target.error);
+                console.error('❌ Error base de datos:', event.target.error);
                 reject(event.target.error);
             };
         });
     }
 
-    async loadSettings() {
-        if (!this.db) return;
-        
-        return new Promise((resolve) => {
-            const transaction = this.db.transaction(['settings'], 'readonly');
-            const store = transaction.objectStore('settings');
-            const request = store.get('appSettings');
-            
-            request.onsuccess = () => {
-                if (request.result) {
-                    this.state.settings = { ...this.state.settings, ...request.result.value };
-                    this.updateSettingsUI();
-                }
-                resolve();
-            };
-        });
-    }
-
-    async saveSettings() {
-        if (!this.db) return;
-        
-        return new Promise((resolve) => {
-            const transaction = this.db.transaction(['settings'], 'readwrite');
-            const store = transaction.objectStore('settings');
-            const request = store.put({
-                name: 'appSettings',
-                value: this.state.settings,
-                timestamp: Date.now()
-            });
-            
-            request.onsuccess = () => resolve();
-        });
-    }
-
     setupEventListeners() {
-        // Botones de control
+        // Botones principales
         this.elements.recordBtn.addEventListener('click', () => this.toggleRecording());
         this.elements.stopBtn.addEventListener('click', () => this.stopRecording());
-        this.elements.pauseBtn.addEventListener('click', () => this.togglePause());
-        this.elements.settingsBtn.addEventListener('click', () => this.toggleSettingsPanel());
+        this.elements.galleryBtn.addEventListener('click', () => this.showGallery());
+        this.elements.settingsBtn.addEventListener('click', () => this.showSettings());
+        
+        // Galería
+        this.elements.closeGallery.addEventListener('click', () => this.hideGallery());
+        this.elements.selectAllVideos.addEventListener('click', () => this.selectAll('videos'));
+        this.elements.deselectAllVideos.addEventListener('click', () => this.deselectAll('videos'));
+        this.elements.selectAllGPX.addEventListener('click', () => this.selectAll('gpx'));
+        this.elements.deselectAllGPX.addEventListener('click', () => this.deselectAll('gpx'));
+        this.elements.exportBtn.addEventListener('click', () => this.exportSelected());
+        this.elements.shareBtn.addEventListener('click', () => this.shareSelected());
+        this.elements.deleteBtn.addEventListener('click', () => this.deleteSelected());
         
         // Configuración
-        document.getElementById('saveSettings').addEventListener('click', () => this.saveSettingsFromUI());
-        document.getElementById('closeSettings').addEventListener('click', () => this.toggleSettingsPanel());
+        this.elements.saveSettings.addEventListener('click', () => this.saveSettings());
+        this.elements.closeSettings.addEventListener('click', () => this.hideSettings());
         
-        // Manejar cierre de la app
+        // Reproductor
+        this.elements.closePlayer.addEventListener('click', () => this.hideVideoPlayer());
+        this.elements.exportVideo.addEventListener('click', () => this.exportSingleVideo());
+        this.elements.shareVideo.addEventListener('click', () => this.shareSingleVideo());
+        this.elements.deleteVideo.addEventListener('click', () => this.deleteSingleVideo());
+        
+        // Tabs
+        this.elements.tabButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
+        });
+        
+        // Búsqueda
+        this.elements.searchVideos.addEventListener('input', (e) => this.searchVideos(e.target.value));
+        this.elements.searchGPX.addEventListener('input', (e) => this.searchGPX(e.target.value));
+        
+        // Manejar cierre
         window.addEventListener('beforeunload', (e) => {
             if (this.state.isRecording) {
                 e.preventDefault();
-                e.returnValue = '¿Estás seguro de que quieres salir? La grabación se detendrá.';
+                e.returnValue = '¿Salir? Se perderá la grabación.';
             }
         });
         
-        // Manejar cambios de visibilidad
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden && this.state.isRecording) {
-                this.showNotification('La app sigue grabando en segundo plano');
-            }
-        });
-        
-        // Redimensionar canvas cuando cambia el tamaño de la ventana
+        // Redimensionar
         window.addEventListener('resize', () => this.resizeCanvas());
     }
 
@@ -198,40 +241,32 @@ class DashcamApp {
         try {
             // Permisos de cámara
             const cameraPerm = await navigator.permissions.query({ name: 'camera' });
-            if (cameraPerm.state === 'prompt') {
-                this.showNotification('Se necesitan permisos de cámara');
-            }
             
             // Permisos de ubicación
             const locationPerm = await navigator.permissions.query({ name: 'geolocation' });
-            if (locationPerm.state === 'prompt') {
-                this.showNotification('Se necesitan permisos de ubicación para GPS');
+            
+            // Almacenamiento persistente
+            if (navigator.storage && navigator.storage.persist) {
+                await navigator.storage.persist();
             }
             
-            // Permisos de almacenamiento
-            if (navigator.storage && navigator.storage.persist) {
-                const isPersisted = await navigator.storage.persisted();
-                if (!isPersisted) {
-                    const persisted = await navigator.storage.persist();
-                    if (persisted) {
-                        console.log('Almacenamiento persistente garantizado');
-                    }
-                }
-            }
         } catch (error) {
-            console.warn('Error con permisos:', error);
+            console.warn('⚠️ Algunos permisos no disponibles:', error);
         }
     }
 
     async initCamera() {
         try {
-            const constraints = this.getVideoConstraints();
-            
-            this.mediaStream = await navigator.mediaDevices.getUserMedia({
-                video: constraints,
+            const constraints = {
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
                 audio: this.state.settings.audioEnabled
-            });
+            };
             
+            this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
             this.elements.videoPreview.srcObject = this.mediaStream;
             
             // Esperar a que el video esté listo
@@ -241,47 +276,24 @@ class DashcamApp {
             
             this.resizeCanvas();
             this.elements.recordBtn.disabled = false;
-            this.updateStatus('Cámara lista');
+            this.updateStatus('✅ Cámara lista');
             
         } catch (error) {
-            console.error('Error inicializando cámara:', error);
-            this.updateStatus('Error de cámara: ' + error.message, 'error');
+            console.error('❌ Error cámara:', error);
+            this.updateStatus('❌ Error cámara: ' + error.message);
         }
-    }
-
-    getVideoConstraints() {
-        const qualities = {
-            'low': { width: 640, height: 480, frameRate: 24 },
-            'medium': { width: 1280, height: 720, frameRate: 30 },
-            'high': { width: 1920, height: 1080, frameRate: 30 },
-            'very-high': { width: 2560, height: 1440, frameRate: 30 }
-        };
-        
-        const quality = qualities[this.state.settings.videoQuality] || qualities.medium;
-        
-        return {
-            facingMode: 'environment',
-            width: { ideal: quality.width },
-            height: { ideal: quality.height },
-            frameRate: { ideal: quality.frameRate }
-        };
     }
 
     resizeCanvas() {
         const video = this.elements.videoPreview;
-        const canvas = this.elements.overlayCanvas;
-        
         if (video.videoWidth && video.videoHeight) {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-        } else {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight * 0.7;
+            this.elements.overlayCanvas.width = video.videoWidth;
+            this.elements.overlayCanvas.height = video.videoHeight;
         }
     }
 
     startMonitoring() {
-        // Monitorear GPS
+        // Iniciar GPS
         this.startGPS();
         
         // Monitorear batería
@@ -290,13 +302,13 @@ class DashcamApp {
         // Monitorear almacenamiento
         this.monitorStorage();
         
-        // Actualizar interfaz cada segundo
+        // Actualizar interfaz
         this.updateInterval = setInterval(() => this.updateUI(), 1000);
     }
 
     startGPS() {
         if (!navigator.geolocation) {
-            this.updateGPSStatus('No soportado');
+            this.updateGPSStatus('❌ No soportado');
             return;
         }
         
@@ -309,6 +321,13 @@ class DashcamApp {
                 timeout: 5000
             }
         );
+        
+        // Intervalo para puntos GPX
+        this.gpxInterval = setInterval(() => {
+            if (this.currentPosition && this.state.isRecording && !this.state.isPaused) {
+                this.saveGPXPoint(this.currentPosition);
+            }
+        }, this.state.settings.gpxInterval * 1000);
     }
 
     onGPSUpdate(position) {
@@ -317,22 +336,15 @@ class DashcamApp {
             lon: position.coords.longitude,
             speed: position.coords.speed || 0,
             accuracy: position.coords.accuracy,
-            altitude: position.coords.altitude,
-            heading: position.coords.heading,
             timestamp: position.timestamp
         };
         
-        // Agregar al track si estamos grabando
-        if (this.state.isRecording && !this.state.isPaused) {
-            this.state.gpsTrack.push({ ...this.currentPosition, recordTime: Date.now() });
-        }
-        
         // Actualizar UI
-        this.updateGPSStatus('Conectado');
+        this.updateGPSStatus('✅ Conectado');
         this.elements.coordinates.textContent = 
             `${this.currentPosition.lat.toFixed(6)}, ${this.currentPosition.lon.toFixed(6)}`;
         
-        const speedKmh = this.currentPosition.speed ? (this.currentPosition.speed * 3.6).toFixed(1) : '0';
+        const speedKmh = (this.currentPosition.speed * 3.6).toFixed(1);
         this.elements.currentSpeed.textContent = `${speedKmh} km/h`;
         
         // Actualizar overlay
@@ -340,67 +352,72 @@ class DashcamApp {
     }
 
     onGPSError(error) {
-        console.warn('GPS Error:', error);
-        this.updateGPSStatus('Error: ' + error.message);
+        console.warn('⚠️ GPS Error:', error);
+        this.updateGPSStatus('❌ Error');
         this.currentPosition = null;
     }
 
-    updateGPSStatus(status) {
-        this.elements.gpsStatus.textContent = `GPS: ${status}`;
-        this.elements.gpsStatus.style.color = status.includes('Conectado') ? '#4ade80' : 
-                                             status.includes('Error') ? '#f87171' : '#94a3b8';
+    async saveGPXPoint(position) {
+        const pointData = {
+            lat: position.coords.latitude,
+            lon: position.coords.longitude,
+            ele: position.coords.altitude || 0,
+            speed: position.coords.speed || 0,
+            timestamp: position.timestamp,
+            accuracy: position.coords.accuracy
+        };
+        
+        this.gpxPoints.push(pointData);
+        this.state.gpsTrack.push(pointData);
+        
+        this.lastGPXPoint = {
+            timestamp: position.timestamp,
+            coords: position.coords
+        };
     }
 
-    async monitorBattery() {
-        if ('getBattery' in navigator || 'battery' in navigator) {
-            try {
-                const battery = await navigator.getBattery();
-                this.batteryManager = battery;
-                
-                const updateBattery = () => {
-                    const level = Math.round(battery.level * 100);
-                    const charging = battery.charging;
-                    
-                    this.elements.batteryStatus.textContent = `Batería: ${level}%${charging ? ' ⚡' : ''}`;
-                    this.elements.batteryStatus.style.color = 
-                        level > 50 ? '#4ade80' : 
-                        level > 20 ? '#fbbf24' : '#f87171';
-                };
-                
-                battery.addEventListener('levelchange', updateBattery);
-                battery.addEventListener('chargingchange', updateBattery);
-                updateBattery();
-                
-            } catch (error) {
-                console.warn('No se pudo acceder a la batería:', error);
-            }
+    updateOverlay() {
+        if (!this.state.settings.overlayEnabled || !this.elements.overlayCtx) return;
+        
+        const ctx = this.elements.overlayCtx;
+        const canvas = this.elements.overlayCanvas;
+        
+        // Limpiar
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Fondo para texto
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(10, 10, 400, 80);
+        
+        // Texto
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 20px monospace';
+        
+        const now = new Date();
+        ctx.fillText(`${now.toLocaleDateString()} ${now.toLocaleTimeString()}`, 20, 40);
+        
+        if (this.currentPosition) {
+            ctx.font = '16px monospace';
+            ctx.fillText(`📍 ${this.currentPosition.lat.toFixed(6)}, ${this.currentPosition.lon.toFixed(6)}`, 20, 70);
+            
+            const speedKmh = (this.currentPosition.speed * 3.6).toFixed(1);
+            ctx.fillText(`🚗 ${speedKmh} km/h`, 20, 95);
+        }
+        
+        if (this.state.isRecording) {
+            ctx.fillStyle = this.state.isPaused ? 'yellow' : 'red';
+            ctx.font = 'bold 24px monospace';
+            ctx.fillText(this.state.isPaused ? '⏸️ PAUSADO' : '● GRABANDO', canvas.width - 200, 40);
+            
+            const time = this.formatTime(this.state.currentTime);
+            ctx.fillStyle = 'white';
+            ctx.font = '20px monospace';
+            ctx.fillText(`⏱️ ${time}`, canvas.width - 200, 70);
         }
     }
 
-    async monitorStorage() {
-        if (navigator.storage && navigator.storage.estimate) {
-            try {
-                const estimate = await navigator.storage.estimate();
-                const usedMB = Math.round(estimate.usage / (1024 * 1024));
-                const quotaMB = Math.round(estimate.quota / (1024 * 1024));
-                const percentage = Math.round((usedMB / quotaMB) * 100);
-                
-                this.elements.storageStatus.textContent = 
-                    `Almacenamiento: ${usedMB}MB / ${quotaMB}MB (${percentage}%)`;
-                
-                this.state.totalSize = usedMB;
-                
-                // Limpiar espacio si estamos cerca del límite
-                if (percentage > 80) {
-                    await this.cleanupOldFiles();
-                }
-                
-            } catch (error) {
-                console.warn('Error monitoreando almacenamiento:', error);
-            }
-        }
-    }
-
+        // ============ GRABACIÓN DE VÍDEO ============
+    
     async toggleRecording() {
         if (this.state.isRecording) {
             await this.pauseRecording();
@@ -411,7 +428,7 @@ class DashcamApp {
 
     async startRecording() {
         if (!this.mediaStream) {
-            this.showNotification('Error: No hay acceso a la cámara');
+            this.showNotification('❌ No hay acceso a la cámara');
             return;
         }
         
@@ -419,23 +436,20 @@ class DashcamApp {
             this.state.isRecording = true;
             this.state.isPaused = false;
             this.state.startTime = Date.now();
-            this.state.gpsTrack = [];
-            this.state.currentTime = 0;
+            this.gpxPoints = [];
+            this.lastGPXPoint = null;
             
             // Configurar MediaRecorder
-            const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus') 
-                ? 'video/webm;codecs=vp9,opus'
-                : 'video/webm';
-            
+            const mimeType = this.getSupportedMimeType();
             const options = {
                 mimeType: mimeType,
-                videoBitsPerSecond: this.getVideoBitrate()
+                videoBitsPerSecond: 2500000 // 2.5 Mbps
             };
             
             this.mediaRecorder = new MediaRecorder(this.mediaStream, options);
             this.recordedChunks = [];
             
-            // Configurar eventos
+            // Eventos
             this.mediaRecorder.ondataavailable = (event) => {
                 if (event.data.size > 0) {
                     this.recordedChunks.push(event.data);
@@ -449,7 +463,7 @@ class DashcamApp {
             // Iniciar grabación
             this.mediaRecorder.start(1000); // Emitir datos cada segundo
             
-            // Iniciar temporizador para segmentos
+            // Temporizador para segmentos
             const segmentMs = this.state.settings.segmentDuration * 60 * 1000;
             this.segmentTimer = setTimeout(() => {
                 this.startNewSegment();
@@ -458,28 +472,16 @@ class DashcamApp {
             // Actualizar UI
             this.elements.recordBtn.classList.add('recording');
             this.elements.recordBtn.querySelector('.btn-text').textContent = 'Pausar';
-            this.elements.recordBtn.querySelector('.btn-icon').textContent = '⏸️';
             this.elements.stopBtn.disabled = false;
-            this.elements.pauseBtn.disabled = false;
             
-            this.updateStatus('Grabando...');
-            this.showNotification('Grabación iniciada');
+            this.updateStatus('● GRABANDO');
+            this.showNotification('🎬 Grabación iniciada');
             
         } catch (error) {
-            console.error('Error iniciando grabación:', error);
+            console.error('❌ Error grabación:', error);
             this.state.isRecording = false;
-            this.updateStatus('Error: ' + error.message, 'error');
+            this.updateStatus('❌ Error: ' + error.message);
         }
-    }
-
-    getVideoBitrate() {
-        const bitrates = {
-            'low': 1000000,     // 1 Mbps
-            'medium': 2500000,  // 2.5 Mbps
-            'high': 5000000,    // 5 Mbps
-            'very-high': 8000000 // 8 Mbps
-        };
-        return bitrates[this.state.settings.videoQuality] || 2500000;
     }
 
     async pauseRecording() {
@@ -488,24 +490,9 @@ class DashcamApp {
         this.state.isPaused = true;
         this.mediaRecorder.pause();
         
-        this.elements.recordBtn.querySelector('.btn-text').textContent = 'Reanudar';
-        this.elements.recordBtn.querySelector('.btn-icon').textContent = '▶️';
-        
-        this.updateStatus('Pausado');
-        this.showNotification('Grabación pausada');
-    }
-
-    async resumeRecording() {
-        if (!this.mediaRecorder || !this.state.isPaused) return;
-        
-        this.state.isPaused = false;
-        this.mediaRecorder.resume();
-        
-        this.elements.recordBtn.querySelector('.btn-text').textContent = 'Pausar';
-        this.elements.recordBtn.querySelector('.btn-icon').textContent = '⏸️';
-        
-        this.updateStatus('Grabando...');
-        this.showNotification('Grabación reanudada');
+        this.elements.recordBtn.querySelector('.btn-text').textContent = 'Continuar';
+        this.updateStatus('⏸️ PAUSADO');
+        this.showNotification('⏸️ Grabación pausada');
     }
 
     async stopRecording() {
@@ -521,40 +508,35 @@ class DashcamApp {
             // Detener grabación
             this.mediaRecorder.stop();
             
-            // Detener stream
-            this.mediaStream.getTracks().forEach(track => track.stop());
-            
-            // Guardar último segmento si hay datos
+            // Guardar segmento si hay datos
             if (this.recordedChunks.length > 0) {
                 await this.saveVideoSegment();
             }
             
-            // Generar y guardar archivo GPX
-            if (this.state.gpsTrack.length > 0) {
+            // Generar archivo GPX
+            if (this.gpxPoints.length > 0) {
                 await this.saveGPXTrack();
             }
             
             // Resetear estado
             this.state.isRecording = false;
             this.state.isPaused = false;
-            this.state.currentSegment = null;
+            this.state.currentTime = 0;
             
             // Actualizar UI
             this.elements.recordBtn.classList.remove('recording');
-            this.elements.recordBtn.querySelector('.btn-text').textContent = 'Iniciar Grabación';
-            this.elements.recordBtn.querySelector('.btn-icon').textContent = '⏺️';
+            this.elements.recordBtn.querySelector('.btn-text').textContent = 'Grabar';
             this.elements.stopBtn.disabled = true;
-            this.elements.pauseBtn.disabled = true;
             
-            this.updateStatus('Grabación finalizada');
-            this.showNotification('Grabación guardada');
+            this.updateStatus('✅ Grabación guardada');
+            this.showNotification('💾 Grabación guardada');
             
-            // Reiniciar cámara
-            await this.initCamera();
+            // Recargar galería
+            await this.loadGallery();
             
         } catch (error) {
-            console.error('Error deteniendo grabación:', error);
-            this.updateStatus('Error: ' + error.message, 'error');
+            console.error('❌ Error deteniendo:', error);
+            this.updateStatus('❌ Error: ' + error.message);
         }
     }
 
@@ -564,7 +546,7 @@ class DashcamApp {
         // Finalizar segmento actual
         this.mediaRecorder.stop();
         
-        // Iniciar nuevo segmento inmediatamente
+        // Iniciar nuevo segmento
         setTimeout(() => {
             if (this.state.isRecording && !this.state.isPaused) {
                 this.mediaRecorder.start(1000);
@@ -575,11 +557,29 @@ class DashcamApp {
                     this.startNewSegment();
                 }, segmentMs);
                 
-                this.showNotification(`Nuevo segmento iniciado (${this.state.settings.segmentDuration} min)`);
+                this.showNotification(`🔄 Nuevo segmento (${this.state.settings.segmentDuration} min)`);
             }
         }, 100);
     }
 
+    getSupportedMimeType() {
+        const types = [
+            'video/webm;codecs=vp9,opus',
+            'video/webm;codecs=vp8,opus',
+            'video/webm'
+        ];
+        
+        for (const type of types) {
+            if (MediaRecorder.isTypeSupported(type)) {
+                return type;
+            }
+        }
+        
+        return '';
+    }
+
+    // ============ GUARDADO DE DATOS ============
+    
     async saveVideoSegment() {
         if (this.recordedChunks.length === 0) return;
         
@@ -593,8 +593,8 @@ class DashcamApp {
                 timestamp: this.state.startTime,
                 duration: duration,
                 size: blob.size,
-                gpsPoints: this.state.gpsTrack.length,
-                settings: { ...this.state.settings }
+                gpsPoints: this.gpxPoints.length,
+                title: `Grabación ${new Date(this.state.startTime).toLocaleString()}`
             };
             
             // Guardar en IndexedDB
@@ -603,55 +603,58 @@ class DashcamApp {
             // Actualizar almacenamiento
             this.state.totalSize += Math.round(blob.size / (1024 * 1024));
             
-            // Limpiar chunks
+            // Limpiar
             this.recordedChunks = [];
             
-            console.log('Segmento guardado:', videoData);
+            console.log('💾 Vídeo guardado:', videoData);
             
         } catch (error) {
-            console.error('Error guardando segmento:', error);
+            console.error('❌ Error guardando vídeo:', error);
         }
     }
 
     async saveGPXTrack() {
-        if (this.state.gpsTrack.length === 0) return;
+        if (this.gpxPoints.length === 0) return;
         
         try {
-            const gpxContent = this.generateGPX(this.state.gpsTrack);
+            const gpxContent = this.generateGPX(this.gpxPoints);
             const blob = new Blob([gpxContent], { type: 'application/gpx+xml' });
             
             const gpxData = {
                 id: Date.now(),
                 blob: blob,
-                timestamp: this.state.startTime,
-                points: this.state.gpsTrack.length,
-                videoId: this.state.currentSegment
+                timestamp: this.state.startTime || Date.now(),
+                points: this.gpxPoints.length,
+                title: `Ruta ${new Date().toLocaleString()}`,
+                size: blob.size
             };
             
             await this.saveToDatabase('gpxTracks', gpxData);
             
+            console.log('📍 GPX guardado:', gpxData);
+            
+            // Limpiar puntos
+            this.gpxPoints = [];
+            this.lastGPXPoint = null;
+            
         } catch (error) {
-            console.error('Error guardando GPX:', error);
+            console.error('❌ Error guardando GPX:', error);
         }
     }
 
-    generateGPX(trackPoints) {
+    generateGPX(points) {
         let gpx = `<?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="Dashcam PWA" xmlns="http://www.topografix.com/GPX/1/1">
-  <metadata>
-    <time>${new Date().toISOString()}</time>
-  </metadata>
+<gpx version="1.1" creator="Dashcam PWA">
   <trk>
-    <name>Dashcam Recording ${new Date().toLocaleString()}</name>
+    <name>Ruta Dashcam</name>
     <trkseg>`;
     
-        trackPoints.forEach(point => {
+        points.forEach(point => {
             gpx += `
       <trkpt lat="${point.lat}" lon="${point.lon}">
-        <ele>${point.altitude || 0}</ele>
+        <ele>${point.ele}</ele>
         <time>${new Date(point.timestamp).toISOString()}</time>
-        <speed>${point.speed || 0}</speed>
-        <course>${point.heading || 0}</course>
+        <speed>${point.speed}</speed>
       </trkpt>`;
         });
         
@@ -674,56 +677,8 @@ class DashcamApp {
         });
     }
 
-    updateOverlay() {
-        if (!this.state.settings.overlayEnabled || !this.elements.overlayCtx) return;
-        
-        const ctx = this.elements.overlayCtx;
-        const canvas = this.elements.overlayCanvas;
-        
-        // Limpiar canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Dibujar información
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString();
-        const dateStr = now.toLocaleDateString();
-        
-        // Fondo semitransparente para texto
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-        ctx.fillRect(10, 10, 400, 90);
-        
-        // Texto
-        ctx.fillStyle = 'white';
-        ctx.font = 'bold 24px monospace';
-        ctx.fillText(`${dateStr} ${timeStr}`, 20, 40);
-        
-        // Coordenadas GPS
-        if (this.currentPosition) {
-            ctx.font = '18px monospace';
-            ctx.fillText(
-                `GPS: ${this.currentPosition.lat.toFixed(6)}, ${this.currentPosition.lon.toFixed(6)}`, 
-                20, 70
-            );
-            
-            // Velocidad
-            const speedKmh = this.currentPosition.speed ? (this.currentPosition.speed * 3.6).toFixed(1) : '0';
-            ctx.fillText(`Velocidad: ${speedKmh} km/h`, 20, 95);
-        }
-        
-        // Estado de grabación
-        if (this.state.isRecording) {
-            ctx.fillStyle = this.state.isPaused ? 'yellow' : 'red';
-            ctx.font = 'bold 28px monospace';
-            ctx.fillText(this.state.isPaused ? '⏸️ PAUSADO' : '● GRABANDO', canvas.width - 200, 40);
-            
-            // Tiempo de grabación
-            const time = this.formatTime(this.state.currentTime);
-            ctx.fillStyle = 'white';
-            ctx.font = '20px monospace';
-            ctx.fillText(`Tiempo: ${time}`, canvas.width - 200, 70);
-        }
-    }
-
+    // ============ INTERFAZ DE USUARIO ============
+    
     updateUI() {
         if (this.state.isRecording && !this.state.isPaused) {
             this.state.currentTime = Date.now() - this.state.startTime;
@@ -732,7 +687,7 @@ class DashcamApp {
             this.elements.recordingTime.textContent = this.formatTime(this.state.currentTime);
             
             // Actualizar tamaño estimado
-            const bitrate = this.getVideoBitrate();
+            const bitrate = 2500000; // 2.5 Mbps
             const sizeMB = (bitrate * this.state.currentTime / 1000 / 8 / 1024 / 1024).toFixed(2);
             this.elements.fileSize.textContent = `${sizeMB} MB`;
             
@@ -740,8 +695,8 @@ class DashcamApp {
             this.updateOverlay();
         }
         
-        // Actualizar almacenamiento periódicamente
-        if (Date.now() % 10000 < 1000) { // Cada 10 segundos
+        // Actualizar almacenamiento cada 10 segundos
+        if (Date.now() % 10000 < 1000) {
             this.monitorStorage();
         }
     }
@@ -754,93 +709,57 @@ class DashcamApp {
         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
 
-    updateStatus(message, type = 'info') {
+    updateStatus(message) {
         this.elements.status.textContent = message;
-        this.elements.status.style.color = 
-            type === 'error' ? '#f87171' : 
-            type === 'warning' ? '#fbbf24' : '#60a5fa';
     }
 
-    toggleSettingsPanel() {
-        this.elements.settingsPanel.classList.toggle('hidden');
+    updateGPSStatus(status) {
+        this.elements.gpsStatus.textContent = `📍 GPS: ${status}`;
     }
 
-    updateSettingsUI() {
-        document.getElementById('segmentDuration').value = this.state.settings.segmentDuration;
-        document.getElementById('videoQuality').value = this.state.settings.videoQuality;
-        document.getElementById('maxStorage').value = this.state.settings.maxStorage;
-        document.getElementById('overlayEnabled').checked = this.state.settings.overlayEnabled;
-        document.getElementById('audioEnabled').checked = this.state.settings.audioEnabled;
-        document.getElementById('autoStart').checked = this.state.settings.autoStart;
-    }
-
-    async saveSettingsFromUI() {
-        this.state.settings = {
-            segmentDuration: parseInt(document.getElementById('segmentDuration').value),
-            videoQuality: document.getElementById('videoQuality').value,
-            maxStorage: parseInt(document.getElementById('maxStorage').value),
-            overlayEnabled: document.getElementById('overlayEnabled').checked,
-            audioEnabled: document.getElementById('audioEnabled').checked,
-            autoStart: document.getElementById('autoStart').checked
-        };
+    async monitorStorage() {
+        if (!navigator.storage || !navigator.storage.estimate) return;
         
-        await this.saveSettings();
-        this.toggleSettingsPanel();
-        
-        // Reiniciar grabación si está activa
-        if (this.state.isRecording) {
-            this.showNotification('Reiniciando con nueva configuración...');
-            await this.stopRecording();
-            setTimeout(() => this.startRecording(), 1000);
-        }
-        
-        this.showNotification('Configuración guardada');
-    }
-
-    async cleanupOldFiles() {
         try {
-            const maxSize = this.state.settings.maxStorage * 1024 * 1024 * 1024; // GB a bytes
+            const estimate = await navigator.storage.estimate();
+            const usedMB = Math.round(estimate.usage / (1024 * 1024));
+            const quotaMB = Math.round(estimate.quota / (1024 * 1024));
+            const percentage = Math.round((usedMB / quotaMB) * 100);
             
-            const transaction = this.db.transaction(['videos'], 'readonly');
-            const store = transaction.objectStore('videos');
-            const request = store.getAll();
+            this.elements.storageStatus.textContent = `💾 ${usedMB} MB / ${quotaMB} MB`;
             
-            request.onsuccess = async () => {
-                const videos = request.result;
-                let totalSize = videos.reduce((sum, video) => sum + video.size, 0);
-                
-                // Ordenar por fecha (más antiguos primero)
-                videos.sort((a, b) => a.timestamp - b.timestamp);
-                
-                // Eliminar videos antiguos hasta estar bajo el límite
-                const deletePromises = [];
-                for (const video of videos) {
-                    if (totalSize <= maxSize * 0.8) break; // Dejar 20% de margen
-                    
-                    deletePromises.push(this.deleteVideo(video.id));
-                    totalSize -= video.size;
-                }
-                
-                if (deletePromises.length > 0) {
-                    await Promise.all(deletePromises);
-                    this.showNotification(`${deletePromises.length} videos antiguos eliminados`);
-                }
-            };
+            this.state.totalSize = usedMB;
+            
+            // Limpiar si es necesario
+            if (percentage > 80) {
+                await this.cleanupOldFiles();
+            }
             
         } catch (error) {
-            console.error('Error limpiando archivos:', error);
+            console.warn('⚠️ Error almacenamiento:', error);
         }
     }
 
-    async deleteVideo(videoId) {
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['videos'], 'readwrite');
-            const store = transaction.objectStore('videos');
-            const request = store.delete(videoId);
-            
-            request.onsuccess = () => resolve();
-            request.onerror = () => reject(request.error);
-        });
+    async monitorBattery() {
+        if ('getBattery' in navigator) {
+            try {
+                const battery = await navigator.getBattery();
+                
+                const updateBattery = () => {
+                    const level = Math.round(battery.level * 100);
+                    const charging = battery.charging;
+                    
+                    this.elements.batteryStatus.textContent = `🔋 ${level}%${charging ? ' ⚡' : ''}`;
+                };
+                
+                battery.addEventListener('levelchange', updateBattery);
+                battery.addEventListener('chargingchange', updateBattery);
+                updateBattery();
+                
+            } catch (error) {
+                console.warn('⚠️ Batería no disponible:', error);
+            }
+        }
     }
 
     showNotification(message, duration = 3000) {
@@ -852,22 +771,673 @@ class DashcamApp {
             notification.classList.add('hidden');
         }, duration);
     }
+
+    // ============ GALERÍA ============
+    
+    showGallery() {
+        this.elements.galleryPanel.classList.remove('hidden');
+        this.loadGallery();
+    }
+
+    hideGallery() {
+        this.elements.galleryPanel.classList.add('hidden');
+        this.state.selectedVideos.clear();
+        this.state.selectedGPX.clear();
+        this.updateSelectionButtons();
+    }
+
+    async loadGallery() {
+        await this.loadVideos();
+        await this.loadGPXTracks();
+        this.updateStorageDisplay();
+    }
+
+    async loadVideos() {
+        try {
+            const videos = await this.getAllFromStore('videos');
+            this.state.videos = videos.sort((a, b) => b.timestamp - a.timestamp);
+            
+            this.renderVideosList();
+            
+        } catch (error) {
+            console.error('❌ Error cargando vídeos:', error);
+        }
+    }
+
+    async loadGPXTracks() {
+        try {
+            const tracks = await this.getAllFromStore('gpxTracks');
+            this.state.gpxTracks = tracks.sort((a, b) => b.timestamp - a.timestamp);
+            
+            this.renderGPXList();
+            
+        } catch (error) {
+            console.error('❌ Error cargando GPX:', error);
+        }
+    }
+
+    renderVideosList() {
+        const container = this.elements.videosList;
+        
+        if (this.state.videos.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div>🎬</div>
+                    <p>No hay vídeos grabados</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = this.state.videos.map(video => `
+            <div class="file-item ${this.state.selectedVideos.has(video.id) ? 'selected' : ''}" 
+                 data-id="${video.id}" 
+                 data-type="video">
+                <div class="file-header">
+                    <div class="file-title">${video.title || 'Grabación'}</div>
+                    <div class="file-time">${new Date(video.timestamp).toLocaleTimeString()}</div>
+                </div>
+                <div class="file-details">
+                    <div>📅 ${new Date(video.timestamp).toLocaleDateString()}</div>
+                    <div>⏱️ ${this.formatTime(video.duration)}</div>
+                    <div>💾 ${Math.round(video.size / (1024 * 1024))} MB</div>
+                </div>
+                <div class="file-footer">
+                    <div class="file-checkbox">
+                        <input type="checkbox" ${this.state.selectedVideos.has(video.id) ? 'checked' : ''}>
+                        <span>Seleccionar</span>
+                    </div>
+                    <button class="play-btn" data-id="${video.id}">▶️ Reproducir</button>
+                </div>
+            </div>
+        `).join('');
+        
+        // Eventos para los vídeos
+        container.querySelectorAll('.file-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (!e.target.closest('.play-btn') && !e.target.type === 'checkbox') {
+                    const id = parseInt(item.dataset.id);
+                    this.toggleSelection(id, 'video');
+                }
+            });
+            
+            item.querySelector('input[type="checkbox"]').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(item.dataset.id);
+                this.toggleSelection(id, 'video');
+            });
+            
+            item.querySelector('.play-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(item.dataset.id);
+                this.playVideo(id);
+            });
+        });
+    }
+
+    renderGPXList() {
+        const container = this.elements.gpxList;
+        
+        if (this.state.gpxTracks.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div>📍</div>
+                    <p>No hay rutas GPX</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = this.state.gpxTracks.map(track => `
+            <div class="file-item ${this.state.selectedGPX.has(track.id) ? 'selected' : ''}" 
+                 data-id="${track.id}" 
+                 data-type="gpx">
+                <div class="file-header">
+                    <div class="file-title">${track.title || 'Ruta GPX'}</div>
+                    <div class="file-time">${new Date(track.timestamp).toLocaleTimeString()}</div>
+                </div>
+                <div class="file-details">
+                    <div>📅 ${new Date(track.timestamp).toLocaleDateString()}</div>
+                    <div>📍 ${track.points} puntos</div>
+                    <div>💾 ${Math.round(track.size / 1024)} KB</div>
+                </div>
+                <div class="file-footer">
+                    <div class="file-checkbox">
+                        <input type="checkbox" ${this.state.selectedGPX.has(track.id) ? 'checked' : ''}>
+                        <span>Seleccionar</span>
+                    </div>
+                    <button class="view-btn" data-id="${track.id}">👁️ Ver</button>
+                </div>
+            </div>
+        `).join('');
+        
+        // Eventos para GPX
+        container.querySelectorAll('.file-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (!e.target.closest('.view-btn') && !e.target.type === 'checkbox') {
+                    const id = parseInt(item.dataset.id);
+                    this.toggleSelection(id, 'gpx');
+                }
+            });
+            
+            item.querySelector('input[type="checkbox"]').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(item.dataset.id);
+                this.toggleSelection(id, 'gpx');
+            });
+            
+            item.querySelector('.view-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(item.dataset.id);
+                this.viewGPX(id);
+            });
+        });
+    }
+
+        // ============ GESTIÓN DE SELECCIÓN ============
+    
+    toggleSelection(id, type) {
+        if (type === 'video') {
+            if (this.state.selectedVideos.has(id)) {
+                this.state.selectedVideos.delete(id);
+            } else {
+                this.state.selectedVideos.add(id);
+            }
+            this.renderVideosList();
+        } else {
+            if (this.state.selectedGPX.has(id)) {
+                this.state.selectedGPX.delete(id);
+            } else {
+                this.state.selectedGPX.add(id);
+            }
+            this.renderGPXList();
+        }
+        
+        this.updateSelectionButtons();
+    }
+
+    selectAll(type) {
+        if (type === 'video') {
+            this.state.selectedVideos.clear();
+            this.state.videos.forEach(video => this.state.selectedVideos.add(video.id));
+            this.renderVideosList();
+        } else {
+            this.state.selectedGPX.clear();
+            this.state.gpxTracks.forEach(track => this.state.selectedGPX.add(track.id));
+            this.renderGPXList();
+        }
+        
+        this.updateSelectionButtons();
+    }
+
+    deselectAll(type) {
+        if (type === 'video') {
+            this.state.selectedVideos.clear();
+            this.renderVideosList();
+        } else {
+            this.state.selectedGPX.clear();
+            this.renderGPXList();
+        }
+        
+        this.updateSelectionButtons();
+    }
+
+    updateSelectionButtons() {
+        const hasSelectedVideos = this.state.selectedVideos.size > 0;
+        const hasSelectedGPX = this.state.selectedGPX.size > 0;
+        const hasSelected = hasSelectedVideos || hasSelectedGPX;
+        
+        this.elements.exportBtn.disabled = !hasSelected;
+        this.elements.shareBtn.disabled = !hasSelected;
+        this.elements.deleteBtn.disabled = !hasSelected;
+    }
+
+    // ============ REPRODUCCIÓN DE VÍDEO ============
+    
+    async playVideo(id) {
+        try {
+            const video = await this.getFromStore('videos', id);
+            this.state.currentVideo = video;
+            
+            // Crear URL para el vídeo
+            const videoUrl = URL.createObjectURL(video.blob);
+            
+            // Configurar reproductor
+            this.elements.playbackVideo.src = videoUrl;
+            this.elements.videoTitle.textContent = video.title || 'Grabación';
+            this.elements.videoDetails.textContent = 
+                `${new Date(video.timestamp).toLocaleString()} | ${this.formatTime(video.duration)} | ${Math.round(video.size / (1024 * 1024))} MB`;
+            
+            // Mostrar reproductor
+            this.elements.videoPlayer.classList.remove('hidden');
+            this.hideGallery();
+            
+            // Reproducir automáticamente
+            setTimeout(() => {
+                this.elements.playbackVideo.play().catch(e => console.log('Autoplay bloqueado:', e));
+            }, 500);
+            
+        } catch (error) {
+            console.error('❌ Error reproduciendo:', error);
+            this.showNotification('❌ Error al cargar el vídeo');
+        }
+    }
+
+    hideVideoPlayer() {
+        this.elements.videoPlayer.classList.add('hidden');
+        
+        // Liberar URL
+        if (this.elements.playbackVideo.src) {
+            URL.revokeObjectURL(this.elements.playbackVideo.src);
+            this.elements.playbackVideo.src = '';
+        }
+        
+        this.state.currentVideo = null;
+    }
+
+    async exportSingleVideo() {
+        if (!this.state.currentVideo) return;
+        
+        try {
+            this.showNotification('📤 Exportando vídeo...');
+            
+            const video = this.state.currentVideo;
+            const blob = video.blob;
+            const filename = `dashcam_${new Date(video.timestamp).toISOString().replace(/[:.]/g, '-')}.webm`;
+            
+            // Crear enlace de descarga
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            // Liberar URL
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+            
+            this.showNotification('✅ Vídeo exportado');
+            
+        } catch (error) {
+            console.error('❌ Error exportando:', error);
+            this.showNotification('❌ Error al exportar');
+        }
+    }
+
+    async shareSingleVideo() {
+        if (!this.state.currentVideo) return;
+        
+        try {
+            const video = this.state.currentVideo;
+            
+            if (navigator.share) {
+                // Compartir usando Web Share API
+                const blob = video.blob;
+                const file = new File([blob], `dashcam_${Date.now()}.webm`, { type: 'video/webm' });
+                
+                await navigator.share({
+                    files: [file],
+                    title: 'Grabación Dashcam',
+                    text: `Grabación del ${new Date(video.timestamp).toLocaleString()}`
+                });
+                
+                this.showNotification('✅ Vídeo compartido');
+                
+            } else {
+                // Fallback: descarga
+                this.exportSingleVideo();
+            }
+            
+        } catch (error) {
+            console.error('❌ Error compartiendo:', error);
+            
+            // Si el usuario canceló, no mostrar error
+            if (error.name !== 'AbortError') {
+                this.showNotification('❌ Error al compartir');
+            }
+        }
+    }
+
+    async deleteSingleVideo() {
+        if (!this.state.currentVideo || !confirm('¿Eliminar esta grabación?')) return;
+        
+        try {
+            await this.deleteFromStore('videos', this.state.currentVideo.id);
+            this.showNotification('🗑️ Vídeo eliminado');
+            this.hideVideoPlayer();
+            await this.loadGallery();
+            
+        } catch (error) {
+            console.error('❌ Error eliminando:', error);
+            this.showNotification('❌ Error al eliminar');
+        }
+    }
+
+    // ============ VISUALIZACIÓN GPX ============
+    
+    async viewGPX(id) {
+        try {
+            const track = await this.getFromStore('gpxTracks', id);
+            
+            // Mostrar información básica
+            alert(`Ruta GPX:
+📅 ${new Date(track.timestamp).toLocaleString()}
+📍 ${track.points} puntos GPS
+💾 ${Math.round(track.size / 1024)} KB
+
+Para ver el mapa completo, exporta el archivo GPX y ábrelo en una aplicación de mapas.`);
+            
+        } catch (error) {
+            console.error('❌ Error cargando GPX:', error);
+            this.showNotification('❌ Error al cargar la ruta');
+        }
+    }
+
+    // ============ EXPORTACIÓN MÚLTIPLE ============
+    
+    async exportSelected() {
+        const videosToExport = Array.from(this.state.selectedVideos);
+        const gpxToExport = Array.from(this.state.selectedGPX);
+        
+        if (videosToExport.length === 0 && gpxToExport.length === 0) return;
+        
+        try {
+            this.showNotification(`📤 Exportando ${videosToExport.length + gpxToExport.length} archivos...`);
+            
+            // Exportar cada vídeo
+            for (const id of videosToExport) {
+                const video = await this.getFromStore('videos', id);
+                await this.exportFile(video.blob, `video_${id}.webm`);
+            }
+            
+            // Exportar cada GPX
+            for (const id of gpxToExport) {
+                const track = await this.getFromStore('gpxTracks', id);
+                await this.exportFile(track.blob, `ruta_${id}.gpx`);
+            }
+            
+            this.showNotification(`✅ ${videosToExport.length + gpxToExport.length} archivos exportados`);
+            
+            // Limpiar selección
+            this.state.selectedVideos.clear();
+            this.state.selectedGPX.clear();
+            this.updateSelectionButtons();
+            await this.loadGallery();
+            
+        } catch (error) {
+            console.error('❌ Error exportando múltiple:', error);
+            this.showNotification('❌ Error al exportar');
+        }
+    }
+
+    async exportFile(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+    }
+
+    async shareSelected() {
+        const videosToShare = Array.from(this.state.selectedVideos);
+        const gpxToShare = Array.from(this.state.selectedGPX);
+        
+        if (videosToShare.length === 0 && gpxToShare.length === 0) return;
+        
+        try {
+            if (navigator.share) {
+                const files = [];
+                
+                // Preparar vídeos
+                for (const id of videosToShare) {
+                    const video = await this.getFromStore('videos', id);
+                    const file = new File([video.blob], `video_${id}.webm`, { type: 'video/webm' });
+                    files.push(file);
+                }
+                
+                // Preparar GPX
+                for (const id of gpxToShare) {
+                    const track = await this.getFromStore('gpxTracks', id);
+                    const file = new File([track.blob], `ruta_${id}.gpx`, { type: 'application/gpx+xml' });
+                    files.push(file);
+                }
+                
+                await navigator.share({
+                    files: files,
+                    title: 'Archivos Dashcam',
+                    text: `${videosToShare.length} vídeos y ${gpxToShare.length} rutas GPX`
+                });
+                
+                this.showNotification('✅ Archivos compartidos');
+                
+                // Limpiar selección
+                this.state.selectedVideos.clear();
+                this.state.selectedGPX.clear();
+                this.updateSelectionButtons();
+                await this.loadGallery();
+                
+            } else {
+                // Fallback: exportación individual
+                this.exportSelected();
+            }
+            
+        } catch (error) {
+            console.error('❌ Error compartiendo:', error);
+            
+            if (error.name !== 'AbortError') {
+                this.showNotification('❌ Error al compartir');
+            }
+        }
+    }
+
+    async deleteSelected() {
+        const videosToDelete = Array.from(this.state.selectedVideos);
+        const gpxToDelete = Array.from(this.state.selectedGPX);
+        
+        if (videosToDelete.length === 0 && gpxToDelete.length === 0) return;
+        
+        const confirmMsg = `¿Eliminar ${videosToDelete.length} vídeos y ${gpxToDelete.length} rutas GPX?`;
+        if (!confirm(confirmMsg)) return;
+        
+        try {
+            // Eliminar vídeos
+            for (const id of videosToDelete) {
+                await this.deleteFromStore('videos', id);
+            }
+            
+            // Eliminar GPX
+            for (const id of gpxToDelete) {
+                await this.deleteFromStore('gpxTracks', id);
+            }
+            
+            this.showNotification(`🗑️ ${videosToDelete.length + gpxToDelete.length} archivos eliminados`);
+            
+            // Limpiar selección
+            this.state.selectedVideos.clear();
+            this.state.selectedGPX.clear();
+            this.updateSelectionButtons();
+            await this.loadGallery();
+            
+        } catch (error) {
+            console.error('❌ Error eliminando:', error);
+            this.showNotification('❌ Error al eliminar');
+        }
+    }
+
+    // ============ CONFIGURACIÓN ============
+    
+    showSettings() {
+        this.elements.settingsPanel.classList.remove('hidden');
+        this.loadCurrentSettings();
+    }
+
+    hideSettings() {
+        this.elements.settingsPanel.classList.add('hidden');
+    }
+
+    loadCurrentSettings() {
+        this.elements.segmentDuration.value = this.state.settings.segmentDuration;
+        this.elements.videoQuality.value = this.state.settings.videoQuality;
+        this.elements.gpxInterval.value = this.state.settings.gpxInterval;
+        this.elements.overlayEnabled.checked = this.state.settings.overlayEnabled;
+        this.elements.audioEnabled.checked = this.state.settings.audioEnabled;
+    }
+
+    async saveSettings() {
+        this.state.settings = {
+            segmentDuration: parseInt(this.elements.segmentDuration.value),
+            videoQuality: this.elements.videoQuality.value,
+            gpxInterval: parseInt(this.elements.gpxInterval.value),
+            overlayEnabled: this.elements.overlayEnabled.checked,
+            audioEnabled: this.elements.audioEnabled.checked
+        };
+        
+        // Guardar en base de datos
+        await this.saveSettingsToDB();
+        
+        // Reiniciar intervalo GPX si está activo
+        if (this.gpxInterval) {
+            clearInterval(this.gpxInterval);
+            this.gpxInterval = setInterval(() => {
+                if (this.currentPosition && this.state.isRecording && !this.state.isPaused) {
+                    this.saveGPXPoint(this.currentPosition);
+                }
+            }, this.state.settings.gpxInterval * 1000);
+        }
+        
+        this.showNotification('⚙️ Configuración guardada');
+        this.hideSettings();
+    }
+
+    async saveSettingsToDB() {
+        return new Promise((resolve) => {
+            const transaction = this.db.transaction(['settings'], 'readwrite');
+            const store = transaction.objectStore('settings');
+            const request = store.put({
+                name: 'appSettings',
+                value: this.state.settings,
+                timestamp: Date.now()
+            });
+            
+            request.onsuccess = () => resolve();
+        });
+    }
+
+    // ============ UTILIDADES BASE DE DATOS ============
+    
+    async getAllFromStore(storeName) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([storeName], 'readonly');
+            const store = transaction.objectStore(storeName);
+            const request = store.getAll();
+            
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async getFromStore(storeName, id) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([storeName], 'readonly');
+            const store = transaction.objectStore(storeName);
+            const request = store.get(id);
+            
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async deleteFromStore(storeName, id) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.db.transaction([storeName], 'readwrite');
+            const store = transaction.objectStore(storeName);
+            const request = store.delete(id);
+            
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async cleanupOldFiles() {
+        const maxSize = 500 * 1024 * 1024; // 500 MB máximo
+        
+        try {
+            const videos = await this.getAllFromStore('videos');
+            let totalSize = videos.reduce((sum, video) => sum + video.size, 0);
+            
+            // Ordenar por fecha (más antiguos primero)
+            videos.sort((a, b) => a.timestamp - b.timestamp);
+            
+            // Eliminar videos antiguos hasta estar bajo el límite
+            for (const video of videos) {
+                if (totalSize <= maxSize * 0.8) break; // Dejar 20% de margen
+                
+                await this.deleteFromStore('videos', video.id);
+                totalSize -= video.size;
+            }
+            
+        } catch (error) {
+            console.error('❌ Error limpiando:', error);
+        }
+    }
+
+    updateStorageDisplay() {
+        const totalVideos = this.state.videos.length;
+        const totalGPX = this.state.gpxTracks.length;
+        
+        // Actualizar contadores en tabs
+        const videoCount = document.querySelector('[data-tab="videos"] .tab-count');
+        const gpxCount = document.querySelector('[data-tab="gpx"] .tab-count');
+        
+        if (videoCount) videoCount.textContent = totalVideos;
+        if (gpxCount) gpxCount.textContent = totalGPX;
+    }
+
+    switchTab(tabName) {
+        // Actualizar botones de tab
+        this.elements.tabButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tabName);
+        });
+        
+        // Mostrar contenido correspondiente
+        this.elements.videosTab.classList.toggle('active', tabName === 'videos');
+        this.elements.gpxTab.classList.toggle('active', tabName === 'gpx');
+    }
+
+    searchVideos(query) {
+        const items = document.querySelectorAll('#videosList .file-item');
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(query.toLowerCase()) ? '' : 'none';
+        });
+    }
+
+    searchGPX(query) {
+        const items = document.querySelectorAll('#gpxList .file-item');
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(query.toLowerCase()) ? '' : 'none';
+        });
+    }
 }
 
-// Inicializar la aplicación cuando el DOM esté listo
+// ============ INICIALIZACIÓN ============
+
+// Iniciar la aplicación cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
+    // Registrar Service Worker si está disponible
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js')
+            .then(() => console.log('✅ Service Worker registrado'))
+            .catch(error => console.log('❌ Service Worker:', error));
+    }
+    
+    // Crear instancia de la aplicación
     window.dashcamApp = new DashcamApp();
 });
 
-// Registrar Service Worker
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js')
-            .then(registration => {
-                console.log('Service Worker registrado:', registration);
-            })
-            .catch(error => {
-                console.log('Error registrando Service Worker:', error);
-            });
-    });
-}
