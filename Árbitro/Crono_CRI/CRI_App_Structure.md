@@ -1242,3 +1242,106 @@ clearAllRaces()
 3. `updateRaceManagementCardTitle()`
 
 Esto asegura coherencia en toda la aplicación.
+
+// Verificar en consola
+console.log("Tiene onclick?", document.getElementById('import-order-btn').hasAttribute('onclick'));
+
+ERROR: Campos de Carrera no se Actualizan al Cambiar de Carrera
+Descripción del Problema
+Al seleccionar una carrera diferente en el selector, algunos campos críticos de la interfaz no se actualizan correctamente, específicamente:
+
+"Salida Primero:" - El campo first-start-time mantiene el valor de la carrera anterior
+
+"Total Corredores:" - El campo total-riders no refleja el número real de corredores de la nueva carrera
+
+Causa Raíz
+La función loadRaceData() en Storage_Pwa.js cargaba los datos principales de la carrera (orden de salida, salidas realizadas, hora de inicio), pero NO actualizaba los campos de configuración en la UI:
+
+first-start-time - Hora de la primera salida
+
+total-riders - Número total de corredores en el orden de salida
+
+Áreas Afectadas
+Storage_Pwa.js - Función loadRaceData()
+
+Storage_Pwa.js - Función initializeEmptyData()
+
+Síntomas
+Al cambiar de carrera, el selector funciona pero los campos de configuración quedan "pegados" a la carrera anterior
+
+Si la nueva carrera tiene diferente hora de inicio, no se refleja en "Salida Primero:"
+
+Si la nueva carrera tiene diferente número de corredores, no se refleja en "Total Corredores:"
+
+El orden de salida y las salidas realizadas SÍ se actualizan correctamente
+
+Solución Implementada
+Se modificó loadRaceData() para que actualice TODOS los campos de configuración:
+
+En loadRaceData():
+javascript
+// 1. Actualizar "Salida Primero:" (first-start-time)
+if (firstStartTimeInput) {
+    // Prioridad: 1) carrera actual, 2) datos guardados, 3) valor por defecto
+    if (appState.currentRace.firstStartTime) {
+        firstStartTimeInput.value = appState.currentRace.firstStartTime;
+    } else if (data.firstStartTime) {
+        firstStartTimeInput.value = data.firstStartTime;
+    } else {
+        firstStartTimeInput.value = "09:00:00";
+    }
+}
+
+// 2. Actualizar "Total Corredores:" (total-riders)
+if (totalRidersInput) {
+    totalRidersInput.value = startOrderData.length > 0 ? startOrderData.length : 1;
+}
+En initializeEmptyData():
+javascript
+// Actualizar también en caso de datos vacíos
+if (firstStartTimeInput) {
+    if (appState.currentRace && appState.currentRace.firstStartTime) {
+        firstStartTimeInput.value = appState.currentRace.firstStartTime;
+    } else {
+        firstStartTimeInput.value = "09:00:00";
+    }
+}
+
+if (totalRidersInput) {
+    totalRidersInput.value = 1;
+}
+Lecciones Aprendidas
+Carga completa: Al cargar datos de una carrera, siempre actualizar TODOS los campos relacionados en la UI
+
+Jerarquía de fuentes: Establecer prioridad clara para obtener valores (carrera actual > datos guardados > valor por defecto)
+
+Consistencia entre funciones: loadRaceData() y initializeEmptyData() deben actualizar los mismos campos
+
+Logs de diagnóstico: Incluir logs específicos para cada campo actualizado facilita la depuración
+
+Prevención Futura
+Siempre verificar que al cambiar de carrera se actualicen estos campos críticos:
+
+first-start-time (Salida Primero)
+
+total-riders (Total Corredores)
+
+departed-count (Salidos - ya funcionaba)
+
+start-position (Próxima posición - ya funcionaba)
+
+Tabla de orden de salida (ya funcionaba)
+
+Código de Diagnóstico Rápido
+Para verificar si este error reaparece, ejecutar en consola:
+
+javascript
+// Después de cambiar de carrera, verificar:
+console.log("first-start-time:", document.getElementById('first-start-time').value);
+console.log("total-riders:", document.getElementById('total-riders').value);
+console.log("startOrderData length:", startOrderData.length);
+console.log("carrera actual:", appState.currentRace?.name);
+Fecha de corrección: [Fecha actual]
+Módulo afectado: Storage_Pwa.js
+Funciones corregidas: loadRaceData(), initializeEmptyData()
+Estado: RESUELTO ✅

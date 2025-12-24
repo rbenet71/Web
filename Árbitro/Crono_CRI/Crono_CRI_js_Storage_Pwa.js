@@ -160,12 +160,53 @@ function loadRaceData() {
             console.log("- Salidas:", appState.departedCount);
             console.log("- Orden de salida:", startOrderData.length);
             
-            // Actualizar UI
+            // CRÍTICO: ACTUALIZAR CAMPOS DE CONFIGURACIÓN
+            // 1. Actualizar "Salida Primero:" (first-start-time)
+            const firstStartTimeInput = document.getElementById('first-start-time');
+            if (firstStartTimeInput) {
+                // Primero buscar en datos de carrera específicos
+                if (data.firstStartTime) {
+                    firstStartTimeInput.value = data.firstStartTime;
+                    console.log("Actualizado first-start-time desde datos de carrera:", data.firstStartTime);
+                } 
+                // Luego buscar en la carrera actual
+                else if (appState.currentRace.firstStartTime) {
+                    firstStartTimeInput.value = appState.currentRace.firstStartTime;
+                    console.log("Actualizado first-start-time desde carrera actual:", appState.currentRace.firstStartTime);
+                }
+                // Finalmente, valor por defecto
+                else {
+                    firstStartTimeInput.value = "09:00:00";
+                    console.log("Establecido first-start-time por defecto: 09:00:00");
+                }
+            }
+            
+            // 2. Actualizar "Total Corredores:" (total-riders)
+            const totalRidersInput = document.getElementById('total-riders');
+            if (totalRidersInput) {
+                totalRidersInput.value = startOrderData.length > 0 ? startOrderData.length : 1;
+                console.log("Actualizado total-riders:", totalRidersInput.value);
+            }
+            
+            // 3. Actualizar hora inicio si existe
             if (document.getElementById('start-time')) {
                 document.getElementById('start-time').value = appState.raceStartTime || '';
             }
             
+            // 4. Actualizar contador de salidos
             document.getElementById('departed-count').textContent = appState.departedCount;
+            
+            // 5. Actualizar posición inicial
+            const startPositionInput = document.getElementById('start-position');
+            if (startPositionInput) {
+                startPositionInput.value = appState.departedCount + 1;
+            }
+            
+            // 6. Actualizar intervalos si existen
+            if (data.intervals && data.intervals.length > 0) {
+                appState.intervals = [...data.intervals];
+                console.log("Intervalos cargados:", data.intervals.length);
+            }
             
             // Actualizar tabla inmediatamente si hay datos
             if (startOrderData.length > 0) {
@@ -177,7 +218,15 @@ function loadRaceData() {
                 }
             }
             
-            renderDeparturesList();
+            // Actualizar lista de salidas
+            if (typeof renderDeparturesList === 'function') {
+                renderDeparturesList();
+            }
+            
+            console.log("✅ UI actualizada para carrera:", appState.currentRace.name);
+            console.log("   - Total corredores:", startOrderData.length);
+            console.log("   - Hora primer salida:", document.getElementById('first-start-time')?.value);
+            console.log("   - Salidas realizadas:", appState.departedCount);
             
         } catch (error) {
             console.error("Error cargando datos de carrera:", error);
@@ -193,19 +242,56 @@ function loadRaceData() {
     if (typeof updateRaceManagementCardTitle === 'function') {
         updateRaceManagementCardTitle();
     }
+    
+    // Actualizar estado de botones después de cargar
+    if (typeof updateRaceActionButtonsState === 'function') {
+        updateRaceActionButtonsState();
+    }
+    
+    if (typeof updateDeleteRaceButtonState === 'function') {
+        updateDeleteRaceButtonState();
+    }
 }
 
-
 function initializeEmptyData() {
+    console.log("Inicializando datos vacíos para nueva carrera...");
+    
     // Inicializar datos vacíos
     startOrderData = [];
     appState.departureTimes = [];
     appState.departedCount = 0;
     appState.raceStartTime = null;
+    appState.intervals = [];
     
     // Actualizar UI con datos vacíos
-    document.getElementById('departed-count').textContent = 0;
-    document.getElementById('start-position').value = 1;
+    const firstStartTimeInput = document.getElementById('first-start-time');
+    if (firstStartTimeInput) {
+        // Intentar obtener de la carrera actual primero
+        if (appState.currentRace && appState.currentRace.firstStartTime) {
+            firstStartTimeInput.value = appState.currentRace.firstStartTime;
+        } else {
+            firstStartTimeInput.value = "09:00:00";
+        }
+        console.log("first-start-time establecido a:", firstStartTimeInput.value);
+    }
+    
+    const totalRidersInput = document.getElementById('total-riders');
+    if (totalRidersInput) {
+        totalRidersInput.value = 1;
+        console.log("total-riders establecido a: 1");
+    }
+    
+    document.getElementById('departed-count').textContent = '0';
+    
+    const startPositionInput = document.getElementById('start-position');
+    if (startPositionInput) {
+        startPositionInput.value = 1;
+    }
+    
+    const startTimeInput = document.getElementById('start-time');
+    if (startTimeInput) {
+        startTimeInput.value = '';
+    }
     
     // Actualizar tabla vacía
     if (typeof updateStartOrderTableThrottled === 'function') {
@@ -213,6 +299,8 @@ function initializeEmptyData() {
             updateStartOrderTableThrottled(true);
         }, 50);
     }
+    
+    console.log("✅ Datos vacíos inicializados correctamente");
 }
 
 
