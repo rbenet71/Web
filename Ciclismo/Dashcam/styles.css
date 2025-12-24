@@ -270,6 +270,7 @@ body {
     cursor: pointer;
     font-weight: 500;
     transition: all 0.2s;
+    min-height: 44px; /* Tamaño mínimo para iOS */
 }
 
 .tab-btn.active {
@@ -284,16 +285,18 @@ body {
     flex-direction: column;
     overflow-y: auto;
     margin-bottom: 20px;
+    -webkit-overflow-scrolling: touch; /* Scroll suave iOS */
 }
 
 .tab-content {
     display: none;
-    flex: 1;
     flex-direction: column;
+    flex: 1;
+    min-height: 0; /* IMPORTANTE para flex en iOS */
 }
 
 .tab-content.active {
-    display: flex;
+    display: flex !important;
 }
 
 /* Galería */
@@ -302,6 +305,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-height: 0; /* IMPORTANTE para flex en iOS */
 }
 
 .gallery-controls {
@@ -337,6 +341,7 @@ body {
     font-weight: 500;
     white-space: nowrap;
     transition: background 0.2s;
+    min-height: 44px; /* Tamaño mínimo para iOS */
 }
 
 .gallery-controls button:hover {
@@ -350,6 +355,9 @@ body {
     overflow-x: hidden;
     margin-bottom: 20px;
     padding-right: 8px;
+    -webkit-overflow-scrolling: touch; /* Scroll suave iOS */
+    height: calc(100vh - 300px); /* Altura fija para scroll en móviles */
+    min-height: 200px;
 }
 
 .file-item {
@@ -434,6 +442,11 @@ body {
     font-weight: 500;
     white-space: nowrap;
     transition: background 0.2s;
+    min-height: 44px; /* Tamaño mínimo para iOS */
+    min-width: 44px; /* Tamaño mínimo para iOS */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .play-btn:hover, .view-btn:hover {
@@ -468,6 +481,7 @@ body {
     flex: 1;
     overflow-y: auto;
     padding-right: 8px;
+    -webkit-overflow-scrolling: touch; /* Scroll suave iOS */
 }
 
 .setting {
@@ -623,6 +637,38 @@ body {
     background: #0097e6;
 }
 
+/* ============ FIX ESPECÍFICO PARA iOS ============ */
+@supports (-webkit-touch-callout: none) {
+    /* iOS específico - scroll táctil mejorado */
+    .files-list {
+        -webkit-overflow-scrolling: touch !important;
+        overflow-y: scroll !important;
+        overscroll-behavior-y: contain;
+    }
+    
+    .panel-content {
+        -webkit-overflow-scrolling: touch !important;
+        overflow-y: scroll !important;
+    }
+    
+    /* Prevenir zoom en inputs en iOS */
+    input, select, textarea {
+        font-size: 16px !important;
+    }
+    
+    /* Mejorar rendimiento */
+    .camera-view {
+        -webkit-transform: translate3d(0,0,0);
+        transform: translate3d(0,0,0);
+    }
+    
+    /* Botones más grandes para iOS */
+    .btn, .tab-btn, .play-btn, .view-btn, .gallery-controls button {
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+}
+
 /* ============ RESPONSIVE ============ */
 @media (max-width: 768px) {
     .camera-view {
@@ -663,6 +709,11 @@ body {
     
     .panel-header h3 {
         font-size: 18px;
+    }
+    
+    /* Mejorar scroll en móviles */
+    .files-list {
+        height: calc(100vh - 280px);
     }
 }
 
@@ -707,6 +758,12 @@ body {
     
     .status, .gps-status, .storage-status, .battery-status {
         min-width: 100%;
+    }
+    
+    /* Scroll mejorado para móviles pequeños */
+    .files-list {
+        height: calc(100vh - 250px);
+        padding-right: 5px;
     }
 }
 

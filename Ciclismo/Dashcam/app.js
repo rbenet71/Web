@@ -12,6 +12,7 @@ class DashcamApp {
             startTime: null,
             currentTime: 0,
             totalSize: 0,
+            activeTab: 'videos',
             selectedVideos: new Set(),
             selectedGPX: new Set(),
             currentVideo: null,
@@ -1115,12 +1116,17 @@ class DashcamApp {
         this.loadGallery();
     }
 
-    hideGallery() {
-        this.elements.galleryPanel.classList.add('hidden');
-        this.state.selectedVideos.clear();
-        this.state.selectedGPX.clear();
-        this.updateSelectionButtons();
-    }
+        hideGallery() {
+            const galleryPanel = document.getElementById('galleryPanel');
+            if (galleryPanel) {
+                galleryPanel.classList.add('hidden');
+            }
+            
+            // Limpiar selecciones
+            this.state.selectedVideos.clear();
+            this.state.selectedGPX.clear();
+            this.updateSelectionButtons();
+        }
 
     async loadGallery() {
         await this.loadVideos();
@@ -1677,3 +1683,73 @@ document.addEventListener('DOMContentLoaded', () => {
     
     window.dashcamApp = new DashcamApp();
 });
+
+// Método para cambiar entre tabs
+switchTab(tabName) {
+    console.log('Cambiando tab a:', tabName);
+    
+    this.state.activeTab = tabName;
+    
+    // Actualizar botones de tab
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        const isActive = btn.dataset.tab === tabName;
+        btn.classList.toggle('active', isActive);
+    });
+    
+    // Mostrar/ocultar contenido
+    const videosContent = document.getElementById('videosContent');
+    const gpxContent = document.getElementById('gpxContent');
+    
+    if (tabName === 'videos') {
+        videosContent.classList.add('active');
+        gpxContent.classList.remove('active');
+        // Cargar videos si no están cargados
+        if (this.state.videos.length === 0) {
+            this.loadVideos();
+        }
+    } else {
+        videosContent.classList.remove('active');
+        gpxContent.classList.add('active');
+        // Cargar GPX si no están cargados
+        if (this.state.gpxTracks.length === 0) {
+            this.loadGPXTracks();
+        }
+    }
+}
+
+// En setupEventListeners(), AÑADE esto:
+setupEventListeners() {
+    // ... listeners existentes ...
+    
+    // Tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const tabBtn = e.target.closest('.tab-btn');
+            if (tabBtn) {
+                const tabName = tabBtn.dataset.tab;
+                this.switchTab(tabName);
+            }
+        });
+    });
+}
+
+// En showGallery(), MODIFICA así:
+showGallery() {
+    console.log('Mostrando galería, tab activo:', this.state.activeTab);
+    
+    // Mostrar panel
+    const galleryPanel = document.getElementById('galleryPanel');
+    if (galleryPanel) {
+        galleryPanel.classList.remove('hidden');
+    }
+    
+    // Cargar datos según tab activo
+    if (this.state.activeTab === 'videos') {
+        this.loadVideos();
+    } else {
+        this.loadGPXTracks();
+    }
+    
+    // Asegurar que el tab correcto esté activo
+    this.switchTab(this.state.activeTab);
+}

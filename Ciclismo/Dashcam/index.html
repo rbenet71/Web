@@ -13,7 +13,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- Canvas principal para composición -->
+        <!-- Vista de cámara -->
         <div class="camera-view">
             <video id="videoPreview" autoplay muted playsinline></video>
             <canvas id="mainCanvas"></canvas>
@@ -58,7 +58,7 @@
             </div>
         </div>
 
-        <!-- Panel de Galería - ESTRUCTURA SIMPLIFICADA -->
+        <!-- Panel de Galería -->
         <div id="galleryPanel" class="panel hidden">
             <div class="panel-container">
                 <div class="panel-header">
@@ -66,15 +66,14 @@
                     <button id="closeGallery" class="close-btn">✕</button>
                 </div>
                 
-                <!-- Tabs fuera del contenido con scroll -->
+                <!-- Tabs -->
                 <div class="tabs">
                     <button class="tab-btn active" data-tab="videos">Vídeos</button>
                     <button class="tab-btn" data-tab="gpx">Rutas GPX</button>
                 </div>
                 
-                <!-- CONTENEDOR PRINCIPAL CON SCROLL -->
-                <div class="gallery-main-content">
-                    
+                <!-- Contenido principal -->
+                <div class="panel-content">
                     <!-- Pestaña Vídeos -->
                     <div id="videosContent" class="tab-content active">
                         <div class="gallery-controls">
@@ -102,7 +101,6 @@
                             <!-- Las rutas GPX se cargarán aquí -->
                         </div>
                     </div>
-                    
                 </div>
                 
                 <div class="panel-actions">
