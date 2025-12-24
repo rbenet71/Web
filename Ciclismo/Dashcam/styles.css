@@ -18,9 +18,9 @@ body {
     flex-direction: column;
 }
 
-/* Vista de cámara - AHORA OCUPA 70% */
+/* Vista de cámara - 65% de la pantalla */
 .camera-view {
-    flex: 0 0 70vh; /* Altura fija de 70% de la pantalla */
+    flex: 0 0 65vh;
     position: relative;
     background: black;
     overflow: hidden;
@@ -41,25 +41,31 @@ body {
     pointer-events: none;
 }
 
-/* Controles - AHORA OCUPA 30% */
+/* Controles - 35% de la pantalla */
 .controls {
-    flex: 0 0 30vh; /* Altura fija de 30% de la pantalla */
+    flex: 0 0 35vh;
     background: rgba(0, 0, 0, 0.95);
-    padding: 10px 15px;
     border-top: 2px solid #00a8ff;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+}
+
+.controls-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 15px;
     overflow-y: auto;
 }
 
 .status-bar {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
-    font-size: 12px;
-    margin-bottom: 10px;
-    color: #00a8ff;
     gap: 8px;
+    margin-bottom: 12px;
+    font-size: 12px;
+    color: #00a8ff;
 }
 
 .status, .gps-status, .storage-status, .battery-status {
@@ -68,14 +74,14 @@ body {
     border-radius: 6px;
     min-width: 100px;
     text-align: center;
+    flex: 1;
 }
 
 .buttons {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
-    margin-bottom: 10px;
-    flex-shrink: 0; /* Evita que se reduzcan */
+    margin-bottom: 12px;
 }
 
 .btn {
@@ -91,7 +97,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 5px;
-    min-height: 60px;
+    min-height: 70px;
     transition: all 0.2s;
 }
 
@@ -135,17 +141,20 @@ body {
     background: rgba(0, 168, 255, 0.1);
     padding: 10px;
     border-radius: 8px;
-    margin-top: auto; /* Empuja hacia abajo */
+    margin-top: auto;
 }
 
 .recording-info > div {
-    padding: 6px;
+    padding: 8px 4px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 5px;
     font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-/* Paneles */
+/* ============ PANELES ============ */
 .panel {
     position: fixed;
     top: 0;
@@ -153,7 +162,6 @@ body {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.98);
-    padding: 20px;
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -163,14 +171,27 @@ body {
     display: none !important;
 }
 
+.panel-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    overflow: hidden;
+}
+
 .panel-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     padding-bottom: 15px;
     border-bottom: 2px solid #00a8ff;
     flex-shrink: 0;
+}
+
+.panel-header h3 {
+    margin: 0;
+    font-size: 20px;
 }
 
 .close-btn {
@@ -182,13 +203,16 @@ body {
     padding: 5px 10px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
 }
+
+/* ============ GALERÍA - ESTRUCTURA CORREGIDA ============ */
 
 /* Tabs */
 .tabs {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     flex-shrink: 0;
 }
 
@@ -208,7 +232,28 @@ body {
     box-shadow: 0 4px 8px rgba(0, 168, 255, 0.3);
 }
 
-/* Galería */
+/* CONTENEDOR PRINCIPAL DE GALERÍA CON SCROLL */
+.gallery-main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Contenido de tabs - AHORA CON SCROLL PROPIO */
+.tab-content {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.tab-content.active {
+    display: flex;
+}
+
+/* Controles de galería */
 .gallery-controls {
     display: flex;
     gap: 10px;
@@ -224,6 +269,12 @@ body {
     color: white;
     border-radius: 8px;
     font-size: 14px;
+    min-width: 0; /* Importante para flex */
+}
+
+.selection-buttons {
+    display: flex;
+    gap: 8px;
 }
 
 .gallery-controls button {
@@ -234,12 +285,16 @@ body {
     border-radius: 8px;
     cursor: pointer;
     font-weight: 500;
+    white-space: nowrap;
 }
 
+/* ============ LISTA DE ARCHIVOS CON SCROLL ============ */
 .files-list {
     flex: 1;
     overflow-y: auto;
-    margin-bottom: 20px;
+    overflow-x: hidden;
+    margin-bottom: 15px;
+    padding-right: 8px;
 }
 
 .file-item {
@@ -272,11 +327,17 @@ body {
     font-weight: bold;
     color: #00a8ff;
     font-size: 16px;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .file-time {
     font-size: 12px;
     color: #aaa;
+    margin-left: 10px;
+    flex-shrink: 0;
 }
 
 .file-details {
@@ -316,47 +377,25 @@ body {
     border-radius: 6px;
     cursor: pointer;
     font-weight: 500;
+    white-space: nowrap;
 }
 
 .play-btn:hover, .view-btn:hover {
     background: #0097e6;
 }
 
-/* Panel acciones */
-.panel-actions {
-    display: flex;
-    gap: 10px;
-    padding-top: 20px;
-    border-top: 1px solid #333;
-    flex-shrink: 0;
-}
-
-.panel-actions .btn {
+/* ============ CONFIGURACIÓN ============ */
+.panel-content {
     flex: 1;
-    min-height: 50px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
-.export-btn {
-    background: linear-gradient(135deg, #00b894, #00a085);
-}
-
-.share-btn {
-    background: linear-gradient(135deg, #6c5ce7, #5c4bdb);
-}
-
-.delete-btn {
-    background: linear-gradient(135deg, #e84118, #c23616);
-}
-
-.save-btn {
-    background: linear-gradient(135deg, #00b894, #00a085);
-}
-
-/* Configuración */
 .settings-content {
     flex: 1;
     overflow-y: auto;
-    margin-bottom: 20px;
+    padding-right: 8px;
 }
 
 .setting {
@@ -396,6 +435,7 @@ body {
     border-radius: 10px;
     margin-bottom: 20px;
     background: black;
+    flex-shrink: 0;
 }
 
 .video-info {
@@ -403,13 +443,44 @@ body {
     padding: 15px;
     border-radius: 10px;
     margin-bottom: 20px;
+    flex-shrink: 0;
 }
 
 .video-info p {
     margin: 5px 0;
 }
 
-/* Notificaciones */
+/* Panel acciones */
+.panel-actions {
+    display: flex;
+    gap: 10px;
+    padding-top: 15px;
+    border-top: 1px solid #333;
+    flex-shrink: 0;
+}
+
+.panel-actions .btn {
+    flex: 1;
+    min-height: 50px;
+}
+
+.export-btn {
+    background: linear-gradient(135deg, #00b894, #00a085);
+}
+
+.share-btn {
+    background: linear-gradient(135deg, #6c5ce7, #5c4bdb);
+}
+
+.delete-btn {
+    background: linear-gradient(135deg, #e84118, #c23616);
+}
+
+.save-btn {
+    background: linear-gradient(135deg, #00b894, #00a085);
+}
+
+/* ============ NOTIFICACIONES ============ */
 .notification {
     position: fixed;
     bottom: 20px;
@@ -447,19 +518,20 @@ body {
     }
 }
 
-/* Scrollbar */
+/* ============ SCROLLBAR ============ */
 ::-webkit-scrollbar {
-    width: 8px;
+    width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #1e272e;
-    border-radius: 4px;
+    background: rgba(30, 39, 46, 0.8);
+    border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
     background: #00a8ff;
-    border-radius: 4px;
+    border-radius: 5px;
+    border: 2px solid rgba(30, 39, 46, 0.8);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -469,24 +541,34 @@ body {
 /* Estados vacíos */
 .empty-state {
     text-align: center;
-    padding: 40px 20px;
+    padding: 60px 20px;
     color: #666;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .empty-state div:first-child {
-    font-size: 48px;
+    font-size: 64px;
     margin-bottom: 20px;
-    opacity: 0.5;
+    opacity: 0.3;
 }
 
-/* Responsive mejorado */
+.empty-state p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+/* ============ RESPONSIVE ============ */
 @media (max-width: 768px) {
     .camera-view {
-        flex: 0 0 60vh; /* 60% en móviles */
+        flex: 0 0 60vh;
     }
     
     .controls {
-        flex: 0 0 40vh; /* 40% en móviles */
+        flex: 0 0 40vh;
     }
     
     .buttons {
@@ -501,21 +583,20 @@ body {
         grid-template-columns: repeat(2, 1fr);
     }
     
-    .status-bar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .status, .gps-status, .storage-status, .battery-status {
-        min-width: 100%;
-    }
-    
     .gallery-controls {
         flex-direction: column;
     }
     
+    .selection-buttons {
+        width: 100%;
+    }
+    
     .gallery-controls button {
         width: 100%;
+    }
+    
+    .panel-container {
+        padding: 15px;
     }
 }
 
@@ -526,19 +607,10 @@ body {
     
     .controls {
         flex: 0 0 45vh;
-        padding: 8px;
     }
     
-    .panel-header h3 {
-        font-size: 18px;
-    }
-    
-    .file-details {
-        grid-template-columns: 1fr;
-    }
-    
-    .tabs {
-        flex-direction: column;
+    .btn-text {
+        font-size: 12px;
     }
     
     .panel-actions {
@@ -548,9 +620,17 @@ body {
     .panel-actions .btn {
         width: 100%;
     }
+    
+    .tabs {
+        flex-direction: column;
+    }
+    
+    .file-details {
+        grid-template-columns: 1fr;
+    }
 }
 
-/* Para tablets en landscape */
+/* Para tablets landscape */
 @media (orientation: landscape) and (max-height: 600px) {
     .camera-view {
         flex: 0 0 70vh;
@@ -560,13 +640,9 @@ body {
         flex: 0 0 30vh;
     }
     
-    .buttons {
-        grid-template-columns: repeat(4, 1fr);
-    }
-    
     .btn {
+        min-height: 60px;
         padding: 8px 3px;
-        min-height: 50px;
     }
     
     .btn-text {

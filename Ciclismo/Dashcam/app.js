@@ -80,6 +80,10 @@ class DashcamApp {
             videoPreview: document.getElementById('videoPreview'),
             overlayCanvas: document.getElementById('overlayCanvas'),
             overlayCtx: null,
+
+            // Nuevos elementos para galería corregida
+            videosContent: document.getElementById('videosContent'),
+            gpxContent: document.getElementById('gpxContent'),
             
             // Controles principales
             recordBtn: document.getElementById('recordBtn'),
@@ -1398,16 +1402,16 @@ Para ver el mapa completo, exporta el archivo GPX y ábrelo en una aplicación d
         if (gpxCount) gpxCount.textContent = totalGPX;
     }
 
-    switchTab(tabName) {
-        // Actualizar botones de tab
-        this.elements.tabButtons.forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.tab === tabName);
-        });
-        
-        // Mostrar contenido correspondiente
-        this.elements.videosTab.classList.toggle('active', tabName === 'videos');
-        this.elements.gpxTab.classList.toggle('active', tabName === 'gpx');
-    }
+switchTab(tabName) {
+    // Actualizar botones de tab
+    this.elements.tabButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabName);
+    });
+    
+    // Mostrar contenido correspondiente
+    this.elements.videosContent.classList.toggle('active', tabName === 'videos');
+    this.elements.gpxContent.classList.toggle('active', tabName === 'gpx');
+}
 
     searchVideos(query) {
         const items = document.querySelectorAll('#videosList .file-item');

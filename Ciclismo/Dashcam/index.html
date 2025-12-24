@@ -7,7 +7,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="icons/icon-192.png">
-    <meta name="theme-color" content="#1a1a2e">
+    <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
@@ -21,144 +21,172 @@
 
         <!-- Controles principales -->
         <div class="controls">
-            <div class="status-bar">
-                <div id="status" class="status">🟢 Listo</div>
-                <div id="gpsStatus" class="gps-status">📍 GPS: --</div>
-                <div id="storageStatus" class="storage-status">💾 0 MB</div>
-                <div id="batteryStatus" class="battery-status">🔋 --</div>
-            </div>
+            <div class="controls-content">
+                <div class="status-bar">
+                    <div id="status" class="status">🟢 Listo</div>
+                    <div id="gpsStatus" class="gps-status">📍 GPS: --</div>
+                    <div id="storageStatus" class="storage-status">💾 0 MB</div>
+                    <div id="batteryStatus" class="battery-status">🔋 --</div>
+                </div>
 
-            <div class="buttons">
-                <button id="recordBtn" class="btn record-btn">
-                    <span class="btn-icon">⏺️</span>
-                    <span class="btn-text">Grabar</span>
-                </button>
-                <button id="stopBtn" class="btn stop-btn" disabled>
-                    <span class="btn-icon">⏹️</span>
-                    <span class="btn-text">Parar</span>
-                </button>
-                <button id="galleryBtn" class="btn gallery-btn">
-                    <span class="btn-icon">📁</span>
-                    <span class="btn-text">Galería</span>
-                </button>
-                <button id="settingsBtn" class="btn settings-btn">
-                    <span class="btn-icon">⚙️</span>
-                    <span class="btn-text">Ajustes</span>
-                </button>
-            </div>
+                <div class="buttons">
+                    <button id="recordBtn" class="btn record-btn">
+                        <span class="btn-icon">⏺️</span>
+                        <span class="btn-text">Grabar</span>
+                    </button>
+                    <button id="stopBtn" class="btn stop-btn" disabled>
+                        <span class="btn-icon">⏹️</span>
+                        <span class="btn-text">Parar</span>
+                    </button>
+                    <button id="galleryBtn" class="btn gallery-btn">
+                        <span class="btn-icon">📁</span>
+                        <span class="btn-text">Galería</span>
+                    </button>
+                    <button id="settingsBtn" class="btn settings-btn">
+                        <span class="btn-icon">⚙️</span>
+                        <span class="btn-text">Ajustes</span>
+                    </button>
+                </div>
 
-            <div class="recording-info">
-                <div id="recordingTime">00:00:00</div>
-                <div id="fileSize">0 MB</div>
-                <div id="currentSpeed">0 km/h</div>
-                <div id="coordinates">--,--</div>
+                <div class="recording-info">
+                    <div id="recordingTime">00:00:00</div>
+                    <div id="fileSize">0 MB</div>
+                    <div id="currentSpeed">0 km/h</div>
+                    <div id="coordinates">--,--</div>
+                </div>
             </div>
         </div>
 
-        <!-- Panel de Galería -->
+        <!-- Panel de Galería - ESTRUCTURA SIMPLIFICADA -->
         <div id="galleryPanel" class="panel hidden">
-            <div class="panel-header">
-                <h3>📁 Galería</h3>
-                <button id="closeGallery" class="close-btn">✕</button>
-            </div>
-            
-            <div class="tabs">
-                <button class="tab-btn active" data-tab="videos">Vídeos</button>
-                <button class="tab-btn" data-tab="gpx">Rutas GPX</button>
-            </div>
-            
-            <div class="tab-content active" id="videosTab">
-                <div class="gallery-controls">
-                    <input type="text" id="searchVideos" placeholder="🔍 Buscar...">
-                    <button id="selectAllVideos">✓ Todos</button>
-                    <button id="deselectAllVideos">✗ Ninguno</button>
+            <div class="panel-container">
+                <div class="panel-header">
+                    <h3>📁 Galería</h3>
+                    <button id="closeGallery" class="close-btn">✕</button>
                 </div>
-                <div id="videosList" class="files-list"></div>
-            </div>
-            
-            <div class="tab-content" id="gpxTab">
-                <div class="gallery-controls">
-                    <input type="text" id="searchGPX" placeholder="🔍 Buscar...">
-                    <button id="selectAllGPX">✓ Todos</button>
-                    <button id="deselectAllGPX">✗ Ninguno</button>
+                
+                <!-- Tabs fuera del contenido con scroll -->
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="videos">Vídeos</button>
+                    <button class="tab-btn" data-tab="gpx">Rutas GPX</button>
                 </div>
-                <div id="gpxList" class="files-list"></div>
-            </div>
-            
-            <div class="panel-actions">
-                <button id="exportBtn" class="btn export-btn" disabled>📤 Exportar</button>
-                <button id="shareBtn" class="btn share-btn" disabled>↗️ Compartir</button>
-                <button id="deleteBtn" class="btn delete-btn" disabled>🗑️ Eliminar</button>
+                
+                <!-- CONTENEDOR PRINCIPAL CON SCROLL -->
+                <div class="gallery-main-content">
+                    
+                    <!-- Pestaña Vídeos -->
+                    <div id="videosContent" class="tab-content active">
+                        <div class="gallery-controls">
+                            <input type="text" id="searchVideos" placeholder="🔍 Buscar vídeos...">
+                            <div class="selection-buttons">
+                                <button id="selectAllVideos">✓ Todos</button>
+                                <button id="deselectAllVideos">✗ Ninguno</button>
+                            </div>
+                        </div>
+                        <div id="videosList" class="files-list">
+                            <!-- Los vídeos se cargarán aquí -->
+                        </div>
+                    </div>
+                    
+                    <!-- Pestaña GPX -->
+                    <div id="gpxContent" class="tab-content">
+                        <div class="gallery-controls">
+                            <input type="text" id="searchGPX" placeholder="🔍 Buscar rutas...">
+                            <div class="selection-buttons">
+                                <button id="selectAllGPX">✓ Todos</button>
+                                <button id="deselectAllGPX">✗ Ninguno</button>
+                            </div>
+                        </div>
+                        <div id="gpxList" class="files-list">
+                            <!-- Las rutas GPX se cargarán aquí -->
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <div class="panel-actions">
+                    <button id="exportBtn" class="btn export-btn" disabled>📤 Exportar</button>
+                    <button id="shareBtn" class="btn share-btn" disabled>↗️ Compartir</button>
+                    <button id="deleteBtn" class="btn delete-btn" disabled>🗑️ Eliminar</button>
+                </div>
             </div>
         </div>
 
         <!-- Panel de Configuración -->
         <div id="settingsPanel" class="panel hidden">
-            <div class="panel-header">
-                <h3>⚙️ Configuración</h3>
-                <button id="closeSettings" class="close-btn">✕</button>
-            </div>
-            
-            <div class="settings-content">
-                <div class="setting">
-                    <label>Duración segmento (min):</label>
-                    <select id="segmentDuration">
-                        <option value="1">1</option>
-                        <option value="5" selected>5</option>
-                        <option value="10">10</option>
-                    </select>
+            <div class="panel-container">
+                <div class="panel-header">
+                    <h3>⚙️ Configuración</h3>
+                    <button id="closeSettings" class="close-btn">✕</button>
                 </div>
                 
-                <div class="setting">
-                    <label>Calidad video:</label>
-                    <select id="videoQuality">
-                        <option value="480p">480p</option>
-                        <option value="720p" selected>720p</option>
-                        <option value="1080p">1080p</option>
-                    </select>
+                <div class="panel-content">
+                    <div class="settings-content">
+                        <div class="setting">
+                            <label>Duración segmento (min):</label>
+                            <select id="segmentDuration">
+                                <option value="1">1</option>
+                                <option value="5" selected>5</option>
+                                <option value="10">10</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting">
+                            <label>Calidad video:</label>
+                            <select id="videoQuality">
+                                <option value="480p">480p</option>
+                                <option value="720p" selected>720p</option>
+                                <option value="1080p">1080p</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting">
+                            <label>Intervalo GPS (s):</label>
+                            <select id="gpxInterval">
+                                <option value="1">1</option>
+                                <option value="5" selected>5</option>
+                                <option value="10">10</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting">
+                            <label><input type="checkbox" id="overlayEnabled" checked> Mostrar datos GPS en video</label>
+                        </div>
+                        
+                        <div class="setting">
+                            <label><input type="checkbox" id="audioEnabled" checked> Grabar audio</label>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="setting">
-                    <label>Intervalo GPS (s):</label>
-                    <select id="gpxInterval">
-                        <option value="1">1</option>
-                        <option value="5" selected>5</option>
-                        <option value="10">10</option>
-                    </select>
+                <div class="panel-actions">
+                    <button id="saveSettings" class="btn save-btn">💾 Guardar</button>
                 </div>
-                
-                <div class="setting">
-                    <label><input type="checkbox" id="overlayEnabled" checked> Mostrar datos</label>
-                </div>
-                
-                <div class="setting">
-                    <label><input type="checkbox" id="audioEnabled" checked> Grabar audio</label>
-                </div>
-            </div>
-            
-            <div class="panel-actions">
-                <button id="saveSettings" class="btn save-btn">💾 Guardar</button>
             </div>
         </div>
 
         <!-- Reproductor de Video -->
         <div id="videoPlayer" class="panel hidden">
-            <div class="panel-header">
-                <h3>🎬 Reproduciendo</h3>
-                <button id="closePlayer" class="close-btn">✕</button>
-            </div>
-            
-            <video id="playbackVideo" controls></video>
-            
-            <div class="video-info">
-                <p id="videoTitle"></p>
-                <p id="videoDetails"></p>
-            </div>
-            
-            <div class="panel-actions">
-                <button id="exportVideo" class="btn export-btn">📤 Exportar</button>
-                <button id="shareVideo" class="btn share-btn">↗️ Compartir</button>
-                <button id="deleteVideo" class="btn delete-btn">🗑️ Eliminar</button>
+            <div class="panel-container">
+                <div class="panel-header">
+                    <h3>🎬 Reproduciendo</h3>
+                    <button id="closePlayer" class="close-btn">✕</button>
+                </div>
+                
+                <div class="panel-content">
+                    <video id="playbackVideo" controls></video>
+                    
+                    <div class="video-info">
+                        <p id="videoTitle"></p>
+                        <p id="videoDetails"></p>
+                    </div>
+                </div>
+                
+                <div class="panel-actions">
+                    <button id="exportVideo" class="btn export-btn">📤 Exportar</button>
+                    <button id="shareVideo" class="btn share-btn">↗️ Compartir</button>
+                    <button id="deleteVideo" class="btn delete-btn">🗑️ Eliminar</button>
+                </div>
             </div>
         </div>
 
