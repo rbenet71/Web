@@ -1,0 +1,307 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: #0f0f23;
+    color: white;
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+}
+
+.container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Vista de cámara */
+.camera-view {
+    flex: 1;
+    position: relative;
+    background: black;
+    overflow: hidden;
+}
+
+#videoPreview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* Espejo para selfie */
+}
+
+#overlayCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* Controles */
+.controls {
+    background: linear-gradient(to top, #1a1a2e, #16213e);
+    padding: 10px;
+    border-top: 2px solid #00b4d8;
+}
+
+.status-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #8ecae6;
+}
+
+.status, .gps-status, .storage-status, .battery-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.btn {
+    padding: 12px 5px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #0096c7, #0077b6);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    min-height: 60px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 180, 216, 0.4);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-icon {
+    font-size: 20px;
+}
+
+.btn-text {
+    font-size: 11px;
+    text-align: center;
+}
+
+.record-btn {
+    background: linear-gradient(135deg, #e63946, #d90429);
+}
+
+.record-btn.recording {
+    background: linear-gradient(135deg, #ff9e00, #ff6d00);
+    animation: pulse 1.5s infinite;
+}
+
+.stop-btn {
+    background: linear-gradient(135deg, #4361ee, #3a0ca3);
+}
+
+.pause-btn {
+    background: linear-gradient(135deg, #4cc9f0, #4895ef);
+}
+
+.settings-btn {
+    background: linear-gradient(135deg, #7209b7, #560bad);
+}
+
+.recording-info {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+    text-align: center;
+    font-size: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px;
+    border-radius: 6px;
+}
+
+.recording-info > div {
+    padding: 4px;
+    background: rgba(0, 180, 216, 0.1);
+    border-radius: 4px;
+}
+
+/* Paneles */
+.settings-panel, .files-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(26, 26, 46, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.setting {
+    margin: 15px 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.setting label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.setting select, .setting input[type="text"], .setting input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #4361ee;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 16px;
+}
+
+.setting input[type="checkbox"] {
+    margin-right: 10px;
+    transform: scale(1.2);
+}
+
+.setting-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.files-list {
+    margin: 20px 0;
+}
+
+.file-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border-left: 4px solid #00b4d8;
+}
+
+.file-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.file-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.file-action-btn {
+    padding: 6px 12px;
+    background: #4361ee;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+/* Notificaciones */
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #00b4d8, #0077b6);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 2000;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 109, 0, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 109, 0, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 109, 0, 0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .buttons {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .recording-info {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .status-bar {
+        font-size: 10px;
+    }
+    
+    .btn-text {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .status-bar {
+        flex-direction: column;
+        gap: 5px;
+    }
+}

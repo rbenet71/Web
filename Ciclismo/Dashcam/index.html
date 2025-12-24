@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Dashcam PWA</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="icons/icon-192.png">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+    <div class="container">
+        <!-- Vista de cámara -->
+        <div id="cameraView" class="camera-view">
+            <video id="videoPreview" autoplay muted playsinline></video>
+            <canvas id="overlayCanvas"></canvas>
+        </div>
+
+        <!-- Controles -->
+        <div class="controls">
+            <div class="status-bar">
+                <div id="status" class="status">Preparando...</div>
+                <div id="gpsStatus" class="gps-status">GPS: Desconectado</div>
+                <div id="storageStatus" class="storage-status">Almacenamiento: --</div>
+                <div id="batteryStatus" class="battery-status">Batería: --</div>
+            </div>
+
+            <div class="buttons">
+                <button id="recordBtn" class="btn record-btn" disabled>
+                    <span class="btn-icon">⏺️</span>
+                    <span class="btn-text">Iniciar Grabación</span>
+                </button>
+                
+                <button id="stopBtn" class="btn stop-btn" disabled>
+                    <span class="btn-icon">⏹️</span>
+                    <span class="btn-text">Detener</span>
+                </button>
+                
+                <button id="pauseBtn" class="btn pause-btn" disabled>
+                    <span class="btn-icon">⏸️</span>
+                    <span class="btn-text">Pausar</span>
+                </button>
+                
+                <button id="settingsBtn" class="btn settings-btn">
+                    <span class="btn-icon">⚙️</span>
+                    <span class="btn-text">Ajustes</span>
+                </button>
+            </div>
+
+            <div class="recording-info">
+                <div id="recordingTime">00:00:00</div>
+                <div id="fileSize">0 MB</div>
+                <div id="currentSpeed">0 km/h</div>
+                <div id="coordinates">Coords: --</div>
+            </div>
+        </div>
+
+        <!-- Panel de configuraciones -->
+        <div id="settingsPanel" class="settings-panel hidden">
+            <h3>Configuración</h3>
+            
+            <div class="setting">
+                <label for="segmentDuration">Duración por segmento (minutos):</label>
+                <select id="segmentDuration">
+                    <option value="1">1 minuto</option>
+                    <option value="5" selected>5 minutos</option>
+                    <option value="10">10 minutos</option>
+                    <option value="15">15 minutos</option>
+                </select>
+            </div>
+
+            <div class="setting">
+                <label for="videoQuality">Calidad de video:</label>
+                <select id="videoQuality">
+                    <option value="low">Baja (480p)</option>
+                    <option value="medium" selected>Media (720p)</option>
+                    <option value="high">Alta (1080p)</option>
+                    <option value="very-high">Muy Alta (1440p)</option>
+                </select>
+            </div>
+
+            <div class="setting">
+                <label for="maxStorage">Almacenamiento máximo (GB):</label>
+                <select id="maxStorage">
+                    <option value="1">1 GB</option>
+                    <option value="2">2 GB</option>
+                    <option value="5" selected>5 GB</option>
+                    <option value="10">10 GB</option>
+                </select>
+            </div>
+
+            <div class="setting">
+                <label>
+                    <input type="checkbox" id="overlayEnabled" checked>
+                    Mostrar información en video
+                </label>
+            </div>
+
+            <div class="setting">
+                <label>
+                    <input type="checkbox" id="audioEnabled" checked>
+                    Grabar audio
+                </label>
+            </div>
+
+            <div class="setting">
+                <label>
+                    <input type="checkbox" id="autoStart" checked>
+                    Iniciar automáticamente al abrir
+                </label>
+            </div>
+
+            <div class="setting-buttons">
+                <button id="saveSettings" class="btn">Guardar</button>
+                <button id="closeSettings" class="btn">Cerrar</button>
+            </div>
+        </div>
+
+        <!-- Panel de archivos -->
+        <div id="filesPanel" class="files-panel hidden">
+            <h3>Archivos Grabados</h3>
+            <div id="filesList" class="files-list"></div>
+            <button id="closeFiles" class="btn">Cerrar</button>
+        </div>
+
+        <!-- Notificaciones -->
+        <div id="notification" class="notification hidden"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
