@@ -674,6 +674,15 @@ function formatTimeForPDF(totalSeconds) {
 function processImportedOrderData(jsonData) {
     const t = translations[appState.currentLanguage];
     
+    // 1. VERIFICAR QUE HAY CARRERA ACTUAL
+    if (!appState.currentRace) {
+        console.error("❌ ERROR: No hay carrera seleccionada para importar datos");
+        showMessage("Selecciona una carrera antes de importar", 'error');
+        return;
+    }
+    
+    console.log(`📥 Importando datos para carrera: ${appState.currentRace.name} (ID: ${appState.currentRace.id})`);
+    
     const headers = jsonData[0];
     const columnIndexes = {};
     
@@ -701,64 +710,71 @@ function processImportedOrderData(jsonData) {
     // ASIGNAR A VARIABLE GLOBAL
     startOrderData = importedData;
     
-    console.log(`📊 Datos procesados: ${startOrderData.length} corredores`);
+    console.log(`📊 Datos procesados: ${startOrderData.length} corredores para "${appState.currentRace.name}"`);
     
-    // ============ GUARDADO ROBUSTO EN LOCALSTORAGE ============
-    console.log("💾 INICIANDO GUARDADO ROBUSTO...");
+    // ============ GUARDADO EN CARRERA ESPECÍFICA ============
+    console.log("💾 GUARDANDO EN CARRERA ESPECÍFICA...");
     
-    // 1. Guardar en múltiples claves por seguridad
     try {
-        // Clave principal
-        localStorage.setItem('cri_start_order_data', JSON.stringify(startOrderData));
-        console.log(`✅ Guardado en cri_start_order_data: ${startOrderData.length} corredores`);
+        // 1. ACTUALIZAR CARRERA ACTUAL EN MEMORIA
+        appState.currentRace.startOrder = [...startOrderData];
+        appState.currentRace.lastModified = new Date().toISOString();
+        appState.currentRace.totalRiders = startOrderData.length;
         
-        // Clave secundaria (compatibilidad)
-        localStorage.setItem('start-order-data', JSON.stringify(startOrderData));
-        console.log(`✅ Guardado en start-order-data`);
+        console.log(`✅ Datos asignados a carrera en memoria: ${startOrderData.length} corredores`);
         
-        // Clave de backup
-        localStorage.setItem('cri_start_order_backup_' + Date.now(), JSON.stringify(startOrderData));
-        console.log(`✅ Backup creado`);
+        // 2. GUARDAR EN LOCALSTORAGE ESPECÍFICO DE LA CARRERA
+        const raceKey = `race-${appState.currentRace.id}`;
         
-        // 2. Actualizar carrera actual
-        if (appState.currentRace) {
-            console.log(`🔄 Actualizando carrera: ${appState.currentRace.name}`);
-            
-            // Actualizar en appState
-            appState.currentRace.startOrder = [...startOrderData];
-            appState.currentRace.lastModified = new Date().toISOString();
-            appState.currentRace.totalRiders = startOrderData.length;
-            
-            // Guardar usando saveRaceData
-            if (typeof saveRaceData === 'function') {
-                console.log("💾 Llamando a saveRaceData()...");
-                saveRaceData();
-                console.log("✅ saveRaceData completado");
-            }
-            
-            // También actualizar en el array de carreras
-            const raceIndex = appState.races.findIndex(r => r.id === appState.currentRace.id);
-            if (raceIndex !== -1) {
-                appState.races[raceIndex].startOrder = [...startOrderData];
-                appState.races[raceIndex].totalRiders = startOrderData.length;
-                appState.races[raceIndex].lastModified = new Date().toISOString();
-                console.log("✅ Carrera actualizada en array");
-                
-                // Guardar array de carreras
-                localStorage.setItem('countdown-races', JSON.stringify(appState.races));
-                console.log("✅ Array de carreras guardado");
+        // Obtener datos existentes de la carrera
+        let raceData = {};
+        const existingData = localStorage.getItem(raceKey);
+        if (existingData) {
+            try {
+                raceData = JSON.parse(existingData);
+                console.log(`✅ Datos existentes encontrados para ${raceKey}`);
+            } catch (e) {
+                console.warn("⚠️ Error parseando datos existentes, creando nuevo");
             }
         }
         
-        // 3. Guardar timestamp y bandera
-        localStorage.setItem('cri_last_import', new Date().toISOString());
-        localStorage.setItem('cri_has_data', 'true');
-        localStorage.setItem('cri_data_count', startOrderData.length.toString());
+        // Actualizar SOLO el startOrderData (mantener otros datos como salidas, etc.)
+        raceData.startOrderData = [...startOrderData];
+        raceData.lastImport = new Date().toISOString();
         
-        console.log("✅ Datos guardados correctamente");
+        // Guardar en carrera específica
+        localStorage.setItem(raceKey, JSON.stringify(raceData));
+        console.log(`✅ Guardado en carrera específica (${raceKey}): ${startOrderData.length} corredores`);
+        
+        // 3. ACTUALIZAR EN ARRAY DE CARRERAS
+        const raceIndex = appState.races.findIndex(r => r.id === appState.currentRace.id);
+        if (raceIndex !== -1) {
+            appState.races[raceIndex] = { ...appState.currentRace };
+            console.log("✅ Carrera actualizada en array de carreras");
+            
+            // Guardar array completo
+            localStorage.setItem('countdown-races', JSON.stringify(appState.races));
+            console.log("✅ Array de carreras guardado");
+        }
+        
+        // 4. LLAMAR A saveRaceData() PARA SINCORNIZACIÓN COMPLETA
+        if (typeof saveRaceData === 'function') {
+            console.log("💾 Sincronizando con saveRaceData()...");
+            saveRaceData();
+            console.log("✅ Sincronización completa");
+        }
+        
+        // 5. ELIMINAR DATOS GLOBALES ANTIGUOS (¡EVITA MEZCLA!)
+        localStorage.removeItem('cri_start_order_data');
+        localStorage.removeItem('start-order-data');
+        localStorage.removeItem('cri_start_order_backup_' + Date.now());
+        localStorage.removeItem('cri_start_order_data_final');
+        console.log("🗑️ Datos globales antiguos eliminados");
+        
+        console.log("✅ IMPORTACIÓN COMPLETA para carrera específica");
         
     } catch (error) {
-        console.error("❌ Error crítico guardando datos:", error);
+        console.error("❌ Error guardando datos en carrera:", error);
         showMessage("Error guardando datos importados", 'error');
         return;
     }
@@ -802,31 +818,25 @@ function processImportedOrderData(jsonData) {
         }
     });
     
-    // Forzar actualización de tabla INMEDIATAMENTE
-    console.log("🔄 Forzando actualización de tabla...");
+    // Forzar actualización de tabla
+    console.log("🔄 Actualizando tabla...");
     if (typeof updateStartOrderTable === 'function') {
-        // Limpiar cualquier throttling pendiente
+        // Limpiar throttling pendiente
         if (window.updateStartOrderTableTimeout) {
             clearTimeout(window.updateStartOrderTableTimeout);
             window.updateStartOrderTableTimeout = null;
         }
         
-        // Llamar directamente
         updateStartOrderTable();
-        console.log("✅ Tabla actualizada directamente");
+        console.log("✅ Tabla actualizada");
     }
     
     // Mostrar mensaje
     const message = t.orderImported 
         ? t.orderImported.replace('{count}', startOrderData.length)
-        : `Se importaron ${startOrderData.length} corredores correctamente`;
+        : `Se importaron ${startOrderData.length} corredores a "${appState.currentRace.name}"`;
     
     showMessage(message, 'success');
-    
-    // Mensaje adicional
-    setTimeout(() => {
-        showMessage(`Datos guardados. Recarga la página para verificar persistencia.`, 'info', 5000);
-    }, 1000);
 }
 
 // ============================================
@@ -873,76 +883,202 @@ function formatTimeValue(timeStr) {
 function updateImportUIAfterProcessing() {
     console.log("🔄 Actualizando UI después de importación...");
     
-    // 1. Actualizar hora de inicio
+    // Verificar que hay datos para procesar
+    if (!startOrderData || startOrderData.length === 0) {
+        console.warn("⚠️ No hay datos para actualizar la UI");
+        return;
+    }
+    
+    // Verificar que hay carrera actual
+    if (!appState.currentRace) {
+        console.error("❌ No hay carrera seleccionada para actualizar UI");
+        return;
+    }
+    
+    console.log(`🎯 Actualizando UI para carrera: "${appState.currentRace.name}" (${startOrderData.length} corredores)`);
+    
+    // 1. Actualizar hora de inicio desde el primer corredor
     if (startOrderData.length > 0) {
         const primerCorredor = startOrderData[0];
-        let horaPrimeraSalida = primerCorredor.horaSalida || primerCorredor.horaSalidaImportado || '09:00:00';
+        let horaPrimeraSalida = primerCorredor.horaSalida || 
+                               primerCorredor.horaSalidaImportado || 
+                               primerCorredor.horaSalidaPrevista || 
+                               '09:00:00';
         
-        // Formatear hora
+        // Formatear hora correctamente
         horaPrimeraSalida = formatTimeValue(horaPrimeraSalida);
         
-        // Actualizar input
+        // Actualizar input de hora de inicio
         const firstStartTimeInput = document.getElementById('first-start-time');
         if (firstStartTimeInput) {
-            firstStartTimeInput.value = horaPrimeraSalida;
-            console.log(`🔄 Hora de salida actualizada en UI: ${horaPrimeraSalida}`);
+            const horaActual = firstStartTimeInput.value;
+            if (horaActual !== horaPrimeraSalida) {
+                firstStartTimeInput.value = horaPrimeraSalida;
+                console.log(`✅ Hora de inicio actualizada: ${horaPrimeraSalida}`);
+                
+                // Disparar evento de cambio para actualizar cálculos
+                firstStartTimeInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+        
+        // También actualizar el campo de hora de salida del primer corredor si existe
+        const firstRiderTimeCell = document.querySelector('.start-order-table tbody tr:first-child .hora-salida-cell');
+        if (firstRiderTimeCell) {
+            firstRiderTimeCell.textContent = horaPrimeraSalida;
         }
     }
     
-    // 2. Actualizar total de corredores
+    // 2. Actualizar total de corredores en múltiples lugares
     const totalCorredores = startOrderData.length;
+    console.log(`📊 Total de corredores: ${totalCorredores}`);
     
-    // Actualizar múltiples elementos que puedan mostrar el total
+    // Lista de elementos a actualizar
     const updateElements = [
-        'total-corredores-display',
-        'total-riders',
-        'total-riders-display'
+        { id: 'total-corredores-display', type: 'text' },
+        { id: 'total-riders', type: 'input' },
+        { id: 'total-riders-display', type: 'text' },
+        { id: 'total-corredores-value', type: 'text' },
+        { id: 'riders-count', type: 'text' }
     ];
     
-    updateElements.forEach(id => {
-        const element = document.getElementById(id);
+    updateElements.forEach(item => {
+        const element = document.getElementById(item.id);
         if (element) {
-            if (element.tagName === 'INPUT') {
-                element.value = totalCorredores;
+            if (item.type === 'input' && element.tagName === 'INPUT') {
+                if (element.value !== totalCorredores.toString()) {
+                    element.value = totalCorredores;
+                    console.log(`✅ Input ${item.id} actualizado a: ${totalCorredores}`);
+                }
             } else {
-                element.textContent = totalCorredores;
+                if (element.textContent !== totalCorredores.toString()) {
+                    element.textContent = totalCorredores;
+                    console.log(`✅ Elemento ${item.id} actualizado a: ${totalCorredores}`);
+                }
             }
-            console.log(`🔄 Elemento ${id} actualizado a: ${totalCorredores}`);
         }
     });
     
-    // 3. Forzar actualización de la tabla SIN throttling para respuesta inmediata
-    if (typeof updateStartOrderTable === 'function') {
-        console.log("🔄 Actualizando tabla inmediatamente...");
-        // Usar versión directa sin throttling para actualización inmediata
-        updateStartOrderTable();
-    } else if (typeof updateStartOrderTableThrottled === 'function') {
-        console.log("🔄 Usando versión throttled de la tabla...");
-        // Llamar inmediatamente
-        if (updateStartOrderTableTimeout) {
-            clearTimeout(updateStartOrderTableTimeout);
+    // 3. Actualizar contador en el botón de exportar si existe
+    const exportBtn = document.getElementById('export-order-btn');
+    if (exportBtn) {
+        const badge = exportBtn.querySelector('.badge') || document.createElement('span');
+        if (!badge.classList.contains('badge')) {
+            badge.className = 'badge';
+            exportBtn.appendChild(badge);
         }
-        updateStartOrderTable();
+        badge.textContent = totalCorredores;
+        badge.style.display = totalCorredores > 0 ? 'inline-block' : 'none';
     }
     
-    // 4. Actualizar diferencia de tiempo si existe
+    // 4. Actualizar tabla INMEDIATAMENTE (sin throttling para respuesta inmediata)
+    console.log("🔄 Actualizando tabla de orden de salida...");
+    
+    if (typeof updateStartOrderTable === 'function') {
+        // Limpiar cualquier throttling pendiente
+        if (window.updateStartOrderTableTimeout) {
+            clearTimeout(window.updateStartOrderTableTimeout);
+            window.updateStartOrderTableTimeout = null;
+        }
+        
+        // Llamar directamente para respuesta inmediata
+        updateStartOrderTable();
+        console.log("✅ Tabla actualizada inmediatamente");
+        
+    } else if (typeof updateStartOrderTableThrottled === 'function') {
+        console.log("🔄 Usando versión throttled...");
+        
+        // Limpiar timeouts existentes
+        if (window.updateStartOrderTableTimeout) {
+            clearTimeout(window.updateStartOrderTableTimeout);
+        }
+        
+        // Forzar actualización inmediata
+        updateStartOrderTableThrottled(true);
+    }
+    
+    // 5. Actualizar diferencia de tiempo si la función existe
     if (typeof updateTimeDifference === 'function') {
         setTimeout(() => {
             updateTimeDifference();
-        }, 100);
+            console.log("✅ Diferencia de tiempo actualizada");
+        }, 150);
     }
     
-    // 5. Forzar guardado final después de actualizar UI
+    // 6. Actualizar display del próximo corredor
+    if (typeof updateNextCorredorDisplay === 'function') {
+        setTimeout(() => {
+            updateNextCorredorDisplay();
+            console.log("✅ Display de próximo corredor actualizado");
+        }, 200);
+    }
+    
+    // 7. Guardar FINAL en la CARRERA ESPECÍFICA (NO en localStorage global)
     setTimeout(() => {
         try {
-            localStorage.setItem('cri_start_order_data_final', JSON.stringify(startOrderData));
-            console.log("✅ Guardado final completado");
+            if (appState.currentRace) {
+                // Actualizar en memoria
+                appState.currentRace.startOrder = [...startOrderData];
+                appState.currentRace.totalRiders = startOrderData.length;
+                appState.currentRace.lastModified = new Date().toISOString();
+                
+                // Guardar usando saveRaceData (que guarda en la carrera específica)
+                if (typeof saveRaceData === 'function') {
+                    saveRaceData();
+                    console.log(`✅ Guardado final en carrera: "${appState.currentRace.name}"`);
+                } else {
+                    // Fallback: guardar manualmente en carrera específica
+                    const raceKey = `race-${appState.currentRace.id}`;
+                    const existingData = localStorage.getItem(raceKey);
+                    let raceData = {};
+                    
+                    if (existingData) {
+                        try {
+                            raceData = JSON.parse(existingData);
+                        } catch (e) {
+                            console.warn("⚠️ Error parseando datos existentes");
+                        }
+                    }
+                    
+                    raceData.startOrderData = [...startOrderData];
+                    raceData.lastUpdate = new Date().toISOString();
+                    
+                    localStorage.setItem(raceKey, JSON.stringify(raceData));
+                    console.log(`✅ Guardado manual en ${raceKey}`);
+                }
+                
+                // ELIMINAR cualquier dato global antiguo (evitar mezcla)
+                localStorage.removeItem('cri_start_order_data_final');
+                console.log("🗑️ Datos globales antiguos eliminados");
+            }
         } catch (error) {
-            console.error("Error en guardado final:", error);
+            console.error("❌ Error en guardado final:", error);
         }
     }, 1000);
     
-    console.log("✅ UI actualizada después de importación");
+    // 8. Actualizar título de la tarjeta de gestión
+    if (typeof updateRaceManagementCardTitle === 'function') {
+        setTimeout(() => {
+            updateRaceManagementCardTitle();
+            console.log("✅ Título de gestión actualizado");
+        }, 300);
+    }
+    
+    // 9. Actualizar estadísticas si existen
+    if (typeof updateStartOrderStats === 'function') {
+        setTimeout(() => {
+            updateStartOrderStats();
+            console.log("✅ Estadísticas actualizadas");
+        }, 400);
+    }
+    
+    console.log("✅ UI completamente actualizada después de importación");
+    
+    // 10. Mostrar notificación final
+    setTimeout(() => {
+        const t = translations[appState.currentLanguage];
+        const successMsg = t.importComplete || 'Importación completada correctamente';
+        showMessage(`${successMsg} - ${totalCorredores} corredores en "${appState.currentRace.name}"`, 'success', 4000);
+    }, 1500);
 }
 // ============================================
 // ✅ FUNCIÓN AUXILIAR PARA FORMATEAR HORA
@@ -986,54 +1122,34 @@ function formatTimeValue(timeStr) {
 // ✅ AÑADE ESTA NUEVA FUNCIÓN PARA GUARDAR DATOS
 // ============================================
 function saveImportedDataToStorage() {
-    console.log("💾 Guardando datos importados en localStorage...");
+    console.log("💾 Guardando datos importados en CARRERA...");
+    
+    // VERIFICAR QUE HAY CARRERA
+    if (!appState.currentRace) {
+        console.error("❌ No hay carrera seleccionada");
+        return false;
+    }
     
     try {
-        // 1. Guardar startOrderData en localStorage
-        localStorage.setItem('cri_start_order_data', JSON.stringify(startOrderData));
-        console.log(`✅ Guardados ${startOrderData.length} corredores en localStorage`);
+        // 1. Actualizar la carrera actual
+        appState.currentRace.startOrder = [...startOrderData];
         
-        // 2. Actualizar la carrera actual con los datos importados
-        if (appState.currentRace) {
-            // Asegurar que la carrera tenga los datos de startOrder
-            appState.currentRace.startOrder = startOrderData;
-            
-            // Guardar carrera actualizada
-            if (typeof saveRaceData === 'function') {
-                saveRaceData();
-                console.log("✅ Carrera actualizada y guardada");
-            } else {
-                // Fallback: guardar manualmente
-                const raceKey = `cri_race_${appState.currentRace.id}`;
-                localStorage.setItem(raceKey, JSON.stringify(appState.currentRace));
-                console.log("✅ Carrera guardada manualmente");
-            }
-        } else {
-            console.warn("⚠️ No hay carrera seleccionada, guardando solo startOrderData");
+        // 2. Guardar usando saveRaceData (que guarda en la carrera específica)
+        if (typeof saveRaceData === 'function') {
+            saveRaceData();
+            console.log(`✅ Datos guardados en carrera: "${appState.currentRace.name}"`);
         }
         
-        // 3. Guardar en el array de carreras también
-        const races = JSON.parse(localStorage.getItem('cri_races') || '[]');
-        const raceIndex = races.findIndex(r => r.id === appState.currentRace?.id);
-        if (raceIndex !== -1) {
-            races[raceIndex].startOrder = startOrderData;
-            localStorage.setItem('cri_races', JSON.stringify(races));
-            console.log("✅ Carrera actualizada en lista de carreras");
-        }
-        
-        // 4. Marcar timestamp de última importación
-        localStorage.setItem('cri_last_import', new Date().toISOString());
-        
-        console.log("💾 Datos importados guardados correctamente en localStorage");
+        // 3. NO guardar en localStorage global - ¡eso causa mezcla!
+        // localStorage.removeItem('cri_start_order_data'); // Eliminar si existe
         
         return true;
         
     } catch (error) {
-        console.error("❌ Error guardando datos importados:", error);
+        console.error("❌ Error guardando datos:", error);
         return false;
     }
 }
-
 // ============================================
 // FUNCIÓN PARA CORREGIR COLUMNA TIME IMPORTADA
 // ============================================
@@ -1296,21 +1412,52 @@ function timeToExcelValue(timeStr) {
 function importStartOrder() {
     const t = translations[appState.currentLanguage];
     
-    // Verificar si ya hay datos en la tabla
-    if (startOrderData && startOrderData.length > 0) {
-        // Mostrar modal de confirmación
-        showImportConfirmationModal();
+    // VERIFICAR SI HAY CARRERA SELECCIONADA
+    if (!appState.currentRace) {
+        showMessage(t.selectRaceFirst || 'Selecciona una carrera primero', 'error');
         return;
     }
     
-    // Si no hay datos, proceder directamente
+    console.log("📥 Iniciando importación para carrera:", appState.currentRace.name);
+    
+    // Verificar si ya hay datos en la tabla PARA LA CARRERA ACTUAL
+    const currentDataForRace = getCurrentDataForCurrentRace();
+    
+    if (currentDataForRace && currentDataForRace.length > 0) {
+        // Mostrar modal de confirmación solo si hay datos PARA ESTA CARRERA
+        showImportConfirmationModal(currentDataForRace);
+        return;
+    }
+    
+    // Si no hay datos para esta carrera, proceder directamente
     proceedWithImport();
 }
 
-function showImportConfirmationModal() {
+function getCurrentDataForCurrentRace() {
+    if (!appState.currentRace) {
+        return [];
+    }
+    
+    // Verificar si startOrderData pertenece a la carrera actual
+    // Comparar con los datos guardados en la carrera
+    if (appState.currentRace.startOrder && appState.currentRace.startOrder.length > 0) {
+        return appState.currentRace.startOrder;
+    }
+    
+    // Si startOrderData existe pero no está en la carrera, verificar si es para esta carrera
+    if (startOrderData && startOrderData.length > 0) {
+        // Verificar si los datos en memoria corresponden a la carrera actual
+        // Podrías añadir una propiedad raceId a cada corredor si es necesario
+        return startOrderData;
+    }
+    
+    return [];
+}
+
+function showImportConfirmationModal(currentData) {
     const t = translations[appState.currentLanguage];
     
-    // Crear modal de confirmación
+    // Crear modal de confirmación ESPECÍFICO PARA LA CARRERA ACTUAL
     const modal = document.createElement('div');
     modal.id = 'import-confirmation-modal';
     modal.className = 'modal';
@@ -1327,7 +1474,8 @@ function showImportConfirmationModal() {
                     </div>
                     <div class="warning-text">
                         <p><strong>${t.importWarning || 'Los datos actuales se borrarán'}</strong></p>
-                        <p>${t.importWarningDetails || 'Actualmente tienes'} <span class="rider-count">${startOrderData.length}</span> ${t.importWarningRiders || 'corredores en la tabla'}.</p>
+                        <p>Carrera actual: <strong>${appState.currentRace ? appState.currentRace.name : 'Sin carrera'}</strong></p>
+                        <p>Actualmente tienes <span class="rider-count">${currentData.length}</span> ${t.importWarningRiders || 'corredores en la tabla'} para esta carrera.</p>
                         <p>${t.importWarningQuestion || '¿Estás seguro de que quieres continuar con la importación?'}</p>
                     </div>
                 </div>
@@ -1345,7 +1493,7 @@ function showImportConfirmationModal() {
                                 </tr>
                             </thead>
                             <tbody>
-                                ${getCurrentDataPreview()}
+                                ${getCurrentDataPreview(currentData)}
                             </tbody>
                         </table>
                     </div>
@@ -1376,7 +1524,6 @@ function showImportConfirmationModal() {
     // Añadir estilos si no existen
     addImportConfirmationStyles();
 }
-
 function getCurrentDataPreview() {
     // Mostrar solo los primeros 5 corredores como vista previa
     const previewCount = Math.min(5, startOrderData.length);
@@ -1850,30 +1997,74 @@ function updateStartOrderUI() {
     console.log("=== updateStartOrderUI llamada ===");
     console.log("startOrderData.length:", startOrderData.length);
     
-    // ✅ Actualizar hora de inicio en el input SOLO si hay datos
-    const startTimeInput = document.getElementById('first-start-time');
-    if (startTimeInput && startOrderData.length > 0) {
+    if (startOrderData.length > 0) {
         const primerCorredor = startOrderData[0];
-        if (primerCorredor.horaSalida && primerCorredor.horaSalida !== '00:00:00') {
-            // Asegurar formato HH:MM:SS
-            let horaFormateada = primerCorredor.horaSalida;
-            if (horaFormateada.length === 5) {
-                horaFormateada += ':00';
-            }
-            startTimeInput.value = horaFormateada;
-            console.log("Hora de inicio actualizada desde primer corredor:", horaFormateada);
-        }
+        // ... resto del código ...
     }
     
-    // Actualizar display del próximo corredor
-    updateNextCorredorDisplay();
-    
-    // Renderizar la tabla
-    console.log("Llamando a updateStartOrderTable...");
-    
-    // ✅ RESTAURAR: Usar la versión throttled normal
-    updateStartOrderTableThrottled();
+    // SIEMPRE actualizar la tabla al final
+    if (typeof updateStartOrderTableThrottled === 'function') {
+        setTimeout(() => {
+            updateStartOrderTableThrottled();
+        }, 10);
+    }
     
     console.log("=== updateStartOrderUI completada ===");
 }
 
+
+// ============================================
+// FUNCIÓN PARA LIMPIAR DATOS AL CAMBIAR DE CARRERA
+// ============================================
+function clearDataOnRaceChange() {
+    console.log("🔄 Limpiando datos para cambio de carrera...");
+    
+    // Limpiar datos globales
+    startOrderData = [];
+    appState.departureTimes = [];
+    appState.departedCount = 0;
+    appState.raceStartTime = null;
+    appState.intervals = [];
+    
+    // Limpiar localStorage global
+    localStorage.removeItem('start-order-data');
+    localStorage.removeItem('cri_start_order_data');
+    localStorage.removeItem('countdown-app-state');
+    
+    // Actualizar UI
+    if (typeof updateStartOrderTableThrottled === 'function') {
+        updateStartOrderTableThrottled(true);
+    }
+    
+    if (typeof renderDeparturesList === 'function') {
+        renderDeparturesList();
+    }
+    
+    // Resetear inputs
+    const inputsToReset = [
+        'first-start-time',
+        'total-riders',
+        'start-position'
+    ];
+    
+    inputsToReset.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            if (id === 'first-start-time') {
+                element.value = "09:00:00";
+            } else if (id === 'total-riders') {
+                element.value = 1;
+            } else if (id === 'start-position') {
+                element.value = 1;
+            }
+        }
+    });
+    
+    // Actualizar contador de salidos
+    const departedCountElement = document.getElementById('departed-count');
+    if (departedCountElement) {
+        departedCountElement.textContent = '0';
+    }
+    
+    console.log("✅ Datos limpiados para nueva carrera");
+}

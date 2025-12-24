@@ -453,20 +453,7 @@ function setupCountdownResize() {
 // ============================================
 // FUNCIONES DE SELECCIÓN DE CARRERA
 // ============================================
-function renderRacesSelect() {
-    const select = document.getElementById('race-select');
-    select.innerHTML = '<option value="">-- Selecciona una carrera --</option>';
-    
-    appState.races.forEach((race, index) => {
-        const option = document.createElement('option');
-        option.value = index;
-        option.textContent = race.name;
-        if (appState.currentRace && race.id === appState.currentRace.id) {
-            option.selected = true;
-        }
-        select.appendChild(option);
-    });
-}
+
 
 // ============================================
 // FUNCIONES DE ACTUALIZACIÓN DE TIEMPO
@@ -783,115 +770,322 @@ function debugModalButtons() {
 // ============================================
 // FUNCIONES DE ACCIONES DE MODALES
 // ============================================
+// ============================================
+// CONFIGURAR LISTENERS DE ACCIONES DE MODALES
+// ============================================
 function setupModalActionListeners() {
-    if (uiInitialized.modalActions) {
-        console.log("Modal action listeners ya configurados");
-        return;
-    }
-    uiInitialized.modalActions = true;
     console.log("Configurando listeners de acciones de modales...");
     
-    // Verificar que las funciones existen
-    if (typeof createNewRace !== 'function') {
-        console.error("❌ createNewRace no está disponible");
-    }
-    if (typeof deleteCurrentRace !== 'function') {
-        console.error("❌ deleteCurrentRace no está disponible");
-    }
-    if (typeof clearRaceDepartures !== 'function') {
-        console.error("❌ clearRaceDepartures no está disponible");
-    }
-    if (typeof sendSuggestion !== 'function') {
-        console.error("❌ sendSuggestion no está disponible");
-    }
-    if (typeof handleCompleteRestart !== 'function') {
-        console.error("❌ handleCompleteRestart no está disponible");
+    // Verificar si ya se configuró
+    if (window.modalActionListenersConfigured) {
+        console.log("Listeners de acciones de modales ya configurados");
+        return;
     }
     
-    // Botón de crear carrera
+    // 1. Botón de crear carrera
     const createRaceBtn = document.getElementById('create-race-btn');
     if (createRaceBtn) {
         console.log("✅ Configurando create-race-btn");
-        createRaceBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
+        
+        // Remover listener anterior si existe
+        createRaceBtn.removeEventListener('click', handleCreateRace);
+        
+        // Definir handler
+        function handleCreateRace(e) {
+            e.preventDefault();
             console.log("Crear carrera clickeado");
+            
+            // Verificar que la función existe
             if (typeof createNewRace === 'function') {
+                console.log("✅ Llamando a createNewRace()");
                 createNewRace();
             } else {
-                console.error("createNewRace no es una función");
+                console.error("❌ Función createNewRace no disponible");
+                const t = translations[appState.currentLanguage];
+                showMessage(t.errorCreatingRace || 'Error creando carrera', 'error');
             }
-        });
+        }
+        
+        // Añadir listener
+        createRaceBtn.addEventListener('click', handleCreateRace);
+        
+        // Guardar referencia para poder removerla después
+        window.handleCreateRace = handleCreateRace;
     } else {
-        console.warn("⚠️ Botón create-race-btn no encontrado");
+        console.log("⚠️ create-race-btn no encontrado");
     }
     
-    // Botón de eliminar carrera
+    // 2. Botón de cancelar creación de carrera
+    const cancelCreateRaceBtn = document.getElementById('cancel-create-race-btn');
+    if (cancelCreateRaceBtn) {
+        console.log("✅ Configurando cancel-create-race-btn");
+        cancelCreateRaceBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Cancelar creación de carrera clickeado");
+            document.getElementById('new-race-modal').classList.remove('active');
+        });
+    }
+    
+    // 3. Botón de confirmar eliminación de carrera
     const deleteRaceConfirmBtn = document.getElementById('delete-race-confirm-btn');
     if (deleteRaceConfirmBtn) {
         console.log("✅ Configurando delete-race-confirm-btn");
-        deleteRaceConfirmBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            console.log("Eliminar carrera clickeado");
+        
+        // Remover listener anterior si existe
+        deleteRaceConfirmBtn.removeEventListener('click', handleDeleteRaceConfirm);
+        
+        // Definir handler
+        function handleDeleteRaceConfirm(e) {
+            e.preventDefault();
+            console.log("Confirmar eliminación de carrera clickeado");
+            
+            // Verificar que la función existe
             if (typeof deleteCurrentRace === 'function') {
+                console.log("✅ Llamando a deleteCurrentRace()");
                 deleteCurrentRace();
+            } else {
+                console.error("❌ Función deleteCurrentRace no disponible");
+                const t = translations[appState.currentLanguage];
+                showMessage(t.errorDeletingRace || 'Error eliminando carrera', 'error');
             }
+        }
+        
+        // Añadir listener
+        deleteRaceConfirmBtn.addEventListener('click', handleDeleteRaceConfirm);
+        
+        // Guardar referencia para poder removerla después
+        window.handleDeleteRaceConfirm = handleDeleteRaceConfirm;
+    } else {
+        console.log("⚠️ delete-race-confirm-btn no encontrado");
+    }
+    
+    // 4. Botón de cancelar eliminación de carrera
+    const cancelDeleteRaceBtn = document.getElementById('cancel-delete-race-btn');
+    if (cancelDeleteRaceBtn) {
+        console.log("✅ Configurando cancel-delete-race-btn");
+        cancelDeleteRaceBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Cancelar eliminación de carrera clickeado");
+            document.getElementById('delete-race-modal').classList.remove('active');
         });
     }
     
-    // Botón de limpiar salidas
-    const clearDeparturesBtn = document.getElementById('clear-departures-confirm-btn');
-    if (clearDeparturesBtn) {
+    // 5. Botón de confirmar limpieza de salidas
+    const clearDeparturesConfirmBtn = document.getElementById('clear-departures-confirm-btn');
+    if (clearDeparturesConfirmBtn) {
         console.log("✅ Configurando clear-departures-confirm-btn");
-        clearDeparturesBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            console.log("Limpiar salidas clickeado");
+        clearDeparturesConfirmBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Confirmar limpieza de salidas clickeado");
+            
+            // Verificar que la función existe
             if (typeof clearRaceDepartures === 'function') {
                 clearRaceDepartures();
             }
+            
+            document.getElementById('clear-departures-modal').classList.remove('active');
         });
     }
     
-    // Botón de enviar sugerencias
+    // 6. Botón de cancelar limpieza de salidas
+    const cancelClearDeparturesBtn = document.getElementById('cancel-clear-departures-btn');
+    if (cancelClearDeparturesBtn) {
+        console.log("✅ Configurando cancel-clear-departures-btn");
+        cancelClearDeparturesBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Cancelar limpieza de salidas clickeado");
+            document.getElementById('clear-departures-modal').classList.remove('active');
+        });
+    }
+    
+    // 7. Botón de enviar sugerencia
     const sendSuggestionBtn = document.getElementById('send-suggestion-btn');
     if (sendSuggestionBtn) {
         console.log("✅ Configurando send-suggestion-btn");
         sendSuggestionBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
+            e.preventDefault();
             console.log("Enviar sugerencia clickeado");
+            
+            // Verificar que la función existe
             if (typeof sendSuggestion === 'function') {
                 sendSuggestion();
             }
         });
     }
     
-    // Botón de reiniciar completamente
+    // 8. Botón de cancelar sugerencia
+    const cancelSuggestionBtn = document.getElementById('cancel-suggestion-btn');
+    if (cancelSuggestionBtn) {
+        console.log("✅ Configurando cancel-suggestion-btn");
+        cancelSuggestionBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Cancelar sugerencia clickeado");
+            document.getElementById('suggestions-modal').classList.remove('active');
+        });
+    }
+    
+    // 9. Botón de confirmar reinicio completo
     const restartConfirmBtn = document.getElementById('restart-confirm-btn');
     if (restartConfirmBtn) {
         console.log("✅ Configurando restart-confirm-btn");
         restartConfirmBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            console.log("Reiniciar completamente clickeado");
+            e.preventDefault();
+            console.log("Confirmar reinicio completo clickeado");
+            
+            // Verificar que la función existe
             if (typeof handleCompleteRestart === 'function') {
                 handleCompleteRestart();
             }
         });
     }
     
-    // Botón de ayuda (OK)
-    const helpModalOkBtn = document.getElementById('help-modal-ok');
-    if (helpModalOkBtn) {
+    // 10. Botón de cancelar reinicio
+    const cancelRestartBtn = document.getElementById('cancel-restart-btn');
+    if (cancelRestartBtn) {
+        console.log("✅ Configurando cancel-restart-btn");
+        cancelRestartBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Cancelar reinicio clickeado");
+            document.getElementById('restart-confirm-modal').classList.remove('active');
+        });
+    }
+    
+    // 11. Botón OK de ayuda
+    const helpModalOk = document.getElementById('help-modal-ok');
+    if (helpModalOk) {
         console.log("✅ Configurando help-modal-ok");
-        helpModalOkBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            console.log("Cerrar ayuda clickeado");
+        helpModalOk.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("OK ayuda clickeado");
             document.getElementById('help-modal').classList.remove('active');
         });
     }
     
+    // 12. Botón de nueva carrera en la tarjeta
+    const newRaceCardBtn = document.getElementById('new-race-card-btn');
+    if (newRaceCardBtn) {
+        console.log("✅ Configurando new-race-card-btn");
+        newRaceCardBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Nueva carrera (card) clickeado");
+            
+            // Verificar que la función existe
+            if (typeof showNewRaceModal === 'function') {
+                showNewRaceModal();
+            }
+        });
+    }
+    
+    // 13. Botón de editar carrera
+    const editRaceBtn = document.getElementById('edit-race-btn');
+    if (editRaceBtn) {
+        console.log("✅ Configurando edit-race-btn");
+        editRaceBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Editar carrera clickeado");
+            
+            // Verificar que la función existe
+            if (typeof editRaceDetails === 'function') {
+                editRaceDetails();
+            }
+        });
+    }
+    
+    // 14. Botón de guardar edición de carrera
+    const saveEditRaceBtn = document.getElementById('save-edit-race-btn');
+    if (saveEditRaceBtn) {
+        console.log("✅ Configurando save-edit-race-btn");
+        saveEditRaceBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Guardar edición de carrera clickeado");
+            
+            // Verificar que la función existe
+            if (typeof saveEditedRace === 'function') {
+                saveEditedRace();
+            }
+        });
+    }
+    
+    // 15. Botón de cancelar edición de carrera
+    const cancelEditRaceBtn = document.getElementById('cancel-edit-race-btn');
+    if (cancelEditRaceBtn) {
+        console.log("✅ Configurando cancel-edit-race-btn");
+        cancelEditRaceBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Cancelar edición de carrera clickeado");
+            document.getElementById('edit-race-modal').classList.remove('active');
+        });
+    }
+    
+    // 16. Botón de importar orden de salida
+    const importOrderBtn = document.getElementById('import-order-btn');
+    if (importOrderBtn) {
+        console.log("✅ Configurando import-order-btn");
+        importOrderBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Importar orden de salida clickeado");
+            
+            // Verificar que la función existe
+            if (typeof importStartOrder === 'function') {
+                importStartOrder();
+            }
+        });
+    }
+    
+    // 17. Botón de crear plantilla Excel
+    const createTemplateBtn = document.getElementById('create-template-btn');
+    if (createTemplateBtn) {
+        console.log("✅ Configurando create-template-btn");
+        createTemplateBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Crear plantilla Excel clickeado");
+            
+            // Verificar que la función existe
+            if (typeof createStartOrderTemplate === 'function') {
+                createStartOrderTemplate();
+            }
+        });
+    }
+    
+    // 18. Botón de eliminar orden de salida
+    const deleteOrderBtn = document.getElementById('delete-order-btn');
+    if (deleteOrderBtn) {
+        console.log("✅ Configurando delete-order-btn");
+        deleteOrderBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Eliminar orden de salida clickeado");
+            
+            // Verificar que la función existe
+            if (typeof deleteStartOrder === 'function') {
+                deleteStartOrder();
+            }
+        });
+    }
+    
+    // 19. Botón de añadir corredor
+    const addRiderBtn = document.getElementById('add-rider-btn');
+    if (addRiderBtn) {
+        console.log("✅ Configurando add-rider-btn");
+        addRiderBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Añadir corredor clickeado");
+            
+            // Verificar que la función existe
+            if (typeof addNewRider === 'function') {
+                addNewRider();
+            }
+        });
+    }
+    
+    // Marcar como configurado
+    window.modalActionListenersConfigured = true;
     console.log("✅ Listeners de acciones de modales configurados");
+    
+    // Función para debug: mostrar qué botones están configurados
+    if (window.debugModalButtons) {
+        debugModalButtons();
+    }
 }
-
-
 // ============================================
 // FUNCIONES DE IDIOMA - AÑADIR A Main.js o UI.js
 // ============================================
@@ -971,3 +1165,80 @@ function showHelpModal() {
     }
 }
 
+// ============================================
+// FUNCIÓN PARA ACTUALIZAR ESTADO DE BOTONES DE CARRERA
+// ============================================
+function updateRaceActionButtonsState() {
+    console.log("🔄 Actualizando estado de botones de carrera...");
+    
+    // Botones que dependen de tener carrera seleccionada
+    const buttonsToUpdate = [
+        { id: 'delete-race-btn', type: 'danger' },
+        { id: 'delete-race-confirm-btn', type: 'danger' },
+        { id: 'edit-race-btn', type: 'secondary' },
+        { id: 'clear-departures-btn', type: 'warning' },
+        { id: 'backup-race-btn', type: 'info' },
+        { id: 'restore-race-btn', type: 'info' },
+        { id: 'export-order-btn', type: 'success' }
+    ];
+    
+    const hasCurrentRace = !!appState.currentRace;
+    
+    buttonsToUpdate.forEach(button => {
+        const element = document.getElementById(button.id);
+        if (element) {
+            if (hasCurrentRace) {
+                element.disabled = false;
+                element.classList.remove('disabled');
+                element.title = element.getAttribute('data-original-title') || '';
+            } else {
+                element.disabled = true;
+                element.classList.add('disabled');
+                
+                // Guardar título original si no está guardado
+                if (!element.getAttribute('data-original-title')) {
+                    element.setAttribute('data-original-title', element.title);
+                }
+                
+                element.title = "Selecciona una carrera primero";
+            }
+        }
+    });
+    
+    console.log(`✅ Botones de carrera ${hasCurrentRace ? 'HABILITADOS' : 'DESHABILITADOS'}`);
+}
+
+// ============================================
+// CONFIGURAR SELECTOR DE CARRERAS
+// ============================================
+function setupRacesSelectListener() {
+    const racesSelect = document.getElementById('races-select');
+    
+    if (!racesSelect) {
+        console.error("❌ Selector de carreras no encontrado");
+        return;
+    }
+    
+    console.log("Configurando event listener para selector de carreras...");
+    
+    // Remover listeners antiguos si existen
+    racesSelect.removeEventListener('change', handleRacesSelectChange);
+    
+    // Añadir nuevo listener
+    racesSelect.addEventListener('change', handleRacesSelectChange);
+    
+    console.log("✅ Listener de selector de carreras configurado");
+}
+
+function handleRacesSelectChange(event) {
+    const selectedRaceId = parseInt(event.target.value);
+    
+    if (selectedRaceId === 0) {
+        // "Selecciona una carrera" - no hacer nada
+        console.log("Seleccionada opción 'Selecciona una carrera'");
+        return;
+    }
+    
+    console.log("🔄 Cambiando a carrera ID:", selectedRaceId);
+    handleRaceChange(selectedRaceId);
+}

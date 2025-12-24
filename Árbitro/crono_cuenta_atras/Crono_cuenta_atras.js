@@ -3621,15 +3621,19 @@ function setupEventListeners() {
     
     document.getElementById('create-race-btn').addEventListener('click', createNewRace);
     
-    document.getElementById('delete-race-btn').addEventListener('click', () => {
-        const t = translations[appState.currentLanguage];
-        if (!appState.currentRace) {
-            showMessage(t.selectRaceFirst, 'error');
-            return;
-        }
-        document.getElementById('delete-race-modal').classList.add('active');
-    });
+// Modifica el event listener para el botón de borrar carrera
+document.getElementById('delete-race-btn').addEventListener('click', function(e) {
+    e.preventDefault();
     
+    if (!appState.currentRace) {
+        const t = translations[appState.currentLanguage];
+        showMessage(t.selectRaceFirst || 'Selecciona una carrera primero', 'error');
+        return;
+    }
+    
+    // Solo abrir modal si hay carrera seleccionada
+    document.getElementById('delete-race-modal').classList.add('active');
+});
     document.getElementById('delete-race-confirm-btn').addEventListener('click', () => {
         deleteCurrentRace();
     });

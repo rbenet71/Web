@@ -88,178 +88,247 @@ let startOrderData = [];
 // ============================================
 // INICIALIZACIÓN PRINCIPAL - VERSIÓN CORREGIDA
 // ============================================
+// ============================================
+// INICIALIZACIÓN PRINCIPAL DE LA APLICACIÓN
+// ============================================
 function initApp() {
     console.log("Inicializando aplicación Crono CRI...");
     
-    // Variables para controlar inicializaciones únicas
-    let mainListenersConfigured = false;
-    let startOrderListenersConfigured = false;
-    let backupModuleInitialized = false;
+    // Verificar si ya se inicializó
+    if (window.appInitialized) {
+        console.log("La aplicación ya está inicializada");
+        return;
+    }
     
-    // Marcar que la app no está completamente inicializada aún
-    window.appInitialized = false;
+    // Marcar como inicializada
+    window.appInitialized = true;
     
-    // Limpiar datos antiguos
-    if (typeof cleanupOldData === 'function') cleanupOldData();
+    // Inicializar estado global
+    if (!window.appState) {
+        window.appState = {
+            audioType: 'beep',
+            currentLanguage: 'es',
+            soundEnabled: true,
+            aggressiveMode: false,
+            currentRace: null,
+            races: [],
+            countdownActive: false,
+            countdownValue: 0,
+            departureTimes: [],
+            departedCount: 0,
+            intervals: [],
+            currentIntervalIndex: 0,
+            nextCorredorTime: 60,
+            accumulatedTime: 0,
+            countdownPaused: false,
+            configModalOpen: false,
+            raceStartTime: null,
+            audioContext: null,
+            voiceAudioCache: {},
+            deferredPrompt: null,
+            updateAvailable: false
+        };
+    }
     
-    // Cargar preferencias básicas
-    if (typeof loadLanguagePreference === 'function') loadLanguagePreference();
-    if (typeof loadRacesFromStorage === 'function') loadRacesFromStorage();
-    if (typeof loadAppState === 'function') loadAppState();
-    if (typeof loadAudioPreferences === 'function') loadAudioPreferences();
+    // Inicializar estado de llegadas si no existe
+    if (!window.llegadasState) {
+        window.llegadasState = {
+            timerActive: false,
+            startTime: null,
+            currentTime: 0,
+            llegadas: []
+        };
+    }
     
-    // Inicializar UI básica
-    if (typeof updateLanguageUI === 'function') updateLanguageUI();
-    if (typeof updateSalidaText === 'function') updateSalidaText();
-    if (typeof renderRacesSelect === 'function') renderRacesSelect();
+    // Inicializar estado de ordenación si no existe
+    if (!window.sortState) {
+        window.sortState = {
+            column: 'order',
+            direction: 'asc'
+        };
+    }
     
-    // ============================================
-    // CORRECCIÓN CRÍTICA: CARGAR DATOS EN ORDEN CORRECTO
-    // ============================================
+    // Inicializar datos de orden de salida si no existen
+    if (!window.startOrderData) {
+        window.startOrderData = [];
+    }
     
-    // Primero: Cargar los datos de la carrera actual
+    // Cargar preferencia de idioma
+    if (typeof loadLanguagePreference === 'function') {
+        loadLanguagePreference();
+    }
+    
+    // Cargar carreras desde almacenamiento
+    if (typeof loadRacesFromStorage === 'function') {
+        loadRacesFromStorage();
+    }
+    
+    // Si hay carrera guardada como actual, cargarla
+    const savedCurrentRace = localStorage.getItem('countdown-current-race');
+    if (savedCurrentRace) {
+        try {
+            appState.currentRace = JSON.parse(savedCurrentRace);
+            console.log("✅ Carrera actual cargada desde localStorage:", appState.currentRace ? appState.currentRace.name : "Ninguna");
+        } catch (error) {
+            console.error("❌ Error cargando carrera actual:", error);
+            appState.currentRace = null;
+        }
+    }
+    
+    // Cargar estado de la aplicación
+    if (typeof loadAppState === 'function') {
+        loadAppState();
+    }
+    
+    // Actualizar UI al idioma actual
+    if (typeof updateLanguageUI === 'function') {
+        updateLanguageUI();
+    } else {
+        console.error("❌ Función updateLanguageUI no disponible");
+    }
+    
+    // Añadir estilos para botones deshabilitados
+    if (typeof addDisabledButtonStyles === 'function') {
+        addDisabledButtonStyles();
+    }
+    
+    // Actualizar estado inicial de botones
+    if (typeof updateDeleteRaceButtonState === 'function') {
+        updateDeleteRaceButtonState();
+    }
+    
+    if (typeof updateRaceActionButtonsState === 'function') {
+        updateRaceActionButtonsState();
+    }
+    
+    // Renderizar selector de carreras
+    if (typeof renderRacesSelect === 'function') {
+        renderRacesSelect();
+    }
+    
+    // Cargar datos de carrera (si hay carrera seleccionada)
     if (typeof loadRaceData === 'function') {
-        console.log("Cargando datos de carrera...");
         loadRaceData();
     }
     
-    // Segundo: Esperar a que la carrera se cargue antes de cargar el orden de salida
-    setTimeout(() => {
-        console.log("Cargando orden de salida después de carrera...");
-        
-        // Asegurarnos de que startOrderData se cargue desde la carrera actual
-        if (typeof loadStartOrderData === 'function') {
-            loadStartOrderData();
-        } else {
-            console.error("ERROR: loadStartOrderData no está disponible");
-        }
-        
-        // Después de cargar el orden, actualizar la tabla
-        setTimeout(() => {
-            console.log("Actualizando tabla de orden de salida...");
-            console.log("startOrderData disponible?", typeof startOrderData !== 'undefined');
-            console.log("Número de corredores en startOrderData:", startOrderData ? startOrderData.length : 0);
-            
-            if (typeof updateStartOrderTableThrottled === 'function') {
-                updateStartOrderTableThrottled(true); // Forzar actualización inmediata
-            } else if (typeof updateStartOrderTable === 'function') {
-                updateStartOrderTable();
-            }
-            
-            // Actualizar UI relacionada con el orden de salida
-            if (typeof updateStartOrderUI === 'function') {
-                updateStartOrderUI();
-            }
-        }, 100);
-    }, 150); // Esperar a que loadRaceData termine
+    // Configurar inputs de tiempo para móviles
+    if (typeof setupTimeInputs === 'function') {
+        setupTimeInputs();
+    }
     
-    // ============================================
-    // CONTINUAR CON EL RESTO DE LA INICIALIZACIÓN
-    // ============================================
-    
-    // Configurar inputs de tiempo mejorados
-    if (typeof setupTimeInputs === 'function') setupTimeInputs();
-    
-    // Configurar TODOS los listeners (solo una vez)
-    if (typeof setupEventListeners === 'function' && !mainListenersConfigured) {
+    // Configurar event listeners principales
+    if (typeof setupEventListeners === 'function') {
         setupEventListeners();
-        mainListenersConfigured = true;
     }
     
-    if (typeof setupCardToggles === 'function') setupCardToggles();
-    if (typeof setupAudioEventListeners === 'function') setupAudioEventListeners();
-    if (typeof setupModalEventListeners === 'function') setupModalEventListeners();
-    if (typeof setupModalActionListeners === 'function') setupModalActionListeners();
-    if (typeof setupSorting === 'function') setupSorting();
-    if (typeof setupLlegadasEventListeners === 'function') setupLlegadasEventListeners();
-    
-    // Configurar listeners de orden de salida (solo una vez)
-    if (typeof setupStartOrderEventListeners === 'function' && !startOrderListenersConfigured) {
+    // Configurar event listeners de orden de salida
+    if (typeof setupStartOrderEventListeners === 'function') {
         setupStartOrderEventListeners();
-        startOrderListenersConfigured = true;
     }
     
-    // Configurar módulo de backup (solo una vez)
-    if (typeof initBackupModule === 'function' && !window.backupModuleInitialized) {
-        setTimeout(initBackupModule, 1500);
+    // Configurar UI
+    if (typeof setupCardToggles === 'function') {
+        setupCardToggles();
     }
     
-    // Configurar eventos del formulario de carrera
-    if (typeof setupRaceFormEvents === 'function') {
-        setTimeout(setupRaceFormEvents, 500);
+    if (typeof initModeSlider === 'function') {
+        initModeSlider();
     }
     
-    // Configurar ordenación para tabla de orden de salida
-    setTimeout(() => {
-        if (typeof setupStartOrderTableSorting === 'function') {
-            setupStartOrderTableSorting();
-        }
-    }, 500);
+    if (typeof setupModalEventListeners === 'function') {
+        setupModalEventListeners();
+    }
     
-    // Inicializar módulo PDF
-    setTimeout(() => {
-        if (typeof initPDFModule === 'function') {
-            initPDFModule();
-        }
-    }, 1000);
+    if (typeof setupModalActionListeners === 'function') {
+        setupModalActionListeners();
+    }
     
-    // Inicializar timers
-    setInterval(updateSystemTimeDisplay, 1000);
-    setInterval(updateTimeDifference, 1000);
-    setInterval(updateTotalTime, 1000);
-    setInterval(updateCurrentTime, 1000);
+    if (typeof setupLanguageButtons === 'function') {
+        setupLanguageButtons();
+    }
     
-    // Inicializar modo slider
-    setTimeout(() => {
-        if (typeof initModeSlider === 'function') initModeSlider();
-    }, 300);
-    
-    // Precargar audios
-    setTimeout(() => {
-        if (typeof verifyAudioFiles === 'function') verifyAudioFiles();
-    }, 1500);
-    setTimeout(() => {
-        if (typeof preloadVoiceAudios === 'function') preloadVoiceAudios();
-    }, 2000);
+    // Configurar Service Worker (PWA)
+    if (typeof setupServiceWorker === 'function') {
+        setupServiceWorker();
+    }
     
     // Configurar PWA
-    if (typeof setupServiceWorker === 'function') setupServiceWorker();
-    if (typeof setupPWA === 'function') setupPWA();
-    if (typeof setupCountdownResize === 'function') setupCountdownResize();
-    
-    // Eventos de audio
-    document.addEventListener('click', initAudioOnInteraction);
-    document.addEventListener('keydown', initAudioOnInteraction);
+    if (typeof setupPWA === 'function') {
+        setupPWA();
+    }
     
     // Inicializar tarjeta de gestión de carrera
     if (typeof initRaceManagementCard === 'function') {
         initRaceManagementCard();
-        console.log("Tarjeta de gestión de carrera inicializada");
     }
     
-    // Actualizar título inicial de la tarjeta de gestión
+    // Cargar orden de salida después de carrera
+    if (typeof loadStartOrderData === 'function') {
+        loadStartOrderData();
+    }
+    
+    // Actualizar tabla de orden de salida
+    console.log("Actualizando tabla de orden de salida...");
+    console.log("startOrderData disponible?", !!startOrderData);
+    if (startOrderData) {
+        console.log("Número de corredores en startOrderData:", startOrderData.length);
+    }
+    
+    if (typeof updateStartOrderTableThrottled === 'function') {
+        updateStartOrderTableThrottled();
+    }
+    
+    // Inicializar selector de modo
+    if (typeof initModeSlider === 'function') {
+        // Ya se llamó arriba, pero llamamos a la función específica si existe separada
+    }
+    
+    // Configurar eventos del formulario de carrera
+    if (typeof setupRaceFormEvents === 'function') {
+        setupRaceFormEvents();
+    }
+    
+    // Configurar ordenación para tabla
+    if (typeof setupStartOrderTableSorting === 'function') {
+        setupStartOrderTableSorting();
+    }
+    
+    // Inicializar módulo PDF
+    if (typeof initPDFModule === 'function') {
+        initPDFModule();
+    }
+    
+    // Inicializar módulo de backup
+    if (typeof initBackupModule === 'function') {
+        initBackupModule();
+    }
+    
+    // Precargar audios
+    if (typeof preloadVoiceAudios === 'function') {
+        preloadVoiceAudios();
+    }
+    
+    // Configurar botón de exportar PDF
+    if (typeof setupPDFExportButton === 'function') {
+        setupPDFExportButton();
+    }
+    
+    // Actualizar título de gestión de carrera
     if (typeof updateRaceManagementCardTitle === 'function') {
-        setTimeout(() => {
-            updateRaceManagementCardTitle();
-            console.log("Título de gestión de carrera actualizado inicialmente");
-        }, 200); // Dar más tiempo después de cargar la carrera
+        updateRaceManagementCardTitle();
     }
     
-    // Marcar como inicializada después de que todo esté listo
+    console.log("Aplicación inicializada correctamente");
+    console.log("Estado final:");
+    console.log("- Carrera actual:", appState.currentRace ? appState.currentRace.name : "Ninguna");
+    console.log("- Corredores en orden de salida:", startOrderData ? startOrderData.length : 0);
+    
+    // Marcar como completamente inicializada
     setTimeout(() => {
-        window.appInitialized = true;
-        console.log("Aplicación inicializada correctamente");
-        console.log("Estado final:");
-        console.log("- Carrera actual:", appState.currentRace ? appState.currentRace.name : "Ninguna");
-        console.log("- Corredores en orden de salida:", startOrderData ? startOrderData.length : 0);
-    }, 300);
-    
-    // Configurar botones de idioma
-    setupLanguageButtons();
-    
-    console.log("Aplicación inicializando...");
+        window.appFullyInitialized = true;
+        console.log("✅ Aplicación completamente inicializada y lista");
+    }, 500);
 }
-
 // Guardar estado antes de cerrar
 window.addEventListener('beforeunload', () => {
     if (appState.countdownActive) {
@@ -343,15 +412,7 @@ function setupEventListeners() {
         });
     }
     
-    // 7. Botón de importar Excel
-    const importExcelBtn = document.getElementById('import-excel-btn');
-    if (importExcelBtn) {
-        importExcelBtn.addEventListener('click', function() {
-            if (typeof importExcelTemplate === 'function') {
-                importExcelTemplate();
-            }
-        });
-    }
+
     
     // 8. Botón de exportar Excel
     const exportExcelBtn = document.getElementById('export-excel-btn');
@@ -616,41 +677,70 @@ function setupStartOrderEventListeners() {
 // ============================================
 // MANEJADORES DE EVENTOS
 // ============================================
-function handleRaceChange() {
-    const index = parseInt(this.value);
-    if (index >= 0 && index < appState.races.length) {
-        if (appState.currentRace) {
-            saveRaceData();
-        }
-        
-        appState.currentRace = appState.races[index];
-        loadRaceData();
-        saveRacesToStorage();
-        onRaceChanged();
-        
-        // AÑADIR ESTO: Actualizar título de la tarjeta de gestión
-        if (typeof updateRaceManagementCardTitle === 'function') {
-            updateRaceManagementCardTitle();
-        }
-    } else {
-        appState.currentRace = null;
-        appState.departureTimes = [];
-        appState.departedCount = 0;
-        appState.intervals = [];
-        
-        document.getElementById('departed-count').textContent = 0;
-        document.getElementById('start-position').value = 1;
-        renderDeparturesList();
-        
-        // AÑADIR ESTO: Actualizar título de la tarjeta de gestión cuando no hay carrera
-        if (typeof updateRaceManagementCardTitle === 'function') {
-            updateRaceManagementCardTitle();
-        }
+// ============================================
+// FUNCIÓN CORREGIDA PARA CAMBIAR DE CARRERA
+// ============================================
+function handleRaceChange(raceId) {
+    console.log("🔄 Cambiando carrera a ID:", raceId);
+    
+    if (!raceId || raceId === 0) {
+        console.log("⚠️ ID de carrera inválido o 0");
+        return;
     }
+    
+    // Encontrar la carrera seleccionada
+    const selectedRace = appState.races.find(r => r.id === raceId);
+    
+    if (!selectedRace) {
+        console.error("❌ No se encontró la carrera con ID:", raceId);
+        const t = translations[appState.currentLanguage];
+        showMessage(t.raceNotFound || 'Carrera no encontrada', 'error');
+        return;
+    }
+    
+    console.log("✅ Carrera encontrada:", selectedRace.name);
+    
+    // 1. Establecer nueva carrera como actual
+    appState.currentRace = selectedRace;
+    
+    // 2. Guardar en localStorage
+    localStorage.setItem('countdown-current-race', JSON.stringify(selectedRace));
+    
+    // 3. Cargar datos de la nueva carrera
+    if (typeof loadRaceData === 'function') {
+        loadRaceData();
+    }
+    
+    if (typeof loadStartOrderData === 'function') {
+        loadStartOrderData();
+    }
+    
+    // 4. Actualizar UI
+    if (typeof updateRaceManagementCardTitle === 'function') {
+        updateRaceManagementCardTitle();
+    }
+    
+    if (typeof updateDeleteRaceButtonState === 'function') {
+        updateDeleteRaceButtonState();
+    }
+    
+    if (typeof updateRaceActionButtonsState === 'function') {
+        updateRaceActionButtonsState();
+    }
+    
+    // 5. Actualizar el selector para mostrar la opción seleccionada
+    const racesSelect = document.getElementById('races-select');
+    if (racesSelect) {
+        racesSelect.value = selectedRace.id;
+        console.log("✅ Selector actualizado a carrera:", selectedRace.name);
+    }
+    
+    console.log(`✅ Carrera cambiada a: ${selectedRace.name} (ID: ${selectedRace.id})`);
+    
+    // 6. Mostrar mensaje de confirmación
+    const t = translations[appState.currentLanguage];
+    showMessage(`${t.raceSelected || 'Carrera seleccionada'}: ${selectedRace.name}`, 'success');
 }
-
-
-
 function handleKeyboardShortcuts(e) {
     // ESC para pausar cuenta atrás
     if (e.key === 'Escape' && appState.countdownActive && !appState.configModalOpen) {

@@ -109,6 +109,11 @@ function loadRaceData() {
         return;
     }
     
+    console.log("🚀 =========================================");
+    console.log("🚀 CARGA DE DATOS PARA CARRERA:", appState.currentRace.name);
+    console.log("🚀 ID:", appState.currentRace.id);
+    console.log("🚀 =========================================");
+    
     console.log("Cargando datos para carrera:", appState.currentRace.name);
     
     // Cargar datos específicos de la carrera
@@ -125,18 +130,29 @@ function loadRaceData() {
             appState.departedCount = data.departedCount || 0;
             appState.intervals = data.intervals || [];
             
-            // CARGAR DATOS DE ORDEN DE SALIDA (CRÍTICO)
+            // CRÍTICO: CARGAR startOrderData DESDE LA CARRERA
+            // Prioridad 1: startOrderData del archivo de carrera
             if (data.startOrderData && data.startOrderData.length > 0) {
                 startOrderData = [...data.startOrderData];
-                console.log("Cargados", startOrderData.length, "corredores desde datos de carrera");
-                
-                // Actualizar también en la carrera actual
                 appState.currentRace.startOrder = [...data.startOrderData];
-            } else if (data.startOrder && data.startOrder.length > 0) {
-                // Formato alternativo (para compatibilidad)
+                console.log("Cargados", startOrderData.length, "corredores desde datos de carrera (startOrderData)");
+            } 
+            // Prioridad 2: startOrder del archivo de carrera (formato alternativo)
+            else if (data.startOrder && data.startOrder.length > 0) {
                 startOrderData = [...data.startOrder];
                 appState.currentRace.startOrder = [...data.startOrder];
-                console.log("Cargados", startOrderData.length, "corredores (formato alternativo)");
+                console.log("Cargados", startOrderData.length, "corredores desde datos de carrera (startOrder)");
+            }
+            // Prioridad 3: startOrder de la carrera actual en memoria
+            else if (appState.currentRace.startOrder && appState.currentRace.startOrder.length > 0) {
+                startOrderData = [...appState.currentRace.startOrder];
+                console.log("Cargados", startOrderData.length, "corredores desde carrera en memoria");
+            }
+            // Sin datos
+            else {
+                startOrderData = [];
+                appState.currentRace.startOrder = [];
+                console.log("Sin datos de orden de salida para esta carrera");
             }
             
             console.log("Datos de carrera cargados:");
@@ -204,70 +220,91 @@ function initializeEmptyData() {
 
 // Cargar datos del orden de salida
 // En Storage_Pwa.js - Función loadStartOrderData modificada
+// FUNCIÓN MEJORADA PARA CARGAR DATOS DE ORDEN DE SALIDA
 function loadStartOrderData() {
     console.log("Cargando datos de orden de salida...");
     
-    // PRIMERO: Intentar cargar desde la carrera actual
-    if (appState.currentRace && appState.currentRace.startOrder) {
-        startOrderData = appState.currentRace.startOrder;
-        console.log(`✅ Cargado desde carrera actual: ${startOrderData.length} corredores`);
-        console.log("🔍 Primer corredor si existe:", startOrderData.length > 0 ? startOrderData[0] : "vacío");
-    } 
-    // SEGUNDO: Intentar cargar desde localStorage global (múltiples fuentes)
-    else {
-        // Mostrar todas las claves disponibles
-        console.log("🔍 Buscando claves en localStorage:");
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key.includes('start') || key.includes('order') || key.includes('cri')) {
-                console.log(`   - ${key}: ${localStorage.getItem(key).length} chars`);
-            }
-        }
+    if (!appState.currentRace) {
+        // SI NO HAY CARRERA, LIMPIAR TODO
+        startOrderData = [];
+        console.log("⚠️ No hay carrera seleccionada, limpiando datos");
         
-        // Intentar múltiples claves de localStorage
-        const storedData = localStorage.getItem('cri_start_order_data') ||
-                          localStorage.getItem('start-order-data') ||
-                          localStorage.getItem('start_order_data');
-        
-        if (storedData) {
-            try {
-                startOrderData = JSON.parse(storedData);
-                console.log(`✅ Cargado desde localStorage (${storedData.length} chars): ${startOrderData.length} corredores`);
-                console.log("🔍 Ejemplo de datos:", startOrderData.slice(0, 2));
-                
-                // Si hay carrera actual, actualizarla
-                if (appState.currentRace) {
-                    appState.currentRace.startOrder = [...startOrderData];
-                    console.log("✅ Datos de orden copiados a la carrera actual");
-                    
-                    // Guardar inmediatamente
-                    saveRacesToStorage();
-                }
-            } catch (error) {
-                console.error("❌ Error parsing startOrderData:", error);
-                startOrderData = [];
-            }
-        } else {
-            startOrderData = [];
-            console.log("⚠️ No hay datos de orden de salida en localStorage");
+        // ACTUALIZAR TABLA VACÍA
+        if (typeof updateStartOrderTableThrottled === 'function') {
+            updateStartOrderTableThrottled(true);
         }
+        return;
     }
     
-    // Actualizar UI
-    updateStartOrderUI();
+    console.log("Para carrera:", appState.currentRace.name, "ID:", appState.currentRace.id);
     
-    console.log(`📊 Orden de salida cargado: ${startOrderData.length} corredores`);
+    // ESTRATEGIA MEJORADA: SOLO CARGAR DATOS DE LA CARRERA ACTUAL
+    const raceKey = `race-${appState.currentRace.id}`;
+    const raceData = localStorage.getItem(raceKey);
     
-    // Si hay datos pero no se muestran, forzar actualización
-    if (startOrderData.length > 0) {
-        setTimeout(() => {
-            console.log("🔄 Forzando actualización de tabla después de carga...");
-            if (typeof updateStartOrderTable === 'function') {
-                updateStartOrderTable();
+    if (raceData) {
+        try {
+            const data = JSON.parse(raceData);
+            
+            // CARGAR DATOS ESPECÍFICOS DE ESTA CARRERA
+            if (data.startOrderData && data.startOrderData.length > 0) {
+                startOrderData = [...data.startOrderData];
+                appState.currentRace.startOrder = [...data.startOrderData];
+                console.log(`✅ Cargado desde carrera específica: ${startOrderData.length} corredores`);
+            } else {
+                // CARRERA SIN DATOS - LIMPIAR
+                startOrderData = [];
+                appState.currentRace.startOrder = [];
+                console.log("⚠️ Carrera sin datos de orden de salida");
             }
-        }, 500);
+            
+            // ACTUALIZAR OTROS DATOS DE LA CARRERA
+            if (data.departureTimes) {
+                appState.departureTimes = [...data.departureTimes];
+            }
+            
+            if (data.departedCount !== undefined) {
+                appState.departedCount = data.departedCount;
+            }
+            
+        } catch (error) {
+            console.error("❌ Error parsing race data:", error);
+            startOrderData = [];
+            appState.currentRace.startOrder = [];
+        }
+    } else {
+        // NO HAY DATOS PARA ESTA CARRERA - LIMPIAR TODO
+        startOrderData = [];
+        appState.currentRace.startOrder = [];
+        appState.departureTimes = [];
+        appState.departedCount = 0;
+        console.log("⚠️ No hay datos guardados para esta carrera");
+    }
+    
+    // LIMPIAR DATOS GLOBALES QUE NO PERTENECEN A ESTA CARRERA
+    localStorage.removeItem('start-order-data');
+    localStorage.removeItem('cri_start_order_data');
+    
+    console.log(`📊 Orden de salida cargado para "${appState.currentRace.name}": ${startOrderData.length} corredores`);
+    
+    // ACTUALIZAR UI
+    if (typeof updateStartOrderUI === 'function') {
+        updateStartOrderUI();
+    }
+    
+    // Forzar actualización de tabla
+    if (typeof updateStartOrderTableThrottled === 'function') {
+        if (window.updateStartOrderTableTimeout) {
+            clearTimeout(window.updateStartOrderTableTimeout);
+            window.updateStartOrderTableTimeout = null;
+        }
+        
+        updateStartOrderTableThrottled(true);
+        console.log("✅ Tabla actualizada inmediatamente");
     }
 }
+
+
 // Guardar estado de la aplicación
 function saveAppState() {
     if (appState.countdownActive) {
@@ -294,65 +331,106 @@ function saveRaceData() {
         return;
     }
     
-    const raceIndex = appState.races.findIndex(r => r.id === appState.currentRace.id);
+    console.log("💾 Guardando carrera:", appState.currentRace.name, "ID:", appState.currentRace.id);
+    
+    // BUSCAR CARRERA EN ARRAY - CON MANEJO DE ERRORES
+    let raceIndex = appState.races.findIndex(r => r.id === appState.currentRace.id);
+    
     if (raceIndex === -1) {
-        console.log("Carrera no encontrada en el array");
-        return;
+        console.log("⚠️ Carrera no encontrada en array, buscando alternativa...");
+        
+        // Intentar encontrar por nombre como fallback
+        raceIndex = appState.races.findIndex(r => r.name === appState.currentRace.name);
+        
+        if (raceIndex === -1) {
+            console.log("⚠️ Carrera no existe en array, CREANDOLA...");
+            
+            // Crear carrera básica si no existe
+            const newRace = {
+                id: appState.currentRace.id || Date.now(),
+                name: appState.currentRace.name || "Carrera sin nombre",
+                date: appState.currentRace.date || new Date().toISOString().split('T')[0],
+                firstStartTime: appState.currentRace.firstStartTime || "09:00:00",
+                createdAt: appState.currentRace.createdAt || new Date().toISOString(),
+                lastModified: new Date().toISOString(),
+                startOrder: [],
+                departures: [],
+                intervals: []
+            };
+            
+            appState.races.push(newRace);
+            raceIndex = appState.races.length - 1;
+            appState.currentRace = newRace;
+            console.log("✅ Nueva carrera creada en array");
+        } else {
+            console.log("✅ Carrera encontrada por nombre, actualizando ID");
+            // Actualizar ID para que coincida
+            appState.races[raceIndex].id = appState.currentRace.id;
+        }
     }
     
     // GUARDAR HORA DE INICIO ACTUAL
     const currentFirstStartTime = document.getElementById('first-start-time')?.value || "09:00:00";
     
-    // GUARDAR DATOS DE ORDEN DE SALIDA (CRÍTICO)
-    // Asegurar que startOrderData esté disponible
+    // CRÍTICO: GUARDAR startOrderData EN LA CARRERA ACTUAL
     let orderToSave = [];
+    
+    console.log("💾 Estado antes de guardar:", {
+        startOrderDataLength: startOrderData ? startOrderData.length : 0,
+        carreraStartOrderLength: appState.currentRace.startOrder ? appState.currentRace.startOrder.length : 0,
+        carreraName: appState.currentRace.name
+    });
+    
+    // CASO 1: startOrderData tiene datos
     if (startOrderData && startOrderData.length > 0) {
         orderToSave = [...startOrderData];
-        console.log("Guardando", orderToSave.length, "corredores en el orden de salida");
-    } else {
-        console.log("No hay datos de orden de salida para guardar");
+        appState.currentRace.startOrder = [...startOrderData];
+        console.log("💾 Guardados", orderToSave.length, "corredores desde startOrderData");
+    } 
+    // CASO 2: startOrderData vacío PERO la carrera tiene datos
+    else if (appState.currentRace.startOrder && appState.currentRace.startOrder.length > 0) {
+        orderToSave = [...appState.currentRace.startOrder];
+        console.log("💾 Manteniendo datos existentes de la carrera:", orderToSave.length, "corredores");
+    }
+    // CASO 3: Ambos vacíos
+    else {
+        orderToSave = [];
+        appState.currentRace.startOrder = [];
+        console.log("💾 Sin datos de orden de salida para guardar");
     }
     
-    // Crear el objeto actualizado de carrera CON TODOS LOS DATOS
+    // Crear carrera actualizada
     const updatedRace = {
         ...appState.currentRace,
         firstStartTime: currentFirstStartTime,
         departures: appState.departureTimes ? [...appState.departureTimes] : [],
         intervals: appState.intervals ? [...appState.intervals] : [],
-        startOrder: orderToSave, // <-- AQUÍ ESTÁ LA CLAVE
+        startOrder: orderToSave,
         lastModified: new Date().toISOString()
     };
     
-    // Actualizar tanto el array como la carrera actual
+    // Actualizar array y carrera actual
     appState.races[raceIndex] = updatedRace;
     appState.currentRace = updatedRace;
     
-    // Guardar EN LOCALSTORAGE CON LA CLAVE CORRECTA
+    // Guardar en localStorage específico de la carrera
     const raceKey = `race-${appState.currentRace.id}`;
     const raceDataToSave = {
         raceStartTime: appState.raceStartTime || null,
         departureTimes: appState.departureTimes || [],
         departedCount: appState.departedCount || 0,
         intervals: appState.intervals || [],
-        // AÑADIR startOrderData EXPLÍCITAMENTE
         startOrderData: orderToSave
     };
     
     localStorage.setItem(raceKey, JSON.stringify(raceDataToSave));
-    console.log("Datos de carrera guardados en localStorage con clave:", raceKey);
+    console.log("💾 Datos guardados en localStorage:", raceKey);
     
-    // También guardar en la estructura general de carreras
+    // Guardar array de carreras
     saveRacesToStorage();
     
-    // GUARDAR startOrderData SEPARADAMENTE para compatibilidad
-    if (orderToSave.length > 0) {
-        localStorage.setItem('start-order-data', JSON.stringify(orderToSave));
-    }
-    
-    console.log("Datos COMPLETOS guardados para carrera:", appState.currentRace.name);
-    console.log("- Hora inicio:", currentFirstStartTime);
-    console.log("- Salidas:", appState.departureTimes.length);
-    console.log("- Orden de salida:", orderToSave.length, "corredores");
+    console.log("✅ Datos guardados para:", appState.currentRace.name);
+    console.log("   - Corredores:", orderToSave.length);
 }
 
 // Guardar todas las carreras
@@ -379,44 +457,73 @@ function saveStartOrderData() {
 // ============================================
 // FUNCIONES DE GESTIÓN DE CARRERAS
 // ============================================
+// ============================================
+// FUNCIÓN CORREGIDA PARA CREAR NUEVA CARRERA
+// ============================================
 function createNewRace() {
     const t = translations[appState.currentLanguage];
     
-    // Obtener valores del formulario
-    const name = document.getElementById('new-race-name').value.trim();
-    const date = document.getElementById('new-race-date').value;
-    const category = document.getElementById('new-race-category').value;
-    const organizer = document.getElementById('new-race-organizer').value.trim();
-    const location = document.getElementById('new-race-location').value.trim();
-    const description = document.getElementById('new-race-description').value.trim();
+    console.log("Creando nueva carrera...");
     
-    // Obtener modalidad
-    const modalityInput = document.querySelector('input[name="modality"]:checked');
-    let modality = modalityInput ? modalityInput.value : 'CRI';
-    let otherModality = '';
+    // Obtener valores del formulario CON VERIFICACIÓN
+    const nameInput = document.getElementById('new-race-name');
+    const dateInput = document.getElementById('new-race-date');
+    const categoryInput = document.getElementById('new-race-category');
+    const organizerInput = document.getElementById('new-race-organizer');
+    const locationInput = document.getElementById('new-race-location');
+    const descriptionInput = document.getElementById('new-race-description');
     
-    if (modality === 'Otras') {
-        otherModality = document.getElementById('new-race-other-modality').value.trim();
-        if (otherModality) {
-            modality = otherModality;
-        }
+    // Verificar que los elementos existen
+    if (!nameInput || !dateInput) {
+        console.error("❌ Elementos del formulario no encontrados");
+        showMessage("Error: Formulario incompleto", 'error');
+        return;
     }
+    
+    const name = nameInput.value.trim();
+    const date = dateInput.value;
+    const category = categoryInput ? categoryInput.value : '';
+    const organizer = organizerInput ? organizerInput.value.trim() : '';
+    const location = locationInput ? locationInput.value.trim() : '';
+    const description = descriptionInput ? descriptionInput.value.trim() : '';
     
     // Validaciones
     if (!name) {
-        showMessage(t.enterRaceName, 'error');
+        showMessage(t.enterRaceName || 'Introduce un nombre para la carrera', 'error');
+        nameInput.focus();
         return;
     }
     
     if (!date) {
-        showMessage(t.enterValidDate, 'error');
+        showMessage(t.enterValidDate || 'Introduce una fecha válida', 'error');
+        dateInput.focus();
         return;
     }
     
-    // Obtener hora de inicio predeterminada
-    const firstStartTime = document.getElementById('first-start-time').value || "09:00:00";
+    // Obtener modalidad
+    let modality = 'CRI';
+    let otherModality = '';
     
-    // Crear objeto de carrera con todos los datos
+    const modalityInput = document.querySelector('input[name="modality"]:checked');
+    if (modalityInput) {
+        modality = modalityInput.value;
+        
+        if (modality === 'Otras') {
+            const otherModalityInput = document.getElementById('new-race-other-modality');
+            if (otherModalityInput) {
+                otherModality = otherModalityInput.value.trim();
+                if (otherModality) {
+                    modality = otherModality;
+                }
+            }
+        }
+    }
+    
+    // Obtener hora de inicio predeterminada
+    const firstStartTimeInput = document.getElementById('first-start-time');
+    const firstStartTime = firstStartTimeInput ? firstStartTimeInput.value : "09:00:00";
+    
+    // Crear objeto de carrera - INICIALIZAR CORRECTAMENTE
     const newRace = {
         id: Date.now(),
         name: name,
@@ -438,6 +545,8 @@ function createNewRace() {
         }
     };
     
+    console.log("✅ Nueva carrera creada:", newRace);
+    
     // Añadir a la lista de carreras
     appState.races.push(newRace);
     appState.currentRace = newRace;
@@ -449,32 +558,78 @@ function createNewRace() {
     
     // Resetear datos de orden de salida
     startOrderData = [];
-    document.getElementById('total-riders').value = 1;
-    updateStartOrderTableThrottled();
+    
+    // Actualizar campo total de corredores
+    const totalRidersInput = document.getElementById('total-riders');
+    if (totalRidersInput) {
+        totalRidersInput.value = 1;
+    }
     
     // Actualizar UI
-    document.getElementById('departed-count').textContent = 0;
-    document.getElementById('start-position').value = 1;
-    renderDeparturesList();
+    const departedCountElement = document.getElementById('departed-count');
+    if (departedCountElement) {
+        departedCountElement.textContent = 0;
+    }
+    
+    const startPositionInput = document.getElementById('start-position');
+    if (startPositionInput) {
+        startPositionInput.value = 1;
+    }
+    
+    // Actualizar tabla
+    if (typeof updateStartOrderTableThrottled === 'function') {
+        updateStartOrderTableThrottled();
+    }
+    
+    // Actualizar lista de salidas
+    if (typeof renderDeparturesList === 'function') {
+        renderDeparturesList();
+    }
     
     // Guardar y actualizar
     saveRacesToStorage();
-    renderRacesSelect();
     
-    // AÑADIR ESTO: Actualizar título de la tarjeta de gestión
+    // Actualizar selector de carreras
+    if (typeof renderRacesSelect === 'function') {
+        renderRacesSelect();
+    }
+    
+    // Actualizar título de la tarjeta de gestión
     if (typeof updateRaceManagementCardTitle === 'function') {
         updateRaceManagementCardTitle();
     }
     
+    // Actualizar estado de botones
+    if (typeof updateDeleteRaceButtonState === 'function') {
+        updateDeleteRaceButtonState();
+    }
+    
+    if (typeof updateRaceActionButtonsState === 'function') {
+        updateRaceActionButtonsState();
+    }
+    
     // Cerrar modal y limpiar formulario
-    document.getElementById('new-race-modal').classList.remove('active');
-    resetRaceForm();
+    const newRaceModal = document.getElementById('new-race-modal');
+    if (newRaceModal) {
+        newRaceModal.classList.remove('active');
+    }
+    
+    // Resetear formulario
+    if (typeof resetRaceForm === 'function') {
+        resetRaceForm();
+    }
     
     // Mostrar mensaje de éxito
-    showMessage(t.raceCreated, 'success');
+    showMessage(t.raceCreated || 'Carrera creada correctamente', 'success');
     
-    console.log("Nueva carrera creada:", newRace);
+    console.log("✅ Proceso de creación completado:", {
+        carrera: newRace.name,
+        id: newRace.id,
+        carrerasTotales: appState.races.length
+    });
 }
+
+
 // ============================================
 // NUEVA FUNCIÓN: MOSTRAR MODAL PARA CREAR NUEVA CARRERA
 // ============================================
@@ -543,70 +698,196 @@ function resetRaceForm() {
     document.getElementById('other-modality-container').style.display = 'none';
 }
 
+
+// ============================================
+// FUNCIÓN CORREGIDA PARA ELIMINAR CARRERA
+// ============================================
+// ============================================
+// FUNCIÓN COMPLETAMENTE CORREGIDA PARA ELIMINAR CARRERA
+// ============================================
 function deleteCurrentRace() {
-    if (!appState.currentRace) return;
+    console.log("🗑️ INICIANDO ELIMINACIÓN DE CARRERA...");
+    
+    if (!appState.currentRace) {
+        console.error("❌ No hay carrera seleccionada para eliminar");
+        const t = translations[appState.currentLanguage];
+        showMessage(t.selectRaceFirst || 'Selecciona una carrera primero', 'error');
+        return;
+    }
     
     const t = translations[appState.currentLanguage];
-    const raceIndex = appState.races.findIndex(r => r.id === appState.currentRace.id);
-    if (raceIndex !== -1) {
-        appState.races.splice(raceIndex, 1);
-        appState.currentRace = null;
-        
-        if (appState.countdownActive) {
-            stopCountdown();
-            const countdownScreen = document.getElementById('countdown-screen');
-            if (countdownScreen) {
-                countdownScreen.classList.remove('active');
-            }
-            document.querySelectorAll('.hide-on-countdown').forEach(el => {
-                el.style.display = '';
-            });
-        }
-        
-        appState.departureTimes = [];
-        appState.departedCount = 0;
-        appState.intervals = [];
-        
-        // Resetear orden de salida
-        startOrderData = [];
-        document.getElementById('first-start-time').value = "09:00:00";
-        document.getElementById('total-riders').value = 1;
-        updateStartOrderTableThrottled();
-        
-        const startPositionInput = document.getElementById('start-position');
-        if (startPositionInput) {
-            startPositionInput.value = 1;
-        }
-        
-        const departedCountElement = document.getElementById('departed-count');
-        if (departedCountElement) {
-            departedCountElement.textContent = 0;
-        }
-        
-        const singleIntervalConfig = document.getElementById('single-interval-config');
-        const variableIntervalConfig = document.getElementById('variable-interval-config');
-        
-        if (singleIntervalConfig && variableIntervalConfig) {
-            singleIntervalConfig.style.display = 'block';
-            variableIntervalConfig.style.display = 'none';
-        }
-        
-        saveRacesToStorage();
-        renderRacesSelect();
-        renderDeparturesList();
-        
-        // AÑADIR ESTO: Actualizar título de la tarjeta de gestión
-        if (typeof updateRaceManagementCardTitle === 'function') {
-            updateRaceManagementCardTitle();
-        }
-        
-        const deleteModal = document.getElementById('delete-race-modal');
-        if (deleteModal) {
-            deleteModal.classList.remove('active');
-        }
-        
-        showMessage(t.raceDeleted, 'success');
+    const raceName = appState.currentRace.name;
+    const raceId = appState.currentRace.id;
+    
+    console.log("Carrera a eliminar:", raceName, "ID:", raceId);
+    console.log("Total carreras antes:", appState.races.length);
+    
+    // 1. Buscar carrera en array por ID (ESTO ES CRÍTICO)
+    const raceIndex = appState.races.findIndex(r => {
+        // Buscar por ID primero
+        if (r.id === raceId) return true;
+        // Si no encuentra por ID, buscar por nombre (fallback)
+        if (r.name === raceName) return true;
+        return false;
+    });
+    
+    if (raceIndex === -1) {
+        console.error("❌ Carrera no encontrada en array");
+        console.log("Estado actual de carreras:", appState.races);
+        showMessage(`Error: No se pudo encontrar la carrera "${raceName}"`, 'error');
+        return;
     }
+    
+    console.log("✅ Carrera encontrada en posición:", raceIndex, "ID:", appState.races[raceIndex].id);
+    
+    // 2. Eliminar del array
+    const deletedRace = appState.races.splice(raceIndex, 1)[0];
+    console.log("✅ Carrera eliminada del array:", deletedRace.name);
+    console.log("Total carreras después:", appState.races.length);
+    
+    // 3. Eliminar datos específicos de la carrera de localStorage
+    const raceKey = `race-${raceId}`;
+    localStorage.removeItem(raceKey);
+    console.log("🗑️ Datos de carrera eliminados de localStorage:", raceKey);
+    
+    // 4. Limpiar estado si la carrera eliminada era la actual
+    appState.currentRace = null;
+    startOrderData = [];
+    appState.departureTimes = [];
+    appState.departedCount = 0;
+    appState.intervals = [];
+    appState.raceStartTime = null;
+    appState.countdownActive = false;
+    appState.countdownValue = 0;
+    appState.countdownPaused = false;
+    
+    // 5. Detener procesos activos
+    if (appState.countdownActive) {
+        console.log("⏹️ Deteniendo cuenta atrás activa...");
+        if (typeof stopCountdown === 'function') {
+            stopCountdown();
+        }
+        
+        const countdownScreen = document.getElementById('countdown-screen');
+        if (countdownScreen) {
+            countdownScreen.classList.remove('active');
+        }
+        
+        document.querySelectorAll('.hide-on-countdown').forEach(el => {
+            el.style.display = '';
+        });
+    }
+    
+    // 6. Resetear UI - LIMPIAR TODOS LOS CAMPOS
+    console.log("🔄 Reseteando UI...");
+    
+    // Lista de elementos a resetear
+    const elementsToReset = [
+        { id: 'first-start-time', defaultValue: '09:00:00' },
+        { id: 'total-riders', defaultValue: '1' },
+        { id: 'start-position', defaultValue: '1' },
+        { id: 'interval-minutes', defaultValue: '1' },
+        { id: 'interval-seconds', defaultValue: '0' }
+    ];
+    
+    elementsToReset.forEach(item => {
+        const element = document.getElementById(item.id);
+        if (element) {
+            element.value = item.defaultValue;
+            console.log(`✅ ${item.id} resetado a: ${item.defaultValue}`);
+        }
+    });
+    
+    const departedCountElement = document.getElementById('departed-count');
+    if (departedCountElement) {
+        departedCountElement.textContent = '0';
+        console.log("✅ departed-count resetado a 0");
+    }
+    
+    const totalTimeElement = document.getElementById('total-time-value');
+    if (totalTimeElement) {
+        totalTimeElement.textContent = '00:00:00';
+    }
+    
+    // 7. Forzar actualización de tabla (VACÍA)
+    if (typeof updateStartOrderTableThrottled === 'function') {
+        // Limpiar timeout si existe
+        if (window.updateStartOrderTableTimeout) {
+            clearTimeout(window.updateStartOrderTableTimeout);
+            window.updateStartOrderTableTimeout = null;
+        }
+        
+        // Forzar actualización inmediata
+        setTimeout(() => {
+            updateStartOrderTableThrottled(true);
+            console.log("✅ Tabla actualizada a vacío");
+        }, 10);
+    }
+    
+    // 8. Actualizar lista de salidas
+    if (typeof renderDeparturesList === 'function') {
+        renderDeparturesList();
+        console.log("✅ Lista de salidas actualizada");
+    }
+    
+    // 9. Guardar cambios en localStorage (CRÍTICO)
+    console.log("💾 Guardando cambios en localStorage...");
+    
+    // Guardar array actualizado de carreras
+    localStorage.setItem('countdown-races', JSON.stringify(appState.races));
+    console.log("✅ Array de carreras guardado:", appState.races.length, "carreras");
+    
+    // Eliminar carrera actual del localStorage
+    localStorage.removeItem('countdown-current-race');
+    console.log("✅ Carrera actual eliminada de localStorage");
+    
+    // Eliminar datos globales antiguos
+    localStorage.removeItem('start-order-data');
+    localStorage.removeItem('cri_start_order_data');
+    localStorage.removeItem('countdown-app-state');
+    
+    // 10. Actualizar selector de carreras (IMPORTANTE)
+    if (typeof renderRacesSelect === 'function') {
+        // Esperar un momento para asegurar que el DOM está actualizado
+        setTimeout(() => {
+            renderRacesSelect();
+            console.log("✅ Selector de carreras actualizado");
+        }, 50);
+    }
+    
+    // 11. Actualizar título de gestión (EVITAR CICLO INFINITO)
+    if (typeof updateRaceManagementCardTitle === 'function') {
+        // Usar setTimeout para evitar recursión
+        setTimeout(() => {
+            updateRaceManagementCardTitle();
+            console.log("✅ Título de gestión actualizado");
+        }, 100);
+    }
+    
+    // 12. Cerrar modal
+    const deleteModal = document.getElementById('delete-race-modal');
+    if (deleteModal) {
+        deleteModal.classList.remove('active');
+        console.log("✅ Modal cerrado");
+    }
+    
+    appState.currentRace = null;
+    
+    // Actualizar botones
+    updateDeleteRaceButtonState();
+    updateRaceActionButtonsState();
+
+    // 13. Mostrar mensaje de éxito
+    const successMsg = t.raceDeleted ? t.raceDeleted.replace('{name}', raceName) : `Carrera "${raceName}" eliminada correctamente`;
+    showMessage(successMsg, 'success');
+    
+    console.log("✅ ELIMINACIÓN COMPLETADA CORRECTAMENTE");
+    console.log("Estado final:", {
+        carreras: appState.races.length,
+        carreraActual: appState.currentRace ? appState.currentRace.name : "Ninguna",
+        startOrderData: startOrderData.length,
+        departureTimes: appState.departureTimes.length
+    });
 }
 
 function clearRaceDepartures() {
@@ -812,17 +1093,35 @@ function handleCompleteRestart() {
 function deleteStartOrder() {
     const t = translations[appState.currentLanguage];
     
-    if (startOrderData.length === 0) {
+    if (!appState.currentRace) {
+        showMessage(t.selectRaceFirst || 'Selecciona una carrera primero', 'error');
+        return;
+    }
+    
+    if (startOrderData.length === 0 && 
+        (!appState.currentRace.startOrder || appState.currentRace.startOrder.length === 0)) {
         showMessage(t.listAlreadyEmpty || 'La lista ya está vacía', 'info');
         return;
     }
     
-    // Crear modal personalizado en lugar de window.confirm
+    // Crear modal de confirmación
     createDeleteOrderConfirmationModal();
 }
 
 function createDeleteOrderConfirmationModal() {
     const t = translations[appState.currentLanguage];
+    
+    // Calcular estadísticas REALES (considerando ambos posibles orígenes)
+    const currentData = startOrderData && startOrderData.length > 0 
+        ? startOrderData 
+        : (appState.currentRace.startOrder || []);
+    
+    const riderCount = currentData.length;
+    
+    if (riderCount === 0) {
+        showMessage(t.listAlreadyEmpty || 'La lista ya está vacía', 'info');
+        return;
+    }
     
     // Crear modal de confirmación
     const modal = document.createElement('div');
@@ -847,19 +1146,19 @@ function createDeleteOrderConfirmationModal() {
                             <div class="stat-item">
                                 <i class="fas fa-users"></i>
                                 <span class="stat-label">Corredores:</span>
-                                <span class="stat-value">${startOrderData.length}</span>
+                                <span class="stat-value">${riderCount}</span>
                             </div>
                             <div class="stat-item">
-                                <i class="fas fa-list-ol"></i>
-                                <span class="stat-label">Datos:</span>
-                                <span class="stat-value">${startOrderData.length} registros</span>
+                                <i class="fas fa-flag-checkered"></i>
+                                <span class="stat-label">Carrera:</span>
+                                <span class="stat-value">${appState.currentRace ? appState.currentRace.name : 'Sin carrera'}</span>
                             </div>
                         </div>
                         
                         <div class="data-preview-small">
                             <h4>Vista previa de datos a eliminar:</h4>
                             <div class="preview-scroll">
-                                ${getOrderPreviewForModal()}
+                                ${getOrderPreviewForModal(currentData)}
                             </div>
                         </div>
                     </div>
@@ -881,7 +1180,7 @@ function createDeleteOrderConfirmationModal() {
     document.body.appendChild(modal);
     
     // Configurar eventos del modal
-    setupDeleteOrderModalEvents(modal);
+    setupDeleteOrderModalEvents(modal, currentData);
     
     // Mostrar el modal
     setTimeout(() => {
@@ -892,64 +1191,43 @@ function createDeleteOrderConfirmationModal() {
     addDeleteOrderModalStyles();
 }
 
-function getOrderPreviewForModal() {
-    // Mostrar solo los primeros 3 corredores como vista previa
-    const previewCount = Math.min(3, startOrderData.length);
-    let html = '<table class="mini-preview-table">';
-    
-    for (let i = 0; i < previewCount; i++) {
-        const rider = startOrderData[i];
-        html += `
-        <tr>
-            <td class="preview-order">${rider.order}</td>
-            <td class="preview-dorsal">${rider.dorsal}</td>
-            <td class="preview-name">${rider.nombre || ''} ${rider.apellidos || ''}</td>
-            <td class="preview-time">${rider.horaSalida || ''}</td>
-        </tr>
-        `;
-    }
-    
-    html += '</table>';
-    
-    if (startOrderData.length > 3) {
-        html += `
-        <div class="preview-more-info">
-            <i class="fas fa-ellipsis-h"></i>
-            ${startOrderData.length - 3} ${translations[appState.currentLanguage].moreRiders || 'más corredores...'}
-        </div>
-        `;
-    }
-    
-    return html;
-}
-
-function setupDeleteOrderModalEvents(modal) {
+function setupDeleteOrderModalEvents(modal, currentData) {
     const confirmBtn = modal.querySelector('#confirm-delete-order-btn');
     const cancelBtn = modal.querySelector('#cancel-delete-order-btn');
     const closeBtn = modal.querySelector('#delete-order-close');
     
-    // Confirmar eliminación
+    // Confirmar eliminación - VERSIÓN CORREGIDA
     confirmBtn.addEventListener('click', function(e) {
         e.stopPropagation();
         
-        // Eliminar todos los datos
-        startOrderData = [];
+        const t = translations[appState.currentLanguage];
         
-        // Actualizar UI
-        document.getElementById('total-riders').value = 1;
-        updateStartOrderTableThrottled();
+        // 1. ELIMINAR DE AMBAS FUENTES
+        startOrderData = []; // Limpiar datos globales
         
-        // Guardar los cambios
-        if (typeof saveStartOrderData === 'function') {
-            saveStartOrderData();
-        }
-        
-        // También actualizar en la carrera actual si existe
         if (appState.currentRace) {
-            saveRaceData();
+            appState.currentRace.startOrder = []; // Limpiar datos de la carrera
+            console.log("🗑️ Orden de salida eliminado de la carrera:", appState.currentRace.name);
         }
         
-        // Cerrar modal
+        // 2. Actualizar UI inmediatamente
+        document.getElementById('total-riders').value = 1;
+        
+        if (typeof updateStartOrderTableThrottled === 'function') {
+            updateStartOrderTableThrottled(true); // Forzar actualización
+        }
+        
+        // 3. GUARDAR LOS CAMBIOS - Esto es CRÍTICO
+        if (typeof saveRaceData === 'function') {
+            console.log("💾 Guardando cambios después de eliminar orden...");
+            saveRaceData(); // Esto guardará ambos como vacíos
+        }
+        
+        // 4. También eliminar de localStorage global (para compatibilidad)
+        localStorage.removeItem('start-order-data');
+        localStorage.removeItem('cri_start_order_data');
+        
+        // 5. Cerrar modal
         modal.classList.remove('active');
         setTimeout(() => {
             if (modal.parentNode) {
@@ -957,11 +1235,19 @@ function setupDeleteOrderModalEvents(modal) {
             }
         }, 300);
         
-        // Mostrar mensaje de éxito
-        const t = translations[appState.currentLanguage];
-        showMessage(t.orderDeleted || 'Orden de salida eliminado correctamente', 'success');
+        // 6. Mostrar mensaje de éxito
+        const successMessage = t.orderDeleted ? 
+            t.orderDeleted.replace('{count}', currentData.length) : 
+            `Orden de salida eliminado (${currentData.length} corredores)`;
         
-        console.log("Orden de salida eliminado completamente");
+        showMessage(successMessage, 'success');
+        
+        console.log("✅ Orden de salida eliminado completamente:", {
+            carrera: appState.currentRace ? appState.currentRace.name : 'Sin carrera',
+            corredoresEliminados: currentData.length,
+            startOrderData: startOrderData.length,
+            carreraStartOrder: appState.currentRace ? appState.currentRace.startOrder.length : 0
+        });
     });
     
     // Cancelar eliminación
@@ -1007,6 +1293,41 @@ function setupDeleteOrderModalEvents(modal) {
     modal.querySelector('.modal-content').addEventListener('click', function(e) {
         e.stopPropagation();
     });
+}
+
+function getOrderPreviewForModal(data) {
+    if (!data || data.length === 0) {
+        return '<div class="preview-empty">No hay datos para mostrar</div>';
+    }
+    
+    // Mostrar solo los primeros 3 corredores como vista previa
+    const previewCount = Math.min(3, data.length);
+    let html = '<table class="mini-preview-table">';
+    
+    for (let i = 0; i < previewCount; i++) {
+        const rider = data[i];
+        html += `
+        <tr>
+            <td class="preview-order">${rider.order || ''}</td>
+            <td class="preview-dorsal">${rider.dorsal || ''}</td>
+            <td class="preview-name">${rider.nombre || ''} ${rider.apellidos || ''}</td>
+            <td class="preview-time">${rider.horaSalida || ''}</td>
+        </tr>
+        `;
+    }
+    
+    html += '</table>';
+    
+    if (data.length > 3) {
+        html += `
+        <div class="preview-more-info">
+            <i class="fas fa-ellipsis-h"></i>
+            ${data.length - 3} ${translations[appState.currentLanguage].moreRiders || 'más corredores...'}
+        </div>
+        `;
+    }
+    
+    return html;
 }
 
 function addDeleteOrderModalStyles() {
@@ -2504,62 +2825,58 @@ function saveRaceChanges() {
 }
 // ========
 // 
-//====================================
-// FUNCIÓN PARA ACTUALIZAR EL TÍTULO DE LA TARJETA DE GESTIÓN
+// ============================================
+// FUNCIÓN CORREGIDA PARA ACTUALIZAR TÍTULO (EVITA CICLO INFINITO)
 // ============================================
 function updateRaceManagementCardTitle() {
     const titleElement = document.getElementById('card-race-title');
     
     if (!titleElement) {
-        console.log("Elemento del título de gestión no encontrado");
+        console.log("⚠️ Elemento del título de gestión no encontrado");
         return;
     }
     
-    if (appState.currentRace && appState.currentRace.name) {
-        const t = translations[appState.currentLanguage];
-        
-        // Verificar si hay llegadas para mostrar el contador
-        const llegadasCount = llegadasState.llegadas ? llegadasState.llegadas.length : 0;
-        const hasLlegadas = llegadasCount > 0;
-        
-        // Crear el título con el nombre de la carrera
-        let titleHTML = `<i class="fas fa-flag-checkered"></i> ${appState.currentRace.name}`;
-        
-        // Añadir información adicional si está disponible
-        if (appState.currentRace.date) {
-            titleHTML += ` <span class="race-date">(${appState.currentRace.date})</span>`;
+    // Verificar si ya estamos actualizando (prevenir recursión)
+    if (window.isUpdatingRaceTitle) {
+        console.log("⚠️ Ya se está actualizando el título, evitando recursión");
+        return;
+    }
+    
+    window.isUpdatingRaceTitle = true;
+    
+    try {
+        if (appState.currentRace && appState.currentRace.name) {
+            const t = translations[appState.currentLanguage];
+            
+            // Crear el título simple
+            let titleHTML = `<i class="fas fa-flag-checkered"></i> ${appState.currentRace.name}`;
+            
+            // Añadir fecha si existe
+            if (appState.currentRace.date) {
+                titleHTML += ` <span class="race-date">(${appState.currentRace.date})</span>`;
+            }
+            
+            titleElement.innerHTML = titleHTML;
+            titleElement.classList.add('race-title-active');
+            
+            console.log("📝 Título de gestión actualizado:", appState.currentRace.name);
+        } else {
+            // Si no hay carrera seleccionada, mostrar el título por defecto
+            const t = translations[appState.currentLanguage];
+            titleElement.innerHTML = `<i class="fas fa-flag-checkered"></i> ${t.raceManagement || 'Gestión de Carrera'}`;
+            titleElement.classList.remove('race-title-active');
+            
+            console.log("📝 Título de gestión restablecido (sin carrera)");
         }
-        
-        // Añadir contador de llegadas si existen
-        if (hasLlegadas) {
-            titleHTML += ` <span class="llegadas-badge" title="${t.llegadasCount || 'Llegadas registradas'}">
-                <i class="fas fa-flag"></i> ${llegadasCount}
-            </span>`;
-        }
-        
-        // Añadir indicador de actividad si el countdown está activo
-        if (appState.countdownActive) {
-            titleHTML += ` <span class="active-badge" title="${t.countdownActive || 'Cuenta atrás activa'}">
-                <i class="fas fa-play-circle"></i>
-            </span>`;
-        }
-        
-        titleElement.innerHTML = titleHTML;
-        
-        // Añadir clase para styling si es necesario
-        titleElement.classList.add('race-title-active');
-        
-        console.log("Título de gestión actualizado:", appState.currentRace.name);
-    } else {
-        // Si no hay carrera seleccionada, mostrar el título por defecto
-        const t = translations[appState.currentLanguage];
-        titleElement.innerHTML = `<i class="fas fa-flag-checkered"></i> ${t.raceManagement || 'Gestión de Carrera'}`;
-        titleElement.classList.remove('race-title-active');
-        
-        console.log("Título de gestión restablecido (no hay carrera seleccionada)");
+    } catch (error) {
+        console.error("❌ Error actualizando título:", error);
+    } finally {
+        // Liberar el bloqueo después de un breve retraso
+        setTimeout(() => {
+            window.isUpdatingRaceTitle = false;
+        }, 100);
     }
 }
-
 // ============================================
 // AÑADIR ESTILOS PARA EL TÍTULO DE GESTIÓN
 // ============================================
@@ -2697,4 +3014,417 @@ function saveStartOrderChanges() {
     saveRaceData();
     
     console.log("Cambios en orden de salida guardados:", startOrderData.length, "corredores");
+}
+
+// FUNCIÓN PARA GUARDAR CAMBIOS EN ORDEN DE SALIDA (VERSIÓN MEJORADA)
+function saveStartOrderChanges() {
+    console.log("Guardando cambios en orden de salida...");
+    
+    if (!appState.currentRace) {
+        console.log("No hay carrera actual, no se puede guardar");
+        showMessage("No hay carrera seleccionada para guardar cambios", 'warning');
+        return;
+    }
+    
+    // Validar que hay datos para guardar
+    if (!startOrderData || startOrderData.length === 0) {
+        console.log("No hay datos de orden de salida para guardar");
+        return;
+    }
+    
+    // 1. Guardar en la carrera actual en memoria
+    appState.currentRace.startOrder = [...startOrderData];
+    console.log("Datos guardados en carrera actual (memoria):", startOrderData.length, "corredores");
+    
+    // 2. Actualizar en el array de carreras
+    const raceIndex = appState.races.findIndex(r => r.id === appState.currentRace.id);
+    if (raceIndex !== -1) {
+        appState.races[raceIndex].startOrder = [...startOrderData];
+        console.log("Carrera actualizada en array de carreras");
+    }
+    
+    // 3. Guardar en localStorage específico de la carrera
+    const raceKey = `race-${appState.currentRace.id}`;
+    const existingData = localStorage.getItem(raceKey);
+    
+    if (existingData) {
+        try {
+            const data = JSON.parse(existingData);
+            data.startOrderData = [...startOrderData];
+            localStorage.setItem(raceKey, JSON.stringify(data));
+            console.log("Datos guardados en localStorage específico:", raceKey);
+        } catch (error) {
+            console.error("Error actualizando datos de carrera en localStorage:", error);
+        }
+    } else {
+        // Crear nuevo registro si no existe
+        const newRaceData = {
+            startOrderData: [...startOrderData],
+            departureTimes: appState.departureTimes || [],
+            departedCount: appState.departedCount || 0,
+            raceStartTime: appState.raceStartTime || null,
+            intervals: appState.intervals || []
+        };
+        localStorage.setItem(raceKey, JSON.stringify(newRaceData));
+        console.log("Nuevo registro creado en localStorage:", raceKey);
+    }
+    
+    // 4. Guardar en la estructura general
+    saveRacesToStorage();
+    
+    // 5. Mostrar confirmación
+    console.log("✅ Cambios en orden de salida guardados correctamente");
+    console.log("- Carrera:", appState.currentRace.name);
+    console.log("- Corredores:", startOrderData.length);
+    
+    // Opcional: mostrar mensaje al usuario
+    const t = translations[appState.currentLanguage];
+    showMessage(t.orderSaved || 'Orden de salida guardado correctamente', 'success');
+}
+
+// ============================================
+// FUNCIÓN PARA LIMPIAR COMPLETAMENTE EL ESTADO
+// ============================================
+function cleanAppState() {
+    console.log("🧹 Limpiando estado completo de la aplicación...");
+    
+    // Limpiar estado de la aplicación
+    appState.currentRace = null;
+    appState.races = appState.races || [];
+    startOrderData = [];
+    appState.departureTimes = [];
+    appState.departedCount = 0;
+    appState.intervals = [];
+    appState.raceStartTime = null;
+    appState.countdownActive = false;
+    appState.countdownValue = 0;
+    appState.countdownPaused = false;
+    
+    // Limpiar localStorage específico
+    localStorage.removeItem('countdown-current-race');
+    localStorage.removeItem('start-order-data');
+    localStorage.removeItem('cri_start_order_data');
+    localStorage.removeItem('countdown-app-state');
+    
+    // Guardar array vacío o actualizado de carreras
+    localStorage.setItem('countdown-races', JSON.stringify(appState.races));
+    
+    console.log("✅ Estado limpiado completamente");
+}
+
+// ============================================
+// FUNCIÓN DE DIAGNÓSTICO
+// ============================================
+function diagnoseRaceDeletion() {
+    console.log("🔍 === DIAGNÓSTICO COMPLETO DE CARRERAS ===");
+    
+    // 1. Estado de la aplicación
+    console.log("1. ESTADO DE LA APLICACIÓN:");
+    console.log("   - Carrera actual:", appState.currentRace ? `${appState.currentRace.name} (ID: ${appState.currentRace.id})` : "Ninguna");
+    console.log("   - Total carreras en array:", appState.races.length);
+    
+    // 2. Lista detallada de carreras
+    console.log("2. LISTA DE CARRERAS:");
+    appState.races.forEach((race, index) => {
+        console.log(`   ${index + 1}. ${race.name} (ID: ${race.id}) - ${race.date || 'Sin fecha'}`);
+    });
+    
+    // 3. Estado de localStorage
+    console.log("3. LOCALSTORAGE:");
+    console.log("   - 'countdown-races':", localStorage.getItem('countdown-races') ? `${JSON.parse(localStorage.getItem('countdown-races')).length} carreras` : "No existe");
+    console.log("   - 'countdown-current-race':", localStorage.getItem('countdown-current-race') ? "Existe" : "No existe");
+    
+    // 4. Estado de botones
+    console.log("4. ESTADO DE BOTONES:");
+    const buttonsToCheck = ['delete-race-btn', 'edit-race-btn', 'export-order-btn'];
+    buttonsToCheck.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            console.log(`   - ${id}: ${btn.disabled ? 'DESHABILITADO' : 'HABILITADO'} ${btn.disabled ? '(title: ' + btn.title + ')' : ''}`);
+        }
+    });
+    
+    // 5. Sincronización
+    const savedRaces = JSON.parse(localStorage.getItem('countdown-races') || '[]');
+    console.log("5. SINCRONIZACIÓN:");
+    console.log("   - Memoria vs localStorage:", appState.races.length === savedRaces.length ? "OK" : "DESINCRONIZADO");
+    console.log("   - Carreras en memoria:", appState.races.length);
+    console.log("   - Carreras en localStorage:", savedRaces.length);
+    
+    console.log("=== DIAGNÓSTICO COMPLETADO ===");
+}
+
+// ============================================
+// FUNCIÓN PARA ACTUALIZAR ESTADO DEL BOTÓN DE BORRAR CARRERA
+// ============================================
+function updateDeleteRaceButtonState() {
+    const deleteRaceBtn = document.getElementById('delete-race-btn');
+    const deleteRaceConfirmBtn = document.getElementById('delete-race-confirm-btn');
+    
+    if (!deleteRaceBtn || !deleteRaceConfirmBtn) {
+        console.log("Botones de eliminar carrera no encontrados");
+        return;
+    }
+    
+    if (appState.currentRace) {
+        // Hay carrera seleccionada - habilitar botón
+        deleteRaceBtn.disabled = false;
+        deleteRaceBtn.classList.remove('disabled');
+        deleteRaceBtn.title = "Eliminar carrera actual";
+        
+        deleteRaceConfirmBtn.disabled = false;
+        deleteRaceConfirmBtn.classList.remove('disabled');
+        
+        console.log("✅ Botón de eliminar carrera HABILITADO para:", appState.currentRace.name);
+    } else {
+        // No hay carrera seleccionada - deshabilitar botón
+        deleteRaceBtn.disabled = true;
+        deleteRaceBtn.classList.add('disabled');
+        deleteRaceBtn.title = "Selecciona una carrera primero";
+        
+        deleteRaceConfirmBtn.disabled = true;
+        deleteRaceConfirmBtn.classList.add('disabled');
+        
+        console.log("⚠️ Botón de eliminar carrera DESHABILITADO (sin carrera seleccionada)");
+    }
+}
+
+// ============================================
+// AÑADIR ESTILOS PARA BOTONES DESHABILITADOS
+// ============================================
+function addDisabledButtonStyles() {
+    if (document.getElementById('disabled-button-styles')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'disabled-button-styles';
+    style.textContent = `
+        /* Estilos para botones deshabilitados */
+        .btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        .btn-danger.disabled {
+            background-color: #dc3545;
+            opacity: 0.5;
+        }
+        
+        .btn-success.disabled {
+            background-color: #28a745;
+            opacity: 0.5;
+        }
+        
+        /* Indicador visual para botón de eliminar deshabilitado */
+        #delete-race-btn.disabled::before {
+            content: "⚠️ ";
+            margin-right: 5px;
+        }
+    `;
+    
+    document.head.appendChild(style);
+    console.log("Estilos de botones deshabilitados añadidos");
+}
+
+// ============================================
+// ============================================
+// FUNCIÓN MEJORADA PARA RENDERIZAR SELECTOR
+// ============================================
+// ============================================
+// RENDERIZAR SELECTOR CON VERIFICACIÓN DE SINCRO
+// ============================================
+function renderRacesSelect() {
+    console.log("🔄 Renderizando selector de carreras con verificación...");
+    
+    let racesSelect = document.getElementById('race-select');
+    
+    if (!racesSelect) {
+        console.error("❌ Selector de carreras no encontrado");
+        return;
+    }
+    
+    // VERIFICAR SINCRO: Lo que hay en memoria vs lo que hay en localStorage
+    const savedRaces = JSON.parse(localStorage.getItem('countdown-races') || '[]');
+    
+    if (appState.races.length !== savedRaces.length) {
+        console.warn("⚠️ DESINCRONIZACIÓN detectada:");
+        console.log(`   - Memoria: ${appState.races.length} carreras`);
+        console.log(`   - localStorage: ${savedRaces.length} carreras`);
+        
+        // Forzar sincronización
+        appState.races = savedRaces;
+        console.log("✅ Sincronización forzada");
+    }
+    
+    // Guardar selección actual ANTES de limpiar
+    const currentSelection = racesSelect.value;
+    const currentRaceId = appState.currentRace ? appState.currentRace.id : null;
+    
+    // LIMPIAR completamente el selector
+    racesSelect.innerHTML = '';
+    
+    // Opción por defecto SIEMPRE
+    const defaultOption = document.createElement('option');
+    defaultOption.value = "0";
+    defaultOption.textContent = "Selecciona una carrera...";
+    defaultOption.disabled = true;
+    defaultOption.selected = true; // Siempre seleccionada por defecto
+    racesSelect.appendChild(defaultOption);
+    
+    // Si no hay carreras, mostrar mensaje especial
+    if (appState.races.length === 0) {
+        console.log("ℹ️ No hay carreras para mostrar");
+        
+        // Opcional: Añadir opción informativa
+        const infoOption = document.createElement('option');
+        infoOption.value = "0";
+        infoOption.textContent = "No hay carreras - Crea una nueva";
+        infoOption.disabled = true;
+        racesSelect.appendChild(infoOption);
+        
+        // Forzar selección de la opción por defecto
+        racesSelect.value = "0";
+        
+        console.log("✅ Selector vacío configurado");
+        return;
+    }
+    
+    // Añadir carreras (más recientes primero)
+    const sortedRaces = [...appState.races].sort((a, b) => {
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    });
+    
+    console.log(`📋 Añadiendo ${sortedRaces.length} carreras al selector:`);
+    
+    sortedRaces.forEach((race, index) => {
+        const option = document.createElement('option');
+        option.value = race.id;
+        
+        // Texto de la opción
+        let optionText = race.name;
+        if (race.date) {
+            optionText += ` (${race.date})`;
+        }
+        if (race.category) {
+            optionText += ` - ${race.category}`;
+        }
+        
+        option.textContent = optionText;
+        
+        // Marcar como seleccionada si es la carrera actual
+        const shouldSelect = currentRaceId === race.id;
+        option.selected = shouldSelect;
+        
+        if (shouldSelect) {
+            console.log(`🎯 [${index + 1}] ${race.name} - SELECCIONADA`);
+        } else {
+            console.log(`   [${index + 1}] ${race.name}`);
+        }
+        
+        racesSelect.appendChild(option);
+    });
+    
+    // Si no hay carrera seleccionada pero el selector tenía algo, forzar selección por defecto
+    if (!currentRaceId && currentSelection && currentSelection !== "0") {
+        console.log(`⚠️ Selección anterior (${currentSelection}) no válida, forzando selección por defecto`);
+        racesSelect.value = "0";
+        racesSelect.selectedIndex = 0;
+    }
+    
+    console.log(`✅ Selector actualizado: ${sortedRaces.length} carreras, selección actual: ${racesSelect.value}`);
+    
+    // Configurar event listener
+    setupRacesSelectListener();
+}
+
+
+
+// ============================================
+// CONFIGURAR LISTENER PARA SELECTOR DE CARRERAS
+// ============================================
+function setupRacesSelectListener(selectElement) {
+    if (!selectElement) {
+        selectElement = document.getElementById('races-select') || 
+                       document.getElementById('race-select') ||
+                       document.querySelector('.card-race-management select');
+    }
+    
+    if (!selectElement) {
+        console.error("❌ No se pudo encontrar el selector para configurar listener");
+        return;
+    }
+    
+    console.log("🎯 Configurando event listener para selector de carreras:", selectElement.id || 'sin ID');
+    
+    // Remover listeners antiguos
+    selectElement.removeEventListener('change', handleRacesSelectChange);
+    
+    // Añadir nuevo listener
+    selectElement.addEventListener('change', handleRacesSelectChange);
+    
+    console.log("✅ Listener de selector de carreras configurado");
+}
+
+// ============================================
+// LIMPIAR CARRERAS HUÉRFANAS
+// ============================================
+function cleanOrphanedRaces() {
+    console.log("🧹 Limpiando carreras huérfanas...");
+    
+    // Cargar carreras desde localStorage para comparar
+    const savedRaces = JSON.parse(localStorage.getItem('countdown-races') || '[]');
+    const savedRaceIds = savedRaces.map(r => r.id);
+    
+    // Filtrar carreras que existen en memoria pero no en localStorage
+    const validRaces = appState.races.filter(race => {
+        const existsInStorage = savedRaceIds.includes(race.id);
+        if (!existsInStorage) {
+            console.log(`🗑️ Eliminando carrera huérfana: ${race.name} (ID: ${race.id})`);
+        }
+        return existsInStorage;
+    });
+    
+    // Actualizar array si hubo cambios
+    if (validRaces.length !== appState.races.length) {
+        appState.races = validRaces;
+        saveRacesToStorage();
+        console.log(`✅ Carreras limpiadas: ${appState.races.length} válidas`);
+    } else {
+        console.log("✅ Todas las carreras son válidas");
+    }
+}
+
+// ============================================
+// FORZAR SINCRONIZACIÓN COMPLETA
+// ============================================
+function forceFullSync() {
+    console.log("🔄 Forzando sincronización completa...");
+    
+    // 1. Limpiar carreras huérfanas
+    cleanOrphanedRaces();
+    
+    // 2. Recargar desde localStorage
+    const savedRaces = JSON.parse(localStorage.getItem('countdown-races') || '[]');
+    appState.races = savedRaces;
+    
+    // 3. Si hay carrera actual, verificar que aún existe
+    if (appState.currentRace) {
+        const stillExists = appState.races.some(r => r.id === appState.currentRace.id);
+        if (!stillExists) {
+            console.log("⚠️ Carrera actual ya no existe, limpiando...");
+            appState.currentRace = null;
+            localStorage.removeItem('countdown-current-race');
+        }
+    }
+    
+    // 4. Actualizar selector
+    renderRacesSelect();
+    
+    // 5. Actualizar UI
+    updateRaceManagementCardTitle();
+    updateRaceActionButtonsState();
+    
+    console.log("✅ Sincronización completa finalizada");
+    console.log(`   - Carreras: ${appState.races.length}`);
+    console.log(`   - Carrera actual: ${appState.currentRace ? appState.currentRace.name : 'Ninguna'}`);
 }

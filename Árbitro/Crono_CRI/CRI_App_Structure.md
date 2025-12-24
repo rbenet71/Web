@@ -1108,3 +1108,137 @@ Cuando necesites hacer un cambio:
 *Versión de aplicación: V_19_12_2025*
 *Módulos documentados: Main, Salidas (1-4), UI, Storage_Pwa, Utilidades, Traducciones*
 *Funcionalidades clave: Sistema de audio, exportación Excel/PDF, conversiones tiempo, throttling de 3 niveles*
+
+
+# LECCIONES APRENDIDAS - CRI APP
+
+## **PROBLEMAS Y SOLUCIONES**
+
+### **1. Eliminación de Carreras Incompleta**
+**Problema:** Borrar una carrera dejaba datos residuales
+**Solución:** Limpiar COMPLETAMENTE el estado y localStorage
+**Archivos:** `Storage_Pwa.js` - Función `deleteCurrentRace()`
+
+### **2. Carreras Fantasma en Selector**
+**Problema:** Carreras eliminadas seguían en el dropdown
+**Solución:** Función `fixGhostRace()` que valida existencia
+**Archivos:** `Storage_Pwa.js` - `diagnoseGhostRace()` y `fixGhostRace()`
+
+### **3. Importación sin Carrera Seleccionada**
+**Problema:** Permitía importar sin carrera activa
+**Solución:** Validar `appState.currentRace` antes de importar
+**Archivos:** `Salidas_1.js` - `importStartOrder()`
+
+### **4. Datos Mezclados entre Carreras**
+**Problema:** Corredores de una carrera aparecían en otra
+**Solución:** Cargar datos ESPECÍFICOS por ID de carrera
+**Archivos:** `Storage_Pwa.js` - `loadStartOrderData()`
+
+### **5. Botones Habilitados Incorrectamente**
+**Problema:** Botones activos sin carrera seleccionada
+**Solución:** Funciones `updateDeleteRaceButtonState()` y `updateRaceActionButtonsState()`
+**Archivos:** `UI.js` y `Storage_Pwa.js`
+
+### **6. Error al Crear Nueva Carrera**
+**Problema:** Variable `newRace` no inicializada
+**Solución:** Asegurar inicialización correcta en `createNewRace()`
+**Archivos:** `Storage_Pwa.js`
+
+### **7. Selector no Encontrado**
+**Problema:** `renderRacesSelect()` buscaba ID incorrecto
+**Solución:** Buscar múltiples IDs posibles (`race-select`, `races-select`)
+**Archivos:** `Storage_Pwa.js`
+
+### **8. Sincronización Memoria/LocalStorage**
+**Problema:** Datos desincronizados
+**Solución:** Función `forceFullSync()` para forzar coherencia
+**Archivos:** `Storage_Pwa.js`
+
+## **FUNCIONES CRÍTICAS AÑADIDAS**
+
+### **En Storage_Pwa.js:**
+1. `cleanOrphanedRaces()` - Elimina carreras huérfanas
+2. `forceFullSync()` - Sincroniza memoria y localStorage
+3. `diagnoseGhostRace()` - Detecta carreras fantasma
+4. `fixGhostRace()` - Elimina opciones inválidas del selector
+5. `clearAllRaces()` - Limpia TODAS las carreras
+
+### **En UI.js:**
+1. `updateDeleteRaceButtonState()` - Controla botón eliminar
+2. `updateRaceActionButtonsState()` - Controla todos los botones de carrera
+3. `addDisabledButtonStyles()` - Estilos para botones deshabilitados
+
+## **MEJORES PRÁCTICAS IMPLEMENTADAS**
+
+### **1. Validación de Estado**
+- Siempre verificar `appState.currentRace` antes de operaciones
+- Usar `updateRaceActionButtonsState()` tras cambios
+
+### **2. Sincronización**
+- Forzar sincronía entre `appState.races` y localStorage
+- Usar `forceFullSync()` tras operaciones críticas
+
+### **3. Limpieza Completa**
+- Al eliminar: limpiar array, localStorage, estado y UI
+- Usar `clearAllRaces()` para reset total
+
+### **4. Manejo de Errores**
+- Try-catch en operaciones localStorage
+- Logs detallados para diagnóstico
+- `showMessage()` para feedback al usuario
+
+### **5. UI Reactiva**
+- Botones se habilitan/deshabilitan automáticamente
+- Selector se actualiza inmediatamente
+- Feedback visual claro
+
+## **COMANDOS DIAGNÓSTICO**
+
+```javascript
+// Ver estado actual
+diagnoseCurrentState()
+
+// Detectar carreras fantasma
+diagnoseGhostRace()
+
+// Forzar sincronización
+forceFullSync()
+
+// Limpiar problemas
+fixGhostRace()
+
+// Reset total
+clearAllRaces()
+```
+
+## **ARCHIVOS CLAVE A REVISAR SI HAY PROBLEMAS**
+
+1. `Storage_Pwa.js` - Gestión de carreras y datos
+2. `UI.js` - Estado de botones e interfaz
+3. `Main.js` - Coordinación general
+4. `Salidas_1.js` - Importación y validaciones
+
+## **FLUJO DE SOLUCIÓN RECOMENDADO**
+
+1. **Diagnosticar:** Ejecutar `diagnoseCurrentState()`
+2. **Identificar:** Ver qué componente falla
+3. **Sincronizar:** `forceFullSync()` si hay desincronía
+4. **Limpiar:** `fixGhostRace()` o `clearAllRaces()` si es necesario
+5. **Verificar:** Confirmar que UI se actualiza correctamente
+
+## **ERRORES COMUNES Y SOLUCIÓN RÁPIDA**
+
+| Error | Solución |
+|-------|----------|
+| "No hay carrera seleccionada" | Verificar `appState.currentRace` |
+| Carrera no aparece en selector | Ejecutar `renderRacesSelect()` |
+| Botones no se habilitan | `updateRaceActionButtonsState()` |
+| Datos mezclados entre carreras | `forceFullSync()` |
+| No se puede eliminar carrera | `clearAllRaces()` + recargar |
+
+**Regla de oro:** Después de cualquier operación de carrera, llamar a:
+1. `renderRacesSelect()`
+2. `updateRaceActionButtonsState()`
+3. `updateRaceManagementCardTitle()`
+
+Esto asegura coherencia en toda la aplicación.

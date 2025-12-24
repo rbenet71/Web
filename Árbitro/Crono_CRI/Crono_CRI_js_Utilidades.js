@@ -2177,3 +2177,310 @@ function adjustTableWrapperHeight() {
     tableWrapper.style.maxHeight = `${maxHeight}px`;
 }
 
+// ============================================
+// DIAGNÓSTICO DEL ESTADO ACTUAL
+// ============================================
+function diagnoseCurrentState() {
+    console.log("🔍 === DIAGNÓSTICO DEL ESTADO ACTUAL ===");
+    
+    // 1. Estado de la aplicación
+    console.log("1. ESTADO DE LA APLICACIÓN:");
+    console.log("   - Carrera actual:", appState.currentRace ? 
+        `${appState.currentRace.name} (ID: ${appState.currentRace.id})` : 
+        "Ninguna");
+    console.log("   - Total carreras:", appState.races.length);
+    
+    // 2. Carreras disponibles
+    console.log("2. CARRERAS DISPONIBLES:");
+    appState.races.forEach((race, index) => {
+        console.log(`   ${index + 1}. ${race.name} (ID: ${race.id})`);
+    });
+    
+    // 3. Selector en DOM
+    console.log("3. SELECTOR EN DOM:");
+    const racesSelect = document.getElementById('race-select');
+    if (racesSelect) {
+        console.log("   ✅ Encontrado");
+        console.log("   - Valor seleccionado:", racesSelect.value);
+        console.log("   - Opciones:", racesSelect.options.length);
+        
+        // Mostrar opciones actuales
+        console.log("   - Opciones actuales:");
+        for (let i = 0; i < racesSelect.options.length; i++) {
+            const option = racesSelect.options[i];
+            console.log(`     ${i}. ${option.value}: ${option.textContent} ${option.selected ? '✅' : ''}`);
+        }
+    } else {
+        console.log("   ❌ No encontrado");
+    }
+    
+    // 4. LocalStorage
+    console.log("4. LOCALSTORAGE:");
+    const savedRaces = JSON.parse(localStorage.getItem('countdown-races') || '[]');
+    console.log("   - Carreras guardadas:", savedRaces.length);
+    
+    // 5. Verificar sincronización
+    console.log("5. SINCRONIZACIÓN:");
+    const memoryIds = appState.races.map(r => r.id).sort();
+    const storageIds = savedRaces.map(r => r.id).sort();
+    const synced = JSON.stringify(memoryIds) === JSON.stringify(storageIds);
+    
+    if (synced) {
+        console.log("   ✅ Memoria y localStorage sincronizados");
+    } else {
+        console.log("   ❌ DESINCRONIZADO");
+        console.log("   - IDs en memoria:", memoryIds);
+        console.log("   - IDs en localStorage:", storageIds);
+    }
+    
+    console.log("=== FIN DEL DIAGNÓSTICO ===");
+}
+
+// ============================================
+// LIMPIAR TODAS LAS CARRERAS COMPLETAMENTE
+// ============================================
+function clearAllRaces() {
+    console.log("🧨 LIMPIANDO TODAS LAS CARRERAS...");
+    
+    // Confirmación
+    const t = translations[appState.currentLanguage];
+    if (!confirm(t.confirmDeleteAllRaces || "¿Estás seguro de que quieres eliminar TODAS las carreras? Esta acción no se puede deshacer.")) {
+        console.log("❌ Limpieza cancelada por el usuario");
+        return;
+    }
+    
+    // 1. Limpiar estado de la aplicación
+    appState.races = [];
+    appState.currentRace = null;
+    startOrderData = [];
+    appState.departureTimes = [];
+    appState.departedCount = 0;
+    appState.intervals = [];
+    appState.raceStartTime = null;
+    
+    // 2. Limpiar TODO localStorage relacionado con carreras
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('race-') || 
+            key === 'countdown-races' || 
+            key === 'countdown-current-race' ||
+            key === 'start-order-data' ||
+            key.startsWith('cri_start_order')) {
+            keysToRemove.push(key);
+        }
+    }
+    
+    keysToRemove.forEach(key => {
+        localStorage.removeItem(key);
+        console.log(`🗑️ Eliminado: ${key}`);
+    });
+    
+    // 3. Resetear UI
+    const elementsToReset = [
+        { id: 'first-start-time', defaultValue: '09:00:00' },
+        { id: 'total-riders', defaultValue: '1' },
+        { id: 'start-position', defaultValue: '1' },
+        { id: 'interval-minutes', defaultValue: '1' },
+        { id: 'interval-seconds', defaultValue: '0' }
+    ];
+    
+    elementsToReset.forEach(item => {
+        const element = document.getElementById(item.id);
+        if (element) {
+            element.value = item.defaultValue;
+        }
+    });
+    
+    // 4. Actualizar selector (vacío)
+    if (typeof renderRacesSelect === 'function') {
+        renderRacesSelect();
+    }
+    
+    // 5. Actualizar UI
+    if (typeof updateRaceManagementCardTitle === 'function') {
+        updateRaceManagementCardTitle();
+    }
+    
+    if (typeof updateRaceActionButtonsState === 'function') {
+        updateRaceActionButtonsState();
+    }
+    
+    // 6. Actualizar tabla vacía
+    if (typeof updateStartOrderTableThrottled === 'function') {
+        updateStartOrderTableThrottled(true);
+    }
+    
+    console.log("✅ TODAS las carreras eliminadas completamente");
+    showMessage(t.allRacesDeleted || "Todas las carreras eliminadas correctamente", 'success');
+}
+
+// ============================================
+// DIAGNÓSTICO ESPECÍFICO DEL PROBLEMA DE CARRERAS FANTASMA
+// ============================================
+function diagnoseGhostRace() {
+    console.log("👻 === DIAGNÓSTICO DE CARRERA FANTASMA ===");
+    
+    // 1. Obtener el selector
+    const racesSelect = document.getElementById('race-select');
+    if (!racesSelect) {
+        console.error("❌ Selector no encontrado");
+        return;
+    }
+    
+    console.log("1. SELECTOR ACTUAL:");
+    console.log(`   - Valor seleccionado: ${racesSelect.value}`);
+    console.log(`   - Opciones totales: ${racesSelect.options.length}`);
+    
+    // Mostrar todas las opciones
+    console.log("   - Opciones en el selector:");
+    for (let i = 0; i < racesSelect.options.length; i++) {
+        const option = racesSelect.options[i];
+        console.log(`     ${i}. ${option.value}: "${option.textContent}" ${option.selected ? '✅ SELECCIONADA' : ''}`);
+    }
+    
+    // 2. Estado de la aplicación
+    console.log("\n2. ESTADO DE LA APLICACIÓN:");
+    console.log(`   - Carreras en memoria: ${appState.races.length}`);
+    console.log(`   - Carrera actual: ${appState.currentRace ? appState.currentRace.name + ' (ID: ' + appState.currentRace.id + ')' : 'Ninguna'}`);
+    
+    // Mostrar carreras en memoria
+    appState.races.forEach((race, index) => {
+        console.log(`     ${index + 1}. ${race.name} (ID: ${race.id})`);
+    });
+    
+    // 3. localStorage
+    console.log("\n3. LOCALSTORAGE:");
+    const savedRaces = JSON.parse(localStorage.getItem('countdown-races') || '[]');
+    console.log(`   - Carreras guardadas: ${savedRaces.length}`);
+    
+    savedRaces.forEach((race, index) => {
+        console.log(`     ${index + 1}. ${race.name} (ID: ${race.id})`);
+    });
+    
+    // 4. Encontrar la carrera fantasma
+    console.log("\n4. BUSCANDO CARRERA FANTASMA:");
+    
+    // Opción seleccionada en el selector
+    const selectedOption = racesSelect.options[racesSelect.selectedIndex];
+    if (selectedOption && selectedOption.value !== "0") {
+        const selectedId = parseInt(selectedOption.value);
+        
+        // Buscar en memoria
+        const inMemory = appState.races.find(r => r.id === selectedId);
+        // Buscar en localStorage
+        const inStorage = savedRaces.find(r => r.id === selectedId);
+        
+        console.log(`   - Opción seleccionada: ID ${selectedId} -> "${selectedOption.textContent}"`);
+        console.log(`   - ¿En memoria? ${inMemory ? '✅ SÍ' : '❌ NO'}`);
+        console.log(`   - ¿En localStorage? ${inStorage ? '✅ SÍ' : '❌ NO'}`);
+        
+        if (!inMemory && !inStorage) {
+            console.log("   🚨 ¡CARRERA FANTASMA ENCONTRADA!");
+            console.log(`   Esta carrera (ID: ${selectedId}) no existe en ningún lado pero aparece en el selector.`);
+        }
+    } else {
+        console.log("   - Ninguna opción seleccionada (valor 0)");
+    }
+    
+    // 5. Recomendaciones
+    console.log("\n5. ACCIONES RECOMENDADAS:");
+    
+    if (racesSelect.options.length === 1 && racesSelect.options[0].value === "0") {
+        console.log("   ✅ Selector vacío (solo opción por defecto)");
+    } else if (racesSelect.options.length > 1) {
+        console.log("   🛠️ Ejecuta: fixGhostRace() para limpiar el selector");
+    }
+    
+    console.log("=== FIN DEL DIAGNÓSTICO ===");
+}
+
+// ============================================
+// ARREGLAR PROBLEMA DE CARRERA FANTASMA
+// ============================================
+function fixGhostRace() {
+    console.log("🔧 ARREGLANDO PROBLEMA DE CARRERA FANTASMA...");
+    
+    const t = translations[appState.currentLanguage];
+    const racesSelect = document.getElementById('race-select');
+    
+    if (!racesSelect) {
+        console.error("❌ Selector no encontrado");
+        return;
+    }
+    
+    // 1. Verificar si hay opciones fantasmas
+    const ghostOptions = [];
+    for (let i = 0; i < racesSelect.options.length; i++) {
+        const option = racesSelect.options[i];
+        if (option.value !== "0") {
+            const optionId = parseInt(option.value);
+            
+            // Buscar si existe
+            const existsInMemory = appState.races.find(r => r.id === optionId);
+            const savedRaces = JSON.parse(localStorage.getItem('countdown-races') || '[]');
+            const existsInStorage = savedRaces.find(r => r.id === optionId);
+            
+            if (!existsInMemory && !existsInStorage) {
+                ghostOptions.push({
+                    index: i,
+                    id: optionId,
+                    text: option.textContent
+                });
+            }
+        }
+    }
+    
+    if (ghostOptions.length === 0) {
+        console.log("✅ No se encontraron opciones fantasma");
+        showMessage(t.noGhostRaces || "No hay carreras fantasma", 'info');
+        return;
+    }
+    
+    console.log(`🚨 Encontradas ${ghostOptions.length} opciones fantasma:`);
+    ghostOptions.forEach(ghost => {
+        console.log(`   - Índice ${ghost.index}: ID ${ghost.id} -> "${ghost.text}"`);
+    });
+    
+    // 2. Confirmar con el usuario
+    if (!confirm(t.confirmFixGhostRaces || `¿Eliminar ${ghostOptions.length} carrera(s) fantasma del selector?`)) {
+        console.log("❌ Operación cancelada por el usuario");
+        return;
+    }
+    
+    // 3. Eliminar opciones fantasma (en orden inverso para no afectar índices)
+    ghostOptions.sort((a, b) => b.index - a.index).forEach(ghost => {
+        racesSelect.remove(ghost.index);
+        console.log(`🗑️ Eliminada opción fantasma: "${ghost.text}"`);
+    });
+    
+    // 4. Forzar selección por defecto
+    racesSelect.value = "0";
+    racesSelect.selectedIndex = 0;
+    
+    // 5. Si no quedan opciones reales, resetear estado
+    let hasRealRaces = false;
+    for (let i = 0; i < racesSelect.options.length; i++) {
+        if (racesSelect.options[i].value !== "0") {
+            hasRealRaces = true;
+            break;
+        }
+    }
+    
+    if (!hasRealRaces) {
+        console.log("ℹ️ No quedan carreras reales, reseteando estado...");
+        appState.currentRace = null;
+        localStorage.removeItem('countdown-current-race');
+        
+        if (typeof updateRaceManagementCardTitle === 'function') {
+            updateRaceManagementCardTitle();
+        }
+        
+        if (typeof updateRaceActionButtonsState === 'function') {
+            updateRaceActionButtonsState();
+        }
+    }
+    
+    console.log("✅ Problema de carrera fantasma solucionado");
+    showMessage(t.ghostRacesFixed || "Carreras fantasma eliminadas del selector", 'success');
+}
