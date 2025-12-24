@@ -811,3 +811,102 @@ body {
         font-size: 15px;
     }
 }
+
+/* ============ FIX ESPECÍFICO PARA GALERÍA ============ */
+
+/* Contenedor principal de galería */
+.gallery-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    min-height: 0; /* CRÍTICO para iOS */
+}
+
+/* Contenedor de scroll - ESTO ES LO QUE FALTA */
+.scroll-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 10px;
+    position: relative;
+    min-height: 200px; /* Altura mínima */
+    max-height: calc(100vh - 300px); /* Altura máxima */
+}
+
+/* IMPORTANTE: Quitar scroll de .files-list y ponerlo en .scroll-container */
+.files-list {
+    overflow: visible !important; /* NO scroll aquí */
+    margin-bottom: 0 !important;
+    padding-right: 0 !important;
+    height: auto !important;
+}
+
+/* Tabs content */
+.tab-content {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    min-height: 0;
+}
+
+.tab-content.active {
+    display: flex !important;
+}
+
+/* FIX PARA iOS - Scroll táctil */
+@supports (-webkit-touch-callout: none) {
+    .scroll-container {
+        -webkit-overflow-scrolling: touch !important;
+        overflow-y: scroll !important;
+        overscroll-behavior: contain;
+    }
+    
+    .gallery-container {
+        -webkit-transform: translateZ(0);
+    }
+}
+
+/* Mejorar scroll en móviles */
+@media (max-width: 768px) {
+    .scroll-container {
+        max-height: calc(100vh - 250px);
+    }
+    
+    .gallery-controls {
+        flex-wrap: wrap;
+    }
+    
+    .selection-buttons {
+        display: flex;
+        width: 100%;
+        margin-top: 10px;
+    }
+    
+    .selection-buttons button {
+        flex: 1;
+    }
+}
+
+/* Asegurar que los botones de tab funcionen */
+.tab-btn {
+    position: relative;
+    z-index: 1;
+}
+
+.tab-btn.active {
+    z-index: 2;
+}
+
+/* Estilos para archivos GPX */
+.gpx-file .file-title::before {
+    content: "📍 ";
+}
+
+.video-file .file-title::before {
+    content: "🎬 ";
+}

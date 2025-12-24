@@ -97,6 +97,12 @@ class DashcamApp {
             mainCanvas: document.getElementById('mainCanvas'),
             overlayCanvas: document.getElementById('overlayCanvas'),
             overlayCtx: null,
+
+            // Tabs y contenido
+            tabVideos: document.getElementById('tabVideos'),
+            tabGPX: document.getElementById('tabGPX'),
+            videosTab: document.getElementById('videosTab'),
+            gpxTab: document.getElementById('gpxTab'),
             
             // Controles principales
             recordBtn: document.getElementById('recordBtn'),
@@ -1093,6 +1099,21 @@ class DashcamApp {
                 e.returnValue = '¿Salir? Se perderá la grabación en curso.';
             }
         });
+
+        // Eventos para tabs
+        if (this.elements.tabVideos) {
+            this.elements.tabVideos.addEventListener('click', () => {
+                console.log('Click en tab Vídeos');
+                this.switchTab('videos');
+            });
+        }
+        
+        if (this.elements.tabGPX) {
+            this.elements.tabGPX.addEventListener('click', () => {
+                console.log('Click en tab GPX');
+                this.switchTab('gpx');
+            });
+        }
     }
 
     // ============ CONTROL DE GRABACIÓN ============
@@ -1111,10 +1132,31 @@ class DashcamApp {
 
     // ============ GALERÍA ============
 
-    showGallery() {
-        this.elements.galleryPanel.classList.remove('hidden');
-        this.loadGallery();
-    }
+        showGallery() {
+            console.log('Mostrando galería, tab actual:', this.state.activeTab);
+            
+            // Mostrar panel
+            this.elements.galleryPanel.classList.remove('hidden');
+            
+            // Forzar recálculo de layout para iOS
+            setTimeout(() => {
+                // Cargar datos según tab activo
+                if (this.state.activeTab === 'videos') {
+                    this.loadVideos();
+                } else {
+                    this.loadGPXTracks();
+                }
+                
+                // Aplicar tab correcto
+                this.switchTab(this.state.activeTab);
+                
+                // Forzar redibujado para iOS
+                this.elements.galleryPanel.style.display = 'flex';
+                setTimeout(() => {
+                    this.elements.galleryPanel.style.display = '';
+                }, 50);
+            }, 100);
+        }
 
         hideGallery() {
             const galleryPanel = document.getElementById('galleryPanel');
@@ -1153,42 +1195,43 @@ class DashcamApp {
         }
     }
 
-    renderVideosList() {
-        const container = this.elements.videosList;
-        
-        if (this.state.videos.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div>🎬</div>
-                    <p>No hay vídeos grabados</p>
-                    <p>Los datos GPS se grabarán en el video</p>
-                </div>
-            `;
-            return;
-        }
-        
-        container.innerHTML = this.state.videos.map(video => `
-            <div class="file-item ${this.state.selectedVideos.has(video.id) ? 'selected' : ''}" 
-                 data-id="${video.id}" 
-                 data-type="video">
-                <div class="file-header">
-                    <div class="file-title">${video.title || 'Grabación'}</div>
-                    <div class="file-time">${new Date(video.timestamp).toLocaleTimeString()}</div>
-                </div>
-                <div class="file-details">
-                    <div>📅 ${new Date(video.timestamp).toLocaleDateString()}</div>
-                    <div>⏱️ ${this.formatTime(video.duration)}</div>
-                    <div>💾 ${Math.round(video.size / (1024 * 1024))} MB</div>
-                </div>
-                <div class="file-footer">
-                    <div class="file-checkbox">
-                        <input type="checkbox" ${this.state.selectedVideos.has(video.id) ? 'checked' : ''}>
-                        <span>Seleccionar</span>
-                    </div>
-                    <button class="play-btn" data-id="${video.id}">▶️ Reproducir</button>
-                </div>
+renderVideosList() {
+    const container = this.elements.videosList;
+    
+    if (this.state.videos.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div>🎬</div>
+                <p>No hay vídeos grabados</p>
+                <p>Los datos GPS se graban en cada video</p>
             </div>
-        `).join('');
+        `;
+        return;
+    }
+    
+    // AÑADE 'video-file' class para diferenciar
+    container.innerHTML = this.state.videos.map(video => `
+        <div class="file-item video-file ${this.state.selectedVideos.has(video.id) ? 'selected' : ''}" 
+             data-id="${video.id}" 
+             data-type="video">
+            <div class="file-header">
+                <div class="file-title">${video.title || 'Grabación'}</div>
+                <div class="file-time">${new Date(video.timestamp).toLocaleTimeString()}</div>
+            </div>
+            <div class="file-details">
+                <div>📅 ${new Date(video.timestamp).toLocaleDateString()}</div>
+                <div>⏱️ ${this.formatTime(video.duration)}</div>
+                <div>💾 ${Math.round(video.size / (1024 * 1024))} MB</div>
+            </div>
+            <div class="file-footer">
+                <div class="file-checkbox">
+                    <input type="checkbox" ${this.state.selectedVideos.has(video.id) ? 'checked' : ''}>
+                    <span>Seleccionar</span>
+                </div>
+                <button class="play-btn" data-id="${video.id}">▶️ Reproducir</button>
+            </div>
+        </div>
+    `).join('');
         
         // Eventos para los vídeos
         container.querySelectorAll('.file-item').forEach(item => {
@@ -1717,39 +1760,32 @@ switchTab(tabName) {
     }
 }
 
-// En setupEventListeners(), AÑADE esto:
-setupEventListeners() {
-    // ... listeners existentes ...
-    
-    // Tabs
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const tabBtn = e.target.closest('.tab-btn');
-            if (tabBtn) {
-                const tabName = tabBtn.dataset.tab;
-                this.switchTab(tabName);
-            }
-        });
-    });
-}
 
-// En showGallery(), MODIFICA así:
-showGallery() {
-    console.log('Mostrando galería, tab activo:', this.state.activeTab);
+
+// Método para cambiar tabs
+switchTab(tabName) {
+    console.log('Cambiando a tab:', tabName);
     
-    // Mostrar panel
-    const galleryPanel = document.getElementById('galleryPanel');
-    if (galleryPanel) {
-        galleryPanel.classList.remove('hidden');
+    // Actualizar estado
+    this.state.activeTab = tabName;
+    
+    // Actualizar botones de tab
+    if (tabName === 'videos') {
+        this.elements.tabVideos.classList.add('active');
+        this.elements.tabGPX.classList.remove('active');
+        this.elements.videosTab.classList.add('active');
+        this.elements.gpxTab.classList.remove('active');
+    } else {
+        this.elements.tabVideos.classList.remove('active');
+        this.elements.tabGPX.classList.add('active');
+        this.elements.videosTab.classList.remove('active');
+        this.elements.gpxTab.classList.add('active');
     }
     
-    // Cargar datos según tab activo
-    if (this.state.activeTab === 'videos') {
+    // Cargar datos si es necesario
+    if (tabName === 'videos' && this.state.videos.length === 0) {
         this.loadVideos();
-    } else {
+    } else if (tabName === 'gpx' && this.state.gpxTracks.length === 0) {
         this.loadGPXTracks();
     }
-    
-    // Asegurar que el tab correcto esté activo
-    this.switchTab(this.state.activeTab);
 }
