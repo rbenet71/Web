@@ -326,6 +326,18 @@ body {
     background: #00a8ff;
 }
 
+/* Contenido de tabs */
+.tab-content {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.tab-content.active {
+    display: flex;
+}
+
 /* ============ GALERÍA ============ */
 .gallery-container {
     flex: 1;
@@ -367,7 +379,7 @@ body {
     font-size: 14px;
 }
 
-/* Lista de archivos */
+/* CONTENEDOR DE LISTA CON SCROLL FUNCIONAL */
 .scrollable-list {
     flex: 1;
     overflow-y: auto;
@@ -375,9 +387,9 @@ body {
     margin-bottom: 10px;
     padding-right: 5px;
     -webkit-overflow-scrolling: touch;
-    min-height: 150px;
     border-radius: 8px;
     background: rgba(30, 39, 46, 0.3);
+    max-height: 60vh; /* Altura máxima para asegurar el scroll */
 }
 
 .file-list {
@@ -665,6 +677,18 @@ body {
     font-size: 14px;
 }
 
+.landscape-content small {
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+.landscape-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
 .continue-btn {
     padding: 12px 25px;
     background: #00a8ff;
@@ -676,7 +700,17 @@ body {
     cursor: pointer;
 }
 
-.continue-btn:active {
+.rotate-btn {
+    padding: 12px 25px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid #00a8ff;
+    border-radius: 8px;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.continue-btn:active, .rotate-btn:active {
     transform: scale(0.98);
 }
 
@@ -739,9 +773,20 @@ body {
     .gallery-controls button {
         width: 100%;
     }
+    
+    .scrollable-list {
+        max-height: 55vh;
+    }
 }
 
-/* Scrollbar */
+/* Para pantallas más grandes */
+@media (min-height: 700px) {
+    .scrollable-list {
+        max-height: 70vh;
+    }
+}
+
+/* ESTILOS PARA SCROLLBAR */
 ::-webkit-scrollbar {
     width: 6px;
 }

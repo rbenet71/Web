@@ -1,5 +1,4 @@
-// Dashcam PWA v2.0.2
-// Versión corregida para errores de cámara y GPS
+// Dashcam PWA v2.0.3
 
 const APP_VERSION = '2.0.3';
 
@@ -22,7 +21,7 @@ class DashcamApp {
                 videoQuality: '720p',
                 gpxInterval: 5,
                 overlayEnabled: true,
-                audioEnabled: false, // Deshabilitado por defecto para evitar problemas de permisos
+                audioEnabled: false,
                 watermarkOpacity: 0.7,
                 watermarkFontSize: 16,
                 watermarkPosition: 'bottom'
@@ -265,7 +264,6 @@ class DashcamApp {
             
             request.onerror = (event) => {
                 console.error('❌ Error base de datos:', event.target.error);
-                // Continuar sin base de datos
                 this.db = null;
                 resolve();
             };
@@ -276,7 +274,7 @@ class DashcamApp {
         try {
             if (!this.db) {
                 console.log('⚠️ Base de datos no disponible para cargar configuración');
-                this.updateSettingsUI(); // Actualizar UI con valores por defecto
+                this.updateSettingsUI();
                 return;
             }
             
@@ -334,7 +332,6 @@ class DashcamApp {
         try {
             console.log('🔐 Solicitando permisos...');
             
-            // Solicitar permiso de cámara de manera progresiva
             try {
                 if (navigator.permissions && navigator.permissions.query) {
                     await navigator.permissions.query({ name: 'camera' });
@@ -343,7 +340,6 @@ class DashcamApp {
                 console.log('ℹ️ API de permisos no disponible');
             }
             
-            // Solicitar permiso de ubicación
             try {
                 if (navigator.permissions && navigator.permissions.query) {
                     await navigator.permissions.query({ name: 'geolocation' });
@@ -368,6 +364,12 @@ class DashcamApp {
 
     async startRecording() {
         console.log('🎬 Iniciando grabación...');
+
+        // Prevenir múltiples inicios
+        if (this.state.isRecording) {
+            console.log('⚠️ Ya se está grabando');
+            return;
+        }
         
         // Deshabilitar botón para evitar múltiples clics
         if (this.elements.startBtn) {
@@ -376,10 +378,11 @@ class DashcamApp {
                 if (this.elements.startBtn) {
                     this.elements.startBtn.disabled = false;
                 }
-            }, 2000);
+            }, 3000);
         }
         
-        if (this.shouldShowLandscapeModal()) {
+        // Mostrar sugerencia de orientación
+        if (this.checkOrientation() && !this.state.showLandscapeModal) {
             this.showLandscapeModal();
             return;
         }
@@ -487,7 +490,6 @@ class DashcamApp {
             this.showNotification('❌ Error: ' + error.message);
             this.showStartScreen();
             
-            // Detener cualquier stream activo
             if (this.mediaStream) {
                 this.mediaStream.getTracks().forEach(track => track.stop());
                 this.mediaStream = null;
@@ -495,11 +497,27 @@ class DashcamApp {
         }
     }
 
-    shouldShowLandscapeModal() {
+    checkOrientation() {
         if (!/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
             return false;
         }
-        return window.innerHeight > window.innerWidth;
+        
+        // Solo mostrar una vez por sesión
+        if (sessionStorage.getItem('landscape_shown')) {
+            return false;
+        }
+        
+        const isVertical = window.innerHeight > window.innerWidth;
+        
+        if (isVertical) {
+            sessionStorage.setItem('landscape_shown', 'true');
+        }
+        
+        return isVertical;
+    }
+
+    shouldShowLandscapeModal() {
+        return this.checkOrientation();
     }
 
     showLandscapeModal() {
@@ -530,11 +548,9 @@ class DashcamApp {
                 audio: this.state.settings.audioEnabled
             };
             
-            // Intentar primero con los constraints ideales
             this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints)
                 .catch(async (error) => {
                     console.log('⚠️ Intentando con constraints más permisivos...');
-                    // Fallback a constraints más básicos
                     const fallbackConstraints = {
                         video: true,
                         audio: this.state.settings.audioEnabled
@@ -550,8 +566,6 @@ class DashcamApp {
                         this.elements.videoPreview.play().then(resolve).catch(resolve);
                     };
                     this.elements.videoPreview.onerror = reject;
-                    
-                    // Timeout por seguridad
                     setTimeout(resolve, 3000);
                 });
                 
@@ -783,7 +797,6 @@ class DashcamApp {
 
     async stopRecording() {
         if (!this.mediaRecorder) {
-            // Si no hay mediaRecorder pero estamos "grabando", limpiar estado
             this.state.isRecording = false;
             this.state.isPaused = false;
             this.showStartScreen();
@@ -823,7 +836,6 @@ class DashcamApp {
             this.showNotification('❌ Error al guardar');
             this.showStartScreen();
         } finally {
-            // Limpiar streams
             if (this.mediaStream) {
                 this.mediaStream.getTracks().forEach(track => track.stop());
                 this.mediaStream = null;
@@ -906,9 +918,8 @@ class DashcamApp {
             const videos = JSON.parse(localStorage.getItem('dashcam_videos') || '[]');
             videos.push({
                 ...videoData,
-                // Convertir blob a base64 para almacenar en localStorage
-                blob: null, // No podemos guardar blobs grandes en localStorage
-                dataUrl: 'placeholder' // Placeholder ya que localStorage tiene límite de tamaño
+                blob: null,
+                dataUrl: 'placeholder'
             });
             localStorage.setItem('dashcam_videos', JSON.stringify(videos));
         } catch (error) {
@@ -985,10 +996,8 @@ class DashcamApp {
         
         console.log('📍 Iniciando GPS...');
         
-        // Primero obtener posición actual para verificar permisos
         navigator.geolocation.getCurrentPosition(
             (position) => {
-                // GPS funciona, iniciar watchPosition
                 this.startGPSWatching();
             },
             (error) => {
@@ -996,7 +1005,6 @@ class DashcamApp {
                 if (this.elements.gpsInfo) {
                     this.elements.gpsInfo.textContent = `📍 GPS: ${this.getGPSErrorMessage(error.code)}`;
                 }
-                // Intentar igualmente con watchPosition
                 this.startGPSWatching();
             },
             {
@@ -1052,17 +1060,16 @@ class DashcamApp {
         }, this.state.settings.gpxInterval * 1000);
     }
 
-    // Método para obtener mensajes de error GPS más descriptivos
     getGPSErrorMessage(code) {
         switch(code) {
             case 1:
-                return 'Permiso denegado';
+                return 'Permiso denegado - Activa GPS en ajustes';
             case 2:
-                return 'Posición no disponible';
+                return 'Posición no disponible - Sal al exterior';
             case 3:
-                return 'Timeout - Buscando señal...';
-            default:
                 return 'Buscando señal...';
+            default:
+                return 'Iniciando GPS...';
         }
     }
 
@@ -1102,7 +1109,6 @@ class DashcamApp {
             if (this.db) {
                 videos = await this.getAllFromStore('videos');
             } else {
-                // Fallback a localStorage
                 const storedVideos = localStorage.getItem('dashcam_videos');
                 if (storedVideos) {
                     videos = JSON.parse(storedVideos);
@@ -1175,7 +1181,6 @@ class DashcamApp {
         html += '</div>';
         container.innerHTML = html;
         
-        // Eventos
         container.querySelectorAll('.file-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 if (!e.target.closest('.play-btn') && !(e.target.type === 'checkbox')) {
@@ -1275,7 +1280,6 @@ class DashcamApp {
         html += '</div>';
         container.innerHTML = html;
         
-        // Eventos
         container.querySelectorAll('.file-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 if (!e.target.closest('.view-btn') && !(e.target.type === 'checkbox')) {
@@ -1313,7 +1317,6 @@ class DashcamApp {
             if (this.db) {
                 video = await this.getFromStore('videos', videoId);
             } else {
-                // Buscar en localStorage
                 const videos = JSON.parse(localStorage.getItem('dashcam_videos') || '[]');
                 video = videos.find(v => v.id === videoId);
             }
@@ -1326,7 +1329,6 @@ class DashcamApp {
             this.state.currentVideo = video;
             
             if (video.blob) {
-                // Crear URL para el blob
                 const videoUrl = URL.createObjectURL(video.blob);
                 
                 this.elements.playbackVideo.src = videoUrl;
@@ -1358,7 +1360,6 @@ class DashcamApp {
         this.elements.videoPlayer.classList.add('hidden');
         if (this.elements.playbackVideo) {
             this.elements.playbackVideo.pause();
-            // Liberar memoria
             if (this.elements.playbackVideo.src) {
                 URL.revokeObjectURL(this.elements.playbackVideo.src);
             }
@@ -1387,7 +1388,6 @@ class DashcamApp {
                 await store.put({ name: 'appSettings', value: settings });
                 console.log('⚙️ Configuración guardada');
             } else {
-                // Guardar en localStorage
                 localStorage.setItem('dashcam_settings', JSON.stringify(settings));
             }
             
@@ -1538,6 +1538,14 @@ class DashcamApp {
     setupEventListeners() {
         // Botones iniciales
         if (this.elements.startBtn) {
+            this.elements.startBtn.addEventListener('click', () => {
+                // Evitar múltiples clics
+                if (this.elements.startBtn.disabled) return;
+                this.startRecording();
+            });
+        }
+        // Botones iniciales
+        if (this.elements.startBtn) {
             this.elements.startBtn.addEventListener('click', () => this.startRecording());
         }
         if (this.elements.galleryBtn) {
@@ -1567,6 +1575,22 @@ class DashcamApp {
             this.elements.continueBtn.addEventListener('click', () => {
                 this.hideLandscapeModal();
                 this.startRecording();
+            });
+        }
+        
+        // Botón para girar dispositivo
+        const rotateBtn = document.getElementById('rotateDevice');
+        if (rotateBtn) {
+            rotateBtn.addEventListener('click', () => {
+                if (screen.orientation && screen.orientation.lock) {
+                    screen.orientation.lock('landscape').catch(() => {
+                        this.showNotification('Gira tu dispositivo manualmente');
+                    });
+                } else {
+                    this.showNotification('Gira tu dispositivo manualmente');
+                }
+                this.hideLandscapeModal();
+                setTimeout(() => this.startRecording(), 500);
             });
         }
         
@@ -1634,17 +1658,17 @@ class DashcamApp {
             this.elements.searchGPX.addEventListener('input', (e) => this.searchGPX(e.target.value));
         }
         
+        // Escuchar cambios de orientación
+        window.addEventListener('orientationchange', () => {
+            if (this.state.showLandscapeModal && window.innerHeight <= window.innerWidth) {
+                this.hideLandscapeModal();
+            }
+        });
+        
         // Detener grabación al salir de la página
         window.addEventListener('beforeunload', () => {
             if (this.state.isRecording) {
                 this.stopRecording();
-            }
-        });
-        
-        // Manejar cambios de orientación
-        window.addEventListener('orientationchange', () => {
-            if (this.state.showLandscapeModal && window.innerHeight <= window.innerWidth) {
-                this.hideLandscapeModal();
             }
         });
     }
@@ -1672,19 +1696,26 @@ class DashcamApp {
         
         const tabVideos = document.getElementById('tabVideos');
         const tabGPX = document.getElementById('tabGPX');
+        
+        if (tabVideos && tabGPX) {
+            tabVideos.classList.toggle('active', tabName === 'videos');
+            tabGPX.classList.toggle('active', tabName === 'gpx');
+        }
+        
         const videosTab = document.getElementById('videosTab');
         const gpxTab = document.getElementById('gpxTab');
         
-        if (tabVideos && tabGPX && videosTab && gpxTab) {
-            tabVideos.classList.toggle('active', tabName === 'videos');
-            tabGPX.classList.toggle('active', tabName === 'gpx');
-            
+        if (videosTab && gpxTab) {
             videosTab.classList.toggle('active', tabName === 'videos');
             gpxTab.classList.toggle('active', tabName === 'gpx');
             
             if (tabName === 'videos') {
+                videosTab.style.display = 'block';
+                gpxTab.style.display = 'none';
                 this.loadVideos();
             } else {
+                videosTab.style.display = 'none';
+                gpxTab.style.display = 'block';
                 this.loadGPXTracks();
             }
         }
@@ -1761,7 +1792,6 @@ class DashcamApp {
         }
         
         try {
-            // Exportar vídeos seleccionados
             for (const videoId of this.state.selectedVideos) {
                 let video;
                 if (this.db) {
@@ -1776,7 +1806,6 @@ class DashcamApp {
                 }
             }
             
-            // Exportar GPX seleccionados
             for (const gpxId of this.state.selectedGPX) {
                 const gpx = await this.getFromStore('gpxTracks', gpxId);
                 if (gpx && gpx.blob) {
@@ -1822,7 +1851,6 @@ class DashcamApp {
         try {
             const files = [];
             
-            // Preparar archivos para compartir
             for (const videoId of this.state.selectedVideos) {
                 const video = await this.getFromStore('videos', videoId);
                 if (video && video.blob) {
@@ -1886,30 +1914,25 @@ class DashcamApp {
         }
         
         try {
-            // Eliminar vídeos seleccionados
             for (const videoId of this.state.selectedVideos) {
                 if (this.db) {
                     await this.deleteFromStore('videos', videoId);
                 } else {
-                    // Eliminar de localStorage
                     const videos = JSON.parse(localStorage.getItem('dashcam_videos') || '[]');
                     const filteredVideos = videos.filter(v => v.id !== videoId);
                     localStorage.setItem('dashcam_videos', JSON.stringify(filteredVideos));
                 }
             }
             
-            // Eliminar GPX seleccionados
             for (const gpxId of this.state.selectedGPX) {
                 if (this.db) {
                     await this.deleteFromStore('gpxTracks', gpxId);
                 }
             }
             
-            // Limpiar selección
             this.state.selectedVideos.clear();
             this.state.selectedGPX.clear();
             
-            // Recargar galería
             await this.loadGallery();
             
             this.showNotification('🗑️ Elementos eliminados');
@@ -1931,7 +1954,6 @@ class DashcamApp {
             if (this.db) {
                 await this.deleteFromStore('videos', this.state.currentVideo.id);
             } else {
-                // Eliminar de localStorage
                 const videos = JSON.parse(localStorage.getItem('dashcam_videos') || '[]');
                 const filteredVideos = videos.filter(v => v.id !== this.state.currentVideo.id);
                 localStorage.setItem('dashcam_videos', JSON.stringify(filteredVideos));
@@ -1973,7 +1995,6 @@ class DashcamApp {
             }
         }
         
-        // Fallback para navegadores que no soportan codecs específicos
         return 'video/webm';
     }
 
@@ -2060,7 +2081,6 @@ class DashcamApp {
 document.addEventListener('DOMContentLoaded', () => {
     window.dashcamApp = new DashcamApp();
     
-    // Registrar Service Worker solo si estamos en HTTPS o localhost
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
         navigator.serviceWorker.register('service-worker.js')
             .then(registration => {
