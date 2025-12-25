@@ -1,11 +1,11 @@
-// Service Worker para Dashcam PWA v2.0.3
-const CACHE_NAME = 'dashcam-cache-v2.0.3';
+// Service Worker para Dashcam PWA v2.0.4
+const CACHE_NAME = 'dashcam-cache-v2.0.4';
 const urlsToCache = [
     './',
-    './index.html?v=2.0.3',
-    './styles.css?v=2.0.3',
-    './app.js?v=2.0.3',
-    './manifest.json?v=2.0.3',
+    './index.html?v=2.0.4',
+    './styles.css?v=2.0.4',
+    './app.js?v=2.0.4',
+    './manifest.json?v=2.0.4',
     './Logo_Dashcam_Bike_192x192.png',
     './Picto_Color_192x192.png',
     './Picto_Color_512x512.png'

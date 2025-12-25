@@ -2,7 +2,7 @@
     "name": "Dashcam PWA",
     "short_name": "Dashcam",
     "description": "Grabación de video con datos GPS incorporados",
-    "start_url": "/Web/Ciclismo/Dashcam/index.html?v=2.0.3",
+    "start_url": "/Web/Ciclismo/Dashcam/index.html?v=2.0.4",
     "display": "standalone",
     "orientation": "any",
     "background_color": "#000000",
@@ -10,12 +10,12 @@
     "scope": "/Web/Ciclismo/Dashcam/",
     "icons": [
         {
-            "src": "Picto_Color_192x192.png?v=2.0.3",
+            "src": "Picto_Color_192x192.png?v=2.0.4",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "Picto_Color_512x512.png?v=2.0.3",
+            "src": "Picto_Color_512x512.png?v=2.0.4",
             "sizes": "512x512",
             "type": "image/png"
         }

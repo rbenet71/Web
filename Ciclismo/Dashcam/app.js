@@ -1,6 +1,6 @@
-// Dashcam PWA v2.0.3
+// Dashcam PWA v2.0.4
 
-const APP_VERSION = '2.0.3';
+const APP_VERSION = '2.0.4';
 
 class DashcamApp {
     constructor() {
