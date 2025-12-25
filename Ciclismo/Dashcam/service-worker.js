@@ -1,11 +1,11 @@
-// Service Worker para Dashcam PWA v2.0.0
-const CACHE_NAME = 'dashcam-cache-v2.0.0';
+// Service Worker para Dashcam PWA v2.0.1
+const CACHE_NAME = 'dashcam-cache-v2.0.1';
 const urlsToCache = [
     './',
-    './index.html?v=2.0.0',
-    './styles.css?v=2.0.0',
-    './app.js?v=2.0.0',
-    './manifest.json?v=2.0.0'
+    './index.html?v=2.0.1',
+    './styles.css?v=2.0.1',
+    './app.js?v=2.0.1',
+    './manifest.json?v=2.0.1'
 ];
 
 self.addEventListener('install', event => {
@@ -36,14 +36,44 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
     // No cachear solicitudes especiales
-    if (event.request.url.includes('chrome-extension')) {
+    if (event.request.url.includes('chrome-extension') || 
+        event.request.url.includes('blob:') ||
+        event.request.url.includes('video/webm')) {
         return;
     }
     
     event.respondWith(
         caches.match(event.request)
             .then(response => {
-                return response || fetch(event.request);
+                // Si encontramos en caché, devolvemos
+                if (response) {
+                    return response;
+                }
+                
+                // Si no está en caché, hacemos la petición
+                return fetch(event.request).then(response => {
+                    // Solo cacheamos respuestas exitosas
+                    if (!response || response.status !== 200 || response.type !== 'basic') {
+                        return response;
+                    }
+                    
+                    // Clonamos la respuesta para cachearla
+                    const responseToCache = response.clone();
+                    
+                    caches.open(CACHE_NAME)
+                        .then(cache => {
+                            cache.put(event.request, responseToCache);
+                        });
+                    
+                    return response;
+                });
             })
     );
+});
+
+// Manejar mensajes del cliente
+self.addEventListener('message', event => {
+    if (event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });

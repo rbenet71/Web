@@ -9,15 +9,15 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <title>Dashcam PWA v2.0.0</title>
+    <title>Dashcam PWA v2.0.2</title>
     
     <!-- Manifest con versión -->
-    <link rel="manifest" href="manifest.json?v=2.0.0">
+    <link rel="manifest" href="manifest.json?v=2.0.2">
     
     <!-- CSS con versión -->
-    <link rel="stylesheet" href="styles.css?v=2.0.0">
+    <link rel="stylesheet" href="styles.css?v=2.0.2">
     
-    <link rel="icon" href="icons/icon-192.png?v=2.0.0">
+    <link rel="icon" href="icons/icon-192.png?v=2.0.2">
     
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -32,7 +32,7 @@
             <div class="app-icon">🎬</div>
             <h1 class="app-title">Dashcam PWA</h1>
             <p class="app-description">Grabación con datos GPS incorporados</p>
-            <div class="app-version">Versión 2.0.0</div>
+            <div class="app-version">Versión 2.0.2</div>
             
             <div class="start-controls">
                 <button id="startBtn" class="start-btn">
@@ -173,7 +173,7 @@
                     
                     <div class="setting">
                         <label>
-                            <input type="checkbox" id="audioEnabled" checked>
+                            <input type="checkbox" id="audioEnabled">
                             Grabar audio
                         </label>
                     </div>
@@ -223,12 +223,12 @@
     </div>
 
     <!-- JavaScript con versión -->
-    <script src="app.js?v=2.0.0"></script>
+    <script src="app.js?v=2.0.2"></script>
     
     <script>
         // Limpiar caché al cargar
-        if (localStorage.getItem('dashcam_version') !== '2.0.0') {
-            localStorage.setItem('dashcam_version', '2.0.0');
+        if (localStorage.getItem('dashcam_version') !== '2.0.2') {
+            localStorage.setItem('dashcam_version', '2.0.2');
             
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(registrations => {
@@ -240,6 +240,14 @@
                 caches.keys().then(cacheNames => {
                     cacheNames.forEach(cacheName => caches.delete(cacheName));
                 });
+            }
+            
+            // Limpiar datos antiguos
+            if (localStorage.getItem('dashcam_videos')) {
+                localStorage.removeItem('dashcam_videos');
+            }
+            if (localStorage.getItem('dashcam_settings')) {
+                localStorage.removeItem('dashcam_settings');
             }
         }
     </script>
