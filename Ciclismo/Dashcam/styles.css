@@ -27,14 +27,51 @@ body {
     position: relative;
     background: #000000;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Video de preview (solo para vista previa) */
+/* Pantalla de inicio (antes de grabar) */
+.camera-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #00a8ff;
+    text-align: center;
+    padding: 20px;
+}
+
+.camera-placeholder-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    opacity: 0.8;
+}
+
+.camera-placeholder h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #ffffff;
+}
+
+.camera-placeholder p {
+    font-size: 16px;
+    opacity: 0.7;
+    max-width: 300px;
+    margin-bottom: 30px;
+}
+
+/* Video de preview (solo se muestra al grabar) */
 #videoPreview {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transform: scaleX(-1); /* Espejo para parecer cámara trasera */
+    display: none; /* Oculto por defecto */
 }
 
 /* Canvas principal - PARA GRABACIÓN CON DATOS */
@@ -45,6 +82,7 @@ body {
     width: 100%;
     height: 100%;
     z-index: 1; /* Debajo del overlay */
+    display: none; /* Oculto por defecto */
 }
 
 /* Canvas de overlay - solo indicadores temporales */
@@ -56,6 +94,7 @@ body {
     height: 100%;
     pointer-events: none;
     z-index: 2; /* Encima del main canvas */
+    display: none; /* Oculto por defecto */
 }
 
 /* ============ CONTROLES ============ */
@@ -137,11 +176,17 @@ body {
     gap: 5px;
     min-height: 70px;
     transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .btn:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 168, 255, 0.3);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(0);
 }
 
 .btn:disabled {
@@ -205,6 +250,7 @@ body {
     display: flex;
     flex-direction: column;
     animation: panelSlideIn 0.3s ease-out;
+    overflow: hidden;
 }
 
 .hidden {
@@ -246,6 +292,8 @@ body {
     background: rgba(255, 255, 255, 0.1);
     flex-shrink: 0;
     transition: background 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .close-btn:hover {
@@ -271,6 +319,8 @@ body {
     font-weight: 500;
     transition: all 0.2s;
     min-height: 44px; /* Tamaño mínimo para iOS */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .tab-btn.active {
@@ -324,6 +374,9 @@ body {
     border-radius: 8px;
     font-size: 14px;
     min-width: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
 .selection-buttons {
@@ -342,13 +395,15 @@ body {
     white-space: nowrap;
     transition: background 0.2s;
     min-height: 44px; /* Tamaño mínimo para iOS */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .gallery-controls button:hover {
     background: #2d3436;
 }
 
-/* NUEVO: Contenedor de lista scrollable */
+/* Contenedor de lista scrollable */
 .scrollable-list {
     flex: 1;
     overflow-y: auto;
@@ -362,14 +417,6 @@ body {
     background: rgba(30, 39, 46, 0.3);
 }
 
-/* OBSOLETO: Eliminar o comentar la clase .files-list original */
-/* .files-list {
-    overflow: visible !important;
-    margin-bottom: 0 !important;
-    padding-right: 0 !important;
-    height: auto !important;
-} */
-
 .file-item {
     background: #1e272e;
     padding: 15px;
@@ -378,6 +425,7 @@ body {
     border-left: 4px solid #00a8ff;
     cursor: pointer;
     transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .file-item:hover {
@@ -457,6 +505,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .play-btn:hover, .view-btn:hover {
@@ -516,6 +566,9 @@ body {
     color: white;
     border-radius: 8px;
     font-size: 16px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
 .setting input[type="checkbox"] {
@@ -627,6 +680,15 @@ body {
     }
 }
 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 /* ============ SCROLLBAR ============ */
 ::-webkit-scrollbar {
     width: 10px;
@@ -647,39 +709,69 @@ body {
     background: #0097e6;
 }
 
-/* ============ FIX ESPECÍFICO PARA iOS ============ */
+/* ============ FIX ESPECÍFICO PARA MÓVIL ============ */
+
+/* Prevenir zoom en inputs en iOS */
+input, select, textarea {
+    font-size: 16px !important;
+}
+
+/* Mejorar rendimiento en móvil */
+.camera-view {
+    -webkit-transform: translate3d(0,0,0);
+    transform: translate3d(0,0,0);
+}
+
+/* Optimizar para pantallas táctiles */
+.btn, .tab-btn, .play-btn, .view-btn, .gallery-controls button, .close-btn {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+/* Contenedor principal de galería */
+.gallery-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    min-height: 0; /* CRÍTICO para iOS */
+}
+
+/* Tabs content */
+.tab-content {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    min-height: 0;
+}
+
+.tab-content.active {
+    display: flex !important;
+}
+
+/* FIX PARA MÓVIL - Scroll táctil */
 @supports (-webkit-touch-callout: none) {
-    /* iOS específico - scroll táctil mejorado */
     .scrollable-list {
         -webkit-overflow-scrolling: touch !important;
         overflow-y: scroll !important;
-        overscroll-behavior-y: contain;
+        overscroll-behavior: contain;
     }
     
-    .panel-content {
-        -webkit-overflow-scrolling: touch !important;
-        overflow-y: scroll !important;
+    .gallery-container {
+        -webkit-transform: translateZ(0);
     }
     
-    /* Prevenir zoom en inputs en iOS */
-    input, select, textarea {
-        font-size: 16px !important;
-    }
-    
-    /* Mejorar rendimiento */
-    .camera-view {
-        -webkit-transform: translate3d(0,0,0);
-        transform: translate3d(0,0,0);
-    }
-    
-    /* Botones más grandes para iOS */
-    .btn, .tab-btn, .play-btn, .view-btn, .gallery-controls button {
-        cursor: pointer;
-        -webkit-tap-highlight-color: transparent;
+    /* Prevenir arrastre accidental */
+    body {
+        overscroll-behavior-y: none;
     }
 }
 
-/* ============ RESPONSIVE ============ */
+/* Mejorar scroll en móviles */
 @media (max-width: 768px) {
     .camera-view {
         flex: 0 0 60vh;
@@ -775,6 +867,14 @@ body {
         max-height: calc(100vh - 250px);
         padding-right: 5px;
     }
+    
+    .camera-placeholder h2 {
+        font-size: 20px;
+    }
+    
+    .camera-placeholder p {
+        font-size: 14px;
+    }
 }
 
 /* Para tablets en landscape */
@@ -822,64 +922,6 @@ body {
     }
 }
 
-/* Contenedor principal de galería */
-.gallery-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    position: relative;
-    min-height: 0; /* CRÍTICO para iOS */
-}
-
-/* Tabs content */
-.tab-content {
-    display: none;
-    flex: 1;
-    flex-direction: column;
-    overflow: hidden;
-    position: relative;
-    min-height: 0;
-}
-
-.tab-content.active {
-    display: flex !important;
-}
-
-/* FIX PARA iOS - Scroll táctil */
-@supports (-webkit-touch-callout: none) {
-    .scrollable-list {
-        -webkit-overflow-scrolling: touch !important;
-        overflow-y: scroll !important;
-        overscroll-behavior: contain;
-    }
-    
-    .gallery-container {
-        -webkit-transform: translateZ(0);
-    }
-}
-
-/* Mejorar scroll en móviles */
-@media (max-width: 768px) {
-    .scrollable-list {
-        max-height: calc(100vh - 250px);
-    }
-    
-    .gallery-controls {
-        flex-wrap: wrap;
-    }
-    
-    .selection-buttons {
-        display: flex;
-        width: 100%;
-        margin-top: 10px;
-    }
-    
-    .selection-buttons button {
-        flex: 1;
-    }
-}
-
 /* Asegurar que los botones de tab funcionen */
 .tab-btn {
     position: relative;
@@ -897,4 +939,15 @@ body {
 
 .video-file .file-title::before {
     content: "🎬 ";
+}
+
+/* Clases para mostrar/ocultar elementos de cámara */
+.show-camera #videoPreview,
+.show-camera #mainCanvas,
+.show-camera #overlayCanvas {
+    display: block !important;
+}
+
+.show-camera .camera-placeholder {
+    display: none !important;
 }

@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Dashcam PWA</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="styles.css">
@@ -10,11 +10,25 @@
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dashcam">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="HandheldFriendly" content="true">
 </head>
 <body>
     <div class="container">
         <!-- Vista de cámara -->
         <div class="camera-view">
+            <!-- Pantalla de inicio (se muestra al principio) -->
+            <div class="camera-placeholder">
+                <div class="camera-placeholder-icon">📷</div>
+                <h2>Dashcam PWA</h2>
+                <p>La cámara se activará al comenzar la grabación</p>
+                <p style="margin-top: 10px; font-size: 14px; opacity: 0.6;">
+                    Los datos GPS se grabarán permanentemente en cada video
+                </p>
+            </div>
+            
+            <!-- Elementos de cámara (ocultos al inicio) -->
             <video id="videoPreview" autoplay muted playsinline></video>
             <canvas id="mainCanvas"></canvas>
             <canvas id="overlayCanvas"></canvas>
@@ -24,7 +38,7 @@
         <div class="controls">
             <div class="controls-content">
                 <div class="status-bar">
-                    <div id="status" class="status">🟢 Listo</div>
+                    <div id="status" class="status">🟢 Listo para grabar</div>
                     <div id="gpsStatus" class="gps-status">📍 GPS: --</div>
                     <div id="storageStatus" class="storage-status">💾 0 MB</div>
                     <div id="batteryStatus" class="battery-status">🔋 --</div>
@@ -83,7 +97,6 @@
                                 <button id="deselectAllVideos">✗ Ninguno</button>
                             </div>
                         </div>
-                        <!-- LISTA CON SCROLL - CLASE CORREGIDA -->
                         <div id="videosList" class="scrollable-list">
                             <!-- Los vídeos se cargarán aquí -->
                         </div>
@@ -98,7 +111,6 @@
                                 <button id="deselectAllGPX">✗ Ninguno</button>
                             </div>
                         </div>
-                        <!-- LISTA CON SCROLL - CLASE CORREGIDA -->
                         <div id="gpxList" class="scrollable-list">
                             <!-- Las rutas GPX se cargarán aquí -->
                         </div>
