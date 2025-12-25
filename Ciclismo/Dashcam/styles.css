@@ -35,23 +35,23 @@ body {
 }
 
 .app-icon {
-    font-size: 80px;
-    margin-bottom: 20px;
+    font-size: 60px;
+    margin-bottom: 15px;
     opacity: 0.9;
 }
 
 .app-title {
-    font-size: 32px;
-    margin-bottom: 10px;
+    font-size: 24px;
+    margin-bottom: 8px;
     color: #00a8ff;
     font-weight: bold;
 }
 
 .app-description {
-    font-size: 16px;
+    font-size: 14px;
     opacity: 0.8;
-    max-width: 300px;
-    margin-bottom: 30px;
+    max-width: 280px;
+    margin-bottom: 25px;
     line-height: 1.5;
 }
 
@@ -59,18 +59,18 @@ body {
 .start-controls {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
     width: 100%;
-    max-width: 300px;
+    max-width: 280px;
 }
 
 .start-btn {
-    padding: 18px;
+    padding: 16px;
     background: linear-gradient(135deg, #e84118, #c23616);
     border: none;
-    border-radius: 12px;
+    border-radius: 10px;
     color: white;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
     cursor: pointer;
     display: flex;
@@ -78,7 +78,6 @@ body {
     justify-content: center;
     gap: 10px;
     transition: all 0.2s;
-    touch-action: manipulation;
 }
 
 .start-btn:active {
@@ -86,26 +85,32 @@ body {
 }
 
 .gallery-btn, .settings-btn {
-    padding: 15px;
+    padding: 14px;
     background: rgba(255, 255, 255, 0.1);
     border: none;
-    border-radius: 12px;
+    border-radius: 10px;
     color: white;
-    font-size: 16px;
+    font-size: 15px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     transition: all 0.2s;
-    touch-action: manipulation;
 }
 
 .gallery-btn:active, .settings-btn:active {
     background: rgba(255, 255, 255, 0.2);
 }
 
-/* ============ VISTA DE CÁMARA (OCULTA AL INICIO) ============ */
+/* Versión de la app */
+.app-version {
+    margin-top: 15px;
+    font-size: 11px;
+    opacity: 0.5;
+}
+
+/* ============ VISTA DE CÁMARA ============ */
 .camera-screen {
     position: fixed;
     top: 0;
@@ -127,10 +132,10 @@ body {
     flex: 1;
     width: 100%;
     object-fit: cover;
-    transform: scaleX(-1); /* Espejo para cámara trasera */
+    transform: scaleX(-1);
 }
 
-/* Canvas principal - PARA GRABACIÓN CON DATOS */
+/* Canvas para datos */
 #mainCanvas {
     position: absolute;
     top: 0;
@@ -141,7 +146,7 @@ body {
     pointer-events: none;
 }
 
-/* Canvas de overlay - solo indicadores temporales */
+/* Canvas overlay */
 #overlayCanvas {
     position: absolute;
     top: 0;
@@ -159,28 +164,27 @@ body {
     left: 0;
     width: 100%;
     background: rgba(0, 0, 0, 0.8);
-    padding: 20px;
+    padding: 15px;
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 15px;
     z-index: 3;
 }
 
 .record-control-btn {
-    padding: 20px 40px;
+    padding: 16px 25px;
     border: none;
-    border-radius: 15px;
+    border-radius: 12px;
     color: white;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    min-width: 150px;
+    gap: 8px;
+    min-width: 120px;
     transition: all 0.2s;
-    touch-action: manipulation;
 }
 
 .record-control-btn:active {
@@ -195,25 +199,25 @@ body {
     background: linear-gradient(135deg, #00a8ff, #0097e6);
 }
 
-/* Barra de información durante grabación */
+/* Barra de información */
 .recording-info-bar {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     background: rgba(0, 0, 0, 0.7);
-    padding: 15px 20px;
+    padding: 12px 15px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: 5px;
     z-index: 3;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .recording-status {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     font-weight: bold;
 }
 
@@ -227,15 +231,16 @@ body {
 
 .recording-time {
     font-family: monospace;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
 }
 
 .gps-info {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     opacity: 0.9;
+    font-size: 12px;
 }
 
 /* ============ PANELES ============ */
@@ -261,7 +266,7 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 15px;
     overflow: hidden;
 }
 
@@ -269,15 +274,14 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
+    margin-bottom: 15px;
+    padding-bottom: 12px;
     border-bottom: 2px solid #00a8ff;
-    flex-shrink: 0;
 }
 
 .panel-header h3 {
     margin: 0;
-    font-size: 22px;
+    font-size: 20px;
     color: #00a8ff;
 }
 
@@ -285,14 +289,12 @@ body {
     background: none;
     border: none;
     color: white;
-    font-size: 24px;
+    font-size: 22px;
     cursor: pointer;
     padding: 5px 10px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.1);
-    flex-shrink: 0;
     transition: background 0.2s;
-    touch-action: manipulation;
 }
 
 .close-btn:active {
@@ -302,28 +304,26 @@ body {
 /* ============ TABS ============ */
 .tabs {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-shrink: 0;
+    gap: 8px;
+    margin-bottom: 15px;
 }
 
 .tab-btn {
     flex: 1;
-    padding: 15px;
+    padding: 12px;
     background: #1e272e;
     border: none;
     color: white;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
     font-weight: 500;
     transition: all 0.2s;
-    min-height: 50px;
-    touch-action: manipulation;
+    min-height: 40px;
+    font-size: 14px;
 }
 
 .tab-btn.active {
     background: #00a8ff;
-    box-shadow: 0 4px 12px rgba(0, 168, 255, 0.4);
 }
 
 /* ============ GALERÍA ============ */
@@ -332,73 +332,72 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    min-height: 0;
 }
 
 .gallery-controls {
     display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-    flex-shrink: 0;
+    gap: 8px;
+    margin-bottom: 12px;
 }
 
 .gallery-controls input {
     flex: 1;
-    padding: 15px;
+    padding: 12px;
     background: #1e272e;
     border: 1px solid #00a8ff;
     color: white;
-    border-radius: 10px;
-    font-size: 16px;
-    min-width: 0;
+    border-radius: 8px;
+    font-size: 14px;
 }
 
 .selection-buttons {
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
 .gallery-controls button {
-    padding: 15px 20px;
+    padding: 12px 15px;
     background: #353b48;
     border: none;
     color: white;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
     font-weight: 500;
     white-space: nowrap;
-    transition: background 0.2s;
-    min-height: 50px;
-    touch-action: manipulation;
+    font-size: 14px;
 }
 
-/* Contenedor de lista scrollable */
+/* Lista de archivos */
 .scrollable-list {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
     margin-bottom: 10px;
-    padding-right: 8px;
+    padding-right: 5px;
     -webkit-overflow-scrolling: touch;
-    min-height: 200px;
-    border-radius: 10px;
+    min-height: 150px;
+    border-radius: 8px;
     background: rgba(30, 39, 46, 0.3);
+}
+
+.file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .file-item {
     background: #1e272e;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 10px;
-    border-left: 4px solid #00a8ff;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 3px solid #00a8ff;
     cursor: pointer;
     transition: all 0.2s;
-    touch-action: manipulation;
 }
 
 .file-item:active {
     background: #2d3436;
-    transform: translateX(5px);
+    transform: translateX(3px);
 }
 
 .file-item.selected {
@@ -409,13 +408,13 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .file-title {
     font-weight: bold;
     color: #00a8ff;
-    font-size: 16px;
+    font-size: 14px;
     flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -423,57 +422,56 @@ body {
 }
 
 .file-time {
-    font-size: 12px;
+    font-size: 11px;
     color: #aaa;
-    margin-left: 10px;
+    margin-left: 8px;
     flex-shrink: 0;
 }
 
 .file-details {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    font-size: 12px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    font-size: 11px;
     color: #aaa;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .file-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 10px;
+    padding-top: 8px;
     border-top: 1px solid #333;
 }
 
 .file-checkbox {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    font-size: 12px;
 }
 
 .file-checkbox input {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     accent-color: #00a8ff;
 }
 
 .play-btn, .view-btn {
-    padding: 10px 20px;
+    padding: 8px 12px;
     background: #00a8ff;
     border: none;
     color: white;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
     font-weight: 500;
-    white-space: nowrap;
-    transition: background 0.2s;
-    min-height: 44px;
-    min-width: 44px;
+    font-size: 12px;
+    min-height: 36px;
+    min-width: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    touch-action: manipulation;
 }
 
 .play-btn:active, .view-btn:active {
@@ -483,7 +481,7 @@ body {
 /* Estados vacíos */
 .empty-state {
     text-align: center;
-    padding: 60px 20px;
+    padding: 40px 15px;
     color: #666;
     flex: 1;
     display: flex;
@@ -493,97 +491,95 @@ body {
 }
 
 .empty-state div:first-child {
-    font-size: 64px;
-    margin-bottom: 20px;
+    font-size: 48px;
+    margin-bottom: 15px;
     opacity: 0.3;
 }
 
 .empty-state p {
     margin: 5px 0;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 /* ============ CONFIGURACIÓN ============ */
 .settings-content {
     flex: 1;
     overflow-y: auto;
-    padding-right: 8px;
+    padding-right: 5px;
     -webkit-overflow-scrolling: touch;
 }
 
 .setting {
-    margin-bottom: 20px;
-    padding: 15px;
+    margin-bottom: 15px;
+    padding: 12px;
     background: #1e272e;
-    border-radius: 10px;
+    border-radius: 8px;
 }
 
 .setting label {
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     color: #00a8ff;
     font-weight: 500;
+    font-size: 14px;
 }
 
 .setting select {
     width: 100%;
-    padding: 15px;
+    padding: 12px;
     background: #2d3436;
     border: 1px solid #00a8ff;
     color: white;
-    border-radius: 10px;
-    font-size: 16px;
+    border-radius: 8px;
+    font-size: 14px;
 }
 
 .setting input[type="checkbox"] {
-    margin-right: 12px;
-    transform: scale(1.3);
+    margin-right: 10px;
+    transform: scale(1.2);
     accent-color: #00a8ff;
 }
 
-/* ============ REPRODUCTOR DE VIDEO ============ */
+/* ============ REPRODUCTOR ============ */
 #playbackVideo {
     width: 100%;
-    max-height: 50vh;
-    border-radius: 10px;
-    margin-bottom: 20px;
+    max-height: 40vh;
+    border-radius: 8px;
+    margin-bottom: 15px;
     background: black;
-    flex-shrink: 0;
 }
 
 .video-info {
     background: #1e272e;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    flex-shrink: 0;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
 }
 
 .video-info p {
     margin: 5px 0;
     color: #00a8ff;
+    font-size: 13px;
 }
 
-/* ============ ACCIONES DEL PANEL ============ */
+/* ============ ACCIONES ============ */
 .panel-actions {
     display: flex;
-    gap: 10px;
-    padding-top: 20px;
+    gap: 8px;
+    padding-top: 15px;
     border-top: 1px solid #333;
-    flex-shrink: 0;
 }
 
 .panel-actions .btn {
     flex: 1;
-    min-height: 60px;
-    padding: 15px;
+    min-height: 45px;
+    padding: 12px;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     color: white;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
     cursor: pointer;
-    touch-action: manipulation;
 }
 
 .panel-actions .btn:active {
@@ -609,16 +605,79 @@ body {
 /* ============ NOTIFICACIONES ============ */
 .notification {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 15px;
+    right: 15px;
     background: #00a8ff;
     color: white;
-    padding: 15px 25px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     z-index: 300;
     animation: slideIn 0.3s ease-out;
-    max-width: 300px;
+    max-width: 250px;
+    font-size: 14px;
+}
+
+/* ============ MODAL LANDSCAPE ============ */
+.landscape-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 400;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+}
+
+.landscape-modal.active {
+    display: flex;
+}
+
+.landscape-content {
+    background: #1e272e;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    max-width: 350px;
+    border: 2px solid #00a8ff;
+}
+
+.landscape-icon {
+    font-size: 50px;
+    margin-bottom: 15px;
+    color: #00a8ff;
+}
+
+.landscape-content h3 {
+    margin-bottom: 12px;
+    color: white;
+    font-size: 20px;
+}
+
+.landscape-content p {
+    margin-bottom: 15px;
+    opacity: 0.8;
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+.continue-btn {
+    padding: 12px 25px;
+    background: #00a8ff;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.continue-btn:active {
+    transform: scale(0.98);
 }
 
 /* ============ ANIMACIONES ============ */
@@ -644,128 +703,29 @@ body {
     }
 }
 
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
-    }
-}
-
-/* ============ SCROLLBAR ============ */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: rgba(30, 39, 46, 0.8);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #00a8ff;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #0097e6;
-}
-
-/* ============ MODAL DE CONSEJO LANDSCAPE ============ */
-.landscape-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.9);
-    z-index: 400;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-
-.landscape-modal.active {
-    display: flex;
-}
-
-.landscape-content {
-    background: #1e272e;
-    padding: 30px;
-    border-radius: 15px;
-    text-align: center;
-    max-width: 400px;
-    border: 2px solid #00a8ff;
-}
-
-.landscape-icon {
-    font-size: 60px;
-    margin-bottom: 20px;
-    color: #00a8ff;
-}
-
-.landscape-content h3 {
-    margin-bottom: 15px;
-    color: white;
-    font-size: 24px;
-}
-
-.landscape-content p {
-    margin-bottom: 20px;
-    opacity: 0.8;
-    line-height: 1.5;
-}
-
-.continue-btn {
-    padding: 15px 30px;
-    background: #00a8ff;
-    border: none;
-    border-radius: 10px;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    touch-action: manipulation;
-}
-
-.continue-btn:active {
-    transform: scale(0.98);
-}
-
 /* ============ RESPONSIVE ============ */
-@media (max-width: 768px) {
+@media (max-width: 480px) {
     .app-title {
-        font-size: 28px;
+        font-size: 22px;
     }
     
-    .app-description {
-        font-size: 14px;
+    .app-icon {
+        font-size: 50px;
     }
     
     .start-btn, .gallery-btn, .settings-btn {
-        padding: 15px;
-        font-size: 16px;
+        padding: 14px;
+        font-size: 15px;
     }
     
     .record-control-btn {
-        padding: 15px 30px;
-        min-width: 120px;
-        font-size: 16px;
-    }
-    
-    .recording-info-bar {
-        flex-direction: column;
-        gap: 10px;
-        padding: 10px;
+        padding: 14px 20px;
+        min-width: 110px;
+        font-size: 15px;
     }
     
     .file-details {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
     }
     
     .gallery-controls {
@@ -779,87 +739,23 @@ body {
     .gallery-controls button {
         width: 100%;
     }
-    
-    .panel-container {
-        padding: 15px;
-    }
-    
-    .panel-header h3 {
-        font-size: 20px;
-    }
 }
 
-@media (max-width: 480px) {
-    .app-title {
-        font-size: 24px;
-    }
-    
-    .app-icon {
-        font-size: 60px;
-    }
-    
-    .record-control-btn {
-        padding: 12px 20px;
-        min-width: 100px;
-        font-size: 14px;
-    }
-    
-    .panel-actions {
-        flex-direction: column;
-    }
-    
-    .file-details {
-        grid-template-columns: 1fr;
-    }
-    
-    .tabs {
-        flex-direction: column;
-    }
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
 }
 
-/* Para landscape en móvil */
-@media (orientation: landscape) and (max-height: 500px) {
-    .start-screen {
-        padding: 10px;
-    }
-    
-    .app-icon {
-        font-size: 50px;
-        margin-bottom: 10px;
-    }
-    
-    .app-title {
-        font-size: 22px;
-        margin-bottom: 5px;
-    }
-    
-    .app-description {
-        font-size: 12px;
-        margin-bottom: 20px;
-    }
-    
-    .start-controls {
-        flex-direction: row;
-        flex-wrap: wrap;
-        max-width: none;
-    }
-    
-    .start-btn, .gallery-btn, .settings-btn {
-        flex: 1;
-        min-width: 45%;
-    }
+::-webkit-scrollbar-track {
+    background: rgba(30, 39, 46, 0.8);
+    border-radius: 3px;
 }
 
-/* Estilos para archivos GPX */
-.gpx-file .file-title::before {
-    content: "📍 ";
+::-webkit-scrollbar-thumb {
+    background: #00a8ff;
+    border-radius: 3px;
 }
 
-.video-file .file-title::before {
-    content: "🎬 ";
-}
-
-/* Clase helper para ocultar */
-.hidden {
-    display: none !important;
+::-webkit-scrollbar-thumb:hover {
+    background: #0097e6;
 }

@@ -3,10 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dashcam PWA</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="icons/icon-192.png">
+    
+    <!-- Metatags anti-caché -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <title>Dashcam PWA v2.0.0</title>
+    
+    <!-- Manifest con versión -->
+    <link rel="manifest" href="manifest.json?v=2.0.0">
+    
+    <!-- CSS con versión -->
+    <link rel="stylesheet" href="styles.css?v=2.0.0">
+    
+    <link rel="icon" href="icons/icon-192.png?v=2.0.0">
+    
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,11 +27,12 @@
 </head>
 <body>
     <div class="container">
-        <!-- ============ PANTALLA INICIAL ============ -->
+        <!-- PANTALLA INICIAL -->
         <div class="start-screen">
             <div class="app-icon">🎬</div>
             <h1 class="app-title">Dashcam PWA</h1>
-            <p class="app-description">Grabación de video con datos GPS incorporados permanentemente</p>
+            <p class="app-description">Grabación con datos GPS incorporados</p>
+            <div class="app-version">Versión 2.0.0</div>
             
             <div class="start-controls">
                 <button id="startBtn" class="start-btn">
@@ -39,25 +52,18 @@
             </div>
         </div>
 
-        <!-- ============ PANTALLA DE CÁMARA (OCULTA AL INICIO) ============ -->
+        <!-- PANTALLA DE CÁMARA -->
         <div class="camera-screen">
-            <!-- Video preview -->
             <video id="videoPreview" autoplay muted playsinline></video>
-            
-            <!-- Canvas para datos permanentes -->
             <canvas id="mainCanvas"></canvas>
-            
-            <!-- Canvas para overlay temporal -->
             <canvas id="overlayCanvas"></canvas>
             
-            <!-- Barra de información -->
             <div class="recording-info-bar">
                 <div id="recordingStatus" class="recording-status recording">● GRABANDO</div>
                 <div id="recordingTime" class="recording-time">00:00:00</div>
                 <div id="gpsInfo" class="gps-info">📍 GPS: Conectando...</div>
             </div>
             
-            <!-- Controles de grabación -->
             <div class="recording-controls">
                 <button id="pauseBtn" class="record-control-btn pause-btn">
                     ⏸️ Pausar
@@ -68,7 +74,7 @@
             </div>
         </div>
 
-        <!-- ============ PANEL DE GALERÍA ============ -->
+        <!-- GALERÍA -->
         <div id="galleryPanel" class="panel hidden">
             <div class="panel-container">
                 <div class="panel-header">
@@ -76,15 +82,13 @@
                     <button id="closeGallery" class="close-btn">✕</button>
                 </div>
                 
-                <!-- Tabs -->
                 <div class="tabs">
                     <button id="tabVideos" class="tab-btn active">Vídeos</button>
                     <button id="tabGPX" class="tab-btn">Rutas GPX</button>
                 </div>
                 
-                <!-- Contenido de Galería -->
                 <div class="gallery-container">
-                    <!-- Pestaña Vídeos -->
+                    <!-- Vídeos -->
                     <div id="videosTab" class="tab-content active">
                         <div class="gallery-controls">
                             <input type="text" id="searchVideos" placeholder="🔍 Buscar vídeos...">
@@ -98,7 +102,7 @@
                         </div>
                     </div>
                     
-                    <!-- Pestaña GPX -->
+                    <!-- GPX -->
                     <div id="gpxTab" class="tab-content">
                         <div class="gallery-controls">
                             <input type="text" id="searchGPX" placeholder="🔍 Buscar rutas...">
@@ -113,7 +117,6 @@
                     </div>
                 </div>
                 
-                <!-- Acciones -->
                 <div class="panel-actions">
                     <button id="exportBtn" class="btn export-btn" disabled>📤 Exportar</button>
                     <button id="shareBtn" class="btn share-btn" disabled>↗️ Compartir</button>
@@ -122,7 +125,7 @@
             </div>
         </div>
 
-        <!-- ============ PANEL DE CONFIGURACIÓN ============ -->
+        <!-- CONFIGURACIÓN -->
         <div id="settingsPanel" class="panel hidden">
             <div class="panel-container">
                 <div class="panel-header">
@@ -177,12 +180,12 @@
                 </div>
                 
                 <div class="panel-actions">
-                    <button id="saveSettings" class="btn save-btn">💾 Guardar Configuración</button>
+                    <button id="saveSettings" class="btn save-btn">💾 Guardar</button>
                 </div>
             </div>
         </div>
 
-        <!-- ============ REPRODUCTOR DE VIDEO ============ -->
+        <!-- REPRODUCTOR -->
         <div id="videoPlayer" class="panel hidden">
             <div class="panel-container">
                 <div class="panel-header">
@@ -193,8 +196,8 @@
                 <video id="playbackVideo" controls playsinline></video>
                 
                 <div class="video-info">
-                    <h3 id="videoTitle">Título del Video</h3>
-                    <p id="videoDetails">Detalles del video</p>
+                    <h3 id="videoTitle">Título</h3>
+                    <p id="videoDetails">Detalles</p>
                 </div>
                 
                 <div class="panel-actions">
@@ -205,21 +208,40 @@
             </div>
         </div>
 
-        <!-- ============ MODAL DE CONSEJO LANDSCAPE ============ -->
+        <!-- MODAL LANDSCAPE -->
         <div class="landscape-modal">
             <div class="landscape-content">
                 <div class="landscape-icon">📱</div>
                 <h3>Recomendación</h3>
-                <p>Para una mejor experiencia de grabación, se recomienda usar el modo horizontal (landscape).</p>
-                <p>Puedes continuar en modo vertical, pero el video se grabará mejor en horizontal.</p>
-                <button id="continueBtn" class="continue-btn">Continuar de todos modos</button>
+                <p>Para mejor experiencia, usa modo horizontal.</p>
+                <button id="continueBtn" class="continue-btn">Continuar</button>
             </div>
         </div>
 
-        <!-- ============ NOTIFICACIÓN ============ -->
+        <!-- NOTIFICACIÓN -->
         <div id="notification" class="notification hidden"></div>
     </div>
 
-    <script src="app.js"></script>
+    <!-- JavaScript con versión -->
+    <script src="app.js?v=2.0.0"></script>
+    
+    <script>
+        // Limpiar caché al cargar
+        if (localStorage.getItem('dashcam_version') !== '2.0.0') {
+            localStorage.setItem('dashcam_version', '2.0.0');
+            
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    registrations.forEach(registration => registration.unregister());
+                });
+            }
+            
+            if (caches) {
+                caches.keys().then(cacheNames => {
+                    cacheNames.forEach(cacheName => caches.delete(cacheName));
+                });
+            }
+        }
+    </script>
 </body>
 </html>
