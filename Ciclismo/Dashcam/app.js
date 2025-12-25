@@ -1,7 +1,7 @@
 // Dashcam PWA v2.0.2
 // Versión corregida para errores de cámara y GPS
 
-const APP_VERSION = '2.0.2';
+const APP_VERSION = '2.0.3';
 
 class DashcamApp {
     constructor() {
