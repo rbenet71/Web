@@ -1,11 +1,14 @@
-// Service Worker para Dashcam PWA v2.0.1
+// Service Worker para Dashcam PWA v2.0.3
 const CACHE_NAME = 'dashcam-cache-v2.0.3';
 const urlsToCache = [
     './',
     './index.html?v=2.0.3',
     './styles.css?v=2.0.3',
     './app.js?v=2.0.3',
-    './manifest.json?v=2.0.3'
+    './manifest.json?v=2.0.3',
+    './Logo_Dashcam_Bike_192x192.png',
+    './Picto_Color_192x192.png',
+    './Picto_Color_512x512.png'
 ];
 
 self.addEventListener('install', event => {
