@@ -3,6 +3,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -11,7 +12,7 @@ body {
     color: white;
     height: 100vh;
     overflow: hidden;
-    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .container {
@@ -21,57 +22,112 @@ body {
     position: relative;
 }
 
-/* ============ VISTA DE CÁMARA ============ */
-.camera-view {
-    flex: 0 0 65vh; /* 65% de la altura */
-    position: relative;
-    background: #000000;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Pantalla de inicio (antes de grabar) */
-.camera-placeholder {
-    width: 100%;
-    height: 100%;
+/* ============ PANTALLA INICIAL ============ */
+.start-screen {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    color: #00a8ff;
-    text-align: center;
     padding: 20px;
+    text-align: center;
 }
 
-.camera-placeholder-icon {
+.app-icon {
     font-size: 80px;
     margin-bottom: 20px;
-    opacity: 0.8;
+    opacity: 0.9;
 }
 
-.camera-placeholder h2 {
-    font-size: 24px;
+.app-title {
+    font-size: 32px;
     margin-bottom: 10px;
-    color: #ffffff;
+    color: #00a8ff;
+    font-weight: bold;
 }
 
-.camera-placeholder p {
+.app-description {
     font-size: 16px;
-    opacity: 0.7;
+    opacity: 0.8;
     max-width: 300px;
     margin-bottom: 30px;
+    line-height: 1.5;
 }
 
-/* Video de preview (solo se muestra al grabar) */
-#videoPreview {
+/* Controles iniciales */
+.start-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 300px;
+}
+
+.start-btn {
+    padding: 18px;
+    background: linear-gradient(135deg, #e84118, #c23616);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s;
+    touch-action: manipulation;
+}
+
+.start-btn:active {
+    transform: scale(0.98);
+}
+
+.gallery-btn, .settings-btn {
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s;
+    touch-action: manipulation;
+}
+
+.gallery-btn:active, .settings-btn:active {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* ============ VISTA DE CÁMARA (OCULTA AL INICIO) ============ */
+.camera-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
+    background: #000000;
+    display: none;
+    flex-direction: column;
+    z-index: 100;
+}
+
+.camera-screen.active {
+    display: flex;
+}
+
+/* Video de preview */
+#videoPreview {
+    flex: 1;
+    width: 100%;
     object-fit: cover;
-    transform: scaleX(-1); /* Espejo para parecer cámara trasera */
-    display: none; /* Oculto por defecto */
+    transform: scaleX(-1); /* Espejo para cámara trasera */
 }
 
 /* Canvas principal - PARA GRABACIÓN CON DATOS */
@@ -81,8 +137,8 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1; /* Debajo del overlay */
-    display: none; /* Oculto por defecto */
+    z-index: 1;
+    pointer-events: none;
 }
 
 /* Canvas de overlay - solo indicadores temporales */
@@ -93,149 +149,93 @@ body {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 2; /* Encima del main canvas */
-    display: none; /* Oculto por defecto */
+    z-index: 2;
 }
 
-/* ============ CONTROLES ============ */
-.controls {
-    flex: 0 0 35vh; /* 35% de la altura */
-    background: rgba(0, 0, 0, 0.95);
-    border-top: 2px solid #00a8ff;
+/* ============ CONTROLES DE GRABACIÓN ============ */
+.recording-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
     display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    justify-content: center;
+    gap: 20px;
+    z-index: 3;
 }
 
-.controls-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 12px 15px;
-    overflow-y: auto;
-}
-
-/* Barra de estado */
-.status-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 12px;
-    font-size: 12px;
-}
-
-.status, .gps-status, .storage-status, .battery-status {
-    padding: 6px 10px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    min-width: 100px;
-    text-align: center;
-    flex: 1;
-}
-
-.status {
-    color: #00ff88;
-    border-left: 3px solid #00ff88;
-}
-
-.gps-status {
-    color: #00a8ff;
-    border-left: 3px solid #00a8ff;
-}
-
-.storage-status {
-    color: #ffcc00;
-    border-left: 3px solid #ffcc00;
-}
-
-.battery-status {
-    color: #ff5555;
-    border-left: 3px solid #ff5555;
-}
-
-/* Botones principales */
-.buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-bottom: 12px;
-}
-
-.btn {
-    padding: 12px 5px;
+.record-control-btn {
+    padding: 20px 40px;
     border: none;
-    border-radius: 10px;
-    background: #1e272e;
+    border-radius: 15px;
     color: white;
-    font-size: 14px;
+    font-size: 18px;
+    font-weight: bold;
     cursor: pointer;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    min-height: 70px;
+    gap: 10px;
+    min-width: 150px;
     transition: all 0.2s;
-    -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
 }
 
-.btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 168, 255, 0.3);
+.record-control-btn:active {
+    transform: scale(0.95);
 }
 
-.btn:active:not(:disabled) {
-    transform: translateY(0);
-}
-
-.btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.record-btn {
-    background: linear-gradient(135deg, #e84118, #c23616);
-}
-
-.record-btn.recording {
+.pause-btn {
     background: linear-gradient(135deg, #f0932b, #e67e22);
-    animation: pulse 1.5s infinite;
 }
 
 .stop-btn {
     background: linear-gradient(135deg, #00a8ff, #0097e6);
 }
 
-.gallery-btn {
-    background: linear-gradient(135deg, #8c7ae6, #7158e2);
+/* Barra de información durante grabación */
+.recording-info-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 3;
+    font-size: 14px;
 }
 
-.settings-btn {
-    background: linear-gradient(135deg, #353b48, #2f3640);
+.recording-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
 }
 
-/* Información de grabación */
-.recording-info {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    font-size: 12px;
-    text-align: center;
-    background: rgba(0, 168, 255, 0.1);
-    padding: 10px;
-    border-radius: 8px;
-    margin-top: auto;
+.recording-status.recording {
+    color: #ff6b6b;
 }
 
-.recording-info > div {
-    padding: 8px 4px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 5px;
-    font-weight: 500;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.recording-status.paused {
+    color: #feca57;
+}
+
+.recording-time {
+    font-family: monospace;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.gps-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0.9;
 }
 
 /* ============ PANELES ============ */
@@ -245,8 +245,8 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.98);
-    z-index: 1000;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 200;
     display: flex;
     flex-direction: column;
     animation: panelSlideIn 0.3s ease-out;
@@ -277,7 +277,7 @@ body {
 
 .panel-header h3 {
     margin: 0;
-    font-size: 20px;
+    font-size: 22px;
     color: #00a8ff;
 }
 
@@ -292,11 +292,10 @@ body {
     background: rgba(255, 255, 255, 0.1);
     flex-shrink: 0;
     transition: background 0.2s;
-    -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
 }
 
-.close-btn:hover {
+.close-btn:active {
     background: rgba(255, 255, 255, 0.2);
 }
 
@@ -310,52 +309,30 @@ body {
 
 .tab-btn {
     flex: 1;
-    padding: 12px;
+    padding: 15px;
     background: #1e272e;
     border: none;
     color: white;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     font-weight: 500;
     transition: all 0.2s;
-    min-height: 44px; /* Tamaño mínimo para iOS */
-    -webkit-tap-highlight-color: transparent;
+    min-height: 50px;
     touch-action: manipulation;
 }
 
 .tab-btn.active {
     background: #00a8ff;
-    box-shadow: 0 4px 8px rgba(0, 168, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 168, 255, 0.4);
 }
 
-/* ============ CONTENIDO DE PANELES ============ */
-.panel-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    margin-bottom: 20px;
-    -webkit-overflow-scrolling: touch; /* Scroll suave iOS */
-}
-
-.tab-content {
-    display: none;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0; /* IMPORTANTE para flex en iOS */
-}
-
-.tab-content.active {
-    display: flex !important;
-}
-
-/* Galería */
-.gallery-content {
+/* ============ GALERÍA ============ */
+.gallery-container {
     flex: 1;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    min-height: 0; /* IMPORTANTE para flex en iOS */
+    min-height: 0;
 }
 
 .gallery-controls {
@@ -367,40 +344,32 @@ body {
 
 .gallery-controls input {
     flex: 1;
-    padding: 12px;
+    padding: 15px;
     background: #1e272e;
     border: 1px solid #00a8ff;
     color: white;
-    border-radius: 8px;
-    font-size: 14px;
+    border-radius: 10px;
+    font-size: 16px;
     min-width: 0;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
 }
 
 .selection-buttons {
     display: flex;
-    gap: 8px;
+    gap: 10px;
 }
 
 .gallery-controls button {
-    padding: 12px 15px;
+    padding: 15px 20px;
     background: #353b48;
     border: none;
     color: white;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     font-weight: 500;
     white-space: nowrap;
     transition: background 0.2s;
-    min-height: 44px; /* Tamaño mínimo para iOS */
-    -webkit-tap-highlight-color: transparent;
+    min-height: 50px;
     touch-action: manipulation;
-}
-
-.gallery-controls button:hover {
-    background: #2d3436;
 }
 
 /* Contenedor de lista scrollable */
@@ -412,8 +381,7 @@ body {
     padding-right: 8px;
     -webkit-overflow-scrolling: touch;
     min-height: 200px;
-    max-height: calc(100vh - 300px);
-    border-radius: 8px;
+    border-radius: 10px;
     background: rgba(30, 39, 46, 0.3);
 }
 
@@ -425,10 +393,10 @@ body {
     border-left: 4px solid #00a8ff;
     cursor: pointer;
     transition: all 0.2s;
-    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
-.file-item:hover {
+.file-item:active {
     background: #2d3436;
     transform: translateX(5px);
 }
@@ -485,31 +453,30 @@ body {
 }
 
 .file-checkbox input {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     accent-color: #00a8ff;
 }
 
 .play-btn, .view-btn {
-    padding: 8px 15px;
+    padding: 10px 20px;
     background: #00a8ff;
     border: none;
     color: white;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     font-weight: 500;
     white-space: nowrap;
     transition: background 0.2s;
-    min-height: 44px; /* Tamaño mínimo para iOS */
-    min-width: 44px; /* Tamaño mínimo para iOS */
+    min-height: 44px;
+    min-width: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-    -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
 }
 
-.play-btn:hover, .view-btn:hover {
+.play-btn:active, .view-btn:active {
     background: #0097e6;
 }
 
@@ -541,7 +508,7 @@ body {
     flex: 1;
     overflow-y: auto;
     padding-right: 8px;
-    -webkit-overflow-scrolling: touch; /* Scroll suave iOS */
+    -webkit-overflow-scrolling: touch;
 }
 
 .setting {
@@ -560,15 +527,12 @@ body {
 
 .setting select {
     width: 100%;
-    padding: 12px;
+    padding: 15px;
     background: #2d3436;
     border: 1px solid #00a8ff;
     color: white;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 16px;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
 }
 
 .setting input[type="checkbox"] {
@@ -611,7 +575,19 @@ body {
 
 .panel-actions .btn {
     flex: 1;
-    min-height: 50px;
+    min-height: 60px;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.panel-actions .btn:active {
+    transform: scale(0.98);
 }
 
 .export-btn {
@@ -640,7 +616,7 @@ body {
     padding: 15px 25px;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    z-index: 2000;
+    z-index: 300;
     animation: slideIn 0.3s ease-out;
     max-width: 300px;
 }
@@ -670,123 +646,122 @@ body {
 
 @keyframes pulse {
     0% {
-        box-shadow: 0 0 0 0 rgba(240, 147, 43, 0.7);
+        box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
     }
     70% {
-        box-shadow: 0 0 0 10px rgba(240, 147, 43, 0);
+        box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
     }
     100% {
-        box-shadow: 0 0 0 0 rgba(240, 147, 43, 0);
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
     }
 }
 
 /* ============ SCROLLBAR ============ */
 ::-webkit-scrollbar {
-    width: 10px;
+    width: 8px;
 }
 
 ::-webkit-scrollbar-track {
     background: rgba(30, 39, 46, 0.8);
-    border-radius: 5px;
+    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
     background: #00a8ff;
-    border-radius: 5px;
-    border: 2px solid rgba(30, 39, 46, 0.8);
+    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
     background: #0097e6;
 }
 
-/* ============ FIX ESPECÍFICO PARA MÓVIL ============ */
-
-/* Prevenir zoom en inputs en iOS */
-input, select, textarea {
-    font-size: 16px !important;
+/* ============ MODAL DE CONSEJO LANDSCAPE ============ */
+.landscape-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 400;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
 }
 
-/* Mejorar rendimiento en móvil */
-.camera-view {
-    -webkit-transform: translate3d(0,0,0);
-    transform: translate3d(0,0,0);
+.landscape-modal.active {
+    display: flex;
 }
 
-/* Optimizar para pantallas táctiles */
-.btn, .tab-btn, .play-btn, .view-btn, .gallery-controls button, .close-btn {
+.landscape-content {
+    background: #1e272e;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    max-width: 400px;
+    border: 2px solid #00a8ff;
+}
+
+.landscape-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+    color: #00a8ff;
+}
+
+.landscape-content h3 {
+    margin-bottom: 15px;
+    color: white;
+    font-size: 24px;
+}
+
+.landscape-content p {
+    margin-bottom: 20px;
+    opacity: 0.8;
+    line-height: 1.5;
+}
+
+.continue-btn {
+    padding: 15px 30px;
+    background: #00a8ff;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
 }
 
-/* Contenedor principal de galería */
-.gallery-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    position: relative;
-    min-height: 0; /* CRÍTICO para iOS */
+.continue-btn:active {
+    transform: scale(0.98);
 }
 
-/* Tabs content */
-.tab-content {
-    display: none;
-    flex: 1;
-    flex-direction: column;
-    overflow: hidden;
-    position: relative;
-    min-height: 0;
-}
-
-.tab-content.active {
-    display: flex !important;
-}
-
-/* FIX PARA MÓVIL - Scroll táctil */
-@supports (-webkit-touch-callout: none) {
-    .scrollable-list {
-        -webkit-overflow-scrolling: touch !important;
-        overflow-y: scroll !important;
-        overscroll-behavior: contain;
-    }
-    
-    .gallery-container {
-        -webkit-transform: translateZ(0);
-    }
-    
-    /* Prevenir arrastre accidental */
-    body {
-        overscroll-behavior-y: none;
-    }
-}
-
-/* Mejorar scroll en móviles */
+/* ============ RESPONSIVE ============ */
 @media (max-width: 768px) {
-    .camera-view {
-        flex: 0 0 60vh;
+    .app-title {
+        font-size: 28px;
     }
     
-    .controls {
-        flex: 0 0 40vh;
+    .app-description {
+        font-size: 14px;
     }
     
-    .buttons {
-        grid-template-columns: repeat(2, 1fr);
+    .start-btn, .gallery-btn, .settings-btn {
+        padding: 15px;
+        font-size: 16px;
     }
     
-    .recording-info {
-        grid-template-columns: repeat(2, 1fr);
+    .record-control-btn {
+        padding: 15px 30px;
+        min-width: 120px;
+        font-size: 16px;
+    }
+    
+    .recording-info-bar {
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
     }
     
     .file-details {
@@ -810,42 +785,26 @@ input, select, textarea {
     }
     
     .panel-header h3 {
-        font-size: 18px;
-    }
-    
-    /* Mejorar scroll en móviles */
-    .scrollable-list {
-        max-height: calc(100vh - 280px);
+        font-size: 20px;
     }
 }
 
 @media (max-width: 480px) {
-    .camera-view {
-        flex: 0 0 55vh;
+    .app-title {
+        font-size: 24px;
     }
     
-    .controls {
-        flex: 0 0 45vh;
-        padding: 0;
+    .app-icon {
+        font-size: 60px;
     }
     
-    .btn-text {
-        font-size: 12px;
-    }
-    
-    .btn-icon {
-        font-size: 20px;
+    .record-control-btn {
+        padding: 12px 20px;
+        min-width: 100px;
+        font-size: 14px;
     }
     
     .panel-actions {
-        flex-direction: column;
-    }
-    
-    .panel-actions .btn {
-        width: 100%;
-    }
-    
-    .tabs {
         flex-direction: column;
     }
     
@@ -853,83 +812,42 @@ input, select, textarea {
         grid-template-columns: 1fr;
     }
     
-    .status-bar {
+    .tabs {
         flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .status, .gps-status, .storage-status, .battery-status {
-        min-width: 100%;
-    }
-    
-    /* Scroll mejorado para móviles pequeños */
-    .scrollable-list {
-        max-height: calc(100vh - 250px);
-        padding-right: 5px;
-    }
-    
-    .camera-placeholder h2 {
-        font-size: 20px;
-    }
-    
-    .camera-placeholder p {
-        font-size: 14px;
     }
 }
 
-/* Para tablets en landscape */
-@media (orientation: landscape) and (max-height: 600px) {
-    .camera-view {
-        flex: 0 0 70vh;
+/* Para landscape en móvil */
+@media (orientation: landscape) and (max-height: 500px) {
+    .start-screen {
+        padding: 10px;
     }
     
-    .controls {
-        flex: 0 0 30vh;
+    .app-icon {
+        font-size: 50px;
+        margin-bottom: 10px;
     }
     
-    .btn {
-        min-height: 60px;
-        padding: 8px 3px;
+    .app-title {
+        font-size: 22px;
+        margin-bottom: 5px;
     }
     
-    .btn-text {
-        font-size: 11px;
+    .app-description {
+        font-size: 12px;
+        margin-bottom: 20px;
     }
     
-    .recording-info {
-        font-size: 10px;
-        padding: 8px;
-    }
-}
-
-/* Para pantallas muy altas */
-@media (min-height: 1000px) {
-    .camera-view {
-        flex: 0 0 70vh;
+    .start-controls {
+        flex-direction: row;
+        flex-wrap: wrap;
+        max-width: none;
     }
     
-    .controls {
-        flex: 0 0 30vh;
+    .start-btn, .gallery-btn, .settings-btn {
+        flex: 1;
+        min-width: 45%;
     }
-    
-    .btn {
-        min-height: 80px;
-        padding: 15px 5px;
-    }
-    
-    .btn-text {
-        font-size: 15px;
-    }
-}
-
-/* Asegurar que los botones de tab funcionen */
-.tab-btn {
-    position: relative;
-    z-index: 1;
-}
-
-.tab-btn.active {
-    z-index: 2;
 }
 
 /* Estilos para archivos GPX */
@@ -941,13 +859,7 @@ input, select, textarea {
     content: "🎬 ";
 }
 
-/* Clases para mostrar/ocultar elementos de cámara */
-.show-camera #videoPreview,
-.show-camera #mainCanvas,
-.show-camera #overlayCanvas {
-    display: block !important;
-}
-
-.show-camera .camera-placeholder {
+/* Clase helper para ocultar */
+.hidden {
     display: none !important;
 }

@@ -1,11 +1,13 @@
 // Service Worker para Dashcam PWA
-const CACHE_NAME = 'dashcam-pwa-v1';
+const CACHE_NAME = 'dashcam-pwa-v2';
 const urlsToCache = [
     './',
     './index.html',
     './styles.css',
     './app.js',
-    './manifest.json'
+    './manifest.json',
+    './icons/icon-192.png',
+    './icons/icon-512.png'
 ];
 
 // Instalar Service Worker
@@ -16,6 +18,7 @@ self.addEventListener('install', event => {
                 console.log('📦 Cache abierto');
                 return cache.addAll(urlsToCache);
             })
+            .then(() => self.skipWaiting())
     );
 });
 
@@ -31,11 +34,11 @@ self.addEventListener('activate', event => {
                     }
                 })
             );
-        })
+        }).then(() => self.clients.claim())
     );
 });
 
-// Estrategia: Cache First
+// Estrategia: Cache First con actualización en background
 self.addEventListener('fetch', event => {
     // No cachear solicitudes a la API de IndexedDB
     if (event.request.url.includes('chrome-extension')) {
@@ -45,7 +48,39 @@ self.addEventListener('fetch', event => {
     event.respondWith(
         caches.match(event.request)
             .then(response => {
-                return response || fetch(event.request);
+                // Devuelve la respuesta cacheada si existe
+                if (response) {
+                    // Actualizar caché en background
+                    fetch(event.request).then(response => {
+                        caches.open(CACHE_NAME).then(cache => {
+                            cache.put(event.request, response);
+                        });
+                    }).catch(() => {});
+                    return response;
+                }
+                
+                // Si no está en caché, haz la petición
+                return fetch(event.request).then(response => {
+                    // No cachear respuestas que no sean exitosas
+                    if (!response || response.status !== 200 || response.type !== 'basic') {
+                        return response;
+                    }
+                    
+                    // Clonar la respuesta para almacenarla en caché
+                    const responseToCache = response.clone();
+                    
+                    caches.open(CACHE_NAME).then(cache => {
+                        cache.put(event.request, responseToCache);
+                    });
+                    
+                    return response;
+                });
+            })
+            .catch(() => {
+                // Si falla todo, devolver una respuesta offline
+                if (event.request.mode === 'navigate') {
+                    return caches.match('./index.html');
+                }
             })
     );
 });

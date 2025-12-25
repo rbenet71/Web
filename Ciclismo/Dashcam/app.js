@@ -1,5 +1,5 @@
 // Dashcam PWA - Grabación con datos GPS incorporados permanentemente en el video
-// Archivo completo corregido para móvil
+// Versión simplificada: pantalla inicial completa, cámara solo al grabar
 
 class DashcamApp {
     constructor() {
@@ -7,17 +7,13 @@ class DashcamApp {
         this.state = {
             isRecording: false,
             isPaused: false,
-            currentSegment: null,
-            gpsTrack: [],
             startTime: null,
             currentTime: 0,
-            totalSize: 0,
             selectedVideos: new Set(),
             selectedGPX: new Set(),
             currentVideo: null,
-            currentGPX: null,
             activeTab: 'videos',
-            cameraInitialized: false, // Nuevo: control de cámara
+            showLandscapeModal: false,
             settings: {
                 segmentDuration: 5,
                 videoQuality: '720p',
@@ -25,7 +21,7 @@ class DashcamApp {
                 overlayEnabled: true,
                 audioEnabled: true,
                 watermarkOpacity: 0.7,
-                watermarkFontSize: 20,
+                watermarkFontSize: 18,
                 watermarkPosition: 'bottom'
             },
             videos: [],
@@ -38,14 +34,13 @@ class DashcamApp {
         this.gpsWatchId = null;
         this.gpxInterval = null;
         this.currentPosition = null;
-        this.lastGPXPoint = null;
         this.gpxPoints = [];
         this.recordedChunks = [];
         this.segmentTimer = null;
         this.updateInterval = null;
         this.db = null;
         
-        // Variables para composición de video con canvas
+        // Variables para composición de video
         this.mainCanvas = null;
         this.mainCtx = null;
         this.videoElement = null;
@@ -57,18 +52,14 @@ class DashcamApp {
     }
 
     async init() {
-        console.log('🚀 Iniciando Dashcam PWA con grabación de datos en video');
+        console.log('🚀 Iniciando Dashcam PWA');
         
         // Inicializar elementos DOM
         this.initElements();
         
-        // Inicializar canvas principal (pero oculto)
+        // Inicializar canvas (pero ocultos)
         this.mainCanvas = document.getElementById('mainCanvas');
         this.mainCtx = this.mainCanvas.getContext('2d');
-        this.elements.overlayCtx = document.getElementById('overlayCanvas').getContext('2d');
-        
-        // Ocultar elementos de cámara al inicio
-        this.hideCameraElements();
         
         // Cargar configuración
         await this.loadSettings();
@@ -79,7 +70,7 @@ class DashcamApp {
         // Configurar eventos
         this.setupEventListeners();
         
-        // Solicitar permisos (pero NO iniciar cámara aún)
+        // Solicitar permisos básicos
         await this.requestPermissions();
         
         // Iniciar monitoreo (GPS, batería, etc.)
@@ -88,48 +79,45 @@ class DashcamApp {
         // Cargar galería
         await this.loadGallery();
         
-        this.showNotification('Dashcam lista para usar - Los datos GPS se grabarán en el video');
-        this.updateStatus('✅ Listo para grabar');
+        this.showNotification('Dashcam PWA lista para usar');
     }
 
     initElements() {
         this.elements = {
-            // Vista de cámara
-            videoPreview: document.getElementById('videoPreview'),
-            mainCanvas: document.getElementById('mainCanvas'),
-            overlayCanvas: document.getElementById('overlayCanvas'),
-            overlayCtx: null,
-            cameraPlaceholder: document.querySelector('.camera-placeholder'), // Nuevo
+            // Pantallas
+            startScreen: document.querySelector('.start-screen'),
+            cameraScreen: document.querySelector('.camera-screen'),
             
-            // Controles principales
-            recordBtn: document.getElementById('recordBtn'),
-            stopBtn: document.getElementById('stopBtn'),
+            // Botones iniciales
+            startBtn: document.getElementById('startBtn'),
             galleryBtn: document.getElementById('galleryBtn'),
             settingsBtn: document.getElementById('settingsBtn'),
             
-            // Elementos de estado
-            status: document.getElementById('status'),
-            gpsStatus: document.getElementById('gpsStatus'),
-            storageStatus: document.getElementById('storageStatus'),
-            batteryStatus: document.getElementById('batteryStatus'),
-            recordingTime: document.getElementById('recordingTime'),
-            fileSize: document.getElementById('fileSize'),
-            currentSpeed: document.getElementById('currentSpeed'),
-            coordinates: document.getElementById('coordinates'),
+            // Elementos de cámara
+            videoPreview: document.getElementById('videoPreview'),
+            mainCanvas: document.getElementById('mainCanvas'),
+            overlayCanvas: document.getElementById('overlayCanvas'),
+            overlayCtx: document.getElementById('overlayCanvas').getContext('2d'),
             
-            // Galería
+            // Controles de grabación
+            pauseBtn: document.getElementById('pauseBtn'),
+            stopBtn: document.getElementById('stopBtn'),
+            
+            // Información de grabación
+            recordingStatus: document.getElementById('recordingStatus'),
+            recordingTimeEl: document.getElementById('recordingTime'),
+            gpsInfo: document.getElementById('gpsInfo'),
+            
+            // Paneles
             galleryPanel: document.getElementById('galleryPanel'),
             settingsPanel: document.getElementById('settingsPanel'),
             videoPlayer: document.getElementById('videoPlayer'),
             
-            // Tabs y contenido
+            // Tabs
             tabVideos: document.getElementById('tabVideos'),
             tabGPX: document.getElementById('tabGPX'),
             videosTab: document.getElementById('videosTab'),
             gpxTab: document.getElementById('gpxTab'),
-            
-            // Botones de tab
-            tabButtons: document.querySelectorAll('.tab-btn'),
             
             // Galería - Vídeos
             videosList: document.getElementById('videosList'),
@@ -167,44 +155,17 @@ class DashcamApp {
             deleteVideo: document.getElementById('deleteVideo'),
             closePlayer: document.getElementById('closePlayer'),
             
-            // Contenedor principal
-            cameraView: document.querySelector('.camera-view') // Nuevo
+            // Modal landscape
+            landscapeModal: document.querySelector('.landscape-modal'),
+            continueBtn: document.getElementById('continueBtn')
         };
-    }
-
-    // ============ CONTROL DE CÁMARA ============
-
-    hideCameraElements() {
-        // Ocultar elementos de cámara
-        if (this.elements.videoPreview) this.elements.videoPreview.style.display = 'none';
-        if (this.elements.mainCanvas) this.elements.mainCanvas.style.display = 'none';
-        if (this.elements.overlayCanvas) this.elements.overlayCanvas.style.display = 'none';
-        
-        // Mostrar placeholder
-        if (this.elements.cameraPlaceholder) this.elements.cameraPlaceholder.style.display = 'flex';
-        
-        // No añadir clase show-camera al contenedor
-        if (this.elements.cameraView) this.elements.cameraView.classList.remove('show-camera');
-    }
-
-    showCameraElements() {
-        // Mostrar elementos de cámara
-        if (this.elements.videoPreview) this.elements.videoPreview.style.display = 'block';
-        if (this.elements.mainCanvas) this.elements.mainCanvas.style.display = 'block';
-        if (this.elements.overlayCanvas) this.elements.overlayCanvas.style.display = 'block';
-        
-        // Ocultar placeholder
-        if (this.elements.cameraPlaceholder) this.elements.cameraPlaceholder.style.display = 'none';
-        
-        // Añadir clase show-camera al contenedor
-        if (this.elements.cameraView) this.elements.cameraView.classList.add('show-camera');
     }
 
     // ============ BASE DE DATOS ============
 
     async initDatabase() {
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open('DashcamDB', 4);
+            const request = indexedDB.open('DashcamDB', 5);
             
             request.onupgradeneeded = (event) => {
                 this.db = event.target.result;
@@ -257,6 +218,7 @@ class DashcamApp {
             request.onsuccess = () => {
                 if (request.result) {
                     this.state.settings = { ...this.state.settings, ...request.result.value };
+                    this.updateSettingsUI();
                 }
             };
         } catch (error) {
@@ -278,11 +240,29 @@ class DashcamApp {
         });
     }
 
-    // ============ PERMISOS Y CÁMARA ============
+    updateSettingsUI() {
+        if (this.elements.segmentDuration) {
+            this.elements.segmentDuration.value = this.state.settings.segmentDuration;
+        }
+        if (this.elements.videoQuality) {
+            this.elements.videoQuality.value = this.state.settings.videoQuality;
+        }
+        if (this.elements.gpxInterval) {
+            this.elements.gpxInterval.value = this.state.settings.gpxInterval;
+        }
+        if (this.elements.overlayEnabled) {
+            this.elements.overlayEnabled.checked = this.state.settings.overlayEnabled;
+        }
+        if (this.elements.audioEnabled) {
+            this.elements.audioEnabled.checked = this.state.settings.audioEnabled;
+        }
+    }
+
+    // ============ PERMISOS ============
 
     async requestPermissions() {
         try {
-            // Solicitar permisos pero NO iniciar cámara todavía
+            // Solo solicitar permisos básicos, no iniciar cámara aún
             if (navigator.permissions && navigator.permissions.query) {
                 await Promise.all([
                     navigator.permissions.query({ name: 'camera' }).catch(() => {}),
@@ -300,75 +280,28 @@ class DashcamApp {
         }
     }
 
-    async initCamera() {
-        try {
-            if (this.state.cameraInitialized && this.mediaStream) {
-                return; // Ya está inicializada
-            }
-            
-            console.log('📷 Inicializando cámara...');
-            this.updateStatus('🔄 Iniciando cámara...');
-            
-            const constraints = {
-                video: {
-                    facingMode: 'environment',
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                },
-                audio: this.state.settings.audioEnabled
-            };
-            
-            this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-            this.elements.videoPreview.srcObject = this.mediaStream;
-            
-            // Esperar a que el video esté listo
-            await new Promise((resolve) => {
-                this.elements.videoPreview.onloadedmetadata = () => {
-                    this.elements.videoPreview.play().then(resolve).catch(resolve);
-                };
-            });
-            
-            // Configurar tamaño del overlay
-            this.elements.overlayCanvas.width = this.elements.videoPreview.videoWidth;
-            this.elements.overlayCanvas.height = this.elements.videoPreview.videoHeight;
-            
-            this.state.cameraInitialized = true;
-            this.elements.recordBtn.disabled = false;
-            this.updateStatus('✅ Cámara lista');
-            
-            console.log('✅ Cámara inicializada correctamente');
-            
-        } catch (error) {
-            console.error('❌ Error cámara:', error);
-            this.updateStatus('❌ Error cámara: ' + error.message);
-            this.showNotification('❌ No se pudo acceder a la cámara');
-            
-            // Rehabilitar botón después de un tiempo
-            setTimeout(() => {
-                this.elements.recordBtn.disabled = false;
-            }, 3000);
-        }
-    }
-
-    // ============ GRABACIÓN CON DATOS INCORPORADOS ============
+    // ============ INICIAR GRABACIÓN ============
 
     async startRecording() {
         console.log('🎬 Iniciando grabación...');
         
+        // Mostrar modal de landscape si está en portrait en móvil
+        if (this.shouldShowLandscapeModal()) {
+            this.showLandscapeModal();
+            return;
+        }
+        
         try {
-            // 1. Inicializar cámara si no está inicializada
-            if (!this.state.cameraInitialized || !this.mediaStream) {
-                this.updateStatus('🔄 Iniciando cámara...');
-                await this.initCamera();
-                
-                if (!this.mediaStream) {
-                    this.showNotification('❌ No hay acceso a la cámara');
-                    return;
-                }
+            // 1. Inicializar cámara
+            await this.initCamera();
+            
+            if (!this.mediaStream) {
+                this.showNotification('❌ No se pudo acceder a la cámara');
+                return;
             }
             
-            // 2. Mostrar elementos de cámara
-            this.showCameraElements();
+            // 2. Cambiar a pantalla de cámara
+            this.showCameraScreen();
             
             // 3. Configurar estado
             this.state.isRecording = true;
@@ -376,17 +309,14 @@ class DashcamApp {
             this.state.startTime = Date.now();
             this.state.currentTime = 0;
             this.gpxPoints = [];
-            this.lastGPXPoint = null;
             
-            // 4. Obtener dimensiones del video
+            // 4. Configurar canvas principal
             const videoTrack = this.mediaStream.getVideoTracks()[0];
             const settings = videoTrack.getSettings();
-            
-            // 5. Configurar canvas principal
             this.mainCanvas.width = settings.width || 1280;
             this.mainCanvas.height = settings.height || 720;
             
-            // 6. Crear elemento de video para captura
+            // 5. Crear elemento de video para captura
             this.videoElement = document.createElement('video');
             this.videoElement.srcObject = this.mediaStream;
             this.videoElement.autoplay = true;
@@ -399,13 +329,13 @@ class DashcamApp {
                 };
             });
             
-            // 7. Iniciar captura de frames
+            // 6. Iniciar captura de frames
             this.startFrameCapture();
             
-            // 8. Crear stream desde el canvas
+            // 7. Crear stream desde el canvas
             this.canvasStream = this.mainCanvas.captureStream(30);
             
-            // 9. Añadir audio si está habilitado
+            // 8. Añadir audio si está habilitado
             if (this.state.settings.audioEnabled) {
                 try {
                     const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -416,7 +346,7 @@ class DashcamApp {
                 }
             }
             
-            // 10. Configurar MediaRecorder
+            // 9. Configurar MediaRecorder
             const mimeType = this.getSupportedMimeType();
             this.mediaRecorder = new MediaRecorder(this.canvasStream, {
                 mimeType: mimeType,
@@ -436,32 +366,103 @@ class DashcamApp {
                 this.stopFrameCapture();
             };
             
-            // 11. Iniciar grabación
+            // 10. Iniciar grabación
             this.mediaRecorder.start(1000);
             
-            // 12. Temporizador para segmentos
+            // 11. Temporizador para segmentos
             const segmentMs = this.state.settings.segmentDuration * 60 * 1000;
             this.segmentTimer = setTimeout(() => {
                 this.startNewSegment();
             }, segmentMs);
             
-            // 13. Actualizar UI
-            this.elements.recordBtn.classList.add('recording');
-            this.elements.recordBtn.querySelector('.btn-text').textContent = 'Pausar';
-            this.elements.stopBtn.disabled = false;
+            // 12. Actualizar UI
+            this.updateRecordingUI();
             
-            this.updateStatus('● GRABANDO');
-            this.showNotification('🎬 Grabación iniciada - Los datos GPS se están grabando en el video');
-            
-            console.log('✅ Grabación iniciada correctamente');
+            this.showNotification('🎬 Grabación iniciada - Los datos GPS se graban en el video');
             
         } catch (error) {
             console.error('❌ Error iniciando grabación:', error);
             this.state.isRecording = false;
-            this.updateStatus('❌ Error: ' + error.message);
-            this.showNotification('❌ Error al iniciar grabación');
+            this.showNotification('❌ Error al iniciar grabación: ' + error.message);
+            this.showStartScreen();
         }
     }
+
+    shouldShowLandscapeModal() {
+        // Solo mostrar modal en móviles en portrait
+        if (!/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            return false;
+        }
+        
+        return window.innerHeight > window.innerWidth;
+    }
+
+    showLandscapeModal() {
+        this.state.showLandscapeModal = true;
+        this.elements.landscapeModal.classList.add('active');
+    }
+
+    hideLandscapeModal() {
+        this.state.showLandscapeModal = false;
+        this.elements.landscapeModal.classList.remove('active');
+    }
+
+    async initCamera() {
+        try {
+            const constraints = {
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: this.state.settings.audioEnabled
+            };
+            
+            this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+            this.elements.videoPreview.srcObject = this.mediaStream;
+            
+            await new Promise((resolve) => {
+                this.elements.videoPreview.onloadedmetadata = () => {
+                    this.elements.videoPreview.play().then(resolve).catch(resolve);
+                };
+            });
+            
+            // Configurar tamaño del overlay
+            this.elements.overlayCanvas.width = this.elements.videoPreview.videoWidth;
+            this.elements.overlayCanvas.height = this.elements.videoPreview.videoHeight;
+            
+            console.log('✅ Cámara inicializada');
+            
+        } catch (error) {
+            console.error('❌ Error cámara:', error);
+            throw error;
+        }
+    }
+
+    // ============ PANTALLAS ============
+
+    showStartScreen() {
+        this.elements.startScreen.style.display = 'flex';
+        this.elements.cameraScreen.classList.remove('active');
+        
+        // Detener cualquier stream activo
+        if (this.mediaStream) {
+            this.mediaStream.getTracks().forEach(track => track.stop());
+            this.mediaStream = null;
+        }
+    }
+
+    showCameraScreen() {
+        this.elements.startScreen.style.display = 'none';
+        this.elements.cameraScreen.classList.add('active');
+        
+        // Asegurar que el video está reproduciéndose
+        if (this.elements.videoPreview.srcObject) {
+            this.elements.videoPreview.play().catch(console.error);
+        }
+    }
+
+    // ============ CAPTURA DE VIDEO ============
 
     startFrameCapture() {
         let lastTimestamp = 0;
@@ -587,6 +588,7 @@ class DashcamApp {
                 ctx.fillText(`🎯 ${accuracy}m | ⏱️ ${timeStr}`, x, y + (fontSize * 2) + 16);
             }
             
+            // Guardar punto GPX
             if (this.state.isRecording && !this.state.isPaused) {
                 this.saveGPXPoint(this.currentPosition);
             }
@@ -609,15 +611,14 @@ class DashcamApp {
         
         overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
         
-        if (this.state.isRecording) {
-            overlayCtx.fillStyle = this.state.isPaused ? 'rgba(255, 255, 0, 0.7)' : 'rgba(255, 0, 0, 0.7)';
-            overlayCtx.font = 'bold 24px monospace';
-            overlayCtx.textAlign = 'right';
-            overlayCtx.textBaseline = 'top';
-            
-            const statusText = this.state.isPaused ? '⏸️ PAUSADO' : '● GRABANDO';
-            overlayCtx.fillText(statusText, overlayCanvas.width - 20, 20);
-        }
+        // Solo mostrar indicador de grabación en esquina superior derecha
+        overlayCtx.fillStyle = this.state.isPaused ? 'rgba(254, 202, 87, 0.8)' : 'rgba(255, 107, 107, 0.8)';
+        overlayCtx.font = 'bold 20px monospace';
+        overlayCtx.textAlign = 'right';
+        overlayCtx.textBaseline = 'top';
+        
+        const statusText = this.state.isPaused ? '⏸️ PAUSADO' : '● GRABANDO';
+        overlayCtx.fillText(statusText, overlayCanvas.width - 20, 20);
     }
 
     stopFrameCapture() {
@@ -638,14 +639,15 @@ class DashcamApp {
         }
     }
 
+    // ============ CONTROL DE GRABACIÓN ============
+
     async pauseRecording() {
         if (!this.mediaRecorder || this.state.isPaused) return;
         
         this.state.isPaused = true;
         this.mediaRecorder.pause();
         
-        this.elements.recordBtn.querySelector('.btn-text').textContent = 'Continuar';
-        this.updateStatus('⏸️ PAUSADO');
+        this.updateRecordingUI();
         this.showNotification('⏸️ Grabación pausada');
     }
 
@@ -655,8 +657,7 @@ class DashcamApp {
         this.state.isPaused = false;
         this.mediaRecorder.resume();
         
-        this.elements.recordBtn.querySelector('.btn-text').textContent = 'Pausar';
-        this.updateStatus('● GRABANDO');
+        this.updateRecordingUI();
         this.showNotification('▶️ Grabación reanudada');
     }
 
@@ -664,8 +665,6 @@ class DashcamApp {
         if (!this.mediaRecorder) return;
         
         try {
-            console.log('⏹️ Deteniendo grabación...');
-            
             // Detener temporizador
             if (this.segmentTimer) {
                 clearTimeout(this.segmentTimer);
@@ -693,25 +692,17 @@ class DashcamApp {
             this.state.isPaused = false;
             this.state.currentTime = 0;
             
-            // Ocultar cámara
-            this.hideCameraElements();
+            // Volver a pantalla inicial
+            this.showStartScreen();
             
-            // Actualizar UI
-            this.elements.recordBtn.classList.remove('recording');
-            this.elements.recordBtn.querySelector('.btn-text').textContent = 'Grabar';
-            this.elements.stopBtn.disabled = true;
-            
-            this.updateStatus('✅ Grabación guardada');
             this.showNotification('💾 Video guardado con datos GPS incorporados');
             
             // Recargar galería
             await this.loadGallery();
             
-            console.log('✅ Grabación detenida correctamente');
-            
         } catch (error) {
             console.error('❌ Error deteniendo grabación:', error);
-            this.updateStatus('❌ Error: ' + error.message);
+            this.showNotification('❌ Error al guardar el video');
         }
     }
 
@@ -750,17 +741,17 @@ class DashcamApp {
         return '';
     }
 
-    // ============ CONTROL DE GRABACIÓN ============
-
-    toggleRecording() {
-        if (this.state.isRecording) {
-            if (this.state.isPaused) {
-                this.resumeRecording();
-            } else {
-                this.pauseRecording();
-            }
-        } else {
-            this.startRecording();
+    updateRecordingUI() {
+        if (!this.elements.recordingStatus || !this.elements.recordingTimeEl) return;
+        
+        if (this.state.isPaused) {
+            this.elements.recordingStatus.textContent = '⏸️ PAUSADO';
+            this.elements.recordingStatus.className = 'recording-status paused';
+            this.elements.pauseBtn.textContent = '▶️ Continuar';
+        } else if (this.state.isRecording) {
+            this.elements.recordingStatus.textContent = '● GRABANDO';
+            this.elements.recordingStatus.className = 'recording-status recording';
+            this.elements.pauseBtn.textContent = '⏸️ Pausar';
         }
     }
 
@@ -779,18 +770,7 @@ class DashcamApp {
                 creationTime: new Date(this.state.startTime).toISOString(),
                 duration: duration,
                 gpsPoints: this.gpxPoints.length,
-                settings: { ...this.state.settings },
-                trackSummary: this.gpxPoints.length > 0 ? {
-                    startTime: new Date(this.gpxPoints[0].timestamp).toISOString(),
-                    endTime: new Date(this.gpxPoints[this.gpxPoints.length - 1].timestamp).toISOString(),
-                    points: this.gpxPoints.length,
-                    bounds: {
-                        minLat: Math.min(...this.gpxPoints.map(p => p.lat)),
-                        maxLat: Math.max(...this.gpxPoints.map(p => p.lat)),
-                        minLon: Math.min(...this.gpxPoints.map(p => p.lon)),
-                        maxLon: Math.max(...this.gpxPoints.map(p => p.lon))
-                    }
-                } : null
+                settings: { ...this.state.settings }
             };
             
             const videoData = {
@@ -806,7 +786,6 @@ class DashcamApp {
             
             await this.saveToDatabase('videos', videoData);
             
-            this.state.totalSize += Math.round(blob.size / (1024 * 1024));
             this.recordedChunks = [];
             
             console.log('💾 Vídeo guardado con metadatos');
@@ -838,7 +817,6 @@ class DashcamApp {
             console.log('📍 GPX guardado');
             
             this.gpxPoints = [];
-            this.lastGPXPoint = null;
             
         } catch (error) {
             console.error('❌ Error guardando GPX:', error);
@@ -893,11 +871,13 @@ class DashcamApp {
                 };
                 
                 this.updateGPSStatus('✅ Conectado');
-                this.elements.coordinates.textContent = 
-                    `${this.currentPosition.lat.toFixed(6)}, ${this.currentPosition.lon.toFixed(6)}`;
                 
-                const speedKmh = (this.currentPosition.speed * 3.6).toFixed(1);
-                this.elements.currentSpeed.textContent = `${speedKmh} km/h`;
+                // Actualizar info en pantalla de grabación
+                if (this.elements.gpsInfo) {
+                    const speedKmh = (this.currentPosition.speed * 3.6).toFixed(1);
+                    this.elements.gpsInfo.textContent = 
+                        `📍 ${this.currentPosition.lat.toFixed(4)}, ${this.currentPosition.lon.toFixed(4)} | ${speedKmh} km/h`;
+                }
                 
             },
             (error) => this.onGPSError(error),
@@ -928,17 +908,19 @@ class DashcamApp {
         };
         
         this.gpxPoints.push(pointData);
-        this.state.gpsTrack.push(pointData);
-        
-        this.lastGPXPoint = {
-            timestamp: position.timestamp,
-            coords: position.coords
-        };
+    }
+
+    updateGPSStatus(status) {
+        // Se actualiza en la UI directamente
     }
 
     onGPSError(error) {
         console.warn('⚠️ GPS Error:', error);
-        this.updateGPSStatus('❌ Error');
+        
+        if (this.elements.gpsInfo) {
+            this.elements.gpsInfo.textContent = '📍 GPS: Buscando señal...';
+        }
+        
         this.currentPosition = null;
     }
 
@@ -953,31 +935,19 @@ class DashcamApp {
     }
 
     updateUI() {
-        if (this.state.isRecording && !this.state.isPaused) {
+        if (this.state.isRecording) {
             this.state.currentTime = Date.now() - this.state.startTime;
             
-            this.elements.recordingTime.textContent = this.formatTime(this.state.currentTime);
-            
-            const bitrate = 2500000;
-            const sizeMB = (bitrate * this.state.currentTime / 1000 / 8 / 1024 / 1024).toFixed(2);
-            this.elements.fileSize.textContent = `${sizeMB} MB`;
+            if (this.elements.recordingTimeEl) {
+                this.elements.recordingTimeEl.textContent = this.formatTime(this.state.currentTime);
+            }
         }
-        
-        if (Date.now() % 10000 < 1000) {
-            this.monitorStorage();
-        }
-    }
-
-    updateStatus(message) {
-        this.elements.status.textContent = message;
-    }
-
-    updateGPSStatus(status) {
-        this.elements.gpsStatus.textContent = `📍 GPS: ${status}`;
     }
 
     showNotification(message, duration = 3000) {
         const notification = document.getElementById('notification');
+        if (!notification) return;
+        
         notification.textContent = message;
         notification.classList.remove('hidden');
         
@@ -990,71 +960,7 @@ class DashcamApp {
 
     startMonitoring() {
         this.startGPS();
-        this.monitorBattery();
-        this.monitorStorage();
         this.updateInterval = setInterval(() => this.updateUI(), 1000);
-    }
-
-    async monitorStorage() {
-        if (!navigator.storage || !navigator.storage.estimate) return;
-        
-        try {
-            const estimate = await navigator.storage.estimate();
-            const usedMB = Math.round(estimate.usage / (1024 * 1024));
-            const quotaMB = Math.round(estimate.quota / (1024 * 1024));
-            const percentage = Math.round((usedMB / quotaMB) * 100);
-            
-            this.elements.storageStatus.textContent = `💾 ${usedMB} MB / ${quotaMB} MB`;
-            this.state.totalSize = usedMB;
-            
-            if (percentage > 80) {
-                await this.cleanupOldFiles();
-            }
-            
-        } catch (error) {
-            console.warn('⚠️ Error almacenamiento:', error);
-        }
-    }
-
-    async monitorBattery() {
-        if ('getBattery' in navigator) {
-            try {
-                const battery = await navigator.getBattery();
-                
-                const updateBattery = () => {
-                    const level = Math.round(battery.level * 100);
-                    const charging = battery.charging;
-                    this.elements.batteryStatus.textContent = `🔋 ${level}%${charging ? ' ⚡' : ''}`;
-                };
-                
-                battery.addEventListener('levelchange', updateBattery);
-                battery.addEventListener('chargingchange', updateBattery);
-                updateBattery();
-                
-            } catch (error) {
-                console.warn('⚠️ Batería no disponible:', error);
-            }
-        }
-    }
-
-    async cleanupOldFiles() {
-        const maxSize = 500 * 1024 * 1024;
-        
-        try {
-            const videos = await this.getAllFromStore('videos');
-            let totalSize = videos.reduce((sum, video) => sum + video.size, 0);
-            
-            videos.sort((a, b) => a.timestamp - b.timestamp);
-            
-            for (const video of videos) {
-                if (totalSize <= maxSize * 0.8) break;
-                await this.deleteFromStore('videos', video.id);
-                totalSize -= video.size;
-            }
-            
-        } catch (error) {
-            console.error('❌ Error limpiando:', error);
-        }
     }
 
     // ============ BASE DE DATOS - UTILIDADES ============
@@ -1106,11 +1012,27 @@ class DashcamApp {
     // ============ EVENTOS ============
 
     setupEventListeners() {
-        // Botones principales
-        this.elements.recordBtn.addEventListener('click', () => this.toggleRecording());
-        this.elements.stopBtn.addEventListener('click', () => this.stopRecording());
+        // Botones iniciales
+        this.elements.startBtn.addEventListener('click', () => this.startRecording());
         this.elements.galleryBtn.addEventListener('click', () => this.showGallery());
         this.elements.settingsBtn.addEventListener('click', () => this.showSettings());
+        
+        // Controles de grabación
+        this.elements.pauseBtn.addEventListener('click', () => {
+            if (this.state.isPaused) {
+                this.resumeRecording();
+            } else {
+                this.pauseRecording();
+            }
+        });
+        
+        this.elements.stopBtn.addEventListener('click', () => this.stopRecording());
+        
+        // Continuar después del modal landscape
+        this.elements.continueBtn.addEventListener('click', () => {
+            this.hideLandscapeModal();
+            this.startRecording();
+        });
         
         // Galería
         this.elements.closeGallery.addEventListener('click', () => this.hideGallery());
@@ -1132,45 +1054,15 @@ class DashcamApp {
         this.elements.shareVideo.addEventListener('click', () => this.shareSingleVideo());
         this.elements.deleteVideo.addEventListener('click', () => this.deleteSingleVideo());
         
-        // Tabs - Eventos mejorados para móvil
-        this.elements.tabButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const tabName = e.target.dataset.tab || 
-                               (e.target.id === 'tabVideos' ? 'videos' : 'gpx');
-                this.switchTab(tabName);
-            });
-            
-            // Touch feedback para móvil
-            btn.addEventListener('touchstart', () => {
-                btn.style.transform = 'scale(0.98)';
-            });
-            
-            btn.addEventListener('touchend', () => {
-                btn.style.transform = '';
-            });
-        });
+        // Tabs
+        this.elements.tabVideos.addEventListener('click', () => this.switchTab('videos'));
+        this.elements.tabGPX.addEventListener('click', () => this.switchTab('gpx'));
         
         // Búsqueda
         this.elements.searchVideos.addEventListener('input', (e) => this.searchVideos(e.target.value));
         this.elements.searchGPX.addEventListener('input', (e) => this.searchGPX(e.target.value));
         
-        // Mejorar feedback táctil para botones principales
-        const mainButtons = [this.elements.recordBtn, this.elements.stopBtn, 
-                           this.elements.galleryBtn, this.elements.settingsBtn];
-        
-        mainButtons.forEach(btn => {
-            if (btn) {
-                btn.addEventListener('touchstart', () => {
-                    btn.style.transform = 'scale(0.98)';
-                });
-                
-                btn.addEventListener('touchend', () => {
-                    btn.style.transform = '';
-                });
-            }
-        });
-        
-        // Manejar cierre
+        // Manejar cierre de la aplicación
         window.addEventListener('beforeunload', (e) => {
             if (this.state.isRecording) {
                 e.preventDefault();
@@ -1178,48 +1070,23 @@ class DashcamApp {
             }
         });
         
-        // Prevenir comportamiento por defecto del touch en toda la app
-        document.addEventListener('touchstart', (e) => {
-            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') {
-                e.preventDefault();
+        // Detectar cambios de orientación
+        window.addEventListener('orientationchange', () => {
+            if (this.state.showLandscapeModal && window.innerHeight < window.innerWidth) {
+                this.hideLandscapeModal();
             }
-        }, { passive: false });
-        
-        // Forzar redibujado en resize para móvil
-        window.addEventListener('resize', () => {
-            this.forceRedraw();
         });
     }
 
     // ============ GALERÍA ============
 
     showGallery() {
-        console.log('Mostrando galería');
-        
-        // Ocultar cámara si está grabando
-        if (this.state.isRecording) {
-            this.hideCameraElements();
-        }
-        
-        // Mostrar panel
         this.elements.galleryPanel.classList.remove('hidden');
-        
-        // Asegurar que el tab correcto está activo
         this.switchTab(this.state.activeTab);
-        
-        // Forzar redibujado para móvil
-        setTimeout(() => this.forceRedraw(), 100);
     }
 
     hideGallery() {
         this.elements.galleryPanel.classList.add('hidden');
-        
-        // Mostrar cámara si estaba grabando
-        if (this.state.isRecording) {
-            this.showCameraElements();
-        }
-        
-        // Limpiar selecciones
         this.state.selectedVideos.clear();
         this.state.selectedGPX.clear();
         this.updateSelectionButtons();
@@ -1287,7 +1154,7 @@ class DashcamApp {
             </div>
         `).join('');
         
-        // Eventos para móvil
+        // Eventos
         container.querySelectorAll('.file-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 if (!e.target.closest('.play-btn') && !(e.target.type === 'checkbox')) {
@@ -1311,15 +1178,6 @@ class DashcamApp {
                     e.stopPropagation();
                     const id = parseInt(item.dataset.id);
                     this.playVideo(id);
-                });
-                
-                // Touch feedback para móvil
-                playBtn.addEventListener('touchstart', () => {
-                    playBtn.style.opacity = '0.7';
-                });
-                
-                playBtn.addEventListener('touchend', () => {
-                    playBtn.style.opacity = '';
                 });
             }
         });
@@ -1386,15 +1244,6 @@ class DashcamApp {
                     const id = parseInt(item.dataset.id);
                     this.viewGPX(id);
                 });
-                
-                // Touch feedback para móvil
-                viewBtn.addEventListener('touchstart', () => {
-                    viewBtn.style.opacity = '0.7';
-                });
-                
-                viewBtn.addEventListener('touchend', () => {
-                    viewBtn.style.opacity = '';
-                });
             }
         });
     }
@@ -1402,8 +1251,6 @@ class DashcamApp {
     // ============ TABS ============
 
     switchTab(tabName) {
-        console.log('Cambiando a tab:', tabName);
-        
         this.state.activeTab = tabName;
         
         const tabVideos = document.getElementById('tabVideos');
@@ -1423,32 +1270,7 @@ class DashcamApp {
             } else {
                 this.loadGPXTracks();
             }
-            
-            // Forzar redibujado para móvil
-            this.forceRedraw();
         }
-    }
-
-    // ============ REDIBUJADO FORZADO PARA MÓVIL ============
-
-    forceRedraw() {
-        // Forzar redibujado de elementos críticos en móvil
-        const elements = [
-            this.elements.galleryPanel,
-            this.elements.settingsPanel,
-            this.elements.videoPlayer
-        ];
-        
-        elements.forEach(element => {
-            if (element && !element.classList.contains('hidden')) {
-                element.style.display = 'none';
-                setTimeout(() => {
-                    element.style.display = 'flex';
-                    // Forzar reflow
-                    void element.offsetHeight;
-                }, 10);
-            }
-        });
     }
 
     // ============ SELECCIÓN ============
@@ -1774,11 +1596,7 @@ Exporta el archivo GPX para verlo en aplicaciones de mapas.`);
     }
 
     loadCurrentSettings() {
-        this.elements.segmentDuration.value = this.state.settings.segmentDuration;
-        this.elements.videoQuality.value = this.state.settings.videoQuality;
-        this.elements.gpxInterval.value = this.state.settings.gpxInterval;
-        this.elements.overlayEnabled.checked = this.state.settings.overlayEnabled;
-        this.elements.audioEnabled.checked = this.state.settings.audioEnabled;
+        this.updateSettingsUI();
     }
 
     async saveSettings() {
@@ -1795,6 +1613,7 @@ Exporta el archivo GPX para verlo en aplicaciones de mapas.`);
         
         await this.saveSettingsToDB();
         
+        // Reiniciar intervalo GPX si está activo
         if (this.gpxInterval) {
             clearInterval(this.gpxInterval);
             this.gpxInterval = setInterval(() => {
@@ -1839,54 +1658,4 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Inicializar la app
     window.dashcamApp = new DashcamApp();
-    
-    // Prevenir zoom con doble toque en móvil
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', (event) => {
-        const now = Date.now();
-        if (now - lastTouchEnd <= 300) {
-            event.preventDefault();
-        }
-        lastTouchEnd = now;
-    }, false);
-    
-    // Forzar modo landscape en móvil
-    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-        const orientationMessage = document.createElement('div');
-        orientationMessage.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            color: white;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            z-index: 9999;
-            text-align: center;
-            padding: 20px;
-        `;
-        orientationMessage.innerHTML = `
-            <div style="font-size: 48px; margin-bottom: 20px;">📱</div>
-            <h2>Gira tu dispositivo</h2>
-            <p>Esta aplicación funciona mejor en modo horizontal (landscape)</p>
-            <p style="margin-top: 20px; font-size: 14px; opacity: 0.7;">Gira tu teléfono para continuar</p>
-        `;
-        document.body.appendChild(orientationMessage);
-        
-        const checkOrientation = () => {
-            if (window.innerHeight > window.innerWidth) {
-                orientationMessage.style.display = 'flex';
-            } else {
-                orientationMessage.style.display = 'none';
-            }
-        };
-        
-        checkOrientation();
-        window.addEventListener('resize', checkOrientation);
-        window.addEventListener('orientationchange', checkOrientation);
-    }
 });
