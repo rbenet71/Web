@@ -16,7 +16,7 @@ class DashcamApp {
             selectedGPX: new Set(),
             currentVideo: null,
             currentGPX: null,
-            activeTab: 'videos', // <-- IMPORTANTE: añadido para tabs
+            activeTab: 'videos', // IMPORTANTE: añadido para tabs
             settings: {
                 segmentDuration: 5,
                 videoQuality: '720p',
@@ -119,11 +119,14 @@ class DashcamApp {
             settingsPanel: document.getElementById('settingsPanel'),
             videoPlayer: document.getElementById('videoPlayer'),
             
-            // Tabs y contenido - NUEVO: IDs específicos
+            // Tabs y contenido
             tabVideos: document.getElementById('tabVideos'),
             tabGPX: document.getElementById('tabGPX'),
             videosTab: document.getElementById('videosTab'),
             gpxTab: document.getElementById('gpxTab'),
+            
+            // Botones de tab - NUEVO
+            tabButtons: document.querySelectorAll('.tab-btn'),
             
             // Galería - Vídeos
             videosList: document.getElementById('videosList'),
@@ -1063,7 +1066,6 @@ class DashcamApp {
         });
     }
 
-
     // ============ EVENTOS ============
 
     setupEventListeners() {
@@ -1093,9 +1095,12 @@ class DashcamApp {
         this.elements.shareVideo.addEventListener('click', () => this.shareSingleVideo());
         this.elements.deleteVideo.addEventListener('click', () => this.deleteSingleVideo());
         
-        // Tabs
+        // Tabs - CORREGIDO
         this.elements.tabButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
+            btn.addEventListener('click', (e) => {
+                const tabName = e.target.dataset.tab || e.target.id === 'tabVideos' ? 'videos' : 'gpx';
+                this.switchTab(tabName);
+            });
         });
         
         // Búsqueda
@@ -1109,76 +1114,31 @@ class DashcamApp {
                 e.returnValue = '¿Salir? Se perderá la grabación en curso.';
             }
         });
-
-        // Eventos para tabs
-        if (this.elements.tabVideos) {
-            this.elements.tabVideos.addEventListener('click', () => {
-                console.log('Click en tab Vídeos');
-                this.switchTab('videos');
-            });
-        }
-        
-        if (this.elements.tabGPX) {
-            this.elements.tabGPX.addEventListener('click', () => {
-                console.log('Click en tab GPX');
-                this.switchTab('gpx');
-            });
-        }
-    }
-
-    // ============ CONTROL DE GRABACIÓN ============
-
-    toggleRecording() {
-        if (this.state.isRecording) {
-            if (this.state.isPaused) {
-                this.resumeRecording();
-            } else {
-                this.pauseRecording();
-            }
-        } else {
-            this.startRecording();
-        }
     }
 
     // ============ GALERÍA ============
 
-        showGallery() {
-            console.log('Mostrando galería, tab actual:', this.state.activeTab);
-            
-            // Mostrar panel
-            this.elements.galleryPanel.classList.remove('hidden');
-            
-            // Forzar recálculo de layout para iOS
-            setTimeout(() => {
-                // Cargar datos según tab activo
-                if (this.state.activeTab === 'videos') {
-                    this.loadVideos();
-                } else {
-                    this.loadGPXTracks();
-                }
-                
-                // Aplicar tab correcto
-                this.switchTab(this.state.activeTab);
-                
-                // Forzar redibujado para iOS
-                this.elements.galleryPanel.style.display = 'flex';
-                setTimeout(() => {
-                    this.elements.galleryPanel.style.display = '';
-                }, 50);
-            }, 100);
-        }
+    showGallery() {
+        console.log('Mostrando galería');
+        
+        // Mostrar panel
+        this.elements.galleryPanel.classList.remove('hidden');
+        
+        // Asegurar que el tab correcto está activo
+        this.switchTab(this.state.activeTab);
+        
+        // Forzar redibujado para iOS
+        this.forceRedraw();
+    }
 
-        hideGallery() {
-            const galleryPanel = document.getElementById('galleryPanel');
-            if (galleryPanel) {
-                galleryPanel.classList.add('hidden');
-            }
-            
-            // Limpiar selecciones
-            this.state.selectedVideos.clear();
-            this.state.selectedGPX.clear();
-            this.updateSelectionButtons();
-        }
+    hideGallery() {
+        this.elements.galleryPanel.classList.add('hidden');
+        
+        // Limpiar selecciones
+        this.state.selectedVideos.clear();
+        this.state.selectedGPX.clear();
+        this.updateSelectionButtons();
+    }
 
     async loadGallery() {
         await this.loadVideos();
@@ -1205,43 +1165,42 @@ class DashcamApp {
         }
     }
 
-renderVideosList() {
-    const container = this.elements.videosList;
-    
-    if (this.state.videos.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <div>🎬</div>
-                <p>No hay vídeos grabados</p>
-                <p>Los datos GPS se graban en cada video</p>
-            </div>
-        `;
-        return;
-    }
-    
-    // AÑADE 'video-file' class para diferenciar
-    container.innerHTML = this.state.videos.map(video => `
-        <div class="file-item video-file ${this.state.selectedVideos.has(video.id) ? 'selected' : ''}" 
-             data-id="${video.id}" 
-             data-type="video">
-            <div class="file-header">
-                <div class="file-title">${video.title || 'Grabación'}</div>
-                <div class="file-time">${new Date(video.timestamp).toLocaleTimeString()}</div>
-            </div>
-            <div class="file-details">
-                <div>📅 ${new Date(video.timestamp).toLocaleDateString()}</div>
-                <div>⏱️ ${this.formatTime(video.duration)}</div>
-                <div>💾 ${Math.round(video.size / (1024 * 1024))} MB</div>
-            </div>
-            <div class="file-footer">
-                <div class="file-checkbox">
-                    <input type="checkbox" ${this.state.selectedVideos.has(video.id) ? 'checked' : ''}>
-                    <span>Seleccionar</span>
+    renderVideosList() {
+        const container = this.elements.videosList;
+        
+        if (this.state.videos.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div>🎬</div>
+                    <p>No hay vídeos grabados</p>
+                    <p>Los datos GPS se graban en cada video</p>
                 </div>
-                <button class="play-btn" data-id="${video.id}">▶️ Reproducir</button>
+            `;
+            return;
+        }
+        
+        container.innerHTML = this.state.videos.map(video => `
+            <div class="file-item video-file ${this.state.selectedVideos.has(video.id) ? 'selected' : ''}" 
+                 data-id="${video.id}" 
+                 data-type="video">
+                <div class="file-header">
+                    <div class="file-title">${video.title || 'Grabación'}</div>
+                    <div class="file-time">${new Date(video.timestamp).toLocaleTimeString()}</div>
+                </div>
+                <div class="file-details">
+                    <div>📅 ${new Date(video.timestamp).toLocaleDateString()}</div>
+                    <div>⏱️ ${this.formatTime(video.duration)}</div>
+                    <div>💾 ${Math.round(video.size / (1024 * 1024))} MB</div>
+                </div>
+                <div class="file-footer">
+                    <div class="file-checkbox">
+                        <input type="checkbox" ${this.state.selectedVideos.has(video.id) ? 'checked' : ''}>
+                        <span>Seleccionar</span>
+                    </div>
+                    <button class="play-btn" data-id="${video.id}">▶️ Reproducir</button>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `).join('');
         
         // Eventos para los vídeos
         container.querySelectorAll('.file-item').forEach(item => {
@@ -1287,7 +1246,7 @@ renderVideosList() {
         }
         
         container.innerHTML = this.state.gpxTracks.map(track => `
-            <div class="file-item ${this.state.selectedGPX.has(track.id) ? 'selected' : ''}" 
+            <div class="file-item gpx-file ${this.state.selectedGPX.has(track.id) ? 'selected' : ''}" 
                  data-id="${track.id}" 
                  data-type="gpx">
                 <div class="file-header">
@@ -1336,6 +1295,51 @@ renderVideosList() {
                 });
             }
         });
+    }
+
+    // ============ TABS ============
+
+    switchTab(tabName) {
+        console.log('Cambiando a tab:', tabName);
+        
+        // Actualizar estado
+        this.state.activeTab = tabName;
+        
+        // Actualizar botones de tabs
+        const tabVideos = document.getElementById('tabVideos');
+        const tabGPX = document.getElementById('tabGPX');
+        const videosTab = document.getElementById('videosTab');
+        const gpxTab = document.getElementById('gpxTab');
+        
+        if (tabVideos && tabGPX && videosTab && gpxTab) {
+            // Tabs buttons
+            tabVideos.classList.toggle('active', tabName === 'videos');
+            tabGPX.classList.toggle('active', tabName === 'gpx');
+            
+            // Tab contents
+            videosTab.classList.toggle('active', tabName === 'videos');
+            gpxTab.classList.toggle('active', tabName === 'gpx');
+            
+            // Cargar datos según el tab
+            if (tabName === 'videos') {
+                this.loadVideos();
+            } else {
+                this.loadGPXTracks();
+            }
+        }
+    }
+
+    // ============ REDIBUJADO FORZADO PARA iOS ============
+
+    forceRedraw() {
+        const galleryPanel = document.getElementById('galleryPanel');
+        if (galleryPanel && !galleryPanel.classList.contains('hidden')) {
+            // Forzar redibujado
+            galleryPanel.style.display = 'none';
+            setTimeout(() => {
+                galleryPanel.style.display = 'flex';
+            }, 10);
+        }
     }
 
     // ============ SELECCIÓN ============
@@ -1697,16 +1701,7 @@ Exporta el archivo GPX para verlo en aplicaciones de mapas.`);
         this.hideSettings();
     }
 
-    // ============ TABS Y BÚSQUEDA ============
-
-    switchTab(tabName) {
-        this.elements.tabButtons.forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.tab === tabName);
-        });
-        
-        this.elements.videosTab.classList.toggle('active', tabName === 'videos');
-        this.elements.gpxTab.classList.toggle('active', tabName === 'gpx');
-    }
+    // ============ BÚSQUEDA ============
 
     searchVideos(query) {
         const items = document.querySelectorAll('#videosList .file-item');
@@ -1736,4 +1731,3 @@ document.addEventListener('DOMContentLoaded', () => {
     
     window.dashcamApp = new DashcamApp();
 });
-

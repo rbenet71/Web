@@ -348,17 +348,27 @@ body {
     background: #2d3436;
 }
 
-/* Lista de archivos */
-.files-list {
+/* NUEVO: Contenedor de lista scrollable */
+.scrollable-list {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     padding-right: 8px;
-    -webkit-overflow-scrolling: touch; /* Scroll suave iOS */
-    height: calc(100vh - 300px); /* Altura fija para scroll en móviles */
+    -webkit-overflow-scrolling: touch;
     min-height: 200px;
+    max-height: calc(100vh - 300px);
+    border-radius: 8px;
+    background: rgba(30, 39, 46, 0.3);
 }
+
+/* OBSOLETO: Eliminar o comentar la clase .files-list original */
+/* .files-list {
+    overflow: visible !important;
+    margin-bottom: 0 !important;
+    padding-right: 0 !important;
+    height: auto !important;
+} */
 
 .file-item {
     background: #1e272e;
@@ -640,7 +650,7 @@ body {
 /* ============ FIX ESPECÍFICO PARA iOS ============ */
 @supports (-webkit-touch-callout: none) {
     /* iOS específico - scroll táctil mejorado */
-    .files-list {
+    .scrollable-list {
         -webkit-overflow-scrolling: touch !important;
         overflow-y: scroll !important;
         overscroll-behavior-y: contain;
@@ -712,8 +722,8 @@ body {
     }
     
     /* Mejorar scroll en móviles */
-    .files-list {
-        height: calc(100vh - 280px);
+    .scrollable-list {
+        max-height: calc(100vh - 280px);
     }
 }
 
@@ -761,8 +771,8 @@ body {
     }
     
     /* Scroll mejorado para móviles pequeños */
-    .files-list {
-        height: calc(100vh - 250px);
+    .scrollable-list {
+        max-height: calc(100vh - 250px);
         padding-right: 5px;
     }
 }
@@ -812,8 +822,6 @@ body {
     }
 }
 
-/* ============ FIX ESPECÍFICO PARA GALERÍA ============ */
-
 /* Contenedor principal de galería */
 .gallery-container {
     flex: 1;
@@ -822,26 +830,6 @@ body {
     overflow: hidden;
     position: relative;
     min-height: 0; /* CRÍTICO para iOS */
-}
-
-/* Contenedor de scroll - ESTO ES LO QUE FALTA */
-.scroll-container {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    margin-bottom: 10px;
-    position: relative;
-    min-height: 200px; /* Altura mínima */
-    max-height: calc(100vh - 300px); /* Altura máxima */
-}
-
-/* IMPORTANTE: Quitar scroll de .files-list y ponerlo en .scroll-container */
-.files-list {
-    overflow: visible !important; /* NO scroll aquí */
-    margin-bottom: 0 !important;
-    padding-right: 0 !important;
-    height: auto !important;
 }
 
 /* Tabs content */
@@ -860,7 +848,7 @@ body {
 
 /* FIX PARA iOS - Scroll táctil */
 @supports (-webkit-touch-callout: none) {
-    .scroll-container {
+    .scrollable-list {
         -webkit-overflow-scrolling: touch !important;
         overflow-y: scroll !important;
         overscroll-behavior: contain;
@@ -873,7 +861,7 @@ body {
 
 /* Mejorar scroll en móviles */
 @media (max-width: 768px) {
-    .scroll-container {
+    .scrollable-list {
         max-height: calc(100vh - 250px);
     }
     
