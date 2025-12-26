@@ -9,13 +9,13 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <title>Dashcam iPhone v2.1</title>
+    <title>Dashcam iPhone v3.0</title>
     
     <!-- Manifest con versión -->
-    <link rel="manifest" href="manifest.json?v=2.1">
+    <link rel="manifest" href="manifest.json?v=3.0">
     
     <!-- CSS con versión -->
-    <link rel="stylesheet" href="styles.css?v=2.1">
+    <link rel="stylesheet" href="styles.css?v=3.0">
     
     <link rel="icon" href="Picto_Color_192x192.png">
     
@@ -25,8 +25,9 @@
     <meta name="apple-mobile-web-app-title" content="Dashcam">
     <meta name="mobile-web-app-capable" content="yes">
     
-    <!-- Librería para convertir WebM a MP4 -->
+    <!-- Librerías para funciones avanzadas -->
     <script src="https://unpkg.com/mp4box@0.5.2/dist/mp4box.all.min.js"></script>
+    <script src="https://unpkg.com/gpxparser@3.0.8/gpxparser.js"></script>
 </head>
 <body>
     <div class="container">
@@ -34,10 +35,10 @@
         <div class="start-screen">
             <img src="Logo_Dashcam_Bike_192x192.png" class="app-icon">
 
-            <h1 class="app-title">Dashcam iPhone</h1>
+            <h1 class="app-title">Dashcam iPhone Pro</h1>
             
-            <p class="app-description">Grabación MP4 con datos GPS</p>
-            <div class="app-version">Versión 2.1</div>
+            <p class="app-description">Grabación MP4 avanzada con GPS y GPX</p>
+            <div class="app-version">Versión 3.0</div>
             
             <div class="start-controls">
                 <button id="startBtn" class="start-btn">
@@ -54,12 +55,23 @@
                     <span>⚙️</span>
                     <span>Ajustes</span>
                 </button>
+                
+                <button id="gpxManagerBtn" class="settings-btn">
+                    <span>🗺️</span>
+                    <span>GPX Manager</span>
+                </button>
             </div>
             
             <!-- Indicador de estado de almacenamiento -->
             <div id="storageStatus" class="storage-status hidden">
                 <span id="storageStatusText"></span>
             </div>
+            
+            <!-- Input oculto para cargar logo -->
+            <input type="file" id="logoUpload" accept="image/*" style="display: none;">
+            
+            <!-- Input oculto para cargar GPX -->
+            <input type="file" id="gpxUpload" accept=".gpx,.xml" style="display: none;">
         </div>
 
         <!-- PANTALLA DE CÁMARA -->
@@ -73,6 +85,7 @@
                 <div id="recordingTime" class="recording-time">00:00:00</div>
                 <div id="gpsInfo" class="gps-info">📍 GPS: Conectando...</div>
                 <div id="formatInfo" class="format-info">🎬 MP4</div>
+                <div id="segmentInfo" class="segment-info">📹 Segmento 1</div>
             </div>
             
             <div class="recording-controls">
@@ -80,7 +93,10 @@
                     ⏸️ Pausar
                 </button>
                 <button id="stopBtn" class="record-control-btn stop-btn">
-                    ⏹️ Parar
+                    ⏹️ Finalizar
+                </button>
+                <button id="newSegmentBtn" class="record-control-btn segment-btn">
+                    ✂️ Nuevo Segmento
                 </button>
             </div>
             
@@ -141,6 +157,7 @@
                 
                 <div class="panel-actions">
                     <button id="moveToLocalBtn" class="btn move-btn">📂 Mover a carpeta</button>
+                    <button id="combineVideosBtn" class="btn combine-btn">🔗 Combinar</button>
                     <button id="exportBtn" class="btn export-btn" disabled>📤 Exportar</button>
                     <button id="deleteBtn" class="btn delete-btn" disabled>🗑️ Eliminar</button>
                 </div>
@@ -151,11 +168,23 @@
         <div id="settingsPanel" class="panel hidden">
             <div class="panel-container">
                 <div class="panel-header">
-                    <h3>⚙️ Configuración</h3>
+                    <h3>⚙️ Configuración Avanzada</h3>
                     <button id="closeSettings" class="close-btn">✕</button>
                 </div>
                 
                 <div class="settings-content">
+                    <div class="setting">
+                        <label>Modo de grabación:</label>
+                        <select id="recordingMode">
+                            <option value="segmented" selected>Segmentos automáticos</option>
+                            <option value="continuous">Archivo único</option>
+                        </select>
+                        <p class="setting-hint">
+                            <small><strong>Segmentos:</strong> Divide por tiempo</small><br>
+                            <small><strong>Continuo:</strong> Un solo archivo (recomendado)</small>
+                        </p>
+                    </div>
+                    
                     <div class="setting">
                         <label>Duración de segmentos (minutos):</label>
                         <select id="segmentDuration">
@@ -173,6 +202,7 @@
                             <option value="480p">480p</option>
                             <option value="720p" selected>720p</option>
                             <option value="1080p">1080p</option>
+                            <option value="4k">4K (si disponible)</option>
                         </select>
                     </div>
                     
@@ -183,7 +213,7 @@
                             <option value="webm">WebM (Solo pruebas)</option>
                         </select>
                         <p class="setting-hint">
-                            <small>MP4 es compatible con todos los dispositivos incluyendo iPhone</small>
+                            <small>MP4 incluye metadatos GPS en cada frame</small>
                         </p>
                     </div>
                     
@@ -200,7 +230,7 @@
                     <div class="setting">
                         <label>
                             <input type="checkbox" id="overlayEnabled" checked>
-                            Mostrar indicador de grabación
+                            Mostrar overlay en tiempo real
                         </label>
                     </div>
                     
@@ -211,7 +241,129 @@
                         </label>
                     </div>
                     
-                    <!-- CONFIGURACIÓN SIMPLIFICADA: ALMACENAMIENTO -->
+                    <div class="setting">
+                        <label>
+                            <input type="checkbox" id="reverseGeocodeEnabled" checked>
+                            Detectar población automáticamente
+                        </label>
+                        <p class="setting-hint">
+                            <small>Usa servicio de geocodificación inversa para mostrar ciudad/pueblo</small>
+                        </p>
+                    </div>
+                    
+                    <!-- CONFIGURACIÓN MARCA DE AGUA Y LOGO -->
+                    <div class="setting-group">
+                        <h4 style="color: #00a8ff; margin-bottom: 15px;">🎨 Personalización</h4>
+                        
+                        <div class="setting">
+                            <label>
+                                <input type="checkbox" id="showWatermark" checked>
+                                Mostrar marca de agua personalizada
+                            </label>
+                        </div>
+                        
+                        <div class="setting">
+                            <label>Logo personalizado:</label>
+                            <div class="folder-selector">
+                                <div id="currentLogoInfo" class="folder-info">
+                                    <span>🖼️ No hay logo cargado</span>
+                                </div>
+                                <button type="button" id="uploadLogoBtn" class="folder-btn">
+                                    📤 Subir Logo
+                                </button>
+                            </div>
+                            <p class="folder-instructions">
+                                <small>Formatos: PNG, JPG, GIF. Tamaño recomendado: 200x200px</small>
+                            </p>
+                        </div>
+                        
+                        <div class="setting">
+                            <label>Posición del logo:</label>
+                            <select id="logoPosition">
+                                <option value="top-left">Superior izquierda</option>
+                                <option value="top-right">Superior derecha</option>
+                                <option value="bottom-left">Inferior izquierda</option>
+                                <option value="bottom-right" selected>Inferior derecha</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting">
+                            <label>Tamaño del logo:</label>
+                            <select id="logoSize">
+                                <option value="small">Pequeño (40px)</option>
+                                <option value="medium" selected>Mediano (60px)</option>
+                                <option value="large">Grande (80px)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting">
+                            <label>Texto personalizado:</label>
+                            <input type="text" id="customWatermarkText" 
+                                   value="Powered By Roberto Benet - rbenet71@gmail.com"
+                                   placeholder="Texto de marca de agua">
+                        </div>
+                        
+                        <div class="setting">
+                            <label>Posición del texto:</label>
+                            <select id="textPosition">
+                                <option value="bottom-right" selected>Inferior derecha</option>
+                                <option value="bottom-left">Inferior izquierda</option>
+                                <option value="top-right">Superior derecha</option>
+                                <option value="top-left">Superior izquierda</option>
+                                <option value="bottom-center">Centro inferior</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting">
+                            <label>Opacidad marca de agua:</label>
+                            <input type="range" id="watermarkOpacity" min="0.1" max="1" step="0.1" value="0.7">
+                            <span id="opacityValue">70%</span>
+                        </div>
+                    </div>
+                    
+                    <!-- CONFIGURACIÓN GPX -->
+                    <div class="setting-group">
+                        <h4 style="color: #00b894; margin-bottom: 15px;">🗺️ Superposición GPX</h4>
+                        
+                        <div class="setting">
+                            <label>
+                                <input type="checkbox" id="gpxOverlayEnabled">
+                                Mostrar posición en ruta GPX
+                            </label>
+                        </div>
+                        
+                        <div class="setting">
+                            <label>Ruta GPX activa:</label>
+                            <select id="activeGpxRoute">
+                                <option value="">Ninguna</option>
+                                <!-- Las rutas GPX se cargarán dinámicamente -->
+                            </select>
+                            <p class="folder-instructions">
+                                <small>Selecciona una ruta GPX para mostrar progreso en pantalla</small>
+                            </p>
+                        </div>
+                        
+                        <div class="setting">
+                            <label>Color de ruta GPX:</label>
+                            <input type="color" id="gpxRouteColor" value="#00ff00">
+                        </div>
+                        
+                        <div class="setting">
+                            <label>
+                                <input type="checkbox" id="showGpxDistance">
+                                Mostrar distancia recorrida
+                            </label>
+                        </div>
+                        
+                        <div class="setting">
+                            <label>
+                                <input type="checkbox" id="showGpxSpeed">
+                                Mostrar velocidad vs GPX
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- CONFIGURACIÓN ALMACENAMIENTO -->
                     <div class="setting">
                         <label>Ubicación de almacenamiento:</label>
                         <select id="storageLocation">
@@ -226,7 +378,7 @@
                         </p>
                     </div>
                     
-                    <!-- Configuración de carpeta local (oculta por defecto) -->
+                    <!-- Configuración de carpeta local -->
                     <div id="localFolderSettings" class="setting-group" style="display: none;">
                         <div class="setting">
                             <label>Carpeta local de destino:</label>
@@ -256,27 +408,163 @@
                             </p>
                         </div>
                     </div>
+                    
+                    <!-- CONFIGURACIÓN METADATOS GPS -->
+                    <div class="setting-group">
+                        <h4 style="color: #ff6b6b; margin-bottom: 15px;">📍 Metadatos GPS en Video</h4>
+                        
+                        <div class="setting">
+                            <label>
+                                <input type="checkbox" id="embedGpsMetadata" checked>
+                                Incrustar GPS en metadatos del video
+                            </label>
+                            <p class="setting-hint">
+                                <small>Agrega coordenadas GPS a cada frame del video MP4</small>
+                            </p>
+                        </div>
+                        
+                        <div class="setting">
+                            <label>Frecuencia de metadatos:</label>
+                            <select id="metadataFrequency">
+                                <option value="1">Cada frame (1x)</option>
+                                <option value="2" selected>Cada 2 frames (0.5x)</option>
+                                <option value="5">Cada 5 frames (0.2x)</option>
+                                <option value="10">Cada 10 frames (0.1x)</option>
+                            </select>
+                            <p class="setting-hint">
+                                <small>Mayor frecuencia = archivo más grande, pero más preciso</small>
+                            </p>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="panel-actions">
+                    <button id="resetSettingsBtn" class="btn reset-btn">🔄 Restaurar</button>
                     <button id="saveSettings" class="btn save-btn">💾 Guardar</button>
                 </div>
             </div>
         </div>
 
-        <!-- REPRODUCTOR -->
+        <!-- GPX MANAGER -->
+        <div id="gpxManagerPanel" class="panel hidden">
+            <div class="panel-container">
+                <div class="panel-header">
+                    <h3>🗺️ Gestor de Rutas GPX</h3>
+                    <button id="closeGpxManager" class="close-btn">✕</button>
+                </div>
+                
+                <div class="settings-content">
+                    <div class="setting">
+                        <label>Cargar archivo GPX:</label>
+                        <div class="folder-selector">
+                            <div id="currentGpxInfo" class="folder-info">
+                                <span>🗺️ No hay GPX cargado</span>
+                            </div>
+                            <button type="button" id="uploadGpxBtn" class="folder-btn">
+                                📤 Subir GPX
+                            </button>
+                        </div>
+                        <p class="folder-instructions">
+                            <small>Formato: GPX o XML. Tamaño máximo: 10MB</small>
+                        </p>
+                    </div>
+                    
+                    <div id="gpxPreview" style="display: none;">
+                        <h4 style="color: #00b894; margin: 15px 0;">Vista Previa GPX</h4>
+                        <div class="gpx-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">📏 Distancia:</span>
+                                <span class="stat-value" id="gpxDistance">0 km</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">📍 Puntos:</span>
+                                <span class="stat-value" id="gpxPoints">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">⏱️ Duración:</span>
+                                <span class="stat-value" id="gpxDuration">0:00</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">📈 Elevación:</span>
+                                <span class="stat-value" id="gpxElevation">0m</span>
+                            </div>
+                        </div>
+                        
+                        <div class="gpx-map-preview">
+                            <canvas id="gpxCanvas" width="300" height="150" 
+                                   style="width: 100%; height: 150px; background: #1e272e; border-radius: 8px; margin-top: 10px;">
+                            </canvas>
+                        </div>
+                    </div>
+                    
+                    <div id="gpxListContainer" class="scrollable-list" style="max-height: 300px; margin-top: 15px;">
+                        <!-- Lista de GPX cargados -->
+                    </div>
+                </div>
+                
+                <div class="panel-actions">
+                    <button id="clearGpxBtn" class="btn delete-btn">🗑️ Limpiar</button>
+                    <button id="saveGpxBtn" class="btn save-btn">💾 Guardar GPX</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- REPRODUCTOR AVANZADO -->
         <div id="videoPlayer" class="panel hidden">
             <div class="panel-container">
                 <div class="panel-header">
-                    <h3>🎬 Reproducción</h3>
+                    <h3>🎬 Reproducción con Mapa</h3>
                     <button id="closePlayer" class="close-btn">✕</button>
                 </div>
                 
-                <video id="playbackVideo" controls playsinline></video>
+                <div class="player-layout">
+                    <div class="video-container">
+                        <video id="playbackVideo" controls playsinline></video>
+                    </div>
+                    
+                    <div class="map-container">
+                        <canvas id="playbackMap" width="400" height="200"></canvas>
+                        <div class="map-info">
+                            <div class="map-stat">
+                                <span>📍 Lat:</span>
+                                <span id="mapLat">0.0000</span>
+                            </div>
+                            <div class="map-stat">
+                                <span>📍 Lon:</span>
+                                <span id="mapLon">0.0000</span>
+                            </div>
+                            <div class="map-stat">
+                                <span>🚗 Vel:</span>
+                                <span id="mapSpeed">0 km/h</span>
+                            </div>
+                            <div class="map-stat">
+                                <span>🏙️ Ciudad:</span>
+                                <span id="mapCity">Desconocida</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="video-info">
                     <h3 id="videoTitle">Título</h3>
-                    <p id="videoDetails">Detalles</p>
+                    <div class="video-stats">
+                        <div class="stat">
+                            <span>📅 Fecha:</span>
+                            <span id="videoDate">--</span>
+                        </div>
+                        <div class="stat">
+                            <span>⏱️ Duración:</span>
+                            <span id="videoDuration">--</span>
+                        </div>
+                        <div class="stat">
+                            <span>💾 Tamaño:</span>
+                            <span id="videoSize">--</span>
+                        </div>
+                        <div class="stat">
+                            <span>📍 Puntos GPS:</span>
+                            <span id="videoGpsPoints">--</span>
+                        </div>
+                    </div>
                     <div id="videoLocation" class="video-location">
                         <span id="locationIcon">📱</span>
                         <span id="locationText">Almacenado en app</span>
@@ -284,6 +572,7 @@
                 </div>
                 
                 <div class="panel-actions">
+                    <button id="extractGpxBtn" class="btn gpx-btn">🗺️ Extraer GPX</button>
                     <button id="moveToLocalFolderBtn" class="btn move-btn">📂 Mover a carpeta</button>
                     <button id="exportVideo" class="btn export-btn">📤 Exportar</button>
                     <button id="deleteVideo" class="btn delete-btn">🗑️ Eliminar</button>
@@ -305,7 +594,7 @@
             </div>
         </div>
 
-        <!-- MODAL CARPETA LOCAL (MEJORADO PARA IPHONE) -->
+        <!-- MODAL CARPETA LOCAL -->
         <div id="localFolderPickerModal" class="modal hidden">
             <div class="modal-content">
                 <div class="modal-header">
@@ -356,17 +645,61 @@
             </div>
         </div>
 
+        <!-- MODAL COMBINAR VIDEOS -->
+        <div id="combineVideosModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>🔗 Combinar Videos</h3>
+                    <button id="closeCombineModal" class="close-btn">✕</button>
+                </div>
+                <div class="modal-body">
+                    <p>Selecciona los videos que quieres combinar:</p>
+                    <div id="combineVideosList" class="scrollable-list" style="max-height: 200px; margin: 15px 0;">
+                        <!-- Lista de videos para combinar -->
+                    </div>
+                    
+                    <div class="setting" style="margin-top: 15px;">
+                        <label>Nombre del video combinado:</label>
+                        <input type="text" id="combinedVideoName" 
+                               value="Video_combinado_${new Date().toLocaleDateString('es-ES').replace(/\//g, '-')}"
+                               class="folder-info" style="width: 100%;">
+                    </div>
+                    
+                    <div class="setting">
+                        <label>
+                            <input type="checkbox" id="preserveMetadata" checked>
+                            Preservar metadatos GPS
+                        </label>
+                    </div>
+                    
+                    <div id="combineProgress" style="display: none; margin-top: 15px;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="combineProgressFill" style="width: 0%"></div>
+                        </div>
+                        <div id="combineStatus" style="text-align: center; margin-top: 5px; font-size: 12px;">
+                            Preparando...
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-actions" style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button id="cancelCombineBtn" class="btn cancel-btn" style="flex: 1;">Cancelar</button>
+                    <button id="startCombineBtn" class="btn save-btn" style="flex: 1;">🔗 Combinar</button>
+                </div>
+            </div>
+        </div>
+
         <!-- NOTIFICACIÓN -->
         <div id="notification" class="notification hidden"></div>
     </div>
 
     <!-- JavaScript con versión -->
-    <script src="app.js?v=2.1"></script>
+    <script src="app.js?v=3.0"></script>
     
     <script>
         // Limpiar caché al cargar
-        if (localStorage.getItem('dashcam_version') !== '2.1') {
-            localStorage.setItem('dashcam_version', '2.1');
+        if (localStorage.getItem('dashcam_version') !== '3.0') {
+            localStorage.setItem('dashcam_version', '3.0');
             
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(registrations => {

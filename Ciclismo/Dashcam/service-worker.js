@@ -1,11 +1,11 @@
-// Service Worker para Dashcam iPhone v2.1
-const CACHE_NAME = 'dashcam-iphone-cache-v2.1';
+// Service Worker para Dashcam iPhone Pro v3.0
+const CACHE_NAME = 'dashcam-iphone-pro-cache-v3.0';
 const urlsToCache = [
     './',
-    './index.html?v=2.1',
-    './styles.css?v=2.1',
-    './app.js?v=2.1',
-    './manifest.json?v=2.1',
+    './index.html?v=3.0',
+    './styles.css?v=3.0',
+    './app.js?v=3.0',
+    './manifest.json?v=3.0',
     './Logo_Dashcam_Bike_192x192.png',
     './Picto_Color_192x192.png',
     './Picto_Color_512x512.png'
@@ -41,7 +41,8 @@ self.addEventListener('fetch', event => {
     // No cachear solicitudes de video o datos
     if (event.request.url.includes('blob:') ||
         event.request.url.includes('video/') ||
-        event.request.url.includes('media/')) {
+        event.request.url.includes('media/') ||
+        event.request.url.includes('gpx')) {
         return;
     }
     

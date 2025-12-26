@@ -87,7 +87,7 @@ body {
     background: linear-gradient(135deg, #c23616, #a32c12);
 }
 
-.gallery-btn, .settings-btn {
+.gallery-btn, .settings-btn, .gpxManagerBtn {
     padding: 14px;
     background: rgba(255, 255, 255, 0.1);
     border: none;
@@ -102,7 +102,7 @@ body {
     transition: all 0.2s;
 }
 
-.gallery-btn:active, .settings-btn:active {
+.gallery-btn:active, .settings-btn:active, .gpxManagerBtn:active {
     background: rgba(255, 255, 255, 0.2);
 }
 
@@ -188,18 +188,18 @@ body {
 }
 
 .record-control-btn {
-    padding: 16px 25px;
+    padding: 12px 20px;
     border: none;
     border-radius: 12px;
     color: white;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    min-width: 120px;
+    min-width: 100px;
     transition: all 0.2s;
 }
 
@@ -223,6 +223,14 @@ body {
     background: linear-gradient(135deg, #0097e6, #007bb5);
 }
 
+.segment-btn {
+    background: linear-gradient(135deg, #6c5ce7, #5b4fcf);
+}
+
+.segment-btn:active {
+    background: linear-gradient(135deg, #5b4fcf, #4a43b8);
+}
+
 /* Barra de información */
 .recording-info-bar {
     position: absolute;
@@ -233,10 +241,10 @@ body {
     padding: 12px 15px;
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
     align-items: center;
     z-index: 3;
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .recording-status {
@@ -267,14 +275,21 @@ body {
     align-items: center;
     gap: 8px;
     opacity: 0.9;
-    font-size: 12px;
+    font-size: 11px;
     flex: 1;
     min-width: 200px;
 }
 
 .format-info {
-    font-size: 12px;
+    font-size: 11px;
     color: #00a8ff;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.segment-info {
+    font-size: 11px;
+    color: #00b894;
     font-weight: bold;
     flex-shrink: 0;
 }
@@ -489,7 +504,7 @@ body {
     -webkit-overflow-scrolling: touch;
     border-radius: 8px;
     background: rgba(30, 39, 46, 0.3);
-    max-height: 60vh; /* Altura máxima para asegurar el scroll */
+    max-height: 60vh;
 }
 
 .file-list {
@@ -677,6 +692,30 @@ body {
     accent-color: #00a8ff;
 }
 
+.setting input[type="range"] {
+    width: 100%;
+    margin: 10px 0;
+    accent-color: #00a8ff;
+}
+
+.setting input[type="color"] {
+    width: 50px;
+    height: 30px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+}
+
+.setting input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    background: #2d3436;
+    border: 1px solid #00a8ff;
+    color: white;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
 .setting-hint {
     margin-top: 5px;
     opacity: 0.7;
@@ -742,13 +781,54 @@ body {
     color: #aaa;
 }
 
-/* ============ REPRODUCTOR ============ */
+/* ============ REPRODUCTOR AVANZADO ============ */
+.player-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.video-container {
+    flex: 2;
+}
+
 #playbackVideo {
     width: 100%;
     max-height: 40vh;
     border-radius: 8px;
-    margin-bottom: 15px;
     background: black;
+}
+
+.map-container {
+    flex: 1;
+    background: #1e272e;
+    border-radius: 8px;
+    padding: 10px;
+    position: relative;
+}
+
+#playbackMap {
+    width: 100%;
+    height: 150px;
+    border-radius: 6px;
+    background: #0c2461;
+}
+
+.map-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+.map-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
 }
 
 .video-info {
@@ -764,11 +844,18 @@ body {
     font-size: 18px;
 }
 
-.video-info p {
-    margin: 5px 0;
-    color: #aaa;
+.video-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.video-stats .stat {
+    display: flex;
+    justify-content: space-between;
     font-size: 13px;
-    line-height: 1.4;
+    color: #aaa;
 }
 
 .video-location {
@@ -780,6 +867,35 @@ body {
     background: rgba(0, 168, 255, 0.1);
     border-radius: 6px;
     font-size: 13px;
+}
+
+/* ============ GPX MANAGER ============ */
+.gpx-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.stat-item {
+    background: rgba(0, 168, 255, 0.1);
+    padding: 10px;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-label {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-bottom: 4px;
+}
+
+.stat-value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #00a8ff;
 }
 
 /* ============ ACCIONES ============ */
@@ -840,6 +956,30 @@ body {
 
 .move-btn:active {
     background: linear-gradient(135deg, #00a085, #008b74);
+}
+
+.reset-btn {
+    background: linear-gradient(135deg, #f0932b, #e67e22);
+}
+
+.reset-btn:active {
+    background: linear-gradient(135deg, #e67e22, #d35400);
+}
+
+.gpx-btn {
+    background: linear-gradient(135deg, #6c5ce7, #5b4fcf);
+}
+
+.gpx-btn:active {
+    background: linear-gradient(135deg, #5b4fcf, #4a43b8);
+}
+
+.combine-btn {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+}
+
+.combine-btn:active {
+    background: linear-gradient(135deg, #8e44ad, #7d3c98);
 }
 
 /* ============ NOTIFICACIONES ============ */
@@ -946,7 +1086,7 @@ body {
     background: rgba(255, 255, 255, 0.2);
 }
 
-/* ============ MODAL CARPETA LOCAL ============ */
+/* ============ MODALES ============ */
 .modal {
     position: fixed;
     top: 0;
@@ -1061,6 +1201,22 @@ body {
     color: #aaa;
 }
 
+/* Barra de progreso */
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #2d3436;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00a8ff, #0097e6);
+    transition: width 0.3s ease;
+}
+
 /* ============ ANIMACIONES ============ */
 @keyframes panelSlideIn {
     from {
@@ -1101,20 +1257,22 @@ body {
     }
     
     .record-control-btn {
-        padding: 14px 20px;
-        min-width: 110px;
-        font-size: 15px;
+        padding: 10px 15px;
+        min-width: 90px;
+        font-size: 13px;
     }
     
     .recording-info-bar {
         flex-direction: column;
         align-items: flex-start;
         gap: 5px;
+        font-size: 11px;
     }
     
     .gps-info {
         min-width: auto;
         width: 100%;
+        font-size: 10px;
     }
     
     .file-details {
@@ -1162,12 +1320,20 @@ body {
     .folder-actions {
         flex-direction: column;
     }
+    
+    .video-stats, .map-info, .gpx-stats {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Para pantallas más grandes */
 @media (min-height: 700px) {
     .scrollable-list {
         max-height: 70vh;
+    }
+    
+    #playbackVideo {
+        max-height: 50vh;
     }
 }
 
@@ -1178,6 +1344,18 @@ body {
     
     .storage-status {
         max-width: 320px;
+    }
+    
+    .player-layout {
+        flex-direction: row;
+    }
+    
+    .video-container {
+        flex: 3;
+    }
+    
+    .map-container {
+        flex: 1;
     }
 }
 
