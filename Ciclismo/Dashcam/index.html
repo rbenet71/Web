@@ -9,13 +9,13 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <title>Dashcam PWA v2.0.4</title>
+    <title>Dashcam PWA v2.0.5</title>
     
     <!-- Manifest con versión -->
-    <link rel="manifest" href="manifest.json?v=2.0.4">
+    <link rel="manifest" href="manifest.json?v=2.0.5">
     
     <!-- CSS con versión -->
-    <link rel="stylesheet" href="styles.css?v=2.0.4">
+    <link rel="stylesheet" href="styles.css?v=2.0.5">
     
     <link rel="icon" href="Picto_Color_192x192.png">
     
@@ -34,7 +34,7 @@
             <h1 class="app-title">Dashcam PWA</h1>
             
             <p class="app-description">Grabación con datos GPS incorporados</p>
-            <div class="app-version">Versión 2.0.4</div>
+            <div class="app-version">Versión 2.0.5</div>
             
             <div class="start-controls">
                 <button id="startBtn" class="start-btn">
@@ -51,6 +51,11 @@
                     <span>⚙️</span>
                     <span>Ajustes</span>
                 </button>
+            </div>
+            
+            <!-- Indicador de estado de sincronización -->
+            <div id="syncStatus" class="sync-status hidden">
+                <span id="syncStatusText"></span>
             </div>
         </div>
 
@@ -74,6 +79,11 @@
                     ⏹️ Parar
                 </button>
             </div>
+            
+            <!-- Indicador de sincronización durante grabación -->
+            <div id="recordingSyncStatus" class="recording-sync-status hidden">
+                <span id="recordingSyncText"></span>
+            </div>
         </div>
 
         <!-- GALERÍA -->
@@ -82,6 +92,12 @@
                 <div class="panel-header">
                     <h3>📁 Galería</h3>
                     <button id="closeGallery" class="close-btn">✕</button>
+                </div>
+                
+                <!-- Selector de vista -->
+                <div class="view-selector">
+                    <button id="viewLocalBtn" class="view-btn active">📱 Locales</button>
+                    <button id="viewCloudBtn" class="view-btn">☁️ En Nube</button>
                 </div>
                 
                 <div class="tabs">
@@ -120,6 +136,7 @@
                 </div>
                 
                 <div class="panel-actions">
+                    <button id="syncNowBtn" class="btn sync-btn">🔄 Sincronizar</button>
                     <button id="exportBtn" class="btn export-btn" disabled>📤 Exportar</button>
                     <button id="shareBtn" class="btn share-btn" disabled>↗️ Compartir</button>
                     <button id="deleteBtn" class="btn delete-btn" disabled>🗑️ Eliminar</button>
@@ -179,6 +196,63 @@
                             Grabar audio
                         </label>
                     </div>
+                    
+                    <!-- NUEVA CONFIGURACIÓN: ALMACENAMIENTO -->
+                    <div class="setting">
+                        <label>Ubicación de almacenamiento:</label>
+                        <select id="storageLocation">
+                            <option value="local">Solo en dispositivo</option>
+                            <option value="cloud">Sincronizar con nube</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Configuración de nube (oculta por defecto) -->
+                    <div id="cloudSettings" class="setting-group" style="display: none;">
+                        <div class="setting">
+                            <label>Servicio de nube:</label>
+                            <select id="cloudProvider">
+                                <option value="onedrive">Microsoft OneDrive</option>
+                                <option value="google">Google Drive</option>
+                                <option value="icloud">iCloud Drive</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting">
+                            <label>Carpeta de destino:</label>
+                            <div class="folder-selector">
+                                <div id="currentFolderInfo" class="folder-info">
+                                    <span>📁 No seleccionada</span>
+                                </div>
+                                <button type="button" id="selectFolderBtn" class="folder-btn">
+                                    📂 Elegir carpeta
+                                </button>
+                            </div>
+                            <p class="folder-instructions">
+                                <small>
+                                    <strong>En iOS:</strong> Los videos se guardan en la carpeta seleccionada de iCloud Drive.
+                                    <br>
+                                    <strong>En Android/Web:</strong> Se usa el servicio seleccionado.
+                                </small>
+                            </p>
+                        </div>
+                        
+                        <div class="setting">
+                            <label>
+                                <input type="checkbox" id="autoSync" checked>
+                                Sincronizar automáticamente al finalizar
+                            </label>
+                        </div>
+                        
+                        <div class="setting">
+                            <label>
+                                <input type="checkbox" id="keepLocalCopy">
+                                Mantener copia local después de sincronizar
+                            </label>
+                            <p class="setting-hint">
+                                <small>Si está desactivado, los videos se borrarán del dispositivo después de subirse a la nube</small>
+                            </p>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="panel-actions">
@@ -200,9 +274,14 @@
                 <div class="video-info">
                     <h3 id="videoTitle">Título</h3>
                     <p id="videoDetails">Detalles</p>
+                    <div id="videoLocation" class="video-location">
+                        <span id="locationIcon">📱</span>
+                        <span id="locationText">Almacenado localmente</span>
+                    </div>
                 </div>
                 
                 <div class="panel-actions">
+                    <button id="moveToCloudBtn" class="btn cloud-btn">☁️ Mover a nube</button>
                     <button id="exportVideo" class="btn export-btn">📤 Exportar</button>
                     <button id="shareVideo" class="btn share-btn">↗️ Compartir</button>
                     <button id="deleteVideo" class="btn delete-btn">🗑️ Eliminar</button>
@@ -224,17 +303,39 @@
             </div>
         </div>
 
+        <!-- MODAL SELECCIÓN DE CARPETA -->
+        <div id="folderPickerModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>📂 Seleccionar carpeta</h3>
+                    <button id="closeFolderPicker" class="close-btn">✕</button>
+                </div>
+                <div class="modal-body">
+                    <p id="folderInstructions">
+                        Selecciona la carpeta donde se guardarán las grabaciones:
+                    </p>
+                    <div id="folderList" class="folder-list">
+                        <!-- Las carpetas se cargarán aquí -->
+                    </div>
+                    <div class="folder-actions">
+                        <button id="createFolderBtn" class="btn create-btn">📁 Crear nueva carpeta</button>
+                        <button id="cancelFolderBtn" class="btn cancel-btn">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- NOTIFICACIÓN -->
         <div id="notification" class="notification hidden"></div>
     </div>
 
     <!-- JavaScript con versión -->
-    <script src="app.js?v=2.0.4"></script>
+    <script src="app.js?v=2.0.5"></script>
     
     <script>
         // Limpiar caché al cargar
-        if (localStorage.getItem('dashcam_version') !== '2.0.4') {
-            localStorage.setItem('dashcam_version', '2.0.4');
+        if (localStorage.getItem('dashcam_version') !== '2.0.5') {
+            localStorage.setItem('dashcam_version', '2.0.5');
             
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(registrations => {
@@ -246,14 +347,6 @@
                 caches.keys().then(cacheNames => {
                     cacheNames.forEach(cacheName => caches.delete(cacheName));
                 });
-            }
-            
-            // Limpiar datos antiguos
-            if (localStorage.getItem('dashcam_videos')) {
-                localStorage.removeItem('dashcam_videos');
-            }
-            if (localStorage.getItem('dashcam_settings')) {
-                localStorage.removeItem('dashcam_settings');
             }
         }
     </script>

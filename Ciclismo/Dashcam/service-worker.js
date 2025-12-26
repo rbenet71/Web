@@ -1,11 +1,11 @@
-// Service Worker para Dashcam PWA v2.0.4
-const CACHE_NAME = 'dashcam-cache-v2.0.4';
+// Service Worker para Dashcam PWA v2.0.5
+const CACHE_NAME = 'dashcam-cache-v2.0.5';
 const urlsToCache = [
     './',
-    './index.html?v=2.0.4',
-    './styles.css?v=2.0.4',
-    './app.js?v=2.0.4',
-    './manifest.json?v=2.0.4',
+    './index.html?v=2.0.5',
+    './styles.css?v=2.0.5',
+    './app.js?v=2.0.5',
+    './manifest.json?v=2.0.5',
     './Logo_Dashcam_Bike_192x192.png',
     './Picto_Color_192x192.png',
     './Picto_Color_512x512.png'
@@ -41,7 +41,8 @@ self.addEventListener('fetch', event => {
     // No cachear solicitudes especiales
     if (event.request.url.includes('chrome-extension') || 
         event.request.url.includes('blob:') ||
-        event.request.url.includes('video/webm')) {
+        event.request.url.includes('video/webm') ||
+        event.request.url.includes('file-handler')) {
         return;
     }
     

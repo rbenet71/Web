@@ -1,6 +1,6 @@
-// Dashcam PWA v2.0.4
+// Dashcam PWA v2.0.5
 
-const APP_VERSION = '2.0.4';
+const APP_VERSION = '2.0.5';
 
 class DashcamApp {
     constructor() {
@@ -16,6 +16,9 @@ class DashcamApp {
             activeTab: 'videos',
             showLandscapeModal: false,
             appVersion: APP_VERSION,
+            viewMode: 'local', // 'local' o 'cloud'
+            cloudVideos: [],
+            cloudGPX: [],
             settings: {
                 segmentDuration: 5,
                 videoQuality: '720p',
@@ -24,7 +27,15 @@ class DashcamApp {
                 audioEnabled: false,
                 watermarkOpacity: 0.7,
                 watermarkFontSize: 16,
-                watermarkPosition: 'bottom'
+                watermarkPosition: 'bottom',
+                // NUEVAS CONFIGURACIONES
+                storageLocation: 'local', // 'local' o 'cloud'
+                cloudProvider: 'onedrive', // 'onedrive', 'google', 'icloud'
+                autoSync: true,
+                keepLocalCopy: false,
+                selectedFolderId: null,
+                selectedFolderName: 'Dashcam Videos',
+                selectedFolderPath: null
             },
             videos: [],
             gpxTracks: []
@@ -48,6 +59,12 @@ class DashcamApp {
         this.videoElement = null;
         this.canvasStream = null;
         this.animationFrame = null;
+        
+        // Variables para gestión de nube
+        this.fileHandle = null;
+        this.folderHandle = null;
+        this.isUploading = false;
+        this.pendingUploads = [];
         
         // Inicializar
         this.init();
@@ -90,6 +107,9 @@ class DashcamApp {
         
         // Cargar galería inicial
         await this.loadGallery();
+        
+        // Mostrar estado de sincronización inicial
+        this.updateSyncStatus();
         
         this.showNotification(`Dashcam PWA v${APP_VERSION} lista`);
         console.log(`✅ Aplicación iniciada correctamente`);
@@ -163,6 +183,8 @@ class DashcamApp {
             recordingStatus: document.getElementById('recordingStatus'),
             recordingTimeEl: document.getElementById('recordingTime'),
             gpsInfo: document.getElementById('gpsInfo'),
+            recordingSyncStatus: document.getElementById('recordingSyncStatus'),
+            recordingSyncText: document.getElementById('recordingSyncText'),
             
             // Paneles
             galleryPanel: document.getElementById('galleryPanel'),
@@ -174,6 +196,10 @@ class DashcamApp {
             tabGPX: document.getElementById('tabGPX'),
             videosTab: document.getElementById('videosTab'),
             gpxTab: document.getElementById('gpxTab'),
+            
+            // Vista
+            viewLocalBtn: document.getElementById('viewLocalBtn'),
+            viewCloudBtn: document.getElementById('viewCloudBtn'),
             
             // Galería - Vídeos
             videosList: document.getElementById('videosList'),
@@ -191,6 +217,7 @@ class DashcamApp {
             exportBtn: document.getElementById('exportBtn'),
             shareBtn: document.getElementById('shareBtn'),
             deleteBtn: document.getElementById('deleteBtn'),
+            syncNowBtn: document.getElementById('syncNowBtn'),
             closeGallery: document.getElementById('closeGallery'),
             
             // Configuración
@@ -199,6 +226,14 @@ class DashcamApp {
             gpxInterval: document.getElementById('gpxInterval'),
             overlayEnabled: document.getElementById('overlayEnabled'),
             audioEnabled: document.getElementById('audioEnabled'),
+            
+            // Nueva configuración de almacenamiento
+            storageLocation: document.getElementById('storageLocation'),
+            cloudProvider: document.getElementById('cloudProvider'),
+            autoSync: document.getElementById('autoSync'),
+            keepLocalCopy: document.getElementById('keepLocalCopy'),
+            selectFolderBtn: document.getElementById('selectFolderBtn'),
+            currentFolderInfo: document.getElementById('currentFolderInfo'),
             saveSettings: document.getElementById('saveSettings'),
             closeSettings: document.getElementById('closeSettings'),
             
@@ -206,6 +241,10 @@ class DashcamApp {
             playbackVideo: document.getElementById('playbackVideo'),
             videoTitle: document.getElementById('videoTitle'),
             videoDetails: document.getElementById('videoDetails'),
+            videoLocation: document.getElementById('videoLocation'),
+            locationIcon: document.getElementById('locationIcon'),
+            locationText: document.getElementById('locationText'),
+            moveToCloudBtn: document.getElementById('moveToCloudBtn'),
             exportVideo: document.getElementById('exportVideo'),
             shareVideo: document.getElementById('shareVideo'),
             deleteVideo: document.getElementById('deleteVideo'),
@@ -213,7 +252,19 @@ class DashcamApp {
             
             // Modal landscape
             landscapeModal: document.querySelector('.landscape-modal'),
-            continueBtn: document.getElementById('continueBtn')
+            continueBtn: document.getElementById('continueBtn'),
+            
+            // Modal carpeta
+            folderPickerModal: document.getElementById('folderPickerModal'),
+            folderInstructions: document.getElementById('folderInstructions'),
+            folderList: document.getElementById('folderList'),
+            createFolderBtn: document.getElementById('createFolderBtn'),
+            cancelFolderBtn: document.getElementById('cancelFolderBtn'),
+            closeFolderPicker: document.getElementById('closeFolderPicker'),
+            
+            // Estado sincronización
+            syncStatus: document.getElementById('syncStatus'),
+            syncStatusText: document.getElementById('syncStatusText')
         };
     }
 
@@ -223,7 +274,7 @@ class DashcamApp {
         return new Promise((resolve, reject) => {
             console.log('📊 Inicializando base de datos...');
             
-            const request = indexedDB.open('DashcamDB', 6);
+            const request = indexedDB.open('DashcamDB', 7);
             
             request.onupgradeneeded = (event) => {
                 this.db = event.target.result;
@@ -236,6 +287,8 @@ class DashcamApp {
                         autoIncrement: true
                     });
                     videoStore.createIndex('timestamp', 'timestamp', { unique: false });
+                    videoStore.createIndex('cloudId', 'cloudId', { unique: false });
+                    videoStore.createIndex('location', 'location', { unique: false });
                     console.log('✅ Store de vídeos creado');
                 }
                 
@@ -246,6 +299,8 @@ class DashcamApp {
                         autoIncrement: true
                     });
                     gpxStore.createIndex('timestamp', 'timestamp', { unique: false });
+                    gpxStore.createIndex('cloudId', 'cloudId', { unique: false });
+                    gpxStore.createIndex('location', 'location', { unique: false });
                     console.log('✅ Store de GPX creado');
                 }
                 
@@ -253,6 +308,12 @@ class DashcamApp {
                 if (!this.db.objectStoreNames.contains('settings')) {
                     this.db.createObjectStore('settings', { keyPath: 'name' });
                     console.log('✅ Store de configuración creado');
+                }
+                
+                // Store para estado de sincronización
+                if (!this.db.objectStoreNames.contains('syncStatus')) {
+                    this.db.createObjectStore('syncStatus', { keyPath: 'id' });
+                    console.log('✅ Store de sincronización creado');
                 }
             };
             
@@ -306,6 +367,7 @@ class DashcamApp {
 
     updateSettingsUI() {
         try {
+            // Configuración existente
             if (this.elements.segmentDuration) {
                 this.elements.segmentDuration.value = this.state.settings.segmentDuration;
             }
@@ -321,8 +383,39 @@ class DashcamApp {
             if (this.elements.audioEnabled) {
                 this.elements.audioEnabled.checked = this.state.settings.audioEnabled;
             }
+            
+            // Nueva configuración de almacenamiento
+            if (this.elements.storageLocation) {
+                this.elements.storageLocation.value = this.state.settings.storageLocation;
+                this.toggleCloudSettings();
+            }
+            if (this.elements.cloudProvider) {
+                this.elements.cloudProvider.value = this.state.settings.cloudProvider;
+            }
+            if (this.elements.autoSync) {
+                this.elements.autoSync.checked = this.state.settings.autoSync;
+            }
+            if (this.elements.keepLocalCopy) {
+                this.elements.keepLocalCopy.checked = this.state.settings.keepLocalCopy;
+            }
+            if (this.elements.currentFolderInfo && this.state.settings.selectedFolderName) {
+                this.elements.currentFolderInfo.innerHTML = 
+                    `<span>📁 ${this.state.settings.selectedFolderName}</span>`;
+            }
+            
         } catch (error) {
             console.warn('⚠️ Error actualizando UI de configuración:', error);
+        }
+    }
+
+    toggleCloudSettings() {
+        const storageLocation = this.elements.storageLocation.value;
+        const cloudSettings = document.querySelector('.setting-group');
+        
+        if (storageLocation === 'cloud') {
+            cloudSettings.style.display = 'block';
+        } else {
+            cloudSettings.style.display = 'none';
         }
     }
 
@@ -861,7 +954,157 @@ class DashcamApp {
         }
     }
 
-    // ============ GUARDADO DE DATOS ============
+    // ============ GESTIÓN DE ALMACENAMIENTO ============
+
+    async selectFolder() {
+        try {
+            console.log('📂 Seleccionando carpeta...');
+            
+            // Usar la File System Access API
+            if ('showDirectoryPicker' in window) {
+                const handle = await window.showDirectoryPicker({
+                    id: 'dashcam-folder',
+                    startIn: 'documents',
+                    mode: 'readwrite'
+                });
+                
+                // Verificar permisos
+                if (await this.verifyPermissions(handle)) {
+                    this.folderHandle = handle;
+                    this.state.settings.selectedFolderName = handle.name;
+                    this.state.settings.selectedFolderId = handle.id || handle.name;
+                    
+                    // Obtener la ruta si es posible
+                    try {
+                        const relativePaths = await handle.resolve(this.folderHandle);
+                        this.state.settings.selectedFolderPath = relativePaths ? 
+                            relativePaths.join('/') : handle.name;
+                    } catch (e) {
+                        this.state.settings.selectedFolderPath = handle.name;
+                    }
+                    
+                    this.elements.currentFolderInfo.innerHTML = 
+                        `<span>📁 ${handle.name}</span>`;
+                    
+                    // Guardar configuración
+                    await this.saveSettings();
+                    
+                    this.showNotification(`📂 Carpeta seleccionada: ${handle.name}`);
+                    
+                    // Mostrar información específica para iOS
+                    if (this.isIOS()) {
+                        this.showNotification(
+                            '✅ En iOS, los videos se guardarán automáticamente en ' +
+                            'la carpeta seleccionada de iCloud Drive al finalizar la grabación.'
+                        );
+                    }
+                } else {
+                    this.showNotification('❌ Permisos insuficientes para la carpeta');
+                }
+            } else {
+                // Fallback para navegadores sin File System Access API
+                this.showFolderPickerFallback();
+            }
+            
+        } catch (error) {
+            console.warn('⚠️ Error seleccionando carpeta:', error);
+            
+            if (error.name === 'AbortError') {
+                // El usuario canceló
+                return;
+            }
+            
+            this.showNotification('❌ Error seleccionando carpeta. ' + 
+                (this.isIOS() ? 
+                    'En iOS, usa la app "Archivos" para seleccionar una carpeta.' : 
+                    'Prueba con otro navegador.'));
+        }
+    }
+
+    async verifyPermissions(handle) {
+        const options = { mode: 'readwrite' };
+        
+        if (await handle.queryPermission(options) === 'granted') {
+            return true;
+        }
+        
+        if (await handle.requestPermission(options) === 'granted') {
+            return true;
+        }
+        
+        return false;
+    }
+
+    showFolderPickerFallback() {
+        // Modal alternativo para navegadores sin File System Access API
+        if (this.elements.folderPickerModal) {
+            this.elements.folderPickerModal.classList.remove('hidden');
+            this.showNotification('ℹ️ Selecciona una carpeta de la lista');
+        }
+    }
+
+    async saveToSelectedFolder(blob, filename) {
+        if (!this.folderHandle) {
+            throw new Error('No se ha seleccionado una carpeta');
+        }
+        
+        try {
+            // Crear un nuevo archivo en la carpeta seleccionada
+            const fileHandle = await this.folderHandle.getFileHandle(filename, { create: true });
+            const writable = await fileHandle.createWritable();
+            await writable.write(blob);
+            await writable.close();
+            
+            console.log(`✅ Archivo guardado: ${filename} en ${this.folderHandle.name}`);
+            return fileHandle;
+            
+        } catch (error) {
+            console.error('❌ Error guardando archivo:', error);
+            throw error;
+        }
+    }
+
+    async uploadToCloud(blob, filename, type = 'video') {
+        if (this.state.settings.storageLocation !== 'cloud') {
+            return null;
+        }
+        
+        try {
+            this.isUploading = true;
+            this.showUploadStatus('⏳ Subiendo a la nube...');
+            
+            let cloudId = null;
+            
+            if (this.folderHandle) {
+                // Usar File System Access API
+                const fileHandle = await this.saveToSelectedFolder(blob, filename);
+                cloudId = fileHandle.id || filename;
+                
+            } else if (this.state.settings.cloudProvider === 'onedrive') {
+                // TODO: Implementar OneDrive API
+                cloudId = await this.uploadToOneDrive(blob, filename);
+                
+            } else if (this.state.settings.cloudProvider === 'google') {
+                // TODO: Implementar Google Drive API
+                cloudId = await this.uploadToGoogleDrive(blob, filename);
+                
+            } else if (this.state.settings.cloudProvider === 'icloud') {
+                // En iOS, usar iCloud Drive
+                cloudId = await this.saveToICloud(blob, filename);
+            }
+            
+            this.showUploadStatus('✅ Subido a la nube');
+            
+            return cloudId;
+            
+        } catch (error) {
+            console.error('❌ Error subiendo a la nube:', error);
+            this.showUploadStatus('❌ Error subiendo');
+            throw error;
+        } finally {
+            this.isUploading = false;
+        }
+    }
 
     async saveVideoSegment() {
         if (this.recordedChunks.length === 0) {
@@ -874,27 +1117,57 @@ class DashcamApp {
             
             const blob = new Blob(this.recordedChunks, { type: 'video/webm' });
             const duration = this.state.currentTime || 10000;
+            const timestamp = this.state.startTime || Date.now();
+            const filename = `dashcam_${timestamp}_${Date.now()}.webm`;
             
+            let cloudId = null;
+            let location = 'local';
+            
+            // Subir a la nube si está configurado
+            if (this.state.settings.storageLocation === 'cloud' && 
+                this.state.settings.autoSync) {
+                try {
+                    cloudId = await this.uploadToCloud(blob, filename, 'video');
+                    location = 'cloud';
+                    
+                    // Borrar local si no se quiere copia
+                    if (!this.state.settings.keepLocalCopy) {
+                        console.log('🗑️ Borrando copia local (configuración keepLocalCopy: false)');
+                        // No guardamos localmente
+                        this.recordedChunks = [];
+                        return;
+                    }
+                } catch (uploadError) {
+                    console.warn('⚠️ Error subiendo a la nube, guardando localmente:', uploadError);
+                    // Continuamos guardando localmente
+                }
+            }
+            
+            // Guardar localmente
             const videoData = {
                 id: Date.now(),
                 blob: blob,
-                timestamp: this.state.startTime,
+                timestamp: timestamp,
                 duration: duration,
                 size: blob.size,
-                title: `Grabación ${new Date(this.state.startTime).toLocaleString('es-ES', {
+                title: `Grabación ${new Date(timestamp).toLocaleString('es-ES', {
                     year: 'numeric',
                     month: '2-digit',
                     day: '2-digit',
                     hour: '2-digit',
                     minute: '2-digit'
                 })}`,
-                gpsPoints: this.gpxPoints.length
+                gpsPoints: this.gpxPoints.length,
+                filename: filename,
+                cloudId: cloudId,
+                location: location,
+                provider: this.state.settings.cloudProvider
             };
             
             console.log('📊 Datos del vídeo:', {
+                location: location,
                 size: Math.round(blob.size / (1024 * 1024)) + ' MB',
-                duration: this.formatTime(duration),
-                gpsPoints: this.gpxPoints.length
+                cloudId: cloudId
             });
             
             if (this.db) {
@@ -908,8 +1181,16 @@ class DashcamApp {
             
             console.log('✅ Vídeo guardado');
             
+            // Mostrar notificación según ubicación
+            if (location === 'cloud') {
+                this.showNotification(`✅ Video guardado en ${this.getProviderName()}`);
+            } else {
+                this.showNotification('✅ Video guardado localmente');
+            }
+            
         } catch (error) {
             console.error('❌ Error guardando vídeo:', error);
+            this.showNotification('❌ Error al guardar video');
         }
     }
 
@@ -927,63 +1208,54 @@ class DashcamApp {
         }
     }
 
-    async saveGPXTrack() {
-        if (this.gpxPoints.length === 0) return;
-        
-        try {
-            const gpxContent = this.generateGPX(this.gpxPoints);
-            const blob = new Blob([gpxContent], { type: 'application/gpx+xml' });
-            
-            const gpxData = {
-                id: Date.now(),
-                blob: blob,
-                timestamp: this.state.startTime || Date.now(),
-                points: this.gpxPoints.length,
-                title: `Ruta ${new Date().toLocaleString('es-ES', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                })}`,
-                size: blob.size
-            };
-            
-            if (this.db) {
-                await this.saveToDatabase('gpxTracks', gpxData);
-            }
-            console.log('📍 GPX guardado:', gpxData.points, 'puntos');
-            
-        } catch (error) {
-            console.error('❌ Error guardando GPX:', error);
+    getProviderName() {
+        switch(this.state.settings.cloudProvider) {
+            case 'onedrive': return 'OneDrive';
+            case 'google': return 'Google Drive';
+            case 'icloud': return 'iCloud Drive';
+            default: return 'la nube';
         }
     }
 
-    generateGPX(points) {
-        let gpx = `<?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="Dashcam PWA">
-  <metadata>
-    <time>${new Date().toISOString()}</time>
-  </metadata>
-  <trk>
-    <name>Dashcam Recording</name>
-    <trkseg>`;
-    
-        points.forEach(point => {
-            gpx += `
-      <trkpt lat="${point.lat}" lon="${point.lon}">
-        <ele>${point.ele}</ele>
-        <time>${new Date(point.timestamp).toISOString()}</time>
-        <speed>${point.speed}</speed>
-      </trkpt>`;
-        });
-        
-        gpx += `
-    </trkseg>
-  </trk>
-</gpx>`;
-        
-        return gpx;
+    async moveToCloud(videoId) {
+        try {
+            const video = await this.getFromStore('videos', videoId);
+            if (!video || !video.blob) {
+                throw new Error('Video no encontrado');
+            }
+            
+            if (video.location === 'cloud') {
+                this.showNotification('ℹ️ El video ya está en la nube');
+                return;
+            }
+            
+            this.showNotification('⏳ Moviendo a la nube...');
+            
+            const filename = video.filename || `dashcam_${video.timestamp}.webm`;
+            const cloudId = await this.uploadToCloud(video.blob, filename, 'video');
+            
+            // Actualizar en base de datos
+            video.cloudId = cloudId;
+            video.location = 'cloud';
+            
+            if (this.db) {
+                const transaction = this.db.transaction(['videos'], 'readwrite');
+                const store = transaction.objectStore('videos');
+                await store.put(video);
+            }
+            
+            // Borrar local si no se quiere copia
+            if (!this.state.settings.keepLocalCopy) {
+                await this.deleteFromStore('videos', videoId);
+            }
+            
+            await this.loadGallery();
+            this.showNotification(`✅ Movido a ${this.getProviderName()}`);
+            
+        } catch (error) {
+            console.error('❌ Error moviendo a la nube:', error);
+            this.showNotification('❌ Error al mover');
+        }
     }
 
     // ============ GPS ============
@@ -1088,26 +1360,93 @@ class DashcamApp {
         this.gpxPoints.push(pointData);
     }
 
-    // ============ GALERÍA ============
+    async saveGPXTrack() {
+        if (this.gpxPoints.length === 0) return;
+        
+        try {
+            const gpxContent = this.generateGPX(this.gpxPoints);
+            const blob = new Blob([gpxContent], { type: 'application/gpx+xml' });
+            
+            const gpxData = {
+                id: Date.now(),
+                blob: blob,
+                timestamp: this.state.startTime || Date.now(),
+                points: this.gpxPoints.length,
+                title: `Ruta ${new Date().toLocaleString('es-ES', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })}`,
+                size: blob.size,
+                location: 'local'
+            };
+            
+            if (this.db) {
+                await this.saveToDatabase('gpxTracks', gpxData);
+            }
+            console.log('📍 GPX guardado:', gpxData.points, 'puntos');
+            
+        } catch (error) {
+            console.error('❌ Error guardando GPX:', error);
+        }
+    }
+
+    generateGPX(points) {
+        let gpx = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Dashcam PWA">
+  <metadata>
+    <time>${new Date().toISOString()}</time>
+  </metadata>
+  <trk>
+    <name>Dashcam Recording</name>
+    <trkseg>`;
+    
+        points.forEach(point => {
+            gpx += `
+      <trkpt lat="${point.lat}" lon="${point.lon}">
+        <ele>${point.ele}</ele>
+        <time>${new Date(point.timestamp).toISOString()}</time>
+        <speed>${point.speed}</speed>
+      </trkpt>`;
+        });
+        
+        gpx += `
+    </trkseg>
+  </trk>
+</gpx>`;
+        
+        return gpx;
+    }
+
+    // ============ GALERÍA MEJORADA ============
 
     async loadGallery() {
         console.log('📁 Cargando galería...');
         try {
-            await this.loadVideos();
-            await this.loadGPXTracks();
+            if (this.state.viewMode === 'local') {
+                await this.loadLocalVideos();
+                await this.loadLocalGPXTracks();
+            } else {
+                await this.loadCloudVideos();
+                await this.loadCloudGPXTracks();
+            }
             console.log('✅ Galería cargada');
         } catch (error) {
             console.error('❌ Error cargando galería:', error);
         }
     }
 
-    async loadVideos() {
+    async loadLocalVideos() {
         try {
-            console.log('🎬 Cargando vídeos...');
+            console.log('🎬 Cargando vídeos locales...');
             let videos = [];
             
             if (this.db) {
                 videos = await this.getAllFromStore('videos');
+                // Filtrar solo videos locales
+                videos = videos.filter(v => v.location === 'local' || !v.location);
             } else {
                 const storedVideos = localStorage.getItem('dashcam_videos');
                 if (storedVideos) {
@@ -1115,15 +1454,81 @@ class DashcamApp {
                 }
             }
             
-            console.log(`📊 ${videos.length} vídeos encontrados`);
+            console.log(`📊 ${videos.length} vídeos locales encontrados`);
             
             this.state.videos = videos.sort((a, b) => b.timestamp - a.timestamp);
             this.renderVideosList();
             
         } catch (error) {
-            console.error('❌ Error cargando vídeos:', error);
+            console.error('❌ Error cargando vídeos locales:', error);
             this.state.videos = [];
             this.renderVideosList();
+        }
+    }
+
+    async loadLocalGPXTracks() {
+        try {
+            console.log('📍 Cargando tracks GPX locales...');
+            let tracks = [];
+            
+            if (this.db) {
+                tracks = await this.getAllFromStore('gpxTracks');
+                tracks = tracks.filter(t => t.location === 'local' || !t.location);
+            }
+            
+            console.log(`📊 ${tracks.length} tracks GPX locales encontrados`);
+            
+            this.state.gpxTracks = tracks.sort((a, b) => b.timestamp - a.timestamp);
+            this.renderGPXList();
+            
+        } catch (error) {
+            console.error('❌ Error cargando GPX:', error);
+            this.state.gpxTracks = [];
+            this.renderGPXList();
+        }
+    }
+
+    async loadCloudVideos() {
+        try {
+            console.log('☁️ Cargando vídeos de la nube...');
+            
+            let videos = [];
+            if (this.db) {
+                videos = await this.getAllFromStore('videos');
+                videos = videos.filter(v => v.location === 'cloud');
+            }
+            
+            console.log(`📊 ${videos.length} vídeos en la nube encontrados`);
+            
+            this.state.videos = videos.sort((a, b) => b.timestamp - a.timestamp);
+            this.renderVideosList();
+            
+        } catch (error) {
+            console.error('❌ Error cargando vídeos de la nube:', error);
+            this.state.videos = [];
+            this.renderVideosList();
+        }
+    }
+
+    async loadCloudGPXTracks() {
+        try {
+            console.log('☁️ Cargando tracks GPX de la nube...');
+            
+            let tracks = [];
+            if (this.db) {
+                tracks = await this.getAllFromStore('gpxTracks');
+                tracks = tracks.filter(t => t.location === 'cloud');
+            }
+            
+            console.log(`📊 ${tracks.length} tracks GPX en la nube encontrados`);
+            
+            this.state.gpxTracks = tracks.sort((a, b) => b.timestamp - a.timestamp);
+            this.renderGPXList();
+            
+        } catch (error) {
+            console.error('❌ Error cargando GPX de la nube:', error);
+            this.state.gpxTracks = [];
+            this.renderGPXList();
         }
     }
 
@@ -1134,11 +1539,17 @@ class DashcamApp {
         console.log('🖼️ Renderizando lista de vídeos:', this.state.videos.length);
         
         if (this.state.videos.length === 0) {
+            const message = this.state.viewMode === 'local' ? 
+                'No hay vídeos en el dispositivo' : 
+                'No hay vídeos en la nube';
+                
             container.innerHTML = `
                 <div class="empty-state">
-                    <div>🎬</div>
-                    <p>No hay vídeos grabados</p>
-                    <p>Inicia una grabación para comenzar</p>
+                    <div>${this.state.viewMode === 'local' ? '📱' : '☁️'}</div>
+                    <p>${message}</p>
+                    <p>${this.state.viewMode === 'local' ? 
+                        'Inicia una grabación para comenzar' : 
+                        'Los vídeos aparecerán aquí después de sincronizar'}</p>
                 </div>
             `;
             return;
@@ -1152,13 +1563,17 @@ class DashcamApp {
             const duration = this.formatTime(video.duration || 0);
             const dateStr = date.toLocaleDateString('es-ES');
             const timeStr = date.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+            const location = video.location || 'local';
+            const locationIcon = location === 'cloud' ? '☁️' : '📱';
             
             html += `
                 <div class="file-item video-file ${this.state.selectedVideos.has(video.id) ? 'selected' : ''}" 
                      data-id="${video.id}" 
-                     data-type="video">
+                     data-type="video"
+                     data-location="${location}">
                     <div class="file-header">
                         <div class="file-title">${video.title || 'Grabación'}</div>
+                        <div class="file-location">${locationIcon}</div>
                         <div class="file-time">${timeStr}</div>
                     </div>
                     <div class="file-details">
@@ -1173,6 +1588,8 @@ class DashcamApp {
                             <span>Seleccionar</span>
                         </div>
                         <button class="play-btn" data-id="${video.id}">▶️ Reproducir</button>
+                        ${location === 'local' && this.state.settings.storageLocation === 'cloud' ? 
+                            `<button class="cloud-btn" data-id="${video.id}">☁️ Subir</button>` : ''}
                     </div>
                 </div>
             `;
@@ -1181,9 +1598,12 @@ class DashcamApp {
         html += '</div>';
         container.innerHTML = html;
         
+        // Configurar eventos
         container.querySelectorAll('.file-item').forEach(item => {
             item.addEventListener('click', (e) => {
-                if (!e.target.closest('.play-btn') && !(e.target.type === 'checkbox')) {
+                if (!e.target.closest('.play-btn') && 
+                    !e.target.closest('.cloud-btn') && 
+                    !(e.target.type === 'checkbox')) {
                     const id = parseInt(item.dataset.id);
                     this.toggleSelection(id, 'video');
                 }
@@ -1206,28 +1626,16 @@ class DashcamApp {
                     this.playVideo(id);
                 });
             }
-        });
-    }
-
-    async loadGPXTracks() {
-        try {
-            console.log('📍 Cargando tracks GPX...');
-            let tracks = [];
             
-            if (this.db) {
-                tracks = await this.getAllFromStore('gpxTracks');
+            const cloudBtn = item.querySelector('.cloud-btn');
+            if (cloudBtn) {
+                cloudBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = parseInt(item.dataset.id);
+                    this.moveToCloud(id);
+                });
             }
-            
-            console.log(`📊 ${tracks.length} tracks GPX encontrados`);
-            
-            this.state.gpxTracks = tracks.sort((a, b) => b.timestamp - a.timestamp);
-            this.renderGPXList();
-            
-        } catch (error) {
-            console.error('❌ Error cargando GPX:', error);
-            this.state.gpxTracks = [];
-            this.renderGPXList();
-        }
+        });
     }
 
     renderGPXList() {
@@ -1235,11 +1643,17 @@ class DashcamApp {
         if (!container) return;
         
         if (this.state.gpxTracks.length === 0) {
+            const message = this.state.viewMode === 'local' ? 
+                'No hay rutas GPX en el dispositivo' : 
+                'No hay rutas GPX en la nube';
+                
             container.innerHTML = `
                 <div class="empty-state">
-                    <div>📍</div>
-                    <p>No hay rutas GPX</p>
-                    <p>Se generan durante la grabación</p>
+                    <div>${this.state.viewMode === 'local' ? '📱' : '☁️'}</div>
+                    <p>${message}</p>
+                    <p>${this.state.viewMode === 'local' ? 
+                        'Se generan durante la grabación' : 
+                        'Las rutas aparecerán aquí después de sincronizar'}</p>
                 </div>
             `;
             return;
@@ -1252,13 +1666,17 @@ class DashcamApp {
             const sizeKB = track.size ? Math.round(track.size / 1024) : 0;
             const dateStr = date.toLocaleDateString('es-ES');
             const timeStr = date.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+            const location = track.location || 'local';
+            const locationIcon = location === 'cloud' ? '☁️' : '📱';
             
             html += `
                 <div class="file-item gpx-file ${this.state.selectedGPX.has(track.id) ? 'selected' : ''}" 
                      data-id="${track.id}" 
-                     data-type="gpx">
+                     data-type="gpx"
+                     data-location="${location}">
                     <div class="file-header">
                         <div class="file-title">${track.title || 'Ruta GPX'}</div>
+                        <div class="file-location">${locationIcon}</div>
                         <div class="file-time">${timeStr}</div>
                     </div>
                     <div class="file-details">
@@ -1337,6 +1755,7 @@ class DashcamApp {
                 const date = new Date(video.timestamp);
                 const sizeMB = Math.round(video.size / (1024 * 1024));
                 const duration = this.formatTime(video.duration);
+                const location = video.location || 'local';
                 
                 this.elements.videoDetails.innerHTML = `
                     <strong>📅 Fecha:</strong> ${date.toLocaleString('es-ES')}<br>
@@ -1344,6 +1763,19 @@ class DashcamApp {
                     <strong>💾 Tamaño:</strong> ${sizeMB} MB<br>
                     <strong>📍 Puntos GPS:</strong> ${video.gpsPoints || 0}
                 `;
+                
+                // Actualizar información de ubicación
+                this.elements.locationIcon.textContent = location === 'cloud' ? '☁️' : '📱';
+                this.elements.locationText.textContent = location === 'cloud' ? 
+                    `Almacenado en ${this.getProviderName()}` : 
+                    'Almacenado localmente';
+                
+                // Mostrar/ocultar botón de mover a la nube
+                if (location === 'local' && this.state.settings.storageLocation === 'cloud') {
+                    this.elements.moveToCloudBtn.style.display = 'block';
+                } else {
+                    this.elements.moveToCloudBtn.style.display = 'none';
+                }
                 
                 this.elements.videoPlayer.classList.remove('hidden');
             } else {
@@ -1368,6 +1800,106 @@ class DashcamApp {
         this.state.currentVideo = null;
     }
 
+    // ============ SINCRONIZACIÓN ============
+
+    async syncAll() {
+        try {
+            if (this.state.settings.storageLocation !== 'cloud') {
+                this.showNotification('ℹ️ La sincronización no está configurada');
+                return;
+            }
+            
+            if (!this.folderHandle && !this.isIOS()) {
+                this.showNotification('❌ Selecciona una carpeta primero');
+                return;
+            }
+            
+            this.showNotification('🔄 Sincronizando...');
+            
+            // Obtener videos locales
+            let localVideos = [];
+            if (this.db) {
+                localVideos = await this.getAllFromStore('videos');
+                localVideos = localVideos.filter(v => v.location === 'local' || !v.location);
+            }
+            
+            let uploaded = 0;
+            let errors = 0;
+            
+            for (const video of localVideos) {
+                try {
+                    const filename = video.filename || `dashcam_${video.timestamp}.webm`;
+                    await this.uploadToCloud(video.blob, filename, 'video');
+                    
+                    // Marcar como subido
+                    video.location = 'cloud';
+                    if (this.db) {
+                        const transaction = this.db.transaction(['videos'], 'readwrite');
+                        const store = transaction.objectStore('videos');
+                        await store.put(video);
+                    }
+                    
+                    uploaded++;
+                    
+                } catch (error) {
+                    console.error(`❌ Error subiendo video ${video.id}:`, error);
+                    errors++;
+                }
+            }
+            
+            // Obtener GPX locales
+            let localGPX = [];
+            if (this.db) {
+                localGPX = await this.getAllFromStore('gpxTracks');
+                localGPX = localGPX.filter(g => g.location === 'local' || !g.location);
+            }
+            
+            for (const gpx of localGPX) {
+                try {
+                    const filename = `ruta_${gpx.timestamp}.gpx`;
+                    await this.uploadToCloud(gpx.blob, filename, 'gpx');
+                    
+                    gpx.location = 'cloud';
+                    if (this.db) {
+                        const transaction = this.db.transaction(['gpxTracks'], 'readwrite');
+                        const store = transaction.objectStore('gpxTracks');
+                        await store.put(gpx);
+                    }
+                    
+                } catch (error) {
+                    console.error(`❌ Error subiendo GPX ${gpx.id}:`, error);
+                    errors++;
+                }
+            }
+            
+            // Borrar locales si no se quiere copia
+            if (!this.state.settings.keepLocalCopy) {
+                for (const video of localVideos) {
+                    if (video.location === 'cloud') {
+                        await this.deleteFromStore('videos', video.id);
+                    }
+                }
+                for (const gpx of localGPX) {
+                    if (gpx.location === 'cloud') {
+                        await this.deleteFromStore('gpxTracks', gpx.id);
+                    }
+                }
+            }
+            
+            await this.loadGallery();
+            
+            if (errors > 0) {
+                this.showNotification(`✅ ${uploaded} subidos, ❌ ${errors} errores`);
+            } else {
+                this.showNotification(`✅ ${uploaded} videos sincronizados`);
+            }
+            
+        } catch (error) {
+            console.error('❌ Error en sincronización:', error);
+            this.showNotification('❌ Error al sincronizar');
+        }
+    }
+
     // ============ CONFIGURACIÓN ============
 
     async saveSettings() {
@@ -1377,7 +1909,15 @@ class DashcamApp {
                 videoQuality: this.elements.videoQuality.value,
                 gpxInterval: parseInt(this.elements.gpxInterval.value),
                 overlayEnabled: this.elements.overlayEnabled.checked,
-                audioEnabled: this.elements.audioEnabled.checked
+                audioEnabled: this.elements.audioEnabled.checked,
+                // Nueva configuración
+                storageLocation: this.elements.storageLocation.value,
+                cloudProvider: this.elements.cloudProvider.value,
+                autoSync: this.elements.autoSync.checked,
+                keepLocalCopy: this.elements.keepLocalCopy.checked,
+                selectedFolderId: this.state.settings.selectedFolderId,
+                selectedFolderName: this.state.settings.selectedFolderName,
+                selectedFolderPath: this.state.settings.selectedFolderPath
             };
             
             this.state.settings = { ...this.state.settings, ...settings };
@@ -1391,6 +1931,7 @@ class DashcamApp {
                 localStorage.setItem('dashcam_settings', JSON.stringify(settings));
             }
             
+            this.updateSyncStatus();
             this.showNotification('⚙️ Configuración guardada');
             this.hideSettings();
             
@@ -1450,6 +1991,35 @@ class DashcamApp {
             clearInterval(this.updateInterval);
         }
         this.updateInterval = setInterval(() => this.updateUI(), 1000);
+    }
+
+    isIOS() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    }
+
+    showUploadStatus(message) {
+        if (this.state.isRecording && this.elements.recordingSyncStatus) {
+            this.elements.recordingSyncText.textContent = message;
+            this.elements.recordingSyncStatus.classList.remove('hidden');
+        }
+        
+        if (this.elements.syncStatus) {
+            this.elements.syncStatusText.textContent = message;
+            this.elements.syncStatus.classList.remove('hidden');
+        }
+    }
+
+    updateSyncStatus() {
+        if (this.state.settings.storageLocation === 'cloud') {
+            const providerName = this.getProviderName();
+            const folderName = this.state.settings.selectedFolderName || 'No seleccionada';
+            
+            this.elements.syncStatusText.textContent = 
+                `☁️ Sincronizando con ${providerName}: ${folderName}`;
+            this.elements.syncStatus.classList.remove('hidden');
+        } else {
+            this.elements.syncStatus.classList.add('hidden');
+        }
     }
 
     // ============ BASE DE DATOS - UTILIDADES ============
@@ -1544,10 +2114,6 @@ class DashcamApp {
                 this.startRecording();
             });
         }
-        // Botones iniciales
-        if (this.elements.startBtn) {
-            this.elements.startBtn.addEventListener('click', () => this.startRecording());
-        }
         if (this.elements.galleryBtn) {
             this.elements.galleryBtn.addEventListener('click', () => this.showGallery());
         }
@@ -1619,6 +2185,9 @@ class DashcamApp {
         if (this.elements.deleteBtn) {
             this.elements.deleteBtn.addEventListener('click', () => this.deleteSelected());
         }
+        if (this.elements.syncNowBtn) {
+            this.elements.syncNowBtn.addEventListener('click', () => this.syncAll());
+        }
         
         // Configuración
         if (this.elements.saveSettings) {
@@ -1628,9 +2197,25 @@ class DashcamApp {
             this.elements.closeSettings.addEventListener('click', () => this.hideSettings());
         }
         
+        // Nueva configuración de almacenamiento
+        if (this.elements.storageLocation) {
+            this.elements.storageLocation.addEventListener('change', () => this.toggleCloudSettings());
+        }
+        
+        if (this.elements.selectFolderBtn) {
+            this.elements.selectFolderBtn.addEventListener('click', () => this.selectFolder());
+        }
+        
         // Reproductor
         if (this.elements.closePlayer) {
             this.elements.closePlayer.addEventListener('click', () => this.hideVideoPlayer());
+        }
+        if (this.elements.moveToCloudBtn) {
+            this.elements.moveToCloudBtn.addEventListener('click', () => {
+                if (this.state.currentVideo) {
+                    this.moveToCloud(this.state.currentVideo.id);
+                }
+            });
         }
         if (this.elements.exportVideo) {
             this.elements.exportVideo.addEventListener('click', () => this.exportSingleVideo());
@@ -1648,6 +2233,25 @@ class DashcamApp {
         }
         if (this.elements.tabGPX) {
             this.elements.tabGPX.addEventListener('click', () => this.switchTab('gpx'));
+        }
+        
+        // Vista local/cloud
+        if (this.elements.viewLocalBtn) {
+            this.elements.viewLocalBtn.addEventListener('click', () => {
+                this.state.viewMode = 'local';
+                this.elements.viewLocalBtn.classList.add('active');
+                this.elements.viewCloudBtn.classList.remove('active');
+                this.loadGallery();
+            });
+        }
+        
+        if (this.elements.viewCloudBtn) {
+            this.elements.viewCloudBtn.addEventListener('click', () => {
+                this.state.viewMode = 'cloud';
+                this.elements.viewCloudBtn.classList.add('active');
+                this.elements.viewLocalBtn.classList.remove('active');
+                this.loadGallery();
+            });
         }
         
         // Búsqueda
@@ -1712,11 +2316,9 @@ class DashcamApp {
             if (tabName === 'videos') {
                 videosTab.style.display = 'block';
                 gpxTab.style.display = 'none';
-                this.loadVideos();
             } else {
                 videosTab.style.display = 'none';
                 gpxTab.style.display = 'block';
-                this.loadGPXTracks();
             }
         }
     }
@@ -2074,6 +2676,33 @@ class DashcamApp {
                 item.style.display = 'none';
             }
         });
+    }
+
+    // ============ MÉTODOS DE CLOUD (STUBS) ============
+
+    async uploadToOneDrive(blob, filename) {
+        console.log(`📤 Subiendo a OneDrive: ${filename}`);
+        // TODO: Implementar OneDrive API
+        // Necesitarás:
+        // 1. Autenticación con Microsoft Graph
+        // 2. Permisos: Files.ReadWrite, offline_access
+        // 3. Subida de archivos
+        this.showNotification('⚠️ OneDrive API no implementada aún');
+        return `onedrive_${Date.now()}`;
+    }
+
+    async uploadToGoogleDrive(blob, filename) {
+        console.log(`📤 Subiendo a Google Drive: ${filename}`);
+        // TODO: Implementar Google Drive API
+        this.showNotification('⚠️ Google Drive API no implementada aún');
+        return `googledrive_${Date.now()}`;
+    }
+
+    async saveToICloud(blob, filename) {
+        console.log(`📤 Guardando en iCloud: ${filename}`);
+        // En iOS, usar el File System Access API debería funcionar con iCloud Drive
+        this.showNotification('⚠️ iCloud API no implementada aún');
+        return `icloud_${Date.now()}`;
     }
 }
 
