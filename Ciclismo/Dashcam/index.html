@@ -106,7 +106,7 @@
             </div>
         </div>
 
-        <!-- GALERÍA -->
+        <!-- GALERÍA MEJORADA -->
         <div id="galleryPanel" class="panel hidden">
             <div class="panel-container">
                 <div class="panel-header">
@@ -126,15 +126,29 @@
                 </div>
                 
                 <div class="gallery-container">
-                    <!-- Vídeos -->
-                    <div id="videosTab" class="tab-content active">
-                        <div class="gallery-controls">
+                    <!-- Cabecera mejorada con menú desplegable -->
+                    <div class="gallery-header">
+                        <div class="gallery-search">
                             <input type="text" id="searchVideos" placeholder="🔍 Buscar vídeos...">
-                            <div class="selection-buttons">
-                                <button id="selectAllVideos">✓ Todos</button>
-                                <button id="deselectAllVideos">✗ Ninguno</button>
+                            <div class="actions-dropdown" id="galleryActionsDropdown">
+                                <button id="galleryDropdownToggle" class="dropdown-toggle">
+                                    <span>📋 Acciones</span>
+                                    <span>▼</span>
+                                </button>
+                                <div id="galleryDropdownMenu" class="dropdown-menu">
+                                    <button id="selectAllVideos">✓ Seleccionar todos</button>
+                                    <button id="deselectAllVideos">✗ Deseleccionar todos</button>
+                                    <button id="moveToLocalBtn">📂 Mover a carpeta</button>
+                                    <button id="combineVideosBtn">🔗 Combinar videos</button>
+                                    <button id="exportBtn" disabled>📤 Exportar selección</button>
+                                    <button id="deleteBtn" disabled>🗑️ Eliminar selección</button>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                    
+                    <!-- Vídeos -->
+                    <div id="videosTab" class="tab-content active">
                         <div id="videosList" class="scrollable-list">
                             <!-- Los vídeos se cargarán aquí -->
                         </div>
@@ -142,9 +156,9 @@
                     
                     <!-- GPX -->
                     <div id="gpxTab" class="tab-content">
-                        <div class="gallery-controls">
+                        <div class="gallery-search">
                             <input type="text" id="searchGPX" placeholder="🔍 Buscar rutas...">
-                            <div class="selection-buttons">
+                            <div class="gallery-view-controls">
                                 <button id="selectAllGPX">✓ Todos</button>
                                 <button id="deselectAllGPX">✗ Ninguno</button>
                             </div>
@@ -155,9 +169,9 @@
                     </div>
                 </div>
                 
+                <!-- Acciones en la parte inferior (reducidas) -->
                 <div class="panel-actions">
-                    <button id="moveToLocalBtn" class="btn move-btn">📂 Mover a carpeta</button>
-                    <button id="combineVideosBtn" class="btn combine-btn">🔗 Combinar</button>
+                    <button id="moveToLocalBtn" class="btn move-btn" disabled>📂 Mover</button>
                     <button id="exportBtn" class="btn export-btn" disabled>📤 Exportar</button>
                     <button id="deleteBtn" class="btn delete-btn" disabled>🗑️ Eliminar</button>
                 </div>
@@ -247,7 +261,7 @@
                             Detectar población automáticamente
                         </label>
                         <p class="setting-hint">
-                            <small>Usa servicio de geocodificación inversa para mostrar ciudad/pueblo</small>
+                            <small>Usa servicio de geocodificación inversa para mostrar ciudad/pueblo (máx. 50 caracteres)</small>
                         </p>
                     </div>
                     
@@ -280,11 +294,14 @@
                         <div class="setting">
                             <label>Posición del logo:</label>
                             <select id="logoPosition">
-                                <option value="top-left">Superior izquierda</option>
+                                <option value="top-left" selected>Superior izquierda</option>
                                 <option value="top-right">Superior derecha</option>
                                 <option value="bottom-left">Inferior izquierda</option>
-                                <option value="bottom-right" selected>Inferior derecha</option>
+                                <option value="bottom-right">Inferior derecha</option>
                             </select>
+                            <p class="setting-hint">
+                                <small>Por defecto: Superior izquierda</small>
+                            </p>
                         </div>
                         
                         <div class="setting">
@@ -297,21 +314,17 @@
                         </div>
                         
                         <div class="setting">
-                            <label>Texto personalizado:</label>
-                            <input type="text" id="customWatermarkText" 
-                                   value="Powered By Roberto Benet - rbenet71@gmail.com"
-                                   placeholder="Texto de marca de agua">
-                        </div>
-                        
-                        <div class="setting">
                             <label>Posición del texto:</label>
                             <select id="textPosition">
-                                <option value="bottom-right" selected>Inferior derecha</option>
-                                <option value="bottom-left">Inferior izquierda</option>
+                                <option value="top-left" selected>Superior izquierda</option>
                                 <option value="top-right">Superior derecha</option>
-                                <option value="top-left">Superior izquierda</option>
+                                <option value="bottom-left">Inferior izquierda</option>
+                                <option value="bottom-right">Inferior derecha</option>
                                 <option value="bottom-center">Centro inferior</option>
                             </select>
+                            <p class="setting-hint">
+                                <small>Por defecto: Superior izquierda (junto al logo)</small>
+                            </p>
                         </div>
                         
                         <div class="setting">

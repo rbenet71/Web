@@ -449,7 +449,7 @@ body {
     display: flex;
 }
 
-/* ============ GALERÍA ============ */
+/* ============ GALERÍA MEJORADA ============ */
 .gallery-container {
     flex: 1;
     display: flex;
@@ -457,13 +457,19 @@ body {
     overflow: hidden;
 }
 
-.gallery-controls {
+.gallery-header {
     display: flex;
+    flex-direction: column;
     gap: 8px;
     margin-bottom: 12px;
 }
 
-.gallery-controls input {
+.gallery-search {
+    display: flex;
+    gap: 8px;
+}
+
+.gallery-search input {
     flex: 1;
     padding: 12px;
     background: #1e272e;
@@ -473,25 +479,95 @@ body {
     font-size: 14px;
 }
 
-.selection-buttons {
+.gallery-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.gallery-view-controls {
     display: flex;
     gap: 8px;
 }
 
-.gallery-controls button {
-    padding: 12px 15px;
+.gallery-view-controls button {
+    padding: 8px 12px;
     background: #353b48;
     border: none;
     color: white;
     border-radius: 8px;
     cursor: pointer;
-    font-weight: 500;
+    font-size: 12px;
     white-space: nowrap;
-    font-size: 14px;
+    min-width: 80px;
 }
 
-.gallery-controls button:active {
+.gallery-view-controls button:active {
     background: #2d3436;
+}
+
+/* Menú desplegable para acciones masivas */
+.actions-dropdown {
+    position: relative;
+}
+
+.dropdown-toggle {
+    padding: 8px 12px;
+    background: #353b48;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 100px;
+}
+
+.dropdown-toggle:active {
+    background: #2d3436;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #1e272e;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    display: none;
+    flex-direction: column;
+    min-width: 150px;
+    z-index: 10;
+    margin-top: 5px;
+}
+
+.dropdown-menu.show {
+    display: flex;
+}
+
+.dropdown-menu button {
+    padding: 10px 15px;
+    background: none;
+    border: none;
+    color: white;
+    text-align: left;
+    cursor: pointer;
+    font-size: 13px;
+    border-bottom: 1px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dropdown-menu button:last-child {
+    border-bottom: none;
+}
+
+.dropdown-menu button:active {
+    background: rgba(0, 168, 255, 0.2);
 }
 
 /* CONTENEDOR DE LISTA CON SCROLL FUNCIONAL */
@@ -504,7 +580,7 @@ body {
     -webkit-overflow-scrolling: touch;
     border-radius: 8px;
     background: rgba(30, 39, 46, 0.3);
-    max-height: 60vh;
+    max-height: 55vh;
 }
 
 .file-list {
@@ -1279,20 +1355,28 @@ body {
         grid-template-columns: 1fr;
     }
     
-    .gallery-controls {
+    .gallery-search {
         flex-direction: column;
     }
     
-    .selection-buttons {
-        width: 100%;
+    .gallery-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
     }
     
-    .gallery-controls button {
+    .gallery-view-controls {
         width: 100%;
+        justify-content: space-between;
+    }
+    
+    .gallery-view-controls button {
+        flex: 1;
+        min-width: auto;
     }
     
     .scrollable-list {
-        max-height: 55vh;
+        max-height: 50vh;
     }
     
     .folder-selector {
@@ -1329,7 +1413,7 @@ body {
 /* Para pantallas más grandes */
 @media (min-height: 700px) {
     .scrollable-list {
-        max-height: 70vh;
+        max-height: 65vh;
     }
     
     #playbackVideo {
@@ -1356,6 +1440,16 @@ body {
     
     .map-container {
         flex: 1;
+    }
+    
+    .gallery-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .gallery-toolbar {
+        margin-top: 0;
     }
 }
 

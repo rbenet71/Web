@@ -40,10 +40,10 @@ class DashcamApp {
                 localFolderName: null,
                 localFolderPath: null,
                 showWatermark: true,
-                logoPosition: 'bottom-right',
+                logoPosition: 'top-left', // Cambiado por defecto
                 logoSize: 'medium',
                 customWatermarkText: 'Powered By Roberto Benet - rbenet71@gmail.com',
-                textPosition: 'bottom-right',
+                textPosition: 'bottom-right', // Cambiado por defecto
                 gpxOverlayEnabled: false,
                 showGpxDistance: true,
                 showGpxSpeed: true,
@@ -80,6 +80,9 @@ class DashcamApp {
         this.isSaving = false;
         this.localFolderHandle = null;
         this.isIOS = this.detectIOS();
+        
+        // Elementos DOM adicionales para galería mejorada
+        this.elements = {};
         
         // Inicializar
         this.init();
@@ -232,11 +235,14 @@ class DashcamApp {
             viewDefaultBtn: document.getElementById('viewDefaultBtn'),
             viewLocalFolderBtn: document.getElementById('viewLocalFolderBtn'),
             
-            // Galería - Vídeos
+            // Galería mejorada
             videosList: document.getElementById('videosList'),
             searchVideos: document.getElementById('searchVideos'),
             selectAllVideos: document.getElementById('selectAllVideos'),
             deselectAllVideos: document.getElementById('deselectAllVideos'),
+            galleryActionsDropdown: document.getElementById('galleryActionsDropdown'),
+            galleryDropdownToggle: document.getElementById('galleryDropdownToggle'),
+            galleryDropdownMenu: document.getElementById('galleryDropdownMenu'),
             
             // Galería - GPX
             gpxList: document.getElementById('gpxList'),
@@ -530,9 +536,6 @@ class DashcamApp {
             }
             if (this.elements.logoSize) {
                 this.elements.logoSize.value = this.state.settings.logoSize;
-            }
-            if (this.elements.customWatermarkText) {
-                this.elements.customWatermarkText.value = this.state.settings.customWatermarkText;
             }
             if (this.elements.textPosition) {
                 this.elements.textPosition.value = this.state.settings.textPosition;
@@ -1036,10 +1039,8 @@ class DashcamApp {
             this.drawLogo(ctx, canvas);
         }
         
-        // Dibujar texto personalizado
-        if (this.state.settings.customWatermarkText) {
-            this.drawWatermarkText(ctx, canvas, this.state.settings.customWatermarkText);
-        }
+        // Dibujar texto personalizado (no editable)
+        this.drawWatermarkText(ctx, canvas, this.state.settings.customWatermarkText);
         
         // Dibujar información GPS
         this.drawGpsInfo(ctx, canvas, dateStr, fontSize, opacity);
@@ -1086,59 +1087,33 @@ class DashcamApp {
     }
 
     drawWatermarkText(ctx, canvas, text) {
-        const fontSize = 14;
+        const fontSize = 10;  // Tamaño pequeño
         ctx.font = `bold ${fontSize}px Arial`;
         ctx.fillStyle = `rgba(255, 255, 255, ${this.state.settings.watermarkOpacity})`;
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'bottom';
+        ctx.textAlign = 'right';  // Alineación a la derecha
+        ctx.textBaseline = 'bottom';  // Línea base inferior
         
         let x, y;
-        const padding = 10;
+        const padding = 15;  // Un poco más de padding para que no quede pegado al borde
         
-        switch(this.state.settings.textPosition) {
-            case 'bottom-right':
-                x = canvas.width - padding;
-                y = canvas.height - padding;
-                ctx.textAlign = 'right';
-                break;
-            case 'bottom-left':
-                x = padding;
-                y = canvas.height - padding;
-                ctx.textAlign = 'left';
-                break;
-            case 'top-right':
-                x = canvas.width - padding;
-                y = padding + fontSize;
-                ctx.textAlign = 'right';
-                break;
-            case 'top-left':
-                x = padding;
-                y = padding + fontSize;
-                ctx.textAlign = 'left';
-                break;
-            case 'bottom-center':
-                x = canvas.width / 2;
-                y = canvas.height - padding;
-                ctx.textAlign = 'center';
-                break;
-        }
+        // SIEMPRE en la parte inferior derecha
+        x = canvas.width - padding;
+        y = canvas.height - padding;
         
-        // Fondo para texto
+        // Usa el texto fijo
+        const watermarkText = 'Powered By Roberto Benet - rbenet71@gmail.com';
+        
+        // Fondo para texto (opcional, para mejor legibilidad)
         ctx.fillStyle = `rgba(0, 0, 0, ${this.state.settings.watermarkOpacity * 0.7})`;
-        const textWidth = ctx.measureText(text).width;
+        const textWidth = ctx.measureText(watermarkText).width;
         const textHeight = fontSize + 4;
         
-        if (ctx.textAlign === 'right') {
-            ctx.fillRect(x - textWidth - 8, y - fontSize - 2, textWidth + 16, textHeight);
-        } else if (ctx.textAlign === 'left') {
-            ctx.fillRect(x - 8, y - fontSize - 2, textWidth + 16, textHeight);
-        } else {
-            ctx.fillRect(x - textWidth/2 - 8, y - fontSize - 2, textWidth + 16, textHeight);
-        }
+        // Dibujar fondo (ajustado para alineación derecha)
+        ctx.fillRect(x - textWidth - 8, y - fontSize - 2, textWidth + 16, textHeight);
         
         // Dibujar texto
         ctx.fillStyle = `rgba(255, 255, 255, ${this.state.settings.watermarkOpacity})`;
-        ctx.fillText(text, x, y);
+        ctx.fillText(watermarkText, x, y);
     }
 
     drawGpsInfo(ctx, canvas, dateStr, fontSize, opacity) {
@@ -1187,7 +1162,12 @@ class DashcamApp {
             const lat = this.currentPosition.lat.toFixed(6);
             const lon = this.currentPosition.lon.toFixed(6);
             const speed = (this.currentPosition.speed * 3.6 || 0).toFixed(1);
-            const locationName = this.state.currentLocationName;
+            let locationName = this.state.currentLocationName;
+            
+            // Limitar nombre de población a 50 caracteres
+            if (locationName.length > 50) {
+                locationName = locationName.substring(0, 47) + '...';
+            }
             
             ctx.font = `${fontSize}px monospace`;
             ctx.fillText(`📍 ${lat}, ${lon} | 🏙️ ${locationName}`, x, y + fontSize + 6);
@@ -2266,6 +2246,11 @@ class DashcamApp {
                     }
                 }
                 
+                // Limitar a 50 caracteres
+                if (locationName.length > 50) {
+                    locationName = locationName.substring(0, 47) + '...';
+                }
+                
                 // Guardar en caché
                 this.state.reverseGeocodeCache[cacheKey] = locationName;
                 
@@ -2345,8 +2330,15 @@ class DashcamApp {
                 
                 if (this.elements.gpsInfo) {
                     const speedKmh = (this.currentPosition.speed * 3.6).toFixed(1);
+                    let locationName = this.state.currentLocationName;
+                    
+                    // Limitar a 50 caracteres en la pantalla también
+                    if (locationName.length > 50) {
+                        locationName = locationName.substring(0, 47) + '...';
+                    }
+                    
                     const locationText = this.state.settings.reverseGeocodeEnabled ? 
-                        ` | 🏙️ ${this.state.currentLocationName}` : '';
+                        ` | 🏙️ ${locationName}` : '';
                     this.elements.gpsInfo.textContent = 
                         `📍 ${this.currentPosition.lat.toFixed(4)}, ${this.currentPosition.lon.toFixed(4)}${locationText} | ${speedKmh} km/h`;
                 }
@@ -2667,6 +2659,24 @@ class DashcamApp {
                 });
             }
         });
+        
+        // Actualizar botones de acción
+        this.updateGalleryActions();
+    }
+
+    updateGalleryActions() {
+        const hasSelectedVideos = this.state.selectedVideos.size > 0;
+        
+        // Actualizar botones en el menú desplegable
+        const moveBtn = document.getElementById('moveToLocalBtn');
+        const combineBtn = document.getElementById('combineVideosBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const deleteBtn = document.getElementById('deleteBtn');
+        
+        if (moveBtn) moveBtn.disabled = !hasSelectedVideos;
+        if (combineBtn) combineBtn.disabled = !hasSelectedVideos || this.state.selectedVideos.size < 2;
+        if (exportBtn) exportBtn.disabled = !hasSelectedVideos;
+        if (deleteBtn) deleteBtn.disabled = !hasSelectedVideos;
     }
 
     // ============ REPRODUCTOR AVANZADO ============
@@ -2906,7 +2916,7 @@ class DashcamApp {
                 showWatermark: this.elements.showWatermark.checked,
                 logoPosition: this.elements.logoPosition.value,
                 logoSize: this.elements.logoSize.value,
-                customWatermarkText: this.elements.customWatermarkText.value,
+                customWatermarkText: this.state.settings.customWatermarkText, // No editable
                 textPosition: this.elements.textPosition.value,
                 gpxOverlayEnabled: this.elements.gpxOverlayEnabled.checked,
                 showGpxDistance: this.elements.showGpxDistance.checked,
@@ -2960,10 +2970,10 @@ class DashcamApp {
                 storageLocation: 'default',
                 keepAppCopy: true,
                 showWatermark: true,
-                logoPosition: 'bottom-right',
+                logoPosition: 'top-left', // Cambiado por defecto
                 logoSize: 'medium',
                 customWatermarkText: 'Powered By Roberto Benet - rbenet71@gmail.com',
-                textPosition: 'bottom-right',
+                textPosition: 'bottom-right', // Cambiado por defecto
                 gpxOverlayEnabled: false,
                 showGpxDistance: true,
                 showGpxSpeed: true,
@@ -3496,7 +3506,7 @@ class DashcamApp {
             });
         }
         
-        // Galería
+        // Galería mejorada
         if (this.elements.closeGallery) {
             this.elements.closeGallery.addEventListener('click', () => this.hideGallery());
         }
@@ -3512,6 +3522,26 @@ class DashcamApp {
         if (this.elements.deselectAllGPX) {
             this.elements.deselectAllGPX.addEventListener('click', () => this.deselectAll('gpx'));
         }
+        if (this.elements.galleryDropdownToggle) {
+            this.elements.galleryDropdownToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (this.elements.galleryDropdownMenu) {
+                    this.elements.galleryDropdownMenu.classList.toggle('show');
+                }
+            });
+        }
+        
+        // Cerrar menú desplegable al hacer clic fuera
+        document.addEventListener('click', (e) => {
+            if (this.elements.galleryDropdownMenu && this.elements.galleryDropdownMenu.classList.contains('show')) {
+                if (!this.elements.galleryDropdownToggle.contains(e.target) && 
+                    !this.elements.galleryDropdownMenu.contains(e.target)) {
+                    this.elements.galleryDropdownMenu.classList.remove('show');
+                }
+            }
+        });
+        
+        // Botones de acción en la galería
         if (this.elements.exportBtn) {
             this.elements.exportBtn.addEventListener('click', () => this.exportSelected());
         }
@@ -3689,6 +3719,7 @@ class DashcamApp {
             this.elements.galleryPanel.classList.remove('hidden');
         }
         this.switchTab(this.state.activeTab);
+        this.updateGalleryActions();
     }
 
     hideGallery() {
@@ -3697,7 +3728,11 @@ class DashcamApp {
         }
         this.state.selectedVideos.clear();
         this.state.selectedGPX.clear();
-        this.updateSelectionButtons();
+        
+        // Cerrar menú desplegable si está abierto
+        if (this.elements.galleryDropdownMenu) {
+            this.elements.galleryDropdownMenu.classList.remove('show');
+        }
     }
 
     showGpxManager() {
@@ -3765,7 +3800,7 @@ class DashcamApp {
             }
         }
         
-        this.updateSelectionButtons();
+        this.updateGalleryActions();
     }
 
     selectAll(type) {
@@ -3778,7 +3813,7 @@ class DashcamApp {
             this.state.gpxTracks.forEach(track => this.state.selectedGPX.add(track.id));
         }
         
-        this.updateSelectionButtons();
+        this.updateGalleryActions();
     }
 
     deselectAll(type) {
@@ -3789,23 +3824,7 @@ class DashcamApp {
             this.state.selectedGPX.clear();
         }
         
-        this.updateSelectionButtons();
-    }
-
-    updateSelectionButtons() {
-        const hasSelectedVideos = this.state.selectedVideos.size > 0;
-        const hasSelectedGPX = this.state.selectedGPX.size > 0;
-        const hasSelected = hasSelectedVideos || hasSelectedGPX;
-        
-        if (this.elements.exportBtn) {
-            this.elements.exportBtn.disabled = !hasSelected;
-        }
-        if (this.elements.deleteBtn) {
-            this.elements.deleteBtn.disabled = !hasSelected;
-        }
-        if (this.elements.combineVideosBtn) {
-            this.elements.combineVideosBtn.disabled = !hasSelectedVideos || this.state.selectedVideos.size < 2;
-        }
+        this.updateGalleryActions();
     }
 
     // ============ FUNCIONES DE ACCIÓN ============
