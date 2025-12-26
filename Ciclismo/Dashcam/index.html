@@ -9,13 +9,13 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <title>Dashcam PWA v2.0.5</title>
+    <title>Dashcam PWA v2.0.6</title>
     
     <!-- Manifest con versión -->
-    <link rel="manifest" href="manifest.json?v=2.0.5">
+    <link rel="manifest" href="manifest.json?v=2.0.6">
     
     <!-- CSS con versión -->
-    <link rel="stylesheet" href="styles.css?v=2.0.5">
+    <link rel="stylesheet" href="styles.css?v=2.0.6">
     
     <link rel="icon" href="Picto_Color_192x192.png">
     
@@ -34,7 +34,7 @@
             <h1 class="app-title">Dashcam PWA</h1>
             
             <p class="app-description">Grabación con datos GPS incorporados</p>
-            <div class="app-version">Versión 2.0.5</div>
+            <div class="app-version">Versión 2.0.6</div>
             
             <div class="start-controls">
                 <button id="startBtn" class="start-btn">
@@ -53,9 +53,9 @@
                 </button>
             </div>
             
-            <!-- Indicador de estado de sincronización -->
-            <div id="syncStatus" class="sync-status hidden">
-                <span id="syncStatusText"></span>
+            <!-- Indicador de estado de almacenamiento -->
+            <div id="storageStatus" class="storage-status hidden">
+                <span id="storageStatusText"></span>
             </div>
         </div>
 
@@ -69,6 +69,7 @@
                 <div id="recordingStatus" class="recording-status recording">● GRABANDO</div>
                 <div id="recordingTime" class="recording-time">00:00:00</div>
                 <div id="gpsInfo" class="gps-info">📍 GPS: Conectando...</div>
+                <div id="formatInfo" class="format-info">🎬 MP4</div>
             </div>
             
             <div class="recording-controls">
@@ -80,9 +81,9 @@
                 </button>
             </div>
             
-            <!-- Indicador de sincronización durante grabación -->
-            <div id="recordingSyncStatus" class="recording-sync-status hidden">
-                <span id="recordingSyncText"></span>
+            <!-- Indicador de guardado -->
+            <div id="savingStatus" class="saving-status hidden">
+                <span id="savingText">💾 Guardando...</span>
             </div>
         </div>
 
@@ -96,8 +97,9 @@
                 
                 <!-- Selector de vista -->
                 <div class="view-selector">
-                    <button id="viewLocalBtn" class="view-btn active">📱 Locales</button>
-                    <button id="viewCloudBtn" class="view-btn">☁️ En Nube</button>
+                    <button id="viewDefaultBtn" class="view-btn active">📱 Predeterminado</button>
+                    <button id="viewLocalFolderBtn" class="view-btn">📂 Carpeta Local</button>
+                    <button id="viewCloudBtn" class="view-btn">☁️ Nube</button>
                 </div>
                 
                 <div class="tabs">
@@ -136,9 +138,9 @@
                 </div>
                 
                 <div class="panel-actions">
+                    <button id="moveToLocalBtn" class="btn move-btn">📂 Mover a carpeta</button>
                     <button id="syncNowBtn" class="btn sync-btn">🔄 Sincronizar</button>
                     <button id="exportBtn" class="btn export-btn" disabled>📤 Exportar</button>
-                    <button id="shareBtn" class="btn share-btn" disabled>↗️ Compartir</button>
                     <button id="deleteBtn" class="btn delete-btn" disabled>🗑️ Eliminar</button>
                 </div>
             </div>
@@ -174,6 +176,17 @@
                     </div>
                     
                     <div class="setting">
+                        <label>Formato de video:</label>
+                        <select id="videoFormat">
+                            <option value="mp4" selected>MP4 (Recomendado)</option>
+                            <option value="webm">WebM</option>
+                        </select>
+                        <p class="setting-hint">
+                            <small>MP4 es compatible con más dispositivos. WebM es más eficiente pero menos compatible.</small>
+                        </p>
+                    </div>
+                    
+                    <div class="setting">
                         <label>Intervalo de puntos GPX (segundos):</label>
                         <select id="gpxInterval">
                             <option value="1">1 segundo</option>
@@ -201,9 +214,58 @@
                     <div class="setting">
                         <label>Ubicación de almacenamiento:</label>
                         <select id="storageLocation">
-                            <option value="local">Solo en dispositivo</option>
-                            <option value="cloud">Sincronizar con nube</option>
+                            <option value="default" selected>Predeterminado (App)</option>
+                            <option value="localFolder">Carpeta Local</option>
+                            <option value="cloud">Nube</option>
                         </select>
+                        <p class="setting-hint">
+                            <small>
+                                <strong>Predeterminado:</strong> En almacenamiento de la app<br>
+                                <strong>Carpeta Local:</strong> En carpeta que tú elijas<br>
+                                <strong>Nube:</strong> Servicios como OneDrive, Google Drive
+                            </small>
+                        </p>
+                    </div>
+                    
+                    <!-- Configuración de carpeta local (oculta por defecto) -->
+                    <div id="localFolderSettings" class="setting-group" style="display: none;">
+                        <div class="setting">
+                            <label>Carpeta local de destino:</label>
+                            <div class="folder-selector">
+                                <div id="currentLocalFolderInfo" class="folder-info">
+                                    <span>📁 No seleccionada</span>
+                                </div>
+                                <button type="button" id="selectLocalFolderBtn" class="folder-btn">
+                                    📂 Elegir carpeta
+                                </button>
+                            </div>
+                            <p class="folder-instructions">
+                                <small>
+                                    <strong>Ventajas:</strong> Los videos se guardan directamente en tu carpeta seleccionada.<br>
+                                    <strong>Compatible:</strong> Funciona en todos los dispositivos modernos.
+                                </small>
+                            </p>
+                        </div>
+                        
+                        <div class="setting">
+                            <label>
+                                <input type="checkbox" id="keepAppCopy">
+                                Mantener copia en la app
+                            </label>
+                            <p class="setting-hint">
+                                <small>Si está desactivado, los videos solo se guardarán en la carpeta local</small>
+                            </p>
+                        </div>
+                        
+                        <div class="setting">
+                            <label>
+                                <input type="checkbox" id="autoConvertMP4" checked>
+                                Convertir automáticamente a MP4
+                            </label>
+                            <p class="setting-hint">
+                                <small>Convierte WebM a MP4 para mejor compatibilidad</small>
+                            </p>
+                        </div>
                     </div>
                     
                     <!-- Configuración de nube (oculta por defecto) -->
@@ -218,21 +280,17 @@
                         </div>
                         
                         <div class="setting">
-                            <label>Carpeta de destino:</label>
+                            <label>Carpeta de destino en nube:</label>
                             <div class="folder-selector">
-                                <div id="currentFolderInfo" class="folder-info">
+                                <div id="currentCloudFolderInfo" class="folder-info">
                                     <span>📁 No seleccionada</span>
                                 </div>
-                                <button type="button" id="selectFolderBtn" class="folder-btn">
+                                <button type="button" id="selectCloudFolderBtn" class="folder-btn">
                                     📂 Elegir carpeta
                                 </button>
                             </div>
                             <p class="folder-instructions">
-                                <small>
-                                    <strong>En iOS:</strong> Los videos se guardan en la carpeta seleccionada de iCloud Drive.
-                                    <br>
-                                    <strong>En Android/Web:</strong> Se usa el servicio seleccionado.
-                                </small>
+                                <small>Selecciona la carpeta donde se guardarán los videos en la nube</small>
                             </p>
                         </div>
                         
@@ -276,14 +334,14 @@
                     <p id="videoDetails">Detalles</p>
                     <div id="videoLocation" class="video-location">
                         <span id="locationIcon">📱</span>
-                        <span id="locationText">Almacenado localmente</span>
+                        <span id="locationText">Almacenado en app</span>
                     </div>
                 </div>
                 
                 <div class="panel-actions">
+                    <button id="moveToLocalFolderBtn" class="btn move-btn">📂 Mover a carpeta</button>
                     <button id="moveToCloudBtn" class="btn cloud-btn">☁️ Mover a nube</button>
                     <button id="exportVideo" class="btn export-btn">📤 Exportar</button>
-                    <button id="shareVideo" class="btn share-btn">↗️ Compartir</button>
                     <button id="deleteVideo" class="btn delete-btn">🗑️ Eliminar</button>
                 </div>
             </div>
@@ -303,23 +361,29 @@
             </div>
         </div>
 
-        <!-- MODAL SELECCIÓN DE CARPETA -->
-        <div id="folderPickerModal" class="modal hidden">
+        <!-- MODAL CARPETA LOCAL -->
+        <div id="localFolderPickerModal" class="modal hidden">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3>📂 Seleccionar carpeta</h3>
-                    <button id="closeFolderPicker" class="close-btn">✕</button>
+                    <h3>📂 Seleccionar carpeta local</h3>
+                    <button id="closeLocalFolderPicker" class="close-btn">✕</button>
                 </div>
                 <div class="modal-body">
-                    <p id="folderInstructions">
-                        Selecciona la carpeta donde se guardarán las grabaciones:
+                    <p id="localFolderInstructions">
+                        Selecciona una carpeta en tu dispositivo donde se guardarán las grabaciones:
                     </p>
-                    <div id="folderList" class="folder-list">
-                        <!-- Las carpetas se cargarán aquí -->
-                    </div>
                     <div class="folder-actions">
-                        <button id="createFolderBtn" class="btn create-btn">📁 Crear nueva carpeta</button>
-                        <button id="cancelFolderBtn" class="btn cancel-btn">Cancelar</button>
+                        <button id="openLocalFolderBtn" class="btn open-btn">📂 Abrir selector de carpeta</button>
+                        <button id="cancelLocalFolderBtn" class="btn cancel-btn">Cancelar</button>
+                    </div>
+                    <div class="folder-path-info">
+                        <p><strong>Carpeta seleccionada:</strong></p>
+                        <div id="localFolderPath" class="folder-path">
+                            Ninguna carpeta seleccionada
+                        </div>
+                        <p class="folder-tip">
+                            <small>💡 Recomendación: Usa una carpeta específica como "Dashcam Videos" o "Grabaciones"</small>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -329,13 +393,16 @@
         <div id="notification" class="notification hidden"></div>
     </div>
 
+    <!-- Librería para convertir WebM a MP4 -->
+    <script src="https://unpkg.com/mux.js@6.3.0/dist/mux.min.js"></script>
+    
     <!-- JavaScript con versión -->
-    <script src="app.js?v=2.0.5"></script>
+    <script src="app.js?v=2.0.6"></script>
     
     <script>
         // Limpiar caché al cargar
-        if (localStorage.getItem('dashcam_version') !== '2.0.5') {
-            localStorage.setItem('dashcam_version', '2.0.5');
+        if (localStorage.getItem('dashcam_version') !== '2.0.6') {
+            localStorage.setItem('dashcam_version', '2.0.6');
             
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(registrations => {
