@@ -521,8 +521,8 @@ body {
     border-left-color: #00b894;
 }
 
-.file-item[data-location="cloud"] {
-    border-left-color: #6c5ce7;
+.file-item[data-location="ios_local"] {
+    border-left-color: #ff6b6b;
 }
 
 .file-header {
@@ -834,28 +834,12 @@ body {
     background: linear-gradient(135deg, #00a085, #008b74);
 }
 
-.sync-btn {
-    background: linear-gradient(135deg, #6c5ce7, #5c4bdb);
-}
-
-.sync-btn:active {
-    background: linear-gradient(135deg, #5c4bdb, #4a3bc8);
-}
-
 .move-btn {
     background: linear-gradient(135deg, #00b894, #00a085);
 }
 
 .move-btn:active {
     background: linear-gradient(135deg, #00a085, #008b74);
-}
-
-.cloud-btn {
-    background: linear-gradient(135deg, #6c5ce7, #5c4bdb);
-}
-
-.cloud-btn:active {
-    background: linear-gradient(135deg, #5c4bdb, #4a3bc8);
 }
 
 /* ============ NOTIFICACIONES ============ */
@@ -1274,4 +1258,49 @@ body {
     white-space: nowrap;
     z-index: 1000;
     margin-bottom: 5px;
+}
+
+/* ============ ESTILOS PARA IPHONE ============ */
+.ios-instructions {
+    background: rgba(0, 168, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px 0;
+    border-left: 4px solid #00a8ff;
+}
+
+.ios-instructions h4 {
+    color: #00a8ff;
+    margin-bottom: 8px;
+}
+
+.ios-instructions ol {
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+.ios-instructions li {
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.ios-files-btn {
+    background: linear-gradient(135deg, #00b894, #00a085);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+.ios-files-btn:active {
+    background: linear-gradient(135deg, #00a085, #008b74);
 }

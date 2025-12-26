@@ -1,11 +1,11 @@
-// Service Worker para Dashcam PWA v2.0.6
-const CACHE_NAME = 'dashcam-cache-v2.0.6';
+// Service Worker para Dashcam iPhone v2.1
+const CACHE_NAME = 'dashcam-iphone-cache-v2.1';
 const urlsToCache = [
     './',
-    './index.html?v=2.0.6',
-    './styles.css?v=2.0.6',
-    './app.js?v=2.0.6',
-    './manifest.json?v=2.0.6',
+    './index.html?v=2.1',
+    './styles.css?v=2.1',
+    './app.js?v=2.1',
+    './manifest.json?v=2.1',
     './Logo_Dashcam_Bike_192x192.png',
     './Picto_Color_192x192.png',
     './Picto_Color_512x512.png'
@@ -38,30 +38,25 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-    // No cachear solicitudes especiales
-    if (event.request.url.includes('chrome-extension') || 
-        event.request.url.includes('blob:') ||
-        event.request.url.includes('video/webm') ||
-        event.request.url.includes('file-handler')) {
+    // No cachear solicitudes de video o datos
+    if (event.request.url.includes('blob:') ||
+        event.request.url.includes('video/') ||
+        event.request.url.includes('media/')) {
         return;
     }
     
     event.respondWith(
         caches.match(event.request)
             .then(response => {
-                // Si encontramos en caché, devolvemos
                 if (response) {
                     return response;
                 }
                 
-                // Si no está en caché, hacemos la petición
                 return fetch(event.request).then(response => {
-                    // Solo cacheamos respuestas exitosas
                     if (!response || response.status !== 200 || response.type !== 'basic') {
                         return response;
                     }
                     
-                    // Clonamos la respuesta para cachearla
                     const responseToCache = response.clone();
                     
                     caches.open(CACHE_NAME)

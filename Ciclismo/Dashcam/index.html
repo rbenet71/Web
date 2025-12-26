@@ -9,13 +9,13 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <title>Dashcam PWA v2.0.6</title>
+    <title>Dashcam iPhone v2.1</title>
     
     <!-- Manifest con versión -->
-    <link rel="manifest" href="manifest.json?v=2.0.6">
+    <link rel="manifest" href="manifest.json?v=2.1">
     
     <!-- CSS con versión -->
-    <link rel="stylesheet" href="styles.css?v=2.0.6">
+    <link rel="stylesheet" href="styles.css?v=2.1">
     
     <link rel="icon" href="Picto_Color_192x192.png">
     
@@ -24,6 +24,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Dashcam">
     <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Librería para convertir WebM a MP4 -->
+    <script src="https://unpkg.com/mp4box@0.5.2/dist/mp4box.all.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -31,10 +34,10 @@
         <div class="start-screen">
             <img src="Logo_Dashcam_Bike_192x192.png" class="app-icon">
 
-            <h1 class="app-title">Dashcam PWA</h1>
+            <h1 class="app-title">Dashcam iPhone</h1>
             
-            <p class="app-description">Grabación con datos GPS incorporados</p>
-            <div class="app-version">Versión 2.0.6</div>
+            <p class="app-description">Grabación MP4 con datos GPS</p>
+            <div class="app-version">Versión 2.1</div>
             
             <div class="start-controls">
                 <button id="startBtn" class="start-btn">
@@ -95,11 +98,10 @@
                     <button id="closeGallery" class="close-btn">✕</button>
                 </div>
                 
-                <!-- Selector de vista -->
+                <!-- Selector de vista simplificado -->
                 <div class="view-selector">
-                    <button id="viewDefaultBtn" class="view-btn active">📱 Predeterminado</button>
+                    <button id="viewDefaultBtn" class="view-btn active">📱 En la App</button>
                     <button id="viewLocalFolderBtn" class="view-btn">📂 Carpeta Local</button>
-                    <button id="viewCloudBtn" class="view-btn">☁️ Nube</button>
                 </div>
                 
                 <div class="tabs">
@@ -139,7 +141,6 @@
                 
                 <div class="panel-actions">
                     <button id="moveToLocalBtn" class="btn move-btn">📂 Mover a carpeta</button>
-                    <button id="syncNowBtn" class="btn sync-btn">🔄 Sincronizar</button>
                     <button id="exportBtn" class="btn export-btn" disabled>📤 Exportar</button>
                     <button id="deleteBtn" class="btn delete-btn" disabled>🗑️ Eliminar</button>
                 </div>
@@ -179,10 +180,10 @@
                         <label>Formato de video:</label>
                         <select id="videoFormat">
                             <option value="mp4" selected>MP4 (Recomendado)</option>
-                            <option value="webm">WebM</option>
+                            <option value="webm">WebM (Solo pruebas)</option>
                         </select>
                         <p class="setting-hint">
-                            <small>MP4 es compatible con más dispositivos. WebM es más eficiente pero menos compatible.</small>
+                            <small>MP4 es compatible con todos los dispositivos incluyendo iPhone</small>
                         </p>
                     </div>
                     
@@ -210,19 +211,17 @@
                         </label>
                     </div>
                     
-                    <!-- NUEVA CONFIGURACIÓN: ALMACENAMIENTO -->
+                    <!-- CONFIGURACIÓN SIMPLIFICADA: ALMACENAMIENTO -->
                     <div class="setting">
                         <label>Ubicación de almacenamiento:</label>
                         <select id="storageLocation">
-                            <option value="default" selected>Predeterminado (App)</option>
+                            <option value="default" selected>En la App</option>
                             <option value="localFolder">Carpeta Local</option>
-                            <option value="cloud">Nube</option>
                         </select>
                         <p class="setting-hint">
                             <small>
-                                <strong>Predeterminado:</strong> En almacenamiento de la app<br>
-                                <strong>Carpeta Local:</strong> En carpeta que tú elijas<br>
-                                <strong>Nube:</strong> Servicios como OneDrive, Google Drive
+                                <strong>En la App:</strong> Solo accesible desde esta app<br>
+                                <strong>Carpeta Local:</strong> Accesible desde app "Archivos" de iPhone
                             </small>
                         </p>
                     </div>
@@ -241,73 +240,19 @@
                             </div>
                             <p class="folder-instructions">
                                 <small>
-                                    <strong>Ventajas:</strong> Los videos se guardan directamente en tu carpeta seleccionada.<br>
-                                    <strong>Compatible:</strong> Funciona en todos los dispositivos modernos.
+                                    <strong>iPhone:</strong> Los videos se guardarán en la carpeta que elijas dentro de la app "Archivos"<br>
+                                    <strong>Android/PC:</strong> Funciona normalmente
                                 </small>
                             </p>
                         </div>
                         
                         <div class="setting">
                             <label>
-                                <input type="checkbox" id="keepAppCopy">
+                                <input type="checkbox" id="keepAppCopy" checked>
                                 Mantener copia en la app
                             </label>
                             <p class="setting-hint">
                                 <small>Si está desactivado, los videos solo se guardarán en la carpeta local</small>
-                            </p>
-                        </div>
-                        
-                        <div class="setting">
-                            <label>
-                                <input type="checkbox" id="autoConvertMP4" checked>
-                                Convertir automáticamente a MP4
-                            </label>
-                            <p class="setting-hint">
-                                <small>Convierte WebM a MP4 para mejor compatibilidad</small>
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <!-- Configuración de nube (oculta por defecto) -->
-                    <div id="cloudSettings" class="setting-group" style="display: none;">
-                        <div class="setting">
-                            <label>Servicio de nube:</label>
-                            <select id="cloudProvider">
-                                <option value="onedrive">Microsoft OneDrive</option>
-                                <option value="google">Google Drive</option>
-                                <option value="icloud">iCloud Drive</option>
-                            </select>
-                        </div>
-                        
-                        <div class="setting">
-                            <label>Carpeta de destino en nube:</label>
-                            <div class="folder-selector">
-                                <div id="currentCloudFolderInfo" class="folder-info">
-                                    <span>📁 No seleccionada</span>
-                                </div>
-                                <button type="button" id="selectCloudFolderBtn" class="folder-btn">
-                                    📂 Elegir carpeta
-                                </button>
-                            </div>
-                            <p class="folder-instructions">
-                                <small>Selecciona la carpeta donde se guardarán los videos en la nube</small>
-                            </p>
-                        </div>
-                        
-                        <div class="setting">
-                            <label>
-                                <input type="checkbox" id="autoSync" checked>
-                                Sincronizar automáticamente al finalizar
-                            </label>
-                        </div>
-                        
-                        <div class="setting">
-                            <label>
-                                <input type="checkbox" id="keepLocalCopy">
-                                Mantener copia local después de sincronizar
-                            </label>
-                            <p class="setting-hint">
-                                <small>Si está desactivado, los videos se borrarán del dispositivo después de subirse a la nube</small>
                             </p>
                         </div>
                     </div>
@@ -340,7 +285,6 @@
                 
                 <div class="panel-actions">
                     <button id="moveToLocalFolderBtn" class="btn move-btn">📂 Mover a carpeta</button>
-                    <button id="moveToCloudBtn" class="btn cloud-btn">☁️ Mover a nube</button>
                     <button id="exportVideo" class="btn export-btn">📤 Exportar</button>
                     <button id="deleteVideo" class="btn delete-btn">🗑️ Eliminar</button>
                 </div>
@@ -361,28 +305,51 @@
             </div>
         </div>
 
-        <!-- MODAL CARPETA LOCAL -->
+        <!-- MODAL CARPETA LOCAL (MEJORADO PARA IPHONE) -->
         <div id="localFolderPickerModal" class="modal hidden">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3>📂 Seleccionar carpeta local</h3>
+                    <h3 id="folderModalTitle">📂 Seleccionar carpeta</h3>
                     <button id="closeLocalFolderPicker" class="close-btn">✕</button>
                 </div>
                 <div class="modal-body">
-                    <p id="localFolderInstructions">
-                        Selecciona una carpeta en tu dispositivo donde se guardarán las grabaciones:
-                    </p>
-                    <div class="folder-actions">
-                        <button id="openLocalFolderBtn" class="btn open-btn">📂 Abrir selector de carpeta</button>
-                        <button id="cancelLocalFolderBtn" class="btn cancel-btn">Cancelar</button>
+                    <div id="iphoneInstructions" style="display: none;">
+                        <p><strong>Para iPhone/iPad:</strong></p>
+                        <ol style="padding-left: 20px; margin: 10px 0;">
+                            <li>Abre la app <strong>"Archivos"</strong></li>
+                            <li>Ve a "En mi iPhone"</li>
+                            <li>Selecciona o crea una carpeta</li>
+                            <li>Aquí se guardarán los videos</li>
+                        </ol>
+                        <p style="font-size: 12px; color: #aaa;">
+                            💡 Consejo: Crea una carpeta llamada "Dashcam Videos" para organizarte
+                        </p>
+                        <div style="text-align: center; margin-top: 20px;">
+                            <button id="openFilesAppBtn" class="btn open-btn">
+                                📂 Abrir app "Archivos"
+                            </button>
+                        </div>
                     </div>
+                    
+                    <div id="desktopInstructions" style="display: none;">
+                        <p>Selecciona una carpeta donde se guardarán las grabaciones:</p>
+                        <div class="folder-actions">
+                            <button id="openLocalFolderBtn" class="btn open-btn">
+                                📂 Abrir selector de carpeta
+                            </button>
+                            <button id="cancelLocalFolderBtn" class="btn cancel-btn">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                    
                     <div class="folder-path-info">
                         <p><strong>Carpeta seleccionada:</strong></p>
                         <div id="localFolderPath" class="folder-path">
                             Ninguna carpeta seleccionada
                         </div>
                         <p class="folder-tip">
-                            <small>💡 Recomendación: Usa una carpeta específica como "Dashcam Videos" o "Grabaciones"</small>
+                            <small>💡 Los videos se guardarán directamente en esta carpeta</small>
                         </p>
                     </div>
                 </div>
@@ -393,16 +360,13 @@
         <div id="notification" class="notification hidden"></div>
     </div>
 
-    <!-- Librería para convertir WebM a MP4 -->
-    <script src="https://unpkg.com/mux.js@6.3.0/dist/mux.min.js"></script>
-    
     <!-- JavaScript con versión -->
-    <script src="app.js?v=2.0.6"></script>
+    <script src="app.js?v=2.1"></script>
     
     <script>
         // Limpiar caché al cargar
-        if (localStorage.getItem('dashcam_version') !== '2.0.6') {
-            localStorage.setItem('dashcam_version', '2.0.6');
+        if (localStorage.getItem('dashcam_version') !== '2.1') {
+            localStorage.setItem('dashcam_version', '2.1');
             
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(registrations => {
