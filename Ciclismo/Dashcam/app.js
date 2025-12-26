@@ -1,6 +1,6 @@
-// Dashcam PWA v3.0 - Versión Avanzada con todas las funcionalidades
+// Dashcam PWA v3.1 - Versión Avanzada con todas las funcionalidades
 
-const APP_VERSION = '3.0';
+const APP_VERSION = '3.1';
 
 class DashcamApp {
     constructor() {
