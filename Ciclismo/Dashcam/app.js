@@ -118,23 +118,24 @@ class DashcamApp {
             this.elements.overlayCtx = overlayCanvas.getContext('2d');
         }
         
-        // Cargar configuración
+        // ============ ORDEN CORRECTO ============
+        // 1. Primero inicializar la base de datos
+        await this.initDatabase();
+        
+        // 2. Luego cargar configuración (después de que la BD esté lista)
         await this.loadSettings();
         
-        // Cargar logo personalizado si existe
+        // 3. Intentar restaurar permisos de carpeta (si aplica)
+        await this.restoreFolderPermissions();
+        
+        // 4. Cargar logo personalizado si existe
         await this.loadCustomLogo();
         
-        // Cargar GPX cargados
+        // 5. Cargar GPX cargados
         await this.loadGPXFiles();
-        
-        // Inicializar base de datos
-        await this.initDatabase();
         
         // Configurar eventos
         this.setupEventListeners();
-        
-        // ====== REMOVIMOS requestPermissions() DE AQUÍ ======
-        // Los permisos se pedirán solo al iniciar grabación
         
         // Iniciar monitoreo básico (sin GPS inicial)
         this.startMonitoring();
@@ -148,6 +149,7 @@ class DashcamApp {
         this.showNotification(`Dashcam iPhone Pro v${APP_VERSION} lista`);
         console.log(`✅ Aplicación iniciada correctamente`);
     }
+
 
     async createSessionFolder() {
         try {
@@ -214,6 +216,24 @@ class DashcamApp {
             console.error('❌ Error creando carpeta de sesión:', error);
             this.state.recordingSessionName = null;
             return false;
+        }
+    }
+
+    async verifyPersistentPermissions() {
+        // Verificar si tenemos permisos persistentes de carpeta
+        if (this.state.settings.storageLocation === 'localFolder' && 
+            this.state.settings.localFolderName) {
+            
+            // Mostrar indicador de carpeta guardada
+            if (this.elements.currentLocalFolderInfo) {
+                this.elements.currentLocalFolderInfo.innerHTML = 
+                    `<span>📁 ${this.state.settings.localFolderName} (seleccionar de nuevo)</span>`;
+            }
+            
+            // Mostrar advertencia si el handle no está disponible
+            if (!this.state.settings.localFolderHandle) {
+                console.log('⚠️ Handle de carpeta perdido, usuario debe seleccionar de nuevo');
+            }
         }
     }
 
@@ -569,6 +589,12 @@ class DashcamApp {
                 }
             }
             
+            // Si hay error de versión, corregir base de datos
+            if (lastVersion && parseInt(lastVersion.replace('.', '')) < 30) { // Versión anterior a 3.0
+                console.log('🔧 Versión anterior detectada, corregiendo base de datos...');
+                await this.fixDatabaseVersion();
+            }
+            
             // Guardar nueva versión
             localStorage.setItem('dashcam_version', APP_VERSION);
             
@@ -579,6 +605,8 @@ class DashcamApp {
             }
         }
     }
+
+
 
     initElements() {
         this.elements = {
@@ -774,156 +802,274 @@ class DashcamApp {
 
     // ============ BASE DE DATOS MEJORADA ============
 
-    async initDatabase() {
-        return new Promise((resolve, reject) => {
-            console.log('📊 Inicializando base de datos...');
+async initDatabase() {
+    return new Promise((resolve, reject) => {
+        console.log('📊 Inicializando base de datos...');
+        
+        // Primero, obtener la versión actual de la base de datos existente
+        const getVersionRequest = indexedDB.open('DashcamDB_Pro');
+        
+        getVersionRequest.onsuccess = (event) => {
+            const db = event.target.result;
+            const currentVersion = db.version;
+            console.log(`📊 Versión actual de BD: ${currentVersion}`);
+            db.close();
             
-            // INCREMENTA LA VERSIÓN A 11
-            const request = indexedDB.open('DashcamDB_Pro', 11);  // <-- Cambia 10 por 11
+            // Abrir con la versión más alta
+            const request = indexedDB.open('DashcamDB_Pro', Math.max(currentVersion, 12)); // <-- Usar 12 o la versión actual
             
             request.onupgradeneeded = (event) => {
                 this.db = event.target.result;
-                console.log('🔄 Actualizando base de datos...');
+                const oldVersion = event.oldVersion;
+                const newVersion = event.newVersion;
+                console.log(`🔄 Actualizando base de datos de ${oldVersion} a ${newVersion}...`);
                 
-                // Store para vídeos con metadatos GPS
-                if (!this.db.objectStoreNames.contains('videos')) {
-                    const videoStore = this.db.createObjectStore('videos', {
-                        keyPath: 'id',
-                        autoIncrement: true
-                    });
-                    videoStore.createIndex('timestamp', 'timestamp', { unique: false });
-                    videoStore.createIndex('location', 'location', { unique: false });
-                    videoStore.createIndex('format', 'format', { unique: false });
-                    videoStore.createIndex('hasMetadata', 'hasMetadata', { unique: false });
-                    console.log('✅ Store de vídeos creado');
-                }
-                
-                // Store para tracks GPX
-                if (!this.db.objectStoreNames.contains('gpxTracks')) {
-                    const gpxStore = this.db.createObjectStore('gpxTracks', {
-                        keyPath: 'id',
-                        autoIncrement: true
-                    });
-                    gpxStore.createIndex('timestamp', 'timestamp', { unique: false });
-                    gpxStore.createIndex('name', 'name', { unique: false });
-                    gpxStore.createIndex('distance', 'distance', { unique: false });
-                    console.log('✅ Store de GPX creado');
-                }
-                
-                // Store para configuración
-                if (!this.db.objectStoreNames.contains('settings')) {
-                    this.db.createObjectStore('settings', { keyPath: 'name' });
-                    console.log('✅ Store de configuración creado');
-                }
-                
-                // Store para archivos locales (iPhone)
-                if (!this.db.objectStoreNames.contains('localFiles')) {
-                    const localStore = this.db.createObjectStore('localFiles', { 
-                        keyPath: 'id',
-                        autoIncrement: true 
-                    });
-                    localStore.createIndex('filename', 'filename', { unique: false });
-                    localStore.createIndex('timestamp', 'timestamp', { unique: false });
-                    console.log('✅ Store de archivos locales creado');
-                }
-                
-                // Store para logos personalizados
-                if (!this.db.objectStoreNames.contains('customLogos')) {
-                    this.db.createObjectStore('customLogos', { keyPath: 'id' });
-                    console.log('✅ Store de logos creado');
-                }
-                
-                // Store para GPX cargados
-                if (!this.db.objectStoreNames.contains('gpxFiles')) {
-                    const gpxFilesStore = this.db.createObjectStore('gpxFiles', {
-                        keyPath: 'id',
-                        autoIncrement: true
-                    });
-                    gpxFilesStore.createIndex('name', 'name', { unique: false });
-                    gpxFilesStore.createIndex('uploadDate', 'uploadDate', { unique: false });
-                    console.log('✅ Store de archivos GPX creado');
-                }
-                
-                // Store para caché de geocodificación
-                if (!this.db.objectStoreNames.contains('geocodeCache')) {
-                    const geocodeStore = this.db.createObjectStore('geocodeCache', {
-                        keyPath: 'key'
-                    });
-                    console.log('✅ Store de caché geocodificación creado');
-                }
-                
-                // ============ AGREGAR ESTOS STORES NUEVOS ============
-                
-                // Store para sesiones de grabación (FALTA)
-                if (!this.db.objectStoreNames.contains('recordingSessions')) {
-                    const sessionStore = this.db.createObjectStore('recordingSessions', {
-                        keyPath: 'id',
-                        autoIncrement: true
-                    });
-                    sessionStore.createIndex('name', 'name', { unique: false });
-                    sessionStore.createIndex('startTime', 'startTime', { unique: false });
-                    sessionStore.createIndex('location', 'location', { unique: false });
-                    console.log('✅ Store de sesiones de grabación creado');
-                }
-                
-                // Store para videos combinados (FALTA)
-                if (!this.db.objectStoreNames.contains('combinedVideos')) {
-                    const combinedStore = this.db.createObjectStore('combinedVideos', {
-                        keyPath: 'id',
-                        autoIncrement: true
-                    });
-                    combinedStore.createIndex('session', 'session', { unique: false });
-                    combinedStore.createIndex('combinedAt', 'combinedAt', { unique: false });
-                    console.log('✅ Store de videos combinados creado');
-                }
-                // ============ FIN DE STORES NUEVOS ============
+                // Solo crear stores si no existen
+                this.createDatabaseStores();
             };
             
             request.onsuccess = (event) => {
                 this.db = event.target.result;
-                console.log('✅ Base de datos lista');
+                console.log('✅ Base de datos lista, versión:', this.db.version);
                 resolve();
             };
             
             request.onerror = (event) => {
                 console.error('❌ Error base de datos:', event.target.error);
                 this.db = null;
+                resolve(); // Resolver igual para continuar
+            };
+        };
+        
+        getVersionRequest.onerror = () => {
+            console.log('📊 No hay base de datos existente, creando nueva...');
+            // Crear nueva base de datos con versión 12
+            const request = indexedDB.open('DashcamDB_Pro', 12);
+            
+            request.onupgradeneeded = (event) => {
+                this.db = event.target.result;
+                console.log('🔄 Creando base de datos inicial...');
+                this.createDatabaseStores();
+            };
+            
+            request.onsuccess = (event) => {
+                this.db = event.target.result;
+                console.log('✅ Base de datos nueva creada, versión:', this.db.version);
                 resolve();
             };
-        });
+            
+            request.onerror = (event) => {
+                console.error('❌ Error creando base de datos:', event.target.error);
+                this.db = null;
+                resolve();
+            };
+        };
+    });
+}
+
+    // Nueva función para crear stores
+    createDatabaseStores() {
+        console.log('🏗️ Creando stores de base de datos...');
+        
+        // Store para vídeos con metadatos GPS
+        if (!this.db.objectStoreNames.contains('videos')) {
+            const videoStore = this.db.createObjectStore('videos', {
+                keyPath: 'id',
+                autoIncrement: true
+            });
+            videoStore.createIndex('timestamp', 'timestamp', { unique: false });
+            videoStore.createIndex('location', 'location', { unique: false });
+            videoStore.createIndex('format', 'format', { unique: false });
+            videoStore.createIndex('hasMetadata', 'hasMetadata', { unique: false });
+            videoStore.createIndex('session', 'session', { unique: false }); // Nuevo índice
+            console.log('✅ Store de vídeos creado');
+        }
+        
+        // Store para tracks GPX
+        if (!this.db.objectStoreNames.contains('gpxTracks')) {
+            const gpxStore = this.db.createObjectStore('gpxTracks', {
+                keyPath: 'id',
+                autoIncrement: true
+            });
+            gpxStore.createIndex('timestamp', 'timestamp', { unique: false });
+            gpxStore.createIndex('name', 'name', { unique: false });
+            gpxStore.createIndex('distance', 'distance', { unique: false });
+            console.log('✅ Store de GPX creado');
+        }
+        
+        // Store para configuración
+        if (!this.db.objectStoreNames.contains('settings')) {
+            this.db.createObjectStore('settings', { keyPath: 'name' });
+            console.log('✅ Store de configuración creado');
+        }
+        
+        // Store para archivos locales (iPhone)
+        if (!this.db.objectStoreNames.contains('localFiles')) {
+            const localStore = this.db.createObjectStore('localFiles', { 
+                keyPath: 'id',
+                autoIncrement: true 
+            });
+            localStore.createIndex('filename', 'filename', { unique: false });
+            localStore.createIndex('timestamp', 'timestamp', { unique: false });
+            console.log('✅ Store de archivos locales creado');
+        }
+        
+        // Store para logos personalizados
+        if (!this.db.objectStoreNames.contains('customLogos')) {
+            this.db.createObjectStore('customLogos', { keyPath: 'id' });
+            console.log('✅ Store de logos creado');
+        }
+        
+        // Store para GPX cargados
+        if (!this.db.objectStoreNames.contains('gpxFiles')) {
+            const gpxFilesStore = this.db.createObjectStore('gpxFiles', {
+                keyPath: 'id',
+                autoIncrement: true
+            });
+            gpxFilesStore.createIndex('name', 'name', { unique: false });
+            gpxFilesStore.createIndex('uploadDate', 'uploadDate', { unique: false });
+            console.log('✅ Store de archivos GPX creado');
+        }
+        
+        // Store para caché de geocodificación
+        if (!this.db.objectStoreNames.contains('geocodeCache')) {
+            const geocodeStore = this.db.createObjectStore('geocodeCache', {
+                keyPath: 'key'
+            });
+            console.log('✅ Store de caché geocodificación creado');
+        }
+        
+        // Store para sesiones de grabación
+        if (!this.db.objectStoreNames.contains('recordingSessions')) {
+            const sessionStore = this.db.createObjectStore('recordingSessions', {
+                keyPath: 'id',
+                autoIncrement: true
+            });
+            sessionStore.createIndex('name', 'name', { unique: false });
+            sessionStore.createIndex('startTime', 'startTime', { unique: false });
+            sessionStore.createIndex('location', 'location', { unique: false });
+            console.log('✅ Store de sesiones de grabación creado');
+        }
+        
+        // Store para videos combinados
+        if (!this.db.objectStoreNames.contains('combinedVideos')) {
+            const combinedStore = this.db.createObjectStore('combinedVideos', {
+                keyPath: 'id',
+                autoIncrement: true
+            });
+            combinedStore.createIndex('session', 'session', { unique: false });
+            combinedStore.createIndex('combinedAt', 'combinedAt', { unique: false });
+            console.log('✅ Store de videos combinados creado');
+        }
+        
+        console.log('🏗️ Todos los stores creados/verificados');
     }
 
     async loadSettings() {
         try {
+            // Si la base de datos no está disponible, usar localStorage
             if (!this.db) {
-                console.log('⚠️ Base de datos no disponible para cargar configuración');
+                console.log('⚠️ Base de datos no disponible, cargando de localStorage...');
+                const savedSettings = localStorage.getItem('dashcam_settings');
+                if (savedSettings) {
+                    try {
+                        const parsedSettings = JSON.parse(savedSettings);
+                        this.state.settings = { ...this.state.settings, ...parsedSettings };
+                        console.log('⚙️ Configuración cargada de localStorage');
+                    } catch (error) {
+                        console.warn('⚠️ Error parseando configuración de localStorage:', error);
+                    }
+                }
                 this.updateSettingsUI();
                 return;
             }
             
-            const transaction = this.db.transaction(['settings'], 'readonly');
-            const store = transaction.objectStore('settings');
-            const request = store.get('appSettings');
-            
-            request.onsuccess = () => {
-                if (request.result && request.result.value) {
-                    console.log('⚙️ Configuración cargada:', request.result.value);
-                    this.state.settings = { ...this.state.settings, ...request.result.value };
+            // Si la base de datos está disponible, cargar de IndexedDB
+            return new Promise((resolve, reject) => {
+                const transaction = this.db.transaction(['settings'], 'readonly');
+                const store = transaction.objectStore('settings');
+                const request = store.get('appSettings');
+                
+                request.onsuccess = () => {
+                    if (request.result && request.result.value) {
+                        console.log('⚙️ Configuración cargada de IndexedDB');
+                        
+                        // Cargar los settings serializables
+                        const loadedSettings = request.result.value;
+                        
+                        // Restaurar los settings manteniendo el handle en memoria (si existe)
+                        this.state.settings = { 
+                            ...this.state.settings, 
+                            ...loadedSettings,
+                            // Mantener el handle que ya tenemos en memoria
+                            localFolderHandle: this.state.settings.localFolderHandle 
+                        };
+                        
+                        this.updateSettingsUI();
+                    } else {
+                        console.log('⚙️ No hay configuración guardada en IndexedDB');
+                        // Intentar cargar de localStorage como fallback
+                        const savedSettings = localStorage.getItem('dashcam_settings');
+                        if (savedSettings) {
+                            try {
+                                const parsedSettings = JSON.parse(savedSettings);
+                                this.state.settings = { ...this.state.settings, ...parsedSettings };
+                                console.log('⚙️ Configuración cargada de localStorage (fallback)');
+                            } catch (error) {
+                                console.warn('⚠️ Error parseando configuración de localStorage:', error);
+                            }
+                        }
+                        this.updateSettingsUI();
+                    }
+                    resolve();
+                };
+                
+                request.onerror = (error) => {
+                    console.warn('⚠️ Error cargando configuración de IndexedDB:', error);
+                    // Fallback a localStorage
+                    const savedSettings = localStorage.getItem('dashcam_settings');
+                    if (savedSettings) {
+                        try {
+                            const parsedSettings = JSON.parse(savedSettings);
+                            this.state.settings = { ...this.state.settings, ...parsedSettings };
+                            console.log('⚙️ Configuración cargada de localStorage (error fallback)');
+                        } catch (error) {
+                            console.warn('⚠️ Error parseando configuración de localStorage:', error);
+                        }
+                    }
                     this.updateSettingsUI();
-                } else {
-                    console.log('⚙️ No hay configuración guardada, usando valores por defecto');
-                    this.updateSettingsUI();
-                }
-            };
-            
-            request.onerror = (error) => {
-                console.warn('⚠️ Error cargando configuración:', error);
-                this.updateSettingsUI();
-            };
+                    resolve();
+                };
+                
+            });
             
         } catch (error) {
-            console.warn('⚠️ Error cargando configuración:', error);
+            console.warn('⚠️ Error general cargando configuración:', error);
             this.updateSettingsUI();
+        }
+    }
+
+    async restoreFolderPermissions() {
+        try {
+            // Si tenemos nombre de carpeta guardado pero no handle
+            if (this.state.settings.localFolderName && !this.state.settings.localFolderHandle) {
+                console.log('📂 Intentando restaurar permisos de carpeta...');
+                
+                // Pedir permisos para la misma carpeta
+                if ('showDirectoryPicker' in window) {
+                    try {
+                        // Mostrar diálogo de selección (el usuario debe seleccionar la misma carpeta)
+                        this.showNotification('📂 Selecciona la misma carpeta para restaurar permisos');
+                        
+                        // Nota: No podemos restaurar automáticamente, el usuario debe volver a seleccionar
+                        // Pero podemos guardar el nombre para referencia
+                    } catch (error) {
+                        console.log('⚠️ No se pudieron restaurar permisos de carpeta:', error);
+                    }
+                }
+            }
+        } catch (error) {
+            console.log('⚠️ Error restaurando permisos de carpeta:', error);
         }
     }
 
@@ -1038,6 +1184,14 @@ class DashcamApp {
         // Mostrar solo el configurado
         if (storageLocation === 'localFolder' && localFolderSettings) {
             localFolderSettings.style.display = 'block';
+            
+            // Verificar si tenemos carpeta guardada
+            if (this.state.settings.localFolderName && !this.state.settings.localFolderHandle) {
+                if (this.elements.currentLocalFolderInfo) {
+                    this.elements.currentLocalFolderInfo.innerHTML = 
+                        `<span>📁 ${this.state.settings.localFolderName} (selecciona de nuevo)</span>`;
+                }
+            }
         }
     }
 
@@ -3470,27 +3624,47 @@ class DashcamApp {
                 showWatermark: this.elements.showWatermark.checked,
                 logoPosition: this.elements.logoPosition.value,
                 logoSize: this.elements.logoSize.value,
-                customWatermarkText: this.state.settings.customWatermarkText, // No editable
+                customWatermarkText: this.state.settings.customWatermarkText,
                 textPosition: this.elements.textPosition.value,
                 gpxOverlayEnabled: this.elements.gpxOverlayEnabled.checked,
                 showGpxDistance: this.elements.showGpxDistance.checked,
                 showGpxSpeed: this.elements.showGpxSpeed.checked,
                 embedGpsMetadata: this.elements.embedGpsMetadata.checked,
                 metadataFrequency: parseInt(this.elements.metadataFrequency.value),
-                localFolderHandle: this.state.settings.localFolderHandle,
+                // NO guardar localFolderHandle aquí
                 localFolderName: this.state.settings.localFolderName,
                 localFolderPath: this.state.settings.localFolderPath
             };
             
-            this.state.settings = { ...this.state.settings, ...settings };
+            // Actualizar estado
+            this.state.settings = { 
+                ...this.state.settings, 
+                ...settings,
+                // Mantener el handle en memoria
+                localFolderHandle: this.state.settings.localFolderHandle
+            };
             
+            // Guardar en IndexedDB si está disponible
             if (this.db) {
-                const transaction = this.db.transaction(['settings'], 'readwrite');
-                const store = transaction.objectStore('settings');
-                await store.put({ name: 'appSettings', value: settings });
-                console.log('⚙️ Configuración guardada');
-            } else {
+                try {
+                    const transaction = this.db.transaction(['settings'], 'readwrite');
+                    const store = transaction.objectStore('settings');
+                    
+                    // Guardar solo los campos serializables
+                    const serializableSettings = { ...settings };
+                    await store.put({ name: 'appSettings', value: serializableSettings });
+                    console.log('⚙️ Configuración guardada en IndexedDB');
+                } catch (error) {
+                    console.warn('⚠️ Error guardando en IndexedDB:', error);
+                }
+            }
+            
+            // También guardar en localStorage como backup
+            try {
                 localStorage.setItem('dashcam_settings', JSON.stringify(settings));
+                console.log('⚙️ Configuración guardada en localStorage');
+            } catch (error) {
+                console.warn('⚠️ Error guardando en localStorage:', error);
             }
             
             this.updateStorageStatus();
@@ -3501,6 +3675,44 @@ class DashcamApp {
         } catch (error) {
             console.error('❌ Error guardando configuración:', error);
             this.showNotification('❌ Error al guardar configuración');
+        }
+    }
+
+    async fixDatabaseVersion() {
+        try {
+            console.log('🔧 Intentando corregir versión de base de datos...');
+            
+            // Cerrar conexión si existe
+            if (this.db) {
+                this.db.close();
+                this.db = null;
+            }
+            
+            // Eliminar base de datos existente
+            await new Promise((resolve, reject) => {
+                const deleteRequest = indexedDB.deleteDatabase('DashcamDB_Pro');
+                deleteRequest.onsuccess = () => {
+                    console.log('🗑️ Base de datos eliminada');
+                    resolve();
+                };
+                deleteRequest.onerror = (error) => {
+                    console.warn('⚠️ Error eliminando base de datos:', error);
+                    reject(error);
+                };
+                deleteRequest.onblocked = () => {
+                    console.warn('⚠️ Base de datos bloqueada, intentando cerrar conexiones...');
+                    resolve();
+                };
+            });
+            
+            // Crear nueva base de datos
+            await this.initDatabase();
+            console.log('✅ Base de datos corregida');
+            return true;
+            
+        } catch (error) {
+            console.error('❌ Error corrigiendo base de datos:', error);
+            return false;
         }
     }
 
