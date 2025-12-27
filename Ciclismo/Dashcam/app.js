@@ -133,10 +133,10 @@ class DashcamApp {
         // Configurar eventos
         this.setupEventListeners();
         
-        // Solicitar permisos básicos
-        await this.requestPermissions();
+        // ====== REMOVIMOS requestPermissions() DE AQUÍ ======
+        // Los permisos se pedirán solo al iniciar grabación
         
-        // Iniciar monitoreo
+        // Iniciar monitoreo básico (sin GPS inicial)
         this.startMonitoring();
         
         // Cargar galería inicial
@@ -154,7 +154,7 @@ class DashcamApp {
             const timestamp = new Date().toISOString()
                 .replace(/[:.]/g, '-')
                 .replace('T', '_')
-                .substring(0, 16); // Solo fecha y hora, sin segundos
+                .substring(0, 16);
             
             const sessionName = `Sesion_${timestamp}`;
             console.log(`📁 Creando carpeta de sesión: ${sessionName}`);
@@ -170,7 +170,7 @@ class DashcamApp {
                 const sessionInfo = {
                     name: sessionName,
                     startTime: Date.now(),
-                    segments: 1, // Ya tenemos el primer segmento
+                    segments: 1,
                     handle: folderHandle
                 };
                 
@@ -193,8 +193,15 @@ class DashcamApp {
                     type: 'session'
                 };
                 
-                if (this.db) {
+                // Verificar que el store exista antes de guardar
+                if (this.db && this.db.objectStoreNames.contains('recordingSessions')) {
                     await this.saveToDatabase('recordingSessions', sessionInfo);
+                } else {
+                    console.log('⚠️ Store recordingSessions no disponible, guardando en localStorage');
+                    // Fallback a localStorage
+                    const sessions = JSON.parse(localStorage.getItem('recordingSessions') || '[]');
+                    sessions.push(sessionInfo);
+                    localStorage.setItem('recordingSessions', JSON.stringify(sessions));
                 }
             }
             
@@ -212,6 +219,11 @@ class DashcamApp {
 
     async saveToSessionFolder(blob, filename, segmentNum) {
         try {
+            if (!this.state.recordingSessionName) {
+                console.error('❌ No hay nombre de sesión para guardar');
+                return false;
+            }
+            
             if (this.state.settings.storageLocation === 'localFolder' && this.localFolderHandle) {
                 // Abrir carpeta de sesión
                 const sessionFolder = await this.localFolderHandle.getDirectoryHandle(this.state.recordingSessionName);
@@ -231,9 +243,9 @@ class DashcamApp {
                     timestamp: Date.now(),
                     duration: this.state.currentTime || 10000,
                     size: blob.size,
-                    title: `Segmento ${segmentNum}`,
+                    title: `Segmento ${segmentNum} - ${this.state.recordingSessionName}`,
                     filename: filename,
-                    session: this.state.recordingSessionName,
+                    session: this.state.recordingSessionName,  // <-- Aquí está la sesión
                     format: filename.endsWith('.mp4') ? 'mp4' : 'webm',
                     location: 'session'
                 };
@@ -251,6 +263,8 @@ class DashcamApp {
             return false;
         }
     }
+
+
     askAboutCombining() {
         if (this.state.recordedSegments.length <= 1) return;
         
@@ -764,7 +778,8 @@ class DashcamApp {
         return new Promise((resolve, reject) => {
             console.log('📊 Inicializando base de datos...');
             
-            const request = indexedDB.open('DashcamDB_Pro', 10);
+            // INCREMENTA LA VERSIÓN A 11
+            const request = indexedDB.open('DashcamDB_Pro', 11);  // <-- Cambia 10 por 11
             
             request.onupgradeneeded = (event) => {
                 this.db = event.target.result;
@@ -836,6 +851,32 @@ class DashcamApp {
                     });
                     console.log('✅ Store de caché geocodificación creado');
                 }
+                
+                // ============ AGREGAR ESTOS STORES NUEVOS ============
+                
+                // Store para sesiones de grabación (FALTA)
+                if (!this.db.objectStoreNames.contains('recordingSessions')) {
+                    const sessionStore = this.db.createObjectStore('recordingSessions', {
+                        keyPath: 'id',
+                        autoIncrement: true
+                    });
+                    sessionStore.createIndex('name', 'name', { unique: false });
+                    sessionStore.createIndex('startTime', 'startTime', { unique: false });
+                    sessionStore.createIndex('location', 'location', { unique: false });
+                    console.log('✅ Store de sesiones de grabación creado');
+                }
+                
+                // Store para videos combinados (FALTA)
+                if (!this.db.objectStoreNames.contains('combinedVideos')) {
+                    const combinedStore = this.db.createObjectStore('combinedVideos', {
+                        keyPath: 'id',
+                        autoIncrement: true
+                    });
+                    combinedStore.createIndex('session', 'session', { unique: false });
+                    combinedStore.createIndex('combinedAt', 'combinedAt', { unique: false });
+                    console.log('✅ Store de videos combinados creado');
+                }
+                // ============ FIN DE STORES NUEVOS ============
             };
             
             request.onsuccess = (event) => {
@@ -1001,34 +1042,61 @@ class DashcamApp {
     }
 
     // ============ PERMISOS ============
-
     async requestPermissions() {
         try {
-            console.log('🔐 Solicitando permisos...');
+            console.log('🔐 Solicitando permisos solo para cámara y ubicación...');
             
-            // Pedir permiso de cámara
+            // Solo pedir permiso de cámara cuando sea necesario
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                stream.getTracks().forEach(track => track.stop());
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: true,
+                    audio: this.state.settings.audioEnabled 
+                });
                 console.log('✅ Permiso de cámara concedido');
+                return stream; // Devolver el stream para usarlo en la grabación
             } catch (error) {
                 console.warn('⚠️ Permiso de cámara no concedido:', error);
+                throw new Error('Permiso de cámara necesario para grabar');
             }
-            
-            // Pedir permiso de ubicación
-            try {
-                navigator.geolocation.getCurrentPosition(
-                    () => console.log('✅ Permiso de ubicación concedido'),
-                    (error) => console.warn('⚠️ Permiso de ubicación no concedido:', error.message)
-                );
-            } catch (error) {
-                console.log('ℹ️ API de geolocalización no disponible');
-            }
-            
-            console.log('✅ Permisos solicitados');
             
         } catch (error) {
             console.warn('⚠️ Error solicitando permisos:', error);
+            throw error;
+        }
+    }
+
+    async requestLocationPermission() {
+        try {
+            console.log('📍 Solicitando permiso de ubicación...');
+            
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    console.log('ℹ️ API de geolocalización no disponible');
+                    resolve(false);
+                    return;
+                }
+                
+                navigator.geolocation.getCurrentPosition(
+                    () => {
+                        console.log('✅ Permiso de ubicación concedido');
+                        resolve(true);
+                    },
+                    (error) => {
+                        console.warn('⚠️ Permiso de ubicación no concedido:', error.message);
+                        // No rechazamos, solo informamos
+                        resolve(false);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        maximumAge: 10000,
+                        timeout: 5000
+                    }
+                );
+            });
+            
+        } catch (error) {
+            console.warn('⚠️ Error solicitando permiso de ubicación:', error);
+            return false;
         }
     }
 
@@ -1060,6 +1128,47 @@ class DashcamApp {
         }
         
         try {
+            // ====== SOLICITAR PERMISOS JUSTO ANTES DE GRABAR ======
+            this.showNotification('🔐 Solicitando permisos...');
+            
+            // 1. Solicitar permiso de cámara (requerido)
+            try {
+                // Intentar acceder a la cámara primero
+                const testStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: true 
+                }).catch(async (error) => {
+                    console.log('⚠️ Intentando con constraints más permisivos...');
+                    const fallbackConstraints = { video: true };
+                    return navigator.mediaDevices.getUserMedia(fallbackConstraints);
+                });
+                
+                // Detener el stream de prueba
+                testStream.getTracks().forEach(track => track.stop());
+                console.log('✅ Permiso de cámara concedido');
+                
+            } catch (error) {
+                console.error('❌ Permiso de cámara denegado:', error);
+                this.showNotification('❌ Se necesita permiso de cámara para grabar');
+                this.showPermissionInstructions();
+                if (this.elements.startBtn) this.elements.startBtn.disabled = false;
+                return;
+            }
+            
+            // 2. Solicitar permiso de ubicación (opcional)
+            let locationGranted = false;
+            try {
+                locationGranted = await this.requestLocationPermission();
+                if (locationGranted) {
+                    console.log('✅ Permiso de ubicación concedido');
+                } else {
+                    console.log('⚠️ Permiso de ubicación no concedido');
+                    this.showNotification('⚠️ Grabando sin GPS - Actívalo para mejores resultados');
+                }
+            } catch (error) {
+                console.warn('⚠️ Error con permiso de ubicación:', error);
+            }
+            
+            // ====== INICIAR COMPONENTES CON PERMISOS ======
             await this.initCamera();
             
             if (!this.mediaStream) {
@@ -1067,6 +1176,15 @@ class DashcamApp {
             }
             
             this.showCameraScreen();
+            
+            // Iniciar GPS si tenemos permiso
+            if (locationGranted) {
+                this.startGPS();
+            } else {
+                if (this.elements.gpsInfo) {
+                    this.elements.gpsInfo.textContent = '📍 GPS: No disponible - Activa ubicación';
+                }
+            }
             
             this.state.isRecording = true;
             this.state.isPaused = false;
@@ -1169,9 +1287,15 @@ class DashcamApp {
                 this.mediaStream.getTracks().forEach(track => track.stop());
                 this.mediaStream = null;
             }
+            
+            // Rehabilitar botón de inicio
+            if (this.elements.startBtn) {
+                this.elements.startBtn.disabled = false;
+            }
         }
     }
 
+    
     checkOrientation() {
         if (!/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
             return false;
@@ -1950,10 +2074,12 @@ class DashcamApp {
             // Incrementar contador de segmentos en esta sesión
             this.state.recordingSessionSegments++;
             
-            // Si es el segundo segmento, crear carpeta para la sesión
-            if (this.state.recordingSessionSegments === 2 && !this.state.recordingSessionName) {
+            // ====== CORRECCIÓN AQUÍ ======
+            // Si es el PRIMER segmento y no hay sesión, crear carpeta para la sesión
+            if (this.state.recordingSessionSegments === 1 && !this.state.recordingSessionName) {
                 await this.createSessionFolder();
             }
+            // ====== FIN CORRECCIÓN ======
             
             let savedPath = filename;
             let savedInSession = false;
@@ -1966,7 +2092,7 @@ class DashcamApp {
                 savedInSession = await this.saveToSessionFolder(finalBlob, filename, segmentNum);
                 savedPath = `${this.state.recordingSessionName}/${filename}`;
             } else {
-                // Guardar individualmente (primer segmento o grabación única)
+                // Guardar individualmente (solo debería pasar si createSessionFolder falló)
                 switch(storageLocation) {
                     case 'default':
                         await this.saveToApp(finalBlob, timestamp, duration, finalFormat, segmentNum);
@@ -1994,7 +2120,7 @@ class DashcamApp {
             
             // Mostrar notificación
             if (this.state.recordingSessionName) {
-                this.showNotification(`✅ Segmento ${segmentNum} guardado en sesión`);
+                this.showNotification(`✅ Segmento ${segmentNum} guardado en sesión "${this.state.recordingSessionName}"`);
             } else {
                 this.showNotification(`✅ Segmento ${segmentNum} guardado`);
             }
@@ -2004,7 +2130,11 @@ class DashcamApp {
                 await this.saveGPXTrack(timestamp, segmentNum);
             }
             
-            console.log('✅ Vídeo guardado');
+            console.log('✅ Vídeo guardado', {
+                session: this.state.recordingSessionName,
+                segment: segmentNum,
+                filename: filename
+            });
             
         } catch (error) {
             console.error('❌ Error guardando vídeo:', error);
@@ -2029,13 +2159,14 @@ class DashcamApp {
                     day: '2-digit',
                     hour: '2-digit',
                     minute: '2-digit'
-                })} - S${segmentNum}`,
+                })} - S${segmentNum}${this.state.recordingSessionName ? ` - ${this.state.recordingSessionName}` : ''}`,  // <-- Incluir nombre de sesión
                 gpsPoints: this.gpxPoints.length,
                 gpsTrack: this.gpxPoints,
                 format: format,
                 location: 'app',
                 hasMetadata: this.state.settings.embedGpsMetadata,
-                segment: segmentNum
+                segment: segmentNum,
+                session: this.state.recordingSessionName  // <-- Agregar campo de sesión
             };
             
             if (this.db) {
@@ -3745,12 +3876,29 @@ class DashcamApp {
     }
 
     startMonitoring() {
-        this.startGPS();
+        // Solo inicia el GPS si ya tenemos permisos de ubicación
+        // De lo contrario, se iniciará cuando el usuario conceda permisos
+        
+        // Iniciar actualización de UI básica
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
         }
         this.updateInterval = setInterval(() => this.updateUI(), 1000);
     }
+
+// Agrega esta función para iniciar GPS después de obtener permisos
+async startGPSAfterPermission() {
+    if (this.gpsWatchId) {
+        // Ya está iniciado
+        return;
+    }
+    
+    try {
+        this.startGPS();
+    } catch (error) {
+        console.warn('⚠️ Error iniciando GPS:', error);
+    }
+}
 
     showSavingStatus(message = '💾 Guardando...') {
         if (this.elements.savingStatus && this.elements.savingText) {
@@ -3794,12 +3942,29 @@ class DashcamApp {
                 return;
             }
             
+            // Verificar que el store exista
+            if (!this.db.objectStoreNames.contains(storeName)) {
+                console.error(`❌ Store ${storeName} no existe en la base de datos`);
+                console.error('Stores disponibles:', Array.from(this.db.objectStoreNames));
+                
+                // Intentar crear el store dinámicamente (solo para desarrollo)
+                try {
+                    console.warn(`⚠️ Creando store ${storeName} dinámicamente...`);
+                    this.db.createObjectStore(storeName, { keyPath: 'id', autoIncrement: true });
+                    console.log(`✅ Store ${storeName} creado dinámicamente`);
+                } catch (error) {
+                    console.error(`❌ No se pudo crear store ${storeName}:`, error);
+                    reject(new Error(`Store ${storeName} no encontrado y no se pudo crear`));
+                    return;
+                }
+            }
+            
             const transaction = this.db.transaction([storeName], 'readwrite');
             const store = transaction.objectStore(storeName);
             const request = store.add(data);
             
             request.onsuccess = () => {
-                console.log(`✅ Guardado en ${storeName}:`, data.id);
+                console.log(`✅ Guardado en ${storeName}:`, data.id || 'N/A');
                 resolve(request.result);
             };
             
@@ -3809,6 +3974,8 @@ class DashcamApp {
             };
         });
     }
+
+
 
     async getAllFromStore(storeName) {
         return new Promise((resolve, reject) => {
@@ -4448,6 +4615,58 @@ showGallery() {
                 item.style.display = 'block';
             } else {
                 item.style.display = 'none';
+            }
+        });
+    }
+
+    showPermissionInstructions() {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 400px;">
+                <div class="modal-header">
+                    <h3>🔐 Permisos Requeridos</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Para grabar videos necesitas:</p>
+                    <ul style="margin: 15px 0; padding-left: 20px;">
+                        <li><strong>Cámara:</strong> Para capturar video</li>
+                        <li><strong>Ubicación (opcional):</strong> Para agregar datos GPS</li>
+                    </ul>
+                    <p>Puedes activarlos en:</p>
+                    <ol style="margin: 15px 0; padding-left: 20px;">
+                        <li>Ajustes de tu dispositivo</li>
+                        <li>Buscar "Dashcam iPhone Pro"</li>
+                        <li>Activar Cámara y Ubicación</li>
+                    </ol>
+                </div>
+                <div class="modal-actions" style="display: flex; gap: 10px;">
+                    <button id="closePermissionModal" class="btn cancel-btn" style="flex: 1;">
+                        Entendido
+                    </button>
+                    <button id="retryPermissions" class="btn save-btn" style="flex: 1;">
+                        Intentar de nuevo
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        modal.querySelector('#closePermissionModal').addEventListener('click', () => {
+            modal.remove();
+        });
+        
+        modal.querySelector('#retryPermissions').addEventListener('click', async () => {
+            modal.remove();
+            setTimeout(() => {
+                this.startRecording();
+            }, 500);
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
             }
         });
     }

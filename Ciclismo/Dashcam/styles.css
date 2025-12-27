@@ -1763,3 +1763,27 @@ body {
     font-weight: bold;
     color: #00a8ff;
 }
+/* Estilos para modal de permisos */
+.permission-instructions {
+    background: rgba(0, 168, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px 0;
+    border-left: 4px solid #00a8ff;
+}
+
+.permission-instructions h4 {
+    color: #00a8ff;
+    margin-bottom: 8px;
+}
+
+.permission-instructions ol,
+.permission-instructions ul {
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+.permission-instructions li {
+    margin-bottom: 5px;
+    font-size: 14px;
+}
