@@ -335,7 +335,7 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 15px;
+    padding: 12px; /* Reducido de 15px */
     overflow: hidden;
 }
 
@@ -343,8 +343,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 12px;
+    margin-bottom: 10px; /* Reducido de 15px */
+    padding-bottom: 8px; /* Reducido de 12px */
     border-bottom: 2px solid #00a8ff;
 }
 
@@ -455,6 +455,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    margin-top: 5px; /* Reducido de 0px */
 }
 
 .gallery-header {
@@ -575,12 +576,12 @@ body {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    margin-bottom: 10px;
-    padding-right: 5px;
+    margin-bottom: 5px; /* Reducido de 10px */
+    padding-right: 3px; /* Reducido de 5px */
     -webkit-overflow-scrolling: touch;
     border-radius: 8px;
     background: rgba(30, 39, 46, 0.3);
-    max-height: 55vh;
+    max-height: 60vh; /* Aumentado para más espacio */
 }
 
 .file-list {
@@ -1575,4 +1576,95 @@ body {
 
 .ios-files-btn:active {
     background: linear-gradient(135deg, #00a085, #008b74);
+}
+
+/* ============ SELECTORES COMPACTOS PARA GALERÍA ============ */
+.compact-selectors {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    align-items: center;
+}
+
+.compact-select {
+    flex: 1;
+    position: relative;
+}
+
+.select-header {
+    padding: 10px 12px;
+    background: #1e272e;
+    border: 1px solid #00a8ff;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 0px;
+}
+
+.select-header.active {
+    background: #00a8ff;
+}
+
+.select-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #1e272e;
+    border: 1px solid #00a8ff;
+    border-radius: 6px;
+    margin-top: 4px;
+    z-index: 100;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.select-options.show {
+    display: block;
+}
+
+.select-option {
+    padding: 10px 12px;
+    color: white;
+    cursor: pointer;
+    font-size: 13px;
+    border-bottom: 1px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.select-option:last-child {
+    border-bottom: none;
+}
+
+.select-option:hover {
+    background: rgba(0, 168, 255, 0.2);
+}
+
+.select-option.active {
+    background: #00a8ff;
+}
+
+/* Para móviles */
+@media (max-width: 480px) {
+    .compact-selectors {
+        flex-direction: row;
+        gap: 6px;
+    }
+    
+    .select-header {
+        font-size: 12px;
+        padding: 8px 10px;
+        min-height: 36px;
+    }
+    
+    .select-option {
+        font-size: 12px;
+        padding: 8px 10px;
+    }
 }

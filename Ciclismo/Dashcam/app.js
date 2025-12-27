@@ -144,6 +144,137 @@ class DashcamApp {
         console.log(`✅ Aplicación iniciada correctamente`);
     }
 
+
+    // ============ MANEJO DE SELECTORES COMPACTOS ============
+
+    setupCompactSelectors() {
+        // Selector de ubicación
+        if (this.elements.locationHeader) {
+            this.elements.locationHeader.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleSelect('location');
+            });
+        }
+        
+        // Selector de tipo
+        if (this.elements.typeHeader) {
+            this.elements.typeHeader.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleSelect('type');
+            });
+        }
+        
+        // Opciones de ubicación
+        if (this.elements.locationOptions) {
+            this.elements.locationOptions.querySelectorAll('.select-option').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    const value = e.currentTarget.dataset.value;
+                    this.selectLocation(value);
+                    this.closeAllSelects();
+                });
+            });
+        }
+        
+        // Opciones de tipo
+        if (this.elements.typeOptions) {
+            this.elements.typeOptions.querySelectorAll('.select-option').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    const value = e.currentTarget.dataset.value;
+                    this.selectType(value);
+                    this.closeAllSelects();
+                });
+            });
+        }
+        
+        // Cerrar selects al hacer clic fuera
+        document.addEventListener('click', () => {
+            this.closeAllSelects();
+        });
+    }
+
+    toggleSelect(type) {
+        const options = type === 'location' ? this.elements.locationOptions : this.elements.typeOptions;
+        const header = type === 'location' ? this.elements.locationHeader : this.elements.typeHeader;
+        
+        // Cerrar todos primero
+        this.closeAllSelects();
+        
+        // Abrir este
+        if (options && header) {
+            options.classList.add('show');
+            header.classList.add('active');
+        }
+    }
+
+    closeAllSelects() {
+        if (this.elements.locationOptions) {
+            this.elements.locationOptions.classList.remove('show');
+        }
+        if (this.elements.locationHeader) {
+            this.elements.locationHeader.classList.remove('active');
+        }
+        if (this.elements.typeOptions) {
+            this.elements.typeOptions.classList.remove('show');
+        }
+        if (this.elements.typeHeader) {
+            this.elements.typeHeader.classList.remove('active');
+        }
+    }
+
+    selectLocation(value) {
+        this.state.viewMode = value;
+        
+        // Actualizar UI
+        const header = this.elements.locationHeader;
+        const options = this.elements.locationOptions;
+        
+        if (header && options) {
+            // Actualizar texto del header
+            const selectedOption = options.querySelector(`.select-option[data-value="${value}"]`);
+            if (selectedOption) {
+                const icon = selectedOption.querySelector('span:first-child').textContent;
+                const text = selectedOption.querySelector('span:last-child').textContent;
+                header.innerHTML = `<span>${icon} ${text}</span><span>▼</span>`;
+            }
+            
+            // Actualizar clases activas
+            options.querySelectorAll('.select-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            selectedOption.classList.add('active');
+        }
+        
+        // Cargar galería
+        this.loadGallery();
+    }
+
+    selectType(value) {
+        this.state.activeTab = value;
+        
+        // Actualizar UI
+        const header = this.elements.typeHeader;
+        const options = this.elements.typeOptions;
+        
+        if (header && options) {
+            // Actualizar texto del header
+            const selectedOption = options.querySelector(`.select-option[data-value="${value}"]`);
+            if (selectedOption) {
+                const icon = selectedOption.querySelector('span:first-child').textContent;
+                const text = selectedOption.querySelector('span:last-child').textContent;
+                header.innerHTML = `<span>${icon} ${text}</span><span>▼</span>`;
+            }
+            
+            // Actualizar clases activas
+            options.querySelectorAll('.select-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            selectedOption.classList.add('active');
+        }
+        
+        // Cambiar tab
+        this.switchTab(value);
+    }
+
     async clearCacheIfNeeded() {
         const lastVersion = localStorage.getItem('dashcam_version');
         
@@ -192,6 +323,14 @@ class DashcamApp {
             // Pantallas
             startScreen: document.querySelector('.start-screen'),
             cameraScreen: document.querySelector('.camera-screen'),
+
+            // Selectores compactos
+            locationSelector: document.getElementById('locationSelector'),
+            locationHeader: document.getElementById('locationHeader'),
+            locationOptions: document.getElementById('locationOptions'),
+            typeSelector: document.getElementById('typeSelector'),
+            typeHeader: document.getElementById('typeHeader'),
+            typeOptions: document.getElementById('typeOptions'),
             
             // Botones iniciales
             startBtn: document.getElementById('startBtn'),
@@ -3453,6 +3592,7 @@ class DashcamApp {
                 this.startRecording();
             });
         }
+        this.setupCompactSelectors();
         if (this.elements.galleryBtn) {
             this.elements.galleryBtn.addEventListener('click', () => this.showGallery());
         }
@@ -3703,24 +3843,53 @@ class DashcamApp {
         });
     }
 
-    updateViewButtons() {
-        // Actualizar clases active en botones de vista
-        if (this.elements.viewDefaultBtn) {
-            this.elements.viewDefaultBtn.classList.toggle('active', this.state.viewMode === 'default');
-        }
-        if (this.elements.viewLocalFolderBtn) {
-            this.elements.viewLocalFolderBtn.classList.toggle('active', this.state.viewMode === 'localFolder');
+updateCompactSelectors() {
+    // Actualizar selector de ubicación según el modo de vista
+    if (this.elements.locationHeader && this.elements.locationOptions) {
+        const value = this.state.viewMode;
+        const selectedOption = this.elements.locationOptions.querySelector(`.select-option[data-value="${value}"]`);
+        
+        if (selectedOption) {
+            const icon = selectedOption.querySelector('span:first-child').textContent;
+            const text = selectedOption.querySelector('span:last-child').textContent;
+            this.elements.locationHeader.innerHTML = `<span>${icon} ${text}</span><span>▼</span>`;
+            
+            // Actualizar clases activas
+            this.elements.locationOptions.querySelectorAll('.select-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            selectedOption.classList.add('active');
         }
     }
+    
+    // Actualizar selector de tipo según tab activo
+    if (this.elements.typeHeader && this.elements.typeOptions) {
+        const value = this.state.activeTab;
+        const selectedOption = this.elements.typeOptions.querySelector(`.select-option[data-value="${value}"]`);
+        
+        if (selectedOption) {
+            const icon = selectedOption.querySelector('span:first-child').textContent;
+            const text = selectedOption.querySelector('span:last-child').textContent;
+            this.elements.typeHeader.innerHTML = `<span>${icon} ${text}</span><span>▼</span>`;
+            
+            // Actualizar clases activas
+            this.elements.typeOptions.querySelectorAll('.select-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            selectedOption.classList.add('active');
+        }
+    }
+}
 
-    showGallery() {
-        console.log('📁 Mostrando galería');
-        if (this.elements.galleryPanel) {
-            this.elements.galleryPanel.classList.remove('hidden');
-        }
-        this.switchTab(this.state.activeTab);
-        this.updateGalleryActions();
+showGallery() {
+    console.log('📁 Mostrando galería');
+    if (this.elements.galleryPanel) {
+        this.elements.galleryPanel.classList.remove('hidden');
     }
+    this.updateCompactSelectors();  // Añade esta línea
+    this.switchTab(this.state.activeTab);
+    this.updateGalleryActions();
+}
 
     hideGallery() {
         if (this.elements.galleryPanel) {

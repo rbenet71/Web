@@ -115,14 +115,43 @@
                 </div>
                 
                 <!-- Selector de vista simplificado -->
-                <div class="view-selector">
-                    <button id="viewDefaultBtn" class="view-btn active">📱 En la App</button>
-                    <button id="viewLocalFolderBtn" class="view-btn">📂 Carpeta Local</button>
-                </div>
-                
-                <div class="tabs">
-                    <button id="tabVideos" class="tab-btn active">Vídeos</button>
-                    <button id="tabGPX" class="tab-btn">Rutas GPX</button>
+                <!-- Selectores compactos para galería -->
+                <div class="compact-selectors">
+                    <!-- Selector de ubicación -->
+                    <div class="compact-select" id="locationSelector">
+                        <div class="select-header" id="locationHeader">
+                            <span>📱 En la App</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="select-options" id="locationOptions">
+                            <div class="select-option active" data-value="default">
+                                <span>📱</span>
+                                <span>En la App</span>
+                            </div>
+                            <div class="select-option" data-value="localFolder">
+                                <span>📂</span>
+                                <span>Carpeta Local</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Selector de tipo -->
+                    <div class="compact-select" id="typeSelector">
+                        <div class="select-header" id="typeHeader">
+                            <span>🎬 Vídeos</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="select-options" id="typeOptions">
+                            <div class="select-option active" data-value="videos">
+                                <span>🎬</span>
+                                <span>Vídeos</span>
+                            </div>
+                            <div class="select-option" data-value="gpx">
+                                <span>🗺️</span>
+                                <span>Rutas GPX</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="gallery-container">
