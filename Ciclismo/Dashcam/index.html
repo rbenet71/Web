@@ -9,13 +9,13 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <title>Dashcam iPhone v3.1</title>
+    <title>Dashcam iPhone v3.2</title>
     
     <!-- Manifest con versión -->
-    <link rel="manifest" href="manifest.json?v=3.1">
+    <link rel="manifest" href="manifest.json?v=3.2">
     
     <!-- CSS con versión -->
-    <link rel="stylesheet" href="styles.css?v=3.1">
+    <link rel="stylesheet" href="styles.css?v=3.2">
     
     <link rel="icon" href="Picto_Color_192x192.png">
     
@@ -27,7 +27,7 @@
     
     <!-- Librerías para funciones avanzadas -->
     <script src="https://unpkg.com/mp4box@0.5.2/dist/mp4box.all.min.js"></script>
-    <script src="https://unpkg.com/gpxparser@3.1.8/gpxparser.js"></script>
+    <script src="https://unpkg.com/gpxparser@3.2.8/gpxparser.js"></script>
 </head>
 <body>
     <div class="container">
@@ -38,7 +38,7 @@
             <h1 class="app-title">Dashcam iPhone Pro</h1>
             
             <p class="app-description">Grabación MP4 avanzada con GPS y GPX</p>
-            <div class="app-version">Versión 3.1</div>
+            <div class="app-version">Versión 3.2</div>
             
             <div class="start-controls">
                 <button id="startBtn" class="start-btn">
@@ -736,12 +736,12 @@
     </div>
 
     <!-- JavaScript con versión -->
-    <script src="app.js?v=3.1"></script>
+    <script src="app.js?v=3.2"></script>
     
     <script>
         // Limpiar caché al cargar
-        if (localStorage.getItem('dashcam_version') !== '3.1') {
-            localStorage.setItem('dashcam_version', '3.1');
+        if (localStorage.getItem('dashcam_version') !== '3.2') {
+            localStorage.setItem('dashcam_version', '3.2');
             
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(registrations => {
