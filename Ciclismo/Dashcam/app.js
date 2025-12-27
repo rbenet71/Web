@@ -1340,6 +1340,7 @@ async initDatabase() {
                 }
             }
             
+            // Resetear estado
             this.state.isRecording = true;
             this.state.isPaused = false;
             this.state.startTime = Date.now();
@@ -1347,32 +1348,43 @@ async initDatabase() {
             this.state.currentSegment = 1;
             this.gpxPoints = [];
             this.frameCounter = 0;
+            this.recordedChunks = []; // Limpiar chunks anteriores
             
+            // Obtener dimensiones del video
             const videoTrack = this.mediaStream.getVideoTracks()[0];
             const settings = videoTrack.getSettings();
             
+            // Configurar canvas
             if (this.mainCanvas) {
                 this.mainCanvas.width = settings.width || 1280;
                 this.mainCanvas.height = settings.height || 720;
             }
             
+            // Configurar video element para captura
             this.videoElement = document.createElement('video');
             this.videoElement.srcObject = this.mediaStream;
             this.videoElement.autoplay = true;
             this.videoElement.muted = true;
             this.videoElement.playsInline = true;
             
+            // Esperar a que el video esté listo
             await new Promise((resolve) => {
                 this.videoElement.onloadedmetadata = () => {
                     this.videoElement.play().then(resolve).catch(resolve);
                 };
+                
+                // Timeout de seguridad
+                setTimeout(resolve, 3000);
             });
             
+            // Iniciar captura de frames
             this.startFrameCapture();
             
+            // Crear stream desde canvas
             if (this.mainCanvas) {
                 this.canvasStream = this.mainCanvas.captureStream(30);
                 
+                // Agregar audio si está habilitado
                 if (this.state.settings.audioEnabled) {
                     try {
                         const audioStream = await navigator.mediaDevices.getUserMedia({ 
@@ -1393,6 +1405,7 @@ async initDatabase() {
                     }
                 }
                 
+                // Configurar MediaRecorder
                 const mimeType = 'video/webm;codecs=vp9,opus';
                 
                 console.log(`🎬 Grabando en modo: ${this.state.settings.recordingMode}`);
@@ -1411,9 +1424,9 @@ async initDatabase() {
                 };
                 
                 this.mediaRecorder.onstop = async () => {
+                    console.log('🛑 MediaRecorder detenido');
                     this.showSavingStatus('💾 Guardando y procesando video...');
                     await this.saveVideoSegment();
-                    this.stopFrameCapture();
                     this.hideSavingStatus();
                 };
                 
@@ -1437,6 +1450,7 @@ async initDatabase() {
             this.showNotification('❌ Error: ' + error.message);
             this.showStartScreen();
             
+            // Limpiar recursos
             if (this.mediaStream) {
                 this.mediaStream.getTracks().forEach(track => track.stop());
                 this.mediaStream = null;
@@ -1449,6 +1463,55 @@ async initDatabase() {
         }
     }
 
+
+    cleanupRecordingResources() {
+        console.log('🧹 Limpiando recursos de grabación...');
+        
+        // Detener temporizadores
+        if (this.segmentTimer) {
+            clearTimeout(this.segmentTimer);
+            this.segmentTimer = null;
+        }
+        
+        // Detener captura de frames
+        this.stopFrameCapture();
+        
+        // Detener GPS
+        if (this.gpsWatchId) {
+            navigator.geolocation.clearWatch(this.gpsWatchId);
+            this.gpsWatchId = null;
+        }
+        
+        if (this.gpxInterval) {
+            clearInterval(this.gpxInterval);
+            this.gpxInterval = null;
+        }
+        
+        // Detener MediaRecorder
+        if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+            try {
+                this.mediaRecorder.stop();
+            } catch (e) {
+                console.warn('⚠️ Error deteniendo MediaRecorder:', e);
+            }
+        }
+        
+        // Limpiar streams
+        if (this.canvasStream) {
+            this.canvasStream.getTracks().forEach(track => track.stop());
+            this.canvasStream = null;
+        }
+        
+        if (this.mediaStream) {
+            this.mediaStream.getTracks().forEach(track => track.stop());
+            this.mediaStream = null;
+        }
+        
+        // Resetear variables
+        this.mediaRecorder = null;
+        this.videoElement = null;
+        this.recordedChunks = [];
+    }
     
     checkOrientation() {
         if (!/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
@@ -1593,32 +1656,64 @@ async initDatabase() {
         if (!this.mediaRecorder || this.state.isPaused || this.state.settings.recordingMode === 'continuous') return;
         
         try {
+            console.log('✂️ Iniciando nuevo segmento...');
+            
+            // Guardar segmento actual
             if (this.mediaRecorder.state === 'recording') {
                 this.mediaRecorder.stop();
                 
-                // Pequeña pausa para guardar
-                await new Promise(resolve => setTimeout(resolve, 100));
+                // Esperar a que se guarde completamente
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Limpiar chunks ANTES de crear el nuevo segmento
+                this.recordedChunks = [];
                 
                 // Incrementar segmento
                 this.state.currentSegment++;
                 
-                // Reiniciar grabación para nuevo segmento
+                // Actualizar UI inmediatamente
+                if (this.elements.segmentInfo) {
+                    this.elements.segmentInfo.textContent = `📹 Segmento ${this.state.currentSegment}`;
+                }
+                
+                // Solo si seguimos grabando, crear nuevo segmento
                 if (this.state.isRecording && !this.state.isPaused) {
+                    // Crear nuevo MediaRecorder con el mismo stream
+                    const mimeType = 'video/webm;codecs=vp9,opus';
+                    
+                    this.mediaRecorder = new MediaRecorder(this.canvasStream, {
+                        mimeType: mimeType,
+                        videoBitsPerSecond: this.getVideoBitrate()
+                    });
+                    
                     this.recordedChunks = [];
+                    
+                    this.mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            this.recordedChunks.push(event.data);
+                        }
+                    };
+                    
+                    this.mediaRecorder.onstop = async () => {
+                        this.showSavingStatus('💾 Guardando y procesando video...');
+                        await this.saveVideoSegment();
+                        this.hideSavingStatus();
+                    };
+                    
+                    // Iniciar grabación para nuevo segmento
                     this.mediaRecorder.start(1000);
                     this.startSegmentTimer();
                     
-                    if (this.elements.segmentInfo) {
-                        this.elements.segmentInfo.textContent = `📹 Segmento ${this.state.currentSegment}`;
-                    }
-                    
+                    console.log(`✅ Nuevo segmento iniciado: ${this.state.currentSegment}`);
                     this.showNotification(`🔄 Nuevo segmento: ${this.state.currentSegment}`);
                 }
             }
         } catch (error) {
             console.error('❌ Error iniciando nuevo segmento:', error);
+            this.showNotification('❌ Error al crear nuevo segmento');
         }
     }
+
 
     startFrameCapture() {
         if (this.animationFrame) {
@@ -1990,11 +2085,6 @@ async initDatabase() {
             this.videoElement.srcObject = null;
             this.videoElement = null;
         }
-        
-        if (this.canvasStream) {
-            this.canvasStream.getTracks().forEach(track => track.stop());
-            this.canvasStream = null;
-        }
     }
 
     async pauseRecording() {
@@ -2016,59 +2106,50 @@ async initDatabase() {
     }
 
     async stopRecording() {
-        if (!this.mediaRecorder) {
-            this.state.isRecording = false;
-            this.state.isPaused = false;
+        if (!this.mediaRecorder && !this.state.isRecording) {
             this.showStartScreen();
             return;
         }
         
         try {
-            if (this.segmentTimer) {
-                clearTimeout(this.segmentTimer);
-                this.segmentTimer = null;
-            }
+            // Limpiar recursos primero
+            this.cleanupRecordingResources();
             
-            if (this.mediaRecorder.state !== 'inactive') {
-                this.mediaRecorder.stop();
-            }
-            this.stopFrameCapture();
-            
+            // Guardar último segmento si hay chunks
             if (this.recordedChunks.length > 0) {
                 await this.saveVideoSegment();
             }
             
+            // Guardar track GPX si hay puntos
             if (this.gpxPoints.length > 0) {
                 await this.saveGPXTrack();
             }
             
-            // Si hay múltiples segmentos (más de 1), preguntar sobre unión
+            // Si hay múltiples segmentos, preguntar sobre unión
             if (this.state.recordedSegments.length > 1 && this.state.recordingSessionName) {
                 setTimeout(() => {
                     this.askAboutCombining();
-                }, 1000);
+                }, 1500);
             }
             
+            // Resetear estado
             this.state.isRecording = false;
             this.state.isPaused = false;
             this.state.currentTime = 0;
             this.state.currentSegment = 1;
             
+            // Mostrar pantalla inicial
             this.showStartScreen();
             this.showNotification('💾 Grabación finalizada');
             
+            // Recargar galería
             await this.loadGallery();
             
         } catch (error) {
             console.error('❌ Error deteniendo grabación:', error);
-            this.showNotification('❌ Error al guardar');
+            this.showNotification('❌ Error al finalizar grabación');
             this.showStartScreen();
         } finally {
-            if (this.mediaStream) {
-                this.mediaStream.getTracks().forEach(track => track.stop());
-                this.mediaStream = null;
-            }
-            
             // Resetear estado de sesión
             this.resetRecordingSession();
         }
@@ -2202,18 +2283,31 @@ async initDatabase() {
             return;
         }
         
+        // Prevenir múltiples guardados simultáneos
+        if (this.isSaving) {
+            console.log('⚠️ Ya se está guardando, ignorando...');
+            return;
+        }
+        
         this.isSaving = true;
         
         try {
-            console.log('💾 Guardando vídeo con metadatos...');
+            console.log('💾 Guardando vídeo segmento...');
             
             const originalBlob = new Blob(this.recordedChunks, { 
                 type: this.mediaRecorder?.mimeType || 'video/webm' 
             });
             
+            // Verificar que el blob tenga tamaño válido
+            if (originalBlob.size < 1024) {
+                console.log('⚠️ Blob demasiado pequeño, ignorando...');
+                return;
+            }
+            
             const duration = this.state.currentTime || 10000;
             const timestamp = this.state.startTime || Date.now();
             const originalFormat = this.state.settings.videoFormat === 'mp4' ? 'mp4' : 'webm';
+            const segmentNum = this.state.currentSegment;
             
             // Convertir a MP4 con metadatos
             const { blob: finalBlob, format: finalFormat } = await this.ensureMP4WithMetadata(
@@ -2222,32 +2316,27 @@ async initDatabase() {
                 this.gpxPoints
             );
             
-            const segmentNum = this.state.currentSegment;
             const filename = `segmento_${segmentNum}.${finalFormat}`;
             
             // Incrementar contador de segmentos en esta sesión
             this.state.recordingSessionSegments++;
             
-            // ====== CORRECCIÓN AQUÍ ======
             // Si es el PRIMER segmento y no hay sesión, crear carpeta para la sesión
             if (this.state.recordingSessionSegments === 1 && !this.state.recordingSessionName) {
                 await this.createSessionFolder();
             }
-            // ====== FIN CORRECCIÓN ======
             
             let savedPath = filename;
             let savedInSession = false;
             
-            // Guardar según configuración y si hay carpeta de sesión
-            const storageLocation = this.state.settings.storageLocation;
-            
+            // Guardar según configuración
             if (this.state.recordingSessionName) {
                 // Guardar en carpeta de sesión
                 savedInSession = await this.saveToSessionFolder(finalBlob, filename, segmentNum);
                 savedPath = `${this.state.recordingSessionName}/${filename}`;
             } else {
-                // Guardar individualmente (solo debería pasar si createSessionFolder falló)
-                switch(storageLocation) {
+                // Guardar individualmente
+                switch(this.state.settings.storageLocation) {
                     case 'default':
                         await this.saveToApp(finalBlob, timestamp, duration, finalFormat, segmentNum);
                         break;
@@ -2279,11 +2368,6 @@ async initDatabase() {
                 this.showNotification(`✅ Segmento ${segmentNum} guardado`);
             }
             
-            // Guardar track GPX si hay puntos
-            if (this.gpxPoints.length > 0) {
-                await this.saveGPXTrack(timestamp, segmentNum);
-            }
-            
             console.log('✅ Vídeo guardado', {
                 session: this.state.recordingSessionName,
                 segment: segmentNum,
@@ -2294,8 +2378,50 @@ async initDatabase() {
             console.error('❌ Error guardando vídeo:', error);
             this.showNotification('❌ Error al guardar video');
         } finally {
+            // Limpiar chunks después de guardar
             this.recordedChunks = [];
             this.isSaving = false;
+        }
+    }
+
+    drawFrameWithData() {
+        if (!this.videoElement || !this.mainCtx || this.videoElement.readyState < 2) return;
+        
+        try {
+            const canvas = this.mainCanvas;
+            const ctx = this.mainCtx;
+            
+            // Verificar dimensiones válidas
+            if (canvas.width === 0 || canvas.height === 0) {
+                console.warn('⚠️ Canvas con dimensiones inválidas');
+                canvas.width = 1280;
+                canvas.height = 720;
+            }
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(this.videoElement, 0, 0, canvas.width, canvas.height);
+            
+            // Dibujar marca de agua personalizada
+            if (this.state.settings.showWatermark) {
+                this.drawCustomWatermark(ctx, canvas);
+            }
+            
+            // Dibujar overlay de grabación
+            if (this.state.settings.overlayEnabled) {
+                this.drawTemporaryOverlay();
+            }
+            
+            // Dibujar overlay GPX si está activo
+            if (this.state.settings.gpxOverlayEnabled && this.state.activeGPX) {
+                this.drawGpxOverlay(ctx, canvas);
+            }
+            
+            // Incrementar contador de frames
+            this.frameCounter++;
+            
+        } catch (error) {
+            console.warn('⚠️ Error dibujando frame:', error);
+            // No detener la ejecución, solo registrar el error
         }
     }
 
