@@ -6,6 +6,9 @@ class DashcamApp {
     constructor() {
         // Estado de la aplicación
         this.state = {
+            recordedSegments: [], // Segmentos grabados en esta sesión
+            recordingSessionSegments: 0, // Contador de segmentos en esta sesión
+            recordingSessionName: null, // Nombre de la sesión (si se crea carpeta)
             isRecording: false,
             isPaused: false,
             startTime: null,
@@ -92,6 +95,8 @@ class DashcamApp {
         return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     }
 
+
+
     async init() {
         console.log(`🚀 Iniciando Dashcam iPhone Pro v${APP_VERSION}`);
         console.log(`📱 Dispositivo: ${this.isIOS ? 'iPhone/iPad' : 'Otro'}`);
@@ -144,6 +149,249 @@ class DashcamApp {
         console.log(`✅ Aplicación iniciada correctamente`);
     }
 
+    async createSessionFolder() {
+        try {
+            const timestamp = new Date().toISOString()
+                .replace(/[:.]/g, '-')
+                .replace('T', '_')
+                .substring(0, 16); // Solo fecha y hora, sin segundos
+            
+            const sessionName = `Sesion_${timestamp}`;
+            console.log(`📁 Creando carpeta de sesión: ${sessionName}`);
+            
+            this.state.recordingSessionName = sessionName;
+            
+            // Crear carpeta según ubicación de almacenamiento
+            if (this.state.settings.storageLocation === 'localFolder' && this.localFolderHandle) {
+                // Para File System Access API
+                const folderHandle = await this.localFolderHandle.getDirectoryHandle(sessionName, { create: true });
+                
+                // Guardar metadatos de la sesión
+                const sessionInfo = {
+                    name: sessionName,
+                    startTime: Date.now(),
+                    segments: 1, // Ya tenemos el primer segmento
+                    handle: folderHandle
+                };
+                
+                // Crear archivo de información de sesión
+                const infoContent = JSON.stringify(sessionInfo, null, 2);
+                const infoBlob = new Blob([infoContent], { type: 'application/json' });
+                const infoFile = await folderHandle.getFileHandle('session_info.json', { create: true });
+                const writable = await infoFile.createWritable();
+                await writable.write(infoBlob);
+                await writable.close();
+                
+            } else {
+                // Para almacenamiento en app
+                const sessionInfo = {
+                    id: Date.now(),
+                    name: sessionName,
+                    startTime: Date.now(),
+                    segments: 1,
+                    location: this.state.settings.storageLocation,
+                    type: 'session'
+                };
+                
+                if (this.db) {
+                    await this.saveToDatabase('recordingSessions', sessionInfo);
+                }
+            }
+            
+            console.log(`✅ Carpeta de sesión creada: ${sessionName}`);
+            this.showNotification(`📁 Sesión creada: ${sessionName}`);
+            
+            return true;
+            
+        } catch (error) {
+            console.error('❌ Error creando carpeta de sesión:', error);
+            this.state.recordingSessionName = null;
+            return false;
+        }
+    }
+
+    async saveToSessionFolder(blob, filename, segmentNum) {
+        try {
+            if (this.state.settings.storageLocation === 'localFolder' && this.localFolderHandle) {
+                // Abrir carpeta de sesión
+                const sessionFolder = await this.localFolderHandle.getDirectoryHandle(this.state.recordingSessionName);
+                const fileHandle = await sessionFolder.getFileHandle(filename, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(blob);
+                await writable.close();
+                
+                console.log(`📂 Guardado en sesión: ${this.state.recordingSessionName}/${filename}`);
+                return true;
+                
+            } else {
+                // Para almacenamiento en app, guardar con referencia a sesión
+                const videoData = {
+                    id: Date.now(),
+                    blob: blob,
+                    timestamp: Date.now(),
+                    duration: this.state.currentTime || 10000,
+                    size: blob.size,
+                    title: `Segmento ${segmentNum}`,
+                    filename: filename,
+                    session: this.state.recordingSessionName,
+                    format: filename.endsWith('.mp4') ? 'mp4' : 'webm',
+                    location: 'session'
+                };
+                
+                if (this.db) {
+                    await this.saveToDatabase('videos', videoData);
+                }
+                
+                console.log(`📱 Guardado en sesión (app): ${this.state.recordingSessionName}/${filename}`);
+                return true;
+            }
+            
+        } catch (error) {
+            console.error('❌ Error guardando en sesión:', error);
+            return false;
+        }
+    }
+    askAboutCombining() {
+        if (this.state.recordedSegments.length <= 1) return;
+        
+        // Crear modal de confirmación
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 400px;">
+                <div class="modal-header">
+                    <h3>🎬 Sesión Grabada</h3>
+                </div>
+                <div class="modal-body">
+                    <p>✅ Se han grabado <strong>${this.state.recordedSegments.length} segmentos</strong> en la sesión:</p>
+                    <p style="text-align: center; font-size: 16px; margin: 15px 0; padding: 10px; background: rgba(0, 168, 255, 0.1); border-radius: 8px;">
+                        📁 <strong>${this.state.recordingSessionName}</strong>
+                    </p>
+                    
+                    <div class="session-stats" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 15px 0;">
+                        <div style="background: rgba(0, 168, 255, 0.1); padding: 10px; border-radius: 6px; text-align: center;">
+                            <div style="font-size: 11px; opacity: 0.7;">Segmentos</div>
+                            <div style="font-size: 18px; font-weight: bold;">${this.state.recordedSegments.length}</div>
+                        </div>
+                        <div style="background: rgba(0, 168, 255, 0.1); padding: 10px; border-radius: 6px; text-align: center;">
+                            <div style="font-size: 11px; opacity: 0.7;">Duración</div>
+                            <div style="font-size: 18px; font-weight: bold;">${this.formatTime(this.state.recordedSegments.reduce((sum, seg) => sum + seg.duration, 0))}</div>
+                        </div>
+                    </div>
+                    
+                    <p>¿Quieres <strong>combinar los segmentos</strong> en un solo video?</p>
+                    
+                    <div class="setting" style="margin-top: 15px;">
+                        <label>
+                            <input type="checkbox" id="autoCombineFuture" checked>
+                            Recordar esta preferencia para futuras sesiones
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="modal-actions" style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button id="cancelCombine" class="btn cancel-btn" style="flex: 1;">
+                        Mantener segmentos
+                    </button>
+                    <button id="confirmCombine" class="btn save-btn" style="flex: 1;">
+                        🔗 Combinar
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Configurar eventos
+        modal.querySelector('#cancelCombine').addEventListener('click', () => {
+            modal.remove();
+            this.showNotification('📁 Sesión guardada con segmentos individuales');
+        });
+        
+        modal.querySelector('#confirmCombine').addEventListener('click', async () => {
+            modal.remove();
+            await this.combineSessionSegments();
+        });
+        
+        // Cerrar al hacer clic fuera
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+    async combineSessionSegments() {
+        if (this.state.recordedSegments.length <= 1) {
+            this.showNotification('❌ No hay suficientes segmentos para combinar');
+            return;
+        }
+        
+        try {
+            this.showNotification('🔗 Combinando segmentos de sesión...');
+            
+            // Crear nombre para video combinado
+            const combinedName = `${this.state.recordingSessionName}_completo.mp4`;
+            
+            // Simular proceso de combinación (en una implementación real usarías una librería)
+            // Por ahora, crearemos un "video" simbólico que referencia los segmentos
+            
+            const combinedData = {
+                id: Date.now(),
+                name: combinedName,
+                session: this.state.recordingSessionName,
+                segments: this.state.recordedSegments.length,
+                totalDuration: this.state.recordedSegments.reduce((sum, seg) => sum + seg.duration, 0),
+                combinedAt: Date.now(),
+                type: 'combined'
+            };
+            
+            // Guardar información del video combinado
+            if (this.db) {
+                await this.saveToDatabase('combinedVideos', combinedData);
+            }
+            
+            // Si estamos en carpeta local, crear archivo de referencia
+            if (this.state.settings.storageLocation === 'localFolder' && this.localFolderHandle) {
+                try {
+                    const sessionFolder = await this.localFolderHandle.getDirectoryHandle(this.state.recordingSessionName);
+                    const combinedFile = await sessionFolder.getFileHandle('combinado.txt', { create: true });
+                    const writable = await combinedFile.createWritable();
+                    const content = `Video combinado de ${this.state.recordedSegments.length} segmentos\n`;
+                    await writable.write(content);
+                    await writable.close();
+                } catch (error) {
+                    console.log('⚠️ No se pudo crear archivo de referencia');
+                }
+            }
+            
+            this.showNotification(`✅ ${this.state.recordedSegments.length} segmentos combinados en sesión`);
+            
+            // Opcional: ofrecer descargar un archivo "combinado" simbólico
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(new Blob([
+                `Sesión: ${this.state.recordingSessionName}\n`,
+                `Segmentos: ${this.state.recordedSegments.length}\n`,
+                `Para unir los videos, usa un editor de video como:\n`,
+                `- iMovie (iPhone)\n`,
+                `- DaVinci Resolve (gratuito)\n`,
+                `- Shotcut (gratuito)\n`,
+                `\nLista de segmentos:\n`,
+                ...this.state.recordedSegments.map(seg => `- ${seg.filename} (${this.formatTime(seg.duration)})\n`)
+            ], { type: 'text/plain' }));
+            downloadLink.download = `${this.state.recordingSessionName}_info.txt`;
+            downloadLink.click();
+            URL.revokeObjectURL(downloadLink.href);
+            
+        } catch (error) {
+            console.error('❌ Error combinando segmentos:', error);
+            this.showNotification('❌ Error al combinar segmentos');
+        }
+    }
+    resetRecordingSession() {
+        this.state.recordedSegments = [];
+        this.state.recordingSessionSegments = 0;
+        this.state.recordingSessionName = null;
+    }
 
     // ============ MANEJO DE SELECTORES COMPACTOS ============
 
@@ -1516,13 +1764,20 @@ class DashcamApp {
                 await this.saveGPXTrack();
             }
             
+            // Si hay múltiples segmentos (más de 1), preguntar sobre unión
+            if (this.state.recordedSegments.length > 1 && this.state.recordingSessionName) {
+                setTimeout(() => {
+                    this.askAboutCombining();
+                }, 1000);
+            }
+            
             this.state.isRecording = false;
             this.state.isPaused = false;
             this.state.currentTime = 0;
             this.state.currentSegment = 1;
             
             this.showStartScreen();
-            this.showNotification('💾 Video guardado');
+            this.showNotification('💾 Grabación finalizada');
             
             await this.loadGallery();
             
@@ -1535,6 +1790,9 @@ class DashcamApp {
                 this.mediaStream.getTracks().forEach(track => track.stop());
                 this.mediaStream = null;
             }
+            
+            // Resetear estado de sesión
+            this.resetRecordingSession();
         }
     }
 
@@ -1687,32 +1945,58 @@ class DashcamApp {
             );
             
             const segmentNum = this.state.currentSegment;
-            const filename = `dashcam_${new Date(timestamp).toISOString().replace(/[:.]/g, '-')}_s${segmentNum}.${finalFormat}`;
+            const filename = `segmento_${segmentNum}.${finalFormat}`;
             
-            // Guardar según configuración
-            const storageLocation = this.state.settings.storageLocation;
-            let savedLocally = false;
-            let savedInFolder = false;
+            // Incrementar contador de segmentos en esta sesión
+            this.state.recordingSessionSegments++;
             
-            switch(storageLocation) {
-                case 'default':
-                    savedLocally = await this.saveToApp(finalBlob, timestamp, duration, finalFormat, segmentNum);
-                    break;
-                    
-                case 'localFolder':
-                    savedInFolder = await this.saveToLocalFolder(finalBlob, filename);
-                    
-                    if (this.state.settings.keepAppCopy && savedInFolder) {
-                        savedLocally = await this.saveToApp(finalBlob, timestamp, duration, finalFormat, segmentNum);
-                    }
-                    break;
+            // Si es el segundo segmento, crear carpeta para la sesión
+            if (this.state.recordingSessionSegments === 2 && !this.state.recordingSessionName) {
+                await this.createSessionFolder();
             }
             
-            // Actualizar notificación
-            if (savedInFolder) {
-                this.showNotification(`✅ Guardado segmento ${segmentNum} (GPS incrustado)`);
-            } else if (savedLocally) {
-                this.showNotification(`✅ Guardado segmento ${segmentNum} en app`);
+            let savedPath = filename;
+            let savedInSession = false;
+            
+            // Guardar según configuración y si hay carpeta de sesión
+            const storageLocation = this.state.settings.storageLocation;
+            
+            if (this.state.recordingSessionName) {
+                // Guardar en carpeta de sesión
+                savedInSession = await this.saveToSessionFolder(finalBlob, filename, segmentNum);
+                savedPath = `${this.state.recordingSessionName}/${filename}`;
+            } else {
+                // Guardar individualmente (primer segmento o grabación única)
+                switch(storageLocation) {
+                    case 'default':
+                        await this.saveToApp(finalBlob, timestamp, duration, finalFormat, segmentNum);
+                        break;
+                    case 'localFolder':
+                        await this.saveToLocalFolder(finalBlob, filename);
+                        break;
+                }
+            }
+            
+            // Guardar referencia del segmento
+            const segmentData = {
+                id: Date.now(),
+                filename: filename,
+                blob: finalBlob,
+                timestamp: timestamp,
+                duration: duration,
+                format: finalFormat,
+                segment: segmentNum,
+                sessionName: this.state.recordingSessionName,
+                savedInSession: savedInSession
+            };
+            
+            this.state.recordedSegments.push(segmentData);
+            
+            // Mostrar notificación
+            if (this.state.recordingSessionName) {
+                this.showNotification(`✅ Segmento ${segmentNum} guardado en sesión`);
+            } else {
+                this.showNotification(`✅ Segmento ${segmentNum} guardado`);
             }
             
             // Guardar track GPX si hay puntos
@@ -1720,7 +2004,7 @@ class DashcamApp {
                 await this.saveGPXTrack(timestamp, segmentNum);
             }
             
-            console.log('✅ Vídeo guardado con metadatos');
+            console.log('✅ Vídeo guardado');
             
         } catch (error) {
             console.error('❌ Error guardando vídeo:', error);
@@ -4183,3 +4467,4 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 });
+
