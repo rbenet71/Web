@@ -1,6 +1,6 @@
-// Dashcam PWA v3.3.1 - Versión Avanzada con todas las funcionalidades
+// Dashcam PWA v3.3.2 - Versión Avanzada con todas las funcionalidades
 
-const APP_VERSION = '3.3.1';
+const APP_VERSION = '3.3.2';
 
 class DashcamApp {
     constructor() {
@@ -161,51 +161,10 @@ class DashcamApp {
             const sessionName = `Sesion_${timestamp}`;
             console.log(`📁 Creando carpeta de sesión: ${sessionName}`);
             
+            // ACTUALIZAR INMEDIATAMENTE el estado
             this.state.recordingSessionName = sessionName;
             
-            // Crear carpeta según ubicación de almacenamiento
-            if (this.state.settings.storageLocation === 'localFolder' && this.localFolderHandle) {
-                // Para File System Access API
-                const folderHandle = await this.localFolderHandle.getDirectoryHandle(sessionName, { create: true });
-                
-                // Guardar metadatos de la sesión
-                const sessionInfo = {
-                    name: sessionName,
-                    startTime: Date.now(),
-                    segments: 1,
-                    handle: folderHandle
-                };
-                
-                // Crear archivo de información de sesión
-                const infoContent = JSON.stringify(sessionInfo, null, 2);
-                const infoBlob = new Blob([infoContent], { type: 'application/json' });
-                const infoFile = await folderHandle.getFileHandle('session_info.json', { create: true });
-                const writable = await infoFile.createWritable();
-                await writable.write(infoBlob);
-                await writable.close();
-                
-            } else {
-                // Para almacenamiento en app
-                const sessionInfo = {
-                    id: Date.now(),
-                    name: sessionName,
-                    startTime: Date.now(),
-                    segments: 1,
-                    location: this.state.settings.storageLocation,
-                    type: 'session'
-                };
-                
-                // Verificar que el store exista antes de guardar
-                if (this.db && this.db.objectStoreNames.contains('recordingSessions')) {
-                    await this.saveToDatabase('recordingSessions', sessionInfo);
-                } else {
-                    console.log('⚠️ Store recordingSessions no disponible, guardando en localStorage');
-                    // Fallback a localStorage
-                    const sessions = JSON.parse(localStorage.getItem('recordingSessions') || '[]');
-                    sessions.push(sessionInfo);
-                    localStorage.setItem('recordingSessions', JSON.stringify(sessions));
-                }
-            }
+            // ... resto del código ...
             
             console.log(`✅ Carpeta de sesión creada: ${sessionName}`);
             this.showNotification(`📁 Sesión creada: ${sessionName}`);
@@ -245,45 +204,57 @@ class DashcamApp {
             }
             
             if (this.state.settings.storageLocation === 'localFolder' && this.localFolderHandle) {
-                // Abrir carpeta de sesión
-                const sessionFolder = await this.localFolderHandle.getDirectoryHandle(this.state.recordingSessionName);
-                const fileHandle = await sessionFolder.getFileHandle(filename, { create: true });
-                const writable = await fileHandle.createWritable();
-                await writable.write(blob);
-                await writable.close();
-                
-                console.log(`📂 Guardado en sesión: ${this.state.recordingSessionName}/${filename}`);
-                return true;
-                
-            } else {
-                // Para almacenamiento en app, guardar con referencia a sesión
-                const videoData = {
-                    id: Date.now(),
-                    blob: blob,
-                    timestamp: Date.now(),
-                    duration: this.state.currentTime || 10000,
-                    size: blob.size,
-                    title: `Segmento ${segmentNum} - ${this.state.recordingSessionName}`,
-                    filename: filename,
-                    session: this.state.recordingSessionName,  // <-- Aquí está la sesión
-                    format: filename.endsWith('.mp4') ? 'mp4' : 'webm',
-                    location: 'session'
-                };
-                
-                if (this.db) {
-                    await this.saveToDatabase('videos', videoData);
+                // Para File System Access API - guardar físicamente
+                try {
+                    console.log(`📂 Guardando físicamente en: ${this.state.recordingSessionName}/${filename}`);
+                    
+                    // 1. Crear/abrir carpeta de sesión
+                    const sessionFolder = await this.localFolderHandle.getDirectoryHandle(
+                        this.state.recordingSessionName, 
+                        { create: true }
+                    );
+                    
+                    // 2. Crear archivo
+                    const fileHandle = await sessionFolder.getFileHandle(filename, { create: true });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(blob);
+                    await writable.close();
+                    
+                    console.log(`✅ Video guardado físicamente en carpeta local: ${filename}`);
+                    return true;
+                    
+                } catch (fsError) {
+                    console.error('❌ Error guardando en sistema de archivos:', fsError);
+                    // Fallback a IndexedDB
                 }
-                
-                console.log(`📱 Guardado en sesión (app): ${this.state.recordingSessionName}/${filename}`);
-                return true;
             }
+            
+            // Fallback: guardar en IndexedDB (como antes)
+            const videoData = {
+                id: Date.now(),
+                blob: blob,
+                timestamp: Date.now(),
+                duration: this.state.currentTime || 10000,
+                size: blob.size,
+                title: `Segmento ${segmentNum} - ${this.state.recordingSessionName}`,
+                filename: filename,
+                session: this.state.recordingSessionName,
+                format: filename.endsWith('.mp4') ? 'mp4' : 'webm',
+                location: 'session'
+            };
+            
+            if (this.db) {
+                await this.saveToDatabase('videos', videoData);
+            }
+            
+            console.log(`📱 Video guardado en IndexedDB (fallback): ${this.state.recordingSessionName}/${filename}`);
+            return true;
             
         } catch (error) {
             console.error('❌ Error guardando en sesión:', error);
             return false;
         }
     }
-
 
     askAboutCombining() {
         if (this.state.recordedSegments.length <= 1) return;
@@ -1275,6 +1246,40 @@ async initDatabase() {
             }, 3000);
         }
         
+        // SIMPLIFICADO: Si está configurada carpeta local pero no tenemos handle
+        if (this.state.settings.storageLocation === 'localFolder' && 
+            this.state.settings.localFolderName && 
+            !this.state.settings.localFolderHandle) {
+            
+            console.log('⚠️ Carpeta local configurada pero sin handle activo');
+            
+            // Preguntar al usuario directamente
+            const userChoice = await this.askFolderPermission();
+            
+            if (userChoice === 'restore') {
+                // Intentar restaurar la carpeta
+                await this.showDesktopFolderPicker();
+                // Después de seleccionar, verificar si ahora tenemos handle
+                if (!this.state.settings.localFolderHandle) {
+                    this.showNotification('📱 Grabando en la app');
+                    this.state.settings.storageLocation = 'default';
+                }
+            } else if (userChoice === 'select') {
+                await this.selectLocalFolder();
+                // Después de seleccionar, verificar si ahora tenemos handle
+                if (!this.state.settings.localFolderHandle) {
+                    this.showNotification('📱 Grabando en la app');
+                    this.state.settings.storageLocation = 'default';
+                }
+            } else if (userChoice === 'app') {
+                this.showNotification('📱 Grabando en la app');
+                this.state.settings.storageLocation = 'default';
+            } else {
+                if (this.elements.startBtn) this.elements.startBtn.disabled = false;
+                return;
+            }
+        }
+        
         // Mostrar sugerencia de orientación
         if (this.checkOrientation() && !this.state.showLandscapeModal) {
             this.showLandscapeModal();
@@ -2167,7 +2172,8 @@ async initDatabase() {
             this.showStartScreen();
             this.showNotification('💾 Grabación finalizada');
             
-            // 9. Recargar galería
+            // 9. Recargar galería - Asegurar que se hace
+            console.log('🔄 Recargando galería después de detener grabación...');
             await this.loadGallery();
             
         } catch (error) {
@@ -2317,13 +2323,6 @@ async initDatabase() {
             return;
         }
         
-        // VERIFICACIÓN CRÍTICA: Asegurar que tenemos chunks
-        if (!this.recordedChunks || this.recordedChunks.length === 0) {
-            console.error('❌ ERROR: No hay chunks para guardar');
-            this.showNotification('❌ Error: No hay video para guardar');
-            return;
-        }
-        
         this.isSaving = true;
         
         try {
@@ -2357,6 +2356,7 @@ async initDatabase() {
             if (originalBlob.size < 1024) {
                 console.error('❌ Blob demasiado pequeño, ignorando...');
                 this.showNotification('❌ Error: Video vacío');
+                this.isSaving = false;
                 return;
             }
             
@@ -2383,28 +2383,59 @@ async initDatabase() {
             // Incrementar contador de segmentos en esta sesión
             this.state.recordingSessionSegments++;
             
-            // Si es el PRIMER segmento y no hay sesión, crear carpeta para la sesión
-            if (this.state.recordingSessionSegments === 1 && !this.state.recordingSessionName) {
-                await this.createSessionFolder();
-            }
-            
+            // VERIFICACIÓN: ¿Tenemos sesión o carpeta local?
             let savedPath = filename;
             let savedInSession = false;
+            let savedInFolder = false;
             
-            // Guardar según configuración
-            if (this.state.recordingSessionName) {
-                // Guardar en carpeta de sesión
-                savedInSession = await this.saveToSessionFolder(finalBlob, filename, segmentNum);
-                savedPath = `${this.state.recordingSessionName}/${filename}`;
-            } else {
-                // Guardar individualmente
-                switch(this.state.settings.storageLocation) {
-                    case 'default':
-                        await this.saveToApp(finalBlob, timestamp, duration, finalFormat, segmentNum);
-                        break;
-                    case 'localFolder':
-                        await this.saveToLocalFolder(finalBlob, filename);
-                        break;
+            // IMPORTANTE: Si es el PRIMER segmento y no hay sesión, crear carpeta para la sesión
+            // HACERLO ANTES de decidir dónde guardar
+            if (this.state.recordingSessionSegments === 1 && !this.state.recordingSessionName) {
+                console.log('🆕 Primer segmento, creando sesión...');
+                await this.createSessionFolder();
+                console.log(`✅ Sesión creada: ${this.state.recordingSessionName}`);
+            }
+            
+            // PRIMERO: Si estamos grabando en carpeta local
+            if (this.state.settings.storageLocation === 'localFolder' && this.localFolderHandle) {
+                console.log('📂 Guardando en carpeta local...');
+                
+                // SIEMPRE guardar en sesión si existe (incluso si se acaba de crear)
+                if (this.state.recordingSessionName) {
+                    console.log(`📁 Guardando en sesión: ${this.state.recordingSessionName}`);
+                    
+                    // Guardar físicamente en carpeta local con sesión
+                    savedInSession = await this.saveToLocalFolder(finalBlob, filename, this.state.recordingSessionName);
+                    savedPath = `${this.state.recordingSessionName}/${filename}`;
+                    
+                    if (savedInSession) {
+                        console.log(`✅ Video guardado en sesión (carpeta local): ${savedPath}`);
+                        this.showNotification(`✅ Guardado en: ${savedPath}`);
+                    }
+                    
+                } else {
+                    // Solo si NO hay sesión, guardar en raíz
+                    savedInFolder = await this.saveToLocalFolder(finalBlob, filename);
+                    savedPath = filename;
+                    console.log(`✅ Video guardado en carpeta local (raíz): ${filename}`);
+                    this.showNotification(`✅ Guardado en: ${filename}`);
+                }
+                
+            } 
+            // SEGUNDO: Si estamos grabando en la app (almacenamiento por defecto)
+            else {
+                if (this.state.recordingSessionName) {
+                    // Guardar en sesión (en IndexedDB)
+                    savedInSession = await this.saveToSessionFolder(finalBlob, filename, segmentNum);
+                    savedPath = `${this.state.recordingSessionName}/${filename}`;
+                    console.log(`✅ Video guardado en sesión (app): ${savedPath}`);
+                    this.showNotification(`✅ Guardado en: ${savedPath}`);
+                } else {
+                    // Guardar individualmente en IndexedDB
+                    await this.saveToApp(finalBlob, timestamp, duration, finalFormat, segmentNum);
+                    savedPath = filename;
+                    console.log(`✅ Video guardado en app: ${filename}`);
+                    this.showNotification(`✅ Guardado en app: ${filename}`);
                 }
             }
             
@@ -2418,14 +2449,17 @@ async initDatabase() {
                 format: finalFormat,
                 segment: segmentNum,
                 sessionName: this.state.recordingSessionName,
-                savedInSession: savedInSession
+                savedInSession: savedInSession,
+                savedInFolder: savedInFolder,
+                savedPath: savedPath,
+                location: this.state.settings.storageLocation === 'localFolder' ? 'desktop_folder' : 'app'
             };
             
             this.state.recordedSegments.push(segmentData);
             
-            // Mostrar notificación
+            // Mostrar notificación final
             if (this.state.recordingSessionName) {
-                this.showNotification(`✅ Segmento ${segmentNum} guardado en sesión "${this.state.recordingSessionName}"`);
+                this.showNotification(`✅ Segmento ${segmentNum} guardado en "${this.state.recordingSessionName}"`);
             } else {
                 this.showNotification(`✅ Segmento ${segmentNum} guardado`);
             }
@@ -2434,9 +2468,15 @@ async initDatabase() {
                 session: this.state.recordingSessionName,
                 segment: segmentNum,
                 filename: filename,
+                savedPath: savedPath,
                 size: finalBlob.size,
-                duration: duration
+                duration: duration,
+                location: segmentData.location
             });
+            
+            // IMPORTANTE: Actualizar la galería INMEDIATAMENTE después de guardar
+            console.log('🔄 Actualizando galería...');
+            await this.loadGallery();
             
         } catch (error) {
             console.error('❌ Error guardando vídeo:', error);
@@ -3373,8 +3413,11 @@ async initDatabase() {
     async loadGallery() {
         console.log('📁 Cargando galería...');
         try {
+            // Guardar el estado actual del modo de vista
+            const currentViewMode = this.state.viewMode;
+            
             // Cargar según el modo de vista
-            switch(this.state.viewMode) {
+            switch(currentViewMode) {
                 case 'default':
                     await this.loadAppVideos();
                     break;
@@ -3384,6 +3427,13 @@ async initDatabase() {
             }
             
             console.log('✅ Galería cargada');
+            
+            // IMPORTANTE: Si el panel de galería está abierto, refrescar la vista
+            if (this.elements.galleryPanel && !this.elements.galleryPanel.classList.contains('hidden')) {
+                console.log('🔄 Refrescando vista de galería...');
+                this.renderVideosList();
+            }
+            
         } catch (error) {
             console.error('❌ Error cargando galería:', error);
         }
@@ -3396,8 +3446,7 @@ async initDatabase() {
             
             if (this.db) {
                 videos = await this.getAllFromStore('videos');
-                // FILTRADO SIMPLIFICADO: Mostrar todos los videos
-                // No filtramos por location, mostramos todos
+                // MOSTRAR TODOS los videos
             } else {
                 const storedVideos = localStorage.getItem('dashcam_videos');
                 if (storedVideos) {
@@ -3409,6 +3458,8 @@ async initDatabase() {
             
             // Ordenar por timestamp (más recientes primero)
             this.state.videos = videos.sort((a, b) => b.timestamp - a.timestamp);
+            
+            // SIEMPRE renderizar la lista
             this.renderVideosList();
             
         } catch (error) {
@@ -3418,12 +3469,10 @@ async initDatabase() {
         }
     }
 
-
     async loadLocalFolderVideos() {
         try {
             console.log('📂 Cargando vídeos de carpeta local...');
             
-            // Por ahora, cargamos desde la base de datos
             let videos = [];
             if (this.db) {
                 const localFiles = await this.getAllFromStore('localFiles');
@@ -3432,7 +3481,7 @@ async initDatabase() {
                     title: file.filename,
                     timestamp: file.timestamp,
                     size: file.size,
-                    location: file.location || 'localFolder',
+                    location: 'localFolder',
                     format: file.filename.endsWith('.mp4') ? 'mp4' : 'webm'
                 }));
             }
@@ -3454,8 +3503,7 @@ async initDatabase() {
         if (!container) return;
         
         console.log('🖼️ Renderizando lista de vídeos:', this.state.videos.length);
-
-    
+       
         if (this.state.videos.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
@@ -3466,9 +3514,7 @@ async initDatabase() {
             `;
             return;
         }
-
-
-
+        
         let html = '<div class="file-list">';
         
         this.state.videos.forEach(video => {
@@ -3483,17 +3529,18 @@ async initDatabase() {
             
             // Icono según ubicación
             let locationIcon = '📱';
-            if (location === 'localFolder' || location === 'desktop_folder') locationIcon = '📂';
-            if (location === 'ios_local') locationIcon = '📱';
+            if (location === 'localFolder' || location === 'desktop_folder' || location === 'ios_local') {
+                locationIcon = '📂';
+            }
             
             html += `
                 <div class="file-item video-file ${this.state.selectedVideos.has(video.id) ? 'selected' : ''}" 
-                     data-id="${video.id}" 
-                     data-type="video"
-                     data-location="${location}"
-                     data-format="${format}">
+                    data-id="${video.id}" 
+                    data-type="video"
+                    data-location="${location}"
+                    data-format="${format}">
                     <div class="file-header">
-                        <div class="file-title">${video.title || 'Grabación'}</div>
+                        <div class="file-title">${video.title || video.filename || 'Grabación'}</div>
                         <div class="file-location">${locationIcon}</div>
                         <div class="file-format">${format.toUpperCase()}</div>
                         <div class="file-time">${timeStr}</div>
@@ -3551,6 +3598,70 @@ async initDatabase() {
         this.updateGalleryActions();
     }
 
+
+    askFolderPermission() {
+        return new Promise((resolve) => {
+            const folderName = this.state.settings.localFolderName || 'la carpeta configurada';
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 400px;">
+                    <div class="modal-header">
+                        <h3>📂 Carpeta no disponible</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p>La carpeta "<strong>${folderName}</strong>" no está disponible.</p>
+                        <p>¿Qué quieres hacer?</p>
+                    </div>
+                    <div class="modal-actions" style="display: flex; flex-direction: column; gap: 10px;">
+                        <button class="btn save-btn" id="restoreFolderBtn">
+                            🔄 Restaurar "${folderName}"
+                        </button>
+                        <button class="btn" id="selectFolderBtn">
+                            📂 Seleccionar otra carpeta
+                        </button>
+                        <button class="btn" id="recordInAppBtn" style="background: #00a8ff;">
+                            📱 Grabar en la app
+                        </button>
+                        <button class="btn cancel-btn" id="cancelRecordBtn">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            modal.querySelector('#restoreFolderBtn').addEventListener('click', () => {
+                modal.remove();
+                resolve('restore');
+            });
+            
+            modal.querySelector('#selectFolderBtn').addEventListener('click', () => {
+                modal.remove();
+                resolve('select');
+            });
+            
+            modal.querySelector('#recordInAppBtn').addEventListener('click', () => {
+                modal.remove();
+                resolve('app');
+            });
+            
+            modal.querySelector('#cancelRecordBtn').addEventListener('click', () => {
+                modal.remove();
+                resolve('cancel');
+            });
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                    resolve('cancel');
+                }
+            });
+        });
+    }
+
     updateGalleryActions() {
         const hasSelectedVideos = this.state.selectedVideos.size > 0;
         
@@ -3570,84 +3681,111 @@ async initDatabase() {
 
     async playVideo(videoId) {
         try {
+            console.log('🎬 Intentando reproducir video ID:', videoId, 'modo:', this.state.viewMode);
+            
             let video;
             
             // Buscar según el modo de vista
             if (this.state.viewMode === 'default') {
+                // Para videos de la app y sesiones
                 if (this.db) {
                     video = await this.getFromStore('videos', videoId);
-                } else {
-                    const videos = JSON.parse(localStorage.getItem('dashcam_videos') || '[]');
-                    video = videos.find(v => v.id === videoId);
                 }
             } else if (this.state.viewMode === 'localFolder') {
-                // Para carpeta local, buscar en localFiles
+                // Para videos de carpeta local
                 if (this.db) {
-                    const localFile = await this.getFromStore('localFiles', videoId);
-                    if (localFile) {
-                        // Buscar el video correspondiente
-                        video = await this.getFromStore('videos', videoId);
+                    video = await this.getFromStore('localFiles', videoId);
+                    if (video) {
+                        console.log('📊 Video local encontrado:', video);
+                        
+                        // Si no tiene blob, buscar en 'videos' con el mismo ID
+                        if (!video.blob) {
+                            console.log('⚠️ Video local no tiene blob, buscando en store videos...');
+                            const videoFromVideos = await this.getFromStore('videos', videoId);
+                            if (videoFromVideos && videoFromVideos.blob) {
+                                console.log('✅ Blob encontrado en store videos');
+                                video.blob = videoFromVideos.blob;
+                            } else {
+                                console.log('❌ No se encontró blob en ningún store');
+                            }
+                        }
                     }
                 }
             }
             
             if (!video) {
+                console.error('❌ Video no encontrado:', videoId);
                 this.showNotification('❌ Video no encontrado');
+                return;
+            }
+            
+            if (!video.blob) {
+                console.error('❌ Video no tiene blob:', videoId);
+                this.showNotification('❌ Video dañado o no disponible');
                 return;
             }
             
             this.state.currentVideo = video;
             
-            if (video.blob) {
-                const videoUrl = URL.createObjectURL(video.blob);
-                
-                this.elements.playbackVideo.src = videoUrl;
-                this.elements.videoTitle.textContent = video.title || 'Grabación';
-                
-                const date = new Date(video.timestamp);
-                const sizeMB = Math.round(video.size / (1024 * 1024));
-                const duration = this.formatTime(video.duration);
-                const location = video.location || 'app';
-                const format = video.format || 'mp4';
-                
-                this.elements.videoDate.textContent = date.toLocaleString('es-ES');
-                this.elements.videoDuration.textContent = duration;
-                this.elements.videoSize.textContent = `${sizeMB} MB`;
-                this.elements.videoGpsPoints.textContent = video.gpsPoints || 0;
-                
-                // Actualizar información de ubicación
-                let locationText = 'Almacenado en la app';
-                let locationIcon = '📱';
-                
-                if (location === 'localFolder' || location === 'desktop_folder') {
-                    locationText = `Almacenado en carpeta: ${this.state.settings.localFolderName || 'Local'}`;
-                    locationIcon = '📂';
-                } else if (location === 'ios_local') {
-                    locationText = 'Almacenado en iPhone (app)';
-                    locationIcon = '📱';
-                }
-                
-                this.elements.locationIcon.textContent = locationIcon;
-                this.elements.locationText.textContent = locationText;
-                
-                // Configurar eventos del video
-                this.elements.playbackVideo.addEventListener('timeupdate', () => {
-                    this.updatePlaybackMap();
-                });
-                
-                this.elements.videoPlayer.classList.remove('hidden');
-                
-                // Inicializar mapa
-                this.initPlaybackMap();
-            } else {
-                this.showNotification('❌ Video no disponible para reproducción');
+            const videoUrl = URL.createObjectURL(video.blob);
+            console.log('🎬 URL de video creada');
+            
+            // 1. Configurar el elemento de video
+            this.elements.playbackVideo.src = videoUrl;
+            this.elements.videoTitle.textContent = video.title || video.filename || 'Grabación';
+            
+            // 2. Configurar metadatos
+            const date = new Date(video.timestamp);
+            const sizeMB = Math.round(video.size / (1024 * 1024));
+            const duration = this.formatTime(video.duration);
+            const location = video.location || 'app';
+            
+            this.elements.videoDate.textContent = date.toLocaleString('es-ES');
+            this.elements.videoDuration.textContent = duration;
+            this.elements.videoSize.textContent = `${sizeMB} MB`;
+            this.elements.videoGpsPoints.textContent = video.gpsPoints || 0;
+            
+            // 3. Actualizar información de ubicación
+            let locationText = 'Almacenado en la app';
+            let locationIcon = '📱';
+            
+            if (location === 'localFolder' || location === 'desktop_folder') {
+                locationText = `Almacenado en carpeta: ${video.folderName || 'Local'}`;
+                locationIcon = '📂';
+            } else if (location === 'ios_local') {
+                locationText = 'Almacenado en iPhone (app)';
+                locationIcon = '📱';
             }
+            
+            this.elements.locationIcon.textContent = locationIcon;
+            this.elements.locationText.textContent = locationText;
+            
+            // 4. Configurar eventos del video
+            this.elements.playbackVideo.addEventListener('timeupdate', () => {
+                this.updatePlaybackMap();
+            });
+            
+            // 5. MOSTRAR EL REPRODUCTOR
+            this.elements.videoPlayer.classList.remove('hidden');
+            
+            // 6. Inicializar mapa si hay datos GPS
+            if (video.gpsTrack && video.gpsTrack.length > 0) {
+                this.initPlaybackMap();
+            }
+            
+            // 7. Intentar reproducir automáticamente
+            setTimeout(() => {
+                this.elements.playbackVideo.play().catch(error => {
+                    console.log('⚠️ No se pudo autoplay:', error.message);
+                });
+            }, 300);
             
         } catch (error) {
             console.error('❌ Error reproduciendo video:', error);
             this.showNotification('❌ Error al reproducir');
         }
     }
+
 
     initPlaybackMap() {
         if (!this.state.currentVideo || !this.state.currentVideo.gpsTrack) return;
@@ -3988,48 +4126,76 @@ async initDatabase() {
 
     async showDesktopFolderPicker() {
         try {
-            if ('showDirectoryPicker' in window) {
-                const handle = await window.showDirectoryPicker({
-                    id: 'dashcam-local-folder',
-                    startIn: 'videos',
-                    mode: 'readwrite'
-                });
-                
-                if (await this.verifyFolderPermissions(handle)) {
-                    this.localFolderHandle = handle;
-                    this.state.settings.localFolderHandle = handle;
-                    this.state.settings.localFolderName = handle.name;
-                    
-                    // Actualizar UI
-                    this.elements.currentLocalFolderInfo.innerHTML = 
-                        `<span>📁 ${handle.name}</span>`;
-                    
-                    if (this.elements.localFolderPath) {
-                        this.elements.localFolderPath.textContent = handle.name;
+            let startIn = 'videos';
+            
+            // Intentar usar el handle guardado si existe
+            if (this.state.settings.localFolderHandle) {
+                try {
+                    // Verificar si el handle sigue siendo válido
+                    const permission = await this.state.settings.localFolderHandle.requestPermission({ mode: 'readwrite' });
+                    if (permission === 'granted') {
+                        console.log('✅ Handle de carpeta todavía válido');
+                        this.localFolderHandle = this.state.settings.localFolderHandle;
+                        
+                        // Actualizar UI
+                        this.elements.currentLocalFolderInfo.innerHTML = 
+                            `<span>📁 ${this.state.settings.localFolderName}</span>`;
+                        
+                        if (this.elements.localFolderPath) {
+                            this.elements.localFolderPath.textContent = this.state.settings.localFolderName;
+                        }
+                        
+                        this.showNotification(`📂 Carpeta restaurada: ${this.state.settings.localFolderName}`);
+                        
+                        // Cerrar modal si está abierto
+                        if (this.elements.localFolderPickerModal) {
+                            this.elements.localFolderPickerModal.classList.add('hidden');
+                        }
+                        
+                        return;
                     }
-                    
-                    await this.saveSettings();
-                    this.showNotification(`📂 Carpeta seleccionada: ${handle.name}`);
-                    
-                    // Cerrar modal si está abierto
-                    if (this.elements.localFolderPickerModal) {
-                        this.elements.localFolderPickerModal.classList.add('hidden');
-                    }
-                    
-                } else {
-                    this.showNotification('❌ Permisos insuficientes para la carpeta');
+                } catch (error) {
+                    console.log('⚠️ Handle no válido, seleccionando nueva carpeta...');
                 }
-            } else {
-                // Fallback para navegadores antiguos
-                this.showNotification('⚠️ Tu navegador no soporta selección de carpetas');
+            }
+            
+            // Configurar para abrir en la ubicación sugerida
+            const options = {
+                id: 'dashcam-local-folder',
+                mode: 'readwrite'
+            };
+            
+            // Si tenemos nombre de carpeta pero no handle, intentar sugerir
+            if (this.state.settings.localFolderName) {
+                console.log('📂 Intentando restaurar carpeta:', this.state.settings.localFolderName);
+                // Nota: No podemos especificar carpeta exacta, pero el navegador puede recordar
+            }
+            
+            const handle = await window.showDirectoryPicker(options);
+            
+            if (handle) {
+                this.localFolderHandle = handle;
+                this.state.settings.localFolderHandle = handle;
+                this.state.settings.localFolderName = handle.name;
                 
-                // Mostrar modal con instrucciones
+                // Actualizar UI
+                this.elements.currentLocalFolderInfo.innerHTML = 
+                    `<span>📁 ${handle.name}</span>`;
+                
+                if (this.elements.localFolderPath) {
+                    this.elements.localFolderPath.textContent = handle.name;
+                }
+                
+                await this.saveSettings();
+                this.showNotification(`📂 Carpeta seleccionada: ${handle.name}`);
+                
+                // Cerrar modal si está abierto
                 if (this.elements.localFolderPickerModal) {
-                    this.elements.folderModalTitle.textContent = '📂 Seleccionar Carpeta';
-                    this.elements.iphoneInstructions.style.display = 'none';
-                    this.elements.desktopInstructions.style.display = 'block';
-                    this.elements.localFolderPickerModal.classList.remove('hidden');
+                    this.elements.localFolderPickerModal.classList.add('hidden');
                 }
+                
+            } else {
+                this.showNotification('❌ No se seleccionó carpeta');
             }
             
         } catch (error) {
@@ -4044,7 +4210,7 @@ async initDatabase() {
         }
     }
 
-    async saveToLocalFolder(blob, filename) {
+    async saveToLocalFolder(blob, filename, sessionName = null) {
         if (!this.localFolderHandle && !this.isIOS) {
             console.log('⚠️ No hay carpeta local seleccionada');
             return false;
@@ -4052,11 +4218,66 @@ async initDatabase() {
         
         try {
             if (this.isIOS) {
-                // Para iPhone, usar método alternativo
-                return await this.saveToIOSFiles(blob, filename);
+                // Para iPhone, IndexedDB
+                const fileData = {
+                    id: Date.now(),
+                    filename: filename,
+                    timestamp: Date.now(),
+                    size: blob.size,
+                    type: 'video/mp4',
+                    location: 'ios_local',
+                    session: sessionName,
+                    blob: blob
+                };
+                
+                if (this.db) {
+                    await this.saveToDatabase('localFiles', fileData);
+                }
+                
+                console.log(`✅ Guardado en iPhone: ${sessionName ? sessionName + '/' : ''}${filename}`);
+                return true;
+                
             } else {
-                // Para otros dispositivos, usar File System Access API
-                return await this.saveToDesktopFolder(blob, filename);
+                // Para desktop - guardar FÍSICAMENTE
+                console.log(`📂 Guardando físicamente: ${sessionName ? sessionName + '/' : ''}${filename}`);
+                
+                let fileHandle;
+                
+                // Si hay nombre de sesión, crear subcarpeta
+                if (sessionName) {
+                    const sessionFolder = await this.localFolderHandle.getDirectoryHandle(
+                        sessionName, 
+                        { create: true }
+                    );
+                    fileHandle = await sessionFolder.getFileHandle(filename, { create: true });
+                } else {
+                    fileHandle = await this.localFolderHandle.getFileHandle(filename, { create: true });
+                }
+                
+                // Escribir el archivo físicamente
+                const writable = await fileHandle.createWritable();
+                await writable.write(blob);
+                await writable.close();
+                
+                console.log(`✅ Video guardado físicamente en carpeta local: ${sessionName ? sessionName + '/' : ''}${filename}`);
+                
+                // También guardar referencia en IndexedDB
+                const fileRef = {
+                    id: Date.now(),
+                    filename: filename,
+                    folderName: this.state.settings.localFolderName,
+                    timestamp: Date.now(),
+                    size: blob.size,
+                    location: 'desktop_folder',
+                    session: sessionName,
+                    blob: blob
+                };
+                
+                if (this.db) {
+                    await this.saveToDatabase('localFiles', fileRef);
+                }
+                
+                return true;
             }
             
         } catch (error) {
@@ -4064,6 +4285,62 @@ async initDatabase() {
             return false;
         }
     }
+
+async exportOldVideosToFolder() {
+    if (!this.localFolderHandle) {
+        this.showNotification('❌ Selecciona una carpeta primero');
+        return;
+    }
+    
+    try {
+        const videos = await this.getAllFromStore('videos');
+        const sessionVideos = videos.filter(v => v.session && v.blob);
+        
+        if (sessionVideos.length === 0) {
+            this.showNotification('✅ No hay videos de sesión para exportar');
+            return;
+        }
+        
+        this.showNotification(`📤 Exportando ${sessionVideos.length} videos...`);
+        
+        let exported = 0;
+        let errors = 0;
+        
+        for (const video of sessionVideos) {
+            try {
+                // Crear carpeta de sesión si no existe
+                const sessionFolder = await this.localFolderHandle.getDirectoryHandle(
+                    video.session, 
+                    { create: true }
+                );
+                
+                // Crear archivo
+                const filename = video.filename || `video_${video.id}.${video.format || 'mp4'}`;
+                const fileHandle = await sessionFolder.getFileHandle(filename, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(video.blob);
+                await writable.close();
+                
+                exported++;
+                console.log(`✅ Exportado: ${video.session}/${filename}`);
+                
+            } catch (error) {
+                console.error(`❌ Error exportando video ${video.id}:`, error);
+                errors++;
+            }
+        }
+        
+        if (errors > 0) {
+            this.showNotification(`📊 Exportados: ${exported} | Errores: ${errors}`);
+        } else {
+            this.showNotification(`✅ ${exported} videos exportados a carpeta`);
+        }
+        
+    } catch (error) {
+        console.error('❌ Error en exportación:', error);
+        this.showNotification('❌ Error al exportar videos');
+    }
+}
 
     async saveToIOSFiles(blob, filename) {
         try {
