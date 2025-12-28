@@ -1487,13 +1487,19 @@ async initDatabase() {
             this.gpxInterval = null;
         }
         
-        // Detener MediaRecorder
+        // Detener MediaRecorder SOLO SI EXISTE y está activo
         if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
             try {
+                console.log('🛑 Deteniendo MediaRecorder...');
                 this.mediaRecorder.stop();
             } catch (e) {
                 console.warn('⚠️ Error deteniendo MediaRecorder:', e);
             }
+        } else {
+            console.log('⚠️ MediaRecorder no disponible o ya detenido:', {
+                exists: !!this.mediaRecorder,
+                state: this.mediaRecorder?.state
+            });
         }
         
         // Limpiar streams
@@ -1507,12 +1513,15 @@ async initDatabase() {
             this.mediaStream = null;
         }
         
-        // Resetear variables
-        this.mediaRecorder = null;
+        // NO resetear variables aquí - los chunks pueden estar en uso
+        // this.mediaRecorder = null;  // <-- NO hacer esto aquí
+        // this.recordedChunks = [];    // <-- NO hacer esto aquí
+        
+        // Solo resetear videoElement
         this.videoElement = null;
-        this.recordedChunks = [];
     }
-    
+
+
     checkOrientation() {
         if (!/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
             return false;
@@ -2112,37 +2121,53 @@ async initDatabase() {
         }
         
         try {
-            // Limpiar recursos primero
-            this.cleanupRecordingResources();
+            console.log('⏹️ Iniciando stopRecording...');
             
-            // Guardar último segmento si hay chunks
-            if (this.recordedChunks.length > 0) {
-                await this.saveVideoSegment();
+            // 1. Primero detener el MediaRecorder si está grabando
+            if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+                console.log('🎬 Deteniendo MediaRecorder...');
+                this.mediaRecorder.stop();
+                
+                // Esperar un momento para que los chunks se procesen
+                await new Promise(resolve => setTimeout(resolve, 300));
             }
             
-            // Guardar track GPX si hay puntos
+            // 2. Verificar si tenemos chunks
+            console.log('📊 Estado de chunks antes de limpiar:', {
+                chunksCount: this.recordedChunks?.length || 0,
+                chunkSizes: this.recordedChunks?.map(c => c.size) || []
+            });
+            
+            // 3. Limpiar recursos (pero NO los chunks)
+            this.cleanupRecordingResources();
+            
+            // 4. Guardar último segmento si hay chunks
+            if (this.recordedChunks && this.recordedChunks.length > 0) {
+                console.log('💾 Guardando segmento con', this.recordedChunks.length, 'chunks');
+                await this.saveVideoSegment();
+            } else {
+                console.log('⚠️ No hay chunks para guardar después de stop');
+            }
+            
+            // 5. Guardar track GPX si hay puntos
             if (this.gpxPoints.length > 0) {
                 await this.saveGPXTrack();
             }
             
-            // Si hay múltiples segmentos, preguntar sobre unión
-            if (this.state.recordedSegments.length > 1 && this.state.recordingSessionName) {
-                setTimeout(() => {
-                    this.askAboutCombining();
-                }, 1500);
-            }
-            
-            // Resetear estado
+            // 6. Resetear estado
             this.state.isRecording = false;
             this.state.isPaused = false;
             this.state.currentTime = 0;
             this.state.currentSegment = 1;
             
-            // Mostrar pantalla inicial
+            // 7. Limpiar chunks SOLO después de guardar
+            this.recordedChunks = [];
+            
+            // 8. Mostrar pantalla inicial
             this.showStartScreen();
             this.showNotification('💾 Grabación finalizada');
             
-            // Recargar galería
+            // 9. Recargar galería
             await this.loadGallery();
             
         } catch (error) {
@@ -2278,14 +2303,24 @@ async initDatabase() {
     // ============ GUARDADO DE VÍDEOS ============
 
     async saveVideoSegment() {
-        if (this.recordedChunks.length === 0) {
-            console.log('⚠️ No hay chunks para guardar');
-            return;
-        }
+        console.log('💾 INICIANDO saveVideoSegment');
+        console.log('📊 Estado inicial:', {
+            chunks: this.recordedChunks?.length || 0,
+            isSaving: this.isSaving,
+            mediaRecorder: !!this.mediaRecorder,
+            mediaRecorderState: this.mediaRecorder?.state
+        });
         
         // Prevenir múltiples guardados simultáneos
         if (this.isSaving) {
             console.log('⚠️ Ya se está guardando, ignorando...');
+            return;
+        }
+        
+        // VERIFICACIÓN CRÍTICA: Asegurar que tenemos chunks
+        if (!this.recordedChunks || this.recordedChunks.length === 0) {
+            console.error('❌ ERROR: No hay chunks para guardar');
+            this.showNotification('❌ Error: No hay video para guardar');
             return;
         }
         
@@ -2294,13 +2329,34 @@ async initDatabase() {
         try {
             console.log('💾 Guardando vídeo segmento...');
             
+            // Verificar tamaño de cada chunk
+            let totalSize = 0;
+            this.recordedChunks.forEach((chunk, i) => {
+                console.log(`📦 Chunk ${i}: ${chunk.size} bytes, type: ${chunk.type}`);
+                totalSize += chunk.size;
+            });
+            console.log(`📊 Total chunks: ${this.recordedChunks.length}, tamaño total: ${totalSize} bytes`);
+            
+            // Si el tamaño total es muy pequeño, es un video vacío
+            if (totalSize < 10240) { // 10KB mínimo
+                console.warn('⚠️ Video demasiado pequeño, posiblemente vacío');
+                this.showNotification('⚠️ Video muy corto, posible error');
+            }
+            
             const originalBlob = new Blob(this.recordedChunks, { 
                 type: this.mediaRecorder?.mimeType || 'video/webm' 
             });
             
+            console.log('📊 Blob creado:', {
+                size: originalBlob.size,
+                type: originalBlob.type,
+                chunksUsed: this.recordedChunks.length
+            });
+            
             // Verificar que el blob tenga tamaño válido
             if (originalBlob.size < 1024) {
-                console.log('⚠️ Blob demasiado pequeño, ignorando...');
+                console.error('❌ Blob demasiado pequeño, ignorando...');
+                this.showNotification('❌ Error: Video vacío');
                 return;
             }
             
@@ -2315,6 +2371,12 @@ async initDatabase() {
                 originalFormat,
                 this.gpxPoints
             );
+            
+            console.log('📊 Blob final:', {
+                size: finalBlob.size,
+                format: finalFormat,
+                duration: duration
+            });
             
             const filename = `segmento_${segmentNum}.${finalFormat}`;
             
@@ -2371,12 +2433,14 @@ async initDatabase() {
             console.log('✅ Vídeo guardado', {
                 session: this.state.recordingSessionName,
                 segment: segmentNum,
-                filename: filename
+                filename: filename,
+                size: finalBlob.size,
+                duration: duration
             });
             
         } catch (error) {
             console.error('❌ Error guardando vídeo:', error);
-            this.showNotification('❌ Error al guardar video');
+            this.showNotification('❌ Error al guardar video: ' + error.message);
         } finally {
             // Limpiar chunks después de guardar
             this.recordedChunks = [];
@@ -3332,8 +3396,8 @@ async initDatabase() {
             
             if (this.db) {
                 videos = await this.getAllFromStore('videos');
-                // Filtrar solo videos de la app
-                videos = videos.filter(v => v.location === 'app' || !v.location);
+                // FILTRADO SIMPLIFICADO: Mostrar todos los videos
+                // No filtramos por location, mostramos todos
             } else {
                 const storedVideos = localStorage.getItem('dashcam_videos');
                 if (storedVideos) {
@@ -3341,8 +3405,9 @@ async initDatabase() {
                 }
             }
             
-            console.log(`📊 ${videos.length} vídeos en app encontrados`);
+            console.log(`📊 ${videos.length} vídeos encontrados en total`);
             
+            // Ordenar por timestamp (más recientes primero)
             this.state.videos = videos.sort((a, b) => b.timestamp - a.timestamp);
             this.renderVideosList();
             
@@ -3352,6 +3417,7 @@ async initDatabase() {
             this.renderVideosList();
         }
     }
+
 
     async loadLocalFolderVideos() {
         try {
@@ -3388,34 +3454,21 @@ async initDatabase() {
         if (!container) return;
         
         console.log('🖼️ Renderizando lista de vídeos:', this.state.videos.length);
-        
+
+    
         if (this.state.videos.length === 0) {
-            let message = '';
-            let icon = '📱';
-            
-            switch(this.state.viewMode) {
-                case 'default':
-                    message = 'No hay vídeos en la app';
-                    icon = '📱';
-                    break;
-                case 'localFolder':
-                    message = 'No hay vídeos en la carpeta local';
-                    icon = '📂';
-                    break;
-            }
-            
             container.innerHTML = `
                 <div class="empty-state">
-                    <div>${icon}</div>
-                    <p>${message}</p>
-                    <p>${this.state.viewMode === 'default' ? 
-                        'Inicia una grabación para comenzar' : 
-                        'Los vídeos aparecerán aquí después de guardarlos'}</p>
+                    <div>📱</div>
+                    <p>No hay vídeos en la app</p>
+                    <p>Inicia una grabación para comenzar</p>
                 </div>
             `;
             return;
         }
-        
+
+
+
         let html = '<div class="file-list">';
         
         this.state.videos.forEach(video => {
