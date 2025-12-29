@@ -1,6 +1,6 @@
-// Dashcam PWA v4.0.5 - Versión Completa Simplificada
+// Dashcam PWA v4.0.6 - Versión Completa Simplificada
 
-const APP_VERSION = '4.0.5';
+const APP_VERSION = '4.0.6';
 
 class DashcamApp {
     constructor() {
@@ -822,6 +822,7 @@ class DashcamApp {
         try {
             if (!this.recordedChunks || this.recordedChunks.length === 0) {
                 console.warn('⚠️ No hay chunks para guardar');
+                this.isSaving = false;
                 return;
             }
             
@@ -831,6 +832,7 @@ class DashcamApp {
             
             if (originalBlob.size < 1024) {
                 console.error('❌ Blob demasiado pequeño');
+                this.isSaving = false;
                 return;
             }
             
@@ -838,20 +840,69 @@ class DashcamApp {
             const timestamp = this.state.startTime || Date.now();
             const segmentNum = this.state.currentSegment;
             
+            console.log(`💾 Guardando segmento ${segmentNum}:`, {
+                size: originalBlob.size,
+                duration: duration,
+                gpsPoints: this.gpxPoints.length,
+                format: this.state.settings.videoFormat
+            });
+            
+            // Crear sesión si es el primer segmento
+            if (this.state.recordingSessionSegments === 0 && !this.state.recordingSessionName) {
+                await this.createSessionFolder();
+            }
+            
+            // Asegurar que tenemos datos GPS
+            let gpsData = this.gpxPoints;
+            if (gpsData.length === 0 && this.currentPosition) {
+                // Si no hay puntos GPS pero tenemos posición actual, crear un punto
+                gpsData = [this.formatPosition({ 
+                    coords: {
+                        latitude: this.currentPosition.lat,
+                        longitude: this.currentPosition.lon,
+                        speed: this.currentPosition.speed,
+                        altitude: this.currentPosition.altitude,
+                        accuracy: this.currentPosition.accuracy
+                    },
+                    timestamp: Date.now()
+                })];
+                console.log('📍 Usando posición actual como único punto GPS');
+            }
+            
             // Convertir a MP4 con metadatos
-            const { blob: finalBlob, format: finalFormat } = await this.ensureMP4WithMetadata(
-                originalBlob, 
-                this.state.settings.videoFormat === 'mp4' ? 'mp4' : 'webm',
-                this.gpxPoints
-            );
+            let finalBlob = originalBlob;
+            let finalFormat = this.state.settings.videoFormat;
+            
+            if (this.state.settings.embedGpsMetadata && gpsData.length > 0) {
+                try {
+                    console.log(`📍 Agregando ${gpsData.length} puntos GPS al video...`);
+                    
+                    // Si el formato es webm, convertir a mp4 primero
+                    if (this.state.settings.videoFormat === 'mp4' || 
+                        this.state.settings.videoFormat === 'mp4' || 
+                        originalBlob.type.includes('mp4')) {
+                        
+                        finalBlob = await this.addGpsMetadataToMP4(originalBlob, gpsData);
+                        finalFormat = 'mp4';
+                        console.log('✅ Metadatos GPS agregados a MP4');
+                        
+                    } else {
+                        // Para webm, agregar metadatos al final
+                        finalBlob = await this.addMetadataToWebM(originalBlob, gpsData);
+                        finalFormat = 'webm';
+                        console.log('✅ Metadatos GPS agregados a WebM');
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Error agregando metadatos GPS:', error);
+                    finalBlob = originalBlob;
+                    finalFormat = this.state.settings.videoFormat;
+                }
+            } else {
+                console.log('ℹ️ No se agregarán metadatos GPS (configuración desactivada o sin datos)');
+            }
             
             const filename = `segmento_${segmentNum}.${finalFormat}`;
             this.state.recordingSessionSegments++;
-            
-            // Crear sesión si es el primer segmento
-            if (this.state.recordingSessionSegments === 1 && !this.state.recordingSessionName) {
-                await this.createSessionFolder();
-            }
             
             let savedPath = filename;
             let savedSuccess = false;
@@ -867,10 +918,10 @@ class DashcamApp {
             } else {
                 // Guardar en la app
                 if (this.state.recordingSessionName) {
-                    savedSuccess = await this.saveToApp(finalBlob, timestamp, duration, finalFormat, segmentNum);
+                    savedSuccess = await this.saveToApp(finalBlob, timestamp, duration, finalFormat, segmentNum, gpsData);
                     savedPath = `${this.state.recordingSessionName}/${filename}`;
                 } else {
-                    savedSuccess = await this.saveToApp(finalBlob, timestamp, duration, finalFormat, segmentNum);
+                    savedSuccess = await this.saveToApp(finalBlob, timestamp, duration, finalFormat, segmentNum, gpsData);
                 }
             }
             
@@ -886,10 +937,12 @@ class DashcamApp {
                     segment: segmentNum,
                     sessionName: this.state.recordingSessionName,
                     savedPath: savedPath,
-                    location: this.state.settings.storageLocation === 'localFolder' ? 'desktop_folder' : 'app'
+                    location: this.state.settings.storageLocation === 'localFolder' ? 'desktop_folder' : 'app',
+                    gpsPoints: gpsData.length,
+                    gpsTrack: gpsData
                 });
                 
-                this.showNotification(`✅ Segmento ${segmentNum} guardado`);
+                this.showNotification(`✅ Segmento ${segmentNum} guardado (${gpsData.length} puntos GPS)`);
                 
                 // Preguntar sobre combinar si hay varios segmentos
                 if (this.state.recordedSegments.length > 1 && this.state.recordingSessionName) {
@@ -905,6 +958,7 @@ class DashcamApp {
         } finally {
             this.recordedChunks = [];
             this.isSaving = false;
+            this.hideSavingStatus();
         }
     }
 
@@ -962,42 +1016,88 @@ class DashcamApp {
     }
 
     async addGpsMetadataToMP4(mp4Blob, gpsPoints) {
+        console.log('📍 Agregando metadatos GPS al video MP4...');
+        
         return new Promise((resolve) => {
             try {
-                console.log('📍 Agregando metadatos GPS al video...');
+                if (!gpsPoints || gpsPoints.length === 0) {
+                    console.log('⚠️ No hay puntos GPS para agregar');
+                    resolve(mp4Blob);
+                    return;
+                }
                 
+                // Preparar metadatos GPS
                 const metadata = {
+                    gpsVersion: "1.0",
+                    appVersion: APP_VERSION,
+                    created: new Date().toISOString(),
                     gpsPoints: gpsPoints.length,
                     startTime: gpsPoints[0]?.timestamp || Date.now(),
                     endTime: gpsPoints[gpsPoints.length-1]?.timestamp || Date.now(),
+                    totalDistance: 0, // Podrías calcular esto si quieres
                     track: gpsPoints.map(p => ({
-                        lat: p.lat,
-                        lon: p.lon,
-                        time: p.timestamp,
+                        lat: p.lat || p.latitude || 0,
+                        lon: p.lon || p.longitude || 0,
+                        ele: p.ele || p.altitude || 0,
                         speed: p.speed || 0,
-                        altitude: p.altitude || 0
+                        heading: p.heading || 0,
+                        accuracy: p.accuracy || 0,
+                        time: p.timestamp || Date.now(),
+                        recordTime: p.recordTime || Date.now()
                     }))
                 };
                 
-                const metadataStr = JSON.stringify(metadata);
+                // Calcular distancia total si hay más de un punto
+                if (gpsPoints.length > 1) {
+                    let totalDistance = 0;
+                    for (let i = 1; i < gpsPoints.length; i++) {
+                        const p1 = gpsPoints[i-1];
+                        const p2 = gpsPoints[i];
+                        const distance = this.calculateDistance(
+                            p1.lat || p1.latitude,
+                            p1.lon || p1.longitude,
+                            p2.lat || p2.latitude,
+                            p2.lon || p2.longitude
+                        );
+                        totalDistance += distance;
+                    }
+                    metadata.totalDistance = totalDistance;
+                }
+                
+                const metadataStr = JSON.stringify(metadata, null, 2);
+                console.log(`📝 Metadatos GPS preparados (${metadataStr.length} bytes):`, {
+                    points: gpsPoints.length,
+                    distance: metadata.totalDistance?.toFixed(2) + ' km'
+                });
+                
+                // Crear un nuevo blob con los metadatos al final
                 const metadataEncoder = new TextEncoder();
                 const metadataArray = metadataEncoder.encode(metadataStr);
                 
-                const combinedBlob = new Blob([mp4Blob, metadataArray], { 
+                // Agregar marcador para identificar metadatos
+                const marker = new TextEncoder().encode("GPXMETADATA:");
+                
+                // Combinar video + marcador + metadatos
+                const combinedParts = [
+                    mp4Blob,
+                    marker,
+                    metadataArray
+                ];
+                
+                const combinedBlob = new Blob(combinedParts, { 
                     type: 'video/mp4' 
                 });
                 
-                console.log(`✅ Metadatos GPS agregados: ${gpsPoints.length} puntos`);
+                console.log(`✅ Metadatos GPS agregados: ${gpsPoints.length} puntos, ${Math.round(combinedBlob.size / 1024 / 1024)} MB`);
                 resolve(combinedBlob);
                 
             } catch (error) {
-                console.warn('⚠️ Error agregando metadatos:', error);
+                console.warn('⚠️ Error agregando metadatos GPS:', error);
                 resolve(mp4Blob);
             }
         });
     }
-
-    async saveToApp(blob, timestamp, duration, format, segmentNum = 1) {
+    async saveToApp(blob, timestamp, duration, format, segmentNum = 1, gpsData = []) {
         try {
             const videoData = {
                 id: Date.now(),
@@ -1012,18 +1112,26 @@ class DashcamApp {
                     hour: '2-digit',
                     minute: '2-digit'
                 })} - S${segmentNum}${this.state.recordingSessionName ? ` - ${this.state.recordingSessionName}` : ''}`,
-                gpsPoints: this.gpxPoints.length,
-                gpsTrack: this.gpxPoints,
+                filename: `segmento_${segmentNum}.${format}`,
+                gpsPoints: gpsData.length,
+                gpsTrack: gpsData,
                 format: format,
                 location: 'app',
-                hasMetadata: this.state.settings.embedGpsMetadata,
+                hasMetadata: this.state.settings.embedGpsMetadata && gpsData.length > 0,
                 segment: segmentNum,
                 session: this.state.recordingSessionName
             };
             
+            console.log('📱 Guardando video en app con datos:', {
+                id: videoData.id,
+                title: videoData.title,
+                gpsPoints: videoData.gpsPoints,
+                size: Math.round(videoData.size / 1024 / 1024) + ' MB'
+            });
+            
             if (this.db) {
                 await this.saveToDatabase('videos', videoData);
-                console.log('📱 Video guardado en app con metadatos');
+                console.log('📱 Video guardado en app con metadatos GPS');
                 return true;
             } else {
                 const videos = JSON.parse(localStorage.getItem('dashcam_videos') || '[]');
@@ -1039,6 +1147,42 @@ class DashcamApp {
             console.error('❌ Error guardando en app:', error);
             return false;
         }
+    }
+
+    async addMetadataToWebM(webmBlob, gpsPoints) {
+        console.log('📍 Agregando metadatos GPS al video WebM...');
+        
+        return new Promise((resolve) => {
+            try {
+                if (!gpsPoints || gpsPoints.length === 0) {
+                    resolve(webmBlob);
+                    return;
+                }
+                
+                const metadata = {
+                    gpsPoints: gpsPoints.length,
+                    track: gpsPoints
+                };
+                
+                const metadataStr = JSON.stringify(metadata);
+                const metadataEncoder = new TextEncoder();
+                const metadataArray = metadataEncoder.encode(metadataStr);
+                
+                // Agregar marcador para WebM
+                const marker = new TextEncoder().encode("WEBM_METADATA:");
+                
+                const combinedBlob = new Blob([webmBlob, marker, metadataArray], { 
+                    type: 'video/webm' 
+                });
+                
+                console.log(`✅ Metadatos GPS agregados a WebM: ${gpsPoints.length} puntos`);
+                resolve(combinedBlob);
+                
+            } catch (error) {
+                console.warn('⚠️ Error agregando metadatos a WebM:', error);
+                resolve(webmBlob);
+            }
+        });
     }
 
     // ============ SESIONES Y CARPETAS ============
@@ -2020,39 +2164,88 @@ toggleSelection(id, type) {
 }
 
     // En loadAppVideos(), asegúrate de que los IDs de la app sean números
-    async loadAppVideos() {
-        try {
-            console.log('📱 Cargando videos de la APP...');
-            
-            let videos = [];
-            
-            if (this.db) {
-                // Obtener solo videos de la app (location: 'app' o sin location)
-                const allVideos = await this.getAllFromStore('videos');
-                videos = allVideos.filter(video => 
-                    !video.location || 
-                    video.location === 'app' || 
-                    video.location === 'default'
-                );
-            } else {
-                const storedVideos = localStorage.getItem('dashcam_videos');
-                if (storedVideos) {
-                    videos = JSON.parse(storedVideos);
-                }
+async loadAppVideos() {
+    try {
+        console.log('📱 Cargando videos de la APP...');
+        
+        let videos = [];
+        
+        if (this.db) {
+            // Obtener solo videos de la app (location: 'app' o sin location)
+            const allVideos = await this.getAllFromStore('videos');
+            videos = allVideos.filter(video => 
+                !video.location || 
+                video.location === 'app' || 
+                video.location === 'default'
+            );
+        } else {
+            const storedVideos = localStorage.getItem('dashcam_videos');
+            if (storedVideos) {
+                videos = JSON.parse(storedVideos);
             }
-            
-            // Filtrar para asegurar que tienen blob
-            this.state.videos = videos
-                .filter(video => video.blob || video.dataUrl)
-                .sort((a, b) => b.timestamp - a.timestamp);
-                
-            console.log(`✅ ${this.state.videos.length} videos cargados de la APP`);
-            
-        } catch (error) {
-            console.error('❌ Error cargando vídeos de app:', error);
-            this.state.videos = [];
         }
+        
+        // Asegurar que los IDs sean números y tengan todos los campos necesarios
+        videos = videos.map(video => ({
+            ...video,
+            id: Number(video.id) || Date.now() + Math.random(), // Convertir a número o crear ID único
+            // Asegurar que siempre tenga título
+            title: video.title || `Grabación ${new Date(video.timestamp || Date.now()).toLocaleString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            })}${video.segment ? ` - S${video.segment}` : ''}${video.sessionName ? ` - ${video.sessionName}` : ''}`,
+            // Asegurar que siempre tenga filename
+            filename: video.filename || `grabacion_${video.timestamp || Date.now()}.${video.format || 'mp4'}`,
+            // Asegurar que tenga formato
+            format: video.format || 'mp4',
+            // Asegurar que tenga ubicación
+            location: video.location || 'app',
+            // Asegurar que tenga tamaño
+            size: video.size || (video.blob ? video.blob.size : 0),
+            // Asegurar que tenga duración
+            duration: video.duration || 0,
+            // Asegurar que tenga puntos GPS
+            gpsPoints: video.gpsPoints || 0,
+            // Asegurar que tenga track GPS
+            gpsTrack: video.gpsTrack || []
+        }));
+        
+        // Filtrar para asegurar que tienen blob o dataUrl
+        this.state.videos = videos
+            .filter(video => {
+                const hasData = video.blob || video.dataUrl;
+                if (!hasData) {
+                    console.warn('⚠️ Video sin datos eliminado:', video.id, video.title);
+                }
+                return hasData;
+            })
+            .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        
+        console.log(`✅ ${this.state.videos.length} videos cargados de la APP`);
+        
+        // DEBUG: Mostrar información de depuración
+        console.log('📊 Detalles de videos cargados:');
+        this.state.videos.forEach((video, index) => {
+            console.log(`🎬 Video ${index}:`, {
+                id: video.id,
+                title: video.title?.substring(0, 50) + (video.title?.length > 50 ? '...' : ''),
+                filename: video.filename,
+                hasBlob: !!video.blob,
+                size: video.size ? `${Math.round(video.size / (1024 * 1024))} MB` : '0 MB',
+                location: video.location
+            });
+        });
+        
+    } catch (error) {
+        console.error('❌ Error cargando vídeos de app:', error);
+        this.state.videos = [];
+        this.showNotification('❌ Error al cargar videos de la app');
     }
+}
+
 
     async loadLocalFolderVideos() {
         try {
@@ -2241,7 +2434,33 @@ toggleSelection(id, type) {
         if (!container) return;
         
         if (this.state.videos.length === 0) {
-            // ... código del estado vacío ...
+            let message = 'No hay vídeos en esta ubicación';
+            let submessage = '';
+            
+            if (this.state.viewMode === 'default') {
+                submessage = 'Inicia una grabación para comenzar';
+            } else if (this.state.viewMode === 'localFolder') {
+                if (!this.localFolderHandle) {
+                    message = 'No hay carpeta local seleccionada';
+                    submessage = 'Haz clic en "Elegir carpeta" en Configuración';
+                } else {
+                    message = 'No hay vídeos en la carpeta local';
+                    submessage = 'Mueve videos aquí desde la app o graba directamente';
+                }
+            }
+            
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div>📁</div>
+                    <p>${message}</p>
+                    <p>${submessage}</p>
+                    ${this.state.viewMode === 'localFolder' && !this.localFolderHandle ? `
+                        <button class="btn open-btn" onclick="dashcamApp.showSettings()" style="margin-top: 15px;">
+                            ⚙️ Ir a Configuración
+                        </button>
+                    ` : ''}
+                </div>
+            `;
             return;
         }
         
@@ -2256,6 +2475,7 @@ toggleSelection(id, type) {
             const location = video.location || 'app';
             const format = video.format || 'mp4';
             const segment = video.segment || 1;
+            const normalizedId = this.normalizeId(video.id);
             
             // Determinar icono y texto según ubicación real
             let locationIcon, locationText, locationClass;
@@ -2274,17 +2494,15 @@ toggleSelection(id, type) {
                 locationClass = 'app-file';
             }
             
-            // ¡¡¡CUIDADO CON LA SINTAXIS AQUÍ!!!
-            // Asegúrate de que las comillas estén correctamente cerradas
             html += `
-                <div class="file-item video-file ${locationClass} ${this.state.selectedVideos.has(video.id) ? 'selected' : ''}" 
+                <div class="file-item video-file ${locationClass} ${this.state.selectedVideos.has(normalizedId) ? 'selected' : ''}" 
                     data-id="${video.id}" 
                     data-type="video"
                     data-location="${location}"
                     data-format="${format}"
                     data-source="${video.source || 'app'}">
                     <div class="file-header">
-                        <div class="file-title">${video.title || video.filename || 'Grabación'}</div>
+                        <div class="file-title">${this.escapeHTML(video.title || video.filename || 'Grabación')}</div>
                         <div class="file-location" title="${locationText}">${locationIcon}</div>
                         <div class="file-format" data-format="${format}">${format.toUpperCase()}</div>
                         <div class="file-time">${timeStr}</div>
@@ -2299,7 +2517,7 @@ toggleSelection(id, type) {
                     </div>
                     <div class="file-footer">
                         <div class="file-checkbox">
-                            <input type="checkbox" ${this.state.selectedVideos.has(video.id) ? 'checked' : ''}>
+                            <input type="checkbox" ${this.state.selectedVideos.has(normalizedId) ? 'checked' : ''}>
                             <span>Seleccionar</span>
                         </div>
                         <button class="play-btn" data-id="${video.id}" title="Reproducir ${locationText}">
@@ -2325,34 +2543,39 @@ toggleSelection(id, type) {
         const container = this.elements.videosList;
         if (!container) return;
         
+        console.log('🔄 Configurando eventos para', container.querySelectorAll('.file-item').length, 'videos');
+        
         container.querySelectorAll('.file-item').forEach(item => {
+            // Click en el item (excepto en botones y checkboxes)
             item.addEventListener('click', (e) => {
                 if (!e.target.closest('.play-btn') && !(e.target.type === 'checkbox')) {
-                    const id = item.dataset.id; // No convertir a parseInt
+                    const id = item.dataset.id;
                     this.toggleSelection(id, 'video');
                 }
             });
             
+            // Checkbox
             const checkbox = item.querySelector('input[type="checkbox"]');
             if (checkbox) {
                 checkbox.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    const id = item.dataset.id; // No convertir a parseInt
+                    const id = item.dataset.id;
                     this.toggleSelection(id, 'video');
                 });
             }
             
+            // Botón de reproducir
             const playBtn = item.querySelector('.play-btn');
             if (playBtn) {
                 playBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     e.preventDefault();
                     
-                    const id = item.dataset.id; // No convertir a parseInt
+                    const id = item.dataset.id;
                     console.log('▶️ Clic en botón reproducir, ID:', id, 'Tipo:', typeof id);
                     
-                    // Verificar que el video existe en la lista actual
-                    const video = this.state.videos.find(v => v.id === id); // Usar ===
+                    // Buscar video en el estado
+                    const video = this.findVideoInState(id);
                     if (video) {
                         console.log('✅ Video encontrado en estado, reproduciendo...');
                         this.playVideoFromCurrentLocation(id);
@@ -2366,7 +2589,59 @@ toggleSelection(id, type) {
             }
         });
     }
-
+    // Añade esta función para buscar videos correctamente
+    findVideoInState(id) {
+        console.log('🔍 Buscando video en estado con ID:', id, 'Tipo:', typeof id);
+        console.log('📊 Videos disponibles:', this.state.videos.length);
+        
+        if (!id) {
+            console.error('❌ ID vacío recibido');
+            return null;
+        }
+        
+        // Normalizar ID
+        const normalizedSearchId = this.normalizeId(id);
+        console.log('🔍 ID normalizado para búsqueda:', normalizedSearchId);
+        
+        // Primero buscar por ID exacto
+        let video = this.state.videos.find(v => {
+            const videoId = this.normalizeId(v.id);
+            return videoId === normalizedSearchId;
+        });
+        
+        if (!video) {
+            // Buscar por comparación flexible
+            video = this.state.videos.find(v => {
+                const videoId = this.normalizeId(v.id);
+                return videoId == normalizedSearchId; // Comparación con == para tipos diferentes
+            });
+        }
+        
+        if (!video) {
+            // Buscar por ID string en número
+            const numId = Number(id);
+            if (!isNaN(numId)) {
+                video = this.state.videos.find(v => {
+                    const videoId = this.normalizeId(v.id);
+                    return videoId === numId;
+                });
+            }
+        }
+        
+        if (video) {
+            console.log('✅ Video encontrado:', {
+                id: video.id,
+                filename: video.filename,
+                title: video.title,
+                hasBlob: !!video.blob
+            });
+        } else {
+            console.error('❌ Video NO encontrado');
+            console.error('IDs disponibles:', this.state.videos.map(v => ({id: v.id, filename: v.filename})));
+        }
+        
+        return video;
+    }
 
     async playVideoFromCurrentLocation(videoId) {
         try {
@@ -2374,70 +2649,49 @@ toggleSelection(id, type) {
             console.log('📊 Videos disponibles en estado:', this.state.videos.length);
             console.log('ID recibido:', videoId, 'Tipo:', typeof videoId);
             
-            let video;
+            // Buscar video usando la función mejorada
+            const video = this.findVideoInState(videoId);
             
-            if (this.state.viewMode === 'default') {
-                // Para videos de la app, convertir a número si es necesario
-                const idToSearch = typeof videoId === 'string' && videoId.startsWith('local_') ? 
-                    videoId : parseInt(videoId);
-                video = await this.getFromStore('videos', idToSearch);
+            if (!video) {
+                console.error('❌ Video no encontrado en estado actual');
                 
-                if (!video) {
-                    this.showNotification('❌ Video no encontrado en la app');
-                    return;
-                }
-                
-            } else if (this.state.viewMode === 'localFolder') {
-                console.log('📂 Buscando video local con ID:', videoId);
-                console.log('📂 Lista de videos locales:', this.state.videos.map(v => ({id: v.id, filename: v.filename})));
-                
-                // Buscar en la lista actual de videos locales (ya escaneados)
-                video = this.state.videos.find(v => {
-                    console.log(`🔍 Comparando: "${v.id}" === "${videoId}" -> ${v.id === videoId}`);
-                    return v.id === videoId; // Comparación estricta
-                });
-                
-                if (!video) {
-                    console.error('❌ Video no encontrado en la lista local');
-                    console.error('ID buscado:', videoId);
-                    console.error('IDs disponibles:', this.state.videos.map(v => v.id));
-                    this.showNotification('❌ Video no encontrado en carpeta local');
-                    return;
-                }
-                
-                console.log('✅ Video encontrado:', video.filename);
-                
-                // Si es un archivo del sistema de archivos, obtener el blob
-                if (video.source === 'filesystem' && video.fileHandle) {
-                    try {
-                        console.log('📄 Obteniendo archivo físico...');
-                        const file = await video.fileHandle.getFile();
-                        video.blob = file;
-                        console.log('✅ Archivo físico obtenido:', file.size, 'bytes');
-                    } catch (error) {
-                        console.error('❌ Error obteniendo archivo físico:', error);
-                        this.showNotification('❌ Error al abrir archivo');
+                // Intentar cargar desde la base de datos si es modo "default"
+                if (this.state.viewMode === 'default' && this.db) {
+                    console.log('📱 Intentando cargar desde base de datos...');
+                    const idToSearch = this.normalizeId(videoId);
+                    const dbVideo = await this.getFromStore('videos', idToSearch);
+                    
+                    if (dbVideo) {
+                        // Asegurar que tenga título y filename
+                        dbVideo.title = dbVideo.title || `Grabación ${new Date(dbVideo.timestamp).toLocaleString('es-ES')}`;
+                        dbVideo.filename = dbVideo.filename || `grabacion_${dbVideo.id}.mp4`;
+                        
+                        // Llamar a playVideo con el video de la BD
+                        await this.playVideo(dbVideo);
                         return;
                     }
-                } else if (video.blob) {
-                    console.log('✅ Video ya tiene blob:', video.blob.size, 'bytes');
-                } else {
-                    console.error('❌ Video sin blob y sin fileHandle');
-                    this.showNotification('❌ Video no disponible para reproducción');
-                    return;
                 }
-            }
-            
-            if (!video || !video.blob) {
-                console.error('❌ Video o blob no disponible');
-                console.error('Video:', video);
-                console.error('Tiene blob:', video?.blob);
+                
                 this.showNotification('❌ Video no disponible');
                 return;
             }
             
-            console.log('✅ Continuando con reproducción normal...');
-            // Llamar a la función de reproducción normal
+            // Verificar que el video tenga los datos mínimos necesarios
+            if (!video.blob) {
+                console.error('❌ Video no tiene blob');
+                this.showNotification('❌ Video dañado o no disponible');
+                return;
+            }
+            
+            // Asegurar título y filename
+            if (!video.title) {
+                video.title = `Grabación ${new Date(video.timestamp).toLocaleString('es-ES')}`;
+            }
+            if (!video.filename) {
+                video.filename = `grabacion_${video.id}.${video.format || 'mp4'}`;
+            }
+            
+            console.log('✅ Video válido encontrado, reproduciendo...');
             await this.playVideo(video);
             
         } catch (error) {
@@ -2446,9 +2700,23 @@ toggleSelection(id, type) {
         }
     }
 
+    // Función helper para identificar IDs locales
+    isLocalId(id) {
+        return typeof id === 'string' && id.startsWith('local_');
+    }
+
     async playVideo(video) {
         try {
-            console.log('🎬 Reproduciendo video:', video.filename);
+            console.log('🎬 Reproduciendo video:', video);
+            console.log('🎬 Nombre del video:', video.filename);
+            console.log('🎬 ID del video:', video.id);
+            
+            if (!video || !video.blob) {
+                console.error('❌ Video o blob inválido en playVideo');
+                console.error('Video:', video);
+                this.showNotification('❌ Video no disponible para reproducción');
+                return;
+            }
             
             // EXTRAER METADATOS GPS DEL MP4 si es necesario
             if (!video.gpsTrack || video.gpsTrack.length === 0) {
@@ -2613,35 +2881,40 @@ toggleSelection(id, type) {
             // Si ya tiene datos GPS, no hacer nada
             if (video.gpsTrack && video.gpsTrack.length > 0) {
                 console.log('✅ Video ya tiene datos GPS');
-                return;
+                return video.gpsTrack;
             }
             
-            // Crear un FileReader para leer el blob
+            if (!video.blob) {
+                console.log('⚠️ Video no tiene blob para extraer metadatos');
+                return [];
+            }
+            
+            // Leer el blob como texto para buscar metadatos
             const reader = new FileReader();
             
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 reader.onload = (event) => {
                     try {
                         const arrayBuffer = event.target.result;
-                        const dataView = new DataView(arrayBuffer);
                         
-                        // Buscar metadatos GPS al final del archivo (los agregamos al final)
-                        // Los metadatos están en JSON después del contenido MP4
-                        const decoder = new TextDecoder('utf-8');
-                        const tailSize = Math.min(10000, arrayBuffer.byteLength); // Últimos 10KB
+                        // Convertir a texto para buscar JSON
+                        const textDecoder = new TextDecoder('utf-8');
+                        const tailSize = Math.min(100000, arrayBuffer.byteLength); // Últimos 100KB
                         const tailStart = arrayBuffer.byteLength - tailSize;
                         const tailData = new Uint8Array(arrayBuffer, tailStart, tailSize);
-                        const tailText = decoder.decode(tailData);
+                        const tailText = textDecoder.decode(tailData);
                         
-                        // Buscar JSON en el texto
-                        const jsonStart = tailText.indexOf('{"gpsPoints":');
-                        if (jsonStart !== -1) {
+                        console.log('🔍 Buscando metadatos GPS en el video...');
+                        
+                        // Buscar marcador de metadatos
+                        const markerIndex = tailText.lastIndexOf('GPXMETADATA:');
+                        if (markerIndex !== -1) {
+                            const jsonStart = markerIndex + 'GPXMETADATA:'.length;
                             const jsonText = tailText.substring(jsonStart);
-                            const jsonEnd = jsonText.indexOf('}') + 1;
-                            const jsonStr = jsonText.substring(0, jsonEnd);
                             
+                            // Intentar parsear como JSON
                             try {
-                                const metadata = JSON.parse(jsonStr);
+                                const metadata = JSON.parse(jsonText);
                                 console.log('✅ Metadatos GPS encontrados:', metadata.gpsPoints, 'puntos');
                                 
                                 // Actualizar video con los metadatos extraídos
@@ -2653,38 +2926,62 @@ toggleSelection(id, type) {
                                     this.addLocationNamesToTrack(video.gpsTrack);
                                 }
                                 
-                                resolve(metadata);
+                                resolve(video.gpsTrack);
+                                return;
                                 
                             } catch (jsonError) {
                                 console.warn('⚠️ Error parseando metadatos JSON:', jsonError);
-                                resolve(null);
                             }
-                        } else {
-                            console.log('ℹ️ No se encontraron metadatos GPS en el video');
-                            resolve(null);
                         }
+                        
+                        // También buscar marcador WebM
+                        const webmMarkerIndex = tailText.lastIndexOf('WEBM_METADATA:');
+                        if (webmMarkerIndex !== -1) {
+                            const jsonStart = webmMarkerIndex + 'WEBM_METADATA:'.length;
+                            const jsonText = tailText.substring(jsonStart);
+                            
+                            try {
+                                const metadata = JSON.parse(jsonText);
+                                console.log('✅ Metadatos GPS encontrados en WebM:', metadata.gpsPoints, 'puntos');
+                                
+                                video.gpsTrack = metadata.track || [];
+                                video.gpsPoints = metadata.gpsPoints || 0;
+                                
+                                if (video.gpsTrack.length > 0) {
+                                    this.addLocationNamesToTrack(video.gpsTrack);
+                                }
+                                
+                                resolve(video.gpsTrack);
+                                return;
+                                
+                            } catch (jsonError) {
+                                console.warn('⚠️ Error parseando metadatos WebM JSON:', jsonError);
+                            }
+                        }
+                        
+                        console.log('ℹ️ No se encontraron metadatos GPS en el video');
+                        resolve([]);
+                        
                     } catch (error) {
                         console.warn('⚠️ Error procesando metadatos:', error);
-                        resolve(null);
+                        resolve([]);
                     }
                 };
                 
                 reader.onerror = () => {
                     console.warn('⚠️ Error leyendo archivo para extraer metadatos');
-                    resolve(null);
+                    resolve([]);
                 };
                 
-                // Leer solo los últimos 100KB para eficiencia
-                const slice = video.blob.slice(-100000); // Últimos 100KB
-                reader.readAsArrayBuffer(slice);
+                // Leer todo el archivo (los metadatos están al final)
+                reader.readAsArrayBuffer(video.blob);
             });
             
         } catch (error) {
             console.error('❌ Error en extractGPSMetadataFromMP4:', error);
-            return null;
+            return [];
         }
     }
-
     // FUNCIÓN PARA AÑADIR NOMBRES DE UBICACIÓN:
 
     async addLocationNamesToTrack(gpsTrack) {
@@ -3235,22 +3532,108 @@ toggleSelection(id, type) {
     // ============ SELECCIÓN Y ACCIONES ============
 
     toggleSelection(id, type) {
+        // Normalizar ID (convertir a número si es posible)
+        const normalizedId = this.normalizeId(id);
+        
         if (type === 'video') {
-            if (this.state.selectedVideos.has(id)) {
-                this.state.selectedVideos.delete(id);
+            if (this.state.selectedVideos.has(normalizedId)) {
+                this.state.selectedVideos.delete(normalizedId);
             } else {
-                this.state.selectedVideos.add(id);
+                this.state.selectedVideos.add(normalizedId);
             }
             this.renderVideosList();
         } else if (type === 'gpx') {
-            if (this.state.selectedGPX.has(id)) {
-                this.state.selectedGPX.delete(id);
+            if (this.state.selectedGPX.has(normalizedId)) {
+                this.state.selectedGPX.delete(normalizedId);
             } else {
-                this.state.selectedGPX.add(id);
+                this.state.selectedGPX.add(normalizedId);
             }
         }
         
         this.updateGalleryActions();
+    }
+
+    // Añade esta función helper
+// ============ FUNCIONES HELPER PARA HTML ============
+
+    // Función para normalizar IDs (números vs strings)
+    normalizeId(id) {
+        if (id === null || id === undefined) {
+            return null;
+        }
+        
+        // Si es un ID local (string que empieza con "local_"), mantenerlo como string
+        if (typeof id === 'string') {
+            if (id.startsWith('local_')) {
+                return id;
+            }
+            // Si es un string numérico, convertirlo
+            const numId = Number(id);
+            return isNaN(numId) ? id : numId;
+        }
+        
+        // Si es número, mantenerlo
+        if (typeof id === 'number') {
+            return id;
+        }
+        
+        // Para cualquier otro tipo, intentar convertir a string
+        return String(id);
+    }
+
+    // Función para escapar HTML y prevenir inyección XSS
+    escapeHTML(text) {
+        if (text === null || text === undefined) {
+            return '';
+        }
+        
+        // Convertir a string si no lo es
+        const str = String(text);
+        
+        // Reemplazar caracteres especiales
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    // Función para buscar videos en el estado
+    findVideoInState(id) {
+        console.log('🔍 Buscando video en estado con ID:', id);
+        console.log('📊 Videos en estado:', this.state.videos.length);
+        
+        // Normalizar el ID de búsqueda
+        const normalizedSearchId = this.normalizeId(id);
+        console.log('🔍 ID normalizado para búsqueda:', normalizedSearchId);
+        
+        // Primero buscar coincidencia exacta
+        let video = this.state.videos.find(v => {
+            const normalizedVideoId = this.normalizeId(v.id);
+            const found = normalizedVideoId === normalizedSearchId;
+            console.log(`🔍 Comparando "${normalizedVideoId}" === "${normalizedSearchId}" -> ${found}`);
+            return found;
+        });
+        
+        if (!video) {
+            console.log('🔍 No encontrado con ===, intentando con ==');
+            // Si no se encuentra, intentar comparación flexible
+            video = this.state.videos.find(v => {
+                const normalizedVideoId = this.normalizeId(v.id);
+                const found = normalizedVideoId == normalizedSearchId;
+                console.log(`🔍 Comparando "${normalizedVideoId}" == "${normalizedSearchId}" -> ${found}`);
+                return found;
+            });
+        }
+        
+        if (video) {
+            console.log('✅ Video encontrado en estado:', video.filename);
+        } else {
+            console.log('❌ Video NO encontrado en estado');
+        }
+        
+        return video;
     }
 
     selectAll(type) {
