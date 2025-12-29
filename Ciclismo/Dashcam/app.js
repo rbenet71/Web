@@ -1,6 +1,6 @@
-// Dashcam PWA v4.0.8 - Versión Completa Simplificada
+// Dashcam PWA v4.0.9 - Versión Completa Simplificada
 
-const APP_VERSION = '4.0.8';
+const APP_VERSION = '4.0.9';
 
 class DashcamApp {
     constructor() {
@@ -2935,24 +2935,24 @@ class DashcamApp {
         }
     }
 
-toggleSelection(id, type) {
-    if (type === 'video') {
-        if (this.state.selectedVideos.has(id)) {
-            this.state.selectedVideos.delete(id);
-        } else {
-            this.state.selectedVideos.add(id);
+    toggleSelection(id, type) {
+        if (type === 'video') {
+            if (this.state.selectedVideos.has(id)) {
+                this.state.selectedVideos.delete(id);
+            } else {
+                this.state.selectedVideos.add(id);
+            }
+            this.renderVideosList();
+        } else if (type === 'gpx') {
+            if (this.state.selectedGPX.has(id)) {
+                this.state.selectedGPX.delete(id);
+            } else {
+                this.state.selectedGPX.add(id);
+            }
         }
-        this.renderVideosList();
-    } else if (type === 'gpx') {
-        if (this.state.selectedGPX.has(id)) {
-            this.state.selectedGPX.delete(id);
-        } else {
-            this.state.selectedGPX.add(id);
-        }
+        
+        this.updateGalleryActions();
     }
-    
-    this.updateGalleryActions();
-}
 
     // En loadAppVideos(), asegúrate de que los IDs de la app sean números
     async loadAppVideos() {
@@ -3038,67 +3038,84 @@ toggleSelection(id, type) {
     }
 
 
-        async loadLocalFolderVideos() {
-            try {
-                console.log('📂 Cargando videos de carpeta LOCAL (solo archivos físicos)...');
+    async loadLocalFolderVideos() {
+        try {
+            console.log('📂 Cargando videos de carpeta LOCAL...');
+            
+            let videos = [];
+            
+            if (this.localFolderHandle) {
+                videos = await this.scanLocalFolderForVideos();
                 
-                let videos = [];
-                
-                // ESCANEAR CARPETA FÍSICA REALMENTE - NO usar base de datos
-                if (this.localFolderHandle) {
-                    videos = await this.scanLocalFolderForVideos();
-                    
-                    if (videos.length === 0) {
-                        console.log('📂 No se encontraron videos físicos en la carpeta');
-                    }
-                } else {
-                    console.log('⚠️ No hay carpeta local seleccionada');
-                    
-                    // Mostrar mensaje para que el usuario seleccione una carpeta
+                if (videos.length === 0) {
+                    console.log('📂 No se encontraron videos en la carpeta');
                     this.state.videos = [];
                     this.renderVideosList();
                     
-                    // Mostrar notificación
-                    this.showNotification('📂 Selecciona una carpeta local primero');
+                    // Mostrar estado vacío
+                    this.showNotification('📂 No hay videos en la carpeta local');
                     return;
                 }
                 
-                // Filtrar para asegurar que tienen blob
-                this.state.videos = videos
-                    .filter(video => video.blob)
-                    .map(video => this.enhanceLocalVideoData(video)) // Mejorar datos del video
-                    .sort((a, b) => b.timestamp - a.timestamp);
-                    
-                console.log(`✅ ${this.state.videos.length} videos físicos encontrados en carpeta LOCAL`);
+                // Extraer duración para videos que no la tienen
+                console.log('⏱️ Extrayendo duraciones para videos locales...');
+                const enhancedVideos = [];
                 
-                // DEPURACIÓN: Mostrar detalles de los videos cargados
-                console.log('📊 Detalles de videos locales cargados:');
-                this.state.videos.forEach((video, index) => {
-                    console.log(`🎬 Video local ${index}:`, {
-                        id: video.id,
-                        filename: video.filename,
-                        title: video.title?.substring(0, 50) + (video.title?.length > 50 ? '...' : ''),
-                        size: video.size ? `${Math.round(video.size / (1024 * 1024))} MB` : '0 MB',
-                        hasGps: !!video.gpsTrack?.length,
-                        gpsPoints: video.gpsPoints || 0,
-                        isPhysical: video.isPhysical
-                    });
-                });
-                
-                // Verificar y migrar videos iOS si es necesario
-                if (this.state.videos.length > 0) {
-                    await this.checkAndMigrateIOSVideos();
+                for (const video of videos) {
+                    if (!video.hasDuration || video.duration === 0) {
+                        const enhancedVideo = await this.extractAndSetVideoDuration(video);
+                        enhancedVideos.push(enhancedVideo);
+                    } else {
+                        enhancedVideos.push(video);
+                    }
                 }
                 
-            } catch (error) {
-                console.error('❌ Error cargando vídeos de carpeta:', error);
+                videos = enhancedVideos;
+                
+            } else {
+                console.log('⚠️ No hay carpeta local seleccionada');
                 this.state.videos = [];
-                this.showNotification('❌ Error al cargar carpeta local');
+                this.renderVideosList();
+                
+                this.showNotification('📂 Selecciona una carpeta local primero');
+                return;
             }
+            
+            // Filtrar y mejorar datos
+            this.state.videos = videos
+                .filter(video => video.blob)
+                .map(video => this.enhanceLocalVideoData(video))
+                .sort((a, b) => b.timestamp - a.timestamp);
+                
+            console.log(`✅ ${this.state.videos.length} videos cargados de carpeta LOCAL`);
+            
+            // Mostrar información de duración
+            const videosWithDuration = this.state.videos.filter(v => v.duration > 0).length;
+            console.log(`📊 ${videosWithDuration}/${this.state.videos.length} videos tienen duración válida`);
+            
+            this.renderVideosList();
+            
+        } catch (error) {
+            console.error('❌ Error cargando vídeos de carpeta:', error);
+            this.state.videos = [];
+            this.renderVideosList();
+            this.showNotification('❌ Error al cargar carpeta local');
         }
-
-        enhanceLocalVideoData(video) {
+    }
+        
+    enhanceLocalVideoData(video) {
         if (!video) return video;
+        
+        // Asegurar que tenga duración
+        let finalDuration = video.duration || 0;
+        
+        // Si no tiene duración pero tiene blob, intentar extraerla
+        if (finalDuration === 0 && video.blob) {
+            console.log(`🔄 Intentando extraer duración para: ${video.filename}`);
+            
+            // Esto se hará de manera asíncrona, así que por ahora dejamos 0
+            // La duración real se extraerá cuando sea necesario
+        }
         
         // Crear ID único si no existe
         if (!video.id || video.id === 'undefined') {
@@ -3108,49 +3125,45 @@ toggleSelection(id, type) {
         // Asegurar campos esenciales
         return {
             ...video,
+            duration: finalDuration, // Asegurar duración
+            
             // Asegurar título
             title: video.title || 
                 (video.session ? `${video.session}/${video.filename}` : video.filename) || 
                 `Grabación ${new Date(video.timestamp || video.lastModified || Date.now()).toLocaleString('es-ES')}`,
             
-            // Asegurar filename
-            filename: video.filename || `video_${video.id}.${video.format || 'mp4'}`,
-            
-            // Asegurar formato
-            format: video.format || 
-                    (video.filename ? video.filename.split('.').pop().toLowerCase() : 'mp4') ||
-                    (video.blob?.type.includes('mp4') ? 'mp4' : 'webm'),
-            
-            // Asegurar ubicación
-            location: video.location || 'localFolder',
-            
-            // Asegurar tamaño
-            size: video.size || (video.blob ? video.blob.size : 0),
-            
-            // Asegurar timestamp
-            timestamp: video.timestamp || video.lastModified || Date.now(),
-            
-            // Asegurar duración (si no existe, intentar extraer del blob)
-            duration: video.duration || 0,
-            
-            // Asegurar puntos GPS (intentar extraer si no existen)
-            gpsPoints: video.gpsPoints || 0,
-            
-            // Asegurar track GPS
-            gpsTrack: video.gpsTrack || [],
-            
-            // Marcar como archivo físico
-            isPhysical: true,
-            
-            // Marcar fuente
-            source: video.source || 'filesystem',
-            
-            // Preservar fileHandle si existe
-            fileHandle: video.fileHandle,
-            
-            // Preservar session si existe
-            session: video.session
+            // ... resto del código existente
         };
+    }
+
+    async extractAndSetVideoDuration(video) {
+        try {
+            if (!video || !video.blob) return video;
+            
+            // Si ya tiene duración, no hacer nada
+            if (video.duration && video.duration > 0) {
+                return video;
+            }
+            
+            console.log(`⏱️ Extrayendo duración para video local: ${video.filename}`);
+            
+            // Extraer duración
+            const duration = await this.extractVideoDuration(video.blob);
+            
+            // Actualizar video
+            video.duration = duration;
+            video.hasDuration = duration > 0;
+            
+            console.log(`✅ Duración establecida: ${this.formatTime(duration)}`);
+            
+            return video;
+            
+        } catch (error) {
+            console.warn(`⚠️ Error extrayendo duración para ${video.filename}:`, error);
+            video.duration = 0;
+            video.hasDuration = false;
+            return video;
+        }
     }
 
     async scanLocalFolderForVideos() {
@@ -3163,7 +3176,7 @@ toggleSelection(id, type) {
                 return [];
             }
             
-            // Verificar que realmente tenemos acceso
+            // Verificar que tenemos acceso
             try {
                 const permission = await this.localFolderHandle.requestPermission({ mode: 'readwrite' });
                 if (permission !== 'granted') {
@@ -3173,12 +3186,12 @@ toggleSelection(id, type) {
                 }
             } catch (error) {
                 console.warn('⚠️ No se pudo verificar permiso:', error);
-                // Continuar de todos modos
             }
             
             // Leer todos los archivos de la carpeta
             console.log('📂 Leyendo contenido de la carpeta...');
-            const entries = [];
+            let entries = []; // DECLARAR LA VARIABLE AQUÍ FUERA DEL try-catch
+            
             try {
                 for await (const entry of this.localFolderHandle.values()) {
                     entries.push(entry);
@@ -3197,48 +3210,56 @@ toggleSelection(id, type) {
                 if (entry.kind === 'file') {
                     const fileName = entry.name.toLowerCase();
                     
-                    // Buscar videos y archivos GPX
-                    if (fileName.endsWith('.mp4') || fileName.endsWith('.webm') || 
-                        fileName.endsWith('.gpx') || fileName.endsWith('.xml')) {
+                    if (fileName.endsWith('.mp4') || fileName.endsWith('.webm')) {
+                        console.log(`🎬 Procesando video: ${entry.name}`);
                         
                         try {
                             const file = await entry.getFile();
                             
-                            // Para videos
-                            if (fileName.endsWith('.mp4') || fileName.endsWith('.webm')) {
-                                // Crear ID único como STRING
-                                const uniqueId = `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-                                
-                                const video = {
-                                    id: uniqueId,
-                                    filename: entry.name,
-                                    title: entry.name.replace(/\.[^/.]+$/, ''), // Remover extensión
-                                    timestamp: file.lastModified,
-                                    size: file.size,
-                                    location: 'localFolder',
-                                    source: 'filesystem',
-                                    fileHandle: entry,
-                                    blob: file,
-                                    format: fileName.endsWith('.mp4') ? 'mp4' : 'webm',
-                                    isPhysical: true,
-                                    lastModified: file.lastModified
-                                };
-                                
-                                videos.push(video);
-                                console.log(`🎬 Video físico encontrado: ${entry.name} (${Math.round(file.size / 1024 / 1024)} MB)`);
+                            // Extraer duración del video
+                            let duration = await this.extractVideoDuration(file);
+                            
+                            // Si la duración es 0, inválida o Infinity
+                            if (!duration || !isFinite(duration) || duration === Infinity || duration === 0) {
+                                console.log('🔄 Duración inválida, usando estimación por tamaño...');
+                                duration = this.estimateDurationByFileSize(
+                                    file.size, 
+                                    fileName.endsWith('.mp4') ? 'mp4' : 'webm'
+                                );
                             }
                             
-                            // Para archivos GPX (opcional: puedes procesarlos también)
-                            else if (fileName.endsWith('.gpx') || fileName.endsWith('.xml')) {
-                                console.log(`🗺️ Archivo GPX encontrado: ${entry.name} (${Math.round(file.size / 1024)} KB)`);
-                                // Podrías procesar GPX aquí si quieres
+                            // Verificar que la duración sea válida
+                            if (!isFinite(duration) || duration === Infinity || duration < 0) {
+                                duration = 0;
                             }
+                            
+                            // Crear ID único como STRING
+                            const uniqueId = `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                            
+                            const video = {
+                                id: uniqueId,
+                                filename: entry.name,
+                                title: entry.name.replace(/\.[^/.]+$/, ''), // Remover extensión
+                                timestamp: file.lastModified,
+                                size: file.size,
+                                duration: duration,
+                                location: 'localFolder',
+                                source: 'filesystem',
+                                fileHandle: entry,
+                                blob: file,
+                                format: fileName.endsWith('.mp4') ? 'mp4' : 'webm',
+                                isPhysical: true,
+                                lastModified: file.lastModified,
+                                hasDuration: duration > 0
+                            };
+                            
+                            console.log(`✅ Video procesado: ${entry.name} - ${Math.round(file.size / 1024 / 1024)} MB - ${this.formatTime(duration)}`);
+                            
+                            videos.push(video);
                             
                         } catch (error) {
-                            console.warn(`⚠️ Error leyendo archivo ${entry.name}:`, error);
+                            console.warn(`⚠️ Error procesando archivo ${entry.name}:`, error);
                         }
-                    } else {
-                        console.log(`📄 Archivo no video/GPX: ${entry.name}`);
                     }
                 } else if (entry.kind === 'directory') {
                     console.log(`📁 Carpeta encontrada: ${entry.name}`);
@@ -3284,6 +3305,9 @@ toggleSelection(id, type) {
                         try {
                             const file = await entry.getFile();
                             
+                            // Extraer duración del video
+                            const duration = await this.extractVideoDuration(file);
+                            
                             // Crear ID único como STRING
                             const uniqueId = `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
                             
@@ -3293,6 +3317,7 @@ toggleSelection(id, type) {
                                 title: `${sessionName}/${entry.name}`,
                                 timestamp: file.lastModified,
                                 size: file.size,
+                                duration: duration, // Duración extraída
                                 location: 'localFolder',
                                 source: 'filesystem',
                                 session: sessionName,
@@ -3300,18 +3325,17 @@ toggleSelection(id, type) {
                                 blob: file,
                                 format: fileName.endsWith('.mp4') ? 'mp4' : 'webm',
                                 isPhysical: true,
-                                lastModified: file.lastModified
+                                lastModified: file.lastModified,
+                                hasDuration: duration > 0
                             };
                             
+                            console.log(`📄 Video en sesión ${sessionName}: ${entry.name} - ${this.formatTime(duration)}`);
+                            
                             videos.push(video);
-                            console.log(`📄 Encontrado en sesión ${sessionName}: ${entry.name} (${Math.round(file.size / 1024 / 1024)} MB)`);
                             
                         } catch (error) {
                             console.warn(`⚠️ Error leyendo archivo ${entry.name}:`, error);
                         }
-                    } else if (fileName.endsWith('.gpx')) {
-                        console.log(`🗺️ GPX en sesión ${sessionName}: ${entry.name}`);
-                        // Podrías procesar GPX aquí
                     }
                 } else if (entry.kind === 'directory') {
                     console.log(`📁 Subcarpeta en ${sessionName}: ${entry.name}`);
@@ -3328,31 +3352,246 @@ toggleSelection(id, type) {
             return [];
         }
     }
-    
-    async extractVideoDuration(blob) {
+    // Helper para leer strings del array buffer (si no la tienes)
+    readString(arrayBuffer, offset, length) {
+        try {
+            const bytes = new Uint8Array(arrayBuffer, offset, length);
+            let str = '';
+            for (let i = 0; i < length; i++) {
+                str += String.fromCharCode(bytes[i]);
+            }
+            return str;
+        } catch (error) {
+            console.warn('⚠️ Error leyendo string:', error);
+            return '';
+        }
+    }
+
+    // Método alternativo para extraer duración
+// Método alternativo para extraer duración
+    async getVideoDurationAlternative(blob) {
         return new Promise((resolve) => {
             try {
-                const video = document.createElement('video');
-                video.preload = 'metadata';
+                console.log('🔄 Usando método alternativo para duración...');
                 
-                video.onloadedmetadata = () => {
-                    const duration = Math.round(video.duration * 1000); // Convertir a milisegundos
-                    URL.revokeObjectURL(video.src);
-                    resolve(duration);
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    try {
+                        const arrayBuffer = e.target.result;
+                        const dataView = new DataView(arrayBuffer);
+                        
+                        let duration = 0;
+                        
+                        // Para MP4 files
+                        if (blob.type.includes('mp4') || blob.name?.includes('.mp4')) {
+                            duration = this.extractMP4Duration(arrayBuffer, dataView);
+                        }
+                        // Para WebM files
+                        else if (blob.type.includes('webm') || blob.name?.includes('.webm')) {
+                            duration = this.extractWebMDuration(arrayBuffer, dataView);
+                        }
+                        
+                        if (duration > 0) {
+                            console.log(`✅ Duración encontrada (alternativo): ${duration}ms`);
+                            resolve(duration);
+                        } else {
+                            console.log('⚠️ No se pudo extraer duración con método alternativo');
+                            resolve(0);
+                        }
+                        
+                    } catch (error) {
+                        console.warn('⚠️ Error en método alternativo:', error);
+                        resolve(0);
+                    }
                 };
                 
-                video.onerror = () => {
-                    URL.revokeObjectURL(video.src);
-                    resolve(0); // Duración por defecto si hay error
+                reader.onerror = () => {
+                    console.warn('⚠️ Error leyendo archivo para método alternativo');
+                    resolve(0);
                 };
                 
-                video.src = URL.createObjectURL(blob);
+                // Leer solo los primeros 100KB (donde suele estar la metadata)
+                reader.readAsArrayBuffer(blob.slice(0, 100000));
+                
             } catch (error) {
-                console.warn('⚠️ Error extrayendo duración del video:', error);
+                console.warn('⚠️ Error en getVideoDurationAlternative:', error);
                 resolve(0);
             }
         });
     }
+
+    // Extraer duración de archivos MP4
+    extractMP4Duration(arrayBuffer, dataView) {
+        try {
+            // Buscar átomo 'moov' que contiene la duración
+            for (let i = 0; i < arrayBuffer.byteLength - 16; i++) {
+                const size = dataView.getUint32(i);
+                const type = this.readString(arrayBuffer, i + 4, 4);
+                
+                if (type === 'moov') {
+                    // Buscar átomo 'mvhd' (movie header) dentro de moov
+                    for (let j = i + 8; j < i + size; j++) {
+                        const subSize = dataView.getUint32(j);
+                        const subType = this.readString(arrayBuffer, j + 4, 4);
+                        
+                        if (subType === 'mvhd') {
+                            const version = dataView.getUint8(j + 8);
+                            let timescale, duration;
+                            
+                            if (version === 1) {
+                                // Versión 1 (64-bit)
+                                timescale = dataView.getUint32(j + 20);
+                                duration = Number(dataView.getBigUint64(j + 24));
+                            } else {
+                                // Versión 0 (32-bit)
+                                timescale = dataView.getUint32(j + 12);
+                                duration = dataView.getUint32(j + 16);
+                            }
+                            
+                            if (timescale > 0 && duration > 0) {
+                                const durationMs = (duration / timescale) * 1000;
+                                console.log(`📹 MP4: timescale=${timescale}, duration=${duration}, ms=${durationMs}`);
+                                return Math.round(durationMs);
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        } catch (error) {
+            console.warn('⚠️ Error extrayendo duración MP4:', error);
+        }
+        return 0;
+    }
+
+    // Extraer duración de archivos WebM
+    extractWebMDuration(arrayBuffer, dataView) {
+        try {
+            // WebM es más complejo, buscar segmentos de información
+            // Para simplificar, podemos usar una estimación basada en el tamaño
+            const fileSize = arrayBuffer.byteLength;
+            
+            // Estimación aproximada: 1MB ≈ 5-10 segundos en calidad media
+            // Esto es solo una estimación de respaldo
+            const estimatedDuration = Math.round((fileSize / (1024 * 1024)) * 8000); // 8 segundos por MB
+            
+            console.log(`🎬 WebM: tamaño=${Math.round(fileSize/1024/1024)}MB, duración estimada=${estimatedDuration}ms`);
+            
+            return estimatedDuration;
+        } catch (error) {
+            console.warn('⚠️ Error extrayendo duración WebM:', error);
+        }
+        return 0;
+    }
+
+    // Helper para leer strings del array buffer (si no la tienes)
+    readString(arrayBuffer, offset, length) {
+        const bytes = new Uint8Array(arrayBuffer, offset, length);
+        let str = '';
+        for (let i = 0; i < length; i++) {
+            str += String.fromCharCode(bytes[i]);
+        }
+        return str;
+    }
+    
+
+    // Añade esta función a tu clase DashcamApp (puede ir en la sección UTILIDADES)
+    async extractVideoDuration(blob) {
+        return new Promise((resolve) => {
+            try {
+                console.log('⏱️ Extrayendo duración del video...');
+                
+                // Si estamos en file:// protocol, usar método alternativo
+                if (window.location.protocol === 'file:') {
+                    console.log('⚠️ file:// protocol detectado, usando método alternativo');
+                    this.getVideoDurationAlternative(blob).then(duration => {
+                        console.log(`✅ Duración extraída (alternativo): ${duration}ms (${this.formatTime(duration)})`);
+                        resolve(duration);
+                    });
+                    return;
+                }
+                
+                // Método normal para http/https
+                const video = document.createElement('video');
+                video.preload = 'metadata';
+                video.muted = true;
+                video.playsInline = true;
+                
+                let durationExtracted = false;
+                let fallbackTimeout;
+                
+                video.onloadedmetadata = () => {
+                    if (durationExtracted) return;
+                    durationExtracted = true;
+                    
+                    const duration = Math.round(video.duration * 1000);
+                    
+                    // Verificar que la duración no sea Infinity o NaN
+                    if (!isFinite(duration) || isNaN(duration) || duration === Infinity) {
+                        console.warn('⚠️ Duración inválida del video:', video.duration);
+                        this.getVideoDurationAlternative(blob).then(altDuration => {
+                            console.log(`✅ Duración alternativa: ${altDuration}ms`);
+                            URL.revokeObjectURL(video.src);
+                            video.remove();
+                            clearTimeout(fallbackTimeout);
+                            resolve(altDuration);
+                        });
+                        return;
+                    }
+                    
+                    console.log(`✅ Duración extraída: ${duration}ms (${this.formatTime(duration)})`);
+                    
+                    URL.revokeObjectURL(video.src);
+                    video.remove();
+                    clearTimeout(fallbackTimeout);
+                    resolve(duration);
+                };
+                
+                video.onerror = (error) => {
+                    console.warn('⚠️ Error extrayendo duración del video:', error);
+                    this.getVideoDurationAlternative(blob).then(altDuration => {
+                        console.log(`✅ Duración alternativa (error): ${altDuration}ms`);
+                        URL.revokeObjectURL(video.src);
+                        video.remove();
+                        clearTimeout(fallbackTimeout);
+                        resolve(altDuration);
+                    });
+                };
+                
+                // Timeout de respaldo
+                fallbackTimeout = setTimeout(() => {
+                    if (!durationExtracted) {
+                        console.log('⏱️ Timeout extrayendo duración, usando método alternativo');
+                        this.getVideoDurationAlternative(blob).then(altDuration => {
+                            console.log(`✅ Duración alternativa (timeout): ${altDuration}ms`);
+                            URL.revokeObjectURL(video.src);
+                            video.remove();
+                            resolve(altDuration);
+                        });
+                    }
+                }, 3000);
+                
+                // Crear URL del blob
+                const videoUrl = URL.createObjectURL(blob);
+                video.src = videoUrl;
+                
+                // Forzar carga de metadatos
+                video.load();
+                
+            } catch (error) {
+                console.warn('⚠️ Error en extractVideoDuration:', error);
+                // Usar método alternativo como último recurso
+                this.getVideoDurationAlternative(blob).then(duration => {
+                    console.log(`✅ Duración alternativa (catch): ${duration}ms`);
+                    resolve(duration);
+                });
+            }
+        });
+    }
+
+
 
     renderVideosList() {
         const container = this.elements.videosList;
@@ -4974,9 +5213,45 @@ toggleSelection(id, type) {
         }
     }
 
+    // Estimación de duración basada en tamaño de archivo (último recurso)
+    estimateDurationByFileSize(fileSize, format) {
+        // Tabla de estimaciones (valores aproximados)
+        const estimates = {
+            'mp4': {
+                '480p': 8000,  // 8 segundos por MB
+                '720p': 5000,  // 5 segundos por MB
+                '1080p': 3000, // 3 segundos por MB
+                '4k': 1500     // 1.5 segundos por MB
+            },
+            'webm': {
+                'default': 6000 // 6 segundos por MB
+            }
+        };
+        
+        const sizeMB = fileSize / (1024 * 1024);
+        let secondsPerMB = 6000; // Valor por defecto
+        
+        if (format === 'mp4') {
+            const quality = this.state.settings.videoQuality || '720p';
+            secondsPerMB = estimates.mp4[quality] || estimates.mp4['720p'];
+        } else {
+            secondsPerMB = estimates.webm.default;
+        }
+        
+        const estimatedMs = Math.round(sizeMB * secondsPerMB);
+        console.log(`📏 Estimación por tamaño: ${sizeMB.toFixed(2)}MB × ${secondsPerMB}ms/MB = ${estimatedMs}ms`);
+        
+        return estimatedMs;
+    }
+
     // ============ UTILIDADES ============
 
     formatTime(ms) {
+        // Verificar si el valor es válido
+        if (!ms || !isFinite(ms) || isNaN(ms) || ms === Infinity) {
+            return '00:00';
+        }
+        
         const hours = Math.floor(ms / 3600000);
         const minutes = Math.floor((ms % 3600000) / 60000);
         const seconds = Math.floor((ms % 60000) / 1000);
