@@ -88,25 +88,36 @@ class DashcamApp {
 
     async init() {
         console.log(`🚀 Iniciando Dashcam iPhone Pro v${APP_VERSION}`);
+        console.log(`📱 Dispositivo: ${this.isIOS ? 'iPhone/iPad' : 'Otro'}`);
         
-        // Inicializar elementos DOM
+        // 1. Limpiar caché si es necesario (IMPORTANTE PARA ACTUALIZACIONES)
+        await this.clearCacheIfNeeded();
+        
+        // 2. Inicializar elementos DOM
         this.initElements();
         
-        // Inicializar canvas
+        // 3. Inicializar canvas
         this.mainCanvas = document.getElementById('mainCanvas');
         if (this.mainCanvas) {
             this.mainCtx = this.mainCanvas.getContext('2d');
         }
         
-        // Orden de inicialización
+        // 4. ORDEN CORRECTO DE INICIALIZACIÓN
         await this.initDatabase();
         await this.loadSettings();
         await this.loadCustomLogo();
         await this.loadGPXFiles();
         
+        // 5. Configurar eventos
         this.setupEventListeners();
+        
+        // 6. Iniciar monitoreo básico
         this.startMonitoring();
+        
+        // 7. Cargar galería inicial
         await this.loadGallery();
+        
+        // 8. Mostrar estado de almacenamiento
         this.updateStorageStatus();
         
         this.showNotification(`Dashcam iPhone Pro v${APP_VERSION} lista`);
@@ -3868,6 +3879,96 @@ class DashcamApp {
                 this.stopRecording();
             }
         });
+    }
+    // Añade esta función en la clase DashcamApp, justo después de detectIOS():
+
+    async clearCacheIfNeeded() {
+        const lastVersion = localStorage.getItem('dashcam_version');
+        
+        if (lastVersion !== APP_VERSION) {
+            console.log(`🔄 Nueva versión detectada: ${lastVersion || 'ninguna'} → ${APP_VERSION}`);
+            
+            // Limpiar service workers
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                        console.log('🗑️ Service Worker desregistrado');
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Error limpiando service workers:', error);
+                }
+            }
+            
+            // Limpiar caché
+            if (caches) {
+                try {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(
+                        cacheNames.map(cacheName => caches.delete(cacheName))
+                    );
+                    console.log('🗑️ Caché limpiada');
+                } catch (error) {
+                    console.warn('⚠️ Error limpiando caché:', error);
+                }
+            }
+            
+            // Si hay error de versión, corregir base de datos
+            if (lastVersion && parseInt(lastVersion.replace('.', '')) < 30) { // Versión anterior a 3.0
+                console.log('🔧 Versión anterior detectada, corregiendo base de datos...');
+                await this.fixDatabaseVersion();
+            }
+            
+            // Guardar nueva versión
+            localStorage.setItem('dashcam_version', APP_VERSION);
+            
+            // Recargar si había una versión anterior
+            if (lastVersion) {
+                this.showNotification('🔄 Aplicación actualizada', 2000);
+                setTimeout(() => location.reload(), 2000);
+            }
+        }
+    }
+
+    // También necesitas la función fixDatabaseVersion():
+
+    async fixDatabaseVersion() {
+        try {
+            console.log('🔧 Intentando corregir versión de base de datos...');
+            
+            // Cerrar conexión si existe
+            if (this.db) {
+                this.db.close();
+                this.db = null;
+            }
+            
+            // Eliminar base de datos existente
+            await new Promise((resolve, reject) => {
+                const deleteRequest = indexedDB.deleteDatabase('DashcamDB_Pro');
+                deleteRequest.onsuccess = () => {
+                    console.log('🗑️ Base de datos eliminada');
+                    resolve();
+                };
+                deleteRequest.onerror = (error) => {
+                    console.warn('⚠️ Error eliminando base de datos:', error);
+                    reject(error);
+                };
+                deleteRequest.onblocked = () => {
+                    console.warn('⚠️ Base de datos bloqueada, intentando cerrar conexiones...');
+                    resolve();
+                };
+            });
+            
+            // Crear nueva base de datos
+            await this.initDatabase();
+            console.log('✅ Base de datos corregida');
+            return true;
+            
+        } catch (error) {
+            console.error('❌ Error corrigiendo base de datos:', error);
+            return false;
+        }
     }
 
 }
