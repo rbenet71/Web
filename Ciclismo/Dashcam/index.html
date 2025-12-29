@@ -9,13 +9,13 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <title>Dashcam iPhone v4.0.1</title>
+    <title>Dashcam iPhone v4.0.2</title>
     
     <!-- Manifest con versión -->
-    <link rel="manifest" href="manifest.json?v=4.0.1">
+    <link rel="manifest" href="manifest.json?v=4.0.2">
     
     <!-- CSS con versión -->
-    <link rel="stylesheet" href="styles.css?v=4.0.1">
+    <link rel="stylesheet" href="styles.css?v=4.0.2">
     
     <link rel="icon" href="recursos/Picto_Color_192x192.png">
     
@@ -27,7 +27,7 @@
     
     <!-- Librerías para funciones avanzadas -->
     <script src="https://unpkg.com/mp4box@0.5.2/dist/mp4box.all.min.js"></script>
-    <script src="https://unpkg.com/gpxparser@4.0.1.8/gpxparser.js"></script>
+    <script src="https://unpkg.com/gpxparser@4.0.2.8/gpxparser.js"></script>
 </head>
 <body>
     <div class="container">
@@ -38,7 +38,7 @@
             <h1 class="app-title">Dashcam iPhone Pro</h1>
             
             <p class="app-description">Grabación Recorridos con datos GPS</p>
-            <div class="app-version">Versión 4.0.1</div>
+            <div class="app-version">Versión 4.0.2</div>
             
             <div class="start-controls">
                 <button id="startBtn" class="start-btn">
@@ -604,11 +604,32 @@
                     </div>
                 </div>
                 
+<!-- Busca el div con clase "panel-actions" dentro de #videoPlayer y modifícalo: -->
+
                 <div class="panel-actions">
-                    <button id="extractGpxBtn" class="btn gpx-btn">🗺️ Extraer GPX</button>
-                    <button id="moveToLocalFolderBtn" class="btn move-btn">📂 Mover a carpeta</button>
-                    <button id="exportVideo" class="btn export-btn">📤 Exportar</button>
-                    <button id="deleteVideo" class="btn delete-btn">🗑️ Eliminar</button>
+                    <div class="buttons-scroll-container">
+                        <button id="extractGpxBtn" class="btn gpx-btn">
+                            <span>🗺️</span>
+                            <span>Extraer GPX</span>
+                        </button>
+                        <button id="moveToLocalFolderBtn" class="btn move-btn">
+                            <span>📂</span>
+                            <span>Mover a carpeta</span>
+                        </button>
+                        <button id="exportVideo" class="btn export-btn">
+                            <span>📤</span>
+                            <span>Exportar</span>
+                        </button>
+                        <button id="deleteVideo" class="btn delete-btn">
+                            <span>🗑️</span>
+                            <span>Eliminar</span>
+                        </button>
+                        <button id="closePlayerBottom" class="btn close-player-btn">
+                            <span>✕</span>
+                            <span>Cerrar</span>
+                        </button>
+                    </div>
+                    <div class="scroll-indicator">Desliza para ver más acciones</div>
                 </div>
             </div>
         </div>
@@ -727,12 +748,12 @@
     </div>
 
     <!-- JavaScript con versión -->
-    <script src="app.js?v=4.0.1"></script>
+    <script src="app.js?v=4.0.2"></script>
     
     <script>
         // Limpiar caché al cargar
-        if (localStorage.getItem('dashcam_version') !== '4.0.1') {
-            localStorage.setItem('dashcam_version', '4.0.1');
+        if (localStorage.getItem('dashcam_version') !== '4.0.2') {
+            localStorage.setItem('dashcam_version', '4.0.2');
             
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(registrations => {

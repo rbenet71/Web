@@ -1,6 +1,6 @@
-// Dashcam PWA v4.0.1 - Versión Completa Simplificada
+// Dashcam PWA v4.0.2 - Versión Completa Simplificada
 
-const APP_VERSION = '4.0.1';
+const APP_VERSION = '4.0.2';
 
 class DashcamApp {
     constructor() {
@@ -3739,6 +3739,15 @@ class DashcamApp {
         }
         
         // Busca en setupEventListeners() la sección de "Reproductor" y añade:
+        if (this.elements.closePlayer) {
+            this.elements.closePlayer.addEventListener('click', () => this.hideVideoPlayer());
+        }
+
+        // Añade también para el botón inferior:
+        const closePlayerBottom = document.getElementById('closePlayerBottom');
+        if (closePlayerBottom) {
+            closePlayerBottom.addEventListener('click', () => this.hideVideoPlayer());
+        }
 
         // Reproductor
         if (this.elements.closePlayer) {

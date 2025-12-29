@@ -1791,6 +1791,9 @@ body {
 /* Añade esto a tu styles.css */
 
 /* Estilos para móvil en el reproductor */
+/* MODIFICA o AÑADE estos estilos en tu styles.css */
+
+/* Estilos para móvil en el reproductor - VERSIÓN MEJORADA */
 #videoPlayer.mobile-view {
     position: fixed;
     top: 0;
@@ -1806,16 +1809,18 @@ body {
 #videoPlayer.mobile-view .panel-container {
     max-height: 100vh;
     overflow-y: auto;
-    padding-bottom: 80px; /* Espacio para navegación móvil */
+    padding-bottom: 20px; /* Menos espacio abajo */
 }
 
 #videoPlayer.mobile-view .player-layout {
     flex-direction: column;
+    padding: 0 15px;
 }
 
 #videoPlayer.mobile-view .video-container {
     width: 100%;
     max-height: 40vh;
+    margin-bottom: 15px;
 }
 
 #videoPlayer.mobile-view .video-container video {
@@ -1823,112 +1828,235 @@ body {
     height: auto;
     max-height: 40vh;
     object-fit: contain;
+    border-radius: 8px;
+    background: #000;
 }
 
 #videoPlayer.mobile-view .map-container {
     width: 100%;
-    margin-top: 10px;
+    margin: 15px 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
 }
 
 #videoPlayer.mobile-view .map-container canvas {
     width: 100%;
     height: 150px;
+    border-radius: 6px;
+    background: #1e272e;
 }
 
 #videoPlayer.mobile-view .map-info {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-top: 10px;
+    gap: 10px;
+    margin-top: 15px;
 }
 
 #videoPlayer.mobile-view .map-stat {
     font-size: 12px;
-    padding: 6px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+}
+
+#videoPlayer.mobile-view .map-stat span:first-child {
+    color: #aaa;
+    font-weight: normal;
+}
+
+#videoPlayer.mobile-view .map-stat span:last-child {
+    color: #fff;
+    font-weight: bold;
+    text-align: right;
 }
 
 #videoPlayer.mobile-view .video-info {
-    padding: 15px;
+    padding: 0 15px 15px;
 }
 
 #videoPlayer.mobile-view .video-stats {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin: 10px 0;
+    gap: 12px;
+    margin: 15px 0;
 }
 
 #videoPlayer.mobile-view .video-stats .stat {
-    font-size: 12px;
-    padding: 8px;
+    font-size: 13px;
+    padding: 10px 12px;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
+    border-radius: 8px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+}
+
+#videoPlayer.mobile-view .video-stats .stat span:first-child {
+    color: #aaa;
+    font-weight: normal;
+}
+
+#videoPlayer.mobile-view .video-stats .stat span:last-child {
+    color: #fff;
+    font-weight: bold;
 }
 
 #videoPlayer.mobile-view .video-location {
-    font-size: 12px;
-    padding: 10px;
-    background: rgba(0, 168, 255, 0.1);
-    border-radius: 6px;
-    margin-top: 10px;
-}
-
-#videoPlayer.mobile-view .panel-actions {
-    position: sticky;
-    bottom: 0;
-    background: #1e272e;
-    padding: 10px;
-    border-top: 1px solid #333;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    z-index: 1001;
-}
-
-#videoPlayer.mobile-view .panel-actions .btn {
-    padding: 12px 8px;
     font-size: 13px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    padding: 12px 15px;
+    background: rgba(0, 168, 255, 0.15);
+    border-radius: 8px;
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-/* Botones específicos para móvil */
+/* ========== BOTONES CON SCROLL HORIZONTAL ========== */
+#videoPlayer.mobile-view .panel-actions {
+    position: relative; /* No fijo, se desplaza con el contenido */
+    background: transparent;
+    padding: 15px;
+    margin-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#videoPlayer.mobile-view .buttons-scroll-container {
+    display: flex;
+    flex-wrap: nowrap; /* No envolver */
+    overflow-x: auto; /* Scroll horizontal */
+    gap: 10px;
+    padding-bottom: 10px;
+    -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #00a8ff #1e272e; /* Firefox */
+}
+
+/* Scrollbar personalizada */
+#videoPlayer.mobile-view .buttons-scroll-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+#videoPlayer.mobile-view .buttons-scroll-container::-webkit-scrollbar-track {
+    background: #1e272e;
+    border-radius: 3px;
+}
+
+#videoPlayer.mobile-view .buttons-scroll-container::-webkit-scrollbar-thumb {
+    background: #00a8ff;
+    border-radius: 3px;
+}
+
+#videoPlayer.mobile-view .buttons-scroll-container .btn {
+    flex: 0 0 auto; /* No crecer, no encoger, tamaño automático */
+    padding: 14px 20px;
+    font-size: 14px;
+    white-space: nowrap;
+    border-radius: 8px;
+    min-width: 140px; /* Ancho mínimo para que se vean bien */
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+/* Iconos más grandes en los botones */
+#videoPlayer.mobile-view .buttons-scroll-container .btn::before {
+    font-size: 18px;
+    margin-bottom: 2px;
+}
+
+/* Colores específicos para cada botón */
 #videoPlayer.mobile-view .gpx-btn {
-    background: #00b894;
+    background: linear-gradient(135deg, #00b894, #00a085);
+    color: white;
 }
 
 #videoPlayer.mobile-view .move-btn {
-    background: #fd79a8;
+    background: linear-gradient(135deg, #fd79a8, #e84393);
+    color: white;
 }
 
 #videoPlayer.mobile-view .export-btn {
-    background: #fdcb6e;
+    background: linear-gradient(135deg, #fdcb6e, #f9a825);
     color: #000;
+    font-weight: bold;
 }
 
 #videoPlayer.mobile-view .delete-btn {
-    background: #ff7675;
+    background: linear-gradient(135deg, #ff7675, #d63031);
+    color: white;
+}
+
+#videoPlayer.mobile-view .close-player-btn {
+    background: linear-gradient(135deg, #636e72, #2d3436);
+    color: white;
+}
+
+/* Efectos hover (solo en dispositivos con hover) */
+@media (hover: hover) {
+    #videoPlayer.mobile-view .buttons-scroll-container .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* Activo/presionado */
+#videoPlayer.mobile-view .buttons-scroll-container .btn:active {
+    transform: translateY(0);
+    opacity: 0.9;
+}
+
+/* Indicador de que hay más botones (solo en móvil) */
+#videoPlayer.mobile-view .scroll-indicator {
+    text-align: center;
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+#videoPlayer.mobile-view .scroll-indicator::before {
+    content: '← →';
+    font-size: 12px;
+    color: #00a8ff;
+}
+
+/* Ajustes para pantallas más grandes (tablets) */
+@media (min-width: 768px) {
+    #videoPlayer.mobile-view .buttons-scroll-container {
+        flex-wrap: wrap; /* En tablet sí puede envolver */
+        justify-content: center;
+        overflow-x: visible;
+    }
+    
+    #videoPlayer.mobile-view .buttons-scroll-container .btn {
+        min-width: 160px;
+        flex: 1;
+        max-width: 200px;
+    }
 }
 
 /* Ajustes para pantallas muy pequeñas */
 @media (max-width: 360px) {
-    #videoPlayer.mobile-view .panel-actions {
-        grid-template-columns: 1fr;
+    #videoPlayer.mobile-view .buttons-scroll-container .btn {
+        min-width: 120px;
+        padding: 12px 15px;
+        font-size: 13px;
     }
     
-    #videoPlayer.mobile-view .map-info {
-        grid-template-columns: 1fr;
-    }
-    
-    #videoPlayer.mobile-view .video-stats {
-        grid-template-columns: 1fr;
+    #videoPlayer.mobile-view .buttons-scroll-container .btn::before {
+        font-size: 16px;
     }
 }
 
@@ -1940,23 +2068,33 @@ body {
     z-index: 1001;
     padding: 15px;
     border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 #videoPlayer.mobile-view .panel-header h3 {
     font-size: 18px;
     margin: 0;
+    flex: 1;
 }
 
 #videoPlayer.mobile-view .close-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-left: 10px;
+}
+
+/* Espaciado entre secciones */
+#videoPlayer.mobile-view .player-layout,
+#videoPlayer.mobile-view .video-info,
+#videoPlayer.mobile-view .panel-actions {
+    margin-bottom: 5px;
 }
