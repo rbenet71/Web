@@ -1,6 +1,6 @@
-// Dashcam PWA v4.0.9 - Versión Completa Simplificada
+// Dashcam PWA v4.0.10 - Versión Completa Simplificada
 
-const APP_VERSION = '4.0.9';
+const APP_VERSION = '4.0.10';
 
 class DashcamApp {
     constructor() {
@@ -3042,6 +3042,9 @@ class DashcamApp {
         try {
             console.log('📂 Cargando videos de carpeta LOCAL...');
             
+            // Sincronizar antes de cargar
+            await this.syncPhysicalFilesWithDatabase();
+            
             let videos = [];
             
             if (this.localFolderHandle) {
@@ -3996,14 +3999,14 @@ class DashcamApp {
                     
                     try {
                         // Buscar en raíz
-                        await this.localFolderHandle.getFileHandle(fileName);
+                        await this.localFolderHandle.getFileHandle(fileName, { create: false });
                         exists = true;
                     } catch {
                         // Buscar en sesiones
                         if (file.session) {
                             try {
                                 const sessionFolder = await this.localFolderHandle.getDirectoryHandle(file.session, { create: false });
-                                await sessionFolder.getFileHandle(fileName);
+                                await sessionFolder.getFileHandle(fileName, { create: false });
                                 exists = true;
                             } catch {
                                 exists = false;
@@ -4012,7 +4015,7 @@ class DashcamApp {
                     }
                     
                     if (!exists) {
-                        console.log(`🗑️ Eliminando archivo inexistente: ${fileName}`);
+                        console.log(`🗑️ Eliminando archivo inexistente de BD: ${fileName}`);
                         await this.deleteFromStore('localFiles', file.id);
                         deletedCount++;
                     } else {
@@ -4028,11 +4031,55 @@ class DashcamApp {
             console.log(`✅ Limpieza completada: ${deletedCount} eliminados, ${keptCount} conservados`);
             
             if (deletedCount > 0) {
-                this.showNotification(`🧹 Limpiados ${deletedCount} archivos inexistentes`);
+                this.showNotification(`🧹 Limpiados ${deletedCount} archivos inexistentes de la BD`);
             }
             
         } catch (error) {
             console.error('❌ Error limpiando base de datos local:', error);
+        }
+    }
+
+    async syncPhysicalFilesWithDatabase() {
+        try {
+            console.log('🔄 Sincronizando archivos físicos con base de datos...');
+            
+            if (!this.localFolderHandle) return;
+            
+            // Escanear archivos físicos
+            const physicalFiles = await this.scanLocalFolderForVideos();
+            
+            // Obtener archivos de la base de datos
+            const dbFiles = await this.getAllFromStore('localFiles');
+            
+            // Buscar archivos físicos que no están en la BD
+            const dbFilenames = dbFiles.map(f => f.filename).filter(Boolean);
+            const newFiles = physicalFiles.filter(file => 
+                !dbFilenames.includes(file.filename)
+            );
+            
+            // Agregar nuevos archivos a la BD
+            for (const file of newFiles) {
+                if (file.filename) {
+                    const fileRef = {
+                        id: file.id || Date.now(),
+                        filename: file.filename,
+                        folderName: this.state.settings.localFolderName,
+                        timestamp: file.timestamp || Date.now(),
+                        size: file.size || 0,
+                        location: 'localFolder',
+                        session: file.session,
+                        source: 'filesystem'
+                    };
+                    
+                    await this.saveToDatabase('localFiles', fileRef);
+                    console.log(`✅ Añadido a BD: ${file.filename}`);
+                }
+            }
+            
+            console.log(`🔄 Sincronización completada: ${newFiles.length} nuevos archivos añadidos a BD`);
+            
+        } catch (error) {
+            console.error('❌ Error sincronizando archivos:', error);
         }
     }
 
@@ -4693,24 +4740,87 @@ class DashcamApp {
         }
         
         try {
+            const video = this.state.currentVideo;
+            let deletedFromFS = false;
+            let deletedFromDB = false;
+            
+            // Si es un archivo físico, borrarlo del sistema de archivos
+            if (video.source === 'filesystem' || video.isPhysical) {
+                console.log(`🗑️ Borrando archivo físico: ${video.filename}`);
+                
+                if (video.fileHandle) {
+                    deletedFromFS = await this.deletePhysicalFile(video.fileHandle);
+                }
+            }
+            
+            // Borrar de la base de datos
             if (this.db) {
-                await this.deleteFromStore('videos', this.state.currentVideo.id);
+                await this.deleteFromStore('videos', video.id);
+                deletedFromDB = true;
             } else {
                 const videos = JSON.parse(localStorage.getItem('dashcam_videos') || '[]');
-                const filteredVideos = videos.filter(v => v.id !== this.state.currentVideo.id);
+                const filteredVideos = videos.filter(v => v.id !== video.id);
                 localStorage.setItem('dashcam_videos', JSON.stringify(filteredVideos));
+                deletedFromDB = true;
             }
             
             this.hideVideoPlayer();
             await this.loadGallery();
-            this.showNotification('🗑️ Video eliminado');
+            
+            // Mostrar mensaje apropiado
+            if (deletedFromFS && deletedFromDB) {
+                this.showNotification('🗑️ Video eliminado (físico y de la app)');
+            } else if (deletedFromFS) {
+                this.showNotification('🗑️ Archivo físico eliminado');
+            } else if (deletedFromDB) {
+                this.showNotification('🗑️ Video eliminado de la app');
+            } else {
+                this.showNotification('⚠️ No se pudo eliminar completamente');
+            }
             
         } catch (error) {
             console.error('❌ Error eliminando video:', error);
             this.showNotification('❌ Error al eliminar');
         }
     }
-
+    async deleteFileByPath(filename, sessionName = null) {
+        try {
+            if (!this.localFolderHandle) {
+                console.error('❌ No hay carpeta local seleccionada');
+                return false;
+            }
+            
+            let fileHandle;
+            
+            if (sessionName) {
+                // Buscar en subcarpeta de sesión
+                try {
+                    const sessionFolder = await this.localFolderHandle.getDirectoryHandle(sessionName, { create: false });
+                    fileHandle = await sessionFolder.getFileHandle(filename, { create: false });
+                } catch (error) {
+                    console.warn(`⚠️ No se encontró sesión ${sessionName}:`, error);
+                    return false;
+                }
+            } else {
+                // Buscar en carpeta raíz
+                try {
+                    fileHandle = await this.localFolderHandle.getFileHandle(filename, { create: false });
+                } catch (error) {
+                    console.warn(`⚠️ No se encontró archivo ${filename}:`, error);
+                    return false;
+                }
+            }
+            
+            // Borrar el archivo
+            await this.deletePhysicalFile(fileHandle);
+            console.log(`✅ Archivo borrado por ruta: ${sessionName ? `${sessionName}/` : ''}${filename}`);
+            return true;
+            
+        } catch (error) {
+            console.error(`❌ Error borrando archivo por ruta:`, error);
+            return false;
+        }
+    }
     // ============ SELECTORES Y UI ============
 
     setupCompactSelectors() {
@@ -5962,34 +6072,176 @@ class DashcamApp {
         }
         
         try {
+            let deletedFromFS = 0;
+            let deletedFromDB = 0;
+            let errors = 0;
+            
+            // Procesar videos seleccionados
             for (const videoId of this.state.selectedVideos) {
-                if (this.db) {
-                    await this.deleteFromStore('videos', videoId);
-                } else {
-                    const videos = JSON.parse(localStorage.getItem('dashcam_videos') || '[]');
-                    const filteredVideos = videos.filter(v => v.id !== videoId);
-                    localStorage.setItem('dashcam_videos', JSON.stringify(filteredVideos));
+                try {
+                    // Buscar el video en el estado actual
+                    const video = this.state.videos.find(v => v.id == videoId);
+                    
+                    if (video) {
+                        // Si es un archivo físico (de carpeta local), borrarlo del sistema de archivos
+                        if (video.source === 'filesystem' || video.isPhysical) {
+                            console.log(`🗑️ Intentando borrar archivo físico: ${video.filename}`);
+                            
+                            if (video.fileHandle) {
+                                try {
+                                    // Borrar el archivo físico
+                                    await video.fileHandle.remove();
+                                    console.log(`✅ Archivo físico borrado: ${video.filename}`);
+                                    deletedFromFS++;
+                                } catch (fsError) {
+                                    console.error(`❌ Error borrando archivo físico ${video.filename}:`, fsError);
+                                    errors++;
+                                }
+                            }
+                        }
+                        
+                        // También borrar de la base de datos si existe allí
+                        if (this.db) {
+                            try {
+                                await this.deleteFromStore('localFiles', videoId);
+                                console.log(`🗑️ Eliminado de base de datos: ${video.filename}`);
+                                deletedFromDB++;
+                            } catch (dbError) {
+                                console.warn(`⚠️ Error eliminando de BD ${video.filename}:`, dbError);
+                            }
+                        }
+                    } else {
+                        // Si no está en el estado actual, podría ser un video de la app
+                        if (this.db) {
+                            await this.deleteFromStore('videos', videoId);
+                            deletedFromDB++;
+                        } else {
+                            const videos = JSON.parse(localStorage.getItem('dashcam_videos') || '[]');
+                            const filteredVideos = videos.filter(v => v.id !== videoId);
+                            localStorage.setItem('dashcam_videos', JSON.stringify(filteredVideos));
+                            deletedFromDB++;
+                        }
+                    }
+                    
+                } catch (error) {
+                    console.error(`❌ Error eliminando elemento ${videoId}:`, error);
+                    errors++;
                 }
             }
             
+            // Procesar GPX seleccionados
             for (const gpxId of this.state.selectedGPX) {
-                if (this.db) {
-                    await this.deleteFromStore('gpxTracks', gpxId);
+                try {
+                    // Buscar el GPX en el estado actual
+                    const gpx = this.state.gpxTracks.find(g => g.id == gpxId);
+                    
+                    if (gpx) {
+                        // Si es un archivo físico, borrarlo del sistema de archivos
+                        if (gpx.source === 'filesystem' || gpx.fileHandle) {
+                            try {
+                                await gpx.fileHandle.remove();
+                                console.log(`🗑️ Archivo GPX físico borrado: ${gpx.filename}`);
+                                deletedFromFS++;
+                            } catch (fsError) {
+                                console.error(`❌ Error borrando GPX físico ${gpx.filename}:`, fsError);
+                                errors++;
+                            }
+                        }
+                        
+                        // Borrar de la base de datos
+                        if (this.db) {
+                            await this.deleteFromStore('gpxTracks', gpxId);
+                            deletedFromDB++;
+                        }
+                    }
+                } catch (error) {
+                    console.error(`❌ Error eliminando GPX ${gpxId}:`, error);
+                    errors++;
                 }
             }
             
+            // Limpiar selección
             this.state.selectedVideos.clear();
             this.state.selectedGPX.clear();
             
+            // Recargar galería para reflejar los cambios
             await this.loadGallery();
             
-            this.showNotification('🗑️ Elementos eliminados');
+            // Mostrar resumen
+            let message = '';
+            if (deletedFromFS > 0) {
+                message += `🗑️ ${deletedFromFS} archivos físicos borrados. `;
+            }
+            if (deletedFromDB > 0) {
+                message += `📱 ${deletedFromDB} eliminados de la app. `;
+            }
+            if (errors > 0) {
+                message += `❌ ${errors} errores.`;
+            }
+            
+            if (message) {
+                this.showNotification(message);
+            } else {
+                this.showNotification('🗑️ Elementos eliminados');
+            }
             
         } catch (error) {
             console.error('❌ Error eliminando:', error);
             this.showNotification('❌ Error al eliminar');
         }
     }
+
+    async deletePhysicalFile(fileHandle) {
+        try {
+            if (!fileHandle) {
+                console.warn('⚠️ No hay fileHandle para borrar');
+                return false;
+            }
+            
+            // Verificar que tenemos permiso de escritura
+            try {
+                const permission = await fileHandle.queryPermission({ mode: 'readwrite' });
+                if (permission !== 'granted') {
+                    const newPermission = await fileHandle.requestPermission({ mode: 'readwrite' });
+                    if (newPermission !== 'granted') {
+                        console.warn('⚠️ Permiso denegado para borrar archivo');
+                        return false;
+                    }
+                }
+            } catch (error) {
+                console.warn('⚠️ Error verificando permiso:', error);
+            }
+            
+            // Borrar el archivo
+            await fileHandle.remove();
+            console.log(`✅ Archivo físico borrado exitosamente`);
+            return true;
+            
+        } catch (error) {
+            console.error('❌ Error borrando archivo físico:', error);
+            
+            // Intentar método alternativo si remove() no funciona
+            try {
+                // Algunos navegadores pueden requerir un enfoque diferente
+                console.log('🔄 Intentando método alternativo para borrar...');
+                
+                // Si estamos en la misma carpeta, podemos intentar sobreescribir
+                if (fileHandle.kind === 'file') {
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(new Uint8Array(0)); // Escribir 0 bytes
+                    await writable.close();
+                    console.log('✅ Archivo truncado a 0 bytes (eliminado efectivamente)');
+                    return true;
+                }
+            } catch (altError) {
+                console.error('❌ Error con método alternativo:', altError);
+            }
+            
+            return false;
+        }
+    }
+
+
 
     async moveSelectedToLocalFolder() {
         if (this.state.selectedVideos.size === 0) {
