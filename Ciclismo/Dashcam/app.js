@@ -3250,6 +3250,39 @@ async initDatabase() {
     }
 
 
+    updateSelectionButtons() {
+        // Verificar qué tab está activo
+        const hasSelected = this.state.activeTab === 'videos' 
+            ? this.state.selectedVideos.size > 0 
+            : this.state.selectedGPX.size > 0;
+        
+        const totalItems = this.state.activeTab === 'videos'
+            ? this.state.videos.length
+            : this.state.gpxTracks.length;
+        
+        // Actualizar estado de botones
+        if (this.elements.selectAllVideos) {
+            this.elements.selectAllVideos.disabled = totalItems === 0;
+        }
+        
+        if (this.elements.deselectAllVideos) {
+            this.elements.deselectAllVideos.disabled = !hasSelected;
+        }
+        
+        // Actualizar botones del menú desplegable (solo para videos)
+        const exportBtn = document.getElementById('exportBtn');
+        const deleteBtn = document.getElementById('deleteBtn');
+        const moveToLocalBtn = document.getElementById('moveToLocalBtn');
+        const combineVideosBtn = document.getElementById('combineVideosBtn');
+        
+        if (exportBtn) exportBtn.disabled = !hasSelected;
+        if (deleteBtn) deleteBtn.disabled = !hasSelected;
+        if (moveToLocalBtn) moveToLocalBtn.disabled = !hasSelected;
+        if (combineVideosBtn) combineVideosBtn.disabled = !hasSelected || this.state.selectedVideos.size < 2;
+    }
+
+    
+
     setActiveGpx(gpxId) {
         const gpx = this.state.loadedGPXFiles.find(g => g.id === gpxId);
         if (gpx) {
@@ -5173,6 +5206,13 @@ async startGPSAfterPermission() {
             });
         }
         
+        if (this.elements.selectAllVideos) {
+            this.elements.selectAllVideos.addEventListener('click', () => this.selectAll('video'));
+        }
+        if (this.elements.deselectAllVideos) {
+            this.elements.deselectAllVideos.addEventListener('click', () => this.deselectAll('video'));
+        }
+
         if (this.elements.cancelLocalFolderBtn) {
             this.elements.cancelLocalFolderBtn.addEventListener('click', () => {
                 if (this.elements.localFolderPickerModal) {
@@ -5379,6 +5419,9 @@ showGallery() {
                 this.loadGPXFromStore();
             }
         }
+        
+        // Actualizar botones de selección
+        this.updateSelectionButtons();
     }
 
     toggleSelection(id, type) {
@@ -5415,14 +5458,14 @@ showGallery() {
     }
 
     deselectAll(type) {
-        if (type === 'video') {
+        if (type === 'video' || this.state.activeTab === 'videos') {
             this.state.selectedVideos.clear();
             this.renderVideosList();
         } else {
             this.state.selectedGPX.clear();
         }
         
-        this.updateGalleryActions();
+        this.updateSelectionButtons();
     }
 
     // ============ FUNCIONES DE ACCIÓN ============

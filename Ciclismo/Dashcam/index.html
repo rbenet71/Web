@@ -155,18 +155,23 @@
                 </div>
                 
                 <div class="gallery-container">
-                    <!-- Cabecera mejorada con menú desplegable -->
+                    <!-- Cabecera única para ambas pestañas -->
                     <div class="gallery-header">
-                        <div class="gallery-search">
-                            <input type="text" id="searchVideos" placeholder="🔍 Buscar vídeos...">
+                        <div class="gallery-actions">
+                            <div class="selection-buttons">
+                                <button id="selectAllVideos" class="selection-btn">
+                                    ✓ Todos
+                                </button>
+                                <button id="deselectAllVideos" class="selection-btn">
+                                    ✗ Ninguno
+                                </button>
+                            </div>
                             <div class="actions-dropdown" id="galleryActionsDropdown">
                                 <button id="galleryDropdownToggle" class="dropdown-toggle">
                                     <span>📋 Acciones</span>
                                     <span>▼</span>
                                 </button>
                                 <div id="galleryDropdownMenu" class="dropdown-menu">
-                                    <button id="selectAllVideos">✓ Seleccionar todos</button>
-                                    <button id="deselectAllVideos">✗ Deseleccionar todos</button>
                                     <button id="moveToLocalBtn">📂 Mover a carpeta</button>
                                     <button id="combineVideosBtn">🔗 Combinar videos</button>
                                     <button id="exportBtn" disabled>📤 Exportar selección</button>
@@ -185,13 +190,6 @@
                     
                     <!-- GPX -->
                     <div id="gpxTab" class="tab-content">
-                        <div class="gallery-search">
-                            <input type="text" id="searchGPX" placeholder="🔍 Buscar rutas...">
-                            <div class="gallery-view-controls">
-                                <button id="selectAllGPX">✓ Todos</button>
-                                <button id="deselectAllGPX">✗ Ninguno</button>
-                            </div>
-                        </div>
                         <div id="gpxList" class="scrollable-list">
                             <!-- Las rutas GPX se cargarán aquí -->
                         </div>
