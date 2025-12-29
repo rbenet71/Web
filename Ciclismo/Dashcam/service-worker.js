@@ -2,7 +2,7 @@
 const CACHE_NAME = 'dashcam-iphone-pro-cache-v3.3.3';
 const urlsToCache = [
     './',
-    './index.html?v=3.3.3',
+    './Dashcam.html?v=3.3.3',
     './styles.css?v=3.3.3',
     './app.js?v=3.3.3',
     './manifest.json?v=3.3.3',

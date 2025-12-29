@@ -2,7 +2,7 @@
     "name": "Dashcam iPhone Pro",
     "short_name": "Dashcam Pro",
     "description": "Grabación avanzada de video MP4 con datos GPS y GPX para iPhone",
-    "start_url": "/Web/Ciclismo/Dashcam/index.html?v=3.3.3",
+    "start_url": "/Web/Ciclismo/Dashcam/Dashcam.html?v=3.3.3",
     "display": "standalone",
     "orientation": "any",
     "background_color": "#000000",
