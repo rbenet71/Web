@@ -1,6 +1,6 @@
-// Dashcam PWA v4.0.4 - Versión Completa Simplificada
+// Dashcam PWA v4.0.5 - Versión Completa Simplificada
 
-const APP_VERSION = '4.0.4';
+const APP_VERSION = '4.0.5';
 
 class DashcamApp {
     constructor() {
@@ -129,6 +129,14 @@ class DashcamApp {
         // 8. Mostrar estado de almacenamiento
         this.updateStorageStatus();
         
+        // 9. Limpiar archivos locales inexistentes (si está en modo carpeta local)
+        if (this.state.settings.storageLocation === 'localFolder' && this.state.settings.localFolderName) {
+            setTimeout(() => {
+                this.cleanupLocalFilesDatabase();
+            }, 3000); // Esperar 3 segundos para que todo esté listo
+        }
+        
+        // 10. Mostrar notificación de inicio
         this.showNotification(`Dashcam iPhone Pro v${APP_VERSION} lista`);
         console.log(`✅ Aplicación iniciada correctamente`);
     }
@@ -246,6 +254,90 @@ class DashcamApp {
 
         if (this.elements.overlayCanvas) {
             this.elements.overlayCtx = this.elements.overlayCanvas.getContext('2d');
+        }
+    }
+
+    // ============ FUNCIONES FALTANTES ============
+
+    async loadCustomLogo() {
+        try {
+            if (this.db) {
+                const logoData = await this.getFromStore('customLogos', 'current_logo');
+                if (logoData && logoData.dataUrl) {
+                    this.logoImage = new Image();
+                    this.logoImage.onload = () => {
+                        console.log('✅ Logo personalizado cargado');
+                        this.updateLogoInfo();
+                    };
+                    this.logoImage.src = logoData.dataUrl;
+                    this.state.customLogo = logoData;
+                }
+            }
+        } catch (error) {
+            console.log('ℹ️ No hay logo personalizado cargado');
+        }
+    }
+
+    updateLogoInfo() {
+        if (this.elements.currentLogoInfo && this.state.customLogo) {
+            this.elements.currentLogoInfo.innerHTML = 
+                `<span>🖼️ ${this.state.customLogo.filename}</span>`;
+        }
+    }
+
+    updateSettingsUI() {
+        try {
+            if (!this.elements.recordingMode) return;
+            
+            this.elements.recordingMode.value = this.state.settings.recordingMode;
+            this.elements.segmentDuration.value = this.state.settings.segmentDuration;
+            this.elements.videoQuality.value = this.state.settings.videoQuality;
+            this.elements.videoFormat.value = this.state.settings.videoFormat;
+            this.elements.gpxInterval.value = this.state.settings.gpxInterval;
+            this.elements.overlayEnabled.checked = this.state.settings.overlayEnabled;
+            this.elements.audioEnabled.checked = this.state.settings.audioEnabled;
+            this.elements.reverseGeocodeEnabled.checked = this.state.settings.reverseGeocodeEnabled;
+            
+            this.elements.showWatermark.checked = this.state.settings.showWatermark;
+            this.elements.logoPosition.value = this.state.settings.logoPosition;
+            this.elements.logoSize.value = this.state.settings.logoSize;
+            this.elements.textPosition.value = this.state.settings.textPosition;
+            this.elements.watermarkOpacity.value = this.state.settings.watermarkOpacity;
+            
+            if (this.elements.opacityValue) {
+                this.elements.opacityValue.textContent = `${Math.round(this.state.settings.watermarkOpacity * 100)}%`;
+            }
+            
+            this.elements.gpxOverlayEnabled.checked = this.state.settings.gpxOverlayEnabled;
+            this.elements.showGpxDistance.checked = this.state.settings.showGpxDistance;
+            this.elements.showGpxSpeed.checked = this.state.settings.showGpxSpeed;
+            
+            this.elements.embedGpsMetadata.checked = this.state.settings.embedGpsMetadata;
+            this.elements.metadataFrequency.value = this.state.settings.metadataFrequency;
+            
+            this.elements.storageLocation.value = this.state.settings.storageLocation;
+            this.elements.keepAppCopy.checked = this.state.settings.keepAppCopy;
+            
+            if (this.elements.currentLocalFolderInfo && this.state.settings.localFolderName) {
+                this.elements.currentLocalFolderInfo.innerHTML = 
+                    `<span>📁 ${this.state.settings.localFolderName}</span>`;
+            }
+            
+            if (this.elements.formatInfo) {
+                this.elements.formatInfo.textContent = `🎬 ${this.state.settings.videoFormat.toUpperCase()}`;
+            }
+            
+        } catch (error) {
+            console.warn('⚠️ Error actualizando UI de configuración:', error);
+        }
+    }
+
+    toggleStorageSettings() {
+        const storageLocation = this.elements.storageLocation.value;
+        const localFolderSettings = document.getElementById('localFolderSettings');
+        
+        if (localFolderSettings) {
+            localFolderSettings.style.display = storageLocation === 'localFolder' ? 'block' : 'none';
         }
     }
 
@@ -1880,82 +1972,276 @@ class DashcamApp {
 
     async loadGallery() {
         try {
-            switch(this.state.viewMode) {
-                case 'default':
-                    await this.loadAppVideos();
-                    break;
-                case 'localFolder':
-                    await this.loadLocalFolderVideos();
-                    break;
+            console.log('📁 Cargando galería modo:', this.state.viewMode);
+            
+            // Limpiar lista actual
+            this.state.videos = [];
+            
+            if (this.state.viewMode === 'default') {
+                // Cargar solo videos de la APP
+                await this.loadAppVideos();
+                console.log(`📱 Mostrando ${this.state.videos.length} videos de la APP`);
+            } else if (this.state.viewMode === 'localFolder') {
+                // Cargar solo videos de carpeta LOCAL
+                await this.loadLocalFolderVideos();
+                console.log(`📂 Mostrando ${this.state.videos.length} videos de carpeta LOCAL`);
+                
+                // También limpiar la base de datos de archivos inexistentes
+                await this.cleanupLocalFilesDatabase();
             }
             
-            if (this.elements.galleryPanel && !this.elements.galleryPanel.classList.contains('hidden')) {
-                this.renderVideosList();
-            }
+            // Renderizar la lista
+            this.renderVideosList();
             
         } catch (error) {
             console.error('❌ Error cargando galería:', error);
+            this.state.videos = [];
+            this.renderVideosList();
         }
     }
 
+toggleSelection(id, type) {
+    if (type === 'video') {
+        if (this.state.selectedVideos.has(id)) {
+            this.state.selectedVideos.delete(id);
+        } else {
+            this.state.selectedVideos.add(id);
+        }
+        this.renderVideosList();
+    } else if (type === 'gpx') {
+        if (this.state.selectedGPX.has(id)) {
+            this.state.selectedGPX.delete(id);
+        } else {
+            this.state.selectedGPX.add(id);
+        }
+    }
+    
+    this.updateGalleryActions();
+}
+
+    // En loadAppVideos(), asegúrate de que los IDs de la app sean números
     async loadAppVideos() {
         try {
+            console.log('📱 Cargando videos de la APP...');
+            
             let videos = [];
             
             if (this.db) {
-                videos = await this.getAllFromStore('videos');
+                // Obtener solo videos de la app (location: 'app' o sin location)
+                const allVideos = await this.getAllFromStore('videos');
+                videos = allVideos.filter(video => 
+                    !video.location || 
+                    video.location === 'app' || 
+                    video.location === 'default'
+                );
             } else {
                 const storedVideos = localStorage.getItem('dashcam_videos');
-                if (storedVideos) videos = JSON.parse(storedVideos);
+                if (storedVideos) {
+                    videos = JSON.parse(storedVideos);
+                }
             }
             
-            this.state.videos = videos.sort((a, b) => b.timestamp - a.timestamp);
-            this.renderVideosList();
+            // Filtrar para asegurar que tienen blob
+            this.state.videos = videos
+                .filter(video => video.blob || video.dataUrl)
+                .sort((a, b) => b.timestamp - a.timestamp);
+                
+            console.log(`✅ ${this.state.videos.length} videos cargados de la APP`);
             
         } catch (error) {
             console.error('❌ Error cargando vídeos de app:', error);
             this.state.videos = [];
-            this.renderVideosList();
         }
     }
 
     async loadLocalFolderVideos() {
         try {
+            console.log('📂 Cargando videos de carpeta LOCAL (solo archivos físicos)...');
+            
             let videos = [];
-            if (this.db) {
-                const localFiles = await this.getAllFromStore('localFiles');
-                videos = localFiles.map(file => ({
-                    id: file.id,
-                    title: file.filename,
-                    timestamp: file.timestamp,
-                    size: file.size,
-                    location: 'localFolder',
-                    format: file.filename.endsWith('.mp4') ? 'mp4' : 'webm'
-                }));
+            
+            // ESCANEAR CARPETA FÍSICA REALMENTE - NO usar base de datos
+            if (this.localFolderHandle) {
+                videos = await this.scanLocalFolderForVideos();
+                
+                if (videos.length === 0) {
+                    console.log('📂 No se encontraron videos físicos en la carpeta');
+                }
+            } else {
+                console.log('⚠️ No hay carpeta local seleccionada');
+                
+                // Mostrar mensaje para que el usuario seleccione una carpeta
+                this.state.videos = [];
+                this.renderVideosList();
+                
+                // Mostrar notificación
+                this.showNotification('📂 Selecciona una carpeta local primero');
+                return;
             }
             
-            this.state.videos = videos.sort((a, b) => b.timestamp - a.timestamp);
-            this.renderVideosList();
+            // Filtrar para asegurar que tienen blob
+            this.state.videos = videos
+                .filter(video => video.blob)
+                .sort((a, b) => b.timestamp - a.timestamp);
+                
+            console.log(`✅ ${this.state.videos.length} videos físicos encontrados en carpeta LOCAL`);
             
         } catch (error) {
             console.error('❌ Error cargando vídeos de carpeta:', error);
             this.state.videos = [];
-            this.renderVideosList();
+            this.showNotification('❌ Error al cargar carpeta local');
+        }
+    }
+
+    async scanLocalFolderForVideos() {
+        try {
+            console.log('🔍 Escaneando carpeta física para videos...');
+            let videos = [];
+            
+            if (!this.localFolderHandle) {
+                console.log('⚠️ No hay carpeta local seleccionada');
+                return [];
+            }
+            
+            // Verificar que realmente tenemos acceso
+            try {
+                const permission = await this.localFolderHandle.requestPermission({ mode: 'readwrite' });
+                if (permission !== 'granted') {
+                    console.log('⚠️ Permiso denegado para acceder a la carpeta');
+                    return [];
+                }
+            } catch (error) {
+                console.warn('⚠️ No se pudo verificar permiso:', error);
+            }
+            
+            // Leer todos los archivos de la carpeta
+            console.log('📂 Leyendo contenido de la carpeta...');
+            const entries = [];
+            try {
+                for await (const entry of this.localFolderHandle.values()) {
+                    entries.push(entry);
+                    console.log(`📄 Encontrado: ${entry.name} (${entry.kind})`);
+                }
+            } catch (error) {
+                console.error('❌ Error leyendo carpeta:', error);
+                return [];
+            }
+            
+            console.log(`📊 Total entradas encontradas: ${entries.length}`);
+            
+            // Buscar videos .mp4 y .webm
+            for (const entry of entries) {
+                if (entry.kind === 'file') {
+                    const fileName = entry.name.toLowerCase();
+                    
+                    if (fileName.endsWith('.mp4') || fileName.endsWith('.webm')) {
+                        try {
+                            const file = await entry.getFile();
+                            
+                            // Crear objeto video
+                            const video = {
+                                id: Date.now() + Math.random(), // ID temporal único
+                                filename: entry.name,
+                                title: entry.name.replace('.mp4', '').replace('.MP4', '').replace('.webm', '').replace('.WEBM', ''),
+                                timestamp: file.lastModified,
+                                size: file.size,
+                                location: 'localFolder',
+                                source: 'filesystem',
+                                fileHandle: entry,
+                                blob: file,
+                                format: fileName.endsWith('.mp4') ? 'mp4' : 'webm',
+                                isPhysical: true // Marcar como archivo físico
+                            };
+                            
+                            videos.push(video);
+                            console.log(`🎬 Video físico encontrado: ${entry.name} (${Math.round(file.size / 1024 / 1024)} MB)`);
+                        } catch (error) {
+                            console.warn(`⚠️ Error leyendo archivo ${entry.name}:`, error);
+                        }
+                    } else {
+                        console.log(`📄 Archivo no video: ${entry.name}`);
+                    }
+                } else if (entry.kind === 'directory') {
+                    console.log(`📁 Carpeta encontrada: ${entry.name}`);
+                    
+                    // ESCANEAR SUBDIRECTORIOS (sesiones)
+                    try {
+                        const sessionVideos = await this.scanSessionFolder(entry, entry.name);
+                        videos = videos.concat(sessionVideos);
+                    } catch (error) {
+                        console.warn(`⚠️ Error escaneando carpeta ${entry.name}:`, error);
+                    }
+                }
+            }
+            
+            console.log(`📊 Total videos físicos encontrados: ${videos.length}`);
+            return videos;
+            
+        } catch (error) {
+            console.error('❌ Error escaneando carpeta física:', error);
+            return [];
+        }
+    }
+
+    async scanSessionFolder(folderHandle, sessionName) {
+        try {
+            let videos = [];
+            
+            const entries = [];
+            for await (const entry of folderHandle.values()) {
+                entries.push(entry);
+            }
+            
+            // Buscar videos en esta carpeta
+            for (const entry of entries) {
+                if (entry.kind === 'file') {
+                    const fileName = entry.name.toLowerCase();
+                    
+                    if (fileName.endsWith('.mp4') || fileName.endsWith('.webm')) {
+                        try {
+                            const file = await entry.getFile();
+                            
+                            // Crear ID único como STRING (no número con decimales)
+                            const uniqueId = `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                            
+                            const video = {
+                                id: uniqueId, // ID como string
+                                filename: entry.name,
+                                title: `${sessionName}/${entry.name}`,
+                                timestamp: file.lastModified,
+                                size: file.size,
+                                location: 'localFolder',
+                                source: 'filesystem',
+                                session: sessionName,
+                                fileHandle: entry,
+                                blob: file,
+                                format: fileName.endsWith('.mp4') ? 'mp4' : 'webm',
+                                isPhysical: true
+                            };
+                            
+                            videos.push(video);
+                            console.log(`📄 Encontrado en sesión ${sessionName}: ${entry.name} (ID: ${uniqueId})`);
+                        } catch (error) {
+                            console.warn(`⚠️ Error leyendo archivo ${entry.name}:`, error);
+                        }
+                    }
+                }
+            }
+            
+            return videos;
+            
+        } catch (error) {
+            console.error(`❌ Error escaneando carpeta ${sessionName}:`, error);
+            return [];
         }
     }
 
     renderVideosList() {
         const container = this.elements.videosList;
         if (!container) return;
-       
+        
         if (this.state.videos.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div>📱</div>
-                    <p>No hay vídeos en la app</p>
-                    <p>Inicia una grabación para comenzar</p>
-                </div>
-            `;
+            // ... código del estado vacío ...
             return;
         }
         
@@ -1971,21 +2257,36 @@ class DashcamApp {
             const format = video.format || 'mp4';
             const segment = video.segment || 1;
             
-            let locationIcon = '📱';
-            if (location === 'localFolder' || location === 'desktop_folder' || location === 'ios_local') {
+            // Determinar icono y texto según ubicación real
+            let locationIcon, locationText, locationClass;
+            if (video.source === 'filesystem' || video.isPhysical || 
+                location === 'localFolder' || location === 'desktop_folder' || location === 'ios_local') {
                 locationIcon = '📂';
+                locationText = 'Carpeta Local';
+                locationClass = 'local-file';
+                
+                if (video.session) {
+                    locationText += ` (${video.session})`;
+                }
+            } else {
+                locationIcon = '📱';
+                locationText = 'App';
+                locationClass = 'app-file';
             }
             
+            // ¡¡¡CUIDADO CON LA SINTAXIS AQUÍ!!!
+            // Asegúrate de que las comillas estén correctamente cerradas
             html += `
-                <div class="file-item video-file ${this.state.selectedVideos.has(video.id) ? 'selected' : ''}" 
+                <div class="file-item video-file ${locationClass} ${this.state.selectedVideos.has(video.id) ? 'selected' : ''}" 
                     data-id="${video.id}" 
                     data-type="video"
                     data-location="${location}"
-                    data-format="${format}">
+                    data-format="${format}"
+                    data-source="${video.source || 'app'}">
                     <div class="file-header">
                         <div class="file-title">${video.title || video.filename || 'Grabación'}</div>
-                        <div class="file-location">${locationIcon}</div>
-                        <div class="file-format">${format.toUpperCase()}</div>
+                        <div class="file-location" title="${locationText}">${locationIcon}</div>
+                        <div class="file-format" data-format="${format}">${format.toUpperCase()}</div>
                         <div class="file-time">${timeStr}</div>
                     </div>
                     <div class="file-details">
@@ -1994,26 +2295,40 @@ class DashcamApp {
                         <div>💾 ${sizeMB} MB</div>
                         <div>📍 ${video.gpsPoints || 0} puntos</div>
                         ${segment > 1 ? `<div>📹 Segmento ${segment}</div>` : ''}
+                        ${video.isPhysical ? `<div>📄 Archivo físico</div>` : ''}
                     </div>
                     <div class="file-footer">
                         <div class="file-checkbox">
                             <input type="checkbox" ${this.state.selectedVideos.has(video.id) ? 'checked' : ''}>
                             <span>Seleccionar</span>
                         </div>
-                        <button class="play-btn" data-id="${video.id}">▶️ Reproducir</button>
+                        <button class="play-btn" data-id="${video.id}" title="Reproducir ${locationText}">
+                            ▶️ Reproducir
+                        </button>
                     </div>
                 </div>
             `;
         });
         
         html += '</div>';
+        
+        // DEBUG: Ver qué HTML se está generando
+        console.log('🔄 HTML generado (primeras 500 chars):', html.substring(0, 500));
+        
         container.innerHTML = html;
         
         // Configurar eventos
+        this.setupGalleryEventListeners();
+    }
+
+    setupGalleryEventListeners() {
+        const container = this.elements.videosList;
+        if (!container) return;
+        
         container.querySelectorAll('.file-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 if (!e.target.closest('.play-btn') && !(e.target.type === 'checkbox')) {
-                    const id = parseInt(item.dataset.id);
+                    const id = item.dataset.id; // No convertir a parseInt
                     this.toggleSelection(id, 'video');
                 }
             });
@@ -2022,7 +2337,7 @@ class DashcamApp {
             if (checkbox) {
                 checkbox.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    const id = parseInt(item.dataset.id);
+                    const id = item.dataset.id; // No convertir a parseInt
                     this.toggleSelection(id, 'video');
                 });
             }
@@ -2031,73 +2346,144 @@ class DashcamApp {
             if (playBtn) {
                 playBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    const id = parseInt(item.dataset.id);
-                    this.playVideo(id);
+                    e.preventDefault();
+                    
+                    const id = item.dataset.id; // No convertir a parseInt
+                    console.log('▶️ Clic en botón reproducir, ID:', id, 'Tipo:', typeof id);
+                    
+                    // Verificar que el video existe en la lista actual
+                    const video = this.state.videos.find(v => v.id === id); // Usar ===
+                    if (video) {
+                        console.log('✅ Video encontrado en estado, reproduciendo...');
+                        this.playVideoFromCurrentLocation(id);
+                    } else {
+                        console.error('❌ Video no encontrado en estado');
+                        console.error('ID buscado:', id);
+                        console.error('IDs disponibles:', this.state.videos.map(v => v.id));
+                        this.showNotification('❌ Video no disponible');
+                    }
                 });
             }
         });
-        
-        this.updateGalleryActions();
     }
 
-    async playVideo(videoId) {
+
+    async playVideoFromCurrentLocation(videoId) {
         try {
-            console.log('🎬 Intentando reproducir video ID:', videoId, 'modo:', this.state.viewMode);
+            console.log('🎬 Reproduciendo video desde ubicación actual:', this.state.viewMode);
+            console.log('📊 Videos disponibles en estado:', this.state.videos.length);
+            console.log('ID recibido:', videoId, 'Tipo:', typeof videoId);
             
             let video;
             
             if (this.state.viewMode === 'default') {
-                if (this.db) {
-                    video = await this.getFromStore('videos', videoId);
+                // Para videos de la app, convertir a número si es necesario
+                const idToSearch = typeof videoId === 'string' && videoId.startsWith('local_') ? 
+                    videoId : parseInt(videoId);
+                video = await this.getFromStore('videos', idToSearch);
+                
+                if (!video) {
+                    this.showNotification('❌ Video no encontrado en la app');
+                    return;
                 }
+                
             } else if (this.state.viewMode === 'localFolder') {
-                if (this.db) {
-                    video = await this.getFromStore('localFiles', videoId);
-                    if (video && !video.blob) {
-                        const videoFromVideos = await this.getFromStore('videos', videoId);
-                        if (videoFromVideos && videoFromVideos.blob) {
-                            video.blob = videoFromVideos.blob;
-                        }
+                console.log('📂 Buscando video local con ID:', videoId);
+                console.log('📂 Lista de videos locales:', this.state.videos.map(v => ({id: v.id, filename: v.filename})));
+                
+                // Buscar en la lista actual de videos locales (ya escaneados)
+                video = this.state.videos.find(v => {
+                    console.log(`🔍 Comparando: "${v.id}" === "${videoId}" -> ${v.id === videoId}`);
+                    return v.id === videoId; // Comparación estricta
+                });
+                
+                if (!video) {
+                    console.error('❌ Video no encontrado en la lista local');
+                    console.error('ID buscado:', videoId);
+                    console.error('IDs disponibles:', this.state.videos.map(v => v.id));
+                    this.showNotification('❌ Video no encontrado en carpeta local');
+                    return;
+                }
+                
+                console.log('✅ Video encontrado:', video.filename);
+                
+                // Si es un archivo del sistema de archivos, obtener el blob
+                if (video.source === 'filesystem' && video.fileHandle) {
+                    try {
+                        console.log('📄 Obteniendo archivo físico...');
+                        const file = await video.fileHandle.getFile();
+                        video.blob = file;
+                        console.log('✅ Archivo físico obtenido:', file.size, 'bytes');
+                    } catch (error) {
+                        console.error('❌ Error obteniendo archivo físico:', error);
+                        this.showNotification('❌ Error al abrir archivo');
+                        return;
                     }
+                } else if (video.blob) {
+                    console.log('✅ Video ya tiene blob:', video.blob.size, 'bytes');
+                } else {
+                    console.error('❌ Video sin blob y sin fileHandle');
+                    this.showNotification('❌ Video no disponible para reproducción');
+                    return;
                 }
             }
             
             if (!video || !video.blob) {
-                console.error('❌ Video no encontrado o sin blob:', videoId);
+                console.error('❌ Video o blob no disponible');
+                console.error('Video:', video);
+                console.error('Tiene blob:', video?.blob);
                 this.showNotification('❌ Video no disponible');
                 return;
             }
             
-            // EXTRAER METADATOS GPS DEL MP4
-            await this.extractGPSMetadataFromMP4(video);
+            console.log('✅ Continuando con reproducción normal...');
+            // Llamar a la función de reproducción normal
+            await this.playVideo(video);
+            
+        } catch (error) {
+            console.error('❌ Error reproduciendo video:', error);
+            this.showNotification('❌ Error al reproducir');
+        }
+    }
+
+    async playVideo(video) {
+        try {
+            console.log('🎬 Reproduciendo video:', video.filename);
+            
+            // EXTRAER METADATOS GPS DEL MP4 si es necesario
+            if (!video.gpsTrack || video.gpsTrack.length === 0) {
+                await this.extractGPSMetadataFromMP4(video);
+            }
             
             this.state.currentVideo = video;
             
+            // Crear URL del blob
             const videoUrl = URL.createObjectURL(video.blob);
-            console.log('🎬 URL de video creada');
+            console.log('🎬 URL de video creada:', videoUrl.substring(0, 50) + '...');
             
+            // Configurar elemento de video
             this.elements.playbackVideo.src = videoUrl;
             this.elements.videoTitle.textContent = video.title || video.filename || 'Grabación';
             
             const date = new Date(video.timestamp);
             const sizeMB = Math.round(video.size / (1024 * 1024));
-            const duration = this.formatTime(video.duration);
+            const duration = this.formatTime(video.duration || 0);
             const location = video.location || 'app';
             
+            // Actualizar información en la UI
             this.elements.videoDate.textContent = date.toLocaleString('es-ES');
             this.elements.videoDuration.textContent = duration;
             this.elements.videoSize.textContent = `${sizeMB} MB`;
             this.elements.videoGpsPoints.textContent = video.gpsPoints || 0;
             
+            // Determinar ubicación y mostrar icono apropiado
             let locationText = 'Almacenado en la app';
             let locationIcon = '📱';
             
-            if (location === 'localFolder' || location === 'desktop_folder') {
-                locationText = `Almacenado en carpeta: ${video.folderName || 'Local'}`;
+            if (location === 'localFolder' || location === 'desktop_folder' || 
+                video.source === 'filesystem' || video.isPhysical) {
+                locationText = `Almacenado en carpeta local${video.session ? ` (${video.session})` : ''}`;
                 locationIcon = '📂';
-            } else if (location === 'ios_local') {
-                locationText = 'Almacenado en iPhone (app)';
-                locationIcon = '📱';
             }
             
             this.elements.locationIcon.textContent = locationIcon;
@@ -2106,14 +2492,14 @@ class DashcamApp {
             // Limpiar mapa existente antes de inicializar uno nuevo
             this.cleanupMap();
             
-            // AÑADIR CLASE PARA MÓVIL
+            // Mostrar reproductor
             this.elements.videoPlayer.classList.remove('hidden');
             this.elements.videoPlayer.classList.add('mobile-view');
             
-            // Inicializar mapa después de un pequeño delay para asegurar que el contenedor esté visible
+            // Inicializar mapa si hay datos GPS
             setTimeout(() => {
                 if (video.gpsTrack && video.gpsTrack.length > 0) {
-                    this.initLeafletMap(); // ¡CAMBIADO! Usar initLeafletMap en lugar de initPlaybackMap
+                    this.initLeafletMap();
                     console.log('🗺️ Inicializando mapa con', video.gpsTrack.length, 'puntos GPS');
                 } else {
                     const mapContainer = this.elements.playbackMap;
@@ -2129,15 +2515,92 @@ class DashcamApp {
                 this.updatePlaybackMap();
             });
             
+            // Intentar reproducir automáticamente
             setTimeout(() => {
                 this.elements.playbackVideo.play().catch(error => {
                     console.log('⚠️ No se pudo autoplay:', error.message);
+                    // Mostrar controles para que el usuario pueda reproducir manualmente
+                    this.elements.playbackVideo.controls = true;
                 });
             }, 300);
             
         } catch (error) {
-            console.error('❌ Error reproduciendo video:', error);
-            this.showNotification('❌ Error al reproducir');
+            console.error('❌ Error en playVideo:', error);
+            this.showNotification('❌ Error al reproducir el video');
+        }
+    }
+
+    async cleanupLocalFilesDatabase() {
+        try {
+            console.log('🧹 Limpiando base de datos de archivos locales...');
+            
+            if (!this.db) return;
+            
+            const localFiles = await this.getAllFromStore('localFiles');
+            console.log(`📊 Archivos locales en BD: ${localFiles.length}`);
+            
+            if (!this.localFolderHandle) {
+                console.log('⚠️ No hay carpeta local para verificar');
+                return;
+            }
+            
+            let deletedCount = 0;
+            let keptCount = 0;
+            
+            // Verificar cada archivo
+            for (const file of localFiles) {
+                try {
+                    const fileName = file.filename || file.title;
+                    
+                    if (!fileName) {
+                        // Sin nombre, eliminar
+                        await this.deleteFromStore('localFiles', file.id);
+                        deletedCount++;
+                        continue;
+                    }
+                    
+                    // Intentar encontrar el archivo físicamente
+                    let exists = false;
+                    
+                    try {
+                        // Buscar en raíz
+                        await this.localFolderHandle.getFileHandle(fileName);
+                        exists = true;
+                    } catch {
+                        // Buscar en sesiones
+                        if (file.session) {
+                            try {
+                                const sessionFolder = await this.localFolderHandle.getDirectoryHandle(file.session, { create: false });
+                                await sessionFolder.getFileHandle(fileName);
+                                exists = true;
+                            } catch {
+                                exists = false;
+                            }
+                        }
+                    }
+                    
+                    if (!exists) {
+                        console.log(`🗑️ Eliminando archivo inexistente: ${fileName}`);
+                        await this.deleteFromStore('localFiles', file.id);
+                        deletedCount++;
+                    } else {
+                        keptCount++;
+                    }
+                    
+                } catch (error) {
+                    console.warn(`⚠️ Error verificando archivo ${file.id}:`, error);
+                    keptCount++;
+                }
+            }
+            
+            console.log(`✅ Limpieza completada: ${deletedCount} eliminados, ${keptCount} conservados`);
+            
+            if (deletedCount > 0) {
+                this.showNotification(`🧹 Limpiados ${deletedCount} archivos inexistentes`);
+            }
+            
+        } catch (error) {
+            console.error('❌ Error limpiando base de datos local:', error);
         }
     }
 
@@ -2466,12 +2929,18 @@ class DashcamApp {
             const success = await this.saveToLocalFolder(video.blob, filename);
             
             if (success) {
-                // Si está configurado para no mantener copia en app, eliminar
+                console.log('✅ Video movido a carpeta local');
+                
+                // Si está configurado para NO mantener copia en app, eliminar
                 if (!this.state.settings.keepAppCopy) {
                     await this.deleteFromStore('videos', video.id);
+                    console.log('🗑️ Video eliminado de la app');
+                    
+                    // Cerrar reproductor si estaba abierto
                     this.hideVideoPlayer();
                 }
                 
+                // Recargar galería
                 await this.loadGallery();
                 this.showNotification('✅ Movido a carpeta local');
             } else {
@@ -2483,7 +2952,6 @@ class DashcamApp {
             this.showNotification('❌ Error al mover');
         }
     }
-
     async extractGpxFromVideo() {
         if (!this.state.currentVideo) {
             this.showNotification('❌ No hay video seleccionado');
@@ -2648,6 +3116,8 @@ class DashcamApp {
             }
         }
         
+        // FORZAR RECARGA de la galería
+        console.log(`📍 Cambiando a vista: ${value}`);
         this.loadGallery();
     }
 
@@ -3709,15 +4179,24 @@ class DashcamApp {
             
             for (const videoId of this.state.selectedVideos) {
                 try {
-                    const video = await this.getFromStore('videos', videoId);
+                    // Obtener video de la app
+                    const video = await this.getFromStore('videos', parseInt(videoId));
+                    
                     if (video && video.blob) {
                         const filename = `dashcam_${video.timestamp}.${video.format || 'mp4'}`;
+                        
+                        // Guardar en carpeta local
                         const success = await this.saveToLocalFolder(video.blob, filename);
                         
                         if (success) {
+                            console.log(`✅ Video ${videoId} movido a carpeta local`);
+                            
+                            // Si está configurado para NO mantener copia en app, eliminar
                             if (!this.state.settings.keepAppCopy) {
-                                await this.deleteFromStore('videos', videoId);
+                                await this.deleteFromStore('videos', parseInt(videoId));
+                                console.log(`🗑️ Video ${videoId} eliminado de la app`);
                             }
+                            
                             moved++;
                         } else {
                             errors++;
@@ -3729,13 +4208,14 @@ class DashcamApp {
                 }
             }
             
+            // Limpiar selección y recargar
             this.state.selectedVideos.clear();
             await this.loadGallery();
             
             if (errors > 0) {
                 this.showNotification(`✅ ${moved} movidos, ❌ ${errors} errores`);
             } else {
-                this.showNotification(`✅ ${moved} videos movidos a carpeta`);
+                this.showNotification(`✅ ${moved} videos movidos a carpeta local`);
             }
             
         } catch (error) {
@@ -3743,6 +4223,7 @@ class DashcamApp {
             this.showNotification('❌ Error al mover videos');
         }
     }
+
 
     async combineSelectedVideos() {
         if (this.state.selectedVideos.size < 2) {
@@ -3817,6 +4298,84 @@ class DashcamApp {
     hideGpxManager() {
         if (this.elements.gpxManagerPanel) {
             this.elements.gpxManagerPanel.classList.add('hidden');
+        }
+    }
+
+    async loadGPXFromStore() {
+        try {
+            console.log('🗺️ Cargando rutas GPX desde fuentes reales...');
+            
+            let allGPX = [];
+            
+            if (this.state.viewMode === 'default') {
+                allGPX = await this.scanAppGPXFiles();
+                console.log(`📱 ${allGPX.length} GPX en la app`);
+            } else if (this.state.viewMode === 'localFolder') {
+                allGPX = await this.scanLocalFolderGPXFiles();
+                console.log(`📂 ${allGPX.length} GPX en carpeta local`);
+                
+                const appGPX = await this.scanAppGPXFiles();
+                const localGPX = allGPX.map(g => g.filename || g.title);
+                
+                appGPX.forEach(gpx => {
+                    if (!localGPX.includes(gpx.filename || gpx.title)) {
+                        allGPX.push(gpx);
+                    }
+                });
+            }
+            
+            this.state.gpxTracks = allGPX.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            console.log(`🗺️ Total GPX a mostrar: ${this.state.gpxTracks.length}`);
+            
+            this.renderGPXList();
+            
+        } catch (error) {
+            console.error('❌ Error cargando GPX:', error);
+            this.state.gpxTracks = [];
+            this.renderGPXList();
+        }
+    }
+
+    async scanAppGPXFiles() {
+        try {
+            console.log('🔍 Escaneando GPX en la app...');
+            let gpxList = [];
+            
+            if (this.db) {
+                const gpxTracks = await this.getAllFromStore('gpxTracks');
+                gpxList = gpxList.concat(gpxTracks.map(gpx => ({
+                    id: gpx.id,
+                    title: gpx.title || 'Ruta GPX',
+                    timestamp: gpx.timestamp,
+                    size: gpx.size,
+                    points: gpx.points,
+                    location: 'app',
+                    source: 'gpxTracks',
+                    blob: gpx.blob,
+                    gpxPoints: gpx.gpxPoints
+                })));
+                
+                const gpxFiles = await this.getAllFromStore('gpxFiles');
+                gpxList = gpxList.concat(gpxFiles.map(file => ({
+                    id: file.id,
+                    title: file.name || file.filename || 'GPX Cargado',
+                    timestamp: file.uploadDate || file.timestamp,
+                    size: file.fileSize,
+                    points: file.points?.length || 0,
+                    location: 'app',
+                    source: 'gpxFiles',
+                    blob: file.blob,
+                    gpxData: file
+                })));
+                
+                console.log(`📊 ${gpxList.length} GPX encontrados en la app`);
+            }
+            
+            return gpxList;
+            
+        } catch (error) {
+            console.error('❌ Error escaneando GPX de app:', error);
+            return [];
         }
     }
 

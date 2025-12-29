@@ -2390,3 +2390,22 @@ body {
     background: rgba(0, 168, 255, 0.9);
     transform: scale(1.1);
 }
+
+/* En tu styles.css, añade: */
+.file-item.local-file {
+    border-left-color: #00b894 !important;
+    background: rgba(0, 184, 148, 0.05);
+}
+
+.file-item.app-file {
+    border-left-color: #00a8ff !important;
+    background: rgba(0, 168, 255, 0.05);
+}
+
+.file-item.local-file .file-title {
+    color: #00b894 !important;
+}
+
+.file-item.app-file .file-title {
+    color: #00a8ff !important;
+}
