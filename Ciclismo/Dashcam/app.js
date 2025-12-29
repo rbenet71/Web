@@ -1,6 +1,6 @@
-// Dashcam PWA v4.0.10 - Versión Completa Simplificada
+// Dashcam PWA v4.0.11 - Versión Completa Simplificada
 
-const APP_VERSION = '4.0.10';
+const APP_VERSION = '4.0.11';
 
 class DashcamApp {
     constructor() {
@@ -5160,10 +5160,16 @@ class DashcamApp {
         
         if (this.elements.selectAllVideos) {
             this.elements.selectAllVideos.disabled = totalItems === 0;
+            this.elements.selectAllVideos.textContent = this.state.activeTab === 'videos' 
+                ? 'Seleccionar todos' 
+                : 'Seleccionar todos';
         }
         
         if (this.elements.deselectAllVideos) {
             this.elements.deselectAllVideos.disabled = !hasSelected;
+            this.elements.deselectAllVideos.textContent = this.state.activeTab === 'videos'
+                ? 'Deseleccionar todos'
+                : 'Deseleccionar todos';
         }
         
         const exportBtn = document.getElementById('exportBtn');
@@ -5171,10 +5177,55 @@ class DashcamApp {
         const moveToLocalBtn = document.getElementById('moveToLocalBtn');
         const combineVideosBtn = document.getElementById('combineVideosBtn');
         
-        if (exportBtn) exportBtn.disabled = !hasSelected;
-        if (deleteBtn) deleteBtn.disabled = !hasSelected;
-        if (moveToLocalBtn) moveToLocalBtn.disabled = !hasSelected;
-        if (combineVideosBtn) combineVideosBtn.disabled = !hasSelected || this.state.selectedVideos.size < 2;
+        if (exportBtn) {
+            exportBtn.disabled = !hasSelected;
+            exportBtn.textContent = this.state.activeTab === 'videos' ? '📤 Exportar' : '📤 Exportar GPX';
+        }
+        
+        if (deleteBtn) {
+            deleteBtn.disabled = !hasSelected;
+            deleteBtn.textContent = this.state.activeTab === 'videos' ? '🗑️ Eliminar' : '🗑️ Eliminar GPX';
+        }
+        
+        if (moveToLocalBtn) {
+            moveToLocalBtn.disabled = this.state.activeTab === 'gpx' || !hasSelected;
+            moveToLocalBtn.style.display = this.state.activeTab === 'videos' ? 'block' : 'none';
+        }
+        
+        if (combineVideosBtn) {
+            combineVideosBtn.disabled = this.state.activeTab === 'gpx' || !hasSelected || this.state.selectedVideos.size < 2;
+            combineVideosBtn.style.display = this.state.activeTab === 'videos' ? 'block' : 'none';
+        }
+    }
+
+    selectAll(type = null) {
+        const tabType = type || this.state.activeTab;
+        
+        if (tabType === 'videos') {
+            this.state.selectedVideos.clear();
+            this.state.videos.forEach(video => this.state.selectedVideos.add(video.id));
+            this.renderVideosList();
+        } else if (tabType === 'gpx') {
+            this.state.selectedGPX.clear();
+            this.state.gpxTracks.forEach(track => this.state.selectedGPX.add(track.id));
+            this.renderGPXList();
+        }
+        
+        this.updateSelectionButtons();
+    }
+
+    deselectAll(type = null) {
+        const tabType = type || this.state.activeTab;
+        
+        if (tabType === 'videos') {
+            this.state.selectedVideos.clear();
+            this.renderVideosList();
+        } else if (tabType === 'gpx') {
+            this.state.selectedGPX.clear();
+            this.renderGPXList();
+        }
+        
+        this.updateSelectionButtons();
     }
 
     updateGalleryActions() {
@@ -5800,13 +5851,17 @@ class DashcamApp {
             const timeStr = date.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
             const location = gpx.location || 'app';
             const source = gpx.source || 'unknown';
+            const normalizedId = this.normalizeId(gpx.id || index);
+            const isSelected = this.state.selectedGPX.has(normalizedId);
             
             // Icono según ubicación
             let locationIcon = '📱';
             let locationText = 'App';
+            let locationClass = 'app-file';
             if (location === 'localFolder' || source === 'filesystem') {
                 locationIcon = '📂';
                 locationText = 'Local';
+                locationClass = 'local-file';
             }
             
             // Información específica según fuente
@@ -5817,16 +5872,19 @@ class DashcamApp {
             if (gpx.path) {
                 detailsHTML += `<div>📁 ${gpx.path}</div>`;
             }
+            if (gpx.distance) {
+                detailsHTML += `<div>📏 ${gpx.distance.toFixed(2)} km</div>`;
+            }
             
             html += `
-                <div class="file-item gpx-file" 
+                <div class="file-item gpx-file ${locationClass} ${isSelected ? 'selected' : ''}" 
                     data-id="${gpx.id || index}" 
                     data-type="gpx"
                     data-location="${location}"
                     data-source="${source}">
                     <div class="file-header">
                         <div class="file-title">${gpx.title || gpx.filename || 'Archivo GPX'}</div>
-                        <div class="file-location">${locationIcon}</div>
+                        <div class="file-location" title="${locationText}">${locationIcon}</div>
                         <div class="file-format">GPX</div>
                         <div class="file-time">${timeStr}</div>
                     </div>
@@ -5837,6 +5895,13 @@ class DashcamApp {
                         <div>${locationIcon} ${locationText}</div>
                     </div>
                     <div class="file-footer">
+                        <div class="file-checkbox">
+                            <input type="checkbox" ${isSelected ? 'checked' : ''}>
+                            <span>Seleccionar</span>
+                        </div>
+                        <button class="play-btn view-gpx" data-id="${gpx.id || index}" data-source="${source}">
+                            👁️ Ver
+                        </button>
                         <button class="play-btn download-gpx" data-id="${gpx.id || index}" data-source="${source}">
                             📥 Descargar
                         </button>
@@ -5854,23 +5919,556 @@ class DashcamApp {
         container.innerHTML = html;
         
         // Configurar eventos
-        container.querySelectorAll('.download-gpx').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const id = e.target.dataset.id;
-                const source = e.target.dataset.source;
-                await this.downloadGPX(id, source);
-            });
-        });
+        this.setupGPXEventListeners();
+    }
+
+    setupGPXEventListeners() {
+        const container = this.elements.gpxList;
+        if (!container) return;
         
-        container.querySelectorAll('.load-gpx').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const filename = e.target.dataset.filename;
-                const path = e.target.dataset.path;
-                await this.loadGPXFromFileSystem(filename, path);
+        console.log('🔄 Configurando eventos para GPX...');
+        
+        container.querySelectorAll('.gpx-file').forEach(item => {
+            // Click en el item (excepto en botones y checkboxes)
+            item.addEventListener('click', (e) => {
+                if (!e.target.closest('.play-btn') && !(e.target.type === 'checkbox')) {
+                    const id = item.dataset.id;
+                    this.toggleSelection(id, 'gpx');
+                }
             });
+            
+            // Checkbox
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = item.dataset.id;
+                    this.toggleSelection(id, 'gpx');
+                });
+            }
+            
+            // Botón de ver GPX
+            const viewBtn = item.querySelector('.view-gpx');
+            if (viewBtn) {
+                viewBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    const id = e.target.dataset.id;
+                    const source = e.target.dataset.source;
+                    console.log('👁️ Ver GPX clickeado, ID:', id, 'Fuente:', source);
+                    this.viewGPX(id, source);
+                });
+            }
+            
+            // Botón de descargar GPX
+            const downloadBtn = item.querySelector('.download-gpx');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const id = e.target.dataset.id;
+                    const source = e.target.dataset.source;
+                    await this.downloadGPX(id, source);
+                });
+            }
+            
+            // Botón de cargar a app
+            const loadBtn = item.querySelector('.load-gpx');
+            if (loadBtn) {
+                loadBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const filename = e.target.dataset.filename;
+                    const path = e.target.dataset.path;
+                    await this.loadGPXFromFileSystem(filename, path);
+                });
+            }
         });
+    }
+
+
+    async viewGPX(gpxId, source = 'gpxTracks') {
+        try {
+            console.log('🗺️ Visualizando GPX:', gpxId, 'fuente:', source);
+            
+            let gpxData;
+            
+            if (source === 'filesystem') {
+                // Para GPX del sistema de archivos
+                gpxData = this.state.gpxTracks.find(g => (g.id == gpxId || g.filename === gpxId));
+                
+                if (gpxData) {
+                    try {
+                        if (gpxData.file) {
+                            // Procesar el archivo GPX
+                            const text = await gpxData.file.text();
+                            gpxData = await this.parseGPXData(text, gpxData);
+                        } else if (gpxData.blob) {
+                            // Si ya tiene blob
+                            const text = await gpxData.blob.text();
+                            gpxData = await this.parseGPXData(text, gpxData);
+                        }
+                    } catch (parseError) {
+                        console.error('❌ Error parseando archivo GPX:', parseError);
+                        this.showNotification('❌ Formato GPX no compatible');
+                        return;
+                    }
+                }
+            } else {
+                // Para GPX de la app
+                let rawData = await this.getFromStore('gpxTracks', parseInt(gpxId));
+                
+                if (!rawData) {
+                    // Intentar desde gpxFiles
+                    rawData = await this.getFromStore('gpxFiles', parseInt(gpxId));
+                }
+                
+                if (rawData) {
+                    try {
+                        if (rawData.blob) {
+                            const text = await rawData.blob.text();
+                            gpxData = await this.parseGPXData(text, rawData);
+                        } else if (rawData.gpxData) {
+                            // Si ya tiene datos procesados
+                            gpxData = rawData.gpxData;
+                        }
+                    } catch (parseError) {
+                        console.error('❌ Error parseando GPX de BD:', parseError);
+                        this.showNotification('❌ Error al procesar GPX');
+                        return;
+                    }
+                }
+            }
+            
+            if (!gpxData) {
+                this.showNotification('❌ No se pudo cargar el archivo GPX');
+                return;
+            }
+            
+            // Verificar si tiene puntos
+            if (!gpxData.points || gpxData.points.length === 0) {
+                console.warn('⚠️ GPX sin puntos válidos:', gpxData);
+                this.showNotification('⚠️ GPX no contiene datos de ruta válidos');
+                
+                // Mostrar información básica aunque no tenga puntos
+                this.showGPXViewer(gpxData);
+                return;
+            }
+            
+            console.log('✅ GPX cargado para visualización:', {
+                name: gpxData.name,
+                points: gpxData.points.length,
+                distance: gpxData.stats.totalDistance.toFixed(2) + ' km'
+            });
+            
+            // Mostrar panel de visualización
+            this.showGPXViewer(gpxData);
+            
+        } catch (error) {
+            console.error('❌ Error visualizando GPX:', error);
+            this.showNotification('❌ Error al cargar GPX: ' + error.message);
+        }
+    }
+
+    async debugGPXFile(file) {
+        try {
+            console.log('🐛 Debuggeando archivo GPX:', file.name);
+            
+            const text = await file.text();
+            console.log('📄 Primeros 1000 caracteres del GPX:', text.substring(0, 1000));
+            
+            // Verificar estructura
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(text, 'text/xml');
+            
+            // Verificar errores de parseo
+            const parserError = xmlDoc.querySelector('parsererror');
+            if (parserError) {
+                console.error('❌ Error de parseo XML:', parserError.textContent);
+            }
+            
+            // Contar diferentes tipos de elementos
+            const counts = {
+                trkpt: xmlDoc.getElementsByTagName('trkpt').length,
+                wpt: xmlDoc.getElementsByTagName('wpt').length,
+                rtept: xmlDoc.getElementsByTagName('rtept').length,
+                trk: xmlDoc.getElementsByTagName('trk').length,
+                rte: xmlDoc.getElementsByTagName('rte').length
+            };
+            
+            console.log('📊 Conteo de elementos:', counts);
+            
+            // Extraer metadatos
+            const metadata = {
+                name: xmlDoc.querySelector('name')?.textContent,
+                desc: xmlDoc.querySelector('desc')?.textContent,
+                author: xmlDoc.querySelector('author')?.textContent,
+                time: xmlDoc.querySelector('time')?.textContent
+            };
+            
+            console.log('📝 Metadatos:', metadata);
+            
+            // Mostrar primeros puntos
+            const firstPoints = [];
+            const trkpts = xmlDoc.getElementsByTagName('trkpt');
+            for (let i = 0; i < Math.min(3, trkpts.length); i++) {
+                const trkpt = trkpts[i];
+                firstPoints.push({
+                    lat: trkpt.getAttribute('lat'),
+                    lon: trkpt.getAttribute('lon'),
+                    ele: trkpt.querySelector('ele')?.textContent,
+                    time: trkpt.querySelector('time')?.textContent
+                });
+            }
+            
+            console.log('📍 Primeros puntos:', firstPoints);
+            
+            return { counts, metadata, firstPoints };
+            
+        } catch (error) {
+            console.error('❌ Error debuggeando GPX:', error);
+            return null;
+        }
+    }
+
+    async parseGPXData(gpxText, originalData) {
+        try {
+            console.log('🔍 Parseando datos GPX...');
+            
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(gpxText, 'text/xml');
+            
+            // Verificar si el XML es válido
+            const parserError = xmlDoc.querySelector('parsererror');
+            if (parserError) {
+                console.error('❌ Error parseando XML GPX:', parserError.textContent);
+                throw new Error('Formato GPX inválido');
+            }
+            
+            // Extraer nombre (probar diferentes ubicaciones)
+            let name = originalData.name || originalData.filename || 'Ruta GPX';
+            const nameElements = [
+                xmlDoc.querySelector('metadata > name'),
+                xmlDoc.querySelector('trk > name'),
+                xmlDoc.querySelector('rte > name'),
+                xmlDoc.querySelector('gpx > name'),
+                xmlDoc.querySelector('name')
+            ];
+            
+            for (const nameElement of nameElements) {
+                if (nameElement && nameElement.textContent && nameElement.textContent.trim()) {
+                    name = nameElement.textContent.trim();
+                    break;
+                }
+            }
+            
+            // Extraer puntos de diferentes tipos
+            const trackPoints = [];
+            
+            // Intentar extraer puntos de track (trkseg > trkpt)
+            const trkpts = xmlDoc.getElementsByTagName('trkpt');
+            if (trkpts.length > 0) {
+                console.log(`📍 Encontrados ${trkpts.length} puntos de track (trkpt)`);
+                for (let i = 0; i < trkpts.length; i++) {
+                    const trkpt = trkpts[i];
+                    const point = this.extractPointData(trkpt);
+                    if (point) trackPoints.push(point);
+                }
+            }
+            
+            // Si no hay puntos de track, intentar con waypoints (wpt)
+            if (trackPoints.length === 0) {
+                const wpts = xmlDoc.getElementsByTagName('wpt');
+                if (wpts.length > 0) {
+                    console.log(`📍 Encontrados ${wpts.length} waypoints (wpt)`);
+                    for (let i = 0; i < wpts.length; i++) {
+                        const wpt = wpts[i];
+                        const point = this.extractPointData(wpt);
+                        if (point) trackPoints.push(point);
+                    }
+                }
+            }
+            
+            // Si aún no hay puntos, intentar con puntos de ruta (rtept)
+            if (trackPoints.length === 0) {
+                const rtepts = xmlDoc.getElementsByTagName('rtept');
+                if (rtepts.length > 0) {
+                    console.log(`📍 Encontrados ${rtepts.length} puntos de ruta (rtept)`);
+                    for (let i = 0; i < rtepts.length; i++) {
+                        const rtept = rtepts[i];
+                        const point = this.extractPointData(rtept);
+                        if (point) trackPoints.push(point);
+                    }
+                }
+            }
+            
+            // Si no hay puntos en absoluto, lanzar error
+            if (trackPoints.length === 0) {
+                console.warn('⚠️ No se encontraron puntos en el archivo GPX');
+                
+                // Intentar método alternativo: buscar coordenadas en el texto
+                const coordMatches = gpxText.match(/(-?\d+\.\d+)[,\s]+(-?\d+\.\d+)/g);
+                if (coordMatches && coordMatches.length > 0) {
+                    console.log(`🔄 Encontradas ${coordMatches.length} coordenadas por regex`);
+                    coordMatches.forEach((match, index) => {
+                        const coords = match.split(/[,\s]+/).map(Number);
+                        if (coords.length >= 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+                            trackPoints.push({
+                                lat: coords[0],
+                                lon: coords[1],
+                                ele: 0,
+                                time: null,
+                                speed: 0,
+                                timestamp: Date.now() + index
+                            });
+                        }
+                    });
+                }
+            }
+            
+            console.log(`✅ Puntos extraídos: ${trackPoints.length}`);
+            
+            // Calcular estadísticas
+            const stats = this.calculateGPXStats(trackPoints);
+            
+            // Preparar datos finales
+            const gpxData = {
+                id: originalData.id || Date.now(),
+                name: name,
+                filename: originalData.filename || 'ruta.gpx',
+                points: trackPoints,
+                stats: stats,
+                metadata: originalData,
+                rawText: gpxText.substring(0, 500) + '...' // Guardar parte del texto para debugging
+            };
+            
+            console.log('📊 Estadísticas GPX calculadas:', {
+                puntos: stats.totalPoints,
+                distancia: stats.totalDistance.toFixed(2) + ' km',
+                tiempo: stats.totalTimeFormatted,
+                elevacion: `${stats.minElevation.toFixed(0)}-${stats.maxElevation.toFixed(0)} m`
+            });
+            
+            return gpxData;
+            
+        } catch (error) {
+            console.error('❌ Error parseando GPX:', error);
+            
+            // Devolver datos básicos si hay error
+            return {
+                id: originalData.id || Date.now(),
+                name: originalData.name || originalData.filename || 'Ruta GPX',
+                filename: originalData.filename || 'ruta.gpx',
+                points: [],
+                stats: {
+                    totalPoints: 0,
+                    totalDistance: 0,
+                    totalTime: 0,
+                    totalTimeFormatted: '00:00',
+                    avgSpeed: 0,
+                    avgSpeedKmh: 0,
+                    maxSpeed: 0,
+                    minElevation: 0,
+                    maxElevation: 0,
+                    elevationGain: 0,
+                    elevationLoss: 0,
+                    startTime: null,
+                    endTime: null
+                },
+                metadata: originalData,
+                error: error.message
+            };
+        }
+    }
+
+    calculateGPXStats(points) {
+        if (!points || points.length === 0) {
+            return {
+                totalPoints: 0,
+                totalDistance: 0,
+                totalTime: 0,
+                totalTimeFormatted: '00:00',
+                avgSpeed: 0,
+                avgSpeedKmh: 0,
+                maxSpeed: 0,
+                minElevation: 0,
+                maxElevation: 0,
+                elevationGain: 0,
+                elevationLoss: 0,
+                startTime: null,
+                endTime: null
+            };
+        }
+        
+        let totalDistance = 0;
+        let totalElevationGain = 0;
+        let totalElevationLoss = 0;
+        let minElevation = Infinity;
+        let maxElevation = -Infinity;
+        let maxSpeed = 0;
+        let startTime = null;
+        let endTime = null;
+        
+        // Encontrar tiempos de inicio y fin
+        const pointsWithTime = points.filter(p => p.time);
+        if (pointsWithTime.length > 0) {
+            startTime = pointsWithTime[0].time;
+            endTime = pointsWithTime[pointsWithTime.length - 1].time;
+        }
+        
+        // Calcular estadísticas
+        for (let i = 0; i < points.length; i++) {
+            const point = points[i];
+            
+            // Elevación
+            if (point.ele !== undefined) {
+                if (point.ele < minElevation) minElevation = point.ele;
+                if (point.ele > maxElevation) maxElevation = point.ele;
+                
+                // Ganancia/pérdida de elevación
+                if (i > 0) {
+                    const prevEle = points[i-1].ele || 0;
+                    const eleDiff = point.ele - prevEle;
+                    if (eleDiff > 0) totalElevationGain += eleDiff;
+                    else totalElevationLoss += Math.abs(eleDiff);
+                }
+            }
+            
+            // Velocidad
+            if (point.speed && point.speed > maxSpeed) {
+                maxSpeed = point.speed;
+            }
+            
+            // Distancia
+            if (i > 0) {
+                const prevPoint = points[i-1];
+                totalDistance += this.calculateDistance(
+                    prevPoint.lat, prevPoint.lon,
+                    point.lat, point.lon
+                );
+            }
+        }
+        
+        // Calcular tiempo total
+        const totalTimeMs = startTime && endTime ? endTime - startTime : 0;
+        
+        // Calcular velocidad promedio
+        const totalTimeHours = totalTimeMs / (1000 * 60 * 60);
+        const avgSpeed = totalTimeHours > 0 ? totalDistance / totalTimeHours : 0;
+        
+        return {
+            totalPoints: points.length,
+            totalDistance: totalDistance,
+            totalTime: totalTimeMs,
+            totalTimeFormatted: this.formatTime(totalTimeMs),
+            avgSpeed: avgSpeed,
+            avgSpeedKmh: avgSpeed,
+            maxSpeed: maxSpeed,
+            minElevation: minElevation === Infinity ? 0 : minElevation,
+            maxElevation: maxElevation === -Infinity ? 0 : maxElevation,
+            elevationGain: totalElevationGain,
+            elevationLoss: totalElevationLoss,
+            startTime: startTime,
+            endTime: endTime
+        };
+    }
+
+    extractPointData(pointElement) {
+        try {
+            const lat = parseFloat(pointElement.getAttribute('lat'));
+            const lon = parseFloat(pointElement.getAttribute('lon'));
+            
+            // Validar coordenadas
+            if (isNaN(lat) || isNaN(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+                console.warn('⚠️ Coordenadas inválidas:', lat, lon);
+                return null;
+            }
+            
+            const point = {
+                lat: lat,
+                lon: lon,
+                ele: 0,
+                time: null,
+                speed: 0,
+                timestamp: Date.now()
+            };
+            
+            // Extraer elevación
+            const eleElement = pointElement.querySelector('ele');
+            if (eleElement && eleElement.textContent) {
+                const eleValue = parseFloat(eleElement.textContent);
+                if (!isNaN(eleValue)) point.ele = eleValue;
+            }
+            
+            // Extraer tiempo
+            const timeElement = pointElement.querySelector('time');
+            if (timeElement && timeElement.textContent) {
+                try {
+                    const time = new Date(timeElement.textContent);
+                    if (!isNaN(time.getTime())) {
+                        point.time = time;
+                        point.timestamp = time.getTime();
+                    }
+                } catch (e) {
+                    console.warn('⚠️ Error parseando tiempo:', e);
+                }
+            }
+            
+            // Extraer velocidad (puede estar como 'speed' o 'gpxtpx:speed')
+            const speedElements = [
+                pointElement.querySelector('speed'),
+                pointElement.querySelector('gpxtpx\\:speed'),
+                pointElement.querySelector('[speed]')
+            ];
+            
+            for (const speedEl of speedElements) {
+                if (speedEl && speedEl.textContent) {
+                    const speedValue = parseFloat(speedEl.textContent);
+                    if (!isNaN(speedValue)) {
+                        point.speed = speedValue;
+                        break;
+                    }
+                }
+            }
+            
+            // Extraer frecuencia cardíaca
+            const hrElements = [
+                pointElement.querySelector('gpxtpx\\:hr'),
+                pointElement.querySelector('hr'),
+                pointElement.querySelector('[hr]')
+            ];
+            
+            for (const hrEl of hrElements) {
+                if (hrEl && hrEl.textContent) {
+                    const hrValue = parseInt(hrEl.textContent);
+                    if (!isNaN(hrValue)) {
+                        point.hr = hrValue;
+                        break;
+                    }
+                }
+            }
+            
+            // Extraer cadencia
+            const cadElements = [
+                pointElement.querySelector('gpxtpx\\:cad'),
+                pointElement.querySelector('cad'),
+                pointElement.querySelector('[cad]')
+            ];
+            
+            for (const cadEl of cadElements) {
+                if (cadEl && cadEl.textContent) {
+                    const cadValue = parseInt(cadEl.textContent);
+                    if (!isNaN(cadValue)) {
+                        point.cad = cadValue;
+                        break;
+                    }
+                }
+            }
+            
+            return point;
+            
+        } catch (error) {
+            console.warn('⚠️ Error extrayendo datos de punto:', error);
+            return null;
+        }
     }
 
     async downloadGPX(gpxId, source = 'gpxTracks') {
@@ -5880,34 +6478,160 @@ class DashcamApp {
             let blob;
             let filename = 'ruta.gpx';
             
-            if (source === 'filesystem') {
-                // Para GPX del sistema de archivos
-                const gpx = this.state.gpxTracks.find(g => (g.id == gpxId || g.filename === gpxId));
-                if (gpx && gpx.file) {
-                    blob = gpx.file;
-                    filename = gpx.filename || 'ruta.gpx';
-                }
-            } else {
-                // Para GPX de la app
-                const gpx = await this.getFromStore('gpxTracks', parseInt(gpxId));
-                if (gpx && gpx.blob) {
-                    blob = gpx.blob;
-                    filename = `${gpx.title || 'ruta'}.gpx`;
+            if (source === 'gpxFiles') {
+                // 1. Obtener datos de la base de datos
+                const gpxData = await this.getFromStore('gpxFiles', parseInt(gpxId));
+                
+                if (gpxData) {
+                    console.log('✅ GPX encontrado en gpxFiles:', {
+                        name: gpxData.name,
+                        filename: gpxData.filename,
+                        tieneBlob: !!gpxData.blob,
+                        fileSize: gpxData.fileSize
+                    });
+                    
+                    // 2. Si tiene blob, usarlo
+                    if (gpxData.blob) {
+                        blob = gpxData.blob;
+                        filename = gpxData.filename || `${gpxData.name}.gpx`;
+                        console.log('✅ Usando blob existente');
+                    }
+                    // 3. Si NO tiene blob pero tiene gpxData con puntos
+                    else if (gpxData.gpxData && gpxData.gpxData.points) {
+                        console.log('🔄 Creando blob desde puntos GPX...');
+                        const gpxContent = this.generateGPXFromPoints(gpxData.gpxData.points, gpxData.name);
+                        blob = new Blob([gpxContent], { type: 'application/gpx+xml' });
+                        filename = gpxData.filename || `${gpxData.name}.gpx`;
+                        console.log('✅ Blob creado desde puntos');
+                    }
+                    // 4. Si tiene fileSize pero no blob ni puntos, es un GPX externo
+                    else if (gpxData.fileSize && gpxData.fileSize > 0) {
+                        console.log('🔄 Es un GPX externo, intentando obtener del sistema de archivos...');
+                        
+                        // Buscar en la carpeta local
+                        if (this.localFolderHandle) {
+                            try {
+                                // Intentar encontrar el archivo por nombre
+                                const fileHandle = await this.localFolderHandle.getFileHandle(gpxData.filename);
+                                const file = await fileHandle.getFile();
+                                blob = file;
+                                filename = gpxData.filename;
+                                console.log('✅ Archivo encontrado en carpeta local');
+                                
+                                // Actualizar la base de datos con el blob
+                                gpxData.blob = blob;
+                                await this.saveToDatabase('gpxFiles', gpxData);
+                                console.log('✅ Base de datos actualizada con blob');
+                            } catch (fsError) {
+                                console.warn('⚠️ No se encontró en carpeta local:', fsError);
+                            }
+                        }
+                    }
                 }
             }
             
+            // Si aún no tenemos blob, probar otras fuentes
             if (!blob) {
-                this.showNotification('❌ No se pudo obtener el archivo GPX');
-                return;
+                // Intentar desde gpxTracks
+                const gpxTracksData = await this.getFromStore('gpxTracks', parseInt(gpxId));
+                if (gpxTracksData?.blob) {
+                    blob = gpxTracksData.blob;
+                    filename = gpxTracksData.filename || 'ruta.gpx';
+                    console.log('✅ Usando blob de gpxTracks');
+                }
             }
             
-            this.downloadBlob(blob, filename);
-            this.showNotification('🗺️ GPX descargado');
+            // SI NADA FUNCIONA, crear un GPX básico
+            if (!blob) {
+                console.log('⚠️ Creando GPX básico como último recurso...');
+                const basicGPX = `<?xml version="1.0" encoding="UTF-8"?>
+    <gpx version="1.1" creator="Dashcam PWA Pro">
+    <metadata>
+        <name>Ruta Exportada</name>
+        <time>${new Date().toISOString()}</time>
+    </metadata>
+    <trk>
+        <name>Ruta Exportada</name>
+        <desc>Exportado desde Dashcam PWA</desc>
+    </trk>
+    </gpx>`;
+                
+                blob = new Blob([basicGPX], { type: 'application/gpx+xml' });
+                filename = `ruta_exportada_${Date.now()}.gpx`;
+                console.log('✅ GPX básico creado');
+            }
+            
+            // Verificar y descargar
+            if (blob && blob.size > 0) {
+                console.log(`✅ Descargando: ${filename} (${Math.round(blob.size / 1024)} KB)`);
+                this.downloadBlob(blob, filename);
+                this.showNotification('🗺️ GPX descargado');
+            } else {
+                console.error('❌ Blob inválido o vacío');
+                this.showNotification('❌ Error: Archivo GPX inválido');
+            }
             
         } catch (error) {
             console.error('❌ Error descargando GPX:', error);
             this.showNotification('❌ Error al descargar GPX');
         }
+    }
+
+    // Función para generar GPX desde puntos (si no la tienes)
+    generateGPXFromPoints(points, name = 'Ruta GPX') {
+        if (!points || points.length === 0) {
+            return `<?xml version="1.0" encoding="UTF-8"?>
+    <gpx version="1.1" creator="Dashcam PWA Pro">
+    <metadata>
+        <name>${name}</name>
+        <time>${new Date().toISOString()}</time>
+    </metadata>
+    <trk>
+        <name>${name}</name>
+        <desc>Sin puntos de track</desc>
+    </trk>
+    </gpx>`;
+        }
+        
+        let gpx = `<?xml version="1.0" encoding="UTF-8"?>
+    <gpx version="1.1" creator="Dashcam PWA Pro">
+    <metadata>
+        <name>${name}</name>
+        <time>${new Date().toISOString()}</time>
+    </metadata>
+    <trk>
+        <name>${name}</name>
+        <trkseg>`;
+        
+        points.forEach(point => {
+            const time = point.time ? point.time.toISOString() : new Date().toISOString();
+            
+            gpx += `
+        <trkpt lat="${point.lat}" lon="${point.lon}">`;
+            
+            if (point.ele !== undefined) {
+                gpx += `
+            <ele>${point.ele}</ele>`;
+            }
+            
+            gpx += `
+            <time>${time}</time>`;
+            
+            if (point.speed !== undefined) {
+                gpx += `
+            <speed>${point.speed}</speed>`;
+            }
+            
+            gpx += `
+        </trkpt>`;
+        });
+        
+        gpx += `
+        </trkseg>
+    </trk>
+    </gpx>`;
+        
+        return gpx;
     }
 
     downloadBlob(blob, filename) {
@@ -5930,7 +6654,7 @@ class DashcamApp {
                 return;
             }
             
-            // Navegar a la carpeta y obtener el archivo
+            // Obtener archivo
             const parts = path.split('/');
             let currentHandle = this.localFolderHandle;
             
@@ -5943,68 +6667,475 @@ class DashcamApp {
             const fileHandle = await currentHandle.getFileHandle(filename);
             const file = await fileHandle.getFile();
             
-            // Procesar el archivo GPX
-            const text = await file.text();
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(text, 'text/xml');
+            // LEER EL ARCHIVO COMPLETO COMO BLOB
+            const blob = new Blob([await file.arrayBuffer()], { type: 'application/gpx+xml' });
             
-            const trackPoints = [];
-            const trkpts = xmlDoc.getElementsByTagName('trkpt');
-            
-            for (let i = 0; i < trkpts.length; i++) {
-                const trkpt = trkpts[i];
-                const lat = parseFloat(trkpt.getAttribute('lat'));
-                const lon = parseFloat(trkpt.getAttribute('lon'));
-                
-                const eleElement = trkpt.getElementsByTagName('ele')[0];
-                const timeElement = trkpt.getElementsByTagName('time')[0];
-                const speedElement = trkpt.getElementsByTagName('speed')[0];
-                
-                trackPoints.push({
-                    lat: lat,
-                    lon: lon,
-                    ele: eleElement ? parseFloat(eleElement.textContent) : 0,
-                    time: timeElement ? new Date(timeElement.textContent) : null,
-                    speed: speedElement ? parseFloat(speedElement.textContent) : 0
-                });
-            }
-            
-            let totalDistance = 0;
-            for (let i = 1; i < trackPoints.length; i++) {
-                totalDistance += this.calculateDistance(
-                    trackPoints[i-1].lat, trackPoints[i-1].lon,
-                    trackPoints[i].lat, trackPoints[i].lon
-                );
-            }
-            
+            // Crear datos del GPX
             const gpxData = {
                 id: Date.now(),
-                name: file.name.replace('.gpx', '').replace('.xml', ''),
-                filename: file.name,
-                points: trackPoints,
-                distance: totalDistance,
-                elevation: {
-                    min: Math.min(...trackPoints.map(p => p.ele)),
-                    max: Math.max(...trackPoints.map(p => p.ele)),
-                    avg: trackPoints.reduce((sum, p) => sum + p.ele, 0) / trackPoints.length
-                },
+                name: filename.replace('.gpx', '').replace('.GPX', ''),
+                filename: filename,
                 uploadDate: Date.now(),
                 fileSize: file.size,
-                blob: new Blob([text], { type: 'application/gpx+xml' })
+                blob: blob, // ←←← ¡ESTO ES LO IMPORTANTE QUE FALTABA!
+                lastModified: file.lastModified,
+                source: 'filesystem'
             };
             
             // Guardar en la base de datos
             if (this.db) {
                 await this.saveToDatabase('gpxFiles', gpxData);
+                
+                // Actualizar lista en memoria
                 this.state.loadedGPXFiles.push(gpxData);
                 this.updateGpxSelect();
-                this.showNotification(`✅ GPX cargado a la app: ${gpxData.name}`);
+                
+                this.showNotification(`✅ GPX cargado: ${gpxData.name}`);
+                
+                // Recargar la lista
+                this.loadGPXFromStore();
             }
             
         } catch (error) {
             console.error('❌ Error cargando GPX desde sistema de archivos:', error);
             this.showNotification('❌ Error al cargar GPX');
         }
+    }
+    showGPXViewer(gpxData) {
+        try {
+            console.log('🗺️ Mostrando visualizador GPX:', gpxData.name);
+            
+            // Crear o mostrar panel de visualización
+            let viewerPanel = document.getElementById('gpxViewerPanel');
+            
+            if (!viewerPanel) {
+                // Crear panel si no existe
+                viewerPanel = document.createElement('div');
+                viewerPanel.id = 'gpxViewerPanel';
+                viewerPanel.className = 'fullscreen-panel hidden';
+                viewerPanel.innerHTML = `
+                    <div class="panel-header">
+                        <h2>🗺️ Visualizador GPX</h2>
+                        <button id="closeGpxViewer" class="close-btn">✕</button>
+                    </div>
+                    <div class="panel-content">
+                        <div class="gpx-viewer-container">
+                            <div class="gpx-info-panel">
+                                <div class="gpx-header">
+                                    <h3 id="gpxViewerTitle">Cargando...</h3>
+                                    <div class="gpx-meta">
+                                        <span id="gpxViewerFilename"></span>
+                                        <span id="gpxViewerDate"></span>
+                                    </div>
+                                </div>
+                                
+                                <div class="gpx-stats-grid">
+                                    <div class="stat-card">
+                                        <div class="stat-icon">📍</div>
+                                        <div class="stat-value" id="gpxPoints">0</div>
+                                        <div class="stat-label">Puntos</div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-icon">📏</div>
+                                        <div class="stat-value" id="gpxDistance">0 km</div>
+                                        <div class="stat-label">Distancia</div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-icon">⏱️</div>
+                                        <div class="stat-value" id="gpxDuration">00:00</div>
+                                        <div class="stat-label">Duración</div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-icon">⚡</div>
+                                        <div class="stat-value" id="gpxAvgSpeed">0 km/h</div>
+                                        <div class="stat-label">Velocidad</div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-icon">⬆️</div>
+                                        <div class="stat-value" id="gpxElevationGain">0 m</div>
+                                        <div class="stat-label">Subida</div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-icon">⬇️</div>
+                                        <div class="stat-value" id="gpxElevationLoss">0 m</div>
+                                        <div class="stat-label">Bajada</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="gpx-details">
+                                    <div class="detail-row">
+                                        <span>📅 Inicio:</span>
+                                        <span id="gpxStartTime">--:--</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span>📅 Fin:</span>
+                                        <span id="gpxEndTime">--:--</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span>📈 Elevación min:</span>
+                                        <span id="gpxMinElevation">0 m</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span>📉 Elevación max:</span>
+                                        <span id="gpxMaxElevation">0 m</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span>🚀 Velocidad max:</span>
+                                        <span id="gpxMaxSpeed">0 km/h</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="gpx-actions">
+                                    <button id="exportGpxAsKml" class="btn action-btn">
+                                        📤 Exportar KML
+                                    </button>
+                                    <button id="exportGpxAsJson" class="btn action-btn">
+                                        📊 Exportar JSON
+                                    </button>
+                                    <button id="showGpxOnMap" class="btn primary-btn">
+                                        🗺️ Ver en mapa grande
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="gpx-map-container">
+                                <div id="gpxViewerMap"></div>
+                                <div class="map-controls">
+                                    <button id="zoomInBtn" class="map-btn">+</button>
+                                    <button id="zoomOutBtn" class="map-btn">-</button>
+                                    <button id="fitBoundsBtn" class="map-btn">🗺️</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(viewerPanel);
+                
+                // Configurar eventos del panel
+                document.getElementById('closeGpxViewer').addEventListener('click', () => {
+                    this.hideGPXViewer();
+                });
+                
+                document.getElementById('exportGpxAsKml').addEventListener('click', () => {
+                    this.exportGPXAsKML(gpxData);
+                });
+                
+                document.getElementById('exportGpxAsJson').addEventListener('click', () => {
+                    this.exportGPXAsJSON(gpxData);
+                });
+                
+                document.getElementById('showGpxOnMap').addEventListener('click', () => {
+                    this.showFullscreenMap(gpxData);
+                });
+            }
+            
+            // Actualizar datos en el panel
+            this.updateGPXViewerData(gpxData);
+            
+            // Mostrar panel
+            viewerPanel.classList.remove('hidden');
+            
+            // Inicializar mapa después de que el panel esté visible
+            setTimeout(() => {
+                this.initGPXViewerMap(gpxData);
+            }, 100);
+            
+        } catch (error) {
+            console.error('❌ Error mostrando visualizador GPX:', error);
+            this.showNotification('❌ Error al mostrar GPX');
+        }
+    }
+
+    updateGPXViewerData(gpxData) {
+        try {
+            const stats = gpxData.stats;
+            
+            // Actualizar información básica
+            document.getElementById('gpxViewerTitle').textContent = gpxData.name;
+            document.getElementById('gpxViewerFilename').textContent = gpxData.filename;
+            
+            if (gpxData.metadata && gpxData.metadata.timestamp) {
+                const date = new Date(gpxData.metadata.timestamp);
+                document.getElementById('gpxViewerDate').textContent = 
+                    date.toLocaleDateString('es-ES') + ' ' + date.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+            }
+            
+            // Actualizar estadísticas
+            document.getElementById('gpxPoints').textContent = stats.totalPoints.toLocaleString();
+            document.getElementById('gpxDistance').textContent = stats.totalDistance.toFixed(2) + ' km';
+            document.getElementById('gpxDuration').textContent = stats.totalTimeFormatted;
+            document.getElementById('gpxAvgSpeed').textContent = stats.avgSpeedKmh.toFixed(1) + ' km/h';
+            document.getElementById('gpxElevationGain').textContent = stats.elevationGain.toFixed(0) + ' m';
+            document.getElementById('gpxElevationLoss').textContent = stats.elevationLoss.toFixed(0) + ' m';
+            
+            // Actualizar detalles
+            if (stats.startTime) {
+                document.getElementById('gpxStartTime').textContent = 
+                    stats.startTime.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            }
+            
+            if (stats.endTime) {
+                document.getElementById('gpxEndTime').textContent = 
+                    stats.endTime.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            }
+            
+            document.getElementById('gpxMinElevation').textContent = stats.minElevation.toFixed(0) + ' m';
+            document.getElementById('gpxMaxElevation').textContent = stats.maxElevation.toFixed(0) + ' m';
+            document.getElementById('gpxMaxSpeed').textContent = (stats.maxSpeed * 3.6).toFixed(1) + ' km/h';
+            
+        } catch (error) {
+            console.error('❌ Error actualizando datos del visualizador GPX:', error);
+        }
+    }
+    initGPXViewerMap(gpxData) {
+        try {
+            const mapContainer = document.getElementById('gpxViewerMap');
+            if (!mapContainer) {
+                console.error('❌ No se encontró el contenedor del mapa');
+                return;
+            }
+            
+            // Limpiar contenido anterior
+            mapContainer.innerHTML = '';
+            
+            if (!gpxData.points || gpxData.points.length === 0) {
+                mapContainer.innerHTML = '<div class="map-loading"><span>⚠️ No hay datos GPS para mostrar</span></div>';
+                return;
+            }
+            
+            if (typeof L === 'undefined') {
+                mapContainer.innerHTML = '<div class="map-loading"><span>❌ Leaflet no está disponible</span></div>';
+                return;
+            }
+            
+            // Calcular centro y bounds
+            const points = gpxData.points;
+            const bounds = this.calculateTrackBounds(points);
+            const center = this.calculateTrackCenter(points);
+            
+            // Crear mapa
+            const map = L.map('gpxViewerMap', {
+                center: center,
+                zoom: 13,
+                zoomControl: false, // Usaremos controles personalizados
+                attributionControl: true
+            });
+            
+            // Añadir capa base
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19
+            }).addTo(map);
+            
+            // Añadir capa de relieve (opcional)
+            L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                maxZoom: 17,
+                opacity: 0.3
+            }).addTo(map);
+            
+            // Dibujar la ruta
+            const latLngs = points.map(point => [point.lat, point.lon]);
+            const routeLine = L.polyline(latLngs, {
+                color: '#00a8ff',
+                weight: 4,
+                opacity: 0.8,
+                lineJoin: 'round',
+                lineCap: 'round'
+            }).addTo(map);
+            
+            // Añadir marcador de inicio
+            const startPoint = points[0];
+            const startMarker = L.marker([startPoint.lat, startPoint.lon], {
+                icon: L.divIcon({
+                    className: 'start-marker',
+                    html: '<div>🚩</div>',
+                    iconSize: [30, 30]
+                })
+            }).addTo(map);
+            startMarker.bindTooltip('📍 Punto de inicio', { direction: 'top' });
+            
+            // Añadir marcador de fin
+            const endPoint = points[points.length - 1];
+            const endMarker = L.marker([endPoint.lat, endPoint.lon], {
+                icon: L.divIcon({
+                    className: 'end-marker',
+                    html: '<div>🏁</div>',
+                    iconSize: [30, 30]
+                })
+            }).addTo(map);
+            endMarker.bindTooltip('🏁 Punto final', { direction: 'top' });
+            
+            // Añadir controles de zoom personalizados
+            L.control.zoom({
+                position: 'topright'
+            }).addTo(map);
+            
+            // Ajustar vista
+            map.fitBounds(bounds, { padding: [30, 30] });
+            
+            // Forzar redibujado
+            setTimeout(() => {
+                map.invalidateSize();
+                
+                // Configurar controles personalizados
+                document.getElementById('zoomInBtn').addEventListener('click', () => {
+                    map.zoomIn();
+                });
+                
+                document.getElementById('zoomOutBtn').addEventListener('click', () => {
+                    map.zoomOut();
+                });
+                
+                document.getElementById('fitBoundsBtn').addEventListener('click', () => {
+                    map.fitBounds(bounds, { padding: [30, 30] });
+                });
+            }, 300);
+            
+            // Guardar referencia al mapa
+            this.gpxViewerMap = map;
+            
+            console.log('✅ Mapa GPX inicializado');
+            
+        } catch (error) {
+            console.error('❌ Error inicializando mapa GPX:', error);
+            const mapContainer = document.getElementById('gpxViewerMap');
+            if (mapContainer) {
+                mapContainer.innerHTML = `
+                    <div class="map-loading">
+                        <span>❌ Error cargando mapa</span>
+                        <br>
+                        <small>${error.message}</small>
+                    </div>
+                `;
+            }
+        }
+    }
+    exportGPXAsKML(gpxData) {
+        try {
+            console.log('📤 Exportando GPX como KML...');
+            
+            // Crear KML básico
+            let kml = `<?xml version="1.0" encoding="UTF-8"?>
+    <kml xmlns="http://www.opengis.net/kml/2.2">
+    <Document>
+        <name>${gpxData.name || 'Ruta'}</name>
+        <description>Exportado desde Dashcam PWA</description>
+        <Style id="trackStyle">
+        <LineStyle>
+            <color>ff00a8ff</color>
+            <width>4</width>
+        </LineStyle>
+        </Style>
+        <Placemark>
+        <name>${gpxData.name || 'Ruta'}</name>
+        <styleUrl>#trackStyle</styleUrl>
+        <LineString>
+            <extrude>1</extrude>
+            <tessellate>1</tessellate>
+            <altitudeMode>absolute</altitudeMode>
+            <coordinates>`;
+            
+            // Añadir coordenadas
+            gpxData.points.forEach(point => {
+                kml += `
+            ${point.lon},${point.lat},${point.ele || 0}`;
+            });
+            
+            kml += `
+            </coordinates>
+        </LineString>
+        </Placemark>
+    </Document>
+    </kml>`;
+            
+            const blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml' });
+            this.downloadBlob(blob, `${gpxData.name || 'ruta'}.kml`);
+            
+            this.showNotification('✅ GPX exportado como KML');
+            
+        } catch (error) {
+            console.error('❌ Error exportando KML:', error);
+            this.showNotification('❌ Error al exportar KML');
+        }
+    }
+
+    exportGPXAsJSON(gpxData) {
+        try {
+            console.log('📊 Exportando GPX como JSON...');
+            
+            // Preparar datos para JSON
+            const exportData = {
+                name: gpxData.name,
+                filename: gpxData.filename,
+                stats: gpxData.stats,
+                points: gpxData.points.map(point => ({
+                    lat: point.lat,
+                    lon: point.lon,
+                    ele: point.ele,
+                    time: point.time ? point.time.toISOString() : null,
+                    speed: point.speed,
+                    hr: point.hr,
+                    cad: point.cad
+                })),
+                exportDate: new Date().toISOString(),
+                appVersion: APP_VERSION
+            };
+            
+            const jsonStr = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            this.downloadBlob(blob, `${gpxData.name || 'ruta'}_data.json`);
+            
+            this.showNotification('✅ GPX exportado como JSON');
+            
+        } catch (error) {
+            console.error('❌ Error exportando JSON:', error);
+            this.showNotification('❌ Error al exportar JSON');
+        }
+    }
+    hideGPXViewer() {
+        const viewerPanel = document.getElementById('gpxViewerPanel');
+        if (viewerPanel) {
+            viewerPanel.classList.add('hidden');
+        }
+        
+        // Limpiar mapa si existe
+        if (this.gpxViewerMap) {
+            this.gpxViewerMap.remove();
+            this.gpxViewerMap = null;
+        }
+        
+        console.log('🗺️ Visualizador GPX cerrado');
+    }
+
+    calculateTrackBounds(points) {
+        if (!points || points.length === 0) {
+            return [[0, 0], [0, 0]];
+        }
+        
+        let minLat = 90, maxLat = -90;
+        let minLon = 180, maxLon = -180;
+        
+        points.forEach(point => {
+            if (point.lat < minLat) minLat = point.lat;
+            if (point.lat > maxLat) maxLat = point.lat;
+            if (point.lon < minLon) minLon = point.lon;
+            if (point.lon > maxLon) maxLon = point.lon;
+        });
+        
+        return [[minLat, minLon], [maxLat, maxLon]];
+    }
+
+    calculateTrackCenter(points) {
+        if (!points || points.length === 0) {
+            return [0, 0];
+        }
+        
+        const bounds = this.calculateTrackBounds(points);
+        const centerLat = (bounds[0][0] + bounds[1][0]) / 2;
+        const centerLon = (bounds[0][1] + bounds[1][1]) / 2;
+        
+        return [centerLat, centerLon];
     }
 
     updateGpxSelect() {
