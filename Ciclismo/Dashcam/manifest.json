@@ -1,29 +1,52 @@
 {
-    "name": "Dashcam iPhone Pro",
-    "short_name": "Dashcam Pro",
-    "description": "Grabación avanzada de video MP4 con datos GPS y GPX para iPhone",
-    "start_url": "/Web/Ciclismo/Dashcam/index.html?v=4.0.7",
-    "display": "standalone",
-    "orientation": "any",
-    "background_color": "#000000",
-    "theme_color": "#00a8ff",
-    "scope": "/Web/Ciclismo/Dashcam/",
-    "icons": [
-        {
-            "src": "recursos/Picto_Color_192x192.png?v=4.0.7",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "recursos/Picto_Color_512x512.png?v=4.0.7",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
-    ],
-    "categories": ["utilities", "navigation"],
-    "permissions": [
-        "camera",
-        "geolocation",
-        "storage"
-    ]
+  "name": "Dashcam iPhone Pro",
+  "short_name": "Dashcam Pro",
+  "description": "Grabación avanzada de video MP4 con datos GPS y GPX",
+  "start_url": "/Web/Ciclismo/Dashcam/index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#000000",
+  "theme_color": "#00a8ff",
+  "scope": "/Web/Ciclismo/Dashcam/",
+  "icons": [
+    {
+      "src": "recursos/Picto_Color_192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "recursos/Picto_Color_512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "navigation", "video"],
+  "screenshots": [
+    {
+      "src": "recursos/screenshot1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "description": "Pantalla de grabación"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Iniciar grabación",
+      "short_name": "Grabar",
+      "description": "Inicia una nueva grabación",
+      "url": "/Web/Ciclismo/Dashcam/index.html?action=record",
+      "icons": [{ "src": "recursos/record-icon.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Ver galería",
+      "short_name": "Galería",
+      "description": "Ver videos grabados",
+      "url": "/Web/Ciclismo/Dashcam/index.html?action=gallery",
+      "icons": [{ "src": "recursos/gallery-icon.png", "sizes": "96x96" }]
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": []
 }

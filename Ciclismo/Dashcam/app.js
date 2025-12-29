@@ -1,6 +1,6 @@
-// Dashcam PWA v4.0.7 - Versión Completa Simplificada
+// Dashcam PWA v4.0.8 - Versión Completa Simplificada
 
-const APP_VERSION = '4.0.7';
+const APP_VERSION = '4.0.8';
 
 class DashcamApp {
     constructor() {
@@ -91,6 +91,9 @@ class DashcamApp {
         this.currentPositionMarker = null;
         this.mapMarkers = [];
         this.mapTileLayers = {};
+        this.isPWAInstalled = false;
+        this.deferredPrompt = null; // Para el evento de instalación
+        this.installButton = null; // Referencia al botón
         
         this.init();
     }
@@ -98,47 +101,105 @@ class DashcamApp {
     async init() {
         console.log(`🚀 Iniciando Dashcam iPhone Pro v${APP_VERSION}`);
         console.log(`📱 Dispositivo: ${this.isIOS ? 'iPhone/iPad' : 'Otro'}`);
+        console.log(`🌐 Protocolo: ${window.location.protocol}`);
         
-        // 1. Limpiar caché si es necesario (IMPORTANTE PARA ACTUALIZACIONES)
+        // 1. Verificar protocolo
+        if (window.location.protocol === 'file:') {
+            console.log('⚠️ Ejecutando desde file:// - Algunas funciones estarán limitadas');
+            this.showNotification('⚠️ Ejecuta desde servidor local para todas las funciones', 5000);
+        }
+        
+        // 2. Limpiar caché si es necesario
         await this.clearCacheIfNeeded();
         
-        // 2. Inicializar elementos DOM
+        // 3. Inicializar elementos DOM
         this.initElements();
         
-        // 3. Inicializar canvas
+        // 4. Verificar instalación PWA (solo si no es file://)
+        if (window.location.protocol !== 'file:') {
+            this.detectPWAInstallation();
+            this.setupPWAInstallListener();
+        } else {
+            console.log('📱 PWA deshabilitado en file:// protocol');
+        }
+        
+        // 5. Inicializar canvas
         this.mainCanvas = document.getElementById('mainCanvas');
         if (this.mainCanvas) {
             this.mainCtx = this.mainCanvas.getContext('2d');
         }
         
-        // 4. ORDEN CORRECTO DE INICIALIZACIÓN
+        // 6. ORDEN CORRECTO DE INICIALIZACIÓN
         await this.initDatabase();
         await this.loadSettings();
         await this.loadCustomLogo();
         await this.loadGPXFiles();
         
-        // 5. Configurar eventos
+        // 7. RESTAURAR PERMISOS PERSISTENTES
+        if (this.state.settings.storageLocation === 'localFolder') {
+            const restored = await this.restoreFolderHandle();
+            
+            if (!restored && this.state.settings.localFolderName) {
+                setTimeout(() => {
+                    this.showPersistentPermissionReminder();
+                }, 2000);
+            }
+        }
+        
+        // 8. Configurar eventos
         this.setupEventListeners();
         
-        // 6. Iniciar monitoreo básico
+        // 9. Iniciar monitoreo básico
         this.startMonitoring();
         
-        // 7. Cargar galería inicial
+        // 10. Cargar galería inicial
         await this.loadGallery();
         
-        // 8. Mostrar estado de almacenamiento
+        // 11. Mostrar estado de almacenamiento
         this.updateStorageStatus();
         
-        // 9. Limpiar archivos locales inexistentes (si está en modo carpeta local)
+        // 12. Limpiar archivos locales inexistentes
         if (this.state.settings.storageLocation === 'localFolder' && this.state.settings.localFolderName) {
             setTimeout(() => {
                 this.cleanupLocalFilesDatabase();
-            }, 3000); // Esperar 3 segundos para que todo esté listo
+            }, 3000);
         }
         
-        // 10. Mostrar notificación de inicio
+        // 13. Solicitar persistencia de almacenamiento (solo si no es file://)
+        if (window.location.protocol !== 'file:') {
+            await this.requestStoragePersistence();
+        }
+        
+        // 14. Mostrar botón de instalación PWA si está disponible
+        setTimeout(() => {
+            this.showInstallButton();
+        }, 2000);
+        
+        // 15. Verificar requisitos PWA (para debugging)
+        this.checkPWARequirements();
+        
+        // 16. Promover instalación PWA (solo si no es file://)
+        if (window.location.protocol !== 'file:') {
+            this.promotePWAInstallation();
+        }
+        
+        // 17. Mostrar instrucciones de carpeta si es necesario
+        if (this.state.settings.storageLocation === 'localFolder' && !this.localFolderHandle) {
+            setTimeout(() => {
+                this.showFolderInstructions();
+            }, 5000);
+        }
+        
+        // 18. Mostrar notificación de inicio
         this.showNotification(`Dashcam iPhone Pro v${APP_VERSION} lista`);
         console.log(`✅ Aplicación iniciada correctamente`);
+        
+        // 19. Mostrar badge si ya está instalado como PWA
+        if (this.isPWAInstalled) {
+            setTimeout(() => {
+                this.showPWAInstalledBadge();
+            }, 1000);
+        }
     }
 
     // ============ INICIALIZACIÓN ============
@@ -259,6 +320,306 @@ class DashcamApp {
 
     // ============ FUNCIONES FALTANTES ============
 
+    // Función para detectar si está instalado como PWA
+    // Detección mejorada de PWA
+
+    detectPWAInstallation() {
+        // Métodos de detección para diferentes navegadores
+        const detectionMethods = [
+            // Método estándar
+            () => window.matchMedia('(display-mode: standalone)').matches,
+            
+            // iOS Safari
+            () => window.navigator.standalone === true,
+            
+            // Android Chrome
+            () => document.referrer.includes('android-app://'),
+            
+            // Check localStorage (backup)
+            () => localStorage.getItem('pwa_installed') === 'true'
+        ];
+        
+        // Probar cada método
+        this.isPWAInstalled = false;
+        
+        for (const method of detectionMethods) {
+            try {
+                if (method()) {
+                    this.isPWAInstalled = true;
+                    console.log('📱 PWA detectado');
+                    break;
+                }
+            } catch (error) {
+                // Continuar con el siguiente método
+                continue;
+            }
+        }
+        
+        // SOLUCIÓN: No intentar acceder a Service Worker si estamos en file://
+        if (window.location.protocol !== 'file:' && 'serviceWorker' in navigator) {
+            try {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    const hasActiveSW = registrations.some(reg => 
+                        reg.active && reg.scope.includes(location.origin)
+                    );
+                    if (hasActiveSW) {
+                        this.isPWAInstalled = true;
+                        console.log('📱 PWA detectado por Service Worker activo');
+                    }
+                }).catch(error => {
+                    console.log('⚠️ No se pudo verificar Service Worker:', error.message);
+                });
+            } catch (error) {
+                console.log('⚠️ Error verificando Service Worker');
+            }
+        }
+        
+        console.log(`📱 Modo PWA: ${this.isPWAInstalled ? '✅ INSTALADO' : '❌ NO INSTALADO'}`);
+        return this.isPWAInstalled;
+    }
+
+    // Escuchar el evento de instalación PWA
+    setupPWAInstallListener() {
+        // Solo configurar PWA si estamos en un protocolo compatible
+        if (window.location.protocol === 'file:') {
+            console.log('⚠️ PWA no disponible en file:// protocol');
+            console.log('💡 Ejecuta desde un servidor local (http://localhost)');
+            return;
+        }
+        
+        // Escuchar el evento beforeinstallprompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('📲 Evento de instalación PWA disponible');
+            
+            // Prevenir que el navegador muestre el prompt automático
+            e.preventDefault();
+            
+            // Guardar el evento para usarlo luego
+            this.deferredPrompt = e;
+            
+            // Mostrar el botón de instalación
+            this.showInstallButton();
+        });
+        
+        // Escuchar cuando la app se instala
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ PWA instalado exitosamente');
+            this.isPWAInstalled = true;
+            this.hideInstallButton();
+            this.showNotification('✅ Aplicación instalada');
+        });
+    }
+
+    // Función para mostrar instrucciones de carpeta
+    showFolderInstructions() {
+        if (this.state.settings.storageLocation !== 'localFolder' || this.localFolderHandle) {
+            return;
+        }
+        
+        // Verificar si ya mostramos hoy
+        const lastShown = localStorage.getItem('folder_instructions_last_shown');
+        const today = new Date().toDateString();
+        
+        if (lastShown === today) {
+            return;
+        }
+        
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h3>📂 Configurar Carpeta Local</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Has configurado el almacenamiento en "Carpeta Local" pero no has seleccionado una carpeta.</p>
+                    
+                    <div class="tip-card" style="background: rgba(0, 168, 255, 0.05); border: 1px solid rgba(0, 168, 255, 0.2); border-radius: 8px; padding: 15px; margin: 15px 0;">
+                        <p style="margin: 0 0 10px 0;"><strong>💡 Recomendación:</strong></p>
+                        <p style="margin: 0; font-size: 14px;">
+                            Para permisos persistentes, <strong>instala la app como PWA primero</strong> y luego selecciona la carpeta.
+                        </p>
+                    </div>
+                    
+                    <p><strong>¿Qué quieres hacer?</strong></p>
+                </div>
+                <div class="modal-actions" style="display: flex; gap: 10px; margin-top: 20px; flex-direction: column;">
+                    <button id="installFirst" class="btn install-btn" style="width: 100%; background: #00b894;">
+                        📲 1. Instalar como PWA primero
+                    </button>
+                    <button id="selectNow" class="btn save-btn" style="width: 100%;">
+                        📂 2. Seleccionar carpeta ahora
+                    </button>
+                    <button id="dismissFolder" class="btn cancel-btn" style="width: 100%;">
+                        Recordármelo más tarde
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        modal.querySelector('#installFirst').addEventListener('click', () => {
+            modal.remove();
+            this.showPWAInstallPromotion();
+        });
+        
+        modal.querySelector('#selectNow').addEventListener('click', async () => {
+            modal.remove();
+            await this.selectLocalFolder();
+        });
+        
+        modal.querySelector('#dismissFolder').addEventListener('click', () => {
+            localStorage.setItem('folder_instructions_last_shown', today);
+            modal.remove();
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.remove();
+        });
+    }
+
+    // Mostrar el botón de instalación
+    showInstallButton() {
+        // Verificar si estamos en un protocolo compatible
+        if (window.location.protocol === 'file:') {
+            console.log('⚠️ PWA no disponible en file:// protocol');
+            
+            // Mostrar instrucciones para ejecutar desde servidor local
+            this.showLocalServerInstructions();
+            return;
+        }
+        
+        // Verificar si ya está instalado
+        if (this.isPWAInstalled) {
+            this.hideInstallButton();
+            return;
+        }
+        
+        // Verificar si el navegador soporta instalación PWA
+        if (!this.deferredPrompt) {
+            console.log('⚠️ Este navegador no soporta instalación PWA');
+            return;
+        }
+        
+        // Mostrar el contenedor
+        const container = document.getElementById('pwaInstallContainer');
+        const button = document.getElementById('installPWAButton');
+        
+        if (container && button) {
+            container.classList.remove('hidden');
+            this.installButton = button;
+            
+            // Configurar el evento del botón
+            button.addEventListener('click', () => this.installPWA());
+            
+            console.log('📲 Botón de instalación PWA mostrado');
+        }
+    }
+
+    // Añadir función para mostrar instrucciones de servidor local
+    showLocalServerInstructions() {
+        const container = document.getElementById('pwaInstallContainer');
+        if (!container) return;
+        
+        container.classList.remove('hidden');
+        container.innerHTML = `
+            <div class="pwa-install-info">
+                <div class="info-icon">⚠️</div>
+                <h4>Ejecutar desde Servidor Local</h4>
+                <p>Para instalar como PWA y tener permisos persistentes:</p>
+                <ol style="padding-left: 20px; margin: 10px 0;">
+                    <li><strong>Usa un servidor local:</strong></li>
+                    <li>En terminal: <code>python -m http.server 8080</code></li>
+                    <li>Abre: <code>http://localhost:8080</code></li>
+                    <li>O usa extensión "Live Server" en VS Code</li>
+                </ol>
+                <button id="testLocalServer" class="btn test-btn">
+                    🧪 Probar con Servidor Local
+                </button>
+            </div>
+        `;
+        
+        container.querySelector('#testLocalServer').addEventListener('click', () => {
+            // Intentar abrir localhost
+            window.open('http://localhost:8080', '_blank');
+        });
+    }
+
+    // Ocultar el botón de instalación
+    hideInstallButton() {
+        const container = document.getElementById('pwaInstallContainer');
+        if (container) {
+            container.classList.add('hidden');
+            console.log('📲 Botón de instalación PWA ocultado');
+        }
+    }
+
+    // Función para instalar la PWA
+    async installPWA() {
+        if (!this.deferredPrompt) {
+            console.log('❌ No hay prompt de instalación disponible');
+            this.showNotification('⚠️ Tu navegador no soporta instalación directa');
+            return;
+        }
+        
+        try {
+            console.log('📲 Iniciando instalación PWA...');
+            
+            // Mostrar el prompt de instalación
+            this.deferredPrompt.prompt();
+            
+            // Esperar a que el usuario responda
+            const { outcome } = await this.deferredPrompt.userChoice;
+            
+            console.log(`📲 Usuario ${outcome === 'accepted' ? 'aceptó' : 'rechazó'} la instalación`);
+            
+            if (outcome === 'accepted') {
+                this.showNotification('✅ Aplicación instalada');
+                this.isPWAInstalled = true;
+                this.hideInstallButton();
+                
+                // Mostrar badge de instalado
+                this.showPWAInstalledBadge();
+            } else {
+                this.showNotification('❌ Instalación cancelada');
+            }
+            
+            // Limpiar el prompt
+            this.deferredPrompt = null;
+            
+        } catch (error) {
+            console.error('❌ Error instalando PWA:', error);
+            this.showNotification('❌ Error al instalar la aplicación');
+        }
+    }
+
+    // Mostrar badge de "Instalado"
+    showPWAInstalledBadge() {
+        // Remover badge anterior si existe
+        const existingBadge = document.querySelector('.pwa-installed-badge');
+        if (existingBadge) {
+            existingBadge.remove();
+        }
+        
+        // Crear nuevo badge
+        const badge = document.createElement('div');
+        badge.className = 'pwa-installed-badge';
+        badge.innerHTML = `
+            <span>✅</span>
+            <span>Aplicación instalada</span>
+        `;
+        
+        document.body.appendChild(badge);
+        
+        // Remover después de 5 segundos
+        setTimeout(() => {
+            if (badge.parentNode) {
+                badge.remove();
+            }
+        }, 5000);
+    }
+
     async loadCustomLogo() {
         try {
             if (this.db) {
@@ -345,11 +706,13 @@ class DashcamApp {
         return new Promise((resolve) => {
             console.log('📊 Inicializando base de datos...');
             
-            const request = indexedDB.open('DashcamDB_Pro', 12);
+            // Aumentar la versión para forzar recreación de stores
+            const request = indexedDB.open('DashcamDB_Pro', 13); // <-- Cambiar de 12 a 13
             
             request.onupgradeneeded = (event) => {
                 this.db = event.target.result;
                 this.createDatabaseStores();
+                console.log('🔄 Actualizando base de datos a versión 13');
             };
             
             request.onsuccess = (event) => {
@@ -377,7 +740,8 @@ class DashcamApp {
             { name: 'localFiles', keyPath: 'id', indexes: ['filename', 'timestamp'] },
             { name: 'customLogos', keyPath: 'id' },
             { name: 'gpxFiles', keyPath: 'id', indexes: ['name', 'uploadDate'] },
-            { name: 'geocodeCache', keyPath: 'key' }
+            { name: 'geocodeCache', keyPath: 'key' },
+            { name: 'folderHandles', keyPath: 'id' } // <-- AÑADIR ESTA LÍNEA
         ];
         
         stores.forEach(store => {
@@ -1293,13 +1657,440 @@ class DashcamApp {
     }
 
     async selectLocalFolder() {
-        console.log('📂 Seleccionando carpeta...');
+        console.log('📂 Seleccionando carpeta con permisos persistentes...');
         
         if (this.isIOS) {
             await this.showIOSFolderPicker();
         } else {
-            await this.showDesktopFolderPicker();
+            await this.showDesktopFolderPickerWithPersistence();
         }
+    }
+
+    async showDesktopFolderPickerWithPersistence() {
+        try {
+            // Opciones para permisos persistentes
+            const options = {
+                id: 'dashcam-local-folder',
+                mode: 'readwrite',
+                startIn: 'documents' // Sugerir carpeta Documents
+            };
+            
+            // Intentar restaurar handle guardado con permisos persistentes
+            if (this.state.settings.localFolderHandle) {
+                try {
+                    console.log('🔄 Intentando restaurar carpeta guardada...');
+                    
+                    // Verificar si todavía tenemos permiso
+                    const permission = await this.state.settings.localFolderHandle.queryPermission(options);
+                    
+                    if (permission === 'granted') {
+                        // Ya tenemos permiso, usar el handle existente
+                        this.localFolderHandle = this.state.settings.localFolderHandle;
+                        this.updateFolderUI();
+                        this.showNotification(`✅ Carpeta restaurada: ${this.localFolderHandle.name}`);
+                        return;
+                    } else if (permission === 'prompt') {
+                        // Pedir permiso nuevamente
+                        const newPermission = await this.state.settings.localFolderHandle.requestPermission(options);
+                        if (newPermission === 'granted') {
+                            this.localFolderHandle = this.state.settings.localFolderHandle;
+                            this.updateFolderUI();
+                            this.showNotification(`✅ Permiso reconfirmado: ${this.localFolderHandle.name}`);
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Error restaurando carpeta:', error);
+                }
+            }
+            
+            // Si no hay handle o no tenemos permiso, pedir nueva carpeta
+            console.log('📤 Abriendo selector de carpeta...');
+            const handle = await window.showDirectoryPicker(options);
+            
+            if (handle) {
+                // Pedir permiso persistente
+                const permission = await handle.requestPermission(options);
+                
+                if (permission === 'granted') {
+                    this.localFolderHandle = handle;
+                    this.state.settings.localFolderHandle = handle;
+                    this.state.settings.localFolderName = handle.name;
+                    
+                    // Guardar el handle serializado para persistencia
+                    await this.saveFolderHandle(handle);
+                    
+                    this.updateFolderUI();
+                    await this.saveSettings();
+                    
+                    this.showNotification(`✅📂 Carpeta seleccionada (persistente): ${handle.name}`);
+                    
+                    // Verificar si podemos hacerlo persistente
+                    if ('storage' in navigator && navigator.storage.persist) {
+                        const persisted = await navigator.storage.persist();
+                        console.log('💾 Persistencia de almacenamiento:', persisted ? '✅ Concedida' : '❌ No concedida');
+                    }
+                } else {
+                    this.showNotification('❌ Permiso denegado');
+                }
+            }
+            
+        } catch (error) {
+            console.warn('⚠️ Error seleccionando carpeta:', error);
+            if (error.name !== 'AbortError') {
+                this.showNotification('❌ Error seleccionando carpeta');
+            }
+        }
+    }
+
+    async requestStoragePersistence() {
+        try {
+            // Verificar si la API está disponible
+            if ('storage' in navigator && navigator.storage && navigator.storage.persist) {
+                const isPersisted = await navigator.storage.persisted();
+                console.log(`💾 Persistencia actual: ${isPersisted ? '✅ ACTIVADA' : '❌ NO ACTIVADA'}`);
+                
+                if (!isPersisted) {
+                    // Solicitar persistencia
+                    const persisted = await navigator.storage.persist();
+                    
+                    if (persisted) {
+                        console.log('✅ Persistencia de almacenamiento concedida');
+                        this.showNotification('💾 Almacenamiento persistente activado');
+                    } else {
+                        console.log('⚠️ Persistencia de almacenamiento no concedida');
+                        this.showNotification('ℹ️ Para mejor experiencia, permite almacenamiento persistente');
+                    }
+                }
+            }
+        } catch (error) {
+            console.warn('⚠️ Error solicitando persistencia:', error);
+        }
+    }
+
+    showPersistentPermissionReminder() {
+        if (this.state.settings.storageLocation !== 'localFolder' || !this.state.settings.localFolderName) {
+            return;
+        }
+        
+        // Verificar si ya mostramos el recordatorio hoy
+        const lastReminder = localStorage.getItem('dashcam_folder_reminder');
+        const today = new Date().toDateString();
+        
+        if (lastReminder === today) {
+            return; // Ya mostramos hoy
+        }
+        
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.id = 'permissionReminderModal';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h3>🔐 Permisos Persistentes</h3>
+                    <button class="close-btn" onclick="document.getElementById('permissionReminderModal').remove()">✕</button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Para acceso persistente a tu carpeta local:</strong></p>
+                    
+                    <div class="tip-card" style="background: rgba(0, 168, 255, 0.05); border: 1px solid rgba(0, 168, 255, 0.2); border-radius: 8px; padding: 15px; margin: 15px 0;">
+                        <p style="margin: 0 0 10px 0;"><strong>💡 Consejo profesional:</strong></p>
+                        <ol style="margin: 0; padding-left: 20px;">
+                            <li><strong>Instala la app como PWA</strong> (Añadir a pantalla de inicio)</li>
+                            <li><strong>Usa siempre la app instalada</strong>, no la abras desde el navegador</li>
+                            <li><strong>Permite "Almacenamiento persistente"</strong> cuando lo solicite</li>
+                        </ol>
+                    </div>
+                    
+                    <p><strong>Carpeta configurada:</strong> ${this.state.settings.localFolderName}</p>
+                    
+                    <div style="margin-top: 20px; padding: 10px; background: rgba(253, 203, 110, 0.1); border-radius: 6px;">
+                        <p style="margin: 0; font-size: 13px; color: #fdcb6e;">
+                            ⚠️ <strong>Nota:</strong> Los navegadores modernos requieren reconfirmación periódica por seguridad.
+                            Esto es normal y protege tu privacidad.
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-actions" style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button id="dontShowAgain" class="btn cancel-btn" style="flex: 1;">
+                        No mostrar de nuevo
+                    </button>
+                    <button id="selectFolderNow" class="btn save-btn" style="flex: 1;">
+                        📂 Seleccionar carpeta
+                    </button>
+                    <button id="installPWA" class="btn install-btn" style="flex: 1; background: #00b894;">
+                        📲 Instalar PWA
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Guardar que mostramos hoy
+        localStorage.setItem('dashcam_folder_reminder', today);
+        
+        // Configurar eventos
+        modal.querySelector('#dontShowAgain').addEventListener('click', () => {
+            localStorage.setItem('dashcam_folder_reminder', 'never');
+            modal.remove();
+        });
+        
+        modal.querySelector('#selectFolderNow').addEventListener('click', async () => {
+            modal.remove();
+            await this.selectLocalFolder();
+        });
+        
+        modal.querySelector('#installPWA').addEventListener('click', () => {
+            this.showPWAInstallInstructions();
+            modal.remove();
+        });
+    }
+
+    showPWAInstallInstructions() {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h3>📲 Instalar como Aplicación</h3>
+                    <button class="close-btn" onclick="this.parentElement.parentElement.remove()">✕</button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Para permisos persistentes y mejor experiencia:</strong></p>
+                    
+                    <div class="platform-instructions">
+                        <div class="platform" style="margin-bottom: 15px;">
+                            <strong>📱 iPhone/iPad:</strong>
+                            <ol style="margin: 5px 0 5px 20px; padding: 0;">
+                                <li>Abre en Safari</li>
+                                <li>Toca el botón "Compartir" (📤)</li>
+                                <li>Selecciona "Añadir a pantalla de inicio"</li>
+                                <li>Nombra la app y toca "Añadir"</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="platform" style="margin-bottom: 15px;">
+                            <strong>🖥️ Windows (Chrome/Edge):</strong>
+                            <ol style="margin: 5px 0 5px 20px; padding: 0;">
+                                <li>Haz clic en el icono "Instalar" en la barra de direcciones</li>
+                                <li>O ve a Menú → "Instalar Dashcam..."</li>
+                                <li>La app se instalará como aplicación independiente</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="platform">
+                            <strong>🤖 Android (Chrome):</strong>
+                            <ol style="margin: 5px 0 5px 20px; padding: 0;">
+                                <li>Toca el menú de tres puntos (⋮)</li>
+                                <li>Selecciona "Instalar app" o "Añadir a pantalla de inicio"</li>
+                                <li>Sigue las instrucciones en pantalla</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 10px; background: rgba(0, 184, 148, 0.1); border-radius: 8px;">
+                        <p style="margin: 0; color: #00b894; font-size: 14px;">
+                            ✅ <strong>Beneficios de instalar como PWA:</strong><br>
+                            • Permisos persistentes<br>
+                            • Funciona sin conexión<br>
+                            • Icono en pantalla de inicio<br>
+                            • Mejor rendimiento
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+    }
+
+
+    async saveFolderHandle(handle) {
+        try {
+            // Serializar el handle para almacenamiento
+            const serializedHandle = {
+                name: handle.name,
+                kind: handle.kind,
+                isDirectory: true
+            };
+            
+            // Almacenar en IndexedDB para persistencia
+            if (this.db) {
+                await this.saveToDatabase('folderHandles', {
+                    id: 'localFolder',
+                    handle: serializedHandle,
+                    timestamp: Date.now()
+                });
+                console.log('💾 Handle de carpeta guardado en IndexedDB');
+            }
+            
+            // También guardar en localStorage como backup
+            try {
+                // Nota: No podemos almacenar el objeto handle directamente
+                // Solo guardamos información de referencia
+                localStorage.setItem('dashcam_folder_name', handle.name);
+                localStorage.setItem('dashcam_folder_timestamp', Date.now().toString());
+            } catch (e) {
+                console.warn('⚠️ Error guardando en localStorage:', e);
+            }
+            
+        } catch (error) {
+            console.error('❌ Error guardando handle:', error);
+        }
+    }
+
+    async restoreFolderHandle() {
+        try {
+            console.log('🔄 Restaurando handle de carpeta persistente...');
+            
+            // Primero intentar desde localStorage
+            const folderName = localStorage.getItem('dashcam_folder_name');
+            if (folderName) {
+                console.log(`📂 Nombre de carpeta encontrado en localStorage: ${folderName}`);
+                
+                // Solo mostrar información, no forzar restauración
+                this.state.settings.localFolderName = folderName;
+                this.updateFolderUI();
+                
+                // Mostrar notificación informativa
+                this.showNotification(`📂 Carpeta "${folderName}" detectada`);
+                
+                // Si el usuario está en modo carpeta local, sugerir seleccionar
+                if (this.state.settings.storageLocation === 'localFolder') {
+                    setTimeout(() => {
+                        this.showPersistentPermissionReminder();
+                    }, 3000);
+                }
+                
+                return false; // No está realmente restaurada, necesita reconfirmación
+            }
+            
+            return false;
+            
+        } catch (error) {
+            console.error('❌ Error restaurando handle:', error);
+            return false;
+        }
+    }
+
+    checkPWARequirements() {
+        console.log('📱 Verificando requisitos PWA:');
+        console.log('🔹 Protocolo actual:', window.location.protocol);
+        console.log('🔹 HTTPS:', window.location.protocol === 'https:');
+        console.log('🔹 Localhost:', window.location.hostname === 'localhost');
+        console.log('🔹 Service Worker:', 'serviceWorker' in navigator);
+        console.log('🔹 BeforeInstallPrompt:', 'BeforeInstallPromptEvent' in window);
+        console.log('🔹 Display Mode:', window.matchMedia('(display-mode: standalone)').matches);
+        console.log('🔹 Standalone en iOS:', window.navigator.standalone);
+        
+        // Solo verificar service workers si estamos en https:// o localhost
+        if (window.location.protocol === 'https:' || window.location.hostname === 'localhost') {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    console.log('🔹 Service Workers registrados:', registrations.length);
+                    registrations.forEach((reg, index) => {
+                        console.log(`  SW ${index}:`, reg.scope);
+                    });
+                }).catch(error => {
+                    console.log('🔹 Error verificando service workers:', error.message);
+                });
+            }
+        } else {
+            console.log('🔹 Service Workers no disponibles en file://');
+        }
+    }
+
+    // Añade esta función
+    promotePWAInstallation() {
+        // Solo mostrar si no está instalado y han pasado 10 segundos
+        if (this.isPWAInstalled) return;
+        
+        setTimeout(() => {
+            this.showInstallButton();
+            
+            // Si después de 30 segundos no se ha instalado, mostrar recordatorio
+            setTimeout(() => {
+                if (!this.isPWAInstalled && this.deferredPrompt) {
+                    const modal = document.createElement('div');
+                    modal.className = 'modal';
+                    modal.innerHTML = `
+                        <div class="modal-content" style="max-width: 450px;">
+                            <div class="modal-header">
+                                <h3>📲 Instalar para mejor experiencia</h3>
+                            </div>
+                            <div class="modal-body">
+                                <p>Instalando la app como PWA te dará:</p>
+                                <ul style="padding-left: 20px; margin: 10px 0;">
+                                    <li>✅ Permisos persistentes para carpetas</li>
+                                    <li>✅ Acceso más rápido</li>
+                                    <li>✅ Funcionamiento sin conexión</li>
+                                    <li>✅ Icono en pantalla de inicio</li>
+                                </ul>
+                            </div>
+                            <div class="modal-actions">
+                                <button id="installNow" class="btn save-btn">📲 Instalar ahora</button>
+                                <button id="later" class="btn cancel-btn">Más tarde</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(modal);
+                    
+                    modal.querySelector('#installNow').addEventListener('click', () => {
+                        this.installPWA();
+                        modal.remove();
+                    });
+                    
+                    modal.querySelector('#later').addEventListener('click', () => {
+                        modal.remove();
+                    });
+                }
+            }, 30000);
+        }, 10000);
+    }
+
+
+
+    showRestoreFolderModal(folderName) {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.id = 'restoreFolderModal';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 450px;">
+                <div class="modal-header">
+                    <h3>📂 Restaurar Carpeta</h3>
+                </div>
+                <div class="modal-body">
+                    <p>Se detectó una carpeta guardada previamente:</p>
+                    <div style="text-align: center; margin: 15px 0; padding: 10px; background: rgba(0, 168, 255, 0.1); border-radius: 8px;">
+                        <strong style="color: #00a8ff; font-size: 16px;">${folderName}</strong>
+                    </div>
+                    <p>¿Quieres restaurar el acceso a esta carpeta?</p>
+                    <p><small><em>Nota: Windows/Chrome requerirá que confirmes el permiso nuevamente por seguridad.</em></small></p>
+                </div>
+                <div class="modal-actions" style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button id="cancelRestore" class="btn cancel-btn" style="flex: 1;">
+                        Usar carpeta diferente
+                    </button>
+                    <button id="restoreFolder" class="btn save-btn" style="flex: 1;">
+                        📂 Restaurar
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        modal.querySelector('#cancelRestore').addEventListener('click', () => {
+            modal.remove();
+            this.selectLocalFolder();
+        });
+        
+        modal.querySelector('#restoreFolder').addEventListener('click', async () => {
+            modal.remove();
+            await this.selectLocalFolder(); // El selector recordará la última carpeta
+        });
     }
 
     async showDesktopFolderPicker() {
@@ -4295,29 +5086,46 @@ toggleSelection(id, type) {
     async saveToDatabase(storeName, data) {
         return new Promise((resolve, reject) => {
             if (!this.db) {
-                reject(new Error('Base de datos no inicializada'));
+                console.log(`⚠️ Base de datos no disponible para ${storeName}`);
+                resolve(null);
                 return;
             }
             
-            if (!this.db.objectStoreNames.contains(storeName)) {
-                console.error(`❌ Store ${storeName} no existe`);
-                reject(new Error(`Store ${storeName} no encontrado`));
-                return;
+            try {
+                const transaction = this.db.transaction([storeName], 'readwrite');
+                const store = transaction.objectStore(storeName);
+                
+                // Usar put() en lugar de add() para actualizar si ya existe
+                const request = store.put(data);
+                
+                request.onsuccess = () => {
+                    console.log(`✅ Guardado/Actualizado en ${storeName}:`, data.id || 'N/A');
+                    resolve(request.result);
+                };
+                
+                request.onerror = () => {
+                    console.warn(`⚠️ Error guardando en ${storeName}:`, request.error?.message);
+                    
+                    // Intentar con put() si add() falló por duplicado
+                    if (request.error?.name === 'ConstraintError') {
+                        console.log(`🔄 Intentando actualizar en ${storeName}...`);
+                        const updateRequest = store.put(data);
+                        updateRequest.onsuccess = () => {
+                            console.log(`✅ Actualizado en ${storeName}:`, data.id || 'N/A');
+                            resolve(updateRequest.result);
+                        };
+                        updateRequest.onerror = () => {
+                            console.warn(`⚠️ Error actualizando en ${storeName}:`, updateRequest.error?.message);
+                            resolve(null);
+                        };
+                    } else {
+                        resolve(null);
+                    }
+                };
+            } catch (error) {
+                console.warn(`⚠️ Excepción guardando en ${storeName}:`, error.message);
+                resolve(null);
             }
-            
-            const transaction = this.db.transaction([storeName], 'readwrite');
-            const store = transaction.objectStore(storeName);
-            const request = store.add(data);
-            
-            request.onsuccess = () => {
-                console.log(`✅ Guardado en ${storeName}:`, data.id || 'N/A');
-                resolve(request.result);
-            };
-            
-            request.onerror = () => {
-                console.error(`❌ Error guardando en ${storeName}:`, request.error);
-                reject(request.error);
-            };
         });
     }
 
@@ -4348,16 +5156,32 @@ toggleSelection(id, type) {
     async getFromStore(storeName, id) {
         return new Promise((resolve, reject) => {
             if (!this.db) {
+                console.log(`⚠️ Base de datos no inicializada para ${storeName}`);
                 resolve(null);
                 return;
             }
             
-            const transaction = this.db.transaction([storeName], 'readonly');
-            const store = transaction.objectStore(storeName);
-            const request = store.get(id);
+            // Verificar si el store existe
+            if (!this.db.objectStoreNames.contains(storeName)) {
+                console.warn(`⚠️ Store ${storeName} no existe`);
+                resolve(null);
+                return;
+            }
             
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
+            try {
+                const transaction = this.db.transaction([storeName], 'readonly');
+                const store = transaction.objectStore(storeName);
+                const request = store.get(id);
+                
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => {
+                    console.warn(`⚠️ Error obteniendo de ${storeName}:`, request.error);
+                    resolve(null);
+                };
+            } catch (error) {
+                console.error(`❌ Excepción en getFromStore ${storeName}:`, error);
+                resolve(null);
+            }
         });
     }
 
