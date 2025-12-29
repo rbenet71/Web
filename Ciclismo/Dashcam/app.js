@@ -1,6 +1,6 @@
-// Dashcam PWA v3.3.2 - Versión Avanzada con todas las funcionalidades
+// Dashcam PWA v3.3.3 - Versión Avanzada con todas las funcionalidades
 
-const APP_VERSION = '3.3.2';
+const APP_VERSION = '3.3.3';
 
 class DashcamApp {
     constructor() {
@@ -2154,9 +2154,14 @@ async initDatabase() {
                 console.log('⚠️ No hay chunks para guardar después de stop');
             }
             
-            // 5. Guardar track GPX si hay puntos
+            // 5. Guardar track GPX si hay puntos - IMPORTANTE: HACERLO AQUÍ
+            console.log('📍 Puntos GPX capturados:', this.gpxPoints.length);
             if (this.gpxPoints.length > 0) {
-                await this.saveGPXTrack();
+                console.log('🗺️ Guardando track GPX...');
+                await this.saveGPXTrack(Date.now(), this.state.currentSegment);
+                console.log('✅ GPX guardado');
+            } else {
+                console.log('⚠️ No hay puntos GPX para guardar');
             }
             
             // 6. Resetear estado
@@ -2206,6 +2211,184 @@ async initDatabase() {
         // Actualizar información de segmento
         if (this.elements.segmentInfo) {
             this.elements.segmentInfo.textContent = `📹 Segmento ${this.state.currentSegment}`;
+        }
+    }
+
+    async loadGPXFromStore() {
+        try {
+            console.log('🗺️ Cargando rutas GPX desde fuentes reales...');
+            
+            let allGPX = [];
+            
+            // Escanear según el modo de vista
+            if (this.state.viewMode === 'default') {
+                // Mostrar GPX de la app
+                allGPX = await this.scanAppGPXFiles();
+                console.log(`📱 ${allGPX.length} GPX en la app`);
+                
+            } else if (this.state.viewMode === 'localFolder') {
+                // Mostrar GPX de carpeta local
+                allGPX = await this.scanLocalFolderGPXFiles();
+                console.log(`📂 ${allGPX.length} GPX en carpeta local`);
+                
+                // También mostrar GPX de la app que están relacionados con videos locales
+                const appGPX = await this.scanAppGPXFiles();
+                const localGPX = allGPX.map(g => g.filename || g.title);
+                
+                // Agregar GPX de app que no están duplicados
+                appGPX.forEach(gpx => {
+                    if (!localGPX.includes(gpx.filename || gpx.title)) {
+                        allGPX.push(gpx);
+                    }
+                });
+            }
+            
+            // Ordenar por fecha (más recientes primero)
+            this.state.gpxTracks = allGPX.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            console.log(`🗺️ Total GPX a mostrar: ${this.state.gpxTracks.length}`);
+            
+            this.renderGPXList();
+            
+        } catch (error) {
+            console.error('❌ Error cargando GPX:', error);
+            this.state.gpxTracks = [];
+            this.renderGPXList();
+        }
+    }
+
+    async scanAppGPXFiles() {
+        try {
+            console.log('🔍 Escaneando GPX en la app...');
+            let gpxList = [];
+            
+            if (this.db) {
+                // Buscar en gpxTracks (GPX generados automáticamente)
+                const gpxTracks = await this.getAllFromStore('gpxTracks');
+                gpxList = gpxList.concat(gpxTracks.map(gpx => ({
+                    id: gpx.id,
+                    title: gpx.title || 'Ruta GPX',
+                    timestamp: gpx.timestamp,
+                    size: gpx.size,
+                    points: gpx.points,
+                    location: 'app',
+                    source: 'gpxTracks',
+                    blob: gpx.blob,
+                    gpxPoints: gpx.gpxPoints
+                })));
+                
+                // También buscar en gpxFiles (GPX cargados manualmente)
+                const gpxFiles = await this.getAllFromStore('gpxFiles');
+                gpxList = gpxList.concat(gpxFiles.map(file => ({
+                    id: file.id,
+                    title: file.name || file.filename || 'GPX Cargado',
+                    timestamp: file.uploadDate || file.timestamp,
+                    size: file.fileSize,
+                    points: file.points?.length || 0,
+                    location: 'app',
+                    source: 'gpxFiles',
+                    blob: file.blob,
+                    gpxData: file
+                })));
+                
+                console.log(`📊 ${gpxList.length} GPX encontrados en la app`);
+            }
+            
+            return gpxList;
+            
+        } catch (error) {
+            console.error('❌ Error escaneando GPX de app:', error);
+            return [];
+        }
+    }
+
+    async scanLocalFolderGPXFiles() {
+        try {
+            console.log('🔍 Escaneando GPX en carpeta local...');
+            let gpxList = [];
+            
+            if (!this.localFolderHandle) {
+                console.log('⚠️ No hay carpeta local seleccionada');
+                return [];
+            }
+            
+            // Escanear carpeta raíz
+            await this.scanFolderForGPX(this.localFolderHandle, '', gpxList);
+            
+            console.log(`📂 ${gpxList.length} GPX encontrados en carpeta local`);
+            return gpxList;
+            
+        } catch (error) {
+            console.error('❌ Error escaneando carpeta local:', error);
+            return [];
+        }
+    }
+
+    async scanFolderForGPX(folderHandle, path, gpxList) {
+        try {
+            const entries = [];
+            
+            // Leer directorio
+            for await (const entry of folderHandle.values()) {
+                entries.push(entry);
+            }
+            
+            // Procesar archivos .gpx
+            for (const entry of entries) {
+                if (entry.kind === 'file' && entry.name.toLowerCase().endsWith('.gpx')) {
+                    try {
+                        const file = await entry.getFile();
+                        const fileInfo = await this.getGPXFileInfo(file, path);
+                        gpxList.push({
+                            id: Date.now() + Math.random(), // ID temporal
+                            title: entry.name.replace('.gpx', '').replace('.GPX', ''),
+                            filename: entry.name,
+                            path: path ? `${path}/${entry.name}` : entry.name,
+                            timestamp: file.lastModified,
+                            size: file.size,
+                            location: 'localFolder',
+                            source: 'filesystem',
+                            fileHandle: entry, // Guardar referencia al archivo
+                            file: file
+                        });
+                    } catch (error) {
+                        console.warn(`⚠️ Error leyendo archivo ${entry.name}:`, error);
+                    }
+                }
+                // También escanear subcarpetas (sesiones)
+                else if (entry.kind === 'directory') {
+                    const subPath = path ? `${path}/${entry.name}` : entry.name;
+                    await this.scanFolderForGPX(entry, subPath, gpxList);
+                }
+            }
+            
+        } catch (error) {
+            console.error(`❌ Error escaneando carpeta ${path}:`, error);
+        }
+    }
+
+    async getGPXFileInfo(file, path) {
+        try {
+            const text = await file.text();
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(text, 'text/xml');
+            
+            // Extraer información básica del GPX
+            const nameElement = xmlDoc.querySelector('name, metadata > name');
+            const points = xmlDoc.querySelectorAll('trkpt, wpt').length;
+            
+            return {
+                name: nameElement ? nameElement.textContent : file.name.replace('.gpx', ''),
+                points: points,
+                path: path
+            };
+            
+        } catch (error) {
+            console.warn('⚠️ Error parseando GPX:', error);
+            return {
+                name: file.name.replace('.gpx', ''),
+                points: 0,
+                path: path
+            };
         }
     }
 
@@ -2907,16 +3090,26 @@ async initDatabase() {
         this.renderGpxList();
     }
 
-    renderGpxList() {
-        const container = this.elements.gpxListContainer;
+    renderGPXList() {
+        const container = document.getElementById('gpxList');
         if (!container) return;
         
-        if (this.state.loadedGPXFiles.length === 0) {
+        console.log('🗺️ Renderizando lista GPX:', this.state.gpxTracks.length);
+        
+        if (this.state.gpxTracks.length === 0) {
+            let message = 'No hay rutas GPX';
+            let submessage = 'Las rutas se crearán automáticamente al grabar videos con GPS';
+            
+            if (this.state.viewMode === 'localFolder') {
+                message = 'No hay archivos GPX en la carpeta';
+                submessage = 'Los archivos .gpx aparecerán aquí automáticamente';
+            }
+            
             container.innerHTML = `
                 <div class="empty-state">
                     <div>🗺️</div>
-                    <p>No hay rutas GPX cargadas</p>
-                    <p>Sube un archivo GPX para comenzar</p>
+                    <p>${message}</p>
+                    <p>${submessage}</p>
                 </div>
             `;
             return;
@@ -2924,32 +3117,58 @@ async initDatabase() {
         
         let html = '<div class="file-list">';
         
-        this.state.loadedGPXFiles.forEach(gpx => {
-            const date = new Date(gpx.uploadDate);
+        this.state.gpxTracks.forEach((gpx, index) => {
+            const date = new Date(gpx.timestamp || Date.now());
+            const sizeKB = gpx.size ? Math.round(gpx.size / 1024) : 0;
             const dateStr = date.toLocaleDateString('es-ES');
-            const isActive = this.state.activeGPX && this.state.activeGPX.id === gpx.id;
+            const timeStr = date.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+            const location = gpx.location || 'app';
+            const source = gpx.source || 'unknown';
+            
+            // Icono según ubicación
+            let locationIcon = '📱';
+            let locationText = 'App';
+            if (location === 'localFolder' || source === 'filesystem') {
+                locationIcon = '📂';
+                locationText = 'Local';
+            }
+            
+            // Información específica según fuente
+            let detailsHTML = '';
+            if (gpx.points) {
+                detailsHTML += `<div>📍 ${gpx.points} puntos</div>`;
+            }
+            if (gpx.path) {
+                detailsHTML += `<div>📁 ${gpx.path}</div>`;
+            }
             
             html += `
-                <div class="file-item gpx-file ${isActive ? 'selected' : ''}" 
-                     data-id="${gpx.id}">
+                <div class="file-item gpx-file" 
+                    data-id="${gpx.id || index}" 
+                    data-type="gpx"
+                    data-location="${location}"
+                    data-source="${source}">
                     <div class="file-header">
-                        <div class="file-title">${gpx.name}</div>
+                        <div class="file-title">${gpx.title || gpx.filename || 'Archivo GPX'}</div>
+                        <div class="file-location">${locationIcon}</div>
                         <div class="file-format">GPX</div>
-                        <div class="file-time">${dateStr}</div>
+                        <div class="file-time">${timeStr}</div>
                     </div>
                     <div class="file-details">
-                        <div>📏 ${gpx.distance.toFixed(2)} km</div>
-                        <div>📍 ${gpx.points.length} puntos</div>
-                        <div>⛰️ ${gpx.elevation.min.toFixed(0)}-${gpx.elevation.max.toFixed(0)}m</div>
-                        <div>💾 ${Math.round(gpx.fileSize / 1024)} KB</div>
+                        <div>📅 ${dateStr}</div>
+                        ${detailsHTML}
+                        <div>💾 ${sizeKB} KB</div>
+                        <div>${locationIcon} ${locationText}</div>
                     </div>
                     <div class="file-footer">
-                        <button class="play-btn set-active-gpx" data-id="${gpx.id}">
-                            ${isActive ? '✅ Activa' : '🗺️ Activar'}
+                        <button class="play-btn download-gpx" data-id="${gpx.id || index}" data-source="${source}">
+                            📥 Descargar
                         </button>
-                        <button class="play-btn delete-gpx" data-id="${gpx.id}">
-                            🗑️ Eliminar
-                        </button>
+                        ${source === 'filesystem' ? `
+                            <button class="play-btn load-gpx" data-filename="${gpx.filename}" data-path="${gpx.path}">
+                                📤 Cargar a App
+                            </button>
+                        ` : ''}
                     </div>
                 </div>
             `;
@@ -2959,20 +3178,77 @@ async initDatabase() {
         container.innerHTML = html;
         
         // Configurar eventos
-        container.querySelectorAll('.set-active-gpx').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const id = parseInt(e.target.dataset.id);
-                this.setActiveGpx(id);
+        container.querySelectorAll('.download-gpx').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const id = e.target.dataset.id;
+                const source = e.target.dataset.source;
+                await this.downloadGPX(id, source);
             });
         });
         
-        container.querySelectorAll('.delete-gpx').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const id = parseInt(e.target.dataset.id);
-                this.deleteGpxFile(id);
+        container.querySelectorAll('.load-gpx').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const filename = e.target.dataset.filename;
+                const path = e.target.dataset.path;
+                await this.loadGPXFromFileSystem(filename, path);
             });
         });
     }
+
+    updateGPXSelectionButtons() {
+        const hasSelectedGPX = this.state.selectedGPX.size > 0;
+        
+        // Actualizar botones de selección masiva si existen
+        const selectAllBtn = document.getElementById('selectAllGPX');
+        const deselectAllBtn = document.getElementById('deselectAllGPX');
+        const exportBtn = document.querySelector('#gpxTab .export-btn');
+        const deleteBtn = document.querySelector('#gpxTab .delete-btn');
+        
+        if (selectAllBtn) selectAllBtn.disabled = this.state.gpxTracks.length === 0;
+        if (deselectAllBtn) deselectAllBtn.disabled = this.state.selectedGPX.size === 0;
+        if (exportBtn) exportBtn.disabled = !hasSelectedGPX;
+        if (deleteBtn) deleteBtn.disabled = !hasSelectedGPX;
+    }
+
+    async downloadGPX(gpxId, source = 'gpxTracks') {
+        try {
+            console.log('📥 Descargando GPX:', gpxId, 'fuente:', source);
+            
+            let blob;
+            let filename = 'ruta.gpx';
+            
+            if (source === 'filesystem') {
+                // Para GPX del sistema de archivos
+                const gpx = this.state.gpxTracks.find(g => (g.id == gpxId || g.filename === gpxId));
+                if (gpx && gpx.file) {
+                    blob = gpx.file;
+                    filename = gpx.filename || 'ruta.gpx';
+                }
+            } else {
+                // Para GPX de la app
+                const gpx = await this.getFromStore('gpxTracks', parseInt(gpxId));
+                if (gpx && gpx.blob) {
+                    blob = gpx.blob;
+                    filename = `${gpx.title || 'ruta'}.gpx`;
+                }
+            }
+            
+            if (!blob) {
+                this.showNotification('❌ No se pudo obtener el archivo GPX');
+                return;
+            }
+            
+            this.downloadBlob(blob, filename);
+            this.showNotification('🗺️ GPX descargado');
+            
+        } catch (error) {
+            console.error('❌ Error descargando GPX:', error);
+            this.showNotification('❌ Error al descargar GPX');
+        }
+    }
+
 
     setActiveGpx(gpxId) {
         const gpx = this.state.loadedGPXFiles.find(g => g.id === gpxId);
@@ -3354,6 +3630,35 @@ async initDatabase() {
             const gpxContent = this.generateGPX(this.gpxPoints);
             const blob = new Blob([gpxContent], { type: 'application/gpx+xml' });
             
+            const location = this.state.settings.storageLocation === 'localFolder' ? 'localFolder' : 'app';
+            
+            // Si es carpeta local, guardar físicamente también
+            if (location === 'localFolder' && this.localFolderHandle) {
+                try {
+                    const filename = `ruta_${timestamp}.gpx`;
+                    let fileHandle;
+                    
+                    // Si hay sesión, guardar en subcarpeta
+                    if (this.state.recordingSessionName) {
+                        const sessionFolder = await this.localFolderHandle.getDirectoryHandle(
+                            this.state.recordingSessionName, 
+                            { create: true }
+                        );
+                        fileHandle = await sessionFolder.getFileHandle(filename, { create: true });
+                    } else {
+                        fileHandle = await this.localFolderHandle.getFileHandle(filename, { create: true });
+                    }
+                    
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(blob);
+                    await writable.close();
+                    console.log('📂 GPX guardado físicamente en carpeta local');
+                    
+                } catch (fsError) {
+                    console.warn('⚠️ Error guardando GPX físicamente:', fsError);
+                }
+            }
+            
             const gpxData = {
                 id: Date.now(),
                 blob: blob,
@@ -3367,14 +3672,16 @@ async initDatabase() {
                     minute: '2-digit'
                 })} - S${segmentNum}`,
                 size: blob.size,
-                location: 'local',
-                segment: segmentNum
+                location: location,
+                gpxPoints: this.gpxPoints,
+                segment: segmentNum,
+                sessionName: this.state.recordingSessionName
             };
             
             if (this.db) {
                 await this.saveToDatabase('gpxTracks', gpxData);
             }
-            console.log('📍 GPX guardado:', gpxData.points, 'puntos');
+            console.log('📍 GPX guardado:', gpxData.points, 'puntos, ubicación:', gpxData.location);
             
         } catch (error) {
             console.error('❌ Error guardando GPX:', error);
@@ -5068,6 +5375,8 @@ showGallery() {
             } else {
                 videosTab.style.display = 'none';
                 gpxTab.style.display = 'block';
+                // CARGAR GPX CUANDO SE CAMBIA A ESA PESTAÑA
+                this.loadGPXFromStore();
             }
         }
     }
@@ -5080,12 +5389,13 @@ showGallery() {
                 this.state.selectedVideos.add(id);
             }
             this.renderVideosList();
-        } else {
+        } else if (type === 'gpx') {
             if (this.state.selectedGPX.has(id)) {
                 this.state.selectedGPX.delete(id);
             } else {
                 this.state.selectedGPX.add(id);
             }
+            this.renderGPXList(); // O si quieres solo actualizar el item específico
         }
         
         this.updateGalleryActions();
