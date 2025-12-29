@@ -1,6 +1,6 @@
-// Dashcam PWA v4.0.3 - Versión Completa Simplificada
+// Dashcam PWA v4.0.4 - Versión Completa Simplificada
 
-const APP_VERSION = '4.0.3';
+const APP_VERSION = '4.0.4';
 
 class DashcamApp {
     constructor() {
@@ -2103,19 +2103,31 @@ class DashcamApp {
             this.elements.locationIcon.textContent = locationIcon;
             this.elements.locationText.textContent = locationText;
             
-            this.elements.playbackVideo.addEventListener('timeupdate', () => {
-                this.updatePlaybackMap();
-            });
+            // Limpiar mapa existente antes de inicializar uno nuevo
+            this.cleanupMap();
             
             // AÑADIR CLASE PARA MÓVIL
             this.elements.videoPlayer.classList.remove('hidden');
             this.elements.videoPlayer.classList.add('mobile-view');
             
-            if (video.gpsTrack && video.gpsTrack.length > 0) {
-                this.initPlaybackMap();
-            } else {
-                this.showNotification('⚠️ Este video no tiene datos GPS');
-            }
+            // Inicializar mapa después de un pequeño delay para asegurar que el contenedor esté visible
+            setTimeout(() => {
+                if (video.gpsTrack && video.gpsTrack.length > 0) {
+                    this.initLeafletMap(); // ¡CAMBIADO! Usar initLeafletMap en lugar de initPlaybackMap
+                    console.log('🗺️ Inicializando mapa con', video.gpsTrack.length, 'puntos GPS');
+                } else {
+                    const mapContainer = this.elements.playbackMap;
+                    if (mapContainer) {
+                        mapContainer.innerHTML = '<div class="map-loading"><span>⚠️ Este video no tiene datos GPS</span></div>';
+                    }
+                    console.log('⚠️ Video sin datos GPS para mostrar en mapa');
+                }
+            }, 300);
+            
+            // Configurar eventos de reproducción
+            this.elements.playbackVideo.addEventListener('timeupdate', () => {
+                this.updatePlaybackMap();
+            });
             
             setTimeout(() => {
                 this.elements.playbackVideo.play().catch(error => {
@@ -2252,57 +2264,128 @@ class DashcamApp {
 
 
 
-    initPlaybackMap() {
-        if (!this.state.currentVideo || !this.state.currentVideo.gpsTrack) return;
+    initLeafletMap() {
+        console.log('🗺️ Inicializando mapa Leaflet...');
         
-        const canvas = this.elements.playbackMap;
-        if (!canvas) return;
-        
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        const points = this.state.currentVideo.gpsTrack;
-        if (points.length === 0) return;
-        
-        let minLat = Infinity, maxLat = -Infinity;
-        let minLon = Infinity, maxLon = -Infinity;
-        
-        points.forEach(point => {
-            minLat = Math.min(minLat, point.lat);
-            maxLat = Math.max(maxLat, point.lat);
-            minLon = Math.min(minLon, point.lon);
-            maxLon = Math.max(maxLon, point.lon);
-        });
-        
-        const latRange = maxLat - minLat;
-        const lonRange = maxLon - minLon;
-        
-        const scaledPoints = points.map(point => ({
-            x: ((point.lon - minLon) / lonRange) * canvas.width,
-            y: canvas.height - ((point.lat - minLat) / latRange) * canvas.height
-        }));
-        
-        ctx.beginPath();
-        ctx.moveTo(scaledPoints[0].x, scaledPoints[0].y);
-        for (let i = 1; i < scaledPoints.length; i++) {
-            ctx.lineTo(scaledPoints[i].x, scaledPoints[i].y);
+        if (!this.state.currentVideo || !this.state.currentVideo.gpsTrack) {
+            console.log('⚠️ No hay datos GPS para mostrar en el mapa');
+            const mapContainer = document.getElementById('playbackMap');
+            if (mapContainer) {
+                mapContainer.innerHTML = '<div class="map-loading"><span>⚠️ No hay datos GPS disponibles</span></div>';
+            }
+            return;
         }
         
-        ctx.strokeStyle = '#00a8ff';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+        const mapContainer = document.getElementById('playbackMap');
+        if (!mapContainer) {
+            console.error('❌ No se encontró el contenedor del mapa');
+            return;
+        }
         
-        ctx.fillStyle = '#00ff00';
-        ctx.beginPath();
-        ctx.arc(scaledPoints[0].x, scaledPoints[0].y, 4, 0, Math.PI * 2);
-        ctx.fill();
+        // Limpiar contenido anterior
+        mapContainer.innerHTML = '';
         
-        ctx.fillStyle = '#ff0000';
-        ctx.beginPath();
-        ctx.arc(scaledPoints[scaledPoints.length-1].x, scaledPoints[scaledPoints.length-1].y, 4, 0, Math.PI * 2);
-        ctx.fill();
+        const points = this.state.currentVideo.gpsTrack;
+        if (points.length === 0) {
+            console.log('⚠️ El track GPS está vacío');
+            mapContainer.innerHTML = '<div class="map-loading"><span>⚠️ No hay datos GPS para mostrar</span></div>';
+            return;
+        }
+        
+        // Verificar si Leaflet está disponible
+        if (typeof L === 'undefined') {
+            console.error('❌ Leaflet no está cargado');
+            mapContainer.innerHTML = '<div class="map-loading" style="color: #ff7675;"><span>❌ Error: Leaflet no está disponible</span></div>';
+            return;
+        }
+        
+        try {
+            // Calcular centro y área del recorrido
+            const bounds = this.calculateTrackBounds(points);
+            const center = this.calculateTrackCenter(points);
+            
+            // Crear mapa Leaflet
+            this.playbackMap = L.map('playbackMap', {
+                center: center,
+                zoom: 13,
+                zoomControl: true,
+                attributionControl: true,
+                scrollWheelZoom: false,
+                dragging: !this.isIOS,
+                tap: !this.isIOS,
+                touchZoom: true,
+                boxZoom: false,
+                doubleClickZoom: true,
+                keyboard: false
+            });
+            
+            // Añadir capa de OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19,
+                subdomains: ['a', 'b', 'c']
+            }).addTo(this.playbackMap);
+            
+            // Dibujar la ruta
+            const latLngs = points.map(point => [point.lat, point.lon]);
+            
+            // Crear línea para la ruta
+            this.mapRouteLayer = L.polyline(latLngs, {
+                color: '#00a8ff',
+                weight: 4,
+                opacity: 0.8,
+                lineJoin: 'round',
+                lineCap: 'round'
+            }).addTo(this.playbackMap);
+            
+            // Añadir marcador de inicio
+            const startPoint = points[0];
+            this.startMarker = L.marker([startPoint.lat, startPoint.lon]).addTo(this.playbackMap);
+            this.startMarker.bindTooltip('📍 Punto de inicio', { direction: 'top' });
+            
+            // Añadir marcador de fin
+            const endPoint = points[points.length - 1];
+            this.endMarker = L.marker([endPoint.lat, endPoint.lon]).addTo(this.playbackMap);
+            this.endMarker.bindTooltip('🏁 Punto final', { direction: 'top' });
+            
+            // Ajustar vista para mostrar toda la ruta
+            this.playbackMap.fitBounds(bounds, {
+                padding: [30, 30],
+                maxZoom: 16
+            });
+            
+            // Forzar redibujado del mapa
+            setTimeout(() => {
+                if (this.playbackMap) {
+                    this.playbackMap.invalidateSize();
+                    console.log('✅ Mapa Leaflet inicializado correctamente');
+                }
+            }, 300);
+            
+            // Crear marcador de posición actual (será actualizado durante reproducción)
+            if (points.length > 0) {
+                const firstPoint = points[0];
+                this.currentPositionMarker = L.marker([firstPoint.lat, firstPoint.lon], {
+                    icon: L.divIcon({
+                        className: 'current-position-marker',
+                        iconSize: [16, 16],
+                        html: '<div></div>'
+                    }),
+                    zIndexOffset: 1000
+                }).addTo(this.playbackMap);
+            }
+            
+        } catch (error) {
+            console.error('❌ Error inicializando mapa Leaflet:', error);
+            mapContainer.innerHTML = `
+                <div class="map-loading" style="color: #ff7675;">
+                    <span>❌ Error cargando mapa</span>
+                    <br>
+                    <small>${error.message}</small>
+                </div>
+            `;
+        }
     }
-
     updatePlaybackMap() {
         if (!this.state.currentVideo || !this.state.currentVideo.gpsTrack) return;
         
@@ -2332,6 +2415,12 @@ class DashcamApp {
         // Limpiar mapa Leaflet
         this.cleanupMap();
         
+        // Limpiar el contenedor del mapa
+        const mapContainer = this.elements.playbackMap;
+        if (mapContainer) {
+            mapContainer.innerHTML = '<div class="map-loading"><span>🔄 Cargando mapa...</span></div>';
+        }
+        
         // Ocultar el panel
         if (this.elements.videoPlayer) {
             this.elements.videoPlayer.classList.add('hidden');
@@ -2356,7 +2445,6 @@ class DashcamApp {
         
         console.log('🎬 Reproductor de video cerrado');
     }
-
     
     async moveToLocalFolder() {
         if (!this.state.currentVideo) {
