@@ -10,12 +10,12 @@
     "scope": "/Web/Ciclismo/Dashcam/",
     "icons": [
         {
-            "src": "Picto_Color_192x192.png?v=3.3.3",
+            "src": "recursos/Picto_Color_192x192.png?v=3.3.3",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "Picto_Color_512x512.png?v=3.3.3",
+            "src": "recursos/Picto_Color_512x512.png?v=3.3.3",
             "sizes": "512x512",
             "type": "image/png"
         }

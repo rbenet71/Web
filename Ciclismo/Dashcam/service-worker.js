@@ -6,9 +6,9 @@ const urlsToCache = [
     './styles.css?v=3.3.3',
     './app.js?v=3.3.3',
     './manifest.json?v=3.3.3',
-    './Logo_Dashcam_Bike_192x192.png',
-    './Picto_Color_192x192.png',
-    './Picto_Color_512x512.png'
+    './recursos/Logo_Dashcam_Bike_192x192.png',
+    './recursos/Picto_Color_192x192.png',
+    './recursos/Picto_Color_512x512.png'
 ];
 
 self.addEventListener('install', event => {
