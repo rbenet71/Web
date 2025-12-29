@@ -2046,6 +2046,9 @@ class DashcamApp {
                 return;
             }
             
+            // EXTRAER METADATOS GPS DEL MP4
+            await this.extractGPSMetadataFromMP4(video);
+            
             this.state.currentVideo = video;
             
             const videoUrl = URL.createObjectURL(video.blob);
@@ -2082,10 +2085,14 @@ class DashcamApp {
                 this.updatePlaybackMap();
             });
             
+            // AÑADIR CLASE PARA MÓVIL
             this.elements.videoPlayer.classList.remove('hidden');
+            this.elements.videoPlayer.classList.add('mobile-view');
             
             if (video.gpsTrack && video.gpsTrack.length > 0) {
                 this.initPlaybackMap();
+            } else {
+                this.showNotification('⚠️ Este video no tiene datos GPS');
             }
             
             setTimeout(() => {
@@ -2099,6 +2106,129 @@ class DashcamApp {
             this.showNotification('❌ Error al reproducir');
         }
     }
+
+    // AÑADE ESTA NUEVA FUNCIÓN PARA EXTRAER METADATOS GPS:
+
+    async extractGPSMetadataFromMP4(video) {
+        try {
+            console.log('📍 Extrayendo metadatos GPS del video...');
+            
+            // Si ya tiene datos GPS, no hacer nada
+            if (video.gpsTrack && video.gpsTrack.length > 0) {
+                console.log('✅ Video ya tiene datos GPS');
+                return;
+            }
+            
+            // Crear un FileReader para leer el blob
+            const reader = new FileReader();
+            
+            return new Promise((resolve, reject) => {
+                reader.onload = (event) => {
+                    try {
+                        const arrayBuffer = event.target.result;
+                        const dataView = new DataView(arrayBuffer);
+                        
+                        // Buscar metadatos GPS al final del archivo (los agregamos al final)
+                        // Los metadatos están en JSON después del contenido MP4
+                        const decoder = new TextDecoder('utf-8');
+                        const tailSize = Math.min(10000, arrayBuffer.byteLength); // Últimos 10KB
+                        const tailStart = arrayBuffer.byteLength - tailSize;
+                        const tailData = new Uint8Array(arrayBuffer, tailStart, tailSize);
+                        const tailText = decoder.decode(tailData);
+                        
+                        // Buscar JSON en el texto
+                        const jsonStart = tailText.indexOf('{"gpsPoints":');
+                        if (jsonStart !== -1) {
+                            const jsonText = tailText.substring(jsonStart);
+                            const jsonEnd = jsonText.indexOf('}') + 1;
+                            const jsonStr = jsonText.substring(0, jsonEnd);
+                            
+                            try {
+                                const metadata = JSON.parse(jsonStr);
+                                console.log('✅ Metadatos GPS encontrados:', metadata.gpsPoints, 'puntos');
+                                
+                                // Actualizar video con los metadatos extraídos
+                                video.gpsTrack = metadata.track || [];
+                                video.gpsPoints = metadata.gpsPoints || 0;
+                                
+                                // También agregar nombres de ubicación a cada punto
+                                if (video.gpsTrack.length > 0) {
+                                    this.addLocationNamesToTrack(video.gpsTrack);
+                                }
+                                
+                                resolve(metadata);
+                                
+                            } catch (jsonError) {
+                                console.warn('⚠️ Error parseando metadatos JSON:', jsonError);
+                                resolve(null);
+                            }
+                        } else {
+                            console.log('ℹ️ No se encontraron metadatos GPS en el video');
+                            resolve(null);
+                        }
+                    } catch (error) {
+                        console.warn('⚠️ Error procesando metadatos:', error);
+                        resolve(null);
+                    }
+                };
+                
+                reader.onerror = () => {
+                    console.warn('⚠️ Error leyendo archivo para extraer metadatos');
+                    resolve(null);
+                };
+                
+                // Leer solo los últimos 100KB para eficiencia
+                const slice = video.blob.slice(-100000); // Últimos 100KB
+                reader.readAsArrayBuffer(slice);
+            });
+            
+        } catch (error) {
+            console.error('❌ Error en extractGPSMetadataFromMP4:', error);
+            return null;
+        }
+    }
+
+    // FUNCIÓN PARA AÑADIR NOMBRES DE UBICACIÓN:
+
+    async addLocationNamesToTrack(gpsTrack) {
+        if (!gpsTrack || gpsTrack.length === 0) return;
+        
+        console.log('🏙️ Añadiendo nombres de ubicación al track...');
+        
+        // Tomar muestras para no sobrecargar la API
+        const samplePoints = [];
+        const step = Math.max(1, Math.floor(gpsTrack.length / 10)); // 10 puntos máximo
+        
+        for (let i = 0; i < gpsTrack.length; i += step) {
+            samplePoints.push(gpsTrack[i]);
+        }
+        
+        // Procesar puntos en paralelo
+        const promises = samplePoints.map(async (point, index) => {
+            try {
+                const locationName = await this.getLocationName(point.lat, point.lon);
+                point.locationName = locationName;
+                
+                // Asignar el mismo nombre a puntos cercanos
+                const startIdx = index * step;
+                const endIdx = Math.min((index + 1) * step, gpsTrack.length);
+                
+                for (let j = startIdx; j < endIdx; j++) {
+                    if (gpsTrack[j]) {
+                        gpsTrack[j].locationName = locationName;
+                    }
+                }
+            } catch (error) {
+                console.warn(`⚠️ Error obteniendo ubicación para punto ${index}:`, error);
+            }
+        });
+        
+        await Promise.all(promises);
+        console.log('✅ Nombres de ubicación añadidos al track');
+    }
+
+
+
 
     initPlaybackMap() {
         if (!this.state.currentVideo || !this.state.currentVideo.gpsTrack) return;
@@ -2177,15 +2307,29 @@ class DashcamApp {
     }
 
     hideVideoPlayer() {
-        this.elements.videoPlayer.classList.add('hidden');
+        // Ocultar el panel
+        if (this.elements.videoPlayer) {
+            this.elements.videoPlayer.classList.add('hidden');
+            this.elements.videoPlayer.classList.remove('mobile-view');
+        }
+        
+        // Detener y limpiar el video
         if (this.elements.playbackVideo) {
             this.elements.playbackVideo.pause();
-            if (this.elements.playbackVideo.src) {
+            
+            // Liberar URL del blob para liberar memoria
+            if (this.elements.playbackVideo.src && this.elements.playbackVideo.src.startsWith('blob:')) {
                 URL.revokeObjectURL(this.elements.playbackVideo.src);
             }
+            
             this.elements.playbackVideo.src = '';
+            this.elements.playbackVideo.load(); // Resetear el elemento de video
         }
+        
+        // Limpiar datos del video actual
         this.state.currentVideo = null;
+        
+        console.log('🎬 Reproductor de video cerrado');
     }
     
     async moveToLocalFolder() {

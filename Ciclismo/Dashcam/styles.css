@@ -1787,3 +1787,176 @@ body {
     margin-bottom: 5px;
     font-size: 14px;
 }
+
+/* Añade esto a tu styles.css */
+
+/* Estilos para móvil en el reproductor */
+#videoPlayer.mobile-view {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    background: #000;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+#videoPlayer.mobile-view .panel-container {
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-bottom: 80px; /* Espacio para navegación móvil */
+}
+
+#videoPlayer.mobile-view .player-layout {
+    flex-direction: column;
+}
+
+#videoPlayer.mobile-view .video-container {
+    width: 100%;
+    max-height: 40vh;
+}
+
+#videoPlayer.mobile-view .video-container video {
+    width: 100%;
+    height: auto;
+    max-height: 40vh;
+    object-fit: contain;
+}
+
+#videoPlayer.mobile-view .map-container {
+    width: 100%;
+    margin-top: 10px;
+}
+
+#videoPlayer.mobile-view .map-container canvas {
+    width: 100%;
+    height: 150px;
+}
+
+#videoPlayer.mobile-view .map-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+}
+
+#videoPlayer.mobile-view .map-stat {
+    font-size: 12px;
+    padding: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+}
+
+#videoPlayer.mobile-view .video-info {
+    padding: 15px;
+}
+
+#videoPlayer.mobile-view .video-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 10px 0;
+}
+
+#videoPlayer.mobile-view .video-stats .stat {
+    font-size: 12px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+}
+
+#videoPlayer.mobile-view .video-location {
+    font-size: 12px;
+    padding: 10px;
+    background: rgba(0, 168, 255, 0.1);
+    border-radius: 6px;
+    margin-top: 10px;
+}
+
+#videoPlayer.mobile-view .panel-actions {
+    position: sticky;
+    bottom: 0;
+    background: #1e272e;
+    padding: 10px;
+    border-top: 1px solid #333;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    z-index: 1001;
+}
+
+#videoPlayer.mobile-view .panel-actions .btn {
+    padding: 12px 8px;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Botones específicos para móvil */
+#videoPlayer.mobile-view .gpx-btn {
+    background: #00b894;
+}
+
+#videoPlayer.mobile-view .move-btn {
+    background: #fd79a8;
+}
+
+#videoPlayer.mobile-view .export-btn {
+    background: #fdcb6e;
+    color: #000;
+}
+
+#videoPlayer.mobile-view .delete-btn {
+    background: #ff7675;
+}
+
+/* Ajustes para pantallas muy pequeñas */
+@media (max-width: 360px) {
+    #videoPlayer.mobile-view .panel-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    #videoPlayer.mobile-view .map-info {
+        grid-template-columns: 1fr;
+    }
+    
+    #videoPlayer.mobile-view .video-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Mejoras para el header en móvil */
+#videoPlayer.mobile-view .panel-header {
+    position: sticky;
+    top: 0;
+    background: #1e272e;
+    z-index: 1001;
+    padding: 15px;
+    border-bottom: 1px solid #333;
+}
+
+#videoPlayer.mobile-view .panel-header h3 {
+    font-size: 18px;
+    margin: 0;
+}
+
+#videoPlayer.mobile-view .close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
