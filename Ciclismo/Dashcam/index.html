@@ -9,14 +9,21 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <title>Dashcam iPhone v4.0.2</title>
+    <title>Dashcam iPhone v4.0.3</title>
     
     <!-- Manifest con versión -->
-    <link rel="manifest" href="manifest.json?v=4.0.2">
+    <link rel="manifest" href="manifest.json?v=4.0.3">
     
     <!-- CSS con versión -->
-    <link rel="stylesheet" href="styles.css?v=4.0.2">
+    <link rel="stylesheet" href="styles.css?v=4.0.3">
     
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+
+
+
+
     <link rel="icon" href="recursos/Picto_Color_192x192.png">
     
     <meta name="theme-color" content="#000000">
@@ -27,7 +34,7 @@
     
     <!-- Librerías para funciones avanzadas -->
     <script src="https://unpkg.com/mp4box@0.5.2/dist/mp4box.all.min.js"></script>
-    <script src="https://unpkg.com/gpxparser@4.0.2.8/gpxparser.js"></script>
+    <script src="https://unpkg.com/gpxparser@4.0.3.8/gpxparser.js"></script>
 </head>
 <body>
     <div class="container">
@@ -38,7 +45,7 @@
             <h1 class="app-title">Dashcam iPhone Pro</h1>
             
             <p class="app-description">Grabación Recorridos con datos GPS</p>
-            <div class="app-version">Versión 4.0.2</div>
+            <div class="app-version">Versión 4.0.3</div>
             
             <div class="start-controls">
                 <button id="startBtn" class="start-btn">
@@ -554,9 +561,14 @@
                     <div class="video-container">
                         <video id="playbackVideo" controls playsinline></video>
                     </div>
-                    
+
                     <div class="map-container">
-                        <canvas id="playbackMap" width="400" height="200"></canvas>
+                        <div id="playbackMap" class="leaflet-map">
+                            <!-- El mapa se cargará aquí dinámicamente -->
+                            <div class="map-loading">
+                                <span>🔄 Cargando mapa...</span>
+                            </div>
+                        </div>
                         <div class="map-info">
                             <div class="map-stat">
                                 <span>📍 Lat:</span>
@@ -573,6 +585,14 @@
                             <div class="map-stat">
                                 <span>🏙️ Ciudad:</span>
                                 <span id="mapCity">Desconocida</span>
+                            </div>
+                            <div class="map-stat">
+                                <span>📏 Dist:</span>
+                                <span id="mapDistance">0 km</span>
+                            </div>
+                            <div class="map-stat">
+                                <span>⏱️ Tiempo:</span>
+                                <span id="mapTime">0:00</span>
                             </div>
                         </div>
                     </div>
@@ -623,10 +643,6 @@
                         <button id="deleteVideo" class="btn delete-btn">
                             <span>🗑️</span>
                             <span>Eliminar</span>
-                        </button>
-                        <button id="closePlayerBottom" class="btn close-player-btn">
-                            <span>✕</span>
-                            <span>Cerrar</span>
                         </button>
                     </div>
                     <div class="scroll-indicator">Desliza para ver más acciones</div>
@@ -748,12 +764,13 @@
     </div>
 
     <!-- JavaScript con versión -->
-    <script src="app.js?v=4.0.2"></script>
+    <script src="app.js?v=4.0.3"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     
     <script>
         // Limpiar caché al cargar
-        if (localStorage.getItem('dashcam_version') !== '4.0.2') {
-            localStorage.setItem('dashcam_version', '4.0.2');
+        if (localStorage.getItem('dashcam_version') !== '4.0.3') {
+            localStorage.setItem('dashcam_version', '4.0.3');
             
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(registrations => {

@@ -1,6 +1,6 @@
-// Dashcam PWA v4.0.2 - Versión Completa Simplificada
+// Dashcam PWA v4.0.3 - Versión Completa Simplificada
 
-const APP_VERSION = '4.0.2';
+const APP_VERSION = '4.0.3';
 
 class DashcamApp {
     constructor() {
@@ -25,6 +25,7 @@ class DashcamApp {
             loadedGPXFiles: [],
             activeGPX: null,
             currentSegment: 1,
+            
             settings: {
                 recordingMode: 'segmented',
                 segmentDuration: 5,
@@ -82,6 +83,14 @@ class DashcamApp {
         this.elements = {};
         this.tempGpxData = null;
         this.lastGeocodeUpdate = null;
+        this.playbackMap = null;
+        this.mapTrackLayer = null;
+        this.mapRouteLayer = null;
+        this.startMarker = null;
+        this.endMarker = null;
+        this.currentPositionMarker = null;
+        this.mapMarkers = [];
+        this.mapTileLayers = {};
         
         this.init();
     }
@@ -1744,6 +1753,8 @@ class DashcamApp {
         return R * c;
     }
 
+    
+
     stopFrameCapture() {
         if (this.animationFrame) {
             cancelAnimationFrame(this.animationFrame);
@@ -2318,6 +2329,9 @@ class DashcamApp {
     }
 
     hideVideoPlayer() {
+        // Limpiar mapa Leaflet
+        this.cleanupMap();
+        
         // Ocultar el panel
         if (this.elements.videoPlayer) {
             this.elements.videoPlayer.classList.add('hidden');
@@ -2334,7 +2348,7 @@ class DashcamApp {
             }
             
             this.elements.playbackVideo.src = '';
-            this.elements.playbackVideo.load(); // Resetear el elemento de video
+            this.elements.playbackVideo.load();
         }
         
         // Limpiar datos del video actual
@@ -2342,6 +2356,7 @@ class DashcamApp {
         
         console.log('🎬 Reproductor de video cerrado');
     }
+
     
     async moveToLocalFolder() {
         if (!this.state.currentVideo) {
@@ -3717,6 +3732,424 @@ class DashcamApp {
         }
     }
 
+    initPlaybackMap() {
+        console.log('🗺️ Inicializando mapa Leaflet...');
+        
+        if (!this.state.currentVideo || !this.state.currentVideo.gpsTrack) {
+            console.log('⚠️ No hay datos GPS para mostrar en el mapa');
+            return;
+        }
+        
+        const mapContainer = document.getElementById('playbackMap');
+        if (!mapContainer) {
+            console.error('❌ No se encontró el contenedor del mapa');
+            return;
+        }
+        
+        // Limpiar mapa existente
+        this.cleanupMap();
+        
+        const points = this.state.currentVideo.gpsTrack;
+        if (points.length === 0) {
+            console.log('⚠️ El track GPS está vacío');
+            mapContainer.innerHTML = '<div class="map-loading"><span>⚠️ No hay datos GPS</span></div>';
+            return;
+        }
+        
+        // Mostrar mensaje de carga
+        mapContainer.innerHTML = '<div class="map-loading"><span>🔄 Cargando mapa...</span></div>';
+        
+        // Esperar a que Leaflet esté disponible
+        if (typeof L === 'undefined') {
+            console.error('❌ Leaflet no está cargado');
+            mapContainer.innerHTML = '<div class="map-loading"><span>❌ Error cargando mapa</span></div>';
+            return;
+        }
+        
+        try {
+            // Calcular centro y área del recorrido
+            const bounds = this.calculateTrackBounds(points);
+            const center = this.calculateTrackCenter(points);
+            
+            // Crear mapa Leaflet
+            this.playbackMap = L.map('playbackMap', {
+                center: center,
+                zoom: 13,
+                zoomControl: true,
+                attributionControl: true,
+                scrollWheelZoom: false, // Desactivar zoom con rueda en móvil
+                dragging: !this.isIOS,  // Desactivar arrastre en iOS si causa problemas
+                tap: !this.isIOS,
+                touchZoom: true,
+                boxZoom: false,
+                doubleClickZoom: true,
+                keyboard: false,
+                fadeAnimation: true,
+                zoomAnimation: true
+            });
+            
+            // Añadir capas de mapa
+            this.addMapTileLayers();
+            
+            // Dibujar la ruta
+            this.drawRouteOnMap(points);
+            
+            // Añadir marcadores de inicio y fin
+            this.addStartEndMarkers(points);
+            
+            // Ajustar vista para mostrar toda la ruta
+            this.playbackMap.fitBounds(bounds, {
+                padding: [30, 30],
+                maxZoom: 16
+            });
+            
+            // Añadir botón para centrar
+            this.addMapControls();
+            
+            // Forzar redibujado del mapa después de un breve delay
+            setTimeout(() => {
+                if (this.playbackMap) {
+                    this.playbackMap.invalidateSize();
+                    console.log('✅ Mapa Leaflet inicializado correctamente');
+                }
+            }, 300);
+            
+            // Actualizar información de distancia
+            this.updateMapStats(points);
+            
+        } catch (error) {
+            console.error('❌ Error inicializando mapa Leaflet:', error);
+            mapContainer.innerHTML = `
+                <div class="map-loading" style="color: #ff7675;">
+                    <span>❌ Error cargando mapa</span>
+                    <br>
+                    <small>${error.message}</small>
+                </div>
+            `;
+        }
+    }
+
+    // Función auxiliar para calcular límites del track
+    calculateTrackBounds(points) {
+        let minLat = Infinity, maxLat = -Infinity;
+        let minLon = Infinity, maxLon = -Infinity;
+        
+        points.forEach(point => {
+            minLat = Math.min(minLat, point.lat);
+            maxLat = Math.max(maxLat, point.lat);
+            minLon = Math.min(minLon, point.lon);
+            maxLon = Math.max(maxLon, point.lon);
+        });
+        
+        // Añadir un margen del 10%
+        const latMargin = (maxLat - minLat) * 0.1;
+        const lonMargin = (maxLon - minLon) * 0.1;
+        
+        return [
+            [minLat - latMargin, minLon - lonMargin],
+            [maxLat + latMargin, maxLon + lonMargin]
+        ];
+    }
+
+    // Función auxiliar para calcular centro del track
+    calculateTrackCenter(points) {
+        let latSum = 0, lonSum = 0;
+        points.forEach(point => {
+            latSum += point.lat;
+            lonSum += point.lon;
+        });
+        
+        return [latSum / points.length, lonSum / points.length];
+    }
+
+    // Añadir capas de mapa
+    addMapTileLayers() {
+        if (!this.playbackMap) return;
+        
+        // Capa principal: OpenStreetMap Standard
+        const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19,
+            minZoom: 2,
+            subdomains: ['a', 'b', 'c']
+        });
+        
+        // Capa alternativa: CartoDB Voyager
+        const cartoLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>',
+            maxZoom: 20,
+            subdomains: ['a', 'b', 'c']
+        });
+        
+        // Capa satélite: ESRI World Imagery
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '© Esri',
+            maxZoom: 19
+        });
+        
+        // Añadir capas al mapa
+        osmLayer.addTo(this.playbackMap);
+        
+        // Guardar referencia a las capas
+        this.mapTileLayers = {
+            "OpenStreetMap": osmLayer,
+            "CartoDB Voyager": cartoLayer,
+            "Satélite": satelliteLayer
+        };
+        
+        // Añadir control de capas
+        L.control.layers(this.mapTileLayers, null, {
+            collapsed: true,
+            position: 'topright'
+        }).addTo(this.playbackMap);
+    }
+
+    // Dibujar ruta en el mapa
+    drawRouteOnMap(points) {
+        if (!this.playbackMap || points.length < 2) return;
+        
+        // Convertir puntos a formato [lat, lng] para Leaflet
+        const latLngs = points.map(point => [point.lat, point.lon]);
+        
+        // Crear línea para la ruta
+        this.mapRouteLayer = L.polyline(latLngs, {
+            color: '#00a8ff',
+            weight: 4,
+            opacity: 0.8,
+            lineJoin: 'round',
+            lineCap: 'round',
+            className: 'leaflet-polyline-path'
+        }).addTo(this.playbackMap);
+        
+        // Añadir sombra para mejor visibilidad
+        L.polyline(latLngs, {
+            color: '#000',
+            weight: 6,
+            opacity: 0.3,
+            lineJoin: 'round',
+            lineCap: 'round'
+        }).addTo(this.playbackMap);
+        
+        console.log(`🗺️ Ruta dibujada con ${points.length} puntos`);
+    }
+
+    // Añadir marcadores de inicio y fin
+    addStartEndMarkers(points) {
+        if (!this.playbackMap || points.length === 0) return;
+        
+        // Marcador de inicio
+        const startPoint = points[0];
+        this.startMarker = L.marker([startPoint.lat, startPoint.lon], {
+            icon: L.divIcon({
+                className: 'start-marker',
+                iconSize: [12, 12],
+                html: '<div></div>'
+            }),
+            title: 'Punto de inicio',
+            alt: 'Punto de inicio'
+        }).addTo(this.playbackMap);
+        
+        this.startMarker.bindTooltip('📍 Punto de inicio', {
+            permanent: false,
+            direction: 'top',
+            offset: [0, -10]
+        });
+        
+        // Marcador de fin (si hay más de un punto)
+        if (points.length > 1) {
+            const endPoint = points[points.length - 1];
+            this.endMarker = L.marker([endPoint.lat, endPoint.lon], {
+                icon: L.divIcon({
+                    className: 'end-marker',
+                    iconSize: [12, 12],
+                    html: '<div></div>'
+                }),
+                title: 'Punto final',
+                alt: 'Punto final'
+            }).addTo(this.playbackMap);
+            
+            this.endMarker.bindTooltip('🏁 Punto final', {
+                permanent: false,
+                direction: 'top',
+                offset: [0, -10]
+            });
+        }
+    }
+
+    // Añadir controles al mapa
+    addMapControls() {
+        if (!this.playbackMap) return;
+        
+        // Botón para centrar en la ruta
+        const centerControl = L.Control.extend({
+            options: {
+                position: 'bottomright'
+            },
+            
+            onAdd: function() {
+                const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+                const button = L.DomUtil.create('a', '', container);
+                button.innerHTML = '🗺️';
+                button.title = 'Centrar en ruta';
+                button.style.cssText = `
+                    width: 32px;
+                    height: 32px;
+                    line-height: 30px;
+                    text-align: center;
+                    background: rgba(30, 39, 46, 0.95);
+                    color: white;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 16px;
+                `;
+                
+                L.DomEvent.on(button, 'click', () => {
+                    if (this.playbackMap && this.mapRouteLayer) {
+                        this.playbackMap.fitBounds(this.mapRouteLayer.getBounds(), {
+                            padding: [30, 30],
+                            maxZoom: 16
+                        });
+                    }
+                });
+                
+                return container;
+            }
+        });
+        
+        this.playbackMap.addControl(new centerControl());
+    }
+
+    // Actualizar estadísticas del mapa
+    updateMapStats(points) {
+        if (points.length < 2) return;
+        
+        // Calcular distancia total
+        let totalDistance = 0;
+        for (let i = 1; i < points.length; i++) {
+            totalDistance += this.calculateDistance(
+                points[i-1].lat, points[i-1].lon,
+                points[i].lat, points[i].lon
+            );
+        }
+        
+        // Calcular tiempo total
+        let totalTime = 0;
+        if (points[0].timestamp && points[points.length-1].timestamp) {
+            totalTime = points[points.length-1].timestamp - points[0].timestamp;
+        }
+        
+        // Actualizar UI
+        const distanceElement = document.getElementById('mapDistance');
+        const timeElement = document.getElementById('mapTime');
+        
+        if (distanceElement) {
+            distanceElement.textContent = `${totalDistance.toFixed(2)} km`;
+        }
+        
+        if (timeElement) {
+            timeElement.textContent = this.formatTime(totalTime);
+        }
+    }
+
+    // Actualizar marcador de posición actual durante reproducción
+    updatePlaybackMap() {
+        if (!this.state.currentVideo || !this.state.currentVideo.gpsTrack || !this.playbackMap) return;
+        
+        const video = this.elements.playbackVideo;
+        if (!video || !video.duration) return;
+        
+        const currentTime = video.currentTime;
+        const totalTime = video.duration;
+        const progress = currentTime / totalTime;
+        
+        const points = this.state.currentVideo.gpsTrack;
+        const pointIndex = Math.min(Math.floor(progress * points.length), points.length - 1);
+        const currentPoint = points[pointIndex];
+        
+        if (currentPoint) {
+            // Actualizar información textual
+            this.updateMapInfo(currentPoint);
+            
+            // Actualizar marcador en el mapa
+            this.updateCurrentPositionMarker(currentPoint);
+            
+            // Actualizar tiempo en el mapa
+            const timeElement = document.getElementById('mapTime');
+            if (timeElement) {
+                timeElement.textContent = this.formatTime(currentTime * 1000);
+            }
+        }
+    }
+
+    // Actualizar información del mapa
+    updateMapInfo(point) {
+        this.elements.mapLat.textContent = point.lat.toFixed(6);
+        this.elements.mapLon.textContent = point.lon.toFixed(6);
+        this.elements.mapSpeed.textContent = `${(point.speed * 3.6 || 0).toFixed(1)} km/h`;
+        
+        if (point.locationName) {
+            this.elements.mapCity.textContent = point.locationName;
+        } else if (point.city) {
+            this.elements.mapCity.textContent = point.city;
+        }
+    }
+
+    // Actualizar marcador de posición actual
+    updateCurrentPositionMarker(point) {
+        if (!this.playbackMap || !point) return;
+        
+        const latLng = [point.lat, point.lon];
+        
+        // Crear o actualizar marcador
+        if (!this.currentPositionMarker) {
+            this.currentPositionMarker = L.marker(latLng, {
+                icon: L.divIcon({
+                    className: 'current-position-marker',
+                    iconSize: [16, 16],
+                    html: '<div></div>'
+                }),
+                title: 'Posición actual',
+                alt: 'Posición actual',
+                zIndexOffset: 1000
+            }).addTo(this.playbackMap);
+            
+            this.currentPositionMarker.bindTooltip('📍 Posición actual', {
+                permanent: false,
+                direction: 'top',
+                offset: [0, -10]
+            });
+        } else {
+            this.currentPositionMarker.setLatLng(latLng);
+        }
+        
+        // Actualizar tooltip con más información
+        const tooltipText = `
+            <strong>📍 Posición actual</strong><br>
+            Lat: ${point.lat.toFixed(6)}<br>
+            Lon: ${point.lon.toFixed(6)}<br>
+            Vel: ${(point.speed * 3.6 || 0).toFixed(1)} km/h
+        `;
+        
+        this.currentPositionMarker.setTooltipContent(tooltipText);
+    }
+
+    // Limpiar mapa
+    cleanupMap() {
+        if (this.playbackMap) {
+            this.playbackMap.remove();
+            this.playbackMap = null;
+        }
+        
+        this.mapRouteLayer = null;
+        this.startMarker = null;
+        this.endMarker = null;
+        this.currentPositionMarker = null;
+        this.mapMarkers = [];
+        this.mapTileLayers = {};
+    }
+
+
+
     // ============ EVENTOS ============
 
     setupEventListeners() {
@@ -3736,17 +4169,6 @@ class DashcamApp {
         }
         if (this.elements.gpxManagerBtn) {
             this.elements.gpxManagerBtn.addEventListener('click', () => this.showGpxManager());
-        }
-        
-        // Busca en setupEventListeners() la sección de "Reproductor" y añade:
-        if (this.elements.closePlayer) {
-            this.elements.closePlayer.addEventListener('click', () => this.hideVideoPlayer());
-        }
-
-        // Añade también para el botón inferior:
-        const closePlayerBottom = document.getElementById('closePlayerBottom');
-        if (closePlayerBottom) {
-            closePlayerBottom.addEventListener('click', () => this.hideVideoPlayer());
         }
 
         // Reproductor
