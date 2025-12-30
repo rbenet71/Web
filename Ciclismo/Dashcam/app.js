@@ -1,6 +1,6 @@
-// Dashcam PWA v4.1.1 - Versión Completa Simplificada
+// Dashcam PWA v4.2 - Versión Completa Simplificada
 
-const APP_VERSION = '4.1.1';
+const APP_VERSION = '4.2';
 
 class DashcamApp {
     constructor() {
@@ -3642,12 +3642,12 @@ class DashcamApp {
     }
 
 
-
     renderVideosList() {
         const container = this.elements.videosList;
         if (!container) return;
         
-        if (this.state.videos.length === 0) {
+        // Función auxiliar para mostrar estado vacío
+        const renderEmptyState = () => {
             let message = 'No hay vídeos en esta ubicación';
             let submessage = '';
             
@@ -3675,12 +3675,77 @@ class DashcamApp {
                     ` : ''}
                 </div>
             `;
+        };
+        
+        // Si no hay videos, mostrar estado vacío
+        if (this.state.videos.length === 0) {
+            renderEmptyState();
             return;
         }
         
-        let html = '<div class="file-list">';
+        // Función para agrupar videos por sesión
+        const groupVideosBySession = (videos) => {
+            const sessions = {};
+            
+            videos.forEach(video => {
+                // Determinar nombre de sesión (usar "Sin sesión" si no tiene)
+                let sessionName = video.session || 'Sesión sin nombre';
+                
+                // Para videos antiguos que no tienen sesión, usar fecha
+                if (!video.session) {
+                    const date = new Date(video.timestamp);
+                    sessionName = `Sesión ${date.toLocaleDateString('es-ES')}`;
+                }
+                
+                if (!sessions[sessionName]) {
+                    sessions[sessionName] = {
+                        name: sessionName,
+                        videos: [],
+                        expanded: false,  // Por defecto colapsado
+                        selected: false,
+                        totalDuration: 0,
+                        totalSize: 0,
+                        videoCount: 0,
+                        dateRange: { min: Infinity, max: 0 },
+                        hasPhysicalFiles: false,
+                        hasAppFiles: false
+                    };
+                }
+                
+                // Agregar video a la sesión
+                sessions[sessionName].videos.push(video);
+                sessions[sessionName].videoCount++;
+                sessions[sessionName].totalDuration += (video.duration || 0);
+                sessions[sessionName].totalSize += (video.size || 0);
+                
+                // Determinar tipos de archivos en la sesión
+                if (video.source === 'filesystem' || video.isPhysical || 
+                    video.location === 'localFolder' || video.location === 'desktop_folder') {
+                    sessions[sessionName].hasPhysicalFiles = true;
+                } else {
+                    sessions[sessionName].hasAppFiles = true;
+                }
+                
+                // Actualizar rango de fechas
+                const timestamp = video.timestamp || Date.now();
+                if (timestamp < sessions[sessionName].dateRange.min) {
+                    sessions[sessionName].dateRange.min = timestamp;
+                }
+                if (timestamp > sessions[sessionName].dateRange.max) {
+                    sessions[sessionName].dateRange.max = timestamp;
+                }
+            });
+            
+            // Ordenar videos dentro de cada sesión (más reciente primero)
+            Object.values(sessions).forEach(session => {
+                session.videos.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            });
+            
+            return Object.values(sessions);
+        };
         
-        this.state.videos.forEach(video => {
+        // Función para renderizar un video individual
+        const renderVideoItem = (video) => {
             const date = new Date(video.timestamp);
             const sizeMB = video.size ? Math.round(video.size / (1024 * 1024)) : 0;
             const duration = this.formatTime(video.duration || 0);
@@ -3708,11 +3773,12 @@ class DashcamApp {
                 locationClass = 'app-file';
             }
             
-            html += `
+            return `
                 <div class="file-item video-file ${locationClass} ${this.state.selectedVideos.has(normalizedId) ? 'selected' : ''}" 
                     data-id="${video.id}" 
                     data-type="video"
                     data-location="${location}"
+                    data-session="${video.session || ''}"
                     data-format="${format}"
                     data-source="${video.source || 'app'}">
                     <div class="file-header">
@@ -3731,7 +3797,9 @@ class DashcamApp {
                     </div>
                     <div class="file-footer">
                         <div class="file-checkbox">
-                            <input type="checkbox" ${this.state.selectedVideos.has(normalizedId) ? 'checked' : ''}>
+                            <input type="checkbox" class="video-checkbox" 
+                                ${this.state.selectedVideos.has(normalizedId) ? 'checked' : ''}
+                                data-id="${video.id}">
                             <span>Seleccionar</span>
                         </div>
                         <button class="play-btn" data-id="${video.id}" title="Reproducir ${locationText}">
@@ -3740,17 +3808,410 @@ class DashcamApp {
                     </div>
                 </div>
             `;
-        });
+        };
         
-        html += '</div>';
+        // Función para renderizar una sesión completa
+        const renderSession = (session) => {
+            const isExpanded = session.expanded;
+            const totalDuration = this.formatTime(session.totalDuration);
+            const totalSizeMB = Math.round(session.totalSize / (1024 * 1024));
+            const avgDuration = this.formatTime(session.totalDuration / session.videoCount);
+            
+            // Formatear fechas
+            const minDate = new Date(session.dateRange.min);
+            const maxDate = new Date(session.dateRange.max);
+            
+            let dateStr;
+            if (session.dateRange.min === session.dateRange.max || session.videoCount === 1) {
+                dateStr = minDate.toLocaleDateString('es-ES');
+            } else if (minDate.toDateString() === maxDate.toDateString()) {
+                dateStr = minDate.toLocaleDateString('es-ES');
+            } else {
+                dateStr = `${minDate.toLocaleDateString('es-ES')} - ${maxDate.toLocaleDateString('es-ES')}`;
+            }
+            
+            // Determinar tipos de archivos en la sesión
+            let fileTypes = '';
+            if (session.hasPhysicalFiles && session.hasAppFiles) {
+                fileTypes = '📱+📂 Mixtos';
+            } else if (session.hasPhysicalFiles) {
+                fileTypes = '📂 Solo locales';
+            } else {
+                fileTypes = '📱 Solo app';
+            }
+            
+            return `
+                <div class="session-item" data-session-name="${this.escapeHTML(session.name)}">
+                    <div class="session-header ${isExpanded ? 'expanded' : ''}">
+                        <div class="session-main" onclick="dashcamApp.toggleSession('${this.escapeHTML(session.name)}')">
+                            <div class="session-icon">${isExpanded ? '📂' : '📁'}</div>
+                            <div class="session-info">
+                                <div class="session-title">${this.escapeHTML(session.name)}</div>
+                                <div class="session-stats">
+                                    <span class="session-stat">🎬 ${session.videoCount} videos</span>
+                                    <span class="session-stat">⏱️ ${totalDuration}</span>
+                                    <span class="session-stat">💾 ${totalSizeMB} MB</span>
+                                    <span class="session-stat">${fileTypes}</span>
+                                    <span class="session-stat">📅 ${dateStr}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="session-actions">
+                            <button class="session-action-btn select-session-btn" 
+                                    onclick="event.stopPropagation(); dashcamApp.toggleSelectSession('${this.escapeHTML(session.name)}')"
+                                    title="${session.selected ? 'Deseleccionar todos' : 'Seleccionar todos'}">
+                                ${session.selected ? '❌ Deseleccionar' : '✅ Seleccionar'}
+                            </button>
+                            <button class="session-action-btn export-session-btn" 
+                                    onclick="event.stopPropagation(); dashcamApp.exportSession('${this.escapeHTML(session.name)}')"
+                                    title="Exportar toda la sesión como ZIP">
+                                📦 Exportar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="session-videos-container ${isExpanded ? 'expanded' : ''}">
+                        ${isExpanded ? 
+                            `<div class="session-videos">
+                                ${session.videos.map(video => renderVideoItem(video)).join('')}
+                            </div>` 
+                            : ''
+                        }
+                    </div>
+                </div>
+            `;
+        };
         
-        // DEBUG: Ver qué HTML se está generando
-        console.log('🔄 HTML generado (primeras 500 chars):', html.substring(0, 500));
+        // Agrupar videos por sesión
+        const sessions = groupVideosBySession(this.state.videos);
+        
+        // Ordenar sesiones por fecha (más reciente primero)
+        sessions.sort((a, b) => b.dateRange.max - a.dateRange.max);
+        
+        // Generar HTML
+        let html = `
+            <div class="sessions-view">
+                <div class="sessions-header">
+                    <h3>📁 Sesiones de grabación</h3>
+                    <div class="sessions-summary">
+                        <span>${sessions.length} sesiones</span>
+                        <span>•</span>
+                        <span>${this.state.videos.length} videos total</span>
+                    </div>
+                    <div class="sessions-controls">
+                        <button class="btn session-control-btn" onclick="dashcamApp.expandAllSessions()">
+                            📂 Expandir todos
+                        </button>
+                        <button class="btn session-control-btn" onclick="dashcamApp.collapseAllSessions()">
+                            📁 Colapsar todos
+                        </button>
+                        <button class="btn session-control-btn" onclick="dashcamApp.exportAllSessions()" 
+                                ${sessions.length === 0 ? 'disabled' : ''}>
+                            📦 Exportar todo
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="sessions-list">
+                    ${sessions.map(session => renderSession(session)).join('')}
+                </div>
+                
+                ${sessions.length === 0 ? `
+                    <div class="no-sessions">
+                        <p>No hay sesiones de grabación disponibles</p>
+                        <p>Inicia una grabación para crear tu primera sesión</p>
+                    </div>
+                ` : ''}
+            </div>
+        `;
         
         container.innerHTML = html;
         
         // Configurar eventos
         this.setupGalleryEventListeners();
+        
+        // DEBUG: Ver qué HTML se está generando
+        console.log('🔄 Renderizado de sesiones completado:', {
+            totalVideos: this.state.videos.length,
+            totalSessions: sessions.length,
+            sessions: sessions.map(s => ({name: s.name, count: s.videoCount}))
+        });
+    }
+
+    renderSessionsList() {
+        const container = this.elements.videosList;
+        if (!container) return;
+        
+        if (this.state.videos.length === 0) {
+            // Mantener el mensaje actual de vacío
+            this.renderEmptyState();
+            return;
+        }
+        
+        // Agrupar videos por sesión
+        const sessions = this.groupVideosBySession(this.state.videos);
+        
+        // Ordenar sesiones por fecha (más reciente primero)
+        sessions.sort((a, b) => b.dateRange.max - a.dateRange.max);
+        
+        let html = '<div class="sessions-container">';
+        
+        sessions.forEach(session => {
+            const isExpanded = session.expanded;
+            const totalDuration = this.formatTime(session.totalDuration);
+            const totalSizeMB = Math.round(session.totalSize / (1024 * 1024));
+            const avgDuration = this.formatTime(session.totalDuration / session.videoCount);
+            
+            const minDate = new Date(session.dateRange.min);
+            const maxDate = new Date(session.dateRange.max);
+            const dateStr = session.dateRange.min === session.dateRange.max 
+                ? minDate.toLocaleDateString('es-ES')
+                : `${minDate.toLocaleDateString('es-ES')} - ${maxDate.toLocaleDateString('es-ES')}`;
+            
+            html += `
+                <div class="session-item" data-session="${session.name}">
+                    <div class="session-header ${isExpanded ? 'expanded' : ''}" 
+                        onclick="dashcamApp.toggleSession('${session.name}')">
+                        <div class="session-title">
+                            <span class="session-icon">${isExpanded ? '📂' : '📁'}</span>
+                            <span>${this.escapeHTML(session.name)}</span>
+                            <span class="session-badge">${session.videoCount} videos</span>
+                        </div>
+                        <div class="session-info">
+                            <span>⏱️ ${totalDuration}</span>
+                            <span>💾 ${totalSizeMB} MB</span>
+                            <span>📅 ${dateStr}</span>
+                        </div>
+                        <div class="session-actions">
+                            <button class="session-action-btn export-session-btn" 
+                                    onclick="event.stopPropagation(); dashcamApp.exportSession('${session.name}')"
+                                    title="Exportar toda la sesión como ZIP">
+                                📦 Exportar ZIP
+                            </button>
+                            <button class="session-action-btn" 
+                                    onclick="event.stopPropagation(); dashcamApp.selectSession('${session.name}')">
+                                ${session.selected ? '❌ Deseleccionar' : '✅ Seleccionar'}
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="session-videos ${isExpanded ? 'expanded' : ''}">
+            `;
+            
+            if (isExpanded) {
+                session.videos.forEach(video => {
+                    html += this.renderVideoItem(video);
+                });
+            }
+            
+            html += `
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        container.innerHTML = html;
+        
+        // Configurar eventos
+        this.setupGalleryEventListeners();
+    }
+
+    renderVideoItem(video) {
+        const date = new Date(video.timestamp);
+        const sizeMB = video.size ? Math.round(video.size / (1024 * 1024)) : 0;
+        const duration = this.formatTime(video.duration || 0);
+        const dateStr = date.toLocaleDateString('es-ES');
+        const timeStr = date.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+        const location = video.location || 'app';
+        const format = video.format || 'mp4';
+        const normalizedId = this.normalizeId(video.id);
+        
+        let locationIcon, locationText, locationClass;
+        if (video.source === 'filesystem' || video.isPhysical || 
+            location === 'localFolder' || location === 'desktop_folder' || location === 'ios_local') {
+            locationIcon = '📂';
+            locationText = 'Carpeta Local';
+            locationClass = 'local-file';
+        } else {
+            locationIcon = '📱';
+            locationText = 'App';
+            locationClass = 'app-file';
+        }
+        
+        return `
+            <div class="file-item video-file ${locationClass} ${this.state.selectedVideos.has(normalizedId) ? 'selected' : ''}" 
+                data-id="${video.id}" 
+                data-session="${video.session || ''}"
+                data-type="video"
+                data-location="${location}"
+                data-format="${format}"
+                data-source="${video.source || 'app'}">
+                <div class="file-header">
+                    <div class="file-title">${this.escapeHTML(video.title || video.filename || 'Grabación')}</div>
+                    <div class="file-location" title="${locationText}">${locationIcon}</div>
+                    <div class="file-format" data-format="${format}">${format.toUpperCase()}</div>
+                    <div class="file-time">${timeStr}</div>
+                </div>
+                <div class="file-details">
+                    <div>📅 ${dateStr}</div>
+                    <div>⏱️ ${duration}</div>
+                    <div>💾 ${sizeMB} MB</div>
+                    <div>📍 ${video.gpsPoints || 0} puntos</div>
+                </div>
+                <div class="file-footer">
+                    <div class="file-checkbox">
+                        <input type="checkbox" ${this.state.selectedVideos.has(normalizedId) ? 'checked' : ''}>
+                        <span>Seleccionar</span>
+                    </div>
+                    <button class="play-btn" data-id="${video.id}" title="Reproducir">
+                        ▶️ Reproducir
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    // Agregar al módulo de Galería o crear nuevo módulo "SESIONES"
+
+    groupVideosBySession(videos) {
+        const sessions = {};
+        
+        videos.forEach(video => {
+            const sessionName = video.session || 'Sesión sin nombre';
+            
+            if (!sessions[sessionName]) {
+                sessions[sessionName] = {
+                    name: sessionName,
+                    videos: [],
+                    expanded: false,
+                    selected: false,
+                    totalDuration: 0,
+                    totalSize: 0,
+                    videoCount: 0,
+                    dateRange: { min: Infinity, max: 0 },
+                    selectedVideos: new Set()  // Para selección individual dentro de la sesión
+                };
+            }
+            
+            sessions[sessionName].videos.push(video);
+            sessions[sessionName].videoCount++;
+            sessions[sessionName].totalDuration += (video.duration || 0);
+            sessions[sessionName].totalSize += (video.size || 0);
+            
+            const timestamp = video.timestamp || 0;
+            if (timestamp < sessions[sessionName].dateRange.min) {
+                sessions[sessionName].dateRange.min = timestamp;
+            }
+            if (timestamp > sessions[sessionName].dateRange.max) {
+                sessions[sessionName].dateRange.max = timestamp;
+            }
+        });
+        
+        return Object.values(sessions);
+    }
+
+    toggleSession(sessionName) {
+        // Buscar la sesión en el estado
+        const sessions = this.groupVideosBySession(this.state.videos);
+        const session = sessions.find(s => s.name === sessionName);
+        
+        if (session) {
+            session.expanded = !session.expanded;
+            this.renderSessionsList();
+        }
+    }
+
+    selectSession(sessionName) {
+        const sessions = this.groupVideosBySession(this.state.videos);
+        const session = sessions.find(s => s.name === sessionName);
+        
+        if (session) {
+            session.selected = !session.selected;
+            
+            if (session.selected) {
+                // Seleccionar todos los videos de la sesión
+                session.videos.forEach(video => {
+                    this.state.selectedVideos.add(this.normalizeId(video.id));
+                });
+            } else {
+                // Deseleccionar todos
+                session.videos.forEach(video => {
+                    this.state.selectedVideos.delete(this.normalizeId(video.id));
+                });
+            }
+            
+            this.renderSessionsList();
+            this.updateGalleryActions();
+        }
+    }
+
+    async exportSession(sessionName) {
+        try {
+            // Filtrar videos de la sesión
+            const sessionVideos = this.state.videos.filter(video => 
+                (video.session || 'Sesión sin nombre') === sessionName
+            );
+            
+            if (sessionVideos.length === 0) {
+                this.showNotification('❌ No hay videos en esta sesión');
+                return;
+            }
+            
+            this.showNotification(`📦 Preparando ZIP para sesión: ${sessionName}`);
+            
+            // Crear ZIP
+            const zip = new JSZip();
+            
+            // Carpeta para la sesión
+            const sessionFolder = zip.folder(sessionName);
+            
+            // Añadir cada video
+            for (const video of sessionVideos) {
+                try {
+                    let blob;
+                    
+                    if (video.blob) {
+                        blob = video.blob;
+                    } else if (this.db) {
+                        const storedVideo = await this.getFromStore('videos', video.id);
+                        blob = storedVideo?.blob;
+                    }
+                    
+                    if (blob) {
+                        const filename = video.filename || `${video.title || 'grabacion'}.${video.format || 'mp4'}`;
+                        sessionFolder.file(filename, blob);
+                        console.log(`✅ Añadido al ZIP: ${filename}`);
+                    }
+                } catch (error) {
+                    console.warn(`⚠️ Error añadiendo ${video.filename}:`, error);
+                }
+            }
+            
+            // Generar y descargar ZIP
+            const zipBlob = await zip.generateAsync({ type: 'blob' });
+            this.downloadBlob(zipBlob, `${sessionName.replace(/[^\w\s]/gi, '_')}.zip`);
+            
+            this.showNotification(`✅ Sesión "${sessionName}" exportada como ZIP (${sessionVideos.length} videos)`);
+            
+        } catch (error) {
+            console.error('❌ Error exportando sesión:', error);
+            this.showNotification('❌ Error al exportar sesión');
+        }
+    }
+
+    async exportSelectedSessions() {
+        const sessions = this.groupVideosBySession(this.state.videos);
+        const selectedSessions = sessions.filter(session => session.selected);
+        
+        if (selectedSessions.length === 0) {
+            this.showNotification('❌ No hay sesiones seleccionadas');
+            return;
+        }
+        
+        for (const session of selectedSessions) {
+            await this.exportSession(session.name);
+        }
     }
 
     setupGalleryEventListeners() {
@@ -4129,8 +4590,6 @@ class DashcamApp {
             console.error('❌ Error sincronizando archivos:', error);
         }
     }
-
-    // AÑADE ESTA NUEVA FUNCIÓN PARA EXTRAER METADATOS GPS:
 
     async extractGPSMetadataFromMP4(video) {
         try {
@@ -7257,6 +7716,19 @@ class DashcamApp {
 
 
     async exportSelected() {
+        // Verificar si hay sesiones seleccionadas
+        const sessions = this.groupVideosBySession(this.state.videos);
+        const selectedSessions = sessions.filter(session => session.selected);
+        
+        if (selectedSessions.length > 0) {
+            // Exportar sesiones seleccionadas
+            for (const session of selectedSessions) {
+                await this.exportSession(session.name);
+            }
+            return;
+        }
+        
+        // Exportar individualmente (comportamiento original)
         if (this.state.selectedVideos.size === 0 && this.state.selectedGPX.size === 0) {
             this.showNotification('❌ No hay elementos seleccionados');
             return;

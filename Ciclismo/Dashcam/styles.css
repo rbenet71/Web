@@ -2770,3 +2770,108 @@ body {
         grid-template-columns: repeat(3, 1fr);
     }
 }
+
+/* Estilos para sesiones */
+.sessions-container {
+    margin-bottom: 20px;
+}
+
+.session-item {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    background: #f9f9f9;
+}
+
+.session-header {
+    padding: 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    transition: background 0.3s;
+}
+
+.session-header:hover {
+    background: #f0f0f0;
+}
+
+.session-header.expanded {
+    background: #e8f4fd;
+    border-bottom: 1px solid #ddd;
+}
+
+.session-title {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.session-icon {
+    font-size: 1.2em;
+}
+
+.session-badge {
+    background: #4CAF50;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.9em;
+}
+
+.session-info {
+    display: flex;
+    gap: 15px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.session-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.session-action-btn {
+    padding: 5px 10px;
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.session-action-btn:hover {
+    background: #0b7dda;
+}
+
+.export-session-btn {
+    background: #FF9800;
+}
+
+.export-session-btn:hover {
+    background: #e68900;
+}
+
+.session-videos {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.session-videos.expanded {
+    max-height: 2000px; /* Suficiente para mostrar todos los videos */
+    padding: 15px;
+    background: white;
+}
+
+/* Ajustar estilos de videos dentro de sesiones */
+.session-videos .file-item {
+    margin: 10px 0;
+    border: 1px solid #eee;
+}
