@@ -2771,107 +2771,243 @@ body {
     }
 }
 
-/* Estilos para sesiones */
-.sessions-container {
-    margin-bottom: 20px;
-}
+/* ===== ESTILOS PARA SESIONES ===== */
 
-.session-item {
-    border: 1px solid #ddd;
+/* Contenedor principal */
+.sessions-view {
+    padding: 10px;
+    background: #f8f9fa;
     border-radius: 8px;
-    margin-bottom: 10px;
-    overflow: hidden;
-    background: #f9f9f9;
+    margin: 10px 0;
 }
 
-.session-header {
-    padding: 15px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* Cabecera de sesiones */
+.sessions-header {
+    margin-bottom: 15px;
+    padding: 10px 15px;
     background: white;
-    transition: background 0.3s;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.session-header:hover {
-    background: #f0f0f0;
-}
-
-.session-header.expanded {
-    background: #e8f4fd;
-    border-bottom: 1px solid #ddd;
-}
-
-.session-title {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: bold;
-    font-size: 1.1em;
-}
-
-.session-icon {
+.sessions-header h3 {
+    margin: 0 0 8px 0;
+    color: #2c3e50;
     font-size: 1.2em;
+    font-weight: 600;
 }
 
-.session-badge {
-    background: #4CAF50;
-    color: white;
-    padding: 2px 8px;
-    border-radius: 12px;
+.sessions-summary {
+    color: #7f8c8d;
     font-size: 0.9em;
+    margin-bottom: 10px;
 }
 
-.session-info {
+.sessions-controls {
     display: flex;
-    gap: 15px;
-    color: #666;
-    font-size: 0.9em;
+    gap: 8px;
+    margin-top: 10px;
 }
 
-.session-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.session-action-btn {
-    padding: 5px 10px;
-    background: #2196F3;
+.session-control-btn {
+    padding: 6px 12px;
+    background: #3498db;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.9em;
+    font-size: 0.85em;
+    transition: background 0.2s;
+}
+
+.session-control-btn:hover {
+    background: #2980b9;
+}
+
+/* Elemento de sesión individual */
+.session-item {
+    background: white;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Cabecera de sesión */
+.session-header {
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    background: #f8f9fa;
+    border-bottom: 1px solid #eee;
+    transition: background 0.2s;
+}
+
+.session-header:hover {
+    background: #e9ecef;
+}
+
+.session-header.expanded {
+    background: #e3f2fd;
+    border-bottom: 2px solid #2196F3;
+}
+
+.session-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0; /* Para que el texto no desborde */
+}
+
+.session-icon {
+    font-size: 1.3em;
+    transition: transform 0.3s;
+    flex-shrink: 0;
+}
+
+.session-header.expanded .session-icon {
+    transform: rotate(90deg);
+}
+
+.session-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.session-title {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 4px;
+    font-size: 1em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.session-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    color: #666;
+    font-size: 0.85em;
+}
+
+.session-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.session-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.session-action-btn {
+    padding: 5px 10px;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.8em;
+    white-space: nowrap;
+    transition: background 0.2s;
 }
 
 .session-action-btn:hover {
-    background: #0b7dda;
+    background: #219653;
 }
 
-.export-session-btn {
-    background: #FF9800;
+.session-action-btn.export-session-btn {
+    background: #f39c12;
 }
 
-.export-session-btn:hover {
-    background: #e68900;
+.session-action-btn.export-session-btn:hover {
+    background: #e67e22;
 }
 
-.session-videos {
+/* CONTENEDOR DE VIDEOS DENTRO DE SESIÓN (IMPORTANTE) */
+.session-videos-container {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease-out;
+    transition: max-height 0.5s ease-out;
+    background: #f9f9f9;
 }
 
-.session-videos.expanded {
-    max-height: 2000px; /* Suficiente para mostrar todos los videos */
-    padding: 15px;
+.session-videos-container.expanded {
+    max-height: 5000px !important; /* FORZAR que se vea */
+    padding: 10px !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Videos dentro de la sesión */
+.session-videos {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     background: white;
+    border-radius: 4px;
+    margin: 10px;
+    border: 1px solid #eee;
 }
 
-/* Ajustar estilos de videos dentro de sesiones */
+/* Videos individuales dentro de sesiones */
 .session-videos .file-item {
+    margin: 0 !important;
+    padding: 10px !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 4px !important;
+    background: #fdfdfd !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+}
+
+.session-videos .file-item:hover {
+    border-color: #3498db !important;
+    background: #f8fafd !important;
+}
+
+.session-videos .file-item.selected {
+    border-color: #3498db !important;
+    background: #e8f4fd !important;
+}
+
+/* Estado sin sesiones */
+.no-sessions {
+    text-align: center;
+    padding: 30px 15px;
+    color: #7f8c8d;
+    background: white;
+    border-radius: 6px;
     margin: 10px 0;
-    border: 1px solid #eee;
+}
+
+.no-sessions p {
+    margin: 5px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .session-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .session-actions {
+        align-self: flex-start;
+    }
+    
+    .session-stats {
+        flex-direction: column;
+        gap: 4px;
+    }
 }

@@ -1,17 +1,4 @@
-He revisado el contenido de `app_3.js` y comparado con `Estructura_App.md`. **No, no está completamente reflejado**. `app_3.js` contiene principalmente:
-
-1. **MÓDULO UTILIDADES** (funciones como `formatTime`, `showNotification`, etc.)
-2. **MÓDULO DE BASE DE DATOS - UTILIDADES** (funciones CRUD)
-3. **MÓDULO GPX ampliado** (muchas funciones nuevas como `loadGPXFromStore`, `scanAppGPXFiles`, `renderGPXList`, `viewGPX`, `parseGPXData`, etc.)
-4. **MÓDULO DE MAPAS** (funciones Leaflet como `initPlaybackMap`, `calculateTrackBounds`, etc.)
-5. **MÓDULO DE EVENTOS** (final)
-
-**Faltan por reflejar en `Estructura_App.md` muchas funciones específicas** que aparecen en `app_3.js`.
-
-Aquí tienes la **nueva versión completa** de `Estructura_App.md` actualizada con todo lo de `app_3.js`:
-
-```markdown
-# 🗂️ **ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js**
+# 🗂️ **ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js** - ACTUALIZADO
 
 Basándome en el análisis de los archivos, he creado un **índice detallado** de todas las funcionalidades organizadas por módulo. Cuando necesites modificar algo, consulta esta guía y pídeme el código específico.
 
@@ -27,9 +14,9 @@ app.js (~6000 líneas)
 │   ├── MÓDULO GRABACIÓN
 │   ├── MÓDULO GPS
 │   ├── MÓDULO DE ALMACENAMIENTO
-│   ├── MÓDULO DE SESIONES Y CARPETAS
+│   ├── MÓDULO DE SESIONES Y CARPETAS (ACTUALIZADO)
 │   ├── MÓDULO DE DIBUJADO Y OVERLAY
-│   ├── MÓDULO GALERÍA
+│   ├── MÓDULO GALERÍA (ACTUALIZADO - Ahora con sesiones)
 │   ├── MÓDULO REPRODUCCIÓN
 │   ├── MÓDULO GPX (ampliado)
 │   ├── MÓDULO MAPAS (ampliado)
@@ -38,6 +25,7 @@ app.js (~6000 líneas)
 │   ├── MÓDULO DE PERMISOS Y VERIFICACIÓN
 │   ├── MÓDULO DE MIGRACIÓN iOS
 │   ├── MÓDULO DE BASE DE DATOS - UTILIDADES
+│   ├── MÓDULO DE GESTIÓN DE SESIONES (NUEVO)
 │   └── MÓDULO EVENTOS (completo)
 └── INICIALIZACIÓN GLOBAL
 ```
@@ -63,6 +51,7 @@ this.state = {              // ~50 propiedades
     currentTime: 0,
     selectedVideos: new Set(),
     selectedGPX: new Set(),
+    selectedSessions: new Set(),    // NUEVO: Sesiones seleccionadas
     currentVideo: null,
     activeTab: 'videos',
     showLandscapeModal: false,
@@ -78,7 +67,8 @@ this.state = {              // ~50 propiedades
     logoImage: null,
     currentLocationName: 'Buscando...',
     reverseGeocodeCache: {},
-    frameCounter: 0
+    frameCounter: 0,
+    expandedSessions: new Set()     // NUEVO: Control sesiones expandidas
 }
 
 // VARIABLES DE CONTROL
@@ -241,7 +231,7 @@ this.localFolderHandle               // Handle de carpeta
 this.state.settings.localFolderName  // Nombre carpeta
 ```
 
-### **6. 📁 MÓDULO DE SESIONES Y CARPETAS**
+### **6. 📁 MÓDULO DE SESIONES Y CARPETAS (ACTUALIZADO)**
 **Ubicación aproximada:** líneas 1500-2000
 
 ```javascript
@@ -267,6 +257,12 @@ showDesktopFolderPicker()    // Selector para desktop
 updateFolderUI()            // Actualiza información carpeta
 requestStoragePersistence() // Solicita persistencia almacenamiento
 showRestoreFolderModal()    // Modal restaurar carpeta
+
+// NUEVAS FUNCIONES RELACIONADAS CON SESIONES
+scanSessionFolder(folderHandle, sessionName) // Escanea carpeta de sesión
+getSessionVideos(sessionName)               // Obtiene videos de una sesión
+deleteSession(sessionName)                  // Elimina una sesión completa
+renameSession(oldName, newName)             // Renombra una sesión
 ```
 
 ### **7. 🎨 MÓDULO DE DIBUJADO Y OVERLAY**
@@ -297,12 +293,12 @@ this.mainCanvas             // Canvas principal
 this.mainCtx                // Contexto canvas
 ```
 
-### **8. 🖼️ MÓDULO DE GALERÍA**
+### **8. 🖼️ MÓDULO DE GALERÍA (ACTUALIZADO - CON SESIONES)**
 **Ubicación aproximada:** líneas 2500-3500
 
 ```javascript
 // FUNCIONES PRINCIPALES
-loadGallery()               // Carga galería según modo de vista
+loadGallery()               // Carga galería según modo de vista - ACTUALIZADO
 loadAppVideos()             // Carga videos de la app
 loadLocalFolderVideos()     // Carga videos de carpeta local
 scanLocalFolderForVideos()  // Escanea carpeta física para videos
@@ -311,6 +307,13 @@ syncPhysicalFilesWithDatabase() // Sincroniza archivos físicos con BD
 cleanupLocalFilesDatabase() // Limpia BD de archivos locales
 showGallery()               // Muestra panel de galería
 hideGallery()               // Oculta galería
+
+// NUEVAS FUNCIONES DE RENDERIZADO POR SESIONES
+renderVideosList()          // Renderiza lista de videos - COMPLETAMENTE REESCRITA
+groupVideosBySession(videos) // Agrupa videos por sesión - NUEVA
+renderVideoItem(video)      // Renderiza un video individual - NUEVA
+renderSession(session)      // Renderiza una sesión completa - NUEVA
+renderEmptyState()          // Renderiza estado vacío - NUEVA
 
 // MEJORA Y PROCESAMIENTO DE DATOS
 enhanceLocalVideoData(video) // Mejora datos de video local
@@ -324,7 +327,6 @@ normalizeId(id)             // Normaliza IDs para comparación
 escapeHTML(text)            // Escapa HTML para prevenir XSS
 
 // RENDERIZADO
-renderVideosList()          // Renderiza lista de videos
 setupGalleryEventListeners() // Configura eventos de galería
 setupCompactSelectors()     // Configura selectores compactos
 updateCompactSelectors()    // Actualiza selectores compactos
@@ -555,6 +557,10 @@ hideCombineModal()        // Oculta modal de combinación
 // GPX MANAGER
 showGpxManager()          // Muestra gestor GPX
 hideGpxManager()          // Oculta gestor GPX
+
+// NUEVAS FUNCIONES PARA EXPORTACIÓN MASIVA
+exportAllSessions()       // Exporta todas las sesiones como ZIP
+exportSession(sessionName) // Exporta una sesión específica como ZIP
 ```
 
 ### **14. 🛡️ MÓDULO DE PERMISOS Y VERIFICACIÓN**
@@ -613,15 +619,38 @@ deleteFromStore(storeName, id)   // Elimina elemento por ID
 // Incluye manejo de ConstraintError y excepciones
 ```
 
-### **17. 🔌 MÓDULO DE EVENTOS (COMPLETO)**
+### **17. 🗂️ NUEVO MÓDULO: GESTIÓN DE SESIONES**
 **Ubicación aproximada:** líneas 5900-6000
+
+```javascript
+// FUNCIONES DE GESTIÓN DE SESIONES
+groupVideosBySession(videos)     // Agrupa videos por sesión - NUEVA
+toggleSession(sessionName)       // Expande/colapsa una sesión - NUEVA
+toggleSelectSession(sessionName) // Selecciona/deselecciona todos los videos de una sesión - NUEVA
+expandAllSessions()              // Expande todas las sesiones - NUEVA
+collapseAllSessions()            // Colapsa todas las sesiones - NUEVA
+getSessionByName(sessionName)    // Obtiene información de una sesión - NUEVA
+getSessionVideos(sessionName)    // Obtiene videos de una sesión - NUEVA
+exportSession(sessionName)       // Exporta sesión como ZIP - NUEVA
+exportAllSessions()              // Exporta todas las sesiones - NUEVA
+deleteSession(sessionName)       // Elimina una sesión completa - NUEVA
+renameSession(oldName, newName)  // Renombra una sesión - NUEVA
+mergeSessions(session1, session2) // Fusiona dos sesiones - NUEVA
+
+// ESTADO DE SESIONES
+this.state.expandedSessions = new Set()  // Sesiones expandidas
+this.state.selectedSessions = new Set()  // Sesiones seleccionadas
+```
+
+### **18. 🔌 MÓDULO DE EVENTOS (COMPLETO - ACTUALIZADO)**
+**Ubicación aproximada:** líneas 6000-6100
 
 ```javascript
 // CONFIGURACIÓN EVENTOS
 setupEventListeners()           // Configura todos los event listeners
 setupCompactSelectors()         // Configura selectores compactos
 setupGPXEventListeners()        // Configura eventos de GPX
-setupGalleryEventListeners()    // Configura eventos de galería
+setupGalleryEventListeners()    // Configura eventos de galería - ACTUALIZADO
 
 // EVENTOS PRINCIPALES
 // Grabación: startBtn, pauseBtn, stopBtn, newSegmentBtn
@@ -630,7 +659,16 @@ setupGalleryEventListeners()    // Configura eventos de galería
 // Configuración: saveSettings, resetSettingsBtn, closeSettings, storageLocation, selectLocalFolderBtn, uploadLogoBtn
 // GPX Manager: gpxManagerBtn
 // Navegación: galleryDropdownToggle, rotateDevice, continueBtn
-// Acciones masivas: exportBtn, deleteBtn, moveToLocalBtn, combineVideosBtn
+
+// NUEVOS EVENTOS PARA SESIONES
+session-header clicks           // Expansión/colapso de sesiones
+select-session-btn clicks       // Selección de todos los videos de una sesión
+export-session-btn clicks       // Exportación de sesión como ZIP
+session-control-btn clicks      // Control global de sesiones (expandir/colapsar todos)
+
+// ACCIONES MASIVAS
+exportBtn, deleteBtn, moveToLocalBtn, combineVideosBtn
+exportAllSessionsBtn            // NUEVO: Exportar todas las sesiones
 
 // EVENTOS ESPECIALES
 window.beforeunload            // Guarda antes de cerrar
@@ -652,16 +690,14 @@ serviceWorker.register        // Registro service worker
 ### **Ejemplos de solicitudes:**
 
 ```
-"Necesito modificar la función downloadGPX() del módulo GPX"
-"Quiero cambiar cómo se extraen metadatos en extractGPSMetadataFromMP4()"
-"Necesito ajustar el cálculo de distancia en calculateDistance()"
-"Quiero modificar la UI del visualizador GPX en showGPXViewer()"
-"Necesito cambiar cómo se dibuja la marca de agua en drawCustomWatermark()"
-"Quiero modificar el proceso de instalación PWA en installPWA()"
-"Necesito ajustar la extracción de duración en extractVideoDuration()"
-"Quiero modificar la migración iOS en migrateIOSVideoToWindows()"
-"Necesito cambiar cómo se parsea XML GPX en parseGPXData()"
-"Quiero modificar la inicialización del mapa en initPlaybackMap()"
+"Necesito modificar la función renderVideosList() del módulo Galería"
+"Quiero cambiar cómo se agrupan videos en groupVideosBySession()"
+"Necesito ajustar la exportación ZIP en exportSession()"
+"Quiero modificar la UI de sesiones en renderSession()"
+"Necesito cambiar cómo se expanden sesiones en toggleSession()"
+"Quiero modificar la selección de sesiones en toggleSelectSession()"
+"Necesito ajustar la búsqueda de videos en findVideoInState()"
+"Quiero modificar la exportación masiva en exportAllSessions()"
 ```
 
 ### **Para añadir nuevas funcionalidades:**
@@ -678,16 +714,16 @@ Cuando necesites hacer un cambio, usa esta plantilla:
 ```markdown
 ## 🛠️ SOLICITUD DE MODIFICACIÓN
 
-**Módulo afectado:** [Ej: MÓDULO GPX]
-**Función a modificar:** [Ej: parseGPXData()]
+**Módulo afectado:** [Ej: MÓDULO DE GESTIÓN DE SESIONES]
+**Función a modificar:** [Ej: exportSession()]
 **Cambio necesario:** [Describe qué quieres cambiar]
 **Razón del cambio:** [Por qué es necesario]
 **Impacto estimado:** [Qué otras partes afecta]
 
 **Código específico que necesitas:**
-- Función principal: parseGPXData()
-- Funciones relacionadas: extractPointData(), calculateGPXStats()
-- Variables de estado: this.state.gpxTracks, this.state.loadedGPXFiles
+- Función principal: exportSession()
+- Funciones relacionadas: groupVideosBySession(), getSessionVideos()
+- Variables de estado: this.state.videos, this.state.selectedSessions
 ```
 
 ## 🚨 **ZONAS DE ALTO ACOPAMIENTO (CUIDADO AL MODIFICAR)**
@@ -707,6 +743,8 @@ Estas funciones afectan múltiples módulos:
 11. **`parseGPXData()`** → Usado por visualización GPX, exportación, mapas
 12. **`calculateTrackBounds()`** → Usado por mapas, visualización GPX
 13. **`downloadBlob()`** → Usado por exportación de videos y GPX
+14. **`renderVideosList()`** → **NUEVO CRÍTICO**: Usa galería, sesiones, exportación, UI (completamente reescrita)
+15. **`exportSession()`** → **NUEVO CRÍTICO**: Usa almacenamiento, galería, utilidades, ZIP
 
 ## 💡 **RECOMENDACIONES PARA FUTURAS MODIFICACIONES**
 
@@ -727,41 +765,43 @@ Estas funciones afectan múltiples módulos:
 
 ## 🎯 **RESUMEN**
 
-Ahora tienes un **mapa completo** de tu aplicación `app.js`. Con este índice puedes:
+Ahora tienes un **mapa completo** de tu aplicación `app.js` con las nuevas funcionalidades de **gestión de sesiones**. Con este índice puedes:
 
-1. **Localizar rápidamente** cualquier funcionalidad
+1. **Localizar rápidamente** cualquier funcionalidad, incluyendo las nuevas de sesiones
 2. **Entender dependencias** entre módulos
 3. **Solicitar modificaciones específicas** sin enviar todo el código
 4. **Mantener consistencia** al hacer cambios
 5. **Identificar zonas críticas** que requieren cuidado especial
 
-**¿Qué necesitas modificar primero?** Dame el módulo y función específica y te enviaré solo esa parte del código.
-
----
-
 ## 📊 **ESTADÍSTICAS DEL PROYECTO ACTUALIZADAS**
 
-- **Total módulos documentados:** 17 (incluye nuevo módulo de utilidades de BD)
-- **Funciones principales identificadas:** ~180+
-- **Variables de estado:** ~50+
+- **Total módulos documentados:** 18 (ahora incluye Módulo de Gestión de Sesiones)
+- **Funciones principales identificadas:** ~200+
+- **Nuevas funciones añadidas:** 15+ para gestión de sesiones
+- **Variables de estado:** ~55+
 - **Variables de control:** ~30+
 - **Elementos DOM referenciados:** ~90+
 - **Ubicaciones aproximadas:** Definidas para cada módulo
-- **Zonas críticas identificadas:** 13 funciones de alto acoplamiento
-
-Este índice ahora refleja **completamente** la estructura y funcionalidades presentes en `app.js` (incluyendo `app_2.js` y `app_3.js`).
-
----
+- **Zonas críticas identificadas:** 15 funciones de alto acoplamiento (+2 nuevas)
 
 ## 🔄 **CAMBIOS PRINCIPALES RESPECTO A LA VERSIÓN ANTERIOR**
 
-1. **Módulo GPX ampliado significativamente:** +15 funciones nuevas relacionadas con parseo, visualización y gestión de archivos GPX
-2. **Módulo Mapas ampliado:** +10 funciones para manejo de mapas Leaflet, capas, controles y sincronización con reproducción
-3. **Módulo Utilidades ampliado:** +10 funciones para gestión de selecciones, exportación masiva y combinación de videos
-4. **Nuevo módulo añadido:** MÓDULO DE BASE DE DATOS - UTILIDADES para operaciones CRUD
-5. **Módulo de Eventos completado:** Lista completa de todos los event listeners configurados
-6. **Zonas críticas actualizadas:** Se añadieron 3 nuevas funciones de alto acoplamiento
-7. **Estadísticas actualizadas:** Reflejan el crecimiento del código con las nuevas funcionalidades
-```
+1. **Nuevo módulo:** **MÓDULO DE GESTIÓN DE SESIONES** con 12+ funciones nuevas
+2. **Módulo Galería completamente actualizado:** 
+   - `renderVideosList()` completamente reescrita
+   - Nueva función `groupVideosBySession()`
+   - Nueva función `renderSession()`
+   - Nueva función `renderVideoItem()`
+3. **Módulo Utilidades ampliado:** 
+   - `exportSession()` para exportar ZIP por sesión
+   - `exportAllSessions()` para exportar todas las sesiones
+4. **Estado ampliado:**
+   - `this.state.selectedSessions` para control de selección
+   - `this.state.expandedSessions` para control de expansión
+5. **Módulo Eventos actualizado:** Nuevos eventos para gestión de sesiones
+6. **CSS añadido:** Estilos completos para la interfaz de sesiones
+7. **Funciones críticas actualizadas:** Se añadieron 2 nuevas funciones críticas
 
-**Este archivo actualizado SÍ refleja completamente** todas las funciones presentes en `app_3.js`, incluyendo las ampliaciones significativas en los módulos GPX, Mapas y Utilidades.
+---
+
+**¿Qué necesitas modificar primero?** Dame el módulo y función específica y te enviaré solo esa parte del código.
