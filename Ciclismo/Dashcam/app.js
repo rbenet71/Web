@@ -3135,7 +3135,54 @@ class DashcamApp {
                 (video.session ? `${video.session}/${video.filename}` : video.filename) || 
                 `Grabación ${new Date(video.timestamp || video.lastModified || Date.now()).toLocaleString('es-ES')}`,
             
-            // ... resto del código existente
+            // Asegurar filename si no existe
+            filename: video.filename || video.title || `video_${Date.now()}.${video.format || 'mp4'}`,
+            
+            // Asegurar timestamp
+            timestamp: video.timestamp || video.lastModified || Date.now(),
+            
+            // Asegurar tamaño
+            size: video.size || (video.blob ? video.blob.size : 0),
+            
+            // Asegurar formato
+            format: video.format || (video.filename?.endsWith('.mp4') ? 'mp4' : 'webm'),
+            
+            // Asegurar ubicación
+            location: video.location || 'localFolder',
+            
+            // Asegurar fuente
+            source: video.source || 'filesystem',
+            
+            // Asegurar track GPS
+            gpsTrack: video.gpsTrack || [],
+            gpsPoints: video.gpsPoints || video.gpsTrack?.length || 0,
+            
+            // Asegurar si es archivo físico
+            isPhysical: video.isPhysical !== undefined ? video.isPhysical : true,
+            
+            // Asegurar sesión si existe
+            session: video.session || null,
+            
+            // Asegurar lastModified
+            lastModified: video.lastModified || video.timestamp || Date.now(),
+            
+            // Asegurar handle del archivo
+            fileHandle: video.fileHandle || null,
+            
+            // Asegurar blob
+            blob: video.blob || null,
+            
+            // Asegurar flag de duración
+            hasDuration: video.hasDuration !== undefined ? video.hasDuration : (video.duration > 0),
+            
+            // Asegurar si tiene metadatos GPS
+            hasMetadata: video.hasMetadata !== undefined ? video.hasMetadata : (video.gpsTrack?.length > 0),
+            
+            // Asegurar segmento si aplica
+            segment: video.segment || 1,
+            
+            // Asegurar tamaño en MB para UI
+            sizeMB: video.sizeMB || (video.size ? Math.round(video.size / (1024 * 1024)) : 0)
         };
     }
 
