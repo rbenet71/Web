@@ -3175,3 +3175,30 @@ button:hover {
         max-width: 300px;
     }
 }
+/* Media queries para responsive */
+@media (max-width: 768px) {
+    .session-mobile-actions button {
+        font-size: 0.8em !important;
+        padding: 6px 8px !important;
+    }
+    
+    .file-item {
+        padding: 10px !important;
+    }
+    
+    .file-title {
+        font-size: 0.9em !important;
+    }
+}
+
+/* Mejorar tacto en móvil */
+@media (hover: none) and (pointer: coarse) {
+    button, .file-checkbox, input[type="checkbox"] {
+        min-height: 44px !important; /* Tamaño mínimo para dedos */
+    }
+    
+    input[type="checkbox"] {
+        min-height: 24px !important;
+        min-width: 24px !important;
+    }
+}
