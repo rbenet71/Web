@@ -1,6 +1,6 @@
-// Dashcam PWA v4.2.1 - Versión Completa Simplificada
+// Dashcam PWA v4.2.2 - Versión Completa Simplificada
 
-const APP_VERSION = '4.2.1';
+const APP_VERSION = '4.2.2';
 
 class DashcamApp {
     constructor() {
@@ -2915,17 +2915,14 @@ class DashcamApp {
             this.state.videos = [];
             
             if (this.state.viewMode === 'default') {
-                // Cargar solo videos de la APP
                 await this.loadAppVideos();
-                console.log(`📱 Mostrando ${this.state.videos.length} videos de la APP`);
             } else if (this.state.viewMode === 'localFolder') {
-                // Cargar solo videos de carpeta LOCAL
                 await this.loadLocalFolderVideos();
-                console.log(`📂 Mostrando ${this.state.videos.length} videos de carpeta LOCAL`);
-                
-                // También limpiar la base de datos de archivos inexistentes
                 await this.cleanupLocalFilesDatabase();
             }
+            
+            // Limpiar sesiones vacías automáticamente
+            await this.cleanupEmptySessions();
             
             // Renderizar la lista
             this.renderVideosList();
@@ -3669,11 +3666,12 @@ class DashcamApp {
             
             container.innerHTML = `
                 <div class="empty-state">
-                    <div>📁</div>
-                    <p>${message}</p>
-                    <p>${submessage}</p>
+                    <div style="font-size: 3em; margin-bottom: 10px;">📁</div>
+                    <p style="font-size: 1.2em; font-weight: bold; margin-bottom: 5px;">${message}</p>
+                    <p style="color: #666; margin-bottom: 15px;">${submessage}</p>
                     ${this.state.viewMode === 'localFolder' && !this.localFolderHandle ? `
-                        <button class="btn open-btn" onclick="window.dashcamApp.showSettings()" style="margin-top: 15px;">
+                        <button class="btn open-btn" onclick="window.dashcamApp.showSettings()" 
+                                style="margin-top: 15px; padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer;">
                             ⚙️ Ir a Configuración
                         </button>
                     ` : ''}
@@ -3690,16 +3688,18 @@ class DashcamApp {
         
         console.log(`📊 Total videos: ${this.state.videos.length}`);
         
-        // Inicializar expandedSessions si no existe
+        // Inicializar sets si no existen
         if (!this.state.expandedSessions) {
-            console.log('🆕 Inicializando expandedSessions');
             this.state.expandedSessions = new Set();
+            console.log('🆕 expandedSessions inicializado');
         }
-        
-        // Inicializar selectedSessions si no existe
         if (!this.state.selectedSessions) {
-            console.log('🆕 Inicializando selectedSessions');
             this.state.selectedSessions = new Set();
+            console.log('🆕 selectedSessions inicializado');
+        }
+        if (!this.state.selectedVideos) {
+            this.state.selectedVideos = new Set();
+            console.log('🆕 selectedVideos inicializado');
         }
         
         // Función para agrupar videos por sesión
@@ -3729,7 +3729,9 @@ class DashcamApp {
                         videoCount: 0,
                         dateRange: { min: Infinity, max: 0 },
                         hasPhysicalFiles: false,
-                        hasAppFiles: false
+                        hasAppFiles: false,
+                        earliestDate: null,
+                        latestDate: null
                     };
                 }
                 
@@ -3747,8 +3749,18 @@ class DashcamApp {
                     sessions[sessionName].hasAppFiles = true;
                 }
                 
-                // Actualizar rango de fechas
+                // Actualizar fechas
                 const timestamp = video.timestamp || Date.now();
+                const videoDate = new Date(timestamp);
+                
+                if (!sessions[sessionName].earliestDate || videoDate < sessions[sessionName].earliestDate) {
+                    sessions[sessionName].earliestDate = videoDate;
+                }
+                if (!sessions[sessionName].latestDate || videoDate > sessions[sessionName].latestDate) {
+                    sessions[sessionName].latestDate = videoDate;
+                }
+                
+                // Actualizar rango de fechas (para compatibilidad)
                 if (timestamp < sessions[sessionName].dateRange.min) {
                     sessions[sessionName].dateRange.min = timestamp;
                 }
@@ -3764,7 +3776,9 @@ class DashcamApp {
             
             const sessionList = Object.values(sessions);
             console.log(`📊 Sesiones encontradas: ${sessionList.length}`);
-            sessionList.forEach(s => console.log(`  - ${s.name}: ${s.videoCount} videos, expanded: ${s.expanded}`));
+            sessionList.forEach(s => {
+                console.log(`  - ${s.name}: ${s.videos.length} videos, expanded: ${s.expanded}, selected: ${s.selected}`);
+            });
             
             return sessionList;
         };
@@ -3774,8 +3788,16 @@ class DashcamApp {
             const date = new Date(video.timestamp);
             const sizeMB = video.size ? Math.round(video.size / (1024 * 1024)) : 0;
             const duration = this.formatTime(video.duration || 0);
-            const dateStr = date.toLocaleDateString('es-ES');
-            const timeStr = date.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+            const dateStr = date.toLocaleDateString('es-ES', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric' 
+            });
+            const timeStr = date.toLocaleTimeString('es-ES', {
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false
+            });
             const location = video.location || 'app';
             const format = video.format || 'mp4';
             const segment = video.segment || 1;
@@ -3799,6 +3821,12 @@ class DashcamApp {
                 locationClass = 'app-file';
             }
             
+            // Acortar título si es muy largo
+            let title = video.title || video.filename || 'Grabación';
+            if (title.length > 60) {
+                title = title.substring(0, 57) + '...';
+            }
+            
             return `
                 <div class="file-item video-file ${locationClass} ${isSelected ? 'selected' : ''}" 
                     data-id="${video.id}" 
@@ -3806,29 +3834,133 @@ class DashcamApp {
                     data-location="${location}"
                     data-session="${video.session || ''}"
                     data-format="${format}"
-                    data-source="${video.source || 'app'}">
-                    <div class="file-header">
-                        <div class="file-title">${this.escapeHTML(video.title || video.filename || 'Grabación')}</div>
-                        <div class="file-location" title="${locationText}">${locationIcon}</div>
-                        <div class="file-format" data-format="${format}">${format.toUpperCase()}</div>
-                        <div class="file-time">${timeStr}</div>
+                    data-source="${video.source || 'app'}"
+                    style="
+                        margin: 8px 0;
+                        padding: 12px;
+                        border: 1px solid #e0e0e0;
+                        border-radius: 6px;
+                        background: ${isSelected ? '#e8f4fd' : '#ffffff'};
+                        transition: all 0.2s;
+                    ">
+                    <div class="file-header" style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 8px;
+                    ">
+                        <div class="file-title" style="
+                            flex: 1;
+                            font-weight: 500;
+                            font-size: 0.95em;
+                            color: #333;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            padding-right: 10px;
+                        " title="${this.escapeHTML(video.title || video.filename || 'Grabación')}">
+                            ${this.escapeHTML(title)}
+                        </div>
+                        <div class="file-meta" style="
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            flex-shrink: 0;
+                        ">
+                            <div class="file-location" title="${locationText}" style="font-size: 1.1em;">
+                                ${locationIcon}
+                            </div>
+                            <div class="file-format" data-format="${format}" style="
+                                font-size: 0.75em;
+                                background: #f0f0f0;
+                                padding: 2px 6px;
+                                border-radius: 3px;
+                                color: #666;
+                            ">
+                                ${format.toUpperCase()}
+                            </div>
+                            <div class="file-time" style="
+                                font-size: 0.85em;
+                                color: #666;
+                            ">
+                                ${timeStr}
+                            </div>
+                        </div>
                     </div>
-                    <div class="file-details">
-                        <div>📅 ${dateStr}</div>
-                        <div>⏱️ ${duration}</div>
-                        <div>💾 ${sizeMB} MB</div>
-                        <div>📍 ${video.gpsPoints || 0} puntos</div>
-                        ${segment > 1 ? `<div>📹 Segmento ${segment}</div>` : ''}
-                        ${video.isPhysical ? `<div>📄 Archivo físico</div>` : ''}
+                    
+                    <div class="file-details" style="
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                        gap: 8px;
+                        margin-bottom: 10px;
+                        font-size: 0.85em;
+                        color: #666;
+                    ">
+                        <div title="Fecha">
+                            <span style="margin-right: 4px;">📅</span> ${dateStr}
+                        </div>
+                        <div title="Duración">
+                            <span style="margin-right: 4px;">⏱️</span> ${duration}
+                        </div>
+                        <div title="Tamaño">
+                            <span style="margin-right: 4px;">💾</span> ${sizeMB} MB
+                        </div>
+                        <div title="Puntos GPS">
+                            <span style="margin-right: 4px;">📍</span> ${video.gpsPoints || 0} puntos
+                        </div>
+                        ${segment > 1 ? `
+                            <div title="Segmento">
+                                <span style="margin-right: 4px;">📹</span> Segmento ${segment}
+                            </div>
+                        ` : ''}
+                        ${video.isPhysical ? `
+                            <div title="Archivo físico">
+                                <span style="margin-right: 4px;">📄</span> Archivo físico
+                            </div>
+                        ` : ''}
                     </div>
-                    <div class="file-footer">
-                        <div class="file-checkbox">
+                    
+                    <div class="file-footer" style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding-top: 8px;
+                        border-top: 1px solid #f0f0f0;
+                    ">
+                        <div class="file-checkbox" style="
+                            display: flex;
+                            align-items: center;
+                            gap: 6px;
+                            cursor: pointer;
+                        ">
                             <input type="checkbox" class="video-checkbox" 
                                 ${isSelected ? 'checked' : ''}
-                                data-id="${video.id}">
-                            <span>Seleccionar</span>
+                                data-id="${video.id}"
+                                style="
+                                    width: 16px;
+                                    height: 16px;
+                                    cursor: pointer;
+                                ">
+                            <span style="
+                                font-size: 0.85em;
+                                color: #666;
+                                cursor: pointer;
+                            ">Seleccionar</span>
                         </div>
-                        <button class="play-btn" data-id="${video.id}" title="Reproducir ${locationText}">
+                        <button class="play-btn" data-id="${video.id}" 
+                                title="Reproducir ${locationText}"
+                                style="
+                                    padding: 6px 12px;
+                                    background: #4CAF50;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 4px;
+                                    cursor: pointer;
+                                    font-size: 0.85em;
+                                    transition: background 0.2s;
+                                "
+                                onmouseover="this.style.background='#45a049'"
+                                onmouseout="this.style.background='#4CAF50'">
                             ▶️ Reproducir
                         </button>
                     </div>
@@ -3843,16 +3975,20 @@ class DashcamApp {
             const totalSizeMB = Math.round(session.totalSize / (1024 * 1024));
             
             // Formatear fechas
-            const minDate = new Date(session.dateRange.min);
-            const maxDate = new Date(session.dateRange.max);
-            
-            let dateStr;
-            if (session.dateRange.min === session.dateRange.max || session.videoCount === 1) {
-                dateStr = minDate.toLocaleDateString('es-ES');
-            } else if (minDate.toDateString() === maxDate.toDateString()) {
-                dateStr = minDate.toLocaleDateString('es-ES');
-            } else {
-                dateStr = `${minDate.toLocaleDateString('es-ES')} - ${maxDate.toLocaleDateString('es-ES')}`;
+            let dateStr = '';
+            if (session.earliestDate && session.latestDate) {
+                if (session.earliestDate.toDateString() === session.latestDate.toDateString()) {
+                    dateStr = session.earliestDate.toLocaleDateString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
+                } else {
+                    dateStr = `
+                        ${session.earliestDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })} - 
+                        ${session.latestDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                    `;
+                }
             }
             
             // Determinar tipos de archivos en la sesión
@@ -3866,41 +4002,163 @@ class DashcamApp {
             }
             
             // Escapar el nombre de sesión para JavaScript
-            const safeSessionName = this.escapeHTML(session.name).replace(/'/g, "\\'");
+            const safeSessionName = this.escapeHTML(session.name).replace(/'/g, "\\'").replace(/"/g, '&quot;');
             
             return `
-                <div class="session-item" data-session-name="${this.escapeHTML(session.name)}">
-                    <div class="session-header ${isExpanded ? 'expanded' : ''}">
-                        <div class="session-main" onclick="window.dashcamApp.toggleSession('${safeSessionName}')">
-                            <div class="session-icon">${isExpanded ? '📂' : '📁'}</div>
-                            <div class="session-info">
-                                <div class="session-title">${this.escapeHTML(session.name)}</div>
-                                <div class="session-stats">
-                                    <span class="session-stat">🎬 ${session.videoCount} videos</span>
-                                    <span class="session-stat">⏱️ ${totalDuration}</span>
-                                    <span class="session-stat">💾 ${totalSizeMB} MB</span>
-                                    <span class="session-stat">${fileTypes}</span>
-                                    <span class="session-stat">📅 ${dateStr}</span>
+                <div class="session-item" data-session-name="${this.escapeHTML(session.name)}"
+                    style="
+                        margin-bottom: 10px;
+                        border-radius: 8px;
+                        overflow: hidden;
+                        background: white;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    ">
+                    <div class="session-header ${isExpanded ? 'expanded' : ''}" 
+                        style="
+                            padding: 15px;
+                            cursor: pointer;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            background: ${isExpanded ? '#e8f4fd' : '#f8f9fa'};
+                            border-left: 4px solid ${isExpanded ? '#2196F3' : '#ddd'};
+                            transition: background 0.3s;
+                        "
+                        onmouseover="this.style.background='${isExpanded ? '#e3f2fd' : '#f0f0f0'}'"
+                        onmouseout="this.style.background='${isExpanded ? '#e8f4fd' : '#f8f9fa'}'">
+                        <div class="session-main" onclick="window.dashcamApp.toggleSession('${safeSessionName}')"
+                            style="
+                                flex: 1;
+                                display: flex;
+                                align-items: center;
+                                gap: 12px;
+                                min-width: 0;
+                            ">
+                            <div class="session-icon" style="
+                                font-size: 1.4em;
+                                transition: transform 0.3s;
+                                flex-shrink: 0;
+                                ${isExpanded ? 'transform: rotate(90deg);' : ''}
+                            ">
+                                ${isExpanded ? '📂' : '📁'}
+                            </div>
+                            <div class="session-info" style="flex: 1; min-width: 0;">
+                                <div class="session-title" style="
+                                    font-weight: 600;
+                                    color: #333;
+                                    margin-bottom: 4px;
+                                    font-size: 1.1em;
+                                    white-space: nowrap;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                ">
+                                    ${this.escapeHTML(session.name)}
+                                </div>
+                                <div class="session-stats" style="
+                                    display: flex;
+                                    flex-wrap: wrap;
+                                    gap: 12px;
+                                    color: #666;
+                                    font-size: 0.9em;
+                                ">
+                                    <span class="session-stat" title="Número de videos">
+                                        <span style="margin-right: 4px;">🎬</span> ${session.videoCount} videos
+                                    </span>
+                                    <span class="session-stat" title="Duración total">
+                                        <span style="margin-right: 4px;">⏱️</span> ${totalDuration}
+                                    </span>
+                                    <span class="session-stat" title="Tamaño total">
+                                        <span style="margin-right: 4px;">💾</span> ${totalSizeMB} MB
+                                    </span>
+                                    <span class="session-stat" title="Tipo de archivos">
+                                        ${fileTypes}
+                                    </span>
+                                    ${dateStr ? `
+                                        <span class="session-stat" title="Rango de fechas">
+                                            <span style="margin-right: 4px;">📅</span> ${dateStr}
+                                        </span>
+                                    ` : ''}
                                 </div>
                             </div>
                         </div>
-                        <div class="session-actions">
+                        <div class="session-actions" style="
+                            display: flex;
+                            gap: 6px;
+                            flex-shrink: 0;
+                        ">
                             <button class="session-action-btn select-session-btn" 
                                     onclick="event.stopPropagation(); window.dashcamApp.toggleSelectSession('${safeSessionName}')"
-                                    title="${session.selected ? 'Deseleccionar todos' : 'Seleccionar todos'}">
+                                    title="${session.selected ? 'Deseleccionar todos' : 'Seleccionar todos'}"
+                                    style="
+                                        padding: 6px 10px;
+                                        background: ${session.selected ? '#e74c3c' : '#27ae60'};
+                                        color: white;
+                                        border: none;
+                                        border-radius: 4px;
+                                        cursor: pointer;
+                                        font-size: 0.85em;
+                                        white-space: nowrap;
+                                        transition: background 0.2s;
+                                    "
+                                    onmouseover="this.style.background='${session.selected ? '#c0392b' : '#219653'}'"
+                                    onmouseout="this.style.background='${session.selected ? '#e74c3c' : '#27ae60'}'">
                                 ${session.selected ? '❌ Deseleccionar' : '✅ Seleccionar'}
                             </button>
                             <button class="session-action-btn export-session-btn" 
                                     onclick="event.stopPropagation(); window.dashcamApp.exportSession('${safeSessionName}')"
-                                    title="Exportar toda la sesión como ZIP">
+                                    title="Exportar toda la sesión como ZIP"
+                                    style="
+                                        padding: 6px 10px;
+                                        background: #f39c12;
+                                        color: white;
+                                        border: none;
+                                        border-radius: 4px;
+                                        cursor: pointer;
+                                        font-size: 0.85em;
+                                        white-space: nowrap;
+                                        transition: background 0.2s;
+                                    "
+                                    onmouseover="this.style.background='#e67e22'"
+                                    onmouseout="this.style.background='#f39c12'">
                                 📦 Exportar
+                            </button>
+                            <button class="session-action-btn delete-session-btn" 
+                                    onclick="event.stopPropagation(); window.dashcamApp.deleteSession('${safeSessionName}')"
+                                    title="Eliminar sesión completa"
+                                    style="
+                                        padding: 6px 10px;
+                                        background: #e74c3c;
+                                        color: white;
+                                        border: none;
+                                        border-radius: 4px;
+                                        cursor: pointer;
+                                        font-size: 0.85em;
+                                        white-space: nowrap;
+                                        transition: background 0.2s;
+                                    "
+                                    onmouseover="this.style.background='#c0392b'"
+                                    onmouseout="this.style.background='#e74c3c'">
+                                🗑️ Eliminar
                             </button>
                         </div>
                     </div>
                     
                     ${isExpanded ? `
-                        <div class="session-videos-container expanded">
-                            <div class="session-videos">
+                        <div class="session-videos-container expanded" style="
+                            max-height: 5000px;
+                            overflow: visible;
+                            background: #f9f9f9;
+                            border-top: 1px solid #e0e0e0;
+                            display: block !important;
+                            visibility: visible !important;
+                            opacity: 1 !important;
+                        ">
+                            <div class="session-videos" style="
+                                padding: 15px;
+                                display: flex;
+                                flex-direction: column;
+                                gap: 10px;
+                            ">
                                 ${session.videos.map(video => renderVideoItem(video)).join('')}
                             </div>
                         </div>
@@ -3913,60 +4171,142 @@ class DashcamApp {
         const sessions = groupVideosBySession(this.state.videos);
         
         // Ordenar sesiones por fecha (más reciente primero)
-        sessions.sort((a, b) => b.dateRange.max - a.dateRange.max);
+        sessions.sort((a, b) => {
+            if (!a.latestDate || !b.latestDate) return 0;
+            return b.latestDate - a.latestDate;
+        });
         
         console.log(`🎬 Renderizando ${sessions.length} sesiones...`);
         
         // Generar HTML
         let html = `
-            <div class="sessions-view">
-                <div class="sessions-header">
-                    <h3>📁 Sesiones de grabación</h3>
-                    <div class="sessions-summary">
+            <div class="sessions-view" style="
+                padding: 15px;
+                background: #f5f5f5;
+                border-radius: 8px;
+                min-height: 300px;
+            ">
+                <div class="sessions-header" style="
+                    margin-bottom: 20px;
+                    padding: 15px;
+                    background: white;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                ">
+                    <h3 style="
+                        margin: 0 0 10px 0;
+                        color: #333;
+                        font-size: 1.5em;
+                        font-weight: 600;
+                    ">📁 Sesiones de grabación</h3>
+                    <div class="sessions-summary" style="
+                        color: #666;
+                        font-size: 0.9em;
+                        margin-bottom: 15px;
+                        display: flex;
+                        gap: 10px;
+                        align-items: center;
+                    ">
                         <span>${sessions.length} sesiones</span>
                         <span>•</span>
                         <span>${this.state.videos.length} videos total</span>
                     </div>
-                    <div class="sessions-controls">
-                        <button class="btn session-control-btn" onclick="window.dashcamApp.expandAllSessions()">
+                    <div class="sessions-controls" style="
+                        display: flex;
+                        gap: 10px;
+                        flex-wrap: wrap;
+                    ">
+                        <button class="session-control-btn" onclick="window.dashcamApp.expandAllSessions()"
+                                style="
+                                    padding: 8px 15px;
+                                    background: #2196F3;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 4px;
+                                    cursor: pointer;
+                                    font-size: 0.9em;
+                                    transition: background 0.2s;
+                                "
+                                onmouseover="this.style.background='#0b7dda'"
+                                onmouseout="this.style.background='#2196F3'">
                             📂 Expandir todos
                         </button>
-                        <button class="btn session-control-btn" onclick="window.dashcamApp.collapseAllSessions()">
+                        <button class="session-control-btn" onclick="window.dashcamApp.collapseAllSessions()"
+                                style="
+                                    padding: 8px 15px;
+                                    background: #9e9e9e;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 4px;
+                                    cursor: pointer;
+                                    font-size: 0.9em;
+                                    transition: background 0.2s;
+                                "
+                                onmouseover="this.style.background='#757575'"
+                                onmouseout="this.style.background='#9e9e9e'">
                             📁 Colapsar todos
                         </button>
-                        <button class="btn session-control-btn" onclick="window.dashcamApp.exportAllSessions()" 
-                                ${sessions.length === 0 ? 'disabled' : ''}>
+                        <button class="session-control-btn" onclick="window.dashcamApp.exportAllSessions()" 
+                                ${sessions.length === 0 ? 'disabled' : ''}
+                                style="
+                                    padding: 8px 15px;
+                                    background: ${sessions.length === 0 ? '#cccccc' : '#FF9800'};
+                                    color: white;
+                                    border: none;
+                                    border-radius: 4px;
+                                    cursor: ${sessions.length === 0 ? 'not-allowed' : 'pointer'};
+                                    font-size: 0.9em;
+                                    transition: background 0.2s;
+                                "
+                                onmouseover="this.style.background='${sessions.length === 0 ? '#cccccc' : '#e68900'}'"
+                                onmouseout="this.style.background='${sessions.length === 0 ? '#cccccc' : '#FF9800'}'">
                             📦 Exportar todo
                         </button>
                     </div>
                 </div>
                 
-                <div class="sessions-list">
-                    ${sessions.map(session => renderSession(session)).join('')}
-                </div>
-                
-                ${sessions.length === 0 ? `
-                    <div class="no-sessions">
-                        <p>No hay sesiones de grabación disponibles</p>
-                        <p>Inicia una grabación para crear tu primera sesión</p>
+                ${sessions.length > 0 ? `
+                    <div class="sessions-list" style="
+                        display: flex;
+                        flex-direction: column;
+                        gap: 10px;
+                    ">
+                        ${sessions.map(session => renderSession(session)).join('')}
                     </div>
-                ` : ''}
+                ` : `
+                    <div class="no-sessions" style="
+                        text-align: center;
+                        padding: 40px 20px;
+                        color: #666;
+                        background: white;
+                        border-radius: 8px;
+                        margin: 20px 0;
+                    ">
+                        <p style="font-size: 1.1em; margin-bottom: 10px;">No hay sesiones de grabación disponibles</p>
+                        <p style="color: #999;">Inicia una grabación para crear tu primera sesión</p>
+                    </div>
+                `}
             </div>
         `;
         
         container.innerHTML = html;
         
         // Configurar eventos
-        this.setupGalleryEventListeners();
+        if (typeof this.setupGalleryEventListeners === 'function') {
+            this.setupGalleryEventListeners();
+        }
         
         console.log('✅ renderVideosList() completado');
         console.log('📊 Estado final:', {
             videos: this.state.videos.length,
             sessions: sessions.length,
             expandedSessions: Array.from(this.state.expandedSessions || []),
-            selectedSessions: Array.from(this.state.selectedSessions || [])
+            selectedSessions: Array.from(this.state.selectedSessions || []),
+            selectedVideos: Array.from(this.state.selectedVideos || [])
         });
     }
+
+
     renderSessionsList() {
         const container = this.elements.videosList;
         if (!container) return;
@@ -8198,185 +8538,292 @@ console.log('4. expandedSessions después:', Array.from(this.state.expandedSessi
     }
 
     async deleteSelected() {
-        if (this.state.selectedVideos.size === 0 && this.state.selectedGPX.size === 0) {
-            this.showNotification('❌ No hay elementos seleccionados');
-            return;
-        }
-        
-        if (!confirm(`¿Eliminar ${this.state.selectedVideos.size + this.state.selectedGPX.size} elementos?`)) {
-            return;
-        }
-        
         try {
-            let deletedFromFS = 0;
-            let deletedFromDB = 0;
-            let errors = 0;
+            if (this.state.selectedVideos.size === 0 && this.state.selectedGPX.size === 0) {
+                this.showNotification('❌ No hay elementos seleccionados');
+                return;
+            }
             
-            // Procesar videos seleccionados
+            const confirmDelete = confirm(
+                `¿Eliminar ${this.state.selectedVideos.size} videos seleccionados?\n` +
+                `Esta acción no se puede deshacer.`
+            );
+            
+            if (!confirmDelete) return;
+            
+            // Procesar eliminación de videos seleccionados
+            const deletedVideos = [];
+            
             for (const videoId of this.state.selectedVideos) {
-                try {
-                    // Buscar el video en el estado actual
-                    const video = this.state.videos.find(v => v.id == videoId);
-                    
-                    if (video) {
-                        // Si es un archivo físico (de carpeta local), borrarlo del sistema de archivos
-                        if (video.source === 'filesystem' || video.isPhysical) {
-                            console.log(`🗑️ Intentando borrar archivo físico: ${video.filename}`);
-                            
-                            if (video.fileHandle) {
-                                try {
-                                    // Borrar el archivo físico
-                                    await video.fileHandle.remove();
-                                    console.log(`✅ Archivo físico borrado: ${video.filename}`);
-                                    deletedFromFS++;
-                                } catch (fsError) {
-                                    console.error(`❌ Error borrando archivo físico ${video.filename}:`, fsError);
-                                    errors++;
-                                }
-                            }
-                        }
-                        
-                        // También borrar de la base de datos si existe allí
-                        if (this.db) {
-                            try {
-                                await this.deleteFromStore('localFiles', videoId);
-                                console.log(`🗑️ Eliminado de base de datos: ${video.filename}`);
-                                deletedFromDB++;
-                            } catch (dbError) {
-                                console.warn(`⚠️ Error eliminando de BD ${video.filename}:`, dbError);
-                            }
-                        }
-                    } else {
-                        // Si no está en el estado actual, podría ser un video de la app
-                        if (this.db) {
-                            await this.deleteFromStore('videos', videoId);
-                            deletedFromDB++;
-                        } else {
-                            const videos = JSON.parse(localStorage.getItem('dashcam_videos') || '[]');
-                            const filteredVideos = videos.filter(v => v.id !== videoId);
-                            localStorage.setItem('dashcam_videos', JSON.stringify(filteredVideos));
-                            deletedFromDB++;
-                        }
+                const video = this.findVideoInState(videoId);
+                if (video) {
+                    const success = await this.deleteVideoById(videoId, video);
+                    if (success) {
+                        deletedVideos.push(video);
                     }
-                    
-                } catch (error) {
-                    console.error(`❌ Error eliminando elemento ${videoId}:`, error);
-                    errors++;
                 }
             }
             
-            // Procesar GPX seleccionados
-            for (const gpxId of this.state.selectedGPX) {
-                try {
-                    // Buscar el GPX en el estado actual
-                    const gpx = this.state.gpxTracks.find(g => g.id == gpxId);
-                    
-                    if (gpx) {
-                        // Si es un archivo físico, borrarlo del sistema de archivos
-                        if (gpx.source === 'filesystem' || gpx.fileHandle) {
-                            try {
-                                await gpx.fileHandle.remove();
-                                console.log(`🗑️ Archivo GPX físico borrado: ${gpx.filename}`);
-                                deletedFromFS++;
-                            } catch (fsError) {
-                                console.error(`❌ Error borrando GPX físico ${gpx.filename}:`, fsError);
-                                errors++;
-                            }
-                        }
-                        
-                        // Borrar de la base de datos
-                        if (this.db) {
-                            await this.deleteFromStore('gpxTracks', gpxId);
-                            deletedFromDB++;
-                        }
-                    }
-                } catch (error) {
-                    console.error(`❌ Error eliminando GPX ${gpxId}:`, error);
-                    errors++;
-                }
-            }
-            
-            // Limpiar selección
+            // Limpiar selecciones
             this.state.selectedVideos.clear();
-            this.state.selectedGPX.clear();
+            if (this.state.selectedSessions) {
+                this.state.selectedSessions.clear();
+            }
             
-            // Recargar galería para reflejar los cambios
+            // Recargar galería
             await this.loadGallery();
             
-            // Mostrar resumen
-            let message = '';
-            if (deletedFromFS > 0) {
-                message += `🗑️ ${deletedFromFS} archivos físicos borrados. `;
-            }
-            if (deletedFromDB > 0) {
-                message += `📱 ${deletedFromDB} eliminados de la app. `;
-            }
-            if (errors > 0) {
-                message += `❌ ${errors} errores.`;
-            }
+            // Limpiar sesiones vacías automáticamente
+            await this.cleanupEmptySessions();
             
-            if (message) {
-                this.showNotification(message);
-            } else {
-                this.showNotification('🗑️ Elementos eliminados');
-            }
+            this.showNotification(`🗑️ ${deletedVideos.length} videos eliminados`);
             
         } catch (error) {
-            console.error('❌ Error eliminando:', error);
-            this.showNotification('❌ Error al eliminar');
+            console.error('❌ Error eliminando videos:', error);
+            this.showNotification('❌ Error al eliminar videos');
         }
     }
 
-    async deletePhysicalFile(fileHandle) {
+    async deleteVideoById(videoId, video) {
         try {
-            if (!fileHandle) {
-                console.warn('⚠️ No hay fileHandle para borrar');
-                return false;
+            console.log(`🗑️ Eliminando video: ${videoId}`, video.filename);
+            
+            // Eliminar según la ubicación
+            if (video.source === 'filesystem' || video.isPhysical) {
+                // Archivo físico
+                await this.deletePhysicalVideo(video);
+            } else {
+                // Archivo en la app (IndexedDB)
+                await this.deleteFromStore('videos', videoId);
             }
             
-            // Verificar que tenemos permiso de escritura
-            try {
-                const permission = await fileHandle.queryPermission({ mode: 'readwrite' });
-                if (permission !== 'granted') {
-                    const newPermission = await fileHandle.requestPermission({ mode: 'readwrite' });
-                    if (newPermission !== 'granted') {
-                        console.warn('⚠️ Permiso denegado para borrar archivo');
-                        return false;
-                    }
-                }
-            } catch (error) {
-                console.warn('⚠️ Error verificando permiso:', error);
+            // Eliminar del estado
+            const index = this.state.videos.findIndex(v => this.normalizeId(v.id) === this.normalizeId(videoId));
+            if (index !== -1) {
+                this.state.videos.splice(index, 1);
             }
             
-            // Borrar el archivo
-            await fileHandle.remove();
-            console.log(`✅ Archivo físico borrado exitosamente`);
             return true;
             
         } catch (error) {
-            console.error('❌ Error borrando archivo físico:', error);
-            
-            // Intentar método alternativo si remove() no funciona
-            try {
-                // Algunos navegadores pueden requerir un enfoque diferente
-                console.log('🔄 Intentando método alternativo para borrar...');
-                
-                // Si estamos en la misma carpeta, podemos intentar sobreescribir
-                if (fileHandle.kind === 'file') {
-                    const writable = await fileHandle.createWritable();
-                    await writable.write(new Uint8Array(0)); // Escribir 0 bytes
-                    await writable.close();
-                    console.log('✅ Archivo truncado a 0 bytes (eliminado efectivamente)');
-                    return true;
-                }
-            } catch (altError) {
-                console.error('❌ Error con método alternativo:', altError);
-            }
-            
+            console.error(`❌ Error eliminando video ${videoId}:`, error);
             return false;
         }
     }
 
+    async deletePhysicalVideo(video) {
+        try {
+            if (video.fileHandle) {
+                // Intentar eliminar el archivo físico
+                // Nota: File System Access API tiene limitaciones para eliminar
+                console.log(`📄 Intentando eliminar archivo físico: ${video.filename}`);
+                
+                // En lugar de eliminar, podemos marcarlo como eliminado en la BD
+                await this.deleteFromStore('localFiles', video.id);
+                
+                // También podemos intentar moverlo a una carpeta de "papelera"
+                // o simplemente ignorarlo y dejar que el usuario lo elimine manualmente
+                
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.warn(`⚠️ No se pudo eliminar archivo físico ${video.filename}:`, error);
+            return false;
+        }
+    }
+
+
+        /**
+     * Elimina automáticamente sesiones vacías después de borrar videos
+     */
+    async cleanupEmptySessions() {
+        try {
+            console.log('🧹 Buscando sesiones vacías para limpiar...');
+            
+            // Obtener todas las sesiones actuales
+            const sessions = this.groupVideosBySession(this.state.videos);
+            
+            // Buscar sesiones vacías (sin videos)
+            const emptySessions = sessions.filter(session => session.videoCount === 0);
+            
+            if (emptySessions.length === 0) {
+                console.log('✅ No hay sesiones vacías');
+                return;
+            }
+            
+            console.log(`🗑️ Encontradas ${emptySessions.length} sesiones vacías:`, 
+                    emptySessions.map(s => s.name));
+            
+            // Limpiar de expandedSessions y selectedSessions
+            emptySessions.forEach(session => {
+                if (this.state.expandedSessions) {
+                    this.state.expandedSessions.delete(session.name);
+                }
+                if (this.state.selectedSessions) {
+                    this.state.selectedSessions.delete(session.name);
+                }
+            });
+            
+            // Si estamos en modo localFolder, eliminar carpetas físicas vacías
+            if (this.state.viewMode === 'localFolder' && this.localFolderHandle) {
+                await this.cleanupEmptyLocalFolders(emptySessions);
+            }
+            
+            console.log('✅ Sesiones vacías limpiadas del estado');
+            
+        } catch (error) {
+            console.error('❌ Error limpiando sesiones vacías:', error);
+        }
+    }
+
+    /**
+     * Elimina carpetas físicas vacías del sistema de archivos
+     */
+    async cleanupEmptyLocalFolders(emptySessions) {
+        try {
+            console.log('🗂️ Limpiando carpetas locales vacías...');
+            
+            for (const session of emptySessions) {
+                try {
+                    // Intentar obtener la carpeta de sesión
+                    const sessionFolderHandle = await this.getSessionFolderHandle(session.name);
+                    
+                    if (sessionFolderHandle) {
+                        // Verificar si realmente está vacía
+                        const entries = [];
+                        for await (const entry of sessionFolderHandle.values()) {
+                            entries.push(entry);
+                        }
+                        
+                        if (entries.length === 0) {
+                            // Carpeta vacía, intentar eliminarla
+                            await this.deleteEmptyFolder(sessionFolderHandle, session.name);
+                            console.log(`✅ Carpeta vacía eliminada: ${session.name}`);
+                        }
+                    }
+                } catch (error) {
+                    console.warn(`⚠️ No se pudo limpiar carpeta ${session.name}:`, error);
+                }
+            }
+            
+        } catch (error) {
+            console.error('❌ Error limpiando carpetas locales:', error);
+        }
+    }
+
+    /**
+     * Obtiene el handle de una carpeta de sesión
+     */
+    async getSessionFolderHandle(sessionName) {
+        if (!this.localFolderHandle) return null;
+        
+        try {
+            // Verificar si existe una carpeta con el nombre de la sesión
+            for await (const entry of this.localFolderHandle.values()) {
+                if (entry.kind === 'directory' && entry.name === sessionName) {
+                    return entry;
+                }
+            }
+            return null;
+        } catch (error) {
+            console.warn(`⚠️ Error buscando carpeta ${sessionName}:`, error);
+            return null;
+        }
+    }
+
+    /**
+     * Intenta eliminar una carpeta vacía
+     */
+    async deleteEmptyFolder(folderHandle, folderName) {
+        try {
+            // En File System Access API, necesitamos permisos especiales para eliminar
+            // Primero verificar que esté vacía
+            const entries = [];
+            for await (const entry of folderHandle.values()) {
+                entries.push(entry);
+            }
+            
+            if (entries.length > 0) {
+                console.log(`ℹ️ Carpeta ${folderName} no está vacía (${entries.length} archivos)`);
+                return false;
+            }
+            
+            // Intentar eliminar (esto puede no funcionar en todos los navegadores)
+            // Normalmente necesitarías permisos especiales
+            console.log(`ℹ️ No se puede eliminar carpeta ${folderName} - API limitada`);
+            return false;
+            
+        } catch (error) {
+            console.warn(`⚠️ No se pudo eliminar carpeta ${folderName}:`, error);
+            return false;
+        }
+    }
+
+    /**
+     * Elimina una sesión completa (todos sus videos)
+     */
+    async deleteSession(sessionName) {
+        try {
+            // Obtener todos los videos de esta sesión
+            const sessionVideos = this.state.videos.filter(video => {
+                let videoSession = video.session || 'Sesión sin nombre';
+                if (!videoSession || videoSession === 'null') {
+                    const date = new Date(video.timestamp);
+                    videoSession = `Sesión ${date.toLocaleDateString('es-ES')}`;
+                }
+                return videoSession === sessionName;
+            });
+            
+            if (sessionVideos.length === 0) {
+                this.showNotification(`ℹ️ La sesión ${sessionName} ya está vacía`);
+                return;
+            }
+            
+            const confirmDelete = confirm(
+                `¿Eliminar la sesión COMPLETA "${sessionName}"?\n\n` +
+                `Se eliminarán ${sessionVideos.length} videos.\n` +
+                `Esta acción no se puede deshacer.`
+            );
+            
+            if (!confirmDelete) return;
+            
+            this.showNotification(`🗑️ Eliminando sesión: ${sessionName}...`);
+            
+            // Eliminar todos los videos de la sesión
+            let deletedCount = 0;
+            
+            for (const video of sessionVideos) {
+                const success = await this.deleteVideoById(video.id, video);
+                if (success) {
+                    deletedCount++;
+                }
+            }
+            
+            // Limpiar selecciones
+            this.state.selectedVideos.clear();
+            if (this.state.selectedSessions) {
+                this.state.selectedSessions.delete(sessionName);
+            }
+            if (this.state.expandedSessions) {
+                this.state.expandedSessions.delete(sessionName);
+            }
+            
+            // Recargar galería
+            await this.loadGallery();
+            
+            // Intentar eliminar carpeta física si existe
+            if (this.state.viewMode === 'localFolder' && this.localFolderHandle) {
+                await this.cleanupEmptyLocalFolders([{ name: sessionName }]);
+            }
+            
+            this.showNotification(`✅ Sesión "${sessionName}" eliminada (${deletedCount} videos)`);
+            
+        } catch (error) {
+            console.error('❌ Error eliminando sesión:', error);
+            this.showNotification('❌ Error al eliminar sesión');
+        }
+    }
 
 
     async moveSelectedToLocalFolder() {

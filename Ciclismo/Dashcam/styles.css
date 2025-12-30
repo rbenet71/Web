@@ -3011,3 +3011,87 @@ body {
         gap: 4px;
     }
 }
+.session-action-btn.delete-session-btn {
+    background: #e74c3c;
+}
+
+.session-action-btn.delete-session-btn:hover {
+    background: #c0392b;
+}
+
+/* Estilos adicionales para mejor visualización */
+.file-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+    border-color: #2196F3 !important;
+}
+
+.file-item.selected {
+    border-color: #2196F3 !important;
+    background: #e8f4fd !important;
+}
+
+.session-header:hover {
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+}
+
+/* Animaciones suaves */
+.session-videos-container {
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.session-icon {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Scroll suave para muchos videos */
+.session-videos {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.session-videos::-webkit-scrollbar {
+    width: 6px;
+}
+
+.session-videos::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.session-videos::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.session-videos::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .session-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+    
+    .session-actions {
+        align-self: flex-start !important;
+    }
+    
+    .session-stats {
+        flex-direction: column !important;
+        gap: 5px !important;
+    }
+    
+    .session-stat {
+        display: inline-block !important;
+        margin-right: 10px !important;
+    }
+    
+    .file-details {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}

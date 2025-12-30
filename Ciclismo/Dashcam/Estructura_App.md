@@ -1,13 +1,13 @@
-# 🗂️ **ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js** - ACTUALIZADO
+# 🗂️ **ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js** - ACTUALIZADO CON GESTIÓN DE SESIONES
 
 Basándome en el análisis de los archivos, he creado un **índice detallado** de todas las funcionalidades organizadas por módulo. Cuando necesites modificar algo, consulta esta guía y pídeme el código específico.
 
 ## 📋 **ESTRUCTURA GENERAL DE app.js**
 
 ```
-app.js (~6000 líneas)
+app.js (~6500 líneas)
 ├── CLASE DashcamApp
-│   ├── CONSTRUCTOR + PROPIEDADES
+│   ├── CONSTRUCTOR + PROPIEDADES (ACTUALIZADO)
 │   ├── MÉTODOS DE INICIALIZACIÓN (init, initUI, etc.)
 │   ├── MÓDULO PWA (detección, instalación)
 │   ├── MÓDULO DE INICIALIZACIÓN Y ESTADO
@@ -16,7 +16,7 @@ app.js (~6000 líneas)
 │   ├── MÓDULO DE ALMACENAMIENTO
 │   ├── MÓDULO DE SESIONES Y CARPETAS (ACTUALIZADO)
 │   ├── MÓDULO DE DIBUJADO Y OVERLAY
-│   ├── MÓDULO GALERÍA (ACTUALIZADO - Ahora con sesiones)
+│   ├── MÓDULO GALERÍA (COMPLETAMENTE REESCRITO)
 │   ├── MÓDULO REPRODUCCIÓN
 │   ├── MÓDULO GPX (ampliado)
 │   ├── MÓDULO MAPAS (ampliado)
@@ -25,14 +25,14 @@ app.js (~6000 líneas)
 │   ├── MÓDULO DE PERMISOS Y VERIFICACIÓN
 │   ├── MÓDULO DE MIGRACIÓN iOS
 │   ├── MÓDULO DE BASE DE DATOS - UTILIDADES
-│   ├── MÓDULO DE GESTIÓN DE SESIONES (NUEVO)
-│   └── MÓDULO EVENTOS (completo)
+│   ├── MÓDULO DE GESTIÓN DE SESIONES (NUEVO COMPLETO)
+│   └── MÓDULO EVENTOS (completo y actualizado)
 └── INICIALIZACIÓN GLOBAL
 ```
 
 ## 📁 **ÍNDICE POR MÓDULO - PARA MODIFICACIONES**
 
-### **1. 🏗️ MÓDULO DE INICIALIZACIÓN Y ESTADO**
+### **1. 🏗️ MÓDULO DE INICIALIZACIÓN Y ESTADO** (ACTUALIZADO)
 **Ubicación aproximada:** líneas 1-500
 
 ```javascript
@@ -40,8 +40,8 @@ app.js (~6000 líneas)
 constructor()                // Inicializa estado y variables
 init()                      // Proceso de inicio de 19 pasos
 
-// ESTADO DE LA APLICACIÓN
-this.state = {              // ~50 propiedades
+// ESTADO DE LA APLICACIÓN (ACTUALIZADO)
+this.state = {              
     recordedSegments: [],
     recordingSessionSegments: 0,
     recordingSessionName: null,
@@ -62,13 +62,14 @@ this.state = {              // ~50 propiedades
     loadedGPXFiles: [],
     activeGPX: null,
     currentSegment: 1,
-    settings: { ... },      // Configuración completa
+    settings: { ... },      
     customLogo: null,
     logoImage: null,
     currentLocationName: 'Buscando...',
     reverseGeocodeCache: {},
     frameCounter: 0,
-    expandedSessions: new Set()     // NUEVO: Control sesiones expandidas
+    expandedSessions: new Set(),    // NUEVO: Control sesiones expandidas
+    sessionStats: {}                // NUEVO: Estadísticas por sesión
 }
 
 // VARIABLES DE CONTROL
@@ -104,7 +105,7 @@ this.mapTileLayers = {};
 this.isPWAInstalled = false;
 this.deferredPrompt = null;
 this.installButton = null;
-this.gpxViewerMap = null;      // Nuevo: mapa para visualizador GPX
+this.gpxViewerMap = null;
 ```
 
 ### **2. 🚀 MÓDULO PWA**
@@ -112,24 +113,24 @@ this.gpxViewerMap = null;      // Nuevo: mapa para visualizador GPX
 
 ```javascript
 // DETECCIÓN PWA
-detectPWAInstallation()          // Verifica si está instalada como PWA
-setupPWAInstallListener()        // Configura eventos de instalación
-checkPWARequirements()           // Verifica requisitos PWA
+detectPWAInstallation()          
+setupPWAInstallListener()        
+checkPWARequirements()           
 
 // SERVICE WORKER
-registerServiceWorker()          // Registra service worker
-clearCacheIfNeeded()             // Limpia cache en actualizaciones
+registerServiceWorker()          
+clearCacheIfNeeded()             
 
 // INSTALACIÓN
-setupPWAEvents()                 // Configura eventos de instalación
-handleInstallPrompt()            // Maneja prompt de instalación
-showInstallButton()              // Muestra botón de instalación
-hideInstallButton()              // Oculta botón de instalación
-installPWA()                     // Función para instalar la PWA
-showPWAInstalledBadge()          // Muestra badge de "Instalado"
-promotePWAInstallation()         // Promueve instalación PWA
-showPWAInstallInstructions()     // Muestra instrucciones instalación
-showLocalServerInstructions()    // Instrucciones servidor local
+setupPWAEvents()                 
+handleInstallPrompt()            
+showInstallButton()              
+hideInstallButton()              
+installPWA()                     
+showPWAInstalledBadge()          
+promotePWAInstallation()         
+showPWAInstallInstructions()     
+showLocalServerInstructions()    
 ```
 
 ### **3. 🎬 MÓDULO DE GRABACIÓN**
@@ -137,25 +138,25 @@ showLocalServerInstructions()    // Instrucciones servidor local
 
 ```javascript
 // FUNCIONES PRINCIPALES
-startRecording()          // Inicia grabación con permisos
-stopRecording()           // Detiene y guarda grabación
-pauseRecording()          // Pausa grabación actual
-resumeRecording()         // Reanuda grabación pausada
-startNewSegment()         // Crea nuevo segmento
+startRecording()          
+stopRecording()           
+pauseRecording()          
+resumeRecording()         
+startNewSegment()         
 
 // INICIALIZACIÓN CÁMARA
-initCamera()              // Configura cámara y stream
-setupMediaRecorder()      // Configura MediaRecorder
-getVideoBitrate()         // Obtiene bitrate según calidad
-cleanupResources()        // Limpia recursos de grabación
-cleanupRecordingResources() // Limpia recursos específicos
+initCamera()              
+setupMediaRecorder()      
+getVideoBitrate()         
+cleanupResources()        
+cleanupRecordingResources()
 
 // PROCESAMIENTO VIDEO
-processVideoFrame()       // Procesa frame con overlay
-addWatermarkToFrame()     // Añade marca de agua/overlay
-handleDataAvailable()     // Maneja datos del recorder
-saveVideoSegment()        // Guarda segmento de video
-saveToApp()               // Guarda video en la app
+processVideoFrame()       
+addWatermarkToFrame()     
+handleDataAvailable()     
+saveVideoSegment()        
+saveToApp()               
 
 // ELEMENTOS DEL DOM
 this.elements.startBtn
@@ -172,29 +173,29 @@ this.elements.segmentInfo
 
 ```javascript
 // FUNCIONES PRINCIPALES
-startGPS()                // Inicia seguimiento GPS
-stopGPS()                 // Detiene GPS
-getCurrentLocation()      // Obtiene ubicación actual
-requestLocationPermission() // Solicita permiso ubicación
-reverseGeocode()          // Geocodificación inversa (nombre ciudad)
-getLocationName(lat, lon) // Obtiene nombre de ubicación
-formatPosition()          // Formatea datos de posición
-saveGPXPoint()            // Guarda punto GPS
-saveGPXTrack()            // Guarda track GPX completo
-getGPSErrorMessage()      // Traduce códigos error GPS
+startGPS()                
+stopGPS()                 
+getCurrentLocation()      
+requestLocationPermission()
+reverseGeocode()          
+getLocationName(lat, lon) 
+formatPosition()          
+saveGPXPoint()            
+saveGPXTrack()            
+getGPSErrorMessage()      
 
 // DATOS GPS
 this.state.gpsData = {
     currentPosition,
-    gpxPoints,            // Array de puntos GPS
+    gpxPoints,            
     currentLocationName,
     speed,
     heading,
     accuracy
 }
 
-this.currentPosition      // Posición actual formateada
-this.gpxPoints           // Puntos GPX acumulados
+this.currentPosition      
+this.gpxPoints           
 ```
 
 ### **5. 💾 MÓDULO DE ALMACENAMIENTO**
@@ -202,67 +203,69 @@ this.gpxPoints           // Puntos GPX acumulados
 
 ```javascript
 // BASE DE DATOS (IndexedDB)
-initDatabase()            // Inicializa IndexedDB
-createDatabaseStores()    // Crea stores de BD
-saveToDatabase(store, data) // Guarda en store específico
-getFromStore(store, id)   // Obtiene por ID
-getAllFromStore(store)    // Obtiene todos
-deleteFromStore(store, id) // Elimina por ID
+initDatabase()            
+createDatabaseStores()    
+saveToDatabase(store, data) 
+getFromStore(store, id)   
+getAllFromStore(store)    
+deleteFromStore(store, id) 
 
 // SISTEMA DE ARCHIVOS
-selectLocalFolder()       // Selecciona carpeta local
-saveToLocalFolder(blob, filename) // Guarda blob en carpeta
-loadLocalFolderVideos()   // Carga videos de carpeta
-syncPhysicalFiles()       // Sincroniza con BD
-cleanupLocalFilesDatabase() // Limpia archivos locales
-syncPhysicalFilesWithDatabase() // Sincroniza archivos físicos con BD
-deleteFileByPath(filename, sessionName) // Borra archivo por ruta
-deletePhysicalFile(fileHandle) // Borra archivo físico
+selectLocalFolder()       
+saveToLocalFolder(blob, filename) 
+loadLocalFolderVideos()   
+syncPhysicalFiles()       
+cleanupLocalFilesDatabase()
+syncPhysicalFilesWithDatabase() 
+deleteFileByPath(filename, sessionName) 
+deletePhysicalFile(fileHandle) 
 
 // CONVERSIÓN Y METADATOS
-ensureMP4WithMetadata()   // Asegura MP4 con metadatos
-convertWebMtoMP4()        // Convierte WebM a MP4
-addGpsMetadataToMP4(blob, track) // Añade metadatos GPS a MP4
-addMetadataToWebM()       // Añade metadatos a WebM
+ensureMP4WithMetadata()   
+convertWebMtoMP4()        
+addGpsMetadataToMP4(blob, track) 
+addMetadataToWebM()       
 
 // CONFIGURACIÓN
-this.state.settings.storageLocation  // 'default' o 'localFolder'
-this.localFolderHandle               // Handle de carpeta
-this.state.settings.localFolderName  // Nombre carpeta
+this.state.settings.storageLocation  
+this.localFolderHandle               
+this.state.settings.localFolderName  
 ```
 
-### **6. 📁 MÓDULO DE SESIONES Y CARPETAS (ACTUALIZADO)**
+### **6. 📁 MÓDULO DE SESIONES Y CARPETAS** (ACTUALIZADO)
 **Ubicación aproximada:** líneas 1500-2000
 
 ```javascript
 // GESTIÓN DE SESIONES
-createSessionFolder()        // Crea carpeta de sesión
-askAboutCombining()         // Pregunta sobre combinar segmentos
-combineSessionSegments()    // Combina segmentos de sesión
-resetRecordingSession()     // Resetea sesión de grabación
+createSessionFolder()        
+askAboutCombining()         
+combineSessionSegments()    
+resetRecordingSession()     
 
 // CARPETAS PERSISTENTES
-saveFolderHandle()          // Serializa handle de carpeta
-restoreFolderHandle()       // Restaura handle de carpeta
-updateFolderUI()            // Actualiza UI de carpeta
-showFolderInstructions()    // Muestra instrucciones de carpeta
-showPersistentPermissionReminder() // Recordatorio permisos
+saveFolderHandle()          
+restoreFolderHandle()       
+updateFolderUI()            
+showFolderInstructions()    
+showPersistentPermissionReminder() 
 
 // SELECTORES DE CARPETA
-showDesktopFolderPickerWithPersistence() // Selector con persistencia
-showIOSFolderPicker()        // Selector para iOS
-showDesktopFolderPicker()    // Selector para desktop
+showDesktopFolderPickerWithPersistence() 
+showIOSFolderPicker()        
+showDesktopFolderPicker()    
 
 // INTERFAZ CARPETAS
-updateFolderUI()            // Actualiza información carpeta
-requestStoragePersistence() // Solicita persistencia almacenamiento
-showRestoreFolderModal()    // Modal restaurar carpeta
+updateFolderUI()            
+requestStoragePersistence() 
+showRestoreFolderModal()    
 
-// NUEVAS FUNCIONES RELACIONADAS CON SESIONES
-scanSessionFolder(folderHandle, sessionName) // Escanea carpeta de sesión
-getSessionVideos(sessionName)               // Obtiene videos de una sesión
-deleteSession(sessionName)                  // Elimina una sesión completa
-renameSession(oldName, newName)             // Renombra una sesión
+// NUEVAS FUNCIONES PARA SESIONES
+scanSessionFolder(folderHandle, sessionName) 
+getSessionVideos(sessionName)               
+deleteSession(sessionName)                  
+renameSession(oldName, newName)             
+getSessionFolderHandle(sessionName)         // NUEVO
+deleteEmptyFolder(folderHandle, folderName) // NUEVO
 ```
 
 ### **7. 🎨 MÓDULO DE DIBUJADO Y OVERLAY**
@@ -270,103 +273,103 @@ renameSession(oldName, newName)             // Renombra una sesión
 
 ```javascript
 // CAPTURA Y DIBUJADO
-startFrameCapture()         // Inicia captura de frames
-stopFrameCapture()          // Detiene captura de frames
-drawFrameWithData()         // Dibuja frame completo con datos
-drawCustomWatermark()       // Dibuja marca de agua personalizada
+startFrameCapture()         
+stopFrameCapture()          
+drawFrameWithData()         
+drawCustomWatermark()       
 
 // ELEMENTOS VISUALES
-drawLogo()                  // Dibuja logo en canvas
-drawWatermarkText()         // Dibuja texto de marca de agua
-drawGpsInfo()               // Dibuja información GPS
-drawTemporaryOverlay()      // Dibuja overlay temporal
-drawGpxOverlay()            // Dibuja overlay de GPX
+drawLogo()                  
+drawWatermarkText()         
+drawGpsInfo()               
+drawTemporaryOverlay()      
+drawGpxOverlay()            
 
 // CÁLCULOS VISUALES
-calculateGpxProgress()      // Calcula progreso en ruta GPX
-calculateDistance()         // Calcula distancia entre puntos
+calculateGpxProgress()      
+calculateDistance()         
 
 // CONTROL DE FRAMES
-this.animationFrame         // Referencia animation frame
-this.frameCounter           // Contador de frames
-this.mainCanvas             // Canvas principal
-this.mainCtx                // Contexto canvas
+this.animationFrame         
+this.frameCounter           
+this.mainCanvas             
+this.mainCtx                
 ```
 
-### **8. 🖼️ MÓDULO DE GALERÍA (ACTUALIZADO - CON SESIONES)**
-**Ubicación aproximada:** líneas 2500-3500
+### **8. 🖼️ MÓDULO DE GALERÍA** (COMPLETAMENTE REESCRITO)
+**Ubicación aproximada:** líneas 2500-4000
 
 ```javascript
 // FUNCIONES PRINCIPALES
-loadGallery()               // Carga galería según modo de vista - ACTUALIZADO
-loadAppVideos()             // Carga videos de la app
-loadLocalFolderVideos()     // Carga videos de carpeta local
-scanLocalFolderForVideos()  // Escanea carpeta física para videos
-scanSessionFolder(folderHandle, sessionName) // Escanea carpeta de sesión
-syncPhysicalFilesWithDatabase() // Sincroniza archivos físicos con BD
-cleanupLocalFilesDatabase() // Limpia BD de archivos locales
-showGallery()               // Muestra panel de galería
-hideGallery()               // Oculta galería
+loadGallery()               // REESCRITO con limpieza automática
+loadAppVideos()             
+loadLocalFolderVideos()     
+scanLocalFolderForVideos()  
+scanSessionFolder(folderHandle, sessionName) 
+syncPhysicalFilesWithDatabase() 
+cleanupLocalFilesDatabase() 
+showGallery()               
+hideGallery()               
 
-// NUEVAS FUNCIONES DE RENDERIZADO POR SESIONES
-renderVideosList()          // Renderiza lista de videos - COMPLETAMENTE REESCRITA
-groupVideosBySession(videos) // Agrupa videos por sesión - NUEVA
-renderVideoItem(video)      // Renderiza un video individual - NUEVA
-renderSession(session)      // Renderiza una sesión completa - NUEVA
-renderEmptyState()          // Renderiza estado vacío - NUEVA
+// RENDERIZADO POR SESIONES (COMPLETAMENTE NUEVO)
+renderVideosList()          // REESCRITO COMPLETAMENTE
+groupVideosBySession(videos) // NUEVO: Agrupa videos por sesión
+renderVideoItem(video)      // NUEVO: Renderiza video individual
+renderSession(session)      // NUEVO: Renderiza sesión completa
+renderEmptyState()          // NUEVO: Estado vacío
 
-// MEJORA Y PROCESAMIENTO DE DATOS
-enhanceLocalVideoData(video) // Mejora datos de video local
-extractAndSetVideoDuration(video) // Extrae y establece duración
+// MEJORA DE DATOS
+enhanceLocalVideoData(video) 
+extractAndSetVideoDuration(video) 
 
 // SELECCIÓN MÚLTIPLE
-toggleSelection(id, type)   // Alterna selección individual
-selectAll(type)             // Selecciona todos
-deselectAll(type)           // Deselecciona todos
-normalizeId(id)             // Normaliza IDs para comparación
-escapeHTML(text)            // Escapa HTML para prevenir XSS
+toggleSelection(id, type)   
+selectAll(type)             
+deselectAll(type)           
+normalizeId(id)             
+escapeHTML(text)            
 
-// RENDERIZADO
-setupGalleryEventListeners() // Configura eventos de galería
-setupCompactSelectors()     // Configura selectores compactos
-updateCompactSelectors()    // Actualiza selectores compactos
-updateGalleryActions()      // Actualiza acciones de galería
-updateSelectionButtons()    // Actualiza botones de selección
+// CONFIGURACIÓN EVENTOS
+setupGalleryEventListeners() 
+setupCompactSelectors()     
+updateCompactSelectors()    
+updateGalleryActions()      
+updateSelectionButtons()    
 
 // BÚSQUEDA
-findVideoInState(id)        // Busca video en el estado
-playVideoFromCurrentLocation(videoId) // Reproduce desde ubicación actual
-isLocalId(id)               // Identifica si es ID local
+findVideoInState(id)        
+playVideoFromCurrentLocation(videoId) 
+isLocalId(id)               
 
 // ELEMENTOS
-this.state.videos[]         // Array de videos
-this.state.selectedVideos   // Set de IDs seleccionados
-this.state.viewMode         // 'default' o 'localFolder'
+this.state.videos[]         
+this.state.selectedVideos   
+this.state.viewMode         
 ```
 
 ### **9. 🎥 MÓDULO DE REPRODUCCIÓN**
-**Ubicación aproximada:** líneas 3500-4000
+**Ubicación aproximada:** líneas 4000-4500
 
 ```javascript
 // FUNCIONES PRINCIPALES
-playVideo(video)            // Reproduce video específico
-playVideoFromCurrentLocation(videoId) // Reproduce desde ubicación actual
-hideVideoPlayer()           // Oculta reproductor
-extractGpxFromVideo()       // Extrae GPX de metadatos
-extractGPSMetadataFromMP4(video) // Extrae metadatos GPS del video
-addLocationNamesToTrack(gpsTrack) // Añade nombres de ubicación al track
+playVideo(video)            
+playVideoFromCurrentLocation(videoId) 
+hideVideoPlayer()           
+extractGpxFromVideo()       
+extractGPSMetadataFromMP4(video) 
+addLocationNamesToTrack(gpsTrack) 
 
 // OPERACIONES INDIVIDUALES
-exportSingleVideo()         // Exporta video actual
-deleteSingleVideo()         // Elimina video actual
-moveToLocalFolder()         // Mueve video a carpeta local
+exportSingleVideo()         
+deleteSingleVideo()         
+moveToLocalFolder()         
 
 // EXTRACCIÓN METADATOS
-extractVideoDuration(blob)  // Extrae/estima duración del video
-getVideoDurationAlternative(blob) // Método alternativo para duración
-extractMP4Duration(arrayBuffer, dataView) // Extrae duración MP4
-extractWebMDuration(arrayBuffer, dataView) // Extrae duración WebM
-readString(arrayBuffer, offset, length) // Lee strings del array buffer
+extractVideoDuration(blob)  
+getVideoDurationAlternative(blob) 
+extractMP4Duration(arrayBuffer, dataView) 
+extractWebMDuration(arrayBuffer, dataView) 
+readString(arrayBuffer, offset, length) 
 
 // ELEMENTOS REPRODUCTOR
 this.elements.playbackVideo
@@ -376,49 +379,49 @@ this.elements.videoDate
 ```
 
 ### **10. 🗺️ MÓDULO GPX (AMPLIADO)**
-**Ubicación aproximada:** líneas 3800-5200
+**Ubicación aproximada:** líneas 4500-5200
 
 ```javascript
 // GESTIÓN GPX
-loadGPXFiles()            // Carga archivos GPX
-loadGPXFromStore()        // Carga GPX desde varias fuentes
-scanAppGPXFiles()         // Escanea GPX en la app
-scanLocalFolderGPXFiles() // Escanea GPX en carpeta
-scanFolderForGPX(folderHandle, path, gpxList) // Escanea carpeta recursivamente
-viewGPX(gpxId, source)    // Visualiza GPX específico
-downloadGPX(gpxId, source) // Descarga archivo GPX
-exportGPXAsKML(gpxData)   // Exporta como KML
-exportGPXAsJSON(gpxData)  // Exporta como JSON
-generateGPXFromPoints(points, name) // Genera XML GPX desde puntos
-loadGPXFromFileSystem(filename, path) // Carga GPX desde sistema de archivos
+loadGPXFiles()            
+loadGPXFromStore()        
+scanAppGPXFiles()         
+scanLocalFolderGPXFiles() 
+scanFolderForGPX(folderHandle, path, gpxList) 
+viewGPX(gpxId, source)    
+downloadGPX(gpxId, source) 
+exportGPXAsKML(gpxData)   
+exportGPXAsJSON(gpxData)  
+generateGPXFromPoints(points, name) 
+loadGPXFromFileSystem(filename, path) 
 
 // PARSEO Y PROCESAMIENTO
-parseGPXData(gpxText, originalData) // Parsea XML GPX
-extractPointData(pointElement)      // Extrae datos de punto GPX
-calculateGPXStats(points)           // Calcula estadísticas de ruta
-debugGPXFile(file)                  // Depura archivo GPX
-getGPXFileInfo(file, path)          // Obtiene información básica de archivo GPX
+parseGPXData(gpxText, originalData) 
+extractPointData(pointElement)      
+calculateGPXStats(points)           
+debugGPXFile(file)                  
+getGPXFileInfo(file, path)          
 
 // VISUALIZACIÓN
-showGPXViewer(gpxData)             // Muestra visualizador completo
-updateGPXViewerData(gpxData)       // Actualiza datos del visualizador
-initGPXViewerMap(gpxData)          // Inicializa mapa para visualizador GPX
-hideGPXViewer()                    // Oculta visualizador GPX
-renderGPXList()                    // Renderiza lista de GPX en UI
-setupGPXEventListeners()           // Configura eventos de lista GPX
-showFullscreenMap(gpxData)         // Muestra mapa a pantalla completa
+showGPXViewer(gpxData)             
+updateGPXViewerData(gpxData)       
+initGPXViewerMap(gpxData)          
+hideGPXViewer()                    
+renderGPXList()                    
+setupGPXEventListeners()           
+showFullscreenMap(gpxData)         
 
 // CÁLCULOS GEOGRÁFICOS
-calculateTrackBounds(points)       // Calcula límites del track
-calculateTrackCenter(points)       // Calcula centro del track
-calculateDistance(lat1, lon1, lat2, lon2) // Calcula distancia entre puntos
+calculateTrackBounds(points)       
+calculateTrackCenter(points)       
+calculateDistance(lat1, lon1, lat2, lon2) 
 
 // ELEMENTOS UI
-this.elements.gpxList              // Contenedor lista GPX
-this.state.gpxTracks[]             // Array de tracks GPX
-this.state.loadedGPXFiles          // Archivos GPX cargados
-this.state.activeGPX               // GPX activo actual
-this.gpxViewerMap                  // Mapa del visualizador GPX
+this.elements.gpxList              
+this.state.gpxTracks[]             
+this.state.loadedGPXFiles          
+this.state.activeGPX               
+this.gpxViewerMap                  
 ```
 
 ### **11. 🗾 MÓDULO DE MAPAS (AMPLIADO)**
@@ -426,45 +429,45 @@ this.gpxViewerMap                  // Mapa del visualizador GPX
 
 ```javascript
 // MAPAS LEAFLET
-initPlaybackMap()         // Inicializa mapa para reproducción de video
-initLeafletMap()          // Inicializa mapa Leaflet genérico
-addMapTileLayers()        // Añade capas de mapa (OSM, CartoDB, Satélite)
-drawRouteOnMap(points)    // Dibuja ruta GPS en mapa
-addStartEndMarkers(points) // Añade marcadores inicio/fin
-addMapControls()          // Añade controles personalizados al mapa
-updatePlaybackMap()       // Actualiza mapa durante reproducción
-cleanupMap()              // Limpia recursos del mapa
+initPlaybackMap()         
+initLeafletMap()          
+addMapTileLayers()        
+drawRouteOnMap(points)    
+addStartEndMarkers(points) 
+addMapControls()          
+updatePlaybackMap()       
+cleanupMap()              
 
 // ACTUALIZACIÓN TIEMPO REAL
-updateCurrentPositionMarker(point) // Actualiza marcador posición actual
-updateMapInfo(point)      // Actualiza información textual del mapa
-updateMapStats(points)    // Actualiza estadísticas en el mapa
+updateCurrentPositionMarker(point) 
+updateMapInfo(point)      
+updateMapStats(points)    
 
 // INTERACCIÓN CON REPRODUCCIÓN
-updatePlaybackMap()       // Sincroniza mapa con reproducción de video
+updatePlaybackMap()       
 
 // CONTROL DE MAPA
-this.playbackMap          // Instancia de mapa Leaflet principal
-this.mapTrackLayer        // Capa de track
-this.mapRouteLayer        // Capa de ruta
-this.startMarker          // Marcador inicio
-this.endMarker            // Marcador fin
-this.currentPositionMarker // Marcador posición actual
-this.mapMarkers           // Array de marcadores
-this.mapTileLayers        // Objeto con capas de mapa
+this.playbackMap          
+this.mapTrackLayer        
+this.mapRouteLayer        
+this.startMarker          
+this.endMarker            
+this.currentPositionMarker 
+this.mapMarkers           
+this.mapTileLayers        
 ```
 
 ### **12. ⚙️ MÓDULO DE CONFIGURACIÓN**
-**Ubicación aproximada:** líneas 4800-5000
+**Ubicación aproximada:** líneas 5800-6000
 
 ```javascript
 // CONFIGURACIÓN
-showSettings()            // Muestra panel configuración
-hideSettings()            // Oculta configuración
-saveSettings()            // Guarda configuración
-resetSettings()           // Restaura valores por defecto
-loadSettings()            // Carga configuración guardada
-updateSettingsUI()        // Actualiza UI configuración
+showSettings()            
+hideSettings()            
+saveSettings()            
+resetSettings()           
+loadSettings()            
+updateSettingsUI()        
 
 // AJUSTES
 this.state.settings = {
@@ -499,68 +502,71 @@ this.state.settings = {
 }
 
 // INTERFAZ
-toggleStorageSettings()   // Muestra/oculta opciones almacenamiento
-uploadCustomLogo()        // Sube logo personalizado
-loadCustomLogo()          // Carga logo personalizado
-updateLogoInfo()          // Actualiza info logo
+toggleStorageSettings()   
+uploadCustomLogo()        
+loadCustomLogo()          
+updateLogoInfo()          
 ```
 
 ### **13. 🛠️ MÓDULO DE UTILIDADES (AMPLIADO)**
-**Ubicación aproximada:** líneas 5000-5300
+**Ubicación aproximada:** líneas 6000-6200
 
 ```javascript
 // FORMATOS
-formatTime(ms)            // Formatea tiempo HH:MM:SS
+formatTime(ms)            
 
 // NOTIFICACIONES
-showNotification(message, duration) // Muestra notificación temporal
-showSavingStatus(message) // Muestra estado "Guardando..."
-hideSavingStatus()        // Oculta estado guardado
+showNotification(message, duration) 
+showSavingStatus(message) 
+hideSavingStatus()        
 
 // UI
-updateUI()                // Actualiza interfaz
-startMonitoring()         // Inicia monitoreo continuo
-updateStorageStatus()     // Actualiza estado almacenamiento
-updateGpxSelect()         // Actualiza selector de GPX
+updateUI()                
+startMonitoring()         
+updateStorageStatus()     
+updateGpxSelect()         
 
 // ORIENTACIÓN
-checkOrientation()        // Verifica orientación dispositivo
-showLandscapeModal()      // Muestra modal landscape
-hideLandscapeModal()      // Oculta modal
+checkOrientation()        
+showLandscapeModal()      
+hideLandscapeModal()      
 
 // DESCARGA
-downloadBlob(blob, filename) // Descarga archivo
+downloadBlob(blob, filename) 
 
 // PANTALLAS
-showStartScreen()         // Muestra pantalla inicio
-showCameraScreen()        // Muestra pantalla cámara
-updateRecordingUI()       // Actualiza UI grabación
+showStartScreen()         
+showCameraScreen()        
+updateRecordingUI()       
 
 // SELECTORES Y NAVEGACIÓN
-toggleSelect(type)        // Alterna selector
-closeAllSelects()         // Cierra todos los selectores
-selectLocation(value)     // Selecciona ubicación
-selectType(value)         // Selecciona tipo
-switchTab(tabName)        // Cambia de pestaña
+toggleSelect(type)        
+closeAllSelects()         
+selectLocation(value)     
+selectType(value)         
+switchTab(tabName)        
 
 // ESTIMACIONES
-estimateDurationByFileSize(fileSize, format) // Estimación por tamaño
+estimateDurationByFileSize(fileSize, format) 
 
 // GESTIÓN DE ELEMENTOS SELECCIONADOS
-exportSelected()          // Exporta elementos seleccionados
-deleteSelected()          // Elimina elementos seleccionados
-moveSelectedToLocalFolder() // Mueve seleccionados a carpeta local
-combineSelectedVideos()   // Combina videos seleccionados
-showCombineModal()        // Muestra modal de combinación
-hideCombineModal()        // Oculta modal de combinación
+exportSelected()          
+deleteSelected()          // ACTUALIZADO con limpieza sesiones
+moveSelectedToLocalFolder() 
+combineSelectedVideos()   
+showCombineModal()        
+hideCombineModal()        
 
 // GPX MANAGER
-showGpxManager()          // Muestra gestor GPX
-hideGpxManager()          // Oculta gestor GPX
+showGpxManager()          
+hideGpxManager()          
 
-// NUEVAS FUNCIONES PARA EXPORTACIÓN MASIVA
-exportAllSessions()       // Exporta todas las sesiones como ZIP
-exportSession(sessionName) // Exporta una sesión específica como ZIP
+// NUEVAS FUNCIONES PARA SESIONES
+exportAllSessions()       
+exportSession(sessionName) 
+cleanFileName(filename)   // NUEVO: Limpia nombres de archivo
+deleteVideoById(videoId, video) // NUEVO: Elimina video específico
+deletePhysicalVideo(video) // NUEVO: Elimina video físico
 ```
 
 ### **14. 🛡️ MÓDULO DE PERMISOS Y VERIFICACIÓN**
@@ -568,82 +574,94 @@ exportSession(sessionName) // Exporta una sesión específica como ZIP
 
 ```javascript
 // VERIFICACIONES
-checkPWARequirements()      // Verifica requisitos PWA
-requestStoragePersistence() // Solicita persistencia almacenamiento
-cleanupResources()          // Limpia recursos generales
-checkOrientation()          // Verifica orientación dispositivo
-clearCacheIfNeeded()        // Limpia caché si es necesario
-fixDatabaseVersion()        // Corrige versión de base de datos
+checkPWARequirements()      
+requestStoragePersistence() 
+cleanupResources()          
+checkOrientation()          
+clearCacheIfNeeded()        
+fixDatabaseVersion()        
 
 // INICIALIZACIÓN ELEMENTOS
-initElements()              // Inicializa elementos DOM
-init()                      // Proceso de inicialización principal
+initElements()              
+init()                      
 
 // FUNCIONES PWA ESPECÍFICAS
-detectPWAInstallation()     // Detección mejorada de PWA
-setupPWAInstallListener()   // Configura listener instalación
-showPWAInstalledBadge()     // Muestra badge de instalado
-promotePWAInstallation()    // Promueve instalación PWA
+detectPWAInstallation()     
+setupPWAInstallListener()   
+showPWAInstalledBadge()     
+promotePWAInstallation()    
 
 // GESTIÓN RECURSOS
-cleanupRecordingResources() // Limpia recursos grabación
-stopFrameCapture()          // Detiene captura frames
+cleanupRecordingResources() 
+stopFrameCapture()          
 ```
 
 ### **15. 📱 MÓDULO DE MIGRACIÓN iOS**
-**Ubicación aproximada:** líneas 5300-5400
+**Ubicación aproximada:** líneas 6200-6300
 
 ```javascript
 // MIGRACIÓN iOS/WINDOWS
-migrateIOSVideoToWindows(video) // Migra video iOS a Windows
-checkAndMigrateIOSVideos() // Verifica y migra videos iOS automáticamente
-extractIOSMetadata(moovData) // Extrae metadatos de video iOS
-removeOldMetadata(blob)     // Remueve metadatos antiguos del video
-addLocationNamesToTrack(gpsTrack) // Añade nombres de ubicación al track
+migrateIOSVideoToWindows(video) 
+checkAndMigrateIOSVideos() 
+extractIOSMetadata(moovData) 
+removeOldMetadata(blob)     
+addLocationNamesToTrack(gpsTrack) 
 
 // FUNCIONES AUXILIARES
-readString(arrayBuffer, offset, length) // Lee strings del buffer
+readString(arrayBuffer, offset, length) 
 ```
 
 ### **16. 💾 MÓDULO DE BASE DE DATOS - UTILIDADES**
-**Ubicación aproximada:** líneas 5800-5900
+**Ubicación aproximada:** líneas 6300-6400
 
 ```javascript
 // OPERACIONES CRUD
-saveToDatabase(storeName, data)  // Guarda/actualiza en BD
-getAllFromStore(storeName)       // Obtiene todos los elementos
-getFromStore(storeName, id)      // Obtiene elemento por ID
-deleteFromStore(storeName, id)   // Elimina elemento por ID
+saveToDatabase(storeName, data)  
+getAllFromStore(storeName)       
+getFromStore(storeName, id)      
+deleteFromStore(storeName, id)   
 
 // MANEJO DE ERRORES
 // Incluye manejo de ConstraintError y excepciones
 ```
 
-### **17. 🗂️ NUEVO MÓDULO: GESTIÓN DE SESIONES**
-**Ubicación aproximada:** líneas 5900-6000
+### **17. 🗂️ MÓDULO DE GESTIÓN DE SESIONES** (NUEVO COMPLETO)
+**Ubicación aproximada:** líneas 6400-6600
 
 ```javascript
 // FUNCIONES DE GESTIÓN DE SESIONES
-groupVideosBySession(videos)     // Agrupa videos por sesión - NUEVA
-toggleSession(sessionName)       // Expande/colapsa una sesión - NUEVA
-toggleSelectSession(sessionName) // Selecciona/deselecciona todos los videos de una sesión - NUEVA
-expandAllSessions()              // Expande todas las sesiones - NUEVA
-collapseAllSessions()            // Colapsa todas las sesiones - NUEVA
-getSessionByName(sessionName)    // Obtiene información de una sesión - NUEVA
-getSessionVideos(sessionName)    // Obtiene videos de una sesión - NUEVA
-exportSession(sessionName)       // Exporta sesión como ZIP - NUEVA
-exportAllSessions()              // Exporta todas las sesiones - NUEVA
-deleteSession(sessionName)       // Elimina una sesión completa - NUEVA
-renameSession(oldName, newName)  // Renombra una sesión - NUEVA
-mergeSessions(session1, session2) // Fusiona dos sesiones - NUEVA
+groupVideosBySession(videos)     // Agrupa videos por sesión
+toggleSession(sessionName)       // Expande/colapsa una sesión
+toggleSelectSession(sessionName) // Selecciona/deselecciona todos los videos de una sesión
+expandAllSessions()              // Expande todas las sesiones
+collapseAllSessions()            // Colapsa todas las sesiones
+getSessionByName(sessionName)    // Obtiene información de una sesión
+getSessionVideos(sessionName)    // Obtiene videos de una sesión
+exportSession(sessionName)       // Exporta sesión como ZIP
+exportAllSessions()              // Exporta todas las sesiones
+deleteSession(sessionName)       // Elimina una sesión completa
+
+// FUNCIONES DE LIMPIEZA AUTOMÁTICA (NUEVAS)
+cleanupEmptySessions()           // Limpia sesiones vacías automáticamente
+cleanupEmptyLocalFolders(emptySessions) // Limpia carpetas locales vacías
+getSessionFolderHandle(sessionName) // Obtiene handle de carpeta de sesión
+deleteEmptyFolder(folderHandle, folderName) // Elimina carpeta vacía
+
+// GESTIÓN DE ARCHIVOS POR SESIÓN
+deleteVideoById(videoId, video)  // Elimina video específico
+deletePhysicalVideo(video)       // Elimina video físico
+moveToTrash(video)              // Mueve a papelera (opcional)
+restoreFromTrash(videoId)       // Restaura desde papelera (opcional)
+emptyTrash()                    // Vacía papelera (opcional)
 
 // ESTADO DE SESIONES
 this.state.expandedSessions = new Set()  // Sesiones expandidas
 this.state.selectedSessions = new Set()  // Sesiones seleccionadas
+this.state.sessionStats = {}            // Estadísticas por sesión
 ```
 
-### **18. 🔌 MÓDULO DE EVENTOS (COMPLETO - ACTUALIZADO)**
-**Ubicación aproximada:** líneas 6000-6100
+### **18. 🔌 MÓDULO DE EVENTOS** (COMPLETO Y ACTUALIZADO)
+**Ubicación aproximada:** líneas 6600-6700
 
 ```javascript
 // CONFIGURACIÓN EVENTOS
@@ -664,11 +682,12 @@ setupGalleryEventListeners()    // Configura eventos de galería - ACTUALIZADO
 session-header clicks           // Expansión/colapso de sesiones
 select-session-btn clicks       // Selección de todos los videos de una sesión
 export-session-btn clicks       // Exportación de sesión como ZIP
-session-control-btn clicks      // Control global de sesiones (expandir/colapsar todos)
+delete-session-btn clicks       // Eliminación de sesión completa - NUEVO
+session-control-btn clicks      // Control global de sesiones
 
 // ACCIONES MASIVAS
 exportBtn, deleteBtn, moveToLocalBtn, combineVideosBtn
-exportAllSessionsBtn            // NUEVO: Exportar todas las sesiones
+exportAllSessionsBtn            // Exportar todas las sesiones
 
 // EVENTOS ESPECIALES
 window.beforeunload            // Guarda antes de cerrar
@@ -690,40 +709,31 @@ serviceWorker.register        // Registro service worker
 ### **Ejemplos de solicitudes:**
 
 ```
-"Necesito modificar la función renderVideosList() del módulo Galería"
+"Necesito modificar la función cleanupEmptySessions() del módulo Gestión de Sesiones"
 "Quiero cambiar cómo se agrupan videos en groupVideosBySession()"
-"Necesito ajustar la exportación ZIP en exportSession()"
-"Quiero modificar la UI de sesiones en renderSession()"
+"Necesito ajustar la eliminación automática en deleteSelected()"
+"Quiero modificar la exportación ZIP en exportSession()"
 "Necesito cambiar cómo se expanden sesiones en toggleSession()"
 "Quiero modificar la selección de sesiones en toggleSelectSession()"
-"Necesito ajustar la búsqueda de videos en findVideoInState()"
-"Quiero modificar la exportación masiva en exportAllSessions()"
+"Necesito ajustar la limpieza de carpetas en cleanupEmptyLocalFolders()"
+"Quiero modificar la eliminación de sesión completa en deleteSession()"
 ```
 
-### **Para añadir nuevas funcionalidades:**
-
-1. **Identifica el módulo** más relacionado
-2. **Pídeme**: "Necesito añadir una función que haga [X] en el módulo [Y]"
-3. **Te enviaré** la estructura actual de ese módulo
-4. **Podemos añadir** la nueva función en el lugar adecuado
-
 ## 📝 **PLANTILLA PARA SOLICITAR MODIFICACIONES**
-
-Cuando necesites hacer un cambio, usa esta plantilla:
 
 ```markdown
 ## 🛠️ SOLICITUD DE MODIFICACIÓN
 
 **Módulo afectado:** [Ej: MÓDULO DE GESTIÓN DE SESIONES]
-**Función a modificar:** [Ej: exportSession()]
+**Función a modificar:** [Ej: cleanupEmptySessions()]
 **Cambio necesario:** [Describe qué quieres cambiar]
 **Razón del cambio:** [Por qué es necesario]
 **Impacto estimado:** [Qué otras partes afecta]
 
 **Código específico que necesitas:**
-- Función principal: exportSession()
-- Funciones relacionadas: groupVideosBySession(), getSessionVideos()
-- Variables de estado: this.state.videos, this.state.selectedSessions
+- Función principal: cleanupEmptySessions()
+- Funciones relacionadas: cleanupEmptyLocalFolders(), getSessionFolderHandle()
+- Variables de estado: this.state.expandedSessions, this.state.selectedSessions
 ```
 
 ## 🚨 **ZONAS DE ALTO ACOPAMIENTO (CUIDADO AL MODIFICAR)**
@@ -743,8 +753,10 @@ Estas funciones afectan múltiples módulos:
 11. **`parseGPXData()`** → Usado por visualización GPX, exportación, mapas
 12. **`calculateTrackBounds()`** → Usado por mapas, visualización GPX
 13. **`downloadBlob()`** → Usado por exportación de videos y GPX
-14. **`renderVideosList()`** → **NUEVO CRÍTICO**: Usa galería, sesiones, exportación, UI (completamente reescrita)
-15. **`exportSession()`** → **NUEVO CRÍTICO**: Usa almacenamiento, galería, utilidades, ZIP
+14. **`renderVideosList()`** → **CRÍTICO REESCRITO**: Usa galería, sesiones, exportación, UI
+15. **`deleteSelected()`** → **ACTUALIZADO**: Ahora limpia sesiones vacías automáticamente
+16. **`cleanupEmptySessions()`** → **NUEVO CRÍTICO**: Limpieza automática, afecta múltiples estados
+17. **`groupVideosBySession()`** → **NUEVO CRÍTICO**: Base de todo el sistema de sesiones
 
 ## 💡 **RECOMENDACIONES PARA FUTURAS MODIFICACIONES**
 
@@ -765,42 +777,49 @@ Estas funciones afectan múltiples módulos:
 
 ## 🎯 **RESUMEN**
 
-Ahora tienes un **mapa completo** de tu aplicación `app.js` con las nuevas funcionalidades de **gestión de sesiones**. Con este índice puedes:
+Ahora tienes un **sistema completo de gestión de sesiones** que incluye:
 
-1. **Localizar rápidamente** cualquier funcionalidad, incluyendo las nuevas de sesiones
-2. **Entender dependencias** entre módulos
-3. **Solicitar modificaciones específicas** sin enviar todo el código
-4. **Mantener consistencia** al hacer cambios
-5. **Identificar zonas críticas** que requieren cuidado especial
+1. **Renderizado jerárquico** por sesiones
+2. **Expansión/colapso** individual y global
+3. **Selección masiva** por sesión
+4. **Exportación ZIP** por sesión
+5. **Limpieza automática** de sesiones vacías
+6. **Eliminación completa** de sesiones
+7. **Gestión de carpetas físicas** asociadas
 
 ## 📊 **ESTADÍSTICAS DEL PROYECTO ACTUALIZADAS**
 
-- **Total módulos documentados:** 18 (ahora incluye Módulo de Gestión de Sesiones)
-- **Funciones principales identificadas:** ~200+
-- **Nuevas funciones añadidas:** 15+ para gestión de sesiones
-- **Variables de estado:** ~55+
-- **Variables de control:** ~30+
-- **Elementos DOM referenciados:** ~90+
+- **Total módulos documentados:** 18
+- **Funciones principales identificadas:** ~220+
+- **Nuevas funciones añadidas:** 25+ para gestión de sesiones
+- **Variables de estado:** ~60+
+- **Variables de control:** ~35+
+- **Elementos DOM referenciados:** ~95+
 - **Ubicaciones aproximadas:** Definidas para cada módulo
-- **Zonas críticas identificadas:** 15 funciones de alto acoplamiento (+2 nuevas)
+- **Zonas críticas identificadas:** 17 funciones de alto acoplamiento (+4 nuevas)
 
-## 🔄 **CAMBIOS PRINCIPALES RESPECTO A LA VERSIÓN ANTERIOR**
+## 🔄 **CAMBIOS PRINCIPALES RESPECTO A VERSIÓN ANTERIOR**
 
-1. **Nuevo módulo:** **MÓDULO DE GESTIÓN DE SESIONES** con 12+ funciones nuevas
-2. **Módulo Galería completamente actualizado:** 
-   - `renderVideosList()` completamente reescrita
-   - Nueva función `groupVideosBySession()`
-   - Nueva función `renderSession()`
-   - Nueva función `renderVideoItem()`
-3. **Módulo Utilidades ampliado:** 
-   - `exportSession()` para exportar ZIP por sesión
-   - `exportAllSessions()` para exportar todas las sesiones
-4. **Estado ampliado:**
-   - `this.state.selectedSessions` para control de selección
-   - `this.state.expandedSessions` para control de expansión
-5. **Módulo Eventos actualizado:** Nuevos eventos para gestión de sesiones
-6. **CSS añadido:** Estilos completos para la interfaz de sesiones
-7. **Funciones críticas actualizadas:** Se añadieron 2 nuevas funciones críticas
+1. **Nuevo módulo completo:** **GESTIÓN DE SESIONES** con 15+ funciones nuevas
+2. **Módulo Galería completamente reescrito:** 
+   - Renderizado jerárquico por sesiones
+   - Expansión/colapso dinámico
+   - Selección masiva por sesión
+3. **Sistema de limpieza automática:**
+   - `cleanupEmptySessions()` - Limpia sesiones vacías
+   - `cleanupEmptyLocalFolders()` - Limpia carpetas físicas
+   - Integrado en `deleteSelected()` y `loadGallery()`
+4. **Exportación mejorada:**
+   - ZIP por sesión individual
+   - ZIP maestro con todas las sesiones
+5. **Eliminación completa:**
+   - `deleteSession()` - Elimina sesión completa
+   - Integración con sistema de archivos
+6. **Estado ampliado:**
+   - `expandedSessions` y `selectedSessions`
+   - `sessionStats` para estadísticas
+7. **CSS completo** para interfaz de sesiones
+8. **Eventos actualizados** para nueva funcionalidad
 
 ---
 
