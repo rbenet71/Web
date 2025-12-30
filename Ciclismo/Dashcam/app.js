@@ -1,6 +1,6 @@
-// Dashcam PWA v4.2.2 - Versión Completa Simplificada
+// Dashcam PWA v4.2.3 - Versión Completa Simplificada
 
-const APP_VERSION = '4.2.2';
+const APP_VERSION = '4.2.3';
 
 class DashcamApp {
     constructor() {
@@ -3689,18 +3689,9 @@ class DashcamApp {
         console.log(`📊 Total videos: ${this.state.videos.length}`);
         
         // Inicializar sets si no existen
-        if (!this.state.expandedSessions) {
-            this.state.expandedSessions = new Set();
-            console.log('🆕 expandedSessions inicializado');
-        }
-        if (!this.state.selectedSessions) {
-            this.state.selectedSessions = new Set();
-            console.log('🆕 selectedSessions inicializado');
-        }
-        if (!this.state.selectedVideos) {
-            this.state.selectedVideos = new Set();
-            console.log('🆕 selectedVideos inicializado');
-        }
+        if (!this.state.expandedSessions) this.state.expandedSessions = new Set();
+        if (!this.state.selectedSessions) this.state.selectedSessions = new Set();
+        if (!this.state.selectedVideos) this.state.selectedVideos = new Set();
         
         // Función para agrupar videos por sesión
         const groupVideosBySession = (videos) => {
@@ -3715,7 +3706,6 @@ class DashcamApp {
                 if (!sessionName || sessionName === 'null' || sessionName === 'undefined' || sessionName === '') {
                     const date = new Date(video.timestamp);
                     sessionName = `Sesión ${date.toLocaleDateString('es-ES')}`;
-                    console.log(`📅 Video ${index} sin sesión -> asignado a: ${sessionName}`);
                 }
                 
                 if (!sessions[sessionName]) {
@@ -3727,7 +3717,6 @@ class DashcamApp {
                         totalDuration: 0,
                         totalSize: 0,
                         videoCount: 0,
-                        dateRange: { min: Infinity, max: 0 },
                         hasPhysicalFiles: false,
                         hasAppFiles: false,
                         earliestDate: null,
@@ -3759,14 +3748,6 @@ class DashcamApp {
                 if (!sessions[sessionName].latestDate || videoDate > sessions[sessionName].latestDate) {
                     sessions[sessionName].latestDate = videoDate;
                 }
-                
-                // Actualizar rango de fechas (para compatibilidad)
-                if (timestamp < sessions[sessionName].dateRange.min) {
-                    sessions[sessionName].dateRange.min = timestamp;
-                }
-                if (timestamp > sessions[sessionName].dateRange.max) {
-                    sessions[sessionName].dateRange.max = timestamp;
-                }
             });
             
             // Ordenar videos dentro de cada sesión (más reciente primero)
@@ -3774,13 +3755,7 @@ class DashcamApp {
                 session.videos.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
             });
             
-            const sessionList = Object.values(sessions);
-            console.log(`📊 Sesiones encontradas: ${sessionList.length}`);
-            sessionList.forEach(s => {
-                console.log(`  - ${s.name}: ${s.videos.length} videos, expanded: ${s.expanded}, selected: ${s.selected}`);
-            });
-            
-            return sessionList;
+            return Object.values(sessions);
         };
         
         // Función para renderizar un video individual
@@ -3811,10 +3786,6 @@ class DashcamApp {
                 locationIcon = '📂';
                 locationText = 'Carpeta Local';
                 locationClass = 'local-file';
-                
-                if (video.session) {
-                    locationText += ` (${video.session})`;
-                }
             } else {
                 locationIcon = '📱';
                 locationText = 'App';
@@ -3831,10 +3802,7 @@ class DashcamApp {
                 <div class="file-item video-file ${locationClass} ${isSelected ? 'selected' : ''}" 
                     data-id="${video.id}" 
                     data-type="video"
-                    data-location="${location}"
                     data-session="${video.session || ''}"
-                    data-format="${format}"
-                    data-source="${video.source || 'app'}"
                     style="
                         margin: 8px 0;
                         padding: 12px;
@@ -3870,7 +3838,7 @@ class DashcamApp {
                             <div class="file-location" title="${locationText}" style="font-size: 1.1em;">
                                 ${locationIcon}
                             </div>
-                            <div class="file-format" data-format="${format}" style="
+                            <div class="file-format" style="
                                 font-size: 0.75em;
                                 background: #f0f0f0;
                                 padding: 2px 6px;
@@ -3911,11 +3879,6 @@ class DashcamApp {
                         ${segment > 1 ? `
                             <div title="Segmento">
                                 <span style="margin-right: 4px;">📹</span> Segmento ${segment}
-                            </div>
-                        ` : ''}
-                        ${video.isPhysical ? `
-                            <div title="Archivo físico">
-                                <span style="margin-right: 4px;">📄</span> Archivo físico
                             </div>
                         ` : ''}
                     </div>
@@ -4004,163 +3967,309 @@ class DashcamApp {
             // Escapar el nombre de sesión para JavaScript
             const safeSessionName = this.escapeHTML(session.name).replace(/'/g, "\\'").replace(/"/g, '&quot;');
             
+            // Contador de videos seleccionados en esta sesión
+            const selectedVideosInSession = session.videos.filter(video => 
+                this.state.selectedVideos.has(this.normalizeId(video.id))
+            ).length;
+            
             return `
                 <div class="session-item" data-session-name="${this.escapeHTML(session.name)}"
                     style="
-                        margin-bottom: 10px;
+                        margin-bottom: 20px;
                         border-radius: 8px;
                         overflow: hidden;
                         background: white;
-                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                        border: 1px solid #e0e0e0;
                     ">
-                    <div class="session-header ${isExpanded ? 'expanded' : ''}" 
-                        style="
-                            padding: 15px;
-                            cursor: pointer;
+                    <!-- FILA SUPERIOR: Cabecera principal con TRES botones alineados -->
+                    <div class="session-top-row" style="
+                        padding: 18px;
+                        background: ${isExpanded ? '#f8f9fa' : '#ffffff'};
+                        border-bottom: ${isExpanded ? '2px solid #3498db' : '1px solid #f0f0f0'};
+                    ">
+                        <div style="
                             display: flex;
                             justify-content: space-between;
                             align-items: center;
-                            background: ${isExpanded ? '#e8f4fd' : '#f8f9fa'};
-                            border-left: 4px solid ${isExpanded ? '#2196F3' : '#ddd'};
-                            transition: background 0.3s;
-                        "
-                        onmouseover="this.style.background='${isExpanded ? '#e3f2fd' : '#f0f0f0'}'"
-                        onmouseout="this.style.background='${isExpanded ? '#e8f4fd' : '#f8f9fa'}'">
-                        <div class="session-main" onclick="window.dashcamApp.toggleSession('${safeSessionName}')"
-                            style="
-                                flex: 1;
-                                display: flex;
-                                align-items: center;
-                                gap: 12px;
-                                min-width: 0;
-                            ">
-                            <div class="session-icon" style="
-                                font-size: 1.4em;
-                                transition: transform 0.3s;
-                                flex-shrink: 0;
-                                ${isExpanded ? 'transform: rotate(90deg);' : ''}
-                            ">
-                                ${isExpanded ? '📂' : '📁'}
-                            </div>
-                            <div class="session-info" style="flex: 1; min-width: 0;">
-                                <div class="session-title" style="
-                                    font-weight: 600;
-                                    color: #333;
-                                    margin-bottom: 4px;
-                                    font-size: 1.1em;
-                                    white-space: nowrap;
-                                    overflow: hidden;
-                                    text-overflow: ellipsis;
-                                ">
-                                    ${this.escapeHTML(session.name)}
-                                </div>
-                                <div class="session-stats" style="
+                            margin-bottom: 15px;
+                        ">
+                            <div class="session-main" onclick="window.dashcamApp.toggleSession('${safeSessionName}')"
+                                style="
+                                    flex: 1;
                                     display: flex;
-                                    flex-wrap: wrap;
+                                    align-items: center;
                                     gap: 12px;
-                                    color: #666;
-                                    font-size: 0.9em;
+                                    cursor: pointer;
+                                    min-width: 0;
                                 ">
-                                    <span class="session-stat" title="Número de videos">
-                                        <span style="margin-right: 4px;">🎬</span> ${session.videoCount} videos
-                                    </span>
-                                    <span class="session-stat" title="Duración total">
-                                        <span style="margin-right: 4px;">⏱️</span> ${totalDuration}
-                                    </span>
-                                    <span class="session-stat" title="Tamaño total">
-                                        <span style="margin-right: 4px;">💾</span> ${totalSizeMB} MB
-                                    </span>
-                                    <span class="session-stat" title="Tipo de archivos">
-                                        ${fileTypes}
-                                    </span>
-                                    ${dateStr ? `
-                                        <span class="session-stat" title="Rango de fechas">
-                                            <span style="margin-right: 4px;">📅</span> ${dateStr}
-                                        </span>
-                                    ` : ''}
+                                <div class="session-icon" style="
+                                    font-size: 1.5em;
+                                    transition: transform 0.3s;
+                                    flex-shrink: 0;
+                                    ${isExpanded ? 'transform: rotate(90deg);' : ''}
+                                ">
+                                    ${isExpanded ? '📂' : '📁'}
                                 </div>
+                                <div class="session-info" style="flex: 1; min-width: 0;">
+                                    <div class="session-title" style="
+                                        font-weight: 600;
+                                        color: #2c3e50;
+                                        margin-bottom: 6px;
+                                        font-size: 1.1em;
+                                        white-space: nowrap;
+                                        overflow: hidden;
+                                        text-overflow: ellipsis;
+                                    ">
+                                        ${this.escapeHTML(session.name)}
+                                    </div>
+                                    <div class="session-stats" style="
+                                        display: flex;
+                                        flex-wrap: wrap;
+                                        gap: 12px;
+                                        color: #7f8c8d;
+                                        font-size: 0.9em;
+                                    ">
+                                        <span class="session-stat" title="Número de videos">
+                                            <span style="margin-right: 4px;">🎬</span> ${session.videoCount} videos
+                                        </span>
+                                        <span class="session-stat" title="Duración total">
+                                            <span style="margin-right: 4px;">⏱️</span> ${totalDuration}
+                                        </span>
+                                        <span class="session-stat" title="Tamaño total">
+                                            <span style="margin-right: 4px;">💾</span> ${totalSizeMB} MB
+                                        </span>
+                                        ${dateStr ? `
+                                            <span class="session-stat" title="Rango de fechas">
+                                                <span style="margin-right: 4px;">📅</span> ${dateStr}
+                                            </span>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- TRES BOTONES ALINEADOS: Eliminar, Exportar y Seleccionar -->
+                            <div class="session-top-actions" style="
+                                display: flex;
+                                gap: 10px;
+                                flex-shrink: 0;
+                            ">
+                                <!-- Botón 1: Eliminar Sesión -->
+                                <button class="session-action-btn delete-session-btn" 
+                                        onclick="event.stopPropagation(); window.dashcamApp.deleteSession('${safeSessionName}')"
+                                        title="Eliminar sesión completa"
+                                        style="
+                                            padding: 10px 18px;
+                                            background: #e74c3c;
+                                            color: white;
+                                            border: none;
+                                            border-radius: 6px;
+                                            cursor: pointer;
+                                            font-size: 0.95em;
+                                            white-space: nowrap;
+                                            transition: all 0.2s;
+                                            display: flex;
+                                            align-items: center;
+                                            gap: 8px;
+                                            font-weight: 500;
+                                            box-shadow: 0 2px 4px rgba(231, 76, 60, 0.2);
+                                        "
+                                        onmouseover="this.style.background='#c0392b'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(231, 76, 60, 0.3)'"
+                                        onmouseout="this.style.background='#e74c3c'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(231, 76, 60, 0.2)'">
+                                    🗑️ <span>Eliminar Sesión</span>
+                                </button>
+                                
+                                <!-- Botón 2: Exportar Sesión -->
+                                <button class="session-action-btn export-session-btn" 
+                                        onclick="event.stopPropagation(); window.dashcamApp.exportSession('${safeSessionName}')"
+                                        title="Exportar toda la sesión como ZIP"
+                                        style="
+                                            padding: 10px 18px;
+                                            background: #f39c12;
+                                            color: white;
+                                            border: none;
+                                            border-radius: 6px;
+                                            cursor: pointer;
+                                            font-size: 0.95em;
+                                            white-space: nowrap;
+                                            transition: all 0.2s;
+                                            display: flex;
+                                            align-items: center;
+                                            gap: 8px;
+                                            font-weight: 500;
+                                            box-shadow: 0 2px 4px rgba(243, 156, 18, 0.2);
+                                        "
+                                        onmouseover="this.style.background='#e67e22'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(243, 156, 18, 0.3)'"
+                                        onmouseout="this.style.background='#f39c12'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(243, 156, 18, 0.2)'">
+                                    📦 <span>Exportar Sesión</span>
+                                </button>
+                                
+                                <!-- Botón 3: Seleccionar Videos -->
+                                <button class="session-action-btn select-session-btn" 
+                                        onclick="event.stopPropagation(); window.dashcamApp.toggleSelectSession('${safeSessionName}')"
+                                        title="${session.selected ? 'Deseleccionar todos' : 'Seleccionar todos'}"
+                                        style="
+                                            padding: 10px 18px;
+                                            background: ${session.selected ? '#95a5a6' : '#2ecc71'};
+                                            color: white;
+                                            border: none;
+                                            border-radius: 6px;
+                                            cursor: pointer;
+                                            font-size: 0.95em;
+                                            white-space: nowrap;
+                                            transition: all 0.2s;
+                                            display: flex;
+                                            align-items: center;
+                                            gap: 8px;
+                                            font-weight: 500;
+                                            box-shadow: 0 2px 4px rgba(${session.selected ? '149, 165, 166' : '46, 204, 113'}, 0.2);
+                                        "
+                                        onmouseover="this.style.background='${session.selected ? '#7f8c8d' : '#27ae60'}; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(${session.selected ? '149, 165, 166' : '46, 204, 113'}, 0.3)'"
+                                        onmouseout="this.style.background='${session.selected ? '#95a5a6' : '#2ecc71'}; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(${session.selected ? '149, 165, 166' : '46, 204, 113'}, 0.2)'">
+                                    ${session.selected ? '❌' : '✅'} 
+                                    <span>${session.selected ? 'Deseleccionar' : 'Seleccionar'}</span>
+                                </button>
                             </div>
                         </div>
-                        <div class="session-actions" style="
-                            display: flex;
-                            gap: 6px;
-                            flex-shrink: 0;
+                        
+                        <!-- FILA INFERIOR: GRID de acciones para videos seleccionados -->
+                        <div class="session-bottom-row" style="
+                            padding-top: 15px;
+                            border-top: 1px solid #eee;
                         ">
-                            <button class="session-action-btn select-session-btn" 
-                                    onclick="event.stopPropagation(); window.dashcamApp.toggleSelectSession('${safeSessionName}')"
-                                    title="${session.selected ? 'Deseleccionar todos' : 'Seleccionar todos'}"
-                                    style="
-                                        padding: 6px 10px;
-                                        background: ${session.selected ? '#e74c3c' : '#27ae60'};
-                                        color: white;
-                                        border: none;
-                                        border-radius: 4px;
-                                        cursor: pointer;
-                                        font-size: 0.85em;
-                                        white-space: nowrap;
-                                        transition: background 0.2s;
-                                    "
-                                    onmouseover="this.style.background='${session.selected ? '#c0392b' : '#219653'}'"
-                                    onmouseout="this.style.background='${session.selected ? '#e74c3c' : '#27ae60'}'">
-                                ${session.selected ? '❌ Deseleccionar' : '✅ Seleccionar'}
-                            </button>
-                            <button class="session-action-btn export-session-btn" 
-                                    onclick="event.stopPropagation(); window.dashcamApp.exportSession('${safeSessionName}')"
-                                    title="Exportar toda la sesión como ZIP"
-                                    style="
-                                        padding: 6px 10px;
-                                        background: #f39c12;
-                                        color: white;
-                                        border: none;
-                                        border-radius: 4px;
-                                        cursor: pointer;
-                                        font-size: 0.85em;
-                                        white-space: nowrap;
-                                        transition: background 0.2s;
-                                    "
-                                    onmouseover="this.style.background='#e67e22'"
-                                    onmouseout="this.style.background='#f39c12'">
-                                📦 Exportar
-                            </button>
-                            <button class="session-action-btn delete-session-btn" 
-                                    onclick="event.stopPropagation(); window.dashcamApp.deleteSession('${safeSessionName}')"
-                                    title="Eliminar sesión completa"
-                                    style="
-                                        padding: 6px 10px;
-                                        background: #e74c3c;
-                                        color: white;
-                                        border: none;
-                                        border-radius: 4px;
-                                        cursor: pointer;
-                                        font-size: 0.85em;
-                                        white-space: nowrap;
-                                        transition: background 0.2s;
-                                    "
-                                    onmouseover="this.style.background='#c0392b'"
-                                    onmouseout="this.style.background='#e74c3c'">
-                                🗑️ Eliminar
-                            </button>
+                            <!-- GRID de 3 botones para acciones sobre videos seleccionados -->
+                            ${selectedVideosInSession > 0 ? `
+                                <div style="
+                                    display: grid;
+                                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                                    gap: 12px;
+                                ">
+                                    <!-- Botón 1: Eliminar Seleccionados -->
+                                    <button onclick="event.stopPropagation(); window.dashcamApp.deleteSelected()"
+                                            style="
+                                                padding: 14px;
+                                                background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+                                                color: white;
+                                                border: none;
+                                                border-radius: 6px;
+                                                cursor: pointer;
+                                                font-size: 0.95em;
+                                                transition: all 0.2s;
+                                                display: flex;
+                                                align-items: center;
+                                                justify-content: center;
+                                                gap: 10px;
+                                                font-weight: 500;
+                                                box-shadow: 0 3px 6px rgba(231, 76, 60, 0.2);
+                                            "
+                                            onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 12px rgba(231, 76, 60, 0.3)'"
+                                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 6px rgba(231, 76, 60, 0.2)'">
+                                        <div style="font-size: 1.5em;">🗑️</div>
+                                        <div style="font-size: 1em; text-align: center;">
+                                            Eliminar
+                                        </div>
+                                    </button>
+                                    
+                                    <!-- Botón 2: Combinar Seleccionados -->
+                                    <button onclick="event.stopPropagation(); window.dashcamApp.combineSelectedVideos()"
+                                            style="
+                                                padding: 14px;
+                                                background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+                                                color: white;
+                                                border: none;
+                                                border-radius: 6px;
+                                                cursor: pointer;
+                                                font-size: 0.95em;
+                                                transition: all 0.2s;
+                                                display: flex;
+                                                align-items: center;
+                                                justify-content: center;
+                                                gap: 10px;
+                                                font-weight: 500;
+                                                box-shadow: 0 3px 6px rgba(155, 89, 182, 0.2);
+                                            "
+                                            onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 12px rgba(155, 89, 182, 0.3)'"
+                                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 6px rgba(155, 89, 182, 0.2)'">
+                                        <div style="font-size: 1.5em;">🔗</div>
+                                        <div style="font-size: 1em; text-align: center;">
+                                            Combinar
+                                        </div>
+                                    </button>
+                                    
+                                    <!-- Botón 3: Exportar Seleccionados -->
+                                    <button onclick="event.stopPropagation(); window.dashcamApp.exportSelected()"
+                                            style="
+                                                padding: 14px;
+                                                background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+                                                color: white;
+                                                border: none;
+                                                border-radius: 6px;
+                                                cursor: pointer;
+                                                font-size: 0.95em;
+                                                transition: all 0.2s;
+                                                display: flex;
+                                                align-items: center;
+                                                justify-content: center;
+                                                gap: 10px;
+                                                font-weight: 500;
+                                                box-shadow: 0 3px 6px rgba(243, 156, 18, 0.2);
+                                            "
+                                            onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 12px rgba(243, 156, 18, 0.3)'"
+                                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 6px rgba(243, 156, 18, 0.2)'">
+                                        <div style="font-size: 1.5em;">📦</div>
+                                        <div style="font-size: 1em; text-align: center;">
+                                            Exportar
+                                        </div>
+                                    </button>
+                                </div>
+                            ` : `
+                                <!-- Mensaje cuando no hay videos seleccionados -->
+                                <div style="
+                                    text-align: center;
+                                    padding: 15px;
+                                    background: #f8f9fa;
+                                    border-radius: 6px;
+                                    color: #95a5a6;
+                                    font-style: italic;
+                                    border: 1px dashed #ddd;
+                                ">
+                                    Selecciona videos para habilitar las acciones
+                                </div>
+                            `}
                         </div>
                     </div>
                     
+                    <!-- CONTENEDOR DE VIDEOS (se muestra cuando está expandido) -->
                     ${isExpanded ? `
                         <div class="session-videos-container expanded" style="
                             max-height: 5000px;
                             overflow: visible;
                             background: #f9f9f9;
-                            border-top: 1px solid #e0e0e0;
                             display: block !important;
-                            visibility: visible !important;
-                            opacity: 1 !important;
+                            padding: ${session.videos.length > 0 ? '20px' : '0'};
                         ">
-                            <div class="session-videos" style="
-                                padding: 15px;
-                                display: flex;
-                                flex-direction: column;
-                                gap: 10px;
-                            ">
-                                ${session.videos.map(video => renderVideoItem(video)).join('')}
-                            </div>
+                            ${session.videos.length > 0 ? `
+                                <div class="session-videos" style="
+                                    display: flex;
+                                    flex-direction: column;
+                                    gap: 12px;
+                                ">
+                                    ${session.videos.map(video => renderVideoItem(video)).join('')}
+                                </div>
+                            ` : `
+                                <div style="
+                                    text-align: center;
+                                    padding: 40px;
+                                    color: #95a5a6;
+                                    font-style: italic;
+                                    background: white;
+                                    border-radius: 6px;
+                                    margin: 10px;
+                                    border: 1px dashed #ddd;
+                                ">
+                                    Esta sesión no contiene videos
+                                </div>
+                            `}
                         </div>
                     ` : ''}
                 </div>
@@ -4176,114 +4285,123 @@ class DashcamApp {
             return b.latestDate - a.latestDate;
         });
         
-        console.log(`🎬 Renderizando ${sessions.length} sesiones...`);
-        
         // Generar HTML
         let html = `
             <div class="sessions-view" style="
-                padding: 15px;
-                background: #f5f5f5;
-                border-radius: 8px;
+                padding: 20px;
+                background: #f8f9fa;
                 min-height: 300px;
             ">
-                <div class="sessions-header" style="
-                    margin-bottom: 20px;
-                    padding: 15px;
-                    background: white;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                <!-- CABECERA SIMPLIFICADA -->
+                <div style="
+                    margin-bottom: 25px;
+                    padding: 0;
                 ">
-                    <h3 style="
+                    <h2 style="
                         margin: 0 0 10px 0;
-                        color: #333;
-                        font-size: 1.5em;
+                        color: #2c3e50;
+                        font-size: 1.8em;
                         font-weight: 600;
-                    ">📁 Sesiones de grabación</h3>
-                    <div class="sessions-summary" style="
-                        color: #666;
-                        font-size: 0.9em;
-                        margin-bottom: 15px;
-                        display: flex;
-                        gap: 10px;
-                        align-items: center;
                     ">
-                        <span>${sessions.length} sesiones</span>
-                        <span>•</span>
-                        <span>${this.state.videos.length} videos total</span>
-                    </div>
-                    <div class="sessions-controls" style="
+                        📁 Gestión de Sesiones
+                    </h2>
+                    
+                    <div style="
                         display: flex;
-                        gap: 10px;
+                        gap: 12px;
                         flex-wrap: wrap;
                     ">
-                        <button class="session-control-btn" onclick="window.dashcamApp.expandAllSessions()"
+                        <button onclick="window.dashcamApp.expandAllSessions()"
                                 style="
-                                    padding: 8px 15px;
-                                    background: #2196F3;
+                                    padding: 10px 20px;
+                                    background: #3498db;
                                     color: white;
                                     border: none;
-                                    border-radius: 4px;
+                                    border-radius: 6px;
                                     cursor: pointer;
-                                    font-size: 0.9em;
-                                    transition: background 0.2s;
+                                    font-size: 0.95em;
+                                    transition: all 0.2s;
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 8px;
+                                    font-weight: 500;
                                 "
-                                onmouseover="this.style.background='#0b7dda'"
-                                onmouseout="this.style.background='#2196F3'">
-                            📂 Expandir todos
+                                onmouseover="this.style.background='#2980b9'; this.style.transform='translateY(-2px)'"
+                                onmouseout="this.style.background='#3498db'; this.style.transform='translateY(0)'">
+                            📂 Expandir Todas
                         </button>
-                        <button class="session-control-btn" onclick="window.dashcamApp.collapseAllSessions()"
+                        
+                        <button onclick="window.dashcamApp.collapseAllSessions()"
                                 style="
-                                    padding: 8px 15px;
-                                    background: #9e9e9e;
+                                    padding: 10px 20px;
+                                    background: #95a5a6;
                                     color: white;
                                     border: none;
-                                    border-radius: 4px;
+                                    border-radius: 6px;
                                     cursor: pointer;
-                                    font-size: 0.9em;
-                                    transition: background 0.2s;
+                                    font-size: 0.95em;
+                                    transition: all 0.2s;
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 8px;
+                                    font-weight: 500;
                                 "
-                                onmouseover="this.style.background='#757575'"
-                                onmouseout="this.style.background='#9e9e9e'">
-                            📁 Colapsar todos
+                                onmouseover="this.style.background='#7f8c8d'; this.style.transform='translateY(-2px)'"
+                                onmouseout="this.style.background='#95a5a6'; this.style.transform='translateY(0)'">
+                            📁 Colapsar Todas
                         </button>
-                        <button class="session-control-btn" onclick="window.dashcamApp.exportAllSessions()" 
-                                ${sessions.length === 0 ? 'disabled' : ''}
-                                style="
-                                    padding: 8px 15px;
-                                    background: ${sessions.length === 0 ? '#cccccc' : '#FF9800'};
-                                    color: white;
-                                    border: none;
-                                    border-radius: 4px;
-                                    cursor: ${sessions.length === 0 ? 'not-allowed' : 'pointer'};
-                                    font-size: 0.9em;
-                                    transition: background 0.2s;
-                                "
-                                onmouseover="this.style.background='${sessions.length === 0 ? '#cccccc' : '#e68900'}'"
-                                onmouseout="this.style.background='${sessions.length === 0 ? '#cccccc' : '#FF9800'}'">
-                            📦 Exportar todo
-                        </button>
+                        
+                        ${sessions.length > 0 ? `
+                            <button onclick="window.dashcamApp.exportAllSessions()"
+                                    style="
+                                        padding: 10px 20px;
+                                        background: #e67e22;
+                                        color: white;
+                                        border: none;
+                                        border-radius: 6px;
+                                        cursor: pointer;
+                                        font-size: 0.95em;
+                                        transition: all 0.2s;
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 8px;
+                                        font-weight: 500;
+                                    "
+                                    onmouseover="this.style.background='#d35400'; this.style.transform='translateY(-2px)'"
+                                    onmouseout="this.style.background='#e67e22'; this.style.transform='translateY(0)'">
+                                📦 Exportar Todo
+                            </button>
+                        ` : ''}
                     </div>
                 </div>
                 
+                <!-- LISTA DE SESIONES -->
                 ${sessions.length > 0 ? `
                     <div class="sessions-list" style="
                         display: flex;
                         flex-direction: column;
-                        gap: 10px;
+                        gap: 20px;
                     ">
                         ${sessions.map(session => renderSession(session)).join('')}
                     </div>
                 ` : `
                     <div class="no-sessions" style="
                         text-align: center;
-                        padding: 40px 20px;
-                        color: #666;
+                        padding: 60px 20px;
+                        color: #7f8c8d;
                         background: white;
-                        border-radius: 8px;
+                        border-radius: 10px;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
                         margin: 20px 0;
                     ">
-                        <p style="font-size: 1.1em; margin-bottom: 10px;">No hay sesiones de grabación disponibles</p>
-                        <p style="color: #999;">Inicia una grabación para crear tu primera sesión</p>
+                        <div style="font-size: 4em; margin-bottom: 20px;">📁</div>
+                        <h3 style="font-size: 1.4em; margin-bottom: 10px; color: #2c3e50;">
+                            No hay sesiones de grabación disponibles
+                        </h3>
+                        <p style="color: #95a5a6; max-width: 500px; margin: 0 auto; line-height: 1.6;">
+                            Inicia una grabación para crear tu primera sesión.<br>
+                            Las sesiones se organizan automáticamente por fecha de grabación.
+                        </p>
                     </div>
                 `}
             </div>
@@ -4291,21 +4409,13 @@ class DashcamApp {
         
         container.innerHTML = html;
         
-        // Configurar eventos
+        // Configurar eventos de galería
         if (typeof this.setupGalleryEventListeners === 'function') {
             this.setupGalleryEventListeners();
         }
         
         console.log('✅ renderVideosList() completado');
-        console.log('📊 Estado final:', {
-            videos: this.state.videos.length,
-            sessions: sessions.length,
-            expandedSessions: Array.from(this.state.expandedSessions || []),
-            selectedSessions: Array.from(this.state.selectedSessions || []),
-            selectedVideos: Array.from(this.state.selectedVideos || [])
-        });
     }
-
 
     renderSessionsList() {
         const container = this.elements.videosList;
