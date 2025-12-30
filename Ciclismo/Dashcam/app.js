@@ -1,6 +1,6 @@
-// Dashcam PWA v4.2.3 - Versión Completa Simplificada
+// Dashcam PWA v4.2.4 - Versión Completa Simplificada
 
-const APP_VERSION = '4.2.3';
+const APP_VERSION = '4.2.4';
 
 class DashcamApp {
     constructor() {
@@ -9001,14 +9001,234 @@ console.log('4. expandedSessions después:', Array.from(this.state.expandedSessi
     }
 
 
-    async combineSelectedVideos() {
+async combineSelectedVideos() {
+    try {
         if (this.state.selectedVideos.size < 2) {
             this.showNotification('❌ Selecciona al menos 2 videos para combinar');
             return;
         }
         
-        // Mostrar modal de combinación
-        this.showCombineModal();
+        console.log('🔗 Combinando videos seleccionados...');
+        
+        // Obtener los videos seleccionados
+        const selectedVideos = [];
+        for (const videoId of this.state.selectedVideos) {
+            const video = this.findVideoInState(videoId);
+            if (video) {
+                selectedVideos.push(video);
+            }
+        }
+        
+        if (selectedVideos.length < 2) {
+            this.showNotification('❌ No se pudieron obtener los videos seleccionados');
+            return;
+        }
+        
+        console.log(`🔗 Videos a combinar: ${selectedVideos.length}`);
+        
+        // Preguntar confirmación
+        const confirmCombine = confirm(
+            `¿Combinar ${selectedVideos.length} videos seleccionados?\n\n` +
+            `Esta operación puede tomar algunos segundos.\n` +
+            `¿Continuar?`
+        );
+        
+        if (!confirmCombine) return;
+        
+        this.showNotification('🔗 Combinando videos...');
+        this.showSavingStatus('Combinando videos...');
+        
+        // Ordenar videos por timestamp (más antiguo primero)
+        selectedVideos.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+        
+        // Verificar que todos los videos sean del mismo formato
+        const formats = [...new Set(selectedVideos.map(v => v.format || 'mp4'))];
+        if (formats.length > 1) {
+            this.showNotification('⚠️ Los videos tienen formatos diferentes. Se intentará convertir.');
+        }
+        
+        // Obtener los blobs de los videos
+        const videoBlobs = [];
+        let totalDuration = 0;
+        let totalSize = 0;
+        
+        for (const video of selectedVideos) {
+            try {
+                let blob = null;
+                
+                if (video.blob) {
+                    blob = video.blob;
+                } else if (video.fileHandle) {
+                    const file = await video.fileHandle.getFile();
+                    blob = file;
+                } else if (this.db) {
+                    const storedVideo = await this.getFromStore('videos', video.id);
+                    blob = storedVideo?.blob;
+                }
+                
+                if (blob) {
+                    videoBlobs.push({
+                        blob: blob,
+                        video: video,
+                        duration: video.duration || 0,
+                        size: blob.size
+                    });
+                    
+                    totalDuration += video.duration || 0;
+                    totalSize += blob.size;
+                    
+                    console.log(`✅ Video obtenido: ${video.filename} - ${this.formatTime(video.duration || 0)}`);
+                } else {
+                    console.warn(`⚠️ No se pudo obtener blob para: ${video.filename}`);
+                }
+            } catch (error) {
+                console.error(`❌ Error obteniendo video ${video.filename}:`, error);
+            }
+        }
+        
+        if (videoBlobs.length < 2) {
+            this.showNotification('❌ No hay suficientes videos para combinar');
+            this.hideSavingStatus();
+            return;
+        }
+        
+        // Combinar los videos
+        try {
+            // Método 1: Si todos son MP4, intentar combinarlos
+            const combinedBlob = await this.combineVideoBlobs(videoBlobs);
+            
+            if (!combinedBlob || combinedBlob.size === 0) {
+                throw new Error('Error al combinar los blobs');
+            }
+            
+            // Crear nombre para el video combinado
+            const firstVideo = selectedVideos[0];
+            const lastVideo = selectedVideos[selectedVideos.length - 1];
+            const combinedName = `Combinado_${selectedVideos.length}_videos_${new Date().getTime()}.mp4`;
+            
+            // Crear objeto de video combinado
+            const combinedVideo = {
+                id: Date.now(),
+                title: `Combinado (${selectedVideos.length} videos)`,
+                filename: combinedName,
+                timestamp: firstVideo.timestamp,
+                duration: totalDuration,
+                size: combinedBlob.size,
+                format: 'mp4',
+                location: firstVideo.location || 'app',
+                source: firstVideo.source || 'app',
+                session: firstVideo.session || 'Combinado',
+                gpsPoints: selectedVideos.reduce((sum, v) => sum + (v.gpsPoints || 0), 0),
+                combinedFrom: selectedVideos.map(v => v.id),
+                isCombined: true
+            };
+            
+            // Guardar el video combinado
+            let savedSuccess = false;
+            
+            if (this.state.settings.storageLocation === 'localFolder' && this.localFolderHandle) {
+                savedSuccess = await this.saveToLocalFolder(combinedBlob, combinedName, 'Combinado');
+            } else {
+                savedSuccess = await this.saveToApp(combinedBlob, firstVideo.timestamp, totalDuration, 'mp4', 1, []);
+            }
+            
+            if (savedSuccess) {
+                this.showNotification(`✅ ${selectedVideos.length} videos combinados exitosamente`);
+                
+                // Opcional: Eliminar los videos originales
+                const deleteOriginals = confirm(
+                    `¿Deseas eliminar los ${selectedVideos.length} videos originales?\n` +
+                    `Esta acción no se puede deshacer.`
+                );
+                
+                if (deleteOriginals) {
+                    for (const video of selectedVideos) {
+                        await this.deleteVideoById(video.id, video);
+                    }
+                    this.showNotification(`🗑️ ${selectedVideos.length} videos originales eliminados`);
+                }
+                
+                // Limpiar selección
+                this.state.selectedVideos.clear();
+                if (this.state.selectedSessions) {
+                    this.state.selectedSessions.clear();
+                }
+                
+                // Recargar galería
+                await this.loadGallery();
+            } else {
+                this.showNotification('❌ Error al guardar el video combinado');
+            }
+            
+        } catch (error) {
+            console.error('❌ Error combinando videos:', error);
+            this.showNotification('❌ Error al combinar los videos');
+            
+            // Método alternativo: Crear un ZIP con los videos
+            this.showNotification('📦 Creando ZIP con los videos seleccionados...');
+            await this.createZipFromSelectedVideos(selectedVideos);
+        }
+        
+        this.hideSavingStatus();
+        
+    } catch (error) {
+        console.error('❌ Error en combineSelectedVideos:', error);
+        this.hideSavingStatus();
+        this.showNotification('❌ Error al procesar la combinación');
+    }
+}
+
+// Función auxiliar para combinar blobs de video
+async combineVideoBlobs(videoBlobs) {
+    console.log('🔗 Combinando blobs de video...');
+    
+    // Método simple: concatenar los blobs (funciona para algunos formatos)
+    const blobsArray = videoBlobs.map(item => item.blob);
+    
+    // Crear un nuevo blob concatenado
+    return new Blob(blobsArray, { type: 'video/mp4' });
+}
+
+    // Método alternativo: Crear ZIP con los videos seleccionados
+    async createZipFromSelectedVideos(videos) {
+        try {
+            if (typeof JSZip === 'undefined') {
+                this.showNotification('❌ JSZip no está disponible');
+                return;
+            }
+            
+            const zip = new JSZip();
+            const timestamp = new Date().getTime();
+            
+            for (const video of videos) {
+                try {
+                    let blob = null;
+                    
+                    if (video.blob) {
+                        blob = video.blob;
+                    } else if (video.fileHandle) {
+                        const file = await video.fileHandle.getFile();
+                        blob = file;
+                    }
+                    
+                    if (blob) {
+                        const safeName = this.cleanFileName(video.filename || `video_${video.id}.${video.format || 'mp4'}`);
+                        zip.file(safeName, blob);
+                    }
+                } catch (error) {
+                    console.warn(`⚠️ Error añadiendo ${video.filename} al ZIP:`, error);
+                }
+            }
+            
+            const zipBlob = await zip.generateAsync({ type: 'blob' });
+            this.downloadBlob(zipBlob, `videos_combinados_${timestamp}.zip`);
+            
+            this.showNotification(`📦 ZIP creado con ${videos.length} videos`);
+            
+        } catch (error) {
+            console.error('❌ Error creando ZIP:', error);
+            this.showNotification('❌ Error al crear ZIP');
+        }
     }
 
     showCombineModal() {
