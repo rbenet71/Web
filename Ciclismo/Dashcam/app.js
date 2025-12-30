@@ -1,6 +1,6 @@
-// Dashcam PWA v4.0.11 - Versión Completa Simplificada
+// Dashcam PWA v4.0.12 - Versión Completa Simplificada
 
-const APP_VERSION = '4.0.11';
+const APP_VERSION = '4.0.12';
 
 class DashcamApp {
     constructor() {
@@ -6354,16 +6354,21 @@ class DashcamApp {
         let startTime = null;
         let endTime = null;
         
+        // Filtrar solo puntos válidos con tiempo
+        const validPoints = points.filter(p => p && p.time);
+        
         // Encontrar tiempos de inicio y fin
-        const pointsWithTime = points.filter(p => p.time);
-        if (pointsWithTime.length > 0) {
-            startTime = pointsWithTime[0].time;
-            endTime = pointsWithTime[pointsWithTime.length - 1].time;
+        if (validPoints.length > 0) {
+            // Ordenar por tiempo para asegurar correcto orden
+            validPoints.sort((a, b) => a.time - b.time);
+            startTime = validPoints[0].time;
+            endTime = validPoints[validPoints.length - 1].time;
         }
         
         // Calcular estadísticas
         for (let i = 0; i < points.length; i++) {
             const point = points[i];
+            if (!point) continue;
             
             // Elevación
             if (point.ele !== undefined) {
@@ -6371,8 +6376,8 @@ class DashcamApp {
                 if (point.ele > maxElevation) maxElevation = point.ele;
                 
                 // Ganancia/pérdida de elevación
-                if (i > 0) {
-                    const prevEle = points[i-1].ele || 0;
+                if (i > 0 && points[i-1] && points[i-1].ele !== undefined) {
+                    const prevEle = points[i-1].ele;
                     const eleDiff = point.ele - prevEle;
                     if (eleDiff > 0) totalElevationGain += eleDiff;
                     else totalElevationLoss += Math.abs(eleDiff);
@@ -6385,12 +6390,27 @@ class DashcamApp {
             }
             
             // Distancia
-            if (i > 0) {
+            if (i > 0 && points[i-1]) {
                 const prevPoint = points[i-1];
-                totalDistance += this.calculateDistance(
+                const distance = this.calculateDistance(
                     prevPoint.lat, prevPoint.lon,
                     point.lat, point.lon
                 );
+                totalDistance += distance;
+                
+                // Calcular velocidad entre puntos si tenemos tiempo
+                if (point.time && prevPoint.time && distance > 0) {
+                    const timeDiff = (point.time - prevPoint.time) / 1000; // en segundos
+                    if (timeDiff > 0) {
+                        const speed = distance / (timeDiff / 3600); // km/h
+                        if (speed > maxSpeed) maxSpeed = speed;
+                        
+                        // Si el punto no tenía velocidad, asignar la calculada
+                        if (!point.speed || point.speed === 0) {
+                            point.speed = speed / 3.6; // convertir a m/s para consistencia
+                        }
+                    }
+                }
             }
         }
         
@@ -6399,15 +6419,15 @@ class DashcamApp {
         
         // Calcular velocidad promedio
         const totalTimeHours = totalTimeMs / (1000 * 60 * 60);
-        const avgSpeed = totalTimeHours > 0 ? totalDistance / totalTimeHours : 0;
+        const avgSpeedKmh = totalTimeHours > 0 ? totalDistance / totalTimeHours : 0;
         
         return {
             totalPoints: points.length,
             totalDistance: totalDistance,
             totalTime: totalTimeMs,
             totalTimeFormatted: this.formatTime(totalTimeMs),
-            avgSpeed: avgSpeed,
-            avgSpeedKmh: avgSpeed,
+            avgSpeed: avgSpeedKmh / 3.6, // en m/s
+            avgSpeedKmh: avgSpeedKmh,
             maxSpeed: maxSpeed,
             minElevation: minElevation === Infinity ? 0 : minElevation,
             maxElevation: maxElevation === -Infinity ? 0 : maxElevation,
@@ -6417,7 +6437,7 @@ class DashcamApp {
             endTime: endTime
         };
     }
-
+    
     extractPointData(pointElement) {
         try {
             const lat = parseFloat(pointElement.getAttribute('lat'));
@@ -6445,14 +6465,35 @@ class DashcamApp {
                 if (!isNaN(eleValue)) point.ele = eleValue;
             }
             
-            // Extraer tiempo
+            // MEJORADA: Extraer tiempo con múltiples formatos
             const timeElement = pointElement.querySelector('time');
             if (timeElement && timeElement.textContent) {
                 try {
-                    const time = new Date(timeElement.textContent);
-                    if (!isNaN(time.getTime())) {
-                        point.time = time;
-                        point.timestamp = time.getTime();
+                    // Intentar parsear diferentes formatos de tiempo
+                    let timeString = timeElement.textContent.trim();
+                    
+                    // Ajustar para formato ISO con 'Z' o sin ella
+                    if (timeString.endsWith('Z')) {
+                        point.time = new Date(timeString);
+                    } else {
+                        // Si no tiene 'Z', asumir UTC o añadirla
+                        if (timeString.includes('T')) {
+                            // Formato ISO sin Z: "2023-10-15T14:30:00"
+                            point.time = new Date(timeString + 'Z');
+                        } else {
+                            // Otros formatos
+                            point.time = new Date(timeString);
+                        }
+                    }
+                    
+                    if (!isNaN(point.time.getTime())) {
+                        point.timestamp = point.time.getTime();
+                        // Debug: mostrar algunos tiempos
+                        if (Math.random() < 0.001) { // Solo para algunos puntos
+                            console.log('⏰ Tiempo extraído:', point.time.toISOString());
+                        }
+                    } else {
+                        console.warn('⚠️ Tiempo inválido:', timeString);
                     }
                 } catch (e) {
                     console.warn('⚠️ Error parseando tiempo:', e);
@@ -6463,7 +6504,9 @@ class DashcamApp {
             const speedElements = [
                 pointElement.querySelector('speed'),
                 pointElement.querySelector('gpxtpx\\:speed'),
-                pointElement.querySelector('[speed]')
+                pointElement.querySelector('[speed]'),
+                pointElement.querySelector('extensions > speed'),
+                pointElement.querySelector('extensions > gpxtpx\\:speed')
             ];
             
             for (const speedEl of speedElements) {
@@ -6476,11 +6519,18 @@ class DashcamApp {
                 }
             }
             
+            // Si no hay velocidad en los datos, calcularla basada en posición y tiempo
+            if (point.speed === 0 && point.time) {
+                // La velocidad se calculará después cuando procesemos todos los puntos
+            }
+            
             // Extraer frecuencia cardíaca
             const hrElements = [
                 pointElement.querySelector('gpxtpx\\:hr'),
                 pointElement.querySelector('hr'),
-                pointElement.querySelector('[hr]')
+                pointElement.querySelector('[hr]'),
+                pointElement.querySelector('extensions > gpxtpx\\:hr'),
+                pointElement.querySelector('extensions > hr')
             ];
             
             for (const hrEl of hrElements) {
@@ -6497,7 +6547,9 @@ class DashcamApp {
             const cadElements = [
                 pointElement.querySelector('gpxtpx\\:cad'),
                 pointElement.querySelector('cad'),
-                pointElement.querySelector('[cad]')
+                pointElement.querySelector('[cad]'),
+                pointElement.querySelector('extensions > gpxtpx\\:cad'),
+                pointElement.querySelector('extensions > cad')
             ];
             
             for (const cadEl of cadElements) {
@@ -6779,22 +6831,22 @@ class DashcamApp {
                                 <div class="gpx-stats-grid">
                                     <div class="stat-card">
                                         <div class="stat-icon">📍</div>
-                                        <div class="stat-value" id="gpxPoints">0</div>
+                                        <div class="stat-value" id="gpxPoints2">0</div>
                                         <div class="stat-label">Puntos</div>
                                     </div>
                                     <div class="stat-card">
                                         <div class="stat-icon">📏</div>
-                                        <div class="stat-value" id="gpxDistance">0 km</div>
+                                        <div class="stat-value" id="gpxDistance2">0 km</div>
                                         <div class="stat-label">Distancia</div>
                                     </div>
                                     <div class="stat-card">
                                         <div class="stat-icon">⏱️</div>
-                                        <div class="stat-value" id="gpxDuration">00:00</div>
+                                        <div class="stat-value" id="gpxDuration2">00:00</div>
                                         <div class="stat-label">Duración</div>
                                     </div>
                                     <div class="stat-card">
                                         <div class="stat-icon">⚡</div>
-                                        <div class="stat-value" id="gpxAvgSpeed">0 km/h</div>
+                                        <div class="stat-value" id="gpxAvgSpeed2">0 km/h</div>
                                         <div class="stat-label">Velocidad</div>
                                     </div>
                                     <div class="stat-card">
@@ -6908,11 +6960,11 @@ class DashcamApp {
                     date.toLocaleDateString('es-ES') + ' ' + date.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
             }
             
-            // Actualizar estadísticas
-            document.getElementById('gpxPoints').textContent = stats.totalPoints.toLocaleString();
-            document.getElementById('gpxDistance').textContent = stats.totalDistance.toFixed(2) + ' km';
-            document.getElementById('gpxDuration').textContent = stats.totalTimeFormatted;
-            document.getElementById('gpxAvgSpeed').textContent = stats.avgSpeedKmh.toFixed(1) + ' km/h';
+            // Actualizar estadísticas - CORREGIDO: usar 'gpxDistance2' en lugar de 'gpxDistance'
+            document.getElementById('gpxPoints2').textContent = stats.totalPoints.toLocaleString();
+            document.getElementById('gpxDistance2').textContent = stats.totalDistance.toFixed(2) + ' km';
+            document.getElementById('gpxDuration2').textContent = stats.totalTimeFormatted;
+            document.getElementById('gpxAvgSpeed2').textContent = stats.avgSpeedKmh.toFixed(1) + ' km/h';
             document.getElementById('gpxElevationGain').textContent = stats.elevationGain.toFixed(0) + ' m';
             document.getElementById('gpxElevationLoss').textContent = stats.elevationLoss.toFixed(0) + ' m';
             
@@ -6935,6 +6987,7 @@ class DashcamApp {
             console.error('❌ Error actualizando datos del visualizador GPX:', error);
         }
     }
+    
     initGPXViewerMap(gpxData) {
         try {
             const mapContainer = document.getElementById('gpxViewerMap');
