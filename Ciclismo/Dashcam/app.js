@@ -1,6 +1,6 @@
-// Dashcam PWA v4.5.3 - Versión Completa Simplificada
+// Dashcam PWA v4.5.4 - Versión Completa Simplificada
 
-const APP_VERSION = '4.5.3';
+const APP_VERSION = '4.5.4';
 
 class DashcamApp {
     constructor() {
@@ -2361,272 +2361,143 @@ async loadLogoFromDataUrl(dataUrl) {
 
     async uploadCustomLogo() {
         try {
-            console.log('📤 Iniciando carga de logo...');
+            console.log('📤 Iniciando carga de logo (modo iOS)...');
             
-            // Para iOS/Android/Desktop usamos el input file oculto
+            // Para iOS usar el input file oculto
             const logoInput = document.getElementById('logoUpload');
             
             if (!logoInput) {
-                this.showNotification('❌ No se encontró el selector de logo');
+                this.showNotification('❌ Selector no encontrado');
                 return;
             }
             
-            // Configurar el input para permitir cualquier archivo
-            // (iOS mostrará opción "Archivos" además de "Fototeca")
-            logoInput.accept = "*/*";
+            // Configuración mínima para iOS
+            logoInput.accept = "image/*";
             logoInput.multiple = false;
             
-            // Crear promesa para manejar la selección
+            // Crear promesa simple
             const filePromise = new Promise((resolve, reject) => {
-                logoInput.onchange = (event) => {
+                let handled = false;
+                
+                const handleSelection = async (event) => {
+                    if (handled) return;
+                    handled = true;
+                    
                     const file = event.target.files[0];
-                    if (file) {
-                        console.log('📄 Archivo seleccionado:', {
-                            name: file.name,
-                            type: file.type,
-                            size: Math.round(file.size / 1024) + 'KB',
-                            isIOS: this.isIOS
-                        });
-                        resolve(file);
-                    } else {
-                        reject(new Error('No se seleccionó archivo'));
+                    if (!file) {
+                        reject(new Error('No file'));
+                        return;
                     }
-                    // Limpiar el input
-                    logoInput.value = '';
+                    
+                    console.log('📸 iOS - Archivo seleccionado:', file.name, file.type);
+                    
+                    // Validación MUY simple para iOS
+                    if (!file.type.startsWith('image/')) {
+                        this.showNotification('❌ Selecciona una imagen');
+                        reject(new Error('Not image'));
+                        return;
+                    }
+                    
+                    // Tamaño máximo 2MB para iOS
+                    if (file.size > 2 * 1024 * 1024) {
+                        this.showNotification('❌ Imagen muy grande (máx 2MB)');
+                        reject(new Error('Too large'));
+                        return;
+                    }
+                    
+                    resolve(file);
                 };
                 
-                logoInput.oncancel = () => {
-                    reject(new Error('Selección cancelada'));
-                };
+                logoInput.onchange = handleSelection;
+                
+                // Timeout para iOS (a veces no dispara eventos)
+                setTimeout(() => {
+                    if (!handled) {
+                        handled = true;
+                        reject(new Error('iOS timeout'));
+                    }
+                }, 10000);
             });
             
-            console.log('🔄 Abriendo selector de archivos...');
-            // Disparar el selector de archivos
+            // Resetear input (importante para iOS)
+            logoInput.value = '';
+            
+            // Disparar selector
             logoInput.click();
             
-            // Esperar a que el usuario seleccione
-            let file = await filePromise;
+            // Esperar selección
+            const file = await filePromise;
             
-            // ===== VALIDACIÓN MEJORADA PARA CUALQUIER ARCHIVO =====
-            const validImageTypes = [
-                'image/jpeg', 'image/jpg', 'image/png', 
-                'image/gif', 'image/webp', 'image/bmp', 'image/svg+xml'
-            ];
+            // Procesar imagen de forma SIMPLE para iOS
+            console.log('🔄 iOS - Procesando imagen...');
+            this.showNotification('📱 Procesando imagen...');
             
-            const validExtensions = [
-                '.jpg', '.jpeg', '.png', '.gif', 
-                '.webp', '.bmp', '.svg', '.ico', '.tiff', '.tif'
-            ];
+            // Leer como ArrayBuffer primero (más confiable en iOS)
+            const arrayBuffer = await file.arrayBuffer();
             
-            // Verificar tipo MIME
-            const isCorrectMimeType = validImageTypes.includes(file.type.toLowerCase());
+            // Crear Blob desde ArrayBuffer
+            const blob = new Blob([arrayBuffer], { type: file.type });
             
-            // Verificar extensión (para casos donde iOS no reporta type correctamente)
-            const fileName = file.name.toLowerCase();
-            const hasValidExtension = validExtensions.some(ext => fileName.endsWith(ext));
-            
-            // Verificar tamaño máximo
-            const ABSOLUTE_MAX_SIZE = 5 * 1024 * 1024; // 5MB máximo absoluto
-            const RECOMMENDED_MAX_SIZE = 1 * 1024 * 1024; // 1MB recomendado
-            
-            if (file.size > ABSOLUTE_MAX_SIZE) {
-                this.showNotification('❌ La imagen es demasiado grande (máximo 5MB)');
-                return;
-            }
-            
-            if (!isCorrectMimeType && !hasValidExtension) {
-                this.showNotification('❌ Por favor selecciona una imagen válida:\nJPG, PNG, GIF, WebP, BMP, SVG');
-                console.warn('❌ Archivo no válido para logo:', {
-                    name: file.name,
-                    type: file.type,
-                    size: file.size,
-                    isIOS: this.isIOS
-                });
-                
-                // Para iOS, mostrar instrucciones adicionales
-                if (this.isIOS) {
-                    setTimeout(() => {
-                        if (confirm('📱 En iPhone: Asegúrate de seleccionar una imagen\n\n¿Necesitas ayuda?')) {
-                            this.showIOSFileInstructions('logo');
-                        }
-                    }, 500);
-                }
-                return;
-            }
-            
-            console.log('✅ Archivo validado para logo:', file.name);
-            // ======================================================
-            
-            // ===== COMPROBACIÓN DE TAMAÑO Y COMPRESIÓN (NUEVO) =====
-            const MAX_DIMENSION = 800; // Máximo 800px en cualquier dimensión
-            
-            if (file.size > RECOMMENDED_MAX_SIZE) {
-                console.log('📊 Imagen grande detectada:', Math.round(file.size / 1024) + 'KB');
-                this.showNotification('⚡ Optimizando logo para mejor rendimiento...');
-                
-                try {
-                    // Intentar comprimir la imagen
-                    const compressedFile = await this.compressImageFile(file, {
-                        maxSizeMB: 1,
-                        maxWidthOrHeight: MAX_DIMENSION,
-                        quality: 0.8
-                    });
-                    
-                    if (compressedFile && compressedFile.size < file.size) {
-                        const originalKB = Math.round(file.size / 1024);
-                        const compressedKB = Math.round(compressedFile.size / 1024);
-                        const reduction = Math.round((1 - compressedFile.size / file.size) * 100);
-                        
-                        console.log('✅ Imagen optimizada:', {
-                            original: originalKB + 'KB',
-                            compressed: compressedKB + 'KB',
-                            reduction: reduction + '%'
-                        });
-                        
-                        file = compressedFile;
-                        
-                        this.showNotification(`✅ Logo optimizado: ${reduction}% más pequeño`);
-                    }
-                } catch (compressError) {
-                    console.warn('⚠️ No se pudo optimizar la imagen:', compressError);
-                    // Continuar con la imagen original (es válida, solo grande)
-                }
-            }
-            // =======================================================
-            
-            console.log('🔄 Procesando imagen...', file.name);
-            
-            // Convertir a Data URL para almacenamiento permanente
-            const reader = new FileReader();
-            
-            return new Promise((resolve, reject) => {
-                reader.onload = async (e) => {
-                    try {
-                        const logoDataUrl = e.target.result;
-                        
-                        // Crear objeto de imagen para previsualización
-                        const img = new Image();
-                        img.onload = () => {
-                            try {
-                                // Guardar la Data URL y metadatos
-                                this.state.customLogo = {
-                                    dataUrl: logoDataUrl,
-                                    filename: file.name,
-                                    fileSize: file.size,
-                                    type: file.type,
-                                    image: img,
-                                    dimensions: {
-                                        width: img.width,
-                                        height: img.height
-                                    },
-                                    timestamp: Date.now(),
-                                    compressed: file.compressed || false
-                                };
-                                
-                                // También guardar referencia para dibujar
-                                this.logoImage = img;
-                                
-                                // Guardar en configuración
-                                this.state.settings.customLogo = logoDataUrl;
-                                this.state.settings.logoFilename = file.name;
-                                this.state.settings.logoSize = file.size;
-                                this.state.settings.logoCompressed = file.compressed || false;
-                                
-                                // Guardar settings inmediatamente
-                                this.saveSettings();
-                                
-                                // Actualizar UI inmediatamente
-                                this.updateLogoInfo();
-                                
-                                // También actualizar el elemento directamente
-                                const logoInfoElement = document.getElementById('currentLogoInfo');
-                                if (logoInfoElement) {
-                                    const sizeKB = Math.round(file.size / 1024);
-                                    const dimensions = img.width + 'x' + img.height;
-                                    const compressedText = file.compressed ? ' (optimizado)' : '';
-                                    
-                                    logoInfoElement.innerHTML = 
-                                        `<span>🖼️ ${file.name}</span>
-                                        <small style="display: block; font-size: 12px; color: #aaa; margin-top: 2px;">
-                                        ${sizeKB} KB • ${dimensions} • Guardado en app${compressedText}
-                                        </small>`;
-                                }
-                                
-                                // Mensaje de éxito
-                                const successMessage = file.compressed 
-                                    ? `✅ Logo cargado y optimizado: ${file.name}`
-                                    : `✅ Logo cargado: ${file.name}`;
-                                
-                                this.showNotification(successMessage);
-                                
-                                console.log('✅ Logo procesado correctamente:', {
-                                    filename: file.name,
-                                    dimensions: `${img.width}x${img.height}`,
-                                    size: Math.round(file.size / 1024) + 'KB',
-                                    compressed: file.compressed || false,
-                                    dataUrlLength: logoDataUrl.length,
-                                    storageSize: Math.round(logoDataUrl.length / 1024 * 0.75) + 'KB aprox.'
-                                });
-                                
-                                // ===== LIMPIEZA DE LOGOS VIEJOS (EN SEGUNDO PLANO) =====
-                                setTimeout(() => {
-                                    this.cleanupOldLogos().catch(e => 
-                                        console.log('ℹ️ Limpieza en fondo:', e.message)
-                                    );
-                                }, 1000);
-                                // =======================================================
-                                
-                                resolve();
-                                
-                            } catch (innerError) {
-                                console.error('❌ Error procesando metadatos del logo:', innerError);
-                                this.showNotification('❌ Error al procesar la imagen');
-                                reject(innerError);
-                            }
-                        };
-                        
-                        img.onerror = (error) => {
-                            console.error('❌ Error cargando imagen:', error);
-                            this.showNotification('❌ Error al cargar la imagen');
-                            reject(new Error('Error cargando imagen'));
-                        };
-                        
-                        img.src = logoDataUrl;
-                        
-                    } catch (error) {
-                        console.error('❌ Error procesando logo:', error);
-                        this.showNotification('❌ Error al procesar logo');
-                        reject(error);
-                    }
-                };
-                
-                reader.onerror = (error) => {
-                    console.error('❌ Error leyendo archivo:', error);
-                    this.showNotification('❌ Error al leer el archivo de imagen');
-                    reject(error);
-                };
-                
-                reader.readAsDataURL(file);
+            // Convertir a Data URL
+            const dataUrl = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.readAsDataURL(blob);
             });
             
-        } catch (error) {
-            if (error.message === 'Selección cancelada') {
-                console.log('ℹ️ Usuario canceló la selección de logo');
-                // No mostrar notificación para cancelación
-            } else {
-                console.error('❌ Error cargando logo:', error);
-                this.showNotification('❌ Error al cargar logo');
-                
-                // Para iOS, ofrecer ayuda si es un error de selección
-                if (this.isIOS && error.message.includes('No se seleccionó archivo')) {
-                    setTimeout(() => {
-                        if (confirm('📱 ¿Problemas seleccionando un logo en iPhone?\n\n¿Quieres ver instrucciones?')) {
-                            this.showIOSFileInstructions('logo');
-                        }
-                    }, 1000);
+            // Crear imagen
+            const img = new Image();
+            await new Promise((resolve, reject) => {
+                img.onload = () => resolve();
+                img.onerror = reject;
+                img.src = dataUrl;
+            });
+            
+            // Guardar datos SIMPLES
+            this.state.customLogo = {
+                dataUrl: dataUrl,
+                filename: file.name,
+                fileSize: file.size,
+                type: file.type,
+                image: img,
+                dimensions: { width: img.width, height: img.height }
+            };
+            
+            this.logoImage = img;
+            
+            // Guardar en settings
+            this.state.settings.customLogo = dataUrl;
+            this.state.settings.logoFilename = file.name;
+            
+            // Guardar configuración
+            await this.saveSettings();
+            
+            // Actualizar UI INMEDIATAMENTE
+            this.updateLogoInfo();
+            
+            // Forzar redibujado de UI
+            setTimeout(() => {
+                const logoInfo = document.getElementById('currentLogoInfo');
+                if (logoInfo) {
+                    const sizeKB = Math.round(file.size / 1024);
+                    logoInfo.innerHTML = 
+                        `<span>✅ ${file.name}</span>
+                        <small style="color:#4cd964;">${sizeKB} KB • Listo</small>`;
                 }
+            }, 100);
+            
+            this.showNotification(`✅ Logo cargado: ${file.name}`);
+            console.log('✅ iOS - Logo cargado correctamente');
+            
+        } catch (error) {
+            console.log('ℹ️ iOS - Logo no cargado:', error.message);
+            
+            // Solo mostrar error si no es cancelación/timeout
+            if (!error.message.includes('cancel') && 
+                !error.message.includes('timeout') &&
+                !error.message.includes('No file')) {
+                this.showNotification('❌ Error al cargar logo');
             }
-            throw error;
         }
     }
     
