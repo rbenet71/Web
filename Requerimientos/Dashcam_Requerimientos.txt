@@ -33,13 +33,14 @@ eliminamos concatenar-> combineVideosModal
     max-height: none !important;
     height: auto !important;
 }
+4.4 Quiero que en el reproductor de video se pueda elegir la velocidad de reproduccion
+
+
 ----
 
 
 ---
 
-
-4.4 Quiero que en el reproductor de video se pueda elegir la velocidad de reproduccion
 seleccionar logo en iphone
 Idiomas
 Instalar App
