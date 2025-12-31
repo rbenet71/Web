@@ -1,6 +1,6 @@
-// Dashcam PWA v4.5.5 - Versión Completa Simplificada
+// Dashcam PWA v4.5.6 - Versión Completa Simplificada
 
-const APP_VERSION = '4.5.5';
+const APP_VERSION = '4.5.6';
 
 class DashcamApp {
     constructor() {
@@ -2380,30 +2380,86 @@ class DashcamApp {
 
     async uploadCustomLogo() {
         try {
-            console.log('📤 Iniciando carga de logo...');
+            console.log('📤 Subiendo logo...');
             
-            // Detectar si es iOS
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            
-            if (isIOS) {
-                console.log('🍎 Detectado iOS, usando método específico');
-                return await this.uploadCustomLogoIOS();
-            } else {
-                console.log('💻 Detectado Windows/Android, usando método normal');
-                return await this.uploadCustomLogoDesktop();
+            // Usar SIEMPRE el input del HTML (no crear dinámicos)
+            const logoInput = document.getElementById('logoUpload');
+            if (!logoInput) {
+                this.showNotification('❌ Error técnico');
+                return;
             }
+            
+            // Configuración MÍNIMA
+            logoInput.accept = 'image/*';
+            logoInput.multiple = false;
+            
+            // Resetear valor (IMPORTANTE para iOS)
+            logoInput.value = '';
+            
+            // Esperar selección
+            const file = await new Promise((resolve, reject) => {
+                logoInput.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        console.log('✅ Archivo seleccionado:', file.name);
+                        resolve(file);
+                    } else {
+                        reject(new Error('No file'));
+                    }
+                };
+                
+                // Disparar selector
+                setTimeout(() => logoInput.click(), 0);
+                
+                // Timeout corto
+                setTimeout(() => reject(new Error('Timeout')), 10000);
+            });
+            
+            // Procesamiento MUY simple
+            const dataUrl = await this.fileToDataURL(file);
+            const img = await this.createImageFromDataURL(dataUrl);
+            
+            // Guardar (forma SIMPLE)
+            this.state.customLogo = {
+                dataUrl: dataUrl,
+                filename: file.name,
+                image: img
+            };
+            
+            this.logoImage = img;
+            this.state.settings.customLogo = dataUrl;
+            this.state.settings.logoFilename = file.name;
+            
+            // Guardar y actualizar
+            await this.saveSettings();
+            this.updateLogoInfo();
+            this.showNotification(`✅ ${file.name}`);
             
         } catch (error) {
-            console.error('❌ Error en uploadCustomLogo:', error);
-            
-            // Solo mostrar error si no es cancelación
-            if (!error.message.includes('cancel') && 
-                !error.message.includes('Cancel') &&
-                !error.message.includes('No file')) {
-                this.showNotification('❌ Error al cargar logo');
-            }
+            console.log('ℹ️ Logo no cargado:', error.message);
+            // NO mostrar notificación para cancelaciones/timeouts
         }
     }
+
+// ===== FUNCIONES AUXILIARES SIMPLES =====
+
+fileToDataURL(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = () => reject(new Error('Read error'));
+        reader.readAsDataURL(file);
+    });
+}
+
+createImageFromDataURL(dataUrl) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('Image error'));
+        img.src = dataUrl;
+    });
+}
 
     async uploadCustomLogoIOS() {
         console.log('📱 Modo iOS activado');
@@ -2792,13 +2848,7 @@ class DashcamApp {
                                 '3. Selecciona "Archivos" en el menú'
                             );
                             
-                            // Ofrecer ayuda adicional
-                            setTimeout(() => {
-                                if (confirm('📱 ¿Necesitas ayuda para cargar GPX en iPhone?')) {
-                                    this.showIOSFileInstructions('gpx');
-                                }
-                            }, 1000);
-                            
+                           
                             reject(new Error('Tipo de archivo no válido para iOS'));
                             return;
                         }
@@ -2932,14 +2982,6 @@ class DashcamApp {
                 console.error('⏰ Timeout seleccionando archivo GPX');
                 this.showNotification('⏰ Tiempo agotado seleccionando archivo');
                 
-                // Para iOS, ofrecer ayuda
-                if (this.isIOS) {
-                    setTimeout(() => {
-                        if (confirm('📱 ¿Problemas seleccionando GPX en iPhone?\n\n¿Quieres ver instrucciones?')) {
-                            this.showIOSFileInstructions('gpx');
-                        }
-                    }, 500);
-                }
             } else {
                 console.error('❌ Error cargando GPX:', error);
                 
@@ -10954,12 +10996,7 @@ async getParentDirectoryHandle(fileHandle) {
                 const originalLogoClick = logoBtn.onclick;
                 logoBtn.onclick = () => {
                     const showHelp = localStorage.getItem('dashcam_show_ios_instructions') !== 'false';
-                    if (showHelp) {
-                        if (confirm('📱 En iPhone: Puedes seleccionar imágenes desde "Archivos"\n\n¿Necesitas instrucciones?')) {
-                            this.showIOSFileInstructions('logo');
-                            return;
-                        }
-                    }
+
                     if (originalLogoClick) originalLogoClick();
                     else this.uploadCustomLogo();
                 };
@@ -10971,12 +11008,6 @@ async getParentDirectoryHandle(fileHandle) {
                 const originalGpxClick = gpxBtn.onclick;
                 gpxBtn.onclick = () => {
                     const showHelp = localStorage.getItem('dashcam_show_ios_instructions') !== 'false';
-                    if (showHelp) {
-                        if (confirm('📱 En iPhone: Los archivos GPX deben estar en la app "Archivos"\n\n¿Necesitas instrucciones?')) {
-                            this.showIOSFileInstructions('gpx');
-                            return;
-                        }
-                    }
                     if (originalGpxClick) originalGpxClick();
                     else this.handleGpxUpload();
                 };
