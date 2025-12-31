@@ -37,7 +37,7 @@ eliminamos concatenar-> combineVideosModal
 
 
 ----
-
+4.5 En el iphone al decir seleccionar un arhivo para el logo del video o el gpx de la ruta no funciona
 
 ---
 

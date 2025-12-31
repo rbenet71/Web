@@ -1,6 +1,6 @@
-// Dashcam PWA v4.4.1 - Versión Completa Simplificada
+// Dashcam PWA v4.5 - Versión Completa Simplificada
 
-const APP_VERSION = '4.4.1';
+const APP_VERSION = '4.5';
 
 class DashcamApp {
     constructor() {
@@ -2052,22 +2052,275 @@ class DashcamApp {
         }
     }
 
-    async showIOSFolderPicker() {
+    async uploadCustomLogo() {
         try {
-            // Mostrar instrucciones para iPhone
-            const modal = document.getElementById('localFolderPickerModal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                document.getElementById('iphoneInstructions').style.display = 'block';
-                document.getElementById('desktopInstructions').style.display = 'none';
+            // Para iOS/Android/Desktop usamos el input file oculto
+            const logoInput = document.getElementById('logoUpload');
+            
+            if (!logoInput) {
+                this.showNotification('❌ No se encontró el selector de logo');
+                return;
             }
             
+            // Configurar el input para iOS
+            logoInput.accept = 'image/*';
+            logoInput.multiple = false;
+            
+            // Crear promesa para manejar la selección
+            const filePromise = new Promise((resolve, reject) => {
+                logoInput.onchange = (event) => {
+                    const file = event.target.files[0];
+                    if (file) {
+                        resolve(file);
+                    } else {
+                        reject(new Error('No se seleccionó archivo'));
+                    }
+                    // Limpiar el input
+                    logoInput.value = '';
+                };
+                
+                logoInput.oncancel = () => {
+                    reject(new Error('Selección cancelada'));
+                };
+            });
+            
+            // Disparar el selector de archivos
+            logoInput.click();
+            
+            // Esperar a que el usuario seleccione
+            const file = await filePromise;
+            
+            // Validar el archivo
+            if (!file.type.startsWith('image/')) {
+                this.showNotification('❌ Por favor selecciona una imagen');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) { // 5MB máximo
+                this.showNotification('❌ La imagen es demasiado grande (máx. 5MB)');
+                return;
+            }
+            
+            // Convertir a Data URL para previsualización
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const logoDataUrl = e.target.result;
+                this.state.customLogo = logoDataUrl;
+                this.state.logoImage = logoDataUrl;
+                
+                // Guardar en configuración
+                this.state.settings.customLogo = logoDataUrl;
+                this.saveSettings();
+                
+                // Actualizar UI
+                this.updateLogoInfo();
+                
+                this.showNotification(`✅ Logo cargado: ${file.name}`);
+            };
+            reader.readAsDataURL(file);
+            
         } catch (error) {
-            console.error('❌ Error mostrando selector iOS:', error);
-            this.showNotification('❌ Error en selector de carpeta');
+            if (error.message !== 'Selección cancelada') {
+                console.error('❌ Error cargando logo:', error);
+                this.showNotification('❌ Error al cargar logo');
+            }
         }
     }
 
+    async handleGpxUpload() {
+        try {
+            // Usar el input file oculto para GPX
+            const gpxInput = document.getElementById('gpxUpload');
+            
+            if (!gpxInput) {
+                this.showNotification('❌ No se encontró el selector de GPX');
+                return;
+            }
+            
+            // Configurar el input
+            gpxInput.accept = '.gpx,.xml';
+            gpxInput.multiple = false;
+            
+            // Crear promesa para manejar la selección
+            const filePromise = new Promise((resolve, reject) => {
+                gpxInput.onchange = (event) => {
+                    const file = event.target.files[0];
+                    if (file) {
+                        resolve(file);
+                    } else {
+                        reject(new Error('No se seleccionó archivo'));
+                    }
+                    // Limpiar el input
+                    gpxInput.value = '';
+                };
+                
+                gpxInput.oncancel = () => {
+                    reject(new Error('Selección cancelada'));
+                };
+            });
+            
+            // Disparar el selector de archivos
+            gpxInput.click();
+            
+            // Esperar a que el usuario seleccione
+            const file = await filePromise;
+            
+            // Validar el archivo
+            if (!file.name.toLowerCase().endsWith('.gpx') && 
+                !file.name.toLowerCase().endsWith('.xml')) {
+                this.showNotification('❌ Por favor selecciona un archivo GPX o XML');
+                return;
+            }
+            
+            if (file.size > 10 * 1024 * 1024) { // 10MB máximo
+                this.showNotification('❌ El archivo GPX es demasiado grande (máx. 10MB)');
+                return;
+            }
+            
+            // Leer el archivo
+            const text = await file.text();
+            
+            // Procesar el GPX
+            const gpxData = await this.parseGPXData(text, {
+                filename: file.name,
+                uploadDate: Date.now(),
+                fileSize: file.size,
+                source: 'upload'
+            });
+            
+            // Guardar en la base de datos
+            if (this.db) {
+                await this.saveToDatabase('gpxFiles', gpxData);
+                
+                // Actualizar lista en memoria
+                this.state.loadedGPXFiles.push(gpxData);
+                this.updateGpxSelect();
+                
+                this.showNotification(`✅ GPX cargado: ${gpxData.name}`);
+                
+                // Recargar la lista
+                this.loadGPXFromStore();
+            }
+            
+        } catch (error) {
+            if (error.message !== 'Selección cancelada') {
+                console.error('❌ Error cargando GPX:', error);
+                this.showNotification('❌ Error al cargar GPX');
+            }
+        }
+    }
+    async handleGpxUploadFile(file) {
+        try {
+            // Leer el archivo
+            const text = await file.text();
+            
+            // Procesar el GPX
+            const gpxData = await this.parseGPXData(text, {
+                filename: file.name,
+                uploadDate: Date.now(),
+                fileSize: file.size,
+                source: 'upload'
+            });
+            
+            // Guardar en la base de datos
+            if (this.db) {
+                await this.saveToDatabase('gpxFiles', gpxData);
+                
+                // Actualizar lista en memoria
+                this.state.loadedGPXFiles.push(gpxData);
+                this.updateGpxSelect();
+                
+                this.showNotification(`✅ GPX cargado: ${gpxData.name}`);
+                
+                // Recargar la lista
+                this.loadGPXFromStore();
+            }
+            
+        } catch (error) {
+            console.error('❌ Error procesando GPX:', error);
+            this.showNotification('❌ Error al procesar GPX');
+        }
+    }
+
+    async showIOSFolderPicker() {
+        try {
+            // En iOS, usamos el input file con webkitdirectory si está disponible
+            // o mostramos instrucciones si no
+            if (window.showOpenFilePicker) {
+                // Navegadores modernos (Chrome, Edge)
+                const handle = await window.showOpenFilePicker({
+                    types: [{
+                        description: 'Videos y GPX',
+                        accept: {
+                            'video/*': ['.mp4', '.webm'],
+                            'application/gpx+xml': ['.gpx', '.xml']
+                        }
+                    }],
+                    multiple: true,
+                    excludeAcceptAllOption: false
+                });
+                
+                // Procesar archivos seleccionados
+                for (const fileHandle of handle) {
+                    const file = await fileHandle.getFile();
+                    // Aquí procesar el archivo según su tipo
+                    if (file.type.startsWith('video/')) {
+                        // Procesar video
+                    } else if (file.name.endsWith('.gpx') || file.name.endsWith('.xml')) {
+                        // Procesar GPX
+                        await this.handleGpxUploadFile(file);
+                    }
+                }
+                
+            } else if ('webkitdirectory' in HTMLInputElement.prototype) {
+                // Safari/iOS con soporte limitado
+                this.showNotification('ℹ️ En iOS, usa la app "Archivos" para seleccionar');
+                
+                // Mostrar instrucciones
+                const modal = document.getElementById('localFolderPickerModal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    document.getElementById('iphoneInstructions').style.display = 'block';
+                    document.getElementById('desktopInstructions').style.display = 'none';
+                }
+                
+                // Configurar botón para abrir app Archivos
+                const openFilesBtn = document.getElementById('openFilesAppBtn');
+                if (openFilesBtn) {
+                    openFilesBtn.onclick = () => {
+                        // En iOS podemos intentar abrir la app Archivos
+                        window.open('shareddocuments://', '_blank');
+                    };
+                }
+                
+            } else {
+                // Fallback: usar input file normal
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'video/*,.gpx,.xml';
+                input.multiple = true;
+                
+                input.onchange = async (event) => {
+                    const files = Array.from(event.target.files);
+                    for (const file of files) {
+                        if (file.type.startsWith('video/')) {
+                            // Procesar video
+                        } else if (file.name.endsWith('.gpx') || file.name.endsWith('.xml')) {
+                            await this.handleGpxUploadFile(file);
+                        }
+                    }
+                };
+                
+                input.click();
+            }
+            
+        } catch (error) {
+            console.error('❌ Error en selector iOS:', error);
+            if (error.name !== 'AbortError') {
+                this.showNotification('❌ Error en selector de archivos');
+            }
+        }
+    }
     updateFolderUI() {
         if (this.elements.currentLocalFolderInfo && this.state.settings.localFolderName) {
             this.elements.currentLocalFolderInfo.innerHTML = 
@@ -8256,6 +8509,7 @@ setPlaybackSpeed(speed) {
             this.showNotification('❌ Error al cargar GPX');
         }
     }
+
     showGPXViewer(gpxData) {
         try {
             console.log('🗺️ Mostrando visualizador GPX:', gpxData.name);
@@ -9895,6 +10149,19 @@ async getParentDirectoryHandle(fileHandle) {
             this.elements.uploadLogoBtn.addEventListener('click', () => this.uploadCustomLogo());
         }
         
+        // Para el botón de subir GPX en el GPX Manager
+        if (this.elements.uploadGpxBtn) {
+            this.elements.uploadGpxBtn.addEventListener('click', () => this.handleGpxUpload());
+        }
+
+        // Para el botón de seleccionar carpeta local en iOS
+        const openFilesBtn = document.getElementById('openFilesAppBtn');
+        if (openFilesBtn) {
+            openFilesBtn.addEventListener('click', () => {
+                // Intentar abrir la app Archivos en iOS
+                window.open('shareddocuments://', '_blank');
+            });
+        }
         // Detener grabación al salir de la página
         window.addEventListener('beforeunload', () => {
             if (this.state.isRecording) {
