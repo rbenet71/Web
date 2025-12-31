@@ -1,6 +1,6 @@
-// Dashcam PWA v4.5.7 - Versión Completa Simplificada
+// Dashcam PWA v4.5.8 - Versión Completa Simplificada
 
-const APP_VERSION = '4.5.7';
+const APP_VERSION = '4.5.8';
 
 class DashcamApp {
     constructor() {

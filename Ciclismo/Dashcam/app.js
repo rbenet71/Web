@@ -1,6 +1,6 @@
-// Dashcam PWA v4.5.7 - Versión Completa Simplificada
+// Dashcam PWA v4.5.8 - Versión Completa Simplificada
 
-const APP_VERSION = '4.5.7';
+const APP_VERSION = '4.5.8';
 
 class DashcamApp {
     constructor() {
@@ -2378,70 +2378,163 @@ class DashcamApp {
         }
     }
 
-    async uploadCustomLogo() {
-        // VERSIÓN DE EMERGENCIA - Solo lo esencial
+async uploadCustomLogo() {
+    // Detectar iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    
+    try {
+        console.log(`📤 Cargando logo en ${isIOS ? 'iOS' : 'normal'}...`);
         
-        // 1. Obtener input
-        const input = document.getElementById('logoUpload');
-        if (!input) return;
+        if (isIOS) {
+            return await this.uploadCustomLogoIOS();
+        } else {
+            return await this.uploadCustomLogoNormal();
+        }
         
-        // 2. Configurar
-        input.accept = 'image/*';
-        input.value = '';
-        
-        // 3. Crear promesa simple
-        return new Promise((resolve) => {
-            input.onchange = async (e) => {
+    } catch (error) {
+        console.error('❌ Error cargando logo:', error);
+        this.showNotification('❌ Error al cargar logo');
+    }
+}
+
+async uploadCustomLogoIOS() {
+    console.log('🍎 Modo iOS específico');
+    
+    // Crear input dinámico para iOS
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.style.display = 'none';
+    document.body.appendChild(input);
+    
+    try {
+        const file = await new Promise((resolve, reject) => {
+            input.onchange = (e) => {
                 const file = e.target.files[0];
-                if (!file) {
-                    input.value = '';
-                    return;
-                }
-                
-                try {
-                    // Procesar
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        const dataUrl = event.target.result;
-                        const img = new Image();
-                        
-                        img.onload = () => {
-                            // Guardar
-                            this.state.customLogo = {
-                                dataUrl: dataUrl,
-                                filename: file.name,
-                                image: img
-                            };
-                            
-                            this.logoImage = img;
-                            this.state.settings.customLogo = dataUrl;
-                            this.state.settings.logoFilename = file.name;
-                            
-                            // Guardar y mostrar
-                            this.saveSettings();
-                            this.updateLogoInfo();
-                            this.showNotification(`✅ ${file.name}`);
-                            
-                            input.value = '';
-                            resolve();
-                        };
-                        
-                        img.src = dataUrl;
-                    };
-                    
-                    reader.readAsDataURL(file);
-                    
-                } catch (error) {
-                    console.log('Error:', error);
-                    input.value = '';
+                if (file) {
+                    console.log('📸 iOS seleccionó:', file.name);
+                    resolve(file);
+                } else {
+                    reject(new Error('No file selected'));
                 }
             };
             
-            // Disparar
-            input.click();
+            input.oncancel = () => {
+                reject(new Error('Cancelled'));
+            };
+            
+            // Disparar selector
+            setTimeout(() => input.click(), 100);
+            
+            // Timeout
+            setTimeout(() => reject(new Error('Timeout')), 15000);
         });
+        
+        // Procesamiento ESPECÍFICO para iOS
+        this.showNotification('📱 Procesando...');
+        
+        // Convertir a Data URL de forma segura
+        const dataUrl = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(file);
+        });
+        
+        // Cargar imagen
+        const img = new Image();
+        await new Promise((resolve) => {
+            img.onload = resolve;
+            img.src = dataUrl;
+        });
+        
+        // Guardar
+        this.state.customLogo = {
+            dataUrl: dataUrl,
+            filename: file.name,
+            fileSize: file.size,
+            type: file.type,
+            image: img
+        };
+        
+        this.logoImage = img;
+        this.state.settings.customLogo = dataUrl;
+        this.state.settings.logoFilename = file.name;
+        
+        await this.saveSettings();
+        
+        // UI feedback INMEDIATO
+        requestAnimationFrame(() => {
+            this.updateLogoInfo();
+            this.showNotification(`✅ ${file.name} cargado`);
+        });
+        
+        console.log('✅ iOS - Logo procesado');
+        
+    } finally {
+        // Limpiar
+        if (input.parentNode) {
+            document.body.removeChild(input);
+        }
     }
+}
 
+async uploadCustomLogoNormal() {
+    // Versión normal (Windows/Android)
+    const logoInput = document.getElementById('logoUpload');
+    
+    if (!logoInput) {
+        this.showNotification('❌ Selector no encontrado');
+        return;
+    }
+    
+    return new Promise((resolve, reject) => {
+        logoInput.onchange = async (e) => {
+            try {
+                const file = e.target.files[0];
+                if (!file) {
+                    reject(new Error('No file'));
+                    return;
+                }
+                
+                // Procesamiento normal...
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const dataUrl = e.target.result;
+                    const img = new Image();
+                    
+                    img.onload = () => {
+                        this.state.customLogo = {
+                            dataUrl: dataUrl,
+                            filename: file.name,
+                            fileSize: file.size,
+                            type: file.type,
+                            image: img
+                        };
+                        
+                        this.logoImage = img;
+                        this.state.settings.customLogo = dataUrl;
+                        this.state.settings.logoFilename = file.name;
+                        
+                        this.saveSettings();
+                        this.updateLogoInfo();
+                        this.showNotification(`✅ ${file.name}`);
+                        
+                        resolve();
+                    };
+                    
+                    img.src = dataUrl;
+                };
+                
+                reader.readAsDataURL(file);
+                
+            } catch (error) {
+                reject(error);
+            }
+        };
+        
+        logoInput.click();
+    });
+}
 // ===== FUNCIONES AUXILIARES SIMPLES =====
 
 fileToDataURL(file) {
