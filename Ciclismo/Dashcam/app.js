@@ -1,6 +1,6 @@
-// Dashcam PWA v4.5.6 - Versión Completa Simplificada
+// Dashcam PWA v4.5.7 - Versión Completa Simplificada
 
-const APP_VERSION = '4.5.6';
+const APP_VERSION = '4.5.7';
 
 class DashcamApp {
     constructor() {
@@ -2379,66 +2379,67 @@ class DashcamApp {
     }
 
     async uploadCustomLogo() {
-        try {
-            console.log('📤 Subiendo logo...');
-            
-            // Usar SIEMPRE el input del HTML (no crear dinámicos)
-            const logoInput = document.getElementById('logoUpload');
-            if (!logoInput) {
-                this.showNotification('❌ Error técnico');
-                return;
-            }
-            
-            // Configuración MÍNIMA
-            logoInput.accept = 'image/*';
-            logoInput.multiple = false;
-            
-            // Resetear valor (IMPORTANTE para iOS)
-            logoInput.value = '';
-            
-            // Esperar selección
-            const file = await new Promise((resolve, reject) => {
-                logoInput.onchange = (e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                        console.log('✅ Archivo seleccionado:', file.name);
-                        resolve(file);
-                    } else {
-                        reject(new Error('No file'));
-                    }
-                };
+        // VERSIÓN DE EMERGENCIA - Solo lo esencial
+        
+        // 1. Obtener input
+        const input = document.getElementById('logoUpload');
+        if (!input) return;
+        
+        // 2. Configurar
+        input.accept = 'image/*';
+        input.value = '';
+        
+        // 3. Crear promesa simple
+        return new Promise((resolve) => {
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) {
+                    input.value = '';
+                    return;
+                }
                 
-                // Disparar selector
-                setTimeout(() => logoInput.click(), 0);
-                
-                // Timeout corto
-                setTimeout(() => reject(new Error('Timeout')), 10000);
-            });
-            
-            // Procesamiento MUY simple
-            const dataUrl = await this.fileToDataURL(file);
-            const img = await this.createImageFromDataURL(dataUrl);
-            
-            // Guardar (forma SIMPLE)
-            this.state.customLogo = {
-                dataUrl: dataUrl,
-                filename: file.name,
-                image: img
+                try {
+                    // Procesar
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const dataUrl = event.target.result;
+                        const img = new Image();
+                        
+                        img.onload = () => {
+                            // Guardar
+                            this.state.customLogo = {
+                                dataUrl: dataUrl,
+                                filename: file.name,
+                                image: img
+                            };
+                            
+                            this.logoImage = img;
+                            this.state.settings.customLogo = dataUrl;
+                            this.state.settings.logoFilename = file.name;
+                            
+                            // Guardar y mostrar
+                            this.saveSettings();
+                            this.updateLogoInfo();
+                            this.showNotification(`✅ ${file.name}`);
+                            
+                            input.value = '';
+                            resolve();
+                        };
+                        
+                        img.src = dataUrl;
+                    };
+                    
+                    reader.readAsDataURL(file);
+                    
+                } catch (error) {
+                    console.log('Error:', error);
+                    input.value = '';
+                }
             };
             
-            this.logoImage = img;
-            this.state.settings.customLogo = dataUrl;
-            this.state.settings.logoFilename = file.name;
-            
-            // Guardar y actualizar
-            await this.saveSettings();
-            this.updateLogoInfo();
-            this.showNotification(`✅ ${file.name}`);
-            
-        } catch (error) {
-            console.log('ℹ️ Logo no cargado:', error.message);
-            // NO mostrar notificación para cancelaciones/timeouts
-        }
+            // Disparar
+            input.click();
+        });
     }
 
 // ===== FUNCIONES AUXILIARES SIMPLES =====
