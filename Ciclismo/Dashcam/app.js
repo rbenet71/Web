@@ -1,6 +1,6 @@
-// Dashcam PWA v4.2.4.2 - Versión Completa Simplificada
+// Dashcam PWA v4.3 - Versión Completa Simplificada
 
-const APP_VERSION = '4.2.4.2';
+const APP_VERSION = '4.3';
 
 class DashcamApp {
     constructor() {
@@ -1309,11 +1309,7 @@ class DashcamApp {
                 });
                 
                 this.showNotification(`✅ Segmento ${segmentNum} guardado (${gpsData.length} puntos GPS)`);
-                
-                // Preguntar sobre combinar si hay varios segmentos
-                if (this.state.recordedSegments.length > 1 && this.state.recordingSessionName) {
-                    this.askAboutCombining();
-                }
+            
             }
             
             await this.loadGallery();
@@ -1575,82 +1571,7 @@ class DashcamApp {
         }
     }
 
-    askAboutCombining() {
-        if (this.state.recordedSegments.length <= 1) return;
-        
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.innerHTML = `
-            <div class="modal-content" style="max-width: 400px;">
-                <div class="modal-header">
-                    <h3>🎬 Sesión Grabada</h3>
-                </div>
-                <div class="modal-body">
-                    <p>✅ Se han grabado <strong>${this.state.recordedSegments.length} segmentos</strong> en la sesión:</p>
-                    <p style="text-align: center; font-size: 16px; margin: 15px 0; padding: 10px; background: rgba(0, 168, 255, 0.1); border-radius: 8px;">
-                        📁 <strong>${this.state.recordingSessionName}</strong>
-                    </p>
-                    <p>¿Quieres <strong>combinar los segmentos</strong> en un solo video?</p>
-                </div>
-                <div class="modal-actions" style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button id="cancelCombine" class="btn cancel-btn" style="flex: 1;">
-                        Mantener segmentos
-                    </button>
-                    <button id="confirmCombine" class="btn save-btn" style="flex: 1;">
-                        🔗 Combinar
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        modal.querySelector('#cancelCombine').addEventListener('click', () => {
-            modal.remove();
-            this.showNotification('📁 Sesión guardada con segmentos individuales');
-        });
-        
-        modal.querySelector('#confirmCombine').addEventListener('click', async () => {
-            modal.remove();
-            await this.combineSessionSegments();
-        });
-        
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.remove();
-        });
-    }
 
-    async combineSessionSegments() {
-        if (this.state.recordedSegments.length <= 1) {
-            this.showNotification('❌ No hay suficientes segmentos para combinar');
-            return;
-        }
-        
-        try {
-            this.showNotification('🔗 Combinando segmentos de sesión...');
-            
-            const combinedName = `${this.state.recordingSessionName}_completo.mp4`;
-            const combinedData = {
-                id: Date.now(),
-                name: combinedName,
-                session: this.state.recordingSessionName,
-                segments: this.state.recordedSegments.length,
-                totalDuration: this.state.recordedSegments.reduce((sum, seg) => sum + seg.duration, 0),
-                combinedAt: Date.now(),
-                type: 'combined'
-            };
-            
-            if (this.db) {
-                await this.saveToDatabase('combinedVideos', combinedData);
-            }
-            
-            this.showNotification(`✅ ${this.state.recordedSegments.length} segmentos combinados en sesión`);
-            
-        } catch (error) {
-            console.error('❌ Error combinando segmentos:', error);
-            this.showNotification('❌ Error al combinar segmentos');
-        }
-    }
 
     resetRecordingSession() {
         this.state.recordedSegments = [];
@@ -4169,33 +4090,7 @@ class DashcamApp {
                                             Eliminar
                                         </div>
                                     </button>
-                                    
-                                    <!-- Botón 2: Combinar Seleccionados -->
-                                    <button onclick="event.stopPropagation(); window.dashcamApp.combineSelectedVideos()"
-                                            style="
-                                                padding: 14px;
-                                                background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-                                                color: white;
-                                                border: none;
-                                                border-radius: 6px;
-                                                cursor: pointer;
-                                                font-size: 0.95em;
-                                                transition: all 0.2s;
-                                                display: flex;
-                                                align-items: center;
-                                                justify-content: center;
-                                                gap: 10px;
-                                                font-weight: 500;
-                                                box-shadow: 0 3px 6px rgba(155, 89, 182, 0.2);
-                                            "
-                                            onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 12px rgba(155, 89, 182, 0.3)'"
-                                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 6px rgba(155, 89, 182, 0.2)'">
-                                        <div style="font-size: 1.5em;">🔗</div>
-                                        <div style="font-size: 1em; text-align: center;">
-                                            Combinar
-                                        </div>
-                                    </button>
-                                    
+                                                                        
                                     <!-- Botón 3: Exportar Seleccionados -->
                                     <button onclick="event.stopPropagation(); window.dashcamApp.exportSelected()"
                                             style="
@@ -8999,290 +8894,55 @@ console.log('4. expandedSessions después:', Array.from(this.state.expandedSessi
             this.showNotification('❌ Error al mover videos');
         }
     }
+    
 
-
-async combineSelectedVideos() {
-    try {
-        if (this.state.selectedVideos.size < 2) {
-            this.showNotification('❌ Selecciona al menos 2 videos para combinar');
-            return;
-        }
-        
-        console.log('🔗 Combinando videos seleccionados...');
-        
-        // Obtener los videos seleccionados
-        const selectedVideos = [];
-        for (const videoId of this.state.selectedVideos) {
-            const video = this.findVideoInState(videoId);
-            if (video) {
-                selectedVideos.push(video);
-            }
-        }
-        
-        if (selectedVideos.length < 2) {
-            this.showNotification('❌ No se pudieron obtener los videos seleccionados');
-            return;
-        }
-        
-        console.log(`🔗 Videos a combinar: ${selectedVideos.length}`);
-        
-        // Preguntar confirmación
-        const confirmCombine = confirm(
-            `¿Combinar ${selectedVideos.length} videos seleccionados?\n\n` +
-            `Esta operación puede tomar algunos segundos.\n` +
-            `¿Continuar?`
-        );
-        
-        if (!confirmCombine) return;
-        
-        this.showNotification('🔗 Combinando videos...');
-        this.showSavingStatus('Combinando videos...');
-        
-        // Ordenar videos por timestamp (más antiguo primero)
-        selectedVideos.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-        
-        // Verificar que todos los videos sean del mismo formato
-        const formats = [...new Set(selectedVideos.map(v => v.format || 'mp4'))];
-        if (formats.length > 1) {
-            this.showNotification('⚠️ Los videos tienen formatos diferentes. Se intentará convertir.');
-        }
-        
-        // Obtener los blobs de los videos
-        const videoBlobs = [];
-        let totalDuration = 0;
-        let totalSize = 0;
-        
-        for (const video of selectedVideos) {
-            try {
-                let blob = null;
-                
-                if (video.blob) {
-                    blob = video.blob;
-                } else if (video.fileHandle) {
-                    const file = await video.fileHandle.getFile();
-                    blob = file;
-                } else if (this.db) {
-                    const storedVideo = await this.getFromStore('videos', video.id);
-                    blob = storedVideo?.blob;
-                }
-                
-                if (blob) {
-                    videoBlobs.push({
-                        blob: blob,
-                        video: video,
-                        duration: video.duration || 0,
-                        size: blob.size
-                    });
-                    
-                    totalDuration += video.duration || 0;
-                    totalSize += blob.size;
-                    
-                    console.log(`✅ Video obtenido: ${video.filename} - ${this.formatTime(video.duration || 0)}`);
-                } else {
-                    console.warn(`⚠️ No se pudo obtener blob para: ${video.filename}`);
-                }
-            } catch (error) {
-                console.error(`❌ Error obteniendo video ${video.filename}:`, error);
-            }
-        }
-        
-        if (videoBlobs.length < 2) {
-            this.showNotification('❌ No hay suficientes videos para combinar');
-            this.hideSavingStatus();
-            return;
-        }
-        
-        // Combinar los videos
+    // NUEVA FUNCIÓN AUXILIAR: Guardar en una carpeta específica
+    async saveToFolder(folderHandle, blob, filename, sessionName) {
         try {
-            // Método 1: Si todos son MP4, intentar combinarlos
-            const combinedBlob = await this.combineVideoBlobs(videoBlobs);
+            // Crear archivo en la carpeta
+            const fileHandle = await folderHandle.getFileHandle(filename, { create: true });
+            const writable = await fileHandle.createWritable();
+            await writable.write(blob);
+            await writable.close();
             
-            if (!combinedBlob || combinedBlob.size === 0) {
-                throw new Error('Error al combinar los blobs');
-            }
+            console.log(`✅ Video guardado en carpeta: ${filename}`);
             
-            // Crear nombre para el video combinado
-            const firstVideo = selectedVideos[0];
-            const lastVideo = selectedVideos[selectedVideos.length - 1];
-            const combinedName = `Combinado_${selectedVideos.length}_videos_${new Date().getTime()}.mp4`;
-            
-            // Crear objeto de video combinado
-            const combinedVideo = {
-                id: Date.now(),
-                title: `Combinado (${selectedVideos.length} videos)`,
-                filename: combinedName,
-                timestamp: firstVideo.timestamp,
-                duration: totalDuration,
-                size: combinedBlob.size,
-                format: 'mp4',
-                location: firstVideo.location || 'app',
-                source: firstVideo.source || 'app',
-                session: firstVideo.session || 'Combinado',
-                gpsPoints: selectedVideos.reduce((sum, v) => sum + (v.gpsPoints || 0), 0),
-                combinedFrom: selectedVideos.map(v => v.id),
-                isCombined: true
-            };
-            
-            // Guardar el video combinado
-            let savedSuccess = false;
-            
-            if (this.state.settings.storageLocation === 'localFolder' && this.localFolderHandle) {
-                savedSuccess = await this.saveToLocalFolder(combinedBlob, combinedName, 'Combinado');
-            } else {
-                savedSuccess = await this.saveToApp(combinedBlob, firstVideo.timestamp, totalDuration, 'mp4', 1, []);
-            }
-            
-            if (savedSuccess) {
-                this.showNotification(`✅ ${selectedVideos.length} videos combinados exitosamente`);
+            // Si la carpeta no es la carpeta de sesión original, también actualizar la base de datos
+            if (sessionName) {
+                const videoData = {
+                    id: Date.now(),
+                    filename: filename,
+                    timestamp: Date.now(),
+                    duration: 0, // Se actualizará después
+                    size: blob.size,
+                    format: 'mp4',
+                    location: 'localFolder',
+                    source: 'localFolder',
+                    session: sessionName,
+                    fileHandle: fileHandle,
+                    folderHandle: folderHandle,
+                    path: `${sessionName}/${filename}`
+                };
                 
-                // Opcional: Eliminar los videos originales
-                const deleteOriginals = confirm(
-                    `¿Deseas eliminar los ${selectedVideos.length} videos originales?\n` +
-                    `Esta acción no se puede deshacer.`
-                );
+                // Extraer duración del video
+                await this.extractAndSetVideoDuration(videoData);
                 
-                if (deleteOriginals) {
-                    for (const video of selectedVideos) {
-                        await this.deleteVideoById(video.id, video);
-                    }
-                    this.showNotification(`🗑️ ${selectedVideos.length} videos originales eliminados`);
+                // Guardar en la base de datos
+                if (this.db) {
+                    await this.saveToDatabase('videos', videoData);
                 }
                 
-                // Limpiar selección
-                this.state.selectedVideos.clear();
-                if (this.state.selectedSessions) {
-                    this.state.selectedSessions.clear();
-                }
-                
-                // Recargar galería
-                await this.loadGallery();
-            } else {
-                this.showNotification('❌ Error al guardar el video combinado');
+                // Actualizar estado
+                this.state.videos.push(videoData);
             }
             
+            return true;
         } catch (error) {
-            console.error('❌ Error combinando videos:', error);
-            this.showNotification('❌ Error al combinar los videos');
-            
-            // Método alternativo: Crear un ZIP con los videos
-            this.showNotification('📦 Creando ZIP con los videos seleccionados...');
-            await this.createZipFromSelectedVideos(selectedVideos);
-        }
-        
-        this.hideSavingStatus();
-        
-    } catch (error) {
-        console.error('❌ Error en combineSelectedVideos:', error);
-        this.hideSavingStatus();
-        this.showNotification('❌ Error al procesar la combinación');
-    }
-}
-
-// Función auxiliar para combinar blobs de video
-async combineVideoBlobs(videoBlobs) {
-    console.log('🔗 Combinando blobs de video...');
-    
-    // Método simple: concatenar los blobs (funciona para algunos formatos)
-    const blobsArray = videoBlobs.map(item => item.blob);
-    
-    // Crear un nuevo blob concatenado
-    return new Blob(blobsArray, { type: 'video/mp4' });
-}
-
-// Método alternativo: Crear ZIP con los videos seleccionados
-async createZipFromSelectedVideos(videos) {
-    try {
-        if (typeof JSZip === 'undefined') {
-            this.showNotification('❌ JSZip no está disponible');
-            return;
-        }
-        
-        const zip = new JSZip();
-        const timestamp = new Date().getTime();
-        
-        for (const video of videos) {
-            try {
-                let blob = null;
-                
-                if (video.blob) {
-                    blob = video.blob;
-                } else if (video.fileHandle) {
-                    const file = await video.fileHandle.getFile();
-                    blob = file;
-                }
-                
-                if (blob) {
-                    const safeName = this.cleanFileName(video.filename || `video_${video.id}.${video.format || 'mp4'}`);
-                    zip.file(safeName, blob);
-                }
-            } catch (error) {
-                console.warn(`⚠️ Error añadiendo ${video.filename} al ZIP:`, error);
-            }
-        }
-        
-        const zipBlob = await zip.generateAsync({ type: 'blob' });
-        this.downloadBlob(zipBlob, `videos_combinados_${timestamp}.zip`);
-        
-        this.showNotification(`📦 ZIP creado con ${videos.length} videos`);
-        
-    } catch (error) {
-        console.error('❌ Error creando ZIP:', error);
-        this.showNotification('❌ Error al crear ZIP');
-    }
-}
-
-    showCombineModal() {
-        // Crear lista de videos seleccionados
-        const container = document.getElementById('combineVideosList');
-        if (!container) return;
-        
-        const selectedVideos = Array.from(this.state.selectedVideos)
-            .map(id => this.state.videos.find(v => v.id === id))
-            .filter(v => v);
-        
-        if (selectedVideos.length === 0) {
-            this.showNotification('❌ No hay videos seleccionados');
-            return;
-        }
-        
-        let html = '<div class="file-list">';
-        
-        selectedVideos.forEach(video => {
-            const date = new Date(video.timestamp);
-            const dateStr = date.toLocaleDateString('es-ES');
-            const timeStr = date.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
-            
-            html += `
-                <div class="file-item">
-                    <div class="file-header">
-                        <div class="file-title">${video.title || 'Grabación'}</div>
-                        <div class="file-time">${timeStr}</div>
-                    </div>
-                    <div class="file-details">
-                        <div>📅 ${dateStr}</div>
-                        <div>⏱️ ${this.formatTime(video.duration)}</div>
-                        <div>💾 ${Math.round(video.size / (1024 * 1024))} MB</div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        html += '</div>';
-        container.innerHTML = html;
-        
-        // Mostrar modal
-        const modal = document.getElementById('combineVideosModal');
-        if (modal) {
-            modal.classList.remove('hidden');
+            console.error('❌ Error guardando en carpeta:', error);
+            return false;
         }
     }
 
-    hideCombineModal() {
-        const modal = document.getElementById('combineVideosModal');
-        if (modal) {
-            modal.classList.add('hidden');
-        }
-    }
 
     showGpxManager() {
         console.log('🗺️ Mostrando gestor GPX');
@@ -9918,9 +9578,6 @@ async createZipFromSelectedVideos(videos) {
         }
         if (this.elements.moveToLocalBtn) {
             this.elements.moveToLocalBtn.addEventListener('click', () => this.moveSelectedToLocalFolder());
-        }
-        if (this.elements.combineVideosBtn) {
-            this.elements.combineVideosBtn.addEventListener('click', () => this.combineSelectedVideos());
         }
         
         // Configuración

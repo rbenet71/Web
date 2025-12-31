@@ -9,13 +9,13 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <title>Dashcam iPhone v4.2.4.2</title>
+    <title>Dashcam iPhone v4.3</title>
     
     <!-- Manifest con versión -->
-    <link rel="manifest" href="manifest.json?v=4.2.4.2">
+    <link rel="manifest" href="manifest.json?v=4.3">
     
     <!-- CSS con versión -->
-    <link rel="stylesheet" href="styles.css?v=4.2.4.2">
+    <link rel="stylesheet" href="styles.css?v=4.3">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
@@ -31,7 +31,7 @@
     
     <!-- Librerías para funciones avanzadas -->
     <script src="https://unpkg.com/mp4box@0.5.2/dist/mp4box.all.min.js"></script>
-    <script src="https://unpkg.com/gpxparser@4.2.4.2.8/gpxparser.js"></script>
+    <script src="https://unpkg.com/gpxparser@4.3.8/gpxparser.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
@@ -43,7 +43,7 @@
             <h1 class="app-title">Dashcam iPhone Pro</h1>
             
             <p class="app-description">Grabación Recorridos con datos GPS</p>
-            <div class="app-version">Versión 4.2.4.2</div>
+            <div class="app-version">Versión 4.3</div>
             
             <div class="start-controls">
                 <button id="startBtn" class="start-btn">
@@ -706,65 +706,21 @@
             </div>
         </div>
 
-        <!-- MODAL COMBINAR VIDEOS -->
-        <div id="combineVideosModal" class="modal hidden">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>🔗 Combinar Videos</h3>
-                    <button id="closeCombineModal" class="close-btn">✕</button>
-                </div>
-                <div class="modal-body">
-                    <p>Selecciona los videos que quieres combinar:</p>
-                    <div id="combineVideosList" class="scrollable-list" style="max-height: 200px; margin: 15px 0;">
-                        <!-- Lista de videos para combinar -->
-                    </div>
-                    
-                    <div class="setting" style="margin-top: 15px;">
-                        <label>Nombre del video combinado:</label>
-                        <input type="text" id="combinedVideoName" 
-                               value="Video_combinado_${new Date().toLocaleDateString('es-ES').replace(/\//g, '-')}"
-                               class="folder-info" style="width: 100%;">
-                    </div>
-                    
-                    <div class="setting">
-                        <label>
-                            <input type="checkbox" id="preserveMetadata" checked>
-                            Preservar metadatos GPS
-                        </label>
-                    </div>
-                    
-                    <div id="combineProgress" style="display: none; margin-top: 15px;">
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="combineProgressFill" style="width: 0%"></div>
-                        </div>
-                        <div id="combineStatus" style="text-align: center; margin-top: 5px; font-size: 12px;">
-                            Preparando...
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="modal-actions" style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button id="cancelCombineBtn" class="btn cancel-btn" style="flex: 1;">Cancelar</button>
-                    <button id="startCombineBtn" class="btn save-btn" style="flex: 1;">🔗 Combinar</button>
-                </div>
-            </div>
-        </div>
-
         <!-- NOTIFICACIÓN -->
         <div id="notification" class="notification hidden"></div>
     </div>
 
     <!-- JavaScript con versión -->
-    <script src="app.js?v=4.2.4.2"></script>
+    <script src="app.js?v=4.3"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     
     <script>
         // Limpiar caché al cargar
-        if (localStorage.getItem('dashcam_version') !== '4.2.4.2') {
-            localStorage.setItem('dashcam_version', '4.2.4.2');
+        if (localStorage.getItem('dashcam_version') !== '4.3') {
+            localStorage.setItem('dashcam_version', '4.3');
             
             if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
-                navigator.serviceWorker.register('service-worker.js?v=4.2.4.2')
+                navigator.serviceWorker.register('service-worker.js?v=4.3')
                     .then(registration => {
                         console.log('✅ Service Worker registrado:', registration.scope);
                     })

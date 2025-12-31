@@ -1,0 +1,29 @@
+MODIFICACIONES App
+Voy a pedir unas modificacion/es de la app, y es importante que primero me pidas las funciones que necesitas ver para hacer estas modificaciones. 
+Una vez las tienes proponme que ficheros has de modificar y porque, y no añadas ninguna nueva información o funcionalidad sin que antes te de el visto bueno.
+Importante yo no se programar en Javascript, por lo que se poco sobre codigo,
+una vez te doy el visto bueno, me haces los cambios. Si la función a modificar es pequeña me pasas la función completa y me indicas a sustituir la función. Si la función es muy grande y hay varios cambios sobre ella, me la pasas también toda, pero si es un solo cambio o una parte continua, solo haré ese cambio, pero sobretodo me dices sustituir esta parte por esta otra. NUNCA me pases la función como si me la pasases completa, pero en medio del cóldigo pones mantener el codigo anterior.
+Una vez propuestos los cambios a continuación pasame completa la nueva versión del fichero MD con la estrucutra de la app.
+
+NUEVA App
+
+Quiero hacer una app PWA:
+- que pueda funcionar offline
+- que esté preparada para traducir a Castellano, CAtalan, Ingles y Frances
+- que tenga un botón de ayuda. (en fichero HTML)
+- que tenga un boton de instalarse, si no está instalado.
+- Al pie : <span id="copyright-text">2025 © Copyright</span> <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link"> Roberto Benet - rbenet71@gmail.com - V_18_12_2025</a>
+
+Como lo previsible es que se haga muy grande, deben hacer varios ficheros JS con prevision que cuando se hagan cambios sea facil hcaerlo por encontrarse en pocos ficheros. Por ejemplo un solo js para las traducciones
+
+los nombres de los ficheros siempre llevaran el nombre de la app, por ejemplo Crono_CRI_Manifest.json, incluso el html que no se ha de llamar index. es para cuando se tenga que modificar saber que app es, ya que tendremos muchas.
+
+Se ha de crear el fichero [nombre app]+"Estructura.md" en el que se explique como funciona toda la app que funciones tiene y todo aquello que sea necesario para hacer cambios en la app. En el se ha de indicar que siempre que se haga un cambio, recordar actualizar el fichero completo.
+
+Opciones:
+
+- mantener Pantalla Activa
+    <!-- Video oculto para mantener pantalla activa -->
+    <video id="keep-alive-video" style="display: none;" muted playsinline>
+        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+    </video>

@@ -1,0 +1,45 @@
+REQUERIMIENTOS DASHCAM
+
+mejoras a realizar, por defecto el logo debe estar en la parte superior izquierda, 
+el texto personalizado, no es personalizable, y siempre ha de estar con un cuerpo de letra mas pequeño 
+El texto con el nombre de la poblacion como máximo 50 caracteres. E
+n la galeria de imagenes tenemos un problema, es que hay tantos botones que la parte de listado de fciheros no se ven, hay que o reducir el tamaño de los botones, o hacer desplegables o poner en un lado. 
+no se ven las grabaviones de los directorios
+no se graban las preferencias de configuracion
+saber si se graba el gpx
+en carpeta local doy a borrar archivo dice que lo borra pero el arhivo sigue ahi
+al igual que en videos, en los GPX debe haber la opción de seleccionar el GPX, y tambien el de visualizar (ver el track y los datos mas importantes con un mapa leaflet
+en el visualizador de GPX no se veian los datos por estar las variables duplicadas.
+
+quiero que el listado de videos sean por sesion, deberá haber una opción para desplegar y ver todos los videos, y al hacer click sobre ellos ves el detalle.
+la opción de exportar si seleccionas la sesion que haga un zip e incluya dentro todos los arhivos. que funciones necesitas ver?
+Filtrar por carpeta de grabacion y exportar
+
+4.2.2 Eliminar Sesiones Vacias
+4.2.3 me gustaria modificar la ubicación de los botones de las sesiones, en la fila de arriba, poner Eliminar Sesión y Exportar Sesión, debajo Seleccionar Videos, y un Desplegable de acciones para hacer con los videos seleccionados (Eliminar, Combinar y Exportar) (estas funciones ya estaban implementadas)
+
+----
+
+4.2.4 - concatenar/mezclar los videos en un solo archivo de video MP4
+4.2.4.2 - concatenar/mezclar los videos en un solo archivo de video MP4 en carpeta de sesión
+eliminamos concatenar-> combineVideosModal
+
+4.3 - No se combinan Videos
+
+#galleryPanel .scrollable-list,
+#galleryPanel .session-videos-container {
+    min-height: 0 !important;
+    max-height: none !important;
+    height: auto !important;
+}
+
+
+
+---
+
+
+velocidad de reproduccion video
+seleccionar logo en iphone
+Idiomas
+Instalar App
+Ayuda
