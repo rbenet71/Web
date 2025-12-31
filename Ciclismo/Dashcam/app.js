@@ -1,6 +1,6 @@
-// Dashcam PWA v4.5.2 - Versión Completa Simplificada
+// Dashcam PWA v4.5.3 - Versión Completa Simplificada
 
-const APP_VERSION = '4.5.2';
+const APP_VERSION = '4.5.3';
 
 class DashcamApp {
     constructor() {
@@ -980,10 +980,214 @@ async loadLogoFromDataUrl(dataUrl) {
     }
 
     updateLogoInfo() {
-        if (this.elements.currentLogoInfo && this.state.customLogo) {
-            this.elements.currentLogoInfo.innerHTML = 
-                `<span>🖼️ ${this.state.customLogo.filename}</span>`;
+        try {
+            const logoInfoElement = document.getElementById('currentLogoInfo');
+            if (!logoInfoElement) return;
+            
+            // Calcular tamaño aproximado de Data URL
+            const calculateDataUrlSize = (dataUrl) => {
+                if (!dataUrl) return 0;
+                // Fórmula aproximada: base64 aumenta tamaño en ~33%
+                const base64Length = dataUrl.length - 'data:image/*;base64,'.length;
+                return Math.round((base64Length * 3) / 4); // Bytes aproximados
+            };
+            
+            if (this.state.customLogo && this.state.customLogo.filename) {
+                const sizeBytes = this.state.customLogo.fileSize || 
+                                calculateDataUrlSize(this.state.customLogo.dataUrl);
+                const sizeKB = Math.round(sizeBytes / 1024);
+                const dimensions = this.state.customLogo.dimensions;
+                const sizeText = dimensions ? `${dimensions.width}x${dimensions.height}` : '?x?';
+                
+                logoInfoElement.innerHTML = 
+                    `<span>🖼️ ${this.state.customLogo.filename}</span>
+                    <small style="display: block; font-size: 12px; color: #aaa; margin-top: 2px;">
+                    ${sizeKB} KB • ${sizeText} • En app
+                    </small>`;
+                
+            } else if (this.state.settings.logoFilename) {
+                const dataUrlSize = calculateDataUrlSize(this.state.settings.customLogo);
+                const sizeKB = Math.round(dataUrlSize / 1024);
+                
+                logoInfoElement.innerHTML = 
+                    `<span>🖼️ ${this.state.settings.logoFilename}</span>
+                    <small style="display: block; font-size: 12px; color: #aaa; margin-top: 2px;">
+                    ${sizeKB} KB • Guardado en app
+                    </small>`;
+                    
+            } else if (this.state.settings.customLogo) {
+                const dataUrlSize = calculateDataUrlSize(this.state.settings.customLogo);
+                const sizeKB = Math.round(dataUrlSize / 1024);
+                
+                logoInfoElement.innerHTML = 
+                    '<span>🖼️ Logo cargado</span>                 <small style="display: block; font-size: 12px; color: #aaa; margin-top: 2px;">                   ${sizeKB} KB • Sin nombre de archivo                 </small>';
+                    
+            } else {
+                logoInfoElement.innerHTML = 
+                    `<span>🖼️ No hay logo cargado</span>
+                    <small style="display: block; font-size: 12px; color: #aaa; margin-top: 2px;">
+                    Selecciona una imagen para personalizar
+                    </small>`;
+            }
+            
+        } catch (error) {
+            console.error('❌ Error en updateLogoInfo():', error);
         }
+    }
+
+    async cleanupOldLogos() {
+        try {
+            console.log('🧹 Limpiando logos viejos...');
+            
+            // 1. Limpiar localStorage de datos viejos de logo
+            try {
+                const savedSettings = localStorage.getItem('dashcam_settings');
+                if (savedSettings) {
+                    const settings = JSON.parse(savedSettings);
+                    
+                    // Eliminar Data URLs viejas que no sean la actual
+                    if (settings.customLogo && settings.customLogo !== this.state.settings.customLogo) {
+                        console.log('🗑️ Eliminando Data URL vieja de localStorage');
+                        // No eliminar completamente, solo marcar como vieja
+                        settings.oldLogoCleaned = Date.now();
+                        localStorage.setItem('dashcam_settings', JSON.stringify(settings));
+                    }
+                }
+            } catch (error) {
+                console.log('ℹ️ No hay logos viejos en localStorage');
+            }
+            
+            // 2. Limpiar IndexedDB de logos viejos (si existe store separado)
+            if (this.db) {
+                try {
+                    // Verificar si existe store 'customLogos' (viejo sistema)
+                    const storeNames = Array.from(this.db.objectStoreNames);
+                    if (storeNames.includes('customLogos')) {
+                        const transaction = this.db.transaction(['customLogos'], 'readwrite');
+                        const store = transaction.objectStore('customLogos');
+                        
+                        // Eliminar todos menos el actual
+                        const allLogos = await store.getAll();
+                        for (const logo of allLogos) {
+                            if (logo.id !== 'current_logo') {
+                                await store.delete(logo.id);
+                                console.log('🗑️ Eliminado logo viejo de IndexedDB:', logo.id);
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.log('ℹ️ No hay logos viejos en IndexedDB');
+                }
+            }
+            
+            // 3. Limpiar variables temporales
+            if (window.tempLogoBlobUrl) {
+                URL.revokeObjectURL(window.tempLogoBlobUrl);
+                delete window.tempLogoBlobUrl;
+            }
+            
+            console.log('✅ Limpieza de logos completada');
+            
+        } catch (error) {
+            console.warn('⚠️ Error en limpieza de logos:', error);
+            // No mostrar error al usuario, es mantenimiento interno
+        }
+    }
+
+    async compressImageFile(file, options = {}) {
+        try {
+            const {
+                maxSizeMB = 1,
+                maxWidthOrHeight = 800,
+                quality = 0.8
+            } = options;
+            
+            console.log('🔄 Comprimiendo imagen:', file.name, file.type);
+            
+            // Solo comprimir imágenes que lo necesiten
+            if (file.size <= maxSizeMB * 1024 * 1024) {
+                console.log('ℹ️ Imagen ya está dentro del tamaño máximo');
+                return file;
+            }
+            
+            // Crear canvas para redimensionar
+            const img = await this.createImageFromFile(file);
+            
+            // Calcular nuevas dimensiones manteniendo proporción
+            let width = img.width;
+            let height = img.height;
+            
+            if (width > maxWidthOrHeight || height > maxWidthOrHeight) {
+                if (width > height) {
+                    height = Math.round((height * maxWidthOrHeight) / width);
+                    width = maxWidthOrHeight;
+                } else {
+                    width = Math.round((width * maxWidthOrHeight) / height);
+                    height = maxWidthOrHeight;
+                }
+            }
+            
+            // Crear canvas con nuevas dimensiones
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Convertir a blob con calidad reducida
+            const mimeType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+            const qualityValue = file.type === 'image/png' ? 1.0 : quality; // PNG no tiene calidad
+            
+            const blob = await new Promise(resolve => {
+                canvas.toBlob(resolve, mimeType, qualityValue);
+            });
+            
+            if (!blob) {
+                throw new Error('No se pudo crear blob comprimido');
+            }
+            
+            // Crear nuevo archivo con el blob
+            const compressedFile = new File([blob], file.name, {
+                type: mimeType,
+                lastModified: Date.now()
+            });
+            
+            // Añadir metadata para debugging
+            compressedFile.originalSize = file.size;
+            compressedFile.compressed = true;
+            compressedFile.originalDimensions = { width: img.width, height: img.height };
+            compressedFile.newDimensions = { width, height };
+            
+            console.log('✅ Imagen comprimida exitosamente:', {
+                original: Math.round(file.size / 1024) + 'KB',
+                compressed: Math.round(blob.size / 1024) + 'KB',
+                reduction: Math.round((1 - blob.size / file.size) * 100) + '%',
+                dimensions: `${img.width}x${img.height} → ${width}x${height}`
+            });
+            
+            return compressedFile;
+            
+        } catch (error) {
+            console.error('❌ Error comprimiendo imagen:', error);
+            // Devolver el archivo original como fallback
+            return file;
+        }
+    }
+
+    // Función auxiliar para crear Image desde File
+    createImageFromFile(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = e.target.result;
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
     }
 
     async loadGPXFiles() {
@@ -998,6 +1202,7 @@ async loadLogoFromDataUrl(dataUrl) {
             console.log('ℹ️ No hay archivos GPX cargados');
         }
     }
+
 
     // ============ GRABACIÓN ============
 
@@ -2176,7 +2381,12 @@ async loadLogoFromDataUrl(dataUrl) {
                 logoInput.onchange = (event) => {
                     const file = event.target.files[0];
                     if (file) {
-                        console.log('✅ Archivo seleccionado:', file.name, file.type, 'Tamaño:', Math.round(file.size / 1024) + 'KB');
+                        console.log('📄 Archivo seleccionado:', {
+                            name: file.name,
+                            type: file.type,
+                            size: Math.round(file.size / 1024) + 'KB',
+                            isIOS: this.isIOS
+                        });
                         resolve(file);
                     } else {
                         reject(new Error('No se seleccionó archivo'));
@@ -2195,7 +2405,7 @@ async loadLogoFromDataUrl(dataUrl) {
             logoInput.click();
             
             // Esperar a que el usuario seleccione
-            const file = await filePromise;
+            let file = await filePromise;
             
             // ===== VALIDACIÓN MEJORADA PARA CUALQUIER ARCHIVO =====
             const validImageTypes = [
@@ -2215,9 +2425,11 @@ async loadLogoFromDataUrl(dataUrl) {
             const fileName = file.name.toLowerCase();
             const hasValidExtension = validExtensions.some(ext => fileName.endsWith(ext));
             
-            // Verificar tamaño (para imágenes)
-            const maxSize = 5 * 1024 * 1024; // 5MB
-            if (file.size > maxSize) {
+            // Verificar tamaño máximo
+            const ABSOLUTE_MAX_SIZE = 5 * 1024 * 1024; // 5MB máximo absoluto
+            const RECOMMENDED_MAX_SIZE = 1 * 1024 * 1024; // 1MB recomendado
+            
+            if (file.size > ABSOLUTE_MAX_SIZE) {
                 this.showNotification('❌ La imagen es demasiado grande (máximo 5MB)');
                 return;
             }
@@ -2242,60 +2454,140 @@ async loadLogoFromDataUrl(dataUrl) {
                 return;
             }
             
-            console.log('✅ Archivo validado para logo:', file.name, file.type);
+            console.log('✅ Archivo validado para logo:', file.name);
             // ======================================================
+            
+            // ===== COMPROBACIÓN DE TAMAÑO Y COMPRESIÓN (NUEVO) =====
+            const MAX_DIMENSION = 800; // Máximo 800px en cualquier dimensión
+            
+            if (file.size > RECOMMENDED_MAX_SIZE) {
+                console.log('📊 Imagen grande detectada:', Math.round(file.size / 1024) + 'KB');
+                this.showNotification('⚡ Optimizando logo para mejor rendimiento...');
+                
+                try {
+                    // Intentar comprimir la imagen
+                    const compressedFile = await this.compressImageFile(file, {
+                        maxSizeMB: 1,
+                        maxWidthOrHeight: MAX_DIMENSION,
+                        quality: 0.8
+                    });
+                    
+                    if (compressedFile && compressedFile.size < file.size) {
+                        const originalKB = Math.round(file.size / 1024);
+                        const compressedKB = Math.round(compressedFile.size / 1024);
+                        const reduction = Math.round((1 - compressedFile.size / file.size) * 100);
+                        
+                        console.log('✅ Imagen optimizada:', {
+                            original: originalKB + 'KB',
+                            compressed: compressedKB + 'KB',
+                            reduction: reduction + '%'
+                        });
+                        
+                        file = compressedFile;
+                        
+                        this.showNotification(`✅ Logo optimizado: ${reduction}% más pequeño`);
+                    }
+                } catch (compressError) {
+                    console.warn('⚠️ No se pudo optimizar la imagen:', compressError);
+                    // Continuar con la imagen original (es válida, solo grande)
+                }
+            }
+            // =======================================================
             
             console.log('🔄 Procesando imagen...', file.name);
             
-            // Convertir a Data URL para previsualización
+            // Convertir a Data URL para almacenamiento permanente
             const reader = new FileReader();
             
             return new Promise((resolve, reject) => {
-                reader.onload = (e) => {
+                reader.onload = async (e) => {
                     try {
                         const logoDataUrl = e.target.result;
                         
-                        // Crear objeto de imagen
+                        // Crear objeto de imagen para previsualización
                         const img = new Image();
                         img.onload = () => {
-                            // Guardar la Data URL y la imagen cargada
-                            this.state.customLogo = {
-                                dataUrl: logoDataUrl,
-                                filename: file.name,
-                                fileSize: file.size,
-                                type: file.type,
-                                image: img,
-                                dimensions: {
-                                    width: img.width,
-                                    height: img.height
+                            try {
+                                // Guardar la Data URL y metadatos
+                                this.state.customLogo = {
+                                    dataUrl: logoDataUrl,
+                                    filename: file.name,
+                                    fileSize: file.size,
+                                    type: file.type,
+                                    image: img,
+                                    dimensions: {
+                                        width: img.width,
+                                        height: img.height
+                                    },
+                                    timestamp: Date.now(),
+                                    compressed: file.compressed || false
+                                };
+                                
+                                // También guardar referencia para dibujar
+                                this.logoImage = img;
+                                
+                                // Guardar en configuración
+                                this.state.settings.customLogo = logoDataUrl;
+                                this.state.settings.logoFilename = file.name;
+                                this.state.settings.logoSize = file.size;
+                                this.state.settings.logoCompressed = file.compressed || false;
+                                
+                                // Guardar settings inmediatamente
+                                this.saveSettings();
+                                
+                                // Actualizar UI inmediatamente
+                                this.updateLogoInfo();
+                                
+                                // También actualizar el elemento directamente
+                                const logoInfoElement = document.getElementById('currentLogoInfo');
+                                if (logoInfoElement) {
+                                    const sizeKB = Math.round(file.size / 1024);
+                                    const dimensions = img.width + 'x' + img.height;
+                                    const compressedText = file.compressed ? ' (optimizado)' : '';
+                                    
+                                    logoInfoElement.innerHTML = 
+                                        `<span>🖼️ ${file.name}</span>
+                                        <small style="display: block; font-size: 12px; color: #aaa; margin-top: 2px;">
+                                        ${sizeKB} KB • ${dimensions} • Guardado en app${compressedText}
+                                        </small>`;
                                 }
-                            };
-                            
-                            // También guardar en this.logoImage para dibujar
-                            this.logoImage = img;
-                            
-                            // Guardar en configuración (solo la Data URL)
-                            this.state.settings.customLogo = logoDataUrl;
-                            this.state.settings.logoFilename = file.name;
-                            
-                            // Guardar settings inmediatamente
-                            this.saveSettings();
-                            
-                            // Actualizar UI
-                            this.updateLogoInfo();
-                            
-                            this.showNotification(`✅ Logo cargado: ${file.name}`);
-                            console.log('✅ Logo cargado correctamente:', {
-                                filename: file.name,
-                                dimensions: `${img.width}x${img.height}`,
-                                size: Math.round(file.size / 1024) + 'KB'
-                            });
-                            resolve();
+                                
+                                // Mensaje de éxito
+                                const successMessage = file.compressed 
+                                    ? `✅ Logo cargado y optimizado: ${file.name}`
+                                    : `✅ Logo cargado: ${file.name}`;
+                                
+                                this.showNotification(successMessage);
+                                
+                                console.log('✅ Logo procesado correctamente:', {
+                                    filename: file.name,
+                                    dimensions: `${img.width}x${img.height}`,
+                                    size: Math.round(file.size / 1024) + 'KB',
+                                    compressed: file.compressed || false,
+                                    dataUrlLength: logoDataUrl.length,
+                                    storageSize: Math.round(logoDataUrl.length / 1024 * 0.75) + 'KB aprox.'
+                                });
+                                
+                                // ===== LIMPIEZA DE LOGOS VIEJOS (EN SEGUNDO PLANO) =====
+                                setTimeout(() => {
+                                    this.cleanupOldLogos().catch(e => 
+                                        console.log('ℹ️ Limpieza en fondo:', e.message)
+                                    );
+                                }, 1000);
+                                // =======================================================
+                                
+                                resolve();
+                                
+                            } catch (innerError) {
+                                console.error('❌ Error procesando metadatos del logo:', innerError);
+                                this.showNotification('❌ Error al procesar la imagen');
+                                reject(innerError);
+                            }
                         };
                         
-                        img.onerror = () => {
-                            console.error('❌ Error cargando imagen');
-                            this.showNotification('❌ Error al procesar la imagen');
+                        img.onerror = (error) => {
+                            console.error('❌ Error cargando imagen:', error);
+                            this.showNotification('❌ Error al cargar la imagen');
                             reject(new Error('Error cargando imagen'));
                         };
                         
@@ -2318,25 +2610,26 @@ async loadLogoFromDataUrl(dataUrl) {
             });
             
         } catch (error) {
-            if (error.message !== 'Selección cancelada') {
+            if (error.message === 'Selección cancelada') {
+                console.log('ℹ️ Usuario canceló la selección de logo');
+                // No mostrar notificación para cancelación
+            } else {
                 console.error('❌ Error cargando logo:', error);
                 this.showNotification('❌ Error al cargar logo');
                 
-                // Para iOS, ofrecer ayuda
-                if (this.isIOS && error.message.includes('Selección cancelada')) {
+                // Para iOS, ofrecer ayuda si es un error de selección
+                if (this.isIOS && error.message.includes('No se seleccionó archivo')) {
                     setTimeout(() => {
                         if (confirm('📱 ¿Problemas seleccionando un logo en iPhone?\n\n¿Quieres ver instrucciones?')) {
                             this.showIOSFileInstructions('logo');
                         }
                     }, 1000);
                 }
-            } else {
-                console.log('ℹ️ Usuario canceló la selección de logo');
             }
             throw error;
         }
     }
-
+    
     async handleGpxUpload() {
         try {
             console.log('📤 Iniciando carga de GPX...');
