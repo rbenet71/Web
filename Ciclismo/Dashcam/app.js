@@ -1,6 +1,6 @@
-// Dashcam PWA v4.4.2 - Versión Completa Simplificada
+// Dashcam PWA v4.4.1 - Versión Completa Simplificada
 
-const APP_VERSION = '4.4.2';
+const APP_VERSION = '4.4.1';
 
 class DashcamApp {
     constructor() {
@@ -5276,6 +5276,7 @@ createSpeedControl() {
                 <div class="speed-options">
                     <button type="button" class="speed-option" data-speed="0.25">0.25x</button>
                     <button type="button" class="speed-option" data-speed="0.5">0.5x</button>
+                    <button type="button" class="speed-option active" data-speed="1">Normal (1x)</button>
                     <button type="button" class="speed-option" data-speed="2">2x</button>
                     <button type="button" class="speed-option" data-speed="4">4x</button>
                     <button type="button" class="speed-option" data-speed="8">8x</button>
