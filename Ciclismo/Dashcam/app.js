@@ -1,6 +1,6 @@
-// Dashcam PWA v4.5.1 - Versión Completa Simplificada
+// Dashcam PWA v4.5.2 - Versión Completa Simplificada
 
-const APP_VERSION = '4.5.1';
+const APP_VERSION = '4.5.2';
 
 class DashcamApp {
     constructor() {
@@ -2166,8 +2166,9 @@ async loadLogoFromDataUrl(dataUrl) {
                 return;
             }
             
-            // Configurar el input para iOS
-            logoInput.accept = 'image/*';
+            // Configurar el input para permitir cualquier archivo
+            // (iOS mostrará opción "Archivos" además de "Fototeca")
+            logoInput.accept = "*/*";
             logoInput.multiple = false;
             
             // Crear promesa para manejar la selección
@@ -2175,7 +2176,7 @@ async loadLogoFromDataUrl(dataUrl) {
                 logoInput.onchange = (event) => {
                     const file = event.target.files[0];
                     if (file) {
-                        console.log('✅ Archivo seleccionado:', file.name, file.type);
+                        console.log('✅ Archivo seleccionado:', file.name, file.type, 'Tamaño:', Math.round(file.size / 1024) + 'KB');
                         resolve(file);
                     } else {
                         reject(new Error('No se seleccionó archivo'));
@@ -2196,16 +2197,53 @@ async loadLogoFromDataUrl(dataUrl) {
             // Esperar a que el usuario seleccione
             const file = await filePromise;
             
-            // Validar el archivo
-            if (!file.type.startsWith('image/')) {
-                this.showNotification('❌ Por favor selecciona una imagen (JPG, PNG, GIF)');
-                return;
-            }
+            // ===== VALIDACIÓN MEJORADA PARA CUALQUIER ARCHIVO =====
+            const validImageTypes = [
+                'image/jpeg', 'image/jpg', 'image/png', 
+                'image/gif', 'image/webp', 'image/bmp', 'image/svg+xml'
+            ];
             
-            if (file.size > 5 * 1024 * 1024) { // 5MB máximo
+            const validExtensions = [
+                '.jpg', '.jpeg', '.png', '.gif', 
+                '.webp', '.bmp', '.svg', '.ico', '.tiff', '.tif'
+            ];
+            
+            // Verificar tipo MIME
+            const isCorrectMimeType = validImageTypes.includes(file.type.toLowerCase());
+            
+            // Verificar extensión (para casos donde iOS no reporta type correctamente)
+            const fileName = file.name.toLowerCase();
+            const hasValidExtension = validExtensions.some(ext => fileName.endsWith(ext));
+            
+            // Verificar tamaño (para imágenes)
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            if (file.size > maxSize) {
                 this.showNotification('❌ La imagen es demasiado grande (máximo 5MB)');
                 return;
             }
+            
+            if (!isCorrectMimeType && !hasValidExtension) {
+                this.showNotification('❌ Por favor selecciona una imagen válida:\nJPG, PNG, GIF, WebP, BMP, SVG');
+                console.warn('❌ Archivo no válido para logo:', {
+                    name: file.name,
+                    type: file.type,
+                    size: file.size,
+                    isIOS: this.isIOS
+                });
+                
+                // Para iOS, mostrar instrucciones adicionales
+                if (this.isIOS) {
+                    setTimeout(() => {
+                        if (confirm('📱 En iPhone: Asegúrate de seleccionar una imagen\n\n¿Necesitas ayuda?')) {
+                            this.showIOSFileInstructions('logo');
+                        }
+                    }, 500);
+                }
+                return;
+            }
+            
+            console.log('✅ Archivo validado para logo:', file.name, file.type);
+            // ======================================================
             
             console.log('🔄 Procesando imagen...', file.name);
             
@@ -2226,7 +2264,11 @@ async loadLogoFromDataUrl(dataUrl) {
                                 filename: file.name,
                                 fileSize: file.size,
                                 type: file.type,
-                                image: img  // ←←← ¡IMPORTANTE! Imagen cargada
+                                image: img,
+                                dimensions: {
+                                    width: img.width,
+                                    height: img.height
+                                }
                             };
                             
                             // También guardar en this.logoImage para dibujar
@@ -2243,7 +2285,11 @@ async loadLogoFromDataUrl(dataUrl) {
                             this.updateLogoInfo();
                             
                             this.showNotification(`✅ Logo cargado: ${file.name}`);
-                            console.log('✅ Logo cargado correctamente');
+                            console.log('✅ Logo cargado correctamente:', {
+                                filename: file.name,
+                                dimensions: `${img.width}x${img.height}`,
+                                size: Math.round(file.size / 1024) + 'KB'
+                            });
                             resolve();
                         };
                         
@@ -2275,6 +2321,15 @@ async loadLogoFromDataUrl(dataUrl) {
             if (error.message !== 'Selección cancelada') {
                 console.error('❌ Error cargando logo:', error);
                 this.showNotification('❌ Error al cargar logo');
+                
+                // Para iOS, ofrecer ayuda
+                if (this.isIOS && error.message.includes('Selección cancelada')) {
+                    setTimeout(() => {
+                        if (confirm('📱 ¿Problemas seleccionando un logo en iPhone?\n\n¿Quieres ver instrucciones?')) {
+                            this.showIOSFileInstructions('logo');
+                        }
+                    }, 1000);
+                }
             } else {
                 console.log('ℹ️ Usuario canceló la selección de logo');
             }
@@ -2284,6 +2339,8 @@ async loadLogoFromDataUrl(dataUrl) {
 
     async handleGpxUpload() {
         try {
+            console.log('📤 Iniciando carga de GPX...');
+            
             // Usar el input file oculto para GPX
             const gpxInput = document.getElementById('gpxUpload');
             
@@ -2292,54 +2349,171 @@ async loadLogoFromDataUrl(dataUrl) {
                 return;
             }
             
-            // Configurar el input
-            gpxInput.accept = '.gpx,.xml';
+            // Configurar el input para permitir cualquier archivo
+            // iOS mostrará opción "Archivos" con accept="*/*"
+            gpxInput.accept = "*/*";
             gpxInput.multiple = false;
             
             // Crear promesa para manejar la selección
             const filePromise = new Promise((resolve, reject) => {
-                gpxInput.onchange = (event) => {
+                gpxInput.onchange = async (event) => {
                     const file = event.target.files[0];
-                    if (file) {
-                        resolve(file);
-                    } else {
+                    if (!file) {
                         reject(new Error('No se seleccionó archivo'));
+                        return;
                     }
+                    
+                    console.log('📄 Archivo seleccionado:', file.name, 'Tipo:', file.type, 'Tamaño:', Math.round(file.size / 1024) + 'KB');
+                    
+                    // ===== VALIDACIÓN MEJORADA PARA GPX =====
+                    const fileName = file.name.toLowerCase();
+                    const validGpxExtensions = ['.gpx', '.xml'];
+                    const validMimeTypes = [
+                        'application/gpx+xml', 
+                        'text/xml', 
+                        'application/xml',
+                        'text/plain',
+                        'application/octet-stream'  // Algunos sistemas no reportan tipo
+                    ];
+                    
+                    // Verificar extensión
+                    const hasValidExtension = validGpxExtensions.some(ext => fileName.endsWith(ext));
+                    
+                    // Verificar tipo MIME (iOS a veces no lo reporta correctamente)
+                    const fileType = file.type.toLowerCase();
+                    const isCorrectMimeType = validMimeTypes.includes(fileType);
+                    
+                    // Verificar tamaño
+                    const maxSize = 10 * 1024 * 1024; // 10MB
+                    if (file.size > maxSize) {
+                        this.showNotification('❌ El archivo GPX es demasiado grande (máximo 10MB)');
+                        reject(new Error('Archivo demasiado grande'));
+                        return;
+                    }
+                    
+                    // Para archivos muy pequeños, probablemente no sean GPX válidos
+                    if (file.size < 100) { // 100 bytes mínimo
+                        this.showNotification('❌ El archivo es demasiado pequeño para ser un GPX válido');
+                        reject(new Error('Archivo demasiado pequeño'));
+                        return;
+                    }
+                    
+                    // Validación específica por plataforma
+                    if (this.isIOS) {
+                        // En iOS, ser más flexible
+                        // Aceptar si tiene extensión correcta O si es texto/XML O si no tiene tipo (iOS issue)
+                        const isLikelyTextFile = fileType === '' || fileType.includes('text');
+                        const isLikelyXML = fileType.includes('xml');
+                        
+                        if (!hasValidExtension && !isCorrectMimeType && !isLikelyTextFile && !isLikelyXML) {
+                            this.showNotification(
+                                '❌ En iPhone, selecciona un archivo .gpx o .xml\n\n' +
+                                '💡 Consejo:\n' +
+                                '1. Guarda el archivo en la app "Archivos"\n' +
+                                '2. Vuelve a intentar\n' +
+                                '3. Selecciona "Archivos" en el menú'
+                            );
+                            
+                            // Ofrecer ayuda adicional
+                            setTimeout(() => {
+                                if (confirm('📱 ¿Necesitas ayuda para cargar GPX en iPhone?')) {
+                                    this.showIOSFileInstructions('gpx');
+                                }
+                            }, 1000);
+                            
+                            reject(new Error('Tipo de archivo no válido para iOS'));
+                            return;
+                        }
+                        
+                        console.log('📱 iOS: Archivo aceptado con validación flexible:', {
+                            name: file.name,
+                            type: file.type,
+                            hasValidExtension,
+                            isCorrectMimeType
+                        });
+                        
+                    } else {
+                        // En otros navegadores, ser más estricto
+                        if (!hasValidExtension && !isCorrectMimeType) {
+                            this.showNotification('❌ Por favor selecciona un archivo GPX (.gpx) o XML (.xml)');
+                            reject(new Error('Tipo de archivo no válido'));
+                            return;
+                        }
+                    }
+                    // =========================================
+                    
+                    console.log('✅ Archivo validado para GPX:', file.name);
+                    resolve(file);
+                    
                     // Limpiar el input
                     gpxInput.value = '';
                 };
                 
                 gpxInput.oncancel = () => {
+                    console.log('ℹ️ Selección de GPX cancelada por el usuario');
                     reject(new Error('Selección cancelada'));
+                };
+                
+                // Manejar errores del input
+                gpxInput.onerror = (error) => {
+                    console.error('❌ Error en input file:', error);
+                    reject(new Error('Error en selector de archivos'));
                 };
             });
             
+            console.log('🔄 Abriendo selector de GPX...');
             // Disparar el selector de archivos
             gpxInput.click();
             
-            // Esperar a que el usuario seleccione
-            const file = await filePromise;
+            // Esperar a que el usuario seleccione (con timeout para iOS)
+            const file = await Promise.race([
+                filePromise,
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Timeout seleccionando archivo')), 30000)
+                )
+            ]);
             
-            // Validar el archivo
-            if (!file.name.toLowerCase().endsWith('.gpx') && 
-                !file.name.toLowerCase().endsWith('.xml')) {
-                this.showNotification('❌ Por favor selecciona un archivo GPX o XML');
-                return;
+            // Verificación adicional: leer parte del archivo para asegurar que es texto/XML
+            try {
+                const slice = file.slice(0, Math.min(500, file.size)); // Leer primeros 500 bytes
+                const textPreview = await slice.text();
+                
+                // Verificar que contenga texto (no binario)
+                const isBinary = /[\x00-\x08\x0E-\x1F]/.test(textPreview);
+                if (isBinary) {
+                    console.warn('⚠️ El archivo parece ser binario, no texto XML');
+                    this.showNotification('⚠️ El archivo no parece ser un GPX válido (formato binario)');
+                    // Continuar de todos modos, podría ser GPX comprimido o con encoding diferente
+                }
+                
+                // Buscar indicadores de que es GPX/XML
+                const isLikelyXML = textPreview.includes('<?xml') || textPreview.includes('<gpx') || textPreview.includes('<trk');
+                if (!isLikelyXML && !fileName.endsWith('.gpx')) {
+                    console.warn('⚠️ El archivo no parece contener XML/GPX:', textPreview.substring(0, 100));
+                    if (!confirm('⚠️ El archivo no parece ser un GPX/XML estándar.\n¿Continuar de todos modos?')) {
+                        throw new Error('Usuario canceló - archivo no parece GPX');
+                    }
+                }
+                
+            } catch (readError) {
+                console.warn('⚠️ No se pudo leer preview del archivo:', readError);
+                // Continuar de todos modos
             }
             
-            if (file.size > 10 * 1024 * 1024) { // 10MB máximo
-                this.showNotification('❌ El archivo GPX es demasiado grande (máx. 10MB)');
-                return;
-            }
-            
-            // Leer el archivo
+            console.log('🔄 Leyendo archivo GPX completo...');
+            // Leer el archivo completo
             const text = await file.text();
+            
+            if (!text || text.trim().length === 0) {
+                throw new Error('Archivo vacío');
+            }
             
             // Procesar el GPX
             const gpxData = await this.parseGPXData(text, {
                 filename: file.name,
                 uploadDate: Date.now(),
                 fileSize: file.size,
+                lastModified: file.lastModified,
                 source: 'upload'
             });
             
@@ -2351,19 +2525,74 @@ async loadLogoFromDataUrl(dataUrl) {
                 this.state.loadedGPXFiles.push(gpxData);
                 this.updateGpxSelect();
                 
-                this.showNotification(`✅ GPX cargado: ${gpxData.name}`);
+                const successMessage = `✅ GPX cargado: ${gpxData.name}`;
+                this.showNotification(successMessage);
+                console.log('✅ GPX cargado correctamente:', {
+                    name: gpxData.name,
+                    points: gpxData.points?.length || 0,
+                    size: Math.round(file.size / 1024) + 'KB'
+                });
                 
                 // Recargar la lista
                 this.loadGPXFromStore();
+                
+                // Mostrar vista previa si está disponible
+                if (gpxData.points && gpxData.points.length > 0) {
+                    setTimeout(() => {
+                        this.showNotification(`📊 GPX: ${gpxData.points.length} puntos cargados`);
+                    }, 1000);
+                }
+            } else {
+                throw new Error('Base de datos no disponible');
             }
             
         } catch (error) {
-            if (error.message !== 'Selección cancelada') {
+            if (error.message === 'Selección cancelada') {
+                console.log('ℹ️ Usuario canceló la selección de GPX');
+                // No mostrar notificación para cancelación
+            } else if (error.message === 'Timeout seleccionando archivo') {
+                console.error('⏰ Timeout seleccionando archivo GPX');
+                this.showNotification('⏰ Tiempo agotado seleccionando archivo');
+                
+                // Para iOS, ofrecer ayuda
+                if (this.isIOS) {
+                    setTimeout(() => {
+                        if (confirm('📱 ¿Problemas seleccionando GPX en iPhone?\n\n¿Quieres ver instrucciones?')) {
+                            this.showIOSFileInstructions('gpx');
+                        }
+                    }, 500);
+                }
+            } else {
                 console.error('❌ Error cargando GPX:', error);
-                this.showNotification('❌ Error al cargar GPX');
+                
+                let errorMessage = '❌ Error al cargar GPX';
+                if (error.message.includes('no parece ser un GPX')) {
+                    errorMessage = '❌ El archivo no parece ser un GPX válido';
+                } else if (error.message.includes('demasiado grande')) {
+                    errorMessage = '❌ El archivo es demasiado grande (máx. 10MB)';
+                } else if (error.message.includes('vacío')) {
+                    errorMessage = '❌ El archivo está vacío';
+                }
+                
+                this.showNotification(errorMessage);
+                
+                // Para iOS, dar sugerencias adicionales
+                if (this.isIOS && error.message.includes('no válido')) {
+                    setTimeout(() => {
+                        console.log('📱 Mostrando sugerencias para iOS...');
+                        this.showNotification(
+                            '💡 En iPhone:\n' +
+                            '1. Asegúrate de que el archivo esté en "Archivos"\n' +
+                            '2. El nombre debe terminar en .gpx\n' +
+                            '3. Puede ser un archivo .xml también'
+                        );
+                    }, 1000);
+                }
             }
         }
     }
+
+
     async handleGpxUploadFile(file) {
         try {
             // Leer el archivo
@@ -10338,6 +10567,43 @@ async getParentDirectoryHandle(fileHandle) {
                 this.stopRecording();
             }
         });
+
+        // Para iOS, mostrar ayuda contextual
+        if (this.isIOS) {
+            // Logo
+            const logoBtn = document.getElementById('uploadLogoBtn');
+            if (logoBtn) {
+                const originalLogoClick = logoBtn.onclick;
+                logoBtn.onclick = () => {
+                    const showHelp = localStorage.getItem('dashcam_show_ios_instructions') !== 'false';
+                    if (showHelp) {
+                        if (confirm('📱 En iPhone: Puedes seleccionar imágenes desde "Archivos"\n\n¿Necesitas instrucciones?')) {
+                            this.showIOSFileInstructions('logo');
+                            return;
+                        }
+                    }
+                    if (originalLogoClick) originalLogoClick();
+                    else this.uploadCustomLogo();
+                };
+            }
+            
+            // GPX
+            const gpxBtn = document.getElementById('uploadGpxBtn');
+            if (gpxBtn) {
+                const originalGpxClick = gpxBtn.onclick;
+                gpxBtn.onclick = () => {
+                    const showHelp = localStorage.getItem('dashcam_show_ios_instructions') !== 'false';
+                    if (showHelp) {
+                        if (confirm('📱 En iPhone: Los archivos GPX deben estar en la app "Archivos"\n\n¿Necesitas instrucciones?')) {
+                            this.showIOSFileInstructions('gpx');
+                            return;
+                        }
+                    }
+                    if (originalGpxClick) originalGpxClick();
+                    else this.handleGpxUpload();
+                };
+            }
+        }
     }
     // Añade esta función en la clase DashcamApp, justo después de detectIOS():
 
