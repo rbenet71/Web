@@ -18,13 +18,14 @@ Filtrar por carpeta de grabacion y exportar
 4.2.2 Eliminar Sesiones Vacias
 4.2.3 me gustaria modificar la ubicación de los botones de las sesiones, en la fila de arriba, poner Eliminar Sesión y Exportar Sesión, debajo Seleccionar Videos, y un Desplegable de acciones para hacer con los videos seleccionados (Eliminar, Combinar y Exportar) (estas funciones ya estaban implementadas)
 
-----
+
 
 4.2.4 - concatenar/mezclar los videos en un solo archivo de video MP4
 4.2.4.2 - concatenar/mezclar los videos en un solo archivo de video MP4 en carpeta de sesión
 eliminamos concatenar-> combineVideosModal
 
 4.3 - No se combinan Videos
+- Al eliminar sesiones o ficheros en carpeta local no se borran - NO SE PUEDE HACER
 
 #galleryPanel .scrollable-list,
 #galleryPanel .session-videos-container {
@@ -32,13 +33,13 @@ eliminamos concatenar-> combineVideosModal
     max-height: none !important;
     height: auto !important;
 }
-
+----
 
 
 ---
 
 
-velocidad de reproduccion video
+4.4 Quiero que en el reproductor de video se pueda elegir la velocidad de reproduccion
 seleccionar logo en iphone
 Idiomas
 Instalar App

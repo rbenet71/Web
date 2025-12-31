@@ -1,6 +1,6 @@
-// Dashcam PWA v4.3 - Versión Completa Simplificada
+// Dashcam PWA v4.4 - Versión Completa Simplificada
 
-const APP_VERSION = '4.3';
+const APP_VERSION = '4.4';
 
 class DashcamApp {
     constructor() {
@@ -5210,6 +5210,12 @@ console.log('4. expandedSessions después:', Array.from(this.state.expandedSessi
             this.elements.locationIcon.textContent = locationIcon;
             this.elements.locationText.textContent = locationText;
             
+            // ---- AÑADIR SELECTOR DE VELOCIDAD ----
+            // Crear o actualizar el selector de velocidad
+            this.createSpeedControl();
+            
+            // ---- FIN DE AÑADIDO ----
+            
             // Limpiar mapa existente antes de inicializar uno nuevo
             this.cleanupMap();
             
@@ -5250,6 +5256,171 @@ console.log('4. expandedSessions después:', Array.from(this.state.expandedSessi
             this.showNotification('❌ Error al reproducir el video');
         }
     }
+
+    // Añade esta función en el módulo de reproducción:
+createSpeedControl() {
+    // Verificar si ya existe el selector de velocidad
+    let speedControl = document.getElementById('playbackSpeedControl');
+    
+    if (!speedControl) {
+        // Crear el selector de velocidad
+        speedControl = document.createElement('div');
+        speedControl.id = 'playbackSpeedControl';
+        speedControl.className = 'playback-speed-control integrated';
+        speedControl.innerHTML = `
+            <button type="button" class="speed-toggle-btn" title="Velocidad de reproducción">
+                <span class="speed-icon">⏩</span>
+                <span class="speed-value">1x</span>
+            </button>
+            <div class="speed-dropdown hidden">
+                <div class="speed-options">
+                    <button type="button" class="speed-option" data-speed="0.25">0.25x</button>
+                    <button type="button" class="speed-option" data-speed="0.5">0.5x</button>
+                    <button type="button" class="speed-option" data-speed="0.75">0.75x</button>
+                    <button type="button" class="speed-option active" data-speed="1">Normal (1x)</button>
+                    <button type="button" class="speed-option" data-speed="1.25">1.25x</button>
+                    <button type="button" class="speed-option" data-speed="1.5">1.5x</button>
+                    <button type="button" class="speed-option" data-speed="1.75">1.75x</button>
+                    <button type="button" class="speed-option" data-speed="2">2x</button>
+                    <button type="button" class="speed-option" data-speed="2.5">2.5x</button>
+                    <button type="button" class="speed-option" data-speed="3">3x</button>
+                    <button type="button" class="speed-option" data-speed="4">4x</button>
+                </div>
+            </div>
+        `;
+        
+        // Buscar los controles nativos del video o su contenedor
+        const videoElement = document.querySelector('#playbackVideo');
+        
+        if (videoElement) {
+            // Opción 1: Intentar insertar en los controles nativos del video
+            const nativeControls = videoElement.parentNode;
+            
+            // Crear un contenedor para controles personalizados si no existe
+            let customControls = document.querySelector('.custom-video-controls');
+            
+            if (!customControls) {
+                customControls = document.createElement('div');
+                customControls.className = 'custom-video-controls';
+                
+                // Insertar después del video o en un lugar apropiado
+                if (videoElement.nextSibling) {
+                    videoElement.parentNode.insertBefore(customControls, videoElement.nextSibling);
+                } else {
+                    videoElement.parentNode.appendChild(customControls);
+                }
+            }
+            
+            // Añadir el control de velocidad a los controles personalizados
+            customControls.appendChild(speedControl);
+            
+            // Asegurar que el video tenga controles nativos visibles
+            videoElement.controls = true;
+            
+            // Opción alternativa: Insertar directamente en el contenedor del video
+            // si ya hay otros controles personalizados
+            const existingControls = videoElement.parentNode.querySelector('.video-controls, .control-bar');
+            if (existingControls) {
+                existingControls.appendChild(speedControl);
+            }
+        } else {
+            // Fallback: Insertar en el modal del reproductor
+            const modalContent = document.querySelector('#videoPlayerModal .modal-content') || 
+                               document.querySelector('.modal-content');
+            if (modalContent) {
+                // Buscar o crear barra de controles
+                let controlBar = modalContent.querySelector('.video-control-bar');
+                if (!controlBar) {
+                    controlBar = document.createElement('div');
+                    controlBar.className = 'video-control-bar';
+                    modalContent.appendChild(controlBar);
+                }
+                controlBar.appendChild(speedControl);
+            }
+        }
+        
+        // Configurar eventos para el control de velocidad
+        this.setupSpeedControlEvents();
+    }
+    
+    // Inicializar velocidad actual
+    if (!this.currentPlaybackSpeed) {
+        this.currentPlaybackSpeed = 1.0;
+    }
+}
+
+// Nueva función para configurar los eventos del control de velocidad
+setupSpeedControlEvents() {
+    const speedToggle = document.querySelector('.speed-toggle-btn');
+    const speedDropdown = document.querySelector('.speed-dropdown');
+    const speedOptions = document.querySelectorAll('.speed-option');
+    const speedValue = document.querySelector('.speed-value');
+    
+    if (!speedToggle || !speedDropdown) return;
+    
+    // Toggle del dropdown
+    speedToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        speedDropdown.classList.toggle('hidden');
+    });
+    
+    // Cerrar dropdown al hacer clic fuera
+    document.addEventListener('click', (e) => {
+        if (!speedDropdown.contains(e.target) && !speedToggle.contains(e.target)) {
+            speedDropdown.classList.add('hidden');
+        }
+    });
+    
+    // Seleccionar opción de velocidad
+    speedOptions.forEach(option => {
+        option.addEventListener('click', (e) => {
+            const speed = parseFloat(e.target.dataset.speed);
+            
+            // Remover clase active de todas las opciones
+            speedOptions.forEach(opt => opt.classList.remove('active'));
+            
+            // Añadir clase active a la opción seleccionada
+            e.target.classList.add('active');
+            
+            // Actualizar botón toggle
+            speedValue.textContent = speed === 1 ? '1x' : `${speed}x`;
+            
+            // Aplicar velocidad al video
+            this.setPlaybackSpeed(speed);
+            
+            // Cerrar dropdown
+            speedDropdown.classList.add('hidden');
+        });
+    });
+    
+    // Inicializar con velocidad actual
+    if (this.currentPlaybackSpeed) {
+        const currentOption = document.querySelector(`.speed-option[data-speed="${this.currentPlaybackSpeed}"]`);
+        if (currentOption) {
+            speedOptions.forEach(opt => opt.classList.remove('active'));
+            currentOption.classList.add('active');
+            speedValue.textContent = this.currentPlaybackSpeed === 1 ? '1x' : `${this.currentPlaybackSpeed}x`;
+        }
+    }
+}
+
+// Función para cambiar velocidad
+setPlaybackSpeed(speed) {
+    if (!this.elements.playbackVideo) return;
+    
+    // Validar velocidad
+    const validSpeed = Math.max(0.25, Math.min(4.0, speed));
+    
+    // Aplicar velocidad
+    this.elements.playbackVideo.playbackRate = validSpeed;
+    
+    // Guardar preferencia
+    this.currentPlaybackSpeed = validSpeed;
+    
+    // Mostrar feedback
+    console.log(`🎬 Velocidad de reproducción: ${validSpeed}x`);
+}
+
 
     async cleanupLocalFilesDatabase() {
         try {
@@ -6025,48 +6196,77 @@ console.log('4. expandedSessions después:', Array.from(this.state.expandedSessi
         
         try {
             const video = this.state.currentVideo;
+            console.log('🗑️ DELETE_SINGLE_VIDEO:', {
+                id: video.id,
+                filename: video.filename,
+                session: video.sessionName,
+                isPhysical: video.isPhysical,
+                protocol: window.location.protocol
+            });
+            
             let deletedFromFS = false;
             let deletedFromDB = false;
             
-            // Si es un archivo físico, borrarlo del sistema de archivos
-            if (video.source === 'filesystem' || video.isPhysical) {
-                console.log(`🗑️ Borrando archivo físico: ${video.filename}`);
-                
-                if (video.fileHandle) {
-                    deletedFromFS = await this.deletePhysicalFile(video.fileHandle);
+            // ===== VERIFICAR PROTOCOLO =====
+            const isFileProtocol = window.location.protocol === 'file:';
+            
+            if (isFileProtocol) {
+                console.warn('⚠️ Protocolo file:// detectado - Borrado físico DESHABILITADO');
+                console.warn('⚠️ Para borrar archivos físicos, ejecuta desde http://localhost');
+                deletedFromFS = false; // No se puede borrar en file://
+            } else {
+                // ===== BORRADO FÍSICO (solo si NO es file://) =====
+                if (video.source === 'filesystem' || video.isPhysical || video.sessionName) {
+                    console.log('📁 Intentando borrado físico...');
+                    
+                    // Usar deleteFileByPath que ya tienes
+                    if (video.filename && video.sessionName) {
+                        deletedFromFS = await this.deleteFileByPath(video.filename, video.sessionName);
+                    } else if (video.filename) {
+                        deletedFromFS = await this.deleteFileByPath(video.filename);
+                    }
                 }
             }
             
-            // Borrar de la base de datos
+            // ===== BORRADO DE BASE DE DATOS (SIEMPRE) =====
+            console.log('🗃️ Borrando de base de datos...');
+            
             if (this.db) {
                 await this.deleteFromStore('videos', video.id);
                 deletedFromDB = true;
+                console.log('✅ Borrado de IndexedDB');
             } else {
                 const videos = JSON.parse(localStorage.getItem('dashcam_videos') || '[]');
                 const filteredVideos = videos.filter(v => v.id !== video.id);
                 localStorage.setItem('dashcam_videos', JSON.stringify(filteredVideos));
                 deletedFromDB = true;
+                console.log('✅ Borrado de localStorage');
             }
             
+            // ===== FEEDBACK AL USUARIO =====
             this.hideVideoPlayer();
             await this.loadGallery();
             
-            // Mostrar mensaje apropiado
-            if (deletedFromFS && deletedFromDB) {
-                this.showNotification('🗑️ Video eliminado (físico y de la app)');
-            } else if (deletedFromFS) {
-                this.showNotification('🗑️ Archivo físico eliminado');
-            } else if (deletedFromDB) {
-                this.showNotification('🗑️ Video eliminado de la app');
+            if (isFileProtocol) {
+                if (deletedFromDB) {
+                    this.showNotification('📱 Video eliminado de la app (ejecuta desde localhost para borrar físicamente)');
+                }
             } else {
-                this.showNotification('⚠️ No se pudo eliminar completamente');
+                if (deletedFromFS && deletedFromDB) {
+                    this.showNotification('🗑️ Video eliminado completamente');
+                } else if (deletedFromDB) {
+                    this.showNotification('📱 Video eliminado de la app (archivo físico no borrado)');
+                } else {
+                    this.showNotification('⚠️ Eliminación incompleta');
+                }
             }
             
         } catch (error) {
-            console.error('❌ Error eliminando video:', error);
+            console.error('❌ Error en deleteSingleVideo:', error);
             this.showNotification('❌ Error al eliminar');
         }
     }
+
     async deleteFileByPath(filename, sessionName = null) {
         try {
             if (!this.localFolderHandle) {
@@ -6074,37 +6274,60 @@ console.log('4. expandedSessions después:', Array.from(this.state.expandedSessi
                 return false;
             }
             
-            let fileHandle;
+            console.log(`🗑️ Intentando borrar: ${sessionName ? `${sessionName}/` : ''}${filename}`);
             
+            let folderHandle = this.localFolderHandle;
+            
+            // Navegar a la carpeta de sesión si existe
             if (sessionName) {
-                // Buscar en subcarpeta de sesión
                 try {
-                    const sessionFolder = await this.localFolderHandle.getDirectoryHandle(sessionName, { create: false });
-                    fileHandle = await sessionFolder.getFileHandle(filename, { create: false });
+                    folderHandle = await this.localFolderHandle.getDirectoryHandle(sessionName, { create: false });
+                    console.log(`📁 Accediendo a carpeta de sesión: ${sessionName}`);
                 } catch (error) {
-                    console.warn(`⚠️ No se encontró sesión ${sessionName}:`, error);
-                    return false;
-                }
-            } else {
-                // Buscar en carpeta raíz
-                try {
-                    fileHandle = await this.localFolderHandle.getFileHandle(filename, { create: false });
-                } catch (error) {
-                    console.warn(`⚠️ No se encontró archivo ${filename}:`, error);
-                    return false;
+                    console.warn(`⚠️ Carpeta de sesión no encontrada: ${sessionName}`, error);
+                    // Intentar borrar de la raíz
+                    sessionName = null;
                 }
             }
             
-            // Borrar el archivo
-            await this.deletePhysicalFile(fileHandle);
-            console.log(`✅ Archivo borrado por ruta: ${sessionName ? `${sessionName}/` : ''}${filename}`);
-            return true;
+            // Verificar si el archivo existe
+            try {
+                const fileHandle = await folderHandle.getFileHandle(filename, { create: false });
+                
+                // Borrar el archivo
+                if (fileHandle.remove) {
+                    // File System Access API moderno
+                    await fileHandle.remove();
+                    console.log(`✅ Archivo borrado: ${filename}`);
+                } else {
+                    // API más antigua
+                    await this.deletePhysicalFile(fileHandle);
+                }
+                
+                // Limpiar carpeta vacía si es una sesión
+                if (sessionName) {
+                    await this.cleanupEmptyLocalFolders();
+                }
+                
+                return true;
+                
+            } catch (error) {
+                if (error.name === 'NotFoundError') {
+                    console.warn(`⚠️ Archivo no encontrado: ${filename}`);
+                    return false;
+                }
+                throw error;
+            }
             
         } catch (error) {
             console.error(`❌ Error borrando archivo por ruta:`, error);
             return false;
         }
     }
+
+
+
+
     // ============ SELECTORES Y UI ============
 
     setupCompactSelectors() {
@@ -8716,6 +8939,78 @@ console.log('4. expandedSessions después:', Array.from(this.state.expandedSessi
             console.error('❌ Error limpiando carpetas locales:', error);
         }
     }
+
+    async deletePhysicalFile(fileHandle) {
+        try {
+            console.log(`🗑️ DELETE_PHYSICAL_FILE: Iniciando borrado de ${fileHandle.name}`);
+            
+            // MÉTODO 1: File System Access API moderna (Chrome 86+)
+            if (fileHandle.remove && typeof fileHandle.remove === 'function') {
+                console.log('🗑️ Usando fileHandle.remove()...');
+                await fileHandle.remove();
+                console.log(`✅ Archivo físico eliminado: ${fileHandle.name}`);
+                return true;
+            }
+            
+            // MÉTODO 2: Intentar obtener el directorio padre y borrar desde ahí
+            try {
+                // Necesitamos el directorio padre para borrar
+                const parentHandle = await this.getParentDirectoryHandle(fileHandle);
+                if (parentHandle && parentHandle.removeEntry) {
+                    console.log(`🗑️ Usando parentHandle.removeEntry(${fileHandle.name})...`);
+                    await parentHandle.removeEntry(fileHandle.name);
+                    console.log(`✅ Archivo eliminado vía directorio padre: ${fileHandle.name}`);
+                    return true;
+                }
+            } catch (parentError) {
+                console.warn('⚠️ No se pudo obtener directorio padre:', parentError);
+            }
+            
+            // MÉTODO 3: Para sistemas antiguos - recrear el archivo vacío (no recomendado)
+            console.warn('⚠️ API no compatible para borrado directo');
+            
+            // MÉTODO 4: Intentar abrir en modo escritura y truncar
+            try {
+                const writable = await fileHandle.createWritable();
+                await writable.write(new Uint8Array(0)); // Escribir 0 bytes
+                await writable.close();
+                console.log(`⚠️ Archivo truncado a 0 bytes (no eliminado): ${fileHandle.name}`);
+                return false; // No es una eliminación real
+            } catch (writeError) {
+                console.error('❌ No se pudo truncar archivo:', writeError);
+            }
+            
+            console.error('❌ No se pudo eliminar el archivo físico');
+            return false;
+            
+        } catch (error) {
+            console.error(`❌ Error en deletePhysicalFile(${fileHandle?.name}):`, error);
+            return false;
+        }
+    }
+
+// Función auxiliar para obtener el directorio padre
+async getParentDirectoryHandle(fileHandle) {
+    try {
+        // Intentar diferentes métodos para obtener el padre
+        if (fileHandle.getParent) {
+            return await fileHandle.getParent();
+        }
+        
+        // Si tenemos el localFolderHandle, usarlo
+        if (this.localFolderHandle && fileHandle.name) {
+            // Esto es complicado porque necesitamos la ruta completa
+            console.warn('⚠️ No se puede obtener directorio padre directamente');
+            return null;
+        }
+        
+        return null;
+    } catch (error) {
+        console.error('❌ Error obteniendo directorio padre:', error);
+        return null;
+    }
+}
+
 
     /**
      * Obtiene el handle de una carpeta de sesión
