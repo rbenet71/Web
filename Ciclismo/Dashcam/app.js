@@ -1,6 +1,6 @@
-// Dashcam PWA v4.8.1 - Versión Completa Simplificada
+// Dashcam PWA v4.8.2 - Versión Completa Simplificada
 
-const APP_VERSION = '4.8.1';
+const APP_VERSION = '4.8.2';
 
 class DashcamApp {
     constructor() {
@@ -3543,8 +3543,17 @@ async uploadCustomLogo() {
                     input.accept = 'video/*,.mp4,.webm';
                     input.style.display = 'none';
                     
-                    // Configurar para detectar dispositivos externos
-                    input.setAttribute('capture', 'environment');
+                    // === CORRECCIÓN: NO USAR CAPTURE (esto abre la cámara) ===
+                    // input.setAttribute('capture', 'environment'); // ¡ELIMINADO!
+                    
+                    // Workaround específico para iOS Safari
+                    if (this.isIOS) {
+                        // Para iOS, usar configuración más compatible
+                        input.removeAttribute('accept');
+                        setTimeout(() => {
+                            input.accept = '*/*';
+                        }, 50);
+                    }
                     
                     input.onchange = async (event) => {
                         const files = Array.from(event.target.files);
@@ -3633,7 +3642,7 @@ async uploadCustomLogo() {
                     // Añadir al documento y disparar click
                     document.body.appendChild(input);
                     
-                    // Intentar forzar la apertura del selector de archivos nativo
+                    // Pequeño delay para asegurar que iOS procese el input
                     setTimeout(() => {
                         input.click();
                     }, 100);
