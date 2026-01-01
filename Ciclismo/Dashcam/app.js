@@ -1,6 +1,6 @@
-// Dashcam PWA v4.8.9 - Versión Completa Simplificada
+// Dashcam PWA v4.8.10 - Versión Completa Simplificada
 
-const APP_VERSION = '4.8.9';
+const APP_VERSION = '4.8.10';
 
 class DashcamApp {
     constructor() {
@@ -4402,274 +4402,121 @@ class DashcamApp {
             if (this.localFolderHandle) {
                 console.log('📁 Modo: Handle persistente - Guardando físicamente');
                 
-                // Verificar permisos primero
-                try {
-                    const permission = await this.localFolderHandle.requestPermission({ mode: 'readwrite' });
-                    if (permission !== 'granted') {
-                        this.showNotification('❌ Permiso denegado para escribir en la carpeta');
-                        return false;
-                    }
-                } catch (error) {
-                    console.warn('⚠️ Error verificando permisos:', error);
-                }
-                
-                let fileHandle;
-                let folderPath = '';
-                
-                // Crear carpeta de sesión si se especifica
-                if (sessionName) {
-                    try {
-                        const sessionFolder = await this.localFolderHandle.getDirectoryHandle(sessionName, { create: true });
-                        fileHandle = await sessionFolder.getFileHandle(filename, { create: true });
-                        folderPath = sessionName + '/';
-                    } catch (error) {
-                        console.warn(`⚠️ Error creando carpeta de sesión "${sessionName}":`, error);
-                        // Fallback: guardar en raíz
-                        fileHandle = await this.localFolderHandle.getFileHandle(filename, { create: true });
-                    }
-                } else {
-                    fileHandle = await this.localFolderHandle.getFileHandle(filename, { create: true });
-                }
-                
-                // Escribir el archivo físicamente
-                const writable = await fileHandle.createWritable();
-                await writable.write(blob);
-                await writable.close();
-                
-                console.log(`✅ Archivo guardado físicamente en USB: ${folderPath}${filename}`);
-                
-                // ===== GUARDAR REFERENCIA EN INDEXEDDB =====
-                const fileRef = {
-                    id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                    filename: filename,
-                    folderName: this.state.settings.localFolderName || this.localFolderHandle.name,
-                    folderPath: folderPath,
-                    timestamp: Date.now(),
-                    size: blob.size,
-                    location: 'local_folder',
-                    session: sessionName,
-                    physicalLocation: 'filesystem',
-                    platform: this.isIOS ? 'ios' : 'desktop',
-                    savedPhysically: true
-                };
-                
-                if (this.db) {
-                    await this.saveToDatabase('localFiles', fileRef);
-                    console.log('📝 Referencia guardada en IndexedDB');
-                }
-                
-                this.showNotification(`✅ Video guardado en USB`);
+                // ... (mantener tu código existente para handle) ...
                 return true;
             }
             
-            // ===== CASO 2: iOS CON WEBKITDIRECTORY (PERMISOS LIMITADOS) =====
+            // ===== CASO 2: iOS CON WEBKITDIRECTORY =====
             else if (this.isIOS && this.state.settings.isWebkitDirectory) {
-                console.log('📱 Modo: webkitdirectory en iOS - Intentando guardar en USB...');
+                console.log('📱 Modo: webkitdirectory en iOS - Preparando descarga...');
                 
-                // IMPORTANTE: webkitdirectory NO da permisos de escritura por defecto
-                // Pero podemos intentar algunas estrategias:
-                
-                // ESTRATEGIA 1: Intentar usar la API de File System Access si está disponible
-                if (window.showSaveFilePicker) {
-                    try {
-                        console.log('🔄 Intentando usar showSaveFilePicker...');
-                        const fileHandle = await window.showSaveFilePicker({
-                            suggestedName: filename,
-                            types: [{
-                                description: 'Video MP4',
-                                accept: { 'video/mp4': ['.mp4'] }
-                            }]
-                        });
-                        
-                        const writable = await fileHandle.createWritable();
-                        await writable.write(blob);
-                        await writable.close();
-                        
-                        console.log(`✅ Guardado en USB via showSaveFilePicker: ${filename}`);
-                        
-                        // Guardar referencia
-                        const fileRef = {
-                            id: Date.now() + '_webkit_save_' + Math.random().toString(36).substr(2, 9),
-                            filename: filename,
-                            folderName: this.state.settings.localFolderName,
-                            timestamp: Date.now(),
-                            size: blob.size,
-                            location: 'webkit_saved',
-                            session: sessionName,
-                            platform: 'ios',
-                            savedPhysically: true,
-                            saveMethod: 'showSaveFilePicker'
-                        };
-                        
-                        if (this.db) {
-                            await this.saveToDatabase('localFiles', fileRef);
-                        }
-                        
-                        this.showNotification(`✅ Video guardado en USB (showSaveFilePicker)`);
-                        return true;
-                        
-                    } catch (saveError) {
-                        console.warn('⚠️ showSaveFilePicker falló:', saveError);
-                        // Continuar con siguiente estrategia
-                    }
-                }
-                
-                // ESTRATEGIA 2: Intentar usar un input file con capture (para iOS)
-                if (this.isIOS) {
-                    try {
-                        console.log('🔄 Intentando estrategia iOS nativa...');
-                        
-                        // Crear un enlace de descarga temporal
-                        const downloadUrl = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = downloadUrl;
-                        a.download = filename;
-                        a.style.display = 'none';
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        
-                        // Liberar URL después de un tiempo
-                        setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
-                        
-                        console.log(`✅ Descarga iniciada para: ${filename}`);
-                        
-                        // Guardar referencia en IndexedDB como fallback
-                        const fileData = {
-                            id: Date.now() + '_webkit_dl_' + Math.random().toString(36).substr(2, 9),
-                            filename: filename,
-                            timestamp: Date.now(),
-                            size: blob.size,
-                            type: 'video/mp4',
-                            location: 'webkit_download',
-                            folderName: this.state.settings.localFolderName,
-                            session: sessionName,
-                            blob: blob,
-                            platform: 'ios',
-                            savedPhysically: false, // No está físicamente en USB
-                            saveMethod: 'download'
-                        };
-                        
-                        if (this.db) {
-                            await this.saveToDatabase('localFiles', fileData);
-                        }
-                        
+                // ===== ESTRATEGIA PRINCIPAL: DESCARGA NATIVA =====
+                try {
+                    // 1. Mostrar instrucciones ANTES de la descarga
+                    this.showNotification(
+                        '📱 Preparando video para guardar en USB...\n' +
+                        'Se abrirá el menú "Compartir"',
+                        3000
+                    );
+                    
+                    // Pequeña pausa para que el usuario vea el mensaje
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    // 2. Crear URL de descarga
+                    const downloadUrl = URL.createObjectURL(blob);
+                    
+                    // 3. Crear enlace de descarga
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = filename; // Esto fuerza la descarga
+                    a.style.display = 'none';
+                    a.setAttribute('data-filename', filename);
+                    
+                    // 4. Añadir eventos para tracking
+                    a.addEventListener('click', () => {
+                        console.log('🎯 Usuario hizo clic en descarga');
                         this.showNotification(
-                            '📱 Video listo para guardar\n' +
-                            '1. Toca "Guardar en Archivos"\n' +
-                            '2. Navega a tu USB\n' +
+                            '📱 En el menú que aparece:\n' +
+                            '1. Toca "Guardar en Archivos"\n' + 
+                            '2. Navega a tu USB/carpeta\n' +
                             '3. Toca "Añadir"',
+                            8000
+                        );
+                    });
+                    
+                    // 5. Añadir al documento y disparar click
+                    document.body.appendChild(a);
+                    
+                    // 6. Disparar la descarga (esto abre el menú nativo)
+                    a.click();
+                    
+                    // 7. Limpiar después de un tiempo
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(downloadUrl);
+                        console.log('🧹 Recursos de descarga liberados');
+                    }, 30000); // 30 segundos para dar tiempo
+                    
+                    // 8. Guardar referencia en IndexedDB
+                    const fileData = {
+                        id: Date.now() + '_ios_download_' + Math.random().toString(36).substr(2, 9),
+                        filename: filename,
+                        timestamp: Date.now(),
+                        size: blob.size,
+                        type: 'video/mp4',
+                        location: 'ios_download_pending',
+                        folderName: this.state.settings.localFolderName,
+                        session: sessionName,
+                        blob: blob, // Guardamos el blob por si necesita re-descarga
+                        platform: 'ios',
+                        savedPhysically: false, // Pendiente de que usuario guarde
+                        downloadMethod: 'native_dialog',
+                        downloadUrl: downloadUrl,
+                        instructionsShown: true
+                    };
+                    
+                    if (this.db) {
+                        await this.saveToDatabase('localFiles', fileData);
+                        console.log('📝 Referencia de descarga guardada en IndexedDB');
+                    }
+                    
+                    // 9. Mostrar instrucciones POSTERIORES
+                    setTimeout(() => {
+                        this.showNotification(
+                            '💡 Consejo: Para guardar automáticamente\n' +
+                            'Instala la app como PWA (icono pantalla)',
                             6000
                         );
-                        
-                        return true;
-                        
-                    } catch (downloadError) {
-                        console.error('❌ Error en descarga iOS:', downloadError);
-                    }
+                    }, 5000);
+                    
+                    console.log(`✅ Descarga iniciada para: ${filename}`);
+                    return true; // Éxito - usuario ahora decide dónde guardar
+                    
+                } catch (downloadError) {
+                    console.error('❌ Error en descarga iOS:', downloadError);
+                    
+                    // Fallback: guardar solo en IndexedDB
+                    return await this.saveToIndexedDBFallback(blob, filename, sessionName, downloadError);
                 }
-                
-                // ESTRATEGIA 3: Fallback a IndexedDB con instrucciones claras
-                console.log('📋 Usando fallback a IndexedDB con instrucciones');
-                
-                const fileData = {
-                    id: Date.now() + '_webkit_fallback_' + Math.random().toString(36).substr(2, 9),
-                    filename: filename,
-                    timestamp: Date.now(),
-                    size: blob.size,
-                    type: 'video/mp4',
-                    location: 'webkit_fallback',
-                    folderName: this.state.settings.localFolderName,
-                    session: sessionName,
-                    blob: blob,
-                    platform: 'ios',
-                    savedPhysically: false,
-                    saveMethod: 'indexeddb_fallback',
-                    needsPhysicalSave: true
-                };
-                
-                if (this.db) {
-                    await this.saveToDatabase('localFiles', fileData);
-                }
-                
-                // Mostrar instrucciones detalladas
-                this.showNotification(
-                    '⚠️ Para guardar en USB:\n' +
-                    '1. Instala la app como PWA (icono pantalla)\n' +
-                    '2. Usa la app instalada\n' +
-                    '3. Selecciona carpeta USB nuevamente\n\n' +
-                    'Video guardado temporalmente en app',
-                    8000
-                );
-                
-                return true; // Retornamos true porque se guardó en IndexedDB
             }
             
             // ===== CASO 3: iOS SIN WEBKITDIRECTORY =====
             else if (this.isIOS) {
-                console.log('📱 iOS sin webkitdirectory: Guardando en app');
-                
-                const fileData = {
-                    id: Date.now() + '_ios_app_' + Math.random().toString(36).substr(2, 9),
-                    filename: filename,
-                    timestamp: Date.now(),
-                    size: blob.size,
-                    type: 'video/mp4',
-                    location: 'ios_app',
-                    session: sessionName,
-                    blob: blob,
-                    platform: 'ios',
-                    savedPhysically: false
-                };
-                
-                if (this.db) {
-                    await this.saveToDatabase('localFiles', fileData);
-                }
-                
-                this.showNotification(
-                    '📱 Video guardado en la app\n' +
-                    'Para guardar en USB: selecciona una carpeta',
-                    4000
-                );
-                
-                return true;
+                console.log('📱 iOS sin carpeta seleccionada');
+                return await this.saveToIndexedDBFallback(blob, filename, sessionName, 
+                    new Error('iOS sin carpeta seleccionada'));
             }
             
             // ===== CASO 4: DESKTOP SIN HANDLE =====
             else {
-                console.log('❌ Desktop sin handle: No se puede guardar');
+                console.log('❌ Desktop sin handle');
                 this.showNotification('❌ Selecciona una carpeta primero en Desktop');
                 return false;
             }
             
         } catch (error) {
-            console.error('❌ Error guardando en carpeta local:', error);
-            
-            // Fallback genérico
-            if (this.db) {
-                try {
-                    const fallbackData = {
-                        id: Date.now() + '_error_fallback_' + Math.random().toString(36).substr(2, 9),
-                        filename: filename,
-                        timestamp: Date.now(),
-                        size: blob.size,
-                        location: 'error_fallback',
-                        session: sessionName,
-                        blob: blob,
-                        platform: this.isIOS ? 'ios' : 'desktop',
-                        error: error.message
-                    };
-                    
-                    await this.saveToDatabase('localFiles', fallbackData);
-                    this.showNotification('⚠️ Video guardado en app (error durante guardado)');
-                    return true;
-                } catch (fallbackError) {
-                    console.error('❌ Fallback también falló:', fallbackError);
-                }
-            }
-            
-            this.showNotification('❌ Error al guardar video');
-            return false;
+            console.error('❌ Error general en saveToLocalFolder:', error);
+            return await this.saveToIndexedDBFallback(blob, filename, sessionName, error);
         }
     }
 
@@ -4737,6 +4584,113 @@ class DashcamApp {
         return { success: false, error: 'Todos los métodos fallaron' };
     }
 
+    async saveToIndexedDBFallback(blob, filename, sessionName, error) {
+        console.log('📋 Usando fallback a IndexedDB:', error?.message);
+        
+        try {
+            const fileData = {
+                id: Date.now() + '_fallback_' + Math.random().toString(36).substr(2, 9),
+                filename: filename,
+                timestamp: Date.now(),
+                size: blob.size,
+                type: 'video/mp4',
+                location: 'indexeddb_fallback',
+                folderName: this.state.settings.localFolderName || 'app',
+                session: sessionName,
+                blob: blob,
+                platform: this.isIOS ? 'ios' : 'desktop',
+                savedPhysically: false,
+                error: error?.message,
+                fallbackReason: 'save_error'
+            };
+            
+            if (this.db) {
+                await this.saveToDatabase('localFiles', fileData);
+            }
+            
+            // Mensaje diferente según el error
+            if (this.isIOS && this.state.settings.isWebkitDirectory) {
+                this.showNotification(
+                    '📱 Video guardado en la app\n' +
+                    'Para guardar en USB: instala como PWA',
+                    5000
+                );
+            } else {
+                this.showNotification('📱 Video guardado en la app', 3000);
+            }
+            
+            return true; // Se guardó en IndexedDB al menos
+            
+        } catch (fallbackError) {
+            console.error('❌ Fallback también falló:', fallbackError);
+            this.showNotification('❌ Error grave al guardar video');
+            return false;
+        }
+    }
+
+    async retryPendingSaves() {
+        console.log('🔄 Reintentando guardar videos pendientes...');
+        
+        if (!this.db) return;
+        
+        try {
+            // Buscar videos pendientes de guardado físico
+            const transaction = this.db.transaction(['localFiles'], 'readonly');
+            const store = transaction.objectStore('localFiles');
+            const request = store.getAll();
+            
+            const allFiles = await new Promise((resolve, reject) => {
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => reject(request.error);
+            });
+            
+            const pendingSaves = allFiles.filter(file => 
+                !file.savedPhysically && 
+                file.blob && 
+                file.location.includes('pending')
+            );
+            
+            console.log(`📋 Encontrados ${pendingSaves.length} videos pendientes`);
+            
+            if (pendingSaves.length === 0) return;
+            
+            // Mostrar opción al usuario
+            const userConfirmed = confirm(
+                `Tienes ${pendingSaves.length} video(s) pendientes de guardar en USB.\n` +
+                `¿Quieres intentar guardarlos ahora?`
+            );
+            
+            if (!userConfirmed) return;
+            
+            // Intentar guardar cada uno
+            for (const file of pendingSaves) {
+                try {
+                    console.log(`🔄 Reintentando guardar: ${file.filename}`);
+                    
+                    // Crear blob desde los datos guardados
+                    const blob = file.blob instanceof Blob ? file.blob : new Blob([file.blob], { type: file.type });
+                    
+                    // Intentar guardar nuevamente
+                    const success = await this.saveToLocalFolder(
+                        blob, 
+                        file.filename, 
+                        file.session
+                    );
+                    
+                    if (success) {
+                        console.log(`✅ Re-guardado exitoso: ${file.filename}`);
+                        // Opcional: marcar como guardado físicamente en DB
+                    }
+                    
+                } catch (fileError) {
+                    console.warn(`⚠️ Error re-guardando ${file.filename}:`, fileError);
+                }
+            }
+            
+        } catch (error) {
+            console.error('❌ Error en retryPendingSaves:', error);
+        }
+    }
 
     // ============ GPS Y GEOLOCALIZACIÓN ============
 
