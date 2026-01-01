@@ -43,7 +43,7 @@ eliminamos concatenar-> combineVideosModal
 4.6.1 mejorar responsible
 
 ---
-
+no se graba en el iphone el logo
 
 Idiomas
 Instalar App
