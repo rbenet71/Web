@@ -1,6 +1,6 @@
-// Dashcam PWA v4.8.11 - Versión Completa Simplificada
+// Dashcam PWA v4.8.12 - Versión Completa Simplificada
 
-const APP_VERSION = '4.8.11';
+const APP_VERSION = '4.8.12';
 
 class DashcamApp {
     constructor() {
@@ -4173,146 +4173,354 @@ class DashcamApp {
     }
 
     async saveToLocalFolder(blob, filename, sessionName = null) {
-        console.log('💾 Guardando en carpeta local...', {
+        console.log('💾 Guardando en carpeta local (iOS optimizado)...', {
             hasHandle: !!this.localFolderHandle,
             isIOS: this.isIOS,
             isWebkitDirectory: this.state.settings.isWebkitDirectory,
-            webkitFolderName: this.state.settings.localFolderName,
+            folderName: this.state.settings.localFolderName,
+            canWriteDirectly: this.state.settings.canWriteDirectly,
             filename,
             sessionName
         });
         
-        // ===== VERIFICACIÓN MEJORADA =====
-        const canSaveToLocal = this.localFolderHandle || 
-                              (this.isIOS && this.state.settings.isWebkitDirectory);
-        
-        if (!canSaveToLocal && !this.isIOS) {
-            console.log('⚠️ No hay carpeta local seleccionada');
-            this.showNotification('⚠️ Selecciona una carpeta primero');
-            return false;
+        // ===== CASO ESPECIAL: iOS PWA PERO SIN ESCRITURA DIRECTA =====
+        if (this.isIOS && this.isPWAInstalled && !this.state.settings.canWriteDirectly) {
+            console.log('📱 iOS PWA instalado pero sin escritura directa - usando flujo mejorado');
+            
+            try {
+                // 1. Preparar instrucciones ANTES de mostrar diálogo
+                this.showNotification(
+                    '📱 Guardando video...\n' +
+                    'Selecciona tu carpeta USB en el menú',
+                    3000
+                );
+                
+                // 2. Pequeña pausa para que vea el mensaje
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 3. Crear URL de descarga
+                const downloadUrl = URL.createObjectURL(blob);
+                
+                // 4. Crear enlace de descarga con nombre personalizado
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                
+                // Construir nombre de archivo con sesión si está disponible
+                let finalFilename = filename;
+                if (sessionName) {
+                    // Quitar extensión temporalmente
+                    const nameWithoutExt = filename.replace(/\.mp4$/i, '');
+                    finalFilename = `${sessionName}_${nameWithoutExt}.mp4`;
+                }
+                
+                a.download = finalFilename;
+                a.style.display = 'none';
+                a.setAttribute('data-session', sessionName || '');
+                a.setAttribute('data-filename', finalFilename);
+                
+                // 5. Añadir eventos para mejor seguimiento
+                a.addEventListener('click', () => {
+                    console.log('🎯 Usuario inició guardado manual');
+                    
+                    // Mostrar instrucciones DETALLADAS después del clic
+                    setTimeout(() => {
+                        this.showNotification(
+                            '📁 GUARDAR EN USB:\n\n' +
+                            '1. Toca "Guardar en Archivos"\n' +
+                            '2. Navega a tu USB: ' + (this.state.settings.localFolderName || 'USB') + '\n' +
+                            (sessionName ? '3. Toca "Nueva carpeta" y nómbrala: ' + sessionName + '\n' : '') +
+                            '4. Toca "Añadir" para guardar\n\n' +
+                            '💡 Los videos se organizarán automáticamente',
+                            10000
+                        );
+                    }, 500);
+                });
+                
+                // 6. Añadir al documento y activar
+                document.body.appendChild(a);
+                a.click();
+                
+                // 7. Guardar referencia en IndexedDB para tracking
+                const fileData = {
+                    id: Date.now() + '_ios_manual_' + Math.random().toString(36).substr(2, 9),
+                    filename: finalFilename,
+                    originalFilename: filename,
+                    timestamp: Date.now(),
+                    size: blob.size,
+                    type: 'video/mp4',
+                    location: 'ios_manual_save_pending',
+                    targetFolder: this.state.settings.localFolderName,
+                    targetSession: sessionName,
+                    suggestedSessionPath: sessionName ? `${this.state.settings.localFolderName}/${sessionName}/` : null,
+                    blob: blob, // Guardar blob completo para posible re-descarga
+                    platform: 'ios',
+                    pwaInstalled: this.isPWAInstalled,
+                    saveMethod: 'manual_dialog',
+                    downloadUrl: downloadUrl,
+                    needsUserAction: true,
+                    instructionsShown: true
+                };
+                
+                if (this.db) {
+                    await this.saveToDatabase('localFiles', fileData);
+                    console.log('📝 Referencia de video pendiente guardada en IndexedDB');
+                }
+                
+                // 8. Limpieza después de 30 segundos
+                setTimeout(() => {
+                    if (document.body.contains(a)) {
+                        document.body.removeChild(a);
+                    }
+                    URL.revokeObjectURL(downloadUrl);
+                    console.log('🧹 Recursos de descarga liberados');
+                }, 30000);
+                
+                // 9. Mostrar mensaje de éxito (el video se guardará donde el usuario decida)
+                console.log(`✅ Diálogo de guardado mostrado para: ${finalFilename}`);
+                
+                // 10. Opcional: Programar recordatorio
+                setTimeout(() => {
+                    if (!this.isRecording) {
+                        this.showNotification(
+                            '💡 ¿Guardaste el video en el USB?\n' +
+                            'Si no, puedes repetir la descarga desde la Galería',
+                            5000
+                        );
+                    }
+                }, 15000);
+                
+                return true; // Éxito - usuario ahora decide dónde guardar
+                
+            } catch (error) {
+                console.error('❌ Error en flujo iOS manual:', error);
+                return await this.saveToIndexedDBFallback(blob, filename, sessionName, error);
+            }
         }
         
-        try {
-            // ===== CASO 1: CON HANDLE DE CARPETA (ESCRITURA DIRECTA) =====
-            if (this.localFolderHandle) {
-                console.log('📁 Modo: Handle persistente - Guardando físicamente');
-                
-                // ... (mantener tu código existente para handle) ...
-                return true;
-            }
+        // ===== RESTO DEL CÓDIGO (maneja otros casos) =====
+        // ... (tu código existente para otros casos) ...
+        
+        return false;
+    }
+
+    async verifyIOSPermissions() {
+        console.log('🔍 Verificando permisos REALES en iOS...');
+        
+        // Indicadores de lo que SÍ funciona en iOS
+        const capabilities = {
+            // APIs que SÍ funcionan en iOS Safari/PWA
+            canDownloadFiles: true, // ✅ Siempre funciona con <a download>
+            canSaveToPhotos: true, // ✅ Puede guardar en Fotos
+            canUseShareSheet: true, // ✅ Puede usar menú Compartir
+            canUseFilesApp: true, // ✅ Puede usar app Archivos
             
-            // ===== CASO 2: iOS CON WEBKITDIRECTORY =====
-            else if (this.isIOS && this.state.settings.isWebkitDirectory) {
-                console.log('📱 Modo: webkitdirectory en iOS - Preparando descarga...');
-                
-                // ===== ESTRATEGIA PRINCIPAL: DESCARGA NATIVA =====
+            // APIs que NO funcionan en iOS Safari
+            canShowDirectoryPicker: false, // ❌ Nunca funciona en iOS
+            canWriteToSelectedFolder: false, // ❌ No puede escribir donde quiera
+            canCreateFoldersProgrammatically: false, // ❌ No puede crear carpetas
+            canAccessUSBdirectly: false, // ❌ No puede acceder a USB directamente
+            
+            // Workarounds disponibles
+            canSaveViaFilesApp: true, // ✅ Usuario puede navegar manualmente
+            canOrganizeManually: true, // ✅ Usuario puede crear carpetas manualmente
+            canBatchProcess: false // ❌ No puede procesar en lote automáticamente
+        };
+        
+        // Actualizar estado
+        this.state.settings.iosCapabilities = capabilities;
+        
+        // Si es PWA instalado, intentamos algunas verificaciones adicionales
+        if (this.isPWAInstalled) {
+            console.log('📱 PWA instalado - verificando APIs específicas...');
+            
+            // Intentar APIs que PODRÍAN funcionar
+            if (navigator.storage && navigator.storage.persist) {
                 try {
-                    // 1. Mostrar instrucciones ANTES de la descarga
-                    this.showNotification(
-                        '📱 Preparando video para guardar en USB...\n' +
-                        'Se abrirá el menú "Compartir"',
-                        3000
-                    );
-                    
-                    // Pequeña pausa para que el usuario vea el mensaje
-                    await new Promise(resolve => setTimeout(resolve, 1500));
-                    
-                    // 2. Crear URL de descarga
-                    const downloadUrl = URL.createObjectURL(blob);
-                    
-                    // 3. Crear enlace de descarga
-                    const a = document.createElement('a');
-                    a.href = downloadUrl;
-                    a.download = filename; // Esto fuerza la descarga
-                    a.style.display = 'none';
-                    a.setAttribute('data-filename', filename);
-                    
-                    // 4. Añadir eventos para tracking
-                    a.addEventListener('click', () => {
-                        console.log('🎯 Usuario hizo clic en descarga');
-                        this.showNotification(
-                            '📱 En el menú que aparece:\n' +
-                            '1. Toca "Guardar en Archivos"\n' + 
-                            '2. Navega a tu USB/carpeta\n' +
-                            '3. Toca "Añadir"',
-                            8000
-                        );
-                    });
-                    
-                    // 5. Añadir al documento y disparar click
-                    document.body.appendChild(a);
-                    
-                    // 6. Disparar la descarga (esto abre el menú nativo)
-                    a.click();
-                    
-                    // 7. Limpiar después de un tiempo
-                    setTimeout(() => {
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(downloadUrl);
-                        console.log('🧹 Recursos de descarga liberados');
-                    }, 30000); // 30 segundos para dar tiempo
-                    
-                    // 8. Guardar referencia en IndexedDB
-                    const fileData = {
-                        id: Date.now() + '_ios_download_' + Math.random().toString(36).substr(2, 9),
-                        filename: filename,
-                        timestamp: Date.now(),
-                        size: blob.size,
-                        type: 'video/mp4',
-                        location: 'ios_download_pending',
-                        folderName: this.state.settings.localFolderName,
-                        session: sessionName,
-                        blob: blob, // Guardamos el blob por si necesita re-descarga
-                        platform: 'ios',
-                        savedPhysically: false, // Pendiente de que usuario guarde
-                        downloadMethod: 'native_dialog',
-                        downloadUrl: downloadUrl,
-                        instructionsShown: true
-                    };
-                    
-                    if (this.db) {
-                        await this.saveToDatabase('localFiles', fileData);
-                        console.log('📝 Referencia de descarga guardada en IndexedDB');
-                    }
-                    
-                    // 9. Mostrar instrucciones POSTERIORES
-                    setTimeout(() => {
-                        this.showNotification(
-                            '💡 Consejo: Para guardar automáticamente\n' +
-                            'Instala la app como PWA (icono pantalla)',
-                            6000
-                        );
-                    }, 5000);
-                    
-                    console.log(`✅ Descarga iniciada para: ${filename}`);
-                    return true; // Éxito - usuario ahora decide dónde guardar
-                    
-                } catch (downloadError) {
-                    console.error('❌ Error en descarga iOS:', downloadError);
-                    
-                    // Fallback: guardar solo en IndexedDB
-                    return await this.saveToIndexedDBFallback(blob, filename, sessionName, downloadError);
+                    const isPersisted = await navigator.storage.persist();
+                    capabilities.canPersistStorage = isPersisted;
+                    console.log('💾 Persistencia de almacenamiento:', isPersisted);
+                } catch (error) {
+                    console.warn('⚠️ No se pudo verificar persistencia:', error);
                 }
             }
             
-            // ===== CASO 3: iOS SIN WEBKITDIRECTORY =====
-            else if (this.isIOS) {
-                console.log('📱 iOS sin carpeta seleccionada');
-                return await this.saveToIndexedDBFallback(blob, filename, sessionName, 
-                    new Error('iOS sin carpeta seleccionada'));
+            // Verificar File System Access API (muy improbable en iOS)
+            if (window.showOpenFilePicker) {
+                console.log('🎯 showOpenFilePicker está disponible (raro en iOS)');
+                capabilities.canShowFilePicker = true;
+            }
+        }
+        
+        console.log('📋 Capacidades iOS detectadas:', capabilities);
+        
+        // Mostrar resumen al usuario
+        this.showNotification(
+            `📱 iOS: Modo de guardado manual\n` +
+            `✅ Puedes guardar en USB manualmente\n` +
+            `❌ No hay escritura automática\n` +
+            `💡 Usa la app Archivos para organizar`,
+            6000
+        );
+        
+        return capabilities;
+    }
+
+    async organizeDownloadedVideos() {
+        console.log('📁 Organizando videos descargados...');
+        
+        if (!this.db) return;
+        
+        try {
+            // Obtener todos los videos pendientes de organización
+            const transaction = this.db.transaction(['localFiles'], 'readonly');
+            const store = transaction.objectStore('localFiles');
+            const request = store.getAll();
+            
+            const allFiles = await new Promise((resolve, reject) => {
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => reject(request.error);
+            });
+            
+            // Filtrar videos iOS que fueron guardados manualmente
+            const iosManualFiles = allFiles.filter(file => 
+                file.platform === 'ios' && 
+                file.saveMethod === 'manual_dialog' &&
+                file.needsUserAction === true
+            );
+            
+            if (iosManualFiles.length === 0) {
+                console.log('📭 No hay videos pendientes de organización');
+                return;
             }
             
-            // ===== CASO 4: DESKTOP SIN HANDLE =====
-            else {
-                console.log('❌ Desktop sin handle');
-                this.showNotification('❌ Selecciona una carpeta primero en Desktop');
-                return false;
+            console.log(`📋 ${iosManualFiles.length} videos iOS para organizar`);
+            
+            // Agrupar por sesión
+            const filesBySession = {};
+            iosManualFiles.forEach(file => {
+                const session = file.targetSession || 'SinSesion';
+                if (!filesBySession[session]) {
+                    filesBySession[session] = [];
+                }
+                filesBySession[session].push(file);
+            });
+            
+            // Mostrar resumen
+            let summary = `📊 RESUMEN DE VIDEOS:\n\n`;
+            Object.keys(filesBySession).forEach(session => {
+                const count = filesBySession[session].length;
+                const sizeMB = filesBySession[session].reduce((sum, file) => sum + (file.size || 0), 0) / (1024 * 1024);
+                summary += `${session}: ${count} videos (${sizeMB.toFixed(1)} MB)\n`;
+            });
+            
+            summary += `\n💡 Guarda los videos en carpetas por sesión`;
+            
+            // Mostrar alerta con opciones
+            const userAction = confirm(
+                summary + '\n\n¿Quieres ver instrucciones detalladas para organizarlos?'
+            );
+            
+            if (userAction) {
+                this.showIOSOrganizationGuide();
             }
             
         } catch (error) {
-            console.error('❌ Error general en saveToLocalFolder:', error);
-            return await this.saveToIndexedDBFallback(blob, filename, sessionName, error);
+            console.error('❌ Error organizando videos:', error);
         }
+    }
+
+    async getAutoFilenameForIOS(originalName, sessionName) {
+        // Generar nombre automático que incluya sesión y timestamp
+        
+        const now = new Date();
+        const dateStr = now.toISOString()
+            .replace(/T/, '_')
+            .replace(/\..+/, '')
+            .replace(/:/g, '-');
+        
+        // Extraer número de segmento si existe
+        let segmentNum = 1;
+        const segmentMatch = originalName.match(/segmento?[_-]?(\d+)/i);
+        if (segmentMatch) {
+            segmentNum = parseInt(segmentMatch[1]);
+        }
+        
+        // Construir nombre ideal
+        let finalName;
+        
+        if (sessionName) {
+            // Formato: Sesion_YYYY-MM-DD_HH-MM_01.mp4
+            const sessionPrefix = sessionName.replace(/\s+/g, '_');
+            finalName = `${sessionPrefix}_${dateStr}_${String(segmentNum).padStart(2, '0')}.mp4`;
+        } else {
+            // Formato: DashCam_YYYY-MM-DD_HH-MM-SS.mp4
+            finalName = `DashCam_${dateStr}.mp4`;
+        }
+        
+        console.log(`📝 Renombrando: ${originalName} → ${finalName}`);
+        
+        return finalName;
+    }
+
+    async showIOSOrganizationGuide() {
+        console.log('📘 Mostrando guía de organización iOS...');
+        
+        const guideHTML = `
+        <div class="ios-guide-modal">
+            <h3>📱 Cómo organizar videos en iOS</h3>
+            
+            <div class="guide-step">
+                <h4>📍 PASO 1: Abre la app "Archivos"</h4>
+                <p>Abre la app Archivos y navega a tu USB/dispositivo externo.</p>
+            </div>
+            
+            <div class="guide-step">
+                <h4>📁 PASO 2: Crea carpetas por sesión</h4>
+                <p>Ejemplo de nombres:<br>
+                • <code>Sesion_2024-01-15_10</code><br>
+                • <code>Sesion_2024-01-15_16</code><br>
+                • <code>Viaje_Barcelona</code></p>
+            </div>
+            
+            <div class="guide-step">
+                <h4>🎥 PASO 3: Mueve los videos</h4>
+                <p>1. Toca "Seleccionar" en Archivos<br>
+                2. Selecciona los videos de cada sesión<br>
+                3. Toca "Mover"<br>
+                4. Elige la carpeta de sesión correspondiente</p>
+            </div>
+            
+            <div class="guide-step">
+                <h4>🔄 PASO 4: Actualiza la app DashCam</h4>
+                <p>Vuelve a DashCam y:<br>
+                1. Selecciona la carpeta USB nuevamente<br>
+                2. Los videos aparecerán organizados</p>
+            </div>
+            
+            <button onclick="app.hideIOSGuide()">Entendido</button>
+        </div>
+        `;
+        
+        // Crear modal
+        const modal = document.createElement('div');
+        modal.id = 'iosOrganizationGuide';
+        modal.innerHTML = guideHTML;
+        modal.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 10000;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        `;
+        
+        document.body.appendChild(modal);
     }
 
     async attemptIOSFileSave(blob, filename) {

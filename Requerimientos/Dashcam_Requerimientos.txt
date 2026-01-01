@@ -41,9 +41,10 @@ eliminamos concatenar-> combineVideosModal
 4.6 Mejorar listado de videos en el Iphone
 4.6.1 mejorar responsible
 4.7 no se graba en el iphone el logo
+4.8 CArpeta Local en Ipone -  No se puede hacer de forma automatica es manual
 ----
 
-4.8 CArpeta Local en Ipone
+4.9 Los nombres de los videos han de ser RBB_YYYYMMDD_S[# sesion].mp
 ---
 
 

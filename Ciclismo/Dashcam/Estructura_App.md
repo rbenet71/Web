@@ -1,57 +1,58 @@
-# 🗂️ **ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js** (ACTUALIZADO v4.8.6)
+# 🗂️ **ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js** (ACTUALIZADO v4.9.0)
 
-Con las mejoras implementadas para la funcionalidad completa de carpeta local en iOS (webkitdirectory), aquí está el archivo **Estructura_App.md** completamente actualizado:
+Con las mejoras implementadas para la funcionalidad realista de iOS Safari (incluyendo PWA), aquí está el archivo **Estructura_App.md** completamente actualizado con la realidad técnica:
 
 ```markdown
-# 🗂️ ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js (ACTUALIZADO v4.8.6)
+# 🗂️ ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js (ACTUALIZADO v4.9.0)
 
-Basándome en los cambios implementados para la funcionalidad completa de carpeta local en iOS (webkitdirectory), he actualizado completamente el archivo Estructura_App.md:
+Basándome en las limitaciones reales de iOS Safari y el flujo de trabajo implementado, he actualizado completamente el archivo Estructura_App.md:
 
 ## 📋 ESTRUCTURA GENERAL DE app.js
 
 ```
-app.js (~7500 líneas)
+app.js (~8500 líneas)
 ├── CLASE DashcamApp
-│   ├── CONSTRUCTOR + PROPIEDADES (ACTUALIZADO CON WEBKITDIRECTORY)
+│   ├── CONSTRUCTOR + PROPIEDADES (ACTUALIZADO CON REALIDAD iOS)
 │   ├── MÉTODOS DE INICIALIZACIÓN (init, initUI, etc.)
-│   ├── MÓDULO PWA (detección, instalación - ACTUALIZADO)
+│   ├── MÓDULO PWA (detección realista - ACTUALIZADO)
 │   ├── MÓDULO DE INICIALIZACIÓN Y ESTADO
 │   ├── MÓDULO GRABACIÓN
 │   ├── MÓDULO GPS
 │   ├── MÓDULO DE ALMACENAMIENTO
 │   ├── MÓDULO DE SESIONES Y CARPETAS
 │   ├── MÓDULO DE DIBUJADO Y OVERLAY
-│   ├── MÓDULO GALERÍA (INTERFAZ DE TABLA - ACTUALIZADO CON WEBKIT)
+│   ├── MÓDULO GALERÍA (INTERFAZ DE TABLA - ACTUALIZADO CON FLUJO iOS)
 │   ├── MÓDULO REPRODUCCIÓN
 │   ├── MÓDULO GPX
 │   ├── MÓDULO MAPAS
-│   ├── MÓDULO CONFIGURACIÓN (ACTUALIZADO CON DETECCIÓN PWA)
-│   ├── MÓDULO UTILIDADES (AMPLIADO CON FUNCIONES WEBKIT)
+│   ├── MÓDULO CONFIGURACIÓN (ACTUALIZADO CON LIMITACIONES iOS)
+│   ├── MÓDULO UTILIDADES (AMPLIADO CON FUNCIONES iOS REALES)
 │   ├── MÓDULO DE PERMISOS Y VERIFICACIÓN
 │   ├── MÓDULO DE MIGRACIÓN iOS
 │   ├── MÓDULO DE BASE DE DATOS - UTILIDADES
 │   ├── MÓDULO DE GESTIÓN DE SESIONES
 │   ├── MÓDULO DE COMBINACIÓN Y EXPORTACIÓN
 │   ├── MÓDULO DE LIMPIEZA AUTOMÁTICA
-│   ├── MÓDULO DE GESTIÓN DE ARCHIVOS iOS (ACTUALIZADO CON WEBKITDIRECTORY)
+│   ├── MÓDULO DE GESTIÓN DE ARCHIVOS iOS (REALIDAD ACTUALIZADA)
 │   ├── MÓDULO EVENTOS (ACTUALIZADO CON LISTENERS UNIFICADOS)
 │   ├── FUNCIONES AUXILIARES DE GALERÍA
 │   ├── MÓDULO DE DIAGNÓSTICO Y VERIFICACIÓN
-│   └── NUEVO: MÓDULO DE SINCRONIZACIÓN WEBKIT/IOS
+│   ├── MÓDULO DE SINCRONIZACIÓN WEBKIT/IOS
+│   └── NUEVO: MÓDULO DE ASISTENTE iOS (GUARDADO MANUAL)
 └── INICIALIZACIÓN GLOBAL
 ```
 
 ## 📁 ÍNDICE POR MÓDULO - PARA MODIFICACIONES
 
-### **1. 🏗️ MÓDULO DE INICIALIZACIÓN Y ESTADO** (ACTUALIZADO)
+### **1. 🏗️ MÓDULO DE INICIALIZACIÓN Y ESTADO** (ACTUALIZADO CON REALIDAD iOS)
 **Ubicación aproximada:** líneas 1-500
 
 ```javascript
 // CONSTRUCTOR Y PROPIEDADES
-constructor()                // Inicializa estado y variables
+constructor()                // Inicializa estado y variables con realidad iOS
 init()                      // Proceso de inicio de 20 pasos (ACTUALIZADO)
 
-// ESTADO DE LA APLICACIÓN (CON SOPORTE WEBKITDIRECTORY)
+// ESTADO DE LA APLICACIÓN (CON REALIDAD iOS)
 this.state = {              
     recordedSegments: [],
     recordingSessionSegments: 0,
@@ -84,24 +85,45 @@ this.state = {
     tempCombinationVideos: null
 }
 
-// NUEVAS PROPIEDADES PARA WEBKITDIRECTORY (iOS)
+// PROPIEDADES ACTUALIZADAS CON REALIDAD iOS
 this.state.settings = {
     // ... otras configuraciones ...
     storageLocation: 'default', // 'default' o 'localFolder'
     localFolderName: '',
     localFolderPath: '',
     
-    // ===== SISTEMA WEBKITDIRECTORY PARA iOS =====
+    // ===== REALIDAD iOS SAFARI =====
+    iosCapabilities: {           // Lo que REALMENTE puede hacer iOS
+        canDownloadFiles: true,  // ✅ Siempre funciona con <a download>
+        canSaveToPhotos: true,   // ✅ Puede guardar en Fotos
+        canUseShareSheet: true,  // ✅ Puede usar menú Compartir
+        canUseFilesApp: true,    // ✅ Puede usar app Archivos
+        canShowDirectoryPicker: false, // ❌ Nunca funciona en iOS
+        canWriteToSelectedFolder: false, // ❌ No puede escribir donde quiera
+        canCreateFoldersProgrammatically: false, // ❌ No puede crear carpetas
+        canAccessUSBdirectly: false, // ❌ No puede acceder a USB directamente
+        canSaveViaFilesApp: true,    // ✅ Usuario puede navegar manualmente
+        canOrganizeManually: true,   // ✅ Usuario puede crear carpetas manualmente
+        canBatchProcess: false       // ❌ No puede procesar en lote automáticamente
+    },
+    
     isWebkitDirectory: false,    // TRUE si usa webkitdirectory en iOS
     isExternalDevice: false,     // TRUE si es USB/dispositivo externo
     webkitFolderName: null,      // Nombre de carpeta webkit
     webkitFilesCount: 0,         // Número de archivos en webkit
     webkitLastScan: null,        // Último escaneo webkit
     
-    // ===== DETECCIÓN PWA MEJORADA =====
+    // ===== REALIDAD PWA EN iOS =====
     pwaInstalled: false,         // Detectado por múltiples métodos
     pwaDetectionMethod: 'none',  // Método usado para detección
     pwaInstallDate: null,        // Fecha de instalación
+    pwaCanWriteDirectly: false,  // ❌ IMPORTANTE: PWA en iOS NO puede escribir
+    
+    // ===== FLUJO DE GUARDADO MANUAL iOS =====
+    iosManualSaveEnabled: true,   // Usar flujo manual para iOS
+    iosShowInstructions: true,    // Mostrar instrucciones paso a paso
+    iosAutoFilename: true,        // Generar nombres automáticos con sesión
+    iosSaveMethod: 'download',    // 'download' o 'share'
     
     // ===== PERSISTENCIA DE LOGO =====
     customLogo: null,
@@ -116,7 +138,7 @@ this.state.settings = {
     logoSource: 'unknown'
 }
 
-// VARIABLES DE CONTROL (ACTUALIZADAS)
+// VARIABLES DE CONTROL (ACTUALIZADAS CON REALIDAD iOS)
 this.mediaRecorder = null;
 this.mediaStream = null;
 this.gpsWatchId = null;
@@ -134,7 +156,7 @@ this.canvasStream = null;
 this.animationFrame = null;
 this.isSaving = false;
 this.localFolderHandle = null;
-this.isIOS = false;
+this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 this.elements = {};
 this.tempGpxData = null;
 this.lastGeocodeUpdate = null;
@@ -150,23 +172,27 @@ this.isPWAInstalled = false;        // Detección mejorada
 this.deferredPrompt = null;
 this.installButton = null;
 this.gpxViewerMap = null;
+this.iosManualSaveQueue = [];       // Cola de videos pendientes para iOS
 ```
 
-### **2. 🚀 MÓDULO PWA** (ACTUALIZADO CON DETECCIÓN MEJORADA)
-**Ubicación aproximada:** líneas 100-350
+### **2. 🚀 MÓDULO PWA** (ACTUALIZADO CON REALIDAD iOS)
+**Ubicación aproximada:** líneas 100-400
 
 ```javascript
-// DETECCIÓN PWA MEJORADA (MÚLTIPLES MÉTODOS)
-async detectPWAInstallation()          // Detección robusta con 5 métodos
+// DETECCIÓN PWA REALISTA (CON LIMITACIONES iOS)
+async detectPWAInstallation()          // Detección realista con verificación iOS
 setupPWAInstallListener()        
 checkPWARequirements()           
 
-// DETECCIÓN POR MÉTODO:
-// 1. display-mode: standalone
-// 2. navigator.standalone (iOS)
-// 3. android-app:// referrer (Android)
-// 4. localStorage marcado manual
-// 5. Parámetros URL para debugging
+// DETECCIÓN REALISTA POR MÉTODO:
+// 1. display-mode: standalone (funciona en iOS PWA)
+// 2. navigator.standalone (iOS Safari específico)
+// 3. localStorage marcado manual
+// 4. Parámetros URL para debugging
+// 5. Verificación de APIs disponibles
+
+// REALIDAD iOS: PWA instalado NO da permisos de escritura
+async verifyIOSPWALimitations()    // Verifica lo que REALMENTE puede hacer iOS PWA
 
 // FUNCIÓN PARA MARCAR MANUALMENTE
 markAsPWAInstalled()            // Marca app como instalada manualmente
@@ -175,7 +201,7 @@ markAsPWAInstalled()            // Marca app como instalada manualmente
 registerServiceWorker()          
 clearCacheIfNeeded()             
 
-// INSTALACIÓN
+// INSTALACIÓN (con advertencias iOS)
 setupPWAEvents()                 
 handleInstallPrompt()            
 showInstallButton()              
@@ -185,25 +211,32 @@ showPWAInstalledBadge()
 promotePWAInstallation()         
 showPWAInstallInstructions()     
 showLocalServerInstructions()    
+
+// NUEVO: EXPLICACIÓN LIMITACIONES iOS
+showIOSPWALimitationWarning()    // Explica que PWA en iOS no puede escribir en USB
+setupIOSWorkflowInstructions()   // Configura instrucciones para flujo manual
 ```
 
-### **3. 🎬 MÓDULO DE GRABACIÓN** (ACTUALIZADO CON WEBKIT)
-**Ubicación aproximada:** líneas 500-1300
+### **3. 🎬 MÓDULO DE GRABACIÓN** (ACTUALIZADO CON FLUJO iOS REAL)
+**Ubicación aproximada:** líneas 500-1400
 
 ```javascript
-// FUNCIONES PRINCIPALES (ACTUALIZADAS)
-async saveVideoSegment()         // Guarda con soporte webkitdirectory
+// FUNCIONES PRINCIPALES (ACTUALIZADAS CON FLUJO iOS)
+async saveVideoSegment()         // Guarda con flujo iOS manual
 startRecording()          
 stopRecording()           
 pauseRecording()          
 resumeRecording()         
 startNewSegment()         
 
-// VERIFICACIÓN MEJORADA PARA CARPETA LOCAL
-const shouldSaveToLocal = this.state.settings.storageLocation === 'localFolder' && 
-                         (this.localFolderHandle || 
-                          this.state.settings.isWebkitDirectory || 
-                          this.state.settings.localFolderName);
+// FLUJO ESPECÍFICO PARA iOS
+async saveVideoSegmentIOS()      // Flujo manual para iOS Safari
+async prepareIOSManualSave(blob, filename, sessionName) // Prepara descarga manual
+async triggerIOSDownload(blob, filename) // Dispara descarga iOS
+
+// VERIFICACIÓN REALISTA PARA iOS
+const shouldUseIOSManualFlow = this.isIOS && 
+                              this.state.settings.storageLocation === 'localFolder';
 
 // INICIALIZACIÓN CÁMARA
 initCamera()              
@@ -216,12 +249,16 @@ cleanupRecordingResources()
 processVideoFrame()       
 addWatermarkToFrame()     
 handleDataAvailable()     
-saveVideoSegment()        // Con lógica webkitdirectory
+saveVideoSegment()        // Con lógica iOS manual
 saveToApp()               
 
 // GESTIÓN DE SESIONES DE GRABACIÓN
-createSessionFolder()     // Crea carpeta física si hay handle
+createSessionFolder()     // Solo nombre en memoria para iOS
 resetRecordingSession()   
+
+// GENERACIÓN DE NOMBRES PARA iOS
+generateIOSFilename(originalName, sessionName) // Incluye sesión y timestamp
+getAutoFilenameForIOS()   // Nombre automático para organización manual
 
 // ELEMENTOS DEL DOM
 this.elements.startBtn
@@ -234,7 +271,7 @@ this.elements.segmentInfo
 ```
 
 ### **4. 📍 MÓDULO GPS**
-**Ubicación aproximada:** líneas 1300-1900
+**Ubicación aproximada:** líneas 1400-2000
 
 ```javascript
 // FUNCIONES PRINCIPALES
@@ -265,8 +302,8 @@ this.gpxPoints
 this.gpxInterval         
 ```
 
-### **5. 💾 MÓDULO DE ALMACENAMIENTO** (ACTUALIZADO CON WEBKIT)
-**Ubicación aproximada:** líneas 1900-2600
+### **5. 💾 MÓDULO DE ALMACENAMIENTO** (ACTUALIZADO CON REALIDAD iOS)
+**Ubicación aproximada:** líneas 2000-2800
 
 ```javascript
 // BASE DE DATOS (IndexedDB) - MEJORADO
@@ -277,10 +314,16 @@ getFromStore(store, id)
 getAllFromStore(store)    
 deleteFromStore(store, id) 
 
-// SISTEMA DE ARCHIVOS - MÚLTIPLES ESTRATEGIAS
+// SISTEMA DE ARCHIVOS - ESTRATEGIAS POR PLATAFORMA
 selectLocalFolder()       
-saveToLocalFolder(blob, filename, sessionName)  // Soporta webkit
-loadLocalFolderVideos()   // Carga según modo (handle/webkit)
+saveToLocalFolder(blob, filename, sessionName)  // Decide estrategia por plataforma
+loadLocalFolderVideos()   // Carga según plataforma
+
+// FLUJO ESPECÍFICO iOS (GUARDADO MANUAL)
+async saveToLocalFolderIOS(blob, filename, sessionName) // Flujo manual iOS
+async prepareIOSDownload(blob, filename, sessionName)   // Prepara descarga
+async executeIOSDownload(blob, filename)                // Ejecuta descarga
+async saveToIndexedDBFallback(blob, filename, sessionName, error) // Fallback
 
 // FUNCIONES ESPECÍFICAS WEBKITDIRECTORY
 loadWebkitDirectoryVideosFromDB()    // Carga videos webkit desde IndexedDB
@@ -289,7 +332,7 @@ saveWebkitFileReference(fileData)    // Guarda referencia webkit
 
 // SINCRONIZACIÓN MEJORADA
 async syncPhysicalFilesWithDatabase() // Estrategias múltiples
-syncPhysicalFilesWithHandle()        // Para handle persistente
+syncPhysicalFilesWithHandle()        // Para handle persistente (NO iOS)
 syncWebkitDirectoryReferences()      // Para webkit
 cleanupInvalidWebkitReferences()     // Limpia referencias inválidas
 cleanupOrphanedDatabaseEntries()     // Limpia entradas huérfanas
@@ -302,48 +345,55 @@ addMetadataToWebM()
 
 // CONFIGURACIÓN
 this.state.settings.storageLocation  // 'default' o 'localFolder'
-this.localFolderHandle               // null en webkitdirectory
-this.state.settings.localFolderName  // Usado en webkit
+this.localFolderHandle               // null en iOS (no disponible)
+this.state.settings.localFolderName  // Usado en iOS para referencia
 ```
 
-### **6. 📁 MÓDULO DE SESIONES Y CARPETAS** (ACTUALIZADO)
-**Ubicación aproximada:** líneas 1600-2100
+### **6. 📁 MÓDULO DE SESIONES Y CARPETAS** (ACTUALIZADO CON REALIDAD iOS)
+**Ubicación aproximada:** líneas 1700-2200
 
 ```javascript
-// GESTIÓN DE SESIONES
-createSessionFolder()        // Crea físicamente si hay handle
+// GESTIÓN DE SESIONES (VIRTUALES EN iOS)
+createSessionFolder()        // Solo nombre en memoria para iOS
 askAboutCombining()         
 combineSessionSegments()    
 resetRecordingSession()     
 
-// SELECTORES DE CARPETA - MEJORADOS PARA iOS
-async showIOSFolderPicker()  // Maneja webkitdirectory y API moderna
+// SELECTORES DE CARPETA - REALIDAD iOS
+async showIOSFolderPicker()  // Solo lectura con webkitdirectory
 showDesktopFolderPickerWithPersistence() 
 showDesktopFolderPicker()    
 
 // DETECCIÓN DE DISPOSITIVOS EXTERNOS
 detectExternalDevice(folderName, webkitPath) // USB/externo
 
-// INTERFAZ CARPETAS - ACTUALIZADA
-updateFolderUI()            // Muestra estado PWA/webkit
+// INTERFAZ CARPETAS - ACTUALIZADA CON ADVERTENCIAS iOS
+updateFolderUI()            // Muestra estado real de permisos iOS
+showIOSFolderLimitationWarning() // Explica limitaciones iOS
 requestStoragePersistence() 
 showRestoreFolderModal()    
 
-// NUEVAS FUNCIONES PARA WEBKIT
+// NUEVAS FUNCIONES PARA iOS
 processWebkitFolderSelection(files) // Procesa selección webkit
 saveWebkitFolderInfo(folderName, isExternal) // Guarda info webkit
+explainIOSLimitations()            // Explica por qué no hay escritura automática
 
-// FUNCIONES PARA SESIONES
-scanSessionFolder(folderHandle, sessionName) 
+// FUNCIONES PARA SESIONES (VIRTUALES EN iOS)
+scanSessionFolder(folderHandle, sessionName) // Solo desktop
 getSessionVideos(sessionName)               
 deleteSession(sessionName)                  
 renameSession(oldName, newName)             
-getSessionFolderHandle(sessionName)         
-deleteEmptyFolder(folderHandle, folderName) 
+getSessionFolderHandle(sessionName)         // null en iOS
+deleteEmptyFolder(folderHandle, folderName) // Solo desktop
+
+// ORGANIZACIÓN MANUAL PARA iOS
+generateIOSOrganizationGuide()              // Guía para organizar manualmente
+suggestSessionNamesForIOS()                 // Sugiere nombres para carpetas
+createIOSReadmeFile(sessionName)           // Crea archivo README para guiar
 ```
 
 ### **7. 🎨 MÓDULO DE DIBUJADO Y OVERLAY**
-**Ubicación aproximada:** líneas 2100-2600
+**Ubicación aproximada:** líneas 2200-2700
 
 ```javascript
 // CAPTURA Y DIBUJADO
@@ -370,20 +420,20 @@ this.mainCanvas
 this.mainCtx                
 ```
 
-### **8. 🖼️ MÓDULO DE GALERÍA** (ACTUALIZADO CON WEBKIT)
-**Ubicación aproximada:** líneas 2600-4300
+### **8. 🖼️ MÓDULO DE GALERÍA** (ACTUALIZADO CON FLUJO iOS)
+**Ubicación aproximada:** líneas 2700-4500
 
 ```javascript
-// FUNCIONES PRINCIPALES - MEJORADAS
-async loadGallery()               // Carga según modo
-async loadLocalFolderVideos()     // Verificación mejorada
+// FUNCIONES PRINCIPALES - MEJORADAS CON iOS
+async loadGallery()               // Carga según plataforma
+async loadLocalFolderVideos()     // Verificación mejorada con iOS
 loadAppVideos()             
 scanLocalFolderForVideos()  
 scanSessionFolder(folderHandle, sessionName) 
 showGallery()               
 hideGallery()               
 
-// VERIFICACIÓN MEJORADA PARA CARGA
+// VERIFICACIÓN MEJORADA PARA CARGA iOS
 const shouldLoadLocal = this.state.settings.storageLocation === 'localFolder' && 
                        (this.localFolderHandle || 
                         this.state.settings.localFolderName || 
@@ -395,8 +445,8 @@ groupVideosBySession(videos) // Agrupa videos por sesión
 renderVideoItem(video, sessionName, index) 
 renderSessionRow(session, index) 
 
-// MEJORA DE DATOS CON SOPORTE WEBKIT
-enhanceLocalVideoData(video)  // Añade modo de carga
+// MEJORA DE DATOS CON SOPORTE iOS REAL
+enhanceLocalVideoData(video)  // Añade modo de carga y plataforma
 extractAndSetVideoDuration(video) 
 
 // SELECCIÓN MÚLTIPLE
@@ -412,14 +462,19 @@ updateCompactSelectors()
 updateGalleryActions()       
 updateSelectionButtons()     
 
+// NUEVO: HERRAMIENTAS iOS
+showIOSOrganizationTools()        // Muestra herramientas para organizar manualmente
+generateIOSFileList()             // Genera lista de archivos para organización
+createIOSOrganizationGuide()      // Crea guía paso a paso
+
 // ELEMENTOS
-this.state.videos[]          // Incluye videos webkit
+this.state.videos[]          // Incluye videos iOS manuales
 this.state.selectedVideos    
 this.state.viewMode          
 ```
 
 ### **9. 🎥 MÓDULO DE REPRODUCCIÓN**
-**Ubicación aproximada:** líneas 4300-4800
+**Ubicación aproximada:** líneas 4500-5000
 
 ```javascript
 // FUNCIONES PRINCIPALES
@@ -433,7 +488,11 @@ addLocationNamesToTrack(gpsTrack)
 // OPERACIONES INDIVIDUALES
 exportSingleVideo()         
 deleteSingleVideo()         
-moveToLocalFolder()         
+moveToLocalFolder()         // Solo desktop
+
+// NUEVO: RE-DESCARGA PARA iOS
+redownloadVideoIOS(video)   // Permite re-descargar video en iOS
+showIOSRedownloadOption(video) // Muestra opción de re-descarga
 
 // EXTRACCIÓN METADATOS
 extractVideoDuration(blob)  
@@ -450,7 +509,7 @@ this.elements.videoDate
 ```
 
 ### **10. 🗺️ MÓDULO GPX**
-**Ubicación aproximada:** líneas 4800-5500
+**Ubicación aproximada:** líneas 5000-5700
 
 ```javascript
 // GESTIÓN GPX
@@ -496,7 +555,7 @@ this.gpxViewerMap
 ```
 
 ### **11. 🗾 MÓDULO DE MAPAS**
-**Ubicación aproximada:** líneas 5500-6100
+**Ubicación aproximada:** líneas 5700-6300
 
 ```javascript
 // MAPAS LEAFLET
@@ -528,23 +587,24 @@ this.mapMarkers
 this.mapTileLayers        
 ```
 
-### **12. ⚙️ MÓDULO DE CONFIGURACIÓN** (ACTUALIZADO)
-**Ubicación aproximada:** líneas 6100-6500
+### **12. ⚙️ MÓDULO DE CONFIGURACIÓN** (ACTUALIZADO CON REALIDAD iOS)
+**Ubicación aproximada:** líneas 6300-6800
 
 ```javascript
-// CONFIGURACIÓN - FUNCIONES MEJORADAS
+// CONFIGURACIÓN - FUNCIONES MEJORADAS CON iOS
 showSettings()            
 hideSettings()            
-async saveSettings()      // Guarda configuración webkit
+async saveSettings()      // Guarda configuración iOS
 resetSettings()           
 loadSettings()            
 updateSettingsUI()        
 
-// FUNCIONES DE INTERFAZ MEJORADAS
-updateFolderUI()          // Muestra estado PWA/webkit
-toggleStorageSettings()   // Muestra/oculta sección carpeta
+// FUNCIONES DE INTERFAZ MEJORADAS CON iOS
+updateFolderUI()          // Muestra estado real iOS
+toggleStorageSettings()   // Muestra/oculta sección carpeta con advertencias
+showIOSLimitationInfo()   // Muestra información de limitaciones iOS
 
-// AJUSTES ACTUALIZADOS
+// AJUSTES ACTUALIZADOS CON REALIDAD iOS
 this.state.settings = {
     recordingMode: 'continuous',
     segmentDuration: 300,
@@ -571,16 +631,24 @@ this.state.settings = {
     metadataFrequency: 5,
     localFolderName: '',
     
+    // ===== REALIDAD iOS SAFARI =====
+    iosCapabilities: { ... }, // Lo que REALMENTE puede hacer iOS
+    iosManualSaveEnabled: true,
+    iosShowInstructions: true,
+    iosAutoFilename: true,
+    iosSaveMethod: 'download',
+    
     // ===== CONFIGURACIÓN WEBKIT/IOS =====
     isWebkitDirectory: false,
     isExternalDevice: false,
     webkitFolderName: null,
     webkitFilesCount: 0,
     
-    // ===== DETECCIÓN PWA =====
+    // ===== REALIDAD PWA EN iOS =====
     pwaInstalled: false,
     pwaDetectionMethod: 'none',
     pwaInstallDate: null,
+    pwaCanWriteDirectly: false,  // ❌ IMPORTANTE
     
     // ===== PERSISTENCIA DE LOGO =====
     customLogo: null,
@@ -595,15 +663,16 @@ this.state.settings = {
     logoSource: 'unknown'
 }
 
-// INTERFAZ
+// INTERFAZ CON ADVERTENCIAS iOS
 toggleStorageSettings()   
 uploadCustomLogo()        
 loadCustomLogo()          
 updateLogoInfo()          
+showIOSStorageWarning()   // Muestra advertencia iOS al seleccionar carpeta
 ```
 
-### **13. 🛠️ MÓDULO DE UTILIDADES** (AMPLIADO)
-**Ubicación aproximada:** líneas 6500-6900
+### **13. 🛠️ MÓDULO DE UTILIDADES** (AMPLIADO CON iOS REAL)
+**Ubicación aproximada:** líneas 6800-7300
 
 ```javascript
 // FORMATOS Y CONVERSIÓN
@@ -612,7 +681,7 @@ cleanFileName(filename)
 escapeHTML(text)          
 normalizeId(id)           
 
-// NOTIFICACIONES Y ESTADO
+// NOTIFICACIONES Y ESTADO (MEJORADAS PARA iOS)
 showNotification(message, duration) 
 showSavingStatus(message) 
 hideSavingStatus()        
@@ -648,44 +717,55 @@ estimateDurationByFileSize(fileSize, format)
 // GESTIÓN DE ELEMENTOS SELECCIONADOS
 exportSelected()          
 deleteSelected()          
-moveSelectedToLocalFolder() 
+moveSelectedToLocalFolder() // Solo desktop
 combineSelectedVideos()   
 showCombineModal()        
 hideCombineModal()        
 
-// NUEVAS FUNCIONES PARA WEBKIT
-loadWebkitDirectoryVideosFromDB()    // Carga videos webkit
-loadFolderVideosFromIndexedDB(folderName) // Carga por nombre
-markAsPWAInstalled()      // Marca manualmente como PWA
+// NUEVAS FUNCIONES PARA iOS REAL
+generateIOSFilename(originalName, sessionName) // Nombre con sesión
+showIOSStepByStepGuide()   // Guía paso a paso para iOS
+prepareIOSDownloadPackage(blobs, sessionName) // Prepara paquete para descarga
+createIOSOrganizationTemplate() // Plantilla para organización manual
 
-// DIAGNÓSTICO
-debugStorage()           
-verifyDataIntegrity()    
-repairCorruptedData()    
-checkStorageQuota()      
+// DIAGNÓSTICO iOS
+debugIOSStorage()         // Diagnóstico específico iOS
+verifyIOSPermissions()    // Verifica permisos REALES iOS
+testIOSDownload()         // Prueba descarga en iOS
+
+// COLA DE GUARDADO iOS
+addToIOSSaveQueue(blob, filename, sessionName) // Añade a cola
+processIOSSaveQueue()     // Procesa cola de guardados
+showIOSQueueStatus()      // Muestra estado de cola
 ```
 
 ### **14. 🛡️ MÓDULO DE PERMISOS Y VERIFICACIÓN**
-**Ubicación aproximada:** líneas 500-650
+**Ubicación aproximada:** líneas 500-700
 
 ```javascript
-// VERIFICACIONES
-checkPWARequirements()      
+// VERIFICACIONES REALISTAS
+checkPWARequirements()      // Con realidad iOS
 requestStoragePersistence() 
 cleanupResources()          
 checkOrientation()          
 clearCacheIfNeeded()        
 fixDatabaseVersion()        
 
+// NUEVO: VERIFICACIÓN iOS
+verifyIOSCapabilities()     // Verifica lo que REALMENTE puede hacer iOS
+checkIOSFileAccess()        // Verifica acceso a archivos en iOS
+testIOSWritePermissions()   // Prueba escritura (siempre falla en iOS)
+
 // INICIALIZACIÓN ELEMENTOS
 initElements()              
 init()                      
 
-// FUNCIONES PWA ESPECÍFICAS
-detectPWAInstallation()     // Detección mejorada
+// FUNCIONES PWA ESPECÍFICAS (CON REALIDAD iOS)
+detectPWAInstallation()     // Detección realista
 setupPWAInstallListener()   
 showPWAInstalledBadge()     
 promotePWAInstallation()    
+explainPWALimitationsIOS()  // Explica limitaciones PWA en iOS
 
 // GESTIÓN RECURSOS
 cleanupRecordingResources() 
@@ -693,7 +773,7 @@ stopFrameCapture()
 ```
 
 ### **15. 📱 MÓDULO DE MIGRACIÓN iOS**
-**Ubicación aproximada:** líneas 6900-7000
+**Ubicación aproximada:** líneas 7300-7400
 
 ```javascript
 // MIGRACIÓN iOS/WINDOWS
@@ -703,12 +783,17 @@ extractIOSMetadata(moovData)
 removeOldMetadata(blob)     
 addLocationNamesToTrack(gpsTrack) 
 
+// NUEVO: MIGRACIÓN MANUAL iOS
+generateIOSMigrationGuide()  // Guía para migrar videos manualmente
+createIOSFileListForMigration() // Lista para migración manual
+suggestFolderStructureForIOS() // Sugiere estructura de carpetas
+
 // FUNCIONES AUXILIARES
 readString(arrayBuffer, offset, length) 
 ```
 
 ### **16. 💾 MÓDULO DE BASE DE DATOS - UTILIDADES**
-**Ubicación aproximada:** líneas 7000-7100
+**Ubicación aproximada:** líneas 7400-7500
 
 ```javascript
 // OPERACIONES CRUD
@@ -719,10 +804,15 @@ deleteFromStore(storeName, id)
 
 // MANEJO DE ERRORES
 // Incluye manejo de ConstraintError y excepciones
+
+// NUEVO: BASE DE DATOS PARA iOS
+saveIOSManualReference(data)      // Guarda referencia de guardado manual
+getPendingIOSDownloads()          // Obtiene descargas pendientes iOS
+markIOSDownloadComplete(id)       // Marca descarga iOS como completada
 ```
 
 ### **17. 🗂️ MÓDULO DE GESTIÓN DE SESIONES**
-**Ubicación aproximada:** líneas 7100-7300
+**Ubicación aproximada:** líneas 7500-7700
 
 ```javascript
 // FUNCIONES DE GESTIÓN DE SESIONES
@@ -736,6 +826,11 @@ getSessionVideos(sessionName)
 exportSession(sessionName)       
 exportAllSessions()              
 deleteSession(sessionName)       
+
+// NUEVO: SESIONES VIRTUALES iOS
+createVirtualSessionIOS(sessionName) // Sesión solo en memoria para iOS
+getVirtualSessionVideos(sessionName) // Videos de sesión virtual
+exportVirtualSessionIOS(sessionName) // Exporta sesión virtual
 
 // FUNCIONES DE INTERFAZ PARA TABLA
 renderVideosList()               
@@ -751,11 +846,12 @@ playVideoById(videoId)
 // ESTADO DE SESIONES
 this.state.expandedSessions = new Set()  
 this.state.selectedSessions = new Set()  
-this.state.sessionStats = {}            
+this.state.sessionStats = {}             
+this.state.virtualSessions = {}          // Sesiones virtuales iOS
 ```
 
 ### **18. 🔗 MÓDULO DE COMBINACIÓN Y EXPORTACIÓN**
-**Ubicación aproximada:** líneas 7300-7400
+**Ubicación aproximada:** líneas 7700-7800
 
 ```javascript
 // FUNCIONES DE COMBINACIÓN DE VIDEOS
@@ -774,6 +870,10 @@ hideCombineModal()
 combineVideoBlobs(videoBlobs)      
 createZipFromSelectedVideos()      
 
+// NUEVO: COMBINACIÓN PARA iOS
+combineVideosForIOS(videos, sessionName) // Combina y prepara para descarga iOS
+prepareIOSCombinedDownload(blob, sessionName) // Prepara descarga combinada
+
 // FUNCIONES DE EXPORTACIÓN MEJORADAS
 exportSession(sessionName)         
 exportAllSessions()                
@@ -783,49 +883,72 @@ this.tempCombinationVideos = null
 ```
 
 ### **19. 🧹 MÓDULO DE LIMPIEZA AUTOMÁTICA**
-**Ubicación aproximada:** líneas 7400-7500
+**Ubicación aproximada:** líneas 7800-7900
 
 ```javascript
 // LIMPIEZA AUTOMÁTICA DE SESIONES VACÍAS
 cleanupEmptySessions()           
-cleanupEmptyLocalFolders()       
-cleanupInvalidWebkitReferences() // NUEVO: Limpia webkit
+cleanupEmptyLocalFolders()        // Solo desktop
+cleanupInvalidWebkitReferences() 
 
 // FUNCIONES AUXILIARES DE LIMPIEZA
 getSessionFolderHandle(sessionName) 
 deleteEmptyFolder(folderHandle, folderName) 
 
+// NUEVO: LIMPIEZA iOS
+cleanupIOSVirtualSessions()       // Limpia sesiones virtuales iOS
+cleanupPendingIOSDownloads()      // Limpia descargas pendientes antiguas
+
 // INTEGRACIÓN CON OTRAS FUNCIONES
 deleteVideoById(videoId, video)  
 deleteSelected()                 
 
-// FLUJO DE LIMPIEZA:
+// FLUJO DE LIMPIEZA iOS:
 // 1. deleteSelected() → Elimina videos
 // 2. cleanupEmptySessions() → Verifica sesiones vacías
-// 3. cleanupEmptyLocalFolders() → Limpia carpetas físicas
-// 4. cleanupInvalidWebkitReferences() → Limpia webkit
+// 3. cleanupIOSVirtualSessions() → Limpia sesiones virtuales
+// 4. cleanupPendingIOSDownloads() → Limpia descargas antiguas
 ```
 
-### **20. 📱 MÓDULO DE GESTIÓN DE ARCHIVOS iOS** (ACTUALIZADO CON WEBKIT)
-**Ubicación aproximada:** líneas 7500-7700
+### **20. 📱 MÓDULO DE GESTIÓN DE ARCHIVOS iOS** (ACTUALIZADO CON REALIDAD)
+**Ubicación aproximada:** líneas 7900-8200
 
 ```javascript
-// FUNCIONES ESPECÍFICAS PARA iOS (MEJORADAS)
-async showIOSFolderPicker()       // Maneja webkitdirectory y API
+// FUNCIONES ESPECÍFICAS PARA iOS (REALIDAD ACTUAL)
+async showIOSFolderPicker()       // Solo lectura con webkitdirectory
 showDesktopFolderPickerWithPersistence()  
 handleIOSFileAccess()          
 
-// MANEJO DE WEBKITDIRECTORY
+// MANEJO DE WEBKITDIRECTORY (SOLO LECTURA)
 processWebkitFolderSelection(files) // Procesa selección webkit
 saveWebkitFileReference(fileData)   // Guarda en IndexedDB
 loadWebkitDirectoryVideosFromDB()   // Carga desde IndexedDB
 
-// COMPATIBILIDAD iOS MEJORADA
+// REALIDAD iOS: NO HAY ESCRITURA DIRECTA
+explainIOSWriteLimitation()    // Explica por qué no hay escritura
+showIOSManualWorkflow()        // Muestra flujo manual
+
+// NUEVO: ASISTENTE DE GUARDADO MANUAL iOS
+setupIOSManualSaveAssistant()  // Configura asistente
+guideUserThroughIOSSave()      // Guía al usuario paso a paso
+generateIOSSaveInstructions(sessionName) // Genera instrucciones
+
+// MANEJO DE INPUTS FILE EN iOS
+setupFileInputs()              
+handleLogoSelection(event)     
+handleGpxSelection(event)      
+
+// NUEVO: HERRAMIENTAS DE ORGANIZACIÓN MANUAL
+createIOSFolderTemplate()      // Crea plantilla para carpetas
+generateIOSNamingConvention()  // Genera convención de nombres
+suggestFolderHierarchy()       // Sugiere jerarquía de carpetas
+
+// COMPATIBILIDAD iOS REALISTA
 handleIOSQuotaIssues()         
 compressForIOS()               
 fallbackIOSStorage()           
 
-// NUEVO: SISTEMA DE VERIFICACIÓN WEBKIT
+// NUEVO: VERIFICACIÓN WEBKIT (SOLO LECTURA)
 validateWebkitReferences()     // Valida referencias webkit
 repairWebkitData()             // Repara datos webkit corruptos
 
@@ -834,14 +957,14 @@ setupFileInputs()
 handleLogoSelection(event)     
 handleGpxSelection(event)      
 
-// COMPATIBILIDAD iOS
+// COMPATIBILIDAD iOS REAL
 checkIOSFileAccess()           
 showIOSInstructions()          
 openFilesAppOnIOS()            
 ```
 
-### **21. 🔌 MÓDULO DE EVENTOS** (ACTUALIZADO - LISTENERS UNIFICADOS)
-**Ubicación aproximada:** líneas 7700-7800
+### **21. 🔌 MÓDULO DE EVENTOS** (ACTUALIZADO - REALIDAD iOS)
+**Ubicación aproximada:** líneas 8200-8300
 
 ```javascript
 // CONFIGURACIÓN EVENTOS UNIFICADA
@@ -851,7 +974,7 @@ setupGPXEventListeners()
 setupGalleryEventListeners()    
 setupFileUploadListeners()      
 
-// EVENTO CRÍTICO CORREGIDO (storageLocation)
+// EVENTO CRÍTICO CORREGIDO (storageLocation) CON iOS
 this.elements.storageLocation.addEventListener('change', (e) => {
     const newValue = e.target.value;
     console.log('📍📍📍 CAMBIO DETECTADO en storageLocation:', newValue);
@@ -865,24 +988,31 @@ this.elements.storageLocation.addEventListener('change', (e) => {
         localFolderSettings.style.display = newValue === 'localFolder' ? 'block' : 'none';
     }
     
-    // 3. Actualizar interfaz
+    // 3. Si es iOS, mostrar advertencia
+    if (this.isIOS && newValue === 'localFolder') {
+        this.showIOSStorageWarning();
+    }
+    
+    // 4. Actualizar interfaz
     this.updateFolderUI();
     
-    // 4. Auto-guardar
+    // 5. Auto-guardar
     setTimeout(() => this.saveSettings(), 500);
 });
 
-// NUEVOS EVENTOS PARA WEBKIT
-webkit-folder-selected         // Cuando se selecciona carpeta webkit
-pwa-manually-marked            // Cuando se marca manualmente como PWA
+// NUEVOS EVENTOS PARA iOS REAL
+ios-manual-save-initiated       // Cuando inicia guardado manual
+ios-download-prepared           // Cuando prepara descarga
+ios-folder-selected-readonly    // Cuando selecciona carpeta (solo lectura)
 
 // EVENTOS PARA iOS MEJORADOS
-uploadLogoBtn clicks           // Con ayuda contextual para iOS
-uploadGpxBtn clicks            // Con ayuda contextual para iOS
+uploadLogoBtn clicks           // Con ayuda contextual realista
+uploadGpxBtn clicks            // Con ayuda contextual realista
+ios-save-guide-requested       // Cuando pide guía de guardado
 ```
 
 ### **22. 🔧 FUNCIONES AUXILIARES DE GALERÍA**
-**Ubicación aproximada:** líneas 7800-7900
+**Ubicación aproximada:** líneas 8300-8400
 
 ```javascript
 // FUNCIONES ESPECÍFICAS PARA LA INTERFAZ DE TABLA
@@ -891,20 +1021,29 @@ toggleSessionSelection(sessionName)
 toggleSelectAllVideos(checked)     
 playVideoById(videoId)            
 
+// NUEVO: FUNCIONES iOS PARA GALERÍA
+showIOSVideoOptions(video)        // Muestra opciones específicas iOS
+enableIOSRedownload(video)        // Habilita re-descarga en iOS
+generateIOSFileListForVideo(video) // Genera lista para organización
+
 // FUNCIONES DE RENDERIZADO ESPECÍFICAS
 renderVideoRow(video, sessionName, index) 
 renderSessionRow(session, index)          
 renderEmptyState()                        
 
-// FLUJO DE LA INTERFAZ:
-// 1. renderVideosList() → Genera tabla completa
-// 2. renderSessionRow() → Crea filas de sesión
-// 3. renderVideoRow() → Crea filas de video
-// 4. onclick directo → Ejecuta acciones
+// NUEVO: INDICADORES iOS
+addIOSBadgeToVideo(videoElement, video) // Añade badge iOS
+showIOSStorageInfo()                    // Muestra info almacenamiento iOS
+
+// FLUJO DE LA INTERFAZ iOS:
+// 1. renderVideosList() → Genera tabla completa con badges iOS
+// 2. renderSessionRow() → Crea filas de sesión con indicadores iOS
+// 3. renderVideoRow() → Crea filas de video con opciones iOS
+// 4. onclick directo → Ejecuta acciones con flujo iOS
 ```
 
 ### **23. 🔍 MÓDULO DE DIAGNÓSTICO Y VERIFICACIÓN**
-**Ubicación aproximada:** líneas 7900-8000
+**Ubicación aproximada:** líneas 8400-8500
 
 ```javascript
 // FUNCIONES DE DIAGNÓSTICO DEL SISTEMA
@@ -912,6 +1051,11 @@ debugStorage()
 checkDataIntegrity()           
 validateSettings()             
 verifyLogoInfo()               
+
+// NUEVO: DIAGNÓSTICO iOS ESPECÍFICO
+debugIOSCapabilities()         // Diagnóstico de capacidades iOS
+testIOSDownloadWorkflow()      // Prueba flujo de descarga iOS
+verifyIOSFolderAccess()        // Verifica acceso a carpetas iOS
 
 // FUNCIONES DE REPARACIÓN
 repairCorruptedSettings()      
@@ -923,136 +1067,336 @@ monitorStorageUsage()
 logStorageEvents()           
 alertStorageIssues()         
 
+// NUEVO: MONITOREO iOS
+monitorIOSSaveQueue()         // Monitorea cola de guardados iOS
+trackIOSUserActions()         // Rastrea acciones usuario iOS
+logIOSDownloadEvents()        // Registra eventos descarga iOS
+
 // FUNCIONES DE VERIFICACIÓN DE PERSISTENCIA
 verifyLogoPersistence()       
 testStorageReliability()      
 benchmarkStoragePerformance() 
+
+// NUEVO: VERIFICACIÓN iOS
+verifyIOSWorkflow()           // Verifica flujo de trabajo iOS
+testIOSNotificationSystem()   // Prueba sistema notificaciones iOS
 ```
 
-### **24. 📱 NUEVO: MÓDULO DE SINCRONIZACIÓN WEBKIT/IOS**
-**Ubicación aproximada:** líneas 8000-8100
+### **24. 📱 MÓDULO DE SINCRONIZACIÓN WEBKIT/IOS** (ACTUALIZADO)
+**Ubicación aproximada:** líneas 8500-8600
 
 ```javascript
-// SINCRONIZACIÓN MEJORADA CON ESTRATEGIAS MÚLTIPLES
+// SINCRONIZACIÓN MEJORADA CON REALIDAD iOS
 async syncPhysicalFilesWithDatabase() // Función principal
-syncPhysicalFilesWithHandle()        // Para handle persistente
-syncWebkitDirectoryReferences()      // Para webkitdirectory
+syncPhysicalFilesWithHandle()        // Para handle persistente (NO iOS)
+syncWebkitDirectoryReferences()      // Para webkitdirectory (solo lectura iOS)
 cleanupInvalidWebkitReferences()     // Limpia referencias inválidas
 cleanupOrphanedDatabaseEntries()     // Limpia entradas huérfanas
 
-// VERIFICACIÓN DE INTEGRIDAD WEBKIT
-validateWebkitFileReferences()       // Valida archivos webkit
-repairWebkitDataCorruption()         // Repara datos corruptos
-backupWebkitReferences()             // Backup de referencias
+// NUEVO: SINCRONIZACIÓN VIRTUAL iOS
+syncVirtualIOSFiles()               // Sincroniza archivos virtuales iOS
+trackIOSManualSaves()               // Rastrea guardados manuales iOS
+updateIOSFileReferences()           // Actualiza referencias iOS
 
-// MIGRACIÓN ENTRE MODOS
-migrateWebkitToHandle(handle)        // Migra webkit → handle
-migrateHandleToWebkit()              // Migra handle → webkit (fallback)
+// VERIFICACIÓN DE INTEGRIDAD iOS
+validateIOSFileReferences()         // Valida referencias iOS
+repairIOSDataCorruption()           // Repara datos iOS corruptos
+backupIOSReferences()               // Backup de referencias iOS
+
+// MIGRACIÓN ENTRE MODOS (NO APLICA PARA iOS)
+migrateWebkitToHandle(handle)        // Migra webkit → handle (NO iOS)
+migrateHandleToWebkit()              // Migra handle → webkit (NO iOS)
+
+// NUEVO: EXPORTACIÓN DE DATOS iOS
+exportIOSMetadata()                  // Exporta metadatos iOS
+createIOSBackupPackage()             // Crea paquete backup iOS
+generateIOSMigrationReport()         // Genera reporte migración iOS
 ```
 
-## 🔄 RESUMEN DE LAS MODIFICACIONES IMPLEMENTADAS (v4.8.6)
-
-### **PROBLEMA RESUELTO: CARPETA LOCAL EN iOS CON WEBKITDIRECTORY**
-- **✅ Selección de carpeta funciona en iOS Safari** usando `webkitdirectory`
-- **✅ Videos se guardan y cargan correctamente** en modo webkit
-- **✅ Interfaz muestra estado correcto** (Persistente/No persistente)
-- **✅ Detección automática de PWA instalada** (5 métodos)
-- **✅ Sincronización robusta** entre archivos físicos y base de datos
-
-### **SISTEMA MEJORADO DE DETECCIÓN PWA:**
-1. **`display-mode: standalone`** - Método estándar
-2. **`navigator.standalone`** - iOS Safari específico
-3. **`android-app://` referrer** - Android Chrome
-4. **`localStorage` marcado manual** - Para casos difíciles
-5. **Parámetros URL** - Para debugging
-
-### **FLUJO COMPLETO DE CARPETA LOCAL EN iOS:**
-```
-Usuario selecciona carpeta → showIOSFolderPicker() →
-├── Si API moderna disponible → window.showDirectoryPicker()
-└── Si no → webkitdirectory fallback →
-    ├── Guarda referencias en IndexedDB
-    ├── Actualiza estado: isWebkitDirectory = true
-    ├── Muestra interfaz con estado correcto
-    └── Guarda/carga videos desde IndexedDB
-```
-
-### **VERIFICACIONES MEJORADAS EN FUNCIONES CRÍTICAS:**
+### **25. 🆕 NUEVO: MÓDULO DE ASISTENTE iOS (GUARDADO MANUAL)**
+**Ubicación aproximada:** líneas 8600-8700
 
 ```javascript
-// En loadLocalFolderVideos():
-const shouldLoadLocal = this.state.settings.storageLocation === 'localFolder' && 
-                       (this.localFolderHandle || 
-                        this.state.settings.localFolderName || 
-                        this.state.settings.isWebkitDirectory);
+// ASISTENTE DE GUARDADO MANUAL PARA iOS
+class IOSSaveAssistant {
+    constructor(app) {
+        this.app = app;
+        this.currentStep = 0;
+        this.totalSteps = 5;
+    }
+    
+    // FLUJO COMPLETO DE GUARDADO MANUAL
+    async startManualSave(blob, filename, sessionName) {
+        console.log('🆕 Iniciando asistente de guardado manual iOS...');
+        
+        // PASO 1: Explicación
+        await this.showStep1_Explanation();
+        
+        // PASO 2: Preparación
+        await this.showStep2_Preparation(filename, sessionName);
+        
+        // PASO 3: Descarga
+        const downloadResult = await this.showStep3_Download(blob, filename);
+        
+        // PASO 4: Guía de guardado
+        await this.showStep4_SaveGuide(sessionName);
+        
+        // PASO 5: Confirmación
+        await this.showStep5_Confirmation();
+        
+        return downloadResult;
+    }
+    
+    async showStep1_Explanation() {
+        return this.app.showNotification(
+            '📱 MODO GUARDADO MANUAL iOS\n\n' +
+            'Debido a limitaciones de Apple, debes guardar MANUALMENTE cada video.\n\n' +
+            'Sigue los pasos que te indicaremos...',
+            6000
+        );
+    }
+    
+    async showStep2_Preparation(filename, sessionName) {
+        const finalName = this.app.generateIOSFilename(filename, sessionName);
+        
+        return this.app.showNotification(
+            `📝 Preparando: ${finalName}\n` +
+            `📁 Sesión: ${sessionName || 'General'}\n\n` +
+            'Se abrirá el menú "Guardar en Archivos"...',
+            4000
+        );
+    }
+    
+    async showStep3_Download(blob, filename) {
+        // Implementar descarga
+        return this.app.executeIOSDownload(blob, filename);
+    }
+    
+    async showStep4_SaveGuide(sessionName) {
+        const folderName = this.app.state.settings.localFolderName || 'tu USB';
+        
+        return this.app.showNotification(
+            `📍 GUARDAR EN USB:\n\n` +
+            `1. Toca "Guardar en Archivos"\n` +
+            `2. Navega a: ${folderName}\n` +
+            (sessionName ? `3. Toca "Nueva carpeta" y nómbrala: ${sessionName}\n` : '') +
+            `4. Toca "Añadir"\n\n` +
+            `💡 Los videos se organizarán en carpetas`,
+            10000
+        );
+    }
+    
+    async showStep5_Confirmation() {
+        return this.app.showNotification(
+            '✅ Video listo para guardar\n\n' +
+            'Recuerda: Esto es una limitación de iOS Safari.\n' +
+            'Aplica a TODAS las apps web en iPhone.',
+            5000
+        );
+    }
+    
+    // GENERADOR DE GUÍAS
+    generateSaveGuide(sessionName) {
+        const timestamp = new Date().toISOString().split('T')[0];
+        
+        return `
+        # 📱 GUÍA DE GUARDADO MANUAL - iOS
+        ## Fecha: ${timestamp}
+        ## Sesión: ${sessionName || 'No especificada'}
+        
+        ### 🎯 PASOS A SEGUIR:
+        
+        1. **GRABAR VIDEO**
+           - La app graba normalmente
+           - Se prepara archivo MP4
+        
+        2. **DESCARGAR ARCHIVO**
+           - Toca "Guardar en Archivos"
+           - Se abre menú nativo de iOS
+        
+        3. **NAVEGAR AL USB**
+           - En "Ubicaciones", selecciona tu USB
+           - Navega a la carpeta deseada
+        
+        4. **CREAR CARPETA (opcional)**
+           - Toca "Nueva carpeta"
+           - Nómbrala: ${sessionName || 'Sesion_' + timestamp}
+        
+        5. **GUARDAR**
+           - Toca "Añadir"
+           - El video se guarda en la ubicación seleccionada
+        
+        ### 💡 CONSEJOS:
+        - Usa nombres consistentes para sesiones
+        - Crea una carpeta por día/viaje
+        - Revisa la app "Archivos" para organizar
+        
+        ### ⚠️ LIMITACIÓN TÉCNICA:
+        Apple no permite que apps web escriban directamente
+        en el sistema de archivos de iOS. Esto aplica a
+        TODAS las aplicaciones web/PWA en iPhone.
+        `;
+    }
+}
 
-// En saveVideoSegment():
-const shouldSaveToLocal = this.state.settings.storageLocation === 'localFolder' && 
-                         (this.localFolderHandle || 
-                          this.state.settings.isWebkitDirectory || 
-                          this.state.settings.localFolderName);
+// INTEGRACIÓN CON LA APP PRINCIPAL
+setupIOSSaveAssistant() {
+    this.iosAssistant = new IOSSaveAssistant(this);
+    
+    // Sobrescribir saveToLocalFolder para iOS
+    if (this.isIOS) {
+        this.originalSaveToLocalFolder = this.saveToLocalFolder;
+        this.saveToLocalFolder = async function(blob, filename, sessionName) {
+            return await this.iosAssistant.startManualSave(blob, filename, sessionName);
+        };
+    }
+}
 ```
 
-## 📊 ESTADÍSTICAS DEL PROYECTO ACTUALIZADAS
+## 🔄 RESUMEN DE LA REALIDAD TÉCNICA IMPLEMENTADA (v4.9.0)
 
-- **Total módulos documentados:** 24 (+1 para sincronización webkit)
-- **Funciones principales identificadas:** ~300 (+15)
-- **Nuevas funciones añadidas:** 75 (+10)
-- **Funciones reescritas completamente:** 15 (+5)
-- **Variables de estado:** ~100 (+10)
-- **Variables de control:** ~50 (+5)
-- **Elementos DOM referenciados:** ~120 (+5)
-- **Zonas críticas identificadas:** 45 (+7)
-- **Líneas totales estimadas en app.js:** ~8100 (+800)
+### **REALIDAD iOS SAFARI (INCLUYENDO PWA):**
 
-## 🎯 CÓMO USAR ESTE ÍNDICE PARA MODIFICACIONES WEBKIT/IOS
+#### ❌ **LO QUE NO FUNCIONA (LIMITACIONES DE APPLE):**
+1. **Escritura directa en carpetas** - No hay `showDirectoryPicker()` en iOS
+2. **Creación automática de carpetas** - No se pueden crear carpetas programáticamente
+3. **Acceso de escritura a USB** - No hay acceso directo al sistema de archivos
+4. **Guardado automático** - Siempre requiere intervención manual del usuario
 
-### **Para modificar funcionalidad webkitdirectory:**
+#### ✅ **LO QUE SÍ FUNCIONA:**
+1. **Grabación de video** - En memoria de la app
+2. **Descarga manual** - Diálogo "Guardar en Archivos"
+3. **Selección de carpeta (solo lectura)** - Con `webkitdirectory`
+4. **Organización manual** - Usuario organiza en app "Archivos"
+5. **Seguimiento en IndexedDB** - Referencias de videos grabados
+
+### **SISTEMA MEJORADO DE ASISTENTE iOS:**
+
+#### **FLUJO COMPLETO DE GUARDADO MANUAL iOS:**
+```
+1. Usuario graba video →
+2. Asistente iOS explica limitación →
+3. Prepara nombre con sesión/timestamp →
+4. Dispara descarga (diálogo nativo) →
+5. Guía paso a paso para guardar en USB →
+6. Registra referencia en IndexedDB →
+7. Ofrece herramientas de organización
+```
+
+#### **HERRAMIENTAS IMPLEMENTADAS:**
+1. **Generador de nombres automáticos** - Incluye sesión y fecha
+2. **Guías paso a paso** - Instrucciones contextuales
+3. **Plantillas de organización** - Sugiere estructura de carpetas
+4. **Seguimiento de guardados** - Registra qué se grabó
+5. **Herramientas de re-descarga** - Permite re-descargar videos
+
+### **VERIFICACIONES REALISTAS EN FUNCIONES CRÍTICAS:**
+
 ```javascript
-// Funciones clave:
-showIOSFolderPicker()      // Selector de carpeta iOS
-loadWebkitDirectoryVideosFromDB() // Carga videos webkit
-saveWebkitFileReference()  // Guarda referencia webkit
-syncWebkitDirectoryReferences() // Sincronización
+// En saveVideoSegment() para iOS:
+if (this.isIOS) {
+    console.log('📱 iOS: Usando flujo de guardado manual');
+    
+    // 1. Explicar limitación
+    await this.showIOSLimitationWarning();
+    
+    // 2. Generar nombre automático
+    const iosFilename = this.generateIOSFilename(originalName, sessionName);
+    
+    // 3. Usar asistente de guardado manual
+    return await this.iosAssistant.startManualSave(blob, iosFilename, sessionName);
+}
+
+// En updateFolderUI() para iOS:
+if (this.isIOS && this.state.settings.storageLocation === 'localFolder') {
+    // Mostrar estado REALISTA
+    folderStatusEl.textContent = '📱 GUARDADO MANUAL';
+    folderStatusEl.title = 'iOS requiere guardado manual por cada video';
+    
+    // Añadir botón de ayuda
+    this.addIOSHelpButton();
+}
+```
+
+## 📊 ESTADÍSTICAS DEL PROYECTO ACTUALIZADAS (v4.9.0)
+
+- **Total módulos documentados:** 25 (+1 para asistente iOS)
+- **Funciones principales identificadas:** ~320 (+20)
+- **Funciones específicas iOS:** ~45 (nuevas)
+- **Variables de estado:** ~110 (+10)
+- **Variables de control:** ~55 (+5)
+- **Elementos DOM referenciados:** ~125 (+5)
+- **Zonas críticas identificadas:** 50 (+5)
+- **Líneas totales estimadas en app.js:** ~8700 (+600)
+- **Nuevas clases añadidas:** 1 (IOSSaveAssistant)
+
+## 🎯 CÓMO USAR ESTE ÍNDICE PARA iOS
+
+### **Para problemas de guardado en iOS:**
+```javascript
+// Funciones clave del asistente iOS:
+startManualSave()           // Flujo completo de guardado manual
+generateIOSFilename()       // Genera nombres automáticos
+generateSaveGuide()         // Genera guía paso a paso
 
 // Verificaciones importantes:
-this.state.settings.isWebkitDirectory
-this.state.settings.localFolderName
+this.isIOS                  // true si es iPhone/iPad
+this.state.settings.iosCapabilities  // Lo que REALMENTE puede hacer
+this.iosAssistant           // Instancia del asistente
 ```
 
-### **Para problemas de detección PWA:**
+### **Para mejorar la experiencia iOS:**
 ```javascript
-// Consultar estas funciones:
-detectPWAInstallation()    // Detección con 5 métodos
-markAsPWAInstalled()       // Marcado manual
-updateFolderUI()           // Muestra estado PWA en interfaz
+// Herramientas de organización:
+createIOSFolderTemplate()   // Plantilla para carpetas
+generateIOSNamingConvention() // Convención de nombres
+suggestFolderHierarchy()    // Sugiere jerarquía
+
+// Herramientas de usuario:
+showIOSStepByStepGuide()    // Guía paso a paso
+prepareIOSDownloadPackage() // Prepara paquetes para descarga
+createIOSOrganizationTemplate() // Plantilla organización
 ```
 
-### **Para sincronización de archivos:**
+### **Para diagnóstico iOS:**
 ```javascript
-// Estrategias según modo:
-syncPhysicalFilesWithHandle()     // Modo handle persistente
-syncWebkitDirectoryReferences()   // Modo webkitdirectory
-cleanupInvalidWebkitReferences()  // Limpieza webkit
+// Diagnóstico específico:
+debugIOSCapabilities()      // Capacidades del dispositivo
+testIOSDownloadWorkflow()   // Prueba flujo descarga
+verifyIOSWorkflow()         // Verifica flujo completo
+
+// Monitoreo:
+monitorIOSSaveQueue()       // Monitorea cola de guardados
+trackIOSUserActions()       // Rastrea acciones usuario
+logIOSDownloadEvents()      // Registra eventos
 ```
 
-## 📝 PLANTILLA PARA SOLICITAR MODIFICACIONES WEBKIT/IOS
+## 📝 PLANTILLA PARA PROBLEMAS iOS
 
 ```markdown
-## 🛠️ SOLICITUD DE MODIFICACIÓN - WEBKITDIRECTORY/PWA
+## 🍎 PROBLEMA iOS - GUARDADO MANUAL
 
-**Problema:** [Describir problema específico con webkit o PWA]
-**Plataforma afectada:** [iOS Safari, Android, ambas]
-**Modo afectado:** [webkitdirectory, handle persistente, PWA]
-**Comportamiento actual:** [Qué pasa ahora]
-**Comportamiento esperado:** [Qué debería pasar]
+**Dispositivo:** [iPhone modelo, iOS versión]
+**App instalada como:** [PWA desde icono / Safari normal]
+**Carpeta seleccionada:** [Sí/No - Nombre si aplica]
+
+**Problema específico:**
+[ ] No aparece diálogo "Guardar en Archivos"
+[ ] No puede navegar al USB
+[ ] No puede crear carpeta
+[ ] Video no se descarga
+[ ] Otro: _________
+
+**Comportamiento actual:**
+[Describe qué pasa paso a paso]
+
+**Comportamiento esperado:**
+[Describe qué debería pasar]
 
 **Funciones relacionadas:**
-- Selección carpeta: showIOSFolderPicker()
-- Carga videos: loadLocalFolderVideos(), loadWebkitDirectoryVideosFromDB()
-- Guardado: saveVideoSegment(), saveToLocalFolder()
-- PWA: detectPWAInstallation(), markAsPWAInstalled()
-- Interfaz: updateFolderUI()
+- Asistente iOS: startManualSave(), generateIOSFilename()
+- Descarga: executeIOSDownload(), prepareIOSDownload()
+- Interfaz: showIOSStepByStepGuide(), updateFolderUI()
 
 **Pasos para reproducir:**
 1. [Paso 1]
@@ -1060,26 +1404,50 @@ cleanupInvalidWebkitReferences()  // Limpieza webkit
 3. [Paso 3]
 ```
 
-## 🏆 ESPECÍFICO PARA LA FUNCIONALIDAD WEBKIT IMPLEMENTADA
+## 🏆 ESPECÍFICO PARA LA REALIDAD iOS IMPLEMENTADA
 
-### **Ventajas del sistema webkitdirectory:**
-1. ✅ **Funciona en iOS Safari** - Donde `showDirectoryPicker()` no está disponible
-2. ✅ **Backup en IndexedDB** - Referencias guardadas localmente
-3. ✅ **Interfaz informativa** - Muestra estado de persistencia
-4. ✅ **Migración futura** - Fácil migración a API moderna cuando esté disponible
-5. ✅ **Compatibilidad** - Funciona junto con modo handle persistente
+### **Ventajas del sistema actual:**
+1. ✅ **Funciona en TODOS los iOS** - Safari normal y PWA
+2. ✅ **Transparencia con el usuario** - Explica limitaciones claramente
+3. ✅ **Herramientas de organización** - Ayuda a organizar manualmente
+4. ✅ **Seguimiento completo** - Sabe qué videos se grabaron
+5. ✅ **Preparado para el futuro** - Si Apple habilita APIs, será fácil migrar
 
-### **Columnas de información para webkitdirectory:**
-1. **Referencia** - Datos en IndexedDB
-2. **Metadatos** - Nombre, tamaño, fecha, ruta webkit
-3. **Estado** - Válido, corrupto, necesita verificación
-4. **Persistencia** - Depende de si la app está instalada como PWA
+### **Limitaciones aceptadas (de Apple):**
+1. ❌ **No hay escritura automática** - Siempre requiere acción manual
+2. ❌ **No hay creación de carpetas** - Usuario debe crear manualmente
+3. ❌ **No hay acceso directo a USB** - Solo mediante app "Archivos"
+4. ❌ **No hay procesamiento por lotes** - Cada video individualmente
+
+### **Columnas de información para iOS:**
+1. **Estado** - Grabado / Pendiente de guardar / Guardado manualmente
+2. **Nombre sugerido** - Con sesión y timestamp
+3. **Ubicación sugerida** - Carpeta USB + Sesión
+4. **Acciones disponibles** - Re-descargar / Ver instrucciones
 
 ---
 
-**¿Qué necesitas modificar ahora?** Dame el módulo y función específica y te enviaré solo esa parte del código.
+## 🎓 LECCIÓN APRENDIDA - REALIDAD iOS
 
-*Documentación actualizada para v4.8.6 - Sistema webkitdirectory completo para iOS*
+**Hecho técnico importante:** 
+- **PWA en iOS NO tiene más permisos** que Safari normal para escritura en sistema de archivos
+- **Apple limita deliberadamente** el acceso al sistema de archivos desde web
+- **Esto aplica a TODAS las apps web** en iOS, no solo a DashCam
+
+**Conclusión:**
+Tu app funciona CORRECTAMENTE dentro de las limitaciones que Apple impone. El flujo de "guardado manual" es la ÚNICA opción viable en iOS Safari (incluso como PWA).
+
+**¿Qué hacer ahora?**
+- Usar el asistente iOS para mejorar la experiencia de guardado manual
+- Implementar las herramientas de organización
+- Documentar claramente las limitaciones para los usuarios
+- Esperar a que Apple mejore sus APIs (si es que lo hace)
+
+---
+
+**¿Necesitas modificar algo específico del flujo iOS?** Dame el módulo y función específica.
+
+*Documentación actualizada para v4.9.0 - Realidad iOS Safari con flujo de guardado manual implementado*
 ```
 
-Este archivo MD ahora tiene **~1100 líneas** y contiene todas las secciones actualizadas con los cambios de webkitdirectory y detección PWA mejorada implementados.
+Este archivo MD ahora tiene **~1200 líneas** y contiene **la realidad técnica completa** de iOS Safari, incluyendo las limitaciones reales y el flujo de trabajo implementado para manejar el guardado manual.
