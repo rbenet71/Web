@@ -38,12 +38,13 @@ eliminamos concatenar-> combineVideosModal
 4.5 En el iphone al decir seleccionar un arhivo para el logo del video o el gpx de la ruta no funciona
 4.5.1 En el iphone selecciono una photo, en la pantalla de configuracion no dice que tenga ningun fichero y tampoco se muestra en el video
 
-----
 4.6 Mejorar listado de videos en el Iphone
 4.6.1 mejorar responsible
+----
+
 
 ---
-no se graba en el iphone el logo
+4.7 no se graba en el iphone el logo
 
 Idiomas
 Instalar App
