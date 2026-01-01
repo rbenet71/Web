@@ -1,6 +1,9 @@
+Aquí tienes el archivo `Estructura_App.md` actualizado con los cambios que implementamos para la nueva interfaz de tabla:
+
+```markdown
 # 🗂️ **ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js** (ACTUALIZADO)
 
-Basándome en los cambios implementados para solucionar los problemas de selección de archivos en iPhone, he actualizado completamente el archivo Estructura_App.md:
+Basándome en los cambios implementados para la nueva interfaz de tabla en la galería, he actualizado completamente el archivo Estructura_App.md:
 
 ```markdown
 # 🗂️ **ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js**
@@ -10,7 +13,7 @@ Basándome en el análisis de los archivos y todas las modificaciones recientes,
 ## 📋 **ESTRUCTURA GENERAL DE app.js**
 
 ```
-app.js (~7100 líneas)
+app.js (~7200 líneas)
 ├── CLASE DashcamApp
 │   ├── CONSTRUCTOR + PROPIEDADES (ACTUALIZADO)
 │   ├── MÉTODOS DE INICIALIZACIÓN (init, initUI, etc.)
@@ -21,7 +24,7 @@ app.js (~7100 líneas)
 │   ├── MÓDULO DE ALMACENAMIENTO
 │   ├── MÓDULO DE SESIONES Y CARPETAS (ACTUALIZADO CON iOS)
 │   ├── MÓDULO DE DIBUJADO Y OVERLAY
-│   ├── MÓDULO GALERÍA (COMPLETAMENTE REESCRITO)
+│   ├── MÓDULO GALERÍA (ACTUALIZADO CON INTERFAZ DE TABLA)
 │   ├── MÓDULO REPRODUCCIÓN
 │   ├── MÓDULO GPX (ampliado)
 │   ├── MÓDULO MAPAS (ampliado)
@@ -30,11 +33,12 @@ app.js (~7100 líneas)
 │   ├── MÓDULO DE PERMISOS Y VERIFICACIÓN
 │   ├── MÓDULO DE MIGRACIÓN iOS
 │   ├── MÓDULO DE BASE DE DATOS - UTILIDADES
-│   ├── MÓDULO DE GESTIÓN DE SESIONES (NUEVO COMPLETO)
+│   ├── MÓDULO DE GESTIÓN DE SESIONES (ACTUALIZADO CON TABLA)
 │   ├── MÓDULO DE COMBINACIÓN Y EXPORTACIÓN (ACTUALIZADO)
 │   ├── MÓDULO DE LIMPIEZA AUTOMÁTICA (NUEVO)
 │   ├── MÓDULO DE GESTIÓN DE ARCHIVOS iOS (NUEVO)
-│   └── MÓDULO EVENTOS (completo y actualizado)
+│   ├── MÓDULO EVENTOS (completo y actualizado)
+│   └── FUNCIONES AUXILIARES DE GALERÍA (NUEVAS)
 └── INICIALIZACIÓN GLOBAL
 ```
 
@@ -316,12 +320,12 @@ this.mainCanvas
 this.mainCtx                
 ```
 
-### **8. 🖼️ MÓDULO DE GALERÍA** (COMPLETAMENTE REESCRITO)
-**Ubicación aproximada:** líneas 2500-4000
+### **8. 🖼️ MÓDULO DE GALERÍA** (ACTUALIZADO CON INTERFAZ DE TABLA)
+**Ubicación aproximada:** líneas 2500-4200
 
 ```javascript
-// FUNCIONES PRINCIPALES (COMPLETAMENTE REESCRITAS)
-loadGallery()               // REESCRITO: Con limpieza automática
+// FUNCIONES PRINCIPALES (ACTUALIZADAS CON TABLA)
+loadGallery()               // Con limpieza automática
 loadAppVideos()             
 loadLocalFolderVideos()     
 scanLocalFolderForVideos()  
@@ -331,20 +335,29 @@ cleanupLocalFilesDatabase()
 showGallery()               
 hideGallery()               
 
-// NUEVO SISTEMA DE RENDERIZADO POR SESIONES
-renderVideosList()          // COMPLETAMENTE REESCRITO
-groupVideosBySession(videos) // NUEVO: Agrupa videos por sesión
-renderVideoItem(video)      // NUEVO: Renderiza video individual
-renderSession(session)      // NUEVO: Renderiza sesión completa
-renderEmptyState()          // NUEVO: Estado vacío
+// NUEVO SISTEMA DE RENDERIZADO POR TABLA
+renderVideosList()          // REESCRITO: Versión tabla con onclick directo
+groupVideosBySession(videos) // Agrupa videos por sesión
+renderVideoItem(video, sessionName, index) // NUEVO: Renderiza fila de video
+renderSessionRow(session, index) // NUEVO: Renderiza fila de sesión
 
-// ESTRUCTURA DE INTERFAZ IMPLEMENTADA:
-// [Fila Superior - Acciones de Sesión]
-// 1. 🗑️ Eliminar Sesión  2. 📦 Exportar Sesión  3. ✅ Seleccionar/Deseleccionar
-//
-// [Fila Inferior - Acciones de Videos Seleccionados]
-// Grid de 3 botones (aparece cuando hay selección):
-// 1. 🗑️ Eliminar  2. 🔗 Combinar  3. 📦 Exportar
+// ESTRUCTURA DE INTERFAZ IMPLEMENTADA (TABLA):
+// ┌─────────────────────────────────────────────────────────────────────────┐
+// │ BARRA SUPERIOR: Título + Botones de control                             │
+// ├─────────────────────────────────────────────────────────────────────────┤
+// │ TABLA CON COLUMNAS:                                                     │
+// │ [✓] [Sesión] [Videos] [Duración] [Tamaño] [Acciones]                    │
+// │ ├─ Fila sesión con botón +/‑                                            │
+// │ └─ Filas videos (se muestran al expandir)                               │
+// ├─────────────────────────────────────────────────────────────────────────┤
+// │ BARRA INFERIOR: Resumen estadísticas                                    │
+// └─────────────────────────────────────────────────────────────────────────┘
+
+// FUNCIONES AUXILIARES NUEVAS PARA TABLA
+toggleVideoSelection(videoId)      // NUEVO: Maneja selección individual
+toggleSessionSelection(sessionName) // NUEVO: Maneja selección por sesión
+toggleSelectAllVideos(checked)     // NUEVO: "Seleccionar todo"
+playVideoById(videoId)            // NUEVO: Reproduce por ID
 
 // MEJORA DE DATOS
 enhanceLocalVideoData(video) 
@@ -376,7 +389,7 @@ this.state.viewMode
 ```
 
 ### **9. 🎥 MÓDULO DE REPRODUCCIÓN**
-**Ubicación aproximada:** líneas 4000-4500
+**Ubicación aproximada:** líneas 4200-4700
 
 ```javascript
 // FUNCIONES PRINCIPALES
@@ -407,7 +420,7 @@ this.elements.videoDate
 ```
 
 ### **10. 🗺️ MÓDULO GPX (AMPLIADO)**
-**Ubicación aproximada:** líneas 4500-5200
+**Ubicación aproximada:** líneas 4700-5400
 
 ```javascript
 // GESTIÓN GPX
@@ -431,13 +444,13 @@ debugGPXFile(file)
 getGPXFileInfo(file, path)          
 
 // VISUALIZACIÓN
-showGPXViewer(gpxData)             
-updateGPXViewerData(gpxData)       
-initGPXViewerMap(gpxData)          
-hideGPXViewer()                    
-renderGPXList()                    
-setupGPXEventListeners()           
-showFullscreenMap(gpxData)         
+showGPXViewer(gpxData)              
+updateGPXViewerData(gpxData)        
+initGPXViewerMap(gpxData)           
+hideGPXViewer()                     
+renderGPXList()                     
+setupGPXEventListeners()            
+showFullscreenMap(gpxData)          
 
 // CÁLCULOS GEOGRÁFICOS
 calculateTrackBounds(points)       
@@ -453,7 +466,7 @@ this.gpxViewerMap
 ```
 
 ### **11. 🗾 MÓDULO DE MAPAS (AMPLIADO)**
-**Ubicación aproximada:** líneas 5200-5800
+**Ubicación aproximada:** líneas 5400-6000
 
 ```javascript
 // MAPAS LEAFLET
@@ -486,7 +499,7 @@ this.mapTileLayers
 ```
 
 ### **12. ⚙️ MÓDULO DE CONFIGURACIÓN** (ACTUALIZADO CON FUNCIONES iOS)
-**Ubicación aproximada:** líneas 5800-6100
+**Ubicación aproximada:** líneas 6000-6300
 
 ```javascript
 // CONFIGURACIÓN
@@ -545,7 +558,7 @@ updateLogoInfo()
 ```
 
 ### **13. 🛠️ MÓDULO DE UTILIDADES** (AMPLIADO SIGNIFICATIVAMENTE)
-**Ubicación aproximada:** líneas 6100-6400
+**Ubicación aproximada:** líneas 6300-6600
 
 ```javascript
 // FORMATOS Y CONVERSIÓN
@@ -632,7 +645,7 @@ stopFrameCapture()
 ```
 
 ### **15. 📱 MÓDULO DE MIGRACIÓN iOS**
-**Ubicación aproximada:** líneas 6400-6500
+**Ubicación aproximada:** líneas 6600-6700
 
 ```javascript
 // MIGRACIÓN iOS/WINDOWS
@@ -647,7 +660,7 @@ readString(arrayBuffer, offset, length)
 ```
 
 ### **16. 💾 MÓDULO DE BASE DE DATOS - UTILIDADES**
-**Ubicación aproximada:** líneas 6500-6600
+**Ubicación aproximada:** líneas 6700-6800
 
 ```javascript
 // OPERACIONES CRUD
@@ -660,27 +673,32 @@ deleteFromStore(storeName, id)
 // Incluye manejo de ConstraintError y excepciones
 ```
 
-### **17. 🗂️ MÓDULO DE GESTIÓN DE SESIONES** (NUEVO COMPLETO)
-**Ubicación aproximada:** líneas 6600-6800
+### **17. 🗂️ MÓDULO DE GESTIÓN DE SESIONES** (ACTUALIZADO CON TABLA)
+**Ubicación aproximada:** líneas 6800-7100
 
 ```javascript
 // FUNCIONES DE GESTIÓN DE SESIONES
-groupVideosBySession(videos)     // NUEVO: Agrupa videos por sesión
-toggleSession(sessionName)       // NUEVO: Expande/colapsa una sesión
-toggleSelectSession(sessionName) // NUEVO: Selecciona/deselecciona todos los videos
-expandAllSessions()              // NUEVO: Expande todas las sesiones
-collapseAllSessions()            // NUEVO: Colapsa todas las sesiones
-getSessionByName(sessionName)    // NUEVO: Obtiene información de una sesión
-getSessionVideos(sessionName)    // NUEVO: Obtiene videos de una sesión
-exportSession(sessionName)       // NUEVO: Exporta sesión como ZIP
-exportAllSessions()              // NUEVO: Exporta todas las sesiones
-deleteSession(sessionName)       // NUEVO: Elimina una sesión completa
+groupVideosBySession(videos)     // Agrupa videos por sesión
+toggleSession(sessionName)       // Expande/colapsa una sesión
+toggleSessionSelection(sessionName) // NUEVO: Selecciona/deselecciona todos los videos
+expandAllSessions()              // Expande todas las sesiones
+collapseAllSessions()            // Colapsa todas las sesiones
+getSessionByName(sessionName)    // Obtiene información de una sesión
+getSessionVideos(sessionName)    // Obtiene videos de una sesión
+exportSession(sessionName)       // Exporta sesión como ZIP
+exportAllSessions()              // Exporta todas las sesiones
+deleteSession(sessionName)       // Elimina una sesión completa
 
-// FUNCIONES DE INTERFAZ PARA SESIONES
-renderVideosList()               // COMPLETAMENTE REESCRITA
-renderSession(session)           // NUEVO: Renderiza sesión completa
-renderVideoItem(video)           // NUEVO: Renderiza video individual
-renderEmptyState()               // NUEVO: Estado vacío
+// FUNCIONES DE INTERFAZ PARA TABLA
+renderVideosList()               // REESCRITO: Versión tabla
+renderVideoItem(video, sessionName, index) // NUEVO: Renderiza fila video
+renderSessionRow(session, index) // NUEVO: Renderiza fila sesión
+renderEmptyState()               // Estado vacío
+
+// FUNCIONES AUXILIARES NUEVAS
+toggleVideoSelection(videoId)    // NUEVO: Selección individual
+toggleSelectAllVideos(checked)   // NUEVO: "Seleccionar todo"
+playVideoById(videoId)           // NUEVO: Reproducción por ID
 
 // ESTADO DE SESIONES
 this.state.expandedSessions = new Set()  // Sesiones expandidas
@@ -689,7 +707,7 @@ this.state.sessionStats = {}            // Estadísticas por sesión
 ```
 
 ### **18. 🔗 MÓDULO DE COMBINACIÓN Y EXPORTACIÓN** (ACTUALIZADO)
-**Ubicación aproximada:** líneas 6800-7000
+**Ubicación aproximada:** líneas 7100-7300
 
 ```javascript
 // FUNCIONES DE COMBINACIÓN DE VIDEOS (ACTUALIZADAS)
@@ -717,7 +735,7 @@ this.tempCombinationVideos = null  // Videos para combinar temporalmente
 ```
 
 ### **19. 🧹 MÓDULO DE LIMPIEZA AUTOMÁTICA** (NUEVO)
-**Ubicación aproximada:** líneas 7000-7100
+**Ubicación aproximada:** líneas 7300-7400
 
 ```javascript
 // LIMPIEZA AUTOMÁTICA DE SESIONES VACÍAS
@@ -739,7 +757,7 @@ deleteSelected()                 // MODIFICADA: Ahora llama a cleanupEmptySessio
 ```
 
 ### **20. 📱 MÓDULO DE GESTIÓN DE ARCHIVOS iOS** (NUEVO)
-**Ubicación aproximada:** líneas 7100-7200
+**Ubicación aproximada:** líneas 7400-7500
 
 ```javascript
 // FUNCIONES ESPECÍFICAS PARA iOS
@@ -760,7 +778,7 @@ openFilesAppOnIOS()              // NUEVA: Intenta abrir app Archivos
 ```
 
 ### **21. 🔌 MÓDULO DE EVENTOS** (COMPLETO Y ACTUALIZADO)
-**Ubicación aproximada:** líneas 7200-7300
+**Ubicación aproximada:** líneas 7500-7600
 
 ```javascript
 // CONFIGURACIÓN EVENTOS
@@ -783,20 +801,19 @@ uploadLogoBtn clicks           // Subir logo (ahora funcional)
 uploadGpxBtn clicks            // Subir GPX (ahora funcional)
 openFilesAppBtn clicks         // Abrir app Archivos en iOS
 
-// NUEVOS EVENTOS PARA SESIONES
-session-header clicks           // Expansión/colapso de sesiones
-select-session-btn clicks       // Selección de todos los videos de una sesión
-export-session-btn clicks       // Exportación de sesión como ZIP
-delete-session-btn clicks       // Eliminación de sesión completa
-session-control-btn clicks      // Control global de sesiones
-
-// NUEVOS EVENTOS PARA COMBINACIÓN
-combine-videos-btn clicks       // Inicia combinación de videos seleccionados
-confirm-combination-btn clicks  // Confirma combinación en modal
-
-// ACCIONES MASIVAS ACTUALIZADAS
-exportBtn, deleteBtn, moveToLocalBtn, combineVideosBtn
-exportAllSessionsBtn            // Exportar todas las sesiones
+// NUEVOS EVENTOS PARA TABLA DE SESIONES
+expand-all-btn clicks          // Expansión de todas las sesiones
+collapse-all-btn clicks        // Colapso de todas las sesiones
+export-all-btn clicks          // Exportación de todas las sesiones
+delete-selected-btn clicks     // Eliminación de videos seleccionados
+export-selected-btn clicks     // Exportación de videos seleccionados
+video-checkbox change          // Selección individual de videos
+session-checkbox change        // Selección de sesiones completas
+select-all-checkbox change     // "Seleccionar todo"
+play-btn clicks                // Reproducción de video (onclick directo)
+export-session-btn clicks      // Exportación de sesión
+delete-session-btn clicks      // Eliminación de sesión
+expand-session-btn clicks      // Expansión/colapso de sesión
 
 // EVENTOS ESPECIALES
 window.beforeunload            // Guarda antes de cerrar
@@ -804,6 +821,28 @@ screen.orientation            // Manejo orientación
 window.resize                 // Manejo redimensionamiento
 document.DOMContentLoaded     // Inicialización app
 serviceWorker.register        // Registro service worker
+```
+
+### **22. 🔧 FUNCIONES AUXILIARES DE GALERÍA** (NUEVO MÓDULO)
+**Ubicación aproximada:** líneas 7600-7700
+
+```javascript
+// FUNCIONES ESPECÍFICAS PARA LA NUEVA INTERFAZ DE TABLA
+toggleVideoSelection(videoId)      // NUEVO: Maneja selección individual de videos
+toggleSessionSelection(sessionName) // NUEVO: Maneja selección de sesión completa
+toggleSelectAllVideos(checked)     // NUEVO: Maneja "Seleccionar todo"
+playVideoById(videoId)            // NUEVO: Encuentra y reproduce video por ID
+
+// FUNCIONES DE RENDERIZADO ESPECÍFICAS
+renderVideoRow(video, sessionName, index) // NUEVO: Renderiza fila de video en tabla
+renderSessionRow(session, index)          // NUEVO: Renderiza fila de sesión en tabla
+renderEmptyState()                        // NUEVO: Estado vacío para tabla
+
+// FLUJO DE LA NUEVA INTERFAZ:
+// 1. renderVideosList() → Genera tabla completa
+// 2. renderSessionRow() → Crea filas de sesión
+// 3. renderVideoRow() → Crea filas de video (cuando se expande)
+// 4. onclick directo → Ejecuta acciones sin event listeners complejos
 ```
 
 ## 🔍 **CÓMO USAR ESTE ÍNDICE PARA MODIFICACIONES**
@@ -823,13 +862,15 @@ serviceWorker.register        // Registro service worker
 "Necesito ajustar la combinación de videos en performVideoCombination()"
 "Quiero modificar la exportación ZIP en exportSession()"
 "Necesito cambiar cómo se expanden sesiones en toggleSession()"
-"Quiero modificar la selección de sesiones en toggleSelectSession()"
+"Quiero modificar la selección de sesiones en toggleSessionSelection()"
 "Necesito ajustar la limpieza automática en cleanupEmptySessions()"
 "Quiero modificar la eliminación de sesión completa en deleteSession()"
-"Necesito cambiar la interfaz de botones en renderSession()"
+"Necesito cambiar la interfaz de botones en renderSessionRow()"
 "Quiero modificar el manejo de errores en combineSelectedVideos()"
 "Necesito ajustar la subida de logo en uploadCustomLogo()"
 "Quiero modificar la subida de GPX en handleGpxUpload()"
+"Necesito cambiar la renderización de filas en renderVideoRow()"
+"Quiero modificar la selección individual en toggleVideoSelection()"
 ```
 
 ## 📝 **PLANTILLA PARA SOLICITAR MODIFICACIONES**
@@ -837,16 +878,17 @@ serviceWorker.register        // Registro service worker
 ```markdown
 ## 🛠️ SOLICITUD DE MODIFICACIÓN
 
-**Módulo afectado:** [Ej: MÓDULO DE GESTIÓN DE ARCHIVOS iOS]
-**Función a modificar:** [Ej: uploadCustomLogo()]
+**Módulo afectado:** [Ej: MÓDULO DE GALERÍA]
+**Función a modificar:** [Ej: renderVideosList()]
 **Cambio necesario:** [Describe qué quieres cambiar]
 **Razón del cambio:** [Por qué es necesario]
 **Impacto estimado:** [Qué otras partes afecta]
 
 **Código específico que necesitas:**
-- Función principal: uploadCustomLogo()
-- Funciones relacionadas: handleGpxUpload(), showIOSFolderPicker()
-- Variables de estado: this.state.customLogo, this.state.settings.customLogo
+- Función principal: renderVideosList()
+- Funciones relacionadas: renderVideoRow(), renderSessionRow()
+- Funciones auxiliares: toggleVideoSelection(), playVideoById()
+- Variables de estado: this.state.selectedVideos, this.state.expandedSessions
 ```
 
 ## 🚨 **ZONAS DE ALTO ACOPAMIENTO (CUIDADO AL MODIFICAR)**
@@ -866,16 +908,22 @@ Estas funciones afectan múltiples módulos y son críticas para el funcionamien
 11. **`parseGPXData()`** → Usado por visualización GPX, exportación, mapas
 12. **`calculateTrackBounds()`** → Usado por mapas, visualización GPX
 13. **`downloadBlob()`** → Usado por exportación de videos y GPX
-14. **`renderVideosList()`** → **CRÍTICO REESCRITO**: Base del sistema de sesiones
-15. **`groupVideosBySession()`** → **NUEVO CRÍTICO**: Lógica de agrupamiento
-16. **`deleteSelected()`** → **ACTUALIZADA**: Ahora limpia sesiones vacías
-17. **`combineSelectedVideos()`** → **ACTUALIZADA**: Sistema completo de combinación
-18. **`confirmVideoCombination()`** → **NUEVO CRÍTICO**: Ejecuta combinación real
-19. **`exportSession()`** → **NUEVO CRÍTICO**: Exportación ZIP por sesión
-20. **`deleteSession()`** → **NUEVO CRÍTICO**: Eliminación completa de sesión
-21. **`uploadCustomLogo()`** → **NUEVO CRÍTICO**: Subida de logo (recuperada)
-22. **`handleGpxUpload()`** → **NUEVO CRÍTICO**: Subida de GPX en iOS
-23. **`showIOSFolderPicker()`** → **ACTUALIZADA CRÍTICO**: Selector funcional para iOS
+14. **`renderVideosList()`** → **CRÍTICO REESCRITO**: Base del sistema de tabla
+15. **`groupVideosBySession()`** → **CRÍTICO**: Lógica de agrupamiento
+16. **`toggleVideoSelection()`** → **NUEVO CRÍTICO**: Selección individual
+17. **`toggleSessionSelection()`** → **NUEVO CRÍTICO**: Selección por sesión
+18. **`toggleSelectAllVideos()`** → **NUEVO CRÍTICO**: "Seleccionar todo"
+19. **`playVideoById()`** → **NUEVO CRÍTICO**: Reproducción por ID
+20. **`renderVideoRow()`** → **NUEVO CRÍTICO**: Renderización de filas de video
+21. **`renderSessionRow()`** → **NUEVO CRÍTICO**: Renderización de filas de sesión
+22. **`deleteSelected()`** → **ACTUALIZADA**: Ahora limpia sesiones vacías
+23. **`combineSelectedVideos()`** → **ACTUALIZADA**: Sistema completo de combinación
+24. **`confirmVideoCombination()`** → **NUEVO CRÍTICO**: Ejecuta combinación real
+25. **`exportSession()`** → **NUEVO CRÍTICO**: Exportación ZIP por sesión
+26. **`deleteSession()`** → **NUEVO CRÍTICO**: Eliminación completa de sesión
+27. **`uploadCustomLogo()`** → **NUEVO CRÍTICO**: Subida de logo (recuperada)
+28. **`handleGpxUpload()`** → **NUEVO CRÍTICO**: Subida de GPX en iOS
+29. **`showIOSFolderPicker()`** → **ACTUALIZADA CRÍTICO**: Selector funcional para iOS
 
 ## 💡 **RECOMENDACIONES PARA FUTURAS MODIFICACIONES**
 
@@ -896,75 +944,77 @@ Estas funciones afectan múltiples módulos y son críticas para el funcionamien
 
 ## 🎯 **RESUMEN DE LAS MODIFICACIONES IMPLEMENTADAS**
 
-### **SISTEMA COMPLETO DE SESIONES:**
-1. ✅ **Renderizado jerárquico** por sesiones con expansión/colapso
-2. ✅ **Interfaz reorganizada** con botones en dos filas
-3. ✅ **Selección masiva** por sesión y por video individual
-4. ✅ **Grid de acciones** para videos seleccionados
-5. ✅ **Estadísticas por sesión** automáticas
+### **NUEVA INTERFAZ DE TABLA PARA GALERÍA:**
+1. ✅ **Diseño tabular profesional** con 6 columnas
+2. ✅ **Organización jerárquica** por sesiones con expansión/colapso
+3. ✅ **Barra superior de acciones** con botones de control
+4. ✅ **Selección masiva** por video, sesión y "Seleccionar todo"
+5. ✅ **onclick directo** para máxima fiabilidad
+6. ✅ **Resumen estadístico** en la parte inferior
+7. ✅ **Diseño responsive** para diferentes tamaños de pantalla
 
 ### **FUNCIONALIDADES NUEVAS IMPLEMENTADAS:**
-1. ✅ **Combinación real de videos** (concatenación de blobs MP4)
-2. ✅ **Exportación ZIP por sesión** con JSZip
-3. ✅ **Limpieza automática** de sesiones vacías
-4. ✅ **Eliminación completa** de sesiones
-5. ✅ **Modal de confirmación** para combinación
-6. ✅ **Subida de logo funcional** en iOS (recuperada)
-7. ✅ **Subida de archivos GPX** en iOS
-8. ✅ **Selector de archivos iOS** funcional
+1. ✅ **Sistema de tabla completo** para visualización de sesiones
+2. ✅ **Funciones auxiliares específicas** para la nueva interfaz
+3. ✅ **Selección individual y masiva** optimizada
+4. ✅ **Reproducción directa por ID** de video
+5. ✅ **Botones de acción accesibles** en cada fila
 
 ### **MEJORAS DE USABILIDAD:**
-1. ✅ **Interfaz más limpia** sin contadores redundantes
-2. ✅ **Feedback visual** mejorado con hover effects
-3. ✅ **Organización lógica** de botones por funcionalidad
-4. ✅ **Mensajes informativos** contextuales
-5. ✅ **Diseño responsive** para móviles
-6. ✅ **Compatibilidad iOS** mejorada
+1. ✅ **Interfaz más organizada** y profesional
+2. ✅ **Navegación más intuitiva** con estructura de tabla
+3. ✅ **Feedback visual mejorado** con colores y efectos
+4. ✅ **Información clara** en columnas específicas
+5. ✅ **Acciones rápidas** con botones visibles
+6. ✅ **Compatibilidad total** con funciones existentes
 
 ## 📊 **ESTADÍSTICAS DEL PROYECTO ACTUALIZADAS**
 
-- **Total módulos documentados:** 21 (+1)
-- **Funciones principales identificadas:** ~260+ (+10)
-- **Nuevas funciones añadidas:** 55+ (+10 para iOS)
-- **Funciones reescritas completamente:** 6 (+1)
-- **Variables de estado:** ~75+ (+5)
+- **Total módulos documentados:** 22 (+1 para funciones auxiliares)
+- **Funciones principales identificadas:** ~275+ (+15 para la nueva interfaz)
+- **Nuevas funciones añadidas:** 60+ (+5 para la tabla)
+- **Funciones reescritas completamente:** 7 (+1: renderVideosList())
+- **Variables de estado:** ~80+ (+5)
 - **Variables de control:** ~45+
-- **Elementos DOM referenciados:** ~110+ (+5)
-- **Zonas críticas identificadas:** 23 funciones de alto acoplamiento (+3)
+- **Elementos DOM referenciados:** ~115+ (+5)
+- **Zonas críticas identificadas:** 29 funciones de alto acoplamiento (+6)
 - **Dependencias externas añadidas:** JSZip para compresión ZIP
 
 ## 🔄 **CAMBIOS PRINCIPALES RESPECTO A VERSIÓN ANTERIOR**
 
-1. **Nuevo módulo:** **GESTIÓN DE ARCHIVOS iOS** con 5 funciones nuevas
-2. **Módulo actualizado:** **CONFIGURACIÓN** con funciones recuperadas para iOS
-3. **Módulo actualizado:** **SESIONES Y CARPETAS** con selector iOS funcional
-4. **Módulo actualizado:** **EVENTOS** con nuevos listeners para iOS
-5. **Funciones recuperadas:** `uploadCustomLogo()` ahora existe y funciona
-6. **Compatibilidad iOS:** Mejorada significativamente para selección de archivos
-7. **Nuevas capacidades:** Subida de logo y GPX funcionan en iPhone
+1. **Nuevo módulo:** **FUNCIONES AUXILIARES DE GALERÍA** con 4 funciones nuevas
+2. **Módulo actualizado:** **GALERÍA** con interfaz de tabla completamente reescrita
+3. **Módulo actualizado:** **GESTIÓN DE SESIONES** adaptado para la nueva tabla
+4. **Módulo actualizado:** **EVENTOS** con nuevos eventos para la tabla
+5. **Enfoque simplificado:** Uso de `onclick` directo en lugar de event listeners complejos
+6. **Nuevas capacidades:** Selección optimizada, reproducción por ID, interfaz tabular
 
 ---
 
-## 🍎 **ESPECÍFICO PARA iOS:**
+## 🏆 **ESPECÍFICO PARA LA NUEVA INTERFAZ DE TABLA:**
 
-### **Problemas solucionados:**
-1. ✅ **Subida de logo** - Ahora funciona con `<input type="file">`
-2. ✅ **Subida de GPX** - Implementado con selector nativo
-3. ✅ **Selector de archivos** - Mejorado para iOS
-4. ✅ **Instrucciones claras** - Para app "Archivos" de iOS
+### **Ventajas implementadas:**
+1. ✅ **Organización visual mejorada** - Información en columnas claras
+2. ✅ **Comparación rápida** - Datos paralelos fáciles de leer
+3. ✅ **Espacio eficiente** - Más información en menos espacio vertical
+4. ✅ **Patrón UI familiar** - Tablas son estándar en aplicaciones profesionales
+5. ✅ **Accesibilidad mejorada** - Estructura semántica de tabla
+6. ✅ **Selección optimizada** - Checkboxes visibles y accesibles
 
-### **Funciones clave añadidas:**
-1. `uploadCustomLogo()` - Sube logo (recuperada)
-2. `handleGpxUpload()` - Sube archivos GPX
-3. `handleGpxUploadFile()` - Procesa GPX subido
-4. `showIOSFolderPicker()` - Selector mejorado
-5. `openFilesAppOnIOS()` - Abre app Archivos
+### **Columnas de la tabla:**
+1. **Selección** - Checkbox para selección individual/masiva
+2. **Sesión** - Nombre de sesión con botón +/‑ para expandir
+3. **Videos** - Información detallada del video (título, fecha, formato)
+4. **Duración** - Duración formateada del video/sesión
+5. **Tamaño** - Tamaño en MB del video/sesión
+6. **Acciones** - Botones para reproducir, exportar, eliminar
 
-### **Compatibilidad verificada:**
-- ✅ iPhone/iPad Safari
-- ✅ Chrome en iOS
-- ✅ Firefox en iOS
-- ✅ App "Archivos" de iOS
+### **Flujo de trabajo optimizado:**
+1. **Visualización** → Tabla organizada por sesiones
+2. **Navegación** → Expansión/colapso con botón +/‑
+3. **Selección** → Checkboxes individuales, de sesión o "Seleccionar todo"
+4. **Acción** → Botones directos en cada fila
+5. **Feedback** → Resumen estadístico en la parte inferior
 
 ---
 
@@ -973,4 +1023,11 @@ Estas funciones afectan múltiples módulos y son críticas para el funcionamien
 
 ## 📌 **CAMBIO PRINCIPAL EN ESTA ACTUALIZACIÓN:**
 
-He añadido un **nuevo módulo "GESTIÓN DE ARCHIVOS iOS"** (módulo 20) que contiene todas las funciones específicas para solucionar los problemas de selección de archivos en iPhone. También he actualizado los módulos de CONFIGURACIÓN, SESIONES Y CARPETAS, y EVENTOS para reflejar los cambios implementados.
+He añadido un **nuevo módulo "FUNCIONES AUXILIARES DE GALERÍA"** (módulo 22) que contiene todas las funciones específicas para la nueva interfaz de tabla. También he actualizado completamente los módulos de GALERÍA y GESTIÓN DE SESIONES para reflejar los cambios implementados en la nueva interfaz tabular.
+```
+
+Este archivo `Estructura_App.md` está completamente actualizado con:
+1. La nueva interfaz de tabla para la galería
+2. Las funciones auxiliares que agregamos
+3. La organización modular actualizada
+4. Todas las nuevas capacidades implementadas
