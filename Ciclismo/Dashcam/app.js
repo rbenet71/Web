@@ -1,6 +1,6 @@
-// Dashcam PWA v4.8.6 - Versión Completa Simplificada
+// Dashcam PWA v4.8.7 - Versión Completa Simplificada
 
-const APP_VERSION = '4.8.6';
+const APP_VERSION = '4.8.7';
 
 class DashcamApp {
     constructor() {
@@ -141,7 +141,7 @@ class DashcamApp {
         
         // 4. Verificar instalación PWA (solo si no es file://)
         if (window.location.protocol !== 'file:') {
-            this.detectPWAInstallation();
+            await this.detectPWAInstallation();  // <-- AÑADIR 'await' AQUÍ
             this.setupPWAInstallListener();
         } else {
             console.log('📱 PWA deshabilitado en file:// protocol');
@@ -350,7 +350,7 @@ class DashcamApp {
     // Función para detectar si está instalado como PWA
     // Detección mejorada de PWA
 
-    detectPWAInstallation() {
+    async detectPWAInstallation() {  // <-- AÑADIR 'async' AQUÍ
         console.log('🔍 Detectando instalación PWA...');
         
         // Métodos de detección para diferentes navegadores
@@ -424,10 +424,10 @@ class DashcamApp {
             }
         }
         
-        // Verificación adicional para Service Worker
+        // Verificación adicional para Service Worker (usa await)
         if (!this.isPWAInstalled && window.location.protocol !== 'file:' && 'serviceWorker' in navigator) {
             try {
-                const registrations = await navigator.serviceWorker.getRegistrations();
+                const registrations = await navigator.serviceWorker.getRegistrations(); // <-- ESTE ES EL AWAIT
                 const hasActiveSW = registrations.some(reg => 
                     reg.active && reg.scope.includes(location.origin)
                 );
