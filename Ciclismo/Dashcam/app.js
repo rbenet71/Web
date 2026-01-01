@@ -1,6 +1,6 @@
-// Dashcam PWA v4.8.3 - Versión Completa Simplificada
+// Dashcam PWA v4.8.4 - Versión Completa Simplificada
 
-const APP_VERSION = '4.8.3';
+const APP_VERSION = '4.8.4';
 
 class DashcamApp {
     constructor() {
@@ -105,17 +105,39 @@ class DashcamApp {
         console.log(`📱 Dispositivo: ${this.isIOS ? 'iPhone/iPad' : 'Otro'}`);
         console.log(`🌐 Protocolo: ${window.location.protocol}`);
         
-        // 1. Verificar protocolo
+        // === 1. INICIALIZAR ELEMENTOS DOM PRIMERO (CRÍTICO) ===
+        this.initElements();
+        
+        // Verificar que los elementos críticos estén presentes
+        console.log('🔍 Verificando elementos críticos:', {
+            folderInfo: !!this.elements.currentLocalFolderInfo,
+            selectBtn: !!this.elements.selectLocalFolderBtn,
+            storageLocation: !!this.elements.storageLocation
+        });
+        
+        // Si falta algún elemento crítico, intentar encontrarlo
+        if (!this.elements.currentLocalFolderInfo) {
+            console.warn('⚠️ currentLocalFolderInfo no encontrado, buscando manualmente...');
+            this.elements.currentLocalFolderInfo = document.getElementById('currentLocalFolderInfo') || 
+                                                   document.querySelector('.current-local-folder-info') ||
+                                                   document.querySelector('[data-folder-info]');
+        }
+        
+        if (!this.elements.selectLocalFolderBtn) {
+            console.warn('⚠️ selectLocalFolderBtn no encontrado, buscando manualmente...');
+            this.elements.selectLocalFolderBtn = document.getElementById('selectLocalFolderBtn') || 
+                                                 document.querySelector('.select-local-folder-btn') ||
+                                                 document.querySelector('[data-select-folder]');
+        }
+        
+        // 2. Verificar protocolo
         if (window.location.protocol === 'file:') {
             console.log('⚠️ Ejecutando desde file:// - Algunas funciones estarán limitadas');
             this.showNotification('⚠️ Ejecuta desde servidor local para todas las funciones', 5000);
         }
         
-        // 2. Limpiar caché si es necesario
+        // 3. Limpiar caché si es necesario
         await this.clearCacheIfNeeded();
-        
-        // 3. Inicializar elementos DOM
-        this.initElements();
         
         // 4. Verificar instalación PWA (solo si no es file://)
         if (window.location.protocol !== 'file:') {
@@ -137,7 +159,10 @@ class DashcamApp {
         await this.loadCustomLogo();        // SEGUNDO: Cargar logo desde settings
         await this.loadGPXFiles();          // TERCERO: Cargar GPX
         
-        // 7. RESTAURAR PERMISOS PERSISTENTES
+        // 7. ACTUALIZAR INTERFAZ DESPUÉS DE CARGAR SETTINGS
+        this.updateFolderUI();  // ← ¡ACTUALIZAR INTERFAZ AHORA!
+        
+        // 8. RESTAURAR PERMISOS PERSISTENTES
         if (this.state.settings.storageLocation === 'localFolder') {
             const restored = await this.restoreFolderHandle();
             
@@ -148,55 +173,55 @@ class DashcamApp {
             }
         }
         
-        // 8. Configurar eventos
+        // 9. Configurar eventos
         this.setupEventListeners();
         
-        // 9. Iniciar monitoreo básico
+        // 10. Iniciar monitoreo básico
         this.startMonitoring();
         
-        // 10. Cargar galería inicial
+        // 11. Cargar galería inicial
         await this.loadGallery();
         
-        // 11. Mostrar estado de almacenamiento
+        // 12. Mostrar estado de almacenamiento
         this.updateStorageStatus();
         
-        // 12. Limpiar archivos locales inexistentes
+        // 13. Limpiar archivos locales inexistentes
         if (this.state.settings.storageLocation === 'localFolder' && this.state.settings.localFolderName) {
             setTimeout(() => {
                 this.cleanupLocalFilesDatabase();
             }, 3000);
         }
         
-        // 13. Solicitar persistencia de almacenamiento (solo si no es file://)
+        // 14. Solicitar persistencia de almacenamiento (solo si no es file://)
         if (window.location.protocol !== 'file:') {
             await this.requestStoragePersistence();
         }
         
-        // 14. Mostrar botón de instalación PWA si está disponible
+        // 15. Mostrar botón de instalación PWA si está disponible
         setTimeout(() => {
             this.showInstallButton();
         }, 2000);
         
-        // 15. Verificar requisitos PWA (para debugging)
+        // 16. Verificar requisitos PWA (para debugging)
         this.checkPWARequirements();
         
-        // 16. Promover instalación PWA (solo si no es file://)
+        // 17. Promover instalación PWA (solo si no es file://)
         if (window.location.protocol !== 'file:') {
             this.promotePWAInstallation();
         }
         
-        // 17. Mostrar instrucciones de carpeta si es necesario
+        // 18. Mostrar instrucciones de carpeta si es necesario
         if (this.state.settings.storageLocation === 'localFolder' && !this.localFolderHandle) {
             setTimeout(() => {
                 this.showFolderInstructions();
             }, 5000);
         }
         
-        // 18. Mostrar notificación de inicio
+        // 19. Mostrar notificación de inicio
         this.showNotification(`Dashcam iPhone Pro v${APP_VERSION} lista`);
         console.log(`✅ Aplicación iniciada correctamente`);
         
-        // 19. Mostrar badge si ya está instalado como PWA
+        // 20. Mostrar badge si ya está instalado como PWA
         if (this.isPWAInstalled) {
             setTimeout(() => {
                 this.showPWAInstalledBadge();
@@ -3784,119 +3809,136 @@ async uploadCustomLogo() {
     }
 
     updateFolderUI() {
-        console.log('🔄 Actualizando UI de carpeta...', {
-            folderName: this.state.settings.localFolderName,
+        console.log('=== 🔄 UPDATE FOLDER UI LLAMADO ===');
+        console.log('📊 Estado completo:', {
             storageLocation: this.state.settings.storageLocation,
-            hasLocalFolderHandle: !!this.localFolderHandle,
+            localFolderName: this.state.settings.localFolderName,
+            localFolderHandle: !!this.localFolderHandle,
             isWebkitDirectory: this.state.settings.isWebkitDirectory,
             isExternalDevice: this.state.settings.isExternalDevice
         });
         
-        const folderInfoEl = this.elements.currentLocalFolderInfo;
-        const selectFolderBtn = this.elements.selectLocalFolderBtn;
+        // 1. PRIMERO: Mostrar/ocultar la sección de carpeta local
+        const localFolderSettings = document.getElementById('localFolderSettings');
+        if (localFolderSettings) {
+            if (this.state.settings.storageLocation === 'localFolder') {
+                localFolderSettings.style.display = 'block';
+                console.log('✅ Mostrando sección de carpeta local');
+            } else {
+                localFolderSettings.style.display = 'none';
+                console.log('❌ Ocultando sección de carpeta local');
+            }
+        }
+        
+        // 2. BUSCAR elementos (incluso si están ocultos)
+        let folderInfoEl = document.getElementById('currentLocalFolderInfo');
+        let selectFolderBtn = document.getElementById('selectLocalFolderBtn');
         
         if (!folderInfoEl) {
-            console.error('❌ ERROR: currentLocalFolderInfo no encontrado en elements');
-            // Intentar encontrar el elemento manualmente
-            const manualElement = document.getElementById('currentLocalFolderInfo') || 
-                                  document.querySelector('.folder-info-container');
-            if (manualElement) {
-                console.log('🔍 Elemento encontrado manualmente, asignando...');
-                this.elements.currentLocalFolderInfo = manualElement;
-                return this.updateFolderUI(); // Reintentar
-            }
+            console.error('❌ ERROR CRÍTICO: No se encuentra #currentLocalFolderInfo en DOM');
             return;
         }
         
+        console.log('🔍 Elementos encontrados:', {
+            folderInfoEl: !!folderInfoEl,
+            selectFolderBtn: !!selectFolderBtn,
+            folderInfoElVisible: folderInfoEl.offsetParent !== null
+        });
+        
+        // 3. ACTUALIZAR ESTADO
         const folderName = this.state.settings.localFolderName || '';
         const isExternal = this.state.settings.isExternalDevice || false;
         const isWebkit = this.state.settings.isWebkitDirectory || false;
         const isLocalFolderMode = this.state.settings.storageLocation === 'localFolder';
         
-        console.log('📊 Estado para UI:', {
-            folderName,
-            isExternal,
-            isWebkit,
-            isLocalFolderMode,
-            condition: folderName && isLocalFolderMode
+        console.log('🎯 Condición para mostrar carpeta:', {
+            tieneNombre: !!folderName,
+            esModoLocal: isLocalFolderMode,
+            condición: folderName && isLocalFolderMode
         });
         
         if (folderName && isLocalFolderMode) {
-            // Determinar tipo de carpeta
+            // Carpeta seleccionada - MOSTRAR INFORMACIÓN
             let typeBadge = '';
             let statusBadge = '';
             
             if (isExternal) {
-                typeBadge = '<span class="folder-type-badge usb">🔌 USB</span>';
+                typeBadge = '<span style="background: #e3f2fd; color: #1565c0; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">🔌 USB</span>';
             }
             
             if (isWebkit) {
-                statusBadge = '<span class="folder-status-badge warning">⚠️ No persistente</span>';
+                statusBadge = '<span style="background: #fff3cd; color: #856404; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">⚠️ No persistente</span>';
             } else if (this.localFolderHandle) {
-                statusBadge = '<span class="folder-status-badge success">✅ Persistente</span>';
+                statusBadge = '<span style="background: #d4edda; color: #155724; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">✅ Persistente</span>';
             } else {
-                statusBadge = '<span class="folder-status-badge inactive">○ Temporal</span>';
+                statusBadge = '<span style="background: #f8f9fa; color: #6c757d; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">○ Temporal</span>';
             }
             
-            // Construir HTML
-            const html = `
-                <div class="folder-info">
-                    <div class="folder-header">
-                        <span class="folder-icon">${isExternal ? '💾' : '📁'}</span>
-                        <span class="folder-name">${folderName}</span>
+            // HTML para carpeta SELECCIONADA
+            folderInfoEl.innerHTML = `
+                <div style="background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; padding: 12px; color: #155724;">
+                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 20px; margin-right: 8px;">${isExternal ? '💾' : '📁'}</span>
+                        <span style="font-weight: bold; flex: 1;">${folderName}</span>
                         ${typeBadge}
                         ${statusBadge}
                     </div>
                     
                     ${isWebkit ? `
-                    <div class="folder-warning">
-                        <small>⚠️ Usa "Añadir a pantalla de inicio" para acceso persistente</small>
+                    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 8px; border-radius: 4px; margin-bottom: 8px;">
+                        <small style="color: #856404;">⚠️ Usa "Añadir a pantalla de inicio" para acceso persistente</small>
                     </div>
                     ` : ''}
                     
-                    <div class="folder-actions">
-                        <button class="btn-secondary btn-small" onclick="app.changeFolder()">
-                            Cambiar
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="app.changeFolder()" 
+                                style="background: #17a2b8; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 14px; cursor: pointer;">
+                            Cambiar carpeta
                         </button>
-                        <button class="btn-secondary btn-small" onclick="app.scanLocalFolderForVideos()">
+                        <button onclick="app.scanLocalFolderForVideos()" 
+                                style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 14px; cursor: pointer;">
                             Actualizar
                         </button>
                     </div>
                 </div>
             `;
             
-            folderInfoEl.innerHTML = html;
-            console.log('✅ UI actualizada: Carpeta seleccionada');
+            console.log('✅ UI actualizada: Carpeta seleccionada -', folderName);
             
             if (selectFolderBtn) {
                 selectFolderBtn.textContent = 'Cambiar carpeta';
-                selectFolderBtn.classList.add('active');
+                selectFolderBtn.style.background = '#dc3545';
+                selectFolderBtn.style.color = 'white';
             }
             
         } else {
-            // No hay carpeta seleccionada
-            const html = `
-                <div class="folder-info">
-                    <div class="folder-header">
-                        <span class="folder-icon">📂</span>
-                        <span class="folder-name">No seleccionada</span>
-                        <span class="folder-status-badge inactive">○ Inactiva</span>
-                    </div>
-                    <div class="folder-instructions">
-                        <small>Selecciona una carpeta para guardar videos</small>
-                    </div>
+            // NO hay carpeta seleccionada
+            folderInfoEl.innerHTML = `
+                <div style="background: #f8f9fa; border: 1px dashed #dee2e6; border-radius: 8px; padding: 12px; text-align: center; color: #6c757d;">
+                    <div style="font-size: 24px; margin-bottom: 8px;">📂</div>
+                    <div style="font-weight: 500; margin-bottom: 4px;">No seleccionada</div>
+                    <small style="color: #999;">Selecciona una carpeta para guardar videos</small>
                 </div>
             `;
             
-            folderInfoEl.innerHTML = html;
             console.log('✅ UI actualizada: Sin carpeta seleccionada');
             
             if (selectFolderBtn) {
                 selectFolderBtn.textContent = 'Seleccionar carpeta';
-                selectFolderBtn.classList.remove('active');
+                selectFolderBtn.style.background = '#007bff';
+                selectFolderBtn.style.color = 'white';
             }
         }
+        
+        // 4. ACTUALIZAR TAMBIÉN EL SELECTOR DE ALMACENAMIENTO
+        const storageLocationSelect = document.getElementById('storageLocation');
+        if (storageLocationSelect) {
+            storageLocationSelect.value = this.state.settings.storageLocation;
+        }
+        
+        console.log('=== ✅ UPDATE FOLDER UI COMPLETADO ===\n');
     }
+
 
     showIOSInstructions() {
         const instructions = `
@@ -8863,187 +8905,146 @@ setPlaybackSpeed(speed) {
 
     async saveSettings() {
         try {
-            console.group('💾 GUARDANDO CONFIGURACIÓN');
+            console.log('💾 Guardando configuración...');
             
-            // 1. Recoger TODOS los valores actuales de la UI
+            // Verificar que el estado de settings existe
+            if (!this.state.settings) {
+                console.error('❌ Error: this.state.settings no definido');
+                this.state.settings = this.getDefaultSettings();
+            }
+            
+            // Recopilar valores del formulario
             const settings = {
-                // ===== GRABACIÓN =====
-                recordingMode: this.elements.recordingMode?.value || 'continuous',
-                segmentDuration: parseInt(this.elements.segmentDuration?.value || 300),
-                videoQuality: this.elements.videoQuality?.value || 'medium',
-                videoFormat: this.elements.videoFormat?.value || 'mp4',
-                
-                // ===== GPS =====
-                gpxInterval: parseInt(this.elements.gpxInterval?.value || 1),
-                
-                // ===== OVERLAY =====
-                overlayEnabled: this.elements.overlayEnabled?.checked || true,
-                audioEnabled: this.elements.audioEnabled?.checked || false,
-                reverseGeocodeEnabled: this.elements.reverseGeocodeEnabled?.checked || true,
-                watermarkOpacity: parseFloat(this.elements.watermarkOpacity?.value || 0.7),
-                watermarkFontSize: this.state.settings.watermarkFontSize || 16,
-                watermarkPosition: this.state.settings.watermarkPosition || 'bottom-right',
-                
-                // ===== ALMACENAMIENTO =====
-                storageLocation: this.elements.storageLocation?.value || 'default',
-                keepAppCopy: this.elements.keepAppCopy?.checked || true,
-                
-                // ===== MARCA DE AGUA =====
-                showWatermark: this.elements.showWatermark?.checked || true,
-                logoPosition: this.elements.logoPosition?.value || 'top-left',
-                logoSize: this.elements.logoSize?.value || 'medium',
-                customWatermarkText: this.state.settings.customWatermarkText || '',
-                textPosition: this.elements.textPosition?.value || 'top-right',
-                
-                // ===== GPX =====
-                gpxOverlayEnabled: this.elements.gpxOverlayEnabled?.checked || false,
-                showGpxDistance: this.elements.showGpxDistance?.checked || true,
-                showGpxSpeed: this.elements.showGpxSpeed?.checked || true,
-                
-                // ===== METADATOS =====
-                embedGpsMetadata: this.elements.embedGpsMetadata?.checked || true,
-                metadataFrequency: parseInt(this.elements.metadataFrequency?.value || 5),
-                
-                // ===== CARPETA LOCAL =====
+                recordingMode: this.elements.recordingMode ? this.elements.recordingMode.value : 'continuous',
+                segmentDuration: this.elements.segmentDuration ? parseInt(this.elements.segmentDuration.value) : 300,
+                videoQuality: this.elements.videoQuality ? this.elements.videoQuality.value : 'medium',
+                videoFormat: this.elements.videoFormat ? this.elements.videoFormat.value : 'mp4',
+                gpxInterval: this.elements.gpxInterval ? parseInt(this.elements.gpxInterval.value) : 1,
+                overlayEnabled: this.elements.overlayEnabled ? this.elements.overlayEnabled.checked : true,
+                audioEnabled: this.elements.audioEnabled ? this.elements.audioEnabled.checked : false,
+                reverseGeocodeEnabled: this.elements.reverseGeocodeEnabled ? this.elements.reverseGeocodeEnabled.checked : true,
+                watermarkOpacity: this.elements.watermarkOpacity ? parseFloat(this.elements.watermarkOpacity.value) : 0.7,
+                watermarkFontSize: 16,
+                watermarkPosition: 'bottom-right',
+                storageLocation: this.elements.storageLocation ? this.elements.storageLocation.value : 'default',
+                keepAppCopy: this.elements.keepAppCopy ? this.elements.keepAppCopy.checked : true,
+                showWatermark: this.elements.showWatermark ? this.elements.showWatermark.checked : true,
+                logoPosition: this.elements.logoPosition ? this.elements.logoPosition.value : 'top-left',
+                logoSize: this.elements.logoSizer ? this.elements.logoSizer.value : 'medium',
+                customWatermarkText: this.elements.customWatermarkText ? this.elements.customWatermarkText.value : '',
+                textPosition: this.elements.textPosition ? this.elements.textPosition.value : 'top-right',
+                gpxOverlayEnabled: this.elements.gpxOverlayEnabled ? this.elements.gpxOverlayEnabled.checked : false,
+                showGpxDistance: this.elements.showGpxDistance ? this.elements.showGpxDistance.checked : true,
+                showGpxSpeed: this.elements.showGpxSpeed ? this.elements.showGpxSpeed.checked : true,
+                embedGpsMetadata: this.elements.embedGpsMetadata ? this.elements.embedGpsMetadata.checked : true,
+                metadataFrequency: this.elements.metadataFrequency ? parseInt(this.elements.metadataFrequency.value) : 5,
                 localFolderName: this.state.settings.localFolderName || '',
-                localFolderPath: this.state.settings.localFolderPath || '',
                 
-                // ===== LOGO =====
+                // Preservar configuración de logo existente
                 customLogo: this.state.settings.customLogo || null,
                 logoFilename: this.state.settings.logoFilename || null,
                 logoInfo: this.state.settings.logoInfo || null,
                 logoFileSize: this.state.settings.logoFileSize || 0,
                 logoDimensions: this.state.settings.logoDimensions || '?x?',
                 logoLastModified: this.state.settings.logoLastModified || Date.now(),
+                logoId: this.state.settings.logoId || null,
+                logoIsIOS: this.state.settings.logoIsIOS || false,
+                lastLogoUpdate: this.state.settings.lastLogoUpdate || Date.now(),
                 
-                // ===== METADATOS DE GUARDADO =====
+                // Nueva configuración para iOS/carpetas
+                isWebkitDirectory: this.state.settings.isWebkitDirectory || false,
+                isExternalDevice: this.state.settings.isExternalDevice || false,
+                
+                // Metadatos de guardado
                 lastSaved: Date.now(),
+                storageVersion: '1.2',
                 appVersion: APP_VERSION
             };
             
-            console.log('📋 Configuración recogida:', Object.keys(settings).length, 'valores');
+            // ===== SISTEMA DE PERSISTENCIA ROBUSTO (4 niveles) =====
             
-            // 2. Actualizar estado
-            this.state.settings = { 
-                ...this.state.settings, 
-                ...settings,
-                // Mantener el handle de carpeta si existe
-                localFolderHandle: this.state.settings.localFolderHandle
-            };
+            // 1. ACTUALIZAR ESTADO EN MEMORIA
+            this.state.settings = settings;
+            console.log('✅ Settings actualizados en memoria');
             
-            console.log('✅ Estado actualizado');
-            
-            // 3. ===== GUARDAR EN INDEXEDDB =====
-            let savedToIndexedDB = false;
-            if (this.db) {
-                try {
-                    const transaction = this.db.transaction(['settings'], 'readwrite');
-                    const store = transaction.objectStore('settings');
-                    
-                    await new Promise((resolve, reject) => {
-                        const request = store.put({ 
-                            name: 'appSettings', 
-                            value: settings,
-                            timestamp: Date.now()
-                        });
-                        
-                        request.onsuccess = () => {
-                            console.log('💾 Guardado en IndexedDB exitoso');
-                            savedToIndexedDB = true;
-                            resolve();
-                        };
-                        
-                        request.onerror = () => {
-                            console.error('❌ Error guardando en IndexedDB:', request.error);
-                            reject(request.error);
-                        };
-                    });
-                    
-                } catch (error) {
-                    console.warn('⚠️ Error en IndexedDB:', error);
-                }
-            } else {
-                console.warn('⚠️ IndexedDB no disponible');
-            }
-            
-            // 4. ===== GUARDAR EN localStorage COMO BACKUP =====
-            let savedToLocalStorage = false;
+            // 2. GUARDAR EN LOCALSTORAGE (backup directo)
             try {
-                // Intentar guardar la configuración COMPLETA
                 localStorage.setItem('dashcam_settings', JSON.stringify(settings));
-                
-                // Verificar que se guardó correctamente
-                const verify = localStorage.getItem('dashcam_settings');
-                if (verify) {
-                    savedToLocalStorage = true;
-                    console.log('💾 Guardado en localStorage exitoso');
-                } else {
-                    console.error('❌ localStorage no guardó los datos');
-                }
-                
-            } catch (error) {
-                console.error('❌ Error en localStorage:', error);
-                
-                // Si hay error de cuota, intentar guardar sin el logo (que es lo más grande)
-                if (error.name === 'QuotaExceededError') {
-                    console.warn('⚠️ Cuota excedida, intentando guardar sin logo...');
-                    try {
-                        const settingsWithoutLogo = { ...settings };
-                        delete settingsWithoutLogo.customLogo;
-                        delete settingsWithoutLogo.logoInfo;
-                        
-                        localStorage.setItem('dashcam_settings', JSON.stringify(settingsWithoutLogo));
-                        console.log('💾 Guardado sin logo en localStorage');
-                        savedToLocalStorage = true;
-                    } catch (e) {
-                        console.error('❌ Error incluso sin logo:', e);
-                    }
-                }
-            }
-            
-            // 5. ===== GUARDAR SETTINGS MÍNIMOS EN sessionStorage COMO ÚLTIMO RECURSO =====
-            if (!savedToIndexedDB && !savedToLocalStorage) {
-                console.warn('⚠️ Ambos almacenamientos fallaron, usando sessionStorage');
+                console.log('✅ Settings guardados en localStorage');
+            } catch (e) {
+                console.warn('⚠️ Error guardando en localStorage:', e);
+                // Intentar guardar versión simplificada
                 try {
-                    const minimalSettings = {
-                        recordingMode: settings.recordingMode,
-                        segmentDuration: settings.segmentDuration,
-                        videoQuality: settings.videoQuality,
-                        lastSaved: Date.now()
-                    };
-                    sessionStorage.setItem('dashcam_minimal_settings', JSON.stringify(minimalSettings));
-                    console.log('💾 Guardado mínimo en sessionStorage');
-                } catch (e) {
-                    console.error('❌ Error en sessionStorage:', e);
+                    const simplified = { ...settings };
+                    delete simplified.customLogo;
+                    delete simplified.logoInfo;
+                    localStorage.setItem('dashcam_settings_simple', JSON.stringify(simplified));
+                    console.log('✅ Settings simplificados guardados');
+                } catch (e2) {
+                    console.error('❌ Error incluso con versión simplificada:', e2);
                 }
             }
             
-            // 6. Actualizar UI
-            this.updateStorageStatus();
-            this.updateSettingsUI();
-            this.updateLogoInfo();
-            
-            // 7. Mostrar confirmación
-            const success = savedToIndexedDB || savedToLocalStorage;
-            if (success) {
-                this.showNotification('⚙️ Configuración guardada');
-            } else {
-                this.showNotification('⚠️ Configuración guardada solo temporalmente');
+            // 3. GUARDAR EN INDEXEDDB (almacenamiento estructurado)
+            try {
+                if (this.db) {
+                    await this.saveSettingsToIndexedDB(settings);
+                    console.log('✅ Settings guardados en IndexedDB');
+                } else {
+                    console.warn('⚠️ IndexedDB no disponible para guardar settings');
+                }
+            } catch (error) {
+                console.error('❌ Error guardando en IndexedDB:', error);
             }
             
-            console.log('📊 Resumen guardado:');
-            console.log('- IndexedDB:', savedToIndexedDB ? '✅' : '❌');
-            console.log('- localStorage:', savedToLocalStorage ? '✅' : '❌');
-            console.log('- Tamaño aprox:', JSON.stringify(settings).length, 'bytes');
+            // 4. GUARDAR EN SESSIONSTORAGE (para sesión actual)
+            try {
+                sessionStorage.setItem('dashcam_session_settings', JSON.stringify({
+                    ...settings,
+                    sessionTimestamp: Date.now()
+                }));
+                console.log('✅ Settings guardados en sessionStorage');
+            } catch (e) {
+                console.warn('⚠️ Error guardando en sessionStorage:', e);
+            }
             
-            console.groupEnd();
+            // ===== ACTUALIZAR INTERFAZ DESPUÉS DE GUARDAR =====
             
-            this.hideSettings();
+            // 1. Actualizar UI de carpeta local (CRÍTICO)
+            this.updateFolderUI();
+            
+            // 2. Actualizar el valor de opacidad si existe
+            if (this.elements.opacityValue && this.elements.watermarkOpacity) {
+                this.elements.opacityValue.textContent = 
+                    Math.round(parseFloat(this.elements.watermarkOpacity.value) * 100) + '%';
+            }
+            
+            // 3. Actualizar estado de GPS si cambió la configuración
+            if (this.state.settings.gpxInterval !== settings.gpxInterval) {
+                console.log('🔄 Intervalo GPS cambiado, reiniciando GPS...');
+                if (this.gpxInterval) {
+                    clearInterval(this.gpxInterval);
+                }
+                if (this.state.isRecording && !this.state.isPaused) {
+                    this.startGPS();
+                }
+            }
+            
+            // 4. Mostrar notificación de éxito
+            this.showNotification('✅ Configuración guardada', 2000);
+            
+            console.log('📊 Configuración guardada completamente:', {
+                storageLocation: settings.storageLocation,
+                localFolderName: settings.localFolderName,
+                timestamp: new Date().toISOString()
+            });
+            
+            return true;
             
         } catch (error) {
-            console.error('❌ Error CRÍTICO guardando configuración:', error);
+            console.error('❌ Error guardando configuración:', error);
             this.showNotification('❌ Error al guardar configuración');
-            console.groupEnd();
+            return false;
         }
     }
 
@@ -12081,6 +12082,14 @@ async getParentDirectoryHandle(fileHandle) {
                 if (this.elements.galleryDropdownMenu) {
                     this.elements.galleryDropdownMenu.classList.toggle('show');
                 }
+            });
+        }
+
+        if (this.elements.storageLocation) {
+            this.elements.storageLocation.addEventListener('change', (e) => {
+                this.state.settings.storageLocation = e.target.value;
+                this.updateFolderUI();
+                console.log('📍 Ubicación de almacenamiento cambiada a:', e.target.value);
             });
         }
         
