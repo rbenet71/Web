@@ -1,6 +1,6 @@
-// Dashcam PWA v4.7 - Versión Completa Simplificada
+// Dashcam PWA v4.7.1 - Versión Completa Simplificada
 
-const APP_VERSION = '4.7';
+const APP_VERSION = '4.7.1';
 
 class DashcamApp {
     constructor() {
@@ -626,31 +626,46 @@ class DashcamApp {
         try {
             console.log('🖼️ Cargando logo personalizado...');
             
+            // ===== SOLUCIÓN: Verificar si YA tenemos un logo cargado y es el correcto =====
+            if (this.state.customLogo && this.state.customLogo.dataUrl) {
+                console.log('✅ Logo ya cargado en memoria:', 
+                    this.state.customLogo.filename || 'sin nombre');
+                this.updateLogoInfo();
+                return;
+            }
+            
             // PRIMERO: Intentar cargar desde this.state.settings
             if (this.state.settings.customLogo) {
                 console.log('✅ Logo encontrado en settings');
-                await this.loadLogoFromDataUrl(this.state.settings.customLogo);
                 
-                // ===== SOLUCIÓN: Restaurar customLogo con info completa =====
-                if (this.state.settings.logoInfo) {
-                    this.state.customLogo = this.state.settings.logoInfo;
-                    console.log('✅ Logo info restaurada desde settings:', this.state.customLogo.filename);
-                } else if (this.state.settings.logoFilename) {
-                    // Si no hay info completa, crear una básica
+                // ===== SOLUCIÓN: Si tenemos logoInfo completo, usarlo directamente =====
+                if (this.state.settings.logoInfo && this.state.settings.logoInfo.dataUrl === this.state.settings.customLogo) {
+                    console.log('✅ Usando logoInfo completo desde settings:', 
+                        this.state.settings.logoInfo.filename);
+                    
+                    // Cargar la imagen
+                    const img = new Image();
+                    await new Promise((resolve) => {
+                        img.onload = resolve;
+                        img.src = this.state.settings.logoInfo.dataUrl;
+                    });
+                    
+                    // Restaurar TODO el objeto logoInfo
                     this.state.customLogo = {
-                        filename: this.state.settings.logoFilename,
-                        fileSize: this.state.settings.logoFileSize || 0,
-                        dimensions: this.state.settings.logoDimensions ? {
-                            width: parseInt(this.state.settings.logoDimensions.split('x')[0]),
-                            height: parseInt(this.state.settings.logoDimensions.split('x')[1])
-                        } : { width: 0, height: 0 },
-                        source: 'saved'
+                        ...this.state.settings.logoInfo,
+                        image: img
                     };
-                    console.log('✅ Logo info básica creada desde settings:', this.state.settings.logoFilename);
+                    this.logoImage = img;
+                    
+                    this.updateLogoInfo();
+                    return;
                 }
                 
-                // ===== SOLUCIÓN: ACTUALIZAR UI =====
-                setTimeout(() => this.updateLogoInfo(), 100);
+                // ===== SOLUCIÓN: Solo cargar Data URL si realmente necesitamos =====
+                if (!this.state.customLogo || !this.state.customLogo.dataUrl) {
+                    await this.loadLogoFromDataUrl(this.state.settings.customLogo);
+                }
+                
                 return;
             }
             
@@ -661,31 +676,45 @@ class DashcamApp {
                     const settings = JSON.parse(savedSettings);
                     if (settings.customLogo) {
                         console.log('✅ Logo encontrado en localStorage');
-                        this.state.settings.customLogo = settings.customLogo;
                         
-                        // ===== SOLUCIÓN: Restaurar también el logoInfo si existe =====
+                        // ===== SOLUCIÓN: Priorizar logoInfo si existe =====
                         if (settings.logoInfo) {
-                            this.state.settings.logoInfo = settings.logoInfo;
-                            this.state.customLogo = settings.logoInfo;
-                            console.log('✅ Logo info restaurada desde localStorage:', settings.logoInfo.filename);
-                        } else if (settings.logoFilename) {
-                            // Crear info básica desde localStorage
+                            console.log('✅ LogoInfo encontrado en localStorage:', settings.logoInfo.filename);
+                            
+                            // Actualizar settings con la información completa
+                            if (!this.state.settings.logoInfo) {
+                                this.state.settings.logoInfo = settings.logoInfo;
+                            }
+                            if (!this.state.settings.logoFilename && settings.logoInfo.filename) {
+                                this.state.settings.logoFilename = settings.logoInfo.filename;
+                            }
+                            
+                            // Cargar usando logoInfo completo
+                            const img = new Image();
+                            await new Promise((resolve) => {
+                                img.onload = resolve;
+                                img.src = settings.logoInfo.dataUrl;
+                            });
+                            
                             this.state.customLogo = {
-                                filename: settings.logoFilename,
-                                fileSize: settings.logoFileSize || 0,
-                                dimensions: settings.logoDimensions ? {
-                                    width: parseInt(settings.logoDimensions.split('x')[0]),
-                                    height: parseInt(settings.logoDimensions.split('x')[1])
-                                } : { width: 0, height: 0 },
-                                source: 'saved'
+                                ...settings.logoInfo,
+                                image: img
                             };
-                            console.log('✅ Logo info básica desde localStorage:', settings.logoFilename);
+                            this.logoImage = img;
+                            
+                            this.updateLogoInfo();
+                            return;
+                        }
+                        
+                        // Método antiguo (solo Data URL)
+                        if (!this.state.settings.customLogo) {
+                            this.state.settings.customLogo = settings.customLogo;
+                        }
+                        if (settings.logoFilename && !this.state.settings.logoFilename) {
+                            this.state.settings.logoFilename = settings.logoFilename;
                         }
                         
                         await this.loadLogoFromDataUrl(settings.customLogo);
-                        
-                        // ===== SOLUCIÓN: ACTUALIZAR UI =====
-                        setTimeout(() => this.updateLogoInfo(), 100);
                         return;
                     }
                 }
@@ -694,15 +723,12 @@ class DashcamApp {
             }
             
             // TERCERO: Intentar cargar desde IndexedDB (vieja versión)
-            if (this.db) {
+            if (this.db && !this.state.customLogo) {
                 try {
                     const logoData = await this.getFromStore('customLogos', 'current_logo');
                     if (logoData && logoData.dataUrl) {
                         console.log('✅ Logo encontrado en IndexedDB (viejo formato)');
                         await this.loadLogoFromDataUrl(logoData.dataUrl);
-                        
-                        // ===== SOLUCIÓN: ACTUALIZAR UI =====
-                        setTimeout(() => this.updateLogoInfo(), 100);
                         return;
                     }
                 } catch (error) {
@@ -723,14 +749,49 @@ class DashcamApp {
             const img = new Image();
             img.onload = () => {
                 this.logoImage = img;
-                this.state.customLogo = {
-                    dataUrl: dataUrl,
-                    filename: this.state.settings.logoFilename || 'logo_cargado',
-                    fileSize: dataUrl.length,
-                    type: 'image/png',
-                    image: img
-                };
-                console.log('✅ Logo cargado en memoria:', img.width + 'x' + img.height);
+                
+                // ===== SOLUCIÓN CRÍTICA: NO sobreescribir si ya tenemos información completa =====
+                if (this.state.customLogo && this.state.customLogo.dataUrl === dataUrl) {
+                    console.log('✅ Logo ya cargado en memoria, manteniendo información existente');
+                    this.updateLogoInfo();
+                    resolve();
+                    return;
+                }
+                
+                // ===== SOLUCIÓN: Preservar información existente o crear nueva COMPLETA =====
+                const existingLogoInfo = this.state.customLogo || this.state.settings.logoInfo;
+                
+                if (existingLogoInfo && existingLogoInfo.filename) {
+                    // Mantener la información existente y actualizar solo la imagen
+                    this.state.customLogo = {
+                        ...existingLogoInfo,  // Mantener filename, source, etc.
+                        dataUrl: dataUrl,
+                        image: img,
+                        dimensions: existingLogoInfo.dimensions || {
+                            width: img.width,
+                            height: img.height
+                        },
+                        fileSize: existingLogoInfo.fileSize || dataUrl.length
+                    };
+                    console.log('✅ Logo cargado manteniendo info existente:', existingLogoInfo.filename);
+                } else {
+                    // Crear nueva información usando lo que haya en settings
+                    this.state.customLogo = {
+                        dataUrl: dataUrl,
+                        filename: this.state.settings.logoFilename || 'logo_cargado',
+                        fileSize: dataUrl.length,
+                        type: 'image/png',
+                        dimensions: {
+                            width: img.width,
+                            height: img.height
+                        },
+                        source: this.state.settings.logoInfo?.source || 'loaded_from_dataurl',
+                        lastModified: this.state.settings.logoInfo?.lastModified || Date.now(),
+                        image: img
+                    };
+                    console.log('✅ Nuevo logo cargado desde Data URL:', img.width + 'x' + img.height);
+                }
+                
                 this.updateLogoInfo();
                 resolve();
             };
@@ -741,7 +802,6 @@ class DashcamApp {
             img.src = dataUrl;
         });
     }
-
     updateSettingsUI() {
         try {
             if (!this.elements.recordingMode) return;
@@ -2466,7 +2526,7 @@ async uploadCustomLogo() {
                 img.src = dataUrl;
             });
             
-            // ===== SOLUCIÓN: Guardar información MÁS COMPLETA =====
+            // ===== SOLUCIÓN: Crear objeto logoInfo COMPLETO y ÚNICO =====
             const logoInfo = {
                 dataUrl: dataUrl,
                 filename: file.name,
@@ -2478,33 +2538,60 @@ async uploadCustomLogo() {
                     height: img.height
                 },
                 source: 'ios_upload',
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                // ===== ID ÚNICO para prevenir conflictos =====
+                id: `logo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
             };
             
-            // Guardar en ESTADO ACTUAL
+            // ===== SOLUCIÓN CRÍTICA: Guardar en TODAS las ubicaciones de forma consistente =====
+            
+            // 1. ESTADO ACTUAL (memoria) - ESTE ES EL IMPORTANTE
             this.state.customLogo = logoInfo;
             this.logoImage = img;
             
-            // ===== SOLUCIÓN: Guardar información COMPLETA en settings =====
+            // 2. SETTINGS en memoria - Sincronizado
             this.state.settings.customLogo = dataUrl;
             this.state.settings.logoFilename = file.name;
-            this.state.settings.logoInfo = logoInfo; // <-- NUEVO: Guardar info completa
-            
-            // ===== SOLUCIÓN: Guardar también en variables específicas =====
+            this.state.settings.logoInfo = logoInfo; // <-- OBJETO COMPLETO
             this.state.settings.logoFileSize = file.size;
             this.state.settings.logoDimensions = `${img.width}x${img.height}`;
             this.state.settings.logoLastModified = file.lastModified;
+            this.state.settings.logoId = logoInfo.id; // <-- ID único
             
-            // Guardar configuración
+            // 3. LOCALSTORAGE DIRECTO - Para acceso inmediato al refrescar
+            try {
+                let currentSettings = {};
+                const savedSettings = localStorage.getItem('dashcam_settings');
+                if (savedSettings) {
+                    currentSettings = JSON.parse(savedSettings);
+                }
+                
+                // ===== SOBREESCRIBIR COMPLETAMENTE la información del logo =====
+                currentSettings.customLogo = dataUrl;
+                currentSettings.logoFilename = file.name;
+                currentSettings.logoInfo = logoInfo; // <-- OBJETO COMPLETO
+                currentSettings.logoFileSize = file.size;
+                currentSettings.logoDimensions = `${img.width}x${img.height}`;
+                currentSettings.logoLastModified = file.lastModified;
+                currentSettings.logoId = logoInfo.id;
+                
+                localStorage.setItem('dashcam_settings', JSON.stringify(currentSettings));
+                console.log('💾 Logo guardado directamente en localStorage con ID:', logoInfo.id);
+                
+            } catch (localStorageError) {
+                console.warn('⚠️ Error guardando logo en localStorage:', localStorageError);
+            }
+            
+            // 4. INDEXEDDB a través de saveSettings()
             await this.saveSettings();
             
-            // ===== SOLUCIÓN: Actualizar UI INMEDIATAMENTE =====
+            // ===== SOLUCIÓN: Actualizar UI y mostrar confirmación =====
             requestAnimationFrame(() => {
                 this.updateLogoInfo();
-                this.showNotification(`✅ ${file.name} cargado`);
+                this.showNotification(`✅ ${file.name} cargado (ID: ${logoInfo.id.substr(0, 8)}...)`);
             });
             
-            console.log('✅ iOS - Logo procesado:', logoInfo);
+            console.log('✅ iOS - Logo procesado y guardado con ID único:', logoInfo.id);
             
         } finally {
             // Limpiar
@@ -2514,63 +2601,63 @@ async uploadCustomLogo() {
         }
     }
 
-async uploadCustomLogoNormal() {
-    // Versión normal (Windows/Android)
-    const logoInput = document.getElementById('logoUpload');
-    
-    if (!logoInput) {
-        this.showNotification('❌ Selector no encontrado');
-        return;
-    }
-    
-    return new Promise((resolve, reject) => {
-        logoInput.onchange = async (e) => {
-            try {
-                const file = e.target.files[0];
-                if (!file) {
-                    reject(new Error('No file'));
-                    return;
-                }
-                
-                // Procesamiento normal...
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    const dataUrl = e.target.result;
-                    const img = new Image();
+    async uploadCustomLogoNormal() {
+        // Versión normal (Windows/Android)
+        const logoInput = document.getElementById('logoUpload');
+        
+        if (!logoInput) {
+            this.showNotification('❌ Selector no encontrado');
+            return;
+        }
+        
+        return new Promise((resolve, reject) => {
+            logoInput.onchange = async (e) => {
+                try {
+                    const file = e.target.files[0];
+                    if (!file) {
+                        reject(new Error('No file'));
+                        return;
+                    }
                     
-                    img.onload = () => {
-                        this.state.customLogo = {
-                            dataUrl: dataUrl,
-                            filename: file.name,
-                            fileSize: file.size,
-                            type: file.type,
-                            image: img
+                    // Procesamiento normal...
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        const dataUrl = e.target.result;
+                        const img = new Image();
+                        
+                        img.onload = () => {
+                            this.state.customLogo = {
+                                dataUrl: dataUrl,
+                                filename: file.name,
+                                fileSize: file.size,
+                                type: file.type,
+                                image: img
+                            };
+                            
+                            this.logoImage = img;
+                            this.state.settings.customLogo = dataUrl;
+                            this.state.settings.logoFilename = file.name;
+                            
+                            this.saveSettings();
+                            this.updateLogoInfo();
+                            this.showNotification(`✅ ${file.name}`);
+                            
+                            resolve();
                         };
                         
-                        this.logoImage = img;
-                        this.state.settings.customLogo = dataUrl;
-                        this.state.settings.logoFilename = file.name;
-                        
-                        this.saveSettings();
-                        this.updateLogoInfo();
-                        this.showNotification(`✅ ${file.name}`);
-                        
-                        resolve();
+                        img.src = dataUrl;
                     };
                     
-                    img.src = dataUrl;
-                };
-                
-                reader.readAsDataURL(file);
-                
-            } catch (error) {
-                reject(error);
-            }
-        };
-        
-        logoInput.click();
-    });
-}
+                    reader.readAsDataURL(file);
+                    
+                } catch (error) {
+                    reject(error);
+                }
+            };
+            
+            logoInput.click();
+        });
+    }
 // ===== FUNCIONES AUXILIARES SIMPLES =====
 
 fileToDataURL(file) {
