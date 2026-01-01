@@ -1,6 +1,6 @@
-// Dashcam PWA v4.8.7 - Versión Completa Simplificada
+// Dashcam PWA v4.8.8 - Versión Completa Simplificada
 
-const APP_VERSION = '4.8.7';
+const APP_VERSION = '4.8.8';
 
 class DashcamApp {
     constructor() {
@@ -1852,7 +1852,8 @@ class DashcamApp {
                 size: originalBlob.size,
                 duration: duration,
                 gpsPoints: this.gpxPoints.length,
-                format: this.state.settings.videoFormat
+                format: this.state.settings.videoFormat,
+                storageLocation: this.state.settings.storageLocation
             });
             
             // Crear sesión si es el primer segmento
@@ -1915,9 +1916,26 @@ class DashcamApp {
             let savedPath = filename;
             let savedSuccess = false;
             
-            // Guardar según ubicación configurada
-            if (this.state.settings.storageLocation === 'localFolder' && this.localFolderHandle) {
-                console.log('📁 Guardando en carpeta local/dispositivo externo...');
+            // ===== VERIFICACIÓN MEJORADA PARA CARPETA LOCAL =====
+            const shouldSaveToLocal = this.state.settings.storageLocation === 'localFolder' && 
+                                     (this.localFolderHandle || 
+                                      this.state.settings.isWebkitDirectory || 
+                                      this.state.settings.localFolderName);
+            
+            console.log('🎯 Decisión de guardado:', {
+                shouldSaveToLocal: shouldSaveToLocal,
+                storageLocation: this.state.settings.storageLocation,
+                hasHandle: !!this.localFolderHandle,
+                isWebkit: this.state.settings.isWebkitDirectory,
+                folderName: this.state.settings.localFolderName
+            });
+            
+            if (shouldSaveToLocal) {
+                console.log('📁 Guardando en carpeta local...', {
+                    mode: this.localFolderHandle ? 'handle' : 
+                          this.state.settings.isWebkitDirectory ? 'webkit' : 'named',
+                    sessionName: this.state.recordingSessionName
+                });
                 
                 if (this.state.recordingSessionName) {
                     // Verificar si la carpeta de sesión existe físicamente
@@ -1979,7 +1997,10 @@ class DashcamApp {
                     segment: segmentNum,
                     sessionName: this.state.recordingSessionName,
                     savedPath: savedPath,
-                    location: this.state.settings.storageLocation === 'localFolder' ? 'local_folder' : 'app',
+                    location: shouldSaveToLocal ? 'local_folder' : 'app',
+                    storageMode: shouldSaveToLocal ? 
+                        (this.localFolderHandle ? 'handle' : 
+                         this.state.settings.isWebkitDirectory ? 'webkit' : 'named') : 'app',
                     gpsPoints: gpsData.length,
                     gpsTrack: gpsData,
                     size: finalBlob.size,
@@ -1989,17 +2010,18 @@ class DashcamApp {
                 this.state.recordedSegments.push(segmentRef);
                 
                 // Actualizar galería si estamos en modo localFolder
-                if (this.state.settings.storageLocation === 'localFolder') {
+                if (shouldSaveToLocal) {
                     setTimeout(() => {
                         this.loadGallery();
-                    }, 500);
+                    }, 1000);
                 }
                 
                 console.log(`✅ Segmento ${segmentNum} procesado:`, {
                     path: savedPath,
                     size: Math.round(finalBlob.size / 1024 / 1024) + ' MB',
                     gpsPoints: gpsData.length,
-                    location: segmentRef.location
+                    location: segmentRef.location,
+                    storageMode: segmentRef.storageMode
                 });
             } else {
                 console.error('❌ No se pudo guardar el segmento');
@@ -2013,6 +2035,102 @@ class DashcamApp {
             this.recordedChunks = [];
             this.isSaving = false;
             this.hideSavingStatus();
+        }
+    }
+
+    async loadWebkitDirectoryVideosFromDB() {
+        try {
+            console.log('📱 Cargando videos de webkitdirectory desde IndexedDB...');
+            
+            if (!this.db) {
+                console.log('⚠️ IndexedDB no disponible');
+                return [];
+            }
+            
+            return new Promise((resolve, reject) => {
+                const transaction = this.db.transaction(['localFiles'], 'readonly');
+                const store = transaction.objectStore('localFiles');
+                const request = store.getAll();
+                
+                request.onsuccess = (event) => {
+                    const allVideos = event.target.result || [];
+                    
+                    // Filtrar videos de esta carpeta webkit
+                    const webkitVideos = allVideos.filter(video => 
+                        video.location === 'webkit_directory' && 
+                        video.folderName === this.state.settings.localFolderName
+                    );
+                    
+                    console.log(`📱 Encontrados ${webkitVideos.length} videos en webkitdirectory para "${this.state.settings.localFolderName}"`);
+                    
+                    // Convertir a formato estándar
+                    const processedVideos = webkitVideos.map(video => ({
+                        id: video.id || `webkit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                        filename: video.filename,
+                        title: video.filename.replace(/\.[^/.]+$/, ''),
+                        timestamp: video.timestamp || video.lastModified || Date.now(),
+                        size: video.size || 0,
+                        duration: video.duration || 0,
+                        location: 'webkit_directory',
+                        source: 'indexeddb',
+                        folderName: video.folderName,
+                        webkitPath: video.webkitPath,
+                        blob: video.blob,
+                        format: video.filename.endsWith('.mp4') ? 'mp4' : 'webm',
+                        isPhysical: false,
+                        lastModified: video.lastModified || Date.now(),
+                        hasDuration: !!(video.duration && video.duration > 0)
+                    }));
+                    
+                    resolve(processedVideos);
+                };
+                
+                request.onerror = (event) => {
+                    console.error('❌ Error cargando videos de IndexedDB:', event.target.error);
+                    reject(event.target.error);
+                };
+            });
+            
+        } catch (error) {
+            console.error('❌ Error en loadWebkitDirectoryVideosFromDB:', error);
+            return [];
+        }
+    }
+
+    async loadFolderVideosFromIndexedDB(folderName) {
+        try {
+            console.log(`📝 Cargando videos de carpeta "${folderName}" desde IndexedDB...`);
+            
+            if (!this.db) return [];
+            
+            return new Promise((resolve, reject) => {
+                const transaction = this.db.transaction(['localFiles'], 'readonly');
+                const store = transaction.objectStore('localFiles');
+                const request = store.getAll();
+                
+                request.onsuccess = (event) => {
+                    const allVideos = event.target.result || [];
+                    
+                    // Filtrar videos de esta carpeta
+                    const folderVideos = allVideos.filter(video => 
+                        video.folderName === folderName || 
+                        video.location?.includes(folderName)
+                    );
+                    
+                    console.log(`📝 Encontrados ${folderVideos.length} videos para "${folderName}"`);
+                    
+                    resolve(folderVideos);
+                };
+                
+                request.onerror = (event) => {
+                    console.error('❌ Error cargando videos de IndexedDB:', event.target.error);
+                    reject(event.target.error);
+                };
+            });
+            
+        } catch (error) {
+            console.error('❌ Error en loadFolderVideosFromIndexedDB:', error);
+            return [];
         }
     }
 
@@ -5232,61 +5350,138 @@ class DashcamApp {
 
     async loadLocalFolderVideos() {
         try {
-            console.log('📂 Cargando videos de carpeta LOCAL...');
+            console.log('📂 Cargando videos de carpeta LOCAL...', {
+                hasLocalFolderHandle: !!this.localFolderHandle,
+                storageLocation: this.state.settings.storageLocation,
+                localFolderName: this.state.settings.localFolderName,
+                isWebkitDirectory: this.state.settings.isWebkitDirectory,
+                isExternalDevice: this.state.settings.isExternalDevice
+            });
             
-            // Sincronizar antes de cargar
-            await this.syncPhysicalFilesWithDatabase();
+            // ===== VERIFICACIÓN MEJORADA PARA iOS/WEBKIT =====
+            const shouldLoadLocal = this.state.settings.storageLocation === 'localFolder' && 
+                                   (this.localFolderHandle || 
+                                    this.state.settings.localFolderName || 
+                                    this.state.settings.isWebkitDirectory);
             
-            let videos = [];
-            
-            if (this.localFolderHandle) {
-                videos = await this.scanLocalFolderForVideos();
+            if (!shouldLoadLocal) {
+                console.log('⚠️ No se puede cargar carpeta local:', {
+                    reason: 'Configuración incompleta',
+                    storageLocation: this.state.settings.storageLocation,
+                    localFolderName: this.state.settings.localFolderName,
+                    hasHandle: !!this.localFolderHandle,
+                    isWebkit: this.state.settings.isWebkitDirectory
+                });
                 
-                if (videos.length === 0) {
-                    console.log('📂 No se encontraron videos en la carpeta');
-                    this.state.videos = [];
-                    this.renderVideosList();
-                    
-                    // Mostrar estado vacío
-                    this.showNotification('📂 No hay videos en la carpeta local');
-                    return;
-                }
-                
-                // Extraer duración para videos que no la tienen
-                console.log('⏱️ Extrayendo duraciones para videos locales...');
-                const enhancedVideos = [];
-                
-                for (const video of videos) {
-                    if (!video.hasDuration || video.duration === 0) {
-                        const enhancedVideo = await this.extractAndSetVideoDuration(video);
-                        enhancedVideos.push(enhancedVideo);
-                    } else {
-                        enhancedVideos.push(video);
-                    }
-                }
-                
-                videos = enhancedVideos;
-                
-            } else {
-                console.log('⚠️ No hay carpeta local seleccionada');
                 this.state.videos = [];
                 this.renderVideosList();
                 
-                this.showNotification('📂 Selecciona una carpeta local primero');
+                // Mostrar mensaje específico
+                if (this.state.settings.storageLocation === 'localFolder') {
+                    this.showNotification('📂 Selecciona una carpeta local primero', 3000);
+                } else {
+                    this.showNotification('📂 Cambia a modo "Carpeta Local" primero', 3000);
+                }
+                
                 return;
             }
             
-            // Filtrar y mejorar datos
-            this.state.videos = videos
-                .filter(video => video.blob)
-                .map(video => this.enhanceLocalVideoData(video))
-                .sort((a, b) => b.timestamp - a.timestamp);
-                
-            console.log(`✅ ${this.state.videos.length} videos cargados de carpeta LOCAL`);
+            // Sincronizar antes de cargar (solo si tenemos handle)
+            if (this.localFolderHandle) {
+                await this.syncPhysicalFilesWithDatabase();
+            }
             
-            // Mostrar información de duración
-            const videosWithDuration = this.state.videos.filter(v => v.duration > 0).length;
-            console.log(`📊 ${videosWithDuration}/${this.state.videos.length} videos tienen duración válida`);
+            let videos = [];
+            
+            // ===== DIFERENTES MODOS DE CARGA =====
+            if (this.localFolderHandle) {
+                // MODO 1: Con handle persistente (API moderna)
+                console.log('🔍 Modo: Con handle persistente');
+                videos = await this.scanLocalFolderForVideos();
+                
+            } else if (this.state.settings.isWebkitDirectory) {
+                // MODO 2: webkitdirectory (iOS Safari)
+                console.log('📱 Modo: webkitdirectory (iOS Safari)');
+                videos = await this.loadWebkitDirectoryVideosFromDB();
+                
+            } else if (this.state.settings.localFolderName) {
+                // MODO 3: Solo nombre de carpeta (fallback)
+                console.log('📝 Modo: Solo nombre de carpeta');
+                // Intentar cargar desde IndexedDB
+                videos = await this.loadFolderVideosFromIndexedDB(this.state.settings.localFolderName);
+            }
+            
+            if (videos.length === 0) {
+                console.log('📂 No se encontraron videos en la carpeta');
+                this.state.videos = [];
+                this.renderVideosList();
+                
+                // Mostrar estado vacío con información
+                const message = this.state.settings.isWebkitDirectory 
+                    ? '📂 No hay videos en la carpeta seleccionada (iOS)' 
+                    : '📂 No hay videos en la carpeta local';
+                this.showNotification(message);
+                return;
+            }
+            
+            // ===== MEJORAR DATOS DE VIDEOS =====
+            console.log('⏱️ Extrayendo/verificando duraciones para videos locales...');
+            const enhancedVideos = [];
+            const videosToProcess = videos.slice(0, 20); // Limitar procesamiento a 20 videos
+            
+            for (const video of videosToProcess) {
+                try {
+                    let enhancedVideo = { ...video };
+                    
+                    // Verificar si necesita extraer duración
+                    if (!video.hasDuration || video.duration === 0 || video.duration === Infinity) {
+                        console.log(`🔄 Extrayendo duración para: ${video.filename}`);
+                        enhancedVideo = await this.extractAndSetVideoDuration(video);
+                    }
+                    
+                    // Mejorar datos adicionales
+                    enhancedVideo = this.enhanceLocalVideoData(enhancedVideo);
+                    
+                    // Añadir información específica del modo
+                    enhancedVideo.loadMode = this.localFolderHandle ? 'handle' : 
+                                            this.state.settings.isWebkitDirectory ? 'webkit' : 'indexeddb';
+                    
+                    enhancedVideos.push(enhancedVideo);
+                    
+                } catch (error) {
+                    console.warn(`⚠️ Error procesando video ${video.filename}:`, error);
+                    // Añadir de todos modos con datos básicos
+                    enhancedVideos.push({
+                        ...video,
+                        loadMode: 'error',
+                        error: error.message
+                    });
+                }
+            }
+            
+            // Si hay más videos, añadirlos sin procesar
+            if (videos.length > 20) {
+                for (let i = 20; i < videos.length; i++) {
+                    enhancedVideos.push({
+                        ...videos[i],
+                        loadMode: 'unprocessed',
+                        hasDuration: false
+                    });
+                }
+            }
+            
+            videos = enhancedVideos;
+            
+            // Filtrar y ordenar
+            this.state.videos = videos
+                .filter(video => video && (video.blob || video.fileHandle || video.id))
+                .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                
+            console.log(`✅ ${this.state.videos.length} videos cargados de carpeta LOCAL`, {
+                mode: this.localFolderHandle ? 'handle' : 'webkit/indexeddb',
+                withDuration: this.state.videos.filter(v => v.duration > 0).length,
+                totalVideos: this.state.videos.length
+            });
             
             this.renderVideosList();
             
@@ -5294,7 +5489,12 @@ class DashcamApp {
             console.error('❌ Error cargando vídeos de carpeta:', error);
             this.state.videos = [];
             this.renderVideosList();
-            this.showNotification('❌ Error al cargar carpeta local');
+            
+            // Mensaje de error específico
+            const errorMsg = this.state.settings.isWebkitDirectory 
+                ? '❌ Error al cargar carpeta iOS' 
+                : '❌ Error al cargar carpeta local';
+            this.showNotification(errorMsg);
         }
     }
         
@@ -7926,45 +8126,306 @@ setPlaybackSpeed(speed) {
 
     async syncPhysicalFilesWithDatabase() {
         try {
-            console.log('🔄 Sincronizando archivos físicos con base de datos...');
+            console.log('🔄 Sincronizando archivos físicos con base de datos...', {
+                hasLocalFolderHandle: !!this.localFolderHandle,
+                isWebkitDirectory: this.state.settings.isWebkitDirectory,
+                folderName: this.state.settings.localFolderName,
+                storageLocation: this.state.settings.storageLocation
+            });
             
-            if (!this.localFolderHandle) return;
+            // ===== VERIFICAR SI DEBEMOS SINCRONIZAR =====
+            const shouldSync = this.state.settings.storageLocation === 'localFolder' && 
+                             (this.localFolderHandle || this.state.settings.isWebkitDirectory);
             
-            // Escanear archivos físicos
-            const physicalFiles = await this.scanLocalFolderForVideos();
-            
-            // Obtener archivos de la base de datos
-            const dbFiles = await this.getAllFromStore('localFiles');
-            
-            // Buscar archivos físicos que no están en la BD
-            const dbFilenames = dbFiles.map(f => f.filename).filter(Boolean);
-            const newFiles = physicalFiles.filter(file => 
-                !dbFilenames.includes(file.filename)
-            );
-            
-            // Agregar nuevos archivos a la BD
-            for (const file of newFiles) {
-                if (file.filename) {
-                    const fileRef = {
-                        id: file.id || Date.now(),
-                        filename: file.filename,
-                        folderName: this.state.settings.localFolderName,
-                        timestamp: file.timestamp || Date.now(),
-                        size: file.size || 0,
-                        location: 'localFolder',
-                        session: file.session,
-                        source: 'filesystem'
-                    };
-                    
-                    await this.saveToDatabase('localFiles', fileRef);
-                    console.log(`✅ Añadido a BD: ${file.filename}`);
-                }
+            if (!shouldSync) {
+                console.log('⚠️ No es necesario sincronizar:', {
+                    reason: 'No en modo carpeta local o sin handle/webkit',
+                    storageLocation: this.state.settings.storageLocation,
+                    hasHandle: !!this.localFolderHandle,
+                    isWebkit: this.state.settings.isWebkitDirectory
+                });
+                return;
             }
             
-            console.log(`🔄 Sincronización completada: ${newFiles.length} nuevos archivos añadidos a BD`);
+            // ===== DIFERENTES ESTRATEGIAS DE SINCRONIZACIÓN =====
+            
+            if (this.localFolderHandle) {
+                // ESTRATEGIA 1: Con handle persistente - sincronizar físico con DB
+                console.log('🔍 Estrategia: Sincronizar archivos físicos (con handle)');
+                await this.syncPhysicalFilesWithHandle();
+                
+            } else if (this.state.settings.isWebkitDirectory) {
+                // ESTRATEGIA 2: webkitdirectory - sincronizar DB con referencias
+                console.log('📱 Estrategia: Sincronizar referencias webkitdirectory');
+                await this.syncWebkitDirectoryReferences();
+                
+            } else {
+                // ESTRATEGIA 3: Solo nombre de carpeta - limpiar DB
+                console.log('📝 Estrategia: Limpiar base de datos (solo nombre)');
+                await this.cleanupOrphanedDatabaseEntries();
+            }
+            
+            console.log('✅ Sincronización completada');
             
         } catch (error) {
             console.error('❌ Error sincronizando archivos:', error);
+            // No mostrar notificación para no molestar al usuario
+        }
+    }
+
+    async syncPhysicalFilesWithHandle() {
+        try {
+            console.log('🔄 Sincronizando archivos físicos usando handle...');
+            
+            if (!this.localFolderHandle) {
+                console.warn('⚠️ No hay handle para sincronizar');
+                return;
+            }
+            
+            // 1. Obtener archivos físicos
+            const physicalFiles = await this.scanLocalFolderForVideos();
+            console.log(`📁 Encontrados ${physicalFiles.length} archivos físicos`);
+            
+            if (physicalFiles.length === 0) {
+                console.log('📂 No hay archivos físicos para sincronizar');
+                return;
+            }
+            
+            // 2. Obtener referencias en base de datos
+            let dbReferences = [];
+            if (this.db) {
+                dbReferences = await this.getAllFromStore('localFiles');
+                console.log(`💾 Encontradas ${dbReferences.length} referencias en DB`);
+            }
+            
+            // 3. Crear mapa de referencias existentes
+            const existingRefs = new Map();
+            dbReferences.forEach(ref => {
+                if (ref.filename && ref.folderName === this.state.settings.localFolderName) {
+                    existingRefs.set(ref.filename, ref);
+                }
+            });
+            
+            // 4. Sincronizar: añadir nuevos, actualizar existentes
+            let added = 0;
+            let updated = 0;
+            
+            for (const physicalFile of physicalFiles) {
+                try {
+                    const existingRef = existingRefs.get(physicalFile.filename);
+                    
+                    if (!existingRef) {
+                        // Archivo nuevo - añadir a DB
+                        const newRef = {
+                            id: `physical_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                            filename: physicalFile.filename,
+                            folderName: this.state.settings.localFolderName,
+                            timestamp: physicalFile.timestamp || Date.now(),
+                            size: physicalFile.size,
+                            duration: physicalFile.duration || 0,
+                            location: 'local_folder',
+                            physicalLocation: 'filesystem',
+                            fileHandle: physicalFile.fileHandle ? 'available' : null,
+                            session: physicalFile.sessionName,
+                            lastSynced: Date.now()
+                        };
+                        
+                        if (this.db) {
+                            await this.saveToDatabase('localFiles', newRef);
+                        }
+                        added++;
+                        
+                    } else {
+                        // Archivo existente - verificar si necesita actualización
+                        const needsUpdate = 
+                            existingRef.size !== physicalFile.size ||
+                            existingRef.timestamp < (physicalFile.lastModified || 0);
+                        
+                        if (needsUpdate) {
+                            existingRef.size = physicalFile.size;
+                            existingRef.timestamp = physicalFile.lastModified || Date.now();
+                            existingRef.lastSynced = Date.now();
+                            
+                            if (this.db) {
+                                await this.saveToDatabase('localFiles', existingRef);
+                            }
+                            updated++;
+                        }
+                    }
+                    
+                } catch (fileError) {
+                    console.warn(`⚠️ Error sincronizando archivo ${physicalFile.filename}:`, fileError);
+                }
+            }
+            
+            // 5. Identificar y eliminar archivos huérfanos (en DB pero no en físico)
+            let removed = 0;
+            for (const dbRef of dbReferences) {
+                if (dbRef.folderName === this.state.settings.localFolderName) {
+                    const physicalExists = physicalFiles.some(f => f.filename === dbRef.filename);
+                    
+                    if (!physicalExists) {
+                        console.log(`🗑️ Archivo huérfano detectado: ${dbRef.filename}`);
+                        
+                        // Verificar si ha pasado suficiente tiempo antes de eliminar
+                        const refAge = Date.now() - (dbRef.lastSynced || dbRef.timestamp);
+                        const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 días
+                        
+                        if (refAge > maxAge) {
+                            if (this.db) {
+                                await this.deleteFromStore('localFiles', dbRef.id);
+                            }
+                            removed++;
+                            console.log(`✅ Eliminado archivo huérfano antiguo: ${dbRef.filename}`);
+                        } else {
+                            console.log(`⏳ Archivo huérfano reciente, manteniendo: ${dbRef.filename}`);
+                        }
+                    }
+                }
+            }
+            
+            console.log(`📊 Resumen sincronización física: +${added} añadidos, ↑${updated} actualizados, -${removed} eliminados`);
+            
+            if (added > 0 || updated > 0 || removed > 0) {
+                this.showNotification(`🔄 Sincronizado: ${added} nuevos, ${updated} actualizados`, 2000);
+            }
+            
+        } catch (error) {
+            console.error('❌ Error en syncPhysicalFilesWithHandle:', error);
+            throw error;
+        }
+    }
+
+    async syncWebkitDirectoryReferences() {
+        try {
+            console.log('📱 Sincronizando referencias webkitdirectory...');
+            
+            if (!this.state.settings.isWebkitDirectory || !this.state.settings.localFolderName) {
+                console.warn('⚠️ No hay carpeta webkitdirectory configurada');
+                return;
+            }
+            
+            if (!this.db) {
+                console.warn('⚠️ IndexedDB no disponible para sincronizar');
+                return;
+            }
+            
+            // 1. Obtener todas las referencias webkit de esta carpeta
+            const transaction = this.db.transaction(['localFiles'], 'readonly');
+            const store = transaction.objectStore('localFiles');
+            
+            const allRefs = await new Promise((resolve, reject) => {
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => reject(request.error);
+            });
+            
+            const webkitRefs = allRefs.filter(ref => 
+                ref.location === 'webkit_directory' && 
+                ref.folderName === this.state.settings.localFolderName
+            );
+            
+            console.log(`📱 Encontradas ${webkitRefs.length} referencias webkit para "${this.state.settings.localFolderName}"`);
+            
+            if (webkitRefs.length === 0) {
+                console.log('📂 No hay referencias webkit para sincronizar');
+                return;
+            }
+            
+            // 2. Verificar integridad de las referencias
+            let validRefs = 0;
+            let invalidRefs = 0;
+            let needsCleanup = false;
+            
+            for (const ref of webkitRefs) {
+                try {
+                    // Verificar que tenga los campos mínimos
+                    const isValid = ref.filename && ref.timestamp && ref.size;
+                    
+                    if (isValid) {
+                        validRefs++;
+                        
+                        // Actualizar timestamp de última verificación
+                        ref.lastVerified = Date.now();
+                        await this.saveToDatabase('localFiles', ref);
+                        
+                    } else {
+                        invalidRefs++;
+                        console.warn(`⚠️ Referencia inválida: ${ref.filename || 'sin nombre'}`);
+                        needsCleanup = true;
+                    }
+                    
+                } catch (refError) {
+                    console.warn(`⚠️ Error verificando referencia ${ref.filename}:`, refError);
+                    invalidRefs++;
+                    needsCleanup = true;
+                }
+            }
+            
+            // 3. Limpiar referencias inválidas si es necesario
+            if (needsCleanup) {
+                console.log(`🧹 Limpiando ${invalidRefs} referencias inválidas...`);
+                await this.cleanupInvalidWebkitReferences();
+            }
+            
+            console.log(`📊 Resumen sincronización webkit: ${validRefs} válidas, ${invalidRefs} inválidas`);
+            
+            if (invalidRefs > 0) {
+                this.showNotification(`📱 Sincronizado: ${validRefs} videos (${invalidRefs} problemas)`, 3000);
+            } else if (validRefs > 0) {
+                this.showNotification(`📱 Sincronizado: ${validRefs} videos listos`, 2000);
+            }
+            
+        } catch (error) {
+            console.error('❌ Error en syncWebkitDirectoryReferences:', error);
+            throw error;
+        }
+    }
+
+    async cleanupInvalidWebkitReferences() {
+        try {
+            console.log('🧹 Limpiando referencias webkit inválidas...');
+            
+            if (!this.db) return;
+            
+            const transaction = this.db.transaction(['localFiles'], 'readwrite');
+            const store = transaction.objectStore('localFiles');
+            const request = store.getAll();
+            
+            const allRefs = await new Promise((resolve, reject) => {
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => reject(request.error);
+            });
+            
+            const invalidRefs = allRefs.filter(ref => {
+                if (ref.location !== 'webkit_directory') return false;
+                
+                // Criterios de invalidez
+                const isInvalid = 
+                    !ref.filename || 
+                    !ref.timestamp || 
+                    !ref.size ||
+                    (ref.size && (ref.size <= 0 || ref.size > 1000 * 1024 * 1024)); // > 1GB es sospechoso
+                
+                return isInvalid;
+            });
+            
+            console.log(`🗑️ Encontradas ${invalidRefs.length} referencias inválidas para eliminar`);
+            
+            // Eliminar referencias inválidas
+            for (const ref of invalidRefs) {
+                try {
+                    await this.deleteFromStore('localFiles', ref.id);
+                    console.log(`✅ Eliminada referencia inválida: ${ref.filename || 'sin nombre'}`);
+                } catch (deleteError) {
+                    console.warn(`⚠️ Error eliminando referencia ${ref.id}:`, deleteError);
+                }
+            }
+            
+            console.log('✅ Limpieza de referencias webkit completada');
+            
+        } catch (error) {
+            console.error('❌ Error en cleanupInvalidWebkitReferences:', error);
         }
     }
 
@@ -8074,6 +8535,52 @@ setPlaybackSpeed(speed) {
         } catch (error) {
             console.error('❌ Error en extractGPSMetadataFromMP4:', error);
             return [];
+        }
+    }
+
+    async cleanupOrphanedDatabaseEntries() {
+        try {
+            console.log('🧹 Limpiando entradas huérfanas en base de datos...');
+            
+            if (!this.db || !this.state.settings.localFolderName) return;
+            
+            const transaction = this.db.transaction(['localFiles'], 'readwrite');
+            const store = transaction.objectStore('localFiles');
+            const request = store.getAll();
+            
+            const allEntries = await new Promise((resolve, reject) => {
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => reject(request.error);
+            });
+            
+            // Identificar entradas huérfanas (sin carpeta física correspondiente)
+            const orphanedEntries = allEntries.filter(entry => {
+                // Entradas muy antiguas sin sincronización reciente
+                const lastSynced = entry.lastSynced || entry.timestamp;
+                const age = Date.now() - lastSynced;
+                const maxAge = 30 * 24 * 60 * 60 * 1000; // 30 días
+                
+                return age > maxAge && entry.folderName !== this.state.settings.localFolderName;
+            });
+            
+            console.log(`🗑️ Encontradas ${orphanedEntries.length} entradas huérfanas antiguas`);
+            
+            // Eliminar entradas huérfanas
+            for (const entry of orphanedEntries) {
+                try {
+                    await this.deleteFromStore('localFiles', entry.id);
+                    console.log(`✅ Eliminada entrada huérfana: ${entry.filename || entry.id}`);
+                } catch (deleteError) {
+                    console.warn(`⚠️ Error eliminando entrada ${entry.id}:`, deleteError);
+                }
+            }
+            
+            if (orphanedEntries.length > 0) {
+                console.log(`✅ Limpieza completada: ${orphanedEntries.length} entradas eliminadas`);
+            }
+            
+        } catch (error) {
+            console.error('❌ Error en cleanupOrphanedDatabaseEntries:', error);
         }
     }
 
