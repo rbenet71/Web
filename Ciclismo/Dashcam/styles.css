@@ -3202,6 +3202,53 @@ button:hover {
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
+/* Estados de carpeta */
+.folder-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 12px;
+    display: inline-block;
+    margin-right: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.folder-status-write {
+    background-color: #10b981;
+    color: white;
+    animation: pulse-green 2s infinite;
+}
+
+.folder-status-readonly {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.folder-status-unknown {
+    background-color: #6b7280;
+    color: white;
+}
+
+.folder-status.app-only {
+    background-color: #8b5cf6;
+    color: white;
+}
+
+@keyframes pulse-green {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+#folderName {
+    font-family: monospace;
+    font-size: 11px;
+    white-space: pre-line;
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
 /*
 #galleryPanel .scrollable-list,
 #galleryPanel .session-videos-container {

@@ -1,6 +1,6 @@
-// Dashcam PWA v4.8.10 - Versión Completa Simplificada
+// Dashcam PWA v4.8.11 - Versión Completa Simplificada
 
-const APP_VERSION = '4.8.10';
+const APP_VERSION = '4.8.11';
 
 class DashcamApp {
     constructor() {
@@ -350,122 +350,114 @@ class DashcamApp {
     // Función para detectar si está instalado como PWA
     // Detección mejorada de PWA
 
-    async detectPWAInstallation() {  // <-- AÑADIR 'async' AQUÍ
-        console.log('🔍 Detectando instalación PWA...');
+    async detectPWAInstallation() {
+        console.log('🔍 Detectando PWA instalado (versión mejorada)...');
         
-        // Métodos de detección para diferentes navegadores
-        const detectionMethods = [
-            // Método estándar - display-mode: standalone
-            () => {
-                if (window.matchMedia) {
-                    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-                    if (isStandalone) {
-                        console.log('✅ Detectado: display-mode: standalone');
-                        return true;
-                    }
-                }
-                return false;
-            },
-            
-            // iOS Safari - navigator.standalone
-            () => {
-                if (window.navigator.standalone === true) {
-                    console.log('✅ Detectado: navigator.standalone === true (iOS)');
-                    return true;
-                }
-                return false;
-            },
-            
-            // Android Chrome - referrer
-            () => {
-                if (document.referrer.includes('android-app://')) {
-                    console.log('✅ Detectado: android-app:// en referrer (Android)');
-                    return true;
-                }
-                return false;
-            },
-            
-            // localStorage - marcado manual
-            () => {
-                const isManuallyMarked = localStorage.getItem('dashcam_pwa_installed') === 'true' ||
-                                         localStorage.getItem('pwa_installed') === 'true';
-                if (isManuallyMarked) {
-                    console.log('✅ Detectado: Marcado manualmente en localStorage');
-                    return true;
-                }
-                return false;
-            },
-            
-            // URL parameters - para debugging
-            () => {
-                const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.get('pwa') === 'true' || urlParams.get('pwa_test') === 'true') {
-                    console.log('✅ Detectado: Parámetro URL pwa=true');
-                    return true;
-                }
-                return false;
-            }
-        ];
-        
-        // Probar cada método
-        this.isPWAInstalled = false;
-        let detectionMethodUsed = 'ninguno';
-        
-        for (let i = 0; i < detectionMethods.length; i++) {
-            try {
-                if (detectionMethods[i]()) {
-                    this.isPWAInstalled = true;
-                    detectionMethodUsed = `método ${i + 1}`;
-                    break;
-                }
-            } catch (error) {
-                console.warn(`⚠️ Error en método de detección ${i + 1}:`, error);
-                continue;
-            }
+        // ===== MÉTODO 1: display-mode standalone =====
+        if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) {
+            console.log('✅ PWA detectado: display-mode: standalone');
+            this.isPWAInstalled = true;
+            this.state.settings.pwaInstalled = true;
+            this.state.settings.pwaDetectionMethod = 'display-mode';
+            return true;
         }
         
-        // Verificación adicional para Service Worker (usa await)
-        if (!this.isPWAInstalled && window.location.protocol !== 'file:' && 'serviceWorker' in navigator) {
-            try {
-                const registrations = await navigator.serviceWorker.getRegistrations(); // <-- ESTE ES EL AWAIT
-                const hasActiveSW = registrations.some(reg => 
-                    reg.active && reg.scope.includes(location.origin)
-                );
-                if (hasActiveSW) {
-                    this.isPWAInstalled = true;
-                    detectionMethodUsed = 'service worker activo';
-                    console.log('📱 PWA detectado por Service Worker activo');
-                }
-            } catch (error) {
-                console.log('⚠️ No se pudo verificar Service Worker:', error.message);
-            }
+        // ===== MÉTODO 2: navigator.standalone (iOS específico) =====
+        if (window.navigator.standalone === true) {
+            console.log('✅ PWA detectado: navigator.standalone (iOS)');
+            this.isPWAInstalled = true;
+            this.state.settings.pwaInstalled = true;
+            this.state.settings.pwaDetectionMethod = 'navigator.standalone';
+            return true;
         }
         
-        // Verificación de tamaño de ventana (PWA suele abrirse en ventana completa)
-        if (!this.isPWAInstalled) {
-            try {
-                const isFullscreen = window.outerWidth === window.screen.availWidth &&
-                                     window.outerHeight === window.screen.availHeight;
-                const isAlmostFullscreen = window.outerWidth >= window.screen.availWidth * 0.95;
+        // ===== MÉTODO 3: Parámetro URL (para debugging) =====
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('pwa') && urlParams.get('pwa') === 'installed') {
+            console.log('✅ PWA detectado: parámetro URL (debug)');
+            this.isPWAInstalled = true;
+            this.state.settings.pwaInstalled = true;
+            this.state.settings.pwaDetectionMethod = 'url-parameter';
+            return true;
+        }
+        
+        // ===== MÉTODO 4: localStorage marcado manualmente =====
+        if (localStorage.getItem('dashcam_pwa_installed') === 'true') {
+            console.log('✅ PWA detectado: localStorage marcado');
+            this.isPWAInstalled = true;
+            this.state.settings.pwaInstalled = true;
+            this.state.settings.pwaDetectionMethod = 'localStorage';
+            return true;
+        }
+        
+        // ===== MÉTODO 5: Verificación por referrer (Android) =====
+        if (document.referrer.includes('android-app://')) {
+            console.log('✅ PWA detectado: android-app referrer');
+            this.isPWAInstalled = true;
+            this.state.settings.pwaInstalled = true;
+            this.state.settings.pwaDetectionMethod = 'android-referrer';
+            return true;
+        }
+        
+        // ===== MÉTODO 6: Usuario confirma manualmente =====
+        if (this.state.settings.pwaInstalled === true) {
+            console.log('✅ PWA detectado: configuración guardada');
+            this.isPWAInstalled = true;
+            this.state.settings.pwaDetectionMethod = 'settings';
+            return true;
+        }
+        
+        // ===== NUEVO: VERIFICACIÓN MEJORADA PARA iOS PWA INSTALADO =====
+        if (this.isIOS) {
+            console.log('📱 Verificación específica para iOS...');
+            
+            // Indicadores de PWA instalado en iOS
+            const isLikelyiOSPWA = 
+                window.navigator.standalone === true ||
+                !window.navigator.userAgent.includes('Safari') ||
+                window.matchMedia('(display-mode: standalone)').matches;
+            
+            if (isLikelyiOSPWA) {
+                console.log('📱 iOS parece estar en modo PWA instalado');
                 
-                if ((isFullscreen || isAlmostFullscreen) && !window.opener) {
-                    // Podría ser PWA, pero no es concluyente
-                    console.log('📱 Posible PWA: Ventana a pantalla completa');
-                    // No marcamos como instalado, pero lo registramos
+                // Prueba de API adicional
+                if (window.showDirectoryPicker) {
+                    console.log('🎯 iOS PWA tiene showDirectoryPicker disponible');
+                    this.isPWAInstalled = true;
+                    this.state.settings.pwaInstalled = true;
+                    this.state.settings.pwaDetectionMethod = 'ios-pwa-check';
+                    this.state.settings.canUseModernAPI = true;
+                    return true;
+                } else {
+                    console.log('ℹ️ iOS PWA pero sin showDirectoryPicker');
                 }
-            } catch (error) {
-                // Ignorar errores de seguridad con screen.availWidth
             }
         }
         
-        console.log(`📱 Resultado detección PWA: ${this.isPWAInstalled ? '✅ INSTALADO' : '❌ NO INSTALADO'} (via ${detectionMethodUsed})`);
+        // ===== VERIFICAR APIS DISPONIBLES =====
+        console.log('🔧 APIs disponibles en este entorno:');
+        console.log('- showDirectoryPicker:', !!window.showDirectoryPicker);
+        console.log('- File System Access:', !!window.showOpenFilePicker);
+        console.log('- Permissions API:', !!navigator.permissions);
+        console.log('- Storage API:', navigator.storage ? 'Sí' : 'No');
         
-        // Guardar resultado para uso futuro
-        if (this.isPWAInstalled) {
-            localStorage.setItem('dashcam_pwa_installed', 'true');
+        // Si showDirectoryPicker está disponible, asumimos que es PWA o entorno con permisos
+        if (window.showDirectoryPicker) {
+            console.log('🎯 showDirectoryPicker disponible - asumiendo entorno con permisos');
+            this.isPWAInstalled = true;
+            this.state.settings.pwaInstalled = true;
+            this.state.settings.pwaDetectionMethod = 'api-check';
+            this.state.settings.canUseModernAPI = true;
+            return true;
         }
         
-        return this.isPWAInstalled;
+        // ===== NO ES PWA INSTALADO =====
+        console.log('❌ No se detectó PWA instalado');
+        this.isPWAInstalled = false;
+        this.state.settings.pwaInstalled = false;
+        this.state.settings.pwaDetectionMethod = 'none';
+        
+        return false;
     }
 
     markAsPWAInstalled() {
@@ -2371,53 +2363,133 @@ class DashcamApp {
             this.state.recordingSessionName = sessionName;
             
             console.log(`📂 Creando carpeta de sesión: ${sessionName}`);
+            console.log('- Modo actual:', this.state.settings.folderAccessMethod);
+            console.log('- Puede escribir directamente:', this.state.settings.canWriteDirectly);
+            console.log('- Tiene handle:', !!this.localFolderHandle);
             
-            // ===== CREAR CARPETA FÍSICA EN DISPOSITIVO EXTERNO =====
-            if (this.state.settings.storageLocation === 'localFolder' && this.localFolderHandle) {
-                console.log('📍 Creando carpeta física en dispositivo...');
+            // ===== CASO 1: PWA INSTALADO CON ESCRITURA DIRECTA =====
+            if (this.localFolderHandle && this.state.settings.canWriteDirectly) {
+                console.log('🎯 PWA con escritura directa: Creando carpeta física en USB...');
                 
                 try {
-                    // Verificar permisos primero
-                    const permission = await this.localFolderHandle.requestPermission({ mode: 'readwrite' });
-                    if (permission !== 'granted') {
-                        console.warn('⚠️ Permiso denegado para crear carpeta');
-                        this.showNotification('⚠️ No se pudo crear carpeta de sesión');
-                        return true; // Continuar con nombre en memoria
+                    // ¡ESTO ES LO QUE QUEREMOS!
+                    // Crear carpeta física en el sistema de archivos
+                    const sessionFolder = await this.localFolderHandle.getDirectoryHandle(sessionName, { 
+                        create: true 
+                    });
+                    
+                    console.log(`✅ Carpeta física creada en USB: ${sessionName}`);
+                    
+                    // Crear archivo de metadatos dentro de la carpeta
+                    const metadataFile = await sessionFolder.getFileHandle('dashcam_metadata.json', { create: true });
+                    const writable = await metadataFile.createWritable();
+                    
+                    const metadata = {
+                        app: 'DashCam PWA',
+                        version: this.state.appVersion,
+                        sessionName: sessionName,
+                        created: new Date().toISOString(),
+                        device: navigator.userAgent,
+                        canWriteDirectly: true,
+                        expectedFiles: [],
+                        notes: 'Carpeta creada automáticamente por DashCam PWA'
+                    };
+                    
+                    await writable.write(JSON.stringify(metadata, null, 2));
+                    await writable.close();
+                    
+                    // Actualizar estado
+                    this.state.settings.currentSessionFolder = sessionName;
+                    this.state.settings.sessionPhysicalPath = `${this.state.settings.localFolderName}/${sessionName}`;
+                    
+                    // Guardar en IndexedDB también
+                    if (this.db) {
+                        await this.saveToDatabase('sessions', {
+                            id: sessionName,
+                            name: sessionName,
+                            created: Date.now(),
+                            physicalPath: this.state.settings.sessionPhysicalPath,
+                            folderHandleSaved: true,
+                            isPhysical: true
+                        });
                     }
                     
-                    // Crear carpeta físicamente
-                    const sessionFolder = await this.localFolderHandle.getDirectoryHandle(sessionName, { create: true });
-                    console.log(`✅ Carpeta física creada: ${sessionName}`);
+                    this.showNotification(
+                        `📁 Carpeta creada en USB:\n` +
+                        `📍 ${this.state.settings.localFolderName}/${sessionName}\n` +
+                        `✅ Los videos se guardarán aquí automáticamente`,
+                        6000
+                    );
                     
-                    // Crear archivo de marcador en la carpeta
-                    try {
-                        const readmeFile = await sessionFolder.getFileHandle('README.txt', { create: true });
-                        const writable = await readmeFile.createWritable();
-                        await writable.write(`Sesión de DashCam\nCreada: ${new Date().toISOString()}\nApp: DashCam v${APP_VERSION}`);
-                        await writable.close();
-                    } catch (e) {
-                        console.warn('No se pudo crear archivo README:', e);
-                    }
-                    
-                    this.showNotification(`📁 Carpeta creada: ${sessionName}`);
+                    return true;
                     
                 } catch (error) {
                     console.error('❌ Error creando carpeta física:', error);
-                    this.showNotification('⚠️ Carpeta creada en memoria (error físico)');
-                    // Continuar con solo el nombre en memoria
+                    this.showNotification(
+                        `⚠️ No se pudo crear carpeta física\n` +
+                        `Error: ${error.message || 'Desconocido'}`,
+                        5000
+                    );
+                    
+                    // Fallback a sesión virtual
+                    return this.createVirtualSession(sessionName);
                 }
-            } else {
-                // Solo crear nombre de sesión en memoria (para guardado en app)
-                console.log('📱 Carpeta de sesión en memoria:', sessionName);
-                this.showNotification(`📁 Sesión creada: ${sessionName}`);
             }
             
-            return true;
+            // ===== CASO 2: WEBKITDIRECTORY (SOLO LECTURA) =====
+            else if (this.state.settings.isWebkitDirectory) {
+                console.log('📖 Modo webkit (solo lectura): Creando sesión virtual...');
+                
+                // Crear sesión solo en memoria/IndexedDB
+                this.state.settings.currentSessionFolder = sessionName;
+                this.state.settings.sessionVirtualPath = `${this.state.settings.localFolderName}/${sessionName}`;
+                
+                this.showNotification(
+                    `📁 Sesión virtual creada: ${sessionName}\n` +
+                    `⚠️ Modo solo lectura: Los videos se descargarán individualmente\n` +
+                    `💡 Para carpetas automáticas: instala como PWA`,
+                    6000
+                );
+                
+                return true;
+            }
+            
+            // ===== CASO 3: SIN CARPETA SELECCIONADA =====
+            else {
+                console.log('📱 Sin carpeta seleccionada: Sesión solo en app');
+                this.showNotification(`📁 Sesión creada en la app: ${sessionName}`);
+                return true;
+            }
             
         } catch (error) {
             console.error('❌ Error creando carpeta de sesión:', error);
             this.state.recordingSessionName = null;
             this.showNotification('❌ Error creando sesión');
+            return false;
+        }
+    }
+
+    // Función auxiliar para sesión virtual
+    async createVirtualSession(sessionName) {
+        try {
+            // Guardar en IndexedDB
+            if (this.db) {
+                await this.saveToDatabase('sessions', {
+                    id: sessionName,
+                    name: sessionName,
+                    created: Date.now(),
+                    physicalPath: null,
+                    folderHandleSaved: false,
+                    isPhysical: false,
+                    isVirtual: true
+                });
+            }
+            
+            console.log(`📱 Sesión virtual creada: ${sessionName}`);
+            return true;
+            
+        } catch (error) {
+            console.error('❌ Error creando sesión virtual:', error);
             return false;
         }
     }
@@ -3730,264 +3802,189 @@ class DashcamApp {
     }
 
     async showIOSFolderPicker() {
-        try {
-            console.log('📱 Iniciando selector de carpeta iOS...');
-            this.showNotification('📱 Selecciona una carpeta...');
+        console.log('📱 Iniciando selector de carpeta para iOS...');
+        console.log('- PWA instalado:', this.isPWAInstalled);
+        console.log('- showDirectoryPicker disponible:', !!window.showDirectoryPicker);
+        
+        // ===== ESTRATEGIA 1: PWA INSTALADO CON API MODERNA =====
+        if (this.isPWAInstalled && window.showDirectoryPicker) {
+            console.log('🚀 PWA INSTALADO: Intentando showDirectoryPicker con permisos completos...');
             
-            // ===== 1. INTENTAR CON API MODERNA (iOS 14.3+ con Safari 15+) =====
-            if (window.showDirectoryPicker) {
-                try {
-                    console.log('✅ API showDirectoryPicker disponible');
-                    
-                    // Configurar opciones específicas para iOS
-                    const options = {
-                        id: 'dashcam-folder-picker',
-                        mode: 'readwrite',
-                        startIn: 'documents' // 'desktop', 'documents', 'downloads', 'music', 'pictures', 'videos'
-                    };
-                    
-                    // Mostrar selector
-                    const directoryHandle = await window.showDirectoryPicker(options);
-                    console.log('📁 Carpeta seleccionada:', directoryHandle.name, directoryHandle);
-                    
-                    // Verificar si es un dispositivo externo
-                    let isExternalDevice = false;
-                    try {
-                        // Intentar determinar si es un dispositivo externo
-                        const root = await directoryHandle.getDirectoryHandle('..', { create: false }).catch(() => null);
-                        if (root) {
-                            const entries = [];
-                            for await (const entry of root.values()) {
-                                entries.push(entry.name);
-                            }
-                            // Heurística: si contiene nombres comunes de dispositivos
-                            const externalKeywords = ['usb', 'external', 'drive', 'sd', 'card', 'disk', 'vol'];
-                            isExternalDevice = externalKeywords.some(keyword => 
-                                directoryHandle.name.toLowerCase().includes(keyword)
-                            );
-                        }
-                    } catch (e) {
-                        console.warn('No se pudo verificar si es dispositivo externo:', e);
-                    }
-                    
-                    // 2. Verificar y solicitar permisos
-                    console.log('🔐 Verificando permisos...');
-                    const permissionStatus = await directoryHandle.queryPermission({ mode: 'readwrite' });
-                    
-                    if (permissionStatus !== 'granted') {
-                        this.showNotification('🔐 Solicitando permisos...');
-                        const newPermission = await directoryHandle.requestPermission({ mode: 'readwrite' });
-                        
-                        if (newPermission !== 'granted') {
-                            this.showNotification('❌ Se necesitan permisos de escritura');
-                            return false;
-                        }
-                    }
-                    
-                    // 3. Guardar handle persistentemente
-                    await this.saveFolderHandle(directoryHandle);
-                    
-                    // 4. Actualizar estado
-                    this.localFolderHandle = directoryHandle;
-                    this.state.settings.storageLocation = 'localFolder';
-                    this.state.settings.localFolderName = directoryHandle.name;
-                    this.state.settings.isWebkitDirectory = false;
-                    this.state.settings.isExternalDevice = isExternalDevice;
-                    
-                    // 5. Guardar configuración inmediatamente
-                    try {
-                        await this.saveSettings();
-                        console.log('💾 Configuración guardada');
-                    } catch (e) {
-                        console.warn('⚠️ Error guardando settings:', e);
-                    }
-                    
-                    // 6. Actualizar interfaz inmediatamente
-                    this.updateFolderUI();
-                    
-                    // 7. Mostrar notificación específica
-                    let notificationMsg = `✅ Carpeta "${directoryHandle.name}" seleccionada`;
-                    if (isExternalDevice) {
-                        notificationMsg += ` (Dispositivo externo)`;
-                    }
-                    this.showNotification(notificationMsg);
-                    
-                    // 8. Escanear contenido inicial
-                    setTimeout(async () => {
-                        this.showNotification('🔍 Escaneando carpeta...');
-                        await this.scanLocalFolderForVideos();
-                    }, 1000);
-                    
-                    return true;
-                    
-                } catch (error) {
-                    console.error('❌ Error con showDirectoryPicker:', error);
-                    
-                    // Si el usuario cancela, salir silenciosamente
-                    if (error.name === 'AbortError' || error.message?.includes('cancel')) {
-                        console.log('Selección cancelada por el usuario');
-                        return false;
-                    }
-                    
-                    // Si hay error de seguridad/permisos, continuar con fallback
-                    console.log('⚠️ Fallando a método alternativo...');
-                }
-            }
-            
-            // ===== 2. FALLBACK: webkitdirectory (Safari tradicional) =====
-            if ('webkitdirectory' in HTMLInputElement.prototype) {
-                console.log('🔄 Usando webkitdirectory (fallback iOS)');
-                
-                return new Promise((resolve) => {
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.webkitdirectory = true;
-                    input.multiple = true;
-                    input.accept = 'video/*,.mp4,.webm';
-                    input.style.display = 'none';
-                    
-                    // Workaround específico para iOS Safari
-                    if (this.isIOS) {
-                        // Para iOS, usar configuración más compatible
-                        input.removeAttribute('accept');
-                        setTimeout(() => {
-                            input.accept = '*/*';
-                        }, 50);
-                    }
-                    
-                    input.onchange = async (event) => {
-                        const files = Array.from(event.target.files);
-                        
-                        if (files.length === 0) {
-                            this.showNotification('❌ No se seleccionaron archivos');
-                            resolve(false);
-                            return;
-                        }
-                        
-                        // Obtener información de la carpeta desde el primer archivo
-                        const firstFile = files[0];
-                        let folderName = 'Carpeta iOS';
-                        let isExternalDevice = false;
-                        
-                        // Intentar extraer nombre de carpeta del path
-                        if (firstFile.webkitRelativePath) {
-                            const pathParts = firstFile.webkitRelativePath.split('/');
-                            if (pathParts.length > 1) {
-                                folderName = pathParts[0];
-                                
-                                // Detectar si es dispositivo externo
-                                const externalIndicators = ['usb', 'external', 'drive', 'sd', 'card', 'disk', 'volumes'];
-                                isExternalDevice = externalIndicators.some(indicator => 
-                                    folderName.toLowerCase().includes(indicator) ||
-                                    firstFile.webkitRelativePath.toLowerCase().includes(indicator)
-                                );
-                            }
-                        }
-                        
-                        // === ACTUALIZAR ESTADO CRÍTICO ===
-                        this.state.settings.storageLocation = 'localFolder';
-                        this.state.settings.localFolderName = folderName;
-                        this.state.settings.isWebkitDirectory = true;
-                        this.state.settings.isExternalDevice = isExternalDevice;
-                        
-                        console.log('📝 Estado actualizado:', {
-                            storageLocation: this.state.settings.storageLocation,
-                            localFolderName: this.state.settings.localFolderName,
-                            isWebkitDirectory: this.state.settings.isWebkitDirectory,
-                            isExternalDevice: this.state.settings.isExternalDevice
-                        });
-                        
-                        // === GUARDAR CONFIGURACIÓN INMEDIATAMENTE ===
-                        try {
-                            await this.saveSettings();
-                            console.log('💾 Configuración guardada después de selección');
-                        } catch (e) {
-                            console.warn('⚠️ Error guardando settings:', e);
-                        }
-                        
-                        // === ACTUALIZAR INTERFAZ INMEDIATAMENTE ===
-                        this.updateFolderUI();
-                        
-                        // Formatear nombre para mostrar
-                        let displayName = folderName;
-                        if (isExternalDevice) {
-                            displayName += ' (USB/Externo)';
-                        } else {
-                            displayName += ' (No persistente)';
-                        }
-                        
-                        // Mostrar notificación
-                        let notificationMsg = `📁 ${displayName} seleccionada`;
-                        if (!isExternalDevice) {
-                            notificationMsg += '\n⚠️ La carpeta no persistirá tras cerrar la app';
-                        }
-                        this.showNotification(notificationMsg, 5000);
-                        
-                        // Guardar archivos en IndexedDB como referencia
-                        for (const file of files) {
-                            if (file.type.startsWith('video/')) {
-                                const videoData = {
-                                    id: `webkit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                                    filename: file.name,
-                                    webkitPath: file.webkitRelativePath,
-                                    timestamp: file.lastModified,
-                                    size: file.size,
-                                    type: file.type,
-                                    blob: file,
-                                    location: 'webkit_directory',
-                                    folderName: folderName,
-                                    isExternalDevice: isExternalDevice
-                                };
-                                
-                                if (this.db) {
-                                    await this.saveToDatabase('localFiles', videoData);
-                                }
-                            }
-                        }
-                        
-                        // Limpiar input
-                        input.remove();
-                        
-                        // Retornar éxito
-                        console.log('✅ Selección completada exitosamente');
-                        resolve(true);
-                    };
-                    
-                    input.oncancel = () => {
-                        console.log('Selector cancelado');
-                        input.remove();
-                        this.showNotification('❌ Selección cancelada');
-                        resolve(false);
-                    };
-                    
-                    // Añadir al documento y disparar click
-                    document.body.appendChild(input);
-                    
-                    // Pequeño delay para asegurar que iOS procese el input
-                    setTimeout(() => {
-                        input.click();
-                    }, 100);
+            try {
+                // Solicitar permisos de escritura directa
+                const directoryHandle = await window.showDirectoryPicker({
+                    id: 'dashcam-pwa-usb-folder',
+                    mode: 'readwrite', // ¡ESCRITURA HABILITADA!
+                    startIn: 'desktop' // o 'documents', 'downloads'
                 });
                 
-            } else {
-                // ===== 3. NINGUNA API DISPONIBLE =====
-                console.log('❌ Ninguna API de selección de carpetas disponible');
-                this.showNotification('❌ Tu navegador no soporta selección de carpetas');
-                this.showIOSInstructions();
-                return false;
+                // Verificar permisos explícitamente
+                const permission = await directoryHandle.requestPermission({ mode: 'readwrite' });
+                
+                if (permission !== 'granted') {
+                    console.warn('⚠️ Permisos de escritura no concedidos');
+                    this.showNotification('❌ Permiso denegado para escribir en la carpeta');
+                    return false;
+                }
+                
+                console.log('🎉 ¡ÉXITO! Handle obtenido con permisos de escritura:', directoryHandle.name);
+                
+                // Guardar handle persistentemente
+                this.localFolderHandle = directoryHandle;
+                this.state.settings.storageLocation = 'localFolder';
+                this.state.settings.localFolderName = directoryHandle.name;
+                this.state.settings.isWebkitDirectory = false; // ¡NO usamos modo limitado!
+                this.state.settings.canWriteDirectly = true; // Nueva flag crítica
+                this.state.settings.folderAccessMethod = 'direct-write';
+                
+                // Verificar si podemos escribir
+                try {
+                    // Prueba de escritura: crear archivo temporal
+                    const testFile = await directoryHandle.getFileHandle('test_dashcam.txt', { create: true });
+                    const writable = await testFile.createWritable();
+                    await writable.write('DashCam Test - ' + new Date().toISOString());
+                    await writable.close();
+                    
+                    // Eliminar archivo de prueba
+                    await directoryHandle.removeEntry('test_dashcam.txt');
+                    
+                    console.log('✅ Prueba de escritura exitosa');
+                    this.state.settings.writeTestPassed = true;
+                    
+                } catch (writeError) {
+                    console.warn('⚠️ Prueba de escritura falló:', writeError);
+                    this.state.settings.writeTestPassed = false;
+                }
+                
+                // Actualizar interfaz
+                this.updateFolderUI();
+                
+                // Guardar configuración
+                await this.saveSettings();
+                
+                this.showNotification(
+                    `✅ Carpeta "${directoryHandle.name}" seleccionada\n` +
+                    `🔓 Permisos de escritura: ACTIVADOS\n` +
+                    `📁 Puedes crear carpetas de sesión automáticamente`,
+                    6000
+                );
+                
+                return true;
+                
+            } catch (error) {
+                console.warn('⚠️ showDirectoryPicker falló en PWA:', error);
+                
+                // Mostrar error específico
+                if (error.name === 'AbortError') {
+                    this.showNotification('Selección de carpeta cancelada');
+                } else {
+                    this.showNotification(`Error: ${error.message || 'No se pudo acceder a la carpeta'}`);
+                }
+                
+                // Continuar con estrategia 2
             }
-            
-        } catch (error) {
-            console.error('❌ Error en selector iOS:', error);
-            this.showNotification('❌ Error seleccionando carpeta');
-            
-            // Mostrar instrucciones de depuración
-            if (error.message?.includes('permission') || error.name === 'SecurityError') {
-                this.showNotification('🔐 Problema de permisos. Prueba a instalar la app como PWA.');
-            }
-            
-            return false;
         }
+        
+        // ===== ESTRATEGIA 2: WEBKITDIRECTORY (MODO LIMITADO) =====
+        console.log('🔄 Usando webkitdirectory (modo limitado lectura)...');
+        
+        return new Promise((resolve) => {
+            // Crear input para selección de carpeta
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.id = 'webkit-folder-picker';
+            input.webkitdirectory = true;
+            input.multiple = true;
+            input.accept = 'video/*,.mp4,.mov,.gpx';
+            input.style.display = 'none';
+            
+            input.addEventListener('change', async (event) => {
+                try {
+                    const files = Array.from(event.target.files || []);
+                    
+                    if (files.length === 0) {
+                        this.showNotification('❌ No se seleccionaron archivos');
+                        resolve(false);
+                        return;
+                    }
+                    
+                    // Obtener nombre de carpeta del primer archivo
+                    const firstFile = files[0];
+                    const webkitPath = firstFile.webkitRelativePath || '';
+                    const folderName = webkitPath.split('/')[0] || 'Carpeta Seleccionada';
+                    
+                    console.log('📂 Carpeta seleccionada via webkitdirectory:', folderName);
+                    console.log('- Archivos encontrados:', files.length);
+                    
+                    // Configurar modo webkit (solo lectura)
+                    this.localFolderHandle = null; // No hay handle de escritura
+                    this.state.settings.storageLocation = 'localFolder';
+                    this.state.settings.localFolderName = folderName;
+                    this.state.settings.isWebkitDirectory = true; // MODO LIMITADO
+                    this.state.settings.canWriteDirectly = false; // No puede escribir
+                    this.state.settings.folderAccessMethod = 'webkit-readonly';
+                    this.state.settings.webkitFilesCount = files.length;
+                    this.state.settings.webkitLastScan = Date.now();
+                    
+                    // Guardar referencias de archivos en IndexedDB
+                    for (const file of files) {
+                        await this.saveWebkitFileReference({
+                            name: file.name,
+                            path: file.webkitRelativePath,
+                            size: file.size,
+                            type: file.type,
+                            lastModified: file.lastModified
+                        });
+                    }
+                    
+                    // Actualizar interfaz
+                    this.updateFolderUI();
+                    
+                    // Guardar configuración
+                    await this.saveSettings();
+                    
+                    // Cargar videos desde la carpeta
+                    await this.loadLocalFolderVideos();
+                    
+                    this.showNotification(
+                        `📂 Carpeta "${folderName}" seleccionada\n` +
+                        `📖 Modo: Solo lectura (${files.length} archivos)\n` +
+                        `⚠️ Para escritura: instala como PWA`,
+                        6000
+                    );
+                    
+                    resolve(true);
+                    
+                } catch (error) {
+                    console.error('❌ Error procesando carpeta webkit:', error);
+                    this.showNotification('Error procesando carpeta seleccionada');
+                    resolve(false);
+                } finally {
+                    // Limpiar input
+                    if (input.parentNode) {
+                        input.parentNode.removeChild(input);
+                    }
+                }
+            });
+            
+            // Añadir input al documento y hacer clic
+            document.body.appendChild(input);
+            
+            // Trigger file picker
+            setTimeout(() => {
+                input.click();
+            }, 100);
+            
+            // Timeout después de 30 segundos
+            setTimeout(() => {
+                if (input.parentNode) {
+                    input.parentNode.removeChild(input);
+                }
+                console.log('⏰ Timeout selector de carpeta');
+                this.showNotification('Tiempo agotado para seleccionar carpeta');
+                resolve(false);
+            }, 30000);
+        });
     }
 
     async processFolderSelection(directoryHandle) {
@@ -4036,302 +4033,100 @@ class DashcamApp {
     }
 
     updateFolderUI() {
-        console.log('🔴🔴🔴 UPDATE FOLDER UI EJECUTADO - Stack trace:');
-        console.trace(); // Muestra QUIÉN llamó la función
+        console.log('🔄 Actualizando interfaz de carpeta...');
         
-        // ===== VERIFICACIÓN INICIAL CRÍTICA =====
-        console.log('🔍 Verificando estado inicial:', {
-            tieneState: !!this.state,
-            tieneSettings: !!(this.state && this.state.settings),
-            tieneElements: !!this.elements,
-            timestamp: new Date().toISOString()
-        });
-        
-        if (!this.state || !this.state.settings) {
-            console.error('❌ ERROR CRÍTICO: state o settings no definidos');
-            console.error('Estado actual:', this.state);
-            return;
-        }
-        
-        // ===== 1. DETECTAR SI ES PWA INSTALADA =====
-        let isPWA = this.isPWAInstalled;
-        
-        // Si no está detectado, verificar métodos alternativos
-        if (!isPWA) {
-            try {
-                // Verificar display-mode
-                if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) {
-                    isPWA = true;
-                    console.log('✅ PWA detectado: display-mode: standalone');
-                }
-                
-                // Verificar iOS standalone
-                if (window.navigator.standalone === true) {
-                    isPWA = true;
-                    console.log('✅ PWA detectado: navigator.standalone (iOS)');
-                }
-                
-                // Verificar localStorage
-                if (localStorage.getItem('dashcam_pwa_installed') === 'true') {
-                    isPWA = true;
-                    console.log('✅ PWA detectado: localStorage marker');
-                    this.isPWAInstalled = true; // Actualizar estado
-                }
-            } catch (error) {
-                console.warn('⚠️ Error detectando PWA:', error);
-            }
-        }
-        
-        console.log('📱 Estado PWA para UI:', {
-            isPWAInstalled: this.isPWAInstalled,
-            isPWA: isPWA,
-            displayMode: window.matchMedia ? window.matchMedia('(display-mode: standalone)').matches : 'no disponible',
-            navigatorStandalone: window.navigator.standalone
-        });
-        
-        // ===== 2. MOSTRAR/OCULTAR SECCIÓN DE CARPETA LOCAL =====
-        const localFolderSettings = document.getElementById('localFolderSettings');
-        console.log('📦 Sección localFolderSettings:', {
-            existe: !!localFolderSettings,
-            id: 'localFolderSettings',
-            displayActual: localFolderSettings ? window.getComputedStyle(localFolderSettings).display : 'no existe'
-        });
-        
-        if (localFolderSettings) {
-            const shouldShow = this.state.settings.storageLocation === 'localFolder';
-            console.log('🎯 Decisión mostrar/ocultar:', {
-                storageLocation: this.state.settings.storageLocation,
-                shouldShow: shouldShow
-            });
-            
-            if (shouldShow) {
-                localFolderSettings.style.display = 'block';
-                console.log('✅ Mostrando sección de carpeta local');
-            } else {
-                localFolderSettings.style.display = 'none';
-                console.log('❌ Ocultando sección de carpeta local');
-            }
-        } else {
-            console.warn('⚠️ Elemento #localFolderSettings no encontrado en DOM');
-        }
-        
-        // ===== 3. BUSCAR ELEMENTOS EN DOM =====
-        let folderInfoEl = document.getElementById('currentLocalFolderInfo');
-        let selectFolderBtn = document.getElementById('selectLocalFolderBtn');
-        
-        console.log('🔎 Búsqueda de elementos DOM:', {
-            folderInfoEl: {
-                encontrado: !!folderInfoEl,
-                id: 'currentLocalFolderInfo',
-                innerHTML: folderInfoEl ? folderInfoEl.innerHTML.substring(0, 100) + '...' : 'null',
-                parentVisible: folderInfoEl ? folderInfoEl.offsetParent !== null : false,
-                computedStyle: folderInfoEl ? window.getComputedStyle(folderInfoEl).display : 'no existe'
-            },
-            selectFolderBtn: {
-                encontrado: !!selectFolderBtn,
-                id: 'selectLocalFolderBtn',
-                textContent: selectFolderBtn ? selectFolderBtn.textContent : 'null',
-                parentVisible: selectFolderBtn ? selectFolderBtn.offsetParent !== null : false
-            }
-        });
-        
-        // Si no encontramos folderInfoEl, algo está muy mal
-        if (!folderInfoEl) {
-            console.error('❌ ERROR CRÍTICO: No se encuentra #currentLocalFolderInfo en DOM');
-            return;
-        }
-        
-        // ===== 4. OBTENER ESTADO ACTUAL =====
-        const folderName = this.state.settings.localFolderName || '';
-        const isExternal = this.state.settings.isExternalDevice || false;
-        const isWebkit = this.state.settings.isWebkitDirectory || false;
-        const isLocalFolderMode = this.state.settings.storageLocation === 'localFolder';
-        const hasLocalHandle = !!this.localFolderHandle;
-        
-        console.log('📊 Estado para UI:', {
-            folderName: folderName,
-            isExternal: isExternal,
-            isWebkit: isWebkit,
-            isLocalFolderMode: isLocalFolderMode,
-            hasLocalHandle: hasLocalHandle,
-            isPWA: isPWA,
-            conditionMet: folderName && isLocalFolderMode
-        });
-        
-        // ===== 5. DETERMINAR QUÉ MOSTRAR =====
-        if (folderName && isLocalFolderMode) {
-            console.log('🎨 Renderizando: Carpeta SELECCIONADA');
-            
-            // Determinar tipo de carpeta
-            let typeBadge = '';
-            let statusBadge = '';
-            let warningHTML = '';
-            
-            if (isExternal) {
-                typeBadge = '<span style="background: #e3f2fd; color: #1565c0; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">🔌 USB</span>';
-            }
-            
-            // ===== LÓGICA MEJORADA DE PERSISTENCIA =====
-            if (isWebkit && !isPWA) {
-                // WebkitDirectory SIN PWA = No persistente
-                statusBadge = '<span style="background: #fff3cd; color: #856404; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">⚠️ No persistente</span>';
-                
-                warningHTML = `
-                <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; border-radius: 4px; margin: 10px 0;">
-                    <div style="color: #856404; font-weight: bold; margin-bottom: 5px;">
-                        ⚠️ Para acceso persistente a la carpeta:
-                    </div>
-                    <ol style="margin: 0; padding-left: 20px; color: #856404;">
-                        <li>Abre esta app desde el <strong>icono en tu pantalla de inicio</strong></li>
-                        <li>Si no tienes el icono:
-                            <ul style="padding-left: 15px; margin-top: 5px;">
-                                <li>En Safari, toca <strong>Compartir (📤)</strong></li>
-                                <li>Desplaza y selecciona <strong>"Añadir a pantalla de inicio"</strong></li>
-                                <li>Usa siempre el icono instalado</li>
-                            </ul>
-                        </li>
-                    </ol>
-                    <div style="margin-top: 10px;">
-                        <button onclick="app.markAsPWAInstalled()" 
-                                style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 13px; cursor: pointer;">
-                            ✅ Ya está instalada, marcar como persistente
-                        </button>
-                    </div>
-                </div>
-                `;
-                
-            } else if (isWebkit && isPWA) {
-                // WebkitDirectory CON PWA = Persistente
-                statusBadge = '<span style="background: #d4edda; color: #155724; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">✅ Persistente</span>';
-                
-                warningHTML = `
-                <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 8px; border-radius: 4px; margin: 8px 0;">
-                    <small style="color: #155724;">
-                        ✅ App instalada - Acceso persistente activado
-                    </small>
-                </div>
-                `;
-                
-            } else if (hasLocalHandle) {
-                // Con handle persistente (API moderna)
-                statusBadge = '<span style="background: #d4edda; color: #155724; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">✅ Persistente</span>';
-                
-            } else {
-                // Otros casos
-                statusBadge = '<span style="background: #f8f9fa; color: #6c757d; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">○ Temporal</span>';
-            }
-            
-            // HTML para carpeta SELECCIONADA
-            const selectedHTML = `
-                <div style="background: ${isWebkit && !isPWA ? '#fff3cd' : '#d4edda'}; 
-                            border: 1px solid ${isWebkit && !isPWA ? '#ffc107' : '#c3e6cb'}; 
-                            border-radius: 8px; padding: 12px; 
-                            color: ${isWebkit && !isPWA ? '#856404' : '#155724'};">
-                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                        <span style="font-size: 20px; margin-right: 8px;">${isExternal ? '💾' : '📁'}</span>
-                        <span style="font-weight: bold; flex: 1;">${folderName}</span>
-                        ${typeBadge}
-                        ${statusBadge}
-                    </div>
-                    
-                    ${warningHTML}
-                    
-                    <div style="display: flex; gap: 8px; margin-top: ${warningHTML ? '10px' : '0'};">
-                        <button onclick="app.changeFolder()" 
-                                style="background: #17a2b8; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 14px; cursor: pointer;">
-                            Cambiar carpeta
-                        </button>
-                        <button onclick="app.scanLocalFolderForVideos()" 
-                                style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 14px; cursor: pointer;">
-                            Actualizar
-                        </button>
-                        ${!isPWA ? `
-                        <button onclick="app.showPWAInstallInstructions()" 
-                                style="background: #6f42c1; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 14px; cursor: pointer;">
-                            📲 Instalar App
-                        </button>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-            
-            console.log('📝 HTML a insertar (seleccionada):', selectedHTML.substring(0, 200) + '...');
-            
-            // Aplicar HTML
-            folderInfoEl.innerHTML = selectedHTML;
-            
-            // Actualizar botón si existe
-            if (selectFolderBtn) {
-                selectFolderBtn.textContent = 'Cambiar carpeta';
-                selectFolderBtn.style.background = '#dc3545';
-                selectFolderBtn.style.color = 'white';
-                console.log('✅ Botón actualizado a: Cambiar carpeta');
-            }
-            
-            console.log('✅ UI actualizada: Carpeta seleccionada -', folderName);
-            
-        } else {
-            console.log('🎨 Renderizando: SIN carpeta seleccionada');
-            
-            // HTML para NO hay carpeta seleccionada
-            const notSelectedHTML = `
-                <div style="background: #f8f9fa; border: 1px dashed #dee2e6; border-radius: 8px; padding: 12px; text-align: center; color: #6c757d;">
-                    <div style="font-size: 24px; margin-bottom: 8px;">📂</div>
-                    <div style="font-weight: 500; margin-bottom: 4px;">No seleccionada</div>
-                    <small style="color: #999;">Selecciona una carpeta para guardar videos</small>
-                </div>
-            `;
-            
-            console.log('📝 HTML a insertar (no seleccionada):', notSelectedHTML.substring(0, 200) + '...');
-            
-            // Aplicar HTML
-            folderInfoEl.innerHTML = notSelectedHTML;
-            
-            // Actualizar botón si existe
-            if (selectFolderBtn) {
-                selectFolderBtn.textContent = 'Seleccionar carpeta';
-                selectFolderBtn.style.background = '#007bff';
-                selectFolderBtn.style.color = 'white';
-                console.log('✅ Botón actualizado a: Seleccionar carpeta');
-            }
-            
-            console.log('✅ UI actualizada: Sin carpeta seleccionada');
-        }
-        
-        // ===== 6. SINCRONIZAR SELECTOR DE ALMACENAMIENTO =====
+        const folderStatusEl = document.getElementById('folderStatus');
+        const folderNameEl = document.getElementById('folderName');
         const storageLocationSelect = document.getElementById('storageLocation');
-        if (storageLocationSelect) {
-            const currentValue = storageLocationSelect.value;
-            const expectedValue = this.state.settings.storageLocation;
-            
-            console.log('🔄 Sincronizando selector storageLocation:', {
-                valorActual: currentValue,
-                valorEsperado: expectedValue,
-                coincide: currentValue === expectedValue
-            });
-            
-            if (currentValue !== expectedValue) {
-                storageLocationSelect.value = expectedValue;
-                console.log('✅ Selector actualizado a:', expectedValue);
-            }
-        } else {
-            console.warn('⚠️ Selector #storageLocation no encontrado');
+        const localFolderSettings = document.getElementById('localFolderSettings');
+        
+        if (!folderStatusEl || !folderNameEl) {
+            console.warn('⚠️ Elementos de UI de carpeta no encontrados');
+            return;
         }
         
-        // ===== 7. VERIFICACIÓN FINAL =====
-        console.log('🔍 Verificación final DOM:', {
-            folderInfoElActual: {
-                innerHTML: folderInfoEl.innerHTML.substring(0, 100) + '...',
-                visible: folderInfoEl.offsetParent !== null,
-                computedDisplay: window.getComputedStyle(folderInfoEl).display
-            },
-            selectFolderBtnActual: selectFolderBtn ? {
-                textContent: selectFolderBtn.textContent,
-                visible: selectFolderBtn.offsetParent !== null
-            } : 'null'
-        });
+        // ===== CON CARPETA LOCAL SELECCIONADA =====
+        if (this.state.settings.storageLocation === 'localFolder') {
+            const folderName = this.state.settings.localFolderName || 'Carpeta no especificada';
+            
+            // Determinar estado de permisos
+            let statusText = '';
+            let statusClass = '';
+            let details = '';
+            
+            if (this.state.settings.canWriteDirectly && this.localFolderHandle) {
+                // 🎯 MODO IDEAL: PWA con escritura directa
+                statusText = '✅ ESCRIBIR EN USB';
+                statusClass = 'folder-status-write';
+                details = `Carpeta: ${folderName}\nPermisos: Lectura/Escritura completa\nPuede crear carpetas automáticamente`;
+                
+                // Mostrar ruta completa si está disponible
+                if (this.state.settings.sessionPhysicalPath) {
+                    details += `\nSesión actual: ${this.state.settings.sessionPhysicalPath}`;
+                }
+                
+            } else if (this.state.settings.isWebkitDirectory) {
+                // 📖 MODO LIMITADO: Solo lectura
+                statusText = '📖 SOLO LECTURA';
+                statusClass = 'folder-status-readonly';
+                const fileCount = this.state.settings.webkitFilesCount || 0;
+                details = `Carpeta: ${folderName}\nPermisos: Solo lectura\nArchivos: ${fileCount}\nLos videos se descargan individualmente`;
+                
+            } else if (this.localFolderHandle) {
+                // 📁 Handle pero sin confirmación de escritura
+                statusText = '📁 CARPETA SELECCIONADA';
+                statusClass = 'folder-status-unknown';
+                details = `Carpeta: ${folderName}\nPermisos: Pendiente de verificación`;
+                
+            } else {
+                // ❓ Estado desconocido
+                statusText = '❓ ESTADO DESCONOCIDO';
+                statusClass = 'folder-status-unknown';
+                details = `Carpeta: ${folderName}\nModo: No determinado`;
+            }
+            
+            // Aplicar a la interfaz
+            folderStatusEl.textContent = statusText;
+            folderStatusEl.className = `folder-status ${statusClass}`;
+            folderNameEl.textContent = details;
+            
+            // Tooltip con más detalles
+            folderStatusEl.title = `
+    Modo: ${this.state.settings.folderAccessMethod || 'desconocido'}
+    PWA instalado: ${this.isPWAInstalled ? 'Sí' : 'No'}
+    showDirectoryPicker: ${window.showDirectoryPicker ? 'Disponible' : 'No disponible'}
+    Puede escribir: ${this.state.settings.canWriteDirectly ? 'Sí' : 'No'}
+    Handle: ${this.localFolderHandle ? 'Presente' : 'Ausente'}
+            `.trim();
+            
+            // Mostrar sección de configuración de carpeta local
+            if (localFolderSettings) {
+                localFolderSettings.style.display = 'block';
+            }
+            
+        } 
+        // ===== SIN CARPETA LOCAL (MODO APP) =====
+        else {
+            folderStatusEl.textContent = '📱 EN LA APP';
+            folderStatusEl.className = 'folder-status app-only';
+            folderNameEl.textContent = 'Los videos se guardan en la aplicación';
+            
+            if (localFolderSettings) {
+                localFolderSettings.style.display = 'none';
+            }
+        }
         
-        console.log('=== ✅ UPDATE FOLDER UI COMPLETADO CORRECTAMENTE ===\n');
+        // ===== ACTUALIZAR SELECTOR DE ALMACENAMIENTO =====
+        if (storageLocationSelect) {
+            storageLocationSelect.value = this.state.settings.storageLocation;
+        }
+        
+        console.log('✅ Interfaz de carpeta actualizada:', {
+            location: this.state.settings.storageLocation,
+            folderName: this.state.settings.localFolderName,
+            canWrite: this.state.settings.canWriteDirectly,
+            isWebkit: this.state.settings.isWebkitDirectory
+        });
     }
 
     showIOSInstructions() {
