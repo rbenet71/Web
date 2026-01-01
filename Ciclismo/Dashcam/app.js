@@ -1,6 +1,6 @@
-// Dashcam PWA v4.7.3 - Versión Completa Simplificada
+// Dashcam PWA v4.8 - Versión Completa Simplificada
 
-const APP_VERSION = '4.7.3';
+const APP_VERSION = '4.8';
 
 class DashcamApp {
     constructor() {
@@ -2339,35 +2339,48 @@ class DashcamApp {
 
     async saveFolderHandle(handle) {
         try {
-            // Serializar el handle para almacenamiento
-            const serializedHandle = {
-                name: handle.name,
-                kind: handle.kind,
-                isDirectory: true
-            };
+            console.log('💾 Guardando handle de carpeta...');
             
-            // Almacenar en IndexedDB para persistencia
-            if (this.db) {
-                await this.saveToDatabase('folderHandles', {
-                    id: 'localFolder',
-                    handle: serializedHandle,
-                    timestamp: Date.now()
-                });
-                console.log('💾 Handle de carpeta guardado en IndexedDB');
-            }
+            // Guardar el handle en memoria para esta sesión
+            this.localFolderHandle = handle;
             
-            // También guardar en localStorage como backup
+            // Intentar almacenar serializado para persistencia
             try {
-                // Nota: No podemos almacenar el objeto handle directamente
-                // Solo guardamos información de referencia
+                // Solo guardamos información básica, no el objeto completo
+                const folderInfo = {
+                    id: 'localFolder',
+                    name: handle.name,
+                    kind: handle.kind,
+                    timestamp: Date.now(),
+                    isIOS: this.isIOS
+                };
+                
+                // 1. Guardar en IndexedDB
+                if (this.db) {
+                    await this.saveToDatabase('folderHandles', folderInfo);
+                    console.log('✅ Handle guardado en IndexedDB');
+                }
+                
+                // 2. Guardar en localStorage como referencia
+                localStorage.setItem('dashcam_folder_info', JSON.stringify(folderInfo));
                 localStorage.setItem('dashcam_folder_name', handle.name);
                 localStorage.setItem('dashcam_folder_timestamp', Date.now().toString());
-            } catch (e) {
-                console.warn('⚠️ Error guardando en localStorage:', e);
+                
+                console.log('📝 Información de carpeta guardada:', folderInfo);
+                
+            } catch (dbError) {
+                console.warn('⚠️ Error guardando en almacenamiento persistente:', dbError);
+                
+                // Fallback: solo guardar en memoria
+                this.showNotification('⚠️ La carpeta podría no persistir después de cerrar la app');
             }
+            
+            return true;
             
         } catch (error) {
             console.error('❌ Error guardando handle:', error);
+            this.showNotification('❌ Error guardando configuración de carpeta');
+            return false;
         }
     }
 
@@ -3335,154 +3348,391 @@ async uploadCustomLogo() {
 
     async showIOSFolderPicker() {
         try {
-            // En iOS, usamos el input file con webkitdirectory si está disponible
-            // o mostramos instrucciones si no
-            if (window.showOpenFilePicker) {
-                // Navegadores modernos (Chrome, Edge)
-                const handle = await window.showOpenFilePicker({
-                    types: [{
-                        description: 'Videos y GPX',
-                        accept: {
-                            'video/*': ['.mp4', '.webm'],
-                            'application/gpx+xml': ['.gpx', '.xml']
+            console.log('📱 Iniciando selector de carpeta iOS...');
+            
+            // Verificar si el navegador soporta la API de selección de directorios
+            if (window.showDirectoryPicker) {
+                try {
+                    // 1. Solicitar selección de carpeta
+                    const directoryHandle = await window.showDirectoryPicker({
+                        id: 'dashcam-folder',
+                        startIn: 'documents',
+                        mode: 'readwrite'
+                    });
+                    
+                    // 2. Verificar permisos
+                    if (await directoryHandle.queryPermission({ mode: 'readwrite' }) !== 'granted') {
+                        const permission = await directoryHandle.requestPermission({ mode: 'readwrite' });
+                        if (permission !== 'granted') {
+                            this.showNotification('❌ Se necesitan permisos de escritura');
+                            return;
                         }
-                    }],
-                    multiple: true,
-                    excludeAcceptAllOption: false
-                });
-                
-                // Procesar archivos seleccionados
-                for (const fileHandle of handle) {
-                    const file = await fileHandle.getFile();
-                    // Aquí procesar el archivo según su tipo
-                    if (file.type.startsWith('video/')) {
-                        // Procesar video
-                    } else if (file.name.endsWith('.gpx') || file.name.endsWith('.xml')) {
-                        // Procesar GPX
-                        await this.handleGpxUploadFile(file);
                     }
+                    
+                    // 3. Guardar handle persistentemente
+                    await this.saveFolderHandle(directoryHandle);
+                    
+                    // 4. Procesar la carpeta seleccionada
+                    await this.processFolderSelection(directoryHandle);
+                    
+                    // 5. Actualizar estado de la aplicación
+                    this.state.settings.storageLocation = 'localFolder';
+                    this.state.settings.localFolderName = directoryHandle.name;
+                    
+                    // 6. Actualizar interfaz
+                    this.updateFolderUI();
+                    this.showNotification(`✅ Carpeta "${directoryHandle.name}" seleccionada`);
+                    
+                    // 7. Escanear archivos existentes
+                    this.showNotification('🔍 Escaneando archivos existentes...');
+                    await this.scanLocalFolderForVideos();
+                    
+                } catch (error) {
+                    if (error.name === 'AbortError') {
+                        console.log('Selección cancelada por el usuario');
+                        return;
+                    }
+                    throw error;
                 }
                 
             } else if ('webkitdirectory' in HTMLInputElement.prototype) {
-                // Safari/iOS con soporte limitado
-                this.showNotification('ℹ️ En iOS, usa la app "Archivos" para seleccionar');
+                // Fallback para Safari/iOS con soporte limitado
+                this.showNotification('ℹ️ Selecciona una carpeta usando el selector');
                 
-                // Mostrar instrucciones
-                const modal = document.getElementById('localFolderPickerModal');
-                if (modal) {
-                    modal.classList.remove('hidden');
-                    document.getElementById('iphoneInstructions').style.display = 'block';
-                    document.getElementById('desktopInstructions').style.display = 'none';
-                }
-                
-                // Configurar botón para abrir app Archivos
-                const openFilesBtn = document.getElementById('openFilesAppBtn');
-                if (openFilesBtn) {
-                    openFilesBtn.onclick = () => {
-                        // En iOS podemos intentar abrir la app Archivos
-                        window.open('shareddocuments://', '_blank');
-                    };
-                }
-                
-            } else {
-                // Fallback: usar input file normal
                 const input = document.createElement('input');
                 input.type = 'file';
-                input.accept = 'video/*,.gpx,.xml';
+                input.webkitdirectory = true;
                 input.multiple = true;
                 
                 input.onchange = async (event) => {
                     const files = Array.from(event.target.files);
-                    for (const file of files) {
-                        if (file.type.startsWith('video/')) {
-                            // Procesar video
-                        } else if (file.name.endsWith('.gpx') || file.name.endsWith('.xml')) {
-                            await this.handleGpxUploadFile(file);
+                    if (files.length > 0) {
+                        // Nota: En iOS webkitdirectory no da un handle real
+                        // Solo podemos obtener los archivos, no la carpeta persistente
+                        this.showNotification('⚠️ En iOS, la carpeta no persistirá entre sesiones');
+                        this.state.settings.localFolderName = 'Carpeta iOS (no persistente)';
+                        this.updateFolderUI();
+                        
+                        // Procesar archivos seleccionados
+                        for (const file of files) {
+                            if (file.type.startsWith('video/')) {
+                                // Procesar video
+                            } else if (file.name.endsWith('.gpx')) {
+                                await this.handleGpxUploadFile(file);
+                            }
                         }
                     }
                 };
                 
                 input.click();
+                
+            } else {
+                // Navegador no compatible
+                this.showNotification('❌ Tu navegador no soporta selección de carpetas');
+                this.showIOSInstructions();
             }
             
         } catch (error) {
             console.error('❌ Error en selector iOS:', error);
-            if (error.name !== 'AbortError') {
-                this.showNotification('❌ Error en selector de archivos');
+            this.showNotification('❌ Error seleccionando carpeta');
+            
+            // Mostrar instrucciones específicas para iOS
+            if (this.isIOS) {
+                this.showIOSInstructions();
             }
         }
     }
+
+    async processFolderSelection(directoryHandle) {
+        try {
+            console.log('📂 Procesando carpeta seleccionada:', directoryHandle.name);
+            
+            // 1. Verificar que sea una carpeta válida
+            if (directoryHandle.kind !== 'directory') {
+                throw new Error('No es una carpeta válida');
+            }
+            
+            // 2. Crear archivo de marcador para verificar escritura
+            try {
+                const markerFile = await directoryHandle.getFileHandle('.dashcam-marker', { create: true });
+                const writable = await markerFile.createWritable();
+                await writable.write('DashCam App - Carpeta seleccionada ' + new Date().toISOString());
+                await writable.close();
+            } catch (e) {
+                console.warn('No se pudo crear archivo de marcador:', e);
+            }
+            
+            // 3. Actualizar estado de la aplicación
+            this.localFolderHandle = directoryHandle;
+            this.state.settings.localFolderName = directoryHandle.name;
+            this.state.settings.storageLocation = 'localFolder';
+            
+            // 4. Solicitar persistencia de almacenamiento
+            await this.requestStoragePersistence();
+            
+            // 5. Escanear contenido inicial
+            const entries = [];
+            for await (const entry of directoryHandle.values()) {
+                entries.push(entry);
+            }
+            
+            console.log(`📊 Carpeta contiene ${entries.length} elementos`);
+            this.showNotification(`📂 "${directoryHandle.name}" - ${entries.length} elementos`);
+            
+            return true;
+            
+        } catch (error) {
+            console.error('❌ Error procesando carpeta:', error);
+            this.showNotification('❌ Error procesando carpeta seleccionada');
+            return false;
+        }
+    }
+
     updateFolderUI() {
-        if (this.elements.currentLocalFolderInfo && this.state.settings.localFolderName) {
-            this.elements.currentLocalFolderInfo.innerHTML = 
-                `<span>📁 ${this.state.settings.localFolderName}</span>`;
+        const folderInfoEl = this.elements.currentLocalFolderInfo;
+        const selectFolderBtn = this.elements.selectLocalFolderBtn;
+        
+        if (!folderInfoEl) return;
+        
+        if (this.state.settings.localFolderName && this.state.settings.storageLocation === 'localFolder') {
+            // Hay carpeta seleccionada
+            let statusHTML = `
+                <div class="folder-info">
+                    <div class="folder-status">
+                        <span class="folder-icon">📁</span>
+                        <span class="folder-name">${this.state.settings.localFolderName}</span>
+                        <span class="folder-status-badge active">● Activa</span>
+                    </div>
+                    <div class="folder-actions">
+                        <button class="btn-secondary btn-small" onclick="app.changeFolder()">
+                            Cambiar carpeta
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Si tenemos handle activo, mostrar más información
+            if (this.localFolderHandle) {
+                statusHTML += `
+                    <div class="folder-details">
+                        <small>Guardando videos en esta carpeta</small>
+                    </div>
+                `;
+            }
+            
+            folderInfoEl.innerHTML = statusHTML;
+            
+            // Actualizar botón si existe
+            if (selectFolderBtn) {
+                selectFolderBtn.textContent = 'Cambiar carpeta';
+            }
+            
+        } else {
+            // No hay carpeta seleccionada
+            folderInfoEl.innerHTML = `
+                <div class="folder-info">
+                    <div class="folder-status">
+                        <span class="folder-icon">📂</span>
+                        <span class="folder-name">No seleccionada</span>
+                        <span class="folder-status-badge inactive">○ Inactiva</span>
+                    </div>
+                    <div class="folder-instructions">
+                        <small>Selecciona una carpeta para guardar videos localmente</small>
+                    </div>
+                </div>
+            `;
+            
+            // Actualizar botón si existe
+            if (selectFolderBtn) {
+                selectFolderBtn.textContent = 'Seleccionar carpeta';
+            }
+        }
+    }
+    
+    showIOSInstructions() {
+        const instructions = `
+            <div class="ios-instructions">
+                <h4>📱 Instrucciones para iOS:</h4>
+                <ol>
+                    <li>Abre la app <strong>Archivos</strong></li>
+                    <li>Navega a la carpeta donde quieres guardar</li>
+                    <li>Toca "Seleccionar" en la esquina superior derecha</li>
+                    <li>Selecciona la carpeta</li>
+                    <li>Toca "Abrir"</li>
+                </ol>
+                <button id="openFilesAppBtnIOS" class="btn-primary">
+                    Abrir app Archivos
+                </button>
+            </div>
+        `;
+        
+        // Mostrar en modal o notificación
+        this.showNotification(instructions, 10000);
+        
+        // Configurar botón
+        setTimeout(() => {
+            const openBtn = document.getElementById('openFilesAppBtnIOS');
+            if (openBtn) {
+                openBtn.onclick = () => {
+                    window.open('shareddocuments://', '_blank');
+                };
+            }
+        }, 100);
+    }
+
+    async changeFolder() {
+        const confirmChange = confirm('¿Deseas cambiar la carpeta de almacenamiento?');
+        if (confirmChange) {
+            // Limpiar handle actual
+            this.localFolderHandle = null;
+            this.state.settings.localFolderName = '';
+            
+            // Mostrar selector nuevamente
+            await this.showIOSFolderPicker();
         }
     }
 
     async saveToLocalFolder(blob, filename, sessionName = null) {
+        console.log('💾 Guardando en carpeta local...', {
+            hasHandle: !!this.localFolderHandle,
+            isIOS: this.isIOS,
+            filename,
+            sessionName
+        });
+        
         if (!this.localFolderHandle && !this.isIOS) {
             console.log('⚠️ No hay carpeta local seleccionada');
+            this.showNotification('⚠️ Selecciona una carpeta primero');
             return false;
         }
         
         try {
-            if (this.isIOS) {
-                // Para iPhone, guardar en IndexedDB
+            // ===== CASO 1: TENEMOS HANDLE DE CARPETA (iOS o Desktop) =====
+            if (this.localFolderHandle) {
+                console.log('📁 Usando handle de carpeta:', this.localFolderHandle.name);
+                
+                // Verificar permisos primero
+                try {
+                    const permission = await this.localFolderHandle.requestPermission({ mode: 'readwrite' });
+                    if (permission !== 'granted') {
+                        this.showNotification('❌ Permiso denegado para escribir en la carpeta');
+                        return false;
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Error verificando permisos:', error);
+                }
+                
+                let fileHandle;
+                let folderPath = '';
+                
+                // Crear carpeta de sesión si se especifica
+                if (sessionName) {
+                    try {
+                        const sessionFolder = await this.localFolderHandle.getDirectoryHandle(sessionName, { create: true });
+                        fileHandle = await sessionFolder.getFileHandle(filename, { create: true });
+                        folderPath = sessionName + '/';
+                    } catch (error) {
+                        console.warn(`⚠️ Error creando carpeta de sesión "${sessionName}":`, error);
+                        // Fallback: guardar en raíz
+                        fileHandle = await this.localFolderHandle.getFileHandle(filename, { create: true });
+                    }
+                } else {
+                    fileHandle = await this.localFolderHandle.getFileHandle(filename, { create: true });
+                }
+                
+                // Escribir el archivo físicamente
+                const writable = await fileHandle.createWritable();
+                await writable.write(blob);
+                await writable.close();
+                
+                console.log(`✅ Archivo guardado físicamente: ${folderPath}${filename}`);
+                
+                // ===== GUARDAR REFERENCIA EN INDEXEDDB (backup) =====
+                const fileRef = {
+                    id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                    filename: filename,
+                    folderName: this.state.settings.localFolderName || this.localFolderHandle.name,
+                    folderPath: folderPath,
+                    timestamp: Date.now(),
+                    size: blob.size,
+                    location: 'local_folder',
+                    session: sessionName,
+                    physicalLocation: 'filesystem',
+                    platform: this.isIOS ? 'ios' : 'desktop'
+                };
+                
+                if (this.db) {
+                    await this.saveToDatabase('localFiles', fileRef);
+                    console.log('📝 Referencia guardada en IndexedDB');
+                }
+                
+                this.showNotification(`✅ Video guardado en carpeta`);
+                return true;
+                
+            } 
+            // ===== CASO 2: iOS SIN HANDLE (fallback a IndexedDB) =====
+            else if (this.isIOS) {
+                console.log('📱 iOS: Guardando en IndexedDB (sin carpeta física)');
+                
+                // Para iPhone sin carpeta seleccionada, guardar solo en IndexedDB
                 const fileData = {
-                    id: Date.now(),
+                    id: Date.now() + '_ios_' + Math.random().toString(36).substr(2, 9),
                     filename: filename,
                     timestamp: Date.now(),
                     size: blob.size,
                     type: 'video/mp4',
-                    location: 'ios_local',
+                    location: 'ios_indexeddb',
                     session: sessionName,
-                    blob: blob
+                    blob: blob,
+                    platform: 'ios'
                 };
                 
                 if (this.db) {
                     await this.saveToDatabase('localFiles', fileData);
                 }
+                
+                this.showNotification('📱 Video guardado en la app');
                 return true;
                 
-            } else {
-                // Para desktop - guardar físicamente
-                let fileHandle;
-                
-                if (sessionName) {
-                    const sessionFolder = await this.localFolderHandle.getDirectoryHandle(sessionName, { create: true });
-                    fileHandle = await sessionFolder.getFileHandle(filename, { create: true });
-                } else {
-                    fileHandle = await this.localFolderHandle.getFileHandle(filename, { create: true });
-                }
-                
-                const writable = await fileHandle.createWritable();
-                await writable.write(blob);
-                await writable.close();
-                
-                // Guardar referencia
-                const fileRef = {
-                    id: Date.now(),
-                    filename: filename,
-                    folderName: this.state.settings.localFolderName,
-                    timestamp: Date.now(),
-                    size: blob.size,
-                    location: 'desktop_folder',
-                    session: sessionName,
-                    blob: blob
-                };
-                
-                if (this.db) {
-                    await this.saveToDatabase('localFiles', fileRef);
-                }
-                
-                return true;
+            } 
+            // ===== CASO 3: DESKTOP SIN HANDLE (error) =====
+            else {
+                console.log('❌ No hay carpeta seleccionada en Desktop');
+                this.showNotification('❌ Selecciona una carpeta primero');
+                return false;
             }
             
         } catch (error) {
             console.error('❌ Error guardando en carpeta local:', error);
+            
+            // Si falla el guardado físico, intentar guardar en IndexedDB como fallback
+            if (this.db && !this.isIOS) {
+                console.log('🔄 Intentando guardar en IndexedDB como fallback...');
+                try {
+                    const fallbackData = {
+                        id: Date.now() + '_fallback_' + Math.random().toString(36).substr(2, 9),
+                        filename: filename,
+                        timestamp: Date.now(),
+                        size: blob.size,
+                        location: 'indexeddb_fallback',
+                        session: sessionName,
+                        blob: blob
+                    };
+                    
+                    await this.saveToDatabase('localFiles', fallbackData);
+                    this.showNotification('⚠️ Video guardado en la app (fallback)');
+                    return true;
+                } catch (fallbackError) {
+                    console.error('❌ Fallback también falló:', fallbackError);
+                }
+            }
+            
+            this.showNotification('❌ Error al guardar video');
             return false;
         }
     }
+
+
 
     // ============ GPS Y GEOLOCALIZACIÓN ============
 
