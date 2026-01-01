@@ -1,6 +1,6 @@
-// Dashcam PWA v4.8.12 - Versión Completa Simplificada
+// Dashcam PWA v4.9 - Versión Completa Simplificada
 
-const APP_VERSION = '4.8.12';
+const APP_VERSION = '4.9';
 
 class DashcamApp {
     constructor() {
@@ -1902,7 +1902,7 @@ class DashcamApp {
                 console.log('ℹ️ No se agregarán metadatos GPS (configuración desactivada o sin datos)');
             }
             
-            const filename = `segmento_${segmentNum}.${finalFormat}`;
+            const filename = this.generateStandardFilename(segmentNum, timestamp);
             this.state.recordingSessionSegments++;
             
             let savedPath = filename;
@@ -2312,6 +2312,19 @@ class DashcamApp {
             console.error('❌ Error guardando en app:', error);
             return false;
         }
+    }
+
+    // NUEVA FUNCIÓN: Genera nombres de archivo estándar RBB_YYYYMMDD_HHMM_S[#].mp4
+    generateStandardFilename(segmentNum = 1, customDate = null) {
+        const now = customDate ? new Date(customDate) : new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const segmentStr = String(segmentNum).padStart(2, '0');
+        
+        return `RBB_${year}${month}${day}_${hours}${minutes}_S${segmentStr}.mp4`;
     }
 
     async addMetadataToWebM(webmBlob, gpsPoints) {
@@ -4430,34 +4443,22 @@ class DashcamApp {
     }
 
     async getAutoFilenameForIOS(originalName, sessionName) {
-        // Generar nombre automático que incluya sesión y timestamp
-        
-        const now = new Date();
-        const dateStr = now.toISOString()
-            .replace(/T/, '_')
-            .replace(/\..+/, '')
-            .replace(/:/g, '-');
+        // Generar nombre estándar RBB_YYYYMMDD_HHMM_S[#].mp4
         
         // Extraer número de segmento si existe
         let segmentNum = 1;
-        const segmentMatch = originalName.match(/segmento?[_-]?(\d+)/i);
+        const segmentMatch = originalName.match(/segmento?[_-]?(\d+)/i) || 
+                            originalName.match(/S(\d+)/i) ||
+                            originalName.match(/RBB_\d+_S(\d+)/i);
+        
         if (segmentMatch) {
             segmentNum = parseInt(segmentMatch[1]);
         }
         
-        // Construir nombre ideal
-        let finalName;
+        // Usar la función estándar
+        const finalName = this.generateStandardFilename(segmentNum);
         
-        if (sessionName) {
-            // Formato: Sesion_YYYY-MM-DD_HH-MM_01.mp4
-            const sessionPrefix = sessionName.replace(/\s+/g, '_');
-            finalName = `${sessionPrefix}_${dateStr}_${String(segmentNum).padStart(2, '0')}.mp4`;
-        } else {
-            // Formato: DashCam_YYYY-MM-DD_HH-MM-SS.mp4
-            finalName = `DashCam_${dateStr}.mp4`;
-        }
-        
-        console.log(`📝 Renombrando: ${originalName} → ${finalName}`);
+        console.log(`📝 Renombrando para iOS: ${originalName} → ${finalName}`);
         
         return finalName;
     }

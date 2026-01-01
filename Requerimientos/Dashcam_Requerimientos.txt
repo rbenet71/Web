@@ -44,7 +44,7 @@ eliminamos concatenar-> combineVideosModal
 4.8 CArpeta Local en Ipone -  No se puede hacer de forma automatica es manual
 ----
 
-4.9 Los nombres de los videos han de ser RBB_YYYYMMDD_S[# sesion].mp
+4.9 Los nombres de los videos han de ser RBB_YYYYMMDD_S[# sesion].mp4 dime la linea que he de modificar y como 
 ---
 
 
