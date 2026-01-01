@@ -1,6 +1,6 @@
-// Dashcam PWA v4.7.1 - Versión Completa Simplificada
+// Dashcam PWA v4.7.2 - Versión Completa Simplificada
 
-const APP_VERSION = '4.7.1';
+const APP_VERSION = '4.7.2';
 
 class DashcamApp {
     constructor() {
@@ -626,114 +626,50 @@ class DashcamApp {
         try {
             console.log('🖼️ Cargando logo personalizado...');
             
-            // ===== SOLUCIÓN: Verificar si YA tenemos un logo cargado y es el correcto =====
-            if (this.state.customLogo && this.state.customLogo.dataUrl) {
-                console.log('✅ Logo ya cargado en memoria:', 
-                    this.state.customLogo.filename || 'sin nombre');
-                this.updateLogoInfo();
-                return;
+            // ===== PRIMERO: VERIFICAR SI HAY UN LOGO iOS ESPECÍFICO =====
+            try {
+                const savedSettings = localStorage.getItem('dashcam_settings');
+                if (savedSettings) {
+                    const settings = JSON.parse(savedSettings);
+                    
+                    // ===== PRIORIDAD 1: Logo iOS más reciente =====
+                    if (settings.logoIsIOS && settings.logoInfo) {
+                        console.log('✅ Logo iOS encontrado:', settings.logoInfo.displayName);
+                        
+                        // Cargar imagen
+                        const img = new Image();
+                        await new Promise((resolve) => {
+                            img.onload = resolve;
+                            img.src = settings.logoInfo.dataUrl;
+                        });
+                        
+                        // Establecer como logo ACTUAL
+                        this.state.customLogo = settings.logoInfo;
+                        this.logoImage = img;
+                        
+                        // Actualizar settings en memoria
+                        this.state.settings.logoInfo = settings.logoInfo;
+                        this.state.settings.logoFilename = settings.logoInfo.displayName;
+                        this.state.settings.customLogo = settings.logoInfo.dataUrl;
+                        
+                        this.updateLogoInfo();
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.log('ℹ️ No hay logo iOS específico');
             }
             
-            // PRIMERO: Intentar cargar desde this.state.settings
+            // ===== SEGUNDO: Método normal (para compatibilidad) =====
             if (this.state.settings.customLogo) {
-                console.log('✅ Logo encontrado en settings');
+                console.log('ℹ️ Cargando logo normal desde settings');
                 
-                // ===== SOLUCIÓN: Si tenemos logoInfo completo, usarlo directamente =====
-                if (this.state.settings.logoInfo && this.state.settings.logoInfo.dataUrl === this.state.settings.customLogo) {
-                    console.log('✅ Usando logoInfo completo desde settings:', 
-                        this.state.settings.logoInfo.filename);
-                    
-                    // Cargar la imagen
-                    const img = new Image();
-                    await new Promise((resolve) => {
-                        img.onload = resolve;
-                        img.src = this.state.settings.logoInfo.dataUrl;
-                    });
-                    
-                    // Restaurar TODO el objeto logoInfo
-                    this.state.customLogo = {
-                        ...this.state.settings.logoInfo,
-                        image: img
-                    };
-                    this.logoImage = img;
-                    
-                    this.updateLogoInfo();
-                    return;
-                }
-                
-                // ===== SOLUCIÓN: Solo cargar Data URL si realmente necesitamos =====
+                // Solo cargar si no tenemos logo
                 if (!this.state.customLogo || !this.state.customLogo.dataUrl) {
                     await this.loadLogoFromDataUrl(this.state.settings.customLogo);
                 }
                 
                 return;
-            }
-            
-            // SEGUNDO: Intentar cargar desde localStorage
-            try {
-                const savedSettings = localStorage.getItem('dashcam_settings');
-                if (savedSettings) {
-                    const settings = JSON.parse(savedSettings);
-                    if (settings.customLogo) {
-                        console.log('✅ Logo encontrado en localStorage');
-                        
-                        // ===== SOLUCIÓN: Priorizar logoInfo si existe =====
-                        if (settings.logoInfo) {
-                            console.log('✅ LogoInfo encontrado en localStorage:', settings.logoInfo.filename);
-                            
-                            // Actualizar settings con la información completa
-                            if (!this.state.settings.logoInfo) {
-                                this.state.settings.logoInfo = settings.logoInfo;
-                            }
-                            if (!this.state.settings.logoFilename && settings.logoInfo.filename) {
-                                this.state.settings.logoFilename = settings.logoInfo.filename;
-                            }
-                            
-                            // Cargar usando logoInfo completo
-                            const img = new Image();
-                            await new Promise((resolve) => {
-                                img.onload = resolve;
-                                img.src = settings.logoInfo.dataUrl;
-                            });
-                            
-                            this.state.customLogo = {
-                                ...settings.logoInfo,
-                                image: img
-                            };
-                            this.logoImage = img;
-                            
-                            this.updateLogoInfo();
-                            return;
-                        }
-                        
-                        // Método antiguo (solo Data URL)
-                        if (!this.state.settings.customLogo) {
-                            this.state.settings.customLogo = settings.customLogo;
-                        }
-                        if (settings.logoFilename && !this.state.settings.logoFilename) {
-                            this.state.settings.logoFilename = settings.logoFilename;
-                        }
-                        
-                        await this.loadLogoFromDataUrl(settings.customLogo);
-                        return;
-                    }
-                }
-            } catch (error) {
-                console.log('ℹ️ No hay logo en localStorage');
-            }
-            
-            // TERCERO: Intentar cargar desde IndexedDB (vieja versión)
-            if (this.db && !this.state.customLogo) {
-                try {
-                    const logoData = await this.getFromStore('customLogos', 'current_logo');
-                    if (logoData && logoData.dataUrl) {
-                        console.log('✅ Logo encontrado en IndexedDB (viejo formato)');
-                        await this.loadLogoFromDataUrl(logoData.dataUrl);
-                        return;
-                    }
-                } catch (error) {
-                    console.log('ℹ️ No hay logo en IndexedDB store');
-                }
             }
             
             console.log('ℹ️ No hay logo personalizado cargado');
@@ -1061,72 +997,53 @@ class DashcamApp {
                 return;
             }
             
-            // Calcular tamaño aproximado de Data URL
-            const calculateDataUrlSize = (dataUrl) => {
-                if (!dataUrl) return 0;
-                // Fórmula aproximada: base64 aumenta tamaño en ~33%
-                const base64Length = dataUrl.length - 'data:image/*;base64,'.length;
-                return Math.round((base64Length * 3) / 4); // Bytes aproximados
-            };
+            // ===== CASO 1: Logo iOS actual =====
+            if (this.state.customLogo && this.state.customLogo.isIOS) {
+                const logo = this.state.customLogo;
+                const sizeKB = logo.fileSize ? Math.round(logo.fileSize / 1024) : '?';
+                const dimensions = logo.dimensions ? 
+                    `${logo.dimensions.width}x${logo.dimensions.height}` : '?x?';
+                const date = new Date(logo.timestamp).toLocaleDateString();
+                
+                logoInfoElement.innerHTML = 
+                    `<span>📱 ${logo.displayName}</span>
+                    <small style="display: block; font-size: 12px; color: #aaa; margin-top: 2px;">
+                    ${sizeKB} KB • ${dimensions} • ${date}
+                    </small>`;
+                return;
+            }
             
-            // CASO 1: Logo cargado actualmente (en memoria)
+            // ===== CASO 2: Logo normal =====
             if (this.state.customLogo && this.state.customLogo.filename) {
                 const logo = this.state.customLogo;
-                const sizeBytes = logo.fileSize || calculateDataUrlSize(logo.dataUrl);
-                const sizeKB = Math.round(sizeBytes / 1024);
-                const dimensions = logo.dimensions;
-                const sizeText = dimensions ? `${dimensions.width}x${dimensions.height}` : '?x?';
-                const source = logo.source === 'ios_upload' ? '📱' : 
-                            (logo.source === 'normal_upload' ? '🖥️' : '💾');
+                const sizeKB = logo.fileSize ? Math.round(logo.fileSize / 1024) : '?';
+                const dimensions = logo.dimensions ? 
+                    `${logo.dimensions.width}x${logo.dimensions.height}` : '?x?';
                 
                 logoInfoElement.innerHTML = 
-                    `<span>${source} ${logo.filename}</span>
+                    `<span>🖼️ ${logo.filename}</span>
                     <small style="display: block; font-size: 12px; color: #aaa; margin-top: 2px;">
-                    ${sizeKB} KB • ${sizeText} • Cargado
+                    ${sizeKB} KB • ${dimensions}
                     </small>`;
-            
-            // CASO 2: Logo guardado en settings (tras reiniciar app)
-            } else if (this.state.settings.logoFilename) {
-                // ===== SOLUCIÓN: Usar información completa si está disponible =====
-                const logoInfo = this.state.settings.logoInfo || {};
-                const sizeKB = logoInfo.fileSize ? 
-                    Math.round(logoInfo.fileSize / 1024) : 
-                    (this.state.settings.logoFileSize ? 
-                        Math.round(this.state.settings.logoFileSize / 1024) : 
-                        '?');
-                
-                const dimensions = logoInfo.dimensions ? 
-                    `${logoInfo.dimensions.width}x${logoInfo.dimensions.height}` : 
-                    (this.state.settings.logoDimensions || '?x?');
-                
-                const source = logoInfo.source === 'ios_upload' ? '📱' : 
-                            (logoInfo.source === 'normal_upload' ? '🖥️' : '💾');
-                
-                logoInfoElement.innerHTML = 
-                    `<span>${source} ${this.state.settings.logoFilename}</span>
-                    <small style="display: block; font-size: 12px; color: #aaa; margin-top: 2px;">
-                    ${sizeKB} KB • ${dimensions} • Guardado
-                    </small>`;
-                    
-            // CASO 3: Solo Data URL sin información de archivo (compatibilidad vieja)
-            } else if (this.state.settings.customLogo) {
-                const dataUrlSize = calculateDataUrlSize(this.state.settings.customLogo);
-                const sizeKB = Math.round(dataUrlSize / 1024);
-                
-                logoInfoElement.innerHTML = 
-                    `<span>🖼️ Logo cargado</span>
-                    <small style="display: block; font-size: 12px; color: #aaa; margin-top: 2px;">
-                    ${sizeKB} KB • Sin nombre de archivo
-                    </small>`;
-                    
-            // CASO 4: No hay logo
-            } else {
-                logoInfoElement.innerHTML = 
-                    `<span>🖼️ No hay logo cargado</span>
-                    <small style="display: block; font-size: 12px; color: #aaa; margin-top: 2px;">
-                    Selecciona una imagen
-                    </small>`;
+                return;
             }
+            
+            // ===== CASO 3: Logo en settings =====
+            if (this.state.settings.logoFilename) {
+                logoInfoElement.innerHTML = 
+                    `<span>💾 ${this.state.settings.logoFilename}</span>
+                    <small style="display: block; font-size: 12px; color: #aaa; margin-top: 2px;">
+                    Guardado
+                    </small>`;
+                return;
+            }
+            
+            // ===== CASO 4: Sin logo =====
+            logoInfoElement.innerHTML = 
+                `<span>🖼️ No hay logo cargado</span>
+                <small style="display: block; font-size: 12px; color: #aaa; margin-top: 2px;">
+                Selecciona una imagen
+                </small>`;
             
         } catch (error) {
             console.error('❌ Error en updateLogoInfo:', error);
@@ -2479,7 +2396,6 @@ async uploadCustomLogo() {
     async uploadCustomLogoIOS() {
         console.log('🍎 Modo iOS específico');
         
-        // Crear input dinámico para iOS
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
@@ -2491,110 +2407,146 @@ async uploadCustomLogo() {
                 input.onchange = (e) => {
                     const file = e.target.files[0];
                     if (file) {
-                        console.log('📸 iOS seleccionó:', file.name);
+                        console.log('📸 iOS seleccionó archivo:', file.name, 'tamaño:', file.size);
                         resolve(file);
                     } else {
                         reject(new Error('No file selected'));
                     }
                 };
                 
-                input.oncancel = () => {
-                    reject(new Error('Cancelled'));
-                };
-                
-                // Disparar selector
+                input.oncancel = () => reject(new Error('Cancelled'));
                 setTimeout(() => input.click(), 100);
-                
-                // Timeout
                 setTimeout(() => reject(new Error('Timeout')), 15000);
             });
             
-            // Procesamiento ESPECÍFICO para iOS
-            this.showNotification('📱 Procesando...');
+            this.showNotification('📱 Procesando logo...');
             
-            // Convertir a Data URL de forma segura
+            // Convertir a Data URL
             const dataUrl = await new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.onload = (e) => resolve(e.target.result);
                 reader.readAsDataURL(file);
             });
             
-            // Cargar imagen
+            // Cargar imagen para obtener dimensiones
             const img = new Image();
-            await new Promise((resolve) => {
-                img.onload = resolve;
+            await new Promise((resolve, reject) => {
+                img.onload = () => resolve();
+                img.onerror = reject;
                 img.src = dataUrl;
             });
             
-            // ===== SOLUCIÓN: Crear objeto logoInfo COMPLETO y ÚNICO =====
+            // ===== SOLUCIÓN iOS: Crear un ID ÚNICO basado en el CONTENIDO =====
+            // En iOS, file.name puede cambiar, pero el contenido es único
+            const contentHash = await this.generateContentHash(dataUrl);
+            const timestamp = Date.now();
+            
+            // ===== EN iOS: El "nombre" que mostramos es diferente =====
+            const displayName = `Logo_iOS_${new Date(timestamp).toLocaleDateString()}.png`;
+            
+            // Objeto logoInfo ESPECÍFICO para iOS
             const logoInfo = {
+                // ===== IDENTIFICADOR ÚNICO (IMPORTANTE PARA iOS) =====
+                id: `ios_logo_${contentHash}_${timestamp}`,
+                isIOS: true,
+                
+                // ===== CONTENIDO =====
                 dataUrl: dataUrl,
-                filename: file.name,
+                
+                // ===== INFORMACIÓN PARA MOSTRAR (no confiable en iOS) =====
+                displayName: displayName,
+                originalFilename: file.name, // Solo para referencia, no para identificar
+                
+                // ===== METADATOS REALES =====
                 fileSize: file.size,
                 type: file.type,
-                lastModified: file.lastModified,
+                lastModified: timestamp, // Usamos timestamp actual, no file.lastModified
                 dimensions: {
                     width: img.width,
                     height: img.height
                 },
-                source: 'ios_upload',
-                timestamp: Date.now(),
-                // ===== ID ÚNICO para prevenir conflictos =====
-                id: `logo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+                
+                // ===== MARCA TEMPORAL PARA DETECTAR EL MÁS RECIENTE =====
+                timestamp: timestamp,
+                contentHash: contentHash
             };
             
-            // ===== SOLUCIÓN CRÍTICA: Guardar en TODAS las ubicaciones de forma consistente =====
+            // ===== PASO CRÍTICO PARA iOS: REEMPLAZAR COMPLETAMENTE CUALQUIER LOGO ANTERIOR =====
             
-            // 1. ESTADO ACTUAL (memoria) - ESTE ES EL IMPORTANTE
+            // 1. Limpiar cualquier logo anterior en el estado
+            this.state.customLogo = null;
+            this.logoImage = null;
+            
+            // 2. Establecer el NUEVO logo como el ÚNICO
             this.state.customLogo = logoInfo;
             this.logoImage = img;
             
-            // 2. SETTINGS en memoria - Sincronizado
-            this.state.settings.customLogo = dataUrl;
-            this.state.settings.logoFilename = file.name;
-            this.state.settings.logoInfo = logoInfo; // <-- OBJETO COMPLETO
-            this.state.settings.logoFileSize = file.size;
-            this.state.settings.logoDimensions = `${img.width}x${img.height}`;
-            this.state.settings.logoLastModified = file.lastModified;
-            this.state.settings.logoId = logoInfo.id; // <-- ID único
+            // 3. ===== EN iOS: GUARDAR SOLO ESTE LOGO, ELIMINAR CUALQUIER OTRO =====
             
-            // 3. LOCALSTORAGE DIRECTO - Para acceso inmediato al refrescar
+            // Preparar objeto de settings SOLO con este logo
+            const logoSettings = {
+                customLogo: dataUrl,
+                logoFilename: displayName, // Usamos displayName, no file.name
+                logoInfo: logoInfo,
+                logoFileSize: file.size,
+                logoDimensions: `${img.width}x${img.height}`,
+                logoLastModified: timestamp,
+                logoTimestamp: timestamp, // Para saber cuál es el más reciente
+                logoIsIOS: true,
+                logoId: logoInfo.id
+            };
+            
+            // 4. ===== GUARDADO AGRESIVO PARA iOS =====
+            
+            // A) Primero: Guardar en this.state.settings (sobreescribiendo todo)
+            this.state.settings = {
+                ...this.state.settings,
+                ...logoSettings
+            };
+            
+            // B) Segundo: Guardar en localStorage (COMPLETAMENTE NUEVO)
             try {
+                // Obtener settings actuales
                 let currentSettings = {};
-                const savedSettings = localStorage.getItem('dashcam_settings');
-                if (savedSettings) {
-                    currentSettings = JSON.parse(savedSettings);
+                const saved = localStorage.getItem('dashcam_settings');
+                if (saved) {
+                    currentSettings = JSON.parse(saved);
                 }
                 
-                // ===== SOBREESCRIBIR COMPLETAMENTE la información del logo =====
-                currentSettings.customLogo = dataUrl;
-                currentSettings.logoFilename = file.name;
-                currentSettings.logoInfo = logoInfo; // <-- OBJETO COMPLETO
-                currentSettings.logoFileSize = file.size;
-                currentSettings.logoDimensions = `${img.width}x${img.height}`;
-                currentSettings.logoLastModified = file.lastModified;
-                currentSettings.logoId = logoInfo.id;
+                // ===== SOBREESCRIBIR TODA LA INFORMACIÓN DE LOGO =====
+                // Eliminar cualquier logo anterior
+                delete currentSettings.oldLogoInfo;
+                delete currentSettings.previousLogo;
+                
+                // Establecer NUEVO logo
+                Object.assign(currentSettings, logoSettings);
+                
+                // Marcar como "último logo iOS"
+                currentSettings.lastIOSLogoId = logoInfo.id;
+                currentSettings.lastIOSLogoTimestamp = timestamp;
                 
                 localStorage.setItem('dashcam_settings', JSON.stringify(currentSettings));
-                console.log('💾 Logo guardado directamente en localStorage con ID:', logoInfo.id);
+                console.log('💾 Logo iOS guardado en localStorage con ID:', logoInfo.id);
                 
-            } catch (localStorageError) {
-                console.warn('⚠️ Error guardando logo en localStorage:', localStorageError);
+            } catch (error) {
+                console.warn('⚠️ Error guardando logo iOS en localStorage:', error);
             }
             
-            // 4. INDEXEDDB a través de saveSettings()
+            // C) Tercero: IndexedDB
             await this.saveSettings();
             
-            // ===== SOLUCIÓN: Actualizar UI y mostrar confirmación =====
+            // 5. ===== ACTUALIZAR UI =====
             requestAnimationFrame(() => {
                 this.updateLogoInfo();
-                this.showNotification(`✅ ${file.name} cargado (ID: ${logoInfo.id.substr(0, 8)}...)`);
+                this.showNotification(`✅ Logo cargado (${displayName})`);
             });
             
-            console.log('✅ iOS - Logo procesado y guardado con ID único:', logoInfo.id);
+            console.log('✅ iOS - Logo procesado y guardado como único:', logoInfo.id);
+            
+            // 6. ===== LIMPIAR CACHÉ DE iOS (OPCIONAL PERO RECOMENDADO) =====
+            setTimeout(() => this.cleanupIOSLogoCache(), 1000);
             
         } finally {
-            // Limpiar
             if (input.parentNode) {
                 document.body.removeChild(input);
             }
@@ -2657,6 +2609,27 @@ async uploadCustomLogo() {
             
             logoInput.click();
         });
+    }
+
+    // Añadir esta función para generar hash del contenido (específico para iOS)
+    async generateContentHash(dataUrl) {
+        try {
+            // Extraer la parte base64 de la Data URL
+            const base64Data = dataUrl.split(',')[1];
+            
+            // Crear un hash simple (no necesita ser criptográficamente seguro)
+            let hash = 0;
+            for (let i = 0; i < Math.min(base64Data.length, 100); i++) {
+                const char = base64Data.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convertir a 32-bit integer
+            }
+            
+            return Math.abs(hash).toString(36).substr(0, 8);
+        } catch (error) {
+            // Fallback a timestamp si hay error
+            return Date.now().toString(36).substr(0, 8);
+        }
     }
 // ===== FUNCIONES AUXILIARES SIMPLES =====
 
