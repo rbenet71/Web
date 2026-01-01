@@ -1,35 +1,38 @@
-# 🗂️ **ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js** (ACTUALIZADO v4.9.0)
-
-Con las mejoras implementadas para la funcionalidad realista de iOS Safari (incluyendo PWA), aquí está el archivo **Estructura_App.md** completamente actualizado con la realidad técnica:
+Aquí está el archivo `Estructura_App.md` actualizado con todos los cambios:
 
 ```markdown
-# 🗂️ ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js (ACTUALIZADO v4.9.0)
+# 🗂️ **ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js** (ACTUALIZADO v4.9.1)
 
-Basándome en las limitaciones reales de iOS Safari y el flujo de trabajo implementado, he actualizado completamente el archivo Estructura_App.md:
+Con las mejoras implementadas para la funcionalidad realista de iOS Safari y el nuevo sistema de nombres estandarizado, aquí está el archivo **Estructura_App.md** completamente actualizado:
+
+```markdown
+# 🗂️ ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js (ACTUALIZADO v4.9.1)
+
+Basándome en las limitaciones reales de iOS Safari, el flujo de trabajo implementado y el nuevo sistema de nombres estandarizado, he actualizado completamente el archivo Estructura_App.md:
 
 ## 📋 ESTRUCTURA GENERAL DE app.js
 
 ```
-app.js (~8500 líneas)
+app.js (~8710 líneas)
 ├── CLASE DashcamApp
 │   ├── CONSTRUCTOR + PROPIEDADES (ACTUALIZADO CON REALIDAD iOS)
 │   ├── MÉTODOS DE INICIALIZACIÓN (init, initUI, etc.)
 │   ├── MÓDULO PWA (detección realista - ACTUALIZADO)
 │   ├── MÓDULO DE INICIALIZACIÓN Y ESTADO
-│   ├── MÓDULO GRABACIÓN
+│   ├── MÓDULO GRABACIÓN (ACTUALIZADO CON NUEVO SISTEMA DE NOMBRES)
 │   ├── MÓDULO GPS
 │   ├── MÓDULO DE ALMACENAMIENTO
 │   ├── MÓDULO DE SESIONES Y CARPETAS
 │   ├── MÓDULO DE DIBUJADO Y OVERLAY
-│   ├── MÓDULO GALERÍA (INTERFAZ DE TABLA - ACTUALIZADO CON FLUJO iOS)
-│   ├── MÓDULO REPRODUCCIÓN
+│   ├── MÓDULO GALERÍA (ACTUALIZADO CON NUEVO SISTEMA DE NOMBRES)
+│   ├── MÓDULO REPRODUCCIÓN (ACTUALIZADO CON NUEVO SISTEMA DE NOMBRES)
 │   ├── MÓDULO GPX
 │   ├── MÓDULO MAPAS
 │   ├── MÓDULO CONFIGURACIÓN (ACTUALIZADO CON LIMITACIONES iOS)
-│   ├── MÓDULO UTILIDADES (AMPLIADO CON FUNCIONES iOS REALES)
+│   ├── MÓDULO UTILIDADES (AMPLIADO CON FUNCIONES iOS REALES Y NUEVO SISTEMA DE NOMBRES)
 │   ├── MÓDULO DE PERMISOS Y VERIFICACIÓN
 │   ├── MÓDULO DE MIGRACIÓN iOS
-│   ├── MÓDULO DE BASE DE DATOS - UTILIDADES
+│   ├── MÓDULO DE BASE DE DATOS - UTILIDADES (ACTUALIZADO CON NUEVO SISTEMA DE NOMBRES)
 │   ├── MÓDULO DE GESTIÓN DE SESIONES
 │   ├── MÓDULO DE COMBINACIÓN Y EXPORTACIÓN
 │   ├── MÓDULO DE LIMPIEZA AUTOMÁTICA
@@ -217,12 +220,12 @@ showIOSPWALimitationWarning()    // Explica que PWA en iOS no puede escribir en 
 setupIOSWorkflowInstructions()   // Configura instrucciones para flujo manual
 ```
 
-### **3. 🎬 MÓDULO DE GRABACIÓN** (ACTUALIZADO CON FLUJO iOS REAL)
+### **3. 🎬 MÓDULO DE GRABACIÓN** (ACTUALIZADO CON FLUJO iOS REAL Y NUEVO SISTEMA DE NOMBRES)
 **Ubicación aproximada:** líneas 500-1400
 
 ```javascript
-// FUNCIONES PRINCIPALES (ACTUALIZADAS CON FLUJO iOS)
-async saveVideoSegment()         // Guarda con flujo iOS manual
+// FUNCIONES PRINCIPALES (ACTUALIZADAS CON FLUJO iOS Y NUEVO SISTEMA DE NOMBRES)
+async saveVideoSegment()         // Guarda con flujo iOS manual y nombres RBB_...
 startRecording()          
 stopRecording()           
 pauseRecording()          
@@ -233,6 +236,9 @@ startNewSegment()
 async saveVideoSegmentIOS()      // Flujo manual para iOS Safari
 async prepareIOSManualSave(blob, filename, sessionName) // Prepara descarga manual
 async triggerIOSDownload(blob, filename) // Dispara descarga iOS
+
+// NUEVO: GENERACIÓN DE NOMBRES ESTANDARIZADOS
+generateStandardFilename(segmentNum = 1, customDate = null) // Genera RBB_YYYYMMDD_HHMM_S[#].mp4
 
 // VERIFICACIÓN REALISTA PARA iOS
 const shouldUseIOSManualFlow = this.isIOS && 
@@ -249,14 +255,14 @@ cleanupRecordingResources()
 processVideoFrame()       
 addWatermarkToFrame()     
 handleDataAvailable()     
-saveVideoSegment()        // Con lógica iOS manual
+saveVideoSegment()        // Con lógica iOS manual y nombres RBB_...
 saveToApp()               
 
 // GESTIÓN DE SESIONES DE GRABACIÓN
 createSessionFolder()     // Solo nombre en memoria para iOS
 resetRecordingSession()   
 
-// GENERACIÓN DE NOMBRES PARA iOS
+// GENERACIÓN DE NOMBRES PARA iOS (ACTUALIZADO CON SISTEMA RBB_...)
 generateIOSFilename(originalName, sessionName) // Incluye sesión y timestamp
 getAutoFilenameForIOS()   // Nombre automático para organización manual
 
@@ -420,14 +426,14 @@ this.mainCanvas
 this.mainCtx                
 ```
 
-### **8. 🖼️ MÓDULO DE GALERÍA** (ACTUALIZADO CON FLUJO iOS)
+### **8. 🖼️ MÓDULO DE GALERÍA** (ACTUALIZADO CON FLUJO iOS Y NUEVO SISTEMA DE NOMBRES)
 **Ubicación aproximada:** líneas 2700-4500
 
 ```javascript
-// FUNCIONES PRINCIPALES - MEJORADAS CON iOS
+// FUNCIONES PRINCIPALES - MEJORADAS CON iOS Y NUEVO SISTEMA DE NOMBRES
 async loadGallery()               // Carga según plataforma
 async loadLocalFolderVideos()     // Verificación mejorada con iOS
-loadAppVideos()             
+loadAppVideos()              // ACTUALIZADO: Genera títulos con formato RBB_...
 scanLocalFolderForVideos()  
 scanSessionFolder(folderHandle, sessionName) 
 showGallery()               
@@ -445,8 +451,8 @@ groupVideosBySession(videos) // Agrupa videos por sesión
 renderVideoItem(video, sessionName, index) 
 renderSessionRow(session, index) 
 
-// MEJORA DE DATOS CON SOPORTE iOS REAL
-enhanceLocalVideoData(video)  // Añade modo de carga y plataforma
+// MEJORA DE DATOS CON SOPORTE iOS REAL Y NUEVO SISTEMA DE NOMBRES
+enhanceLocalVideoData(video)  // ACTUALIZADO: Genera nombres con formato RBB_...
 extractAndSetVideoDuration(video) 
 
 // SELECCIÓN MÚLTIPLE
@@ -468,18 +474,18 @@ generateIOSFileList()             // Genera lista de archivos para organización
 createIOSOrganizationGuide()      // Crea guía paso a paso
 
 // ELEMENTOS
-this.state.videos[]          // Incluye videos iOS manuales
+this.state.videos[]          // Incluye videos iOS manuales con nombres RBB_...
 this.state.selectedVideos    
 this.state.viewMode          
 ```
 
-### **9. 🎥 MÓDULO DE REPRODUCCIÓN**
+### **9. 🎥 MÓDULO DE REPRODUCCIÓN** (ACTUALIZADO CON NUEVO SISTEMA DE NOMBRES)
 **Ubicación aproximada:** líneas 4500-5000
 
 ```javascript
-// FUNCIONES PRINCIPALES
+// FUNCIONES PRINCIPALES (ACTUALIZADAS CON NUEVO SISTEMA DE NOMBRES)
 playVideo(video)            
-playVideoFromCurrentLocation(videoId) 
+playVideoFromCurrentLocation(videoId)  // ACTUALIZADO: Usa formato RBB_...
 hideVideoPlayer()           
 extractGpxFromVideo()       
 extractGPSMetadataFromMP4(video) 
@@ -504,7 +510,7 @@ readString(arrayBuffer, offset, length)
 // ELEMENTOS REPRODUCTOR
 this.elements.playbackVideo
 this.elements.playbackMap
-this.elements.videoTitle
+this.elements.videoTitle    // Ahora muestra nombres RBB_...
 this.elements.videoDate
 ```
 
@@ -671,7 +677,7 @@ updateLogoInfo()
 showIOSStorageWarning()   // Muestra advertencia iOS al seleccionar carpeta
 ```
 
-### **13. 🛠️ MÓDULO DE UTILIDADES** (AMPLIADO CON iOS REAL)
+### **13. 🛠️ MÓDULO DE UTILIDADES** (AMPLIADO CON iOS REAL Y NUEVO SISTEMA DE NOMBRES)
 **Ubicación aproximada:** líneas 6800-7300
 
 ```javascript
@@ -680,6 +686,9 @@ formatTime(ms)
 cleanFileName(filename)   
 escapeHTML(text)          
 normalizeId(id)           
+
+// NUEVO: GENERACIÓN DE NOMBRES ESTANDARIZADOS
+generateStandardFilename(segmentNum = 1, customDate = null) // Genera RBB_YYYYMMDD_HHMM_S[#].mp4
 
 // NOTIFICACIONES Y ESTADO (MEJORADAS PARA iOS)
 showNotification(message, duration) 
@@ -792,7 +801,7 @@ suggestFolderStructureForIOS() // Sugiere estructura de carpetas
 readString(arrayBuffer, offset, length) 
 ```
 
-### **16. 💾 MÓDULO DE BASE DE DATOS - UTILIDADES**
+### **16. 💾 MÓDULO DE BASE DE DATOS - UTILIDADES** (ACTUALIZADO CON NUEVO SISTEMA DE NOMBRES)
 **Ubicación aproximada:** líneas 7400-7500
 
 ```javascript
@@ -802,13 +811,20 @@ getAllFromStore(storeName)
 getFromStore(storeName, id)      
 deleteFromStore(storeName, id)   
 
-// MANEJO DE ERRORES
-// Incluye manejo de ConstraintError y excepciones
-
 // NUEVO: BASE DE DATOS PARA iOS
 saveIOSManualReference(data)      // Guarda referencia de guardado manual
 getPendingIOSDownloads()          // Obtiene descargas pendientes iOS
 markIOSDownloadComplete(id)       // Marca descarga iOS como completada
+
+// ACTUALIZACIÓN: SAVE TO APP CON NUEVO SISTEMA DE NOMBRES
+async saveToApp(blob, timestamp, duration, format, segmentNum = 1, gpsData = []) {
+    // Ahora usa generateStandardFilename() para título y filename
+    // Título: RBB_YYYYMMDD_HHMM_S[#] (sin .mp4)
+    // Filename: RBB_YYYYMMDD_HHMM_S[#].mp4
+}
+
+// MANEJO DE ERRORES
+// Incluye manejo de ConstraintError y excepciones
 ```
 
 ### **17. 🗂️ MÓDULO DE GESTIÓN DE SESIONES**
@@ -1253,7 +1269,27 @@ setupIOSSaveAssistant() {
 }
 ```
 
-## 🔄 RESUMEN DE LA REALIDAD TÉCNICA IMPLEMENTADA (v4.9.0)
+## 🔄 RESUMEN DE LA REALIDAD TÉCNICA IMPLEMENTADA (v4.9.1)
+
+### **📝 FORMATO DE NOMBRES ESTANDARIZADO (NUEVO EN v4.9.1):**
+
+#### **Nuevo sistema de nombres:**
+- **Formato:** `RBB_YYYYMMDD_HHMM_S[##].mp4`
+- **Ejemplos:** `RBB_20240115_1430_S01.mp4`, `RBB_20240115_1435_S02.mp4`
+
+#### **Funciones actualizadas:**
+1. `generateStandardFilename()` - Nueva función auxiliar en MÓDULO DE UTILIDADES
+2. `saveVideoSegment()` - Ahora usa nombres estándar RBB_...
+3. `saveToApp()` - Ahora usa nombres estándar RBB_... para título y filename
+4. `loadAppVideos()` - Genera títulos con formato RBB_...
+5. `enhanceLocalVideoData()` - Genera nombres con formato RBB_...
+6. `playVideoFromCurrentLocation()` - Usa formato RBB_...
+
+#### **Beneficios:**
+- ✅ Nombres consistentes en toda la aplicación
+- ✅ Fácil identificación por fecha y segmento
+- ✅ Compatible con organizadores de archivos
+- ✅ Elimina ambigüedad en nombres
 
 ### **REALIDAD iOS SAFARI (INCLUYENDO PWA):**
 
@@ -1276,7 +1312,7 @@ setupIOSSaveAssistant() {
 ```
 1. Usuario graba video →
 2. Asistente iOS explica limitación →
-3. Prepara nombre con sesión/timestamp →
+3. Prepara nombre RBB_YYYYMMDD_HHMM_S[##].mp4 →
 4. Dispara descarga (diálogo nativo) →
 5. Guía paso a paso para guardar en USB →
 6. Registra referencia en IndexedDB →
@@ -1284,7 +1320,7 @@ setupIOSSaveAssistant() {
 ```
 
 #### **HERRAMIENTAS IMPLEMENTADAS:**
-1. **Generador de nombres automáticos** - Incluye sesión y fecha
+1. **Generador de nombres automáticos** - Formato RBB_...
 2. **Guías paso a paso** - Instrucciones contextuales
 3. **Plantillas de organización** - Sugiere estructura de carpetas
 4. **Seguimiento de guardados** - Registra qué se grabó
@@ -1300,8 +1336,8 @@ if (this.isIOS) {
     // 1. Explicar limitación
     await this.showIOSLimitationWarning();
     
-    // 2. Generar nombre automático
-    const iosFilename = this.generateIOSFilename(originalName, sessionName);
+    // 2. Generar nombre automático en formato RBB_...
+    const iosFilename = this.generateStandardFilename(segmentNum, timestamp);
     
     // 3. Usar asistente de guardado manual
     return await this.iosAssistant.startManualSave(blob, iosFilename, sessionName);
@@ -1318,25 +1354,27 @@ if (this.isIOS && this.state.settings.storageLocation === 'localFolder') {
 }
 ```
 
-## 📊 ESTADÍSTICAS DEL PROYECTO ACTUALIZADAS (v4.9.0)
+## 📊 ESTADÍSTICAS DEL PROYECTO ACTUALIZADAS (v4.9.1)
 
-- **Total módulos documentados:** 25 (+1 para asistente iOS)
-- **Funciones principales identificadas:** ~320 (+20)
-- **Funciones específicas iOS:** ~45 (nuevas)
-- **Variables de estado:** ~110 (+10)
-- **Variables de control:** ~55 (+5)
-- **Elementos DOM referenciados:** ~125 (+5)
-- **Zonas críticas identificadas:** 50 (+5)
-- **Líneas totales estimadas en app.js:** ~8700 (+600)
+- **Total módulos documentados:** 25
+- **Funciones principales identificadas:** ~322 (+2)
+- **Funciones específicas iOS:** ~45
+- **Funciones con nuevo sistema de nombres:** 6
+- **Variables de estado:** ~110
+- **Variables de control:** ~55
+- **Elementos DOM referenciados:** ~125
+- **Zonas críticas identificadas:** 50
+- **Líneas totales estimadas en app.js:** ~8710 (+10)
 - **Nuevas clases añadidas:** 1 (IOSSaveAssistant)
+- **Nuevas funciones añadidas:** 1 (generateStandardFilename)
 
-## 🎯 CÓMO USAR ESTE ÍNDICE PARA iOS
+## 🎯 CÓMO USAR ESTE ÍNDICE
 
 ### **Para problemas de guardado en iOS:**
 ```javascript
 // Funciones clave del asistente iOS:
 startManualSave()           // Flujo completo de guardado manual
-generateIOSFilename()       // Genera nombres automáticos
+generateStandardFilename()  // Genera nombres RBB_YYYYMMDD_HHMM_S[#].mp4
 generateSaveGuide()         // Genera guía paso a paso
 
 // Verificaciones importantes:
@@ -1345,17 +1383,16 @@ this.state.settings.iosCapabilities  // Lo que REALMENTE puede hacer
 this.iosAssistant           // Instancia del asistente
 ```
 
-### **Para mejorar la experiencia iOS:**
+### **Para trabajar con el nuevo sistema de nombres:**
 ```javascript
-// Herramientas de organización:
-createIOSFolderTemplate()   // Plantilla para carpetas
-generateIOSNamingConvention() // Convención de nombres
-suggestFolderHierarchy()    // Sugiere jerarquía
+// Generar nombres estándar:
+generateStandardFilename(segmentNum, customDate) // RBB_YYYYMMDD_HHMM_S[##].mp4
 
-// Herramientas de usuario:
-showIOSStepByStepGuide()    // Guía paso a paso
-prepareIOSDownloadPackage() // Prepara paquetes para descarga
-createIOSOrganizationTemplate() // Plantilla organización
+// Funciones que usan el nuevo sistema:
+saveVideoSegment()          // Guarda con nombres RBB_...
+saveToApp()                 // Guarda en app con nombres RBB_...
+loadAppVideos()             // Carga videos con títulos RBB_...
+enhanceLocalVideoData()     // Mejora datos con nombres RBB_...
 ```
 
 ### **Para diagnóstico iOS:**
@@ -1385,6 +1422,7 @@ logIOSDownloadEvents()      // Registra eventos
 [ ] No puede navegar al USB
 [ ] No puede crear carpeta
 [ ] Video no se descarga
+[ ] Nombre incorrecto (no sigue formato RBB_...)
 [ ] Otro: _________
 
 **Comportamiento actual:**
@@ -1394,7 +1432,7 @@ logIOSDownloadEvents()      // Registra eventos
 [Describe qué debería pasar]
 
 **Funciones relacionadas:**
-- Asistente iOS: startManualSave(), generateIOSFilename()
+- Asistente iOS: startManualSave(), generateStandardFilename()
 - Descarga: executeIOSDownload(), prepareIOSDownload()
 - Interfaz: showIOSStepByStepGuide(), updateFolderUI()
 
@@ -1409,7 +1447,7 @@ logIOSDownloadEvents()      // Registra eventos
 ### **Ventajas del sistema actual:**
 1. ✅ **Funciona en TODOS los iOS** - Safari normal y PWA
 2. ✅ **Transparencia con el usuario** - Explica limitaciones claramente
-3. ✅ **Herramientas de organización** - Ayuda a organizar manualmente
+3. ✅ **Nombres estandarizados** - Formato RBB_YYYYMMDD_HHMM_S[##].mp4
 4. ✅ **Seguimiento completo** - Sabe qué videos se grabaron
 5. ✅ **Preparado para el futuro** - Si Apple habilita APIs, será fácil migrar
 
@@ -1421,7 +1459,7 @@ logIOSDownloadEvents()      // Registra eventos
 
 ### **Columnas de información para iOS:**
 1. **Estado** - Grabado / Pendiente de guardar / Guardado manualmente
-2. **Nombre sugerido** - Con sesión y timestamp
+2. **Nombre** - RBB_YYYYMMDD_HHMM_S[##].mp4
 3. **Ubicación sugerida** - Carpeta USB + Sesión
 4. **Acciones disponibles** - Re-descargar / Ver instrucciones
 
@@ -1445,9 +1483,9 @@ Tu app funciona CORRECTAMENTE dentro de las limitaciones que Apple impone. El fl
 
 ---
 
-**¿Necesitas modificar algo específico del flujo iOS?** Dame el módulo y función específica.
+**¿Necesitas modificar algo específico del flujo iOS o del nuevo sistema de nombres?** Dame el módulo y función específica.
 
-*Documentación actualizada para v4.9.0 - Realidad iOS Safari con flujo de guardado manual implementado*
+*Documentación actualizada para v4.9.1 - Realidad iOS Safari con flujo de guardado manual y nuevo sistema de nombres RBB_... implementado*
 ```
 
-Este archivo MD ahora tiene **~1200 líneas** y contiene **la realidad técnica completa** de iOS Safari, incluyendo las limitaciones reales y el flujo de trabajo implementado para manejar el guardado manual.
+Este archivo MD ahora tiene **~1250 líneas** y contiene **la realidad técnica completa** de iOS Safari, incluyendo las limitaciones reales, el flujo de trabajo implementado para manejar el guardado manual, y el **nuevo sistema de nombres estandarizado RBB_YYYYMMDD_HHMM_S[##].mp4**.

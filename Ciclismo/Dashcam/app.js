@@ -1,6 +1,6 @@
-// Dashcam PWA v4.9.1 - Versión Completa Simplificada
+// Dashcam PWA v4.9.2 - Versión Completa Simplificada
 
-const APP_VERSION = '4.9.1';
+const APP_VERSION = '4.9.2';
 
 class DashcamApp {
     constructor() {
@@ -6980,8 +6980,6 @@ renderVideosList() {
     
     console.log(`✅ HTML renderizado - ${isMobile ? 'Versión Móvil' : 'Versión Escritorio'} con botones de video en sesión`);
     
-    // También necesitamos agregar los métodos para manejar los videos seleccionados por sesión
-    // Asegurémonos de que existan
     if (!window.dashcamApp.deleteSelectedInSession) {
         window.dashcamApp.deleteSelectedInSession = async function(sessionName) {
             console.log(`🗑️ Eliminando videos seleccionados en sesión: ${sessionName}`);
@@ -7003,11 +7001,29 @@ renderVideosList() {
             if (videoIdsToDelete.length === 0) return;
             
             if (confirm(`¿Eliminar ${videoIdsToDelete.length} video(s) seleccionado(s) de la sesión "${sessionName}"?`)) {
-                await this.deleteVideos(videoIdsToDelete);
+                // Eliminar cada video individualmente usando deleteSingleVideo()
+                let deletedCount = 0;
+                for (const videoId of videoIdsToDelete) {
+                    try {
+                        // Primero encontrar el video para obtener su información
+                        const video = this.findVideoInState(videoId);
+                        if (video) {
+                            await this.deleteSingleVideo(videoId, video);
+                            deletedCount++;
+                        }
+                    } catch (error) {
+                        console.error(`❌ Error eliminando video ${videoId}:`, error);
+                    }
+                }
+                
+                this.showNotification(`🗑️ ${deletedCount} video(s) eliminado(s) de "${sessionName}"`);
+                
+                // Actualizar la galería
+                this.loadGallery();
             }
         };
     }
-    
+
     if (!window.dashcamApp.exportSelectedInSession) {
         window.dashcamApp.exportSelectedInSession = async function(sessionName) {
             console.log(`📦 Exportando videos seleccionados en sesión: ${sessionName}`);
@@ -7028,7 +7044,27 @@ renderVideosList() {
             
             if (videosToExport.length === 0) return;
             
-            await this.exportVideos(videosToExport, `${sessionName} (${videosToExport.length} videos seleccionados)`);
+            // Mostrar mensaje informativo
+            this.showNotification(`📤 Exportando ${videosToExport.length} video(s) de "${sessionName}"...`);
+            
+            // Exportar cada video individualmente usando exportSingleVideo()
+            let exportedCount = 0;
+            for (const video of videosToExport) {
+                try {
+                    // Usar la nueva versión mejorada de exportSingleVideo()
+                    await this.exportSingleVideo(video.id);
+                    exportedCount++;
+                    
+                    // Pequeña pausa entre descargas para evitar problemas
+                    if (exportedCount < videosToExport.length) {
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    }
+                } catch (error) {
+                    console.error(`❌ Error exportando video ${video.id}:`, error);
+                }
+            }
+            
+            this.showNotification(`✅ ${exportedCount} video(s) exportado(s) de "${sessionName}"`);
         };
     }
 };
@@ -9287,23 +9323,187 @@ setPlaybackSpeed(speed) {
         }
     }
 
-    async exportSingleVideo() {
-        if (!this.state.currentVideo) return;
-        
+    async exportSingleVideo(videoId = null) {
         try {
-            if (this.state.currentVideo.blob) {
-                this.downloadBlob(
-                    this.state.currentVideo.blob, 
-                    `${this.state.currentVideo.title || 'grabacion'}.${this.state.currentVideo.format || 'mp4'}`
-                );
-                this.showNotification('📤 Video exportado');
+            // Determinar qué video exportar
+            let videoToExport = null;
+            
+            if (videoId) {
+                // Si se pasa un ID específico, buscar ese video
+                videoToExport = await this.getVideoById(videoId);
+            } else if (this.state.currentVideo) {
+                // Usar el video actual del reproductor
+                videoToExport = this.state.currentVideo;
             } else {
-                this.showNotification('❌ Video no disponible para exportar');
+                // Si no hay video especificado, mostrar error
+                this.showNotification('❌ No hay video seleccionado para exportar');
+                return;
+            }
+            
+            if (!videoToExport) {
+                this.showNotification('❌ Video no encontrado');
+                return;
+            }
+            
+            console.log(`📤 Exportando video individual: ${videoToExport.title || videoToExport.id}`);
+            this.showSavingStatus('Preparando video para exportar...');
+            
+            // Intentar obtener el blob desde múltiples fuentes (igual que exportSession)
+            let blob = null;
+            let source = 'unknown';
+            
+            // FUENTE 1: Blob ya disponible en memoria
+            if (videoToExport.blob) {
+                blob = videoToExport.blob;
+                source = 'memory';
+                console.log(`✅ Blob obtenido desde memoria: ${blob.size} bytes`);
+            }
+            // FUENTE 2: FileHandle (archivo físico en carpeta local)
+            else if (videoToExport.fileHandle) {
+                try {
+                    const file = await videoToExport.fileHandle.getFile();
+                    blob = file;
+                    source = 'fileHandle';
+                    console.log(`✅ Blob obtenido desde fileHandle: ${blob.size} bytes`);
+                } catch (error) {
+                    console.error('❌ Error obteniendo archivo desde fileHandle:', error);
+                }
+            }
+            // FUENTE 3: Base de datos IndexedDB
+            else if (this.db) {
+                try {
+                    const storedVideo = await this.getFromStore('videos', videoToExport.id);
+                    if (storedVideo?.blob) {
+                        blob = storedVideo.blob;
+                        source = 'database';
+                        console.log(`✅ Blob obtenido desde base de datos: ${blob.size} bytes`);
+                    }
+                } catch (error) {
+                    console.error('❌ Error obteniendo video desde base de datos:', error);
+                }
+            }
+            // FUENTE 4: Video directamente en app (para iOS/manual)
+            else if (videoToExport.videoData) {
+                // Para iOS/videos grabados recientemente
+                blob = videoToExport.videoData;
+                source = 'videoData';
+                console.log(`✅ Blob obtenido desde videoData: ${blob.size} bytes`);
+            }
+            
+            // Si no se pudo obtener el blob, intentar métodos alternativos
+            if (!blob) {
+                // Método alternativo: buscar en el array de videos del estado
+                const videoInState = this.state.videos.find(v => v.id === videoToExport.id);
+                if (videoInState?.blob) {
+                    blob = videoInState.blob;
+                    source = 'stateArray';
+                    console.log(`✅ Blob obtenido desde array de estado: ${blob.size} bytes`);
+                }
+            }
+            
+            // Si después de todos los intentos no hay blob, mostrar error
+            if (!blob) {
+                console.error('❌ No se pudo obtener el blob del video desde ninguna fuente:', {
+                    id: videoToExport.id,
+                    hasBlob: !!videoToExport.blob,
+                    hasFileHandle: !!videoToExport.fileHandle,
+                    hasVideoData: !!videoToExport.videoData,
+                    sourcesChecked: ['memory', 'fileHandle', 'database', 'videoData', 'stateArray']
+                });
+                
+                this.hideSavingStatus();
+                this.showNotification('❌ No se puede exportar: video no disponible');
+                return;
+            }
+            
+            console.log(`✅ Blob obtenido exitosamente desde fuente: ${source}, tamaño: ${Math.round(blob.size / (1024 * 1024))} MB`);
+            
+            // Generar nombre de archivo seguro
+            let filename = '';
+            
+            // Usar el sistema de nombres estandarizado RBB_... si está disponible
+            if (videoToExport.filename && videoToExport.filename.startsWith('RBB_')) {
+                filename = videoToExport.filename;
+                console.log(`📝 Usando nombre estandarizado: ${filename}`);
+            }
+            // Si no, generar un nombre basado en título o ID
+            else {
+                const baseName = videoToExport.title || videoToExport.filename || 'grabacion';
+                const cleanName = this.cleanFileName(baseName);
+                const format = videoToExport.format || 'mp4';
+                
+                // Añadir fecha si no está en el nombre
+                if (videoToExport.timestamp) {
+                    const date = new Date(videoToExport.timestamp);
+                    const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
+                    const timeStr = date.toTimeString().slice(0, 8).replace(/:/g, '');
+                    filename = `${cleanName}_${dateStr}_${timeStr}.${format}`;
+                } else {
+                    filename = `${cleanName}.${format}`;
+                }
+                
+                console.log(`📝 Nombre generado: ${filename}`);
+            }
+            
+            // Asegurar extensión .mp4 si no la tiene
+            if (!filename.toLowerCase().endsWith('.mp4')) {
+                filename = filename.replace(/\.[^/.]+$/, '') + '.mp4';
+            }
+            
+            // Descargar el blob
+            this.downloadBlob(blob, filename);
+            
+            this.hideSavingStatus();
+            this.showNotification(`✅ Video exportado como "${filename}" (${Math.round(blob.size / (1024 * 1024))} MB)`);
+            
+            // Log para depuración
+            console.log(`✅ Exportación completada exitosamente:`, {
+                videoId: videoToExport.id,
+                filename: filename,
+                sizeMB: Math.round(blob.size / (1024 * 1024)),
+                source: source,
+                timestamp: new Date().toISOString()
+            });
+            
+        } catch (error) {
+            console.error('❌ Error exportando video individual:', error);
+            this.hideSavingStatus();
+            this.showNotification('❌ Error al exportar video');
+        }
+    }
+
+    // NUEVA FUNCIÓN AUXILIAR para obtener video por ID
+    async getVideoById(videoId) {
+        // Buscar en el array de videos del estado
+        const videoInState = this.state.videos.find(v => this.normalizeId(v.id) === this.normalizeId(videoId));
+        if (videoInState) {
+            return videoInState;
+        }
+        
+        // Buscar en base de datos si existe
+        if (this.db) {
+            try {
+                const storedVideo = await this.getFromStore('videos', videoId);
+                if (storedVideo) {
+                    return storedVideo;
+                }
+            } catch (error) {
+                console.error('Error buscando video en base de datos:', error);
+            }
+        }
+        
+        // Buscar en localStorage como último recurso
+        try {
+            const videos = JSON.parse(localStorage.getItem('dashcam_videos') || '[]');
+            const videoInLocalStorage = videos.find(v => this.normalizeId(v.id) === this.normalizeId(videoId));
+            if (videoInLocalStorage) {
+                return videoInLocalStorage;
             }
         } catch (error) {
-            console.error('❌ Error exportando video:', error);
-            this.showNotification('❌ Error al exportar');
+            console.error('Error buscando video en localStorage:', error);
         }
+        
+        return null;
     }
 
     async deleteSingleVideo() {
@@ -13248,11 +13448,7 @@ async getParentDirectoryHandle(fileHandle) {
         if (gpxUploadInput) {
             gpxUploadInput.addEventListener('change', (event) => this.handleGpxSelection(event));
         }
-        
-        // Evento para mostrar modal de combinación
-        if (this.elements.combineVideosBtn) {
-            this.elements.combineVideosBtn.addEventListener('click', () => this.combineSelectedVideos());
-        }
+    
         
         console.log('✅ Todos los event listeners configurados');
     }
