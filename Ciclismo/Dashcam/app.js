@@ -1,6 +1,6 @@
-// Dashcam PWA v4.8.8 - Versión Completa Simplificada
+// Dashcam PWA v4.8.9 - Versión Completa Simplificada
 
-const APP_VERSION = '4.8.8';
+const APP_VERSION = '4.8.9';
 
 class DashcamApp {
     constructor() {
@@ -4381,20 +4381,26 @@ class DashcamApp {
         console.log('💾 Guardando en carpeta local...', {
             hasHandle: !!this.localFolderHandle,
             isIOS: this.isIOS,
+            isWebkitDirectory: this.state.settings.isWebkitDirectory,
+            webkitFolderName: this.state.settings.localFolderName,
             filename,
             sessionName
         });
         
-        if (!this.localFolderHandle && !this.isIOS) {
+        // ===== VERIFICACIÓN MEJORADA =====
+        const canSaveToLocal = this.localFolderHandle || 
+                              (this.isIOS && this.state.settings.isWebkitDirectory);
+        
+        if (!canSaveToLocal && !this.isIOS) {
             console.log('⚠️ No hay carpeta local seleccionada');
             this.showNotification('⚠️ Selecciona una carpeta primero');
             return false;
         }
         
         try {
-            // ===== CASO 1: TENEMOS HANDLE DE CARPETA (iOS o Desktop) =====
+            // ===== CASO 1: CON HANDLE DE CARPETA (ESCRITURA DIRECTA) =====
             if (this.localFolderHandle) {
-                console.log('📁 Usando handle de carpeta:', this.localFolderHandle.name);
+                console.log('📁 Modo: Handle persistente - Guardando físicamente');
                 
                 // Verificar permisos primero
                 try {
@@ -4430,9 +4436,9 @@ class DashcamApp {
                 await writable.write(blob);
                 await writable.close();
                 
-                console.log(`✅ Archivo guardado físicamente: ${folderPath}${filename}`);
+                console.log(`✅ Archivo guardado físicamente en USB: ${folderPath}${filename}`);
                 
-                // ===== GUARDAR REFERENCIA EN INDEXEDDB (backup) =====
+                // ===== GUARDAR REFERENCIA EN INDEXEDDB =====
                 const fileRef = {
                     id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                     filename: filename,
@@ -4443,7 +4449,8 @@ class DashcamApp {
                     location: 'local_folder',
                     session: sessionName,
                     physicalLocation: 'filesystem',
-                    platform: this.isIOS ? 'ios' : 'desktop'
+                    platform: this.isIOS ? 'ios' : 'desktop',
+                    savedPhysically: true
                 };
                 
                 if (this.db) {
@@ -4451,61 +4458,210 @@ class DashcamApp {
                     console.log('📝 Referencia guardada en IndexedDB');
                 }
                 
-                this.showNotification(`✅ Video guardado en carpeta`);
+                this.showNotification(`✅ Video guardado en USB`);
                 return true;
+            }
+            
+            // ===== CASO 2: iOS CON WEBKITDIRECTORY (PERMISOS LIMITADOS) =====
+            else if (this.isIOS && this.state.settings.isWebkitDirectory) {
+                console.log('📱 Modo: webkitdirectory en iOS - Intentando guardar en USB...');
                 
-            } 
-            // ===== CASO 2: iOS SIN HANDLE (fallback a IndexedDB) =====
-            else if (this.isIOS) {
-                console.log('📱 iOS: Guardando en IndexedDB (sin carpeta física)');
+                // IMPORTANTE: webkitdirectory NO da permisos de escritura por defecto
+                // Pero podemos intentar algunas estrategias:
                 
-                // Para iPhone sin carpeta seleccionada, guardar solo en IndexedDB
+                // ESTRATEGIA 1: Intentar usar la API de File System Access si está disponible
+                if (window.showSaveFilePicker) {
+                    try {
+                        console.log('🔄 Intentando usar showSaveFilePicker...');
+                        const fileHandle = await window.showSaveFilePicker({
+                            suggestedName: filename,
+                            types: [{
+                                description: 'Video MP4',
+                                accept: { 'video/mp4': ['.mp4'] }
+                            }]
+                        });
+                        
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(blob);
+                        await writable.close();
+                        
+                        console.log(`✅ Guardado en USB via showSaveFilePicker: ${filename}`);
+                        
+                        // Guardar referencia
+                        const fileRef = {
+                            id: Date.now() + '_webkit_save_' + Math.random().toString(36).substr(2, 9),
+                            filename: filename,
+                            folderName: this.state.settings.localFolderName,
+                            timestamp: Date.now(),
+                            size: blob.size,
+                            location: 'webkit_saved',
+                            session: sessionName,
+                            platform: 'ios',
+                            savedPhysically: true,
+                            saveMethod: 'showSaveFilePicker'
+                        };
+                        
+                        if (this.db) {
+                            await this.saveToDatabase('localFiles', fileRef);
+                        }
+                        
+                        this.showNotification(`✅ Video guardado en USB (showSaveFilePicker)`);
+                        return true;
+                        
+                    } catch (saveError) {
+                        console.warn('⚠️ showSaveFilePicker falló:', saveError);
+                        // Continuar con siguiente estrategia
+                    }
+                }
+                
+                // ESTRATEGIA 2: Intentar usar un input file con capture (para iOS)
+                if (this.isIOS) {
+                    try {
+                        console.log('🔄 Intentando estrategia iOS nativa...');
+                        
+                        // Crear un enlace de descarga temporal
+                        const downloadUrl = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = downloadUrl;
+                        a.download = filename;
+                        a.style.display = 'none';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        
+                        // Liberar URL después de un tiempo
+                        setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+                        
+                        console.log(`✅ Descarga iniciada para: ${filename}`);
+                        
+                        // Guardar referencia en IndexedDB como fallback
+                        const fileData = {
+                            id: Date.now() + '_webkit_dl_' + Math.random().toString(36).substr(2, 9),
+                            filename: filename,
+                            timestamp: Date.now(),
+                            size: blob.size,
+                            type: 'video/mp4',
+                            location: 'webkit_download',
+                            folderName: this.state.settings.localFolderName,
+                            session: sessionName,
+                            blob: blob,
+                            platform: 'ios',
+                            savedPhysically: false, // No está físicamente en USB
+                            saveMethod: 'download'
+                        };
+                        
+                        if (this.db) {
+                            await this.saveToDatabase('localFiles', fileData);
+                        }
+                        
+                        this.showNotification(
+                            '📱 Video listo para guardar\n' +
+                            '1. Toca "Guardar en Archivos"\n' +
+                            '2. Navega a tu USB\n' +
+                            '3. Toca "Añadir"',
+                            6000
+                        );
+                        
+                        return true;
+                        
+                    } catch (downloadError) {
+                        console.error('❌ Error en descarga iOS:', downloadError);
+                    }
+                }
+                
+                // ESTRATEGIA 3: Fallback a IndexedDB con instrucciones claras
+                console.log('📋 Usando fallback a IndexedDB con instrucciones');
+                
                 const fileData = {
-                    id: Date.now() + '_ios_' + Math.random().toString(36).substr(2, 9),
+                    id: Date.now() + '_webkit_fallback_' + Math.random().toString(36).substr(2, 9),
                     filename: filename,
                     timestamp: Date.now(),
                     size: blob.size,
                     type: 'video/mp4',
-                    location: 'ios_indexeddb',
+                    location: 'webkit_fallback',
+                    folderName: this.state.settings.localFolderName,
                     session: sessionName,
                     blob: blob,
-                    platform: 'ios'
+                    platform: 'ios',
+                    savedPhysically: false,
+                    saveMethod: 'indexeddb_fallback',
+                    needsPhysicalSave: true
                 };
                 
                 if (this.db) {
                     await this.saveToDatabase('localFiles', fileData);
                 }
                 
-                this.showNotification('📱 Video guardado en la app');
-                return true;
+                // Mostrar instrucciones detalladas
+                this.showNotification(
+                    '⚠️ Para guardar en USB:\n' +
+                    '1. Instala la app como PWA (icono pantalla)\n' +
+                    '2. Usa la app instalada\n' +
+                    '3. Selecciona carpeta USB nuevamente\n\n' +
+                    'Video guardado temporalmente en app',
+                    8000
+                );
                 
-            } 
-            // ===== CASO 3: DESKTOP SIN HANDLE (error) =====
+                return true; // Retornamos true porque se guardó en IndexedDB
+            }
+            
+            // ===== CASO 3: iOS SIN WEBKITDIRECTORY =====
+            else if (this.isIOS) {
+                console.log('📱 iOS sin webkitdirectory: Guardando en app');
+                
+                const fileData = {
+                    id: Date.now() + '_ios_app_' + Math.random().toString(36).substr(2, 9),
+                    filename: filename,
+                    timestamp: Date.now(),
+                    size: blob.size,
+                    type: 'video/mp4',
+                    location: 'ios_app',
+                    session: sessionName,
+                    blob: blob,
+                    platform: 'ios',
+                    savedPhysically: false
+                };
+                
+                if (this.db) {
+                    await this.saveToDatabase('localFiles', fileData);
+                }
+                
+                this.showNotification(
+                    '📱 Video guardado en la app\n' +
+                    'Para guardar en USB: selecciona una carpeta',
+                    4000
+                );
+                
+                return true;
+            }
+            
+            // ===== CASO 4: DESKTOP SIN HANDLE =====
             else {
-                console.log('❌ No hay carpeta seleccionada en Desktop');
-                this.showNotification('❌ Selecciona una carpeta primero');
+                console.log('❌ Desktop sin handle: No se puede guardar');
+                this.showNotification('❌ Selecciona una carpeta primero en Desktop');
                 return false;
             }
             
         } catch (error) {
             console.error('❌ Error guardando en carpeta local:', error);
             
-            // Si falla el guardado físico, intentar guardar en IndexedDB como fallback
-            if (this.db && !this.isIOS) {
-                console.log('🔄 Intentando guardar en IndexedDB como fallback...');
+            // Fallback genérico
+            if (this.db) {
                 try {
                     const fallbackData = {
-                        id: Date.now() + '_fallback_' + Math.random().toString(36).substr(2, 9),
+                        id: Date.now() + '_error_fallback_' + Math.random().toString(36).substr(2, 9),
                         filename: filename,
                         timestamp: Date.now(),
                         size: blob.size,
-                        location: 'indexeddb_fallback',
+                        location: 'error_fallback',
                         session: sessionName,
-                        blob: blob
+                        blob: blob,
+                        platform: this.isIOS ? 'ios' : 'desktop',
+                        error: error.message
                     };
                     
                     await this.saveToDatabase('localFiles', fallbackData);
-                    this.showNotification('⚠️ Video guardado en la app (fallback)');
+                    this.showNotification('⚠️ Video guardado en app (error durante guardado)');
                     return true;
                 } catch (fallbackError) {
                     console.error('❌ Fallback también falló:', fallbackError);
@@ -4517,6 +4673,69 @@ class DashcamApp {
         }
     }
 
+    async attemptIOSFileSave(blob, filename) {
+        console.log('📱 Intentando guardar archivo en iOS...');
+        
+        // Método 1: showSaveFilePicker (iOS 15+)
+        if (window.showSaveFilePicker) {
+            try {
+                const fileHandle = await window.showSaveFilePicker({
+                    suggestedName: filename,
+                    types: [{
+                        description: 'Videos',
+                        accept: { 'video/*': ['.mp4', '.mov'] }
+                    }]
+                });
+                
+                const writable = await fileHandle.createWritable();
+                await writable.write(blob);
+                await writable.close();
+                
+                return { success: true, method: 'showSaveFilePicker', handle: fileHandle };
+            } catch (error) {
+                console.warn('showSaveFilePicker falló:', error);
+            }
+        }
+        
+        // Método 2: Descarga nativa
+        try {
+            const downloadUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = filename;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+            
+            return { success: true, method: 'download', url: downloadUrl };
+        } catch (error) {
+            console.error('Descarga falló:', error);
+        }
+        
+        // Método 3: Share API (iOS)
+        if (navigator.share && navigator.canShare) {
+            try {
+                const file = new File([blob], filename, { type: blob.type });
+                
+                if (navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Guardar video',
+                        text: 'Guardar video en USB'
+                    });
+                    
+                    return { success: true, method: 'share' };
+                }
+            } catch (error) {
+                console.warn('Share API falló:', error);
+            }
+        }
+        
+        return { success: false, error: 'Todos los métodos fallaron' };
+    }
 
 
     // ============ GPS Y GEOLOCALIZACIÓN ============
