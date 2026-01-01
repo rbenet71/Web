@@ -1,6 +1,6 @@
-// Dashcam PWA v4.9 - Versión Completa Simplificada
+// Dashcam PWA v4.9.1 - Versión Completa Simplificada
 
-const APP_VERSION = '4.9';
+const APP_VERSION = '4.9.1';
 
 class DashcamApp {
     constructor() {
@@ -2270,14 +2270,8 @@ class DashcamApp {
                 timestamp: timestamp,
                 duration: duration,
                 size: blob.size,
-                title: `Grabación ${new Date(timestamp).toLocaleString('es-ES', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                })} - S${segmentNum}${this.state.recordingSessionName ? ` - ${this.state.recordingSessionName}` : ''}`,
-                filename: `segmento_${segmentNum}.${format}`,
+                title: this.generateStandardFilename(segmentNum, timestamp).replace('.mp4', ''),
+                filename: this.generateStandardFilename(segmentNum, timestamp),
                 gpsPoints: gpsData.length,
                 gpsTrack: gpsData,
                 format: format,
@@ -5467,16 +5461,13 @@ class DashcamApp {
             videos = videos.map(video => ({
                 ...video,
                 id: Number(video.id) || Date.now() + Math.random(), // Convertir a número o crear ID único
-                // Asegurar que siempre tenga título
-                title: video.title || `Grabación ${new Date(video.timestamp || Date.now()).toLocaleString('es-ES', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                })}${video.segment ? ` - S${video.segment}` : ''}${video.sessionName ? ` - ${video.sessionName}` : ''}`,
+                // Asegurar que siempre tenga título (usando formato RBB_...)
+                title: video.title || 
+                    (video.filename && video.filename.replace('.mp4', '')) || 
+                    `RBB_${new Date(video.timestamp || Date.now()).toISOString().split('T')[0].replace(/-/g, '')}_S${String(video.segment || 1).padStart(2, '0')}`,
                 // Asegurar que siempre tenga filename
-                filename: video.filename || `grabacion_${video.timestamp || Date.now()}.${video.format || 'mp4'}`,
+                filename: video.filename || 
+                    `RBB_${new Date(video.timestamp || Date.now()).toISOString().split('T')[0].replace(/-/g, '')}_${String(new Date(video.timestamp || Date.now()).getHours()).padStart(2, '0')}${String(new Date(video.timestamp || Date.now()).getMinutes()).padStart(2, '0')}_S${String(video.segment || 1).padStart(2, '0')}.${video.format || 'mp4'}`,
                 // Asegurar que tenga formato
                 format: video.format || 'mp4',
                 // Asegurar que tenga ubicación
@@ -5694,21 +5685,30 @@ class DashcamApp {
             video.id = `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         }
         
+        // Obtener fecha para formato RBB
+        const timestamp = video.timestamp || video.lastModified || Date.now();
+        const date = new Date(timestamp);
+        const dateStr = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
+        const timeStr = `${String(date.getHours()).padStart(2, '0')}${String(date.getMinutes()).padStart(2, '0')}`;
+        const segmentStr = String(video.segment || 1).padStart(2, '0');
+        
         // Asegurar campos esenciales
         return {
             ...video,
             duration: finalDuration, // Asegurar duración
             
-            // Asegurar título
+            // Asegurar título (usando formato RBB_...)
             title: video.title || 
+                (video.filename && video.filename.replace('.mp4', '')) || 
                 (video.session ? `${video.session}/${video.filename}` : video.filename) || 
-                `Grabación ${new Date(video.timestamp || video.lastModified || Date.now()).toLocaleString('es-ES')}`,
+                `RBB_${dateStr}_${timeStr}_S${segmentStr}`,
             
-            // Asegurar filename si no existe
-            filename: video.filename || video.title || `video_${Date.now()}.${video.format || 'mp4'}`,
+            // Asegurar filename si no existe (usando formato RBB_...)
+            filename: video.filename || 
+                `RBB_${dateStr}_${timeStr}_S${segmentStr}.${video.format || 'mp4'}`,
             
             // Asegurar timestamp
-            timestamp: video.timestamp || video.lastModified || Date.now(),
+            timestamp: timestamp,
             
             // Asegurar tamaño
             size: video.size || (video.blob ? video.blob.size : 0),
@@ -5733,7 +5733,7 @@ class DashcamApp {
             session: video.session || null,
             
             // Asegurar lastModified
-            lastModified: video.lastModified || video.timestamp || Date.now(),
+            lastModified: video.lastModified || timestamp,
             
             // Asegurar handle del archivo
             fileHandle: video.fileHandle || null,
@@ -7924,9 +7924,14 @@ console.log('4. expandedSessions después:', Array.from(this.state.expandedSessi
                     const dbVideo = await this.getFromStore('videos', idToSearch);
                     
                     if (dbVideo) {
-                        // Asegurar que tenga título y filename
-                        dbVideo.title = dbVideo.title || `Grabación ${new Date(dbVideo.timestamp).toLocaleString('es-ES')}`;
-                        dbVideo.filename = dbVideo.filename || `grabacion_${dbVideo.id}.mp4`;
+                        // Asegurar que tenga título y filename (usando formato RBB_...)
+                        const date = new Date(dbVideo.timestamp);
+                        const dateStr = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
+                        const timeStr = `${String(date.getHours()).padStart(2, '0')}${String(date.getMinutes()).padStart(2, '0')}`;
+                        const segmentStr = String(dbVideo.segment || 1).padStart(2, '0');
+                        
+                        dbVideo.title = dbVideo.title || `RBB_${dateStr}_${timeStr}_S${segmentStr}`;
+                        dbVideo.filename = dbVideo.filename || `RBB_${dateStr}_${timeStr}_S${segmentStr}.${dbVideo.format || 'mp4'}`;
                         
                         // Llamar a playVideo con el video de la BD
                         await this.playVideo(dbVideo);
@@ -7945,13 +7950,15 @@ console.log('4. expandedSessions después:', Array.from(this.state.expandedSessi
                 return;
             }
             
-            // Asegurar título y filename
-            if (!video.title) {
-                video.title = `Grabación ${new Date(video.timestamp).toLocaleString('es-ES')}`;
-            }
-            if (!video.filename) {
-                video.filename = `grabacion_${video.id}.${video.format || 'mp4'}`;
-            }
+            // Obtener fecha para formato RBB
+            const date = new Date(video.timestamp);
+            const dateStr = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
+            const timeStr = `${String(date.getHours()).padStart(2, '0')}${String(date.getMinutes()).padStart(2, '0')}`;
+            const segmentStr = String(video.segment || 1).padStart(2, '0');
+            
+            // Asegurar título y filename (usando formato RBB_...)
+            video.title = video.title || (video.filename ? video.filename.replace('.mp4', '') : `RBB_${dateStr}_${timeStr}_S${segmentStr}`);
+            video.filename = video.filename || `RBB_${dateStr}_${timeStr}_S${segmentStr}.${video.format || 'mp4'}`;
             
             console.log('✅ Video válido encontrado, reproduciendo...');
             await this.playVideo(video);
