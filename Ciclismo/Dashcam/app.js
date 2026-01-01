@@ -1,6 +1,6 @@
-// Dashcam PWA v4.8.2 - Versión Completa Simplificada
+// Dashcam PWA v4.8.3 - Versión Completa Simplificada
 
-const APP_VERSION = '4.8.2';
+const APP_VERSION = '4.8.3';
 
 class DashcamApp {
     constructor() {
@@ -2179,11 +2179,53 @@ class DashcamApp {
     async selectLocalFolder() {
         console.log('📂 Seleccionando carpeta con permisos persistentes...');
         
-        if (this.isIOS) {
-            await this.showIOSFolderPicker();
-        } else {
-            await this.showDesktopFolderPickerWithPersistence();
+        let success = false;
+        
+        try {
+            if (this.isIOS) {
+                success = await this.showIOSFolderPicker();
+            } else {
+                success = await this.showDesktopFolderPickerWithPersistence();
+            }
+            
+            // === ACTUALIZAR INTERFAZ DESPUÉS DE SELECCIONAR ===
+            if (success) {
+                console.log('✅ Carpeta seleccionada exitosamente');
+                
+                // Asegurar que el modo de almacenamiento sea 'localFolder'
+                this.state.settings.storageLocation = 'localFolder';
+                
+                // Guardar configuración inmediatamente
+                try {
+                    await this.saveSettings();
+                    console.log('💾 Configuración guardada');
+                } catch (e) {
+                    console.warn('⚠️ Error guardando settings:', e);
+                }
+                
+                // Actualizar interfaz
+                this.updateFolderUI();
+                
+                // Mostrar confirmación
+                this.showNotification(`📁 Carpeta "${this.state.settings.localFolderName || 'local'}" configurada`, 3000);
+                
+                // Actualizar galería después de un breve delay
+                setTimeout(() => {
+                    this.loadGallery();
+                }, 1500);
+                
+            } else {
+                console.log('❌ No se seleccionó carpeta o el usuario canceló');
+                this.showNotification('❌ No se seleccionó carpeta', 2000);
+            }
+            
+        } catch (error) {
+            console.error('❌ Error en selectLocalFolder:', error);
+            this.showNotification('❌ Error seleccionando carpeta');
+            success = false;
         }
+        
+        return success;
     }
 
     async showDesktopFolderPickerWithPersistence() {
@@ -3486,7 +3528,7 @@ async uploadCustomLogo() {
                         
                         if (newPermission !== 'granted') {
                             this.showNotification('❌ Se necesitan permisos de escritura');
-                            return;
+                            return false;
                         }
                     }
                     
@@ -3497,25 +3539,34 @@ async uploadCustomLogo() {
                     this.localFolderHandle = directoryHandle;
                     this.state.settings.storageLocation = 'localFolder';
                     this.state.settings.localFolderName = directoryHandle.name;
+                    this.state.settings.isWebkitDirectory = false;
+                    this.state.settings.isExternalDevice = isExternalDevice;
                     
-                    // 5. Mostrar notificación específica
+                    // 5. Guardar configuración inmediatamente
+                    try {
+                        await this.saveSettings();
+                        console.log('💾 Configuración guardada');
+                    } catch (e) {
+                        console.warn('⚠️ Error guardando settings:', e);
+                    }
+                    
+                    // 6. Actualizar interfaz inmediatamente
+                    this.updateFolderUI();
+                    
+                    // 7. Mostrar notificación específica
                     let notificationMsg = `✅ Carpeta "${directoryHandle.name}" seleccionada`;
                     if (isExternalDevice) {
                         notificationMsg += ` (Dispositivo externo)`;
-                        this.state.settings.isExternalDevice = true;
                     }
                     this.showNotification(notificationMsg);
                     
-                    // 6. Actualizar interfaz
-                    this.updateFolderUI();
-                    
-                    // 7. Escanear contenido inicial
+                    // 8. Escanear contenido inicial
                     setTimeout(async () => {
                         this.showNotification('🔍 Escaneando carpeta...');
                         await this.scanLocalFolderForVideos();
                     }, 1000);
                     
-                    return;
+                    return true;
                     
                 } catch (error) {
                     console.error('❌ Error con showDirectoryPicker:', error);
@@ -3523,7 +3574,7 @@ async uploadCustomLogo() {
                     // Si el usuario cancela, salir silenciosamente
                     if (error.name === 'AbortError' || error.message?.includes('cancel')) {
                         console.log('Selección cancelada por el usuario');
-                        return;
+                        return false;
                     }
                     
                     // Si hay error de seguridad/permisos, continuar con fallback
@@ -3542,9 +3593,6 @@ async uploadCustomLogo() {
                     input.multiple = true;
                     input.accept = 'video/*,.mp4,.webm';
                     input.style.display = 'none';
-                    
-                    // === CORRECCIÓN: NO USAR CAPTURE (esto abre la cámara) ===
-                    // input.setAttribute('capture', 'environment'); // ¡ELIMINADO!
                     
                     // Workaround específico para iOS Safari
                     if (this.isIOS) {
@@ -3584,20 +3632,40 @@ async uploadCustomLogo() {
                             }
                         }
                         
-                        // Actualizar estado
+                        // === ACTUALIZAR ESTADO CRÍTICO ===
                         this.state.settings.storageLocation = 'localFolder';
                         this.state.settings.localFolderName = folderName;
-                        this.state.settings.isWebkitDirectory = true; // Marcar como no persistente
+                        this.state.settings.isWebkitDirectory = true;
+                        this.state.settings.isExternalDevice = isExternalDevice;
                         
+                        console.log('📝 Estado actualizado:', {
+                            storageLocation: this.state.settings.storageLocation,
+                            localFolderName: this.state.settings.localFolderName,
+                            isWebkitDirectory: this.state.settings.isWebkitDirectory,
+                            isExternalDevice: this.state.settings.isExternalDevice
+                        });
+                        
+                        // === GUARDAR CONFIGURACIÓN INMEDIATAMENTE ===
+                        try {
+                            await this.saveSettings();
+                            console.log('💾 Configuración guardada después de selección');
+                        } catch (e) {
+                            console.warn('⚠️ Error guardando settings:', e);
+                        }
+                        
+                        // === ACTUALIZAR INTERFAZ INMEDIATAMENTE ===
+                        this.updateFolderUI();
+                        
+                        // Formatear nombre para mostrar
+                        let displayName = folderName;
                         if (isExternalDevice) {
-                            this.state.settings.isExternalDevice = true;
-                            folderName += ' (USB/Externo)';
+                            displayName += ' (USB/Externo)';
                         } else {
-                            folderName += ' (No persistente)';
+                            displayName += ' (No persistente)';
                         }
                         
                         // Mostrar notificación
-                        let notificationMsg = `📁 ${folderName} seleccionada`;
+                        let notificationMsg = `📁 ${displayName} seleccionada`;
                         if (!isExternalDevice) {
                             notificationMsg += '\n⚠️ La carpeta no persistirá tras cerrar la app';
                         }
@@ -3625,17 +3693,18 @@ async uploadCustomLogo() {
                             }
                         }
                         
-                        // Actualizar interfaz
-                        this.updateFolderUI();
-                        
                         // Limpiar input
                         input.remove();
+                        
+                        // Retornar éxito
+                        console.log('✅ Selección completada exitosamente');
                         resolve(true);
                     };
                     
                     input.oncancel = () => {
                         console.log('Selector cancelado');
                         input.remove();
+                        this.showNotification('❌ Selección cancelada');
                         resolve(false);
                     };
                     
@@ -3715,16 +3784,44 @@ async uploadCustomLogo() {
     }
 
     updateFolderUI() {
+        console.log('🔄 Actualizando UI de carpeta...', {
+            folderName: this.state.settings.localFolderName,
+            storageLocation: this.state.settings.storageLocation,
+            hasLocalFolderHandle: !!this.localFolderHandle,
+            isWebkitDirectory: this.state.settings.isWebkitDirectory,
+            isExternalDevice: this.state.settings.isExternalDevice
+        });
+        
         const folderInfoEl = this.elements.currentLocalFolderInfo;
         const selectFolderBtn = this.elements.selectLocalFolderBtn;
         
-        if (!folderInfoEl) return;
+        if (!folderInfoEl) {
+            console.error('❌ ERROR: currentLocalFolderInfo no encontrado en elements');
+            // Intentar encontrar el elemento manualmente
+            const manualElement = document.getElementById('currentLocalFolderInfo') || 
+                                  document.querySelector('.folder-info-container');
+            if (manualElement) {
+                console.log('🔍 Elemento encontrado manualmente, asignando...');
+                this.elements.currentLocalFolderInfo = manualElement;
+                return this.updateFolderUI(); // Reintentar
+            }
+            return;
+        }
         
         const folderName = this.state.settings.localFolderName || '';
-        const isExternal = this.state.settings.isExternalDevice;
-        const isWebkit = this.state.settings.isWebkitDirectory;
+        const isExternal = this.state.settings.isExternalDevice || false;
+        const isWebkit = this.state.settings.isWebkitDirectory || false;
+        const isLocalFolderMode = this.state.settings.storageLocation === 'localFolder';
         
-        if (folderName && this.state.settings.storageLocation === 'localFolder') {
+        console.log('📊 Estado para UI:', {
+            folderName,
+            isExternal,
+            isWebkit,
+            isLocalFolderMode,
+            condition: folderName && isLocalFolderMode
+        });
+        
+        if (folderName && isLocalFolderMode) {
             // Determinar tipo de carpeta
             let typeBadge = '';
             let statusBadge = '';
@@ -3742,7 +3839,7 @@ async uploadCustomLogo() {
             }
             
             // Construir HTML
-            folderInfoEl.innerHTML = `
+            const html = `
                 <div class="folder-info">
                     <div class="folder-header">
                         <span class="folder-icon">${isExternal ? '💾' : '📁'}</span>
@@ -3768,13 +3865,17 @@ async uploadCustomLogo() {
                 </div>
             `;
             
+            folderInfoEl.innerHTML = html;
+            console.log('✅ UI actualizada: Carpeta seleccionada');
+            
             if (selectFolderBtn) {
                 selectFolderBtn.textContent = 'Cambiar carpeta';
+                selectFolderBtn.classList.add('active');
             }
             
         } else {
             // No hay carpeta seleccionada
-            folderInfoEl.innerHTML = `
+            const html = `
                 <div class="folder-info">
                     <div class="folder-header">
                         <span class="folder-icon">📂</span>
@@ -3787,8 +3888,12 @@ async uploadCustomLogo() {
                 </div>
             `;
             
+            folderInfoEl.innerHTML = html;
+            console.log('✅ UI actualizada: Sin carpeta seleccionada');
+            
             if (selectFolderBtn) {
                 selectFolderBtn.textContent = 'Seleccionar carpeta';
+                selectFolderBtn.classList.remove('active');
             }
         }
     }
