@@ -1,6 +1,6 @@
-// Dashcam PWA v4.9.2 - Versión Completa Simplificada
+// Dashcam PWA v4.10.1 - Versión Completa Simplificada
 
-const APP_VERSION = '4.9.2';
+const APP_VERSION = '4.10.1';
 
 class DashcamApp {
     constructor() {
@@ -4040,16 +4040,29 @@ class DashcamApp {
     }
 
     updateFolderUI() {
-        console.log('🔄 Actualizando interfaz de carpeta...');
+        // Solo ejecutar si estamos en la pantalla de configuración
+        const settingsPanel = document.getElementById('settingsPanel');
+        if (!settingsPanel || settingsPanel.style.display === 'none') {
+            // No estamos en settings, no hacer nada
+            return;
+        }
         
+        console.log('🔄 Actualizando interfaz de carpeta (settings activo)...');
+        
+        // Obtener elementos - pueden ser null si no existen
         const folderStatusEl = document.getElementById('folderStatus');
         const folderNameEl = document.getElementById('folderName');
         const storageLocationSelect = document.getElementById('storageLocation');
         const localFolderSettings = document.getElementById('localFolderSettings');
         
-        if (!folderStatusEl || !folderNameEl) {
-            console.warn('⚠️ Elementos de UI de carpeta no encontrados');
-            return;
+        // Si no hay elementos críticos, buscar alternativas
+        if (!folderStatusEl && !folderNameEl) {
+            // Verificar si hay contenedores alternativos
+            const folderInfoContainer = document.querySelector('.folder-info');
+            if (!folderInfoContainer) {
+                console.log('ℹ️ No se encontraron elementos de carpeta en esta vista');
+                return;
+            }
         }
         
         // ===== CON CARPETA LOCAL SELECCIONADA =====
@@ -4058,84 +4071,41 @@ class DashcamApp {
             
             // Determinar estado de permisos
             let statusText = '';
-            let statusClass = '';
             let details = '';
             
             if (this.state.settings.canWriteDirectly && this.localFolderHandle) {
-                // 🎯 MODO IDEAL: PWA con escritura directa
                 statusText = '✅ ESCRIBIR EN USB';
-                statusClass = 'folder-status-write';
-                details = `Carpeta: ${folderName}\nPermisos: Lectura/Escritura completa\nPuede crear carpetas automáticamente`;
-                
-                // Mostrar ruta completa si está disponible
-                if (this.state.settings.sessionPhysicalPath) {
-                    details += `\nSesión actual: ${this.state.settings.sessionPhysicalPath}`;
-                }
-                
+                details = `Carpeta: ${folderName} (Lectura/Escritura)`;
             } else if (this.state.settings.isWebkitDirectory) {
-                // 📖 MODO LIMITADO: Solo lectura
                 statusText = '📖 SOLO LECTURA';
-                statusClass = 'folder-status-readonly';
                 const fileCount = this.state.settings.webkitFilesCount || 0;
-                details = `Carpeta: ${folderName}\nPermisos: Solo lectura\nArchivos: ${fileCount}\nLos videos se descargan individualmente`;
-                
+                details = `Carpeta: ${folderName} (Solo lectura, ${fileCount} archivos)`;
             } else if (this.localFolderHandle) {
-                // 📁 Handle pero sin confirmación de escritura
                 statusText = '📁 CARPETA SELECCIONADA';
-                statusClass = 'folder-status-unknown';
-                details = `Carpeta: ${folderName}\nPermisos: Pendiente de verificación`;
-                
+                details = `Carpeta: ${folderName}`;
             } else {
-                // ❓ Estado desconocido
                 statusText = '❓ ESTADO DESCONOCIDO';
-                statusClass = 'folder-status-unknown';
-                details = `Carpeta: ${folderName}\nModo: No determinado`;
+                details = `Carpeta: ${folderName}`;
             }
             
-            // Aplicar a la interfaz
-            folderStatusEl.textContent = statusText;
-            folderStatusEl.className = `folder-status ${statusClass}`;
-            folderNameEl.textContent = details;
-            
-            // Tooltip con más detalles
-            folderStatusEl.title = `
-    Modo: ${this.state.settings.folderAccessMethod || 'desconocido'}
-    PWA instalado: ${this.isPWAInstalled ? 'Sí' : 'No'}
-    showDirectoryPicker: ${window.showDirectoryPicker ? 'Disponible' : 'No disponible'}
-    Puede escribir: ${this.state.settings.canWriteDirectly ? 'Sí' : 'No'}
-    Handle: ${this.localFolderHandle ? 'Presente' : 'Ausente'}
-            `.trim();
-            
-            // Mostrar sección de configuración de carpeta local
-            if (localFolderSettings) {
-                localFolderSettings.style.display = 'block';
-            }
+            // Solo actualizar elementos que existen
+            if (folderStatusEl) folderStatusEl.textContent = statusText;
+            if (folderNameEl) folderNameEl.textContent = details;
+            if (localFolderSettings) localFolderSettings.style.display = 'block';
             
         } 
         // ===== SIN CARPETA LOCAL (MODO APP) =====
         else {
-            folderStatusEl.textContent = '📱 EN LA APP';
-            folderStatusEl.className = 'folder-status app-only';
-            folderNameEl.textContent = 'Los videos se guardan en la aplicación';
-            
-            if (localFolderSettings) {
-                localFolderSettings.style.display = 'none';
-            }
+            if (folderStatusEl) folderStatusEl.textContent = '📱 EN LA APP';
+            if (folderNameEl) folderNameEl.textContent = 'Los videos se guardan en la aplicación';
+            if (localFolderSettings) localFolderSettings.style.display = 'none';
         }
         
         // ===== ACTUALIZAR SELECTOR DE ALMACENAMIENTO =====
         if (storageLocationSelect) {
             storageLocationSelect.value = this.state.settings.storageLocation;
         }
-        
-        console.log('✅ Interfaz de carpeta actualizada:', {
-            location: this.state.settings.storageLocation,
-            folderName: this.state.settings.localFolderName,
-            canWrite: this.state.settings.canWriteDirectly,
-            isWebkit: this.state.settings.isWebkitDirectory
-        });
     }
-
     showIOSInstructions() {
         const instructions = `
             <div class="ios-instructions">
@@ -7032,7 +7002,10 @@ renderVideosList() {
             const sessions = this.groupVideosBySession(this.state.videos);
             const session = sessions.find(s => s.name === sessionName);
             
-            if (!session) return;
+            if (!session) {
+                console.error(`❌ Sesión no encontrada: ${sessionName}`);
+                return;
+            }
             
             // Obtener videos seleccionados en esta sesión
             const videosToExport = [];
@@ -7042,31 +7015,65 @@ renderVideosList() {
                 }
             }
             
-            if (videosToExport.length === 0) return;
-            
-            // Mostrar mensaje informativo
-            this.showNotification(`📤 Exportando ${videosToExport.length} video(s) de "${sessionName}"...`);
-            
-            // Exportar cada video individualmente usando exportSingleVideo()
-            let exportedCount = 0;
-            for (const video of videosToExport) {
-                try {
-                    // Usar la nueva versión mejorada de exportSingleVideo()
-                    await this.exportSingleVideo(video.id);
-                    exportedCount++;
-                    
-                    // Pequeña pausa entre descargas para evitar problemas
-                    if (exportedCount < videosToExport.length) {
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                    }
-                } catch (error) {
-                    console.error(`❌ Error exportando video ${video.id}:`, error);
-                }
+            if (videosToExport.length === 0) {
+                this.showNotification(`ℹ️ No hay videos seleccionados en "${sessionName}"`);
+                return;
             }
             
-            this.showNotification(`✅ ${exportedCount} video(s) exportado(s) de "${sessionName}"`);
+            // Preguntar al usuario cómo quiere exportar
+            const exportMethod = confirm(
+                `¿Cómo quieres exportar ${videosToExport.length} video(s) de "${sessionName}"?\n\n` +
+                `• Aceptar: Exportar todos juntos (crear ZIP)\n` +
+                `• Cancelar: Exportar individualmente (un archivo por video)`
+            ) ? 'zip' : 'individual';
+            
+            if (exportMethod === 'zip') {
+                // Exportar como ZIP
+                this.showNotification(`📦 Creando ZIP con ${videosToExport.length} videos seleccionados...`);
+                
+                // Usar exportSession() con los videos seleccionados
+                await this.exportSession(sessionName);
+                
+            } else {
+                // Exportar individualmente
+                this.showNotification(`📤 Exportando ${videosToExport.length} videos individualmente...`);
+                this.showSavingStatus(`Exportando 0/${videosToExport.length} videos...`);
+                
+                let exportedCount = 0;
+                let failedCount = 0;
+                
+                for (const video of videosToExport) {
+                    try {
+                        // Usar la nueva versión mejorada de exportSingleVideo()
+                        await this.exportSingleVideo(video.id);
+                        exportedCount++;
+                        
+                        // Actualizar progreso
+                        this.showSavingStatus(`Exportando ${exportedCount}/${videosToExport.length} videos...`);
+                        
+                        // Pequeña pausa entre descargas para evitar problemas
+                        if (exportedCount < videosToExport.length) {
+                            await new Promise(resolve => setTimeout(resolve, 800));
+                        }
+                        
+                    } catch (error) {
+                        console.error(`❌ Error exportando video ${video.id}:`, error);
+                        failedCount++;
+                    }
+                }
+                
+                this.hideSavingStatus();
+                
+                // Mostrar resultado
+                if (exportedCount > 0) {
+                    this.showNotification(`✅ ${exportedCount} video(s) exportado(s) de "${sessionName}"`);
+                }
+                if (failedCount > 0) {
+                    this.showNotification(`⚠️ ${failedCount} video(s) no se pudieron exportar`);
+                }
+            }
         };
-    }
+}
 };
     // Añade estas funciones al módulo de galería:
 
