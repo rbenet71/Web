@@ -1,6 +1,6 @@
-// Dashcam PWA v4.8.5 - Versión Completa Simplificada
+// Dashcam PWA v4.8.6 - Versión Completa Simplificada
 
-const APP_VERSION = '4.8.5';
+const APP_VERSION = '4.8.6';
 
 class DashcamApp {
     constructor() {
@@ -351,58 +351,161 @@ class DashcamApp {
     // Detección mejorada de PWA
 
     detectPWAInstallation() {
+        console.log('🔍 Detectando instalación PWA...');
+        
         // Métodos de detección para diferentes navegadores
         const detectionMethods = [
-            // Método estándar
-            () => window.matchMedia('(display-mode: standalone)').matches,
+            // Método estándar - display-mode: standalone
+            () => {
+                if (window.matchMedia) {
+                    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+                    if (isStandalone) {
+                        console.log('✅ Detectado: display-mode: standalone');
+                        return true;
+                    }
+                }
+                return false;
+            },
             
-            // iOS Safari
-            () => window.navigator.standalone === true,
+            // iOS Safari - navigator.standalone
+            () => {
+                if (window.navigator.standalone === true) {
+                    console.log('✅ Detectado: navigator.standalone === true (iOS)');
+                    return true;
+                }
+                return false;
+            },
             
-            // Android Chrome
-            () => document.referrer.includes('android-app://'),
+            // Android Chrome - referrer
+            () => {
+                if (document.referrer.includes('android-app://')) {
+                    console.log('✅ Detectado: android-app:// en referrer (Android)');
+                    return true;
+                }
+                return false;
+            },
             
-            // Check localStorage (backup)
-            () => localStorage.getItem('pwa_installed') === 'true'
+            // localStorage - marcado manual
+            () => {
+                const isManuallyMarked = localStorage.getItem('dashcam_pwa_installed') === 'true' ||
+                                         localStorage.getItem('pwa_installed') === 'true';
+                if (isManuallyMarked) {
+                    console.log('✅ Detectado: Marcado manualmente en localStorage');
+                    return true;
+                }
+                return false;
+            },
+            
+            // URL parameters - para debugging
+            () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('pwa') === 'true' || urlParams.get('pwa_test') === 'true') {
+                    console.log('✅ Detectado: Parámetro URL pwa=true');
+                    return true;
+                }
+                return false;
+            }
         ];
         
         // Probar cada método
         this.isPWAInstalled = false;
+        let detectionMethodUsed = 'ninguno';
         
-        for (const method of detectionMethods) {
+        for (let i = 0; i < detectionMethods.length; i++) {
             try {
-                if (method()) {
+                if (detectionMethods[i]()) {
                     this.isPWAInstalled = true;
-                    console.log('📱 PWA detectado');
+                    detectionMethodUsed = `método ${i + 1}`;
                     break;
                 }
             } catch (error) {
-                // Continuar con el siguiente método
+                console.warn(`⚠️ Error en método de detección ${i + 1}:`, error);
                 continue;
             }
         }
         
-        // SOLUCIÓN: No intentar acceder a Service Worker si estamos en file://
-        if (window.location.protocol !== 'file:' && 'serviceWorker' in navigator) {
+        // Verificación adicional para Service Worker
+        if (!this.isPWAInstalled && window.location.protocol !== 'file:' && 'serviceWorker' in navigator) {
             try {
-                navigator.serviceWorker.getRegistrations().then(registrations => {
-                    const hasActiveSW = registrations.some(reg => 
-                        reg.active && reg.scope.includes(location.origin)
-                    );
-                    if (hasActiveSW) {
-                        this.isPWAInstalled = true;
-                        console.log('📱 PWA detectado por Service Worker activo');
-                    }
-                }).catch(error => {
-                    console.log('⚠️ No se pudo verificar Service Worker:', error.message);
-                });
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                const hasActiveSW = registrations.some(reg => 
+                    reg.active && reg.scope.includes(location.origin)
+                );
+                if (hasActiveSW) {
+                    this.isPWAInstalled = true;
+                    detectionMethodUsed = 'service worker activo';
+                    console.log('📱 PWA detectado por Service Worker activo');
+                }
             } catch (error) {
-                console.log('⚠️ Error verificando Service Worker');
+                console.log('⚠️ No se pudo verificar Service Worker:', error.message);
             }
         }
         
-        console.log(`📱 Modo PWA: ${this.isPWAInstalled ? '✅ INSTALADO' : '❌ NO INSTALADO'}`);
+        // Verificación de tamaño de ventana (PWA suele abrirse en ventana completa)
+        if (!this.isPWAInstalled) {
+            try {
+                const isFullscreen = window.outerWidth === window.screen.availWidth &&
+                                     window.outerHeight === window.screen.availHeight;
+                const isAlmostFullscreen = window.outerWidth >= window.screen.availWidth * 0.95;
+                
+                if ((isFullscreen || isAlmostFullscreen) && !window.opener) {
+                    // Podría ser PWA, pero no es concluyente
+                    console.log('📱 Posible PWA: Ventana a pantalla completa');
+                    // No marcamos como instalado, pero lo registramos
+                }
+            } catch (error) {
+                // Ignorar errores de seguridad con screen.availWidth
+            }
+        }
+        
+        console.log(`📱 Resultado detección PWA: ${this.isPWAInstalled ? '✅ INSTALADO' : '❌ NO INSTALADO'} (via ${detectionMethodUsed})`);
+        
+        // Guardar resultado para uso futuro
+        if (this.isPWAInstalled) {
+            localStorage.setItem('dashcam_pwa_installed', 'true');
+        }
+        
         return this.isPWAInstalled;
+    }
+
+    markAsPWAInstalled() {
+        console.log('🎯 Marcando app como PWA instalada...');
+        
+        // Marcar en estado
+        this.isPWAInstalled = true;
+        
+        // Guardar en localStorage para persistencia
+        localStorage.setItem('dashcam_pwa_installed', 'true');
+        localStorage.setItem('pwa_installed', 'true');
+        
+        // Guardar timestamp
+        localStorage.setItem('dashcam_pwa_install_date', new Date().toISOString());
+        
+        // Guardar información del dispositivo
+        const deviceInfo = {
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            isIOS: this.isIOS,
+            timestamp: Date.now(),
+            version: APP_VERSION
+        };
+        
+        localStorage.setItem('dashcam_pwa_device_info', JSON.stringify(deviceInfo));
+        
+        console.log('✅ App marcada como PWA instalada:', deviceInfo);
+        
+        // Mostrar notificación
+        this.showNotification('✅ Aplicación marcada como instalada', 3000);
+        
+        // Actualizar interfaz inmediatamente
+        this.updateFolderUI();
+        
+        // También actualizar cualquier UI que dependa de PWA
+        if (this.elements.pwaInstallContainer) {
+            this.elements.pwaInstallContainer.classList.add('hidden');
+        }
+        
+        return true;
     }
 
     // Escuchar el evento de instalación PWA
@@ -3832,7 +3935,43 @@ class DashcamApp {
             return;
         }
         
-        // ===== 1. MOSTRAR/OCULTAR SECCIÓN DE CARPETA LOCAL =====
+        // ===== 1. DETECTAR SI ES PWA INSTALADA =====
+        let isPWA = this.isPWAInstalled;
+        
+        // Si no está detectado, verificar métodos alternativos
+        if (!isPWA) {
+            try {
+                // Verificar display-mode
+                if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) {
+                    isPWA = true;
+                    console.log('✅ PWA detectado: display-mode: standalone');
+                }
+                
+                // Verificar iOS standalone
+                if (window.navigator.standalone === true) {
+                    isPWA = true;
+                    console.log('✅ PWA detectado: navigator.standalone (iOS)');
+                }
+                
+                // Verificar localStorage
+                if (localStorage.getItem('dashcam_pwa_installed') === 'true') {
+                    isPWA = true;
+                    console.log('✅ PWA detectado: localStorage marker');
+                    this.isPWAInstalled = true; // Actualizar estado
+                }
+            } catch (error) {
+                console.warn('⚠️ Error detectando PWA:', error);
+            }
+        }
+        
+        console.log('📱 Estado PWA para UI:', {
+            isPWAInstalled: this.isPWAInstalled,
+            isPWA: isPWA,
+            displayMode: window.matchMedia ? window.matchMedia('(display-mode: standalone)').matches : 'no disponible',
+            navigatorStandalone: window.navigator.standalone
+        });
+        
+        // ===== 2. MOSTRAR/OCULTAR SECCIÓN DE CARPETA LOCAL =====
         const localFolderSettings = document.getElementById('localFolderSettings');
         console.log('📦 Sección localFolderSettings:', {
             existe: !!localFolderSettings,
@@ -3858,7 +3997,7 @@ class DashcamApp {
             console.warn('⚠️ Elemento #localFolderSettings no encontrado en DOM');
         }
         
-        // ===== 2. BUSCAR ELEMENTOS EN DOM =====
+        // ===== 3. BUSCAR ELEMENTOS EN DOM =====
         let folderInfoEl = document.getElementById('currentLocalFolderInfo');
         let selectFolderBtn = document.getElementById('selectLocalFolderBtn');
         
@@ -3881,25 +4020,10 @@ class DashcamApp {
         // Si no encontramos folderInfoEl, algo está muy mal
         if (!folderInfoEl) {
             console.error('❌ ERROR CRÍTICO: No se encuentra #currentLocalFolderInfo en DOM');
-            console.error('Buscando alternativas...');
-            
-            // Intentar encontrar por clase
-            folderInfoEl = document.querySelector('.folder-info');
-            if (folderInfoEl) {
-                console.log('✅ Encontrado por clase .folder-info');
-            } else {
-                // Intentar encontrar cualquier elemento con información de carpeta
-                const possibleElements = document.querySelectorAll('[id*="folder"], [class*="folder"]');
-                console.log('Posibles elementos alternativos:', Array.from(possibleElements).map(el => ({
-                    id: el.id,
-                    className: el.className,
-                    tagName: el.tagName
-                })));
-                return;
-            }
+            return;
         }
         
-        // ===== 3. OBTENER ESTADO ACTUAL =====
+        // ===== 4. OBTENER ESTADO ACTUAL =====
         const folderName = this.state.settings.localFolderName || '';
         const isExternal = this.state.settings.isExternalDevice || false;
         const isWebkit = this.state.settings.isWebkitDirectory || false;
@@ -3912,32 +4036,79 @@ class DashcamApp {
             isWebkit: isWebkit,
             isLocalFolderMode: isLocalFolderMode,
             hasLocalHandle: hasLocalHandle,
+            isPWA: isPWA,
             conditionMet: folderName && isLocalFolderMode
         });
         
-        // ===== 4. DETERMINAR QUÉ MOSTRAR =====
+        // ===== 5. DETERMINAR QUÉ MOSTRAR =====
         if (folderName && isLocalFolderMode) {
             console.log('🎨 Renderizando: Carpeta SELECCIONADA');
             
             // Determinar tipo de carpeta
             let typeBadge = '';
             let statusBadge = '';
+            let warningHTML = '';
             
             if (isExternal) {
                 typeBadge = '<span style="background: #e3f2fd; color: #1565c0; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">🔌 USB</span>';
             }
             
-            if (isWebkit) {
+            // ===== LÓGICA MEJORADA DE PERSISTENCIA =====
+            if (isWebkit && !isPWA) {
+                // WebkitDirectory SIN PWA = No persistente
                 statusBadge = '<span style="background: #fff3cd; color: #856404; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">⚠️ No persistente</span>';
-            } else if (hasLocalHandle) {
+                
+                warningHTML = `
+                <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; border-radius: 4px; margin: 10px 0;">
+                    <div style="color: #856404; font-weight: bold; margin-bottom: 5px;">
+                        ⚠️ Para acceso persistente a la carpeta:
+                    </div>
+                    <ol style="margin: 0; padding-left: 20px; color: #856404;">
+                        <li>Abre esta app desde el <strong>icono en tu pantalla de inicio</strong></li>
+                        <li>Si no tienes el icono:
+                            <ul style="padding-left: 15px; margin-top: 5px;">
+                                <li>En Safari, toca <strong>Compartir (📤)</strong></li>
+                                <li>Desplaza y selecciona <strong>"Añadir a pantalla de inicio"</strong></li>
+                                <li>Usa siempre el icono instalado</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    <div style="margin-top: 10px;">
+                        <button onclick="app.markAsPWAInstalled()" 
+                                style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 13px; cursor: pointer;">
+                            ✅ Ya está instalada, marcar como persistente
+                        </button>
+                    </div>
+                </div>
+                `;
+                
+            } else if (isWebkit && isPWA) {
+                // WebkitDirectory CON PWA = Persistente
                 statusBadge = '<span style="background: #d4edda; color: #155724; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">✅ Persistente</span>';
+                
+                warningHTML = `
+                <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 8px; border-radius: 4px; margin: 8px 0;">
+                    <small style="color: #155724;">
+                        ✅ App instalada - Acceso persistente activado
+                    </small>
+                </div>
+                `;
+                
+            } else if (hasLocalHandle) {
+                // Con handle persistente (API moderna)
+                statusBadge = '<span style="background: #d4edda; color: #155724; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">✅ Persistente</span>';
+                
             } else {
+                // Otros casos
                 statusBadge = '<span style="background: #f8f9fa; color: #6c757d; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">○ Temporal</span>';
             }
             
             // HTML para carpeta SELECCIONADA
             const selectedHTML = `
-                <div style="background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; padding: 12px; color: #155724;">
+                <div style="background: ${isWebkit && !isPWA ? '#fff3cd' : '#d4edda'}; 
+                            border: 1px solid ${isWebkit && !isPWA ? '#ffc107' : '#c3e6cb'}; 
+                            border-radius: 8px; padding: 12px; 
+                            color: ${isWebkit && !isPWA ? '#856404' : '#155724'};">
                     <div style="display: flex; align-items: center; margin-bottom: 8px;">
                         <span style="font-size: 20px; margin-right: 8px;">${isExternal ? '💾' : '📁'}</span>
                         <span style="font-weight: bold; flex: 1;">${folderName}</span>
@@ -3945,13 +4116,9 @@ class DashcamApp {
                         ${statusBadge}
                     </div>
                     
-                    ${isWebkit ? `
-                    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 8px; border-radius: 4px; margin-bottom: 8px;">
-                        <small style="color: #856404;">⚠️ Usa "Añadir a pantalla de inicio" para acceso persistente</small>
-                    </div>
-                    ` : ''}
+                    ${warningHTML}
                     
-                    <div style="display: flex; gap: 8px;">
+                    <div style="display: flex; gap: 8px; margin-top: ${warningHTML ? '10px' : '0'};">
                         <button onclick="app.changeFolder()" 
                                 style="background: #17a2b8; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 14px; cursor: pointer;">
                             Cambiar carpeta
@@ -3960,6 +4127,12 @@ class DashcamApp {
                                 style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 14px; cursor: pointer;">
                             Actualizar
                         </button>
+                        ${!isPWA ? `
+                        <button onclick="app.showPWAInstallInstructions()" 
+                                style="background: #6f42c1; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 14px; cursor: pointer;">
+                            📲 Instalar App
+                        </button>
+                        ` : ''}
                     </div>
                 </div>
             `;
@@ -4007,7 +4180,7 @@ class DashcamApp {
             console.log('✅ UI actualizada: Sin carpeta seleccionada');
         }
         
-        // ===== 5. SINCRONIZAR SELECTOR DE ALMACENAMIENTO =====
+        // ===== 6. SINCRONIZAR SELECTOR DE ALMACENAMIENTO =====
         const storageLocationSelect = document.getElementById('storageLocation');
         if (storageLocationSelect) {
             const currentValue = storageLocationSelect.value;
@@ -4025,17 +4198,6 @@ class DashcamApp {
             }
         } else {
             console.warn('⚠️ Selector #storageLocation no encontrado');
-        }
-        
-        // ===== 6. ACTUALIZAR CACHE DE ELEMENTS =====
-        if (folderInfoEl && !this.elements.currentLocalFolderInfo) {
-            this.elements.currentLocalFolderInfo = folderInfoEl;
-            console.log('💾 Cache actualizado: currentLocalFolderInfo');
-        }
-        
-        if (selectFolderBtn && !this.elements.selectLocalFolderBtn) {
-            this.elements.selectLocalFolderBtn = selectFolderBtn;
-            console.log('💾 Cache actualizado: selectLocalFolderBtn');
         }
         
         // ===== 7. VERIFICACIÓN FINAL =====
