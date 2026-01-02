@@ -1,6 +1,6 @@
-// Dashcam PWA v4.10.1 - Versión Completa Simplificada
+// Dashcam PWA v4.11 - Versión Completa Simplificada
 
-const APP_VERSION = '4.10.1';
+const APP_VERSION = '4.11';
 
 class DashcamApp {
     constructor() {
@@ -161,6 +161,7 @@ class DashcamApp {
         
         // 7. ACTUALIZAR INTERFAZ DESPUÉS DE CARGAR SETTINGS
         this.updateFolderUI();  // ← ¡ACTUALIZAR INTERFAZ AHORA!
+        this.setupHelpButton();
         
         // 8. RESTAURAR PERMISOS PERSISTENTES
         if (this.state.settings.storageLocation === 'localFolder') {
@@ -498,6 +499,19 @@ class DashcamApp {
         }
         
         return true;
+    }
+
+    setupHelpButton() {
+        const helpBtn = document.getElementById('helpBtn');
+        if (helpBtn) {
+            helpBtn.addEventListener('click', () => this.openHelp());
+        }
+    }
+
+    openHelp() {
+        // Abrir el archivo HTML en una nueva pestaña
+        window.open('ayuda_completa.html', '_blank', 
+            'width=800,height=600,scrollbars=yes,resizable=yes');
     }
 
     // Escuchar el evento de instalación PWA

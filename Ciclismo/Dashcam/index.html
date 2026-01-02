@@ -9,13 +9,13 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <title>Dashcam iPhone v4.10.1</title>
+    <title>Dashcam v4.11</title>
     
     <!-- Manifest con versión -->
-    <link rel="manifest" href="manifest.json?v=4.10.1">
+    <link rel="manifest" href="manifest.json?v=4.11">
     
     <!-- CSS con versión -->
-    <link rel="stylesheet" href="styles.css?v=4.10.1">
+    <link rel="stylesheet" href="styles.css?v=4.11">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
@@ -31,7 +31,7 @@
     
     <!-- Librerías para funciones avanzadas 
     <script src="https://unpkg.com/mp4box@0.5.2/dist/mp4box.all.min.js"></script>-->
-    <script src="https://unpkg.com/gpxparser@4.10.1.8/gpxparser.js"></script>
+    <script src="https://unpkg.com/gpxparser@4.11.8/gpxparser.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
@@ -40,10 +40,10 @@
         <div class="start-screen">
             <img src="recursos/Logo_Dashcam_Bike_192x192.png" class="app-icon">
 
-            <h1 class="app-title">Dashcam iPhone Pro</h1>
+            <h1 class="app-title">DashCam</h1>
             
             <p class="app-description">Grabación Recorridos con datos GPS</p>
-            <div class="app-version">Versión 4.10.1</div>
+            <div class="app-version">Versión 4.11</div>
             
             <div class="start-controls">
                 <button id="startBtn" class="start-btn">
@@ -65,6 +65,11 @@
                     <span>🗺️</span>
                     <span>GPX Manager</span>
                 </button>
+                <div class="help-controls">
+                    <button id="helpBtn" class="help-btn">
+                        <span>Ayuda / Help</span>
+                    </button>
+                </div>
                 <!-- En index.html, dentro de .start-screen, después de .start-controls -->
                 <div id="pwaInstallContainer" class="pwa-install-container hidden">
                     <button id="installPWAButton" class="install-pwa-btn">
@@ -80,7 +85,6 @@
                         <div class="benefit">✅ Mejor rendimiento</div>
                     </div>
                 </div>
-
             </div>
             
             <!-- Indicador de estado de almacenamiento -->
@@ -93,6 +97,13 @@
             
             <!-- Input oculto para cargar GPX -->
             <input type="file" id="gpxUpload" accept="*/*" style="display: none;">
+
+            <div class="copyright" id="copyright-text">
+                2025 © Copyright </div>
+                <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
+                    Roberto Benet - rbenet71@gmail.com - V_19_12_2025
+                </a>
+            </div>
         </div>
 
         <!-- PANTALLA DE CÁMARA -->
@@ -711,16 +722,16 @@
     </div>
 
     <!-- JavaScript con versión -->
-    <script src="app.js?v=4.10.1"></script>
+    <script src="app.js?v=4.11"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     
     <script>
         // Limpiar caché al cargar
-        if (localStorage.getItem('dashcam_version') !== '4.10.1') {
-            localStorage.setItem('dashcam_version', '4.10.1');
+        if (localStorage.getItem('dashcam_version') !== '4.11') {
+            localStorage.setItem('dashcam_version', '4.11');
             
             if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
-                navigator.serviceWorker.register('service-worker.js?v=4.10.1')
+                navigator.serviceWorker.register('service-worker.js?v=4.11')
                     .then(registration => {
                         console.log('✅ Service Worker registrado:', registration.scope);
                     })

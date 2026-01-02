@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayuda Completa - DashCam </title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6; 
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        /* Contenedor principal */
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        
+        /* Header */
+        .help-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .help-header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+        
+        .help-header .version {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+        
+        /* Tabs de idioma */
+        .language-tabs {
+            display: flex;
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .lang-tab {
+            padding: 12px 25px;
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+            min-width: 110px;
+            flex: 1;
+        }
+        
+        .lang-tab:hover {
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+        
+        .lang-tab.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        
+        /* Contenido */
+        .help-content {
+            padding: 30px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .lang-content {
+            display: none;
+        }
+        
+        .lang-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* Estilos de contenido */
+        .intro-box {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-left: 5px solid #f39c12;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border-left: 5px solid #dc3545;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .tip-box {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            border-left: 5px solid #17a2b8;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .feature-box {
+            background: linear-gradient(135deg, #e8f4fd 0%, #d4edff 100%);
+            border-left: 5px solid #3498db;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        h1 { color: #2c3e50; margin-bottom: 20px; }
+        h2 { 
+            color: #3498db; 
+            margin: 35px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        h3 { color: #2c3e50; margin: 25px 0 10px 0; }
+        h4 { color: #555; margin: 20px 0 8px 0; font-size: 16px; }
+        
+        p { margin-bottom: 15px; text-align: justify; }
+        
+        ul, ol { margin: 15px 0 15px 25px; }
+        li { margin-bottom: 10px; }
+        
+        .app-command {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            display: inline-block;
+            font-weight: 600;
+        }
+        
+        .icon-list { display: flex; flex-wrap: wrap; gap: 15px; margin: 20px 0; }
+        .icon-item { 
+            flex: 1; min-width: 200px; 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 8px;
+            text-align: center;
+        }
+        .icon-item span { font-size: 24px; display: block; margin-bottom: 10px; }
+        
+        .section-divider {
+            height: 3px;
+            background: linear-gradient(90deg, #3498db, #2ecc71, #3498db);
+            margin: 30px 0;
+            border-radius: 3px;
+        }
+        
+        .app-reference {
+            background: #e8f4fd;
+            border: 2px solid #3498db;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            font-style: italic;
+            border-left: 5px solid #3498db;
+        }
+        
+        .contact-info {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px dashed #ddd;
+            color: #666;
+            font-size: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .help-content { padding: 20px; }
+            .lang-tab { min-width: 90px; padding: 10px 15px; }
+            .help-header { padding: 20px; }
+            .help-header h1 { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="help-header">
+            <h1>📱 DashCam </h1>
+            <p>Grabación profesional de recorridos con datos GPS</p>
+            <div class="version">Versión 4.11</div>
+        </div>
+        
+        <!-- Selector de idioma -->
+        <div class="language-tabs">
+            <button class="lang-tab active" data-lang="es">Español 🇪🇸</button>
+            <button class="lang-tab" data-lang="ca">Català 🇦🇩</button>
+            <button class="lang-tab" data-lang="en">English 🇬🇧</button>
+            <button class="lang-tab" data-lang="fr">Français 🇫🇷</button>
+        </div>
+        
+        <!-- ===================== ESPAÑOL ===================== -->
+        <div id="content-es" class="help-content lang-content active">
+            
+            <!-- INTRODUCCIÓN -->
+            <div class="intro-box">
+                <h2>🎯 INTRODUCCIÓN</h2>
+                <p><strong>DashCam </strong> es una aplicación profesional diseñada específicamente para <strong>grabar recorridos de carreras ciclistas</strong> y ayudar al organizador en sus funciones.</p>
+                <p>Esta herramienta permite capturar video de alta calidad con <strong>metadatos GPS incrustados en cada frame</strong>, creando un registro completo y preciso de todo el recorrido.</p>
+                <p>La aplicación ha sido optimizada para iPhone y funciona tanto en navegador como instalada como aplicación nativa (PWA).</p>
+            </div>
+            
+            <!-- ADVERTENCIA IMPORTANTE -->
+            <div class="warning-box">
+                <h3>⚠️ ADVERTENCIA IMPORTANTE PARA EL ORGANIZADOR</h3>
+                
+                <h4>🔋 CONSUMO DE ENERGÍA</h4>
+                <p>Esta aplicación consume <strong>MUCHA CORRIENTE</strong> debido a:</p>
+                <ul>
+                    <li>Grabación continua de video en alta calidad (720p/1080p/4K)</li>
+                    <li>GPS activo permanentemente con alta precisión</li>
+                    <li>Procesamiento en tiempo real de metadatos GPS</li>
+                    <li>Sobrepuesta de datos en pantalla (velocidad, coordenadas, etc.)</li>
+                    <li>Gestión de almacenamiento en segundo plano</li>
+                </ul>
+                <p><strong>💡 CONSEJO CRÍTICO:</strong> Mantén el teléfono <strong>conectado a la batería del coche</strong> durante toda la grabación. Una batería de iPhone puede durar solo 2-3 horas en uso intensivo.</p>
+                
+                <h4>💾 CONSUMO DE ESPACIO</h4>
+                <p>El video con metadatos GPS ocupa considerable espacio:</p>
+                <ul>
+                    <li><strong>720p:</strong> 1-2 GB por hora</li>
+                    <li><strong>1080p:</strong> 2-4 GB por hora</li>
+                    <li><strong>4K:</strong> 4-8 GB por hora</li>
+                </ul>
+                <p><strong>🚨 IMPORTANTE:</strong> Necesitas una estrategia para gestionar los videos. No puedes depender solo de la memoria interna del teléfono.</p>
+            </div>
+            
+            <!-- ESTRATEGIAS DE ALMACENAMIENTO -->
+            <h2>📋 ESTRATEGIAS DE ALMACENAMIENTO RECOMENDADAS</h2>
+            
+            <div class="tip-box">
+                <h3>🎯 OPCIÓN 1: Subida automática a la nube</h3>
+                <p>Configura la app para guardar directamente en servicios en la nube:</p>
+                <ul>
+                    <li><strong>OneDrive</strong> - Integración perfecta con Microsoft 365</li>
+                    <li><strong>Google Drive</strong> - Excelente para cuentas Google</li>
+                    <li><strong>Dropbox</strong> - Sencillo y confiable</li>
+                    <li><strong>iCloud Drive</strong> - Nativo para usuarios Apple</li>
+                </ul>
+                <div class="app-reference">
+                    📱 <strong>Cómo configurar:</strong> Ve a <strong>Ajustes → Ubicación de almacenamiento → Carpeta Local</strong><br>
+                    Selecciona tu carpeta en la nube desde la app "Archivos" de iOS
+                </div>
+            </div>
+            
+            <div class="tip-box">
+                <h3>🎯 OPCIÓN 2: Memoria externa directa</h3>
+                <p>Conecta almacenamiento externo a tu iPhone:</p>
+                <div class="icon-list">
+                    <div class="icon-item">
+                        <span>🔌</span>
+                        <strong>USB externo</strong><br>Con adaptador Lightning/USB-C
+                    </div>
+                    <div class="icon-item">
+                        <span>💾</span>
+                        <strong>Tarjeta SD</strong><br>Con lector compatible
+                    </div>
+                    <div class="icon-item">
+                        <span>💿</span>
+                        <strong>Disco duro portátil</strong><br>Con alimentación propia
+                    </div>
+                </div>
+                <div class="app-reference">
+                    📱 <strong>Cómo configurar:</strong> Ve a <strong>Ajustes → Ubicación de almacenamiento → Carpeta Local</strong><br>
+                    Conecta tu dispositivo USB y selecciónalo en la app "Archivos"
+                </div>
+            </div>
+            
+            <div class="tip-box">
+                <h3>🎯 OPCIÓN 3: Gestión manual profesional</h3>
+                <p>Para control total sobre tus archivos:</p>
+                <ol>
+                    <li><strong>Graba en la memoria interna</strong> del iPhone durante la carrera</li>
+                    <li><strong>Al finalizar cada etapa</strong>, transfiere los videos a tu ordenador</li>
+                    <li><strong>Organiza por carpetas</strong>: Fecha / Carrera / Etapa</li>
+                    <li><strong>Limpia el iPhone</strong> una vez confirmado el backup</li>
+                    <li><strong>Usa la app "Archivos" de iOS</strong> para gestionar localmente</li>
+                </ol>
+                <p><em>Recomendado para organizadores experimentados que prefieren control total.</em></p>
+            </div>
+            
+            <!-- FUNCIONALIDADES DETALLADAS -->
+            <h2>⚙️ FUNCIONALIDADES DETALLADAS DE LA APLICACIÓN</h2>
+            
+            <div class="feature-box">
+                <h3>📱 PANTALLA INICIAL - Controles principales</h3>
+                <div class="icon-list">
+                    <div class="icon-item">
+                        <span>⏺️</span>
+                        <strong>INICIAR GRABACIÓN</strong><br>Comienza a grabar inmediatamente con configuración actual
+                    </div>
+                    <div class="icon-item">
+                        <span>📁</span>
+                        <strong>Galería</strong><br>Accede a todos los videos grabados y rutas GPX
+                    </div>
+                    <div class="icon-item">
+                        <span>⚙️</span>
+                        <strong>Ajustes</strong><br>Configura calidad, formato, almacenamiento y personalización
+                    </div>
+                    <div class="icon-item">
+                        <span>🗺️</span>
+                        <strong>GPX Manager</strong><br>Gestiona rutas GPX para seguimiento en tiempo real
+                    </div>
+                </div>
+            </div>
+            
+            <div class="feature-box">
+                <h3>🎬 PANTALLA DE GRABACIÓN - Funciones en tiempo real</h3>
+                <ul>
+                    <li><strong>● GRABANDO indicador rojo</strong> - Estado de grabación visible</li>
+                    <li><strong>⏱️ Cronómetro</strong> - Tiempo transcurrido de grabación</li>
+                    <li><strong>📍 GPS indicador</strong> - Estado de conexión GPS</li>
+                    <li><strong>🎬 Formato</strong> - MP4 con metadatos GPS incrustados</li>
+                    <li><strong>📹 Segmento</strong> - Número de segmento actual (si está segmentado)</li>
+                    <li><strong>Controles:</strong> ⏸️ Pausar | ⏹️ Finalizar | ✂️ Nuevo Segmento</li>
+                </ul>
+                <p><strong>Overlay en pantalla:</strong> Muestra en tiempo real: velocidad, coordenadas, altitud, población, fecha/hora.</p>
+            </div>
+            
+            <!-- CONFIGURACIÓN RECOMENDADA -->
+            <h2>🔧 CONFIGURACIÓN ÓPTIMA PARA CARRERAS CICLISTAS</h2>
+            
+            <div class="app-reference">
+                <h3>⚙️ Ajustes recomendados en <strong>Ajustes</strong>:</h3>
+                <ul>
+                    <li><strong>Modo de grabación:</strong> <em>Continuo (archivo único)</em> - Más fácil de gestionar</li>
+                    <li><strong>Calidad de video:</strong> <em>720p</em> - Equilibrio perfecto calidad/espacio</li>
+                    <li><strong>Formato de video:</strong> <em>MP4</em> - Universalmente compatible</li>
+                    <li><strong>Overlay habilitado:</strong> <em>SÍ</em> - Datos visibles durante grabación</li>
+                    <li><strong>Metadatos GPS:</strong> <em>Activado</em> - Cada 2 frames (óptimo)</li>
+                    <li><strong>Audio:</strong> <em>Desactivado</em> - Ahorra espacio, evita ruido</li>
+                    <li><strong>Geocodificación inversa:</strong> <em>Activado</em> - Muestra nombres de poblaciones</li>
+                </ul>
+            </div>
+            
+            <!-- GPX MANAGER -->
+            <h2>🗺️ GPX MANAGER - Gestión de rutas</h2>
+            
+            <div class="feature-box">
+                <p>Esta función te permite cargar rutas GPX para:</p>
+                <ul>
+                    <li><strong>Seguimiento en tiempo real</strong> de tu posición en la ruta</li>
+                    <li><strong>Progreso visual</strong> durante la grabación</li>
+                    <li><strong>Comparación de velocidad</strong> vs ruta planificada</li>
+                    <li><strong>Distancias parciales</strong> y tiempos estimados</li>
+                </ul>
+                <p><strong>Cómo usar:</strong> Sube tu archivo GPX desde <strong>GPX Manager → Subir GPX</strong>. La app extraerá distancia, elevación, puntos y mostrará una vista previa.</p>
+            </div>
+            
+            <!-- GALERÍA AVANZADA -->
+            <h2>📁 GALERÍA - Gestión de archivos</h2>
+            
+            <div class="feature-box">
+                <p>La galería muestra videos organizados por:</p>
+                <ul>
+                    <li><strong>📱 En la App</strong> - Videos guardados internamente</li>
+                    <li><strong>📂 Carpeta Local</strong> - Videos en almacenamiento externo</li>
+                    <li><strong>🎬 Vídeos / 🗺️ Rutas GPX</strong> - Filtro por tipo</li>
+                </ul>
+                <p><strong>Acciones disponibles por video:</strong></p>
+                <ul>
+                    <li><strong>▶️ Reproducir</strong> con mapa sincronizado</li>
+                    <li><strong>🗺️ Extraer GPX</strong> - Genera ruta desde metadatos GPS</li>
+                    <li><strong>📂 Mover a carpeta</strong> - Traslada entre almacenamientos</li>
+                    <li><strong>📤 Exportar</strong> - Descarga individual o múltiple</li>
+                    <li><strong>🗑️ Eliminar</strong> - Borra videos seleccionados</li>
+                </ul>
+            </div>
+            
+            <!-- LIMITACIONES iOS -->
+            <div class="warning-box">
+                <h3>🍎 LIMITACIONES ESPECÍFICAS DE iOS</h3>
+                <p><strong>Apple restringe el acceso directo al sistema de archivos</strong> por razones de seguridad:</p>
+                <ul>
+                    <li><strong>❌ No puede escribir directamente en USB</strong> - Necesita intervención manual</li>
+                    <li><strong>✅ Puede leer carpetas seleccionadas</strong> mediante webkitdirectory</li>
+                    <li><strong>✅ Puede guardar en "Archivos"</strong> con confirmación del usuario</li>
+                    <li><strong>❌ No puede crear carpetas automáticamente</strong></li>
+                    <li><strong>✅ PWA instalada mejora permisos</strong> pero no elimina todas las restricciones</li>
+                </ul>
+                <p><strong>Flujo de trabajo en iOS:</strong> Grabar → Descargar → Guardar manualmente en "Archivos" → Organizar en carpetas.</p>
+            </div>
+            
+            <!-- FUTURAS FUNCIONALIDADES -->
+            <h2>🔮 FUTURAS FUNCIONALIDADES (EN DESARROLLO)</h2>
+            
+            <div class="tip-box">
+                <p>Próximamente disponible en <strong>rbnet71.github.io/Web</strong>:</p>
+                <div class="icon-list">
+                    <div class="icon-item">
+                        <span>🔄</span>
+                        <strong>Unión de videos</strong><br>Combina múltiples segmentos en un solo archivo
+                    </div>
+                    <div class="icon-item">
+                        <span>🗺️</span>
+                        <strong>Visualización en mapa</strong><br>Reproduce video con mapa GPS sincronizado
+                    </div>
+                    <div class="icon-item">
+                        <span>📊</span>
+                        <strong>Infografías avanzadas</strong><br>Estadísticas detalladas del recorrido
+                    </div>
+                    <div class="icon-item">
+                        <span>📈</span>
+                        <strong>Análisis de rendimiento</strong><br>Gráficos de velocidad, elevación, tiempos
+                    </div>
+                    <div class="icon-item">
+                        <span>🤝</span>
+                        <strong>Compartición profesional</strong><br>Exporta paquetes completos con todos los datos
+                    </div>
+                    <div class="icon-item">
+                        <span>🎮</span>
+                        <strong>Control remoto</strong><br>Gestiona grabación desde otro dispositivo
+                    </div>
+                </div>
+                <p>Estas herramientas transformarán tus grabaciones en informes profesionales para organizadores, equipos y patrocinadores.</p>
+            </div>
+            
+            <!-- CONSEJOS FINALES -->
+            <h2>💡 CONSEJOS PARA EL ORGANIZADOR</h2>
+            
+            <div class="app-reference">
+                <ol>
+                    <li><strong>Prueba antes del evento:</strong> Configura y graba un recorrido de prueba</li>
+                    <li><strong>Memoria suficiente:</strong> Asegura 2-3 veces el espacio estimado necesario</li>
+                    <li><strong>Batería externa:</strong> Usa power bank de alta capacidad (20,000mAh+)</li>
+                    <li><strong>Soporte estable:</strong> Monta el iPhone en soporte antivibración para coche</li>
+                    <li><strong>Organización previa:</strong> Crea estructura de carpetas antes de empezar</li>
+                    <li><strong>Respaldo inmediato:</strong> Copia los videos al finalizar cada etapa</li>
+                    <li><strong>Etiquetado claro:</strong> Usa nombres descriptivos: "CarreraX_Etapa3_Fecha.mp4"</li>
+                </ol>
+            </div>
+            
+            <!-- CONTACTO -->
+            <div class="contact-info">
+                <h3>📞 CONTACTO Y SOPORTE</h3>
+                <p><strong>📧 Email:</strong> rbenet71@gmail.com</p>
+                <p><strong>🌐 Web:</strong> rbnet71.github.io/Web</p>
+                <p><strong>📱 Versión actual:</strong> 4.11 (Diciembre 2024)</p>
+                <p><strong>🚀 Próxima versión:</strong> 5.0 con funciones avanzadas de análisis</p>
+                <div class="section-divider"></div>
+                <p style="font-style: italic; color: #3498db; margin-top: 20px;">
+                    🚴‍♂️ <strong>¡Gracias por usar DashCam  para hacer tus carreras ciclistas más profesionales y organizadas!</strong> 🚴‍♀️
+                </p>
+                <p style="font-size: 12px; color: #888; margin-top: 15px;">
+                    Esta aplicación se actualiza regularmente. Recomendamos verificar actualizaciones periódicamente.
+                </p>
+            </div>
+            
+        </div>
+        
+        <!-- ===================== CATALÀ ===================== -->
+        <div id="content-ca" class="help-content lang-content">
+            <!-- Contenido en catalán con misma estructura -->
+            <div class="intro-box">
+                <h2>🎯 INTRODUCCIÓ</h2>
+                <p><strong>DashCam </strong> és una aplicació professional dissenyada específicament per <strong>enregistrar recorreguts de curses ciclistes</strong> i ajudar l'organitzador en les seves funcions.</p>
+                <p>Aquesta eina permet capturar vídeo d'alta qualitat amb <strong>metadades GPS incrustades en cada frame</strong>, creant un registre complet i precís de tot el recorregut.</p>
+            </div>
+            
+            <div class="warning-box">
+                <h3>⚠️ ADVERTÈNCIA IMPORTANT PER A L'ORGANITZADOR</h3>
+                <h4>🔋 CONSUM D'ENERGIA</h4>
+                <p>Aquesta aplicació consumeix <strong>MOLTA CORRENT</strong> a causa de:</p>
+                <ul>
+                    <li>Enregistrament continu de vídeo en alta qualitat</li>
+                    <li>GPS actiu permanentment amb alta precisió</li>
+                    <li>Processament en temps real de metadades GPS</li>
+                    <li>Superposició de dades a pantalla</li>
+                </ul>
+                <p><strong>💡 CONSELL CRÍTIC:</strong> Mantingues el telèfon <strong>connectat a la bateria del cotxe</strong> durant tot l'enregistrament.</p>
+                
+                <h4>💾 CONSUM D'ESPAI</h4>
+                <p>El vídeo amb metadades GPS ocupa considerable espai:</p>
+                <ul>
+                    <li><strong>720p:</strong> 1-2 GB per hora</li>
+                    <li><strong>1080p:</strong> 2-4 GB per hora</li>
+                    <li><strong>4K:</strong> 4-8 GB per hora</li>
+                </ul>
+                <p><strong>🚨 IMPORTANT:</strong> Necessites una estratègia per gestionar els vídeos.</p>
+            </div>
+            
+            <!-- ... resto del contenido en catalán ... -->
+            
+            <div class="contact-info">
+                <h3>📞 CONTACTE I SUPORT</h3>
+                <p><strong>📧 Email:</strong> rbenet71@gmail.com</p>
+                <p><strong>🌐 Web:</strong> rbnet71.github.io/Web</p>
+                <p><strong>📱 Versió actual:</strong> 4.11 (Desembre 2024)</p>
+                <div class="section-divider"></div>
+                <p style="font-style: italic; color: #3498db; margin-top: 20px;">
+                    🚴‍♂️ <strong>Gràcies per fer servir DashCam  per fer les teves curses ciclistes més professionals i organitzades!</strong> 🚴‍♀️
+                </p>
+            </div>
+        </div>
+        
+        <!-- ===================== ENGLISH ===================== -->
+        <div id="content-en" class="help-content lang-content">
+            <!-- Contenido en inglés con misma estructura -->
+            <div class="intro-box">
+                <h2>🎯 INTRODUCTION</h2>
+                <p><strong>DashCam </strong> is a professional application specifically designed to <strong>record cycling race routes</strong> and assist the organizer in their duties.</p>
+                <p>This tool captures high-quality video with <strong>GPS metadata embedded in each frame</strong>, creating a complete and accurate record of the entire route.</p>
+            </div>
+            
+            <div class="warning-box">
+                <h3>⚠️ IMPORTANT WARNING FOR ORGANIZERS</h3>
+                <h4>🔋 POWER CONSUMPTION</h4>
+                <p>This application consumes <strong>A LOT OF POWER</strong> due to:</p>
+                <ul>
+                    <li>Continuous high-quality video recording</li>
+                    <li>Permanently active high-precision GPS</li>
+                    <li>Real-time GPS metadata processing</li>
+                    <li>On-screen data overlay</li>
+                </ul>
+                <p><strong>💡 CRITICAL TIP:</strong> Keep your phone <strong>connected to the car battery</strong> during the entire recording.</p>
+                
+                <h4>💾 STORAGE CONSUMPTION</h4>
+                <p>Video with GPS metadata occupies considerable space:</p>
+                <ul>
+                    <li><strong>720p:</strong> 1-2 GB per hour</li>
+                    <li><strong>1080p:</strong> 2-4 GB per hour</li>
+                    <li><strong>4K:</strong> 4-8 GB per hour</li>
+                </ul>
+                <p><strong>🚨 IMPORTANT:</strong> You need a strategy to manage the videos.</p>
+            </div>
+            
+            <!-- ... resto del contenido en inglés ... -->
+            
+            <div class="contact-info">
+                <h3>📞 CONTACT AND SUPPORT</h3>
+                <p><strong>📧 Email:</strong> rbenet71@gmail.com</p>
+                <p><strong>🌐 Web:</strong> rbnet71.github.io/Web</p>
+                <p><strong>📱 Current version:</strong> 4.11 (December 2024)</p>
+                <div class="section-divider"></div>
+                <p style="font-style: italic; color: #3498db; margin-top: 20px;">
+                    🚴‍♂️ <strong>Thank you for using DashCam  to make your cycling races more professional and organized!</strong> 🚴‍♀️
+                </p>
+            </div>
+        </div>
+        
+        <!-- ===================== FRANÇAIS ===================== -->
+        <div id="content-fr" class="help-content lang-content">
+            <!-- Contenido en francés con misma estructura -->
+            <div class="intro-box">
+                <h2>🎯 INTRODUCTION</h2>
+                <p><strong>DashCam </strong> est une application professionnelle conçue spécifiquement pour <strong>enregistrer des parcours de courses cyclistes</strong> et aider l'organisateur dans ses fonctions.</p>
+                <p>Cet outil capture une vidéo de haute qualité avec <strong>des métadonnées GPS intégrées dans chaque image</strong>, créant un enregistrement complet et précis de l'ensemble du parcours.</p>
+            </div>
+            
+            <div class="warning-box">
+                <h3>⚠️ AVERTISSEMENT IMPORTANT POUR LES ORGANISATEURS</h3>
+                <h4>🔋 CONSOMMATION D'ÉNERGIE</h4>
+                <p>Cette application consomme <strong>BEAUCOUP DE COURANT</strong> en raison de :</p>
+                <ul>
+                    <li>Enregistrement vidéo continu en haute qualité</li>
+                    <li>GPS actif en permanence avec haute précision</li>
+                    <li>Traitement en temps réel des métadonnées GPS</li>
+                    <li>Superposition de données à l'écran</li>
+                </ul>
+                <p><strong>💡 CONSEIL CRITIQUE :</strong> Gardez votre téléphone <strong>connecté à la batterie de la voiture</strong> pendant tout l'enregistrement.</p>
+                
+                <h4>💾 CONSOMMATION D'ESPACE</h4>
+                <p>La vidéo avec métadonnées GPS occupe un espace considérable :</p>
+                <ul>
+                    <li><strong>720p :</strong> 1-2 Go par heure</li>
+                    <li><strong>1080p :</strong> 2-4 Go par heure</li>
+                    <li><strong>4K :</strong> 4-8 Go par heure</li>
+                </ul>
+                <p><strong>🚨 IMPORTANT :</strong> Vous avez besoin d'une stratégie pour gérer les vidéos.</p>
+            </div>
+            
+            <!-- ... resto del contenido en francés ... -->
+            
+            <div class="contact-info">
+                <h3>📞 CONTACT ET SUPPORT</h3>
+                <p><strong>📧 Email :</strong> rbenet71@gmail.com</p>
+                <p><strong>🌐 Web :</strong> rbnet71.github.io/Web</p>
+                <p><strong>📱 Version actuelle :</strong> 4.11 (Décembre 2024)</p>
+                <div class="section-divider"></div>
+                <p style="font-style: italic; color: #3498db; margin-top: 20px;">
+                    🚴‍♂️ <strong>Merci d'utiliser DashCam  pour rendre vos courses cyclistes plus professionnelles et organisées !</strong> 🚴‍♀️
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Cambiar entre idiomas
+        document.querySelectorAll('.lang-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remover activo de todos
+                document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.lang-content').forEach(c => c.classList.remove('active'));
+                
+                // Activar el seleccionado
+                tab.classList.add('active');
+                const lang = tab.dataset.lang;
+                document.getElementById(`content-${lang}`).classList.add('active');
+                
+                // Guardar preferencia
+                localStorage.setItem('preferred-help-lang', lang);
+                
+                // Scroll al inicio
+                document.querySelector('.help-content').scrollTop = 0;
+            });
+        });
+        
+        // Cargar idioma guardado
+        const savedLang = localStorage.getItem('preferred-help-lang') || 'es';
+        const tabToActivate = document.querySelector(`.lang-tab[data-lang="${savedLang}"]`);
+        if (tabToActivate) {
+            tabToActivate.click();
+        }
+        
+        // Cerrar con Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (window.opener) {
+                    window.close();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
