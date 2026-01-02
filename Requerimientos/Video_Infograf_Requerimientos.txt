@@ -1,0 +1,30 @@
+video Infograf
+
+Quiero crear una app para crear videos con infografia, con datos dinamicos añadidos a la imágen.
+
+La idea es crear un video con los datos importantes en un recorrido de una carrera ciclista.
+
+El usuario elejirá una carpeta destino y un fichero de video, y con sus metadatos, o metadatos externos, crear un video con la infografia que te describo ahora.
+
+El video deberá disponer si el usuario elije que se muestre y donde:
+
+Logo
+Título
+Subtitulo
+Track del recorrido y mostrando posición del video.
+Perfil de altura del recorrido y mostrando posición acutual.
+Datos recorrido: altura, km y coordenadas.
+
+Habrá una pantalla de configuración en la que el usuario determinará que elementos quiere mostrar y donde:
+
+Subir Logo
+Título
+Subtitulo
+track mostrar o no
+perfil mostrar o no
+datos recorrido mostrar o noo
+
+en principio el perfil y datos de carrera los deberá extraer del propio video, si no es posible se dará la opción de importar un GPX externo con la información.
+Habrá que hacer entonces una sincronización entre el GPX y la imagen del video, la idea es ir mostrando el km del gpx y cuando la imagen coincida con ese kilometro de etapa el usuario marca la opción de sincronizar. 
+
+Una vez todo montado, el usuario ha de poder mover la barrera de tiempo del video y ver como se van actualizando los datos.

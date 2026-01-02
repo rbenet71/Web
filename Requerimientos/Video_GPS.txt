@@ -1,0 +1,88 @@
+Video GPS
+
+Quiero crear una app para visualizar videos que contienen datos gps.
+
+El usuario seleccionará el archivo o carpeta que quiere visualizar.
+
+La app comprobará que tiene datos GPS y habilitará el botón de visualizar. 
+
+Si eligió una carpeta se visualizará un video detrás de otro.
+
+La pantalla de visualización se compondrá de:
+
+1.- Pantalla del video.
+2.- Mapa del recorrido.
+3.- Perfil del recorrido-> si los datos tienen la altura o si se han podido obtener de forma externa.
+
+1.- Pantalla del video-> dispondrá de los botones tipìcos de un reproductor, reproducir, parar, pausa, frame adelante, frame atras, velocidad de reproduccion (0.25,0.5,1,2,4,8,16,32) y maximizar pantalla.
+
+2.- Se mostrará el track del recorrido y la posición del frame que se está reproduciendo. De fondo podrán haber diferentes tipos de mapa WMS o leaflet y que fuesen seleccionables a ver o no. Habrá un botón para copiar las coordenadas y otro para ir a ver a google maps y google earth esa posición.
+
+3.- Se hará un perfil de altura del recorrido y se mostrará el frame actual del video en que parte del perfil esta. Si el video no dispone de las alturas el programa las conseguirá de forma externa, consultando cada coordenada que altura tiene.
+
+
+*******
+Extra info
+Mapas
+uri = 'crs=EPSG:3857&dpiMode=7&format=image/png&layers=topo&styles&url=http://mapcache.icc.cat/map/bases/service'
+uri = 'crs=EPSG:4326&dpiMode=7&format=image/png&layers=topo&styles&url=http://mapcache.icc.cat/map/bases/service'
+uri = 'crs=EPSG:25831&format=image/png&layers=topo&referrer=OpenICGC_v1.1.22&styles=default&url=https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wms/service'
+uri = 'crs=EPSG:25831&format&type=xyz&url=https://mt1.google.com/vt/lyrs%3Dr%26x%3D%7Bx%7D%26y%3D%7By%7D%26z%3D%7Bz%7D&zmax=18&zmin=0'
+uri= 'crs=EPSG:3857&format&tilePixelRatio=2&type=xyz&url=https://mt1.google.com/vt/lyrs%3Dr%26x%3D%7Bx%7D%26y%3D%7By%7D%26z%3D%7Bz%7D&zmax=18&zmin=0'
+uri = 'crs=EPSG:4326&format&type=xyz&url=https://mt1.google.com/vt/lyrs%3Dr%26x%3D%7Bx%7D%26y%3D%7By%7D%26z%3D%7Bz%7D&zmax=18&zmin=0'
+uri='crs=EPSG:3857&dpiMode=7&format=image/png&layers=IGNBaseOrto&styles&url=http://www.ign.es/wms-inspire/ign-base'
+uri='crs=EPSG:4326&dpiMode=7&format=image/png&layers=IGNBaseOrto&styles&url=http://www.ign.es/wms-inspire/ign-base'
+# Mapa ICC_Orto
+uri = 'crs=EPSG:3857&dpiMode=7&format=image/png&layers=orto&styles&url=http://mapcache.icc.cat/map/bases/service'
+uri = 'crs=EPSG:4326&dpiMode=7&format=image/png&layers=orto&styles&url=http://mapcache.icc.cat/map/bases/service'
+# Punts Km Generalitat Online WMS
+uri='contextualWMSLegend=0&crs=EPSG:4326&dpiMode=7&featureCount=10&format=image/png&layers=XT_VIARI_PK_CARRETERES&styles&url=https://sig.gencat.cat/ows/XARXES_TRANSPORT/wms'
+# Punts Km Generalitat Online WFS por Capas
+uri="pagingEnabled='true' preferCoordinatesForWfsT11='false' restrictToRequestBBOX='1' typename='XARXES_TRANSPORT:XT_VIARI_PK_CARRETERES' url='https://sig.gencat.cat/ows/XARXES_TRANSPORT/wfs' version='auto'"
+# Nombres Geografico
+uri='crs=EPSG:4326&dpiMode=7&format=image/png&layers=GN.GeographicalNames&styles&url=http://www.ign.es/wms-inspire/ngbe'
+
+# Mapa Google
+uri = 'crs=EPSG:25831&format&type=xyz&url=https://mt1.google.com/vt/lyrs%3Dr%26x%3D%7Bx%7D%26y%3D%7By%7D%26z%3D%7Bz%7D&zmax=18&zmin=0'
+uri= 'crs=EPSG:3857&format&tilePixelRatio=2&type=xyz&url=https://mt1.google.com/vt/lyrs%3Dr%26x%3D%7Bx%7D%26y%3D%7By%7D%26z%3D%7Bz%7D&zmax=18&zmin=0'
+uri = 'crs=EPSG:4326&format&type=xyz&url=https://mt1.google.com/vt/lyrs%3Dr%26x%3D%7Bx%7D%26y%3D%7By%7D%26z%3D%7Bz%7D&zmax=18&zmin=0'
+# Mapa Google Terrain
+uri='crs=EPSG:3857&format&type=xyz&url=https://mt1.google.com/vt/lyrs%3Dp%26x%3D%7Bx%7D%26y%3D%7By%7D%26z%3D%7Bz%7D&zmax=20&zmin=0'
+# Mapa IGN
+uri='crs=EPSG:3857&dpiMode=7&format=image/png&layers=IGNBaseTodo&styles&url=http://www.ign.es/wms-inspire/ign-base'
+uri='crs=EPSG:4326&dpiMode=7&format=image/png&layers=IGNBaseTodo&styles&url=http://www.ign.es/wms-inspire/ign-base'
+# Mapa ESRI
+uri='crs=EPSG:3857&format&type=xyz&url=https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/%7Bz%7D/%7By%7D/%7Bx%7D&zmax=18&zmin=0'
+uri='crs=EPSG:4326&format&type=xyz&url=https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/%7Bz%7D/%7By%7D/%7Bx%7D&zmax=18&zmin=0'
+# Mapa OpenStreetMap
+uri='crs=EPSG:3857&format&type=xyz&url=http://tile.thunderforest.com/cycle/%7Bz%7D/%7Bx%7D/%7By%7D.png&zmax=18&zmin=0'
+uri='crs=EPSG:4326&format&type=xyz&url=http://tile.thunderforest.com/cycle/%7Bz%7D/%7Bx%7D/%7By%7D.png&zmax=18&zmin=0'
+# Mapa Waze
+uri='crs=EPSG:3857&format&type=xyz&url=https://worldtiles3.waze.com/tiles/%7Bz%7D/%7Bx%7D/%7By%7D.png&zmax=20&zmin=0'
+uri='crs=EPSG:4326&format&type=xyz&url=https://worldtiles3.waze.com/tiles/%7Bz%7D/%7Bx%7D/%7By%7D.png&zmax=20&zmin=0'
+# Mapa Bergfex
+uri='crs=EPSG:3857&format&type=xyz&url=http://maps.bergfex.at/osm/standard/%7Bz%7D/%7Bx%7D/%7By%7D.jpg&zmax=16&zmin=0'
+# MED Espanya
+uri='dpiMode=7&identifier=Elevacion4258_1000&url=http://servicios.idee.es/wcs-inspire/mdt?version%3D1.1.2'
+# ORTOFOTO
+# Names
+uri='crs=EPSG:3857&dpiMode=7&format=image/png&layers=IGNBaseOrto&styles&url=http://www.ign.es/wms-inspire/ign-base'
+uri='crs=EPSG:4326&dpiMode=7&format=image/png&layers=IGNBaseOrto&styles&url=http://www.ign.es/wms-inspire/ign-base'
+# Mapa ICC_Orto
+uri = 'crs=EPSG:3857&dpiMode=7&format=image/png&layers=orto&styles&url=http://mapcache.icc.cat/map/bases/service'
+uri = 'crs=EPSG:4326&dpiMode=7&format=image/png&layers=orto&styles&url=http://mapcache.icc.cat/map/bases/service'
+# Google Orto Foto
+uri='crs=EPSG:3857&format&type=xyz&url=http://www.google.cn/maps/vt?lyrs%3Ds@189%26gl%3Dcn%26x%3D%7Bx%7D%26y%3D%7By%7D%26z%3D%7Bz%7D&zmax=18&zmin=0'
+# EXTRA INFO
+# Punts Km Generalitat Online WMS
+uri='contextualWMSLegend=0&crs=EPSG:4326&dpiMode=7&featureCount=10&format=image/png&layers=XT_VIARI_PK_CARRETERES&styles&url=https://sig.gencat.cat/ows/XARXES_TRANSPORT/wms'
+# Nombres Geografico
+uri='crs=EPSG:4326&dpiMode=7&format=image/png&layers=GN.GeographicalNames&styles&url=http://www.ign.es/wms-inspire/ngbe'
+# MAPA ICC
+uri = 'crs=EPSG:3857&dpiMode=7&format=image/png&layers=topo&styles&url=http://mapcache.icc.cat/map/bases/service'
+uri = 'crs=EPSG:4326&dpiMode=7&format=image/png&layers=topo&styles&url=http://mapcache.icc.cat/map/bases/service'
+uri = 'crs=EPSG:25831&format=image/png&layers=topo&referrer=OpenICGC_v1.1.22&styles=default&url=https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wms/service'
+# Mapa Google
+uri = 'crs=EPSG:25831&format&type=xyz&url=https://mt1.google.com/vt/lyrs%3Dr%26x%3D%7Bx%7D%26y%3D%7By%7D%26z%3D%7Bz%7D&zmax=18&zmin=0'
+uri= 'crs=EPSG:3857&format&tilePixelRatio=2&type=xyz&url=https://mt1.google.com/vt/lyrs%3Dr%26x%3D%7Bx%7D%26y%3D%7By%7D%26z%3D%7Bz%7D&zmax=18&zmin=0'
+uri = 'crs=EPSG:4326&format&type=xyz&url=https://mt1.google.com/vt/lyrs%3Dr%26x%3D%7Bx%7D%26y%3D%7By%7D%26z%3D%7Bz%7D&zmax=18&zmin=0'

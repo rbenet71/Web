@@ -14,11 +14,15 @@ Quiero hacer una app PWA:
 - que tenga un boton de instalarse, si no está instalado.
 - Al pie : <span id="copyright-text">2025 © Copyright</span> <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link"> Roberto Benet - rbenet71@gmail.com - V_18_12_2025</a>
 
-Como lo previsible es que se haga muy grande, deben hacer varios ficheros JS con prevision que cuando se hagan cambios sea facil hcaerlo por encontrarse en pocos ficheros. Por ejemplo un solo js para las traducciones
+Como lo previsible es que se haga muy grande, deben hacer varios ficheros JS con prevision que cuando se hagan cambios sea facil hcaerlo por encontrarse en pocos ficheros. Por ejemplo un solo js para las traducciones. Lo ideal arhivos de 300 a 500 lineas.
 
-los nombres de los ficheros siempre llevaran el nombre de la app, por ejemplo Crono_CRI_Manifest.json, incluso el html que no se ha de llamar index. es para cuando se tenga que modificar saber que app es, ya que tendremos muchas.
+los nombres de los ficheros siempre llevaran el nombre de la app, por ejemplo Crono_CRI_Manifest.json (styles, ws,manifest, app,..), incluso el html que no se ha de llamar index. es para cuando se tenga que modificar saber que app es, ya que tendremos muchas. Los iconos pictos, y demas recursos estaran en una carpeta que se llame assets, el resto de arhivos estaran en el directorio raiz.
 
 Se ha de crear el fichero [nombre app]+"Estructura.md" en el que se explique como funciona toda la app que funciones tiene y todo aquello que sea necesario para hacer cambios en la app. En el se ha de indicar que siempre que se haga un cambio, recordar actualizar el fichero completo.
+
+Todas las opciones elegidas se han de memorizar, para que cuando vuelvas a entrar, si por ejemplo seleccionaste un arhivo vuelva a aparecer.
+
+La app se ha de actualizar automaticamente, por tanto que sea facil modificar la version de la app.
 
 Opciones:
 

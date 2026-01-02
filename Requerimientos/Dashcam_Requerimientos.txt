@@ -42,17 +42,20 @@ eliminamos concatenar-> combineVideosModal
 4.6.1 mejorar responsible
 4.7 no se graba en el iphone el logo
 4.8 CArpeta Local en Ipone -  No se puede hacer de forma automatica es manual
-----
 
 4.9 Los nombres de los videos han de ser RBB_YYYYMMDD_S[# sesion].mp4 dime la linea que he de modificar y como 
 
 4.10 La opción de exportar el fichero de video no funciona (el de sesión si)
+4.11 Ayuda - quiero crear un boton de ayuda en la pantalla inicial. El todo el texto de ayuda estara en un fichero HTML, en 4 idiomas, siguiendo la filosoia del fichero de ejemplo. Hay que pensar que los textos de la App no estan traducidos, por tanto cuando te refieras a una opcion de la app deberá ser el nombre en castellano.
+Dentro del mensaje inicial hay que incluir este concpeto, esta aplicación se ha hecho para grabar recorridos de carreras ciclistas y ayudar al organizador enb sus funciones. Para poder grabar con tu telefono has de tener presente que este aplicación consume mucha corriente y espacio en el telefono, Por tanto ten el movil conectado a la bateria del coche y ten una estrategia para sacar los videos del telefono, ya sea grabando los videos en onedrive o Google Drive o bien conectando una memoria externa al telefono (Usb, tarjetas de memoria, etc..). Mas adelanta tengo previsto desarrollar mas aplicaciones para gestionar estos videos: unirlos, ver mapa, infografia. Todo esto estara en rbnet71.github.io/Web
+4.12 Grabación en formato MP4
 ---
+4.13 Gestion GPX, poder borrar, y el nombre que sea el de la sesión.
+4.13.1 Mantenimiento GPX???? no se cierra.
+----
 
 
 Idiomas - Descartado
 Instalar App - en pricipio ya esta 
 
 
-4.11 Ayuda - quiero crear un boton de ayuda en la pantalla inicial. El todo el texto de ayuda estara en un fichero HTML, en 4 idiomas, siguiendo la filosoia del fichero de ejemplo. Hay que pensar que los textos de la App no estan traducidos, por tanto cuando te refieras a una opcion de la app deberá ser el nombre en castellano.
-Dentro del mensaje inicial hay que incluir este concpeto, esta aplicación se ha hecho para grabar recorridos de carreras ciclistas y ayudar al organizador enb sus funciones. Para poder grabar con tu telefono has de tener presente que este aplicación consume mucha corriente y espacio en el telefono, Por tanto ten el movil conectado a la bateria del coche y ten una estrategia para sacar los videos del telefono, ya sea grabando los videos en onedrive o Google Drive o bien conectando una memoria externa al telefono (Usb, tarjetas de memoria, etc..). Mas adelanta tengo previsto desarrollar mas aplicaciones para gestionar estos videos: unirlos, ver mapa, infografia. Todo esto estara en rbnet71.github.io/Web

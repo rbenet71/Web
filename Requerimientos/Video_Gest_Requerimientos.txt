@@ -1,0 +1,502 @@
+Video Gest
+
+Quiero crear una App PWA con funcionamiento offline y que preferiblemente se utilizará en Windows, pero ha de estar preparada para cualquier dispositivo.
+
+La app se utilizará como una utilidad para gestionar archivos de video, utilizando preferentemente la libreria de FFMEPG.
+
+Las opciones que veo son:
+
+1.- Reducir tamaño Video.
+2.- Cortar Video.
+3.- Convertir Video.
+4.- Revertir Video.
+5.- Convetir a JPG.
+6.- Unir Videos.
+
+
+1.- Reducir tamaño Video-> se dará la opción al usuario de elegir tres posibilidades de reducción:
+    a.- Uso en Móviles
+    b.- Uso en Tablets
+    c.- Uso en PC.
+
+Al acceder al menú habrán los siguiente campos:
+- Selector de Calidad de Video
+- Archivo a Convertir
+- Directorio Destino.
+
+- Botón de Convertir.
+- Botón de Cancelar.
+
+El usuario deberá elegir que archivo quiere convertir y automaticamente la carpeta de destino será la misma donde está el arhivo origen (el usuario la podrá modificar).
+El nuevo arhivo se llamará el nombre original mas la coletilla: _PC,_Tablet o _Movil.
+En este proceso de conversión no se han de perder los metadatos, sobretodo las ubicaciones GPS.
+Deberá haber una barra de progeso.
+
+Calidad PC - orden FFMPEG - order='''ffmpeg -y -i "%s" -vcodec libx265 -crf 28 %s "%s"'''%(video_file,option_ffmpeg,destiny+'_PC.mp4')
+Calidad Tablet - orden FFMPEG - order='''ffmpeg -y -i "%s" -crf 28 %s "%s"'''%(video_file,option_ffmpeg,destiny+'_Tablet.mp4')
+Calidad Movil - orden FFMPEG - '''ffmpeg -y -i "%s" -crf 28 %s "%s"'''%(video_file,option_ffmpeg,destiny+'_Movil.mp4')
+
+2.- Cortar Video -> el usuario indicará que parte del video quiere extraer el video original.
+Al acceder al menú habrán los siguiente campos:
+
+- Archivo a Cortar
+- Directorio Destino.
+- Tiempo Inicio: 00:00:00
+- Tiempo Final: 00:00:00 
+
+- Botón de Convertir.
+- Botón de Cancelar.
+
+El usuario deberá elegir que archivo quiero cortar y automaticamente la carpeta de destino será la misma donde está el arhivo origen y el tiempo final será la duración total del video. El usuario podrá modificar todos los datos de tiempo y carpeta destino.
+El nuevo arhivo se llamará el nombre original mas la coletilla: _Cortado.
+En este proceso de conversión no se han de perder los metadatos, sobretodo las ubicaciones GPS.
+Deberá haber una barra de progeso.
+
+3.- Convertir Video-> se dará la opción al usuario de elegir las siguientes posibilidades de conversión:
+    a.- MP4
+    b.- MOV
+    c.- AVI
+
+Al acceder al menú habrán los siguiente campos:
+- Selector de Formato
+- Archivo a Convertir
+- Directorio Destino.
+
+- Botón de Convertir.
+- Botón de Cancelar.
+
+El usuario deberá elegir que archivo quiero convertir y automaticamente la carpeta de destino será la misma donde está el arhivo origen(el usuario la podrá modificar).
+El nuevo arhivo se llamará el nombre original mas la coletilla: _Convertido.
+En este proceso de conversión no se han de perder los metadatos, sobretodo las ubicaciones GPS.
+Deberá haber una barra de progeso.
+
+4.- Revertir Video-> se modificará el video en reverse, esto es el principio será el final del video
+
+Al acceder al menú habrán los siguiente campos:
+- Archivo a Convertir
+- Directorio Destino.
+
+- Botón de Convertir.
+- Botón de Cancelar.
+
+El usuario deberá elegir que archivo quiero convertir y automaticamente la carpeta de destino será la misma donde está el arhivo origen (el usuario la podrá modificar).
+El nuevo arhivo se llamará el nombre original mas la coletilla: _Reverse.
+En este proceso de conversión no se han de perder los metadatos, sobretodo las ubicaciones GPS.
+Deberá haber una barra de progeso.
+
+5.- Convetir a JPG con GPS -> se convetirá un video en una secuencia de fotos geolocalizadas, si el video tiene los datos GPS,
+
+Al acceder al menú habrán los siguiente campos:
+- Archivo a Convertir
+- Directorio Destino.
+- Selector Tamaño JPG (4k,1024,512)
+- JPG Cada: (Cadencia de Tiempo en segundos) - por defecto 1.
+
+- Botón de Convertir.
+- Botón de Cancelar.
+
+El usuario deberá elegir que archivo quiero convertir y automaticamente la carpeta de destino será la misma donde está el arhivo origen(el usuario la podrá modificar).
+Los nuevos arhivos se llamarán el nombre original mas la coletilla: _HHMMSSS. (teniendo en cuenta que el primer frame será la hora del de creación del video y le iremos sumando la cadencia de tiempo )
+En este proceso de conversión no se han de perder los metadatos, sobretodo las ubicaciones GPS.
+Deberá haber una barra de progeso. (indicado fichero x del total de ficheros que se generaran)
+Al cargar el fichero de video, indica debajo del nombre, si hay datos GPS disponibles.
+
+6.- Unir Videos - en esta opción el usuario seleccionará una serie de archivos y los unirá segun indicaciones del usuario (de que segundo a que segundo se ha de unir).
+
+Lo primero que deberá elegir el usario es si quiere recuperar una sesión de unión anterior o crear una nueva.
+La idea es que se almacenen todos los datos de la unión para que el usuario puede volver a generar el nuevo arhivo sin tener mucho trabajo.
+
+Una vez seleccionada o creada la sesión, se accederá a una tabla con los siguientes campos:
+
+Orden, Nombre Archivo, fecha (dia y hora), tamaño, duración, Tiempo Inicio, Tiempo Final, ruta completa archivo.
+
+Y encima de la tabla habrá el campo con el nombre y ubicación del archivo nuevo que se cree.
+
+Además habrán botones en el lateral o parte superior para hacer las siguientes funciones:
+a. Añadir arhivo.
+b. Añadir Carpeta.
+c. Eliminar Archivo.
+d. Vaciar Tabla.
+e. Mover orden Archivo.
+f.-Subir posición.
+g.-Bajar posición.
+h.-Añadir Varios Cortes.
+i.-Copia de Seguridad.
+j.-Restaurar Copia de Segurida.
+k.-Reproducir Video.
+l.-Unir
+m.-Cancelar.
+
+a.- Añadir arhivo-> Se seleccionará un arhivo y se pondrá en el siguiente orden libre, si no hay, será el 1. Al añadirlo se rellenaré automaticamnete, tamaño, duración,tiempo inicio será: 00:00:00 y tiempo final la duración del video.
+b.- Añadir Carpeta-> Se añadiran todos los arhivos de video que hayan en ese carpeta.
+c.- Eliminar Archivo-> Se eliminará el archivo de la tabla que en ese momento esta seleccionado. Se hará pregunta de confirmación si realmente quiere borrar
+d.- Vaciar Tabla-> Se eliminarán todos los archivos de la tabla. Se hará pregunta de confirmación si realmente quiere borrar dos veces ya que no hay vuelta atrás.
+e.- Mover orden Archivo-> El usuario elegirá en que posición qiere poner el arhivo seleccionado, se le hará la pregunta de confirmación y se actualizaran el campo orden de todos los arhicos en función de ese movimiento.
+f.-Subir posición-> se disminuirá una posición el orden del arhivo.
+g.-Bajar posición-> se aumentará una posición el orden del arhivo.
+h.-Añadir Varios Cortes-> La idea es que el usuario sobre un mismo arhivo pueda seleccionar diferentes tramos a unir, por ejemplo del segundo 5 al 10, del 15 al 20 y del 30 al 50. (yo creo que lo ideal es que se creen diferentes lineas, con el mismo arhivo y con diferentes tiempos de corte)
+i.-Copia de Seguridad-> crear una copia de los datos de la tabla, para poder recuperarlos mas adelante. Pregunta donde crear el archivo y el nombre será Seguridad_[nombre sesión] y la carpeta destino será la misma que la del video unido.
+j.-Restaurar Copia de Segurida -> orra los datos que hay en la tabla y pone los datos que hay en el arhivo de copia de seguridad.
+k.- Reproducir Video. se abre una ventana para reproducir el video, con diferentes velocidades de reproducción (0.25, 0.5,1,2,5,8,16x), y barra de desplazamiento para moverse a lo largo del video.
+l.-Unir-> se creará un arhivo con el nombre de la sesión, con los espacios en blanco convertidos a "_", y La calidad del mismo será la máxima posible que permitan los arhivos, y no se tendran que perder los metadatos, sobretodo los de GPS.
+
+Toda esta información de la tabla se ha de guardar por si se quiere volver a generar este arhivo.
+
+
+******************
+Te paso esta app que hice en lenguaje Python
+
+def lower_video(option,video_file=None,parent=None):
+    """ Lower size video 
+        option 1 - PC
+        option 2 - Ipad
+        option 3 - Movil 
+        option 4 - Reverse Video
+        option 5 - Cut Video
+        option 6 - Join Videos """
+    #ffmpeg -i 2021_Etapa_1_V_1_Titulado.mp4 -vcodec libx265 -crf 28 output_titulado.mp4
+    #ffmpeg -i pruebas.mp4 -vcodec libx265 -vf "scale=iw/4:ih/4" -crf 28 output_28b4.mp4
+    #ffmpeg -i pruebas.mp4 -vcodec libx265 -vf "scale=iw/2:ih/2" -crf 28  -b: 5k output_28c.mp4
+    from Robert_Functions import Default
+    import os
+    import shutil
+    def info(message):   
+        if parent and hasattr(parent,'info'):
+            parent.info(message)
+        else:    
+            print(message)
+            
+    if parent is None:
+        app = QApplication([])
+        parent = QWidget()
+        
+    if not option==6:
+        if not video_file  : # If you don't say file destination Ask for
+            #from PyQt5.QtWidgets import QFileDialog,QWidget,QLineEdit,QInputDialog
+            default_video=Default().get('video_lower')
+            if not default_video:
+                default_video=r"F:\Videos\2024\Volta"
+            
+            parent=QWidget()
+            
+            video_file,_=QFileDialog.getOpenFileName(parent,"Selecciona Fichero Video MP4",default_video, 'Video (*.mp4)')
+            if not video_file:
+                return
+        Default().save('video_lower',video_file)
+        dir_video=os.path.dirname(video_file)
+        destiny=os.path.join(dir_video,os.path.basename(video_file).split('.')[0])
+        if option==1:
+            info('Convirtiendo Video a Calidad PC->'+destiny+'_PC.mp4')
+            option_ffmpeg=''
+            order='''ffmpeg -y -i "%s" -vcodec libx265 -crf 28 %s "%s"'''%(video_file,option_ffmpeg,destiny+'_PC.mp4')
+        elif option==2: # Ipad
+            info('Convirtiendo Video a Calidad Tablet->'+destiny+'_Tablet.mp4')
+            option_ffmpeg='-vf "scale=iw/4:ih/4" -b: 5k '
+            #order='''ffmpeg -y -i "%s" -vcodec libx265 -crf 28 %s "%s"'''%(video_file,option_ffmpeg,destiny+'_Tablet.mp4')
+            order='''ffmpeg -y -i "%s" -crf 28 %s "%s"'''%(video_file,option_ffmpeg,destiny+'_Tablet.mp4')
+        elif option==3: # Movil
+            info('Convirtiendo Video a Calidad Movil->'+destiny+'_Movil.mp4')
+            option_ffmpeg='-vf "scale=iw/8:ih/8" -b: 5k '
+            #order='''ffmpeg -y -i "%s" -vcodec libx265 -crf 28 %s "%s"'''%(video_file,option_ffmpeg,destiny+'_Movil.mp4')
+            order='''ffmpeg -y -i "%s" -crf 28 %s "%s"'''%(video_file,option_ffmpeg,destiny+'_Movil.mp4')
+            
+        elif option==4: # Invertir
+            info('Invirtiendo Video ->'+destiny+'_Invertido.mp4')
+            order='''ffmpeg -i {} -vf reverse {} '''.format(video_file,destiny+'_Invertido.mp4')
+            
+        elif option==5: # Cut Video
+            window=QWidget()
+            text_default='00:00:00'    
+            start, ok1 = QInputDialog.getText(window, "Inicio","Hora de Inicio Corte? ",QLineEdit.EchoMode.Normal,text=str(text_default))
+            end, ok2 = QInputDialog.getText(window, "Final","Hora Final de Corte? ",QLineEdit.EchoMode.Normal,text=str(text_default))
+            if ok1 and ok2:
+                order='''ffmpeg -ss {} -to {} -i {} -c copy {} '''.format(start,end,video_file,destiny+'_Cortado.mp4')
+            else:
+                order=''
+            info('Cortando Video ->'+destiny+'_Cortado.mp4')
+        else:
+            return  
+        
+        info('Iniciando')
+            
+        cwd=os.getcwd()
+        os.chdir(dir_video)
+        shutil.copy('C:/Program Files/ffmpeg/bin/ffmpeg.exe',os.path.join(dir_video,'ffmpeg.exe'))
+        #os.system('copy "c:\Program Files\ffmpeg\bin\ffmpeg.exe"') # copy exe because i have problems to execute (says input incorrect)
+            
+        info('La Orden '+order)
+        os.system(order)
+        os.remove('ffmpeg.exe')
+        os.chdir(cwd) 
+
+    else: # Join Video
+        # Al ser Pyqt6 hay que iniciar una instancia sino no funciona
+        app = QApplication(sys.argv)
+        list_gest().exec()
+
+
+#######################
+
+class list_gest(QDialog):
+    """ Class for create Lists
+    Parameters:
+        title for window
+        list give a list
+        type of files for selected a kind of files
+    """
+        
+    def __init__(self,parent=None,title="QListWidget Gestor",list=None,type_of_files=None):
+        super().__init__(parent)
+        self.parent=parent
+        self.order=False
+        self.title=title
+        self.list=list
+        self.type_of_files=type_of_files
+        self.initializeUI()
+
+    def initializeUI(self):
+        """
+        Initialize the window and display its contents to the screen
+        """
+        self.setGeometry(100, 100, 600, 350)
+        self.setWindowTitle(self.title)
+        self.setupWidgets()
+        self.show()
+        
+    def setupWidgets(self):
+        """
+        Create and arrange widgets in window
+        """
+        #self.list_widget = QListWidget()
+        self.list_widget = DropQListWidget()
+        self.list_widget.setAlternatingRowColors(True)
+        # Initialize the QlistWidget with items
+        if self.list:
+            for item in self.list:
+                list_item = QListWidgetItem() 
+                list_item.setText(item)
+                self.list_widget.addItem(list_item)
+                
+            for index in range(self.list_widget.count()):
+                item = self.list_widget.item(index)
+                item.setFlags(item.flags() | Qt.ItemIsEditable)
+
+        # Create buttons
+        add_button = QPushButton("Añadir")
+        add_button.clicked.connect(self.addListItem)
+        insert_file = QPushButton("Fichero")
+        insert_file.clicked.connect(self.insertFile)
+        insert_dir = QPushButton("Directorio")
+        insert_dir.clicked.connect(self.insertDir)
+        insert_button = QPushButton("Insertar")
+        insert_button.clicked.connect(self.insertItemInList)
+        remove_button = QPushButton("Borrar")
+        remove_button.clicked.connect(self.removeOneItem)
+        up_button = QPushButton("Subir")
+        up_button.clicked.connect(self.moveUpItem)
+        down_button = QPushButton("Bajar")
+        down_button.clicked.connect(self.moveDownItem)
+        edit_button = QPushButton("Editar")
+        edit_button.clicked.connect(self.editItem)
+        order_button = QPushButton("Ordenar")
+        order_button.clicked.connect(self.orderItem)
+        clear_button = QPushButton("Limpiar Todo")
+        clear_button.clicked.connect(self.list_widget.clear)
+        join_button = QPushButton("Unir Videos")
+        join_button.clicked.connect(self.joinVideos)
+        exit_button = QPushButton("Salir")
+        exit_button.clicked.connect(self.exit)
+        # Create layout
+        right_v_box = QVBoxLayout()
+        right_v_box.addWidget(add_button)
+        right_v_box.addWidget(insert_file)
+        right_v_box.addWidget(insert_dir)
+        right_v_box.addWidget(insert_button)
+        right_v_box.addWidget(remove_button)
+        right_v_box.addWidget(up_button)
+        right_v_box.addWidget(down_button)
+        right_v_box.addWidget(edit_button)
+        right_v_box.addWidget(order_button)
+        right_v_box.addWidget(clear_button)
+        right_v_box.addWidget(join_button)
+        right_v_box.addWidget(exit_button)
+        left_h_box = QHBoxLayout()
+        left_h_box.addWidget(self.list_widget)
+        left_h_box.addLayout(right_v_box)
+        self.setLayout(left_h_box)
+        self.list_widget.changed.connect(self.file_drop)
+        
+    def addListItem(self):
+        """
+        Add a single item to the list widget.
+        """
+        text, ok = QInputDialog.getText(self, "Nuevo Item", "Añadir item:")
+        if ok and text != "":
+            list_item = QListWidgetItem()
+            list_item.setText(text)
+            list_item.setFlags(list_item.flags() | Qt.ItemIsEditable)
+            self.list_widget.addItem(list_item)
+    
+    def insertFile(self):
+        """
+        Insert a single item into the list widget under the
+        current highlighted row.
+        """
+        import os
+        from Robert_Functions import Default
+        if self.type_of_files=='Picture':
+            type_file="Imagenes (*.jpg *.png *.gif)"
+        elif self.type_of_files=='Video':
+            type_file="Videos (*.mp4)"
+        else:
+            type_file="Todos (*.*)"
+        
+        default=Default().get('list_files')
+        if not default:
+            default='C:/'
+            
+        text, ok = QFileDialog.getOpenFileName(self, 'Abrir Fichero',default,type_file)
+        
+        if ok and text != "":
+            Default().save('list_files',os.path.dirname(text))
+            row = self.list_widget.currentRow()
+            row = row + 1 # select row below current row
+            new_item = QListWidgetItem()
+            new_item.setText(text)
+            new_item.setFlags(new_item.flags() | Qt.ItemFlag.ItemIsEditable)
+            self.list_widget.insertItem(row, new_item) 
+    
+    def file_drop(self,file_drop):
+        row = self.list_widget.currentRow()
+        row = row + 1 # select row below current row
+        new_item = QListWidgetItem()
+        new_item.setText(file_drop)
+        new_item.setFlags(new_item.flags() | Qt.ItemFlag.ItemIsEditable)
+        self.list_widget.insertItem(row, new_item) 
+
+    def insertDir(self):
+        """
+        Insert a single item into the list widget under the
+        current highlighted row.
+        """
+        import os
+        from Robert_Functions import Default
+        if self.type_of_files=='Picture':
+            type_file="Imagenes (*.jpg *.png *.gif)"
+        elif self.type_of_files=='Video':
+            type_file="Videos (*.mp4)"
+        else:
+            type_file="Todos (*.*)"
+        
+        default=Default().get('list_files')
+        if not default:
+            default='C:/'
+            
+        text = QFileDialog.getExistingDirectory(self, 'Abrir Directorio',default)
+        
+        if text:
+            
+            Default().save('list_files',os.path.dirname(text))
+            row = self.list_widget.currentRow()
+            dir_content=os.scandir(text)
+            #dir_content.sort(reverse=True)
+            for file in dir_content: 
+                if os.path.isfile(file.path):
+                    if (file.path[-3:].upper() in type_file) or type_file=="Todos (*.*)":
+                        new_item = QListWidgetItem()
+                        new_item.setText(file.path)
+                        new_item.setFlags(new_item.flags() | Qt.ItemFlag.ItemIsEditable)
+                        self.list_widget.insertItem(row, new_item)
+
+    def orderItem(self):
+        if  self.order:
+            self.list_widget.sortItems(Qt.SortOrder.DescendingOrder)    
+            self.order=False
+        else:
+            self.list_widget.sortItems(Qt.SortOrder.AscendingOrder)          
+            self.order=True
+            
+    def insertItemInList(self):
+        """
+        Insert a single item into the list widget under the
+        current highlighted row.
+        """
+        text, ok = QInputDialog.getText(self, "Añadir Item", "Añadir item:")
+        if ok and text != "":
+            row = self.list_widget.currentRow()
+            row = row + 1 # select row below current row
+            new_item = QListWidgetItem()
+            new_item.setText(text)
+            new_item.setFlags(new_item.flags() | Qt.ItemFlag.ItemIsEditable)
+            self.list_widget.insertItem(row, new_item)
+            
+    def removeOneItem(self):
+        """
+        Remove a single item from the list widget.
+        """
+        row = self.list_widget.currentRow()
+        self.list_widget.takeItem(row)
+
+    def moveUpItem(self):
+        currentRow = self.list_widget.currentRow()
+        currentItem = self.list_widget.takeItem(currentRow)
+        self.list_widget.insertItem(currentRow - 1, currentItem)
+        self.list_widget.setCurrentRow(currentRow-1)
+    
+    def moveDownItem(self):
+        currentRow = self.list_widget.currentRow()
+        currentItem = self.list_widget.takeItem(currentRow)
+        self.list_widget.insertItem(currentRow + 1, currentItem)
+        self.list_widget.setCurrentRow(currentRow+1)
+        
+    def editItem(self):       
+        index = self.list_widget.currentIndex()
+        self.list_widget.edit(index)
+
+    def closeEvent(self, event):
+        self.exit()
+    
+    def exit(self):
+        list_items=[]
+        for index in range(self.list_widget.count()):
+            item = self.list_widget.item(index).text()
+            list_items.append(item) 
+        self.close()   
+        self.list=list_items
+        return list_items
+
+    def joinVideos(self):
+        import os
+        import shutil
+        self.info('Uniendo Videos')
+        list=[]
+        for index in range(self.list_widget.count()):
+            item = self.list_widget.item(index).text()
+            list.append(item) 
+        dir_video=os.path.dirname(list[0])
+        file_videos_txt=dir_video+'/mylist.txt'
+        file_videos=open(file_videos_txt, 'w')
+        
+        for file in list:
+            file_videos.write('''file '%s' '''%file)
+            file_videos.write(chr(10))
+
+        file_videos.close()
+
+        cwd=os.getcwd()
+        os.chdir(dir_video)
+        shutil.copy('C:/Program Files/ffmpeg/bin/ffmpeg.exe',os.path.join(dir_video,'ffmpeg.exe'))
+        os.system('copy "c:/Program Files/ffmpeg/bin/ffmpeg.exe"') # copy exe because i have problems to execute (says input incorrect)
+        output_video=dir_video+'/unidos.MP4'
+        order='''ffmpeg -y -f concat -safe 0 -i "%s" -c copy "%s"'''%(file_videos_txt,output_video) # -y overwrite
+        os.system(order)
+        os.remove(os.path.join(dir_video,'ffmpeg.exe'))
+        os.remove(file_videos_txt)
+        os.chdir(cwd)
+        self.info('Videos Unidos-> '+output_video)
+
+    def info(self,message):
+        if self.parent and hasattr(self.parent,'info'):
+            self.parent.info(message)
+        else:    
+            print(message)        
