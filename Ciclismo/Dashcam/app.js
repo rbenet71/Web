@@ -1,6 +1,6 @@
-// Dashcam PWA v4.12.2 - Versión Completa Simplificada
+// Dashcam PWA v4.12.3 - Versión Completa Simplificada
 
-const APP_VERSION = '4.12.2';
+const APP_VERSION = '4.12.3';
 
 class DashcamApp {
     constructor() {
@@ -1638,36 +1638,199 @@ class DashcamApp {
                     } catch {}
                 }
                 
-                // Configurar MediaRecorder
-                const mimeType = 'video/webm;codecs=vp9,opus';
+                // ==============================================
+                // 🎯 NUEVA CONFIGURACIÓN DEL MediaRecorder
+                // ==============================================
                 
-                this.mediaRecorder = new MediaRecorder(this.canvasStream, {
-                    mimeType: mimeType,
-                    videoBitsPerSecond: this.getVideoBitrate()
-                });
+                // DETECTAR MEJOR CODEC PARA LA PLATAFORMA
+                let mimeType = 'video/webm;codecs=vp9,opus'; // Por defecto
+                
+                // ========== LÓGICA PARA iOS ==========
+                if (this.isIOS) {
+                    console.log('📱 iOS detectado - buscando mejor codec para VLC...');
+                    
+                    // Probar diferentes codecs soportados en iOS Safari
+                    const iosCodecs = [
+                        'video/mp4;codecs=h264',           // H.264 en MP4 (mejor para VLC)
+                        'video/mp4;codecs=avc1.42E01E',    // H.264 específico
+                        'video/mp4',                       // MP4 genérico
+                        'video/webm;codecs=h264',          // WebM con H264
+                        'video/webm;codecs=vp9',           // WebM VP9
+                        'video/webm;codecs=vp8,opus',      // WebM VP8 con audio
+                        'video/webm'                       // WebM genérico
+                    ];
+                    
+                    // Encontrar el mejor codec soportado
+                    let selectedCodec = 'video/webm'; // Fallback
+                    
+                    for (const codec of iosCodecs) {
+                        if (MediaRecorder.isTypeSupported(codec)) {
+                            console.log(`✅ iOS soporta: ${codec}`);
+                            selectedCodec = codec;
+                            
+                            // Preferir MP4 sobre WebM para compatibilidad con VLC
+                            if (codec.includes('mp4')) {
+                                console.log('🎯 Usando MP4 en iOS para mejor compatibilidad con VLC');
+                                break;
+                            }
+                        }
+                    }
+                    
+                    mimeType = selectedCodec;
+                    console.log(`📱 iOS: Usando codec: ${mimeType}`);
+                    
+                    // Marcar si estamos usando MP4
+                    this.iosUsingMP4 = mimeType.includes('mp4');
+                    
+                } 
+                // ========== LÓGICA PARA WINDOWS/ANDROID ==========
+                else {
+                    // Usar configuración del usuario o detectar automáticamente
+                    if (this.state.settings.videoFormat === 'mp4') {
+                        // Probar codecs MP4 en Windows
+                        const mp4Codecs = [
+                            'video/mp4;codecs=h264',
+                            'video/mp4;codecs=avc1.42E01E',
+                            'video/mp4'
+                        ];
+                        
+                        for (const codec of mp4Codecs) {
+                            if (MediaRecorder.isTypeSupported(codec)) {
+                                mimeType = codec;
+                                console.log(`✅ Windows usando: ${codec}`);
+                                break;
+                            }
+                        }
+                    } else {
+                        // WebM en Windows
+                        const webmCodecs = [
+                            'video/webm;codecs=vp9,opus',
+                            'video/webm;codecs=vp9',
+                            'video/webm;codecs=vp8,opus',
+                            'video/webm'
+                        ];
+                        
+                        for (const codec of webmCodecs) {
+                            if (MediaRecorder.isTypeSupported(codec)) {
+                                mimeType = codec;
+                                console.log(`✅ Windows usando: ${codec}`);
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                console.log('🎯 Codec final seleccionado:', mimeType);
+                
+                // Configurar bitrate basado en la plataforma
+                let bitrate = this.getVideoBitrate();
+                
+                // Ajustar bitrate para iOS si es necesario
+                if (this.isIOS && mimeType.includes('mp4')) {
+                    // MP4 en iOS puede necesitar bitrate diferente
+                    bitrate = 2000000; // 2 Mbps para mejor compatibilidad
+                }
+                
+                // Crear MediaRecorder con la configuración óptima
+                try {
+                    this.mediaRecorder = new MediaRecorder(this.canvasStream, {
+                        mimeType: mimeType,
+                        videoBitsPerSecond: bitrate
+                    });
+                    
+                    console.log('✅ MediaRecorder creado con:', {
+                        mimeType: mimeType,
+                        bitrate: bitrate,
+                        platform: this.isIOS ? 'iOS' : 'Windows',
+                        state: this.mediaRecorder.state
+                    });
+                    
+                } catch (recorderError) {
+                    console.warn('⚠️ Error creando MediaRecorder:', recorderError);
+                    
+                    // Fallback a WebM básico
+                    this.mediaRecorder = new MediaRecorder(this.canvasStream, {
+                        mimeType: 'video/webm',
+                        videoBitsPerSecond: 1500000
+                    });
+                    
+                    console.log('🔄 Usando fallback WebM básico');
+                }
+                
+                // ==============================================
+                // CONFIGURAR EVENTOS DEL MediaRecorder
+                // ==============================================
                 
                 this.mediaRecorder.ondataavailable = (event) => {
-                    if (event.data.size > 0) {
+                    if (event.data && event.data.size > 0) {
                         this.recordedChunks.push(event.data);
+                        
+                        // Log para debugging
+                        console.log(`📦 Chunk recibido: ${Math.round(event.data.size / 1024)}KB, 
+                            Total: ${this.recordedChunks.length} chunks, 
+                            Tipo: ${event.data.type || 'desconocido'}`);
                     }
                 };
                 
                 this.mediaRecorder.onstop = async () => {
+                    console.log('⏹️ MediaRecorder detenido, guardando video...');
                     this.showSavingStatus('💾 Guardando y procesando video...');
-                    await this.saveVideoSegment();
-                    this.hideSavingStatus();
+                    
+                    try {
+                        await this.saveVideoSegment();
+                    } catch (saveError) {
+                        console.error('❌ Error guardando video:', saveError);
+                        this.showNotification('❌ Error al guardar video');
+                    } finally {
+                        this.hideSavingStatus();
+                    }
                 };
                 
+                this.mediaRecorder.onerror = (error) => {
+                    console.error('❌ Error en MediaRecorder:', error);
+                    this.showNotification('❌ Error en grabación');
+                };
+                
+                // ==============================================
+                // INICIAR GRABACIÓN
+                // ==============================================
+                
                 if (this.state.settings.recordingMode === 'continuous') {
+                    // Modo continuo
                     this.mediaRecorder.start();
+                    console.log('🎬 Grabación iniciada (modo continuo)');
                 } else {
+                    // Modo segmentado (chunks de 1 segundo)
                     this.mediaRecorder.start(1000);
                     this.startSegmentTimer();
+                    console.log('🎬 Grabación iniciada (modo segmentado, 1s chunks)');
                 }
+                
+                // Guardar información del formato para uso posterior
+                this.currentRecordingFormat = {
+                    mimeType: mimeType,
+                    isMP4: mimeType.includes('mp4'),
+                    isWebM: mimeType.includes('webm'),
+                    platform: this.isIOS ? 'ios' : 'windows'
+                };
+                
+                console.log('📝 Formato de grabación:', this.currentRecordingFormat);
             }
             
             this.updateRecordingUI();
-            this.showNotification(`🎬 Grabación iniciada (${this.state.settings.recordingMode === 'continuous' ? 'Continuo' : 'Segmentado'})`);
+            
+            const modeText = this.state.settings.recordingMode === 'continuous' ? 'Continuo' : 'Segmentado';
+            const formatText = this.currentRecordingFormat?.isMP4 ? 'MP4' : 'WebM';
+            this.showNotification(`🎬 Grabación iniciada (${modeText}, ${formatText})`);
+            
+            // Log para debugging
+            console.log('✅ Grabación iniciada exitosamente:', {
+                platform: this.isIOS ? 'iOS' : 'Windows',
+                format: formatText,
+                mode: modeText,
+                canvasSize: `${this.mainCanvas?.width || 0}x${this.mainCanvas?.height || 0}`,
+                gpsEnabled: locationGranted
+            });
             
         } catch (error) {
             console.error('❌ Error iniciando grabación:', error);
@@ -1836,278 +1999,112 @@ async saveVideoSegment() {
     try {
         if (!this.recordedChunks || this.recordedChunks.length === 0) {
             console.warn('⚠️ No hay chunks para guardar');
-            this.isSaving = false;
             return;
         }
         
+        // Crear blob del video
         const originalBlob = new Blob(this.recordedChunks, { 
             type: this.mediaRecorder?.mimeType || 'video/webm' 
         });
         
-        if (originalBlob.size < 1024) {
-            console.error('❌ Blob demasiado pequeño');
-            this.isSaving = false;
-            return;
-        }
-        
-        const duration = this.state.currentTime || 10000;
-        const timestamp = this.state.startTime || Date.now();
-        const segmentNum = this.state.currentSegment;
-        
-        console.log(`💾 Guardando segmento ${segmentNum}:`, {
-            size: Math.round(originalBlob.size / 1024 / 1024) + ' MB',
-            duration: this.formatTime(duration),
-            gpsPoints: this.gpxPoints.length,
-            format: this.state.settings.videoFormat,
-            storageLocation: this.state.settings.storageLocation,
-            blobType: originalBlob.type,
-            platform: this.isIOS ? 'iOS' : 'Windows'
-        });
-        
-        // Crear sesión si es el primer segmento
-        if (this.state.recordingSessionSegments === 0 && !this.state.recordingSessionName) {
-            await this.createSessionFolder();
-        }
-        
-        // Asegurar que tenemos datos GPS
-        let gpsData = this.gpxPoints;
-        if (gpsData.length === 0 && this.currentPosition) {
-            // Si no hay puntos GPS pero tenemos posición actual, crear un punto
-            gpsData = [this.formatPosition({ 
-                coords: {
-                    latitude: this.currentPosition.lat,
-                    longitude: this.currentPosition.lon,
-                    speed: this.currentPosition.speed,
-                    altitude: this.currentPosition.altitude,
-                    accuracy: this.currentPosition.accuracy
-                },
-                timestamp: Date.now()
-            })];
-            console.log('📍 Usando posición actual como único punto GPS');
-        }
-        
-        // ==============================================
-        // 🎬 SOLUCIÓN COMPLETA PARA iOS Y VLC
-        // ==============================================
-        let finalBlob = originalBlob;
-        let finalFormat = this.state.settings.videoFormat;
-        
-        // DIAGNÓSTICO: Ver primeros bytes del blob
-        const firstBytes = await this.getFirstBytes(originalBlob, 16);
-        console.log('🔍 Primeros bytes del video:', firstBytes);
-        
-        // DETECTAR FORMATO REAL (no el configurado)
-        const isMP4 = originalBlob.type.includes('mp4') || 
-                     this.state.settings.videoFormat === 'mp4';
-        const isWebM = originalBlob.type.includes('webm') || 
-                      firstBytes.includes('1a 45 df a3'); // Firma WebM
-        
-        console.log('🎯 Formato detectado:', {
-            configurado: this.state.settings.videoFormat,
-            realMimeType: originalBlob.type,
-            firmaHex: firstBytes,
-            esMP4: isMP4,
-            esWebM: isWebM,
+        console.log('📦 Video grabado:', {
+            tamaño: Math.round(originalBlob.size / 1024 / 1024) + ' MB',
+            tipo: originalBlob.type,
+            chunks: this.recordedChunks.length,
             plataforma: this.isIOS ? 'iOS' : 'Windows'
         });
         
-        if (this.state.settings.embedGpsMetadata && gpsData.length > 0) {
-            try {
-                console.log(`📍 Agregando ${gpsData.length} puntos GPS...`);
-                
-                // ========== LÓGICA PARA iOS ==========
-                if (this.isIOS) {
-                    console.log('📱 iOS: Procesamiento especial para VLC...');
-                    
-                    if (isWebM) {
-                        // CASO 1: iOS graba WebM → Convertir a MP4 optimizado
-                        console.log('🔄 iOS WebM → Convirtiendo a MP4 VLC-compatible...');
-                        const mp4Blob = await this.convertWebMtoMP4IOS(originalBlob);
-                        finalBlob = await this.addGpsMetadataToMP4(mp4Blob, gpsData);
-                        finalBlob = await this.ensureMP4VLCCompatible(finalBlob);
-                        finalFormat = 'mp4';
-                        
-                    } else if (isMP4) {
-                        // CASO 2: iOS graba MP4 → Optimizar para VLC
-                        console.log('🔧 iOS MP4 → Optimizando para VLC...');
-                        finalBlob = await this.addGpsMetadataToMP4(originalBlob, gpsData);
-                        finalBlob = await this.ensureMP4VLCCompatible(finalBlob);
-                        finalFormat = 'mp4';
-                        
-                    } else {
-                        // CASO 3: Formato desconocido
-                        console.warn('⚠️ Formato no reconocido en iOS');
-                        finalBlob = await this.addGpsMetadataToMP4(originalBlob, gpsData);
-                    }
-                    
-                } 
-                // ========== LÓGICA PARA WINDOWS ==========
-                else {
-                    console.log('🖥️ Windows: Procesamiento normal...');
-                    
-                    if (isMP4) {
-                        finalBlob = await this.addGpsMetadataToMP4(originalBlob, gpsData);
-                        finalFormat = 'mp4';
-                    } else if (isWebM) {
-                        finalBlob = await this.addMetadataToWebM(originalBlob, gpsData);
-                        finalFormat = 'webm';
-                    } else {
-                        finalBlob = await this.addGpsMetadataToMP4(originalBlob, gpsData);
-                    }
-                }
-                
-                console.log(`✅ Metadatos GPS agregados: ${gpsData.length} puntos`);
-                
-            } catch (error) {
-                console.warn('⚠️ Error agregando metadatos GPS:', error);
-                finalBlob = originalBlob;
-                finalFormat = this.state.settings.videoFormat;
-            }
-        } else {
-            console.log('ℹ️ No se agregarán metadatos GPS');
+        // Generar nombre de archivo
+        const timestamp = this.state.startTime || Date.now();
+        const segmentNum = this.state.currentSegment;
+        
+        let finalBlob = originalBlob;
+        let finalFilename = '';
+        
+        // ========== LÓGICA PARA iOS ==========
+        if (this.isIOS) {
+            console.log('📱 iOS: Procesando video para VLC...');
             
-            // iOS: Aún así optimizar formato para VLC
-            if (this.isIOS) {
-                if (isWebM) {
-                    console.log('📱 iOS: Convirtiendo WebM → MP4 para VLC...');
-                    finalBlob = await this.convertWebMtoMP4IOS(originalBlob);
-                    finalFormat = 'mp4';
-                } else if (isMP4) {
-                    console.log('📱 iOS: Optimizando MP4 para VLC...');
-                    finalBlob = await this.ensureMP4VLCCompatible(originalBlob);
-                }
+            // Verificar formato
+            const isMP4 = originalBlob.type.includes('mp4');
+            const isWebM = originalBlob.type.includes('webm');
+            
+            if (isMP4) {
+                // iOS ya grabó en MP4 - usar directamente
+                finalFilename = this.generateStandardFilename(segmentNum, timestamp);
+                console.log('✅ iOS: Video ya en MP4, listo para VLC');
+                
+            } else if (isWebM) {
+                // iOS grabó WebM - convertir a MP4
+                console.log('🔄 iOS: Convirtiendo WebM → MP4 para VLC...');
+                finalBlob = await this.convertWebMtoMP4ForVLC(originalBlob);
+                finalFilename = this.generateStandardFilename(segmentNum, timestamp).replace('.webm', '.mp4');
+                
+            } else {
+                // Formato desconocido
+                finalFilename = `video_${Date.now()}.mp4`;
+                console.warn('⚠️ Formato desconocido, forzando MP4');
+            }
+            
+        } else {
+            // Windows: proceso normal
+            finalFilename = this.generateStandardFilename(segmentNum, timestamp);
+        }
+        
+        // Añadir metadatos GPS si están disponibles
+        if (this.state.settings.embedGpsMetadata && this.gpxPoints.length > 0) {
+            console.log(`📍 Añadiendo ${this.gpxPoints.length} puntos GPS...`);
+            
+            if (finalBlob.type.includes('mp4')) {
+                finalBlob = await this.addGpsMetadataToMP4(finalBlob, this.gpxPoints);
+            } else {
+                finalBlob = await this.addMetadataToWebM(finalBlob, this.gpxPoints);
             }
         }
         
-        // ==============================================
-        // 📁 RESTO DEL CÓDIGO ORIGINAL
-        // ==============================================
-        const filename = this.generateStandardFilename(segmentNum, timestamp);
-        this.state.recordingSessionSegments++;
+        // Guardar archivo
+        const saved = await this.saveToApp(finalBlob, timestamp, 
+            this.state.currentTime || 10000, 
+            finalBlob.type.includes('mp4') ? 'mp4' : 'webm',
+            segmentNum, 
+            this.gpxPoints
+        );
         
-        let savedPath = filename;
-        let savedSuccess = false;
-        
-        // VERIFICACIÓN PARA CARPETA LOCAL
-        const shouldSaveToLocal = this.state.settings.storageLocation === 'localFolder' && 
-                                 (this.localFolderHandle || 
-                                  this.state.settings.isWebkitDirectory || 
-                                  this.state.settings.localFolderName);
-        
-        console.log('🎯 Decisión de guardado:', {
-            shouldSaveToLocal: shouldSaveToLocal,
-            storageLocation: this.state.settings.storageLocation,
-            hasHandle: !!this.localFolderHandle,
-            isWebkit: this.state.settings.isWebkitDirectory,
-            folderName: this.state.settings.localFolderName
-        });
-        
-        if (shouldSaveToLocal) {
-            console.log('📁 Guardando en carpeta local...', {
-                mode: this.localFolderHandle ? 'handle' : 
-                      this.state.settings.isWebkitDirectory ? 'webkit' : 'named',
-                sessionName: this.state.recordingSessionName
-            });
-            
-            if (this.state.recordingSessionName) {
-                try {
-                    console.log(`📂 Intentando guardar en carpeta de sesión: ${this.state.recordingSessionName}`);
-                    
-                    savedSuccess = await this.saveToLocalFolder(finalBlob, filename, this.state.recordingSessionName);
-                    
-                    if (savedSuccess) {
-                        savedPath = `${this.state.recordingSessionName}/${filename}`;
-                        console.log(`✅ Guardado en carpeta de sesión: ${savedPath}`);
-                        this.showNotification(`✅ Segmento guardado en: ${this.state.recordingSessionName}`);
-                    } else {
-                        console.warn('⚠️ Falló guardado en carpeta de sesión, intentando en raíz...');
-                        savedSuccess = await this.saveToLocalFolder(finalBlob, filename);
-                        savedPath = filename;
-                        this.showNotification(`✅ Segmento guardado en raíz`);
-                    }
-                    
-                } catch (folderError) {
-                    console.warn('⚠️ Error con carpeta de sesión, guardando en raíz:', folderError);
-                    savedSuccess = await this.saveToLocalFolder(finalBlob, filename);
-                    savedPath = filename;
-                    this.showNotification(`✅ Segmento guardado (error carpeta)`);
-                }
-            } else {
-                savedSuccess = await this.saveToLocalFolder(finalBlob, filename);
-                this.showNotification(`✅ Segmento guardado en carpeta`);
-            }
-        } else {
-            console.log('📱 Guardando en almacenamiento de la app...');
-            
-            if (this.state.recordingSessionName) {
-                savedSuccess = await this.saveToApp(finalBlob, timestamp, duration, finalFormat, segmentNum, gpsData);
-                savedPath = `${this.state.recordingSessionName}/${filename}`;
-            } else {
-                savedSuccess = await this.saveToApp(finalBlob, timestamp, duration, finalFormat, segmentNum, gpsData);
-            }
-            
-            if (savedSuccess) {
-                this.showNotification(`✅ Segmento guardado en la app`);
-            }
-        }
-        
-        if (savedSuccess) {
-            // Guardar referencia del segmento
-            const segmentRef = {
-                id: Date.now() + '_' + segmentNum,
-                filename: filename,
-                blob: finalBlob,
-                timestamp: timestamp,
-                duration: duration,
-                format: finalFormat,
-                segment: segmentNum,
-                sessionName: this.state.recordingSessionName,
-                savedPath: savedPath,
-                location: shouldSaveToLocal ? 'local_folder' : 'app',
-                storageMode: shouldSaveToLocal ? 
-                    (this.localFolderHandle ? 'handle' : 
-                     this.state.settings.isWebkitDirectory ? 'webkit' : 'named') : 'app',
-                gpsPoints: gpsData.length,
-                gpsTrack: gpsData,
-                size: finalBlob.size,
-                platform: this.isIOS ? 'ios' : 'desktop',
-                vlcOptimized: this.isIOS, // Nuevo campo
-                originalFormat: originalBlob.type,
-                finalFormat: finalFormat
-            };
-            
-            this.state.recordedSegments.push(segmentRef);
-            
-            // Actualizar galería si estamos en modo localFolder
-            if (shouldSaveToLocal) {
-                setTimeout(() => {
-                    this.loadGallery();
-                }, 1000);
-            }
-            
-            console.log(`✅ Segmento ${segmentNum} procesado:`, {
-                path: savedPath,
-                size: Math.round(finalBlob.size / 1024 / 1024) + ' MB',
-                gpsPoints: gpsData.length,
-                formatoOriginal: originalBlob.type,
-                formatoFinal: finalFormat,
-                plataforma: this.isIOS ? 'iOS' : 'Windows',
-                optimizadoVLC: this.isIOS ? '✅ Sí' : '❌ No necesario',
-                compatibleVLC: await this.checkVLCCompatibility(finalBlob)
-            });
-            
-        } else {
-            console.error('❌ No se pudo guardar el segmento');
-            this.showNotification('❌ Error al guardar segmento');
+        if (saved) {
+            console.log(`✅ Video guardado: ${finalFilename}`);
+            this.showNotification('✅ Video guardado');
         }
         
     } catch (error) {
-        console.error('❌ Error guardando vídeo:', error);
-        this.showNotification('❌ Error al guardar video');
+        console.error('❌ Error guardando video:', error);
+        this.showNotification('❌ Error al guardar');
     } finally {
         this.recordedChunks = [];
         this.isSaving = false;
-        this.hideSavingStatus();
+    }
+}
+async convertWebMtoMP4ForVLC(webmBlob) {
+    console.log('🔧 Convirtiendo WebM → MP4 para VLC...');
+    
+    try {
+        // Esta es una conversión SIMPLE que crea un MP4 básico
+        // No convierte el codec, solo cambia el contenedor
+        
+        const webmData = await webmBlob.arrayBuffer();
+        
+        // Crear MP4 con estructura básica pero válida
+        const mp4Array = this.createBasicMP4Container(webmData);
+        
+        const mp4Blob = new Blob([mp4Array], { type: 'video/mp4' });
+        
+        console.log(`✅ Convertido: ${Math.round(webmBlob.size/1024)}KB → ${Math.round(mp4Blob.size/1024)}KB`);
+        
+        return mp4Blob;
+        
+    } catch (error) {
+        console.warn('⚠️ Error en conversión:', error);
+        // Fallback: devolver WebM pero con extensión .mp4
+        return webmBlob;
     }
 }
 

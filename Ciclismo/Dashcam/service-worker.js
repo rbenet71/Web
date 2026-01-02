@@ -1,12 +1,12 @@
-// Service Worker para Dashcam iPhone Pro v4.12.2
-const CACHE_NAME = 'dashcam-iphone-pro-cache-v4.12.2';
+// Service Worker para Dashcam iPhone Pro v4.12.3
+const CACHE_NAME = 'dashcam-iphone-pro-cache-v4.12.3';
 const urlsToCache = [
     './',
-    './index.html?v=4.12.2',
-    './styles.css?v=4.12.2',
-    './app.js?v=4.12.2',
-    './manifest.json?v=4.12.2',
-    '/ayuda_completa.html?v=4.12.2',
+    './index.html?v=4.12.3',
+    './styles.css?v=4.12.3',
+    './app.js?v=4.12.3',
+    './manifest.json?v=4.12.3',
+    '/ayuda_completa.html?v=4.12.3',
     './recursos/Logo_Dashcam_Bike_192x192.png',
     './recursos/Picto_Color_192x192.png',
     './recursos/Picto_Color_512x512.png'
