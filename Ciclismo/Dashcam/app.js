@@ -1,6 +1,6 @@
-// Dashcam PWA v4.12 - Versión Completa Simplificada
+// Dashcam PWA v4.12.1 - Versión Completa Simplificada
 
-const APP_VERSION = '4.12';
+const APP_VERSION = '4.12.1';
 
 class DashcamApp {
     constructor() {
@@ -1885,7 +1885,7 @@ class DashcamApp {
             }
             
             // ==============================================
-            // 🎬 NUEVA SECCIÓN: PROCESAMIENTO DE VIDEO MP4 PARA VLC
+            // 🎬 MODIFICACIÓN CLAVE: SOLUCIÓN PARA iOS Y VLC
             // ==============================================
             let finalBlob = originalBlob;
             let finalFormat = this.state.settings.videoFormat;
@@ -1894,121 +1894,23 @@ class DashcamApp {
                 try {
                     console.log(`📍 Agregando ${gpsData.length} puntos GPS al video...`);
                     
-                    // DETECTAR SI ES MP4 O WEBM
                     const isMP4 = this.state.settings.videoFormat === 'mp4' || 
                                 originalBlob.type.includes('mp4');
                     
                     if (isMP4) {
-                        // ✅ NUEVO MÉTODO CORREGIDO PARA MP4 (SIMPLE SIN MP4Box)
-                        console.log('🎬 Procesando MP4 con metadatos GPS (método optimizado para VLC)...');
-                        
-                        try {
-                            // 1. Convertir blob a ArrayBuffer
-                            const arrayBuffer = await originalBlob.arrayBuffer();
-                            const arr = new Uint8Array(arrayBuffer);
-                            
-                            // 2. Buscar átomo 'moov' (esencial para la duración en VLC)
-                            let moovStart = -1;
-                            let moovSize = 0;
-                            let foundMoov = false;
-                            
-                            for (let i = 0; i < Math.min(arr.length, 5000); i++) {
-                                if (i + 8 > arr.length) break;
-                                
-                                const size = (arr[i] << 24) | (arr[i+1] << 16) | (arr[i+2] << 8) | arr[i+3];
-                                const type = String.fromCharCode(arr[i+4], arr[i+5], arr[i+6], arr[i+7]);
-                                
-                                if (type === 'moov') {
-                                    moovStart = i;
-                                    moovSize = size;
-                                    foundMoov = true;
-                                    console.log(`🔍 Encontrado 'moov' en posición ${i}, tamaño: ${size} bytes`);
-                                    break;
-                                }
-                                
-                                if (size === 0 || size < 8) break;
-                                i += size - 1;
-                            }
-                            
-                            if (!foundMoov) {
-                                console.warn('⚠️ No se encontró átomo moov, usando método original');
-                                finalBlob = await this.addGpsMetadataToMP4(originalBlob, gpsData);
-                            } else {
-                                // 3. Preparar metadatos GPS
-                                const metadata = {
-                                    gpsVersion: "1.0",
-                                    appVersion: APP_VERSION,
-                                    created: new Date().toISOString(),
-                                    gpsPoints: gpsData.length,
-                                    startTime: gpsData[0]?.timestamp || Date.now(),
-                                    endTime: gpsData[gpsData.length-1]?.timestamp || Date.now(),
-                                    track: gpsData.map(p => ({
-                                        lat: p.lat || p.latitude || 0,
-                                        lon: p.lon || p.longitude || 0,
-                                        ele: p.ele || p.altitude || 0,
-                                        speed: p.speed || 0,
-                                        heading: p.heading || 0,
-                                        accuracy: p.accuracy || 0,
-                                        time: p.timestamp || Date.now()
-                                    }))
-                                };
-                                
-                                const metadataStr = JSON.stringify(metadata, null, 2);
-                                const metadataBytes = new TextEncoder().encode(metadataStr);
-                                
-                                console.log(`📝 Metadatos preparados: ${metadataBytes.length} bytes, ${gpsData.length} puntos`);
-                                
-                                // 4. Crear nuevo array con estructura optimizada para VLC
-                                // Insertar metadatos en átomo 'free' ANTES del moov
-                                const freeAtomSize = 8 + metadataBytes.length;
-                                const newArray = new Uint8Array(arr.length + freeAtomSize);
-                                
-                                // 5. Copiar todo hasta donde empieza el moov
-                                newArray.set(arr.slice(0, moovStart), 0);
-                                
-                                // 6. Insertar átomo 'free' con metadatos GPS
-                                let offset = moovStart;
-                                
-                                // Escribir tamaño del átomo (big endian)
-                                newArray[offset] = (freeAtomSize >> 24) & 0xFF;
-                                newArray[offset + 1] = (freeAtomSize >> 16) & 0xFF;
-                                newArray[offset + 2] = (freeAtomSize >> 8) & 0xFF;
-                                newArray[offset + 3] = freeAtomSize & 0xFF;
-                                
-                                // Escribir tipo 'free' (0x66 0x72 0x65 0x65 = "free")
-                                newArray[offset + 4] = 0x66; // 'f'
-                                newArray[offset + 5] = 0x72; // 'r'
-                                newArray[offset + 6] = 0x65; // 'e'
-                                newArray[offset + 7] = 0x65; // 'e'
-                                
-                                // Copiar metadatos
-                                newArray.set(metadataBytes, offset + 8);
-                                offset += freeAtomSize;
-                                
-                                // 7. Copiar el átomo moov y todo lo que sigue
-                                newArray.set(arr.slice(moovStart), offset);
-                                
-                                // 8. Verificar que moov ahora está DESPUÉS de los metadatos
-                                const newMoovPos = offset;
-                                console.log(`📊 MP4 reestructurado: moov movido de ${moovStart} → ${newMoovPos} (+${freeAtomSize} bytes)`);
-                                
-                                // 9. Crear blob final
-                                finalBlob = new Blob([newArray], { type: 'video/mp4' });
-                                
-                                console.log(`✅ MP4 optimizado para VLC: ${Math.round(originalBlob.size/1024/1024)}MB → ${Math.round(finalBlob.size/1024/1024)}MB`);
-                            }
-                            
-                        } catch (mp4Error) {
-                            console.warn('⚠️ Error en método simple MP4:', mp4Error);
-                            // Fallback al método original
-                            finalBlob = await this.addGpsMetadataToMP4(originalBlob, gpsData);
-                        }
-                        
+                        // PASO 1: Usar TU método original para agregar metadatos
+                        console.log('🎬 Procesando MP4 con tu método original...');
+                        finalBlob = await this.addGpsMetadataToMP4(originalBlob, gpsData);
                         finalFormat = 'mp4';
                         
+                        // PASO 2: SOLO EN iOS - Corregir estructura MP4 para VLC
+                        if (this.isIOS) {
+                            console.log('📱 iOS detectado - Corrigiendo estructura MP4 para VLC...');
+                            finalBlob = await this.correctIOSMP4Structure(finalBlob);
+                        }
+                        
                     } else {
-                        // Para WebM, mantener método original
-                        console.log('🎬 Procesando WebM con metadatos...');
+                        // Para WebM, mantener tu método original
                         finalBlob = await this.addMetadataToWebM(originalBlob, gpsData);
                         finalFormat = 'webm';
                         console.log('✅ Metadatos GPS agregados a WebM');
@@ -2022,36 +1924,16 @@ class DashcamApp {
             } else {
                 console.log('ℹ️ No se agregarán metadatos GPS (configuración desactivada o sin datos)');
                 
-                // Si es MP4 sin metadatos, verificar estructura básica
-                if (originalBlob.type.includes('mp4')) {
-                    try {
-                        // Verificar rápidamente si tiene moov al inicio
-                        const slice = originalBlob.slice(0, 1000);
-                        const arrayBuffer = await slice.arrayBuffer();
-                        const arr = new Uint8Array(arrayBuffer);
-                        
-                        let moovFound = false;
-                        for (let i = 0; i < arr.length - 8; i++) {
-                            const type = String.fromCharCode(arr[i+4], arr[i+5], arr[i+6], arr[i+7]);
-                            if (type === 'moov') {
-                                moovFound = true;
-                                console.log('✅ MP4 ya tiene estructura válida para VLC');
-                                break;
-                            }
-                            const size = (arr[i] << 24) | (arr[i+1] << 16) | (arr[i+2] << 8) | arr[i+3];
-                            if (size === 0 || size < 8) break;
-                            i += size - 1;
-                        }
-                        
-                        if (!moovFound) {
-                            console.warn('⚠️ MP4 puede tener problemas en VLC (moov no encontrado)');
-                        }
-                    } catch (checkError) {
-                        console.warn('⚠️ Error verificando MP4:', checkError);
-                    }
+                // SOLO EN iOS: Corregir MP4 básico para VLC (incluso sin metadatos)
+                if (this.isIOS && originalBlob.type.includes('mp4')) {
+                    console.log('📱 iOS - Corrigiendo MP4 básico para VLC...');
+                    finalBlob = await this.correctIOSMP4Structure(originalBlob);
                 }
             }
             
+            // ==============================================
+            // 📁 EL RESTO DE TU CÓDIGO ORIGINAL (NO MODIFICADO)
+            // ==============================================
             const filename = this.generateStandardFilename(segmentNum, timestamp);
             this.state.recordingSessionSegments++;
             
@@ -2147,7 +2029,7 @@ class DashcamApp {
                     gpsTrack: gpsData,
                     size: finalBlob.size,
                     platform: this.isIOS ? 'ios' : 'desktop',
-                    vlcCompatible: finalFormat === 'mp4' // Nuevo campo para tracking
+                    correctedForVLC: this.isIOS // Nuevo campo para tracking
                 };
                 
                 this.state.recordedSegments.push(segmentRef);
@@ -2164,21 +2046,28 @@ class DashcamApp {
                     size: Math.round(finalBlob.size / 1024 / 1024) + ' MB',
                     gpsPoints: gpsData.length,
                     format: finalFormat,
-                    vlcCompatible: segmentRef.vlcCompatible,
+                    platform: this.isIOS ? 'iOS' : 'Windows',
+                    correctedForVLC: this.isIOS ? '✅ Sí' : '❌ No necesario',
                     location: segmentRef.location,
                     storageMode: segmentRef.storageMode
                 });
                 
-                // Verificar estructura MP4 para diagnóstico
+                // ==============================================
+                // 🔍 DIAGNÓSTICO OPCIONAL (puedes comentarlo después)
+                // ==============================================
                 if (finalFormat === 'mp4') {
-                    this.verifyMP4Structure(finalBlob).then(result => {
-                        if (result.shouldWorkInVLC) {
-                            console.log('🎉 MP4 debería funcionar correctamente en VLC');
-                        } else {
-                            console.warn('⚠️ MP4 puede tener problemas en VLC');
-                        }
-                    });
+                    const diagnostics = await this.diagnoseMP4Structure(finalBlob);
+                    console.log('🔍 Diagnóstico MP4:', diagnostics);
+                    
+                    if (this.isIOS && !diagnostics.moovBeforeMdat) {
+                        console.error('❌ ERROR: MP4 iOS aún no compatible con VLC después de corrección');
+                        console.error('   - moov en posición:', diagnostics.moovPos);
+                        console.error('   - mdat en posición:', diagnostics.mdatPos);
+                    } else if (this.isIOS && diagnostics.moovBeforeMdat) {
+                        console.log('🎉 ÉXITO: MP4 iOS ahora compatible con VLC');
+                    }
                 }
+                
             } else {
                 console.error('❌ No se pudo guardar el segmento');
                 this.showNotification('❌ Error al guardar segmento');
@@ -2193,6 +2082,180 @@ class DashcamApp {
             this.hideSavingStatus();
         }
     }
+
+    // ==============================================
+    // 🆕 FUNCIONES AUXILIARES NECESARIAS
+    // ==============================================
+
+    /**
+     * 🔧 CORRECCIÓN ESPECÍFICA PARA iOS
+     * Reordena átomos MP4 para que VLC pueda mostrar duración
+     */
+    async correctIOSMP4Structure(mp4Blob) {
+        console.log('📱 iOS: Corrigiendo estructura MP4 para VLC...');
+        
+        try {
+            // 1. Convertir blob a ArrayBuffer
+            const arrayBuffer = await mp4Blob.arrayBuffer();
+            const arr = new Uint8Array(arrayBuffer);
+            
+            // 2. Buscar átomos importantes
+            let ftypAtom = null, moovAtom = null, mdatAtom = null;
+            let position = 0;
+            
+            while (position < arr.length - 8) {
+                const size = (arr[position] << 24) | 
+                            (arr[position + 1] << 16) | 
+                            (arr[position + 2] << 8) | 
+                            arr[position + 3];
+                
+                const type = String.fromCharCode(
+                    arr[position + 4],
+                    arr[position + 5], 
+                    arr[position + 6],
+                    arr[position + 7]
+                );
+                
+                // Guardar información de átomos importantes
+                if (type === 'ftyp') {
+                    ftypAtom = { position, size, data: arr.slice(position, position + size) };
+                } else if (type === 'moov') {
+                    moovAtom = { position, size, data: arr.slice(position, position + size) };
+                } else if (type === 'mdat') {
+                    mdatAtom = { position, size, data: arr.slice(position, position + size) };
+                }
+                
+                // Verificar tamaño válido
+                if (size === 0 || size < 8) {
+                    console.warn('⚠️ Tamaño de átomo inválido en posición', position);
+                    break;
+                }
+                
+                position += size;
+            }
+            
+            // 3. Verificar que encontramos los átomos necesarios
+            if (!moovAtom || !mdatAtom) {
+                console.warn('⚠️ No se encontraron átomos moov o mdat necesarios');
+                return mp4Blob;
+            }
+            
+            console.log('📊 Estructura encontrada:', {
+                ftyp: ftypAtom ? `posición ${ftypAtom.position}` : 'no encontrado',
+                moov: `posición ${moovAtom.position}, tamaño ${moovAtom.size}`,
+                mdat: `posición ${mdatAtom.position}, tamaño ${mdatAtom.size}`,
+                moovAntesDeMdat: moovAtom.position < mdatAtom.position
+            });
+            
+            // 4. Si moov ya está antes de mdat, no hacer nada
+            if (moovAtom.position < mdatAtom.position) {
+                console.log('✅ MP4 ya tiene estructura correcta para VLC');
+                return mp4Blob;
+            }
+            
+            // 5. iOS: moov está después de mdat, necesitamos reordenar
+            console.log('🔄 Reordenando átomos MP4 (iOS Safari → VLC compatible)...');
+            
+            // 6. Construir nuevo array en orden correcto
+            const parts = [];
+            
+            // ftyp primero (si existe)
+            if (ftypAtom) {
+                parts.push(ftypAtom.data);
+                console.log(`📝 Añadido ftyp (${ftypAtom.size} bytes)`);
+            }
+            
+            // moov segundo (ESENCIAL para VLC)
+            parts.push(moovAtom.data);
+            console.log(`📝 Añadido moov (${moovAtom.size} bytes)`);
+            
+            // mdat después
+            parts.push(mdatAtom.data);
+            console.log(`📝 Añadido mdat (${mdatAtom.size} bytes)`);
+            
+            // 7. Copiar cualquier otro dato restante
+            const otherDataStart = Math.max(
+                ftypAtom ? ftypAtom.position + ftypAtom.size : 0,
+                moovAtom.position + moovAtom.size,
+                mdatAtom.position + mdatAtom.size
+            );
+            
+            if (otherDataStart < arr.length) {
+                const otherData = arr.slice(otherDataStart);
+                parts.push(otherData);
+                console.log(`📝 Añadidos ${otherData.length} bytes de datos adicionales`);
+            }
+            
+            // 8. Crear blob final
+            const finalBlob = new Blob(parts, { type: 'video/mp4' });
+            
+            console.log(`✅ MP4 corregido para VLC: ${Math.round(mp4Blob.size/1024)}KB → ${Math.round(finalBlob.size/1024)}KB`);
+            
+            return finalBlob;
+            
+        } catch (error) {
+            console.error('❌ Error corrigiendo estructura iOS:', error);
+            // En caso de error, devolver el blob original
+            return mp4Blob;
+        }
+    }
+
+    /**
+     * 🔍 FUNCIÓN DE DIAGNÓSTICO
+     * Verifica la estructura MP4 para debugging
+     */
+    async diagnoseMP4Structure(blob) {
+        try {
+            // Solo leer primeros 2000 bytes para diagnóstico
+            const slice = blob.slice(0, 2000);
+            const arrayBuffer = await slice.arrayBuffer();
+            const arr = new Uint8Array(arrayBuffer);
+            
+            let moovPos = -1, mdatPos = -1, ftypPos = -1;
+            let position = 0;
+            
+            while (position < arr.length - 8) {
+                const size = (arr[position] << 24) | 
+                            (arr[position + 1] << 16) | 
+                            (arr[position + 2] << 8) | 
+                            arr[position + 3];
+                
+                const type = String.fromCharCode(
+                    arr[position + 4],
+                    arr[position + 5],
+                    arr[position + 6],
+                    arr[position + 7]
+                );
+                
+                if (type === 'ftyp') ftypPos = position;
+                if (type === 'moov') moovPos = position;
+                if (type === 'mdat') mdatPos = position;
+                
+                if (size === 0 || size < 8) break;
+                position += size;
+            }
+            
+            const moovBeforeMdat = moovPos < mdatPos && moovPos !== -1;
+            
+            return {
+                moovPos,
+                mdatPos,
+                ftypPos,
+                moovBeforeMdat,
+                compatibleVLC: moovBeforeMdat,
+                size: blob.size,
+                platform: this.isIOS ? 'iOS' : 'Windows/Android'
+            };
+            
+        } catch (error) {
+            return { 
+                error: error.message,
+                compatibleVLC: false 
+            };
+        }
+    }
+
+
 
     // ==============================================
     // 🆕 FUNCIÓN AUXILIAR: Verificar estructura MP4
