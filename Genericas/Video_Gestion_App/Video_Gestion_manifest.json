@@ -9,13 +9,13 @@
   "orientation": "any",
   "icons": [
     {
-      "src": "assets/Video_Gestion_192_192.png",
+      "src": "assets/Video_Gestion_192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "assets/Video_Gestion_512_512.png",
+      "src": "assets/Video_Gestion_512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
@@ -25,21 +25,5 @@
   "lang": "es",
   "dir": "ltr",
   "related_applications": [],
-  "prefer_related_applications": false,
-  "shortcuts": [
-    {
-      "name": "Reducir Video",
-      "short_name": "Reducir",
-      "description": "Reducir tamaño de video",
-      "url": "/Video_Gestion.html#reduce",
-      "icons": [{ "src": "assets/icon_reduce.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "Unir Videos",
-      "short_name": "Unir",
-      "description": "Unir múltiples videos",
-      "url": "/Video_Gestion.html#join",
-      "icons": [{ "src": "assets/icon_join.png", "sizes": "96x96" }]
-    }
-  ]
+  "prefer_related_applications": false
 }

@@ -8,8 +8,8 @@ const urlsToCache = [
   './Video_Gestion_ui.js',
   './Video_Gestion_procesadorVideo.js',
   './Video_Gestion_almacenamiento.js',
-  './assets/Video_Gestion_192_192.png',
-  './assets/Video_Gestion_512_512.png',
+  './assets/Video_Gestion_192x192.png',
+  './assets/Video_Gestion_512x512.png',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
 ];

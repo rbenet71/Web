@@ -13,8 +13,8 @@
     <meta name="theme-color" content="#2c3e50">
     
     <!-- Iconos -->
-    <link rel="icon" type="image/png" href="assets/Video_Gestion_192_192.png">
-    <link rel="apple-touch-icon" href="assets/Video_Gestion_192_192.png">
+    <link rel="icon" type="image/png" href="assets/Video_Gestion_192x192.png">
+    <link rel="apple-touch-icon" href="assets/Video_Gestion_192x192.png">
     
     <!-- Estilos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -22,7 +22,7 @@
     
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://unpkg.com/ffmpeg@0.10.0/dist/ffmpeg.min.js"></script>
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/ffmpeg.min.js"></script>
 </head>
 <body>
     <!-- =========================================== -->
@@ -32,7 +32,7 @@
         <div class="container">
             <div class="header-content">
                 <div class="app-title">
-                    <img src="assets/Video_Gestion_192_192.png" 
+                    <img src="assets/Video_Gestion_192x192.png" 
                          alt="Logo Video Gestión" 
                          class="app-logo">
                     <h1 id="app-title-text">Video Gestión FFMPEG</h1>
@@ -518,6 +518,11 @@
                     <div class="progress-text" id="join-progress-text">0%</div>
                 </div>
             </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="join-cancel-btn">
+                    <i class="fas fa-times"></i> <span id="join-cancel-text">Cancelar</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -574,6 +579,11 @@
                     </div>
                 </div>
             </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="playback-cancel-btn">
+                    <i class="fas fa-times"></i> <span id="playback-cancel-text">Cerrar</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -611,7 +621,7 @@
     <!-- MODALES GENERALES -->
     <!-- =========================================== -->
     
-    <!-- Modal de ayuda -->
+    <!-- Modal de ayuda (COMPLETO Y MULTILINGÜE) -->
     <div class="modal" id="help-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -623,27 +633,123 @@
                 
                 <h4 id="help-modal-subtitle1">Funciones disponibles:</h4>
                 <ul id="help-modal-list">
-                    <li><strong>Reducir tamaño:</strong> Optimiza videos para PC, Tablet o Móvil</li>
-                    <li><strong>Cortar video:</strong> Extrae fragmentos específicos</li>
-                    <li><strong>Convertir formato:</strong> Cambia entre MP4, MOV, AVI</li>
-                    <li><strong>Revertir video:</strong> Invierte el orden de los fotogramas</li>
-                    <li><strong>Convertir a JPG:</strong> Extrae fotos con datos GPS</li>
-                    <li><strong>Unir videos:</strong> Combina múltiples videos en uno</li>
+                    <li><strong id="help-reduce-title">Reducir tamaño:</strong> <span id="help-reduce-desc">Optimiza videos para PC, Tablet o Móvil</span></li>
+                    <li><strong id="help-cut-title">Cortar video:</strong> <span id="help-cut-desc">Extrae fragmentos específicos entre tiempos definidos</span></li>
+                    <li><strong id="help-convert-title">Convertir formato:</strong> <span id="help-convert-desc">Cambia entre MP4, MOV, AVI preservando calidad</span></li>
+                    <li><strong id="help-reverse-title">Revertir video:</strong> <span id="help-reverse-desc">Invierte el orden de los fotogramas</span></li>
+                    <li><strong id="help-jpg-title">Convertir a JPG:</strong> <span id="help-jpg-desc">Extrae fotos con datos GPS si están disponibles</span></li>
+                    <li><strong id="help-join-title">Unir videos:</strong> <span id="help-join-desc">Combina múltiples videos en uno con cortes personalizados</span></li>
                 </ul>
                 
                 <h4 id="help-modal-subtitle2">Requisitos:</h4>
-                <ul>
-                    <li>Navegador moderno (Chrome, Firefox, Edge)</li>
-                    <li>Espacio suficiente en disco</li>
-                    <li>Permisos para acceder al sistema de archivos</li>
+                <ul id="help-requirements-list">
+                    <li id="help-req1">Navegador moderno (Chrome 80+, Firefox 75+, Edge 80+)</li>
+                    <li id="help-req2">Soporte para WebAssembly</li>
+                    <li id="help-req3">Permisos para acceder al sistema de archivos</li>
+                    <li id="help-req4">Espacio suficiente en disco para archivos temporales</li>
                 </ul>
                 
                 <h4 id="help-modal-subtitle3">Notas importantes:</h4>
-                <ul>
-                    <li>Los procesamientos se realizan en el navegador (puede ser lento para videos grandes)</li>
-                    <li>Se preservan los metadatos GPS cuando es posible</li>
-                    <li>La aplicación funciona offline una vez instalada</li>
+                <ul id="help-notes-list">
+                    <li id="help-note1">Los procesamientos se realizan en el navegador (puede ser lento para videos grandes)</li>
+                    <li id="help-note2">Se preservan los metadatos GPS cuando es posible</li>
+                    <li id="help-note3">La aplicación funciona offline una vez instalada</li>
+                    <li id="help-note4">Los archivos procesados se descargan automáticamente</li>
+                    <li id="help-note5">Las sesiones de unión se guardan automáticamente</li>
                 </ul>
+                
+                <h4 id="help-modal-subtitle4">Cómo usar cada función:</h4>
+                
+                <div class="help-section">
+                    <h5 id="help-section-reduce">1. Reducir Tamaño:</h5>
+                    <ul>
+                        <li id="help-reduce-step1">Selecciona calidad: PC (alta), Tablet (media) o Móvil (baja)</li>
+                        <li id="help-reduce-step2">Elige el archivo de video</li>
+                        <li id="help-reduce-step3">La carpeta destino se autocompleta</li>
+                        <li id="help-reduce-step4">Haz clic en "Convertir"</li>
+                        <li id="help-reduce-step5">El archivo se guardará con sufijo _PC, _Tablet o _Movil</li>
+                    </ul>
+                </div>
+                
+                <div class="help-section">
+                    <h5 id="help-section-cut">2. Cortar Video:</h5>
+                    <ul>
+                        <li id="help-cut-step1">Selecciona el video a cortar</li>
+                        <li id="help-cut-step2">La duración total se mostrará automáticamente</li>
+                        <li id="help-cut-step3">Define tiempos de inicio y final (formato HH:MM:SS)</li>
+                        <li id="help-cut-step4">Haz clic en "Cortar"</li>
+                        <li id="help-cut-step5">El archivo se guardará con sufijo _Cortado</li>
+                    </ul>
+                </div>
+                
+                <div class="help-section">
+                    <h5 id="help-section-convert">3. Convertir Formato:</h5>
+                    <ul>
+                        <li id="help-convert-step1">Selecciona formato destino: MP4, MOV o AVI</li>
+                        <li id="help-convert-step2">Elige el archivo a convertir</li>
+                        <li id="help-convert-step3">Haz clic en "Convertir"</li>
+                        <li id="help-convert-step4">El archivo se guardará con sufijo _Convertido</li>
+                    </ul>
+                </div>
+                
+                <div class="help-section">
+                    <h5 id="help-section-reverse">4. Revertir Video:</h5>
+                    <ul>
+                        <li id="help-reverse-step1">Selecciona el video a revertir</li>
+                        <li id="help-reverse-step2">Haz clic en "Revertir"</li>
+                        <li id="help-reverse-step3">El archivo se guardará con sufijo _Reverse</li>
+                    </ul>
+                </div>
+                
+                <div class="help-section">
+                    <h5 id="help-section-jpg">5. Convertir a JPG:</h5>
+                    <ul>
+                        <li id="help-jpg-step1">Selecciona video con datos GPS (opcional)</li>
+                        <li id="help-jpg-step2">Elige tamaño: 4K, 1024px o 512px</li>
+                        <li id="help-jpg-step3">Define intervalo entre fotos (segundos)</li>
+                        <li id="help-jpg-step4">Haz clic en "Extraer JPG"</li>
+                        <li id="help-jpg-step5">Las fotos se guardarán con nombres HHMMSSS.jpg</li>
+                    </ul>
+                </div>
+                
+                <div class="help-section">
+                    <h5 id="help-section-join">6. Unir Videos:</h5>
+                    <ul>
+                        <li id="help-join-step1">Crea o carga una sesión</li>
+                        <li id="help-join-step2">Añade archivos o carpetas completas</li>
+                        <li id="help-join-step3">Ordena los videos arrastrando o usando botones</li>
+                        <li id="help-join-step4">Define cortes específicos para cada video</li>
+                        <li id="help-join-step5">Guarda copia de seguridad (recomendado)</li>
+                        <li id="help-join-step6">Haz clic en "Unir videos"</li>
+                    </ul>
+                </div>
+                
+                <h4 id="help-modal-subtitle5">Indicadores visuales:</h4>
+                <ul id="help-indicators-list">
+                    <li id="help-indicator1"><strong>Barra de progreso:</strong> Muestra el avance del procesamiento</li>
+                    <li id="help-indicator2"><strong>Info GPS:</strong> Indica si el video tiene datos de ubicación</li>
+                    <li id="help-indicator3"><strong>Mensajes flotantes:</strong> Notificaciones de éxito/error</li>
+                </ul>
+                
+                <h4 id="help-modal-subtitle6">Consejos de rendimiento:</h4>
+                <ul id="help-tips-list">
+                    <li id="help-tip1">Para videos grandes (>500MB), procesa en segmentos</li>
+                    <li id="help-tip2">Cierra otras pestañas del navegador</li>
+                    <li id="help-tip3">Usa calidad más baja para procesamiento más rápido</li>
+                    <li id="help-tip4">Guarda sesiones de trabajo para recuperarlas luego</li>
+                </ul>
+                
+                <h4 id="help-modal-subtitle7">Solución de problemas:</h4>
+                <ul id="help-troubleshooting-list">
+                    <li id="help-trouble1"><strong>FFMPEG no carga:</strong> Verifica conexión a internet y recarga</li>
+                    <li id="help-trouble2"><strong>Procesamiento lento:</strong> Reduce calidad o tamaño del video</li>
+                    <li id="help-trouble3"><strong>Error al guardar:</strong> Verifica permisos del navegador</li>
+                    <li id="help-trouble4"><strong>Sin datos GPS:</strong> El video puede no contener información de ubicación</li>
+                </ul>
+                
+                <p id="help-modal-text2" style="margin-top: 20px; font-style: italic;">
+                    La aplicación guarda automáticamente tus preferencias y sesiones. Puedes usar la función "Copia de seguridad" para exportar tus datos.
+                </p>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary" id="help-modal-ok">Entendido</button>

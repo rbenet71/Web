@@ -114,6 +114,18 @@ class Traducciones {
             'multiple-cuts-text': 'Añadir varios cortes',
             'join-btn-text': 'Unir videos',
             'join-progress-label': 'Uniendo videos...',
+            'join-cancel-text': 'Cancelar',
+            
+            // Modal múltiples cortes
+            'multiple-cuts-modal-title': 'Añadir Múltiples Cortes',
+            'add-cut-text': 'Añadir corte',
+            'save-cuts-text': 'Guardar cortes',
+            'cancel-cuts-text': 'Cancelar',
+            
+            // Modal reproducción
+            'playback-modal-title': 'Reproducir Video',
+            'speed-label': 'Velocidad:',
+            'playback-cancel-text': 'Cerrar',
             
             // Cabeceras de tabla
             'order-header': 'Orden',
@@ -126,29 +138,116 @@ class Traducciones {
             'path-header': 'Ruta completa',
             'actions-header': 'Acciones',
             
-            // Modal múltiples cortes
-            'multiple-cuts-modal-title': 'Añadir Múltiples Cortes',
-            'add-cut-text': 'Añadir corte',
-            'save-cuts-text': 'Guardar cortes',
-            'cancel-cuts-text': 'Cancelar',
-            
-            // Modal reproducción
-            'playback-modal-title': 'Reproducir Video',
-            'speed-label': 'Velocidad:',
-            
             // Footer
             'help-text': 'Ayuda',
             'suggestions-text': 'Sugerencias',
             'install-text': 'Instalar App',
             'copyright-text': '2025 © Copyright',
             
-            // Modal ayuda
+            // Modal ayuda - Títulos
             'help-modal-title': 'Ayuda de Video Gestión',
             'help-modal-text1': 'Video Gestión es una aplicación PWA para procesar videos usando FFMPEG directamente en tu navegador.',
             'help-modal-subtitle1': 'Funciones disponibles:',
             'help-modal-subtitle2': 'Requisitos:',
             'help-modal-subtitle3': 'Notas importantes:',
+            'help-modal-subtitle4': 'Cómo usar cada función:',
+            'help-modal-subtitle5': 'Indicadores visuales:',
+            'help-modal-subtitle6': 'Consejos de rendimiento:',
+            'help-modal-subtitle7': 'Solución de problemas:',
+            'help-modal-text2': 'La aplicación guarda automáticamente tus preferencias y sesiones. Puedes usar la función "Copia de seguridad" para exportar tus datos.',
             'help-modal-ok': 'Entendido',
+            
+            // Modal ayuda - Funciones
+            'help-reduce-title': 'Reducir tamaño:',
+            'help-reduce-desc': 'Optimiza videos para PC, Tablet o Móvil',
+            'help-cut-title': 'Cortar video:',
+            'help-cut-desc': 'Extrae fragmentos específicos entre tiempos definidos',
+            'help-convert-title': 'Convertir formato:',
+            'help-convert-desc': 'Cambia entre MP4, MOV, AVI preservando calidad',
+            'help-reverse-title': 'Revertir video:',
+            'help-reverse-desc': 'Invierte el orden de los fotogramas',
+            'help-jpg-title': 'Convertir a JPG:',
+            'help-jpg-desc': 'Extrae fotos con datos GPS si están disponibles',
+            'help-join-title': 'Unir videos:',
+            'help-join-desc': 'Combina múltiples videos en uno con cortes personalizados',
+            
+            // Modal ayuda - Requisitos
+            'help-req1': 'Navegador moderno (Chrome 80+, Firefox 75+, Edge 80+)',
+            'help-req2': 'Soporte para WebAssembly',
+            'help-req3': 'Permisos para acceder al sistema de archivos',
+            'help-req4': 'Espacio suficiente en disco para archivos temporales',
+            
+            // Modal ayuda - Notas
+            'help-note1': 'Los procesamientos se realizan en el navegador (puede ser lento para videos grandes)',
+            'help-note2': 'Se preservan los metadatos GPS cuando es posible',
+            'help-note3': 'La aplicación funciona offline una vez instalada',
+            'help-note4': 'Los archivos procesados se descargan automáticamente',
+            'help-note5': 'Las sesiones de unión se guardan automáticamente',
+            
+            // Modal ayuda - Secciones
+            'help-section-reduce': '1. Reducir Tamaño:',
+            'help-section-cut': '2. Cortar Video:',
+            'help-section-convert': '3. Convertir Formato:',
+            'help-section-reverse': '4. Revertir Video:',
+            'help-section-jpg': '5. Convertir a JPG:',
+            'help-section-join': '6. Unir Videos:',
+            
+            // Modal ayuda - Pasos Reducir
+            'help-reduce-step1': 'Selecciona calidad: PC (alta), Tablet (media) o Móvil (baja)',
+            'help-reduce-step2': 'Elige el archivo de video',
+            'help-reduce-step3': 'La carpeta destino se autocompleta',
+            'help-reduce-step4': 'Haz clic en "Convertir"',
+            'help-reduce-step5': 'El archivo se guardará con sufijo _PC, _Tablet o _Movil',
+            
+            // Modal ayuda - Pasos Cortar
+            'help-cut-step1': 'Selecciona el video a cortar',
+            'help-cut-step2': 'La duración total se mostrará automáticamente',
+            'help-cut-step3': 'Define tiempos de inicio y final (formato HH:MM:SS)',
+            'help-cut-step4': 'Haz clic en "Cortar"',
+            'help-cut-step5': 'El archivo se guardará con sufijo _Cortado',
+            
+            // Modal ayuda - Pasos Convertir
+            'help-convert-step1': 'Selecciona formato destino: MP4, MOV o AVI',
+            'help-convert-step2': 'Elige el archivo a convertir',
+            'help-convert-step3': 'Haz clic en "Convertir"',
+            'help-convert-step4': 'El archivo se guardará con sufijo _Convertido',
+            
+            // Modal ayuda - Pasos Revertir
+            'help-reverse-step1': 'Selecciona el video a revertir',
+            'help-reverse-step2': 'Haz clic en "Revertir"',
+            'help-reverse-step3': 'El archivo se guardará con sufijo _Reverse',
+            
+            // Modal ayuda - Pasos JPG
+            'help-jpg-step1': 'Selecciona video con datos GPS (opcional)',
+            'help-jpg-step2': 'Elige tamaño: 4K, 1024px o 512px',
+            'help-jpg-step3': 'Define intervalo entre fotos (segundos)',
+            'help-jpg-step4': 'Haz clic en "Extraer JPG"',
+            'help-jpg-step5': 'Las fotos se guardarán con nombres HHMMSSS.jpg',
+            
+            // Modal ayuda - Pasos Unir
+            'help-join-step1': 'Crea o carga una sesión',
+            'help-join-step2': 'Añade archivos o carpetas completas',
+            'help-join-step3': 'Ordena los videos arrastrando o usando botones',
+            'help-join-step4': 'Define cortes específicos para cada video',
+            'help-join-step5': 'Guarda copia de seguridad (recomendado)',
+            'help-join-step6': 'Haz clic en "Unir videos"',
+            
+            // Modal ayuda - Indicadores
+            'help-indicator1': 'Barra de progreso: Muestra el avance del procesamiento',
+            'help-indicator2': 'Info GPS: Indica si el video tiene datos de ubicación',
+            'help-indicator3': 'Mensajes flotantes: Notificaciones de éxito/error',
+            
+            // Modal ayuda - Consejos
+            'help-tip1': 'Para videos grandes (>500MB), procesa en segmentos',
+            'help-tip2': 'Cierra otras pestañas del navegador',
+            'help-tip3': 'Usa calidad más baja para procesamiento más rápido',
+            'help-tip4': 'Guarda sesiones de trabajo para recuperarlas luego',
+            
+            // Modal ayuda - Solución problemas
+            'help-trouble1': 'FFMPEG no carga: Verifica conexión a internet y recarga',
+            'help-trouble2': 'Procesamiento lento: Reduce calidad o tamaño del video',
+            'help-trouble3': 'Error al guardar: Verifica permisos del navegador',
+            'help-trouble4': 'Sin datos GPS: El video puede no contener información de ubicación',
             
             // Modal sugerencias
             'suggestions-modal-title': 'Enviar sugerencias',
@@ -204,11 +303,31 @@ class Traducciones {
             'convert-btn-text': 'Convertir',
             'cancel-btn-text': 'Cancel·lar',
             
+            // Modal: Cortar Video
+            'cut-video-modal-title': 'Tallar Vídeo',
+            'cut-file-label': 'Vídeo a tallar:',
+            'cut-browse-text': 'Examinar',
+            'cut-start-label': 'Temps Inici (HH:MM:SS):',
+            'cut-end-label': 'Temps Final (HH:MM:SS):',
+            'cut-dest-label': 'Carpeta destinació:',
+            'cut-folder-text': 'Carpeta',
+            'cut-progress-label': 'Tallant vídeo...',
+            'cut-btn-text': 'Tallar',
+            'cut-cancel-text': 'Cancel·lar',
+            
             // Footer
             'help-text': 'Ajuda',
             'suggestions-text': 'Suggeriments',
             'install-text': 'Instal·lar App',
             'copyright-text': '2025 © Copyright',
+            
+            // Modal ayuda
+            'help-modal-title': 'Ajuda de Gestió de Vídeo',
+            'help-modal-text1': 'Gestió de Vídeo és una aplicació PWA per processar vídeos utilitzant FFMPEG directament al teu navegador.',
+            'help-modal-subtitle1': 'Funcions disponibles:',
+            'help-modal-subtitle2': 'Requisits:',
+            'help-modal-subtitle3': 'Notes importants:',
+            'help-modal-ok': 'Entès',
             
             // Textos generales
             'languages-label': 'Idioma',
@@ -238,11 +357,33 @@ class Traducciones {
             'join-videos-title': 'Join Videos',
             'join-videos-desc': 'Combine multiple videos into one',
             
+            // Modal: Reducir Tamaño
+            'reduce-size-modal-title': 'Reduce Video Size',
+            'quality-label': 'Destination quality:',
+            'quality-pc': 'PC (High quality)',
+            'quality-tablet': 'Tablet (Medium quality)',
+            'quality-mobile': 'Mobile (Low quality)',
+            'reduce-file-label': 'File to convert:',
+            'browse-text': 'Browse',
+            'reduce-dest-label': 'Destination folder:',
+            'folder-text': 'Folder',
+            'reduce-progress-label': 'Processing...',
+            'convert-btn-text': 'Convert',
+            'cancel-btn-text': 'Cancel',
+            
             // Footer
             'help-text': 'Help',
             'suggestions-text': 'Suggestions',
             'install-text': 'Install App',
             'copyright-text': '2025 © Copyright',
+            
+            // Modal ayuda
+            'help-modal-title': 'Video Management Help',
+            'help-modal-text1': 'Video Management is a PWA application for processing videos using FFMPEG directly in your browser.',
+            'help-modal-subtitle1': 'Available functions:',
+            'help-modal-subtitle2': 'Requirements:',
+            'help-modal-subtitle3': 'Important notes:',
+            'help-modal-ok': 'OK',
             
             // Textos generales
             'languages-label': 'Language',
@@ -272,11 +413,33 @@ class Traducciones {
             'join-videos-title': 'Joindre Vidéos',
             'join-videos-desc': 'Combine plusieurs vidéos en une',
             
+            // Modal: Reducir Tamaño
+            'reduce-size-modal-title': 'Réduire Taille de Vidéo',
+            'quality-label': 'Qualité de destination:',
+            'quality-pc': 'PC (Haute qualité)',
+            'quality-tablet': 'Tablette (Qualité moyenne)',
+            'quality-mobile': 'Mobile (Basse qualité)',
+            'reduce-file-label': 'Fichier à convertir:',
+            'browse-text': 'Parcourir',
+            'reduce-dest-label': 'Dossier de destination:',
+            'folder-text': 'Dossier',
+            'reduce-progress-label': 'Traitement...',
+            'convert-btn-text': 'Convertir',
+            'cancel-btn-text': 'Annuler',
+            
             // Footer
             'help-text': 'Aide',
             'suggestions-text': 'Suggestions',
             'install-text': 'Installer App',
             'copyright-text': '2025 © Copyright',
+            
+            // Modal ayuda
+            'help-modal-title': 'Aide Gestion Vidéo',
+            'help-modal-text1': 'Gestion Vidéo est une application PWA pour traiter des vidéos en utilisant FFMPEG directement dans votre navigateur.',
+            'help-modal-subtitle1': 'Fonctions disponibles:',
+            'help-modal-subtitle2': 'Exigences:',
+            'help-modal-subtitle3': 'Notes importantes:',
+            'help-modal-ok': 'Compris',
             
             // Textos generales
             'languages-label': 'Langue',
