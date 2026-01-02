@@ -14,7 +14,8 @@ const APP_CACHES = {
   'solitario': 'Solitario-v1.0', 
   'sudoku': 'Sudoku-v1.0', 
   'tetris': 'Tetris-v1.0', 
-  'index': 'index-page-v1.0'
+  'index': 'index-page-v1.0',
+  'dashcam':'dashcam-iphone-pro-cache-v4.11',
 };
 
 const APP_RESOURCES = {
@@ -123,7 +124,17 @@ const APP_RESOURCES = {
     'https://rbenet71.github.io/Web/index.html',
     'https://rbenet71.github.io/Web/manifest.json',
     'https://rbenet71.github.io/Web/RBB.jpg',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+  ],
+    'dashcam':[    
+    'https://rbenet71.github.io/Web/Ciclismo/Dashcam/index.html',
+    'https://rbenet71.github.io/Web/Ciclismo/Dashcam/styles.css',
+    'https://rbenet71.github.io/Web/Ciclismo/Dashcam/app.js',
+    'https://rbenet71.github.io/Web/Ciclismo/Dashcam/manifest.json',
+    'https://rbenet71.github.io/Web/Ciclismo/Dashcam/ayuda_completa.html',
+    'https://rbenet71.github.io/Web/Ciclismo/Dashcam/recursos/Logo_Dashcam_Bike_192x192.png',
+    'https://rbenet71.github.io/Web/Ciclismo/Dashcam/recursos/Picto_Color_192x192.png',
+    'https://rbenet71.github.io/Web/Ciclismo/Dashcam/recursos/Picto_Color_512x512.png'
   ]
 };
 
@@ -176,7 +187,7 @@ self.addEventListener('activate', event => {
           client.postMessage({
             type: 'SW_UPDATED',
             version: '2.2',
-            apps: ['calculadora', 'crono80', 'cronollegadas', 'crono_tops','crono_cuenta_atras','gps','damas','marcianitos','solitario','sudoku','tetris','index']
+            apps: ['calculadora', 'crono80', 'cronollegadas', 'crono_tops','crono_cuenta_atras','gps','damas','marcianitos','solitario','sudoku','tetris','index','dashcam']
           });
         });
       })
@@ -216,6 +227,8 @@ self.addEventListener('fetch', event => {
   targetApp = 'sodoku';
     } else if (url.pathname.includes('Tetris')) {
   targetApp = 'tetris';
+      } else if (url.pathname.includes('Dashcam')) {
+  targetApp = 'dashcam';
   } else if (url.pathname.includes('index.html') || url.pathname === '/Web/' || url.pathname === '/Web') {
     targetApp = 'index';
   }
@@ -298,6 +311,7 @@ async function getFallbackPage(appName) {
     'solitario': 'https://rbenet71.github.io/Web/Entretenimiento/Solitario/Solitario.html', 
     'sudoku': 'https://rbenet71.github.io/Web/Entretenimiento/Sudoku/Sudoku.html', 
     'tetris': 'https://rbenet71.github.io/Web/Entretenimiento/Tetris/Tetris.html', 
+    'dashcam': 'https://rbenet71.github.io/Web/Ciclismo/Dashcam/index.html', 
     'index': 'https://rbenet71.github.io/Web/index.html'
   };
   
