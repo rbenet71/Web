@@ -1,6 +1,6 @@
-// Dashcam PWA v4.13.2 - Versión Completa Simplificada
+// Dashcam PWA v4.14 - Versión Completa Simplificada
 
-const APP_VERSION = '4.13.2';
+const APP_VERSION = '4.14';
 
 class DashcamApp {
     constructor() {
@@ -246,7 +246,6 @@ class DashcamApp {
             startBtn: document.getElementById('startBtn'),
             galleryBtn: document.getElementById('galleryBtn'),
             settingsBtn: document.getElementById('settingsBtn'),
-            gpxManagerBtn: document.getElementById('gpxManagerBtn'),
             videoPreview: document.getElementById('videoPreview'),
             overlayCanvas: document.getElementById('overlayCanvas'),
             pauseBtn: document.getElementById('pauseBtn'),
@@ -261,7 +260,6 @@ class DashcamApp {
             savingText: document.getElementById('savingText'),
             galleryPanel: document.getElementById('galleryPanel'),
             settingsPanel: document.getElementById('settingsPanel'),
-            gpxManagerPanel: document.getElementById('gpxManagerPanel'),
             videoPlayer: document.getElementById('videoPlayer'),
             videosList: document.getElementById('videosList'),
             searchVideos: document.getElementById('searchVideos'),
@@ -316,7 +314,6 @@ class DashcamApp {
             gpxCanvas: document.getElementById('gpxCanvas'),
             clearGpxBtn: document.getElementById('clearGpxBtn'),
             saveGpxBtn: document.getElementById('saveGpxBtn'),
-            closeGpxManager: document.getElementById('closeGpxManager'),
             playbackVideo: document.getElementById('playbackVideo'),
             playbackMap: document.getElementById('playbackMap'),
             videoTitle: document.getElementById('videoTitle'),
@@ -12144,141 +12141,186 @@ setPlaybackSpeed(speed) {
         try {
             console.log('🗺️ Mostrando visualizador GPX:', gpxData.name);
             
-            // Crear o mostrar panel de visualización
-            let viewerPanel = document.getElementById('gpxViewerPanel');
+            // FORZAR RECREACIÓN: Remover panel existente si hay
+            const existingPanel = document.getElementById('gpxViewerPanel');
+            if (existingPanel) {
+                existingPanel.remove();
+            }
             
-            if (!viewerPanel) {
-                // Crear panel si no existe
-                viewerPanel = document.createElement('div');
-                viewerPanel.id = 'gpxViewerPanel';
-                viewerPanel.className = 'fullscreen-panel hidden';
-                viewerPanel.innerHTML = `
-                    <div class="panel-header">
-                        <h2>🗺️ Visualizador GPX</h2>
-                        <button id="closeGpxViewer" class="close-btn">✕</button>
-                    </div>
-                    <div class="panel-content">
-                        <div class="gpx-viewer-container">
-                            <div class="gpx-info-panel">
-                                <div class="gpx-header">
-                                    <h3 id="gpxViewerTitle">Cargando...</h3>
-                                    <div class="gpx-meta">
-                                        <span id="gpxViewerFilename"></span>
-                                        <span id="gpxViewerDate"></span>
-                                    </div>
-                                </div>
-                                
-                                <div class="gpx-stats-grid">
-                                    <div class="stat-card">
-                                        <div class="stat-icon">📍</div>
-                                        <div class="stat-value" id="gpxPoints2">0</div>
-                                        <div class="stat-label">Puntos</div>
-                                    </div>
-                                    <div class="stat-card">
-                                        <div class="stat-icon">📏</div>
-                                        <div class="stat-value" id="gpxDistance2">0 km</div>
-                                        <div class="stat-label">Distancia</div>
-                                    </div>
-                                    <div class="stat-card">
-                                        <div class="stat-icon">⏱️</div>
-                                        <div class="stat-value" id="gpxDuration2">00:00</div>
-                                        <div class="stat-label">Duración</div>
-                                    </div>
-                                    <div class="stat-card">
-                                        <div class="stat-icon">⚡</div>
-                                        <div class="stat-value" id="gpxAvgSpeed2">0 km/h</div>
-                                        <div class="stat-label">Velocidad</div>
-                                    </div>
-                                    <div class="stat-card">
-                                        <div class="stat-icon">⬆️</div>
-                                        <div class="stat-value" id="gpxElevationGain">0 m</div>
-                                        <div class="stat-label">Subida</div>
-                                    </div>
-                                    <div class="stat-card">
-                                        <div class="stat-icon">⬇️</div>
-                                        <div class="stat-value" id="gpxElevationLoss">0 m</div>
-                                        <div class="stat-label">Bajada</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="gpx-details">
-                                    <div class="detail-row">
-                                        <span>📅 Inicio:</span>
-                                        <span id="gpxStartTime">--:--</span>
-                                    </div>
-                                    <div class="detail-row">
-                                        <span>📅 Fin:</span>
-                                        <span id="gpxEndTime">--:--</span>
-                                    </div>
-                                    <div class="detail-row">
-                                        <span>📈 Elevación min:</span>
-                                        <span id="gpxMinElevation">0 m</span>
-                                    </div>
-                                    <div class="detail-row">
-                                        <span>📉 Elevación max:</span>
-                                        <span id="gpxMaxElevation">0 m</span>
-                                    </div>
-                                    <div class="detail-row">
-                                        <span>🚀 Velocidad max:</span>
-                                        <span id="gpxMaxSpeed">0 km/h</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="gpx-actions">
-                                    <button id="exportGpxAsKml" class="btn action-btn">
-                                        📤 Exportar KML
-                                    </button>
-                                    <button id="exportGpxAsJson" class="btn action-btn">
-                                        📊 Exportar JSON
-                                    </button>
-                                    <button id="deleteGpxInViewer" class="btn action-btn">
-                                        🗑️ Eliminar GPX
-                                    </button>
+            // SIEMPRE CREAR PANEL NUEVO
+            const viewerPanel = document.createElement('div');
+            viewerPanel.id = 'gpxViewerPanel';
+            viewerPanel.className = 'fullscreen-panel hidden';
+            viewerPanel.innerHTML = `
+                <div class="panel-header">
+                    <h2>🗺️ Visualizador GPX</h2>
+                    <button id="closeGpxViewer" class="close-btn">✕</button>
+                </div>
+                <div class="panel-content">
+                    <div class="gpx-viewer-container">
+                        <div class="gpx-info-panel">
+                            <div class="gpx-header">
+                                <h3 id="gpxViewerTitle">Cargando...</h3>
+                                <div class="gpx-meta">
+                                    <span id="gpxViewerFilename"></span>
+                                    <span id="gpxViewerDate"></span>
                                 </div>
                             </div>
                             
-                            <div class="gpx-map-container">
-                                <div id="gpxViewerMap"></div>
-                                <div class="map-controls">
-                                    <button id="zoomInBtn" class="map-btn">+</button>
-                                    <button id="zoomOutBtn" class="map-btn">-</button>
-                                    <button id="fitBoundsBtn" class="map-btn">🗺️</button>
+                            <div class="gpx-stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-icon">📍</div>
+                                    <div class="stat-value" id="gpxPoints2">0</div>
+                                    <div class="stat-label">Puntos</div>
                                 </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon">📏</div>
+                                    <div class="stat-value" id="gpxDistance2">0 km</div>
+                                    <div class="stat-label">Distancia</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon">⏱️</div>
+                                    <div class="stat-value" id="gpxDuration2">00:00</div>
+                                    <div class="stat-label">Duración</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon">⚡</div>
+                                    <div class="stat-value" id="gpxAvgSpeed2">0 km/h</div>
+                                    <div class="stat-label">Velocidad</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon">⬆️</div>
+                                    <div class="stat-value" id="gpxElevationGain">0 m</div>
+                                    <div class="stat-label">Subida</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon">⬇️</div>
+                                    <div class="stat-value" id="gpxElevationLoss">0 m</div>
+                                    <div class="stat-label">Bajada</div>
+                                </div>
+                            </div>
+                            
+                            <div class="gpx-details">
+                                <div class="detail-row">
+                                    <span>📅 Inicio:</span>
+                                    <span id="gpxStartTime">--:--</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span>📅 Fin:</span>
+                                    <span id="gpxEndTime">--:--</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span>📈 Elevación min:</span>
+                                    <span id="gpxMinElevation">0 m</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span>📉 Elevación max:</span>
+                                    <span id="gpxMaxElevation">0 m</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span>🚀 Velocidad max:</span>
+                                    <span id="gpxMaxSpeed">0 km/h</span>
+                                </div>
+                            </div>
+                            
+                            <div class="gpx-actions">
+                                <button id="exportGpxAsKml" class="btn action-btn">
+                                    📤 Exportar KML
+                                </button>
+                                <button id="exportGpxAsJson" class="btn action-btn">
+                                    📊 Exportar JSON
+                                </button>
+                                <button id="deleteGpxInViewer" class="btn action-btn">
+                                    🗑️ Eliminar GPX
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="gpx-map-container">
+                            <div id="gpxViewerMap"></div>
+                            <div class="map-controls">
+                                <button id="zoomInBtn" class="map-btn">+</button>
+                                <button id="zoomOutBtn" class="map-btn">-</button>
+                                <button id="fitBoundsBtn" class="map-btn">🗺️</button>
                             </div>
                         </div>
                     </div>
-                `;
+                </div>
+            `;
+            
+            document.body.appendChild(viewerPanel);
+            
+            // 🎯 DEBUGGING: Verificar botón cerrar
+            console.log('🔍 DEBUG: Verificando botón cerrar...');
+            const closeBtn = document.getElementById('closeGpxViewer');
+            console.log('🔍 DEBUG: Botón encontrado?', !!closeBtn);
+            console.log('🔍 DEBUG: Botón HTML:', closeBtn ? closeBtn.outerHTML : 'NO ENCONTRADO');
+            
+            // CONFIGURACIÓN ROBUSTA DE EVENT LISTENERS
+            if (closeBtn) {
+                // Clonar y reemplazar para limpiar event listeners antiguos
+                const newCloseBtn = closeBtn.cloneNode(true);
+                closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
                 
-                document.body.appendChild(viewerPanel);
-                
-                // Configurar eventos del panel
-                document.getElementById('closeGpxViewer').addEventListener('click', () => {
+                // Configurar nuevo event listener
+                document.getElementById('closeGpxViewer').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🎯 DEBUG: Botón cerrar CLICKEADO');
                     this.hideGPXViewer();
                 });
+                console.log('✅ DEBUG: Event listener para cerrar configurado');
+            } else {
+                console.error('❌ ERROR: No se encontró el botón closeGpxViewer');
+            }
+            
+            // Configurar botón exportar KML
+            const exportKmlBtn = document.getElementById('exportGpxAsKml');
+            if (exportKmlBtn) {
+                const newExportKmlBtn = exportKmlBtn.cloneNode(true);
+                exportKmlBtn.parentNode.replaceChild(newExportKmlBtn, exportKmlBtn);
                 
-                document.getElementById('exportGpxAsKml').addEventListener('click', () => {
+                document.getElementById('exportGpxAsKml').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('📤 Exportar KML clickeado');
                     this.exportGPXAsKML(gpxData);
                 });
+            }
+            
+            // Configurar botón exportar JSON
+            const exportJsonBtn = document.getElementById('exportGpxAsJson');
+            if (exportJsonBtn) {
+                const newExportJsonBtn = exportJsonBtn.cloneNode(true);
+                exportJsonBtn.parentNode.replaceChild(newExportJsonBtn, exportJsonBtn);
                 
-                document.getElementById('exportGpxAsJson').addEventListener('click', () => {
+                document.getElementById('exportGpxAsJson').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('📊 Exportar JSON clickeado');
                     this.exportGPXAsJSON(gpxData);
                 });
+            }
+            
+            // Configurar botón eliminar GPX
+            const deleteBtn = document.getElementById('deleteGpxInViewer');
+            if (deleteBtn) {
+                const newDeleteBtn = deleteBtn.cloneNode(true);
+                deleteBtn.parentNode.replaceChild(newDeleteBtn, deleteBtn);
                 
-                // 🆕 NUEVO: Event listener para eliminar GPX desde el visualizador
-                document.getElementById('deleteGpxInViewer').addEventListener('click', () => {
-                    // Usamos una referencia a gpxData pasada como parámetro
+                document.getElementById('deleteGpxInViewer').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🗑️ Eliminar GPX clickeado');
+                    
                     const confirmDelete = confirm(`¿Estás seguro de que quieres eliminar el GPX "${gpxData.name}"?`);
                     
                     if (confirmDelete) {
-                        // Obtener el ID y fuente del GPX
                         const gpxId = gpxData.id || gpxData.metadata?.id;
                         const source = gpxData.metadata?.source || 'gpxTracks';
                         
                         if (gpxId) {
-                            // Cerrar el visualizador primero
                             this.hideGPXViewer();
-                            
-                            // Llamar a la función deleteGPX después de un pequeño delay
                             setTimeout(() => {
                                 this.deleteGPX(gpxId, source);
                             }, 300);
@@ -12294,6 +12336,7 @@ setPlaybackSpeed(speed) {
             
             // Mostrar panel
             viewerPanel.classList.remove('hidden');
+            console.log('✅ DEBUG: Panel mostrado');
             
             // Inicializar mapa después de que el panel esté visible
             setTimeout(() => {
@@ -12378,7 +12421,7 @@ setPlaybackSpeed(speed) {
             const map = L.map('gpxViewerMap', {
                 center: center,
                 zoom: 13,
-                zoomControl: false, // Usaremos controles personalizados
+                zoomControl: false,
                 attributionControl: true
             });
             
@@ -12426,17 +12469,17 @@ setPlaybackSpeed(speed) {
             }).addTo(map);
             endMarker.bindTooltip('🏁 Punto final', { direction: 'top' });
             
-            // Añadir controles de zoom personalizados
-            L.control.zoom({
-                position: 'topright'
-            }).addTo(map);
-            
             // Ajustar vista
             map.fitBounds(bounds, { padding: [30, 30] });
             
-            // Forzar redibujado
+            // Forzar redibujado y añadir controles
             setTimeout(() => {
                 map.invalidateSize();
+                
+                // 🆕 Añadir controles de zoom DESPUÉS de invalidateSize
+                L.control.zoom({
+                    position: 'topright'
+                }).addTo(map);
                 
                 // Configurar controles personalizados
                 document.getElementById('zoomInBtn').addEventListener('click', () => {
@@ -12471,6 +12514,7 @@ setPlaybackSpeed(speed) {
             }
         }
     }
+
     exportGPXAsKML(gpxData) {
         try {
             console.log('📤 Exportando GPX como KML...');
@@ -12553,19 +12597,71 @@ setPlaybackSpeed(speed) {
             this.showNotification('❌ Error al exportar JSON');
         }
     }
+
     hideGPXViewer() {
-        const viewerPanel = document.getElementById('gpxViewerPanel');
-        if (viewerPanel) {
-            viewerPanel.classList.add('hidden');
-        }
+        console.log('🔄 DEBUG: hideGPXViewer() EJECUTÁNDOSE');
         
-        // Limpiar mapa si existe
-        if (this.gpxViewerMap) {
-            this.gpxViewerMap.remove();
-            this.gpxViewerMap = null;
+        try {
+            const viewerPanel = document.getElementById('gpxViewerPanel');
+            console.log('🔍 DEBUG: Panel encontrado?', !!viewerPanel);
+            
+            if (viewerPanel) {
+                viewerPanel.classList.add('hidden');
+                console.log('✅ DEBUG: Panel ocultado');
+            }
+            
+            // CORREGIDO: Limpiar mapa Leaflet correctamente
+            if (this.gpxViewerMap) {
+                try {
+                    console.log('🗺️ DEBUG: Limpiando mapa Leaflet...');
+                    
+                    // Método correcto para destruir mapa Leaflet
+                    // 1. Remover todas las layers primero
+                    this.gpxViewerMap.eachLayer((layer) => {
+                        try {
+                            this.gpxViewerMap.removeLayer(layer);
+                        } catch (e) {
+                            console.warn('⚠️ DEBUG: Error removiendo layer:', e);
+                        }
+                    });
+                    
+                    // 2. Limpiar eventos
+                    this.gpxViewerMap.off();
+                    this.gpxViewerMap.remove();
+                    
+                    // 3. Limpiar el contenedor del mapa
+                    const mapContainer = document.getElementById('gpxViewerMap');
+                    if (mapContainer) {
+                        mapContainer.innerHTML = '';
+                    }
+                    
+                    // 4. Eliminar referencia
+                    this.gpxViewerMap = null;
+                    
+                    console.log('✅ DEBUG: Mapa Leaflet destruido correctamente');
+                    
+                } catch (error) {
+                    console.warn('⚠️ DEBUG: Error limpiando mapa Leaflet:', error);
+                    
+                    // Método alternativo: forzar limpieza del contenedor
+                    const mapContainer = document.getElementById('gpxViewerMap');
+                    if (mapContainer) {
+                        mapContainer.innerHTML = '';
+                    }
+                    this.gpxViewerMap = null;
+                }
+            }
+            
+            console.log('🗺️ Visualizador GPX cerrado');
+            
+        } catch (error) {
+            console.error('❌ ERROR en hideGPXViewer:', error);
+            // Asegurar que el panel se oculte aunque haya error
+            const viewerPanel = document.getElementById('gpxViewerPanel');
+            if (viewerPanel) {
+                viewerPanel.classList.add('hidden');
+            }
         }
-        
-        console.log('🗺️ Visualizador GPX cerrado');
     }
 
     calculateTrackBounds(points) {
@@ -13139,19 +13235,6 @@ async getParentDirectoryHandle(fileHandle) {
     }
 
 
-    showGpxManager() {
-        console.log('🗺️ Mostrando gestor GPX');
-        if (this.elements.gpxManagerPanel) {
-            this.elements.gpxManagerPanel.classList.remove('hidden');
-        }
-    }
-
-    hideGpxManager() {
-        if (this.elements.gpxManagerPanel) {
-            this.elements.gpxManagerPanel.classList.add('hidden');
-        }
-    }
-
     async loadGPXFromStore() {
         try {
             console.log('🗺️ Cargando rutas GPX desde fuentes reales...');
@@ -13672,10 +13755,6 @@ async getParentDirectoryHandle(fileHandle) {
         if (this.elements.settingsBtn) {
             this.elements.settingsBtn.addEventListener('click', () => this.showSettings());
         }
-        
-        if (this.elements.gpxManagerBtn) {
-            this.elements.gpxManagerBtn.addEventListener('click', () => this.showGpxManager());
-        }
 
         // Reproductor de video
         if (this.elements.closePlayer) {
@@ -13897,7 +13976,7 @@ async getParentDirectoryHandle(fileHandle) {
             });
         }
         
-        // Para iOS, mostrar ayuda contextual
+        // Para iOS, mostrar ayuda contextual SOLO para logo
         if (this.isIOS) {
             console.log('📱 Configurando eventos específicos para iOS');
             
@@ -13920,24 +13999,8 @@ async getParentDirectoryHandle(fileHandle) {
                 };
             }
             
-            // GPX - ayuda contextual
-            const gpxBtn = document.getElementById('uploadGpxBtn');
-            if (gpxBtn) {
-                const originalGpxClick = gpxBtn.onclick;
-                gpxBtn.onclick = () => {
-                    const showHelp = localStorage.getItem('dashcam_show_ios_instructions') !== 'false';
-                    
-                    if (showHelp) {
-                        this.showNotification('📱 En iOS: Usa la app "Archivos" para seleccionar GPX', 4000);
-                    }
-                    
-                    if (originalGpxClick) {
-                        originalGpxClick();
-                    } else {
-                        this.handleGpxUpload();
-                    }
-                };
-            }
+            // 🆕 ELIMINADO: Event listener duplicado para uploadGpxBtn
+            // ¡NO configures gpxBtn aquí porque ya está configurado arriba!
         }
         
         // Inputs ocultos para subida de archivos
@@ -13946,11 +14009,14 @@ async getParentDirectoryHandle(fileHandle) {
             logoUploadInput.addEventListener('change', (event) => this.handleLogoSelection(event));
         }
         
+        // 🆕 CORREGIDO: handleGpxSelection no existe, usar handleGpxUpload
         const gpxUploadInput = document.getElementById('gpxUpload');
         if (gpxUploadInput) {
-            gpxUploadInput.addEventListener('change', (event) => this.handleGpxSelection(event));
+            gpxUploadInput.addEventListener('change', (event) => {
+                console.log('📄 Input gpxUpload cambiado');
+                this.handleGpxUpload(event);  // Usar handleGpxUpload en lugar de handleGpxSelection
+            });
         }
-    
         
         console.log('✅ Todos los event listeners configurados');
     }
