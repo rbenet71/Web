@@ -1,6 +1,6 @@
-// Dashcam PWA v4.13.1 - Versión Completa Simplificada
+// Dashcam PWA v4.13.2 - Versión Completa Simplificada
 
-const APP_VERSION = '4.13.1';
+const APP_VERSION = '4.13.2';
 
 class DashcamApp {
     constructor() {
@@ -12231,8 +12231,8 @@ setPlaybackSpeed(speed) {
                                     <button id="exportGpxAsJson" class="btn action-btn">
                                         📊 Exportar JSON
                                     </button>
-                                    <button id="showGpxOnMap" class="btn primary-btn">
-                                        🗺️ Ver en mapa grande
+                                    <button id="deleteGpxInViewer" class="btn action-btn">
+                                        🗑️ Eliminar GPX
                                     </button>
                                 </div>
                             </div>
@@ -12264,8 +12264,28 @@ setPlaybackSpeed(speed) {
                     this.exportGPXAsJSON(gpxData);
                 });
                 
-                document.getElementById('showGpxOnMap').addEventListener('click', () => {
-                    this.showFullscreenMap(gpxData);
+                // 🆕 NUEVO: Event listener para eliminar GPX desde el visualizador
+                document.getElementById('deleteGpxInViewer').addEventListener('click', () => {
+                    // Usamos una referencia a gpxData pasada como parámetro
+                    const confirmDelete = confirm(`¿Estás seguro de que quieres eliminar el GPX "${gpxData.name}"?`);
+                    
+                    if (confirmDelete) {
+                        // Obtener el ID y fuente del GPX
+                        const gpxId = gpxData.id || gpxData.metadata?.id;
+                        const source = gpxData.metadata?.source || 'gpxTracks';
+                        
+                        if (gpxId) {
+                            // Cerrar el visualizador primero
+                            this.hideGPXViewer();
+                            
+                            // Llamar a la función deleteGPX después de un pequeño delay
+                            setTimeout(() => {
+                                this.deleteGPX(gpxId, source);
+                            }, 300);
+                        } else {
+                            this.showNotification('❌ No se pudo obtener el ID del GPX');
+                        }
+                    }
                 });
             }
             
