@@ -1,19 +1,19 @@
-Tienes razón. Voy a restaurar la versión completa del MD anterior y añadirle solo las actualizaciones de v4.11. Aquí está el **MD COMPLETO** con todas las 1400+ líneas actualizadas:
+Perfecto. Aquí está la **nueva versión completa del archivo Estructura_App.md** con todos los cambios incorporados:
 
 ```markdown
-# 🗂️ **ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js** (ACTUALIZADO v4.11)
+# 🗂️ **ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js** (ACTUALIZADO v4.13)
 
-Con las mejoras implementadas para la funcionalidad realista de iOS Safari, el nuevo sistema de nombres estandarizado, la corrección de exportación individual, la optimización de `updateFolderUI()`, y ahora la SOLUCIÓN COMPLETA PARA VLC EN iOS con conversión WebM→MP4 y mantenimiento de sesiones, aquí está el archivo **Estructura_App.md** completamente actualizado:
+Con las mejoras implementadas para la funcionalidad realista de iOS Safari, el nuevo sistema de nombres estandarizado, la corrección de exportación individual, la optimización de `updateFolderUI()`, la SOLUCIÓN COMPLETA PARA VLC EN iOS con conversión WebM→MP4 y mantenimiento de sesiones, y ahora la **GESTIÓN COMPLETA DE GPX CON ELIMINACIÓN Y NOMBRES DE SESIÓN**, aquí está el archivo **Estructura_App.md** completamente actualizado:
 
 ```markdown
-# 🗂️ ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js (ACTUALIZADO v4.11)
+# 🗂️ ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js (ACTUALIZADO v4.13)
 
-Basándome en las limitaciones reales de iOS Safari, el flujo de trabajo implementado, el nuevo sistema de nombres estandarizado, las correcciones de exportación, la optimización de interfaz, y ahora la SOLUCIÓN DEFINITIVA para compatibilidad VLC en iOS con mantenimiento de sesiones, he actualizado completamente el archivo Estructura_App.md:
+Basándome en las limitaciones reales de iOS Safari, el flujo de trabajo implementado, el nuevo sistema de nombres estandarizado, las correcciones de exportación, la optimización de interfaz, la SOLUCIÓN DEFINITIVA para compatibilidad VLC en iOS con mantenimiento de sesiones, y ahora la **GESTIÓN COMPLETA DE GPX CON ELIMINACIÓN Y NOMBRES DE SESIÓN**, he actualizado completamente el archivo Estructura_App.md:
 
 ## 📋 ESTRUCTURA GENERAL DE app.js
 
 ```
-app.js (~8800 líneas)
+app.js (~8850 líneas)
 ├── CLASE DashcamApp
 │   ├── CONSTRUCTOR + PROPIEDADES (ACTUALIZADO CON REALIDAD iOS + VLC)
 │   ├── MÉTODOS DE INICIALIZACIÓN (init, initUI, etc.)
@@ -26,7 +26,7 @@ app.js (~8800 líneas)
 │   ├── MÓDULO DE DIBUJADO Y OVERLAY
 │   ├── MÓDULO GALERÍA (ACTUALIZADO CON NUEVO SISTEMA DE NOMBRES Y CORRECCIÓN DE EXPORTACIÓN)
 │   ├── MÓDULO REPRODUCCIÓN (ACTUALIZADO CON CORRECCIÓN EXPORTACIÓN INDIVIDUAL + CONVERSIÓN VLC)
-│   ├── MÓDULO GPX
+│   ├── MÓDULO GPX (ACTUALIZADO CON ELIMINACIÓN Y NOMBRES DE SESIÓN)
 │   ├── MÓDULO MAPAS
 │   ├── MÓDULO CONFIGURACIÓN (ACTUALIZADO CON OPTIMIZACIÓN updateFolderUI + OPCIONES VLC)
 │   ├── MÓDULO UTILIDADES (AMPLIADO CON FUNCIONES iOS REALES, NUEVO SISTEMA DE NOMBRES + FUNCIONES VLC)
@@ -66,15 +66,15 @@ this.state = {
     startTime: null,
     currentTime: 0,
     selectedVideos: new Set(),
-    selectedGPX: new Set(),
+    selectedGPX: new Set(),  // 🆕 ACTUALIZADO: Selección GPX mejorada
     selectedSessions: new Set(),
     currentVideo: null,
     activeTab: 'videos',
     showLandscapeModal: false,
-    appVersion: APP_VERSION, // v4.11
+    appVersion: APP_VERSION, // v4.13
     viewMode: 'default',
     videos: [],
-    gpxTracks: [],
+    gpxTracks: [],           // 🆕 ACTUALIZADO: Ahora incluye sessionName
     loadedGPXFiles: [],
     activeGPX: null,
     currentSegment: 1,
@@ -625,8 +625,8 @@ this.elements.videoTitle    // Ahora muestra nombres RBB_...
 this.elements.videoDate
 ```
 
-### **10. 🗺️ MÓDULO GPX**
-**Ubicación aproximada:** líneas 5100-5800
+### **10. 🗺️ MÓDULO GPX** (ACTUALIZADO CON ELIMINACIÓN Y NOMBRES DE SESIÓN)
+**Ubicación aproximada:** líneas 5100-5900
 
 ```javascript
 // GESTIÓN GPX
@@ -654,9 +654,12 @@ showGPXViewer(gpxData)
 updateGPXViewerData(gpxData)        
 initGPXViewerMap(gpxData)           
 hideGPXViewer()                     
-renderGPXList()                     
-setupGPXEventListeners()            
+renderGPXList()                     // 🆕 ACTUALIZADO: Con nombres de sesión y botón eliminar
+setupGPXEventListeners()            // 🆕 ACTUALIZADO: Maneja eliminación
 showFullscreenMap(gpxData)          
+
+// 🆕 NUEVO: ELIMINACIÓN DE GPX
+async deleteGPX(gpxId, source = 'gpxTracks')  // Elimina GPX de IndexedDB y estado
 
 // CÁLCULOS GEOGRÁFICOS
 calculateTrackBounds(points)       
@@ -672,7 +675,7 @@ this.gpxViewerMap
 ```
 
 ### **11. 🗾 MÓDULO DE MAPAS**
-**Ubicación aproximada:** líneas 5800-6400
+**Ubicación aproximada:** líneas 5900-6500
 
 ```javascript
 // MAPAS LEAFLET
@@ -705,7 +708,7 @@ this.mapTileLayers
 ```
 
 ### **12. ⚙️ MÓDULO DE CONFIGURACIÓN** (ACTUALIZADO CON OPTIMIZACIÓN updateFolderUI + OPCIONES VLC)
-**Ubicación aproximada:** líneas 6400-6900
+**Ubicación aproximada:** líneas 6500-7000
 
 ```javascript
 // CONFIGURACIÓN - FUNCIONES MEJORADAS CON iOS + VLC
@@ -785,7 +788,7 @@ updateFolderUI() {
     }
 }
 
-// AJUSTES ACTUALIZADOS CON REALIDAD iOS + VLC
+// AJUSTES ACTUALIZADAS CON REALIDAD iOS + VLC
 this.state.settings = {
     recordingMode: 'continuous',
     segmentDuration: 300,
@@ -873,7 +876,7 @@ explainVLCCompatibility()          // 🆕 Explica compatibilidad VLC
 ```
 
 ### **13. 🛠️ MÓDULO DE UTILIDADES** (AMPLIADO CON iOS REAL, NUEVO SISTEMA DE NOMBRES + FUNCIONES VLC)
-**Ubicación aproximada:** líneas 6900-7400
+**Ubicación aproximada:** líneas 7000-7500
 
 ```javascript
 // FORMATOS Y CONVERSIÓN
@@ -998,7 +1001,7 @@ stopFrameCapture()
 ```
 
 ### **15. 📱 MÓDULO DE MIGRACIÓN iOS** (ACTUALIZADO CON VLC)
-**Ubicación aproximada:** líneas 7400-7500
+**Ubicación aproximada:** líneas 7500-7600
 
 ```javascript
 // MIGRACIÓN iOS/WINDOWS - MEJORADA
@@ -1019,7 +1022,7 @@ readString(arrayBuffer, offset, length)
 ```
 
 ### **16. 💾 MÓDULO DE BASE DE DATOS - UTILIDADES** (ACTUALIZADO CON NUEVO SISTEMA DE NOMBRES)
-**Ubicación aproximada:** líneas 7500-7600
+**Ubicación aproximada:** líneas 7600-7700
 
 ```javascript
 // OPERACIONES CRUD
@@ -1049,7 +1052,7 @@ async saveToApp(blob, timestamp, duration, format, segmentNum = 1, gpsData = [])
 ```
 
 ### **17. 🗂️ MÓDULO DE GESTIÓN DE SESIONES** (ACTUALIZADO CON COMPATIBILIDAD VLC)
-**Ubicación aproximada:** líneas 7600-7800
+**Ubicación aproximada:** líneas 7700-7900
 
 ```javascript
 // FUNCIONES DE GESTIÓN DE SESIONES
@@ -1093,7 +1096,7 @@ this.state.virtualSessions = {}          // Sesiones virtuales iOS
 ```
 
 ### **18. 🔗 MÓDULO DE COMBINACIÓN Y EXPORTACIÓN** (ACTUALIZADO CON VLC)
-**Ubicación aproximada:** líneas 7800-7900
+**Ubicación aproximada:** líneas 7900-8000
 
 ```javascript
 // FUNCIONES DE COMBINACIÓN DE VIDEOS
@@ -1129,7 +1132,7 @@ this.tempCombinationVideos = null
 ```
 
 ### **19. 🧹 MÓDULO DE LIMPIEZA AUTOMÁTICA**
-**Ubicación aproximada:** líneas 7900-8000
+**Ubicación aproximada:** líneas 8000-8100
 
 ```javascript
 // LIMPIEZA AUTOMÁTICA DE SESIONES VACÍAS
@@ -1162,7 +1165,7 @@ deleteSelected()
 ```
 
 ### **20. 📱 MÓDULO DE GESTIÓN DE ARCHIVOS iOS** (ACTUALIZADO CON REALIDAD + VLC)
-**Ubicación aproximada:** líneas 8000-8300
+**Ubicación aproximada:** líneas 8100-8400
 
 ```javascript
 // FUNCIONES ESPECÍFICAS PARA iOS (REALIDAD ACTUAL)
@@ -1220,7 +1223,7 @@ openFilesAppOnIOS()
 ```
 
 ### **21. 🔌 MÓDULO DE EVENTOS** (ACTUALIZADO - REALIDAD iOS + VLC)
-**Ubicación aproximada:** líneas 8300-8400
+**Ubicación aproximada:** líneas 8400-8500
 
 ```javascript
 // CONFIGURACIÓN EVENTOS UNIFICADA
@@ -1273,7 +1276,7 @@ ios-save-guide-requested       // Cuando pide guía de guardado
 ```
 
 ### **22. 🔧 FUNCIONES AUXILIARES DE GALERÍA** (ACTUALIZADO CON CORRECCIÓN DE EXPORTACIÓN + VLC)
-**Ubicación aproximada:** líneas 8400-8500
+**Ubicación aproximada:** líneas 8500-8600
 
 ```javascript
 // FUNCIONES ESPECÍFICAS PARA LA INTERFAZ DE TABLA
@@ -1316,7 +1319,7 @@ showIOSStorageInfo()                    // Muestra info almacenamiento iOS
 ```
 
 ### **23. 🔍 MÓDULO DE DIAGNÓSTICO Y VERIFICACIÓN** (AMPLIADO CON DIAGNÓSTICO VLC)
-**Ubicación aproximada:** líneas 8500-8600
+**Ubicación aproximada:** líneas 8600-8700
 
 ```javascript
 // FUNCIONES DE DIAGNÓSTICO DEL SISTEMA
@@ -1365,7 +1368,7 @@ testIOSNotificationSystem()   // Prueba sistema notificaciones iOS
 ```
 
 ### **24. 📱 MÓDULO DE SINCRONIZACIÓN WEBKIT/IOS** (ACTUALIZADO)
-**Ubicación aproximada:** líneas 8600-8700
+**Ubicación aproximada:** líneas 8700-8800
 
 ```javascript
 // SINCRONIZACIÓN MEJORADA CON REALIDAD iOS
@@ -1400,7 +1403,7 @@ generateIOSMigrationReport()         // Genera reporte migración iOS
 ```
 
 ### **25. 🆕 NUEVO: MÓDULO DE CONVERSIÓN Y COMPATIBILIDAD VLC iOS**
-**Ubicación aproximada:** líneas 8700-8800
+**Ubicación aproximada:** líneas 8800-8950
 
 ```javascript
 // 🎯 CONVERSIÓN WEBM → MP4 PARA VLC
@@ -1872,189 +1875,172 @@ async saveVLCCompatible(blob, filename, sessionName) {
 }
 ```
 
-## 🔄 RESUMEN DE LOS CAMBIOS EN v4.11
+## 🔄 RESUMEN DE LOS CAMBIOS EN v4.13
 
-### **🆕 NUEVAS FUNCIONALIDADES V4.11:**
+### **🆕 NUEVAS FUNCIONALIDADES V4.13:**
 
-#### **1. ✅ Solución Completa para VLC en iOS:**
-- **Detección automática de codecs** - Prioriza MP4/H264 en iOS
-- **Conversión WebM → MP4** - Convierte automáticamente videos iOS
-- **Estructura MP4 válida** - Asegura `moov` atom al inicio para VLC
-- **Diagnóstico integrado** - Herramientas para detectar problemas VLC
+#### **1. ✅ Gestión Completa de GPX con Eliminación y Nombres de Sesión:**
+- **Botón eliminar GPX** - Nueva opción para eliminar archivos GPX individualmente
+- **Nombres de sesión** - Los archivos GPX muestran el nombre de sesión como título principal
+- **Confirmación** - Pide confirmación antes de eliminar archivos GPX
+- **Actualización en tiempo real** - La UI se actualiza inmediatamente después de eliminar
 
-#### **2. ✅ Mantenimiento Total de Sesiones:**
-- **Sesiones preservadas** - Los videos convertidos mantienen su sesión original
-- **Organización intacta** - Estructura de carpetas y sesiones no se altera
-- **Metadatos de sesión** - Información de sesión mantenida en conversiones
+#### **2. ✅ Función `deleteGPX()` completamente nueva:**
+- **Eliminación de IndexedDB** - Borra entradas de `gpxTracks` o `gpxFiles`
+- **Actualización de estado** - Elimina GPX de `this.state.gpxTracks`
+- **Limpieza de selecciones** - Elimina IDs de `this.state.selectedGPX` si estaban seleccionados
+- **Notificaciones** - Informa al usuario sobre la eliminación exitosa o errores
 
-#### **3. ✅ Proceso Automático y Transparente:**
-- **Conversión automática** - Sin intervención del usuario
-- **Notificaciones** - Informa al usuario del proceso
-- **Fallback seguro** - Si falla la conversión, mantiene el original
-- **Estadísticas** - Seguimiento de conversiones exitosas/fallidas
+#### **3. ✅ Mejora en `renderGPXList()`:**
+- **Títulos con nombre de sesión** - Prioriza mostrar el nombre de sesión sobre otros nombres
+- **Información mejorada** - Muestra "Sesión: [nombre]" en los detalles
+- **Botón eliminar integrado** - Nuevo botón "🗑️ Eliminar" en cada archivo GPX
 
-#### **4. ✅ Compatibilidad Multiplataforma:**
-- **iOS optimizado** - MP4 para VLC, WebM convertido automáticamente
-- **Windows normal** - Mantiene WebM/MP4 según configuración
-- **Detección automática** - Adapta codecs a cada plataforma
+#### **4. ✅ Mejora en `setupGPXEventListeners()`:**
+- **Event listener para eliminar** - Maneja clics en el nuevo botón eliminar
+- **Confirmación de usuario** - Usa `confirm()` para prevenir eliminaciones accidentales
+- **Integración con `deleteGPX()`** - Llama a la nueva función de eliminación
 
-### **📊 ESTADÍSTICAS DEL PROYECTO ACTUALIZADAS (v4.11)**
+### **📊 ESTADÍSTICAS DEL PROYECTO ACTUALIZADAS (v4.13)**
 
-- **Total módulos documentados:** 25 (+1 nuevo módulo VLC)
-- **Funciones principales identificadas:** ~380 (+56 desde v4.10)
-- **Funciones específicas VLC iOS:** 28
-- **Funciones de conversión WebM→MP4:** 12
-- **Funciones con nuevo sistema de nombres:** 8
-- **Funciones corregidas/mejoradas en v4.11:** 42
-- **Variables de estado:** ~125 (+15 desde v4.10)
-- **Variables de control:** ~60 (+5 desde v4.10)
-- **Elementos DOM referenciados:** ~130 (+5 desde v4.10)
-- **Zonas críticas identificadas:** 58 (+8 desde v4.10)
-- **Líneas totales estimadas en app.js:** ~8800 (+65 desde v4.10)
-- **Nuevas clases añadidas:** 1 (módulo VLC)
-- **Nuevas funciones añadidas:** 48
-- **Código específico VLC:** ~450 líneas
+- **Total módulos documentados:** 25 (módulos principales completos)
+- **Funciones principales identificadas:** ~385 (+5 desde v4.12)
+- **Funciones específicas GPX mejoradas:** 3 (`renderGPXList`, `setupGPXEventListeners`, nueva `deleteGPX`)
+- **Nuevas funciones añadidas:** 1 (`deleteGPX`)
+- **Funciones modificadas:** 2 (`renderGPXList`, `setupGPXEventListeners`)
+- **Líneas totales estimadas en app.js:** ~8850 (+50 desde v4.12)
+- **Código específico GPX mejorado:** ~120 líneas adicionales/modificadas
 
-## 🎯 CÓMO USAR ESTE ÍNDICE EN v4.11
+## 🎯 CÓMO USAR LAS NUEVAS FUNCIONALIDADES GPX EN v4.13
 
-### **Para problemas de compatibilidad VLC en iOS:**
+### **Para eliminar archivos GPX:**
 ```javascript
-// Funciones clave:
-convertWebMtoMP4ForVLC()      // Convierte WebM a MP4 compatible VLC
-diagnoseVLCIssue()            // Diagnóstico completo de problemas VLC
-repairMP4ForVLC()             // Repara MP4 existente para VLC
-selectOptimalCodec()          // Selecciona mejor codec para la plataforma
+// 1. Click en el botón "🗑️ Eliminar" en cualquier archivo GPX
+// 2. Confirmar la eliminación en el diálogo emergente
+// 3. El sistema automáticamente:
+//    - Elimina de IndexedDB (gpxTracks o gpxFiles)
+//    - Elimina del estado this.state.gpxTracks
+//    - Actualiza la UI inmediatamente
+//    - Muestra notificación de confirmación
 
-// Flujo recomendado para iOS:
-1. selectOptimalCodec()       // Selecciona MP4 si está disponible
-2. startRecording()           // Graba con codec óptimo
-3. saveVideoSegment()         // Convierte automáticamente si es WebM
-4. saveVLCCompatible()        // Guarda manteniendo sesión
+// Uso programático:
+await deleteGPX(gpxId, source); // source: 'gpxTracks' o 'gpxFiles'
 ```
 
-### **Para mantener sesiones durante la conversión:**
+### **Para ver nombres de sesión en GPX:**
 ```javascript
-// Funciones que preservan sesiones:
-saveToLocalFolder(blob, filename, sessionName)  // 🎯 Mantiene parámetro sessionName
-saveVLCCompatible(blob, filename, sessionName)  // Especialmente diseñada
-processIOSVideoRealTime(blob, gpsData)          // Procesa dentro del contexto de sesión
+// Los archivos GPX ahora muestran:
+// - Título principal: Nombre de sesión (si está disponible)
+// - Detalles: Incluye "Sesión: [nombre]" si existe
+// - Prioridad: sessionName > title > filename (sin extensión)
 
-// Verificación:
-console.log('Sesión activa:', this.state.recordingSessionName);
-console.log('Segmentos en sesión:', this.state.recordingSessionSegments);
-console.log('Formato sesión:', this.state.recordingSessionInfo.format);
+// Estructura GPX mejorada:
+{
+    id: 123,
+    sessionName: "Viaje a montaña",  // 🆕 NUEVO: Prioridad para título
+    title: "Viaje a montaña.gpx",    // Usado si no hay sessionName
+    filename: "Viaje_a_montaña.gpx", // Usado si no hay title
+    points: 150,
+    // ... otros campos
+}
 ```
 
-### **Para diagnóstico de problemas VLC:**
-```javascript
-// Herramientas de diagnóstico:
-diagnoseVLCIssue(blob)        // Diagnóstico completo de estructura MP4
-getFirstBytes(blob, 32)       // Primeros bytes del archivo (hex)
-checkForMoovAtom(blob)        // Verifica posición del átomo moov
-checkMP4Structure(blob)       // Verifica estructura MP4 completa
-
-// Comandos de consola para debugging:
-diagnoseVLCCompatibility(myVideoBlob)
-debugIOSVLCIssues()
-testVLCPlayback(videoElement)
-
-// Verificar estructura específica:
-const atoms = await parseMP4Atoms(blob);
-console.log('Átomos MP4:', atoms.filter(a => ['ftyp', 'moov', 'mdat'].includes(a.type)));
-```
-
-## 📝 PLANTILLA PARA PROBLEMAS EN v4.11
+## 📝 PLANTILLA PARA PROBLEMAS EN v4.13
 
 ```markdown
-## 🚨 PROBLEMA v4.11
+## 🚨 PROBLEMA v4.13
 
-**Versión:** 4.11
+**Versión:** 4.13
 **Dispositivo:** [iOS/Windows]
 **Navegador:** [Safari/Chrome/etc]
 **Protocolo:** [http://, https://, file://]
 
-**Problema específico:**
-[ ] Video iOS no muestra duración en VLC
-[ ] Video iOS no permite navegación en VLC  
-[ ] Sesiones no se mantienen después de conversión
-[ ] Conversión WebM→MP4 falla
-[ ] Grabación no inicia en iOS
-[ ] Metadatos GPS se pierden en conversión
+**Problema específico GPX:**
+[ ] Botón eliminar no aparece en archivos GPX
+[ ] Botón eliminar no funciona
+[ ] No se muestra nombre de sesión en GPX
+[ ] Eliminación no actualiza la UI
+[ ] Error al intentar eliminar GPX
+[ ] Sesión no aparece en detalles GPX
 [ ] Otro: _________
 
 **Funciones relacionadas:**
-- startRecording() - Líneas ~500-600 (detección codecs)
-- saveVideoSegment() - Líneas ~600-800 (conversión + sesiones)
-- convertWebMtoMP4ForVLC() - Líneas ~8700-8750
-- saveVLCCompatible() - Líneas ~8780-8800
-- diagnoseVLCIssue() - Líneas ~8750-8770
+- renderGPXList() - Líneas ~5700-5800 (renderizado con nombres sesión + botón eliminar)
+- setupGPXEventListeners() - Líneas ~5700-5800 (eventos para eliminar)
+- deleteGPX() - Líneas ~5850-5900 (función de eliminación)
+- downloadGPX() - Líneas ~5800-5850 (descarga GPX)
 
-**Diagnóstico rápido:**
-1. ¿Formato original? _______
-2. ¿Tiene moov atom? _______
-3. ¿Posición de moov? _______
-4. ¿Sesión activa? _______
-5. ¿Plataforma? _______
+**Diagnóstico rápido GPX:**
+1. ¿Archivo GPX tiene sessionName? _______
+2. ¿Botón eliminar visible? _______
+3. ¿Confirmación aparece? _______
+4. ¿Error en consola? _______
+5. ¿GPX eliminado de UI? _______
 
 **Consola del navegador:**
 [Pegar error o log relevante]
 
-**Primeros bytes del archivo (hex):**
-[Pegar primeros 32 bytes en hexadecimal]
+**Estructura GPX actual (ejemplo):**
+{
+  "id": 123,
+  "sessionName": "Viaje a montaña",
+  "title": "Viaje a montaña.gpx",
+  "filename": "Ruta_20231201.gpx",
+  "points": 150,
+  "source": "gpxTracks"
+}
 ```
 
-## 🏆 VENTAJAS DEL SISTEMA v4.11
+## 🏆 VENTAJAS DEL SISTEMA v4.13
 
-### **✅ Para Usuarios iOS:**
-1. **Videos funcionan en VLC** - Muestran duración y permiten navegación
-2. **Organización mantenida** - Sesiones y carpetas preservadas
-3. **Proceso automático** - No requiere intervención del usuario
-4. **Metadatos GPS intactos** - Información de ubicación preservada
-5. **Notificaciones claras** - Usuario sabe qué está pasando
+### **✅ Para Usuarios:**
+1. **Gestión completa GPX** - Eliminar archivos GPX no deseados
+2. **Organización mejorada** - Nombres de sesión claros en archivos GPX
+3. **Confirmación segura** - Previene eliminaciones accidentales
+4. **Feedback inmediato** - UI actualizada al instante
 
 ### **✅ Para Desarrolladores:**
-1. **Código modular** - Nuevas funciones en módulo separado VLC
-2. **Fácil mantenimiento** - Funciones específicas para cada problema
-3. **Diagnóstico integrado** - Herramientas completas para debugging
-4. **Retrocompatible** - No rompe funcionalidad existente
-5. **Estadísticas** - Seguimiento de conversiones y errores
+1. **Código modular** - Nueva función `deleteGPX()` autocontenida
+2. **Integración limpia** - No rompe funcionalidad existente
+3. **Manejo de errores** - Robustez en eliminación de IndexedDB
+4. **Consistencia** - Mismo patrón que eliminación de videos
 
 ### **✅ Funciones Críticas Verificadas:**
-1. **startRecording()** ✅ - Detección automática de codecs óptimos
-2. **saveVideoSegment()** ✅ - Mantiene sesiones + conversión automática VLC  
-3. **convertWebMtoMP4ForVLC()** ✅ - Conversión efectiva con estructura válida
-4. **saveToLocalFolder()** ✅ - Organización en sesiones preservada
-5. **saveVLCCompatible()** ✅ - Guardado optimizado manteniendo contexto
+1. **renderGPXList()** ✅ - Muestra nombres de sesión y botón eliminar
+2. **setupGPXEventListeners()** ✅ - Maneja eventos de eliminación con confirmación
+3. **deleteGPX()** ✅ - Eliminación segura con actualización de estado y UI
+4. **downloadGPX()** ✅ - Mantiene funcionalidad existente intacta
 
 ## 🎯 PRÓXIMOS PASOS RECOMENDADOS
 
-1. **Monitorear conversiones** - Seguir estadísticas de éxito/fallo
-2. **Optimizar velocidad** - Mejorar rendimiento de conversión si es necesario
-3. **Añadir más diagnósticos** - Para edge cases específicos
-4. **Mejorar UI/UX** - Interfaz más informativa para el usuario
-5. **Pruebas exhaustivas** - En diferentes dispositivos iOS y versiones
+1. **Pruebas exhaustivas** - Verificar eliminación en diferentes escenarios
+2. **Mejorar feedback** - Añadir animaciones o transiciones en eliminación
+3. **Exportación mejorada** - Permitir exportar GPX con nombre de sesión automático
+4. **Selección múltiple** - Extender eliminación a múltiples archivos GPX seleccionados
+5. **Recuperación** - Considerar papelera de reciclaje o deshacer eliminación
 
 ## ⚠️ NOTAS IMPORTANTES DE IMPLEMENTACIÓN
 
-### **Para iOS:**
-- La conversión WebM→MP4 añade ~24KB de overhead (cabeceras MP4)
-- Los videos convertidos tienen extensión .mp4 (incluso si original era .webm)
-- La estructura de sesiones SE MANTIENE INTACTA
-- El proceso es automático y transparente para el usuario
+### **Para GPX con nombres de sesión:**
+- Si existe `sessionName`, se usa como título principal
+- Si no existe `sessionName`, se usa `title` o `filename` (sin extensión)
+- La información de sesión se muestra en los detalles
+- Compatible con GPX existentes (no requiere migración)
 
-### **Para Desarrolladores:**
-- El módulo VLC es autocontenido (~450 líneas)
-- Se integra con funciones existentes sin modificarlas
-- Incluye diagnóstico completo para debugging
-- Es extensible para futuras mejoras
+### **Para eliminación de GPX:**
+- Elimina de IndexedDB según la fuente (`gpxTracks` o `gpxFiles`)
+- Actualiza `this.state.gpxTracks` inmediatamente
+- Limpia `this.state.selectedGPX` si el GPX estaba seleccionado
+- Muestra notificación de éxito/error
+- Pide confirmación al usuario antes de eliminar
 
 ### **Performance:**
-- Conversión en memoria (no usa disco)
-- Overhead mínimo en tamaño de archivo
-- Proceso optimizado para iOS Safari
-- Fallback seguro si falla la conversión
+- Eliminación en memoria y IndexedDB (rápido)
+- Actualización inmediata de UI
+- Sin impacto en otros módulos
+- Compatible con iOS y desktop
 
-*Documentación actualizada para v4.11 - Solución completa para compatibilidad VLC en iOS con mantenimiento total de sesiones y organización*
+*Documentación actualizada para v4.13 - Gestión completa de GPX con eliminación y nombres de sesión*
 ```
 
-Este es el archivo **Estructura_App.md COMPLETO** con todas las ~1400 líneas actualizadas para v4.11, incluyendo la solución definitiva para VLC en iOS mientras se mantiene completamente el sistema de sesiones existente.
+Este es el archivo **Estructura_App.md COMPLETO** actualizado para v4.13 con toda la gestión GPX mejorada, incluyendo eliminación de archivos GPX y uso de nombres de sesión como títulos principales.

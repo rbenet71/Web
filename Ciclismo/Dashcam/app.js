@@ -1,6 +1,6 @@
-// Dashcam PWA v4.13 - Versión Completa Simplificada
+// Dashcam PWA v4.13.1 - Versión Completa Simplificada
 
-const APP_VERSION = '4.13';
+const APP_VERSION = '4.13.1';
 
 class DashcamApp {
     constructor() {
@@ -11832,7 +11832,7 @@ setPlaybackSpeed(speed) {
             console.log('📥 Descargando GPX:', gpxId, 'fuente:', source);
             
             let blob;
-            let filename = 'ruta.gpx';
+            let filename = 'ruta.gpx'; // 🆕 CAMBIAR ESTO
             
             if (source === 'gpxFiles') {
                 // 1. Obtener datos de la base de datos
@@ -11846,10 +11846,20 @@ setPlaybackSpeed(speed) {
                         fileSize: gpxData.fileSize
                     });
                     
+                    // 🆕 NUEVO: OBTENER NOMBRE DE SESIÓN SI EXISTE
+                    const sessionName = gpxData.sessionName || gpxData.session || gpxData.name;
+                    // 🆕 LIMPIAR NOMBRE PARA ARCHIVO
+                    const cleanSessionName = sessionName 
+                        ? sessionName.replace(/[^\w\s-]/g, '').replace(/\s+/g, '_')
+                        : null;
+                    
                     // 2. Si tiene blob, usarlo
                     if (gpxData.blob) {
                         blob = gpxData.blob;
-                        filename = gpxData.filename || `${gpxData.name}.gpx`;
+                        // 🆕 CAMBIO AQUÍ: Usar sessionName.gpx si existe
+                        filename = cleanSessionName 
+                            ? `${cleanSessionName}.gpx`
+                            : (gpxData.filename || `${gpxData.name}.gpx`);
                         console.log('✅ Usando blob existente');
                     }
                     // 3. Si NO tiene blob pero tiene gpxData con puntos
@@ -11857,7 +11867,10 @@ setPlaybackSpeed(speed) {
                         console.log('🔄 Creando blob desde puntos GPX...');
                         const gpxContent = this.generateGPXFromPoints(gpxData.gpxData.points, gpxData.name);
                         blob = new Blob([gpxContent], { type: 'application/gpx+xml' });
-                        filename = gpxData.filename || `${gpxData.name}.gpx`;
+                        // 🆕 CAMBIO AQUÍ: Usar sessionName.gpx si existe
+                        filename = cleanSessionName 
+                            ? `${cleanSessionName}.gpx`
+                            : (gpxData.filename || `${gpxData.name}.gpx`);
                         console.log('✅ Blob creado desde puntos');
                     }
                     // 4. Si tiene fileSize pero no blob ni puntos, es un GPX externo
@@ -11871,7 +11884,10 @@ setPlaybackSpeed(speed) {
                                 const fileHandle = await this.localFolderHandle.getFileHandle(gpxData.filename);
                                 const file = await fileHandle.getFile();
                                 blob = file;
-                                filename = gpxData.filename;
+                                // 🆕 CAMBIO AQUÍ: Usar sessionName.gpx si existe
+                                filename = cleanSessionName 
+                                    ? `${cleanSessionName}.gpx`
+                                    : gpxData.filename;
                                 console.log('✅ Archivo encontrado en carpeta local');
                                 
                                 // Actualizar la base de datos con el blob
@@ -11892,7 +11908,16 @@ setPlaybackSpeed(speed) {
                 const gpxTracksData = await this.getFromStore('gpxTracks', parseInt(gpxId));
                 if (gpxTracksData?.blob) {
                     blob = gpxTracksData.blob;
-                    filename = gpxTracksData.filename || 'ruta.gpx';
+                    // 🆕 NUEVO: OBTENER NOMBRE DE SESIÓN SI EXISTE
+                    const sessionName = gpxTracksData.sessionName || gpxTracksData.session || gpxTracksData.name;
+                    const cleanSessionName = sessionName 
+                        ? sessionName.replace(/[^\w\s-]/g, '').replace(/\s+/g, '_')
+                        : null;
+                    
+                    // 🆕 CAMBIO AQUÍ: Usar sessionName.gpx si existe
+                    filename = cleanSessionName 
+                        ? `${cleanSessionName}.gpx`
+                        : (gpxTracksData.filename || 'ruta.gpx');
                     console.log('✅ Usando blob de gpxTracks');
                 }
             }
@@ -11913,6 +11938,7 @@ setPlaybackSpeed(speed) {
     </gpx>`;
                 
                 blob = new Blob([basicGPX], { type: 'application/gpx+xml' });
+                // 🆕 CAMBIO AQUÍ: Usar nombre genérico pero con timestamp
                 filename = `ruta_exportada_${Date.now()}.gpx`;
                 console.log('✅ GPX básico creado');
             }

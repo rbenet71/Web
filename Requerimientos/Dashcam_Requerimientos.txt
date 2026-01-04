@@ -50,7 +50,8 @@ eliminamos concatenar-> combineVideosModal
 Dentro del mensaje inicial hay que incluir este concpeto, esta aplicación se ha hecho para grabar recorridos de carreras ciclistas y ayudar al organizador enb sus funciones. Para poder grabar con tu telefono has de tener presente que este aplicación consume mucha corriente y espacio en el telefono, Por tanto ten el movil conectado a la bateria del coche y ten una estrategia para sacar los videos del telefono, ya sea grabando los videos en onedrive o Google Drive o bien conectando una memoria externa al telefono (Usb, tarjetas de memoria, etc..). Mas adelanta tengo previsto desarrollar mas aplicaciones para gestionar estos videos: unirlos, ver mapa, infografia. Todo esto estara en rbnet71.github.io/Web
 4.12 Grabación en formato MP4
 ---
-4.13 Gestion GPX, poder borrar, y el nombre que sea el de la sesión.
+4.13 Gestion GPX, poder borrar
+4.13.1  y el nombre que sea el de la sesión. No se puede acceder al ultimo elemento del listado
 4.13.1 Mantenimiento GPX???? no se cierra.
 ----
 
