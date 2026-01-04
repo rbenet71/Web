@@ -1,6 +1,6 @@
-// Dashcam PWA v4.12 - Versión Completa Simplificada
+// Dashcam PWA v4.13 - Versión Completa Simplificada
 
-const APP_VERSION = '4.12';
+const APP_VERSION = '4.13';
 
 class DashcamApp {
     constructor() {
@@ -11122,6 +11122,19 @@ setPlaybackSpeed(speed) {
             const normalizedId = this.normalizeId(gpx.id || index);
             const isSelected = this.state.selectedGPX.has(normalizedId);
             
+            // 🆕 NUEVO: Usar nombre de sesión si está disponible
+            const sessionName = gpx.sessionName || gpx.session || '';
+            let gpxTitle = 'Archivo GPX';
+            
+            if (sessionName && sessionName.trim() !== '') {
+                gpxTitle = sessionName;
+            } else if (gpx.title) {
+                gpxTitle = gpx.title;
+            } else if (gpx.filename) {
+                // Extraer nombre sin extensión
+                gpxTitle = gpx.filename.replace('.gpx', '').replace('.GPX', '');
+            }
+            
             // Icono según ubicación
             let locationIcon = '📱';
             let locationText = 'App';
@@ -11137,6 +11150,9 @@ setPlaybackSpeed(speed) {
             if (gpx.points) {
                 detailsHTML += `<div>📍 ${gpx.points} puntos</div>`;
             }
+            if (sessionName) {
+                detailsHTML += `<div>📅 Sesión: ${sessionName}</div>`;
+            }
             if (gpx.path) {
                 detailsHTML += `<div>📁 ${gpx.path}</div>`;
             }
@@ -11151,7 +11167,7 @@ setPlaybackSpeed(speed) {
                     data-location="${location}"
                     data-source="${source}">
                     <div class="file-header">
-                        <div class="file-title">${gpx.title || gpx.filename || 'Archivo GPX'}</div>
+                        <div class="file-title">${gpxTitle}</div>
                         <div class="file-location" title="${locationText}">${locationIcon}</div>
                         <div class="file-format">GPX</div>
                         <div class="file-time">${timeStr}</div>
@@ -11172,6 +11188,9 @@ setPlaybackSpeed(speed) {
                         </button>
                         <button class="play-btn download-gpx" data-id="${gpx.id || index}" data-source="${source}">
                             📥 Descargar
+                        </button>
+                        <button class="play-btn delete-gpx" data-id="${gpx.id || index}" data-source="${source}">
+                            🗑️ Eliminar
                         </button>
                         ${source === 'filesystem' ? `
                             <button class="play-btn load-gpx" data-filename="${gpx.filename}" data-path="${gpx.path}">
@@ -11236,6 +11255,23 @@ setPlaybackSpeed(speed) {
                     const id = e.target.dataset.id;
                     const source = e.target.dataset.source;
                     await this.downloadGPX(id, source);
+                });
+            }
+            
+            // 🆕 NUEVO: Botón de eliminar GPX
+            const deleteBtn = item.querySelector('.delete-gpx');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    const id = e.target.dataset.id;
+                    const source = e.target.dataset.source;
+                    
+                    // Confirmar eliminación
+                    const confirmDelete = confirm('¿Estás seguro de que quieres eliminar este archivo GPX?');
+                    if (confirmDelete) {
+                        await this.deleteGPX(id, source);
+                    }
                 });
             }
             
@@ -11894,6 +11930,62 @@ setPlaybackSpeed(speed) {
         } catch (error) {
             console.error('❌ Error descargando GPX:', error);
             this.showNotification('❌ Error al descargar GPX');
+        }
+    }
+
+    async deleteGPX(gpxId, source = 'gpxTracks') {
+        try {
+            console.log('🗑️ Eliminando GPX:', gpxId, 'fuente:', source);
+            
+            // Buscar el GPX en el estado para obtener información
+            const gpxIndex = this.state.gpxTracks.findIndex(gpx => 
+                (gpx.id && gpx.id.toString() === gpxId.toString()) || 
+                gpx.id === gpxId
+            );
+            
+            if (gpxIndex === -1) {
+                console.warn('⚠️ GPX no encontrado en el estado:', gpxId);
+                this.showNotification('❌ GPX no encontrado');
+                return false;
+            }
+            
+            const gpxToDelete = this.state.gpxTracks[gpxIndex];
+            const gpxTitle = gpxToDelete.sessionName || gpxToDelete.title || gpxToDelete.filename || 'Archivo GPX';
+            
+            // Eliminar de IndexedDB según la fuente
+            if (source === 'gpxFiles' || gpxToDelete.source === 'filesystem') {
+                // Eliminar de la tabla gpxFiles
+                await this.deleteFromStore('gpxFiles', parseInt(gpxId));
+                console.log('✅ Eliminado de gpxFiles');
+            } else {
+                // Eliminar de la tabla gpxTracks (por defecto)
+                await this.deleteFromStore('gpxTracks', parseInt(gpxId));
+                console.log('✅ Eliminado de gpxTracks');
+            }
+            
+            // Eliminar del estado
+            this.state.gpxTracks.splice(gpxIndex, 1);
+            
+            // Eliminar de selectedGPX si está seleccionado
+            const normalizedId = this.normalizeId(gpxId);
+            if (this.state.selectedGPX.has(normalizedId)) {
+                this.state.selectedGPX.delete(normalizedId);
+            }
+            
+            // Actualizar la UI
+            this.renderGPXList();
+            this.updateSelectionButtons();
+            
+            // Mostrar notificación
+            this.showNotification(`🗑️ GPX eliminado: ${gpxTitle}`);
+            
+            console.log('✅ GPX eliminado correctamente');
+            return true;
+            
+        } catch (error) {
+            console.error('❌ Error eliminando GPX:', error);
+            this.showNotification('❌ Error al eliminar GPX');
+            return false;
         }
     }
 
