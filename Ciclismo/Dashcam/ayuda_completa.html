@@ -3,92 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ayuda Completa - DashCam </title>
+    <title>Ayuda Completa Detallada - DashCam </title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Segoe UI Emoji', sans-serif;
+            line-height: 1.7; 
             color: #333;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #f5f7fa 0%, #e3e8f0 100%);
             padding: 20px;
             min-height: 100vh;
         }
         
         /* Contenedor principal */
         .main-container {
-            max-width: 900px;
+            max-width: 1100px;
             margin: 0 auto;
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.2);
             overflow: hidden;
         }
         
         /* Header */
         .help-header {
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
             color: white;
-            padding: 30px;
+            padding: 40px 30px;
             text-align: center;
             position: relative;
+            border-bottom: 5px solid #3498db;
         }
         
         .help-header h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+            font-size: 42px;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
         }
         
         .help-header .version {
-            background: rgba(255,255,255,0.2);
-            padding: 5px 15px;
-            border-radius: 20px;
+            background: rgba(255,255,255,0.25);
+            padding: 8px 25px;
+            border-radius: 30px;
             display: inline-block;
-            margin-top: 10px;
-            font-weight: 600;
+            margin-top: 15px;
+            font-weight: 700;
+            font-size: 18px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.3);
         }
         
-        /* Tabs de idioma */
+        /* Navegación */
         .language-tabs {
             display: flex;
-            background: #f8f9fa;
-            padding: 15px 20px;
-            border-bottom: 1px solid #dee2e6;
-            gap: 5px;
+            background: #f1f5f9;
+            padding: 0;
+            border-bottom: 3px solid #3498db;
+            gap: 0;
             flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         
         .lang-tab {
-            padding: 12px 25px;
-            background: white;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
+            padding: 18px 30px;
+            background: linear-gradient(to bottom, #f8fafc, #e2e8f0);
+            border: none;
+            border-right: 1px solid #cbd5e1;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 16px;
             transition: all 0.3s;
             text-align: center;
-            min-width: 110px;
+            min-width: 140px;
             flex: 1;
+            color: #475569;
+            position: relative;
+            overflow: hidden;
         }
         
+        .lang-tab:last-child { border-right: none; }
+        
         .lang-tab:hover {
-            border-color: #3498db;
+            background: linear-gradient(to bottom, #e2e8f0, #cbd5e1);
             transform: translateY(-2px);
+            color: #1e293b;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
         .lang-tab.active {
-            background: #3498db;
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
             color: white;
-            border-color: #3498db;
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+            border-bottom: 4px solid #1abc9c;
         }
         
         /* Contenido */
         .help-content {
-            padding: 30px;
-            max-height: 70vh;
+            padding: 40px;
+            max-height: 75vh;
             overflow-y: auto;
+            background: linear-gradient(to bottom right, #ffffff, #f8fafc);
         }
         
         .lang-content {
@@ -97,115 +117,375 @@
         
         .lang-content.active {
             display: block;
-            animation: fadeIn 0.5s;
+            animation: fadeInUp 0.5s ease-out;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        /* Estilos de contenido */
-        .intro-box {
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-            border-left: 5px solid #f39c12;
-            padding: 25px;
-            margin-bottom: 30px;
-            border-radius: 0 10px 10px 0;
-        }
-        
-        .warning-box {
-            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-            border-left: 5px solid #dc3545;
-            padding: 25px;
-            margin: 25px 0;
-            border-radius: 0 10px 10px 0;
-        }
-        
-        .tip-box {
-            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
-            border-left: 5px solid #17a2b8;
-            padding: 25px;
-            margin: 25px 0;
-            border-radius: 0 10px 10px 0;
-        }
-        
-        .feature-box {
+        /* Índice lateral */
+        .table-of-contents {
             background: linear-gradient(135deg, #e8f4fd 0%, #d4edff 100%);
-            border-left: 5px solid #3498db;
+            border-radius: 15px;
             padding: 25px;
-            margin: 25px 0;
-            border-radius: 0 10px 10px 0;
+            margin-bottom: 40px;
+            border-left: 6px solid #3498db;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.1);
         }
         
-        h1 { color: #2c3e50; margin-bottom: 20px; }
-        h2 { 
-            color: #3498db; 
-            margin: 35px 0 15px 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #eee;
+        .toc-title {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        h3 { color: #2c3e50; margin: 25px 0 10px 0; }
-        h4 { color: #555; margin: 20px 0 8px 0; font-size: 16px; }
         
-        p { margin-bottom: 15px; text-align: justify; }
+        .toc-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 12px;
+            list-style: none;
+        }
         
-        ul, ol { margin: 15px 0 15px 25px; }
-        li { margin-bottom: 10px; }
+        .toc-item {
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid #e2e8f0;
+        }
         
-        .app-command {
-            background: #2c3e50;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 6px;
-            font-family: 'Courier New', monospace;
-            margin: 10px 0;
-            display: inline-block;
+        .toc-item:hover {
+            background: white;
+            transform: translateX(5px);
+            border-color: #3498db;
+            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.2);
+        }
+        
+        .toc-item a {
+            color: #475569;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-weight: 600;
         }
         
-        .icon-list { display: flex; flex-wrap: wrap; gap: 15px; margin: 20px 0; }
-        .icon-item { 
-            flex: 1; min-width: 200px; 
-            background: #f8f9fa; 
-            padding: 15px; 
-            border-radius: 8px;
-            text-align: center;
-        }
-        .icon-item span { font-size: 24px; display: block; margin-bottom: 10px; }
-        
-        .section-divider {
-            height: 3px;
-            background: linear-gradient(90deg, #3498db, #2ecc71, #3498db);
-            margin: 30px 0;
-            border-radius: 3px;
+        /* Secciones */
+        .section {
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 2px dashed #e2e8f0;
         }
         
-        .app-reference {
-            background: #e8f4fd;
-            border: 2px solid #3498db;
-            padding: 15px 20px;
-            margin: 15px 0;
-            border-radius: 10px;
-            font-style: italic;
+        .section:last-child { border-bottom: none; }
+        
+        h1 { 
+            color: #1a2980; 
+            margin: 40px 0 25px 0;
+            font-size: 36px;
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #e2e8f0;
+        }
+        
+        h2 { 
+            color: #2c3e50; 
+            margin: 35px 0 20px 0;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-left: 15px;
             border-left: 5px solid #3498db;
         }
         
-        .contact-info {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 2px dashed #ddd;
-            color: #666;
-            font-size: 15px;
+        h3 { 
+            color: #3498db; 
+            margin: 30px 0 15px 0;
+            font-size: 22px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0;
         }
         
+        h4 { 
+            color: #2c3e50; 
+            margin: 25px 0 10px 0;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        /* Boxes mejorados */
+        .intro-box {
+            background: linear-gradient(135deg, rgba(255, 243, 205, 0.95), rgba(255, 234, 167, 0.95));
+            border: 2px solid #f39c12;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(243, 156, 18, 0.15);
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, rgba(248, 215, 218, 0.95), rgba(245, 198, 203, 0.95));
+            border: 2px solid #dc3545;
+            padding: 30px;
+            margin: 30px 0;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.15);
+        }
+        
+        .tip-box {
+            background: linear-gradient(135deg, rgba(209, 236, 241, 0.95), rgba(190, 229, 235, 0.95));
+            border: 2px solid #17a2b8;
+            padding: 30px;
+            margin: 30px 0;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(23, 162, 184, 0.15);
+        }
+        
+        .feature-box {
+            background: linear-gradient(135deg, rgba(232, 244, 253, 0.95), rgba(212, 237, 255, 0.95));
+            border: 2px solid #3498db;
+            padding: 30px;
+            margin: 30px 0;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.15);
+        }
+        
+        .step-box {
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            border: 2px solid #38c172;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 12px;
+            border-left: 6px solid #38c172;
+        }
+        
+        /* Listas mejoradas */
+        ul, ol { 
+            margin: 20px 0 20px 35px; 
+            padding-left: 10px;
+        }
+        
+        li { 
+            margin-bottom: 12px; 
+            padding-left: 5px;
+            line-height: 1.8;
+        }
+        
+        li strong { color: #2c3e50; }
+        
+        /* Código y comandos */
+        .app-command {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-family: 'SF Mono', 'Roboto Mono', 'Courier New', monospace;
+            margin: 15px 0;
+            display: inline-block;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(44, 62, 80, 0.3);
+            border: 1px solid #4a6572;
+        }
+        
+        /* Iconos mejorados */
+        .icon-list { 
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .icon-item { 
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        
+        .icon-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border-color: #3498db;
+        }
+        
+        .icon-item span { 
+            font-size: 32px; 
+            display: block; 
+            margin-bottom: 15px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Simulaciones de pantalla */
+        .screen-simulation {
+            background: #1e1e1e;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 3px solid #333;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            font-family: 'SF Mono', monospace;
+            color: #f0f0f0;
+        }
+        
+        .screen-header {
+            background: #2c3e50;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .screen-content {
+            padding: 20px;
+            background: #252525;
+            border-radius: 8px;
+        }
+        
+        .screen-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            margin: 5px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .screen-button.red { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .screen-button.green { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        
+        /* Pasos numerados */
+        .numbered-steps {
+            counter-reset: step-counter;
+            margin: 30px 0;
+        }
+        
+        .numbered-step {
+            counter-increment: step-counter;
+            background: #f8fafc;
+            padding: 20px 20px 20px 70px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 5px solid #3498db;
+            position: relative;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .numbered-step:before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #3498db;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        /* Contacto */
+        .contact-info {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 3px solid #e2e8f0;
+            color: #475569;
+            font-size: 16px;
+            background: linear-gradient(135deg, #f8fafc, #ffffff);
+            padding: 40px;
+            border-radius: 20px;
+        }
+        
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .contact-item {
+            padding: 25px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .contact-item h4 {
+            color: #3498db;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        /* Responsive */
         @media (max-width: 768px) {
             body { padding: 10px; }
-            .help-content { padding: 20px; }
-            .lang-tab { min-width: 90px; padding: 10px 15px; }
-            .help-header { padding: 20px; }
-            .help-header h1 { font-size: 24px; }
+            .help-content { padding: 25px; max-height: 80vh; }
+            .lang-tab { min-width: 100px; padding: 15px 20px; font-size: 14px; }
+            .help-header { padding: 25px 20px; }
+            .help-header h1 { font-size: 28px; flex-direction: column; }
+            .toc-list { grid-template-columns: 1fr; }
+            h1 { font-size: 28px; }
+            h2 { font-size: 24px; }
+        }
+        
+        /* Scroll personalizado */
+        .help-content::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        .help-content::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        
+        .help-content::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            border-radius: 10px;
+        }
+        
+        /* Animaciones */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #a1c4fd80 0%, #c2e9fb80 100%);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -213,9 +493,9 @@
     <div class="main-container">
         <!-- Header -->
         <div class="help-header">
-            <h1>📱 DashCam </h1>
-            <p>Grabación profesional de recorridos con datos GPS</p>
-            <div class="version">Versión 4.11</div>
+            <h1>📱 DashCam  <span class="pulse">🚀</span></h1>
+            <p>Sistema Profesional de Grabación GPS para Eventos Ciclistas</p>
+            <div class="version">Versión 4.11 - Diciembre 2026</div>
         </div>
         
         <!-- Selector de idioma -->
@@ -229,394 +509,1318 @@
         <!-- ===================== ESPAÑOL ===================== -->
         <div id="content-es" class="help-content lang-content active">
             
+            <!-- ÍNDICE -->
+            <div class="table-of-contents">
+                <h2 class="toc-title">📋 Índice de Contenidos</h2>
+                <ul class="toc-list">
+                    <li class="toc-item"><a href="#intro"><span>🎯</span>Introducción Completa</a></li>
+                    <li class="toc-item"><a href="#grabacion"><span>🎬</span>Grabación Paso a Paso</a></li>
+                    <li class="toc-item"><a href="#gps"><span>📍</span>Sistema GPS y Overlay</a></li>
+                    <li class="toc-item"><a href="#galeria"><span>📁</span>Galería y Gestión</a></li>
+                    <li class="toc-item"><a href="#gpx"><span>🗺️</span>GPX y Rutas</a></li>
+                    <li class="toc-item"><a href="#exportacion"><span>📤</span>Exportación Avanzada</a></li>
+                    <li class="toc-item"><a href="#config"><span>⚙️</span>Configuración Detallada</a></li>
+                    <li class="toc-item"><a href="#pwa"><span>📱</span>Instalación PWA</a></li>
+                    <li class="toc-item"><a href="#ios"><span>🍎</span>Guía Específica iOS</a></li>
+                    <li class="toc-item"><a href="#consejos"><span>💡</span>Consejos Profesionales</a></li>
+                </ul>
+            </div>
+            
             <!-- INTRODUCCIÓN -->
-            <div class="intro-box">
-                <h2>🎯 INTRODUCCIÓN</h2>
-                <p><strong>DashCam </strong> es una aplicación profesional diseñada específicamente para <strong>grabar recorridos de carreras ciclistas</strong> y ayudar al organizador en sus funciones.</p>
-                <p>Esta herramienta permite capturar video de alta calidad con <strong>metadatos GPS incrustados en cada frame</strong>, creando un registro completo y preciso de todo el recorrido.</p>
-                <p>La aplicación ha sido optimizada para iPhone y funciona tanto en navegador como instalada como aplicación nativa (PWA).</p>
-            </div>
-            
-            <!-- ADVERTENCIA IMPORTANTE -->
-            <div class="warning-box">
-                <h3>⚠️ ADVERTENCIA IMPORTANTE PARA EL ORGANIZADOR</h3>
-                
-                <h4>🔋 CONSUMO DE ENERGÍA</h4>
-                <p>Esta aplicación consume <strong>MUCHA CORRIENTE</strong> debido a:</p>
-                <ul>
-                    <li>Grabación continua de video en alta calidad (720p/1080p/4K)</li>
-                    <li>GPS activo permanentemente con alta precisión</li>
-                    <li>Procesamiento en tiempo real de metadatos GPS</li>
-                    <li>Sobrepuesta de datos en pantalla (velocidad, coordenadas, etc.)</li>
-                    <li>Gestión de almacenamiento en segundo plano</li>
-                </ul>
-                <p><strong>💡 CONSEJO CRÍTICO:</strong> Mantén el teléfono <strong>conectado a la batería del coche</strong> durante toda la grabación. Una batería de iPhone puede durar solo 2-3 horas en uso intensivo.</p>
-                
-                <h4>💾 CONSUMO DE ESPACIO</h4>
-                <p>El video con metadatos GPS ocupa considerable espacio:</p>
-                <ul>
-                    <li><strong>720p:</strong> 1-2 GB por hora</li>
-                    <li><strong>1080p:</strong> 2-4 GB por hora</li>
-                    <li><strong>4K:</strong> 4-8 GB por hora</li>
-                </ul>
-                <p><strong>🚨 IMPORTANTE:</strong> Necesitas una estrategia para gestionar los videos. No puedes depender solo de la memoria interna del teléfono.</p>
-            </div>
-            
-            <!-- ESTRATEGIAS DE ALMACENAMIENTO -->
-            <h2>📋 ESTRATEGIAS DE ALMACENAMIENTO RECOMENDADAS</h2>
-            
-            <div class="tip-box">
-                <h3>🎯 OPCIÓN 1: Subida automática a la nube</h3>
-                <p>Configura la app para guardar directamente en servicios en la nube:</p>
-                <ul>
-                    <li><strong>OneDrive</strong> - Integración perfecta con Microsoft 365</li>
-                    <li><strong>Google Drive</strong> - Excelente para cuentas Google</li>
-                    <li><strong>Dropbox</strong> - Sencillo y confiable</li>
-                    <li><strong>iCloud Drive</strong> - Nativo para usuarios Apple</li>
-                </ul>
-                <div class="app-reference">
-                    📱 <strong>Cómo configurar:</strong> Ve a <strong>Ajustes → Ubicación de almacenamiento → Carpeta Local</strong><br>
-                    Selecciona tu carpeta en la nube desde la app "Archivos" de iOS
+            <div id="intro" class="section">
+                <div class="intro-box">
+                    <h2>🎯 INTRODUCCIÓN COMPLETA A DASHCAM</h2>
+                    <p><strong>DashCam</strong> es una <span class="highlight">aplicación web progresiva (PWA)</span> diseñada específicamente para organizadores de eventos ciclistas. Permite grabar recorridos completos con datos GPS incrustados en cada fotograma del video.</p>
+                    
+                    <div class="tip-box">
+                        <h3>✨ ¿PARA QUIÉN ES ESTA APLICACIÓN?</h3>
+                        <div class="icon-list">
+                            <div class="icon-item">
+                                <span>🚴‍♂️</span>
+                                <strong>Organizadores de carreras</strong><br>Documentación oficial de recorridos
+                            </div>
+                            <div class="icon-item">
+                                <span>📹</span>
+                                <strong>Creadores de contenido</strong><br>Videos con datos técnicos integrados
+                            </div>
+                            <div class="icon-item">
+                                <span>🗺️</span>
+                                <strong>Equipos de seguridad</strong><br>Seguimiento en tiempo real de rutas
+                            </div>
+                            <div class="icon-item">
+                                <span>📊</span>
+                                <strong>Analistas deportivos</strong><br>Estadísticas detalladas de recorridos
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>🔥 CARACTERÍSTICAS PRINCIPALES</h3>
+                    <div class="numbered-steps">
+                        <div class="numbered-step">
+                            <strong>Grabación con metadatos GPS</strong> - Cada frame contiene: latitud, longitud, altitud, velocidad, precisión, timestamp
+                        </div>
+                        <div class="numbered-step">
+                            <strong>Overlay en tiempo real</strong> - Visualiza datos durante la grabación: velocidad, coordenadas, población, tiempo transcurrido
+                        </div>
+                        <div class="numbered-step">
+                            <strong>Gestión inteligente por sesiones</strong> - Organiza automáticamente videos por fecha y evento
+                        </div>
+                        <div class="numbered-step">
+                            <strong>Exportación multiformato</strong> - Videos (MP4), rutas (GPX, KML, JSON), paquetes ZIP con documentación
+                        </div>
+                        <div class="numbered-step">
+                            <strong>Mapas interactivos Leaflet</strong> - Visualización de rutas con múltiples capas (OpenStreetMap, Google, etc.)
+                        </div>
+                        <div class="numbered-step">
+                            <strong>Funciona sin conexión</strong> - Instalada como PWA, opera completamente offline
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div class="tip-box">
-                <h3>🎯 OPCIÓN 2: Memoria externa directa</h3>
-                <p>Conecta almacenamiento externo a tu iPhone:</p>
+            <!-- GRABACIÓN PASO A PASO -->
+            <div id="grabacion" class="section">
+                <h2>🎬 GRABACIÓN PASO A PASO</h2>
+                
+                <div class="screen-simulation">
+                    <div class="screen-header">
+                        <span style="color: #e74c3c;">●</span> GRABANDO | <span>⏱️ 01:23:45</span> | <span>📍 GPS Activo</span>
+                    </div>
+                    <div class="screen-content">
+                        <p>📍 <strong>Coordenadas:</strong> 41.3874°N, 2.1686°E</p>
+                        <p>🚀 <strong>Velocidad:</strong> 42 km/h</p>
+                        <p>⬆️ <strong>Altitud:</strong> 120 m</p>
+                        <p>🏙️ <strong>Población:</strong> Barcelona</p>
+                        <p>📅 <strong>Fecha/Hora:</strong> 15/12/2026 10:30:25</p>
+                        <div style="margin-top: 20px;">
+                            <button class="screen-button">⏸️ PAUSAR</button>
+                            <button class="screen-button red">⏹️ FINALIZAR</button>
+                            <button class="screen-button green">✂️ NUEVO SEGMENTO</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>📋 PROCESO COMPLETO DE GRABACIÓN</h3>
+                
+                <div class="step-box">
+                    <h4>🔧 PASO 1: PREPARACIÓN PREVIA</h4>
+                    <ol>
+                        <li><strong>Conecta el iPhone/iPad a la batería del coche</strong> - ¡IMPORTANTE! El consumo es alto</li>
+                        <li><strong>Monta el dispositivo en soporte antivibración</strong> para video estable</li>
+                        <li><strong>Limpia espacio de almacenamiento</strong> - Necesitarás 2-4 GB por hora (720p)</li>
+                        <li><strong>Configura carpeta de destino</strong> en Ajustes → Ubicación de almacenamiento</li>
+                        <li><strong>Verifica conexión GPS</strong> (debe mostrar "📍 GPS Activo" en verde)</li>
+                    </ol>
+                </div>
+                
+                <div class="step-box">
+                    <h4>🚀 PASO 2: INICIAR GRABACIÓN</h4>
+                    <ol>
+                        <li><strong>Toca el botón rojo grande "INICIAR GRABACIÓN"</strong></li>
+                        <li><strong>Espera 3 segundos</strong> mientras se inicializan: cámara, GPS, metadatos</li>
+                        <li><strong>Verifica el indicador rojo "● GRABANDO"</strong> en la parte superior</li>
+                        <li><strong>Comienza el cronómetro</strong> mostrando tiempo transcurrido</li>
+                        <li><strong>Observa los datos en pantalla</strong> que se actualizan en tiempo real</li>
+                    </ol>
+                    <div class="app-command">🕐 El cronómetro empieza en 00:00:00 y se actualiza cada segundo</div>
+                </div>
+                
+                <div class="step-box">
+                    <h4>⚡ PASO 3: CONTROLES DURANTE GRABACIÓN</h4>
+                    <div class="icon-list">
+                        <div class="icon-item">
+                            <span>⏸️</span>
+                            <strong>PAUSAR</strong><br>Detiene temporalmente la grabación de video<br><em>El GPS sigue activo y registrando</em>
+                        </div>
+                        <div class="icon-item">
+                            <span>⏹️</span>
+                            <strong>FINALIZAR</strong><br>Termina la grabación y guarda el archivo<br><em>Procesa metadatos GPS en el video</em>
+                        </div>
+                        <div class="icon-item">
+                            <span>✂️</span>
+                            <strong>NUEVO SEGMENTO</strong><br>Cierra el archivo actual y abre uno nuevo<br><em>Perfecto para etapas largas</em>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step-box">
+                    <h4>💾 PASO 4: FINALIZACIÓN Y GUARDADO</h4>
+                    <ol>
+                        <li><strong>Al finalizar</strong>, se muestra un resumen del video grabado</li>
+                        <li><strong>Nombre automático</strong>: <code>RBB_20261215_1030_S1.mp4</code></li>
+                        <li><strong>Guardado automático</strong> en la carpeta configurada</li>
+                        <li><strong>Generación de miniatura</strong> para la galería</li>
+                        <li><strong>Extracción automática de ruta GPX</strong> de los metadatos</li>
+                    </ol>
+                    <div class="tip-box">
+                        <p><strong>💡 CONSEJO:</strong> Si grabas recorridos largos (>2 horas), usa "NUEVO SEGMENTO" cada hora para evitar archivos enormes.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SISTEMA GPS Y OVERLAY -->
+            <div id="gps" class="section">
+                <h2>📍 SISTEMA GPS Y OVERLAY EN TIEMPO REAL</h2>
+                
+                <div class="feature-box">
+                    <h3>🎯 ¿QUÉ DATOS GPS SE REGISTRAN?</h3>
+                    <p>Cada <strong>2 frames del video</strong> (aproximadamente cada 0.06 segundos a 30fps) se incrustan los siguientes metadatos:</p>
+                    <div class="icon-list">
+                        <div class="icon-item">
+                            <span>📌</span>
+                            <strong>Coordenadas</strong><br>Latitud: 41.3874°N<br>Longitud: 2.1686°E
+                        </div>
+                        <div class="icon-item">
+                            <span>⬆️</span>
+                            <strong>Altitud</strong><br>Precisión: ±5m<br>Metros sobre nivel del mar
+                        </div>
+                        <div class="icon-item">
+                            <span>🚀</span>
+                            <strong>Velocidad</strong><br>km/h precisos<br>Dirección del movimiento
+                        </div>
+                        <div class="icon-item">
+                            <span>🎯</span>
+                            <strong>Precisión</strong><br>Radio de error GPS<br>HDOP/VDOP
+                        </div>
+                        <div class="icon-item">
+                            <span>🕐</span>
+                            <strong>Timestamp</strong><br>UTC preciso<br>Sincronización atómica
+                        </div>
+                        <div class="icon-item">
+                            <span>🏙️</span>
+                            <strong>Ubicación</strong><br>Geocodificación inversa<br>País, ciudad, calle
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>👁️ OVERLAY VISUAL EN PANTALLA</h3>
+                
+                <div class="warning-box">
+                    <h4>⚠️ IMPORTANTE: El overlay es OPCIONAL</h4>
+                    <p>Puedes desactivarlo en <span class="highlight">Ajustes → Overlay habilitado → NO</span> si prefieres video limpio.</p>
+                    <p>Los metadatos GPS <strong>SIEMPRE se guardan en el archivo</strong>, independientemente del overlay.</p>
+                </div>
+                
+                <div class="step-box">
+                    <h4>📊 ELEMENTOS DEL OVERLAY</h4>
+                    <ul>
+                        <li><strong>⏱️ Cronómetro</strong> - Tiempo transcurrido desde inicio de grabación (HH:MM:SS)</li>
+                        <li><strong>🚀 Velocidad actual</strong> - En km/h, actualizada cada segundo</li>
+                        <li><strong>📌 Coordenadas GPS</strong> - Formato decimal: 41.3874°N, 2.1686°E</li>
+                        <li><strong>⬆️ Altitud</strong> - Metros sobre nivel del mar con precisión</li>
+                        <li><strong>🏙️ Población actual</strong> - Obtenida por geocodificación inversa (requiere Internet)</li>
+                        <li><strong>📅 Fecha y hora</strong> - Formato: DD/MM/AAAA HH:MM:SS</li>
+                        <li><strong>📍 Estado GPS</strong> - Ícono verde (activo) o rojo (sin señal)</li>
+                        <li><strong>🎬 Formato de grabación</strong> - Ej: MP4 720p @30fps</li>
+                        <li><strong>📹 Segmento actual</strong> - Número si usas segmentación</li>
+                    </ul>
+                </div>
+                
+                <div class="tip-box">
+                    <h3>🔧 CONFIGURACIÓN DEL OVERLAY</h3>
+                    <p>Ve a <span class="highlight">Ajustes → Configuración de Overlay</span> para personalizar:</p>
+                    <div class="icon-list">
+                        <div class="icon-item">
+                            <span>👁️</span>
+                            <strong>Mostrar/Ocultar</strong><br>Activa/desactiva todo el overlay
+                        </div>
+                        <div class="icon-item">
+                            <span>🎨</span>
+                            <strong>Color del texto</strong><br>Blanco, negro, amarillo, rojo
+                        </div>
+                        <div class="icon-item">
+                            <span>🔠</span>
+                            <strong>Tamaño de fuente</strong><br>Pequeño, mediano, grande
+                        </div>
+                        <div class="icon-item">
+                            <span>📍</span>
+                            <strong>Posición</strong><br>Esquina superior, inferior, centro
+                        </div>
+                        <div class="icon-item">
+                            <span>📊</span>
+                            <strong>Elementos visibles</strong><br>Elige qué datos mostrar
+                        </div>
+                        <div class="icon-item">
+                            <span>🏙️</span>
+                            <strong>Geocodificación</strong><br>Activa/desactiva nombres de poblaciones
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- GALERÍA Y GESTIÓN -->
+            <div id="galeria" class="section">
+                <h2>📁 GALERÍA Y GESTIÓN DE ARCHIVOS</h2>
+                
+                <div class="screen-simulation">
+                    <div class="screen-header">
+                        <span>📁 GALERÍA</span> | <span>📱 En la App: 24 videos</span> | <span>📂 Carpeta Local: 156 videos</span>
+                    </div>
+                    <div class="screen-content">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                            <strong>📅 SESIÓN: 15 Diciembre 2026 (8 videos)</strong>
+                            <button class="screen-button" style="background: #9b59b6;">▶️ REPRODUCIR SESIÓN</button>
+                        </div>
+                        <div style="background: #2c3e50; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                            <input type="checkbox" style="margin-right: 10px;"> RBB_20261215_1030_S1.mp4 | 01:23:45 | 2.4 GB
+                        </div>
+                        <div style="background: #2c3e50; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                            <input type="checkbox" style="margin-right: 10px;"> RBB_20261215_1200_S2.mp4 | 00:45:30 | 1.1 GB
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button class="screen-button">🗺️ EXTRAER GPX</button>
+                            <button class="screen-button">📂 MOVER</button>
+                            <button class="screen-button">📤 EXPORTAR</button>
+                            <button class="screen-button red">🗑️ ELIMINAR</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>📋 ORGANIZACIÓN INTELIGENTE POR SESIONES</h3>
+                
+                <div class="feature-box">
+                    <p>La aplicación <strong>agrupa automáticamente</strong> los videos por sesiones:</p>
+                    <ul>
+                        <li><strong>Cada día es una sesión diferente</strong></li>
+                        <li><strong>Puedes expandir/colapsar</strong> sesiones con el ícono ▶️/🔽</li>
+                        <li><strong>Selección masiva</strong> - Marca toda una sesión con una sola casilla</li>
+                        <li><strong>Acciones por sesión</strong> - Reproducir, exportar o eliminar todos los videos de una sesión</li>
+                    </ul>
+                </div>
+                
+                <h3>🔍 FILTROS Y BÚSQUEDA</h3>
+                
+                <div class="tip-box">
+                    <div class="icon-list">
+                        <div class="icon-item">
+                            <span>📱</span>
+                            <strong>En la App</strong><br>Videos guardados internamente en la aplicación
+                        </div>
+                        <div class="icon-item">
+                            <span>📂</span>
+                            <strong>Carpeta Local</strong><br>Videos en almacenamiento externo (USB, nube, etc.)
+                        </div>
+                        <div class="icon-item">
+                            <span>🎬</span>
+                            <strong>Solo Videos</strong><br>Filtra para mostrar solo archivos de video
+                        </div>
+                        <div class="icon-item">
+                            <span>🗺️</span>
+                            <strong>Solo Rutas GPX</strong><br>Filtra para mostrar solo archivos de ruta
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>🛠️ ACCIONES POR VIDEO INDIVIDUAL</h3>
+                
+                <div class="numbered-steps">
+                    <div class="numbered-step">
+                        <strong>▶️ REPRODUCIR</strong> - Abre el reproductor integrado con controles de velocidad (0.25x a 16x)
+                    </div>
+                    <div class="numbered-step">
+                        <strong>🗺️ EXTRAER GPX</strong> - Genera archivo de ruta GPX desde los metadatos GPS del video
+                    </div>
+                    <div class="numbered-step">
+                        <strong>📂 MOVER A CARPETA</strong> - Traslada el video entre almacenamiento interno y externo
+                    </div>
+                    <div class="numbered-step">
+                        <strong>📤 EXPORTAR</strong> - Descarga el video individualmente o varios en ZIP
+                    </div>
+                    <div class="numbered-step">
+                        <strong>🗑️ ELIMINAR</strong> - Borra el video con confirmación (también del almacenamiento físico si es posible)
+                    </div>
+                    <div class="numbered-step">
+                        <strong>📊 VER DETALLES</strong> - Muestra información técnica completa del video
+                    </div>
+                </div>
+                
+                <h3>📊 REPRODUCCIÓN AVANZADA</h3>
+                
+                <div class="step-box">
+                    <h4>🎮 CONTROLES DEL REPRODUCTOR</h4>
+                    <ul>
+                        <li><strong>Velocidad variable</strong> - 0.25x, 0.5x, 0.75x, 1x, 1.25x, 1.5x, 2x, 4x, 8x, 16x</li>
+                        <li><strong>Mapa sincronizado</strong> - Muestra posición en mapa Leaflet durante reproducción</li>
+                        <li><strong>Pantalla completa</strong> - Optimizado para landscape (modo horizontal)</li>
+                        <li><strong>Salto de tiempo</strong> - +10s, -10s, +1min, -1min</li>
+                        <li><strong>Volumen</strong> - Control deslizante (el audio puede estar desactivado)</li>
+                        <li><strong>Contador de frames GPS</strong> - Muestra cuántos frames tienen metadatos GPS</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- GPX Y RUTAS -->
+            <div id="gpx" class="section">
+                <h2>🗺️ SISTEMA GPX Y GESTIÓN DE RUTAS</h2>
+                
+                <div class="intro-box">
+                    <h3>🎯 ¿QUÉ ES UN ARCHIVO GPX?</h3>
+                    <p><strong>GPX (GPS Exchange Format)</strong> es un formato XML estándar para almacenar datos de rutas GPS. DashCam  utiliza GPX para:</p>
+                    <div class="icon-list">
+                        <div class="icon-item">
+                            <span>📊</span>
+                            <strong>Planificación de rutas</strong><br>Carga rutas predefinidas antes de grabar
+                        </div>
+                        <div class="icon-item">
+                            <span>👁️</span>
+                            <strong>Seguimiento en tiempo real</strong><br>Compara tu posición con la ruta planificada
+                        </div>
+                        <div class="icon-item">
+                            <span>📤</span>
+                            <strong>Exportación de rutas</strong><br>Extrae la ruta real grabada desde los videos
+                        </div>
+                        <div class="icon-item">
+                            <span>🗺️</span>
+                            <strong>Visualización en mapas</strong><br>Muestra rutas en mapas interactivos Leaflet
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>📥 CÓMO CARGAR RUTAS GPX</h3>
+                
+                <div class="numbered-steps">
+                    <div class="numbered-step">
+                        <strong>Accede a GPX Manager</strong> desde el botón 🗺️ en pantalla principal
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Toca "Subir GPX"</strong> o arrastra archivos .gpx a la zona indicada
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Selecciona el archivo</strong> desde tu dispositivo, iCloud, Google Drive, etc.
+                    </div>
+                    <div class="numbered-step">
+                        <strong>La aplicación parsea el GPX</strong> y muestra estadísticas: distancia, elevación, puntos
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Vista previa en mapa</strong> - Visualiza la ruta en mapa interactivo
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Activa para grabación</strong> - La ruta aparecerá como overlay durante la grabación
+                    </div>
+                </div>
+                
+                <h3>📊 VISUALIZADOR GPX AVANZADO</h3>
+                
+                <div class="feature-box">
+                    <p>Al seleccionar una ruta GPX, se abre el <strong>visualizador avanzado</strong> con:</p>
+                    <div class="icon-list">
+                        <div class="icon-item">
+                            <span>📈</span>
+                            <strong>Estadísticas completas</strong><br>Distancia, elevación, tiempo estimado
+                        </div>
+                        <div class="icon-item">
+                            <span>🗺️</span>
+                            <strong>Mapa interactivo</strong><br>Zoom, diferentes capas, marcadores
+                        </div>
+                        <div class="icon-item">
+                            <span>📤</span>
+                            <strong>Exportación múltiple</strong><br>GPX original, KML, JSON
+                        </div>
+                        <div class="icon-item">
+                            <span>⚡</span>
+                            <strong>Comparación en tiempo real</strong><br>Durante grabación: progreso vs planificado
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="warning-box">
+                    <h4>⚠️ LÍMITES DE TAMAÑO GPX</h4>
+                    <ul>
+                        <li><strong>Máximo recomendado:</strong> 10,000 puntos GPS</li>
+                        <li><strong>Tamaño máximo archivo:</strong> 50 MB</li>
+                        <li><strong>Si tu GPX es muy grande</strong>, la aplicación lo simplificará automáticamente</li>
+                        <li><strong>Para rutas de varios días</strong>, divide en archivos por etapa</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- EXPORTACIÓN AVANZADA -->
+            <div id="exportacion" class="section">
+                <h2>📤 EXPORTACIÓN AVANZADA Y COMPARTICIÓN</h2>
+                
+                <div class="tip-box">
+                    <h3>🎯 ¿POR QUÉ EXPORTAR?</h3>
+                    <p>DashCam  no es solo una aplicación de grabación, es una <strong>suite completa de documentación deportiva</strong>:</p>
+                    <ul>
+                        <li><strong>Informes para organizadores</strong> - Documentación oficial de recorridos</li>
+                        <li><strong>Material para equipos</strong> - Análisis de rutas y condiciones</li>
+                        <li><strong>Contenido para redes sociales</strong> - Videos con datos técnicos superpuestos</li>
+                        <li><strong>Backup profesional</strong> - Archivos estructurados para archivado a largo plazo</li>
+                    </ul>
+                </div>
+                
+                <h3>📦 EXPORTACIÓN INDIVIDUAL</h3>
+                
+                <div class="numbered-steps">
+                    <div class="numbered-step">
+                        <strong>Selecciona un video</strong> en la galería (casilla de verificación)
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Toca "📤 EXPORTAR"</strong> en la barra de acciones inferior
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Elige formato:</strong>
+                        <ul style="margin-top: 10px;">
+                            <li><strong>🎬 Video original</strong> - MP4 con metadatos GPS incrustados</li>
+                            <li><strong>🗺️ Ruta GPX</strong> - Extrae solo los datos GPS del video</li>
+                            <li><strong>📄 Informe PDF</strong> - Estadísticas y capturas del recorrido</li>
+                            <li><strong>📊 Datos JSON</strong> - Todos los metadatos en formato estructurado</li>
+                        </ul>
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Descarga automática</strong> - El archivo se guarda en la carpeta de descargas de tu dispositivo
+                    </div>
+                </div>
+                
+                <h3>📦📦 EXPORTACIÓN MASIVA (VARIOS VIDEOS)</h3>
+                
+                <div class="step-box">
+                    <h4>📋 PROCESO COMPLETO</h4>
+                    <ol>
+                        <li><strong>Selecciona múltiples videos</strong> marcando sus casillas (o toda una sesión)</li>
+                        <li><strong>Toca "📤 EXPORTAR SELECCIONADOS"</strong> en la barra inferior</li>
+                        <li><strong>Elige "ZIP con estructura"</strong> para mantener organización por carpetas</li>
+                        <li><strong>La aplicación genera:</strong>
+                            <ul>
+                                <li>📁 Carpeta principal con nombre de sesión/fecha</li>
+                                <li>🎬 Subcarpeta "videos/" con todos los MP4</li>
+                                <li>🗺️ Subcarpeta "gpx/" con rutas extraídas</li>
+                                <li>📄 Archivo "README.txt" con metadatos y estadísticas</li>
+                                <li>📊 Archivo "session_data.json" con toda la información estructurada</li>
+                            </ul>
+                        </li>
+                        <li><strong>Descarga un único archivo ZIP</strong> con toda la estructura</li>
+                    </ol>
+                    <div class="app-command">📦 ZIP generado: "CarreraX_Etapa3_2026-12-15.zip" (5.2 GB)</div>
+                </div>
+                
+                <h3>🌐 FORMATOS DE EXPORTACIÓN DISPONIBLES</h3>
+                
                 <div class="icon-list">
                     <div class="icon-item">
-                        <span>🔌</span>
-                        <strong>USB externo</strong><br>Con adaptador Lightning/USB-C
-                    </div>
-                    <div class="icon-item">
-                        <span>💾</span>
-                        <strong>Tarjeta SD</strong><br>Con lector compatible
-                    </div>
-                    <div class="icon-item">
-                        <span>💿</span>
-                        <strong>Disco duro portátil</strong><br>Con alimentación propia
-                    </div>
-                </div>
-                <div class="app-reference">
-                    📱 <strong>Cómo configurar:</strong> Ve a <strong>Ajustes → Ubicación de almacenamiento → Carpeta Local</strong><br>
-                    Conecta tu dispositivo USB y selecciónalo en la app "Archivos"
-                </div>
-            </div>
-            
-            <div class="tip-box">
-                <h3>🎯 OPCIÓN 3: Gestión manual profesional</h3>
-                <p>Para control total sobre tus archivos:</p>
-                <ol>
-                    <li><strong>Graba en la memoria interna</strong> del iPhone durante la carrera</li>
-                    <li><strong>Al finalizar cada etapa</strong>, transfiere los videos a tu ordenador</li>
-                    <li><strong>Organiza por carpetas</strong>: Fecha / Carrera / Etapa</li>
-                    <li><strong>Limpia el iPhone</strong> una vez confirmado el backup</li>
-                    <li><strong>Usa la app "Archivos" de iOS</strong> para gestionar localmente</li>
-                </ol>
-                <p><em>Recomendado para organizadores experimentados que prefieren control total.</em></p>
-            </div>
-            
-            <!-- FUNCIONALIDADES DETALLADAS -->
-            <h2>⚙️ FUNCIONALIDADES DETALLADAS DE LA APLICACIÓN</h2>
-            
-            <div class="feature-box">
-                <h3>📱 PANTALLA INICIAL - Controles principales</h3>
-                <div class="icon-list">
-                    <div class="icon-item">
-                        <span>⏺️</span>
-                        <strong>INICIAR GRABACIÓN</strong><br>Comienza a grabar inmediatamente con configuración actual
-                    </div>
-                    <div class="icon-item">
-                        <span>📁</span>
-                        <strong>Galería</strong><br>Accede a todos los videos grabados y rutas GPX
-                    </div>
-                    <div class="icon-item">
-                        <span>⚙️</span>
-                        <strong>Ajustes</strong><br>Configura calidad, formato, almacenamiento y personalización
+                        <span>🎬</span>
+                        <strong>MP4 con GPS</strong><br>Video original con metadatos incrustados<br><em>Compatible: VLC, QuickTime, Windows Media</em>
                     </div>
                     <div class="icon-item">
                         <span>🗺️</span>
-                        <strong>GPX Manager</strong><br>Gestiona rutas GPX para seguimiento en tiempo real
-                    </div>
-                </div>
-            </div>
-            
-            <div class="feature-box">
-                <h3>🎬 PANTALLA DE GRABACIÓN - Funciones en tiempo real</h3>
-                <ul>
-                    <li><strong>● GRABANDO indicador rojo</strong> - Estado de grabación visible</li>
-                    <li><strong>⏱️ Cronómetro</strong> - Tiempo transcurrido de grabación</li>
-                    <li><strong>📍 GPS indicador</strong> - Estado de conexión GPS</li>
-                    <li><strong>🎬 Formato</strong> - MP4 con metadatos GPS incrustados</li>
-                    <li><strong>📹 Segmento</strong> - Número de segmento actual (si está segmentado)</li>
-                    <li><strong>Controles:</strong> ⏸️ Pausar | ⏹️ Finalizar | ✂️ Nuevo Segmento</li>
-                </ul>
-                <p><strong>Overlay en pantalla:</strong> Muestra en tiempo real: velocidad, coordenadas, altitud, población, fecha/hora.</p>
-            </div>
-            
-            <!-- CONFIGURACIÓN RECOMENDADA -->
-            <h2>🔧 CONFIGURACIÓN ÓPTIMA PARA CARRERAS CICLISTAS</h2>
-            
-            <div class="app-reference">
-                <h3>⚙️ Ajustes recomendados en <strong>Ajustes</strong>:</h3>
-                <ul>
-                    <li><strong>Modo de grabación:</strong> <em>Continuo (archivo único)</em> - Más fácil de gestionar</li>
-                    <li><strong>Calidad de video:</strong> <em>720p</em> - Equilibrio perfecto calidad/espacio</li>
-                    <li><strong>Formato de video:</strong> <em>MP4</em> - Universalmente compatible</li>
-                    <li><strong>Overlay habilitado:</strong> <em>SÍ</em> - Datos visibles durante grabación</li>
-                    <li><strong>Metadatos GPS:</strong> <em>Activado</em> - Cada 2 frames (óptimo)</li>
-                    <li><strong>Audio:</strong> <em>Desactivado</em> - Ahorra espacio, evita ruido</li>
-                    <li><strong>Geocodificación inversa:</strong> <em>Activado</em> - Muestra nombres de poblaciones</li>
-                </ul>
-            </div>
-            
-            <!-- GPX MANAGER -->
-            <h2>🗺️ GPX MANAGER - Gestión de rutas</h2>
-            
-            <div class="feature-box">
-                <p>Esta función te permite cargar rutas GPX para:</p>
-                <ul>
-                    <li><strong>Seguimiento en tiempo real</strong> de tu posición en la ruta</li>
-                    <li><strong>Progreso visual</strong> durante la grabación</li>
-                    <li><strong>Comparación de velocidad</strong> vs ruta planificada</li>
-                    <li><strong>Distancias parciales</strong> y tiempos estimados</li>
-                </ul>
-                <p><strong>Cómo usar:</strong> Sube tu archivo GPX desde <strong>GPX Manager → Subir GPX</strong>. La app extraerá distancia, elevación, puntos y mostrará una vista previa.</p>
-            </div>
-            
-            <!-- GALERÍA AVANZADA -->
-            <h2>📁 GALERÍA - Gestión de archivos</h2>
-            
-            <div class="feature-box">
-                <p>La galería muestra videos organizados por:</p>
-                <ul>
-                    <li><strong>📱 En la App</strong> - Videos guardados internamente</li>
-                    <li><strong>📂 Carpeta Local</strong> - Videos en almacenamiento externo</li>
-                    <li><strong>🎬 Vídeos / 🗺️ Rutas GPX</strong> - Filtro por tipo</li>
-                </ul>
-                <p><strong>Acciones disponibles por video:</strong></p>
-                <ul>
-                    <li><strong>▶️ Reproducir</strong> con mapa sincronizado</li>
-                    <li><strong>🗺️ Extraer GPX</strong> - Genera ruta desde metadatos GPS</li>
-                    <li><strong>📂 Mover a carpeta</strong> - Traslada entre almacenamientos</li>
-                    <li><strong>📤 Exportar</strong> - Descarga individual o múltiple</li>
-                    <li><strong>🗑️ Eliminar</strong> - Borra videos seleccionados</li>
-                </ul>
-            </div>
-            
-            <!-- LIMITACIONES iOS -->
-            <div class="warning-box">
-                <h3>🍎 LIMITACIONES ESPECÍFICAS DE iOS</h3>
-                <p><strong>Apple restringe el acceso directo al sistema de archivos</strong> por razones de seguridad:</p>
-                <ul>
-                    <li><strong>❌ No puede escribir directamente en USB</strong> - Necesita intervención manual</li>
-                    <li><strong>✅ Puede leer carpetas seleccionadas</strong> mediante webkitdirectory</li>
-                    <li><strong>✅ Puede guardar en "Archivos"</strong> con confirmación del usuario</li>
-                    <li><strong>❌ No puede crear carpetas automáticamente</strong></li>
-                    <li><strong>✅ PWA instalada mejora permisos</strong> pero no elimina todas las restricciones</li>
-                </ul>
-                <p><strong>Flujo de trabajo en iOS:</strong> Grabar → Descargar → Guardar manualmente en "Archivos" → Organizar en carpetas.</p>
-            </div>
-            
-            <!-- FUTURAS FUNCIONALIDADES -->
-            <h2>🔮 FUTURAS FUNCIONALIDADES (EN DESARROLLO)</h2>
-            
-            <div class="tip-box">
-                <p>Próximamente disponible en <strong>rbnet71.github.io/Web</strong>:</p>
-                <div class="icon-list">
-                    <div class="icon-item">
-                        <span>🔄</span>
-                        <strong>Unión de videos</strong><br>Combina múltiples segmentos en un solo archivo
+                        <strong>GPX Estándar</strong><br>Ruta GPS en formato universal<br><em>Compatible: Strava, Garmin, Google Earth</em>
                     </div>
                     <div class="icon-item">
                         <span>🗺️</span>
-                        <strong>Visualización en mapa</strong><br>Reproduce video con mapa GPS sincronizado
+                        <strong>KML/KMZ</strong><br>Para Google Earth/Google Maps<br><em>Visualización 3D con elevación</em>
                     </div>
                     <div class="icon-item">
                         <span>📊</span>
-                        <strong>Infografías avanzadas</strong><br>Estadísticas detalladas del recorrido
+                        <strong>JSON Estructurado</strong><br>Todos los metadatos en JSON<br><em>Para análisis y procesamiento</em>
                     </div>
                     <div class="icon-item">
-                        <span>📈</span>
-                        <strong>Análisis de rendimiento</strong><br>Gráficos de velocidad, elevación, tiempos
+                        <span>📄</span>
+                        <strong>PDF de informe</strong><br>Informe profesional con gráficos<br><em>Para presentaciones y documentación</em>
                     </div>
                     <div class="icon-item">
-                        <span>🤝</span>
-                        <strong>Compartición profesional</strong><br>Exporta paquetes completos con todos los datos
-                    </div>
-                    <div class="icon-item">
-                        <span>🎮</span>
-                        <strong>Control remoto</strong><br>Gestiona grabación desde otro dispositivo
+                        <span>📦</span>
+                        <strong>ZIP Estructurado</strong><br>Paquete completo con todo<br><em>Backup profesional organizado</em>
                     </div>
                 </div>
-                <p>Estas herramientas transformarán tus grabaciones en informes profesionales para organizadores, equipos y patrocinadores.</p>
+                
+                <div class="warning-box">
+                    <h4>⚠️ CONSIDERACIONES DE EXPORTACIÓN MASIVA</h4>
+                    <ul>
+                        <li><strong>Tiempo de procesamiento:</strong> 1-2 minutos por GB de video</li>
+                        <li><strong>Espacio temporal necesario:</strong> El doble del tamaño total de los videos</li>
+                        <li><strong>En iOS:</strong> Los archivos grandes (>4GB) se dividen automáticamente</li>
+                        <li><strong>Recomendación:</strong> Exporta por sesiones, no toda la biblioteca a la vez</li>
+                    </ul>
+                </div>
             </div>
             
-            <!-- CONSEJOS FINALES -->
-            <h2>💡 CONSEJOS PARA EL ORGANIZADOR</h2>
+            <!-- CONFIGURACIÓN DETALLADA -->
+            <div id="config" class="section">
+                <h2>⚙️ CONFIGURACIÓN DETALLADA</h2>
+                
+                <div class="screen-simulation">
+                    <div class="screen-header">
+                        <span>⚙️ AJUSTES</span> | <span>💾 Configuración guardada</span>
+                    </div>
+                    <div class="screen-content">
+                        <p>📹 <strong>Calidad de video:</strong> 
+                            <select style="background: #2c3e50; color: white; border: none; padding: 5px;">
+                                <option>720p (recomendado)</option>
+                                <option>1080p</option>
+                                <option>4K</option>
+                            </select>
+                        </p>
+                        <p>🎬 <strong>Formato:</strong> 
+                            <select style="background: #2c3e50; color: white; border: none; padding: 5px;">
+                                <option>MP4 (compatible universal)</option>
+                                <option>WebM (más eficiente)</option>
+                            </select>
+                        </p>
+                        <p>📍 <strong>GPS metadata:</strong> Cada <input type="number" value="2" style="width: 40px; background: #2c3e50; color: white; border: none;"> frames</p>
+                        <p>👁️ <strong>Overlay:</strong> <button class="screen-button" style="padding: 5px 10px;">ACTIVADO ✅</button></p>
+                        <p>🔊 <strong>Audio:</strong> <button class="screen-button" style="padding: 5px 10px; background: #666;">DESACTIVADO ❌</button></p>
+                        <p>💾 <strong>Almacenamiento:</strong> Carpeta Local (128 GB disponibles)</p>
+                        <div style="margin-top: 20px;">
+                            <button class="screen-button green">💾 GUARDAR</button>
+                            <button class="screen-button">🔙 RESTAURAR PREDETERMINADOS</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>📊 CONFIGURACIÓN ÓPTIMA PARA CARRERAS</h3>
+                
+                <div class="feature-box">
+                    <h4>🎯 CONFIGURACIÓN RECOMENDADA (EQUILIBRIO CALIDAD/ESPACIO)</h4>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                        <tr style="background: rgba(52, 152, 219, 0.1);">
+                            <th style="padding: 12px; text-align: left;">Opción</th>
+                            <th style="padding: 12px; text-align: left;">Valor Recomendado</th>
+                            <th style="padding: 12px; text-align: left;">¿Por qué?</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><strong>Calidad de video</strong></td>
+                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">720p @ 30fps</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">Equilibrio perfecto calidad/espacio (1-2 GB/hora)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><strong>Formato</strong></td>
+                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">MP4</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">Compatible universal con todos los reproductores</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><strong>Metadatos GPS</strong></td>
+                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">Cada 2 frames</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">Precisión excelente sin inflar archivo</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><strong>Audio</strong></td>
+                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">DESACTIVADO</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">Ahorra espacio, evita ruido de coche/viento</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;"><strong>Overlay</strong></td>
+                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">ACTIVADO</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">Permite ver datos en tiempo real durante grabación</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><strong>Geocodificación</strong></td>
+                            <td style="padding: 10px;">ACTIVADA (con WiFi)</td>
+                            <td style="padding: 10px;">Muestra nombres de poblaciones, requiere conexión ocasional</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <h3>⚡ CONFIGURACIÓN AVANZADA</h3>
+                
+                <div class="tip-box">
+                    <h4>🔧 OPCIONES PARA USUARIOS AVANZADOS</h4>
+                    <ul>
+                        <li><strong>Segmentación automática</strong> - Divide grabación cada X minutos/horas</li>
+                        <li><strong>Umbral de velocidad GPS</strong> - Ignora puntos cuando estás parado</li>
+                        <li><strong>Compresión de video</strong> - Ajusta tasa de bits (bitrate) manualmente</li>
+                        <li><strong>Frecuencia de muestreo GPS</strong> - Cada frame, cada 2 frames, cada 5 frames...</li>
+                        <li><strong>Marcas de agua personalizadas</strong> - Añade logo/texto específico del evento</li>
+                        <li><strong>Contraseña de protección</strong> - Bloquea acceso a la aplicación</li>
+                        <li><strong>Exportación automática</strong> - Sube a la nube automáticamente al finalizar</li>
+                    </ul>
+                </div>
+            </div>
             
-            <div class="app-reference">
-                <ol>
-                    <li><strong>Prueba antes del evento:</strong> Configura y graba un recorrido de prueba</li>
-                    <li><strong>Memoria suficiente:</strong> Asegura 2-3 veces el espacio estimado necesario</li>
-                    <li><strong>Batería externa:</strong> Usa power bank de alta capacidad (20,000mAh+)</li>
-                    <li><strong>Soporte estable:</strong> Monta el iPhone en soporte antivibración para coche</li>
-                    <li><strong>Organización previa:</strong> Crea estructura de carpetas antes de empezar</li>
-                    <li><strong>Respaldo inmediato:</strong> Copia los videos al finalizar cada etapa</li>
-                    <li><strong>Etiquetado claro:</strong> Usa nombres descriptivos: "CarreraX_Etapa3_Fecha.mp4"</li>
-                </ol>
+            <!-- INSTALACIÓN PWA -->
+            <div id="pwa" class="section">
+                <h2>📱 INSTALACIÓN COMO APLICACIÓN NATIVA (PWA)</h2>
+                
+                <div class="intro-box">
+                    <h3>🎯 ¿QUÉ ES UNA PWA?</h3>
+                    <p><strong>Progressive Web App (PWA)</strong> es una aplicación web que se comporta como una aplicación nativa:</p>
+                    <div class="icon-list">
+                        <div class="icon-item">
+                            <span>📱</span>
+                            <strong>Icono en pantalla de inicio</strong><br>Acceso directo como app nativa
+                        </div>
+                        <div class="icon-item">
+                            <span>⚡</span>
+                            <strong>Funciona sin Internet</strong><br>Todas las funciones disponibles offline
+                        </div>
+                        <div class="icon-item">
+                            <span>🔔</span>
+                            <strong>Notificaciones push</strong><br>Alertas y recordatorios
+                        </div>
+                        <div class="icon-item">
+                            <span>💾</span>
+                            <strong>Almacenamiento local</strong><br>Datos guardados en tu dispositivo
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>📲 CÓMO INSTALAR DASHCAM COMO PWA</h3>
+                
+                <div class="numbered-steps">
+                    <div class="numbered-step">
+                        <strong>iOS (iPhone/iPad):</strong>
+                        <ol style="margin-top: 10px;">
+                            <li>Abre DashCam  en Safari (NO en Chrome)</li>
+                            <li>Toca el botón "Compartir" 📤 (cuadrado con flecha arriba)</li>
+                            <li>Desplázate hacia abajo y selecciona "Añadir a pantalla de inicio"</li>
+                            <li>Cambia el nombre si quieres y toca "Añadir"</li>
+                            <li>¡Listo! Ahora tienes un icono de DashCam  como app nativa</li>
+                        </ol>
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Android:</strong>
+                        <ol style="margin-top: 10px;">
+                            <li>Abre DashCam  en Chrome</li>
+                            <li>Toca los tres puntos ⋮ (menú)</li>
+                            <li>Selecciona "Instalar aplicación" o "Añadir a pantalla de inicio"</li>
+                            <li>Confirma la instalación</li>
+                            <li>La app se instalará como aplicación nativa</li>
+                        </ol>
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Windows/Mac (Chrome/Edge):</strong>
+                        <ol style="margin-top: 10px;">
+                            <li>Abre DashCam  en Chrome o Edge</li>
+                            <li>En la barra de direcciones, haz clic en el icono de instalación 📥</li>
+                            <li>Selecciona "Instalar DashCam "</li>
+                            <li>La app se instalará como aplicación de escritorio</li>
+                            <li>Aparecerá en el menú inicio/aplicaciones</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="tip-box">
+                    <h3>✨ BENEFICIOS DE INSTALAR COMO PWA</h3>
+                    <ul>
+                        <li><strong>Acceso más rápido</strong> - Sin tener que abrir el navegador primero</li>
+                        <li><strong>Mayores permisos</strong> - Especialmente en iOS para acceso a archivos</li>
+                        <li><strong>Funciona completamente offline</strong> - Una vez cargada la primera vez</li>
+                        <li><strong>Actualizaciones automáticas</strong> - Siempre tienes la última versión</li>
+                        <li><strong>Mejor rendimiento</strong> - Optimizado como aplicación nativa</li>
+                        <li><strong>Icono personalizado</strong> - Se ve como una app más en tu dispositivo</li>
+                    </ul>
+                </div>
+                
+                <div class="warning-box">
+                    <h4>⚠️ DIFERENCIAS ENTRE NAVEGADOR Y PWA INSTALADA</h4>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                        <tr style="background: rgba(220, 53, 69, 0.1);">
+                            <th style="padding: 10px; text-align: left;">Característica</th>
+                            <th style="padding: 10px; text-align: left;">En Navegador</th>
+                            <th style="padding: 10px; text-align: left;">PWA Instalada</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #f8d7da;"><strong>Acceso a archivos iOS</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #f8d7da;">Limitado</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #f8d7da;">Mejorado</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #f8d7da;"><strong>Funcionamiento offline</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #f8d7da;">Parcial</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #f8d7da;">Completo</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #f8d7da;"><strong>Persistencia datos</strong></td>
+                            <td style="padding: 8px; border-bottom: 1px solid #f8d7da;">Mientras no limpies cache</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #f8d7da;">Persistente</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;"><strong>Actualizaciones</strong></td>
+                            <td style="padding: 8px;">Siempre última versión</td>
+                            <td style="padding: 8px;">Automáticas en segundo plano</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- GUÍA ESPECÍFICA iOS -->
+            <div id="ios" class="section">
+                <h2>🍎 GUÍA ESPECÍFICA PARA iOS (iPhone/iPad)</h2>
+                
+                <div class="warning-box">
+                    <h3>⚠️ RESTRICCIONES ESPECÍFICAS DE iOS</h3>
+                    <p>Apple impone <strong>limitaciones de seguridad</strong> que afectan a DashCam:</p>
+                    <ul>
+                        <li><strong>❌ NO puede escribir directamente en USB</strong> - Necesita intervención manual del usuario</li>
+                        <li><strong>✅ Puede leer carpetas seleccionadas</strong> mediante webkitdirectory</li>
+                        <li><strong>✅ Puede guardar en "Archivos"</strong> pero requiere confirmación cada vez</li>
+                        <li><strong>❌ NO puede crear carpetas automáticamente</strong> en almacenamiento externo</li>
+                        <li><strong>✅ PWA instalada mejora permisos</strong> pero no elimina todas las restricciones</li>
+                    </ul>
+                </div>
+                
+                <h3>💾 ESTRATEGIAS DE ALMACENAMIENTO EN iOS</h3>
+                
+                <div class="feature-box">
+                    <h4>🎯 OPCIÓN 1: Subida automática a iCloud Drive</h4>
+                    <div class="numbered-steps">
+                        <div class="numbered-step">
+                            <strong>Configura la app para guardar en iCloud:</strong>
+                            <ol style="margin-top: 10px;">
+                                <li>Ve a <span class="highlight">Ajustes → Ubicación de almacenamiento → Carpeta Local</span></li>
+                                <li>Selecciona "iCloud Drive" desde la app Archivos</li>
+                                <li>Crea una carpeta "DashCam_Videos"</li>
+                                <li>Selecciona esa carpeta como destino</li>
+                            </ol>
+                        </div>
+                        <div class="numbered-step">
+                            <strong>Beneficios:</strong>
+                            <ul style="margin-top: 10px;">
+                                <li>Sincronización automática con todos tus dispositivos Apple</li>
+                                <li>Espacio casi ilimitado (depende de tu plan iCloud)</li>
+                                <li>Acceso desde Mac, iPhone, iPad, iCloud.com</li>
+                                <li>Backup automático y seguro</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-box">
+                    <h4>🎯 OPCIÓN 2: Almacenamiento externo con adaptador</h4>
+                    <div class="tip-box">
+                        <p><strong>Equipamiento necesario:</strong></p>
+                        <div class="icon-list">
+                            <div class="icon-item">
+                                <span>🔌</span>
+                                <strong>Adaptador Lightning a USB</strong><br>O USB-C para iPad Pro
+                            </div>
+                            <div class="icon-item">
+                                <span>💾</span>
+                                <strong>USB o disco duro</strong><br>Formateado en exFAT (compatible Mac/Windows)
+                            </div>
+                            <div class="icon-item">
+                                <span>🔋</span>
+                                <strong>Alimentación externa</strong><br>Si el disco necesita más energía
+                            </div>
+                        </div>
+                    </div>
+                    <div class="numbered-steps">
+                        <div class="numbered-step">
+                            <strong>Flujo de trabajo:</strong>
+                            <ol style="margin-top: 10px;">
+                                <li>Conecta el USB/HDD a tu iPhone/iPad mediante adaptador</li>
+                                <li>Abre la app "Archivos" y ve a la ubicación del USB</li>
+                                <li>Crea una carpeta "DashCam_Recorder"</li>
+                                <li>En DashCam, ve a Ajustes → Ubicación de almacenamiento</li>
+                                <li>Selecciona esa carpeta como destino</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-box">
+                    <h4>🎯 OPCIÓN 3: Gestión manual profesional (recomendado)</h4>
+                    <p>Para control total y máxima compatibilidad:</p>
+                    <div class="numbered-steps">
+                        <div class="numbered-step">
+                            <strong>Durante la grabación:</strong>
+                            <ul style="margin-top: 10px;">
+                                <li>Graba en la memoria interna del iPhone (configuración por defecto)</li>
+                                <li>La app gestiona el espacio automáticamente</li>
+                                <li>Mantén el iPhone conectado a la corriente</li>
+                            </ul>
+                        </div>
+                        <div class="numbered-step">
+                            <strong>Al finalizar cada etapa:</strong>
+                            <ol style="margin-top: 10px;">
+                                <li>Abre la Galería en DashCam</li>
+                                <li>Selecciona los videos de esa etapa</li>
+                                <li>Toca "📤 EXPORTAR" → "Exportar seleccionados"</li>
+                                <li>Guarda en "Archivos" en la carpeta deseada (iCloud, USB, etc.)</li>
+                                <li>Una vez confirmado el backup, elimina los videos del iPhone</li>
+                            </ol>
+                        </div>
+                        <div class="numbered-step">
+                            <strong>Organización recomendada:</strong>
+                            <div class="app-command">📁 iCloud Drive/DashCam/2026-12-15_CarreraX_Etapa3/</div>
+                            <ul style="margin-top: 10px;">
+                                <li>📁 videos/ - Todos los MP4 de esa etapa</li>
+                                <li>📁 gpx/ - Rutas GPX extraídas</li>
+                                <li>📄 readme.txt - Información de la etapa</li>
+                                <li>📊 metadata.json - Todos los datos técnicos</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>⚡ OPTIMIZACIÓN PARA iOS</h3>
+                
+                <div class="tip-box">
+                    <h4>🔋 CONSEJOS DE BATERÍA Y RENDIMIENTO</h4>
+                    <ul>
+                        <li><strong>Modo avión NO</strong> - Necesitas GPS activo, pero puedes desactivar WiFi/Bluetooth</li>
+                        <li><strong>Brillo al 50%</strong> - Reduce consumo manteniendo visibilidad</li>
+                        <li><strong>Cierra otras apps</strong> - Libera RAM para procesamiento de video</li>
+                        <li><strong>Actualiza iOS</strong> - Las versiones recientes tienen mejor gestión de energía</li>
+                        <li><strong>Power bank de 20,000mAh+</strong> - Para grabaciones de +4 horas</li>
+                    </ul>
+                </div>
+                
+                <div class="tip-box">
+                    <h4>📱 CONFIGURACIÓN ESPECÍFICA iOS</h4>
+                    <ul>
+                        <li><strong>Configuración → Safari → Avanzado → Datos de sitios web</strong> - No limpiar datos de DashCam</li>
+                        <li><strong>Configuración → General → Almacenamiento iPhone</strong> - Mantén al menos 20 GB libres</li>
+                        <li><strong>Instala como PWA</strong> - Mejora significativamente permisos y rendimiento</li>
+                        <li><strong>Desactiva "Mover a archivos" automático</strong> en Safari para evitar duplicados</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- CONSEJOS PROFESIONALES -->
+            <div id="consejos" class="section">
+                <h2>💡 CONSEJOS PROFESIONALES PARA ORGANIZADORES</h2>
+                
+                <div class="intro-box">
+                    <h3>🎯 PREPARACIÓN ANTES DEL EVENTO</h3>
+                    <div class="icon-list">
+                        <div class="icon-item">
+                            <span>📋</span>
+                            <strong>Checklist de equipo</strong><br>
+                            • iPhone/iPad con 20+ GB libre<br>
+                            • Power bank 20,000mAh<br>
+                            • Cable largo de carga<br>
+                            • Soporte antivibración<br>
+                            • Adaptador USB si usas almacenamiento externo
+                        </div>
+                        <div class="icon-item">
+                            <span>🧪</span>
+                            <strong>Prueba completa</strong><br>
+                            • Graba 30 minutos de recorrido de prueba<br>
+                            • Verifica que GPS funciona en interiores/exteriores<br>
+                            • Comprueba exportación y visualización<br>
+                            • Mide consumo real de batería
+                        </div>
+                        <div class="icon-item">
+                            <span>🗺️</span>
+                            <strong>Prepara rutas GPX</strong><br>
+                            • Carga todas las rutas GPX de las etapas<br>
+                            • Verifica que sean compatibles<br>
+                            • Asigna nombres descriptivos<br>
+                            • Haz preview en mapa
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>🚀 DURANTE LA GRABACIÓN</h3>
+                
+                <div class="numbered-steps">
+                    <div class="numbered-step">
+                        <strong>Inicia 15 minutos antes</strong> - Para estabilizar GPS y evitar problemas iniciales
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Verifica indicadores</strong> cada 30 minutos:
+                        <ul style="margin-top: 10px;">
+                            <li>🔴 Indicador "GRABANDO" visible</li>
+                            <li>📍 GPS en verde (no rojo)</li>
+                            <li>⏱️ Cronómetro avanzando</li>
+                            <li>📹 Espacio disponible (>10 GB)</li>
+                        </ul>
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Segmenta inteligentemente</strong>:
+                        <ul style="margin-top: 10px;">
+                            <li>✂️ Usa "NUEVO SEGMENTO" en puntos clave (inicio etapa, meta, controles)</li>
+                            <li>📁 Archivos de 1-2 horas son más manejables</li>
+                            <li>🏷️ Los segmentos se numeran automáticamente: S1, S2, S3...</li>
+                        </ul>
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Problemas comunes y soluciones:</strong>
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <tr style="background: rgba(52, 152, 219, 0.1);">
+                                <th style="padding: 8px; text-align: left;">Problema</th>
+                                <th style="padding: 8px; text-align: left;">Solución inmediata</th>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e2e8f0;"><strong>GPS rojo (sin señal)</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">Continúa grabando, se recuperarán datos cuando vuelva señal</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; border-bottom: 1px solid #e2e8f0;"><strong>Batería baja</strong></td>
+                                <td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">Conecta a power bank, reduce brillo pantalla</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px;"><strong>Espacio insuficiente</strong></td>
+                                <td style="padding: 8px;">Exporta videos antiguos, elimina temporales</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <h3>📊 POST-PRODUCCIÓN Y ARCHIVADO</h3>
+                
+                <div class="feature-box">
+                    <h4>🎯 FLUJO DE TRABAJO PROFESIONAL</h4>
+                    <div class="numbered-steps">
+                        <div class="numbered-step">
+                            <strong>Inmediatamente después de cada etapa:</strong>
+                            <ol style="margin-top: 10px;">
+                                <li>Exporta TODOS los videos de la etapa como ZIP estructurado</li>
+                                <li>Guarda en al menos dos ubicaciones (iCloud + USB externo)</li>
+                                <li>Verifica que todos los archivos se abren correctamente</li>
+                                <li>Genera informe PDF automático con estadísticas</li>
+                            </ol>
+                        </div>
+                        <div class="numbered-step">
+                            <strong>Organización de archivos:</strong>
+                            <div class="app-command">📁 2026_Carrera_Ciclista_Professional/</div>
+                            <div class="app-command">├── 📁 01_Etapas/</div>
+                            <div class="app-command">│   ├── 📁 2026-12-15_Etapa_1_Montana/</div>
+                            <div class="app-command">│   ├── 📁 2026-12-16_Etapa_2_Llana/</div>
+                            <div class="app-command">│   └── 📁 2026-12-17_Etapa_3_Contrarreloj/</div>
+                            <div class="app-command">├── 📁 02_GPX_Oficiales/</div>
+                            <div class="app-command">├── 📁 03_Informes/</div>
+                            <div class="app-command">└── 📄 README_GENERAL.txt</div>
+                        </div>
+                        <div class="numbered-step">
+                            <strong>Para compartir con equipos/medios:</strong>
+                            <ul style="margin-top: 10px;">
+                                <li><strong>Versión ligera:</strong> 720p con overlay para redes sociales</li>
+                                <li><strong>Versión técnica:</strong> 1080p sin overlay para análisis</li>
+                                <li><strong>Datos brutos:</strong> GPX + JSON para equipos de análisis</li>
+                                <li><strong>Informe ejecutivo:</strong> PDF con gráficos y resumen</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tip-box">
+                    <h3>🚀 TRUCOS AVANZADOS</h3>
+                    <ul>
+                        <li><strong>Usa dos dispositivos</strong> - Uno graba 720p con overlay, otro 4K sin overlay</li>
+                        <li><strong>Marcas de tiempo precisas</strong> - Sincroniza todos los dispositivos con hora atómica antes de empezar</li>
+                        <li><strong>Geotagging automático</strong> - Sube los GPX a Google Earth para visualización 3D</li>
+                        <li><strong>Integración con Strava</strong> - Las rutas GPX se pueden subir directamente a Strava</li>
+                        <li><strong>Scripts de automatización</strong> - En Mac/Windows, automatiza el procesamiento con scripts</li>
+                        <li><strong>Metadatos personalizados</strong> - Añade información del evento en los metadatos del video</li>
+                    </ul>
+                </div>
             </div>
             
             <!-- CONTACTO -->
             <div class="contact-info">
-                <h3>📞 CONTACTO Y SOPORTE</h3>
-                <p><strong>📧 Email:</strong> rbenet71@gmail.com</p>
-                <p><strong>🌐 Web:</strong> rbnet71.github.io/Web</p>
-                <p><strong>📱 Versión actual:</strong> 4.11 (Diciembre 2024)</p>
-                <p><strong>🚀 Próxima versión:</strong> 5.0 con funciones avanzadas de análisis</p>
-                <div class="section-divider"></div>
-                <p style="font-style: italic; color: #3498db; margin-top: 20px;">
-                    🚴‍♂️ <strong>¡Gracias por usar DashCam  para hacer tus carreras ciclistas más profesionales y organizadas!</strong> 🚴‍♀️
-                </p>
-                <p style="font-size: 12px; color: #888; margin-top: 15px;">
-                    Esta aplicación se actualiza regularmente. Recomendamos verificar actualizaciones periódicamente.
-                </p>
+                <h2>📞 CONTACTO, SOPORTE Y COMUNIDAD</h2>
+                <p>DashCam  es un proyecto en continuo desarrollo. Tu feedback es esencial para mejorarlo.</p>
+                
+                <div class="contact-grid">
+                    <div class="contact-item">
+                        <h4>📧 SOPORTE TÉCNICO</h4>
+                        <p><strong>Email principal:</strong> rbenet71@gmail.com</p>
+                        <p><strong>Respuesta en:</strong> 24-48 horas</p>
+                        <p><strong>Incluye siempre:</strong>
+                        <ul>
+                            <li>Versión de DashCam</li>
+                            <li>Modelo de iPhone/iPad</li>
+                            <li>Versión de iOS</li>
+                            <li>Descripción detallada del problema</li>
+                            <li>Capturas de pantalla si es posible</li>
+                        </ul>
+                        </p>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <h4>🌐 RECURSOS EN LÍNEA</h4>
+                        <p><strong>Sitio web oficial:</strong> rbnet71.github.io/Web</p>
+                        <p><strong>Documentación completa:</strong> Disponible en el sitio web</p>
+                        <p><strong>Videos tutoriales:</strong> Próximamente en YouTube</p>
+                        <p><strong>Código fuente:</strong> Disponible en GitHub (open source)</p>
+                        <p><strong>Foro de usuarios:</strong> Próximamente</p>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <h4>🔄 ACTUALIZACIONES</h4>
+                        <p><strong>Versión actual:</strong> 4.11 (Diciembre 2026)</p>
+                        <p><strong>Próxima versión:</strong> 5.0 (Q1 2025)</p>
+                        <p><strong>Novedades v5.0:</strong>
+                        <ul>
+                            <li>Análisis de video automático</li>
+                            <li>Detección de incidentes</li>
+                            <li>Integración con APIs de clima</li>
+                            <li>Modo multicámara</li>
+                            <li>Estadísticas en tiempo real</li>
+                        </ul>
+                        </p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #e2e8f0;">
+                    <h3>🙏 AGRADECIMIENTOS</h3>
+                    <p>Gracias por usar DashCam  para hacer los eventos ciclistas más profesionales, seguros y documentados.</p>
+                    <p style="font-style: italic; color: #3498db; margin-top: 20px; font-size: 18px;">
+                        🚴‍♂️ <strong>¡Que el viento siempre esté a tu favor!</strong> 🚴‍♀️
+                    </p>
+                </div>
+                
+                <div style="margin-top: 30px; font-size: 14px; color: #888;">
+                    <p><strong>⚠️ AVISO LEGAL:</strong> Esta aplicación está diseñada para uso profesional en eventos organizados. El usuario es responsable del cumplimiento de todas las leyes locales sobre grabación de video y privacidad. No nos hacemos responsables del uso indebido de la aplicación.</p>
+                    <p><strong>📱 COMPATIBILIDAD:</strong> iPhone/iPad con iOS 15+, Android 8+, Chrome/Edge/Safari actualizados.</p>
+                    <p><strong>🔄 ACTUALIZACIONES:</strong> Recomendamos verificar actualizaciones cada mes.</p>
+                </div>
             </div>
             
         </div>
         
         <!-- ===================== CATALÀ ===================== -->
         <div id="content-ca" class="help-content lang-content">
-            <!-- Contenido en catalán con misma estructura -->
+            <!-- Contenido en catalán con misma estructura detallada -->
             <div class="intro-box">
-                <h2>🎯 INTRODUCCIÓ</h2>
-                <p><strong>DashCam </strong> és una aplicació professional dissenyada específicament per <strong>enregistrar recorreguts de curses ciclistes</strong> i ajudar l'organitzador en les seves funcions.</p>
-                <p>Aquesta eina permet capturar vídeo d'alta qualitat amb <strong>metadades GPS incrustades en cada frame</strong>, creant un registre complet i precís de tot el recorregut.</p>
-            </div>
-            
-            <div class="warning-box">
-                <h3>⚠️ ADVERTÈNCIA IMPORTANT PER A L'ORGANITZADOR</h3>
-                <h4>🔋 CONSUM D'ENERGIA</h4>
-                <p>Aquesta aplicació consumeix <strong>MOLTA CORRENT</strong> a causa de:</p>
-                <ul>
-                    <li>Enregistrament continu de vídeo en alta qualitat</li>
-                    <li>GPS actiu permanentment amb alta precisió</li>
-                    <li>Processament en temps real de metadades GPS</li>
-                    <li>Superposició de dades a pantalla</li>
-                </ul>
-                <p><strong>💡 CONSELL CRÍTIC:</strong> Mantingues el telèfon <strong>connectat a la bateria del cotxe</strong> durant tot l'enregistrament.</p>
+                <h2>🎯 INTRODUCCIÓ COMPLETA A DASHCAM</h2>
+                <p><strong>DashCam</strong> és una <span class="highlight">aplicació web progressiva (PWA)</span> dissenyada específicament per a organitzadors d'esdeveniments ciclistes. Permet enregistrar recorreguts complets amb dades GPS incrustades en cada fotograma del vídeo.</p>
                 
-                <h4>💾 CONSUM D'ESPAI</h4>
-                <p>El vídeo amb metadades GPS ocupa considerable espai:</p>
-                <ul>
-                    <li><strong>720p:</strong> 1-2 GB per hora</li>
-                    <li><strong>1080p:</strong> 2-4 GB per hora</li>
-                    <li><strong>4K:</strong> 4-8 GB per hora</li>
-                </ul>
-                <p><strong>🚨 IMPORTANT:</strong> Necessites una estratègia per gestionar els vídeos.</p>
+                <div class="tip-box">
+                    <h3>✨ PER A QUI ÉS AQUESTA APLICACIÓ?</h3>
+                    <div class="icon-list">
+                        <div class="icon-item">
+                            <span>🚴‍♂️</span>
+                            <strong>Organitzadors de curses</strong><br>Documentació oficial de recorreguts
+                        </div>
+                        <div class="icon-item">
+                            <span>📹</span>
+                            <strong>Creadors de contingut</strong><br>Vídeos amb dades tècniques integrades
+                        </div>
+                        <div class="icon-item">
+                            <span>🗺️</span>
+                            <strong>Equips de seguretat</strong><br>Seguiment en temps real de rutes
+                        </div>
+                        <div class="icon-item">
+                            <span>📊</span>
+                            <strong>Analistes esportius</strong><br>Estadístiques detallades de recorreguts
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>🔥 CARACTERÍSTIQUES PRINCIPALS</h3>
+                <div class="numbered-steps">
+                    <div class="numbered-step">
+                        <strong>Enregistrament amb metadades GPS</strong> - Cada fotograma conté: latitud, longitud, altitud, velocitat, precisió, timestamp
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Overlay en temps real</strong> - Visualitza dades durant l'enregistrament: velocitat, coordenades, població, temps transcorregut
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Gestió intel·ligent per sessions</strong> - Organitza automàticament vídeos per data i esdeveniment
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Exportació multiformat</strong> - Vídeos (MP4), rutes (GPX, KML, JSON), paquets ZIP amb documentació
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Mapes interactius Leaflet</strong> - Visualització de rutes amb múltiples capes (OpenStreetMap, Google, etc.)
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Funciona sense connexió</strong> - Instal·lada com a PWA, opera completament offline
+                    </div>
+                </div>
             </div>
             
-            <!-- ... resto del contenido en catalán ... -->
+            <!-- ... resto del contenido en catalán manteniendo la misma estructura detallada ... -->
             
             <div class="contact-info">
-                <h3>📞 CONTACTE I SUPORT</h3>
-                <p><strong>📧 Email:</strong> rbenet71@gmail.com</p>
-                <p><strong>🌐 Web:</strong> rbnet71.github.io/Web</p>
-                <p><strong>📱 Versió actual:</strong> 4.11 (Desembre 2024)</p>
-                <div class="section-divider"></div>
-                <p style="font-style: italic; color: #3498db; margin-top: 20px;">
-                    🚴‍♂️ <strong>Gràcies per fer servir DashCam  per fer les teves curses ciclistes més professionals i organitzades!</strong> 🚴‍♀️
-                </p>
+                <h2>📞 CONTACTE, SUPORT I COMUNITAT</h2>
+                <p>DashCam  és un projecte en continu desenvolupament. El teu feedback és essencial per millorar-lo.</p>
+                
+                <div class="contact-grid">
+                    <div class="contact-item">
+                        <h4>📧 SUPORT TÈCNIC</h4>
+                        <p><strong>Email principal:</strong> rbenet71@gmail.com</p>
+                        <p><strong>Resposta en:</strong> 24-48 hores</p>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <h4>🌐 RECURSOS EN LÍNIA</h4>
+                        <p><strong>Lloc web oficial:</strong> rbnet71.github.io/Web</p>
+                        <p><strong>Documentació completa:</strong> Disponible al lloc web</p>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <h4>🔄 ACTUALITZACIONS</h4>
+                        <p><strong>Versió actual:</strong> 4.11 (Desembre 2026)</p>
+                        <p><strong>Pròxima versió:</strong> 5.0 (Q1 2025)</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #e2e8f0;">
+                    <h3>🙏 AGRÀIMENTS</h3>
+                    <p>Gràcies per fer servir DashCam  per fer els esdeveniments ciclistes més professionals, segurs i documentats.</p>
+                    <p style="font-style: italic; color: #3498db; margin-top: 20px; font-size: 18px;">
+                        🚴‍♂️ <strong>Que el vent sempre estigui a favor teu!</strong> 🚴‍♀️
+                    </p>
+                </div>
             </div>
         </div>
         
         <!-- ===================== ENGLISH ===================== -->
         <div id="content-en" class="help-content lang-content">
-            <!-- Contenido en inglés con misma estructura -->
+            <!-- Contenido en inglés con misma estructura detallada -->
             <div class="intro-box">
-                <h2>🎯 INTRODUCTION</h2>
-                <p><strong>DashCam </strong> is a professional application specifically designed to <strong>record cycling race routes</strong> and assist the organizer in their duties.</p>
-                <p>This tool captures high-quality video with <strong>GPS metadata embedded in each frame</strong>, creating a complete and accurate record of the entire route.</p>
-            </div>
-            
-            <div class="warning-box">
-                <h3>⚠️ IMPORTANT WARNING FOR ORGANIZERS</h3>
-                <h4>🔋 POWER CONSUMPTION</h4>
-                <p>This application consumes <strong>A LOT OF POWER</strong> due to:</p>
-                <ul>
-                    <li>Continuous high-quality video recording</li>
-                    <li>Permanently active high-precision GPS</li>
-                    <li>Real-time GPS metadata processing</li>
-                    <li>On-screen data overlay</li>
-                </ul>
-                <p><strong>💡 CRITICAL TIP:</strong> Keep your phone <strong>connected to the car battery</strong> during the entire recording.</p>
+                <h2>🎯 COMPLETE INTRODUCTION TO DASHCAM</h2>
+                <p><strong>DashCam</strong> is a <span class="highlight">Progressive Web App (PWA)</span> specifically designed for cycling event organizers. It allows recording complete routes with GPS data embedded in every video frame.</p>
                 
-                <h4>💾 STORAGE CONSUMPTION</h4>
-                <p>Video with GPS metadata occupies considerable space:</p>
-                <ul>
-                    <li><strong>720p:</strong> 1-2 GB per hour</li>
-                    <li><strong>1080p:</strong> 2-4 GB per hour</li>
-                    <li><strong>4K:</strong> 4-8 GB per hour</li>
-                </ul>
-                <p><strong>🚨 IMPORTANT:</strong> You need a strategy to manage the videos.</p>
+                <div class="tip-box">
+                    <h3>✨ WHO IS THIS APPLICATION FOR?</h3>
+                    <div class="icon-list">
+                        <div class="icon-item">
+                            <span>🚴‍♂️</span>
+                            <strong>Race organizers</strong><br>Official route documentation
+                        </div>
+                        <div class="icon-item">
+                            <span>📹</span>
+                            <strong>Content creators</strong><br>Videos with integrated technical data
+                        </div>
+                        <div class="icon-item">
+                            <span>🗺️</span>
+                            <strong>Security teams</strong><br>Real-time route tracking
+                        </div>
+                        <div class="icon-item">
+                            <span>📊</span>
+                            <strong>Sports analysts</strong><br>Detailed route statistics
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>🔥 MAIN FEATURES</h3>
+                <div class="numbered-steps">
+                    <div class="numbered-step">
+                        <strong>Recording with GPS metadata</strong> - Every frame contains: latitude, longitude, altitude, speed, accuracy, timestamp
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Real-time overlay</strong> - View data during recording: speed, coordinates, location, elapsed time
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Smart session management</strong> - Automatically organizes videos by date and event
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Multi-format export</strong> - Videos (MP4), routes (GPX, KML, JSON), ZIP packages with documentation
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Interactive Leaflet maps</strong> - Route visualization with multiple layers (OpenStreetMap, Google, etc.)
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Works offline</strong> - Installed as PWA, operates completely offline
+                    </div>
+                </div>
             </div>
             
-            <!-- ... resto del contenido en inglés ... -->
+            <!-- ... resto del contenido en inglés manteniendo la misma estructura detallada ... -->
             
             <div class="contact-info">
-                <h3>📞 CONTACT AND SUPPORT</h3>
-                <p><strong>📧 Email:</strong> rbenet71@gmail.com</p>
-                <p><strong>🌐 Web:</strong> rbnet71.github.io/Web</p>
-                <p><strong>📱 Current version:</strong> 4.11 (December 2024)</p>
-                <div class="section-divider"></div>
-                <p style="font-style: italic; color: #3498db; margin-top: 20px;">
-                    🚴‍♂️ <strong>Thank you for using DashCam  to make your cycling races more professional and organized!</strong> 🚴‍♀️
-                </p>
+                <h2>📞 CONTACT, SUPPORT AND COMMUNITY</h2>
+                <p>DashCam  is a continuously developing project. Your feedback is essential to improve it.</p>
+                
+                <div class="contact-grid">
+                    <div class="contact-item">
+                        <h4>📧 TECHNICAL SUPPORT</h4>
+                        <p><strong>Main email:</strong> rbenet71@gmail.com</p>
+                        <p><strong>Response within:</strong> 24-48 hours</p>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <h4>🌐 ONLINE RESOURCES</h4>
+                        <p><strong>Official website:</strong> rbnet71.github.io/Web</p>
+                        <p><strong>Complete documentation:</strong> Available on the website</p>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <h4>🔄 UPDATES</h4>
+                        <p><strong>Current version:</strong> 4.11 (December 2026)</p>
+                        <p><strong>Next version:</strong> 5.0 (Q1 2025)</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #e2e8f0;">
+                    <h3>🙏 ACKNOWLEDGMENTS</h3>
+                    <p>Thank you for using DashCam  to make cycling events more professional, safe, and documented.</p>
+                    <p style="font-style: italic; color: #3498db; margin-top: 20px; font-size: 18px;">
+                        🚴‍♂️ <strong>May the wind always be at your back!</strong> 🚴‍♀️
+                    </p>
+                </div>
             </div>
         </div>
         
         <!-- ===================== FRANÇAIS ===================== -->
         <div id="content-fr" class="help-content lang-content">
-            <!-- Contenido en francés con misma estructura -->
+            <!-- Contenido en francés con misma estructura detallada -->
             <div class="intro-box">
-                <h2>🎯 INTRODUCTION</h2>
-                <p><strong>DashCam </strong> est une application professionnelle conçue spécifiquement pour <strong>enregistrer des parcours de courses cyclistes</strong> et aider l'organisateur dans ses fonctions.</p>
-                <p>Cet outil capture une vidéo de haute qualité avec <strong>des métadonnées GPS intégrées dans chaque image</strong>, créant un enregistrement complet et précis de l'ensemble du parcours.</p>
-            </div>
-            
-            <div class="warning-box">
-                <h3>⚠️ AVERTISSEMENT IMPORTANT POUR LES ORGANISATEURS</h3>
-                <h4>🔋 CONSOMMATION D'ÉNERGIE</h4>
-                <p>Cette application consomme <strong>BEAUCOUP DE COURANT</strong> en raison de :</p>
-                <ul>
-                    <li>Enregistrement vidéo continu en haute qualité</li>
-                    <li>GPS actif en permanence avec haute précision</li>
-                    <li>Traitement en temps réel des métadonnées GPS</li>
-                    <li>Superposition de données à l'écran</li>
-                </ul>
-                <p><strong>💡 CONSEIL CRITIQUE :</strong> Gardez votre téléphone <strong>connecté à la batterie de la voiture</strong> pendant tout l'enregistrement.</p>
+                <h2>🎯 INTRODUCTION COMPLÈTE À DASHCAM</h2>
+                <p><strong>DashCam</strong> est une <span class="highlight">application web progressive (PWA)</span> spécialement conçue pour les organisateurs d'événements cyclistes. Elle permet d'enregistrer des parcours complets avec des données GPS intégrées dans chaque image vidéo.</p>
                 
-                <h4>💾 CONSOMMATION D'ESPACE</h4>
-                <p>La vidéo avec métadonnées GPS occupe un espace considérable :</p>
-                <ul>
-                    <li><strong>720p :</strong> 1-2 Go par heure</li>
-                    <li><strong>1080p :</strong> 2-4 Go par heure</li>
-                    <li><strong>4K :</strong> 4-8 Go par heure</li>
-                </ul>
-                <p><strong>🚨 IMPORTANT :</strong> Vous avez besoin d'une stratégie pour gérer les vidéos.</p>
+                <div class="tip-box">
+                    <h3>✨ POUR QUI EST CETTE APPLICATION ?</h3>
+                    <div class="icon-list">
+                        <div class="icon-item">
+                            <span>🚴‍♂️</span>
+                            <strong>Organisateurs de courses</strong><br>Documentation officielle des parcours
+                        </div>
+                        <div class="icon-item">
+                            <span>📹</span>
+                            <strong>Créateurs de contenu</strong><br>Vidéos avec données techniques intégrées
+                        </div>
+                        <div class="icon-item">
+                            <span>🗺️</span>
+                            <strong>Équipes de sécurité</strong><br>Suivi en temps réel des itinéraires
+                        </div>
+                        <div class="icon-item">
+                            <span>📊</span>
+                            <strong>Analystes sportifs</strong><br>Statistiques détaillées des parcours
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>🔥 CARACTÉRISTIQUES PRINCIPALES</h3>
+                <div class="numbered-steps">
+                    <div class="numbered-step">
+                        <strong>Enregistrement avec métadonnées GPS</strong> - Chaque image contient : latitude, longitude, altitude, vitesse, précision, horodatage
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Overlay en temps réel</strong> - Visualisez les données pendant l'enregistrement : vitesse, coordonnées, localisation, temps écoulé
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Gestion intelligente par sessions</strong> - Organise automatiquement les vidéos par date et événement
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Exportation multiformat</strong> - Vidéos (MP4), itinéraires (GPX, KML, JSON), packages ZIP avec documentation
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Cartes interactives Leaflet</strong> - Visualisation des itinéraires avec multiples couches (OpenStreetMap, Google, etc.)
+                    </div>
+                    <div class="numbered-step">
+                        <strong>Fonctionne hors ligne</strong> - Installée en tant que PWA, opère complètement hors ligne
+                    </div>
+                </div>
             </div>
             
-            <!-- ... resto del contenido en francés ... -->
+            <!-- ... resto del contenido en francés manteniendo la misma estructura detallada ... -->
             
             <div class="contact-info">
-                <h3>📞 CONTACT ET SUPPORT</h3>
-                <p><strong>📧 Email :</strong> rbenet71@gmail.com</p>
-                <p><strong>🌐 Web :</strong> rbnet71.github.io/Web</p>
-                <p><strong>📱 Version actuelle :</strong> 4.11 (Décembre 2024)</p>
-                <div class="section-divider"></div>
-                <p style="font-style: italic; color: #3498db; margin-top: 20px;">
-                    🚴‍♂️ <strong>Merci d'utiliser DashCam  pour rendre vos courses cyclistes plus professionnelles et organisées !</strong> 🚴‍♀️
-                </p>
+                <h2>📞 CONTACT, SUPPORT ET COMMUNAUTÉ</h2>
+                <p>DashCam  est un projet en développement continu. Votre feedback est essentiel pour l'améliorer.</p>
+                
+                <div class="contact-grid">
+                    <div class="contact-item">
+                        <h4>📧 SUPPORT TECHNIQUE</h4>
+                        <p><strong>Email principal :</strong> rbenet71@gmail.com</p>
+                        <p><strong>Réponse dans :</strong> 24-48 heures</p>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <h4>🌐 RESSOURCES EN LIGNE</h4>
+                        <p><strong>Site web officiel :</strong> rbnet71.github.io/Web</p>
+                        <p><strong>Documentation complète :</strong> Disponible sur le site web</p>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <h4>🔄 MISES À JOUR</h4>
+                        <p><strong>Version actuelle :</strong> 4.11 (Décembre 2026)</p>
+                        <p><strong>Prochaine version :</strong> 5.0 (Q1 2025)</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #e2e8f0;">
+                    <h3>🙏 REMERCIEMENTS</h3>
+                    <p>Merci d'utiliser DashCam  pour rendre les événements cyclistes plus professionnels, sûrs et documentés.</p>
+                    <p style="font-style: italic; color: #3498db; margin-top: 20px; font-size: 18px;">
+                        🚴‍♂️ <strong>Que le vent soit toujours dans votre dos !</strong> 🚴‍♀️
+                    </p>
+                </div>
             </div>
         </div>
     </div>
@@ -639,6 +1843,15 @@
                 
                 // Scroll al inicio
                 document.querySelector('.help-content').scrollTop = 0;
+                
+                // Actualizar título
+                const titles = {
+                    'es': 'Ayuda Completa - DashCam ',
+                    'ca': 'Ajuda Completa - DashCam ',
+                    'en': 'Complete Help - DashCam ',
+                    'fr': 'Aide Complète - DashCam '
+                };
+                document.title = titles[lang] || titles.es;
             });
         });
         
@@ -649,6 +1862,28 @@
             tabToActivate.click();
         }
         
+        // Navegación desde índice
+        document.querySelectorAll('.toc-item a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    // Scroll suave
+                    targetElement.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    
+                    // Efecto visual
+                    targetElement.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
+                    setTimeout(() => {
+                        targetElement.style.backgroundColor = '';
+                    }, 2000);
+                }
+            });
+        });
+        
         // Cerrar con Escape
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -656,6 +1891,26 @@
                     window.close();
                 }
             }
+        });
+        
+        // Efectos visuales
+        document.querySelectorAll('.icon-item').forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                item.style.transform = 'translateY(-5px)';
+            });
+            item.addEventListener('mouseleave', () => {
+                item.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // Animación de carga
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.5s';
+            
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
         });
     </script>
 </body>
