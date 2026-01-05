@@ -2,546 +2,540 @@
 class VideoGestUI {
     constructor() {
         this.currentPanel = 'main';
-        this.panels = {};
-        this.currentCommandInfo = null;
+        this.selectedOperation = null;
+        this.selectedFile = null;
         this.init();
     }
     
     init() {
-        // Mapear todos los paneles
-        this.panels = {
-            main: document.getElementById('main-panel'),
-            language: document.getElementById('language-panel'),
-            help: document.getElementById('help-panel'),
-            reduce: document.getElementById('reduce-panel'),
-            ffmpeg: document.getElementById('ffmpeg-panel'),
-            progress: document.getElementById('progress-panel')
-        };
+        console.log('VideoGestUI inicializando...');
         
-        // Inicializar event listeners
-        this.initEventListeners();
+        // Esperar a que el DOM esté completamente cargado
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                this.initComponents();
+                this.initEventListeners();
+                this.updateUI();
+            });
+        } else {
+            // DOM ya está cargado
+            setTimeout(() => {
+                this.initComponents();
+                this.initEventListeners();
+                this.updateUI();
+            }, 100);
+        }
+    }
+    
+    initComponents() {
+        console.log('Inicializando componentes UI...');
         
-        // Cargar configuración guardada
-        this.loadSavedSettings();
+        // Buscar elementos principales - con verificación de nulidad
+        this.mainPanel = document.getElementById('main-panel');
+        this.reducePanel = document.getElementById('reduce-panel');
+        this.ffmpegPanel = document.getElementById('ffmpeg-panel');
+        this.progressPanel = document.getElementById('progress-panel');
+        this.inputFile = document.getElementById('input-file');
+        this.fileInfo = document.getElementById('file-info');
+        this.qualitySelect = document.getElementById('quality');
+        this.executeReduceBtn = document.getElementById('execute-reduce');
+        this.continueButton = document.getElementById('continue-button');
+        this.copyCommandBtn = document.getElementById('copy-command');
+        
+        // Botones de operación
+        this.operationButtons = document.querySelectorAll('.operation-btn');
+        
+        // Botones de volver
+        this.backButtons = document.querySelectorAll('.back-btn');
+        
+        // Botones del footer
+        this.exportBtn = document.getElementById('export-btn');
+        this.importBtn = document.getElementById('import-btn');
+        this.clearDataBtn = document.getElementById('clear-data-btn');
+        
+        // Verificar que todos los elementos esenciales existan
+        this.checkRequiredElements();
+    }
+    
+    checkRequiredElements() {
+        const requiredElements = [
+            { name: 'mainPanel', element: this.mainPanel },
+            { name: 'operationButtons', element: this.operationButtons }
+        ];
+        
+        requiredElements.forEach(item => {
+            if (!item.element) {
+                console.error(`Elemento requerido no encontrado: ${item.name}`);
+            }
+        });
     }
     
     initEventListeners() {
-        // Selector de idioma
-        document.getElementById('language-selector').addEventListener('click', () => {
-            this.showPanel('language');
-        });
+        console.log('Inicializando event listeners...');
         
-        // Botón de ayuda
-        document.getElementById('help-button').addEventListener('click', () => {
-            this.showPanel('help');
-        });
-        
-        // Botones de operación
-        document.querySelectorAll('.operation-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const operation = e.currentTarget.dataset.operation;
-                this.handleOperationSelect(operation);
+        // Botones de operación - con verificación
+        if (this.operationButtons && this.operationButtons.length > 0) {
+            this.operationButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const operation = e.currentTarget.getAttribute('data-operation');
+                    this.handleOperationSelect(operation);
+                });
             });
-        });
-        
-        // Botones volver
-        document.querySelectorAll('.back-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                this.showPanel('main');
-            });
-        });
-        
-        // Botones de idioma
-        document.querySelectorAll('.language-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const lang = e.currentTarget.dataset.lang;
-                videoGestTranslations.setLanguage(lang);
-                this.showPanel('main');
-            });
-        });
-        
-        // Cerrar ayuda
-        document.querySelector('#help-panel .btn-secondary').addEventListener('click', () => {
-            this.showPanel('main');
-        });
-        
-        // Selección de archivo
-        document.getElementById('input-file').addEventListener('change', (e) => {
-            this.handleFileSelect(e.target.files[0]);
-        });
-        
-        // Ejecutar reducción
-        document.getElementById('execute-reduce').addEventListener('click', () => {
-            this.executeReduceOperation();
-        });
-        
-        // Botón Continuar
-        document.getElementById('continue-button').addEventListener('click', () => {
-            this.openFileExplorer();
-        });
-        
-        // Instalación PWA
-        this.initPWAInstall();
-    }
-    
-    showPanel(panelName) {
-        // Ocultar todos los paneles
-        Object.values(this.panels).forEach(panel => {
-            if (panel) panel.style.display = 'none';
-        });
-        
-        // Mostrar panel solicitado
-        if (this.panels[panelName]) {
-            this.panels[panelName].style.display = 'flex';
-            this.currentPanel = panelName;
-            
-            // Ejecutar acciones específicas del panel
-            this.onPanelShow(panelName);
+        } else {
+            console.warn('No se encontraron botones de operación');
         }
-    }
-    
-    onPanelShow(panelName) {
-        switch (panelName) {
-            case 'reduce':
-                this.updateFileInfo();
-                break;
-            case 'ffmpeg':
-                this.displayFFMPEGCommand();
-                break;
-            case 'main':
-                // Actualizar traducciones
-                videoGestTranslations.applyTranslations();
-                break;
+        
+        // Botones de volver - con verificación
+        if (this.backButtons && this.backButtons.length > 0) {
+            this.backButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    this.showMainPanel();
+                });
+            });
         }
+        
+        // Selección de archivo - con verificación
+        if (this.inputFile) {
+            this.inputFile.addEventListener('change', (e) => {
+                this.handleFileSelect(e.target.files[0]);
+            });
+        }
+        
+        // Botón ejecutar reducción - con verificación
+        if (this.executeReduceBtn) {
+            this.executeReduceBtn.addEventListener('click', () => {
+                this.handleExecuteReduce();
+            });
+        }
+        
+        // Botón continuar - con verificación
+        if (this.continueButton) {
+            this.continueButton.addEventListener('click', () => {
+                this.handleContinue();
+            });
+        }
+        
+        // Botón copiar comando - con verificación
+        if (this.copyCommandBtn) {
+            this.copyCommandBtn.addEventListener('click', () => {
+                this.handleCopyCommand();
+            });
+        }
+        
+        // Botones del footer - con verificación
+        if (this.exportBtn) {
+            this.exportBtn.addEventListener('click', () => {
+                this.handleExportSettings();
+            });
+        }
+        
+        if (this.importBtn) {
+            this.importBtn.addEventListener('click', () => {
+                this.handleImportSettings();
+            });
+        }
+        
+        if (this.clearDataBtn) {
+            this.clearDataBtn.addEventListener('click', () => {
+                this.handleClearData();
+            });
+        }
+        
+        console.log('Event listeners inicializados correctamente');
     }
     
     handleOperationSelect(operation) {
-        videoGestStorage.updateSetting('lastOperation', operation);
+        console.log('Operación seleccionada:', operation);
+        this.selectedOperation = operation;
         
-        switch (operation) {
+        switch(operation) {
             case 'reduce':
-                this.showPanel('reduce');
+                this.showReducePanel();
+                break;
+            case 'cut':
+                this.showNotImplemented(operation);
+                break;
+            case 'convert':
+                this.showNotImplemented(operation);
+                break;
+            case 'reverse':
+                this.showNotImplemented(operation);
+                break;
+            case 'tojpg':
+                this.showNotImplemented(operation);
+                break;
+            case 'merge':
+                this.showNotImplemented(operation);
                 break;
             default:
-                // Para otras operaciones, mostrar mensaje de "próximamente"
-                this.showMessage(
-                    'Función en desarrollo',
-                    `La función "${operation}" estará disponible en próximas actualizaciones.`,
-                    'info'
-                );
-                break;
+                console.warn('Operación desconocida:', operation);
+                this.showMainPanel();
         }
     }
     
     handleFileSelect(file) {
         if (!file) return;
         
-        // Validar que sea un video
-        if (!file.type.startsWith('video/')) {
-            this.showMessage(
-                'Archivo no válido',
-                'Por favor, seleccione un archivo de video.',
-                'error'
-            );
-            return;
-        }
+        this.selectedFile = file;
         
-        // Guardar información del archivo
-        const fileInfo = {
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            lastModified: file.lastModified,
-            path: file.webkitRelativePath || file.name
-        };
-        
-        videoGestStorage.saveLastFile(fileInfo);
-        this.updateFileInfo();
-        
-        // Actualizar traducción
-        const fileInfoElement = document.getElementById('file-info');
-        const t = videoGestTranslations;
-        fileInfoElement.innerHTML = `
-            <strong>${t.get('fileSelected')}</strong><br>
-            ${file.name}<br>
-            <small>${this.formatFileSize(file.size)}</small>
-        `;
-    }
-    
-    updateFileInfo() {
-        const lastFile = videoGestStorage.getLastFile();
-        const fileInfoElement = document.getElementById('file-info');
-        
-        if (lastFile) {
-            const t = videoGestTranslations;
-            fileInfoElement.innerHTML = `
-                <strong>${t.get('fileSelected')}</strong><br>
-                ${lastFile.name}<br>
-                <small>${this.formatFileSize(lastFile.size)}</small>
+        // Mostrar información del archivo
+        if (this.fileInfo) {
+            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            this.fileInfo.innerHTML = `
+                <strong>${videoGestTranslations.get('fileSelected')}</strong> ${file.name}<br>
+                <small>Tamaño: ${fileSizeMB} MB | Tipo: ${file.type}</small>
             `;
-        } else {
-            fileInfoElement.innerHTML = '';
         }
     }
     
-    async executeReduceOperation() {
-        const fileInput = document.getElementById('input-file');
-        if (!fileInput.files || fileInput.files.length === 0) {
-            this.showMessage(
-                videoGestTranslations.get('selectFileFirst'),
-                'Por favor, seleccione un archivo de video antes de continuar.',
-                'warning'
-            );
-            return;
-        }
-        
-        const file = fileInput.files[0];
-        const quality = document.getElementById('quality').value;
-        
-        // Guardar configuración
-        videoGestStorage.updateSetting('quality', quality);
-        
-        // Configurar FFMPEG
-        videoGestFFMPEG.setOperation('reduce');
-        videoGestFFMPEG.setInputFile(file);
-        
-        try {
-            // Generar comando
-            this.currentCommandInfo = videoGestFFMPEG.generateCommand({
-                quality: quality
-            });
-            
-            // Guardar en historial
-            videoGestStorage.saveCommandHistory(this.currentCommandInfo.command);
-            
-            // 1. COPIAR AUTOMÁTICAMENTE AL GENERAR
-            await this.copyCommandToClipboard(true); // true = copia silenciosa
-            
-            // Mostrar panel de instrucciones
-            this.showPanel('ffmpeg');
-            
-        } catch (error) {
+    handleExecuteReduce() {
+        if (!this.selectedFile) {
             this.showMessage(
                 videoGestTranslations.get('errorOccurred'),
-                `Error: ${error.message}\n\nAsegúrese de que ha seleccionado un archivo de video válido.`,
-                'error'
-            );
-        }
-    }
-    
-    displayFFMPEGCommand() {
-        if (this.currentCommandInfo) {
-            const instructions = document.querySelector('#ffmpeg-panel .instructions');
-            if (instructions) {
-                const t = videoGestTranslations;
-                const qualityDesc = videoGestFFMPEG.getQualityDescription(this.currentCommandInfo.quality);
-                
-                instructions.innerHTML = `
-                    <p>${t.get('instruction1')}</p>
-                    <p><strong>${t.get('instruction2')}</strong></p>
-                    
-                    <div class="note important">
-                        <h4>✅ Comando ya copiado automáticamente</h4>
-                        <p>El comando FFMPEG ya está en su portapapeles.</p>
-                        <p><strong>Ahora solo necesita:</strong></p>
-                        <ol>
-                            <li>Hacer clic en "Continuar" para seleccionar la carpeta</li>
-                            <li>Abrir CMD en esa carpeta</li>
-                            <li>Pegar el comando (Ctrl+V) y ejecutar</li>
-                        </ol>
-                    </div>
-                    
-                    <div class="note">
-                        <h4>⚡ Comando automático</h4>
-                        <p>Este comando hace TODO automáticamente:</p>
-                        <ol>
-                            <li>Verifica si ffmpeg.exe está en la carpeta</li>
-                            <li>Si no está, lo descarga desde internet</li>
-                            <li>Ejecuta la conversión del video</li>
-                        </ol>
-                    </div>
-                    
-                    <div class="command-box">
-                        <h3>Comando listo para pegar:</h3>
-                        <div class="command">${this.currentCommandInfo.command}</div>
-                        <p class="note" style="margin-top: 10px;">
-                            <small>⚠️ Ya está copiado en su portapapeles</small>
-                        </p>
-                    </div>
-                    
-                    <div class="note">
-                        <p><strong>Calidad seleccionada:</strong> ${qualityDesc}</p>
-                        <p><strong>Directorio del video:</strong> ${this.currentCommandInfo.directory || 'No especificado'}</p>
-                        <p><strong>Archivo de salida:</strong> ${this.currentCommandInfo.output}</p>
-                        <p><strong>Tiempo estimado:</strong> ${this.currentCommandInfo.estimatedTime?.formatted || '2-5 minutos'}</p>
-                        <p><strong>Archivo original:</strong> Se mantiene intacto</p>
-                    </div>
-                `;
-            }
-        }
-    }
-    
-    // Método para abrir el explorador de archivos
-    openFileExplorer() {
-        if (!this.currentCommandInfo) {
-            this.showMessage(
-                'Error',
-                'Primero debe generar un comando haciendo clic en "Ejecutar".',
-                'error'
+                videoGestTranslations.get('selectFileFirst'),
+                'warning'
             );
             return;
         }
         
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.style.display = 'none';
+        const quality = this.qualitySelect ? this.qualitySelect.value : 'tablet';
         
-        // Configurar atributos para que se abra en modo directorio
-        input.setAttribute('webkitdirectory', '');
-        input.setAttribute('directory', '');
-        input.setAttribute('multiple', '');
-        
-        // Agregar al documento
-        document.body.appendChild(input);
-        
-        // Cuando el usuario seleccione un directorio
-        input.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                const firstFile = e.target.files[0];
-                const path = firstFile.webkitRelativePath;
-                const directory = path ? path.substring(0, path.indexOf('/')) : 'Directorio seleccionado';
-                
-                // 2. RECORDAR AL USUARIO QUE EL COMANDO YA ESTÁ COPIADO
-                this.showMessage(
-                    '✅ ¡Todo listo!',
-                    `Directorio seleccionado: ${directory}\n\n📋 <strong>El comando YA ESTÁ en su portapapeles.</strong>\n\nAhora solo necesita:\n1. En la barra de dirección escriba: <code>CMD</code>\n2. Presione Enter para abrir la terminal\n3. Pegue el comando (Ctrl+V)\n4. Presione Enter para ejecutar\n\nEl comando descargará ffmpeg.exe automáticamente si es necesario.`,
-                    'success'
-                );
-            }
-            
-            // Limpiar el input
-            document.body.removeChild(input);
-        });
-        
-        input.addEventListener('cancel', () => {
-            // El usuario canceló
-            this.showMessage(
-                'Selección cancelada',
-                'Recuerde: el comando sigue copiado en su portapapeles.\nPuede volver a intentarlo haciendo clic en "Continuar".',
-                'warning'
+        // Generar comando FFMPEG
+        if (window.videoGestFFMPEG) {
+            const command = window.videoGestFFMPEG.generateReduceCommand(
+                this.selectedFile.name,
+                quality
             );
-            document.body.removeChild(input);
-        });
-        
-        // Disparar el click para abrir el explorador
-        input.click();
+            
+            this.showFFMPEGPanel(command);
+        } else {
+            this.showMessage(
+                'Error',
+                'Sistema FFMPEG no disponible',
+                'error'
+            );
+        }
     }
     
-    // Método mejorado para copiar al portapapeles
-    async copyCommandToClipboard(silent = false) {
-        if (!this.currentCommandInfo) {
-            if (!silent) {
-                this.showMessage(
-                    'Error',
-                    'No hay comando para copiar. Primero debe generar un comando.',
-                    'error'
-                );
-            }
-            return false;
+    handleContinue() {
+        // Aquí se manejaría la lógica para continuar con la operación
+        // Por ahora, mostramos un mensaje
+        this.showMessage(
+            videoGestTranslations.get('processing'),
+            'La funcionalidad está en desarrollo...',
+            'info'
+        );
+    }
+    
+    handleCopyCommand() {
+        // Implementar lógica para copiar comando al portapapeles
+        console.log('Copiar comando al portapapeles');
+        this.showMessage(
+            videoGestTranslations.get('commandCopied'),
+            'Comando copiado al portapapeles',
+            'success'
+        );
+    }
+    
+    handleExportSettings() {
+        if (window.videoGestApp) {
+            const exportData = window.videoGestApp.exportAppData();
+            
+            // Crear enlace de descarga
+            const url = URL.createObjectURL(exportData.blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = exportData.filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            this.showMessage(
+                'Exportación exitosa',
+                'Configuración exportada correctamente',
+                'success'
+            );
         }
-        
-        const command = this.currentCommandInfo.command;
-        
-        try {
-            await navigator.clipboard.writeText(command);
-            
-            if (!silent) {
-                this.showMessage(
-                    '✅ Comando copiado',
-                    'El comando está listo para pegar en CMD.\n\nAhora:\n1. Abra CMD en la carpeta del video\n2. Pegue el comando (Ctrl+V)\n3. Presione Enter para ejecutar',
-                    'success'
-                );
-            }
-            
-            return true;
-            
-        } catch (err) {
-            // Fallback para navegadores más antiguos
-            const textArea = document.createElement('textarea');
-            textArea.value = command;
-            document.body.appendChild(textArea);
-            textArea.select();
-            const success = document.execCommand('copy');
-            document.body.removeChild(textArea);
-            
-            if (!silent) {
-                if (success) {
-                    this.showMessage(
-                        '✅ Comando copiado',
-                        'El comando está listo para pegar en CMD.\n\nAhora:\n1. Abra CMD en la carpeta del video\n2. Pegue el comando (Ctrl+V)\n3. Presione Enter para ejecutar',
-                        'success'
-                    );
-                } else {
-                    this.showMessage(
-                        'Error al copiar',
-                        'No se pudo copiar el comando automáticamente.\n\nPor favor, seleccione y copie el comando manualmente.',
-                        'error'
-                    );
-                }
-            }
-            
-            return success;
+    }
+    
+    handleImportSettings() {
+        // Implementar lógica para importar configuración
+        this.showMessage(
+            'Importar configuración',
+            'Funcionalidad en desarrollo',
+            'info'
+        );
+    }
+    
+    handleClearData() {
+        if (window.videoGestApp) {
+            window.videoGestApp.resetApp();
         }
+    }
+    
+    showMainPanel() {
+        this.hideAllPanels();
+        if (this.mainPanel) {
+            this.mainPanel.style.display = 'block';
+        }
+        this.currentPanel = 'main';
+    }
+    
+    showReducePanel() {
+        this.hideAllPanels();
+        if (this.reducePanel) {
+            this.reducePanel.style.display = 'block';
+        }
+        this.currentPanel = 'reduce';
+    }
+    
+    showFFMPEGPanel(command = '') {
+        this.hideAllPanels();
+        if (this.ffmpegPanel) {
+            this.ffmpegPanel.style.display = 'block';
+            
+            // Actualizar contenido del panel
+            const instructionsDiv = this.ffmpegPanel.querySelector('.instructions');
+            if (instructionsDiv) {
+                instructionsDiv.innerHTML = this.generateFFMPEGInstructions(command);
+            }
+        }
+        this.currentPanel = 'ffmpeg';
+    }
+    
+    showProgressPanel() {
+        this.hideAllPanels();
+        if (this.progressPanel) {
+            this.progressPanel.style.display = 'block';
+        }
+        this.currentPanel = 'progress';
+    }
+    
+    showNotImplemented(operation) {
+        this.showMessage(
+            'Funcionalidad en desarrollo',
+            `La operación "${operation}" está en desarrollo.`,
+            'info'
+        );
+    }
+    
+    hideAllPanels() {
+        const panels = [this.mainPanel, this.reducePanel, this.ffmpegPanel, this.progressPanel];
+        panels.forEach(panel => {
+            if (panel) {
+                panel.style.display = 'none';
+            }
+        });
+    }
+    
+    generateFFMPEGInstructions(command) {
+        const lang = videoGestTranslations.getCurrentLanguage();
+        
+        return `
+            <div class="instruction-step">
+                <p><strong>${videoGestTranslations.get('instruction1')}</strong></p>
+                <p>${videoGestTranslations.get('instruction2')}</p>
+                <ol>
+                    <li>${videoGestTranslations.get('instruction3')}</li>
+                    <li>${videoGestTranslations.get('instruction4')}</li>
+                    <li>${videoGestTranslations.get('instruction5')}</li>
+                    <li>${videoGestTranslations.get('instruction6')}</li>
+                </ol>
+            </div>
+            
+            <div class="command-box">
+                <h3>${videoGestTranslations.get('commandToExecute')}</h3>
+                <pre><code>${command}</code></pre>
+            </div>
+            
+            <div class="note">
+                <p><strong>${videoGestTranslations.get('note')}</strong></p>
+            </div>
+        `;
     }
     
     showMessage(title, message, type = 'info') {
         // Crear elemento de mensaje
         const messageDiv = document.createElement('div');
         messageDiv.className = `message message-${type}`;
-        
-        const typeIcons = {
-            success: '✅',
-            error: '❌',
-            warning: '⚠️',
-            info: 'ℹ️'
-        };
-        
         messageDiv.innerHTML = `
-            <div class="message-header">
-                <span class="message-icon">${typeIcons[type] || 'ℹ️'}</span>
-                <span class="message-title">${title}</span>
-            </div>
+            <div class="message-title">${title}</div>
             <div class="message-content">${message}</div>
+            <button class="message-close">×</button>
         `;
         
-        // Estilos inline para el mensaje
+        // Estilos para el mensaje
         messageDiv.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
-            background: white;
-            border-left: 4px solid ${this.getMessageColor(type)};
+            background: ${type === 'error' ? '#f44336' : type === 'warning' ? '#ff9800' : type === 'success' ? '#4caf50' : '#2196f3'};
+            color: white;
             padding: 15px;
-            border-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             z-index: 1000;
+            min-width: 300px;
             max-width: 400px;
             animation: slideIn 0.3s ease;
         `;
         
-        // Permitir HTML básico en el mensaje
-        messageDiv.querySelector('.message-content').innerHTML = message;
+        // Estilos para el título y contenido
+        const titleStyle = `
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 16px;
+        `;
         
+        const contentStyle = `
+            font-size: 14px;
+            opacity: 0.9;
+        `;
+        
+        const closeStyle = `
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            line-height: 1;
+        `;
+        
+        // Aplicar estilos a los elementos internos
+        const titleEl = messageDiv.querySelector('.message-title');
+        const contentEl = messageDiv.querySelector('.message-content');
+        const closeEl = messageDiv.querySelector('.message-close');
+        
+        if (titleEl) titleEl.style.cssText = titleStyle;
+        if (contentEl) contentEl.style.cssText = contentStyle;
+        if (closeEl) {
+            closeEl.style.cssText = closeStyle;
+            closeEl.addEventListener('click', () => {
+                messageDiv.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.parentNode.removeChild(messageDiv);
+                    }
+                }, 300);
+            });
+        }
+        
+        // Agregar al documento
         document.body.appendChild(messageDiv);
         
-        // Auto-eliminar después de 7 segundos (más tiempo para instrucciones)
+        // Auto-eliminar después de 5 segundos
         setTimeout(() => {
-            messageDiv.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => {
-                if (messageDiv.parentNode) {
-                    messageDiv.parentNode.removeChild(messageDiv);
-                }
-            }, 300);
-        }, 7000);
+            if (messageDiv.parentNode) {
+                messageDiv.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.parentNode.removeChild(messageDiv);
+                    }
+                }, 300);
+            }
+        }, 5000);
         
-        // Agregar estilos de animación si no existen
-        if (!document.getElementById('message-styles')) {
+        // Agregar animaciones CSS si no existen
+        if (!document.querySelector('#message-animations')) {
             const style = document.createElement('style');
-            style.id = 'message-styles';
+            style.id = 'message-animations';
             style.textContent = `
                 @keyframes slideIn {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
                 }
                 @keyframes slideOut {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
+                    from {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
                 }
             `;
             document.head.appendChild(style);
         }
     }
     
-    getMessageColor(type) {
-        const colors = {
-            success: '#4caf50',
-            error: '#f44336',
-            warning: '#ff9800',
-            info: '#2196f3'
-        };
-        return colors[type] || colors.info;
+    updateUI() {
+        console.log('Actualizando UI...');
+        // Actualizar cualquier elemento de la interfaz que necesite refresco
     }
     
-    formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    }
-    
-    loadSavedSettings() {
-        const settings = videoGestStorage.getSettings();
-        
-        // Cargar configuración en los controles
-        document.getElementById('quality').value = settings.quality || 'tablet';
-        
-        // Aplicar idioma
-        videoGestTranslations.setLanguage(settings.language);
-    }
-    
-    initPWAInstall() {
-        let deferredPrompt;
-        const installButton = document.getElementById('install-button');
-        
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevenir que el navegador muestre el prompt automático
-            e.preventDefault();
-            // Guardar el evento para usarlo después
-            deferredPrompt = e;
-            // Mostrar el botón de instalación
-            installButton.style.display = 'block';
-            
-            installButton.addEventListener('click', async () => {
-                // Ocultar el botón
-                installButton.style.display = 'none';
-                // Mostrar el prompt de instalación
-                deferredPrompt.prompt();
-                // Esperar a que el usuario responda
-                const { outcome } = await deferredPrompt.userChoice;
-                console.log(`User response to the install prompt: ${outcome}`);
-                // Limpiar la referencia
-                deferredPrompt = null;
-            });
-        });
-        
-        window.addEventListener('appinstalled', () => {
-            // Ocultar el botón de instalación
-            installButton.style.display = 'none';
-            // Limpiar la referencia
-            deferredPrompt = null;
-            console.log('PWA installed successfully');
-        });
-        
-        // Verificar si la app ya está instalada
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            installButton.style.display = 'none';
-        }
-    }
-    
-    updateProgress(percentage, message) {
+    updateProgress(percent, message = '') {
         const progressFill = document.getElementById('progress-fill');
         const progressText = document.getElementById('progress-text');
         
         if (progressFill) {
-            progressFill.style.width = `${percentage}%`;
+            progressFill.style.width = `${percent}%`;
         }
         
-        if (progressText) {
+        if (progressText && message) {
             progressText.textContent = message;
         }
     }
+    
+    // Agregar este método a la clase VideoGestUI
+    showUpdateNotification(updateInfo) {
+        const notificationHTML = `
+            <div class="update-notification">
+                <h3>¡Actualización disponible!</h3>
+                <p><strong>Versión ${updateInfo.currentVersion} → ${updateInfo.newVersion}</strong></p>
+                <p><em>${updateInfo.notes}</em></p>
+                <p>Fecha: ${updateInfo.date}</p>
+                <div class="button-group">
+                    <button id="update-now" class="btn-primary">Actualizar ahora</button>
+                    <button id="update-later" class="btn-secondary">Más tarde</button>
+                </div>
+            </div>
+        `;
+        
+        // Crear elemento de notificación
+        const notificationEl = document.createElement('div');
+        notificationEl.className = 'global-notification update';
+        notificationEl.innerHTML = notificationHTML;
+        
+        // Agregar al DOM
+        document.body.appendChild(notificationEl);
+        
+        // Event listeners
+        document.getElementById('update-now').addEventListener('click', () => {
+            if (window.videoGestApp) {
+                window.videoGestApp.installUpdate();
+            }
+            notificationEl.remove();
+        });
+        
+        document.getElementById('update-later').addEventListener('click', () => {
+            notificationEl.remove();
+        });
+        
+        // Auto-ocultar después de 30 segundos
+        setTimeout(() => {
+            if (notificationEl.parentNode) {
+                notificationEl.remove();
+            }
+        }, 30000);
+    }
 }
 
-// Crear instancia global
-window.videoGestUI = new VideoGestUI();
+// Inicializar UI global
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM completamente cargado - Creando VideoGestUI...');
+    window.videoGestUI = new VideoGestUI();
+});

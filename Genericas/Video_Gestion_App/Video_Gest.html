@@ -20,6 +20,115 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="VideoGest">
+    
+    <!-- Estilos para el selector de idiomas con banderas -->
+    <style>
+        /* Estilos para el selector de idiomas - igual que calculadora */
+        .language-selector {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        
+        .flag {
+            width: 25px;
+            height: 17px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+            border: 1px solid #ccc;
+        }
+        
+        .flag.active {
+            opacity: 1;
+            border: 2px solid #3498db;
+        }
+        
+        .flag-catalunya {
+            background: linear-gradient(
+                to bottom,
+                #ffcd00 0%, #ffcd00 10%,
+                #da121a 10%, #da121a 20%,
+                #ffcd00 20%, #ffcd00 30%,
+                #da121a 30%, #da121a 40%,
+                #ffcd00 40%, #ffcd00 50%,
+                #da121a 50%, #da121a 60%,
+                #ffcd00 60%, #ffcd00 70%,
+                #da121a 70%, #da121a 80%,
+                #ffcd00 80%, #ffcd00 90%,
+                #da121a 90%, #da121a 100%
+            );
+        }
+        
+        .help-icon {
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: white;
+            margin-left: 4px;
+            transition: all 0.3s;
+        }
+        
+        .help-icon:hover {
+            transform: scale(1.1);
+            color: #ffeb3b;
+        }
+        
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Modal de ayuda */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: #2c3e50;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            color: white;
+        }
+        
+        .modal-title {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #ecf0f1;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .modal-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .modal-close {
+            background-color: #3498db;
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -29,14 +138,15 @@
                 <h1 id="app-title">VideoGest</h1>
             </div>
             <div class="header-controls">
-                <button id="language-selector" class="btn-icon" aria-label="Seleccionar idioma">
-                    <span class="icon">🌐</span>
-                </button>
+                <div class="language-selector">
+                    <img src="https://flagcdn.com/w40/es.png" class="flag active" id="flag-es" data-lang="es">
+                    <div class="flag flag-catalunya" id="flag-ca" data-lang="ca"></div>
+                    <img src="https://flagcdn.com/w40/gb.png" class="flag" id="flag-en" data-lang="en">
+                    <img src="https://flagcdn.com/w40/fr.png" class="flag" id="flag-fr" data-lang="fr">
+                    <span class="help-icon" id="help-icon-header" title="Ayuda">❓</span>
+                </div>
                 <button id="install-button" class="btn-icon" style="display:none;" aria-label="Instalar aplicación">
                     <span class="icon">📱</span>
-                </button>
-                <button id="help-button" class="btn-icon" aria-label="Ayuda">
-                    <span class="icon">❓</span>
                 </button>
             </div>
         </div>
@@ -44,36 +154,6 @@
 
     <main>
         <div class="container">
-            <!-- Panel de idioma -->
-            <div id="language-panel" class="panel" style="display:none;">
-                <h2 data-i18n="selectLanguage">Seleccionar Idioma</h2>
-                <div class="language-options">
-                    <button class="language-btn" data-lang="es">Español</button>
-                    <button class="language-btn" data-lang="ca">Català</button>
-                    <button class="language-btn" data-lang="en">English</button>
-                    <button class="language-btn" data-lang="fr">Français</button>
-                </div>
-            </div>
-
-            <!-- Panel de ayuda -->
-            <div id="help-panel" class="panel" style="display:none;">
-                <h2 data-i18n="help">Ayuda</h2>
-                <div class="help-content" data-i18n="helpContent">
-                    <p>Esta aplicación permite realizar diferentes operaciones sobre vídeos utilizando FFMPEG.</p>
-                    <p><strong>Funciones disponibles:</strong></p>
-                    <ul>
-                        <li>Reducir tamaño del vídeo</li>
-                        <li>Cortar vídeo</li>
-                        <li>Convertir formato</li>
-                        <li>Revertir vídeo</li>
-                        <li>Convertir a JPG</li>
-                        <li>Unir vídeos</li>
-                    </ul>
-                    <p>Para realizar cualquier operación, necesitarás tener permiso para ejecutar FFMPEG en tu sistema.</p>
-                </div>
-                <button class="btn-secondary" data-i18n="close">Cerrar</button>
-            </div>
-
             <!-- Panel principal -->
             <div id="main-panel" class="panel">
                 <h2 data-i18n="selectOperation">Seleccionar Operación</h2>
@@ -165,6 +245,37 @@
         </div>
     </main>
 
+    <!-- Modal de ayuda -->
+    <div class="modal" id="helpModal">
+        <div class="modal-content">
+            <div class="modal-title" data-i18n="help">Ayuda de VideoGest</div>
+            <div class="instructions" data-i18n="helpContent">
+                <p>VideoGest es una aplicación para gestionar archivos de vídeo utilizando FFMPEG.</p>
+                <p><strong>Funciones disponibles:</strong></p>
+                <ul>
+                    <li>Reducir tamaño del vídeo</li>
+                    <li>Cortar vídeo</li>
+                    <li>Convertir formato</li>
+                    <li>Revertir vídeo</li>
+                    <li>Convertir a JPG</li>
+                    <li>Unir vídeos</li>
+                </ul>
+                <p><strong>Instrucciones para usar:</strong></p>
+                <ol>
+                    <li>Selecciona la operación que deseas realizar</li>
+                    <li>Selecciona el archivo de video</li>
+                    <li>Configura los parámetros necesarios</li>
+                    <li>Haz clic en "Ejecutar"</li>
+                    <li>Sigue las instrucciones que aparecerán en pantalla</li>
+                </ol>
+                <p class="note"><strong>Nota:</strong> Para funcionar correctamente, necesitas tener permiso para ejecutar comandos FFMPEG en tu sistema.</p>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-close" data-i18n="close">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <div class="footer-container">
             <div class="footer-left">
@@ -182,20 +293,115 @@
                 </button>
             </div>
             <div class="copyright">
-                <span id="copyright-text">2025 © Copyright</span>
+                <span id="copyright-text">2026 © Copyright</span>
                 <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                    Roberto Benet - rbenet71@gmail.com - V_18_12_2025
+                    Roberto Benet - rbenet71@gmail.com - V_05_01_2026 - 1.0.0
                 </a>
             </div>
         </div>
     </footer>
 
-    <!-- Scripts -->
+    <!-- Scripts - ORDEN CORREGIDO -->
     <script src="VideoGest_Translations.js"></script>
+    <script src="VideoGest_UI.js"></script>
     <script src="VideoGest_Storage.js"></script>
     <script src="VideoGest_FFMPEG.js"></script>
-    <script src="VideoGest_UI.js"></script>
     <script src="VideoGest_App.js"></script>
     <script src="VideoGest_ServiceWorker.js"></script>
+    
+    <!-- Script para manejar el selector de idiomas -->
+    <script>
+        // Sistema de selección de idiomas con banderas - CORREGIDO
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM cargado - Inicializando selector de idiomas...');
+            
+            // Referencias a los elementos
+            const flags = document.querySelectorAll('.flag');
+            const helpIcon = document.getElementById('help-icon-header');
+            const helpModal = document.getElementById('helpModal');
+            const closeModalBtn = document.querySelector('.modal-close');
+            
+            // Función para actualizar banderas activas
+            function updateFlagActive(lang) {
+                console.log('Actualizando bandera activa a:', lang);
+                flags.forEach(flag => {
+                    flag.classList.remove('active');
+                    if (flag.id === 'flag-' + lang) {
+                        flag.classList.add('active');
+                        console.log('Bandera activada:', flag.id);
+                    }
+                });
+            }
+            
+            // Event listeners para las banderas
+            flags.forEach(flag => {
+                flag.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    console.log('Clic en bandera:', lang);
+                    
+                    // Cambiar idioma usando el sistema de traducciones
+                    if (window.videoGestTranslations && window.videoGestTranslations.setLanguage) {
+                        const success = window.videoGestTranslations.setLanguage(lang);
+                        if (success) {
+                            // Actualizar banderas
+                            updateFlagActive(lang);
+                            
+                            console.log('Idioma cambiado exitosamente a:', lang);
+                            
+                        } else {
+                            console.error('Error al cambiar idioma a:', lang);
+                        }
+                    } else {
+                        console.error('Sistema de traducciones no disponible');
+                    }
+                });
+            });
+            
+            // Event listener para el icono de ayuda
+            if (helpIcon) {
+                helpIcon.addEventListener('click', function() {
+                    console.log('Clic en ayuda');
+                    if (helpModal) {
+                        helpModal.style.display = 'flex';
+                    }
+                });
+            }
+            
+            // Event listener para cerrar el modal
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', function() {
+                    console.log('Cerrar modal');
+                    if (helpModal) {
+                        helpModal.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Cerrar modal al hacer clic fuera
+            window.addEventListener('click', function(event) {
+                if (event.target === helpModal) {
+                    helpModal.style.display = 'none';
+                }
+            });
+            
+            // Cerrar modal con Escape
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    helpModal.style.display = 'none';
+                }
+            });
+            
+            // Inicializar banderas con el idioma actual
+            setTimeout(function() {
+                if (window.videoGestTranslations) {
+                    const currentLang = window.videoGestTranslations.getCurrentLanguage();
+                    console.log('Idioma actual del sistema:', currentLang);
+                    updateFlagActive(currentLang);
+                }
+            }, 100);
+            
+            console.log('Selector de idiomas inicializado correctamente');
+        });
+    </script>
 </body>
 </html>
