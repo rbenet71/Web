@@ -47,8 +47,12 @@ class VideoGestApp {
         // Configurar eventos
         this.setupEventListeners();
         
-        // Verificar actualizaciones
-        await this.checkForUpdates();
+        // Verificar actualizaciones SOLO si estamos online y no es archivo local
+        if (this.isOnline && !this.isLocalFile) {
+            await this.checkForUpdates();
+        } else {
+            console.log('Modo offline o archivo local - omitiendo verificación de actualizaciones');
+        }
         
         // Aplicar traducciones iniciales
         if (window.videoGestTranslations) {
@@ -67,6 +71,19 @@ class VideoGestApp {
     }
     
     async loadManifest() {
+        // Si estamos en modo archivo local, usar valores por defecto
+        if (this.isLocalFile) {
+            console.log('Modo archivo local - usando valores de versión por defecto');
+            this.manifestData = {
+                version: this.version,
+                version_code: this.versionCode,
+                version_name: this.versionName,
+                release_date: this.releaseDate,
+                version_notes: this.versionNotes
+            };
+            return;
+        }
+        
         try {
             const response = await fetch('VideoGest_Manifest.json?v=' + Date.now());
             this.manifestData = await response.json();
@@ -90,7 +107,16 @@ class VideoGestApp {
             
             console.log('Manifest cargado:', this.manifestData);
         } catch (error) {
-            console.warn('No se pudo cargar el manifest, usando versión por defecto:', error);
+            console.warn('No se pudo cargar el manifest, usando versión por defecto:', error.message);
+            
+            // Usar valores por defecto
+            this.manifestData = {
+                version: this.version,
+                version_code: this.versionCode,
+                version_name: this.versionName,
+                release_date: this.releaseDate,
+                version_notes: this.versionNotes
+            };
         }
     }
     
@@ -99,6 +125,16 @@ class VideoGestApp {
             const storedVersion = window.videoGestStorage.getSetting('app_version');
             const storedVersionCode = window.videoGestStorage.getSetting('app_version_code');
             
+            // Si no hay versión almacenada, establecer la actual
+            if (!storedVersion || !storedVersionCode) {
+                window.videoGestStorage.updateSetting('app_version', this.version);
+                window.videoGestStorage.updateSetting('app_version_code', this.versionCode);
+                window.videoGestStorage.updateSetting('app_last_updated', new Date().toISOString());
+                console.log('Versión inicial almacenada:', this.version);
+                return;
+            }
+            
+            // Verificar si hay cambio de versión
             if (storedVersion !== this.version || storedVersionCode !== this.versionCode) {
                 console.log(`Actualización de versión detectada: ${storedVersion} -> ${this.version}`);
                 
@@ -133,6 +169,12 @@ class VideoGestApp {
     async handleVersionMigration(oldVersion, newVersion) {
         console.log(`Migrando de ${oldVersion} a ${newVersion}`);
         
+        // Solo limpiar cache si no estamos en modo archivo local
+        if (this.isLocalFile) {
+            console.log('Modo archivo local - omitiendo limpieza de cache');
+            return;
+        }
+        
         // Aquí puedes agregar lógica específica para migraciones entre versiones
         const oldMajor = oldVersion ? parseInt(oldVersion.split('.')[0]) : 0;
         const newMajor = parseInt(newVersion.split('.')[0]);
@@ -154,10 +196,10 @@ class VideoGestApp {
     }
     
     async checkForUpdates() {
-        // Solo verificar actualizaciones si estamos online
-        if (!this.isOnline) {
-            console.log('Modo offline - omitiendo verificación de actualizaciones');
-            return;
+        // Solo verificar actualizaciones si estamos online y no es archivo local
+        if (!this.isOnline || this.isLocalFile) {
+            console.log('Modo offline o archivo local - omitiendo verificación de actualizaciones');
+            return false;
         }
         
         this.lastUpdateCheck = new Date();
@@ -185,7 +227,7 @@ class VideoGestApp {
             return false;
             
         } catch (error) {
-            console.log('No se pudo verificar actualizaciones:', error);
+            console.log('No se pudo verificar actualizaciones:', error.message);
             return false;
         }
     }
@@ -207,39 +249,105 @@ class VideoGestApp {
         }
         
         // Mostrar notificación no intrusiva
-        if (window.videoGestUI && window.videoGestUI.showUpdateNotification) {
-            window.videoGestUI.showUpdateNotification(updateInfo);
+        if (window.videoGestUI && window.videoGestUI.showMessage) {
+            const notificationHTML = `
+                <h3>¡Actualización disponible!</h3>
+                <p><strong>Versión ${updateInfo.currentVersion} → ${updateInfo.newVersion}</strong></p>
+                <p><em>${updateInfo.notes}</em></p>
+                <p>Recarga la página para actualizar.</p>
+            `;
+            
+            window.videoGestUI.showMessage(
+                'Actualización disponible',
+                notificationHTML,
+                'info',
+                10000
+            );
         }
     }
     
-    async installUpdate() {
-        if (!this.updateAvailable) {
-            return false;
+    async waitForTranslations() {
+        return new Promise(resolve => {
+            const checkInterval = setInterval(() => {
+                if (window.videoGestTranslations) {
+                    clearInterval(checkInterval);
+                    resolve();
+                }
+            }, 100);
+            
+            // Timeout de seguridad
+            setTimeout(() => {
+                clearInterval(checkInterval);
+                console.warn('Timeout esperando traducciones');
+                resolve();
+            }, 5000);
+        });
+    }
+    
+    initComponents() {
+        // Los componentes ya están inicializados en sus propios archivos
+        // Esta función es para cualquier inicialización adicional
+        console.log('Componentes de la aplicación inicializados');
+    }
+    
+    setupEventListeners() {
+        // Estado de conexión
+        window.addEventListener('online', () => {
+            this.isOnline = true;
+            this.showNetworkStatus('online');
+        });
+        
+        window.addEventListener('offline', () => {
+            this.isOnline = false;
+            this.showNetworkStatus('offline');
+        });
+        
+        // Cambio de idioma
+        document.addEventListener('languageChanged', (e) => {
+            console.log(`Idioma cambiado a: ${e.detail.language}`);
+            if (window.videoGestStorage) {
+                window.videoGestStorage.updateSetting('language', e.detail.language);
+            }
+        });
+        
+        // Manejar parámetros de URL
+        this.handleURLParameters();
+    }
+    
+    showNetworkStatus(status) {
+        const message = status === 'online' 
+            ? 'Conexión restablecida'
+            : 'Sin conexión - La aplicación funciona en modo offline';
+        
+        const type = status === 'online' ? 'success' : 'warning';
+        
+        if (window.videoGestUI && window.videoGestUI.showMessage) {
+            window.videoGestUI.showMessage(
+                status === 'online' ? 'En línea' : 'Sin conexión',
+                message,
+                type
+            );
         }
-        
-        console.log('Instalando actualización...');
-        
-        // Recargar la página para obtener los nuevos archivos
-        location.reload(true);
-        return true;
     }
     
-    getVersionInfo() {
-        return {
-            version: this.version,
-            version_code: this.versionCode,
-            version_name: this.versionName,
-            release_date: this.releaseDate,
-            version_notes: this.versionNotes,
-            last_update_check: this.lastUpdateCheck,
-            update_available: this.updateAvailable,
-            manifest_data: this.manifestData
-        };
+    handleURLParameters() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const action = urlParams.get('action');
+        
+        if (action && window.videoGestUI) {
+            setTimeout(() => {
+                window.videoGestUI.handleOperationSelect(action);
+            }, 1000);
+        }
     }
-    
-    // ... resto del código existente se mantiene igual ...
     
     async registerServiceWorker() {
+        // Solo registrar Service Worker si no es archivo local y el navegador lo soporta
+        if (this.isLocalFile) {
+            console.log('Modo archivo local - ServiceWorker deshabilitado');
+            return null;
+        }
+        
         if ('serviceWorker' in navigator) {
             try {
                 // Incluir versión en la URL del Service Worker para forzar actualización
@@ -271,13 +379,28 @@ class VideoGestApp {
                 return registration;
                 
             } catch (error) {
-                console.error('Error registrando ServiceWorker:', error);
+                console.error('Error registrando ServiceWorker:', error.message);
                 return null;
             }
         } else {
             console.log('ServiceWorker no soportado en este navegador');
             return null;
         }
+    }
+    
+    getVersionInfo() {
+        return {
+            version: this.version,
+            version_code: this.versionCode,
+            version_name: this.versionName,
+            release_date: this.releaseDate,
+            version_notes: this.versionNotes,
+            last_update_check: this.lastUpdateCheck,
+            update_available: this.updateAvailable,
+            manifest_data: this.manifestData,
+            is_local_file: this.isLocalFile,
+            protocol: window.location.protocol
+        };
     }
     
     getAppInfo() {
@@ -310,23 +433,89 @@ class VideoGestApp {
         };
     }
     
-    // ... resto del código existente se mantiene igual ...
+    exportAppData() {
+        const settings = window.videoGestStorage ? window.videoGestStorage.exportSettings() : { data: {} };
+        const appInfo = this.getAppInfo();
+        
+        const data = {
+            appInfo: appInfo,
+            settings: settings.data,
+            exportDate: new Date().toISOString()
+        };
+        
+        return {
+            filename: `VideoGest_Backup_${new Date().toISOString().split('T')[0]}.json`,
+            data: JSON.stringify(data, null, 2),
+            blob: new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+        };
+    }
+    
+    resetApp() {
+        if (confirm('¿Está seguro de que desea restablecer toda la configuración de la aplicación? Esto borrará todos los datos guardados.')) {
+            if (window.videoGestStorage) {
+                const result = window.videoGestStorage.clearAllData();
+                
+                if (result.success) {
+                    // Recargar la página
+                    location.reload();
+                } else {
+                    if (window.videoGestUI && window.videoGestUI.showMessage) {
+                        window.videoGestUI.showMessage('Error', result.message, 'error');
+                    }
+                }
+            } else {
+                // Recargar la página si no hay storage
+                location.reload();
+            }
+        }
+    }
+    
+    // Métodos de utilidad
+    
+    formatDate(date) {
+        const lang = window.videoGestTranslations ? window.videoGestTranslations.getCurrentLanguage() : 'es';
+        return new Intl.DateTimeFormat(lang, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }).format(date);
+    }
+    
+    async checkStorageQuota() {
+        if ('storage' in navigator && 'estimate' in navigator.storage) {
+            try {
+                const estimate = await navigator.storage.estimate();
+                const usedMB = estimate.usage / (1024 * 1024);
+                const quotaMB = estimate.quota / (1024 * 1024);
+                const percentage = (usedMB / quotaMB * 100).toFixed(1);
+                
+                return {
+                    used: usedMB,
+                    quota: quotaMB,
+                    percentage: percentage,
+                    available: quotaMB - usedMB
+                };
+            } catch (error) {
+                console.error('Error al verificar cuota de almacenamiento:', error);
+                return null;
+            }
+        }
+        return null;
+    }
     
     // Método para mostrar información de depuración
     showDebugInfo() {
         const appInfo = this.getAppInfo();
-        const versionInfo = this.getVersionInfo();
         
         const debugInfo = `
 === VideoGest Debug Info ===
 Versión: ${appInfo.version} (${appInfo.version_code})
 Nombre versión: ${appInfo.version_name}
 Fecha release: ${appInfo.release_date}
-Notas: ${appInfo.version_notes}
-Actualización disponible: ${this.updateAvailable}
-Última verificación: ${this.lastUpdateCheck ? this.formatDate(this.lastUpdateCheck) : 'Nunca'}
-Protocolo: ${appInfo.protocol}
 Modo archivo local: ${appInfo.isLocalFile}
+Protocolo: ${appInfo.protocol}
 Online: ${this.isOnline}
 Idioma: ${window.videoGestTranslations ? window.videoGestTranslations.getCurrentLanguage() : 'N/A'}
 User Agent: ${appInfo.userAgent}
@@ -348,4 +537,18 @@ IndexedDB disponible: ${typeof indexedDB !== 'undefined'}
     }
 }
 
-// ... resto del código existente se mantiene igual ...
+// Inicializar aplicación con retardo para asegurar que todos los scripts se carguen
+setTimeout(() => {
+    console.log('Inicializando VideoGestApp...');
+    window.videoGestApp = new VideoGestApp();
+    
+    // Opcional: agregar atajo de teclado para debug (Ctrl+Shift+D)
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+            e.preventDefault();
+            if (window.videoGestApp) {
+                window.videoGestApp.showDebugInfo();
+            }
+        }
+    });
+}, 1000);
