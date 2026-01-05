@@ -538,7 +538,7 @@ La aplicación incluye funciones de exportación/importación:
 
 ---
 
-**Fecha de última revisión**: 18/12/2025  
+**Fecha de última revisión**: 05/01/2026
 **Próxima revisión programada**: 18/03/2026  
 **Estado del proyecto**: ✅ Completo y funcional  
 **Nivel de estabilidad**: ⭐⭐⭐⭐⭐ (5/5)

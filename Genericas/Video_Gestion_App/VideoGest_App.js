@@ -3,9 +3,9 @@ class VideoGestApp {
     constructor() {
         // Configuración de versión
         this.version = '1.0.0';
-        this.versionCode = '20251218';
+        this.versionCode = '20260105';
         this.versionName = '1.0.0';
-        this.releaseDate = '2025-12-18';
+        this.releaseDate = '2026-01-05';
         this.versionNotes = 'Versión inicial con todas las funcionalidades básicas';
         
         this.isOnline = navigator.onLine;
@@ -1225,7 +1225,7 @@ class VideoGestApp {
             name: 'VideoGest',
             author: 'Roberto Benet',
             email: 'rbenet71@gmail.com',
-            lastUpdate: 'V_18_12_2025',
+            lastUpdate: 'V_05_01_2026',
             features: [
                 'Reducción de tamaño de video',
                 'Corte de video',
