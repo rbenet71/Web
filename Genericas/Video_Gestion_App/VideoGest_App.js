@@ -3,6 +3,7 @@ class VideoGestApp {
     constructor() {
         this.version = '1.0.0';
         this.isOnline = navigator.onLine;
+        this.isLocalFile = window.location.protocol === 'file:' || window.location.protocol === 'null:';
         this.init();
     }
     
@@ -21,8 +22,13 @@ class VideoGestApp {
         // Aplicar traducciones iniciales
         videoGestTranslations.applyTranslations();
         
-        // Registrar Service Worker
-        this.registerServiceWorker();
+        // Registrar Service Worker SOLO si no es archivo local
+        if (!this.isLocalFile) {
+            await this.registerServiceWorker();
+        } else {
+            console.log('Modo archivo local: ServiceWorker deshabilitado');
+            console.log('Para PWA completa, sirve la aplicación desde un servidor web (http://)');
+        }
         
         console.log('VideoGest App inicializada correctamente');
     }
@@ -61,20 +67,22 @@ class VideoGestApp {
         
         const type = status === 'online' ? 'success' : 'warning';
         
-        videoGestUI.showMessage(
-            status === 'online' ? 'En línea' : 'Sin conexión',
-            message,
-            type
-        );
+        if (window.videoGestUI && window.videoGestUI.showMessage) {
+            window.videoGestUI.showMessage(
+                status === 'online' ? 'En línea' : 'Sin conexión',
+                message,
+                type
+            );
+        }
     }
     
     handleURLParameters() {
         const urlParams = new URLSearchParams(window.location.search);
         const action = urlParams.get('action');
         
-        if (action) {
+        if (action && window.videoGestUI) {
             setTimeout(() => {
-                videoGestUI.handleOperationSelect(action);
+                window.videoGestUI.handleOperationSelect(action);
             }, 100);
         }
     }
@@ -105,9 +113,16 @@ class VideoGestApp {
                     registration.update();
                 }, 60 * 60 * 1000); // Cada hora
                 
+                return registration;
+                
             } catch (error) {
                 console.error('Error registrando ServiceWorker:', error);
+                // No mostrar error al usuario
+                return null;
             }
+        } else {
+            console.log('ServiceWorker no soportado en este navegador');
+            return null;
         }
     }
     
@@ -128,9 +143,12 @@ class VideoGestApp {
             ],
             requirements: {
                 browser: 'Chrome 80+, Firefox 75+, Edge 80+',
-                pwa: 'Soporte para Service Workers',
-                storage: 'Almacenamiento persistente'
-            }
+                pwa: 'Soporte para Service Workers (solo en HTTP/HTTPS)',
+                storage: 'Almacenamiento persistente',
+                os: 'Windows 7+ (para ejecutar FFMPEG)'
+            },
+            isLocalFile: this.isLocalFile,
+            protocol: window.location.protocol
         };
     }
     
@@ -159,7 +177,9 @@ class VideoGestApp {
                 // Recargar la página
                 location.reload();
             } else {
-                videoGestUI.showMessage('Error', result.message, 'error');
+                if (window.videoGestUI && window.videoGestUI.showMessage) {
+                    window.videoGestUI.showMessage('Error', result.message, 'error');
+                }
             }
         }
     }
@@ -197,9 +217,45 @@ class VideoGestApp {
         }
         return null;
     }
+    
+    // Método para mostrar información de depuración
+    showDebugInfo() {
+        const appInfo = this.getAppInfo();
+        const debugInfo = `
+=== VideoGest Debug Info ===
+Versión: ${appInfo.version}
+Protocolo: ${appInfo.protocol}
+Modo archivo local: ${appInfo.isLocalFile}
+Online: ${this.isOnline}
+Idioma: ${videoGestTranslations.getCurrentLanguage()}
+User Agent: ${navigator.userAgent}
+ServiceWorker soportado: ${'serviceWorker' in navigator}
+LocalStorage disponible: ${typeof localStorage !== 'undefined'}
+IndexedDB disponible: ${typeof indexedDB !== 'undefined'}
+============================
+`;
+        
+        console.log(debugInfo);
+        
+        if (window.videoGestUI && window.videoGestUI.showMessage) {
+            window.videoGestUI.showMessage(
+                'Información de depuración',
+                debugInfo.replace(/===/g, '').trim(),
+                'info'
+            );
+        }
+    }
 }
 
 // Inicializar aplicación cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
     window.videoGestApp = new VideoGestApp();
+    
+    // Opcional: agregar atajo de teclado para debug (Ctrl+Shift+D)
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+            e.preventDefault();
+            window.videoGestApp.showDebugInfo();
+        }
+    });
 });

@@ -94,7 +94,10 @@ class VideoGestTranslations {
                 "fullCommandCopied": "Comando completo copiado (incluye cd)",
                 "pcQuality": "Calidad PC",
                 "tabletQuality": "Calidad Tablet", 
-                "mobileQuality": "Calidad Móvil"
+                "mobileQuality": "Calidad Móvil",
+                "commandAutoCopied": "Comando copiado automáticamente",
+                "readyToPaste": "El comando ya está en su portapapeles",
+                "justOpenCmdAndPaste": "Solo abra CMD y pegue (Ctrl+V)"
 
             },
             ca: {
@@ -189,7 +192,10 @@ class VideoGestTranslations {
                 "fullCommandCopied": "Comanda completa copiada (inclou cd)",
                 "pcQuality": "Qualitat PC",
                 "tabletQuality": "Qualitat Tablet", 
-                "mobileQuality": "Qualitat Móvil"
+                "mobileQuality": "Qualitat Móvil",
+                "commandAutoCopied": "Comando copiado automáticamente",
+                "readyToPaste": "El comando ya está en su portapapeles",
+                "justOpenCmdAndPaste": "Solo abra CMD y pegue (Ctrl+V)"
 
             },
             en: {
@@ -284,7 +290,10 @@ class VideoGestTranslations {
                 "fullCommandCopied": "Full command copied (includes cd)",
                 "pcQuality": "PC Quality",
                 "tabletQuality": "Tablet Quality", 
-                "mobileQuality": "Mobile Quality"
+                "mobileQuality": "Mobile Quality",
+                "commandAutoCopied": "Comando copiado automáticamente",
+                "readyToPaste": "El comando ya está en su portapapeles",
+                "justOpenCmdAndPaste": "Solo abra CMD y pegue (Ctrl+V)"
             },
             fr: {
                 // General
@@ -378,7 +387,10 @@ class VideoGestTranslations {
                 "fullCommandCopied": "Commande complète copiée (inclut cd)",
                 "pcQuality": "Qualite PC",
                 "tabletQuality": "Qualite Tablet", 
-                "mobileQuality": "Qualite Mobile"
+                "mobileQuality": "Qualite Mobile",
+                "commandAutoCopied": "Comando copiado automáticamente",
+                "readyToPaste": "El comando ya está en su portapapeles",
+                "justOpenCmdAndPaste": "Solo abra CMD y pegue (Ctrl+V)"
             }
         };
         

@@ -1,14 +1,19 @@
 // VideoGest_FFMPEG.js
 class VideoGestFFMPEG {
     constructor() {
-        this.ffmpegCommands = {
+        this.ffmpegURL = 'https://rbenet71.github.io/Web/Genericas/Video_Gestion_App/ffmpeg.exe';
+        
+        this.qualitySettings = {
             pc: '-vcodec libx265 -crf 28',
             tablet: '-crf 28',
-            mobile: '-crf 28'
+            mobile: '-crf 28 -vf "scale=\'min(640,iw)\':-2"'
         };
         
-        // URL pública de ffmpeg.exe
-        this.ffmpegURL = 'https://rbenet71.github.io/Web/Genericas/Video_Gestion_App/ffmpeg.exe';
+        this.outputSuffixes = {
+            pc: '_PC',
+            tablet: '_Tablet',
+            mobile: '_Movil'
+        };
         
         this.currentOperation = null;
         this.currentFile = null;
@@ -23,29 +28,6 @@ class VideoGestFFMPEG {
         this.currentFile = file;
     }
     
-    extractDirectory(filePath) {
-        if (!filePath) return '.';
-        
-        const path = filePath.replace(/\\/g, '/');
-        const lastSlash = path.lastIndexOf('/');
-        
-        if (lastSlash !== -1) {
-            return path.substring(0, lastSlash);
-        }
-        
-        return '.';
-    }
-    
-    getQualitySuffix(quality) {
-        const suffixes = {
-            pc: '_PC',
-            tablet: '_Tablet',
-            mobile: '_Movil'
-        };
-        
-        return suffixes[quality] || '_reduced';
-    }
-    
     generateOutputFilename(inputPath, quality) {
         const path = inputPath.replace(/\\/g, '/');
         const lastSlash = path.lastIndexOf('/');
@@ -53,9 +35,10 @@ class VideoGestFFMPEG {
         
         const lastDot = filename.lastIndexOf('.');
         const nameWithoutExt = lastDot !== -1 ? filename.substring(0, lastDot) : filename;
+        const originalExt = lastDot !== -1 ? filename.substring(lastDot) : '';
         
-        const qualitySuffix = this.getQualitySuffix(quality);
-        return `${nameWithoutExt}${qualitySuffix}.mp4`;
+        const suffix = this.outputSuffixes[quality] || '';
+        return `${nameWithoutExt}${suffix}${originalExt || '.mp4'}`;
     }
     
     generateCommand(params = {}) {
@@ -63,29 +46,30 @@ class VideoGestFFMPEG {
             throw new Error('Operación o archivo no especificado');
         }
         
-        const inputPath = this.currentFile.path || this.currentFile.name;
+        if (this.currentOperation !== 'reduce') {
+            throw new Error('Solo la operación de reducción está implementada');
+        }
+        
+        const inputPath = this.currentFile.name;
         const quality = params.quality || 'tablet';
-        
         const outputFilename = this.generateOutputFilename(inputPath, quality);
-        const ffmpegOptions = this.ffmpegCommands[quality] || this.ffmpegCommands.tablet;
         
-        // COMANDO DE UNA SOLA LÍNEA PARA PEGAR EN CMD
-        const oneLineCommand = `if not exist "ffmpeg.exe" (powershell -Command "Invoke-WebRequest -Uri '${this.ffmpegURL}' -OutFile 'ffmpeg.exe'") && ffmpeg -y -i "${inputPath}" ${ffmpegOptions} "${outputFilename}"`;
+        // Comando de dos líneas (no usa &&)
+        const downloadCommand = `if not exist "ffmpeg.exe" powershell -Command "Invoke-WebRequest -Uri '${this.ffmpegURL}' -OutFile 'ffmpeg.exe'"`;
+        const ffmpegCommand = `ffmpeg -y -i "${inputPath}" ${this.qualitySettings[quality]} "${outputFilename}"`;
         
-        // DIRECTORIO DEL VIDEO
-        const directory = this.extractDirectory(inputPath);
+        const fullCommand = `${downloadCommand}\n${ffmpegCommand}`;
         
         this.outputFile = outputFilename;
         
         return {
-            command: oneLineCommand,
+            command: fullCommand,
             input: inputPath,
             output: outputFilename,
             operation: this.currentOperation,
             quality: quality,
-            directory: directory,
-            ffmpegURL: this.ffmpegURL,
-            estimatedTime: this.estimateProcessingTime(this.currentFile.size, 'reduce', quality)
+            downloadCommand: downloadCommand,
+            ffmpegCommand: ffmpegCommand
         };
     }
     
@@ -93,33 +77,34 @@ class VideoGestFFMPEG {
         const descriptions = {
             pc: 'Calidad PC (H.265/HEVC) - Máxima compresión manteniendo calidad',
             tablet: 'Calidad Tablet (H.264) - Balance calidad/tamaño',
-            mobile: 'Calidad Móvil (H.264) - Tamaño reducido para dispositivos móviles'
+            mobile: 'Calidad Móvil (H.264) - Tamaño reducido para móviles'
         };
         
         return descriptions[quality] || 'Calidad estándar';
     }
     
-    estimateProcessingTime(fileSize, operation, quality) {
+    validateFFMPEGAvailable() {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve({
+                    available: false,
+                    message: 'FFMPEG no detectado. Se descargará automáticamente si es necesario.'
+                });
+            }, 500);
+        });
+    }
+    
+    estimateProcessingTime(fileSize, quality) {
         const baseTime = 30;
         const sizeFactor = fileSize / (100 * 1024 * 1024);
-        const operationFactors = {
-            reduce: 1.5,
-            cut: 1.0,
-            convert: 0.8,
-            reverse: 2.0,
-            tojpg: 1.2,
-            merge: 1.3
-        };
-        
         const qualityFactors = {
-            pc: 2.0,
+            pc: 2.0,     // H.265 es más lento
             tablet: 1.0,
-            mobile: 0.8
+            mobile: 1.2  // Escalado añade tiempo
         };
         
-        const operationFactor = operationFactors[operation] || 1.0;
-        const qualityFactor = qualityFactors[quality] || 1.0;
-        const estimatedSeconds = baseTime * sizeFactor * operationFactor * qualityFactor;
+        const factor = qualityFactors[quality] || 1.0;
+        const estimatedSeconds = baseTime * sizeFactor * factor;
         
         return {
             seconds: Math.round(estimatedSeconds),
@@ -128,6 +113,19 @@ class VideoGestFFMPEG {
                 `${Math.round(estimatedSeconds)} segundos` : 
                 `${Math.round(estimatedSeconds / 60)} minutos`
         };
+    }
+    
+    getSupportedFormats() {
+        return [
+            '.mp4', '.avi', '.mov', '.mkv', '.webm',
+            '.flv', '.wmv', '.m4v', '.mpg', '.mpeg'
+        ];
+    }
+    
+    validateFileFormat(filename) {
+        const formats = this.getSupportedFormats();
+        const ext = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+        return formats.includes(ext);
     }
 }
 

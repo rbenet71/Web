@@ -14,16 +14,10 @@ const STATIC_FILES = [
     'VideoGest_Manifest.json'
 ];
 
-// Archivos de assets que se cachearán
+// Archivos de assets que se cachearán (incluyendo los nuevos iconos)
 const ASSET_FILES = [
-    'assets/icons/icon-72x72.png',
-    'assets/icons/icon-96x96.png',
-    'assets/icons/icon-128x128.png',
-    'assets/icons/icon-144x144.png',
-    'assets/icons/icon-152x152.png',
-    'assets/icons/icon-192x192.png',
-    'assets/icons/icon-384x384.png',
-    'assets/icons/icon-512x512.png'
+    'assets/pictos/Video_Gestion_192x192.png',
+    'assets/pictos/Video_Gestion_512x512.png'
 ];
 
 // Instalación del Service Worker
@@ -51,7 +45,6 @@ self.addEventListener('activate', (event) => {
     console.log('[ServiceWorker] Activando...');
     
     event.waitUntil(
-        // Limpiar caches antiguos
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
@@ -92,7 +85,6 @@ self.addEventListener('fetch', (event) => {
                     
                     return fetch(event.request)
                         .then((response) => {
-                            // Si la respuesta es válida, cachearla
                             if (response && response.status === 200) {
                                 const responseToCache = response.clone();
                                 caches.open(STATIC_CACHE_NAME)
@@ -104,16 +96,13 @@ self.addEventListener('fetch', (event) => {
                         })
                         .catch((error) => {
                             console.error('[ServiceWorker] Error fetching:', error);
-                            // Podrías devolver una página offline personalizada aquí
                         });
                 })
         );
     } else {
-        // Para otros recursos, usar Network First
         event.respondWith(
             fetch(event.request)
                 .then((response) => {
-                    // Cachear respuestas exitosas
                     if (response && response.status === 200) {
                         const responseToCache = response.clone();
                         caches.open(CACHE_NAME)
@@ -124,7 +113,6 @@ self.addEventListener('fetch', (event) => {
                     return response;
                 })
                 .catch(() => {
-                    // Fallback al cache
                     return caches.match(event.request);
                 })
         );
@@ -162,28 +150,14 @@ self.addEventListener('message', (event) => {
     }
 });
 
-// Manejo de sincronización en segundo plano
-self.addEventListener('sync', (event) => {
-    console.log('[ServiceWorker] Sincronización en segundo plano:', event.tag);
-    
-    if (event.tag === 'sync-settings') {
-        event.waitUntil(syncSettings());
-    }
-});
-
-async function syncSettings() {
-    // Aquí podrías sincronizar configuración con un servidor
-    console.log('[ServiceWorker] Sincronizando configuración...');
-}
-
-// Manejo de notificaciones push
+// Manejo de notificaciones push (usando el nuevo icono)
 self.addEventListener('push', (event) => {
     console.log('[ServiceWorker] Notificación push recibida');
     
     const options = {
         body: event.data ? event.data.text() : 'Nueva actualización disponible',
-        icon: 'assets/icons/icon-192x192.png',
-        badge: 'assets/icons/icon-72x72.png',
+        icon: 'assets/pictos/Video_Gestion_192x192.png',
+        badge: 'assets/pictos/Video_Gestion_192x192.png',
         vibrate: [100, 50, 100],
         data: {
             dateOfArrival: Date.now(),
@@ -193,12 +167,12 @@ self.addEventListener('push', (event) => {
             {
                 action: 'explore',
                 title: 'Abrir aplicación',
-                icon: 'assets/icons/icon-72x72.png'
+                icon: 'assets/pictos/Video_Gestion_192x192.png'
             },
             {
                 action: 'close',
                 title: 'Cerrar',
-                icon: 'assets/icons/icon-72x72.png'
+                icon: 'assets/pictos/Video_Gestion_192x192.png'
             }
         ]
     };

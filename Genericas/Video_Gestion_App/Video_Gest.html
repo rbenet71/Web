@@ -7,13 +7,27 @@
     <title>VideoGest - Gestor de Vídeos</title>
     <link rel="manifest" href="VideoGest_Manifest.json">
     <link rel="stylesheet" href="VideoGest_Styles.css">
-    <link rel="icon" href="assets/icons/icon-72x72.png">
-    <link rel="apple-touch-icon" href="assets/icons/icon-152x152.png">
+    
+    <!-- Iconos de la aplicación usando los pictos proporcionados -->
+    <link rel="icon" href="assets/pictos/Video_Gestion_192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="assets/pictos/Video_Gestion_512x512.png">
+    
+    <!-- Iconos para diferentes dispositivos -->
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/pictos/Video_Gestion_192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/pictos/Video_Gestion_512x512.png">
+    
+    <!-- Meta tags para PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="VideoGest">
 </head>
 <body>
     <header>
         <div class="header-container">
-            <h1 id="app-title">VideoGest</h1>
+            <div class="app-title">
+                <img src="assets/pictos/Video_Gestion_192x192.png" alt="VideoGest Icon" class="app-logo">
+                <h1 id="app-title">VideoGest</h1>
+            </div>
             <div class="header-controls">
                 <button id="language-selector" class="btn-icon" aria-label="Seleccionar idioma">
                     <span class="icon">🌐</span>
@@ -153,10 +167,26 @@
 
     <footer>
         <div class="footer-container">
-            <span id="copyright-text">2025 © Copyright</span>
-            <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                Roberto Benet - rbenet71@gmail.com - V_18_12_2025
-            </a>
+            <div class="footer-left">
+                <button class="footer-btn" id="export-btn">
+                    <span class="icon">💾</span>
+                    <span data-i18n="exportSettings">Exportar Configuración</span>
+                </button>
+                <button class="footer-btn" id="import-btn">
+                    <span class="icon">📤</span>
+                    <span data-i18n="importSettings">Importar Configuración</span>
+                </button>
+                <button class="footer-btn" id="clear-data-btn">
+                    <span class="icon">🗑️</span>
+                    <span data-i18n="clearData">Limpiar Datos</span>
+                </button>
+            </div>
+            <div class="copyright">
+                <span id="copyright-text">2025 © Copyright</span>
+                <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
+                    Roberto Benet - rbenet71@gmail.com - V_18_12_2025
+                </a>
+            </div>
         </div>
     </footer>
 

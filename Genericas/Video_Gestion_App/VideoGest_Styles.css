@@ -45,6 +45,20 @@ header {
     width: 100%;
 }
 
+/* Logo y título en header */
+.app-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.app-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
 .header-controls {
     display: flex;
     gap: 0.5rem;
@@ -208,11 +222,69 @@ main {
     color: white;
 }
 
+/* Footer */
+footer {
+    background-color: #333;
+    color: white;
+    padding: 1rem;
+    margin-top: auto;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.footer-left {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.footer-btn {
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.footer-btn:hover {
+    background-color: rgba(255,255,255,0.2);
+}
+
+.copyright {
+    text-align: right;
+    font-size: 0.9rem;
+}
+
+#copyright-link {
+    color: #90caf9;
+    text-decoration: none;
+}
+
+#copyright-link:hover {
+    text-decoration: underline;
+}
+
 /* Instrucciones */
 .instruction-panel {
     background-color: #fff8e1;
     border-left: 4px solid var(--warning-color);
     padding: 1.5rem;
+}
+
+.instructions {
+    line-height: 1.8;
 }
 
 .instructions ol {
@@ -270,32 +342,6 @@ main {
     font-weight: 500;
 }
 
-/* Footer */
-footer {
-    background-color: #333;
-    color: white;
-    padding: 1rem;
-    text-align: center;
-    margin-top: auto;
-}
-
-.footer-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-#copyright-link {
-    color: #90caf9;
-    text-decoration: none;
-}
-
-#copyright-link:hover {
-    text-decoration: underline;
-}
-
 /* Utilidades */
 .hidden {
     display: none !important;
@@ -325,12 +371,33 @@ footer {
         text-align: center;
     }
     
+    .app-title {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .app-logo {
+        width: 40px;
+        height: 40px;
+    }
+    
     .header-controls {
         justify-content: center;
     }
     
     .container {
         padding: 1rem;
+    }
+    
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .footer-left {
+        justify-content: center;
+        flex-wrap: wrap;
     }
 }
 
@@ -341,5 +408,13 @@ footer {
     
     .panel {
         padding: 1rem;
+    }
+    
+    .footer-btn span:last-child {
+        display: none;
+    }
+    
+    .footer-btn {
+        padding: 0.5rem;
     }
 }

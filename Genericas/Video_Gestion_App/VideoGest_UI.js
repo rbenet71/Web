@@ -70,7 +70,7 @@ class VideoGestUI {
             this.handleFileSelect(e.target.files[0]);
         });
         
-        // Ejecutar reducción - ¡ESTE ES EL BOTÓN IMPORTANTE!
+        // Ejecutar reducción
         document.getElementById('execute-reduce').addEventListener('click', () => {
             this.executeReduceOperation();
         });
@@ -78,11 +78,6 @@ class VideoGestUI {
         // Botón Continuar
         document.getElementById('continue-button').addEventListener('click', () => {
             this.openFileExplorer();
-        });
-        
-        // Copiar comando
-        document.getElementById('copy-command').addEventListener('click', () => {
-            this.copyCommandToClipboard();
         });
         
         // Instalación PWA
@@ -190,8 +185,6 @@ class VideoGestUI {
     }
     
     async executeReduceOperation() {
-        console.log('Botón "Ejecutar" clickeado'); // Para debug
-        
         const fileInput = document.getElementById('input-file');
         if (!fileInput.files || fileInput.files.length === 0) {
             this.showMessage(
@@ -205,15 +198,6 @@ class VideoGestUI {
         const file = fileInput.files[0];
         const quality = document.getElementById('quality').value;
         
-        console.log('Archivo seleccionado:', file.name, 'Calidad:', quality); // Para debug
-        
-        // Mostrar mensaje de procesamiento
-        this.showMessage(
-            'Generando comando',
-            'Procesando archivo y generando comando FFMPEG...',
-            'info'
-        );
-        
         // Guardar configuración
         videoGestStorage.updateSetting('quality', quality);
         
@@ -222,28 +206,21 @@ class VideoGestUI {
         videoGestFFMPEG.setInputFile(file);
         
         try {
-            // Generar comando CON descarga automática de ffmpeg.exe
+            // Generar comando
             this.currentCommandInfo = videoGestFFMPEG.generateCommand({
                 quality: quality
             });
             
-            console.log('Comando generado:', this.currentCommandInfo.command); // Para debug
-            
             // Guardar en historial
             videoGestStorage.saveCommandHistory(this.currentCommandInfo.command);
+            
+            // 1. COPIAR AUTOMÁTICAMENTE AL GENERAR
+            await this.copyCommandToClipboard(true); // true = copia silenciosa
             
             // Mostrar panel de instrucciones
             this.showPanel('ffmpeg');
             
-            // Mostrar mensaje de éxito
-            this.showMessage(
-                'Comando generado',
-                'El comando FFMPEG ha sido generado correctamente. Ahora puede copiarlo y seguir las instrucciones.',
-                'success'
-            );
-            
         } catch (error) {
-            console.error('Error al generar comando:', error); // Para debug
             this.showMessage(
                 videoGestTranslations.get('errorOccurred'),
                 `Error: ${error.message}\n\nAsegúrese de que ha seleccionado un archivo de video válido.`,
@@ -264,29 +241,32 @@ class VideoGestUI {
                     <p><strong>${t.get('instruction2')}</strong></p>
                     
                     <div class="note important">
-                        <h4>⚡ Comando automático de una línea</h4>
+                        <h4>✅ Comando ya copiado automáticamente</h4>
+                        <p>El comando FFMPEG ya está en su portapapeles.</p>
+                        <p><strong>Ahora solo necesita:</strong></p>
+                        <ol>
+                            <li>Hacer clic en "Continuar" para seleccionar la carpeta</li>
+                            <li>Abrir CMD en esa carpeta</li>
+                            <li>Pegar el comando (Ctrl+V) y ejecutar</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="note">
+                        <h4>⚡ Comando automático</h4>
                         <p>Este comando hace TODO automáticamente:</p>
                         <ol>
                             <li>Verifica si ffmpeg.exe está en la carpeta</li>
-                            <li>Si no está, lo descarga desde internet (sin preguntar)</li>
+                            <li>Si no está, lo descarga desde internet</li>
                             <li>Ejecuta la conversión del video</li>
                         </ol>
-                        <p><em>Se requiere conexión a internet solo si ffmpeg.exe no existe.</em></p>
                     </div>
                     
-                    <ol>
-                        <li>Haga clic en "Continuar" para seleccionar el directorio del video</li>
-                        <li>Seleccione la carpeta donde está su archivo de video</li>
-                        <li>Una vez en el explorador, en la barra de dirección escriba: <code>CMD</code></li>
-                        <li>Presione Enter para abrir la terminal</li>
-                        <li>Copie el comando usando el botón "Copiar Comando"</li>
-                        <li>En la terminal, pegue el comando (Ctrl+V) y presione Enter</li>
-                        <li>¡Listo! Todo se hace automáticamente</li>
-                    </ol>
-                    
                     <div class="command-box">
-                        <h3>${t.get('commandToExecute')}</h3>
+                        <h3>Comando listo para pegar:</h3>
                         <div class="command">${this.currentCommandInfo.command}</div>
+                        <p class="note" style="margin-top: 10px;">
+                            <small>⚠️ Ya está copiado en su portapapeles</small>
+                        </p>
                     </div>
                     
                     <div class="note">
@@ -296,25 +276,22 @@ class VideoGestUI {
                         <p><strong>Tiempo estimado:</strong> ${this.currentCommandInfo.estimatedTime?.formatted || '2-5 minutos'}</p>
                         <p><strong>Archivo original:</strong> Se mantiene intacto</p>
                     </div>
-                    
-                    <div class="note">
-                        <h5>¿Cómo funciona el comando?</h5>
-                        <p>Es un solo comando que combina:</p>
-                        <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto;">
-if not exist "ffmpeg.exe" (powershell -Command "Invoke-WebRequest...")
-&& 
-ffmpeg -y -i "video.mp4" ...</pre>
-                        <p><code>&&</code> significa: "Si la primera parte funciona, entonces ejecuta la segunda"</p>
-                    </div>
                 `;
             }
-        } else {
-            console.error('No hay currentCommandInfo para mostrar'); // Para debug
         }
     }
     
     // Método para abrir el explorador de archivos
     openFileExplorer() {
+        if (!this.currentCommandInfo) {
+            this.showMessage(
+                'Error',
+                'Primero debe generar un comando haciendo clic en "Ejecutar".',
+                'error'
+            );
+            return;
+        }
+        
         const input = document.createElement('input');
         input.type = 'file';
         input.style.display = 'none';
@@ -334,11 +311,11 @@ ffmpeg -y -i "video.mp4" ...</pre>
                 const path = firstFile.webkitRelativePath;
                 const directory = path ? path.substring(0, path.indexOf('/')) : 'Directorio seleccionado';
                 
-                // Mostrar mensaje con instrucciones
+                // 2. RECORDAR AL USUARIO QUE EL COMANDO YA ESTÁ COPIADO
                 this.showMessage(
-                    'Directorio seleccionado',
-                    `Ha seleccionado: ${directory}\n\nAhora:\n1. En la barra de dirección del explorador escriba: CMD\n2. Presione Enter para abrir la terminal\n3. Copie el comando usando el botón "Copiar Comando"\n4. En la terminal, pegue el comando (Ctrl+V)\n5. Presione Enter para ejecutar\n\nEl comando descargará ffmpeg.exe automáticamente si es necesario.`,
-                    'info'
+                    '✅ ¡Todo listo!',
+                    `Directorio seleccionado: ${directory}\n\n📋 <strong>El comando YA ESTÁ en su portapapeles.</strong>\n\nAhora solo necesita:\n1. En la barra de dirección escriba: <code>CMD</code>\n2. Presione Enter para abrir la terminal\n3. Pegue el comando (Ctrl+V)\n4. Presione Enter para ejecutar\n\nEl comando descargará ffmpeg.exe automáticamente si es necesario.`,
+                    'success'
                 );
             }
             
@@ -347,10 +324,10 @@ ffmpeg -y -i "video.mp4" ...</pre>
         });
         
         input.addEventListener('cancel', () => {
-            // El usuario canceló, limpiar el input
+            // El usuario canceló
             this.showMessage(
                 'Selección cancelada',
-                'Puede volver a intentarlo haciendo clic en "Continuar"',
+                'Recuerde: el comando sigue copiado en su portapapeles.\nPuede volver a intentarlo haciendo clic en "Continuar".',
                 'warning'
             );
             document.body.removeChild(input);
@@ -360,39 +337,60 @@ ffmpeg -y -i "video.mp4" ...</pre>
         input.click();
     }
     
-    async copyCommandToClipboard() {
+    // Método mejorado para copiar al portapapeles
+    async copyCommandToClipboard(silent = false) {
         if (!this.currentCommandInfo) {
-            this.showMessage(
-                'Error',
-                'No hay comando para copiar. Primero debe generar un comando haciendo clic en "Ejecutar".',
-                'error'
-            );
-            return;
+            if (!silent) {
+                this.showMessage(
+                    'Error',
+                    'No hay comando para copiar. Primero debe generar un comando.',
+                    'error'
+                );
+            }
+            return false;
         }
         
         const command = this.currentCommandInfo.command;
         
         try {
             await navigator.clipboard.writeText(command);
-            this.showMessage(
-                videoGestTranslations.get('commandCopied'),
-                'El comando está listo para pegar en CMD\n\nPuede ahora:\n1. Abrir CMD en la carpeta del video\n2. Pegar el comando (Ctrl+V)\n3. Presionar Enter para ejecutar',
-                'success'
-            );
+            
+            if (!silent) {
+                this.showMessage(
+                    '✅ Comando copiado',
+                    'El comando está listo para pegar en CMD.\n\nAhora:\n1. Abra CMD en la carpeta del video\n2. Pegue el comando (Ctrl+V)\n3. Presione Enter para ejecutar',
+                    'success'
+                );
+            }
+            
+            return true;
+            
         } catch (err) {
             // Fallback para navegadores más antiguos
             const textArea = document.createElement('textarea');
             textArea.value = command;
             document.body.appendChild(textArea);
             textArea.select();
-            document.execCommand('copy');
+            const success = document.execCommand('copy');
             document.body.removeChild(textArea);
             
-            this.showMessage(
-                videoGestTranslations.get('commandCopied'),
-                'El comando está listo para pegar en CMD\n\nPuede ahora:\n1. Abrir CMD en la carpeta del video\n2. Pegar el comando (Ctrl+V)\n3. Presionar Enter para ejecutar',
-                'success'
-            );
+            if (!silent) {
+                if (success) {
+                    this.showMessage(
+                        '✅ Comando copiado',
+                        'El comando está listo para pegar en CMD.\n\nAhora:\n1. Abra CMD en la carpeta del video\n2. Pegue el comando (Ctrl+V)\n3. Presione Enter para ejecutar',
+                        'success'
+                    );
+                } else {
+                    this.showMessage(
+                        'Error al copiar',
+                        'No se pudo copiar el comando automáticamente.\n\nPor favor, seleccione y copie el comando manualmente.',
+                        'error'
+                    );
+                }
+            }
+            
+            return success;
         }
     }
     
@@ -431,12 +429,12 @@ ffmpeg -y -i "video.mp4" ...</pre>
             animation: slideIn 0.3s ease;
         `;
         
-        // Preservar saltos de línea
-        messageDiv.querySelector('.message-content').style.whiteSpace = 'pre-line';
+        // Permitir HTML básico en el mensaje
+        messageDiv.querySelector('.message-content').innerHTML = message;
         
         document.body.appendChild(messageDiv);
         
-        // Auto-eliminar después de 5 segundos
+        // Auto-eliminar después de 7 segundos (más tiempo para instrucciones)
         setTimeout(() => {
             messageDiv.style.animation = 'slideOut 0.3s ease';
             setTimeout(() => {
@@ -444,7 +442,7 @@ ffmpeg -y -i "video.mp4" ...</pre>
                     messageDiv.parentNode.removeChild(messageDiv);
                 }
             }, 300);
-        }, 5000);
+        }, 7000);
         
         // Agregar estilos de animación si no existen
         if (!document.getElementById('message-styles')) {
