@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2196f3">
+    <title>VideoGest - Gestor de Vídeos</title>
+    <link rel="manifest" href="VideoGest_Manifest.json">
+    <link rel="stylesheet" href="VideoGest_Styles.css">
+    <link rel="icon" href="assets/icons/icon-72x72.png">
+    <link rel="apple-touch-icon" href="assets/icons/icon-152x152.png">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1 id="app-title">VideoGest</h1>
+            <div class="header-controls">
+                <button id="language-selector" class="btn-icon" aria-label="Seleccionar idioma">
+                    <span class="icon">🌐</span>
+                </button>
+                <button id="install-button" class="btn-icon" style="display:none;" aria-label="Instalar aplicación">
+                    <span class="icon">📱</span>
+                </button>
+                <button id="help-button" class="btn-icon" aria-label="Ayuda">
+                    <span class="icon">❓</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Panel de idioma -->
+            <div id="language-panel" class="panel" style="display:none;">
+                <h2 data-i18n="selectLanguage">Seleccionar Idioma</h2>
+                <div class="language-options">
+                    <button class="language-btn" data-lang="es">Español</button>
+                    <button class="language-btn" data-lang="ca">Català</button>
+                    <button class="language-btn" data-lang="en">English</button>
+                    <button class="language-btn" data-lang="fr">Français</button>
+                </div>
+            </div>
+
+            <!-- Panel de ayuda -->
+            <div id="help-panel" class="panel" style="display:none;">
+                <h2 data-i18n="help">Ayuda</h2>
+                <div class="help-content" data-i18n="helpContent">
+                    <p>Esta aplicación permite realizar diferentes operaciones sobre vídeos utilizando FFMPEG.</p>
+                    <p><strong>Funciones disponibles:</strong></p>
+                    <ul>
+                        <li>Reducir tamaño del vídeo</li>
+                        <li>Cortar vídeo</li>
+                        <li>Convertir formato</li>
+                        <li>Revertir vídeo</li>
+                        <li>Convertir a JPG</li>
+                        <li>Unir vídeos</li>
+                    </ul>
+                    <p>Para realizar cualquier operación, necesitarás tener permiso para ejecutar FFMPEG en tu sistema.</p>
+                </div>
+                <button class="btn-secondary" data-i18n="close">Cerrar</button>
+            </div>
+
+            <!-- Panel principal -->
+            <div id="main-panel" class="panel">
+                <h2 data-i18n="selectOperation">Seleccionar Operación</h2>
+                
+                <div class="operation-grid">
+                    <button class="operation-btn" data-operation="reduce">
+                        <span class="icon">📉</span>
+                        <span data-i18n="reduceSize">Reducir Tamaño</span>
+                    </button>
+                    <button class="operation-btn" data-operation="cut">
+                        <span class="icon">✂️</span>
+                        <span data-i18n="cutVideo">Cortar Video</span>
+                    </button>
+                    <button class="operation-btn" data-operation="convert">
+                        <span class="icon">🔄</span>
+                        <span data-i18n="convertVideo">Convertir Video</span>
+                    </button>
+                    <button class="operation-btn" data-operation="reverse">
+                        <span class="icon">↩️</span>
+                        <span data-i18n="reverseVideo">Revertir Video</span>
+                    </button>
+                    <button class="operation-btn" data-operation="tojpg">
+                        <span class="icon">🖼️</span>
+                        <span data-i18n="convertToJPG">Convertir a JPG</span>
+                    </button>
+                    <button class="operation-btn" data-operation="merge">
+                        <span class="icon">🔗</span>
+                        <span data-i18n="mergeVideos">Unir Videos</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel de reducción de tamaño -->
+            <div id="reduce-panel" class="panel operation-panel" style="display:none;">
+                <h2 data-i18n="reduceVideoSize">Reducir Tamaño de Video</h2>
+                
+                <div class="form-group">
+                    <label for="input-file" data-i18n="selectVideo">Seleccionar Video:</label>
+                    <input type="file" id="input-file" accept="video/*" class="file-input">
+                    <div id="file-info" class="file-info"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="quality" data-i18n="quality">Calidad:</label>
+                    <select id="quality" class="form-control">
+                        <option value="pc" data-i18n="pcQuality">Calidad PC</option>
+                        <option value="tablet" data-i18n="tabletQuality" selected>Calidad Tablet</option>
+                        <option value="mobile" data-i18n="mobileQuality">Calidad Móvil</option>
+                    </select>
+                </div>
+
+                <div class="button-group">
+                    <button id="execute-reduce" class="btn-primary" data-i18n="execute">Ejecutar</button>
+                    <button class="btn-secondary back-btn" data-i18n="back">Volver</button>
+                </div>
+            </div>
+
+            <!-- Panel de instrucciones FFMPEG -->
+            <div id="ffmpeg-panel" class="panel instruction-panel" style="display:none;">
+                <h2 data-i18n="ffmpegInstructions">Instrucciones FFMPEG</h2>
+                
+                <div class="instructions">
+                    <!-- Las instrucciones se generarán dinámicamente aquí -->
+                </div>
+                
+                <div class="button-group">
+                    <button id="continue-button" class="btn-primary">
+                        <span class="icon">➡️</span>
+                        <span data-i18n="continue">Continuar</span>
+                    </button>
+                    <button id="copy-command" class="btn-secondary">
+                        <span class="icon">📋</span>
+                        <span data-i18n="copyCommand">Copiar Comando</span>
+                    </button>
+                    <button class="btn-secondary back-btn" data-i18n="back">Volver</button>
+                </div>
+            </div>
+
+            <!-- Panel de progreso -->
+            <div id="progress-panel" class="panel" style="display:none;">
+                <h2 data-i18n="processing">Procesando...</h2>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                    <div id="progress-text" class="progress-text" data-i18n="preparing">Preparando...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <span id="copyright-text">2025 © Copyright</span>
+            <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
+                Roberto Benet - rbenet71@gmail.com - V_18_12_2025
+            </a>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="VideoGest_Translations.js"></script>
+    <script src="VideoGest_Storage.js"></script>
+    <script src="VideoGest_FFMPEG.js"></script>
+    <script src="VideoGest_UI.js"></script>
+    <script src="VideoGest_App.js"></script>
+    <script src="VideoGest_ServiceWorker.js"></script>
+</body>
+</html>

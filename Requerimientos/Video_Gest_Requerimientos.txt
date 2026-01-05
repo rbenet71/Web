@@ -2,7 +2,7 @@ Video Gest
 
 Quiero crear una App PWA con funcionamiento offline y que preferiblemente se utilizará en Windows, pero ha de estar preparada para cualquier dispositivo.
 
-La app se utilizará como una utilidad para gestionar archivos de video, utilizando preferentemente la libreria de FFMEPG.
+La app se utilizará como una utilidad para gestionar archivos de video, utilizando preferentemente la libreria de FFMEPG. Pero como esto no ha sido posible tras intentarlo varias formulas, utilizaremos FFMPEG.EXE
 
 Las opciones que veo son:
 
@@ -13,6 +13,11 @@ Las opciones que veo son:
 5.- Convetir a JPG.
 6.- Unir Videos.
 
+Haremos de momento la primera opción.
+
+El funcionamiento ha de ser, preguntamos todo lo necesario para poder hacer la acción.
+Una vez el usuario dice ejecturar arbrimos una ventana en la que le explicamos al usaurio que debimos a las limitaciones del Javascript, necesitamos la intervención del usuario para poder realizar la acción. Le informaremos que se le abrirá el explorardor de archivos, en la barra de dirección debe escribir CMD y una vez dentro deberá apretar CTRL+V y luegoi enter. Habrá en botón continuar.
+Mirarmos si en el directorio donde esta el fichero de origen esta ffmpeg.exe y si no lo está lo copiamos. Abriumos el explorar de archivos en el directorio del fichero origen, no se si se puede poner CMD para que se abra el archivo de Command y hacemos la acción copiar (Ctrl+C) para que el usuario pegue la orden.
 
 1.- Reducir tamaño Video-> se dará la opción al usuario de elegir tres posibilidades de reducción:
     a.- Uso en Móviles
@@ -35,6 +40,20 @@ Deberá haber una barra de progeso.
 Calidad PC - orden FFMPEG - order='''ffmpeg -y -i "%s" -vcodec libx265 -crf 28 %s "%s"'''%(video_file,option_ffmpeg,destiny+'_PC.mp4')
 Calidad Tablet - orden FFMPEG - order='''ffmpeg -y -i "%s" -crf 28 %s "%s"'''%(video_file,option_ffmpeg,destiny+'_Tablet.mp4')
 Calidad Movil - orden FFMPEG - '''ffmpeg -y -i "%s" -crf 28 %s "%s"'''%(video_file,option_ffmpeg,destiny+'_Movil.mp4')
+
+
+--------
+nombres de calidad de conversion de video - los que te he dicho
+
+Calidad PC - orden FFMPEG - order='''ffmpeg -y -i "%s" -vcodec libx265 -crf 28 %s "%s"'''%(video_file,option_ffmpeg,destiny+'_PC.mp4')
+Calidad Tablet - orden FFMPEG - order='''ffmpeg -y -i "%s" -crf 28 %s "%s"'''%(video_file,option_ffmpeg,destiny+'_Tablet.mp4')
+Calidad Movil - orden FFMPEG - '''ffmpeg -y -i "%s" -crf 28 %s "%s"'''%(video_file,option_ffmpeg,destiny+'_Movil.mp4')
+no hay opcion de si se mantiene el original, simempre se mantiene.
+
+No veo que se esté copiando FFMEPG.exe
+Puede que en lugar de el usuario apretador copiar comando, ya este copiado?
+
+------
 
 2.- Cortar Video -> el usuario indicará que parte del video quiere extraer el video original.
 Al acceder al menú habrán los siguiente campos:
