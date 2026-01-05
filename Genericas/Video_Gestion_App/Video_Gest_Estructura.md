@@ -21,6 +21,7 @@ VideoGest es una aplicación PWA (Progressive Web App) para la gestión de archi
 ✅ **Interfaz intuitiva** con guía paso a paso  
 ✅ **Actualizaciones automáticas** vía Service Worker  
 ✅ **Almacenamiento persistente** de configuraciones  
+✅ **Instalación como aplicación nativa** (PWA) con soporte para Chrome en Windows  
 
 ## Estructura de Archivos
 
@@ -58,6 +59,8 @@ VideoGest/
 - Metadatos para PWA (manifest, theme-color, icons)
 - **Cambio importante**: Eliminado botón "Copiar Comando" - ahora es automático
 - Footer con información de copyright y versión
+- **NUEVO**: Botón "Instalar App" para instalación PWA
+- **NUEVO**: Selector de idiomas con banderas interactivas
 
 ### 2. VideoGest_Styles.css
 **Propósito**: Estilos visuales y diseño responsive  
@@ -68,6 +71,8 @@ VideoGest/
 - Animaciones para transiciones y mensajes
 - Media queries para diferentes tamaños de pantalla
 - Sistema de colores coherente con el branding
+- **NUEVO**: Estilos para botón de instalación PWA con animaciones
+- **NUEVO**: Estilos para selector de idiomas con banderas
 
 ### 3. VideoGest_Translations.js
 **Propósito**: Sistema de internacionalización multi-idioma  
@@ -78,6 +83,8 @@ VideoGest/
 - Persistencia del idioma seleccionado en localStorage
 - Métodos para cambiar y aplicar traducciones dinámicamente
 - Eventos para notificar cambios de idioma
+- **NUEVO**: Traducción completa para instalación PWA en todos los idiomas
+- **NUEVO**: Texto del botón "Instalar App" traducido
 
 ### 4. VideoGest_Storage.js
 **Propósito**: Gestión de almacenamiento persistente  
@@ -120,6 +127,8 @@ VideoGest/
 - **ACTUALIZADO**: Detección automática de modo archivo local
 - **ACTUALIZADO**: Service Worker condicional (solo en HTTP/HTTPS)
 - **NUEVO**: Sistema de debug integrado (Ctrl+Shift+D)
+- **NUEVO**: Sistema completo de instalación PWA con detección de Chrome en Windows
+- **NUEVO**: Instrucciones específicas por navegador y sistema operativo
 - Manejo de eventos de red (online/offline)
 - Registro de Service Worker con actualizaciones periódicas
 - Manejo de parámetros de URL
@@ -145,6 +154,7 @@ VideoGest/
 - Shortcuts para operaciones frecuentes
 - Configuración de orientación y display
 - Metadatos para descubrimiento en tiendas de apps
+- **ACTUALIZADO**: Información de versión completa
 
 ## Flujo de Trabajo Actualizado
 
@@ -177,6 +187,16 @@ VideoGest/
    - Mantiene el archivo original intacto
    - Genera nuevo archivo con sufijo correspondiente
 
+### Para Instalar como Aplicación (PWA):
+1. **En Chrome para Windows**:
+   - Opción 1: Buscar icono 📦 a la derecha de la barra de direcciones → Hacer clic → "Instalar VideoGest"
+   - Opción 2: Hacer clic en menú (⋮) → "Instalar VideoGest"
+   - Opción 3: Usar botón "Instalar App" en la aplicación
+
+2. **En otros navegadores/sistemas**:
+   - Buscar opción "Instalar" en el menú del navegador
+   - Seguir instrucciones específicas que muestra la aplicación
+
 ## Comandos FFMPEG Generados (Ejemplos)
 
 ### Calidad PC (H.265/HEVC):
@@ -196,6 +216,32 @@ ffmpeg -y -i "video_original.mp4" -crf 28 "video_original_Tablet.mp4"
 if not exist "ffmpeg.exe" powershell -Command "Invoke-WebRequest -Uri 'https://rbenet71.github.io/Web/Genericas/Video_Gestion_App/ffmpeg.exe' -OutFile 'ffmpeg.exe'"
 ffmpeg -y -i "video_original.mp4" -crf 28 -vf "scale='min(640,iw)':-2" "video_original_Movil.mp4"
 ```
+
+## Instalación PWA - Características Implementadas
+
+### Detección Automática:
+- ✅ **Detección de sistema operativo** (Windows, macOS, Linux, Android, iOS)
+- ✅ **Detección de navegador** (Chrome, Firefox, Safari, Edge, Opera)
+- ✅ **Detección de Chrome en Windows** para instrucciones específicas
+- ✅ **Verificación de PWA ya instalada**
+
+### Interfaz de Usuario:
+- ✅ **Botón "Instalar App"** traducido en 4 idiomas
+- ✅ **Animaciones de atención** (pulse) para el botón
+- ✅ **Instrucciones específicas** por navegador y sistema
+- ✅ **Mensajes contextuales** que explican dónde encontrar el icono de Chrome
+
+### Funcionalidad:
+- ✅ **Evento beforeinstallprompt** capturado y manejado
+- ✅ **Instalación manual** cuando no hay prompt automático
+- ✅ **Feedback visual** durante la instalación
+- ✅ **Manejo de errores** y cancelaciones
+
+### Experiencia de Usuario:
+- ✅ **Explicación del icono 📦** de Chrome en Windows
+- ✅ **Instrucciones paso a paso** con imágenes descriptivas
+- ✅ **Beneficios de PWA** explicados al usuario
+- ✅ **Idioma automático** según preferencias del usuario
 
 ## Configuraciones Técnicas
 
@@ -255,6 +301,7 @@ npx http-server -p 8000
 3. Probar funcionamiento offline
 4. Validar descarga automática de ffmpeg.exe
 5. Verificar copia automática al portapapeles
+6. Probar instalación PWA en diferentes navegadores
 
 ## Solución de Problemas
 
@@ -280,11 +327,17 @@ npx http-server -p 8000
    - Esperar a que se cacheen los archivos
    - Recargar la página una vez instalada
 
+5. **Botón "Instalar App" no aparece**:
+   - Verificar que no es modo archivo local (`file://`)
+   - Asegurar que el manifest está correctamente configurado
+   - Verificar criterios PWA en la consola del navegador
+
 ### Debugging:
 - **Consola del navegador**: F12 > Console
 - **Service Worker**: F12 > Application > Service Workers
 - **Storage**: F12 > Application > Local Storage
 - **Debug integrado**: Ctrl+Shift+D en la aplicación
+- **Información PWA**: Ver logs en consola para estado de instalación
 
 ## Personalización y Extensión
 
@@ -294,14 +347,17 @@ npx http-server -p 8000
 nuevo_idioma: {
     "appTitle": "Título en nuevo idioma",
     "selectLanguage": "Seleccionar idioma",
+    "installApp": "Instalar App",  // ¡NO OLVIDAR ESTA CLAVE!
     // ... todas las claves necesarias
 }
 ```
 
-2. En `VideoGest.html`, agregar botón en el panel de idiomas:
+2. En `VideoGest.html`, agregar bandera en el selector de idiomas:
 ```html
-<button class="language-btn" data-lang="nuevo_idioma">Nombre Idioma</button>
+<img src="https://flagcdn.com/w40/xx.png" class="flag" id="flag-xx" data-lang="nuevo_idioma">
 ```
+
+3. En `VideoGest_App.js`, actualizar `showManualInstallInstructions()` para el nuevo idioma
 
 ### Añadir Nueva Operación de Video:
 1. En `VideoGest.html`, agregar botón en la grilla de operaciones
@@ -319,6 +375,7 @@ nuevo_idioma: {
 - No se puede ejecutar FFMPEG directamente en el navegador
 - Requiere intervención manual del usuario para ejecutar comandos
 - Acceso al sistema de archivos limitado por APIs del navegador
+- **Instalación PWA requiere interacción explícita del usuario**
 
 ### Seguridad de Descargas:
 - FFMPEG se descarga desde URL confiable (tu servidor GitHub)
@@ -330,24 +387,31 @@ nuevo_idioma: {
 - Todo el procesamiento es local en la máquina del usuario
 - Configuración guardada solo en localStorage del navegador
 
+### Instalación PWA Segura:
+- Requiere consentimiento explícito del usuario
+- No se puede automatizar la instalación
+- El usuario siempre tiene control total
+
 ## Compatibilidad
 
 ### Navegadores Soportados:
-- ✅ Chrome 80+
+- ✅ Chrome 80+ (mejor soporte PWA)
 - ✅ Firefox 75+
 - ✅ Edge 80+ (Chromium)
 - ⚠️ Safari 14+ (limitaciones de PWA)
 - ❌ Internet Explorer (no soportado)
 
 ### Sistemas Operativos:
-- ✅ Windows 7, 8, 10, 11
+- ✅ Windows 7, 8, 10, 11 (soporte completo)
 - ⚠️ macOS (requiere instalación manual de FFMPEG)
 - ⚠️ Linux (requiere instalación manual de FFMPEG)
+- ⚠️ Android/iOS (solo visualización, no ejecución FFMPEG)
 
 ### Requisitos Mínimos:
 - 100MB espacio libre para FFMPEG y videos
 - PowerShell 3.0+ (viene con Windows 7+)
 - Permisos de escritura en carpeta de destino
+- Navegador moderno para PWA
 
 ## Mantenimiento
 
@@ -355,7 +419,8 @@ nuevo_idioma: {
 1. Incrementar número en `VideoGest_App.js`
 2. Actualizar nombres de cache en `VideoGest_ServiceWorker.js`
 3. Modificar fecha en footer de `VideoGest.html`
-4. Actualizar este documento
+4. Actualizar `VideoGest_Manifest.json`
+5. Actualizar este documento
 
 ### Monitoreo de Uso:
 - Consola del navegador para errores
@@ -398,11 +463,13 @@ La aplicación incluye funciones de exportación/importación:
 - **FFMPEG**: https://ffmpeg.org/documentation.html
 - **PWA**: https://web.dev/progressive-web-apps/
 - **Service Workers**: https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API
+- **Web App Manifest**: https://developer.mozilla.org/en-US/docs/Web/Manifest
 
 ### Herramientas de Desarrollo:
 - **Generador de iconos PWA**: https://www.pwabuilder.com/imageGenerator
 - **Validador de Manifest**: https://manifest-validator.appspot.com/
 - **Test de Lighthouse**: En Chrome DevTools > Lighthouse
+- **PWA Builder**: https://www.pwabuilder.com/
 
 ### Repositorio del Proyecto:
 - **Código fuente**: Estructura descrita en este documento
@@ -438,6 +505,9 @@ La aplicación incluye funciones de exportación/importación:
 5. ✅ **Nombres automáticos de salida** - Sufijos por calidad
 6. ✅ **Sistema de debug integrado** - Ctrl+Shift+D para información
 7. ✅ **Flujo de usuario simplificado** - Menos pasos, más intuitivo
+8. ✅ **Sistema completo de instalación PWA** - Con detección de Chrome en Windows
+9. ✅ **Instrucciones específicas por navegador** - Mejor experiencia de usuario
+10. ✅ **Traducciones completas** - Botón "Instalar App" en 4 idiomas
 
 ### Ventajas de la Nueva Implementación:
 - **Más fácil para el usuario**: Solo 2 clics para copiar y continuar
@@ -445,6 +515,9 @@ La aplicación incluye funciones de exportación/importación:
 - **Más automático**: FFMPEG se descarga solo si es necesario
 - **Mejor experiencia**: Mensajes claros, instrucciones paso a paso
 - **Más profesional**: Interfaz pulida, sin elementos redundantes
+- **Instalación nativa**: Funciona como aplicación de Windows
+- **Offline completo**: Trabaja sin conexión a internet
+- **Multi-idioma**: Soporte completo para 4 idiomas
 
 ### Código Eliminado/Simplificado:
 - ❌ Botón "Copiar Comando" en HTML y CSS
@@ -458,6 +531,10 @@ La aplicación incluye funciones de exportación/importación:
 - ✅ Detección de protocolo en `registerServiceWorker()`
 - ✅ Sistema de debug en `VideoGest_App.js`
 - ✅ Mejores mensajes de instrucción en traducciones
+- ✅ Sistema completo de instalación PWA
+- ✅ Detección de navegador y sistema operativo
+- ✅ Instrucciones específicas para Chrome en Windows
+- ✅ Animaciones para botón de instalación
 
 ---
 
@@ -467,4 +544,5 @@ La aplicación incluye funciones de exportación/importación:
 **Nivel de estabilidad**: ⭐⭐⭐⭐⭐ (5/5)
 
 ---
-*Documentación generada automáticamente basada en la estructura actual del proyecto VideoGest v1.0.2*
+
+*Documentación generada automáticamente basada en la estructura actual del proyecto VideoGest v1.0.3*

@@ -42,6 +42,9 @@ class VideoGestUI {
         this.continueButton = document.getElementById('continue-button');
         this.copyCommandBtn = document.getElementById('copy-command');
         
+        // Botón de instalación PWA
+        this.installButton = document.getElementById('install-button');
+        
         // Botones de operación
         this.operationButtons = document.querySelectorAll('.operation-btn');
         

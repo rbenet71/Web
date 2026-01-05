@@ -97,7 +97,8 @@ class VideoGestTranslations {
                 "mobileQuality": "Calidad Móvil",
                 "commandAutoCopied": "Comando copiado automáticamente",
                 "readyToPaste": "El comando ya está en su portapapeles",
-                "justOpenCmdAndPaste": "Solo abra CMD y pegue (Ctrl+V)"
+                "justOpenCmdAndPaste": "Solo abra CMD y pegue (Ctrl+V)",
+                'installApp': 'Instalar App',  // Español
 
             },
             ca: {
@@ -195,7 +196,8 @@ class VideoGestTranslations {
                 "mobileQuality": "Qualitat Móvil",
                 "commandAutoCopied": "Comando copiado automáticamente",
                 "readyToPaste": "El comando ya está en su portapapeles",
-                "justOpenCmdAndPaste": "Solo abra CMD y pegue (Ctrl+V)"
+                "justOpenCmdAndPaste": "Solo abra CMD y pegue (Ctrl+V)",// Para catalán:
+                'installApp': 'Instal·lar App',
 
             },
             en: {
@@ -293,7 +295,9 @@ class VideoGestTranslations {
                 "mobileQuality": "Mobile Quality",
                 "commandAutoCopied": "Comando copiado automáticamente",
                 "readyToPaste": "El comando ya está en su portapapeles",
-                "justOpenCmdAndPaste": "Solo abra CMD y pegue (Ctrl+V)"
+                "justOpenCmdAndPaste": "Solo abra CMD y pegue (Ctrl+V)",
+                'installApp': 'Install App',
+
             },
             fr: {
                 // General
@@ -390,7 +394,8 @@ class VideoGestTranslations {
                 "mobileQuality": "Qualite Mobile",
                 "commandAutoCopied": "Comando copiado automáticamente",
                 "readyToPaste": "El comando ya está en su portapapeles",
-                "justOpenCmdAndPaste": "Solo abra CMD y pegue (Ctrl+V)"
+                "justOpenCmdAndPaste": "Solo abra CMD y pegue (Ctrl+V)",
+                'installApp': 'Installer App',
             }
         };
         
