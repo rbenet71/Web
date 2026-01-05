@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ayuda Completa - DashCam</title>
     <style>
-
-                /* Botón flotante para volver */
+        /* Botón flotante para volver */
         .back-to-app-btn {
             position: fixed;
             bottom: 25px;
@@ -448,6 +447,43 @@
             background: linear-gradient(135deg, #3498db, #2c3e50);
             border-radius: 10px;
         }
+        
+        .credits-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 40px;
+            text-align: center;
+            border: 2px solid #dee2e6;
+        }
+        
+        .credits-box h3 {
+            color: #2c3e50;
+            border-bottom: none;
+            margin-bottom: 15px;
+        }
+        
+        .credits-box p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        
+        .developer-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .developer-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -477,6 +513,7 @@
                     <li class="toc-item"><a href="#galeria"><span>📁</span>Galería</a></li>
                     <li class="toc-item"><a href="#exportacion"><span>📤</span>Exportación</a></li>
                     <li class="toc-item"><a href="#config"><span>⚙️</span>Configuración</a></li>
+                    <li class="toc-item"><a href="#menu-config-detalle"><span>⚙️</span>Menú Configuración Detallado</a></li>
                     <li class="toc-item"><a href="#pwa"><span>📱</span>Instalación PWA</a></li>
                     <li class="toc-item"><a href="#ios"><span>🍎</span>Guía iOS</a></li>
                     <li class="toc-item"><a href="#consejos"><span>💡</span>Consejos</a></li>
@@ -788,6 +825,184 @@
                 </div>
             </div>
             
+            <!-- MENÚ CONFIGURACIÓN DETALLADO -->
+            <div id="menu-config-detalle" class="section">
+                <h2>⚙️ MENÚ CONFIGURACIÓN DETALLADO</h2>
+                
+                <div class="intro-box">
+                    <h3>🎯 PANEL DE CONFIGURACIÓN COMPLETO</h3>
+                    <p>El menú de configuración de DashCam ofrece un control granular sobre todos los aspectos de la aplicación. Accede desde el botón ⚙️ en la esquina superior derecha.</p>
+                </div>
+                
+                <div class="feature-box">
+                    <h4>📹 CONFIGURACIÓN DE GRABACIÓN</h4>
+                    <div class="numbered-steps">
+                        <div class="numbered-step">
+                            <strong>Calidad de Video:</strong>
+                            <ul>
+                                <li><strong>480p</strong> - Mínimo espacio (1GB/hora)</li>
+                                <li><strong>720p (Recomendado)</strong> - Equilibrio perfecto (2GB/hora)</li>
+                                <li><strong>1080p</strong> - Alta definición (4-6GB/hora)</li>
+                                <li><strong>4K</strong> - Máxima calidad (10-15GB/hora)</li>
+                            </ul>
+                        </div>
+                        <div class="numbered-step">
+                            <strong>Formato de Salida:</strong>
+                            <ul>
+                                <li><strong>MP4</strong> - Compatibilidad universal con todos los reproductores</li>
+                                <li><strong>WebM</strong> - Mayor eficiencia de compresión</li>
+                                <li><strong>Conversión automática VLC</strong> - WebM → MP4 automática</li>
+                            </ul>
+                        </div>
+                        <div class="numbered-step">
+                            <strong>Frecuencia de Frames:</strong>
+                            <ul>
+                                <li><strong>24 fps</strong> - Cinemático, menos espacio</li>
+                                <li><strong>30 fps (Recomendado)</strong> - Fluido y natural</li>
+                                <li><strong>60 fps</strong> - Para movimientos rápidos</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-box">
+                    <h4>📍 CONFIGURACIÓN GPS AVANZADA</h4>
+                    <div class="icon-list">
+                        <div class="icon-item">
+                            <span>📡</span>
+                            <strong>Frecuencia GPS</strong><br>
+                            • Cada frame (máxima precisión)<br>
+                            • Cada 2 frames (recomendado)<br>
+                            • Cada 5 frames (ahorro batería)
+                        </div>
+                        <div class="icon-item">
+                            <span>👁️</span>
+                            <strong>Overlay GPS</strong><br>
+                            • Activado (datos visibles)<br>
+                            • Desactivado (solo metadatos)<br>
+                            • Personalizable posición
+                        </div>
+                        <div class="icon-item">
+                            <span>📊</span>
+                            <strong>Datos a Mostrar</strong><br>
+                            • Velocidad (km/h o mph)<br>
+                            • Altitud (m o ft)<br>
+                            • Coordenadas completas<br>
+                            • Nombre de ubicación
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-box">
+                    <h4>💾 CONFIGURACIÓN DE ALMACENAMIENTO</h4>
+                    <div class="numbered-steps">
+                        <div class="numbered-step">
+                            <strong>Ubicación de Guardado:</strong>
+                            <ul>
+                                <li><strong>Memoria Interna App</strong> - Para uso rápido</li>
+                                <li><strong>Carpeta Local Seleccionada</strong> - Para acceso externo</li>
+                                <li><strong>iCloud Drive</strong> - Sincronización automática iOS</li>
+                                <li><strong>Almacenamiento Externo</strong> - USB/HDD conectado</li>
+                            </ul>
+                        </div>
+                        <div class="numbered-step">
+                            <strong>Gestión de Espacio:</strong>
+                            <ul>
+                                <li><strong>Segmentación Automática:</strong> Crear nuevo archivo cada 1, 2 o 4 horas</li>
+                                <li><strong>Límite de Espacio:</strong> Alertar cuando quede menos de 5GB</li>
+                                <li><strong>Auto-limpiar:</strong> Eliminar archivos temporales automáticamente</li>
+                                <li><strong>Comprimir Automáticamente:</strong> Reducir tamaño sin pérdida notable</li>
+                            </ul>
+                        </div>
+                        <div class="numbered-step">
+                            <strong>Organización por Sesiones:</strong>
+                            <ul>
+                                <li><strong>Por Día:</strong> Cada día en carpeta separada</li>
+                                <li><strong>Por Evento:</strong> Agrupar por nombre de evento</li>
+                                <li><strong>Personalizado:</strong> Elegir criterio de agrupación</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-box">
+                    <h4>🔧 CONFIGURACIÓN AVANZADA DEL SISTEMA</h4>
+                    <div class="screen-simulation">
+                        <div class="screen-header">
+                            <span>⚙️ CONFIGURACIÓN AVANZADA</span>
+                        </div>
+                        <div class="screen-content">
+                            <p>🔄 <strong>Actualización Automática:</strong> ACTIVADA</p>
+                            <p>🧹 <strong>Limpieza Cache:</strong> Cada 7 días</p>
+                            <p>📊 <strong>Estadísticas Detalladas:</strong> ACTIVADAS</p>
+                            <p>🐛 <strong>Modo Debug:</strong> DESACTIVADO</p>
+                            <p>🔋 <strong>Optimización Batería:</strong> ACTIVADA</p>
+                            <p>🌍 <strong>Idioma:</strong> Español (ES)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="icon-list" style="margin-top: 15px;">
+                        <div class="icon-item">
+                            <span>🔄</span>
+                            <strong>Actualizaciones</strong><br>
+                            • Buscar automáticamente<br>
+                            • Descargar solo en WiFi<br>
+                            • Notificar siempre
+                        </div>
+                        <div class="icon-item">
+                            <span>🧹</span>
+                            <strong>Mantenimiento</strong><br>
+                            • Limpieza cache programada<br>
+                            • Eliminar huérfanos automático<br>
+                            • Optimizar base de datos
+                        </div>
+                        <div class="icon-item">
+                            <span>📊</span>
+                            <strong>Telemetría</strong><br>
+                            • Estadísticas de uso<br>
+                            • Errores anónimos<br>
+                            • Mejoras de rendimiento
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tip-box">
+                    <h4>🎨 PERSONALIZACIÓN DE INTERFAZ</h4>
+                    <ul>
+                        <li><strong>Tema:</strong> Claro, Oscuro, Automático (según hora)</li>
+                        <li><strong>Densidad de UI:</strong> Compacto, Normal, Espaciado</li>
+                        <li><strong>Logo Personalizado:</strong> Sube tu propio logo para el overlay</li>
+                        <li><strong>Fuentes:</strong> Tamaño y estilo personalizable</li>
+                        <li><strong>Posición Overlay:</strong> Superior, Inferior, Esquinas</li>
+                        <li><strong>Elementos Mostrados:</strong> Elegir qué datos aparecen</li>
+                        <li><strong>Colores Personalizados:</strong> Tema de colores propio</li>
+                    </ul>
+                </div>
+                
+                <div class="warning-box">
+                    <h4>⚠️ CONFIGURACIONES CRÍTICAS</h4>
+                    <p><strong>IMPORTANTE:</strong> Estas configuraciones afectan el funcionamiento básico:</p>
+                    <ul>
+                        <li><strong>Permisos Persistentes:</strong> Mantener permisos entre sesiones</li>
+                        <li><strong>Estrategia Guardado:</strong> 4 niveles de persistencia (memoria, localStorage, IndexedDB, sessionStorage)</li>
+                        <li><strong>Estrategia Fallback:</strong> Qué hacer si falla el guardado principal</li>
+                        <li><strong>Timeouts GPS:</strong> Configurar timeout para señal GPS débil</li>
+                        <li><strong>Compensación Hora:</strong> Ajustar diferencia horaria si es necesario</li>
+                    </ul>
+                </div>
+                
+                <div class="step-box">
+                    <h4>🛠️ RESET Y RESTAURACIÓN</h4>
+                    <ol>
+                        <li><strong>Restaurar Valores por Defecto:</strong> Vuelve a la configuración óptima recomendada</li>
+                        <li><strong>Exportar Configuración:</strong> Guarda tu configuración en archivo JSON</li>
+                        <li><strong>Importar Configuración:</strong> Carga configuración desde archivo</li>
+                        <li><strong>Reset Completamente:</strong> Elimina toda configuración y datos</li>
+                        <li><strong>Migrar Configuración:</strong> Entre dispositivos usando backup</li>
+                    </ol>
+                </div>
+            </div>
+            
             <!-- PWA -->
             <div id="pwa" class="section">
                 <h2>📱 INSTALACIÓN PWA</h2>
@@ -930,7 +1145,6 @@
                             <div class="app-command">📁 2024_Carrera/</div>
                             <div class="app-command">├── 📁 2024-12-15_Etapa_1/</div>
                             <div class="app-command">├── 📁 2024-12-16_Etapa_2/</div>
-                        </div>
                         </li>
                     </ol>
                 </div>
@@ -946,6 +1160,22 @@
                 </div>
             </div>
             
+            <!-- CRÉDITOS -->
+            <div class="credits-box">
+                <h3>👨‍💻 DESARROLLADOR</h3>
+                <p><strong>DashCam v4.11</strong> ha sido desarrollado por:</p>
+                <p><strong>Roberto Benet</strong> - <em>rbenet71@gmail.com</em></p>
+                <p>Desarrollador especializado en aplicaciones PWA y soluciones tecnológicas para deportes.</p>
+                <p>📱 Más aplicaciones y proyectos disponibles en:</p>
+                <a href="https://rbenet71.github.io/Web/" target="_blank" class="developer-link">
+                    🌐 https://rbenet71.github.io/Web/
+                </a>
+                <p style="margin-top: 15px; font-size: 12px; color: #666;">
+                    Esta aplicación es de código abierto y se distribuye bajo licencia MIT.<br>
+                    Reporte de errores y sugerencias: rbenet71@gmail.com
+                </p>
+            </div>
+            
         </div>
         
         <!-- CATALÀ -->
@@ -959,6 +1189,7 @@
                     <li class="toc-item"><a href="#galeria-ca"><span>📁</span>Galeria</a></li>
                     <li class="toc-item"><a href="#exportacion-ca"><span>📤</span>Exportació</a></li>
                     <li class="toc-item"><a href="#config-ca"><span>⚙️</span>Configuració</a></li>
+                    <li class="toc-item"><a href="#menu-config-detalle-ca"><span>⚙️</span>Menú Configuració Detallat</a></li>
                     <li class="toc-item"><a href="#pwa-ca"><span>📱</span>Instal·lació PWA</a></li>
                     <li class="toc-item"><a href="#ios-ca"><span>🍎</span>Guia iOS</a></li>
                     <li class="toc-item"><a href="#consejos-ca"><span>💡</span>Consells</a></li>
@@ -989,6 +1220,22 @@
             
             <!-- ... resto del contenido en catalán ... -->
             
+            <!-- CRÉDITOS EN CATALÁN -->
+            <div class="credits-box">
+                <h3>👨‍💻 DESENVOLUPADOR</h3>
+                <p><strong>DashCam v4.11</strong> ha estat desenvolupat per:</p>
+                <p><strong>Roberto Benet</strong> - <em>rbenet71@gmail.com</em></p>
+                <p>Desenvolupador especialitzat en aplicacions PWA i solucions tecnològiques per a esports.</p>
+                <p>📱 Més aplicacions i projectes disponibles a:</p>
+                <a href="https://rbenet71.github.io/Web/" target="_blank" class="developer-link">
+                    🌐 https://rbenet71.github.io/Web/
+                </a>
+                <p style="margin-top: 15px; font-size: 12px; color: #666;">
+                    Aquesta aplicació és de codi obert i es distribueix sota llicència MIT.<br>
+                    Informe d'errors i suggeriments: rbenet71@gmail.com
+                </p>
+            </div>
+            
         </div>
         
         <!-- ENGLISH -->
@@ -1002,6 +1249,7 @@
                     <li class="toc-item"><a href="#gallery-en"><span>📁</span>Gallery</a></li>
                     <li class="toc-item"><a href="#export-en"><span>📤</span>Export</a></li>
                     <li class="toc-item"><a href="#config-en"><span>⚙️</span>Settings</a></li>
+                    <li class="toc-item"><a href="#menu-config-detail-en"><span>⚙️</span>Detailed Settings Menu</a></li>
                     <li class="toc-item"><a href="#pwa-en"><span>📱</span>PWA Installation</a></li>
                     <li class="toc-item"><a href="#ios-en"><span>🍎</span>iOS Guide</a></li>
                     <li class="toc-item"><a href="#tips-en"><span>💡</span>Tips</a></li>
@@ -1032,6 +1280,22 @@
             
             <!-- ... resto del contenido en inglés ... -->
             
+            <!-- CREDITS IN ENGLISH -->
+            <div class="credits-box">
+                <h3>👨‍💻 DEVELOPER</h3>
+                <p><strong>DashCam v4.11</strong> has been developed by:</p>
+                <p><strong>Roberto Benet</strong> - <em>rbenet71@gmail.com</em></p>
+                <p>Developer specialized in PWA applications and technological solutions for sports.</p>
+                <p>📱 More applications and projects available at:</p>
+                <a href="https://rbenet71.github.io/Web/" target="_blank" class="developer-link">
+                    🌐 https://rbenet71.github.io/Web/
+                </a>
+                <p style="margin-top: 15px; font-size: 12px; color: #666;">
+                    This application is open source and distributed under MIT license.<br>
+                    Bug reports and suggestions: rbenet71@gmail.com
+                </p>
+            </div>
+            
         </div>
         
         <!-- FRANÇAIS -->
@@ -1045,6 +1309,7 @@
                     <li class="toc-item"><a href="#galerie-fr"><span>📁</span>Galerie</a></li>
                     <li class="toc-item"><a href="#export-fr"><span>📤</span>Exportation</a></li>
                     <li class="toc-item"><a href="#config-fr"><span>⚙️</span>Paramètres</a></li>
+                    <li class="toc-item"><a href="#menu-config-detail-fr"><span>⚙️</span>Menu Paramètres Détaillé</a></li>
                     <li class="toc-item"><a href="#pwa-fr"><span>📱</span>Installation PWA</a></li>
                     <li class="toc-item"><a href="#ios-fr"><span>🍎</span>Guide iOS</a></li>
                     <li class="toc-item"><a href="#conseils-fr"><span>💡</span>Conseils</a></li>
@@ -1074,6 +1339,22 @@
             </div>
             
             <!-- ... resto del contenido en francés ... -->
+            
+            <!-- CRÉDITS EN FRANÇAIS -->
+            <div class="credits-box">
+                <h3>👨‍💻 DÉVELOPPEUR</h3>
+                <p><strong>DashCam v4.11</strong> a été développé par :</p>
+                <p><strong>Roberto Benet</strong> - <em>rbenet71@gmail.com</em></p>
+                <p>Développeur spécialisé dans les applications PWA et solutions technologiques pour le sport.</p>
+                <p>📱 Plus d'applications et projets disponibles sur :</p>
+                <a href="https://rbenet71.github.io/Web/" target="_blank" class="developer-link">
+                    🌐 https://rbenet71.github.io/Web/
+                </a>
+                <p style="margin-top: 15px; font-size: 12px; color: #666;">
+                    Cette application est open source et distribuée sous licence MIT.<br>
+                    Rapports de bugs et suggestions : rbenet71@gmail.com
+                </p>
+            </div>
             
         </div>
     </div>
