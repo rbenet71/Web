@@ -1,4 +1,4 @@
-// VideoGest_FFMPEG.js
+// VideoGest_FFMPEG.js - VERSIÓN CORREGIDA
 class VideoGestFFMPEG {
     constructor() {
         this.ffmpegURL = 'https://rbenet71.github.io/Web/Genericas/Video_Gestion_App/ffmpeg.exe';
@@ -29,9 +29,17 @@ class VideoGestFFMPEG {
     }
     
     generateOutputFilename(inputPath, quality) {
-        const path = inputPath.replace(/\\/g, '/');
-        const lastSlash = path.lastIndexOf('/');
-        const filename = lastSlash !== -1 ? path.substring(lastSlash + 1) : path;
+        // Si solo tenemos el nombre del archivo (sin ruta), manejarlo correctamente
+        if (!inputPath) {
+            return `output${this.outputSuffixes[quality] || ''}.mp4`;
+        }
+        
+        // Normalizar separadores (por si acaso)
+        const normalizedPath = inputPath.replace(/\\/g, '/');
+        
+        // Encontrar el último separador para obtener solo el nombre del archivo
+        const lastSlash = normalizedPath.lastIndexOf('/');
+        const filename = lastSlash !== -1 ? normalizedPath.substring(lastSlash + 1) : normalizedPath;
         
         const lastDot = filename.lastIndexOf('.');
         const nameWithoutExt = lastDot !== -1 ? filename.substring(0, lastDot) : filename;
@@ -50,7 +58,7 @@ class VideoGestFFMPEG {
             throw new Error('Solo la operación de reducción está implementada');
         }
         
-        const inputPath = this.currentFile.name;
+        const inputPath = this.currentFile;
         const quality = params.quality || 'tablet';
         const outputFilename = this.generateOutputFilename(inputPath, quality);
         

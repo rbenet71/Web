@@ -4,7 +4,7 @@
 VideoGest es una aplicación PWA (Progressive Web App) para la gestión de archivos de vídeo utilizando FFMPEG. La aplicación funciona offline y está preparada para múltiples idiomas.
 
 ## Versión
-**Versión Actual:** 1.0.0  
+**Versión Actual:** 1.0.2  
 **Última Actualización:** 18/12/2025  
 **Autor:** Roberto Benet - rbenet71@gmail.com
 
@@ -467,4 +467,4 @@ La aplicación incluye funciones de exportación/importación:
 **Nivel de estabilidad**: ⭐⭐⭐⭐⭐ (5/5)
 
 ---
-*Documentación generada automáticamente basada en la estructura actual del proyecto VideoGest v1.0.0*
+*Documentación generada automáticamente basada en la estructura actual del proyecto VideoGest v1.0.2*
