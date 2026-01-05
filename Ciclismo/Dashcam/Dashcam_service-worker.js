@@ -2,11 +2,11 @@
 const CACHE_NAME = 'dashcam-iphone-pro-cache-v4.14.1';
 const urlsToCache = [
     './',
-    './index.html?v=4.14.1',
-    './styles.css?v=4.14.1',
-    './app.js?v=4.14.1',
-    './manifest.json?v=4.14.1',
-    '/ayuda_completa.html?v=4.14.1',
+    './Dashcam.html?v=4.14.1',
+    './Dashcam_styles.css?v=4.14.1',
+    './Dashcam_App.js?v=4.14.1',
+    './Dashcam_manifest.json?v=4.14.1',
+    '/Dashcam_ayuda_completa.html?v=4.14.1',
     './recursos/Logo_Dashcam_Bike_192x192.png',
     './recursos/Picto_Color_192x192.png',
     './recursos/Picto_Color_512x512.png'

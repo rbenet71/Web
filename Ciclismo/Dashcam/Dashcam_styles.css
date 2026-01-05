@@ -1786,10 +1786,10 @@ body {
     font-size: 14px;
 }
 
-/* Añade esto a tu styles.css */
+/* Añade esto a tu Dashcam_styles.css */
 
 /* Estilos para móvil en el reproductor */
-/* MODIFICA o AÑADE estos estilos en tu styles.css */
+/* MODIFICA o AÑADE estos estilos en tu Dashcam_styles.css */
 
 /* Estilos para móvil en el reproductor - VERSIÓN MEJORADA */
 #videoPlayer.mobile-view {
@@ -2097,7 +2097,7 @@ body {
     margin-bottom: 5px;
 }
 
-/* Añade esto a tu styles.css */
+/* Añade esto a tu Dashcam_styles.css */
 
 /* ========== LEAFLET MAP ========== */
 .leaflet-map {
@@ -2389,7 +2389,7 @@ body {
     transform: scale(1.1);
 }
 
-/* En tu styles.css, añade: */
+/* En tu Dashcam_styles.css, añade: */
 .file-item.local-file {
     border-left-color: #00b894 !important;
     background: rgba(0, 184, 148, 0.05);

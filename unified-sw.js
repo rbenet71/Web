@@ -127,11 +127,11 @@ const APP_RESOURCES = {
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
   ],
     'dashcam':[    
-    'https://rbenet71.github.io/Web/Ciclismo/Dashcam/index.html',
-    'https://rbenet71.github.io/Web/Ciclismo/Dashcam/styles.css',
-    'https://rbenet71.github.io/Web/Ciclismo/Dashcam/app.js',
-    'https://rbenet71.github.io/Web/Ciclismo/Dashcam/manifest.json',
-    'https://rbenet71.github.io/Web/Ciclismo/Dashcam/ayuda_completa.html',
+    'https://rbenet71.github.io/Web/Ciclismo/Dashcam/Dashcam.html',
+    'https://rbenet71.github.io/Web/Ciclismo/Dashcam/Dashcam_styles.css',
+    'https://rbenet71.github.io/Web/Ciclismo/Dashcam/Dashcam_App.js',
+    'https://rbenet71.github.io/Web/Ciclismo/Dashcam/Dashcam_manifest.json',
+    'https://rbenet71.github.io/Web/Ciclismo/Dashcam/Dashcam_ayuda_completa.html',
     'https://rbenet71.github.io/Web/Ciclismo/Dashcam/recursos/Logo_Dashcam_Bike_192x192.png',
     'https://rbenet71.github.io/Web/Ciclismo/Dashcam/recursos/Picto_Color_192x192.png',
     'https://rbenet71.github.io/Web/Ciclismo/Dashcam/recursos/Picto_Color_512x512.png'
@@ -311,7 +311,7 @@ async function getFallbackPage(appName) {
     'solitario': 'https://rbenet71.github.io/Web/Entretenimiento/Solitario/Solitario.html', 
     'sudoku': 'https://rbenet71.github.io/Web/Entretenimiento/Sudoku/Sudoku.html', 
     'tetris': 'https://rbenet71.github.io/Web/Entretenimiento/Tetris/Tetris.html', 
-    'dashcam': 'https://rbenet71.github.io/Web/Ciclismo/Dashcam/index.html', 
+    'dashcam': 'https://rbenet71.github.io/Web/Ciclismo/Dashcam/Dashcam.html', 
     'index': 'https://rbenet71.github.io/Web/index.html'
   };
   

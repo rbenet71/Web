@@ -1,13 +1,13 @@
 ¡Tienes toda la razón! Me he centrado solo en actualizar con la Parte 5, pero falta reflejar toda la información de las Partes 1, 2, 3 y 4. Voy a crear un **documento completo integrando TODAS las partes**. Dame unos minutos para estructurarlo todo correctamente.
 
-# 🗂️ ÍNDICE COMPLETO DE FUNCIONALIDADES - app.js (ESTADO REAL v4.14.1)
+# 🗂️ ÍNDICE COMPLETO DE FUNCIONALIDADES - Dashcam_App.js (ESTADO REAL v4.14.1)
 
 **Basado en análisis completo de: Partes 1, 2, 3, 4 y 5 (~5000+ líneas revisadas)**
 
 ## 📋 ESTRUCTURA COMPLETA DE LA APLICACIÓN
 
 ```
-app.js (análisis: 5/5 partes completadas)
+Dashcam_App.js (análisis: 5/5 partes completadas)
 ├── CLASE DashcamApp
 │   ├── 🏗️  CONSTRUCTOR + PROPIEDADES (PARTE 1)
 │   ├── 🔄  MÉTODOS DE INICIALIZACIÓN (PARTE 1)
@@ -738,7 +738,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // ✅ REGISTRO SERVICE WORKER
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('service-worker.js')
+        navigator.serviceWorker.register('Dashcam_service-worker.js')
             .then(registration => {
                 console.log('✅ Service Worker registrado:', registration.scope);
             })

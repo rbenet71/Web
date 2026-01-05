@@ -2,7 +2,7 @@
   "name": "Dashcam iPhone Pro",
   "short_name": "Dashcam Pro",
   "description": "Grabación avanzada de video MP4 con datos GPS y GPX",
-  "start_url": "/Web/Ciclismo/Dashcam/index.html",
+  "start_url": "/Web/Ciclismo/Dashcam/Dashcam.html",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#000000",
@@ -36,14 +36,14 @@
       "name": "Iniciar grabación",
       "short_name": "Grabar",
       "description": "Inicia una nueva grabación",
-      "url": "/Web/Ciclismo/Dashcam/index.html?action=record",
+      "url": "/Web/Ciclismo/Dashcam/Dashcam.html?action=record",
       "icons": [{ "src": "recursos/record-icon.png", "sizes": "96x96" }]
     },
     {
       "name": "Ver galería",
       "short_name": "Galería",
       "description": "Ver videos grabados",
-      "url": "/Web/Ciclismo/Dashcam/index.html?action=gallery",
+      "url": "/Web/Ciclismo/Dashcam/Dashcam.html?action=gallery",
       "icons": [{ "src": "recursos/gallery-icon.png", "sizes": "96x96" }]
     }
   ],

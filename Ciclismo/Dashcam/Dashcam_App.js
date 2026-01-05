@@ -507,7 +507,7 @@ class DashcamApp {
 
     openHelp() {
         // Abrir el archivo HTML en una nueva pestaña
-        window.open('ayuda_completa.html', '_blank', 
+        window.open('Dashcam_ayuda_completa.html', '_blank', 
             'width=800,height=600,scrollbars=yes,resizable=yes');
     }
 
@@ -14118,7 +14118,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.dashcamApp = new DashcamApp();
     
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-        navigator.serviceWorker.register('service-worker.js')
+        navigator.serviceWorker.register('Dashcam_service-worker.js')
             .then(registration => {
                 console.log('✅ Service Worker registrado:', registration.scope);
             })

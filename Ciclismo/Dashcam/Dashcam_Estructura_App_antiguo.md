@@ -1,19 +1,19 @@
 Perfecto. Aquí está la **nueva versión completa del archivo Estructura_App.md** con todos los cambios incorporados:
 
 ```markdown
-# 🗂️ **ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js** (ACTUALIZADO v4.13)
+# 🗂️ **ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - Dashcam_App.js** (ACTUALIZADO v4.13)
 
 Con las mejoras implementadas para la funcionalidad realista de iOS Safari, el nuevo sistema de nombres estandarizado, la corrección de exportación individual, la optimización de `updateFolderUI()`, la SOLUCIÓN COMPLETA PARA VLC EN iOS con conversión WebM→MP4 y mantenimiento de sesiones, y ahora la **GESTIÓN COMPLETA DE GPX CON ELIMINACIÓN Y NOMBRES DE SESIÓN**, aquí está el archivo **Estructura_App.md** completamente actualizado:
 
 ```markdown
-# 🗂️ ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - app.js (ACTUALIZADO v4.13)
+# 🗂️ ÍNDICE COMPLETO DE FUNCIONALIDADES POR MÓDULO - Dashcam_App.js (ACTUALIZADO v4.13)
 
 Basándome en las limitaciones reales de iOS Safari, el flujo de trabajo implementado, el nuevo sistema de nombres estandarizado, las correcciones de exportación, la optimización de interfaz, la SOLUCIÓN DEFINITIVA para compatibilidad VLC en iOS con mantenimiento de sesiones, y ahora la **GESTIÓN COMPLETA DE GPX CON ELIMINACIÓN Y NOMBRES DE SESIÓN**, he actualizado completamente el archivo Estructura_App.md:
 
-## 📋 ESTRUCTURA GENERAL DE app.js
+## 📋 ESTRUCTURA GENERAL DE Dashcam_App.js
 
 ```
-app.js (~8850 líneas)
+Dashcam_App.js (~8850 líneas)
 ├── CLASE DashcamApp
 │   ├── CONSTRUCTOR + PROPIEDADES (ACTUALIZADO CON REALIDAD iOS + VLC)
 │   ├── MÉTODOS DE INICIALIZACIÓN (init, initUI, etc.)
@@ -1908,7 +1908,7 @@ async saveVLCCompatible(blob, filename, sessionName) {
 - **Funciones específicas GPX mejoradas:** 3 (`renderGPXList`, `setupGPXEventListeners`, nueva `deleteGPX`)
 - **Nuevas funciones añadidas:** 1 (`deleteGPX`)
 - **Funciones modificadas:** 2 (`renderGPXList`, `setupGPXEventListeners`)
-- **Líneas totales estimadas en app.js:** ~8850 (+50 desde v4.12)
+- **Líneas totales estimadas en Dashcam_App.js:** ~8850 (+50 desde v4.12)
 - **Código específico GPX mejorado:** ~120 líneas adicionales/modificadas
 
 ## 🎯 CÓMO USAR LAS NUEVAS FUNCIONALIDADES GPX EN v4.13
