@@ -84,14 +84,7 @@ class VideoGestUI {
         
         // Verificar que todos los elementos esenciales existan
         this.checkRequiredElements();
-
-        // Inicializar campos de tiempo inteligentes
-        this.initTimeInputs();
-        
-        // Añadir botones de ajuste de tiempo
-        setTimeout(() => {
-            this.addTimeButtons();
-        }, 100);
+    
     }
 
     

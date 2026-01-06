@@ -287,14 +287,18 @@
                     <button id="get-duration-btn" class="btn-secondary" style="margin-left: 10px; padding: 4px 8px; font-size: 0.9rem;" data-i18n="getDuration">Obtener Duración</button>
                 </div>
 
-                <div class="form-group">
-                    <label for="start-time" data-translate="startTime">Tiempo de inicio</label>
-                    <input type="text" id="start-time" class="form-control" placeholder="HH:MM:SS" value="00:00:00">
-                </div>
-                
-                <div class="form-group">
-                    <label for="end-time" data-translate="endTime">Tiempo final (opcional)</label>
-                    <input type="text" id="end-time" class="form-control" placeholder="HH:MM:SS (dejar vacío para fin del video)">
+                    <div class="form-group">
+                        <label for="start-time" data-translate="startTime">Tiempo de inicio</label>
+                        <input type="text" id="start-time" class="form-control" 
+                            placeholder="HH:MM:SS (ej: 0:0:0 o 00:00:00)" 
+                            value="00:00:00">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="end-time" data-translate="endTime">Tiempo final (opcional)</label>
+                        <input type="text" id="end-time" class="form-control" 
+                            placeholder="HH:MM:SS o vacío para fin del video">
+                    </div>
 
                 <div class="button-group">
                     <button id="execute-cut" class="btn-primary" data-i18n="convert">Convertir</button>
