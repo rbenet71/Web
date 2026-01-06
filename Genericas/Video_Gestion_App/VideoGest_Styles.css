@@ -1,4 +1,4 @@
-/* Variables CSS */
+/* VideoGest_Styles.css - VERSIÓN SIN BARRA DE PROGRESO */
 :root {
     --primary-color: #2196f3;
     --secondary-color: #f5f5f5;
@@ -65,7 +65,7 @@ header {
     gap: 10px;
 }
 
-/* Selector de idiomas - ya definido en el HTML */
+/* Selector de idiomas */
 .language-selector {
     display: flex;
     gap: 6px;
@@ -376,33 +376,6 @@ footer {
     margin: 1rem 0;
     overflow-x: auto;
     white-space: pre-wrap;
-}
-
-/* Progreso */
-.progress-container {
-    margin: 2rem 0;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 20px;
-    background-color: var(--secondary-color);
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 1rem;
-}
-
-.progress-fill {
-    height: 100%;
-    background-color: var(--primary-color);
-    width: 0%;
-    transition: width 0.3s ease;
-}
-
-.progress-text {
-    text-align: center;
-    color: var(--text-color);
-    font-weight: 500;
 }
 
 /* Modal de ayuda */
@@ -839,4 +812,350 @@ footer {
 
 .btn-install:disabled .install-icon {
     transform: none;
+}
+
+/* ============================================
+   ESTILOS PARA CAMPOS DE TIEMPO Y FORMATOS
+   ============================================ */
+
+/* Campos de tiempo */
+.time-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.time-input {
+    width: 100px;
+    text-align: center;
+    font-family: monospace;
+}
+
+.time-hint {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 4px;
+}
+
+.duration-info {
+    background-color: #f0f8ff;
+    border-left: 3px solid #2196f3;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 0 4px 4px 0;
+}
+
+/* Selector de formatos */
+.format-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.format-option {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.format-option:hover {
+    background-color: #f5f5f5;
+    border-color: #2196f3;
+}
+
+.format-option.selected {
+    background-color: #e3f2fd;
+    border-color: #2196f3;
+    font-weight: bold;
+}
+
+.format-description {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 4px;
+}
+
+        /* Estilos para información de duración */
+        .duration-detected {
+            color: #2196f3;
+            font-weight: bold;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .duration-analyzing {
+            color: #666;
+            font-style: italic;
+        }
+        
+        .duration-error {
+            color: #f44336;
+            font-style: italic;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Mejorar el botón de obtener duración */
+        #get-duration-btn {
+            transition: all 0.3s ease;
+            min-width: 140px;
+        }
+        
+        #get-duration-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        #get-duration-btn:hover:not(:disabled) {
+            background-color: #e0e0e0;
+            transform: translateY(-1px);
+        }
+        
+        /* Tooltip para duración */
+        #video-duration[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            z-index: 1000;
+            margin-top: 5px;
+            transform: translateX(-50%);
+            left: 50%;
+        }
+
+
+        /* ============================================
+   ESTILOS PARA CAMPOS DE TIEMPO INTELIGENTES
+   ============================================ */
+
+/* Campo de tiempo enfocado */
+.time-input.time-focused {
+    border-color: #2196f3;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+    background-color: #fff;
+}
+
+/* Contenedor para campos de tiempo con botones */
+.time-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Botones de ajuste de tiempo */
+.time-buttons {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.time-btn {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    border: 1px solid #ddd;
+    background-color: #f5f5f5;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 40px;
+}
+
+.time-btn:hover {
+    background-color: #e0e0e0;
+    border-color: #2196f3;
+}
+
+.time-btn:active {
+    transform: scale(0.95);
+}
+
+/* Indicador visual de sección activa */
+.time-input::selection {
+    background-color: #2196f3;
+    color: white;
+}
+
+/* Placeholder para campos vacíos */
+.time-input:not(:focus):placeholder-shown {
+    color: #999;
+    font-style: italic;
+}
+
+/* Ayuda visual para el formato */
+.time-format-hint {
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 2px;
+    font-family: monospace;
+}
+
+/* Indicador de que el campo es editable */
+.time-input {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+}
+
+/* Para campos con duración detectada */
+.time-input.has-duration {
+    border-color: #4caf50;
+    background-color: #f9f9f9;
+}
+
+/* Indicador de posición del cursor */
+.cursor-guide {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #2196f3;
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+/* ============================================
+   MEJORAS PARA EL PANEL DE CORTAR
+   ============================================ */
+
+/* Grupo de tiempo mejorado */
+.time-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.time-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.time-field label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.time-field label .time-icon {
+    color: #2196f3;
+    font-size: 1.1rem;
+}
+
+/* Flechas de incremento/decremento integradas */
+.time-input-with-arrows {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.time-arrow-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ddd;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+}
+
+.time-arrow-btn:hover {
+    background-color: #e0e0e0;
+    border-color: #2196f3;
+}
+
+.time-arrow-btn:active {
+    transform: scale(0.9);
+}
+
+/* Preview de tiempo total */
+.time-preview {
+    margin-top: 10px;
+    padding: 8px;
+    background-color: #f0f8ff;
+    border-radius: 4px;
+    border-left: 3px solid #2196f3;
+}
+
+.time-preview .label {
+    font-weight: 600;
+    color: #2196f3;
+    margin-right: 5px;
+}
+
+.time-preview .value {
+    font-family: monospace;
+    font-weight: bold;
+}
+
+/* Estilo para tiempo inválido */
+.time-input.invalid {
+    border-color: #f44336;
+    background-color: #fff5f5;
+}
+
+.time-input.invalid:focus {
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2);
+}
+
+/* Indicador de duración restante */
+.time-remaining {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 3px;
+}
+
+.time-remaining.positive {
+    color: #4caf50;
+}
+
+.time-remaining.negative {
+    color: #f44336;
+}
+
+/* ============================================
+   RESPONSIVE PARA CAMPOS DE TIEMPO
+   ============================================ */
+
+@media (max-width: 480px) {
+    .time-input-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .time-buttons {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .time-btn {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .time-arrow-btn {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .time-input {
+        font-size: 1rem;
+    }
 }

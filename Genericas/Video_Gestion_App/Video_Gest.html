@@ -128,6 +128,66 @@
             background-color: #3498db;
             color: white;
         }
+        
+        /* Estilos adicionales para campos de tiempo */
+        .time-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .time-input {
+            width: 100px;
+            text-align: center;
+            font-family: monospace;
+        }
+        
+        .time-hint {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .duration-info {
+            background-color: #f0f8ff;
+            border-left: 3px solid #2196f3;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .format-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .format-option {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .format-option:hover {
+            background-color: #f5f5f5;
+            border-color: #2196f3;
+        }
+        
+        .format-option.selected {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+            font-weight: bold;
+        }
+        
+        .format-description {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
@@ -187,14 +247,14 @@
                 </div>
             </div>
 
-            <!-- Panel de reducción de tamaño -->
+            <!-- ========== PANEL DE REDUCCIÓN DE TAMAÑO (EXISTENTE) ========== -->
             <div id="reduce-panel" class="panel operation-panel" style="display:none;">
                 <h2 data-i18n="reduceVideoSize">Reducir Tamaño de Video</h2>
                 
                 <div class="form-group">
-                    <label for="input-file" data-i18n="selectVideo">Seleccionar Video:</label>
-                    <input type="file" id="input-file" accept="video/*" class="file-input">
-                    <div id="file-info" class="file-info"></div>
+                    <label for="input-file-reduce" data-i18n="selectVideo">Seleccionar Video:</label>
+                    <input type="file" id="input-file-reduce" accept="video/*" class="file-input">
+                    <div id="file-info-reduce" class="file-info"></div>
                 </div>
 
                 <div class="form-group">
@@ -212,7 +272,103 @@
                 </div>
             </div>
 
-            <!-- Panel de instrucciones FFMPEG -->
+            <!-- ========== PANEL DE CORTAR VIDEO (NUEVO) ========== -->
+            <div id="cut-panel" class="panel operation-panel" style="display:none;">
+                <h2 data-i18n="cutVideoTitle">Cortar Video</h2>
+                
+                <div class="form-group">
+                    <label for="input-file-cut" data-i18n="selectVideo">Seleccionar Video:</label>
+                    <input type="file" id="input-file-cut" accept="video/*" class="file-input">
+                    <div id="file-info-cut" class="file-info"></div>
+                </div>
+
+                <div class="duration-info" id="duration-info-cut" style="display:none;">
+                    <span data-i18n="duration">Duración:</span> <span id="video-duration">00:00:00</span>
+                    <button id="get-duration-btn" class="btn-secondary" style="margin-left: 10px; padding: 4px 8px; font-size: 0.9rem;" data-i18n="getDuration">Obtener Duración</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="start-time" data-translate="startTime">Tiempo de inicio</label>
+                    <input type="text" id="start-time" class="form-control" placeholder="HH:MM:SS" value="00:00:00">
+                </div>
+                
+                <div class="form-group">
+                    <label for="end-time" data-translate="endTime">Tiempo final (opcional)</label>
+                    <input type="text" id="end-time" class="form-control" placeholder="HH:MM:SS (dejar vacío para fin del video)">
+
+                <div class="button-group">
+                    <button id="execute-cut" class="btn-primary" data-i18n="convert">Convertir</button>
+                    <button class="btn-secondary back-btn" data-i18n="back">Volver</button>
+                </div>
+            </div>
+
+            <!-- ========== PANEL DE CONVERTIR VIDEO (NUEVO) ========== -->
+            <div id="convert-panel" class="panel operation-panel" style="display:none;">
+                <h2 data-i18n="convertVideoTitle">Convertir Formato de Video</h2>
+                
+                <div class="form-group">
+                    <label for="input-file-convert" data-i18n="selectVideo">Seleccionar Video:</label>
+                    <input type="file" id="input-file-convert" accept="video/*" class="file-input">
+                    <div id="file-info-convert" class="file-info"></div>
+                </div>
+
+                <div class="form-group">
+                    <label data-i18n="selectFormat">Seleccionar Formato:</label>
+                    <div class="format-grid" id="format-selector">
+                        <!-- Los formatos se cargarán dinámicamente -->
+                    </div>
+                    <div class="time-hint" data-i18n="supportedFormats">Formatos soportados: MP4, MOV, AVI, MKV, WebM, FLV, WMV, M4V, MPG, MPEG</div>
+                </div>
+
+                <div class="form-group">
+                    <label data-i18n="outputDirectory">Directorio Destino:</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" id="output-directory" class="form-control" placeholder="" readonly style="flex: 1;">
+                        <button id="browse-directory-btn" class="btn-secondary" style="padding: 8px 12px;" data-i18n="browseDirectory">Buscar...</button>
+                    </div>
+                    <div class="time-hint" data-i18n="sameDirectory">Por defecto: misma carpeta que el archivo original</div>
+                </div>
+
+                <div class="button-group">
+                    <button id="execute-convert" class="btn-primary" data-i18n="convert">Convertir</button>
+                    <button class="btn-secondary back-btn" data-i18n="back">Volver</button>
+                </div>
+            </div>
+
+            <!-- ========== PANEL DE REVERTIR VIDEO (NUEVO) ========== -->
+            <div id="reverse-panel" class="panel operation-panel" style="display:none;">
+                <h2 data-i18n="reverseVideoTitle">Revertir Video</h2>
+                
+                <div class="form-group">
+                    <p class="note" data-i18n="reverseDescription">El video se reproducirá en reversa (el final será el principio).</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="input-file-reverse" data-i18n="selectVideo">Seleccionar Video:</label>
+                    <input type="file" id="input-file-reverse" accept="video/*" class="file-input">
+                    <div id="file-info-reverse" class="file-info"></div>
+                </div>
+
+                <div class="form-group">
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="preserve-metadata" checked>
+                            <span data-i18n="preserveMetadata">Preservar metadatos (incluyendo GPS)</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="include-audio" checked>
+                            <span data-i18n="includeAudio">Incluir audio revertido</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="execute-reverse" class="btn-primary" data-i18n="convert">Convertir</button>
+                    <button class="btn-secondary back-btn" data-i18n="back">Volver</button>
+                </div>
+            </div>
+
+            <!-- ========== PANEL DE INSTRUCCIONES FFMPEG (COMPARTIDO) ========== -->
             <div id="ffmpeg-panel" class="panel instruction-panel" style="display:none;">
                 <h2 data-i18n="ffmpegInstructions">Instrucciones FFMPEG</h2>
                 
@@ -232,17 +388,6 @@
                     <button class="btn-secondary back-btn" data-i18n="back">Volver</button>
                 </div>
             </div>
-
-            <!-- Panel de progreso -->
-            <div id="progress-panel" class="panel" style="display:none;">
-                <h2 data-i18n="processing">Procesando...</h2>
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div id="progress-fill" class="progress-fill"></div>
-                    </div>
-                    <div id="progress-text" class="progress-text" data-i18n="preparing">Preparando...</div>
-                </div>
-            </div>
         </div>
     </main>
 
@@ -255,9 +400,9 @@
                 <p><strong>Funciones disponibles:</strong></p>
                 <ul>
                     <li>Reducir tamaño del vídeo</li>
-                    <li>Cortar vídeo</li>
-                    <li>Convertir formato</li>
-                    <li>Revertir vídeo</li>
+                    <li>Cortar vídeo (extraer fragmento)</li>
+                    <li>Convertir formato (MP4, MOV, AVI, etc.)</li>
+                    <li>Revertir vídeo (playback inverso)</li>
                     <li>Convertir a JPG</li>
                     <li>Unir vídeos</li>
                 </ul>
@@ -266,7 +411,7 @@
                     <li>Selecciona la operación que deseas realizar</li>
                     <li>Selecciona el archivo de video</li>
                     <li>Configura los parámetros necesarios</li>
-                    <li>Haz clic en "Ejecutar"</li>
+                    <li>Haz clic en "Ejecutar" o "Convertir"</li>
                     <li>Sigue las instrucciones que aparecerán en pantalla</li>
                 </ol>
                 <p class="note"><strong>Nota:</strong> Para funcionar correctamente, necesitas tener permiso para ejecutar comandos FFMPEG en tu sistema.</p>
@@ -282,7 +427,7 @@
             <div class="copyright">
                 <span id="copyright-text">2026 © Copyright</span>
                 <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                    Roberto Benet - rbenet71@gmail.com - Ver: 1.0.3
+                    Roberto Benet - rbenet71@gmail.com - Ver: 1.0.4
                 </a>
             </div>
         </div>

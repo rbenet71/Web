@@ -1,4 +1,4 @@
-// VideoGest_Translations.js
+// VideoGest_Translations.js - VERSIÓN COMPLETA MODIFICADA
 class VideoGestTranslations {
     constructor() {
         this.translations = {
@@ -11,10 +11,12 @@ class VideoGestTranslations {
                 "back": "Volver",
                 "cancel": "Cancelar",
                 "execute": "Ejecutar",
+                "convert": "Convertir",
                 "continue": "Continuar",
                 "processing": "Procesando...",
                 "preparing": "Preparando...",
                 "selectOperation": "Seleccionar Operación",
+                "installApp": "Instalar App",
                 
                 // Operaciones
                 "reduceSize": "Reducir Tamaño",
@@ -24,15 +26,58 @@ class VideoGestTranslations {
                 "convertToJPG": "Convertir a JPG",
                 "mergeVideos": "Unir Videos",
                 
-                // Reducción de tamaño
+                // Títulos de paneles
                 "reduceVideoSize": "Reducir Tamaño de Video",
+                "cutVideoTitle": "Cortar Video",
+                "convertVideoTitle": "Convertir Formato de Video",
+                "reverseVideoTitle": "Revertir Video",
+                
+                // Campos comunes
                 "selectVideo": "Seleccionar Video:",
                 "quality": "Calidad:",
+                "outputFormat": "Formato de Salida:",
+                "keepBackup": "Mantener copia del original",
+                "fileSelected": "Archivo seleccionado:",
+                
+                // Reducción de tamaño
+                "pcQuality": "Calidad PC",
+                "tabletQuality": "Calidad Tablet", 
+                "mobileQuality": "Calidad Móvil",
                 "highQuality": "Alta (reducción mínima)",
                 "mediumQuality": "Media (reducción equilibrada)",
                 "lowQuality": "Baja (máxima reducción)",
-                "outputFormat": "Formato de Salida:",
-                "keepBackup": "Mantener copia del original",
+                
+                // Cortar video
+                "startTime": "Tiempo Inicio:",
+                "endTime": "Tiempo Final:",
+                "duration": "Duración:",
+                "timeFormat": "Formato HH:MM:SS",
+                "timeExample": "Ejemplo: 00:01:30",
+                "getDuration": "Obtener Duración",
+                "fullVideo": "Video completo",
+                "cutSettings": "Configuración de Corte",
+                
+                // Convertir video
+                "selectFormat": "Seleccionar Formato:",
+                "outputDirectory": "Directorio Destino:",
+                "sameDirectory": "Misma carpeta que original",
+                "browseDirectory": "Buscar carpeta...",
+                "supportedFormats": "Formatos soportados:",
+                "formatMP4": "MP4 - Formato estándar",
+                "formatMOV": "MOV - Formato Apple",
+                "formatAVI": "AVI - Formato contenedor",
+                "formatMKV": "MKV - Formato abierto",
+                "formatWEBM": "WebM - Para web",
+                "formatFLV": "FLV - Flash Video",
+                "formatWMV": "WMV - Windows Media",
+                "formatM4V": "M4V - iTunes",
+                "formatMPG": "MPG - MPEG",
+                "formatMPEG": "MPEG - MPEG",
+                
+                // Revertir video
+                "reverseDescription": "El video se reproducirá en reversa",
+                "preserveMetadata": "Preservar metadatos",
+                "includeAudio": "Incluir audio",
                 
                 // Instrucciones FFMPEG
                 "ffmpegInstructions": "Instrucciones FFMPEG",
@@ -53,9 +98,9 @@ class VideoGestTranslations {
                     <p><strong>Funciones disponibles:</strong></p>
                     <ul>
                         <li>Reducir tamaño del vídeo</li>
-                        <li>Cortar vídeo</li>
-                        <li>Convertir formato</li>
-                        <li>Revertir vídeo</li>
+                        <li>Cortar vídeo (extraer fragmento)</li>
+                        <li>Convertir formato (MP4, MOV, AVI, etc.)</li>
+                        <li>Revertir vídeo (playback inverso)</li>
                         <li>Convertir a JPG</li>
                         <li>Unir vídeos</li>
                     </ul>
@@ -79,7 +124,6 @@ class VideoGestTranslations {
                 `,
                 
                 // Mensajes
-                "fileSelected": "Archivo seleccionado:",
                 "selectFileFirst": "Por favor, seleccione un archivo primero",
                 "commandCopied": "Comando copiado al portapapeles",
                 "operationCompleted": "Operación completada exitosamente",
@@ -92,14 +136,32 @@ class VideoGestTranslations {
                 "pasteCommand": "Pegue el comando (Ctrl+V)",
                 "executeCommand": "Ejecute el comando (Enter)",
                 "fullCommandCopied": "Comando completo copiado (incluye cd)",
-                "pcQuality": "Calidad PC",
-                "tabletQuality": "Calidad Tablet", 
-                "mobileQuality": "Calidad Móvil",
                 "commandAutoCopied": "Comando copiado automáticamente",
                 "readyToPaste": "El comando ya está en su portapapeles",
                 "justOpenCmdAndPaste": "Solo abra CMD y pegue (Ctrl+V)",
-                'installApp': 'Instalar App',  // Español
+                
+                // Validaciones
+                "invalidTimeFormat": "Formato de tiempo inválido. Use HH:MM:SS",
+                "startAfterEnd": "El tiempo de inicio debe ser anterior al tiempo final",
+                "invalidDuration": "Duración inválida",
+                "selectFormatFirst": "Por favor, seleccione un formato primero",
+                "processingVideo": "Procesando video...",
+                "estimatingTime": "Estimando tiempo de procesamiento...",
+                "preservingMetadata": "Preservando metadatos...",
+                "includingGPS": "Incluyendo datos GPS...",
+                
+                // Información de operación
+                "operationInfoCut": "Cortando video desde {start} hasta {end}",
+                "operationInfoConvert": "Convirtiendo a formato {format}",
+                "operationInfoReverse": "Revirtiendo video",
+                "outputFileWillBe": "El archivo de salida será:",
+                "originalPreserved": "El archivo original se preservará",
+                "metadataPreserved": "Metadatos (incluyendo GPS) preservados",
 
+                "analyzing": "Analizando...",
+                "durationDetected": "Duración detectada",
+                "analysisFailed": "Análisis falló",
+                
             },
             ca: {
                 // General
@@ -110,10 +172,12 @@ class VideoGestTranslations {
                 "back": "Tornar",
                 "cancel": "Cancel·lar",
                 "execute": "Executar",
+                "convert": "Convertir",
                 "continue": "Continuar",
                 "processing": "Processant...",
                 "preparing": "Preparant...",
                 "selectOperation": "Seleccionar Operació",
+                "installApp": "Instal·lar App",
                 
                 // Operaciones
                 "reduceSize": "Reduir Mida",
@@ -123,15 +187,58 @@ class VideoGestTranslations {
                 "convertToJPG": "Convertir a JPG",
                 "mergeVideos": "Unir Videos",
                 
-                // Reducción de tamaño
+                // Títulos de paneles
                 "reduceVideoSize": "Reduir Mida del Video",
+                "cutVideoTitle": "Tallar Video",
+                "convertVideoTitle": "Convertir Format de Video",
+                "reverseVideoTitle": "Revertir Video",
+                
+                // Campos comunes
                 "selectVideo": "Seleccionar Video:",
                 "quality": "Qualitat:",
+                "outputFormat": "Format de Sortida:",
+                "keepBackup": "Mantenir còpia de l'original",
+                "fileSelected": "Arxiu seleccionat:",
+                
+                // Reducción de tamaño
+                "pcQuality": "Qualitat PC",
+                "tabletQuality": "Qualitat Tablet", 
+                "mobileQuality": "Qualitat Mòbil",
                 "highQuality": "Alta (reducció mínima)",
                 "mediumQuality": "Mitjana (reducció equilibrada)",
                 "lowQuality": "Baixa (màxima reducció)",
-                "outputFormat": "Format de Sortida:",
-                "keepBackup": "Mantenir còpia de l'original",
+                
+                // Cortar video
+                "startTime": "Temps Inici:",
+                "endTime": "Temps Final:",
+                "duration": "Durada:",
+                "timeFormat": "Format HH:MM:SS",
+                "timeExample": "Exemple: 00:01:30",
+                "getDuration": "Obtenir Durada",
+                "fullVideo": "Vídeo complet",
+                "cutSettings": "Configuració de Tall",
+                
+                // Convertir video
+                "selectFormat": "Seleccionar Format:",
+                "outputDirectory": "Directori Destí:",
+                "sameDirectory": "Mateixa carpeta que original",
+                "browseDirectory": "Buscar carpeta...",
+                "supportedFormats": "Formats suportats:",
+                "formatMP4": "MP4 - Format estàndard",
+                "formatMOV": "MOV - Format Apple",
+                "formatAVI": "AVI - Format contenidor",
+                "formatMKV": "MKV - Format obert",
+                "formatWEBM": "WebM - Per web",
+                "formatFLV": "FLV - Flash Video",
+                "formatWMV": "WMV - Windows Media",
+                "formatM4V": "M4V - iTunes",
+                "formatMPG": "MPG - MPEG",
+                "formatMPEG": "MPEG - MPEG",
+                
+                // Revertir video
+                "reverseDescription": "El vídeo es reproduirà al revés",
+                "preserveMetadata": "Preservar metadades",
+                "includeAudio": "Incloure àudio",
                 
                 // Instrucciones FFMPEG
                 "ffmpegInstructions": "Instruccions FFMPEG",
@@ -152,9 +259,9 @@ class VideoGestTranslations {
                     <p><strong>Funcions disponibles:</strong></p>
                     <ul>
                         <li>Reduir mida del vídeo</li>
-                        <li>Tallar vídeo</li>
-                        <li>Convertir format</li>
-                        <li>Revertir vídeo</li>
+                        <li>Tallar vídeo (extraure fragment)</li>
+                        <li>Convertir format (MP4, MOV, AVI, etc.)</li>
+                        <li>Revertir vídeo (reproducció inversa)</li>
                         <li>Convertir a JPG</li>
                         <li>Unir vídeos</li>
                     </ul>
@@ -178,7 +285,6 @@ class VideoGestTranslations {
                 `,
                 
                 // Mensajes
-                "fileSelected": "Arxiu seleccionat:",
                 "selectFileFirst": "Si us plau, seleccioni un arxiu primer",
                 "commandCopied": "Comanda copiada al porta-retalls",
                 "operationCompleted": "Operació completada amb èxit",
@@ -191,13 +297,32 @@ class VideoGestTranslations {
                 "pasteCommand": "Enganxi la comanda (Ctrl+V)",
                 "executeCommand": "Executi la comanda (Enter)",
                 "fullCommandCopied": "Comanda completa copiada (inclou cd)",
-                "pcQuality": "Qualitat PC",
-                "tabletQuality": "Qualitat Tablet", 
-                "mobileQuality": "Qualitat Móvil",
                 "commandAutoCopied": "Comando copiado automáticamente",
                 "readyToPaste": "El comando ya está en su portapapeles",
-                "justOpenCmdAndPaste": "Solo abra CMD y pegue (Ctrl+V)",// Para catalán:
-                'installApp': 'Instal·lar App',
+                "justOpenCmdAndPaste": "Solo abra CMD y pegue (Ctrl+V)",
+                
+                // Validaciones
+                "invalidTimeFormat": "Format de temps invàlid. Utilitzi HH:MM:SS",
+                "startAfterEnd": "El temps d'inici ha de ser anterior al temps final",
+                "invalidDuration": "Durada invàlida",
+                "selectFormatFirst": "Si us plau, seleccioni un format primer",
+                "processingVideo": "Processant vídeo...",
+                "estimatingTime": "Estimant temps de processament...",
+                "preservingMetadata": "Preservant metadades...",
+                "includingGPS": "Incloent dades GPS...",
+                
+                // Información de operación
+                "operationInfoCut": "Tallant vídeo des de {start} fins a {end}",
+                "operationInfoConvert": "Convertint a format {format}",
+                "operationInfoReverse": "Revertint vídeo",
+                "outputFileWillBe": "L'arxiu de sortida serà:",
+                "originalPreserved": "L'arxiu original es preservarà",
+                "metadataPreserved": "Metadades (incloent GPS) preservades",
+
+                
+                "analyzing": "Analizando...",
+                "durationDetected": "Duración detectada",
+                "analysisFailed": "Análisis falló",
 
             },
             en: {
@@ -209,10 +334,12 @@ class VideoGestTranslations {
                 "back": "Back",
                 "cancel": "Cancel",
                 "execute": "Execute",
+                "convert": "Convert",
                 "continue": "Continue",
                 "processing": "Processing...",
                 "preparing": "Preparing...",
                 "selectOperation": "Select Operation",
+                "installApp": "Install App",
                 
                 // Operations
                 "reduceSize": "Reduce Size",
@@ -222,15 +349,58 @@ class VideoGestTranslations {
                 "convertToJPG": "Convert to JPG",
                 "mergeVideos": "Merge Videos",
                 
-                // Size reduction
+                // Panel titles
                 "reduceVideoSize": "Reduce Video Size",
+                "cutVideoTitle": "Cut Video",
+                "convertVideoTitle": "Convert Video Format",
+                "reverseVideoTitle": "Reverse Video",
+                
+                // Common fields
                 "selectVideo": "Select Video:",
                 "quality": "Quality:",
+                "outputFormat": "Output Format:",
+                "keepBackup": "Keep original backup",
+                "fileSelected": "File selected:",
+                
+                // Size reduction
+                "pcQuality": "PC Quality",
+                "tabletQuality": "Tablet Quality", 
+                "mobileQuality": "Mobile Quality",
                 "highQuality": "High (minimum reduction)",
                 "mediumQuality": "Medium (balanced reduction)",
                 "lowQuality": "Low (maximum reduction)",
-                "outputFormat": "Output Format:",
-                "keepBackup": "Keep original backup",
+                
+                // Cut video
+                "startTime": "Start Time:",
+                "endTime": "End Time:",
+                "duration": "Duration:",
+                "timeFormat": "Format HH:MM:SS",
+                "timeExample": "Example: 00:01:30",
+                "getDuration": "Get Duration",
+                "fullVideo": "Full video",
+                "cutSettings": "Cut Settings",
+                
+                // Convert video
+                "selectFormat": "Select Format:",
+                "outputDirectory": "Output Directory:",
+                "sameDirectory": "Same folder as original",
+                "browseDirectory": "Browse folder...",
+                "supportedFormats": "Supported formats:",
+                "formatMP4": "MP4 - Standard format",
+                "formatMOV": "MOV - Apple format",
+                "formatAVI": "AVI - Container format",
+                "formatMKV": "MKV - Open format",
+                "formatWEBM": "WebM - For web",
+                "formatFLV": "FLV - Flash Video",
+                "formatWMV": "WMV - Windows Media",
+                "formatM4V": "M4V - iTunes",
+                "formatMPG": "MPG - MPEG",
+                "formatMPEG": "MPEG - MPEG",
+                
+                // Reverse video
+                "reverseDescription": "The video will play in reverse",
+                "preserveMetadata": "Preserve metadata",
+                "includeAudio": "Include audio",
                 
                 // FFMPEG Instructions
                 "ffmpegInstructions": "FFMPEG Instructions",
@@ -251,9 +421,9 @@ class VideoGestTranslations {
                     <p><strong>Available functions:</strong></p>
                     <ul>
                         <li>Reduce video size</li>
-                        <li>Cut video</li>
-                        <li>Convert format</li>
-                        <li>Reverse video</li>
+                        <li>Cut video (extract fragment)</li>
+                        <li>Convert format (MP4, MOV, AVI, etc.)</li>
+                        <li>Reverse video (reverse playback)</li>
                         <li>Convert to JPG</li>
                         <li>Merge videos</li>
                     </ul>
@@ -277,7 +447,6 @@ class VideoGestTranslations {
                 `,
                 
                 // Messages
-                "fileSelected": "File selected:",
                 "selectFileFirst": "Please select a file first",
                 "commandCopied": "Command copied to clipboard",
                 "operationCompleted": "Operation completed successfully",
@@ -290,14 +459,32 @@ class VideoGestTranslations {
                 "pasteCommand": "Paste the command (Ctrl+V)",
                 "executeCommand": "Execute the command (Enter)",
                 "fullCommandCopied": "Full command copied (includes cd)",
-                "pcQuality": "PC Quality",
-                "tabletQuality": "Tablet Quality", 
-                "mobileQuality": "Mobile Quality",
-                "commandAutoCopied": "Comando copiado automáticamente",
-                "readyToPaste": "El comando ya está en su portapapeles",
-                "justOpenCmdAndPaste": "Solo abra CMD y pegue (Ctrl+V)",
-                'installApp': 'Install App',
+                "commandAutoCopied": "Command automatically copied",
+                "readyToPaste": "The command is already in your clipboard",
+                "justOpenCmdAndPaste": "Just open CMD and paste (Ctrl+V)",
+                
+                // Validations
+                "invalidTimeFormat": "Invalid time format. Use HH:MM:SS",
+                "startAfterEnd": "Start time must be before end time",
+                "invalidDuration": "Invalid duration",
+                "selectFormatFirst": "Please select a format first",
+                "processingVideo": "Processing video...",
+                "estimatingTime": "Estimating processing time...",
+                "preservingMetadata": "Preserving metadata...",
+                "includingGPS": "Including GPS data...",
+                
+                // Operation information
+                "operationInfoCut": "Cutting video from {start} to {end}",
+                "operationInfoConvert": "Converting to {format} format",
+                "operationInfoReverse": "Reversing video",
+                "outputFileWillBe": "Output file will be:",
+                "originalPreserved": "Original file will be preserved",
+                "metadataPreserved": "Metadata (including GPS) preserved",
+                
 
+                "analyzing": "Analizando...",
+                "durationDetected": "Duración detectada",
+                "analysisFailed": "Análisis falló", 
             },
             fr: {
                 // General
@@ -308,10 +495,12 @@ class VideoGestTranslations {
                 "back": "Retour",
                 "cancel": "Annuler",
                 "execute": "Exécuter",
+                "convert": "Convertir",
                 "continue": "Continuer",
                 "processing": "Traitement...",
                 "preparing": "Préparation...",
                 "selectOperation": "Sélectionner l'Opération",
+                "installApp": "Installer App",
                 
                 // Opérations
                 "reduceSize": "Réduire la Taille",
@@ -321,15 +510,58 @@ class VideoGestTranslations {
                 "convertToJPG": "Convertir en JPG",
                 "mergeVideos": "Fusionner les Vidéos",
                 
-                // Réduction de taille
+                // Titres des panneaux
                 "reduceVideoSize": "Réduire la Taille de la Vidéo",
+                "cutVideoTitle": "Couper la Vidéo",
+                "convertVideoTitle": "Convertir le Format de Vidéo",
+                "reverseVideoTitle": "Inverser la Vidéo",
+                
+                // Champs communs
                 "selectVideo": "Sélectionner la Vidéo:",
                 "quality": "Qualité:",
+                "outputFormat": "Format de Sortie:",
+                "keepBackup": "Garder une copie de l'original",
+                "fileSelected": "Fichier sélectionné:",
+                
+                // Réduction de taille
+                "pcQuality": "Qualité PC",
+                "tabletQuality": "Qualité Tablet", 
+                "mobileQuality": "Qualité Mobile",
                 "highQuality": "Haute (réduction minimale)",
                 "mediumQuality": "Moyenne (réduction équilibrée)",
                 "lowQuality": "Basse (réduction maximale)",
-                "outputFormat": "Format de Sortie:",
-                "keepBackup": "Garder une copie de l'original",
+                
+                // Couper vidéo
+                "startTime": "Heure de Début:",
+                "endTime": "Heure de Fin:",
+                "duration": "Durée:",
+                "timeFormat": "Format HH:MM:SS",
+                "timeExample": "Exemple: 00:01:30",
+                "getDuration": "Obtenir la Durée",
+                "fullVideo": "Vidéo complète",
+                "cutSettings": "Paramètres de Coupe",
+                
+                // Convertir vidéo
+                "selectFormat": "Sélectionner le Format:",
+                "outputDirectory": "Répertoire de Destination:",
+                "sameDirectory": "Même dossier que l'original",
+                "browseDirectory": "Parcourir le dossier...",
+                "supportedFormats": "Formats supportés:",
+                "formatMP4": "MP4 - Format standard",
+                "formatMOV": "MOV - Format Apple",
+                "formatAVI": "AVI - Format conteneur",
+                "formatMKV": "MKV - Format ouvert",
+                "formatWEBM": "WebM - Pour le web",
+                "formatFLV": "FLV - Flash Video",
+                "formatWMV": "WMV - Windows Media",
+                "formatM4V": "M4V - iTunes",
+                "formatMPG": "MPG - MPEG",
+                "formatMPEG": "MPEG - MPEG",
+                
+                // Inverser vidéo
+                "reverseDescription": "La vidéo sera lue à l'envers",
+                "preserveMetadata": "Préserver les métadonnées",
+                "includeAudio": "Inclure l'audio",
                 
                 // Instructions FFMPEG
                 "ffmpegInstructions": "Instructions FFMPEG",
@@ -350,9 +582,9 @@ class VideoGestTranslations {
                     <p><strong>Fonctions disponibles:</strong></p>
                     <ul>
                         <li>Réduire la taille de la vidéo</li>
-                        <li>Couper la vidéo</li>
-                        <li>Convertir le format</li>
-                        <li>Inverser la vidéo</li>
+                        <li>Couper la vidéo (extraire un fragment)</li>
+                        <li>Convertir le format (MP4, MOV, AVI, etc.)</li>
+                        <li>Inverser la vidéo (lecture inversée)</li>
                         <li>Convertir en JPG</li>
                         <li>Fusionner les vidéos</li>
                     </ul>
@@ -376,7 +608,6 @@ class VideoGestTranslations {
                 `,
                 
                 // Messages
-                "fileSelected": "Fichier sélectionné:",
                 "selectFileFirst": "Veuillez d'abord sélectionner un fichier",
                 "commandCopied": "Commande copiée dans le presse-papiers",
                 "operationCompleted": "Opération terminée avec succès",
@@ -389,13 +620,35 @@ class VideoGestTranslations {
                 "pasteCommand": "Collez la commande (Ctrl+V)",
                 "executeCommand": "Exécutez la commande (Entrée)",
                 "fullCommandCopied": "Commande complète copiée (inclut cd)",
-                "pcQuality": "Qualite PC",
-                "tabletQuality": "Qualite Tablet", 
-                "mobileQuality": "Qualite Mobile",
-                "commandAutoCopied": "Comando copiado automáticamente",
-                "readyToPaste": "El comando ya está en su portapapeles",
-                "justOpenCmdAndPaste": "Solo abra CMD y pegue (Ctrl+V)",
-                'installApp': 'Installer App',
+                "commandAutoCopied": "Commande automatiquement copiée",
+                "readyToPaste": "La commande est déjà dans votre presse-papiers",
+                "justOpenCmdAndPaste": "Ouvrez simplement CMD et collez (Ctrl+V)",
+                
+                // Validations
+                "invalidTimeFormat": "Format d'heure invalide. Utilisez HH:MM:SS",
+                "startAfterEnd": "L'heure de début doit être antérieure à l'heure de fin",
+                "invalidDuration": "Durée invalide",
+                "selectFormatFirst": "Veuillez d'abord sélectionner un format",
+                "processingVideo": "Traitement de la vidéo...",
+                "estimatingTime": "Estimation du temps de traitement...",
+                "preservingMetadata": "Préservation des métadonnées...",
+                "includingGPS": "Inclusion des données GPS...",
+                
+                // Informations sur l'opération
+                "operationInfoCut": "Découpage de la vidéo de {start} à {end}",
+                "operationInfoConvert": "Conversion au format {format}",
+                "operationInfoReverse": "Inversion de la vidéo",
+                "outputFileWillBe": "Le fichier de sortie sera:",
+                "originalPreserved": "Le fichier original sera préservé",
+                "metadataPreserved": "Métadonnées (incluant GPS) préservées",
+                
+
+
+                "analyzing": "Analizando...",
+                "durationDetected": "Duración detectada",
+                "analysisFailed": "Análisis falló",
+
+     
             }
         };
         
