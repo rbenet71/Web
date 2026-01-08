@@ -1,6 +1,6 @@
-// Dashcam PWA v4.2.5 - Versión Completa Simplificada
+// Dashcam PWA v4.2.6 - Versión Completa Simplificada
 
-const APP_VERSION = '4.2.5';
+const APP_VERSION = '4.2.6';
 
 class DashcamApp {
     constructor() {
@@ -5046,14 +5046,6 @@ async startRecording() {
             async (position) => {
                 this.currentPosition = this.formatPosition(position);
                 
-                // 🆕 LOG PARA DIAGNÓSTICO (puedes quitarlo después)
-                console.log('📍 GPS Data:', {
-                    altitude: position.coords.altitude,
-                    formattedAltitude: this.currentPosition.altitude,
-                    hasAltitude: position.coords.altitude !== null && position.coords.altitude !== undefined,
-                    allCoords: position.coords
-                });
-                
                 // Actualizar nombre de ubicación
                 if (this.state.settings.reverseGeocodeEnabled) {
                     const now = Date.now();
@@ -5077,14 +5069,16 @@ async startRecording() {
                     const locationText = this.state.settings.reverseGeocodeEnabled ? 
                         ` | 🏙️ ${locationName}` : '';
                     
-                    // 🆕 MEJORADO: Manejo más robusto de altitud
-                    let altitudeText = '';
-                    const altitude = this.currentPosition.altitude;
+                    // 🆕 CAMBIO PRINCIPAL: SIEMPRE mostrar "Altura"
+                    let altitudeText = ' | Altura: ';
                     
                     // Verificar si hay altitud válida
+                    const altitude = this.currentPosition.altitude;
                     if (altitude !== null && altitude !== undefined && !isNaN(altitude) && Math.abs(altitude) > 0.1) {
                         const altitudeFormatted = altitude.toFixed(0);
-                        altitudeText = ` | 🏔️ ${altitudeFormatted}m`;
+                        altitudeText += `${altitudeFormatted}m`;
+                    } else {
+                        altitudeText += 'N/A';  // 🆕 Mostrar "N/A" si no hay datos
                     }
                     
                     this.elements.gpsInfo.textContent = 
@@ -5314,34 +5308,83 @@ async startRecording() {
         this.animationFrame = requestAnimationFrame(captureFrame);
     }
 
-    drawFrameWithData() {
-        if (!this.videoElement || !this.mainCtx || this.videoElement.readyState < 2) return;
+    drawGpsInfo(ctx, canvas, dateStr) {
+        const fontSize = this.state.settings.watermarkFontSize || 16;
+        const opacity = this.state.settings.watermarkOpacity || 0.7;
         
-        const canvas = this.mainCanvas;
-        const ctx = this.mainCtx;
+        // 🎯 POSICIÓN CORREGIDA: BOTTOM-CENTER (no bottom-right)
+        const x = canvas.width / 2;
+        const y = canvas.height - 30;
+        const textAlign = 'center';
+        const textBaseline = 'bottom';
         
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(this.videoElement, 0, 0, canvas.width, canvas.height);
+        // Fondo negro
+        ctx.save();
+        ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
+        ctx.fillRect(0, canvas.height - 70, canvas.width, 70);
+        ctx.restore();
         
-        if (this.state.settings.showWatermark) {
-            this.drawCustomWatermark(ctx, canvas);
+        // Configurar texto
+        ctx.font = `bold ${fontSize}px monospace`;
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = textAlign;
+        ctx.textBaseline = textBaseline;
+        
+        // LÍNEA 1: FECHA (siempre visible)
+        ctx.fillText(`📅 ${dateStr}`, x, y);
+        
+        // LÍNEA 2: Construir dinámicamente
+        ctx.font = `${fontSize}px monospace`;
+        const line2Parts = [];
+        
+        // 🎯 ALTURA - solo si tiene valor válido
+        if (this.currentPosition && 
+            this.currentPosition.altitude !== null && 
+            this.currentPosition.altitude !== undefined && 
+            !isNaN(this.currentPosition.altitude)) {
+            line2Parts.push(`Altura: ${this.currentPosition.altitude.toFixed(0)}m`);
         }
         
-        if (this.state.settings.overlayEnabled) {
-            this.drawTemporaryOverlay();
-            
-            if (this.state.isRecording && !this.state.isPaused) {
-                const now = new Date();
-                const dateStr = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-                this.drawGpsInfo(ctx, canvas, dateStr);
-            }
+        // 🎯 COORDENADAS - solo si hay posición
+        if (this.currentPosition) {
+            const lat = this.currentPosition.lat.toFixed(6);
+            const lon = this.currentPosition.lon.toFixed(6);
+            line2Parts.push(`📍 ${lat}, ${lon}`);
+        } else {
+            line2Parts.push('📍 GPS: Buscando señal...');
         }
         
-        if (this.state.settings.gpxOverlayEnabled && this.state.activeGPX) {
-            this.drawGpxOverlay(ctx, canvas);
+        // Dibujar línea 2
+        const line2Text = line2Parts.join(' | ');
+        ctx.fillText(line2Text, x, y + fontSize + 5);
+        
+        // LÍNEA 3: Construir dinámicamente
+        const line3Parts = [];
+        
+        // 🎯 VELOCIDAD - solo si > 0
+        if (this.currentPosition && 
+            this.currentPosition.speed !== null && 
+            !isNaN(this.currentPosition.speed) && 
+            this.currentPosition.speed > 0) {
+            const speedKmh = (this.currentPosition.speed * 3.6).toFixed(1);
+            line3Parts.push(`🚗 ${speedKmh} km/h`);
         }
         
-        this.frameCounter++;
+        // 🎯 PRECISIÓN - solo si tiene valor
+        if (this.currentPosition && 
+            this.currentPosition.accuracy !== null && 
+            !isNaN(this.currentPosition.accuracy) && 
+            this.currentPosition.accuracy > 0) {
+            line3Parts.push(`🎯 ${this.currentPosition.accuracy.toFixed(1)}m`);
+        }
+        
+        // 🎯 TIEMPO - siempre visible
+        const timeStr = this.formatTime(this.state.currentTime || 0);
+        line3Parts.push(`⏱️ ${timeStr}`);
+        
+        // Dibujar línea 3
+        const line3Text = line3Parts.join(' | ');
+        ctx.fillText(line3Text, x, y + (fontSize * 2) + 10);
     }
 
     drawCustomWatermark(ctx, canvas) {
@@ -5357,16 +5400,18 @@ async startRecording() {
         
         ctx.save();
         
-        // Dibujar logo si existe
+        // Logo si existe
         if (this.logoImage && this.state.settings.showWatermark) {
             this.drawLogo(ctx, canvas);
         }
         
-        // Dibujar texto personalizado
+        // Texto personalizado
         this.drawWatermarkText(ctx, canvas, this.state.settings.customWatermarkText);
         
-        // Dibujar información GPS
-        this.drawGpsInfo(ctx, canvas, dateStr);
+        // Información GPS
+        if (this.state.settings.overlayEnabled) {
+            this.drawGpsInfo(ctx, canvas, dateStr);
+        }
         
         ctx.restore();
     }
@@ -5426,82 +5471,89 @@ async startRecording() {
     }
 
     drawGpsInfo(ctx, canvas, dateStr) {
-        const position = this.state.settings.watermarkPosition;
-        const fontSize = this.state.settings.watermarkFontSize;
-        const opacity = this.state.settings.watermarkOpacity;
+        // CONFIGURACIÓN
+        const fontSize = this.state.settings.watermarkFontSize || 16;
+        const opacity = this.state.settings.watermarkOpacity || 0.7;
         
-        let x, y, textAlign, textBaseline, bgHeight;
+        // POSICIÓN bottom-center
+        const x = canvas.width / 2;
+        const y = canvas.height - 60;
+        const textAlign = 'center';
+        const textBaseline = 'bottom';
         
-        switch(position) {
-            case 'top':
-                x = canvas.width / 2;
-                y = 25;
-                textAlign = 'center';
-                textBaseline = 'top';
-                bgHeight = 80;
-                ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
-                ctx.fillRect(0, 0, canvas.width, bgHeight);
-                break;
-            case 'corner':
-                x = 15;
-                y = 25;
-                textAlign = 'left';
-                textBaseline = 'top';
-                bgHeight = 80;
-                ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
-                ctx.fillRect(0, 0, 500, bgHeight);
-                break;
-            case 'bottom':
-            default:
-                x = canvas.width / 2;
-                y = canvas.height - 25;
-                textAlign = 'center';
-                textBaseline = 'bottom';
-                bgHeight = 80;
-                ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
-                ctx.fillRect(0, canvas.height - bgHeight, canvas.width, bgHeight);
-                break;
-        }
+        // FONDO
+        const fondoAltura = 90;
+        ctx.save();
+        ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
+        ctx.fillRect(0, canvas.height - fondoAltura, canvas.width, fondoAltura);
+        ctx.restore();
         
+        // CONFIGURAR TEXTO
         ctx.font = `bold ${fontSize}px monospace`;
         ctx.fillStyle = '#ffffff';
         ctx.textAlign = textAlign;
         ctx.textBaseline = textBaseline;
-        ctx.fillText(`📅 ${dateStr}`, x, y);
+        
+        // LÍNEA 1: FECHA
+        const linea1Y = y;
+        ctx.fillText(`📅 ${dateStr}`, x, linea1Y);
+        
+        // LÍNEA 2: ALTURA + COORDENADAS
+        ctx.font = `${fontSize}px monospace`;
+        const espacioLineas = 22;
+        const linea2Y = linea1Y + espacioLineas;
         
         if (this.currentPosition) {
             const lat = this.currentPosition.lat.toFixed(6);
             const lon = this.currentPosition.lon.toFixed(6);
-            const speed = (this.currentPosition.speed * 3.6 || 0).toFixed(1);
-            let locationName = this.state.currentLocationName;
             
-            if (locationName.length > 50) {
-                locationName = locationName.substring(0, 47) + '...';
+            // Construir línea 2 dinámicamente
+            const line2Parts = [];
+            
+            // Altura solo si tiene valor
+            if (this.currentPosition.altitude !== null && 
+                this.currentPosition.altitude !== undefined && 
+                !isNaN(this.currentPosition.altitude)) {
+                line2Parts.push(`Altura: ${this.currentPosition.altitude.toFixed(0)}m`);
             }
             
-            ctx.font = `${fontSize}px monospace`;
-            ctx.fillText(`📍 ${lat}, ${lon} | 🏙️ ${locationName}`, x, y + fontSize + 6);
+            // Coordenadas siempre (si hay GPS)
+            line2Parts.push(`📍 ${lat}, ${lon}`);
             
-            if (this.currentPosition.accuracy) {
-                const accuracy = this.currentPosition.accuracy.toFixed(1);
-                const timeStr = this.formatTime(this.state.currentTime);
-                
-                // 🆕 MEJORADO: Manejo más robusto de altitud
-                let altitudeText = '';
-                const altitude = this.currentPosition.altitude;
-                
-                // Verificar si hay altitud válida (no null, no undefined, no NaN, no 0 si es significativo)
-                if (altitude !== null && altitude !== undefined && !isNaN(altitude) && Math.abs(altitude) > 0.1) {
-                    const altitudeFormatted = altitude.toFixed(0);
-                    altitudeText = ` | 🏔️ ${altitudeFormatted}m`;
-                }
-                
-                ctx.fillText(`🚗 ${speed} km/h | 🎯 ${accuracy}m${altitudeText} | ⏱️ ${timeStr}`, x, y + (fontSize * 2) + 12);
-            }
+            ctx.fillText(line2Parts.join(' | '), x, linea2Y);
         } else {
-            ctx.font = `${fontSize}px monospace`;
-            ctx.fillText('📍 GPS: Buscando señal...', x, y + fontSize + 6);
+            ctx.fillText('📍 GPS: Buscando señal...', x, linea2Y);
         }
+        
+        // LÍNEA 3: VELOCIDAD + PRECISIÓN + TIEMPO
+        ctx.font = `${fontSize}px monospace`;
+        const linea3Y = linea2Y + espacioLineas;
+        
+        // Construir línea 3 dinámicamente
+        const line3Parts = [];
+        
+        // Velocidad solo si > 0
+        if (this.currentPosition && 
+            this.currentPosition.speed !== null && 
+            !isNaN(this.currentPosition.speed) && 
+            this.currentPosition.speed > 0) {
+            const speedKmh = (this.currentPosition.speed * 3.6).toFixed(1);
+            line3Parts.push(`🚗 ${speedKmh} km/h`);
+        }
+        
+        // Precisión solo si > 0
+        if (this.currentPosition && 
+            this.currentPosition.accuracy !== null && 
+            !isNaN(this.currentPosition.accuracy) && 
+            this.currentPosition.accuracy > 0) {
+            line3Parts.push(`🎯 ${this.currentPosition.accuracy.toFixed(1)}m`);
+        }
+        
+        // Tiempo siempre
+        const timeStr = this.formatTime(this.state.currentTime || 0);
+        line3Parts.push(`⏱️ ${timeStr}`);
+        
+        ctx.fillText(line3Parts.join(' | '), x, linea3Y);
     }
 
     drawTemporaryOverlay() {
@@ -5524,6 +5576,30 @@ async startRecording() {
             const statusText = this.state.isPaused ? '⏸️ PAUSADO' : '● GRABANDO';
             overlayCtx.fillText(statusText, overlayCanvas.width - 15, 15);
         }
+    }
+
+    drawFrameWithData() {
+        if (!this.videoElement || !this.mainCtx || this.videoElement.readyState < 2) return;
+        
+        const canvas = this.mainCanvas;
+        const ctx = this.mainCtx;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(this.videoElement, 0, 0, canvas.width, canvas.height);
+        
+        if (this.state.settings.showWatermark) {
+            this.drawCustomWatermark(ctx, canvas);
+        }
+        
+        if (this.state.settings.overlayEnabled) {
+            this.drawTemporaryOverlay();
+        }
+        
+        if (this.state.settings.gpxOverlayEnabled && this.state.activeGPX) {
+            this.drawGpxOverlay(ctx, canvas);
+        }
+        
+        this.frameCounter++;
     }
 
     drawGpxOverlay(ctx, canvas) {
