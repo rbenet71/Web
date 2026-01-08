@@ -1,6 +1,6 @@
-// Dashcam PWA v4.2.2 - Versión Completa Simplificada
+// Dashcam PWA v4.2.3 - Versión Completa Simplificada
 
-const APP_VERSION = '4.2.2';
+const APP_VERSION = '4.2.3';
 
 class DashcamApp {
     constructor() {
@@ -5068,8 +5068,16 @@ async startRecording() {
                     
                     const locationText = this.state.settings.reverseGeocodeEnabled ? 
                         ` | 🏙️ ${locationName}` : '';
+                    
+                    // Añadir altitud si está disponible
+                    let altitudeText = '';
+                    if (this.currentPosition.altitude !== null && this.currentPosition.altitude !== undefined) {
+                        const altitude = this.currentPosition.altitude.toFixed(0);
+                        altitudeText = ` | 🏔️ ${altitude}m`;
+                    }
+                    
                     this.elements.gpsInfo.textContent = 
-                        `📍 ${this.currentPosition.lat.toFixed(4)}, ${this.currentPosition.lon.toFixed(4)}${locationText} | ${speedKmh} km/h`;
+                        `📍 ${this.currentPosition.lat.toFixed(4)}, ${this.currentPosition.lon.toFixed(4)}${locationText} | ${speedKmh} km/h${altitudeText}`;
                 }
                 
             },
