@@ -5160,22 +5160,19 @@ async startRecording() {
         return 'Desconocido';
     }
 
-    // MODIFICAR la función saveGPXPoint (debe estar alrededor de línea 1600)
-    saveGPXPoint(position) {
-        const coords = position.coords;
-        
-        const point = {
-            lat: coords.latitude,
-            lon: coords.longitude,
-            ele: coords.altitude || 0,  // 🆕 AÑADIDO: altura
-            time: new Date().toISOString(),
-            speed: coords.speed || 0,
-            heading: coords.heading || 0,
-            accuracy: coords.accuracy || 0
+    async saveGPXPoint(position) {
+        const pointData = {
+            lat: position.lat,
+            lon: position.lon,
+            ele: position.altitude || 0,
+            speed: position.speed || 0,
+            heading: position.heading || 0,
+            accuracy: position.accuracy,
+            timestamp: position.timestamp || Date.now(),
+            recordTime: Date.now()
         };
         
-        this.gpxPoints.push(point);
-        return point;
+        this.gpxPoints.push(pointData);
     }
 
     async saveGPXTrack(timestamp = Date.now(), segmentNum = 1) {
@@ -5272,96 +5269,54 @@ async startRecording() {
 
     // ============ MARCA DE AGUA Y DIBUJADO ============
 
-
     startFrameCapture() {
-        console.log('🎬 Iniciando captura de frames...');
+        if (this.animationFrame) cancelAnimationFrame(this.animationFrame);
         
-        // Detener captura anterior si existe
-        if (this.animationFrame) {
-            cancelAnimationFrame(this.animationFrame);
-        }
+        let lastTimestamp = 0;
+        const fps = 30;
+        const interval = 1000 / fps;
         
-        // Función recursiva para dibujar frames
-        const captureFrame = () => {
-            try {
-                // Llamar a drawFrameWithData
-                this.drawFrameWithData();
-                
-                // Continuar el bucle SOLO si estamos grabando
-                if (this.state.isRecording || this.state.isPreviewing) {
-                    this.animationFrame = requestAnimationFrame(captureFrame);
-                }
-            } catch (error) {
-                console.error('❌ Error en captura de frames:', error);
+        const captureFrame = (timestamp) => {
+            if (!this.state.isRecording) {
+                this.animationFrame = null;
+                return;
             }
+            
+            const elapsed = timestamp - lastTimestamp;
+            
+            if (elapsed >= interval) {
+                lastTimestamp = timestamp - (elapsed % interval);
+                this.drawFrameWithData();
+            }
+            
+            this.animationFrame = requestAnimationFrame(captureFrame);
         };
         
-        // Iniciar el bucle
         this.animationFrame = requestAnimationFrame(captureFrame);
     }
 
-    // ================================================
-    // 🎨 MÓDULO DE DIBUJADO - VERSIÓN CORREGIDA
-    // ================================================
-
-    // MODIFICAR drawFrameWithData para que no se congele
     drawFrameWithData() {
-        // Verificar que el canvas esté disponible
-        if (!this.mainCanvas || !this.mainCtx) {
-            console.warn('⚠️ Canvas no disponible');
-            return;
-        }
+        if (!this.videoElement || !this.mainCtx || this.videoElement.readyState < 2) return;
         
+        const canvas = this.mainCanvas;
         const ctx = this.mainCtx;
-        const video = this.videoElement;
         
-        // SI NO HAY VIDEO, NO HACER NADA (evitar congelación)
-        if (!video || video.readyState < 2) {
-            // Solo limpiar canvas y salir
-            ctx.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
-            return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(this.videoElement, 0, 0, canvas.width, canvas.height);
+        
+        if (this.state.settings.showWatermark) {
+            this.drawCustomWatermark(ctx, canvas);
         }
         
-        try {
-            // Limpiar canvas
-            ctx.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
-            
-            // Dibujar frame de video (esto es lo MÁS IMPORTANTE)
-            ctx.drawImage(video, 0, 0, this.mainCanvas.width, this.mainCanvas.height);
-            
-            // Solo aplicar overlay si está habilitado
-            if (this.state.settings.overlayEnabled) {
-                // Dibujar logo si existe
-                if (this.state.settings.showWatermark && this.state.customLogo) {
-                    this.drawLogo();
-                }
-                
-                // Dibujar texto personalizado
-                if (this.state.settings.customWatermarkText) {
-                    this.drawWatermarkText();
-                }
-                
-                // 🆕 MODIFICADO: Dibujar información GPS (SI HAY DATOS)
-                if (this.currentPosition && this.currentPosition.coords) {
-                    this.drawCompleteGpsOverlay(ctx);
-                }
-                
-                // Dibujar overlay GPX si está habilitado
-                if (this.state.settings.gpxOverlayEnabled && this.gpxPoints.length > 0) {
-                    this.drawGpxOverlay();
-                }
-            }
-            
-            // Dibujar overlay temporal (si existe)
-            if (this.state.tempOverlay) {
-                this.drawTemporaryOverlay();
-            }
-            
-        } catch (error) {
-            console.error('❌ Error en drawFrameWithData:', error);
-            // Si hay error, al menos mantener el canvas limpio
-            ctx.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
+        if (this.state.settings.overlayEnabled) {
+            this.drawTemporaryOverlay();
         }
+        
+        if (this.state.settings.gpxOverlayEnabled && this.state.activeGPX) {
+            this.drawGpxOverlay(ctx, canvas);
+        }
+        
+        this.frameCounter++;
     }
 
     drawCustomWatermark(ctx, canvas) {
@@ -5505,7 +5460,15 @@ async startRecording() {
             if (this.currentPosition.accuracy) {
                 const accuracy = this.currentPosition.accuracy.toFixed(1);
                 const timeStr = this.formatTime(this.state.currentTime);
-                ctx.fillText(`🚗 ${speed} km/h | 🎯 ${accuracy}m | ⏱️ ${timeStr}`, x, y + (fontSize * 2) + 12);
+                
+                // Añadir altitud si está disponible
+                let altitudeText = '';
+                if (this.currentPosition.altitude !== null && this.currentPosition.altitude !== undefined) {
+                    const altitude = this.currentPosition.altitude.toFixed(0);
+                    altitudeText = ` | 🏔️ ${altitude}m`;
+                }
+                
+                ctx.fillText(`🚗 ${speed} km/h | 🎯 ${accuracy}m${altitudeText} | ⏱️ ${timeStr}`, x, y + (fontSize * 2) + 12);
             }
         } else {
             ctx.font = `${fontSize}px monospace`;
@@ -10664,8 +10627,7 @@ setPlaybackSpeed(speed) {
                 metadataFrequency: 2,
                 localFolderHandle: null,
                 localFolderName: null,
-                localFolderPath: null,
-                showAltitudeInOverlay: true, // 🆕 NUEVO: Mostrar altura en overlay
+                localFolderPath: null
             };
             
             if (this.db) {
@@ -12058,10 +12020,24 @@ setPlaybackSpeed(speed) {
         }
     }
 
-    generateGPXFromPoints(points, name) {
-        const gpxHeader = `<?xml version="1.0" encoding="UTF-8"?>
-    <gpx version="1.1" creator="Dashcam App" 
-        xmlns="http://www.topografix.com/GPX/1/1">
+    // Función para generar GPX desde puntos (si no la tienes)
+    generateGPXFromPoints(points, name = 'Ruta GPX') {
+        if (!points || points.length === 0) {
+            return `<?xml version="1.0" encoding="UTF-8"?>
+    <gpx version="1.1" creator="Dashcam PWA Pro">
+    <metadata>
+        <name>${name}</name>
+        <time>${new Date().toISOString()}</time>
+    </metadata>
+    <trk>
+        <name>${name}</name>
+        <desc>Sin puntos de track</desc>
+    </trk>
+    </gpx>`;
+        }
+        
+        let gpx = `<?xml version="1.0" encoding="UTF-8"?>
+    <gpx version="1.1" creator="Dashcam PWA Pro">
     <metadata>
         <name>${name}</name>
         <time>${new Date().toISOString()}</time>
@@ -12070,20 +12046,35 @@ setPlaybackSpeed(speed) {
         <name>${name}</name>
         <trkseg>`;
         
-        const gpxPoints = points.map(point => {
-            // 🆕 MODIFICADO: Incluir ele (altura) en cada punto
-            const ele = point.ele || point.altitude || 0;
-            return `      <trkpt lat="${point.lat}" lon="${point.lon}">
-            <ele>${ele}</ele>  <!-- 🆕 ALTURA AÑADIDA -->
-            <time>${point.time}</time>
+        points.forEach(point => {
+            const time = point.time ? point.time.toISOString() : new Date().toISOString();
+            
+            gpx += `
+        <trkpt lat="${point.lat}" lon="${point.lon}">`;
+            
+            if (point.ele !== undefined) {
+                gpx += `
+            <ele>${point.ele}</ele>`;
+            }
+            
+            gpx += `
+            <time>${time}</time>`;
+            
+            if (point.speed !== undefined) {
+                gpx += `
+            <speed>${point.speed}</speed>`;
+            }
+            
+            gpx += `
         </trkpt>`;
-        }).join('\n');
+        });
         
-        const gpxFooter = `    </trkseg>
+        gpx += `
+        </trkseg>
     </trk>
     </gpx>`;
         
-        return gpxHeader + '\n' + gpxPoints + '\n' + gpxFooter;
+        return gpx;
     }
 
     downloadBlob(blob, filename) {
@@ -14127,87 +14118,6 @@ async getParentDirectoryHandle(fileHandle) {
             return false;
         }
     }
-
-
-    // ================================================
-    // 🆕 ZONA NUEVA: FUNCIONALIDAD DE ALTURA SIMPLIFICADA
-    // ================================================
-
-    // 1. FUNCIÓN PARA OBTENER ALTURA
-    getCurrentAltitude() {
-        // Verificar que haya posición GPS
-        if (!this.currentPosition || !this.currentPosition.coords) {
-            return null;
-        }
-        
-        // Obtener altura del GPS
-        const altitude = this.currentPosition.coords.altitude;
-        
-        // Si no hay altura, retornar null
-        if (altitude === null || altitude === undefined || isNaN(altitude)) {
-            return null;
-        }
-        
-        // Redondear a metros enteros
-        return Math.round(altitude);
-    }
-
-    // 2. FUNCIÓN PARA DIBUJAR INFO GPS CON ALTURA
-    drawCompleteGpsOverlay(ctx) {
-        // Verificar condiciones necesarias
-        if (!ctx || !this.currentPosition || !this.currentPosition.coords) {
-            return;
-        }
-        
-        const coords = this.currentPosition.coords;
-        
-        // Posición en pantalla
-        const canvasWidth = ctx.canvas.width;
-        const canvasHeight = ctx.canvas.height;
-        const x = canvasWidth - 200; // 200px desde la derecha
-        const y = canvasHeight - 100; // 100px desde abajo
-        
-        // Configuración
-        const fontSize = this.state.settings.watermarkFontSize || 16;
-        const opacity = this.state.settings.watermarkOpacity || 0.7;
-        const textColor = this.state.settings.watermarkTextColor || '#FFFFFF';
-        const bgColor = 'rgba(0, 0, 0, 0.5)';
-        
-        // Guardar contexto
-        ctx.save();
-        
-        // Fondo semitransparente
-        ctx.fillStyle = bgColor;
-        ctx.fillRect(x - 10, y - 10, 190, 90);
-        
-        // Configurar texto
-        ctx.font = `${fontSize}px Arial, sans-serif`;
-        ctx.fillStyle = textColor;
-        ctx.globalAlpha = opacity;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        
-        // Coordenadas (línea 1)
-        const lat = coords.latitude.toFixed(6);
-        const lon = coords.longitude.toFixed(6);
-        ctx.fillText(`📍 ${lat}°, ${lon}°`, x, y);
-        
-        // Altura (línea 2) - SOLO SI HAY DATOS
-        const altitude = this.getCurrentAltitude();
-        if (altitude !== null) {
-            ctx.fillText(`🗻 Alt: ${altitude} m`, x, y + fontSize + 5);
-        }
-        
-        // Velocidad (línea 3) - SOLO SI HAY DATOS
-        if (coords.speed !== null && !isNaN(coords.speed)) {
-            const speedKmh = (coords.speed * 3.6).toFixed(1);
-            ctx.fillText(`🚗 Vel: ${speedKmh} km/h`, x, y + (fontSize + 5) * 2);
-        }
-        
-        // Restaurar contexto
-        ctx.restore();
-    }
-
 
 }
 
