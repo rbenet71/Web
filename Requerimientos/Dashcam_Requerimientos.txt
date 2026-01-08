@@ -54,7 +54,7 @@ Dentro del mensaje inicial hay que incluir este concpeto, esta aplicación se ha
 4.13.1 
 4.14 Mantenimiento GPX - eliminado
 ---
-
+4.2.2 Mostrar Altura en el video
 ----
 
 

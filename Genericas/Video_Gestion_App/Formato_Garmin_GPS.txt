@@ -1,0 +1,162 @@
+Perfecto, **esto es la pieza que faltaba** 👍
+Y aquí hay un matiz técnico muy importante que explica **por qué yo te decía “no hay GPS” y tú **sí** lo ves con `gpx.fmt`**.
+
+👉 **Los dos tenéis razón**, pero estáis mirando **capas distintas** del MP4.
+
+Vamos por partes, con precisión.
+
+---
+
+## 🔑 CLAVE DEL ASUNTO (muy importante)
+
+### ✔️ **SÍ: ese MP4 contiene datos GPS**
+
+### ❌ **NO: no están como “stream GPS” estándar**
+
+En tus archivos **Ambarella / Garmin**, el GPS está guardado como:
+
+> **Timed metadata propietaria dentro del contenedor QuickTime**
+
+Eso significa:
+
+* ❌ FFmpeg / ffprobe **NO lo detectan como stream `Data`**
+* ✔️ **ExifTool SÍ lo puede leer** porque entiende esa metadata propietaria
+
+Por eso:
+
+* `ffprobe` → *“no hay GPS”*
+* `exiftool -ee -p gpx.fmt` → *sí hay GPS*
+
+💡 **Esto es normal en Ambarella**.
+
+---
+
+## 🧭 Dónde está realmente el GPS en tu MP4
+
+No está en:
+
+* `Stream #0:2 mov_text` ❌
+
+Está en:
+
+* **QuickTime timed metadata atoms**
+* asociada a timestamps
+* fuera del modelo de streams de FFmpeg
+
+ExifTool accede a eso con:
+
+```bash
+-ee
+```
+
+FFmpeg **no**.
+
+---
+
+## ✅ Por qué `gpx.fmt` FUNCIONA
+
+Tu formato:
+
+```text
+$gpslatitude
+$gpslongitude
+$gpsaltitude
+$gpsdatetime
+```
+
+👉 ExifTool:
+
+* encuentra esos tags
+* los repite por cada muestra
+* reconstruye el track
+* genera el GPX correctamente
+
+📌 **Eso confirma inequívocamente que el GPS existe y es válido**.
+
+---
+
+## 🧪 Comando correcto para EXTRAER el GPX (el bueno)
+
+Este es el comando canónico en tu caso:
+
+```bash
+exiftool -ee -p gpx.fmt GRMN2288.MP4 > GRMN2288.gpx
+```
+
+Opcional (orden garantizado):
+
+```bash
+exiftool -ee -fileOrder GPSDateTime -p gpx.fmt GRMN2288.MP4 > GRMN2288.gpx
+```
+
+---
+
+## ⚠️ Implicación MUY IMPORTANTE para tu workflow FFmpeg
+
+### ❌ FFmpeg **NO puede copiar este GPS**
+
+Aunque uses:
+
+```bash
+-map 0
+```
+
+Porque:
+
+* FFmpeg **no entiende ni preserva** esa metadata propietaria
+* al unir/cortar → **se pierde**
+
+👉 Esto explica perfectamente por qué:
+
+* los originales tienen GPS (vía ExifTool)
+* el vídeo unido **ya no lo tiene**
+
+No es que lo hayas hecho mal:
+👉 **FFmpeg no puede conservarlo**.
+
+---
+
+## ✅ Flujo CORRECTO en tu caso (recomendado)
+
+### 1️⃣ Extraer GPX de CADA clip original
+
+```bash
+exiftool -ee -p gpx.fmt GRMN2288.MP4 > GRMN2288.gpx
+```
+
+### 2️⃣ Unir / cortar vídeos con FFmpeg
+
+```bash
+ffmpeg -f concat -safe 0 -i lista.txt -c copy video_final.mp4
+```
+
+### 3️⃣ Unir / cortar GPX por tiempo
+
+* por `GPSDateTime`
+* o con herramientas GPX/QGIS/Python
+
+### 4️⃣ (Opcional) Reasociar
+
+* vídeo final + GPX externo
+* o usar el GPX directamente en QGIS (tu terreno 😄)
+
+---
+
+## 🧾 Conclusión definitiva (la buena)
+
+* ✔️ **El MP4 SÍ tiene GPS**
+* ✔️ Está en **metadata propietaria Ambarella**
+* ✔️ **ExifTool lo lee**
+* ❌ **FFmpeg no lo preserva**
+* ❌ No existe forma fiable de “mantenerlo” al concatenar MP4
+
+👉 **Tu `gpx.fmt` es la vía correcta**
+👉 El workflow correcto es **vídeo por un lado, GPX por otro**
+
+Si quieres, en el siguiente paso puedo:
+
+* darte un **script para extraer GPX en lote**
+* ayudarte a **recortar GPX exactamente igual que el vídeo**
+* o a **reinsertar el GPX como overlay o sidecar**
+
+Aquí ya estamos en nivel fino 👌
