@@ -1,6 +1,6 @@
-// Dashcam PWA v4.2.4 - Versión Completa Simplificada
+// Dashcam PWA v4.2.5 - Versión Completa Simplificada
 
-const APP_VERSION = '4.2.4';
+const APP_VERSION = '4.2.5';
 
 class DashcamApp {
     constructor() {
@@ -5046,6 +5046,14 @@ async startRecording() {
             async (position) => {
                 this.currentPosition = this.formatPosition(position);
                 
+                // 🆕 LOG PARA DIAGNÓSTICO (puedes quitarlo después)
+                console.log('📍 GPS Data:', {
+                    altitude: position.coords.altitude,
+                    formattedAltitude: this.currentPosition.altitude,
+                    hasAltitude: position.coords.altitude !== null && position.coords.altitude !== undefined,
+                    allCoords: position.coords
+                });
+                
                 // Actualizar nombre de ubicación
                 if (this.state.settings.reverseGeocodeEnabled) {
                     const now = Date.now();
@@ -5069,11 +5077,14 @@ async startRecording() {
                     const locationText = this.state.settings.reverseGeocodeEnabled ? 
                         ` | 🏙️ ${locationName}` : '';
                     
-                    // 🆕 AÑADIDO: Altitud si está disponible
+                    // 🆕 MEJORADO: Manejo más robusto de altitud
                     let altitudeText = '';
-                    if (this.currentPosition.altitude !== null && this.currentPosition.altitude !== undefined) {
-                        const altitude = this.currentPosition.altitude.toFixed(0);
-                        altitudeText = ` | 🏔️ ${altitude}m`;
+                    const altitude = this.currentPosition.altitude;
+                    
+                    // Verificar si hay altitud válida
+                    if (altitude !== null && altitude !== undefined && !isNaN(altitude) && Math.abs(altitude) > 0.1) {
+                        const altitudeFormatted = altitude.toFixed(0);
+                        altitudeText = ` | 🏔️ ${altitudeFormatted}m`;
                     }
                     
                     this.elements.gpsInfo.textContent = 
@@ -5319,7 +5330,6 @@ async startRecording() {
         if (this.state.settings.overlayEnabled) {
             this.drawTemporaryOverlay();
             
-            // 🆕 AÑADIDO: Dibujar información GPS en el video grabado
             if (this.state.isRecording && !this.state.isPaused) {
                 const now = new Date();
                 const dateStr = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
@@ -5476,11 +5486,14 @@ async startRecording() {
                 const accuracy = this.currentPosition.accuracy.toFixed(1);
                 const timeStr = this.formatTime(this.state.currentTime);
                 
-                // 🆕 AÑADIDO: Altitud si está disponible
+                // 🆕 MEJORADO: Manejo más robusto de altitud
                 let altitudeText = '';
-                if (this.currentPosition.altitude !== null && this.currentPosition.altitude !== undefined) {
-                    const altitude = this.currentPosition.altitude.toFixed(0);
-                    altitudeText = ` | 🏔️ ${altitude}m`;
+                const altitude = this.currentPosition.altitude;
+                
+                // Verificar si hay altitud válida (no null, no undefined, no NaN, no 0 si es significativo)
+                if (altitude !== null && altitude !== undefined && !isNaN(altitude) && Math.abs(altitude) > 0.1) {
+                    const altitudeFormatted = altitude.toFixed(0);
+                    altitudeText = ` | 🏔️ ${altitudeFormatted}m`;
                 }
                 
                 ctx.fillText(`🚗 ${speed} km/h | 🎯 ${accuracy}m${altitudeText} | ⏱️ ${timeStr}`, x, y + (fontSize * 2) + 12);
