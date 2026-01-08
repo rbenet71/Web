@@ -1,6 +1,6 @@
-// Dashcam PWA v4.2.3 - Versión Completa Simplificada
+// Dashcam PWA v4.2.4 - Versión Completa Simplificada
 
-const APP_VERSION = '4.2.3';
+const APP_VERSION = '4.2.4';
 
 class DashcamApp {
     constructor() {
@@ -5069,7 +5069,7 @@ async startRecording() {
                     const locationText = this.state.settings.reverseGeocodeEnabled ? 
                         ` | 🏙️ ${locationName}` : '';
                     
-                    // Añadir altitud si está disponible
+                    // 🆕 AÑADIDO: Altitud si está disponible
                     let altitudeText = '';
                     if (this.currentPosition.altitude !== null && this.currentPosition.altitude !== undefined) {
                         const altitude = this.currentPosition.altitude.toFixed(0);
@@ -5318,6 +5318,13 @@ async startRecording() {
         
         if (this.state.settings.overlayEnabled) {
             this.drawTemporaryOverlay();
+            
+            // 🆕 AÑADIDO: Dibujar información GPS en el video grabado
+            if (this.state.isRecording && !this.state.isPaused) {
+                const now = new Date();
+                const dateStr = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+                this.drawGpsInfo(ctx, canvas, dateStr);
+            }
         }
         
         if (this.state.settings.gpxOverlayEnabled && this.state.activeGPX) {
@@ -5469,7 +5476,7 @@ async startRecording() {
                 const accuracy = this.currentPosition.accuracy.toFixed(1);
                 const timeStr = this.formatTime(this.state.currentTime);
                 
-                // Añadir altitud si está disponible
+                // 🆕 AÑADIDO: Altitud si está disponible
                 let altitudeText = '';
                 if (this.currentPosition.altitude !== null && this.currentPosition.altitude !== undefined) {
                     const altitude = this.currentPosition.altitude.toFixed(0);

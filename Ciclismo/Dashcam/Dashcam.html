@@ -9,13 +9,13 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <title>Dashcam v4.2.3</title>
+    <title>Dashcam v4.2.4</title>
     
     <!-- Manifest con versión -->
-    <link rel="manifest" href="Dashcam_manifest.json?v=4.2.3">
+    <link rel="manifest" href="Dashcam_manifest.json?v=4.2.4">
     
     <!-- CSS con versión -->
-    <link rel="stylesheet" href="Dashcam_styles.css?v=4.2.3">
+    <link rel="stylesheet" href="Dashcam_styles.css?v=4.2.4">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
@@ -31,7 +31,7 @@
     
     <!-- Librerías para funciones avanzadas 
     <script src="https://unpkg.com/mp4box@0.5.2/dist/mp4box.all.min.js"></script>-->
-    <script src="https://unpkg.com/gpxparser@4.2.3.8/gpxparser.js"></script>
+    <script src="https://unpkg.com/gpxparser@4.2.4.8/gpxparser.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
@@ -43,7 +43,7 @@
             <h1 class="app-title">DashCam</h1>
             
             <p class="app-description">Grabación Recorridos con datos GPS</p>
-            <div class="app-version">Versión 4.2.3</div>
+            <div class="app-version">Versión 4.2.4</div>
             
             <div class="start-controls">
                 <button id="startBtn" class="start-btn">
@@ -651,16 +651,16 @@
     </div>
 
     <!-- JavaScript con versión -->
-    <script src="Dashcam_App.js?v=4.2.3"></script>
+    <script src="Dashcam_App.js?v=4.2.4"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     
     <script>
         // Limpiar caché al cargar
-        if (localStorage.getItem('dashcam_version') !== '4.2.3') {
-            localStorage.setItem('dashcam_version', '4.2.3');
+        if (localStorage.getItem('dashcam_version') !== '4.2.4') {
+            localStorage.setItem('dashcam_version', '4.2.4');
             
             if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
-                navigator.serviceWorker.register('Dashcam_service-worker.js?v=4.2.3')
+                navigator.serviceWorker.register('Dashcam_service-worker.js?v=4.2.4')
                     .then(registration => {
                         console.log('✅ Service Worker registrado:', registration.scope);
                     })
