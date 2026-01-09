@@ -697,7 +697,7 @@ if (typeof updateCurrentTime === 'undefined') {
     function updateCurrentTime() {
         const now = new Date();
         const timeString = now.toLocaleTimeString('es-ES', { hour12: false });
-        const currentTimeElement = document.getElementById('current-time');
+        const currentTimeElement = document.getElementById('current-time-value');
         if (currentTimeElement) {
             currentTimeElement.textContent = timeString;
         }
