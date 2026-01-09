@@ -494,6 +494,29 @@ function updateTimeDifference() {
     const diffString = `${diffHours.toString().padStart(2, '0')}:${diffMinutes.toString().padStart(2, '0')}:${diffSecs.toString().padStart(2, '0')}`;
     document.getElementById('time-difference-display').textContent = diffString;
     updateStartOrderCardTitle();
+    
+    // 🔥 NUEVA FUNCIONALIDAD: Iniciar cuenta atrás automáticamente cuando llegue a 00:00:00
+    if (diffString === "00:00:00" && diffSeconds <= 0) {
+        console.log("⏰ 'Cuenta atrás en:' llegó a 00:00:00 - Verificando inicio automático...");
+        
+        // Verificar que la cuenta atrás no esté ya activa
+        if (window.appState && !window.appState.countdownActive) {
+            console.log("✅ Condiciones cumplidas, iniciando cuenta atrás automáticamente...");
+            
+            // Verificar que la función startCountdown existe
+            if (typeof startCountdown === 'function') {
+                // Pequeño delay para asegurar que todo está listo
+                setTimeout(() => {
+                    startCountdown();
+                    console.log("✅ Cuenta atrás iniciada automáticamente desde updateTimeDifference()");
+                }, 100);
+            } else {
+                console.error("❌ Función startCountdown no disponible");
+            }
+        } else {
+            console.log("⚠️ Cuenta atrás ya activa o appState no disponible, omitiendo inicio automático");
+        }
+    }
 }
 
 function updateCurrentTime() {

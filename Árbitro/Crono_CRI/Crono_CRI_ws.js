@@ -21,20 +21,20 @@
 // ============================================
 
 // Service Worker similar al original pero con cache específico
-const CACHE_NAME = 'crono-cri-v1';
+const CACHE_NAME = 'crono-cri-v 2.0';
 const urlsToCache = [
-    'Crono_CRI.html',
-    'Crono_CRI.css',
-    'Crono_CRI_js_Main.js',
-    'Crono_CRI_js_Ui.js',
-    'Crono_CRI_js_Utilidades.js',
-    'Crono_CRI_js_Traducciones.js',
-    'Crono_CRI_js_Storage_Pwa.js',
-    'Crono_CRI_js_Salidas.js',
-    'Crono_CRI_js_Llegadas.js',
+    'Crono_CRI.html?v=2.0',
+    'Crono_CRI.css?v=2.0',
+    'Crono_CRI_js_Main.js?v=2.0',
+    'Crono_CRI_js_Ui.js?v=2.0',
+    'Crono_CRI_js_Utilidades.js?v=2.0',
+    'Crono_CRI_js_Traducciones.js?v=2.0',
+    'Crono_CRI_js_Storage_Pwa.js?v=2.0',
+    'Crono_CRI_js_Salidas.js?v=2.0',
+    'Crono_CRI_js_Llegadas.js?v=2.0',
     'Crono_CRI_192x192.png',
     'Crono_CRI_512x512.png',
-    'Crono_CRI_manifest.json',
+    'Crono_CRI_manifest.json?v=2.0',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
     'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
 ];

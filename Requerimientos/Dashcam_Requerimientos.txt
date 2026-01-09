@@ -53,8 +53,9 @@ Dentro del mensaje inicial hay que incluir este concpeto, esta aplicación se ha
 4.13.1  y el nombre que sea el de la sesión. No se puede acceder al ultimo elemento del listado
 4.13.1 
 4.14 Mantenimiento GPX - eliminado
----
 4.2.2 Mostrar Altura en el video
+---
+4.3 Al eliminar una sesion eliminar tambien el GPX
 ----
 
 
