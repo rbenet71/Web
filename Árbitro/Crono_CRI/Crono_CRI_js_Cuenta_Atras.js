@@ -251,20 +251,42 @@ function updateCountdown() {
         return;
     }
     
-    // Cambios visuales según el tiempo
+    // 🔥 CAMBIOS RESTAURADOS: Efectos visuales para últimos segundos
+    const countdownScreen = document.getElementById('countdown-screen');
+    
+    // A los 10 segundos: fondo amarillo
     if (tiempoCuentaAtrasActual === 10) {
         document.body.classList.remove('countdown-normal');
         document.body.classList.add('countdown-warning');
+        
+        // Remover modo agresivo si estaba activo
+        if (countdownScreen) {
+            countdownScreen.classList.remove('aggressive-numbers');
+        }
+        appState.aggressiveMode = false;
+        
         if (typeof playSound === 'function') {
             playSound('warning');
         }
-    } else if (tiempoCuentaAtrasActual === 5) {
+    } 
+    // A los 5 segundos: fondo amarillo + modo agresivo
+    else if (tiempoCuentaAtrasActual === 5) {
         document.body.classList.remove('countdown-warning');
         document.body.classList.add('countdown-critical');
+        
+        // Activar modo agresivo
+        if (countdownScreen) {
+            countdownScreen.classList.add('aggressive-numbers');
+        }
+        appState.aggressiveMode = true;
+        
         if (typeof playSound === 'function') {
             playSound('critical');
         }
-    } else if (tiempoCuentaAtrasActual < 5 && tiempoCuentaAtrasActual > 0) {
+    } 
+    // Últimos 4-1 segundos: mantener modo agresivo
+    else if (tiempoCuentaAtrasActual < 5 && tiempoCuentaAtrasActual > 0) {
+        // Reproducir sonido según tipo de audio
         if (typeof playSound === 'function') {
             if (appState.audioType === 'beep') {
                 playSound('beep');
@@ -272,6 +294,19 @@ function updateCountdown() {
                 playSound('number');
             }
         }
+        
+        // Asegurar que el modo agresivo esté activo
+        if (!appState.aggressiveMode && countdownScreen) {
+            countdownScreen.classList.add('aggressive-numbers');
+            appState.aggressiveMode = true;
+        }
+    }
+    // Desactivar modo agresivo si pasamos de los 5 segundos
+    else if (tiempoCuentaAtrasActual > 5 && appState.aggressiveMode) {
+        if (countdownScreen) {
+            countdownScreen.classList.remove('aggressive-numbers');
+        }
+        appState.aggressiveMode = false;
     }
 }
 
