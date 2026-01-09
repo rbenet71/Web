@@ -127,13 +127,13 @@ function startCountdown() {
 
     
     // 4. Primer corredor será el primer registro de la tabla
-    const primerCorredor = obtenerProximoCorredor();
-    if (!primerCorredor || !primerCorredor.corredor) {
+    const primerCorredor = startOrderData[0];
+    if (!primerCorredor) {
         showMessage("Error: No hay corredores en el orden de salida", 'error');
         return;
     }
     
-    console.log("📊 Primer corredor:", primerCorredor.corredor.dorsal, "- cronoSalida:", primerCorredor.corredor.cronoSalida);
+    console.log("📊 Primer corredor:", primerCorredor.dorsal, "- cronoSalida:", primerCorredor.cronoSalida);
     
     // 5. En la parte superior izquierda se muestra la Hora y el tiempo del crono de la carrera
     cronoCarreraSegundos = 0;
@@ -148,10 +148,10 @@ function startCountdown() {
     cuentaAtrasActiva = true;
     
     // IMPORTANTE: Usar cronoSalida de la tabla para determinar tiempo de cuenta atrás
-    if (primerCorredor.corredor.cronoSalida && primerCorredor.corredor.cronoSalida !== "00:00:00") {
+    if (primerCorredor.cronoSalida && primerCorredor.cronoSalida !== "00:00:00") {
         // Convertir cronoSalida (HH:MM:SS) a segundos
-        tiempoCuentaAtrasActual = timeToSeconds(primerCorredor.corredor.cronoSalida);
-        console.log("⏱️ Tiempo de cuenta atrás calculado desde cronoSalida:", primerCorredor.corredor.cronoSalida, "=", tiempoCuentaAtrasActual, "segundos");
+        tiempoCuentaAtrasActual = timeToSeconds(primerCorredor.cronoSalida);
+        console.log("⏱️ Tiempo de cuenta atrás calculado desde cronoSalida:", primerCorredor.cronoSalida, "=", tiempoCuentaAtrasActual, "segundos");
     } else {
         // Si no tiene cronoSalida, usar 60 segundos por defecto
         tiempoCuentaAtrasActual = 60;
@@ -174,11 +174,13 @@ function startCountdown() {
     document.body.classList.add('countdown-normal');
     
     // Mostrar información del primer corredor en pantalla
-    mostrarInfoCorredorEnPantalla(primerCorredor.corredor);
+    mostrarInfoCorredorEnPantalla(primerCorredor);
     
     // Actualizar displays
     updateCountdownDisplay();
-    updateNextCorredorDisplay();
+    
+    // MOSTRAR DIFERENCIA DEL SEGUNDO CORREDOR (posición 1)
+    actualizarDisplayProximoCorredor();
     
     // Iniciar intervalo
     if (intervaloCuentaAtras) {
@@ -192,8 +194,18 @@ function startCountdown() {
         keepScreenAwake();
     }
     
+    // Verificar si hay segundo corredor para mostrar su diferencia
+    if (startOrderData.length > 1) {
+        console.log("✅ Cuenta atrás iniciada. Corredor actual: dorsal", primerCorredor.dorsal, 
+                    "| Próximo corredor (dorsal", startOrderData[1].dorsal, 
+                    ") sale en:", startOrderData[1].diferencia, "segundos");
+    } else {
+        console.log("✅ Cuenta atrás iniciada. Único corredor: dorsal", primerCorredor.dorsal);
+    }
+    
     showMessage("Cuenta atrás iniciada. Primer corredor en " + tiempoCuentaAtrasActual + " segundos", 'success');
 }
+
 
 function stopCountdown() {
     console.log("🛑 Deteniendo cuenta atrás...");
@@ -323,29 +335,6 @@ function updateCountdownDisplay() {
     // Ajustar tamaño si es necesario
     if (typeof adjustCountdownSize === 'function') {
         adjustCountdownSize();
-    }
-}
-
-function updateNextCorredorDisplay() {
-    const display = document.getElementById('next-corredor-time');
-    if (!display) return;
-    
-    const siguienteCorredor = obtenerProximoCorredor();
-    
-    if (siguienteCorredor && siguienteCorredor.corredor) {
-        const tiempo = calcularTiempoCuentaAtras(siguienteCorredor.corredor);
-        
-        if (tiempo >= 60) {
-            const minutes = Math.floor(tiempo / 60);
-            const seconds = tiempo % 60;
-            display.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        } else {
-            display.textContent = tiempo + "s";
-        }
-        
-        console.log(`Próximo corredor: ${siguienteCorredor.corredor.dorsal} - Sale en ${tiempo}s`);
-    } else {
-        display.textContent = "--";
     }
 }
 
@@ -530,7 +519,8 @@ function iniciarCuentaAtrasManual(dorsal) {
     // Actualizar displays
     actualizarCronoDisplay();
     updateCountdownDisplay();
-    updateNextCorredorDisplay();
+    // CAMBIO: Usar actualizarDisplayProximoCorredor() en lugar de updateNextCorredorDisplay()
+    actualizarDisplayProximoCorredor();
     
     // Iniciar intervalo
     if (intervaloCuentaAtras) {
@@ -758,7 +748,9 @@ function iniciarCronoDeCarrera() {
                 tiempoCuentaAtrasActual = tiempoRestante;
                 mostrarInfoCorredorEnPantalla(siguiente.corredor);
                 updateCountdownDisplay();
-                updateNextCorredorDisplay();
+                
+                // CAMBIO: Usar actualizarDisplayProximoCorredor() en lugar de updateNextCorredorDisplay()
+                actualizarDisplayProximoCorredor();
             }
         }
         
@@ -772,6 +764,8 @@ function prepararSiguienteCorredor() {
     // Incrementar índice para pasar al siguiente corredor
     proximoCorredorIndex++;
     
+    console.log("🔍 Buscando siguiente corredor después del índice", proximoCorredorIndex);
+    
     const siguiente = obtenerProximoCorredor();
     if (!siguiente || !siguiente.corredor) {
         console.log("🏁 No hay más corredores por salir");
@@ -782,10 +776,23 @@ function prepararSiguienteCorredor() {
             clearInterval(intervaloCuentaAtras);
             intervaloCuentaAtras = null;
         }
+        
+        // Mostrar "--" en el display del próximo corredor
+        const nextDisplay = document.getElementById('next-corredor-time');
+        if (nextDisplay) {
+            nextDisplay.textContent = "--";
+        }
         return;
     }
     
-    console.log("➡️ Preparando siguiente corredor:", siguiente.corredor.dorsal);
+    console.log("➡️ Preparando siguiente corredor:", siguiente.corredor.dorsal, 
+                "en índice", siguiente.index, "proximoCorredorIndex actual:", proximoCorredorIndex);
+    
+    // Asegurarnos de que proximoCorredorIndex coincide con el índice del corredor
+    if (proximoCorredorIndex !== siguiente.index) {
+        console.log(`🔄 Ajustando proximoCorredorIndex de ${proximoCorredorIndex} a ${siguiente.index}`);
+        proximoCorredorIndex = siguiente.index;
+    }
     
     // 1. Mostrar información del siguiente corredor
     mostrarInfoCorredorEnPantalla(siguiente.corredor);
@@ -820,11 +827,127 @@ function prepararSiguienteCorredor() {
     document.body.classList.remove('countdown-warning', 'countdown-critical', 'countdown-salida');
     document.body.classList.add('countdown-normal');
     
-    // 5. Actualizar displays
+    // 5. Actualizar display de cuenta atrás actual
     updateCountdownDisplay();
-    updateNextCorredorDisplay();
+    
+    // 6. MOSTRAR DIFERENCIA DEL SIGUIENTE-SIGUIENTE CORREDOR
+    actualizarDisplayProximoCorredor();
     
     console.log(`✅ Preparado corredor ${siguiente.corredor.dorsal} para salir en ${tiempoCuentaAtrasActual} segundos`);
+    
+    // Verificar qué corredor se mostrará como "próximo"
+    const siguienteDeSiguiente = obtenerSiguienteCorredorDespuesDelActual();
+    if (siguienteDeSiguiente && siguienteDeSiguiente.corredor) {
+        console.log(`📊 Próximo corredor (para mostrar diferencia): dorsal ${siguienteDeSiguiente.corredor.dorsal}, diferencia: ${siguienteDeSiguiente.corredor.diferencia}`);
+    }
+}
+
+function actualizarDisplayProximoCorredor() {
+    const display = document.getElementById('next-corredor-time');
+    if (!display) return;
+    
+    // Obtener el siguiente corredor (el que sale después del actual)
+    const siguiente = obtenerSiguienteCorredorDespuesDelActual();
+    
+    if (siguiente && siguiente.corredor) {
+        // Obtener la diferencia del corredor
+        let diferenciaValor = siguiente.corredor.diferencia;
+        
+        console.log(`📊 Procesando diferencia para corredor ${siguiente.corredor.dorsal}:`, diferenciaValor);
+        
+        // Convertir diferencia a segundos si es necesario
+        let segundosDiferencia = 0;
+        
+        if (diferenciaValor) {
+            if (typeof diferenciaValor === 'number') {
+                // Si ya es un número (segundos), usarlo directamente
+                segundosDiferencia = diferenciaValor;
+                console.log(`✅ Diferencia como número: ${segundosDiferencia}s`);
+            } else if (typeof diferenciaValor === 'string') {
+                // Si es string, puede ser "HH:MM:SS" o "HH:MM:SS (+)" o "HH:MM:SS (-)"
+                // Limpiar el string primero
+                const diferenciaLimpia = diferenciaValor.split(' ')[0]; // Tomar solo la parte del tiempo
+                
+                try {
+                    // Convertir formato HH:MM:SS a segundos
+                    segundosDiferencia = timeToSeconds(diferenciaLimpia);
+                    console.log(`✅ Diferencia convertida: "${diferenciaValor}" -> "${diferenciaLimpia}" -> ${segundosDiferencia}s`);
+                } catch (e) {
+                    console.error(`❌ Error convirtiendo diferencia "${diferenciaValor}":`, e);
+                    segundosDiferencia = 0;
+                }
+            }
+        }
+        
+        // Formatear para mostrar
+        if (segundosDiferencia > 0) {
+            if (segundosDiferencia >= 60) {
+                const minutes = Math.floor(segundosDiferencia / 60);
+                const seconds = segundosDiferencia % 60;
+                display.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                display.textContent = segundosDiferencia + "s";
+            }
+            console.log(`➡️ Próximo corredor (${siguiente.corredor.dorsal}) sale en: ${display.textContent} (${segundosDiferencia}s)`);
+        } else {
+            display.textContent = "--";
+            console.log(`⚠️ Diferencia no válida (${diferenciaValor}) para corredor ${siguiente.corredor.dorsal}`);
+        }
+    } else {
+        display.textContent = "--";
+        console.log("🏁 No hay más corredores después del actual");
+    }
+}
+
+function obtenerSiguienteCorredorDespuesDelActual() {
+    const startOrderData = obtenerStartOrderData();
+    
+    if (!startOrderData || startOrderData.length === 0) {
+        console.log("⚠️ No hay datos de orden de salida");
+        return null;
+    }
+    
+    console.log(`🔍 Buscando siguiente corredor después del índice ${proximoCorredorIndex} (total: ${startOrderData.length})`);
+    
+    // Buscar el siguiente corredor después del actual
+    const siguienteIndex = proximoCorredorIndex + 1;
+    
+    if (siguienteIndex < startOrderData.length) {
+        const corredor = startOrderData[siguienteIndex];
+        
+        // Verificar que el corredor existe y no tiene hora de salida real
+        if (corredor && (!corredor.horaSalidaReal || corredor.horaSalidaReal === '')) {
+            console.log(`✅ Siguiente corredor encontrado: ${corredor.dorsal} en índice ${siguienteIndex}`, {
+                diferencia: corredor.diferencia,
+                cronoSalida: corredor.cronoSalida,
+                horaSalidaReal: corredor.horaSalidaReal
+            });
+            return {
+                index: siguienteIndex,
+                corredor: corredor
+            };
+        } else {
+            console.log(`⏭️ Corredor ${corredor.dorsal} ya tiene hora de salida, buscando siguiente...`);
+            
+            // Buscar el siguiente corredor sin hora de salida
+            for (let i = siguienteIndex + 1; i < startOrderData.length; i++) {
+                const siguienteCorredor = startOrderData[i];
+                if (siguienteCorredor && (!siguienteCorredor.horaSalidaReal || siguienteCorredor.horaSalidaReal === '')) {
+                    console.log(`✅ Siguiente corredor disponible: ${siguienteCorredor.dorsal} en índice ${i}`);
+                    return {
+                        index: i,
+                        corredor: siguienteCorredor
+                    };
+                }
+            }
+            
+            console.log("🏁 No hay más corredores sin hora de salida");
+            return null;
+        }
+    }
+    
+    console.log("🏁 No hay más corredores después del actual");
+    return null;
 }
 
 // ============================================
@@ -849,17 +972,42 @@ function timeToSeconds(timeStr) {
         return window.timeToSeconds(timeStr);
     }
     
-    // Implementación básica si no existe
-    if (!timeStr) return 0;
-    
-    const parts = timeStr.split(':');
-    if (parts.length === 3) {
-        return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
-    } else if (parts.length === 2) {
-        return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60;
+    // Implementación mejorada
+    if (!timeStr || timeStr === '' || timeStr === '00:00:00') {
+        return 0;
     }
     
-    return 0;
+    // Limpiar el string (eliminar espacios, paréntesis, etc.)
+    const cleanedStr = String(timeStr).trim().split(' ')[0];
+    
+    const parts = cleanedStr.split(':');
+    
+    // Validar que tengamos partes válidas
+    if (parts.length < 2 || parts.length > 3) {
+        console.warn(`⚠️ Formato de tiempo inválido: "${timeStr}"`);
+        return 0;
+    }
+    
+    try {
+        let horas = 0, minutos = 0, segundos = 0;
+        
+        if (parts.length === 3) {
+            horas = parseInt(parts[0]) || 0;
+            minutos = parseInt(parts[1]) || 0;
+            segundos = parseInt(parts[2]) || 0;
+        } else if (parts.length === 2) {
+            // Asumir formato MM:SS
+            minutos = parseInt(parts[0]) || 0;
+            segundos = parseInt(parts[1]) || 0;
+        }
+        
+        const totalSegundos = horas * 3600 + minutos * 60 + segundos;
+        console.log(`⏱️ Conversión: "${timeStr}" -> "${cleanedStr}" -> ${totalSegundos}s`);
+        return totalSegundos;
+    } catch (e) {
+        console.error(`❌ Error convirtiendo tiempo "${timeStr}":`, e);
+        return 0;
+    }
 }
 
 function formatTimeValue(timeStr) {
