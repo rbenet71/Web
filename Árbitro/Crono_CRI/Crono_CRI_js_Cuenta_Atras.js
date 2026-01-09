@@ -149,9 +149,9 @@ function startCountdown() {
     
     // IMPORTANTE: Usar cronoSalida de la tabla para determinar tiempo de cuenta atrás
     if (primerCorredor.cronoSalida && primerCorredor.cronoSalida !== "00:00:00") {
-        // Convertir cronoSalida (HH:MM:SS) a segundos
-        tiempoCuentaAtrasActual = timeToSeconds(primerCorredor.cronoSalida);
-        console.log("⏱️ Tiempo de cuenta atrás calculado desde cronoSalida:", primerCorredor.cronoSalida, "=", tiempoCuentaAtrasActual, "segundos");
+        // Usar la función calcularTiempoCuentaAtras para consistencia
+        tiempoCuentaAtrasActual = calcularTiempoCuentaAtras(primerCorredor);
+        console.log("⏱️ Tiempo de cuenta atrás calculado:", tiempoCuentaAtrasActual, "segundos");
     } else {
         // Si no tiene cronoSalida, usar 60 segundos por defecto
         tiempoCuentaAtrasActual = 60;
@@ -196,9 +196,10 @@ function startCountdown() {
     
     // Verificar si hay segundo corredor para mostrar su diferencia
     if (startOrderData.length > 1) {
+        const segundoCorredor = startOrderData[1];
         console.log("✅ Cuenta atrás iniciada. Corredor actual: dorsal", primerCorredor.dorsal, 
-                    "| Próximo corredor (dorsal", startOrderData[1].dorsal, 
-                    ") sale en:", startOrderData[1].diferencia, "segundos");
+                    "| Próximo corredor (dorsal", segundoCorredor.dorsal, 
+                    ") diferencia:", segundoCorredor.diferencia);
     } else {
         console.log("✅ Cuenta atrás iniciada. Único corredor: dorsal", primerCorredor.dorsal);
     }
@@ -314,6 +315,12 @@ function handleCountdownZero() {
         if (countdownScreen) {
             countdownScreen.classList.remove('countdown-salida-active');
         }
+        
+        // NOTA: NO añadimos segundos manualmente aquí
+        // El cronómetro de carrera (iniciarCronoDeCarrera) ya está avanzando
+        // y calcularTiempoCuentaAtras usará ese tiempo exacto
+        
+        console.log(`⏱️ Tiempo del cronómetro de carrera: ${cronoCarreraSegundos}s`);
         
         // 5. Preparar siguiente corredor
         prepararSiguienteCorredor();
@@ -637,6 +644,7 @@ function calcularTiempoCuentaAtras(corredor) {
     console.log("  - cronoSalida:", corredor.cronoSalida);
     console.log("  - cronoSegundos:", corredor.cronoSegundos);
     console.log("  - cronoCarreraSegundos actual:", cronoCarreraSegundos);
+    console.log("  - appState.departedCount:", appState.departedCount);
     
     // Obtener cronoSalida del corredor en segundos
     let segundosCronoSalida = 0;
@@ -650,10 +658,19 @@ function calcularTiempoCuentaAtras(corredor) {
         return 60; // Valor por defecto
     }
     
-    // 9. El siguiente corredor... su cuenta atrás será la diferencia entre el valor de crono salida de la tabla menos el tiempo del crono de la carrera
-    const tiempo = segundosCronoSalida - cronoCarreraSegundos;
+    // Determinar si es el primer corredor
+    const esPrimerCorredor = appState.departedCount === 0;
     
-    console.log("  - Tiempo calculado:", segundosCronoSalida, "-", cronoCarreraSegundos, "=", tiempo, "segundos");
+    // FÓRMULA: Solo restar 1 segundo de compensación si NO es el primer corredor
+    let tiempo = 0;
+    
+    if (!esPrimerCorredor) {
+        tiempo = segundosCronoSalida - cronoCarreraSegundos - 1;
+        console.log("  - Tiempo calculado (NO primer corredor, -1s):", segundosCronoSalida, "-", cronoCarreraSegundos, "- 1s =", tiempo, "segundos");
+    } else {
+        tiempo = segundosCronoSalida - cronoCarreraSegundos;
+        console.log("  - Tiempo calculado (primer corredor, sin -1s):", segundosCronoSalida, "-", cronoCarreraSegundos, "=", tiempo, "segundos");
+    }
     
     // Validaciones
     if (tiempo <= 0) {
@@ -661,7 +678,7 @@ function calcularTiempoCuentaAtras(corredor) {
         return 60;
     }
     
-    if (tiempo > 3600) { // Más de 1 hora
+    if (tiempo > 3600) {
         console.warn("⚠️ Tiempo calculado > 1h, usando 60s por defecto");
         return 60;
     }
@@ -749,7 +766,7 @@ function iniciarCronoDeCarrera() {
                 mostrarInfoCorredorEnPantalla(siguiente.corredor);
                 updateCountdownDisplay();
                 
-                // CAMBIO: Usar actualizarDisplayProximoCorredor() en lugar de updateNextCorredorDisplay()
+                // Mostrar diferencia del siguiente-siguiente
                 actualizarDisplayProximoCorredor();
             }
         }
@@ -797,27 +814,10 @@ function prepararSiguienteCorredor() {
     // 1. Mostrar información del siguiente corredor
     mostrarInfoCorredorEnPantalla(siguiente.corredor);
     
-    // 2. Calcular tiempo de cuenta atrás basado en cronoSalida
-    let tiempoCuentaAtras = 60; // Por defecto
+    // 2. Calcular tiempo de cuenta atrás usando la función especializada
+    let tiempoCuentaAtras = calcularTiempoCuentaAtras(siguiente.corredor);
     
-    if (siguiente.corredor.cronoSalida && siguiente.corredor.cronoSalida !== "00:00:00") {
-        // Convertir cronoSalida (HH:MM:SS) a segundos
-        const segundosCronoSalida = timeToSeconds(siguiente.corredor.cronoSalida);
-        
-        // El tiempo de cuenta atrás es la diferencia entre cronoSalida del corredor
-        // y el tiempo actual del cronómetro de carrera
-        tiempoCuentaAtras = segundosCronoSalida - cronoCarreraSegundos;
-        
-        // Si el tiempo es negativo o muy pequeño, usar 60 segundos por defecto
-        if (tiempoCuentaAtras <= 0 || tiempoCuentaAtras > 3600) {
-            console.warn(`⚠️ Tiempo calculado inválido (${tiempoCuentaAtras}s), usando 60s por defecto`);
-            tiempoCuentaAtras = 60;
-        }
-        
-        console.log(`⏱️ Tiempo de cuenta atrás calculado: ${siguiente.corredor.cronoSalida} - ${cronoCarreraSegundos}s = ${tiempoCuentaAtras}s`);
-    } else {
-        console.warn(`⚠️ Corredor ${siguiente.corredor.dorsal} no tiene cronoSalida definido, usando 60s por defecto`);
-    }
+    console.log(`⏱️ Tiempo de cuenta atrás para ${siguiente.corredor.dorsal}: ${tiempoCuentaAtras}s`);
     
     // 3. Iniciar nueva cuenta atrás
     cuentaAtrasActiva = true;
@@ -860,22 +860,12 @@ function actualizarDisplayProximoCorredor() {
         
         if (diferenciaValor) {
             if (typeof diferenciaValor === 'number') {
-                // Si ya es un número (segundos), usarlo directamente
                 segundosDiferencia = diferenciaValor;
                 console.log(`✅ Diferencia como número: ${segundosDiferencia}s`);
             } else if (typeof diferenciaValor === 'string') {
-                // Si es string, puede ser "HH:MM:SS" o "HH:MM:SS (+)" o "HH:MM:SS (-)"
-                // Limpiar el string primero
-                const diferenciaLimpia = diferenciaValor.split(' ')[0]; // Tomar solo la parte del tiempo
-                
-                try {
-                    // Convertir formato HH:MM:SS a segundos
-                    segundosDiferencia = timeToSeconds(diferenciaLimpia);
-                    console.log(`✅ Diferencia convertida: "${diferenciaValor}" -> "${diferenciaLimpia}" -> ${segundosDiferencia}s`);
-                } catch (e) {
-                    console.error(`❌ Error convirtiendo diferencia "${diferenciaValor}":`, e);
-                    segundosDiferencia = 0;
-                }
+                const diferenciaLimpia = diferenciaValor.split(' ')[0];
+                segundosDiferencia = timeToSeconds(diferenciaLimpia);
+                console.log(`✅ Diferencia convertida: "${diferenciaValor}" -> "${diferenciaLimpia}" -> ${segundosDiferencia}s`);
             }
         }
         
@@ -891,7 +881,6 @@ function actualizarDisplayProximoCorredor() {
             console.log(`➡️ Próximo corredor (${siguiente.corredor.dorsal}) sale en: ${display.textContent} (${segundosDiferencia}s)`);
         } else {
             display.textContent = "--";
-            console.log(`⚠️ Diferencia no válida (${diferenciaValor}) para corredor ${siguiente.corredor.dorsal}`);
         }
     } else {
         display.textContent = "--";
