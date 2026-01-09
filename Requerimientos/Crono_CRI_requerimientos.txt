@@ -170,6 +170,30 @@ Para empezar vamos a dejar el programa tal y como esta, pero vamos a:
 en la tabla orden de salida al modificar el campo diferencia avisamos que si es correcto el cambio, se calcuran las nuevas crono salida, hora salida, crono salida previsto, hora salida prevista. y si es que si ejecutamos el cambio
 
 
+
 botones de carrera que no van
 traducciones
 el orden de salida no se raba por carrera
+
+2.0 Salida automatica al llegar a 00
+
+-------------
+2.1 Para hacer la cuenta atras la app ha de mirar la tabla de orden de salida y segun el campo crono de salida, y el tiempo de crono/tiempo acumulado hará la cuenta atras.
+
+El proceso ha de ser el siguiente:
+
+Cuando el contador Cuenta atrás en llega a 00:00
+Se inicia una cuenta atrás de 60 segundos
+El contador de salidos se pone a 0, todos los tiempos de salida real y crono salida real tambien se ponen a valor vacio.
+el primer corredor a salir será el primer registro de la tabla.
+En la parte superior izquierda se muestra la Hora y el tiempo del crono de la carrera (tiempo acumulado después de la salida del primer corredor)
+El tiempo del crono siempre a cero Durante está cuanta atrás.
+Cuando la cuenta atrás del primero llega a cero, entonces el crono de la carrera se pone a contar.
+la hora de salida real y el crono de salida real se asignaran al corredor que acaba de salir.
+El siguiente corredor en salir será el siguiente registro de la tabla, su cuenta atrás será la diferencia entre el valor de crono salida de la tabla menos el tiempo del crono de la carrera
+En la parte inferior y en el centro se mostrará el dorsal, nombre, apellido del corredor que va a salir
+
+El programa deberá poder iniciar la cuenta atrás manualmente, para ello el usuario introducirá el dorsal del siguiente corredor a salir. Entonces a partir de que diga iniciar,se iniciará una cuenta atrás de un minuto. El tiempo del crono cuando se inicie la cuenta atrás será el valor del crono salida de ese corredor menos el minuto que sale antes. y el numero de corredores salidos sera su valor de orden en la tabla menos 1.
+
+me gustaria ir poniendo todas las funciones que solo se utilizan en este proceso de cuenta atras las pongamos en otro arhivo, que se llame Crono_CRI_Cuenta_Atras.js. Indicame cuales he de llevar a este fichero y si he de modificar algun otro archivo (html,ws, manifest...) como ahora ya los arhivos son muy grandes, no te los puedo pasar. a medida que vayamos modificando o utilizando funciones las vamos moviendo a ese arhivo, que te parece?
+------

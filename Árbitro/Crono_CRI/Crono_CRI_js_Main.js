@@ -86,9 +86,6 @@ let sortState = { column: 'time', direction: 'desc' };
 let startOrderData = [];
 
 // ============================================
-// INICIALIZACIÓN PRINCIPAL - VERSIÓN CORREGIDA
-// ============================================
-// ============================================
 // INICIALIZACIÓN PRINCIPAL DE LA APLICACIÓN
 // ============================================
 function initApp() {
@@ -151,6 +148,11 @@ function initApp() {
     // Inicializar datos de orden de salida si no existen
     if (!window.startOrderData) {
         window.startOrderData = [];
+    }
+
+    // Inicializar sistema de cuenta atrás
+    if (typeof inicializarSistemaCuentaAtras === 'function') {
+        inicializarSistemaCuentaAtras();
     }
     
     // Cargar preferencia de idioma

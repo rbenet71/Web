@@ -53,6 +53,8 @@ const translations = {
         suggestionsText: "Sugerencias",
         installText: "Instalar App",
         updateText: "Buscar actualizaciones",
+        copyrightText: "2025 © Copyright ",
+        copyrightLink: "Roberto Benet - rbenet71@gmail.com - V_18_12_2025",
         
         // Modal de ayuda
         helpModalTitle: "Ayuda de Crono CRI",
@@ -595,6 +597,8 @@ const translations = {
         suggestionsText: "Suggeriments",
         installText: "Instal·lar App",
         updateText: "Buscar actualitzacions",
+        copyrightText: "2025 © Copyright ",
+        copyrightLink: "Roberto Benet - rbenet71@gmail.com - V_18_12_2025",
         
         // Modal de ayuda
         helpModalTitle: "Ajuda de Crono CRI",
@@ -1164,6 +1168,9 @@ const translations = {
         suggestionsText: "Suggestions",
         installText: "Install App",
         updateText: "Check for Updates",
+
+        copyrightText: "2025 © Copyright ",
+        copyrightLink: "Roberto Benet - rbenet71@gmail.com - V_18_12_2025",
         
         // Modal de ayuda
         helpModalTitle: "Crono CRI Help",
@@ -1729,6 +1736,8 @@ const translations = {
         suggestionsText: "Suggestions",
         installText: "Installer App",
         updateText: "Rechercher mises à jour",
+        copyrightText: "2025 © Copyright ",
+        copyrightLink: "Roberto Benet - rbenet71@gmail.com - V_18_12_2025",
         
         // Modal de ayuda
         helpModalTitle: "Aide de Crono CRI",
@@ -2419,6 +2428,8 @@ function updateFooter(t) {
     setTextIfExists('suggestions-text', t.suggestionsText);
     setTextIfExists('install-text', t.installText);
     setTextIfExists('update-text', t.updateText);
+    setTextIfExists('copyright-text', t.copyrightText);
+    setTextIfExists('copyright-link', t.copyrightLink);
 }
 
 function updateSalidaText() {
