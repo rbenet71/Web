@@ -191,9 +191,11 @@ El tiempo del crono siempre a cero Durante está cuanta atrás.
 Cuando la cuenta atrás del primero llega a cero, entonces el crono de la carrera se pone a contar.
 la hora de salida real y el crono de salida real se asignaran al corredor que acaba de salir.
 El siguiente corredor en salir será el siguiente registro de la tabla, su cuenta atrás será la diferencia entre el valor de crono salida de la tabla menos el tiempo del crono de la carrera
-En la parte inferior y en el centro se mostrará el dorsal, nombre, apellido del corredor que va a salir
+En la parte inferior y en el centro se mostrará el dorsal, nombre, apellido del corredor al que se le esta haciendo en ese momento la cuenta atras.
 
 El programa deberá poder iniciar la cuenta atrás manualmente, para ello el usuario introducirá el dorsal del siguiente corredor a salir. Entonces a partir de que diga iniciar,se iniciará una cuenta atrás de un minuto. El tiempo del crono cuando se inicie la cuenta atrás será el valor del crono salida de ese corredor menos el minuto que sale antes. y el numero de corredores salidos sera su valor de orden en la tabla menos 1.
 
-me gustaria ir poniendo todas las funciones que solo se utilizan en este proceso de cuenta atras las pongamos en otro arhivo, que se llame Crono_CRI_Cuenta_Atras.js. Indicame cuales he de llevar a este fichero y si he de modificar algun otro archivo (html,ws, manifest...) como ahora ya los arhivos son muy grandes, no te los puedo pasar. a medida que vayamos modificando o utilizando funciones las vamos moviendo a ese arhivo, que te parece?
+hemos pasado las funciones que solo se utilizan en este proceso de cuenta atras las pongamos en otro arhivo, que se llame Crono_CRI_Cuenta_Atras.js. es por eso que puede haber alguna funcion que no este donde esperamos. 
+
+por eso primero pideme las funciones que crees que intervienen en el proceso.
 ------

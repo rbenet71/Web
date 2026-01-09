@@ -22,6 +22,7 @@ let cronoCarreraSegundos = 0;
 let cuentaAtrasActiva = false;
 let intervaloCuentaAtras = null;
 let tiempoCuentaAtrasActual = 0;
+let cronoDeCarreraIniciado = false;
 
 // ============================================
 // INICIALIZACIÓN
@@ -81,6 +82,7 @@ function resetearSistemaCuentaAtras() {
     cronoCarreraSegundos = 0;
     cuentaAtrasActiva = false;
     tiempoCuentaAtrasActual = 0;
+    cronoDeCarreraIniciado = false;
     
     if (intervaloCuentaAtras) {
         clearInterval(intervaloCuentaAtras);
@@ -96,7 +98,10 @@ function resetearSistemaCuentaAtras() {
 
 function startCountdown() {
     console.log("🔄 Iniciando cuenta atrás (nuevo sistema)...");
-    console.log("startOrderData disponible:", window.startOrderData ? "Sí, " + window.startOrderData.length + " corredores" : "No");
+    
+    // IMPORTANTE: Obtener startOrderData de múltiples fuentes posibles
+    const startOrderData = obtenerStartOrderData();
+    console.log("startOrderData obtenido:", startOrderData ? "Sí, " + startOrderData.length + " corredores" : "No");
     
     const t = translations[appState.currentLanguage];
     
@@ -105,38 +110,51 @@ function startCountdown() {
         return;
     }
     
-    if (!window.startOrderData || window.startOrderData.length === 0) {
+    if (!startOrderData || startOrderData.length === 0) {
         showMessage("No hay datos de orden de salida. Importa o crea un orden de salida primero.", 'error');
         return;
     }
     
     // 1. Cuando el contador llega a 00:00 se inicia cuenta atrás de 60 segundos
+    //    (Esto se manejará en handleCountdownZero)
+    
     // 2. El contador de salidos se pone a 0
     appState.departedCount = 0;
     proximoCorredorIndex = 0;
     
-    // 3. Todos los tiempos de salida real y crono salida real se ponen vacíos
+    // 3. Todos los tiempos de salida real y crono salida real se ponen a valor vacío
     resetearTiemposReales();
     
     // 4. Primer corredor será el primer registro de la tabla
-    const primerCorredor = window.startOrderData[0];
-    if (!primerCorredor) {
+    const primerCorredor = obtenerProximoCorredor();
+    if (!primerCorredor || !primerCorredor.corredor) {
         showMessage("Error: No hay corredores en el orden de salida", 'error');
         return;
     }
     
-    // 5. Mostrar hora y tiempo del crono de la carrera
+    console.log("📊 Primer corredor:", primerCorredor.corredor.dorsal, "- cronoSalida:", primerCorredor.corredor.cronoSalida);
+    
+    // 5. En la parte superior izquierda se muestra la Hora y el tiempo del crono de la carrera
     cronoCarreraSegundos = 0;
+    cronoDeCarreraIniciado = false;
     actualizarCronoDisplay();
     actualizarHoraDisplay();
     
-    // 6. El tiempo del crono a cero durante cuenta atrás
-    cuentaAtrasActiva = true;
-    tiempoCuentaAtrasActual = 60; // Cuenta atrás de 60 segundos por defecto
+    // 6. El tiempo del crono siempre a cero durante está cuenta atrás
+    //    (Ya está en cero por defecto)
     
-    // Configurar tiempo de cuenta atrás según el primer corredor
-    if (primerCorredor.cronoSegundos && primerCorredor.cronoSegundos > 0) {
-        tiempoCuentaAtrasActual = primerCorredor.cronoSegundos;
+    // Configurar cuenta atrás para el primer corredor
+    cuentaAtrasActiva = true;
+    
+    // IMPORTANTE: Usar cronoSalida de la tabla para determinar tiempo de cuenta atrás
+    if (primerCorredor.corredor.cronoSalida && primerCorredor.corredor.cronoSalida !== "00:00:00") {
+        // Convertir cronoSalida (HH:MM:SS) a segundos
+        tiempoCuentaAtrasActual = timeToSeconds(primerCorredor.corredor.cronoSalida);
+        console.log("⏱️ Tiempo de cuenta atrás calculado desde cronoSalida:", primerCorredor.corredor.cronoSalida, "=", tiempoCuentaAtrasActual, "segundos");
+    } else {
+        // Si no tiene cronoSalida, usar 60 segundos por defecto
+        tiempoCuentaAtrasActual = 60;
+        console.log("⚠️ Usando tiempo por defecto (60s) porque cronoSalida no está definido");
     }
     
     // Ocultar elementos durante cuenta atrás
@@ -153,6 +171,9 @@ function startCountdown() {
     // Resetear estilos
     document.body.classList.remove('countdown-warning', 'countdown-critical', 'countdown-salida');
     document.body.classList.add('countdown-normal');
+    
+    // Mostrar información del primer corredor en pantalla
+    mostrarInfoCorredorEnPantalla(primerCorredor.corredor);
     
     // Actualizar displays
     updateCountdownDisplay();
@@ -177,6 +198,7 @@ function stopCountdown() {
     console.log("🛑 Deteniendo cuenta atrás...");
     
     cuentaAtrasActiva = false;
+    cronoDeCarreraIniciado = false;
     
     if (intervaloCuentaAtras) {
         clearInterval(intervaloCuentaAtras);
@@ -188,6 +210,9 @@ function stopCountdown() {
     if (countdownScreen) {
         countdownScreen.classList.remove('active');
     }
+    
+    // Ocultar información del corredor
+    ocultarInfoCorredorEnPantalla();
     
     // Mostrar elementos ocultos
     document.querySelectorAll('.hide-on-countdown').forEach(el => {
@@ -264,8 +289,10 @@ function handleCountdownZero() {
     // 8. Asignar horaSalidaReal y cronoSalidaReal al corredor que sale
     registerDeparture();
     
-    // Iniciar crono de carrera
-    iniciarCronoDeCarrera();
+    // 7. Iniciar crono de carrera (esto debe pasar DESPUÉS de que el corredor sale)
+    if (!cronoDeCarreraIniciado) {
+        iniciarCronoDeCarrera();
+    }
     
     // Ocultar "SALIDA" después de 2 segundos
     setTimeout(() => {
@@ -342,6 +369,59 @@ function updateCadenceTime() {
 }
 
 // ============================================
+// NUEVAS FUNCIONES PARA MOSTRAR INFO DEL CORREDOR
+// ============================================
+
+function mostrarInfoCorredorEnPantalla(corredor) {
+    console.log("📋 Mostrando información del corredor:", corredor.dorsal, corredor.nombre, corredor.apellidos);
+    
+    // Crear o actualizar el elemento para mostrar información del corredor
+    let corredorInfoDisplay = document.getElementById('corredor-info-display');
+    
+    if (!corredorInfoDisplay) {
+        corredorInfoDisplay = document.createElement('div');
+        corredorInfoDisplay.id = 'corredor-info-display';
+        corredorInfoDisplay.className = 'corredor-info-display';
+        
+        // Añadir estilos básicos
+        corredorInfoDisplay.style.cssText = `
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 10px;
+            font-size: 24px;
+            text-align: center;
+            z-index: 1000;
+            min-width: 300px;
+        `;
+        
+        const countdownScreen = document.getElementById('countdown-screen');
+        if (countdownScreen) {
+            countdownScreen.appendChild(corredorInfoDisplay);
+        }
+    }
+    
+    // Mostrar información del corredor
+    corredorInfoDisplay.innerHTML = `
+        <div style="font-size: 36px; font-weight: bold; margin-bottom: 10px;">Dorsal: ${corredor.dorsal}</div>
+        <div style="font-size: 28px;">${corredor.nombre || ''} ${corredor.apellidos || ''}</div>
+    `;
+    
+    corredorInfoDisplay.style.display = 'block';
+}
+
+function ocultarInfoCorredorEnPantalla() {
+    const corredorInfoDisplay = document.getElementById('corredor-info-display');
+    if (corredorInfoDisplay) {
+        corredorInfoDisplay.style.display = 'none';
+    }
+}
+
+// ============================================
 // REGISTRO DE SALIDAS (NUEVO SISTEMA)
 // ============================================
 
@@ -362,12 +442,22 @@ function registerDeparture() {
     const horaActual = ahora.toTimeString().split(' ')[0]; // HH:MM:SS
     
     corredor.horaSalidaReal = horaActual;
+    
+    // IMPORTANTE: cronoSalidaReal debe ser el tiempo actual del crono de carrera
     corredor.cronoSalidaReal = secondsToTime(cronoCarreraSegundos);
     corredor.horaSalidaRealSegundos = timeToSeconds(horaActual);
     corredor.cronoSalidaRealSegundos = cronoCarreraSegundos;
     
     // Actualizar en startOrderData
-    window.startOrderData[index] = corredor;
+    const startOrderData = obtenerStartOrderData();
+    if (startOrderData && index < startOrderData.length) {
+        startOrderData[index] = corredor;
+        
+        // Guardar cambios
+        if (typeof saveStartOrderData === 'function') {
+            saveStartOrderData();
+        }
+    }
     
     // Actualizar contador de salidos
     appState.departedCount++;
@@ -380,58 +470,164 @@ function registerDeparture() {
     console.log("✅ Salida registrada:", {
         dorsal: corredor.dorsal,
         horaReal: corredor.horaSalidaReal,
-        cronoReal: corredor.cronoSalidaReal
+        cronoReal: corredor.cronoSalidaReal,
+        cronoCarrera: cronoCarreraSegundos
     });
 }
 
 // ============================================
-// FUNCIONES DE INICIO MANUAL
+// FUNCIONES DE INICIO MANUAL (MODIFICADAS)
 // ============================================
 
 function iniciarCuentaAtrasManual(dorsal) {
     console.log("🎯 Iniciando cuenta atrás manual para dorsal:", dorsal);
     
+    const t = translations[appState.currentLanguage];
+    
+    // Obtener startOrderData
+    const startOrderData = obtenerStartOrderData();
+    if (!startOrderData || startOrderData.length === 0) {
+        showMessage("No hay datos de orden de salida", 'error');
+        return;
+    }
+    
     // 1. Buscar corredor por dorsal en startOrderData
-    const corredorIndex = window.startOrderData.findIndex(c => c.dorsal == dorsal);
+    const corredorIndex = startOrderData.findIndex(c => c.dorsal == dorsal);
     if (corredorIndex === -1) {
         showMessage(`No se encontró el dorsal ${dorsal}`, 'error');
         return;
     }
     
-    const corredor = window.startOrderData[corredorIndex];
+    const corredor = startOrderData[corredorIndex];
+    
+    console.log("📊 Corredor encontrado:", {
+        dorsal: corredor.dorsal,
+        orden: corredor.order,
+        cronoSalida: corredor.cronoSalida,
+        cronoSegundos: corredor.cronoSegundos
+    });
     
     // 2. Establecer como próximo corredor a salir
     proximoCorredorIndex = corredorIndex;
     
-    // 3. Calcular crono de carrera = cronoSalida del corredor - 60 segundos
-    cronoCarreraSegundos = corredor.cronoSegundos - 60;
-    if (cronoCarreraSegundos < 0) cronoCarreraSegundos = 0;
+    // 3. El tiempo del crono cuando se inicie la cuenta atrás será el valor del crono salida de ese corredor menos el minuto que sale antes.
+    //    cronoCarreraSegundos = cronoSalida_corredor - 60 segundos
+    if (corredor.cronoSegundos && corredor.cronoSegundos > 0) {
+        cronoCarreraSegundos = corredor.cronoSegundos - 60;
+        if (cronoCarreraSegundos < 0) cronoCarreraSegundos = 0;
+    } else if (corredor.cronoSalida && corredor.cronoSalida !== "00:00:00") {
+        // Convertir cronoSalida a segundos si cronoSegundos no está disponible
+        const segundosCronoSalida = timeToSeconds(corredor.cronoSalida);
+        cronoCarreraSegundos = segundosCronoSalida - 60;
+        if (cronoCarreraSegundos < 0) cronoCarreraSegundos = 0;
+    } else {
+        cronoCarreraSegundos = 0;
+    }
     
-    // 4. Número de salidos = orden del corredor - 1
+    // 4. Número de corredores salidos será su valor de orden en la tabla menos 1
     appState.departedCount = corredor.order - 1;
     
-    // 5. Iniciar cuenta atrás de 60 segundos
+    // 5. Entonces a partir de que diga iniciar, se iniciará una cuenta atrás de un minuto.
     tiempoCuentaAtrasActual = 60;
     cuentaAtrasActiva = true;
+    
+    // Ocultar elementos durante cuenta atrás
+    document.querySelectorAll('.hide-on-countdown').forEach(el => {
+        el.style.display = 'none';
+    });
+    
+    // Activar pantalla de cuenta atrás
+    const countdownScreen = document.getElementById('countdown-screen');
+    if (countdownScreen) {
+        countdownScreen.classList.add('active');
+    }
+    
+    // Mostrar información del corredor en pantalla
+    mostrarInfoCorredorEnPantalla(corredor);
+    
+    // Resetear estilos
+    document.body.classList.remove('countdown-warning', 'countdown-critical', 'countdown-salida');
+    document.body.classList.add('countdown-normal');
     
     // Actualizar displays
     actualizarCronoDisplay();
     updateCountdownDisplay();
     updateNextCorredorDisplay();
     
+    // Iniciar intervalo
+    if (intervaloCuentaAtras) {
+        clearInterval(intervaloCuentaAtras);
+    }
+    
+    intervaloCuentaAtras = setInterval(updateCountdown, 1000);
+    
+    // Mantener pantalla activa
+    if (typeof keepScreenAwake === 'function') {
+        keepScreenAwake();
+    }
+    
     showMessage(`Cuenta atrás manual iniciada para dorsal ${dorsal}`, 'success');
+    console.log("✅ Cuenta atrás manual iniciada:", {
+        dorsal: dorsal,
+        cronoCarrera: cronoCarreraSegundos,
+        salidos: appState.departedCount,
+        tiempoCuentaAtras: tiempoCuentaAtrasActual
+    });
+}
+
+// ============================================
+// FUNCIONES AUXILIARES MEJORADAS
+// ============================================
+
+function obtenerStartOrderData() {
+    // Intentar obtener de múltiples fuentes en orden de prioridad
+    if (window.startOrderData && Array.isArray(window.startOrderData) && window.startOrderData.length > 0) {
+        console.log("📊 startOrderData obtenido de window.startOrderData:", window.startOrderData.length);
+        return window.startOrderData;
+    }
+    
+    // Si no está en window, intentar desde appState
+    if (appState.currentRace && appState.currentRace.startOrder) {
+        console.log("📊 startOrderData obtenido de appState.currentRace:", appState.currentRace.startOrder.length);
+        return appState.currentRace.startOrder;
+    }
+    
+    // Último intento: desde localStorage
+    if (appState.currentRace) {
+        const raceKey = `race-${appState.currentRace.id}`;
+        const savedData = localStorage.getItem(raceKey);
+        if (savedData) {
+            try {
+                const parsed = JSON.parse(savedData);
+                if (parsed.startOrder && Array.isArray(parsed.startOrder) && parsed.startOrder.length > 0) {
+                    console.log("📊 startOrderData obtenido de localStorage:", parsed.startOrder.length);
+                    return parsed.startOrder;
+                }
+            } catch (e) {
+                console.error("Error parsing localStorage data:", e);
+            }
+        }
+    }
+    
+    console.warn("⚠️ No se pudo obtener startOrderData de ninguna fuente");
+    return null;
 }
 
 function obtenerProximoCorredor() {
-    if (!window.startOrderData || window.startOrderData.length === 0) {
-        console.warn("⚠️ No hay datos de orden de salida");
+    const startOrderData = obtenerStartOrderData();
+    
+    if (!startOrderData || startOrderData.length === 0) {
+        console.warn("⚠️ No hay datos de orden de salida disponibles");
         return null;
     }
     
+    console.log("🔍 Buscando próximo corredor en", startOrderData.length, "corredores");
+    
     // Buscar el próximo corredor que no tenga horaSalidaReal
-    for (let i = 0; i < window.startOrderData.length; i++) {
-        const corredor = window.startOrderData[i];
+    for (let i = 0; i < startOrderData.length; i++) {
+        const corredor = startOrderData[i];
         if (!corredor.horaSalidaReal || corredor.horaSalidaReal === '') {
+            console.log("✅ Próximo corredor encontrado:", corredor.dorsal, "en índice", i);
             return {
                 index: i,
                 corredor: corredor
@@ -440,40 +636,63 @@ function obtenerProximoCorredor() {
     }
     
     // Si todos tienen hora de salida, usar el último
-    const ultimoIndex = window.startOrderData.length - 1;
+    const ultimoIndex = startOrderData.length - 1;
+    console.log("📌 Todos los corredores ya salieron, usando el último:", startOrderData[ultimoIndex].dorsal);
     return {
         index: ultimoIndex,
-        corredor: window.startOrderData[ultimoIndex]
+        corredor: startOrderData[ultimoIndex]
     };
 }
 
 function calcularTiempoCuentaAtras(corredor) {
-    if (!corredor || !corredor.cronoSegundos) {
-        console.warn("⚠️ No se puede calcular tiempo: datos de corredor incompletos");
+    if (!corredor) {
+        console.warn("⚠️ No se puede calcular tiempo: corredor no definido");
         return 60; // Valor por defecto
     }
     
-    // Tiempo = cronoSalida del corredor - crono de carrera actual
-    const tiempo = corredor.cronoSegundos - cronoCarreraSegundos;
+    console.log("📊 Calculando tiempo de cuenta atrás para corredor:", corredor.dorsal);
+    console.log("  - cronoSalida:", corredor.cronoSalida);
+    console.log("  - cronoSegundos:", corredor.cronoSegundos);
+    console.log("  - cronoCarreraSegundos actual:", cronoCarreraSegundos);
     
-    // Si es negativo o menor que 0, usar 60 segundos por defecto
+    // Obtener cronoSalida del corredor en segundos
+    let segundosCronoSalida = 0;
+    
+    if (corredor.cronoSegundos && corredor.cronoSegundos > 0) {
+        segundosCronoSalida = corredor.cronoSegundos;
+    } else if (corredor.cronoSalida && corredor.cronoSalida !== "00:00:00") {
+        segundosCronoSalida = timeToSeconds(corredor.cronoSalida);
+    } else {
+        console.warn("⚠️ Corredor no tiene cronoSalida definido");
+        return 60; // Valor por defecto
+    }
+    
+    // 9. El siguiente corredor... su cuenta atrás será la diferencia entre el valor de crono salida de la tabla menos el tiempo del crono de la carrera
+    const tiempo = segundosCronoSalida - cronoCarreraSegundos;
+    
+    console.log("  - Tiempo calculado:", segundosCronoSalida, "-", cronoCarreraSegundos, "=", tiempo, "segundos");
+    
+    // Validaciones
     if (tiempo <= 0) {
+        console.warn("⚠️ Tiempo calculado es <= 0, usando 60s por defecto");
+        return 60;
+    }
+    
+    if (tiempo > 3600) { // Más de 1 hora
+        console.warn("⚠️ Tiempo calculado > 1h, usando 60s por defecto");
         return 60;
     }
     
     return tiempo;
 }
 
-// ============================================
-// FUNCIONES AUXILIARES
-// ============================================
-
 function resetearTiemposReales() {
-    if (!window.startOrderData) return;
+    const startOrderData = obtenerStartOrderData();
+    if (!startOrderData) return;
     
-    console.log("🔄 Reseteando tiempos reales de todos los corredores...");
+    console.log("🔄 Reseteando tiempos reales de", startOrderData.length, "corredores...");
     
-    window.startOrderData.forEach(corredor => {
+    startOrderData.forEach(corredor => {
         corredor.horaSalidaReal = '';
         corredor.cronoSalidaReal = '';
         corredor.horaSalidaRealSegundos = 0;
@@ -503,6 +722,8 @@ function actualizarHoraDisplay() {
 function iniciarCronoDeCarrera() {
     console.log("⏱️ Iniciando crono de carrera...");
     
+    cronoDeCarreraIniciado = true;
+    
     // Iniciar intervalo para incrementar crono de carrera cada segundo
     if (intervaloCuentaAtras) {
         clearInterval(intervaloCuentaAtras);
@@ -517,16 +738,35 @@ function iniciarCronoDeCarrera() {
         if (siguiente && siguiente.corredor) {
             const tiempoParaSiguiente = calcularTiempoCuentaAtras(siguiente.corredor);
             
-            if (tiempoParaSiguiente <= 60) {
+            console.log("🔍 Verificando siguiente corredor:", siguiente.corredor.dorsal, "- Tiempo restante:", tiempoParaSiguiente, "s");
+            
+            if (tiempoParaSiguiente <= 60 && tiempoParaSiguiente > 0) {
                 // Si falta 1 minuto o menos para el siguiente corredor, iniciar cuenta atrás
-                if (!cuentaAtrasActiva && tiempoParaSiguiente > 0) {
+                if (!cuentaAtrasActiva) {
                     console.log(`⚠️ Falta ${tiempoParaSiguiente}s para el siguiente corredor, iniciando cuenta atrás`);
                     cuentaAtrasActiva = true;
                     tiempoCuentaAtrasActual = tiempoParaSiguiente;
+                    
+                    // Mostrar información del siguiente corredor
+                    mostrarInfoCorredorEnPantalla(siguiente.corredor);
+                    
+                    // Cambiar a modo cuenta atrás
                     clearInterval(intervaloCuentaAtras);
                     intervaloCuentaAtras = setInterval(updateCountdown, 1000);
+                    
+                    // Cambiar estilos visuales
+                    document.body.classList.remove('countdown-salida');
+                    document.body.classList.add('countdown-normal');
                 }
             }
+        } else {
+            console.log("🏁 No hay más corredores por salir");
+            // Si no hay más corredores, detener todo
+            if (intervaloCuentaAtras) {
+                clearInterval(intervaloCuentaAtras);
+                intervaloCuentaAtras = null;
+            }
+            showMessage("¡Todos los corredores han salido!", 'success');
         }
     }, 1000);
 }
@@ -536,11 +776,19 @@ function prepararSiguienteCorredor() {
     if (!siguiente || !siguiente.corredor) {
         console.log("🏁 No hay más corredores por salir");
         showMessage("¡Todos los corredores han salido!", 'success');
-        stopCountdown();
+        
+        // Detener cronómetro
+        if (intervaloCuentaAtras) {
+            clearInterval(intervaloCuentaAtras);
+            intervaloCuentaAtras = null;
+        }
         return;
     }
     
     console.log("➡️ Preparando siguiente corredor:", siguiente.corredor.dorsal);
+    
+    // Mostrar información del siguiente corredor
+    mostrarInfoCorredorEnPantalla(siguiente.corredor);
     
     // Actualizar displays para el siguiente corredor
     updateNextCorredorDisplay();

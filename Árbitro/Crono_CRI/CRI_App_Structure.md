@@ -1413,3 +1413,58 @@ setInterval(updateCountdownIfActive, 1000);
 - ✅ Cuenta atrás funciona en tiempo real
 - ✅ Sin errores en consola
 - ✅ Código más robusto con verificaciones
+
+
+Anotaciones parciales para incorporar 
+
+# 📝 Nota para la documentación (CRI_App_Structure.md)
+
+Añade esta sección en **"LECCIONES APRENDIDAS"** o en **"PROBLEMAS Y SOLUCIONES"**:
+
+---
+
+## **🔧 CORRECCIÓN: Cálculo de "Cuenta atrás en:"**
+
+### **Problema**
+El display "Cuenta atrás en:" mostraba valores incorrectos (ej: 23:57:07) porque calculaba la diferencia entre la hora de salida y la hora actual directamente.
+
+### **Causa**
+La función `updateTimeDifference()` en `UI.js` calculaba:
+```
+diferencia = horaSalida - horaActual
+```
+
+Pero debería calcular:
+```
+diferencia = (horaSalida - 1 minuto) - horaActual
+```
+
+### **Solución**
+Modificar `updateTimeDifference()` en `UI.js` (líneas ~286-329):
+1. Restar 60 segundos a `firstStartTime` antes del cálculo
+2. Convertir todo a segundos → restar 60 → convertir de vuelta a HH:MM:SS
+3. Manejar casos límite (diferencia negativa → mostrar "00:00:00")
+
+### **Lógica implementada**
+```javascript
+// Cálculo correcto:
+totalSegundos = horas*3600 + minutos*60 + segundos
+totalSegundosMenosMinuto = totalSegundos - 60
+diferencia = totalSegundosMenosMinuto - horaActualEnSegundos
+```
+
+### **Ejemplo práctico**
+- **Salida Primero:** 19:31:00
+- **Hora actual:** 19:33:52
+- **Cálculo:** (19:31:00 - 1min) = 19:30:00 → 19:30:00 - 19:33:52 = -3:52 → Muestra "00:00:00"
+
+### **Archivos afectados**
+- `Crono_CRI_js_UI.js` - Función `updateTimeDifference()`
+- La misma lógica debe usarse en `startCountdown()` para consistencia
+
+### **Lección aprendida**
+Siempre verificar la lógica de negocio: "Cuenta atrás en:" se refiere al tiempo hasta que se inicie la cuenta atrás de 1 minuto, no hasta la salida real del primer corredor.
+
+---
+
+**¿Quieres que añada algo más a la descripción?**

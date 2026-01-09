@@ -469,7 +469,7 @@ function updateTimeDifference() {
     const firstStartTime = document.getElementById('first-start-time').value;
     if (!firstStartTime) return;
     
-    // Extraer horas, minutos y segundos
+    // Extraer horas, minutos y segundos de "Salida Primero"
     const timeParts = firstStartTime.split(':');
     let hours = 0, minutes = 0, seconds = 0;
     
@@ -477,16 +477,49 @@ function updateTimeDifference() {
     if (timeParts.length >= 2) minutes = parseInt(timeParts[1]) || 0;
     if (timeParts.length >= 3) seconds = parseInt(timeParts[2]) || 0;
     
-    const now = new Date();
-    const startTime = new Date(now);
-    startTime.setHours(hours, minutes, seconds, 0);
+    // 🔥 NUEVO: Restar 1 minuto (60 segundos) a la hora de salida
+    // Convertir todo a segundos, restar 60, y volver a convertir
+    const totalSegundos = hours * 3600 + minutes * 60 + seconds;
+    const totalSegundosMenosMinuto = totalSegundos - 60;
     
-    if (startTime < now) {
-        startTime.setDate(startTime.getDate() + 1);
+    if (totalSegundosMenosMinuto < 0) {
+        // Si al restar 1 minuto se vuelve negativo, ajustar al día anterior
+        hours = 23;
+        minutes = 59;
+        seconds = 0;
+    } else {
+        // Convertir de vuelta a horas, minutos, segundos
+        hours = Math.floor(totalSegundosMenosMinuto / 3600);
+        const minutosRestantes = totalSegundosMenosMinuto % 3600;
+        minutes = Math.floor(minutosRestantes / 60);
+        seconds = minutosRestantes % 60;
     }
     
-    const diffMs = startTime - now;
+    console.log("🕐 Cálculo de cuenta atrás:");
+    console.log("  - Salida Primero original:", firstStartTime);
+    console.log("  - Salida Primero - 1 min:", `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+    
+    const now = new Date();
+    const horaSalidaMenosMinuto = new Date(now);
+    horaSalidaMenosMinuto.setHours(hours, minutes, seconds, 0);
+    
+    // Si la hora ya pasó hoy, calcular para mañana
+    if (horaSalidaMenosMinuto < now) {
+        horaSalidaMenosMinuto.setDate(horaSalidaMenosMinuto.getDate() + 1);
+        console.log("  - La hora ya pasó hoy, calculando para mañana");
+    }
+    
+    const diffMs = horaSalidaMenosMinuto - now;
     const diffSeconds = Math.floor(diffMs / 1000);
+    
+    // Manejar caso especial cuando ya pasó la hora
+    if (diffSeconds < 0) {
+        console.log("⚠️ La cuenta atrás es negativa, mostrando 00:00:00");
+        document.getElementById('time-difference-display').textContent = "00:00:00";
+        updateStartOrderCardTitle();
+        return;
+    }
+    
     const diffHours = Math.floor(diffSeconds / 3600);
     const diffMinutes = Math.floor((diffSeconds % 3600) / 60);
     const diffSecs = diffSeconds % 60;
@@ -494,6 +527,9 @@ function updateTimeDifference() {
     const diffString = `${diffHours.toString().padStart(2, '0')}:${diffMinutes.toString().padStart(2, '0')}:${diffSecs.toString().padStart(2, '0')}`;
     document.getElementById('time-difference-display').textContent = diffString;
     updateStartOrderCardTitle();
+    
+    console.log(`  - Hora actual: ${now.toTimeString().split(' ')[0]}`);
+    console.log(`  - Diferencia calculada: ${diffString} (${diffSeconds} segundos)`);
     
     // 🔥 NUEVA FUNCIONALIDAD: Iniciar cuenta atrás automáticamente cuando llegue a 00:00:00
     if (diffString === "00:00:00" && diffSeconds <= 0) {
