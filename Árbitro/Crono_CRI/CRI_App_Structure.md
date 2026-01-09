@@ -1,4 +1,4 @@
-# CRI App Structure Documentation - COMPLETAMENTE ACTUALIZADO CON MÓDULO DE UTILIDADES
+# CRI App Structure Documentation - COMPLETAMENTE ACTUALIZADO CON MÓDULO DE UTILIDADES Y LECCIONES APRENDIDAS
 
 ## Visión General
 Crono CRI es una aplicación web progresiva (PWA) para el control de salidas y llegadas en carreras ciclistas y eventos deportivos. La aplicación proporciona un sistema completo de gestión de carreras con cuenta atrás visual, registro de salidas/llegadas, y funcionalidades de exportación.
@@ -604,7 +604,38 @@ FUNCIONES CLAVE:
 - exportLlegadasToExcel() - Exporta llegadas a Excel
 ```
 
-#### **13. Crono_CRI_ws.js** - Service Worker para PWA
+#### **13. Crono_CRI_js_Cuenta_Atras.js** - Módulo especializado de cuenta atrás (NUEVO)
+```
+DESCRIPCIÓN: Módulo especializado para el sistema de cuenta atrás basado en cronoSalida de la tabla
+RESPONSABILIDADES:
+1. Sistema de cuenta atrás basado en cronoSalida de la tabla
+2. Gestión de salidas con tiempos reales
+3. Inicio manual con dorsal específico
+4. Cálculo automático de tiempos entre corredores
+5. Compensación de 1 segundo para corredores posteriores al primero
+
+FUNCIONES CRÍTICAS:
+- inicializarSistemaCuentaAtras() - Inicializa sistema de cuenta atrás
+- startCountdown() - Inicia cuenta atrás (sistema nuevo)
+- stopCountdown() - Detiene cuenta atrás
+- calcularTiempoCuentaAtras() - Calcula tiempo con compensación de 1s para corredores posteriores
+- prepararSiguienteCorredor() - Prepara siguiente corredor para salir
+- iniciarCuentaAtrasManual() - Inicia cuenta atrás manual para dorsal específico
+- actualizarDisplayProximoCorredor() - Muestra diferencia del siguiente corredor
+
+SISTEMA DE COMPENSACIÓN:
+✓ Primer corredor: tiempo = cronoSalida - cronoCarreraSegundos (sin compensación)
+✓ Corredores posteriores: tiempo = cronoSalida - cronoCarreraSegundos - 1 (compensación de 1s)
+✓ "Próximo sale a:" muestra diferencia exacta de tabla (sin ajustes)
+
+DEPENDENCIAS:
+← Main.js: Recibe appState y startOrderData
+← Utilidades.js: Funciones de tiempo y audio
+→ Storage_Pwa.js: Guarda datos de salidas
+→ UI.js: Muestra información en pantalla
+```
+
+#### **14. Crono_CRI_ws.js** - Service Worker para PWA
 ```
 RESPONSABILIDADES:
 - Cache de recursos estáticos para funcionamiento offline
@@ -620,7 +651,7 @@ CACHE: 'crono-cri-v1' incluye:
 
 ### 📁 **RECURSOS ESTÁTICOS**
 
-#### **14. Crono_CRI_manifest.json** - Configuración PWA
+#### **15. Crono_CRI_manifest.json** - Configuración PWA
 ```
 - Información de la aplicación (nombre, descripción)
 - Iconos para diferentes tamaños (192x192, 512x512)
@@ -628,7 +659,7 @@ CACHE: 'crono-cri-v1' incluye:
 - Colores del tema
 ```
 
-#### **15. Recursos de audio** (en directorio audio/)
+#### **16. Recursos de audio** (en directorio audio/)
 ```
 SISTEMA DE ARCHIVOS ESPERADOS (CONVENCIÓN):
 - 0.ogg = audio de SALIDA/SORTIDA/GO/DÉPART
@@ -682,6 +713,12 @@ Main.js (Coordinador Principal)
 │   ├──← Salidas_3.js (Recibe recalculateFollowingRiders)
 │   ├──→ Todos (Proporciona helpers de formato)
 │   └──→ Storage_Pwa.js (Guarda después de cambios)
+│
+├── Cuenta_Atras.js (Módulo especializado de cuenta atrás - NUEVO)
+│   ├──← Main.js (Recibe appState y startOrderData)
+│   ├──← Utilidades.js (Funciones de tiempo y audio)
+│   ├──→ Storage_Pwa.js (Guarda datos de salidas)
+│   └──→ UI.js (Muestra información en pantalla)
 │
 ├── UI.js (Componentes de interfaz)
 │   ├──← Main.js (Recibe appState)
@@ -840,6 +877,7 @@ Main.js (Coordinador Principal)
 18. **Conversiones de tiempo:** `timeToSeconds()`, `secondsToTime()`, `formatTimeValue()` en Utilidades.js
 19. **Mantenimiento de pantalla:** `keepScreenAwake()` en Utilidades.js para cuenta atrás activa
 20. **Limpieza de datos antiguos:** `cleanupOldData()` en Utilidades.js
+21. **Sistema de cuenta atrás:** `calcularTiempoCuentaAtras()` en Cuenta_Atras.js con compensación de 1s para corredores posteriores
 
 ## 📝 **CONVENIOS DE DESARROLLO - ACTUALIZADO**
 
@@ -866,6 +904,7 @@ Main.js (Coordinador Principal)
 18. **Conversiones de tiempo:** Usar funciones centralizadas de Utilidades.js para consistencia
 19. **Manejo de errores:** Capturar y mostrar errores en reproducción de audio y generación de PDF
 20. **Compatibilidad:** Asegurar funcionamiento en múltiples navegadores y dispositivos móviles
+21. **Sistema de cuenta atrás:** Usar `calcularTiempoCuentaAtras()` para cálculos consistentes con compensación de 1s
 
 ## 🔍 **DEPURACIÓN COMÚN - ACTUALIZADO**
 
@@ -896,13 +935,15 @@ Main.js (Coordinador Principal)
 - **Conversiones de tiempo incorrectas** → Verificar `timeToSeconds()` y `secondsToTime()` en Utilidades.js
 - **Pantalla se apaga durante cuenta atrás** → Verificar `keepScreenAwake()` en Utilidades.js
 - **Exportación Excel con formato incorrecto** → Verificar `formatTimeValue()` en Utilidades.js
+- **Cuenta atrás incorrecta** → Verificar `calcularTiempoCuentaAtras()` en Cuenta_Atras.js
+- **"Próximo sale a:" no se actualiza** → Verificar `actualizarDisplayProximoCorredor()` en Cuenta_Atras.js
 
 ### **MÓDULOS QUE SUELEN INTERACTUAR:**
 
 1. **Cualquier cambio en estructura de datos** → Main.js, todos los módulos Salidas_*.js, Storage_Pwa.js, Utilidades.js
 2. **Cambios en UI/UX** → UI.js, CSS, HTML, Traducciones.js
 3. **Modales nuevos o modificados** → Salidas_3.js, UI.js, HTML, CSS, Traducciones.js
-4. **Validación o formato de tiempo** → Salidas_4.js, Utilidades.js
+4. **Validación o formato de tiempo** → Salidas_4.js, Utilidades.js, Cuenta_Atras.js
 5. **Persistencia de datos** → Storage_Pwa.js, Main.js
 6. **Exportación/Importación** → Utilidades.js, Salidas_1.js
 7. **Sistema de audio** → Utilidades.js, Main.js, Traducciones.js (nombres de archivos)
@@ -912,8 +953,9 @@ Main.js (Coordinador Principal)
 11. **Edición de diferencia** → Salidas_2.js, Salidas_4.js
 12. **Modal de confirmación** → Salidas_4.js, UI.js, Traducciones.js
 13. **Generación de PDF** → Utilidades.js, UI.js, Traducciones.js
-14. **Conversiones de tiempo** → Utilidades.js, Salidas_1.js, Salidas_4.js
+14. **Conversiones de tiempo** → Utilidades.js, Salidas_1.js, Salidas_4.js, Cuenta_Atras.js
 15. **Configuración de audio** → Utilidades.js, UI.js, Main.js
+16. **Sistema de cuenta atrás** → Cuenta_Atras.js, UI.js, Utilidades.js
 
 ## 🔧 **FLUJO PARA MODIFICACIONES - GUÍA PRÁCTICA ACTUALIZADA**
 
@@ -924,6 +966,7 @@ Main.js (Coordinador Principal)
    - Interfaz de tabla, edición básica, throttling → `Salidas_2.js`
    - Modales, gestión de cambios, vista previa → `Salidas_3.js`
    - Edición avanzada, validaciones, confirmaciones → `Salidas_4.js`
+   - Sistema de cuenta atrás especializado → `Cuenta_Atras.js`
    - Interfaz general, tarjetas, modales → `UI.js`
    - Persistencia, backup, gestión de carreras → `Storage_Pwa.js`
    - Utilidades, audio, exportación, conversiones tiempo → `Utilidades.js`
@@ -951,6 +994,7 @@ Main.js (Coordinador Principal)
    - `Traducciones.js` y cualquier módulo que muestre texto al usuario
    - `Utilidades.js` y `Traducciones.js` (sistema de audio multilingüe)
    - `Storage_Pwa.js` y `UI.js` (gestión de títulos y estado)
+   - `Cuenta_Atras.js` y `Utilidades.js` (cálculos de tiempo y cuenta atrás)
 
 ### **EJEMPLOS PRÁCTICOS ACTUALIZADOS:**
 
@@ -981,8 +1025,8 @@ Main.js (Coordinador Principal)
 
 **Ejemplo 4: Cambiar conversiones de tiempo**
 1. Modificar `Utilidades.js` (`timeToSeconds`, `secondsToTime`, `formatTimeValue`)
-2. Verificar que `Salidas_1.js` y `Salidas_4.js` usen las mismas funciones
-3. Actualizar validaciones en `Salidas_4.js`
+2. Verificar que `Salidas_1.js`, `Salidas_4.js` y `Cuenta_Atras.js` usen las mismas funciones
+3. Actualizar validaciones en `Salidas_4.js` y `Cuenta_Atras.js`
 4. Probar con diferentes formatos (MM:SS, HH:MM:SS, segundos)
 
 **Ejemplo 5: Añadir nuevo idioma**
@@ -997,6 +1041,12 @@ Main.js (Coordinador Principal)
 2. Verificar estructura de 19 columnas
 3. Actualizar `Traducciones.js` para cabeceras de columna
 4. Probar con datos reales
+
+**Ejemplo 7: Modificar sistema de cuenta atrás**
+1. Actualizar `Cuenta_Atras.js` (`calcularTiempoCuentaAtras`, `startCountdown`, `prepararSiguienteCorredor`)
+2. Verificar compensación de tiempo en `calcularTiempoCuentaAtras()`
+3. Actualizar `actualizarDisplayProximoCorredor()` si afecta a "próximo sale a:"
+4. Probar con secuencias de corredores reales
 
 ## 📋 **CHECKLIST PARA CAMBIOS - ACTUALIZADO**
 
@@ -1019,6 +1069,8 @@ Main.js (Coordinador Principal)
 - [ ] ¿Afecta a copias de seguridad? → Actualizar `Storage_Pwa.js`
 - [ ] ¿Requiere conversiones de tiempo? → Usar funciones de `Utilidades.js`
 - [ ] ¿Afecta a generación de PDF? → Actualizar `Utilidades.js` y `UI.js`
+- [ ] ¿Afecta al sistema de cuenta atrás? → Actualizar `Cuenta_Atras.js`
+- [ ] ¿Requiere compensación de tiempo? → Verificar `calcularTiempoCuentaAtras()` en `Cuenta_Atras.js`
 
 ## 🎯 **REGLAS DE ORO PARA DESARROLLO**
 
@@ -1042,6 +1094,7 @@ Main.js (Coordinador Principal)
 18. **Usar funciones centralizadas de Utilidades.js para conversiones de tiempo**
 19. **Incluir fallback en sistema de audio** - Beep si falla la voz
 20. **Cargar librerías externas dinámicamente cuando sea necesario**
+21. **Usar `calcularTiempoCuentaAtras()` para cálculos de cuenta atrás** - Incluye compensación de 1s para corredores posteriores
 
 ## 📞 **PROTOCOLO DE COMUNICACIÓN PARA CAMBIOS**
 
@@ -1067,6 +1120,10 @@ Cuando necesites hacer un cambio:
 **Ejemplo con PDF:**
 - Cliente: "El PDF generado no tiene buen formato"
 - Asistente: "Esto afecta a Utilidades.js (generateStartOrderPDF) y posiblemente UI.js (setupPDFExportButton). Envíame esos archivos."
+
+**Ejemplo con cuenta atrás:**
+- Cliente: "La cuenta atrás no es precisa"
+- Asistente: "Esto afecta a Cuenta_Atras.js (calcularTiempoCuentaAtras, startCountdown). Envíame ese archivo para revisar los cálculos."
 
 ## 🔄 **MEJORAS IMPLEMENTADAS EN UTILIDADES.JS**
 
@@ -1102,13 +1159,27 @@ Cuando necesites hacer un cambio:
 - ✓ Funciones auxiliares de formato de fecha y tiempo
 - ✓ Sistema de inicialización modular
 
+## 🔧 **MEJORAS IMPLEMENTADAS EN CUENTA_ATRAS.JS**
+
+### **SISTEMA DE CUENTA ATRÁS ESPECIALIZADO:**
+- ✓ Cálculo basado en cronoSalida de la tabla
+- ✓ Compensación de 1 segundo para corredores posteriores al primero
+- ✓ Sistema de cronómetro de carrera preciso con requestAnimationFrame
+- ✓ "Próximo sale a:" muestra diferencia exacta de tabla
+- ✓ Inicio manual con dorsal específico
+
+### **FÓRMULA DE CÁLCULO:**
+- Primer corredor: tiempo = cronoSalida - cronoCarreraSegundos (sin compensación)
+- Corredores posteriores: tiempo = cronoSalida - cronoCarreraSegundos - 1 (con compensación)
+- "Próximo sale a:" muestra diferencia exacta sin ajustes
+
+### **GESTIÓN DE ESTADO:**
+- ✓ Control de índice de próximo corredor
+- ✓ Reseteo automático de campos reales
+- ✓ Sincronización con múltiples fuentes de datos
+- ✓ Manejo de casos límite (último corredor, errores)
+
 ---
-
-*Última actualización: Documentación completamente actualizada con el módulo Utilidades.js*
-*Versión de aplicación: V_19_12_2025*
-*Módulos documentados: Main, Salidas (1-4), UI, Storage_Pwa, Utilidades, Traducciones*
-*Funcionalidades clave: Sistema de audio, exportación Excel/PDF, conversiones tiempo, throttling de 3 niveles*
-
 
 # LECCIONES APRENDIDAS - CRI APP
 
@@ -1154,276 +1225,46 @@ Cuando necesites hacer un cambio:
 **Solución:** Función `forceFullSync()` para forzar coherencia
 **Archivos:** `Storage_Pwa.js`
 
-## **FUNCIONES CRÍTICAS AÑADIDAS**
-
-### **En Storage_Pwa.js:**
-1. `cleanOrphanedRaces()` - Elimina carreras huérfanas
-2. `forceFullSync()` - Sincroniza memoria y localStorage
-3. `diagnoseGhostRace()` - Detecta carreras fantasma
-4. `fixGhostRace()` - Elimina opciones inválidas del selector
-5. `clearAllRaces()` - Limpia TODAS las carreras
-
-### **En UI.js:**
-1. `updateDeleteRaceButtonState()` - Controla botón eliminar
-2. `updateRaceActionButtonsState()` - Controla todos los botones de carrera
-3. `addDisabledButtonStyles()` - Estilos para botones deshabilitados
-
-## **MEJORES PRÁCTICAS IMPLEMENTADAS**
-
-### **1. Validación de Estado**
-- Siempre verificar `appState.currentRace` antes de operaciones
-- Usar `updateRaceActionButtonsState()` tras cambios
-
-### **2. Sincronización**
-- Forzar sincronía entre `appState.races` y localStorage
-- Usar `forceFullSync()` tras operaciones críticas
-
-### **3. Limpieza Completa**
-- Al eliminar: limpiar array, localStorage, estado y UI
-- Usar `clearAllRaces()` para reset total
-
-### **4. Manejo de Errores**
-- Try-catch en operaciones localStorage
-- Logs detallados para diagnóstico
-- `showMessage()` para feedback al usuario
-
-### **5. UI Reactiva**
-- Botones se habilitan/deshabilitan automáticamente
-- Selector se actualiza inmediatamente
-- Feedback visual claro
-
-## **COMANDOS DIAGNÓSTICO**
-
-```javascript
-// Ver estado actual
-diagnoseCurrentState()
-
-// Detectar carreras fantasma
-diagnoseGhostRace()
-
-// Forzar sincronización
-forceFullSync()
-
-// Limpiar problemas
-fixGhostRace()
-
-// Reset total
-clearAllRaces()
-```
-
-## **ARCHIVOS CLAVE A REVISAR SI HAY PROBLEMAS**
-
-1. `Storage_Pwa.js` - Gestión de carreras y datos
-2. `UI.js` - Estado de botones e interfaz
-3. `Main.js` - Coordinación general
-4. `Salidas_1.js` - Importación y validaciones
-
-## **FLUJO DE SOLUCIÓN RECOMENDADO**
-
-1. **Diagnosticar:** Ejecutar `diagnoseCurrentState()`
-2. **Identificar:** Ver qué componente falla
-3. **Sincronizar:** `forceFullSync()` si hay desincronía
-4. **Limpiar:** `fixGhostRace()` o `clearAllRaces()` si es necesario
-5. **Verificar:** Confirmar que UI se actualiza correctamente
-
-## **ERRORES COMUNES Y SOLUCIÓN RÁPIDA**
-
-| Error | Solución |
-|-------|----------|
-| "No hay carrera seleccionada" | Verificar `appState.currentRace` |
-| Carrera no aparece en selector | Ejecutar `renderRacesSelect()` |
-| Botones no se habilitan | `updateRaceActionButtonsState()` |
-| Datos mezclados entre carreras | `forceFullSync()` |
-| No se puede eliminar carrera | `clearAllRaces()` + recargar |
-
-**Regla de oro:** Después de cualquier operación de carrera, llamar a:
-1. `renderRacesSelect()`
-2. `updateRaceActionButtonsState()`
-3. `updateRaceManagementCardTitle()`
-
-Esto asegura coherencia en toda la aplicación.
-
-// Verificar en consola
-console.log("Tiene onclick?", document.getElementById('import-order-btn').hasAttribute('onclick'));
-
-ERROR: Campos de Carrera no se Actualizan al Cambiar de Carrera
-Descripción del Problema
-Al seleccionar una carrera diferente en el selector, algunos campos críticos de la interfaz no se actualizan correctamente, específicamente:
-
-"Salida Primero:" - El campo first-start-time mantiene el valor de la carrera anterior
-
-"Total Corredores:" - El campo total-riders no refleja el número real de corredores de la nueva carrera
-
-Causa Raíz
-La función loadRaceData() en Storage_Pwa.js cargaba los datos principales de la carrera (orden de salida, salidas realizadas, hora de inicio), pero NO actualizaba los campos de configuración en la UI:
-
-first-start-time - Hora de la primera salida
-
-total-riders - Número total de corredores en el orden de salida
-
-Áreas Afectadas
-Storage_Pwa.js - Función loadRaceData()
-
-Storage_Pwa.js - Función initializeEmptyData()
-
-Síntomas
-Al cambiar de carrera, el selector funciona pero los campos de configuración quedan "pegados" a la carrera anterior
-
-Si la nueva carrera tiene diferente hora de inicio, no se refleja en "Salida Primero:"
-
-Si la nueva carrera tiene diferente número de corredores, no se refleja en "Total Corredores:"
-
-El orden de salida y las salidas realizadas SÍ se actualizan correctamente
-
-Solución Implementada
-Se modificó loadRaceData() para que actualice TODOS los campos de configuración:
-
-En loadRaceData():
-javascript
-// 1. Actualizar "Salida Primero:" (first-start-time)
-if (firstStartTimeInput) {
-    // Prioridad: 1) carrera actual, 2) datos guardados, 3) valor por defecto
-    if (appState.currentRace.firstStartTime) {
-        firstStartTimeInput.value = appState.currentRace.firstStartTime;
-    } else if (data.firstStartTime) {
-        firstStartTimeInput.value = data.firstStartTime;
-    } else {
-        firstStartTimeInput.value = "09:00:00";
-    }
-}
-
-// 2. Actualizar "Total Corredores:" (total-riders)
-if (totalRidersInput) {
-    totalRidersInput.value = startOrderData.length > 0 ? startOrderData.length : 1;
-}
-En initializeEmptyData():
-javascript
-// Actualizar también en caso de datos vacíos
-if (firstStartTimeInput) {
-    if (appState.currentRace && appState.currentRace.firstStartTime) {
-        firstStartTimeInput.value = appState.currentRace.firstStartTime;
-    } else {
-        firstStartTimeInput.value = "09:00:00";
-    }
-}
-
-if (totalRidersInput) {
-    totalRidersInput.value = 1;
-}
-Lecciones Aprendidas
-Carga completa: Al cargar datos de una carrera, siempre actualizar TODOS los campos relacionados en la UI
-
-Jerarquía de fuentes: Establecer prioridad clara para obtener valores (carrera actual > datos guardados > valor por defecto)
-
-Consistencia entre funciones: loadRaceData() y initializeEmptyData() deben actualizar los mismos campos
-
-Logs de diagnóstico: Incluir logs específicos para cada campo actualizado facilita la depuración
-
-Prevención Futura
-Siempre verificar que al cambiar de carrera se actualicen estos campos críticos:
-
-first-start-time (Salida Primero)
-
-total-riders (Total Corredores)
-
-departed-count (Salidos - ya funcionaba)
-
-start-position (Próxima posición - ya funcionaba)
-
-Tabla de orden de salida (ya funcionaba)
-
-Código de Diagnóstico Rápido
-Para verificar si este error reaparece, ejecutar en consola:
-
-javascript
-// Después de cambiar de carrera, verificar:
-console.log("first-start-time:", document.getElementById('first-start-time').value);
-console.log("total-riders:", document.getElementById('total-riders').value);
-console.log("startOrderData length:", startOrderData.length);
-console.log("carrera actual:", appState.currentRace?.name);
-Fecha de corrección: [Fecha actual]
-Módulo afectado: Storage_Pwa.js
-Funciones corregidas: loadRaceData(), initializeEmptyData()
-Estado: RESUELTO ✅
-
-¿QUÉ APRENDIMOS?
-El problema tenía dos causas:
-Faltaba la traducción diferenciaHeader en catalán
-La función updateTableHeaders original no manejaba todas las columnas
-La solución fue:
-Agregar la traducción faltante al objeto translations.ca
-Reemplazar completamente la función buggy con una versión robusta
-El sistema ahora es más robusto:
-Muestra logs informativos
-Maneja todas las 18 columnas
-Es más fácil de depurar en el futuro
-
-# 🔧 Aprendizajes: Problema de Actualización de Tiempo
-
-## 📌 **Problema**
-Hora del día y cuenta atrás no se actualizaban en tiempo real.
-
-## 🎯 **Causa**
-- Se intentaban llamar funciones inexistentes en `Main.js`
-- `setupTimeIntervals()` y `setupCountdownResize()` no existían
-- No había intervalos activos para actualizar los displays
-
-## ✅ **Solución Implementada**
-
-### **1. Verificar funciones antes de usar**
-```javascript
-if (typeof updateSystemTimeDisplay === 'function') {
-    updateSystemTimeDisplay();
-    setInterval(updateSystemTimeDisplay, 1000);
-}
-```
-
-### **2. Crear funciones faltantes**
-```javascript
-function updateSystemTime() {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('es-ES', { 
-        hour12: false 
-    });
-    
-    const timeElement = document.getElementById('system-time');
-    if (timeElement) timeElement.textContent = timeString;
-}
-```
-
-### **3. Manejo condicional de countdown**
-```javascript
-function updateCountdownIfActive() {
-    if (appState.countdownActive && typeof updateCountdownDisplay === 'function') {
-        updateCountdownDisplay();
-    }
-}
-setInterval(updateCountdownIfActive, 1000);
-```
-
-## 📋 **Buenas Prácticas Aprendidas**
-
-1. **Verificar funciones antes de llamarlas**
-2. **Crear funciones de respaldo** cuando las esperadas faltan
-3. **Logging claro** para debugging
-4. **Timing adecuado** - ejecutar después de inicialización completa
-
-## ⚡ **Resultado**
-- ✅ Hora del sistema se actualiza cada segundo
-- ✅ Cuenta atrás funciona en tiempo real
-- ✅ Sin errores en consola
-- ✅ Código más robusto con verificaciones
-
-
-Anotaciones parciales para incorporar 
-
-# 📝 Nota para la documentación (CRI_App_Structure.md)
-
-Añade esta sección en **"LECCIONES APRENDIDAS"** o en **"PROBLEMAS Y SOLUCIONES"**:
-
----
-
-## **🔧 CORRECCIÓN: Cálculo de "Cuenta atrás en:"**
+### **9. Campos de Carrera no se Actualizan al Cambiar de Carrera**
+**Problema:** Al seleccionar una carrera diferente, campos como "Salida Primero:" y "Total Corredores:" no se actualizaban
+**Solución:** Modificar `loadRaceData()` en `Storage_Pwa.js` para actualizar TODOS los campos de configuración
+**Archivos:** `Storage_Pwa.js` - Funciones `loadRaceData()` y `initializeEmptyData()`
+
+### **10. Traducción faltante en Catalán**
+**Problema:** Error "diferenciaHeader is not defined" en catalán
+**Solución:** Agregar traducción faltante al objeto `translations.ca` y reemplazar función buggy
+**Archivos:** `Traducciones.js` - Añadir `diferenciaHeader` en catalán
+
+### **11. Hora no se Actualizaba en Pantalla de Cuenta Atrás**
+**Problema:** La hora del sistema no se actualizaba en la pantalla de cuenta atrás
+**Solución:** Cambiar `document.getElementById('current-time')` por `document.getElementById('current-time-value')`
+**Archivos:** `Main.js` - Función `updateCurrentTime()`
+
+### **12. Cálculo Incorrecto de "Cuenta atrás en:"**
+**Problema:** El display "Cuenta atrás en:" mostraba valores incorrectos
+**Solución:** Modificar `updateTimeDifference()` en `UI.js` para calcular:
+   `diferencia = (horaSalida - 1 minuto) - horaActual`
+**Archivos:** `UI.js` - Función `updateTimeDifference()`
+
+### **13. Reseteo Incompleto al Iniciar Cuenta Atrás Automáticamente**
+**Problema:** Cuando "Cuenta atrás en:" llegaba a 00:00:00, los campos `horaSalidaReal` y `cronoSalidaReal` no se limpiaban
+**Solución:** Función unificada `resetearCamposRealesAutomatico()` que limpia TODAS las fuentes de datos
+**Archivos:** `UI.js` - Función `resetearCamposRealesAutomatico()`
+
+### **14. Error en Sistema de Cuenta Atrás: updateNextCorredorDisplay is not defined**
+**Problema:** Error en línea 751: Uncaught ReferenceError: updateNextCorredorDisplay is not defined
+**Solución:** Reemplazar `updateNextCorredorDisplay()` por `actualizarDisplayProximoCorredor()` en `iniciarCronoDeCarrera()`
+**Archivos:** `Cuenta_Atras.js` - Función `iniciarCronoDeCarrera()`
+
+### **15. Compensación de Tiempo en Cuenta Atrás**
+**Problema:** La salida se daba 1 segundo más tarde debido a retardo del intervalo
+**Solución:** Modificar `calcularTiempoCuentaAtras()` para restar 1 segundo siempre a los corredores posteriores al primero
+**Fórmula:**
+   - Primer corredor: tiempo = cronoSalida - cronoCarreraSegundos
+   - Corredores posteriores: tiempo = cronoSalida - cronoCarreraSegundos - 1
+**Archivos:** `Cuenta_Atras.js` - Función `calcularTiempoCuentaAtras()`
+
+## **🕒 CORRECCIÓN: Cálculo de "Cuenta atrás en:"**
 
 ### **Problema**
 El display "Cuenta atrás en:" mostraba valores incorrectos (ej: 23:57:07) porque calculaba la diferencia entre la hora de salida y la hora actual directamente.
@@ -1458,121 +1299,8 @@ diferencia = totalSegundosMenosMinuto - horaActualEnSegundos
 - **Hora actual:** 19:33:52
 - **Cálculo:** (19:31:00 - 1min) = 19:30:00 → 19:30:00 - 19:33:52 = -3:52 → Muestra "00:00:00"
 
-### **Archivos afectados**
-- `Crono_CRI_js_UI.js` - Función `updateTimeDifference()`
-- La misma lógica debe usarse en `startCountdown()` para consistencia
-
 ### **Lección aprendida**
 Siempre verificar la lógica de negocio: "Cuenta atrás en:" se refiere al tiempo hasta que se inicie la cuenta atrás de 1 minuto, no hasta la salida real del primer corredor.
-
----
-
-**¿Quieres que añada algo más a la descripción?**
-
-¡Excelente! Aquí tienes la versión **limpia sin logs**:
-
-## **Versión limpia de `resetearCamposRealesAutomatico()` en `UI.js`:**
-
-```javascript
-// ============================================
-// FUNCIÓN PARA RESETEAR CAMPOS REALES (INICIO AUTOMÁTICO)
-// ============================================
-function resetearCamposRealesAutomatico() {
-    // Limpiar todas las fuentes posibles
-    
-    // 1. window.startOrderData (principal)
-    if (window.startOrderData && Array.isArray(window.startOrderData)) {
-        window.startOrderData.forEach(corredor => {
-            corredor.horaSalidaReal = '';
-            corredor.cronoSalidaReal = '';
-            corredor.horaSalidaRealSegundos = 0;
-            corredor.cronoSalidaRealSegundos = 0;
-        });
-    }
-    
-    // 2. appState.currentRace.startOrder (secundaria)
-    if (window.appState && window.appState.currentRace && window.appState.currentRace.startOrder) {
-        window.appState.currentRace.startOrder.forEach(corredor => {
-            corredor.horaSalidaReal = '';
-            corredor.cronoSalidaReal = '';
-            corredor.horaSalidaRealSegundos = 0;
-            corredor.cronoSalidaRealSegundos = 0;
-        });
-    }
-    
-    // 3. También limpiar variable global startOrderData si existe y es diferente
-    if (typeof startOrderData !== 'undefined' && Array.isArray(startOrderData) && startOrderData !== window.startOrderData) {
-        startOrderData.forEach(corredor => {
-            corredor.horaSalidaReal = '';
-            corredor.cronoSalidaReal = '';
-            corredor.horaSalidaRealSegundos = 0;
-            corredor.cronoSalidaRealSegundos = 0;
-        });
-    }
-    
-    // Resetear contador
-    if (window.appState) {
-        window.appState.departedCount = 0;
-    }
-    
-    // Actualizar display
-    const departedCountElement = document.getElementById('departed-count');
-    if (departedCountElement) {
-        departedCountElement.textContent = "0";
-    }
-    
-    // Guardar cambios en todas las fuentes
-    if (typeof saveStartOrderData === 'function') {
-        saveStartOrderData();
-    }
-    
-    // También guardar carrera completa
-    if (typeof saveRaceData === 'function') {
-        saveRaceData();
-    }
-    
-    // Actualizar tabla
-    if (typeof updateStartOrderTableThrottled === 'function') {
-        updateStartOrderTableThrottled(true);
-    }
-}
-```
-
-## **Versión limpia de `resetearTiemposReales()` en `Cuenta_Atras.js`:**
-
-```javascript
-function resetearTiemposReales() {
-    // Usar window.startOrderData como fuente principal
-    let startOrderData = window.startOrderData;
-    
-    // Si no está disponible, usar appState
-    if (!startOrderData && window.appState && window.appState.currentRace && window.appState.currentRace.startOrder) {
-        startOrderData = window.appState.currentRace.startOrder;
-    }
-    
-    if (!startOrderData) return;
-    
-    startOrderData.forEach(corredor => {
-        corredor.horaSalidaReal = '';
-        corredor.cronoSalidaReal = '';
-        corredor.horaSalidaRealSegundos = 0;
-        corredor.cronoSalidaRealSegundos = 0;
-    });
-    
-    // Guardar cambios
-    if (typeof saveStartOrderData === 'function') {
-        saveStartOrderData();
-    }
-}
-```
-
----
-
-## **📝 Para el fichero MD (CRI_App_Structure.md):**
-
-Añade esta sección en **"LECCIONES APRENDIDAS"**:
-
----
 
 ## **🔄 RESETEO AUTOMÁTICO AL INICIAR CUENTA ATRÁS**
 
@@ -1615,27 +1343,7 @@ Cuando "Cuenta atrás en:" llegaba a 00:00:00 y se iniciaba automáticamente la 
    - Actualización inmediata de la interfaz
    - Persistencia correcta de cambios
 
-### **Reglas para futuro desarrollo**
-- **Siempre sincronizar todas las fuentes** cuando se modifiquen datos compartidos
-- **Usar `window.startOrderData` como fuente principal** para consistencia
-- **Incluir guardado persistente** después de operaciones críticas
-- **Actualizar UI inmediatamente** tras cambios importantes
-
----
-
-## **Archivos modificados:**
-1. `Crono_CRI_js_UI.js` - Función `resetearCamposRealesAutomatico()`
-2. `Crono_CRI_js_Cuenta_Atras.js` - Función `resetearTiemposReales()`
-3. `Crono_CRI_js_UI.js` - Función `updateTimeDifference()` (condición de inicio automático)
-
-## **Estado:**
-✅ **RESUELTO** - El inicio automático ahora resetea completamente el estado de salidas
-
-**¿Quieres que añada algo más a la documentación?**
-
-¡Excelente! 🎉
-
-## **Resumen de lo solucionado:**
+## **Resumen de Problemas de Cuenta Atrás Solucionados:**
 
 1. ✅ **"Cuenta atrás en:"** ahora calcula correctamente: `(Salida Primero - 1 min) - Hora actual`
 2. ✅ **Inicio automático** cuando llega a 00:00:00 funciona
@@ -1644,20 +1352,116 @@ Cuando "Cuenta atrás en:" llegaba a 00:00:00 y se iniciaba automáticamente la 
    - Campos `horaSalidaReal` y `cronoSalidaReal` vacíos
    - Todas las fuentes de datos sincronizadas
 4. ✅ **Hora del día en pantalla de cuenta atrás** se actualiza correctamente
+5. ✅ **Compensación de 1 segundo** para corredores posteriores al primero
+6. ✅ **"Próximo sale a:"** muestra diferencia exacta de tabla sin ajustes
 
-## **Para el archivo MD (CRI_App_Structure.md):**
+## **FUNCIONES CRÍTICAS AÑADIDAS**
 
-Añade en **"PROBLEMAS Y SOLUCIONES"**:
+### **En Storage_Pwa.js:**
+1. `cleanOrphanedRaces()` - Elimina carreras huérfanas
+2. `forceFullSync()` - Sincroniza memoria y localStorage
+3. `diagnoseGhostRace()` - Detecta carreras fantasma
+4. `fixGhostRace()` - Elimina opciones inválidas del selector
+5. `clearAllRaces()` - Limpia TODAS las carreras
+
+### **En UI.js:**
+1. `updateDeleteRaceButtonState()` - Controla botón eliminar
+2. `updateRaceActionButtonsState()` - Controla todos los botones de carrera
+3. `addDisabledButtonStyles()` - Estilos para botones deshabilitados
+4. `resetearCamposRealesAutomatico()` - Limpia campos reales automáticamente
+
+### **En Cuenta_Atras.js:**
+1. `calcularTiempoCuentaAtras()` - Calcula tiempo con compensación de 1s para corredores posteriores
+2. `actualizarDisplayProximoCorredor()` - Muestra diferencia del próximo corredor
+3. `prepararSiguienteCorredor()` - Prepara siguiente corredor para salir
+
+## **MEJORES PRÁCTICAS IMPLEMENTADAS**
+
+### **1. Validación de Estado**
+- Siempre verificar `appState.currentRace` antes de operaciones
+- Usar `updateRaceActionButtonsState()` tras cambios
+
+### **2. Sincronización**
+- Forzar sincronía entre `appState.races` y localStorage
+- Usar `forceFullSync()` tras operaciones críticas
+
+### **3. Limpieza Completa**
+- Al eliminar: limpiar array, localStorage, estado y UI
+- Usar `clearAllRaces()` para reset total
+
+### **4. Manejo de Errores**
+- Try-catch en operaciones localStorage
+- Logs detallados para diagnóstico
+- `showMessage()` para feedback al usuario
+
+### **5. UI Reactiva**
+- Botones se habilitan/deshabilitan automáticamente
+- Selector se actualiza inmediatamente
+- Feedback visual claro
+
+### **6. Sistema de Cuenta Atrás**
+- Usar `calcularTiempoCuentaAtras()` para cálculos consistentes
+- Compensar 1 segundo para corredores posteriores
+- Mantener "Próximo sale a:" con diferencia exacta de tabla
+
+## **COMANDOS DIAGNÓSTICO**
+
+```javascript
+// Ver estado actual
+diagnoseCurrentState()
+
+// Detectar carreras fantasma
+diagnoseGhostRace()
+
+// Forzar sincronización
+forceFullSync()
+
+// Limpiar problemas
+fixGhostRace()
+
+// Reset total
+clearAllRaces()
+```
+
+## **ARCHIVOS CLAVE A REVISAR SI HAY PROBLEMAS**
+
+1. `Storage_Pwa.js` - Gestión de carreras y datos
+2. `UI.js` - Estado de botones e interfaz
+3. `Main.js` - Coordinación general
+4. `Salidas_1.js` - Importación y validaciones
+5. `Cuenta_Atras.js` - Sistema de cuenta atrás
+6. `Utilidades.js` - Conversiones de tiempo y audio
+
+## **FLUJO DE SOLUCIÓN RECOMENDADO**
+
+1. **Diagnosticar:** Ejecutar `diagnoseCurrentState()`
+2. **Identificar:** Ver qué componente falla
+3. **Sincronizar:** `forceFullSync()` si hay desincronía
+4. **Limpiar:** `fixGhostRace()` o `clearAllRaces()` si es necesario
+5. **Verificar:** Confirmar que UI se actualiza correctamente
+
+## **ERRORES COMUNES Y SOLUCIÓN RÁPIDA**
+
+| Error | Solución |
+|-------|----------|
+| "No hay carrera seleccionada" | Verificar `appState.currentRace` |
+| Carrera no aparece en selector | Ejecutar `renderRacesSelect()` |
+| Botones no se habilitan | `updateRaceActionButtonsState()` |
+| Datos mezclados entre carreras | `forceFullSync()` |
+| No se puede eliminar carrera | `clearAllRaces()` + recargar |
+| Cuenta atrás incorrecta | Verificar `calcularTiempoCuentaAtras()` |
+| "Próximo sale a:" no actualiza | Verificar `actualizarDisplayProximoCorredor()` |
+
+**Regla de oro:** Después de cualquier operación de carrera, llamar a:
+1. `renderRacesSelect()`
+2. `updateRaceActionButtonsState()`
+3. `updateRaceManagementCardTitle()`
+
+Esto asegura coherencia en toda la aplicación.
 
 ---
 
-### **🕒 Hora no se actualizaba en pantalla de cuenta atrás**
-**Problema:** La hora del sistema no se actualizaba en la pantalla de cuenta atrás
-**Causa:** La función `updateCurrentTime()` buscaba elemento con ID `current-time` pero el HTML tenía `current-time-value`
-**Solución:** Cambiar `document.getElementById('current-time')` por `document.getElementById('current-time-value')`
-**Archivo:** `Main.js` - Función `updateCurrentTime()` alternativa
-**Lección:** Siempre verificar IDs exactos en el HTML cuando elementos no se actualizan
-
----
-
-**¿Necesitas ayuda con algo más o podemos dar por cerrado este tema?**
+*Última actualización: Documentación completamente actualizada con el módulo Cuenta_Atras.js y todas las lecciones aprendidas*
+*Versión de aplicación: V_19_12_2025*
+*Módulos documentados: Main, Salidas (1-4), UI, Storage_Pwa, Utilidades, Traducciones, Cuenta_Atras*
+*Funcionalidades clave: Sistema de audio, exportación Excel/PDF, conversiones tiempo, throttling de 3 niveles, sistema de cuenta atrás especializado*

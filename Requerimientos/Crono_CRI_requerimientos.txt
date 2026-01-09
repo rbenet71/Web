@@ -195,7 +195,7 @@ la hora de salida real y el crono de salida real se asignaran al corredor que ac
 2.1.6 El tiempo del siguiente corredor correcto
 2.1.7 su cuenta atrás será la diferencia entre el valor de crono salida de la tabla menos el tiempo del crono de la carrera
 
-En la parte inferior y en el centro se mostrará el dorsal, nombre, apellido del corredor al que se le esta haciendo en ese momento la cuenta atras.
+2.1.8 En la parte inferior y en el centro se mostrará el dorsal, nombre, apellido del corredor al que se le esta haciendo en ese momento la cuenta atras.
 
 El programa deberá poder iniciar la cuenta atrás manualmente, para ello el usuario introducirá el dorsal del siguiente corredor a salir. Entonces a partir de que diga iniciar,se iniciará una cuenta atrás de un minuto. El tiempo del crono cuando se inicie la cuenta atrás será el valor del crono salida de ese corredor menos el minuto que sale antes. y el numero de corredores salidos sera su valor de orden en la tabla menos 1.
 

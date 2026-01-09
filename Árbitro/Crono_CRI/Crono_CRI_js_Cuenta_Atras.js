@@ -364,6 +364,7 @@ function updateCadenceTime() {
     updateNextCorredorDisplay();
 }
 
+
 // ============================================
 // NUEVAS FUNCIONES PARA MOSTRAR INFO DEL CORREDOR
 // ============================================
@@ -379,20 +380,24 @@ function mostrarInfoCorredorEnPantalla(corredor) {
         corredorInfoDisplay.id = 'corredor-info-display';
         corredorInfoDisplay.className = 'corredor-info-display';
         
-        // Añadir estilos básicos
+        // POSICIÓN MODIFICADA: En la parte inferior, centrado horizontalmente
         corredorInfoDisplay.style.cssText = `
-            position: absolute;
-            bottom: 20%;
+            position: fixed;
+            bottom: 20px; /* Pequeña distancia desde el fondo */
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 20px 40px;
-            border-radius: 10px;
-            font-size: 24px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 18px;
             text-align: center;
             z-index: 1000;
             min-width: 300px;
+            max-width: 80%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         `;
         
         const countdownScreen = document.getElementById('countdown-screen');
@@ -401,13 +406,25 @@ function mostrarInfoCorredorEnPantalla(corredor) {
         }
     }
     
-    // Mostrar información del corredor
+    // FORMATO MODIFICADO: Una sola línea sin "Dorsal:"
+    const nombreCompleto = [corredor.nombre || '', corredor.apellidos || ''].filter(Boolean).join(' ');
     corredorInfoDisplay.innerHTML = `
-        <div style="font-size: 36px; font-weight: bold; margin-bottom: 10px;">Dorsal: ${corredor.dorsal}</div>
-        <div style="font-size: 28px;">${corredor.nombre || ''} ${corredor.apellidos || ''}</div>
+        <div style="display: inline-block; margin: 0 10px;">
+            <span style="font-weight: bold; font-size: 20px;">${corredor.dorsal}</span>
+        </div>
+        <div style="display: inline-block; border-left: 2px solid rgba(255,255,255,0.3); padding-left: 12px; margin-left: 12px;">
+            <span style="font-size: 24px;">${nombreCompleto || 'Sin nombre'}</span>
+        </div>
     `;
     
     corredorInfoDisplay.style.display = 'block';
+}
+
+function ocultarInfoCorredorEnPantalla() {
+    const corredorInfoDisplay = document.getElementById('corredor-info-display');
+    if (corredorInfoDisplay) {
+        corredorInfoDisplay.style.display = 'none';
+    }
 }
 
 function ocultarInfoCorredorEnPantalla() {
