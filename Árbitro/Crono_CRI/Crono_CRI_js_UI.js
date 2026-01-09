@@ -454,7 +454,88 @@ function setupCountdownResize() {
 // FUNCIONES DE SELECCIÓN DE CARRERA
 // ============================================
 
+// ============================================
+// FUNCIÓN DE RESETEO DE SALIDAS
+// ============================================
+function resetearEstadoSalidas() {
+    console.log("🔄 Reseteando estado de salidas para inicio automático...");
+    
+    // 1. Resetear contador de corredores salidos
+    if (window.appState) {
+        window.appState.departedCount = 0;
+        console.log("✅ Corredores salidos reseteados a 0");
+    }
+    
+    // 2. Resetear campos cronoSalidaReal y horaSalidaReal en todos los corredores
+    resetearCamposRealesEnCorredores();
+    
+    // 3. Actualizar UI
+    if (typeof updateStartOrderTableThrottled === 'function') {
+        updateStartOrderTableThrottled(true);
+    }
+    
+    // 4. Actualizar contador en la interfaz si existe
+    const departedCountElement = document.getElementById('departed-count');
+    if (departedCountElement) {
+        departedCountElement.textContent = "0";
+    }
+    
+    console.log("✅ Estado de salidas reseteado completamente");
+}
 
+function resetearCamposRealesEnCorredores() {
+    console.log("🔄 Reseteando campos reales de corredores...");
+    
+    // Intentar obtener los datos de corredores desde múltiples fuentes
+    let startOrderData = obtenerStartOrderDataParaUI();
+    
+    if (!startOrderData || !Array.isArray(startOrderData)) {
+        console.warn("⚠️ No se pudieron obtener datos de corredores para resetear");
+        return;
+    }
+    
+    // Resetear campos reales de cada corredor
+    startOrderData.forEach(corredor => {
+        corredor.horaSalidaReal = '';
+        corredor.cronoSalidaReal = '';
+        corredor.horaSalidaRealSegundos = 0;
+        corredor.cronoSalidaRealSegundos = 0;
+    });
+    
+    console.log(`✅ ${startOrderData.length} corredores reseteados (campos reales vacíos)`);
+    
+    // Guardar cambios si es necesario
+    if (typeof saveStartOrderData === 'function') {
+        saveStartOrderData();
+    }
+}
+
+function obtenerStartOrderDataParaUI() {
+    // Intentar obtener de múltiples fuentes (similar a la función en Cuenta_Atras.js)
+    if (window.startOrderData && Array.isArray(window.startOrderData)) {
+        return window.startOrderData;
+    }
+    
+    if (window.appState && window.appState.currentRace && window.appState.currentRace.startOrder) {
+        return window.appState.currentRace.startOrder;
+    }
+    
+    // Último intento: desde localStorage
+    if (window.appState && window.appState.currentRace) {
+        const raceKey = `race-${window.appState.currentRace.id}`;
+        const savedData = localStorage.getItem(raceKey);
+        if (savedData) {
+            try {
+                const parsed = JSON.parse(savedData);
+                return parsed.startOrder || [];
+            } catch (e) {
+                console.error("Error parsing localStorage:", e);
+            }
+        }
+    }
+    
+    return [];
+}
 // ============================================
 // FUNCIONES DE ACTUALIZACIÓN DE TIEMPO
 // ============================================
@@ -465,11 +546,72 @@ function updateSystemTimeDisplay() {
     updateTimeDifference();
 }
 
+// FUNCIÓN PARA RESETEAR CAMPOS REALES (INICIO AUTOMÁTICO)
+// ============================================
+function resetearCamposRealesAutomatico() {
+    // Limpiar todas las fuentes posibles
+    
+    // 1. window.startOrderData (principal)
+    if (window.startOrderData && Array.isArray(window.startOrderData)) {
+        window.startOrderData.forEach(corredor => {
+            corredor.horaSalidaReal = '';
+            corredor.cronoSalidaReal = '';
+            corredor.horaSalidaRealSegundos = 0;
+            corredor.cronoSalidaRealSegundos = 0;
+        });
+    }
+    
+    // 2. appState.currentRace.startOrder (secundaria)
+    if (window.appState && window.appState.currentRace && window.appState.currentRace.startOrder) {
+        window.appState.currentRace.startOrder.forEach(corredor => {
+            corredor.horaSalidaReal = '';
+            corredor.cronoSalidaReal = '';
+            corredor.horaSalidaRealSegundos = 0;
+            corredor.cronoSalidaRealSegundos = 0;
+        });
+    }
+    
+    // 3. También limpiar variable global startOrderData si existe y es diferente
+    if (typeof startOrderData !== 'undefined' && Array.isArray(startOrderData) && startOrderData !== window.startOrderData) {
+        startOrderData.forEach(corredor => {
+            corredor.horaSalidaReal = '';
+            corredor.cronoSalidaReal = '';
+            corredor.horaSalidaRealSegundos = 0;
+            corredor.cronoSalidaRealSegundos = 0;
+        });
+    }
+    
+    // Resetear contador
+    if (window.appState) {
+        window.appState.departedCount = 0;
+    }
+    
+    // Actualizar display
+    const departedCountElement = document.getElementById('departed-count');
+    if (departedCountElement) {
+        departedCountElement.textContent = "0";
+    }
+    
+    // Guardar cambios en todas las fuentes
+    if (typeof saveStartOrderData === 'function') {
+        saveStartOrderData();
+    }
+    
+    // También guardar carrera completa
+    if (typeof saveRaceData === 'function') {
+        saveRaceData();
+    }
+    
+    // Actualizar tabla
+    if (typeof updateStartOrderTableThrottled === 'function') {
+        updateStartOrderTableThrottled(true);
+    }
+}
+
 function updateTimeDifference() {
     const firstStartTime = document.getElementById('first-start-time').value;
     if (!firstStartTime) return;
     
-    // Extraer horas, minutos y segundos de "Salida Primero"
     const timeParts = firstStartTime.split(':');
     let hours = 0, minutes = 0, seconds = 0;
     
@@ -477,44 +619,32 @@ function updateTimeDifference() {
     if (timeParts.length >= 2) minutes = parseInt(timeParts[1]) || 0;
     if (timeParts.length >= 3) seconds = parseInt(timeParts[2]) || 0;
     
-    // 🔥 NUEVO: Restar 1 minuto (60 segundos) a la hora de salida
-    // Convertir todo a segundos, restar 60, y volver a convertir
     const totalSegundos = hours * 3600 + minutes * 60 + seconds;
     const totalSegundosMenosMinuto = totalSegundos - 60;
     
     if (totalSegundosMenosMinuto < 0) {
-        // Si al restar 1 minuto se vuelve negativo, ajustar al día anterior
         hours = 23;
         minutes = 59;
         seconds = 0;
     } else {
-        // Convertir de vuelta a horas, minutos, segundos
         hours = Math.floor(totalSegundosMenosMinuto / 3600);
         const minutosRestantes = totalSegundosMenosMinuto % 3600;
         minutes = Math.floor(minutosRestantes / 60);
         seconds = minutosRestantes % 60;
     }
     
-    console.log("🕐 Cálculo de cuenta atrás:");
-    console.log("  - Salida Primero original:", firstStartTime);
-    console.log("  - Salida Primero - 1 min:", `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
-    
     const now = new Date();
     const horaSalidaMenosMinuto = new Date(now);
     horaSalidaMenosMinuto.setHours(hours, minutes, seconds, 0);
     
-    // Si la hora ya pasó hoy, calcular para mañana
     if (horaSalidaMenosMinuto < now) {
         horaSalidaMenosMinuto.setDate(horaSalidaMenosMinuto.getDate() + 1);
-        console.log("  - La hora ya pasó hoy, calculando para mañana");
     }
     
     const diffMs = horaSalidaMenosMinuto - now;
     const diffSeconds = Math.floor(diffMs / 1000);
     
-    // Manejar caso especial cuando ya pasó la hora
     if (diffSeconds < 0) {
-        console.log("⚠️ La cuenta atrás es negativa, mostrando 00:00:00");
         document.getElementById('time-difference-display').textContent = "00:00:00";
         updateStartOrderCardTitle();
         return;
@@ -528,33 +658,35 @@ function updateTimeDifference() {
     document.getElementById('time-difference-display').textContent = diffString;
     updateStartOrderCardTitle();
     
-    console.log(`  - Hora actual: ${now.toTimeString().split(' ')[0]}`);
-    console.log(`  - Diferencia calculada: ${diffString} (${diffSeconds} segundos)`);
+    // 🔥 DIAGNÓSTICO: Añade este log para ver SI SE EJECUTA
+    console.log(`⏰ updateTimeDifference: ${diffString} (${diffSeconds}s)`);
     
-    // 🔥 NUEVA FUNCIONALIDAD: Iniciar cuenta atrás automáticamente cuando llegue a 00:00:00
-    if (diffString === "00:00:00" && diffSeconds <= 0) {
-        console.log("⏰ 'Cuenta atrás en:' llegó a 00:00:00 - Verificando inicio automático...");
+    // Iniciar cuenta atrás automáticamente cuando llegue a 00:00:00
+    // 🔥 MODIFICACIÓN: Hacer la condición más flexible
+    if (diffSeconds <= 0) {  // Cambiado de diffString === "00:00:00" && diffSeconds <= 0
+        console.log("🎯 CONDICIÓN CUMPLIDA: diffSeconds <= 0");
+        console.log("🔍 diffString:", diffString, "diffSeconds:", diffSeconds);
         
         // Verificar que la cuenta atrás no esté ya activa
         if (window.appState && !window.appState.countdownActive) {
-            console.log("✅ Condiciones cumplidas, iniciando cuenta atrás automáticamente...");
+            console.log("✅ Iniciando reseteo automático...");
+            
+            // 🔥 LLAMAR A LA FUNCIÓN DE RESETEO
+            if (typeof resetearCamposRealesAutomatico === 'function') {
+                resetearCamposRealesAutomatico();
+            } else {
+                console.error("❌ resetearCamposRealesAutomatico NO DEFINIDA");
+            }
             
             // Verificar que la función startCountdown existe
             if (typeof startCountdown === 'function') {
-                // Pequeño delay para asegurar que todo está listo
                 setTimeout(() => {
                     startCountdown();
-                    console.log("✅ Cuenta atrás iniciada automáticamente desde updateTimeDifference()");
                 }, 100);
-            } else {
-                console.error("❌ Función startCountdown no disponible");
             }
-        } else {
-            console.log("⚠️ Cuenta atrás ya activa o appState no disponible, omitiendo inicio automático");
         }
     }
 }
-
 function updateCurrentTime() {
     const now = new Date();
     const hours = now.getHours().toString().padStart(2, '0');

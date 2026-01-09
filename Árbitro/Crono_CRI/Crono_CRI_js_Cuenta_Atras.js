@@ -121,9 +121,10 @@ function startCountdown() {
     // 2. El contador de salidos se pone a 0
     appState.departedCount = 0;
     proximoCorredorIndex = 0;
-    
+
     // 3. Todos los tiempos de salida real y crono salida real se ponen a valor vacío
     resetearTiemposReales();
+
     
     // 4. Primer corredor será el primer registro de la tabla
     const primerCorredor = obtenerProximoCorredor();
@@ -687,10 +688,15 @@ function calcularTiempoCuentaAtras(corredor) {
 }
 
 function resetearTiemposReales() {
-    const startOrderData = obtenerStartOrderData();
-    if (!startOrderData) return;
+    // Usar window.startOrderData como fuente principal
+    let startOrderData = window.startOrderData;
     
-    console.log("🔄 Reseteando tiempos reales de", startOrderData.length, "corredores...");
+    // Si no está disponible, usar appState
+    if (!startOrderData && window.appState && window.appState.currentRace && window.appState.currentRace.startOrder) {
+        startOrderData = window.appState.currentRace.startOrder;
+    }
+    
+    if (!startOrderData) return;
     
     startOrderData.forEach(corredor => {
         corredor.horaSalidaReal = '';
@@ -699,7 +705,10 @@ function resetearTiemposReales() {
         corredor.cronoSalidaRealSegundos = 0;
     });
     
-    console.log("✅ Tiempos reales reseteados");
+    // Guardar cambios
+    if (typeof saveStartOrderData === 'function') {
+        saveStartOrderData();
+    }
 }
 
 function actualizarCronoDisplay() {

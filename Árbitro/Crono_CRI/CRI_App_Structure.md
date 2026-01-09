@@ -1468,3 +1468,167 @@ Siempre verificar la lógica de negocio: "Cuenta atrás en:" se refiere al tiemp
 ---
 
 **¿Quieres que añada algo más a la descripción?**
+
+¡Excelente! Aquí tienes la versión **limpia sin logs**:
+
+## **Versión limpia de `resetearCamposRealesAutomatico()` en `UI.js`:**
+
+```javascript
+// ============================================
+// FUNCIÓN PARA RESETEAR CAMPOS REALES (INICIO AUTOMÁTICO)
+// ============================================
+function resetearCamposRealesAutomatico() {
+    // Limpiar todas las fuentes posibles
+    
+    // 1. window.startOrderData (principal)
+    if (window.startOrderData && Array.isArray(window.startOrderData)) {
+        window.startOrderData.forEach(corredor => {
+            corredor.horaSalidaReal = '';
+            corredor.cronoSalidaReal = '';
+            corredor.horaSalidaRealSegundos = 0;
+            corredor.cronoSalidaRealSegundos = 0;
+        });
+    }
+    
+    // 2. appState.currentRace.startOrder (secundaria)
+    if (window.appState && window.appState.currentRace && window.appState.currentRace.startOrder) {
+        window.appState.currentRace.startOrder.forEach(corredor => {
+            corredor.horaSalidaReal = '';
+            corredor.cronoSalidaReal = '';
+            corredor.horaSalidaRealSegundos = 0;
+            corredor.cronoSalidaRealSegundos = 0;
+        });
+    }
+    
+    // 3. También limpiar variable global startOrderData si existe y es diferente
+    if (typeof startOrderData !== 'undefined' && Array.isArray(startOrderData) && startOrderData !== window.startOrderData) {
+        startOrderData.forEach(corredor => {
+            corredor.horaSalidaReal = '';
+            corredor.cronoSalidaReal = '';
+            corredor.horaSalidaRealSegundos = 0;
+            corredor.cronoSalidaRealSegundos = 0;
+        });
+    }
+    
+    // Resetear contador
+    if (window.appState) {
+        window.appState.departedCount = 0;
+    }
+    
+    // Actualizar display
+    const departedCountElement = document.getElementById('departed-count');
+    if (departedCountElement) {
+        departedCountElement.textContent = "0";
+    }
+    
+    // Guardar cambios en todas las fuentes
+    if (typeof saveStartOrderData === 'function') {
+        saveStartOrderData();
+    }
+    
+    // También guardar carrera completa
+    if (typeof saveRaceData === 'function') {
+        saveRaceData();
+    }
+    
+    // Actualizar tabla
+    if (typeof updateStartOrderTableThrottled === 'function') {
+        updateStartOrderTableThrottled(true);
+    }
+}
+```
+
+## **Versión limpia de `resetearTiemposReales()` en `Cuenta_Atras.js`:**
+
+```javascript
+function resetearTiemposReales() {
+    // Usar window.startOrderData como fuente principal
+    let startOrderData = window.startOrderData;
+    
+    // Si no está disponible, usar appState
+    if (!startOrderData && window.appState && window.appState.currentRace && window.appState.currentRace.startOrder) {
+        startOrderData = window.appState.currentRace.startOrder;
+    }
+    
+    if (!startOrderData) return;
+    
+    startOrderData.forEach(corredor => {
+        corredor.horaSalidaReal = '';
+        corredor.cronoSalidaReal = '';
+        corredor.horaSalidaRealSegundos = 0;
+        corredor.cronoSalidaRealSegundos = 0;
+    });
+    
+    // Guardar cambios
+    if (typeof saveStartOrderData === 'function') {
+        saveStartOrderData();
+    }
+}
+```
+
+---
+
+## **📝 Para el fichero MD (CRI_App_Structure.md):**
+
+Añade esta sección en **"LECCIONES APRENDIDAS"**:
+
+---
+
+## **🔄 RESETEO AUTOMÁTICO AL INICIAR CUENTA ATRÁS**
+
+### **Problema**
+Cuando "Cuenta atrás en:" llegaba a 00:00:00 y se iniciaba automáticamente la cuenta atrás, los campos `horaSalidaReal` y `cronoSalidaReal` no se limpiaban, y el contador de corredores salidos no se reseteaba a 0.
+
+### **Causa Raíz**
+1. **Múltiples fuentes de datos**: La aplicación mantenía los datos de corredores en diferentes ubicaciones:
+   - `window.startOrderData` (variable global)
+   - `appState.currentRace.startOrder` (estado de la aplicación)
+   - Variable global `startOrderData` (en algunos módulos)
+
+2. **Funciones de reseteo limpiaban fuentes diferentes**:
+   - `resetearCamposRealesAutomatico()` en `UI.js` limpiaba solo `window.startOrderData`
+   - `resetearTiemposReales()` en `Cuenta_Atras.js` limpiaba `appState.currentRace.startOrder`
+
+### **Solución Implementada**
+1. **Función unificada de reseteo** (`resetearCamposRealesAutomatico()` en `UI.js`):
+   - Limpia TODAS las fuentes posibles
+   - Resetea `departedCount` a 0
+   - Actualiza display HTML
+   - Guarda cambios en todas las fuentes
+   - Actualiza tabla inmediatamente
+
+2. **Sincronización entre funciones**:
+   - Ambas funciones ahora usan `window.startOrderData` como fuente principal
+   - Se limpian todas las referencias para evitar inconsistencias
+
+### **Código crítico modificado**
+- **`UI.js`**: Función `updateTimeDifference()` - Inicia reseteo automático
+- **`UI.js`**: Función `resetearCamposRealesAutomatico()` - Limpia múltiples fuentes
+- **`Cuenta_Atras.js`**: Función `resetearTiemposReales()` - Usa fuente principal consistente
+
+### **Lecciones Aprendidas**
+1. **Consistencia de datos**: Cuando hay múltiples referencias a los mismos datos, todas deben actualizarse simultáneamente
+2. **Depuración con logs**: Los logs de referencia (`🔍 startOrderData referencia: DIFERENTE`) fueron clave para identificar el problema
+3. **Inicio automático robusto**: El sistema ahora maneja correctamente:
+   - Reseteo de contador de salidos a 0
+   - Limpieza de campos reales (`horaSalidaReal`, `cronoSalidaReal`)
+   - Actualización inmediata de la interfaz
+   - Persistencia correcta de cambios
+
+### **Reglas para futuro desarrollo**
+- **Siempre sincronizar todas las fuentes** cuando se modifiquen datos compartidos
+- **Usar `window.startOrderData` como fuente principal** para consistencia
+- **Incluir guardado persistente** después de operaciones críticas
+- **Actualizar UI inmediatamente** tras cambios importantes
+
+---
+
+## **Archivos modificados:**
+1. `Crono_CRI_js_UI.js` - Función `resetearCamposRealesAutomatico()`
+2. `Crono_CRI_js_Cuenta_Atras.js` - Función `resetearTiemposReales()`
+3. `Crono_CRI_js_UI.js` - Función `updateTimeDifference()` (condición de inicio automático)
+
+## **Estado:**
+✅ **RESUELTO** - El inicio automático ahora resetea completamente el estado de salidas
+
+**¿Quieres que añada algo más a la documentación?**
