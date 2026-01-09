@@ -715,8 +715,17 @@ function actualizarCronoDisplay() {
     const display = document.getElementById('total-time-value');
     if (!display) return;
     
-    const tiempoFormateado = secondsToTime(cronoCarreraSegundos);
-    display.textContent = tiempoFormateado;
+    // Formatear con precisión
+    const horas = Math.floor(cronoCarreraSegundos / 3600);
+    const minutos = Math.floor((cronoCarreraSegundos % 3600) / 60);
+    const segundos = cronoCarreraSegundos % 60;
+    
+    display.textContent = 
+        `${horas.toString().padStart(2, '0')}:` +
+        `${minutos.toString().padStart(2, '0')}:` +
+        `${segundos.toString().padStart(2, '0')}`;
+    
+    console.log(`⏱️ Cronómetro actualizado: ${display.textContent}`);
 }
 
 function actualizarHoraDisplay() {
@@ -724,60 +733,60 @@ function actualizarHoraDisplay() {
     if (!display) return;
     
     const ahora = new Date();
-    const horaStr = ahora.toLocaleTimeString('es-ES', { hour12: false });
-    display.textContent = horaStr;
+    const horas = ahora.getHours().toString().padStart(2, '0');
+    const minutos = ahora.getMinutes().toString().padStart(2, '0');
+    const segundos = ahora.getSeconds().toString().padStart(2, '0');
+    
+    display.textContent = `${horas}:${minutos}:${segundos}`;
+    
+    console.log(`🕐 Hora actualizada: ${display.textContent}`);
 }
 
 function iniciarCronoDeCarrera() {
-    console.log("⏱️ Iniciando crono de carrera...");
+    console.log("⏱️ Iniciando cronómetro de carrera (sincronizado)...");
     
     cronoDeCarreraIniciado = true;
     
-    // Iniciar intervalo para incrementar crono de carrera cada segundo
+    // 🔥 CRÍTICO: Usar tiempo real para sincronización perfecta
+    const startTime = Date.now();
+    
+    // Detener cualquier intervalo anterior
     if (intervaloCuentaAtras) {
         clearInterval(intervaloCuentaAtras);
+        intervaloCuentaAtras = null;
     }
     
-    intervaloCuentaAtras = setInterval(() => {
-        cronoCarreraSegundos++;
+    // Función de actualización sincronizada
+    function updateCronoSincronizado() {
+        if (!cronoDeCarreraIniciado) {
+            console.log("⏱️ Cronómetro detenido");
+            return;
+        }
+        
+        // Calcular segundos transcurridos desde el inicio
+        const elapsedMs = Date.now() - startTime;
+        const elapsedSeconds = Math.floor(elapsedMs / 1000);
+        
+        // Actualizar variable global
+        cronoCarreraSegundos = elapsedSeconds;
+        
+        // Actualizar display
         actualizarCronoDisplay();
         
-        // Verificar si hay siguiente corredor listo para salir
-        const siguiente = obtenerProximoCorredor();
-        if (siguiente && siguiente.corredor) {
-            const tiempoParaSiguiente = calcularTiempoCuentaAtras(siguiente.corredor);
-            
-            console.log("🔍 Verificando siguiente corredor:", siguiente.corredor.dorsal, "- Tiempo restante:", tiempoParaSiguiente, "s");
-            
-            if (tiempoParaSiguiente <= 60 && tiempoParaSiguiente > 0) {
-                // Si falta 1 minuto o menos para el siguiente corredor, iniciar cuenta atrás
-                if (!cuentaAtrasActiva) {
-                    console.log(`⚠️ Falta ${tiempoParaSiguiente}s para el siguiente corredor, iniciando cuenta atrás`);
-                    cuentaAtrasActiva = true;
-                    tiempoCuentaAtrasActual = tiempoParaSiguiente;
-                    
-                    // Mostrar información del siguiente corredor
-                    mostrarInfoCorredorEnPantalla(siguiente.corredor);
-                    
-                    // Cambiar a modo cuenta atrás
-                    clearInterval(intervaloCuentaAtras);
-                    intervaloCuentaAtras = setInterval(updateCountdown, 1000);
-                    
-                    // Cambiar estilos visuales
-                    document.body.classList.remove('countdown-salida');
-                    document.body.classList.add('countdown-normal');
-                }
-            }
-        } else {
-            console.log("🏁 No hay más corredores por salir");
-            // Si no hay más corredores, detener todo
-            if (intervaloCuentaAtras) {
-                clearInterval(intervaloCuentaAtras);
-                intervaloCuentaAtras = null;
-            }
-            showMessage("¡Todos los corredores han salido!", 'success');
-        }
-    }, 1000);
+        // 🔥 Sincronizar también con hora del sistema
+        const ahora = new Date();
+        const horaStr = ahora.toTimeString().split(' ')[0];
+        const horaDisplay = document.getElementById('current-time-value');
+        if (horaDisplay) horaDisplay.textContent = horaStr;
+        
+        // Programar siguiente actualización
+        requestAnimationFrame(updateCronoSincronizado);
+    }
+    
+    // Iniciar ciclo de actualización
+    updateCronoSincronizado();
+    
+    console.log("✅ Cronómetro iniciado (sincronizado con tiempo real)");
 }
 
 function prepararSiguienteCorredor() {

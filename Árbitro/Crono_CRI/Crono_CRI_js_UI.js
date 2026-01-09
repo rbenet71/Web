@@ -658,18 +658,12 @@ function updateTimeDifference() {
     document.getElementById('time-difference-display').textContent = diffString;
     updateStartOrderCardTitle();
     
-    // 🔥 DIAGNÓSTICO: Añade este log para ver SI SE EJECUTA
-    console.log(`⏰ updateTimeDifference: ${diffString} (${diffSeconds}s)`);
-    
     // Iniciar cuenta atrás automáticamente cuando llegue a 00:00:00
     // 🔥 MODIFICACIÓN: Hacer la condición más flexible
     if (diffSeconds <= 0) {  // Cambiado de diffString === "00:00:00" && diffSeconds <= 0
-        console.log("🎯 CONDICIÓN CUMPLIDA: diffSeconds <= 0");
-        console.log("🔍 diffString:", diffString, "diffSeconds:", diffSeconds);
         
         // Verificar que la cuenta atrás no esté ya activa
         if (window.appState && !window.appState.countdownActive) {
-            console.log("✅ Iniciando reseteo automático...");
             
             // 🔥 LLAMAR A LA FUNCIÓN DE RESETEO
             if (typeof resetearCamposRealesAutomatico === 'function') {

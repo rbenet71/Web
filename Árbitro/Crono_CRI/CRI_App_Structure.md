@@ -1632,3 +1632,32 @@ Cuando "Cuenta atrás en:" llegaba a 00:00:00 y se iniciaba automáticamente la 
 ✅ **RESUELTO** - El inicio automático ahora resetea completamente el estado de salidas
 
 **¿Quieres que añada algo más a la documentación?**
+
+¡Excelente! 🎉
+
+## **Resumen de lo solucionado:**
+
+1. ✅ **"Cuenta atrás en:"** ahora calcula correctamente: `(Salida Primero - 1 min) - Hora actual`
+2. ✅ **Inicio automático** cuando llega a 00:00:00 funciona
+3. ✅ **Reseteo completo** al iniciar automáticamente:
+   - `departedCount = 0`
+   - Campos `horaSalidaReal` y `cronoSalidaReal` vacíos
+   - Todas las fuentes de datos sincronizadas
+4. ✅ **Hora del día en pantalla de cuenta atrás** se actualiza correctamente
+
+## **Para el archivo MD (CRI_App_Structure.md):**
+
+Añade en **"PROBLEMAS Y SOLUCIONES"**:
+
+---
+
+### **🕒 Hora no se actualizaba en pantalla de cuenta atrás**
+**Problema:** La hora del sistema no se actualizaba en la pantalla de cuenta atrás
+**Causa:** La función `updateCurrentTime()` buscaba elemento con ID `current-time` pero el HTML tenía `current-time-value`
+**Solución:** Cambiar `document.getElementById('current-time')` por `document.getElementById('current-time-value')`
+**Archivo:** `Main.js` - Función `updateCurrentTime()` alternativa
+**Lección:** Siempre verificar IDs exactos en el HTML cuando elementos no se actualizan
+
+---
+
+**¿Necesitas ayuda con algo más o podemos dar por cerrado este tema?**

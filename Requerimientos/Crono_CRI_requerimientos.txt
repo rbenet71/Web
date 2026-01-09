@@ -183,13 +183,14 @@ el orden de salida no se raba por carrera
 El proceso ha de ser el siguiente:
 
 Cuando el contador Cuenta atrás en llega a 00:00
-Se inicia una cuenta atrás de 60 segundos
-El contador de salidos se pone a 0, todos los tiempos de salida real y crono salida real tambien se ponen a valor vacio.
+2.1.1 Se inicia una cuenta atrás de 60 segundos
+2.1.2 El contador de salidos se pone a 0, todos los tiempos de salida real y crono salida real tambien se ponen a valor vacio.
 el primer corredor a salir será el primer registro de la tabla.
-En la parte superior izquierda se muestra la Hora y el tiempo del crono de la carrera (tiempo acumulado después de la salida del primer corredor)
-El tiempo del crono siempre a cero Durante está cuanta atrás.
+2.1.3 En la parte superior izquierda se muestra la Hora y el tiempo del crono de la carrera (tiempo acumulado después de la salida del primer corredor)
+2.1.4 El tiempo del crono siempre a cero Durante está cuanta atrás.
 Cuando la cuenta atrás del primero llega a cero, entonces el crono de la carrera se pone a contar.
 la hora de salida real y el crono de salida real se asignaran al corredor que acaba de salir.
+
 El siguiente corredor en salir será el siguiente registro de la tabla, su cuenta atrás será la diferencia entre el valor de crono salida de la tabla menos el tiempo del crono de la carrera
 En la parte inferior y en el centro se mostrará el dorsal, nombre, apellido del corredor al que se le esta haciendo en ese momento la cuenta atras.
 
