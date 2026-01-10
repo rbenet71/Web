@@ -54,7 +54,6 @@ function configurarEventListenersCuentaAtras() {
     if (startBtn) {
         startBtn.addEventListener('click', function() {
             // Iniciar cuenta atrás MANUAL (no automática)
-            console.log("🎯 Botón de cuenta atrás manual clickeado");
             iniciarCuentaAtrasManual();
         });
     }
@@ -92,11 +91,9 @@ function configurarEventListenersCuentaAtras() {
     const configToggleBtn = document.getElementById('config-toggle');
     if (configToggleBtn) {
         configToggleBtn.addEventListener('click', function() {
-            console.log("Botón de configuración clickeado");
             const configModal = document.getElementById('config-during-countdown-modal');
             if (configModal) {
                 configModal.classList.add('active');
-                console.log("✅ Modal de configuración durante cuenta atrás abierto");
             }
         });
     }
@@ -121,8 +118,7 @@ function configurarEventListenersCuentaAtras() {
                 sincronizarDorsalAPosicion(dorsal);
             }
         });
-        
-        console.log("✅ Sincronización dorsal↔posición configurada");
+    
     }
 }
 
@@ -142,7 +138,6 @@ function sincronizarPosicionADorsal(posicion) {
     
     if (corredor && corredor.dorsal && inputDorsal) {
         inputDorsal.value = corredor.dorsal;
-        console.log(`✅ Sincronizado: Posición ${posicion} → Dorsal ${corredor.dorsal}`);
     } else if (inputDorsal) {
         inputDorsal.value = posicion;
         console.log(`⚠️ No se encontró dorsal para posición ${posicion}, usando valor por defecto`);
@@ -161,7 +156,6 @@ function sincronizarDorsalAPosicion(dorsal) {
     
     if (corredor && corredor.order && inputPosicion) {
         inputPosicion.value = corredor.order;
-        console.log(`✅ Sincronizado: Dorsal ${dorsal} → Posición ${corredor.order}`);
     } else if (inputPosicion) {
         inputPosicion.value = dorsal;
         console.log(`⚠️ No se encontró posición para dorsal ${dorsal}, usando valor por defecto`);
@@ -281,7 +275,6 @@ function startCountdown() {
     if (primerCorredor.cronoSalida && primerCorredor.cronoSalida !== "00:00:00") {
         // Usar la función calcularTiempoCuentaAtras para consistencia
         tiempoCuentaAtrasActual = calcularTiempoCuentaAtras(primerCorredor);
-        console.log("⏱️ Tiempo de cuenta atrás calculado:", tiempoCuentaAtrasActual, "segundos");
     } else {
         // Si no tiene cronoSalida, usar 60 segundos por defecto
         tiempoCuentaAtrasActual = 60;
@@ -490,7 +483,7 @@ function handleCountdownZero() {
         // El cronómetro de carrera (iniciarCronoDeCarrera) ya está avanzando
         // y calcularTiempoCuentaAtras usará ese tiempo exacto
         
-        console.log(`⏱️ Tiempo del cronómetro de carrera: ${cronoCarreraSegundos}s`);
+        /* console.log(`⏱️ Tiempo del cronómetro de carrera: ${cronoCarreraSegundos}s`);*/ 
         
         // 5. Preparar siguiente corredor
         prepararSiguienteCorredor();
@@ -513,12 +506,6 @@ function updateCountdownDisplay() {
     if (typeof adjustCountdownSize === 'function') {
         adjustCountdownSize();
     }
-}
-
-function updateCurrentInterval() {
-    // Esta función ya no es necesaria en el nuevo sistema
-    // Los intervalos se calculan dinámicamente
-    console.log("updateCurrentInterval - Función obsoleta en nuevo sistema");
 }
 
 function updateCadenceTime() {
@@ -672,6 +659,11 @@ function registerDeparture() {
         startPositionElement.value = appState.departedCount + 1;
     }
     
+    // 🔥 CRÍTICO: Actualizar proximoCorredorIndex para apuntar al siguiente corredor
+    // Esto asegura consistencia entre modo automático y manual
+    // index es la posición del corredor que acaba de salir (0-based)
+    proximoCorredorIndex = index + 1;
+    
     console.log("✅ Salida registrada:", {
         dorsal: dorsal,
         horaSalidaReal: horaActual,
@@ -785,7 +777,6 @@ function iniciarCuentaAtrasManual(dorsal = null) {
     for (const id of possibleIds) {
         inputPreTime = document.getElementById(id);
         if (inputPreTime) {
-            console.log(`✅ Input de tiempo previo encontrado con ID: ${id}`);
             break;
         }
     }
@@ -804,12 +795,9 @@ function iniciarCuentaAtrasManual(dorsal = null) {
     }
 
     if (inputPreTime && inputPreTime.value && inputPreTime.value.trim() !== '') {
-        console.log(`⏱️ Valor del tiempo previo encontrado: "${inputPreTime.value}"`);
-        
+
         try {
-            preTimeSeconds = timeToSeconds(inputPreTime.value);
-            console.log(`✅ Tiempo previo convertido a segundos: ${preTimeSeconds}s`);
-            
+            preTimeSeconds = timeToSeconds(inputPreTime.value);            
             if (preTimeSeconds <= 0) {
                 console.warn("⚠️ Tiempo previo es <= 0, usando valor por defecto (60s)");
                 showMessage("El tiempo previo debe ser mayor que 0", 'warning');
@@ -1017,7 +1005,9 @@ function obtenerProximoCorredor() {
         return null;
     }
     
-    console.log("🔍 Buscando próximo corredor en índice", proximoCorredorIndex);
+    console.log("🔍 obtenerProximoCorredor() - Índice solicitado:", proximoCorredorIndex, 
+                "de", startOrderData.length, "corredores totales",
+                "(próximo en orden:", (proximoCorredorIndex + 1), ")");
     
     // Verificar si el índice actual es válido
     if (proximoCorredorIndex >= startOrderData.length) {
@@ -1144,8 +1134,6 @@ function actualizarCronoDisplay() {
         `${horas.toString().padStart(2, '0')}:` +
         `${minutos.toString().padStart(2, '0')}:` +
         `${segundos.toString().padStart(2, '0')}`;
-    
-    console.log(`⏱️ Cronómetro actualizado: ${display.textContent}`);
 }
 
 function actualizarHoraDisplay() {
@@ -1158,8 +1146,6 @@ function actualizarHoraDisplay() {
     const segundos = ahora.getSeconds().toString().padStart(2, '0');
     
     display.textContent = `${horas}:${minutos}:${segundos}`;
-    
-    console.log(`🕐 Hora actualizada: ${display.textContent}`);
 }
 
 function iniciarCronoDeCarrera(tiempoInicialSegundos = null) {
@@ -1182,9 +1168,7 @@ function iniciarCronoDeCarrera(tiempoInicialSegundos = null) {
             const tiempoRestante = calcularTiempoCuentaAtras(siguiente.corredor);
             
             // Si falta 1 minuto o menos y no hay cuenta atrás activa
-            if (tiempoRestante <= 60 && tiempoRestante > 0 && !cuentaAtrasActiva) {
-                console.log(`⏰ Falta ${tiempoRestante}s para siguiente corredor, iniciando cuenta atrás`);
-                
+            if (tiempoRestante <= 60 && tiempoRestante > 0 && !cuentaAtrasActiva) {               
                 cuentaAtrasActiva = true;
                 tiempoCuentaAtrasActual = tiempoRestante;
                 mostrarInfoCorredorEnPantalla(siguiente.corredor);
@@ -1204,8 +1188,7 @@ function iniciarCronoDeCarrera(tiempoInicialSegundos = null) {
 
 function prepararSiguienteCorredor() {
     // Incrementar índice para pasar al siguiente corredor
-    proximoCorredorIndex++;
-    
+   
     console.log("🔍 Buscando siguiente corredor después del índice", proximoCorredorIndex);
     
     const siguiente = obtenerProximoCorredor();
@@ -1321,7 +1304,9 @@ function obtenerSiguienteCorredorDespuesDelActual() {
         return null;
     }
     
-    console.log(`🔍 Buscando siguiente corredor después del índice ${proximoCorredorIndex} (total: ${startOrderData.length})`);
+    console.log(`🔍 obtenerSiguienteCorredorDespuesDelActual() - ` +
+                `Índice actual: ${proximoCorredorIndex} ` +
+                `(corredor ${proximoCorredorIndex + 1} de ${startOrderData.length})`);
     
     // Buscar el siguiente corredor después del actual
     const siguienteIndex = proximoCorredorIndex + 1;
@@ -1416,7 +1401,6 @@ function timeToSeconds(timeStr) {
         }
         
         const totalSegundos = horas * 3600 + minutos * 60 + segundos;
-        console.log(`⏱️ Conversión: "${timeStr}" -> "${cleanedStr}" -> ${totalSegundos}s`);
         return totalSegundos;
     } catch (e) {
         console.error(`❌ Error convirtiendo tiempo "${timeStr}":`, e);
@@ -1450,11 +1434,9 @@ function configurarBotonesModalCountdown() {
         
         document.getElementById('config-toggle').addEventListener('click', function(e) {
             e.stopPropagation();
-            console.log("⚙️ Botón de configuración clickeado");
             const modal = document.getElementById('config-during-countdown-modal');
             if (modal) {
                 modal.classList.add('active');
-                console.log("✅ Modal de configuración abierto");
             }
         });
     }
