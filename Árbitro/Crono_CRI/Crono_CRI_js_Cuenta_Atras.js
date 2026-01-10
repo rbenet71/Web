@@ -497,6 +497,66 @@ function stopCountdown() {
     });
     
     console.log("✅ Cuenta atrás detenida");
+    
+    // 🔥 NUEVO: Actualizar tabla visible cuando salimos de cuenta atrás
+    console.log("🔄 Forzando actualización de tabla al salir de cuenta atrás...");
+    
+    // Delay para asegurar que la transición de pantalla se complete
+    setTimeout(() => {
+        // Opción 1: Actualización inmediata (máxima prioridad)
+        if (typeof updateStartOrderTableImmediate === 'function') {
+            console.log("✅ Llamando a updateStartOrderTableImmediate() desde stopCountdown()");
+            updateStartOrderTableImmediate();
+        }
+        // Opción 2: Actualización crítica
+        else if (typeof updateStartOrderTableCritical === 'function') {
+            console.log("✅ Llamando a updateStartOrderTableCritical() desde stopCountdown()");
+            updateStartOrderTableCritical();
+        }
+        // Opción 3: Actualización normal
+        else if (typeof updateStartOrderTable === 'function') {
+            console.log("⚠️ Llamando a updateStartOrderTable() desde stopCountdown()");
+            updateStartOrderTable();
+        }
+        // Opción 4: Forzar actualización de UI
+        else {
+            console.log("🔄 Actualizando UI manualmente desde stopCountdown()");
+            
+            // Si existe la función updateStartOrderUI en Salidas_1.js
+            if (typeof updateStartOrderUI === 'function') {
+                console.log("✅ Llamando a updateStartOrderUI()");
+                updateStartOrderUI();
+            }
+            // O intentar recargar los datos
+            else if (typeof loadStartOrderData === 'function') {
+                console.log("✅ Llamando a loadStartOrderData()");
+                loadStartOrderData();
+            }
+            // Último recurso: recargar la página si nada funciona
+            else {
+                console.warn("⚠️ Ninguna función de actualización encontrada, mostrando alerta...");
+                const t = translations[appState.currentLanguage];
+                alert(t.refreshRequired || "Es necesario refrescar la página para ver los cambios. ¿Quieres recargar ahora?");
+            }
+        }
+        
+        // 🔥 ADICIONAL: También actualizar otros elementos de UI
+        setTimeout(() => {
+            // Actualizar display de corredores salidos
+            const departedCountElement = document.getElementById('departed-count');
+            if (departedCountElement && appState.departedCount !== undefined) {
+                departedCountElement.textContent = appState.departedCount;
+            }
+            
+            // Actualizar hora del sistema
+            if (typeof updateCurrentTime === 'function') {
+                updateCurrentTime();
+            }
+            
+            console.log("✅ Tabla y UI actualizadas después de salir de cuenta atrás");
+        }, 100);
+        
+    }, 400); // 400ms para asegurar que todo se haya renderizado correctamente
 }
 
 function updateCountdown() {
@@ -895,67 +955,99 @@ function registerDeparture() {
 
 
 
-// Función mejorada para actualizar la tabla
-function actualizarTablaConSalidaRegistrada(dorsal, horaSalidaReal, cronoSalidaReal) {
-    console.log("🔄 Actualizando tabla para dorsal:", dorsal);
-    
-    // Buscar en startOrderData
-    if (window.startOrderData && Array.isArray(window.startOrderData)) {
-        const corredor = window.startOrderData.find(c => c.dorsal == dorsal);
-        if (corredor) {
-            console.log("✅ Corredor encontrado en startOrderData, tiempos actualizados");
-        }
-    }
-    
-    // Buscar en la tabla HTML
-    const filas = document.querySelectorAll(`tr[data-dorsal="${dorsal}"]`);
-    
-    if (filas.length === 0) {
-        // Intentar con selector más genérico
-        const todasLasFilas = document.querySelectorAll('tr');
-        todasLasFilas.forEach(fila => {
-            const celdaDorsal = fila.querySelector('.dorsal-cell, .dorsal, [data-dorsal]');
-            if (celdaDorsal && celdaDorsal.textContent.trim() == dorsal) {
-                filas.push(fila);
-            }
-        });
-    }
-    
-    filas.forEach(fila => {
-        // Buscar celdas por clase o data-attribute
-        const celdas = fila.querySelectorAll('td');
-        
-        celdas.forEach((celda, index) => {
-            const textoCelda = celda.textContent.trim().toLowerCase();
-            
-            // Intentar identificar columnas por contenido
-            if (textoCelda.includes('hora') || textoCelda.includes('real')) {
-                celda.textContent = horaSalidaReal;
-                celda.classList.add('salida-registrada');
-            }
-            
-            if (textoCelda.includes('crono') || textoCelda.includes('tiempo')) {
-                celda.textContent = cronoSalidaReal;
-                celda.classList.add('salida-registrada');
-            }
-        });
-        
-        // Marcar fila completa
-        fila.classList.add('corredor-salido', 'salida-registrada');
-        fila.style.backgroundColor = '#e8f5e9'; // Verde claro para indicar salida
-        
-        console.log("✅ Fila actualizada para dorsal", dorsal);
-    });
-    
-    if (filas.length === 0) {
-        console.log("📊 Resumen de salida (sin tabla visible):", {
-            dorsal: dorsal,
+    // Función mejorada para actualizar la tabla
+    function actualizarTablaConSalidaRegistrada(dorsal, horaSalidaReal, cronoSalidaReal) {
+        console.log("🔄 actualizarTablaConSalidaRegistrada() para dorsal:", dorsal, {
             horaSalidaReal: horaSalidaReal,
-            cronoSalidaReal: cronoSalidaReal,
-            elapsedSeconds: cronoCarreraSegundos
+            cronoSalidaReal: cronoSalidaReal
+        });
+        
+        // 1. Verificar que los datos están en memoria
+        const startOrderData = obtenerStartOrderData();
+        if (startOrderData) {
+            const corredor = startOrderData.find(c => c.dorsal == dorsal);
+            if (corredor) {
+                console.log("✅ Datos en memoria verificados para dorsal", dorsal, {
+                    tieneHoraSalidaReal: !!corredor.horaSalidaReal,
+                    tieneCronoSalidaReal: !!corredor.cronoSalidaReal
+                });
+            } else {
+                console.warn("⚠️ Corredor no encontrado en startOrderData para dorsal", dorsal);
+            }
+        }
+        
+        // 2. 🔥🔥🔥 SOLUCIÓN PRINCIPAL: Actualizar tabla COMPLETA
+        // Usamos setTimeout para asegurar que primero se guarden los datos
+        
+        setTimeout(() => {
+            console.log("⏰ Actualizando tabla después de guardar datos...");
+            
+            // Prioridad 1: updateStartOrderTableImmediate (throttling nivel 3 - inmediato)
+            if (typeof updateStartOrderTableImmediate === 'function') {
+                console.log("✅ Llamando a updateStartOrderTableImmediate()...");
+                updateStartOrderTableImmediate();
+            }
+            // Prioridad 2: updateStartOrderTableCritical (throttling nivel 2 - crítico)
+            else if (typeof updateStartOrderTableCritical === 'function') {
+                console.log("✅ Llamando a updateStartOrderTableCritical()...");
+                updateStartOrderTableCritical();
+            }
+            // Prioridad 3: updateStartOrderTable (throttling nivel 1 - normal)
+            else if (typeof updateStartOrderTable === 'function') {
+                console.log("⚠️ Llamando a updateStartOrderTable()...");
+                updateStartOrderTable();
+            }
+            // Prioridad 4: Método antiguo como fallback
+            else {
+                console.warn("⚠️ Ninguna función de actualización de tabla encontrada, usando método manual...");
+                actualizarTablaManualmente(dorsal, horaSalidaReal, cronoSalidaReal);
+            }
+            
+            console.log("✅ Proceso de actualización de tabla iniciado para dorsal", dorsal);
+        }, 150); // 150ms de delay para asegurar que saveStartOrderData() y saveRaceData() terminen
+        
+        console.log("📊 Salida registrada procesada para dorsal", dorsal);
+    }
+
+    // 🔥 NUEVA FUNCIÓN AUXILIAR: Actualización manual como fallback
+    function actualizarTablaManualmente(dorsal, horaSalidaReal, cronoSalidaReal) {
+        console.log("🔄 actualizarTablaManualmente() para dorsal:", dorsal);
+        
+        // Buscar todas las tablas posibles
+        const tablas = document.querySelectorAll('#start-order-table, .start-order-table, table');
+        
+        tablas.forEach((tabla, tablaIndex) => {
+            const filas = tabla.querySelectorAll('tbody tr');
+            
+            filas.forEach(fila => {
+                // Buscar celda de dorsal
+                const celdaDorsal = fila.querySelector('.dorsal-cell, .dorsal, td:nth-child(2), [data-field="dorsal"]');
+                if (celdaDorsal && celdaDorsal.textContent.trim() == dorsal) {
+                    console.log("✅ Fila encontrada para dorsal", dorsal, "en tabla", tablaIndex);
+                    
+                    // Buscar celdas de horaSalidaReal (normalmente columna 9 o 10)
+                    const horaRealCell = fila.querySelector('.hora-salida-real, [data-field="horaSalidaReal"], td:nth-child(9), td:nth-child(10)');
+                    if (horaRealCell) {
+                        horaRealCell.textContent = horaSalidaReal;
+                        horaRealCell.classList.add('salida-registrada');
+                    }
+                    
+                    // Buscar celdas de cronoSalidaReal (normalmente columna 10 o 11)
+                    const cronoRealCell = fila.querySelector('.crono-salida-real, [data-field="cronoSalidaReal"], td:nth-child(10), td:nth-child(11)');
+                    if (cronoRealCell) {
+                        cronoRealCell.textContent = cronoSalidaReal;
+                        cronoRealCell.classList.add('salida-registrada');
+                    }
+                    
+                    // Marcar fila completa
+                    fila.classList.add('corredor-salido', 'salida-registrada');
+                    fila.style.backgroundColor = '#e8f5e9';
+                    
+                    console.log("✅ Fila actualizada manualmente para dorsal", dorsal);
+                }
+            });
         });
     }
-}
 
 // ============================================
 // FUNCIONES DE INICIO MANUAL (MODIFICADAS)

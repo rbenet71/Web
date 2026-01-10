@@ -214,6 +214,7 @@ la hora de salida real y el crono de salida real se asignaran al corredor que ac
 2.3.5.1 boton de esconder apartados
 2.3.6 reinicio funcionando
 2.3.6.1 actulizando bien siguente posicion y dorsal a salir
+2.3.6.2 actualizar tabla orden de salid con tiempos
 
 quiero rediseñar y mejorar el apartado de inicio cuenta atras manual.
 el diseño debe seguir la linea del resto de apartados (configuracion de audio, orden de salida)
@@ -226,6 +227,8 @@ en su interior tiene que tener:
 4.- Dorsal a Salir:
 5.- botón Iniciar Cuenta atrás
 6.- botón Reiniciar
+
+cuantos faltan por salir
 
 Recuerda indicarme las traducciones a relizar (algunas ya estan por tanto no repitamos)
 Si el usuario modifica el dorsal o la posición, el irá a buscar en la tabla de orden de salida, el otro valor, si modifico el dorsal irá a buscar el valor de orden, y a la inversa.
