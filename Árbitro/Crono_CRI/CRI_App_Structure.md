@@ -28,7 +28,7 @@ ELEMENTOS CLAVE:
 DEPENDENCIAS EXTERNAS:
 - Font Awesome 6.4.0 (iconos)
 - XLSX 0.18.5 (exportación Excel)
-- jsPDF 2.5.2.2 + AutoTable (exportación PDF)
+- jsPDF 2.5.3 + AutoTable (exportación PDF)
 - Google Analytics (G-CV925PMBQV)
 ```
 
@@ -2294,3 +2294,154 @@ newAddRiderBtn.addEventListener('click', function(e) {
 Este proceso de debugging reveló que problemas aparentemente simples (corredor fantasma) pueden tener causas complejas (listeners duplicados, estado mutable, lógica de propagación). La solución no fue solo arreglar el bug, sino implementar principios arquitectónicos que previenen categorías enteras de problemas futuros.
 
 **La lección más importante:** Invertir en arquitectura defensiva y logging estratégico ahorra más tiempo del que consume, especialmente en aplicaciones complejas con múltiples estados interactivos.
+
+
+# **Lección Aprendida: Resolución de Recursión en `updateRaceManagementCardTitle`**
+
+## **Problema Identificado**
+Se producía una **recursión infinita** en la función `updateRaceManagementCardTitle()` que causaba:
+- Múltiples llamadas consecutivas en la consola
+- Posible degradación del rendimiento
+- Comportamiento inesperado en la interfaz
+
+## **Síntomas en los Logs**
+```
+Crono_CRI_js_Storage_Pwa.js:3188 📝 Título de gestión actualizado: Pruebas 2.4.8 x
+Crono_CRI_js_Storage_Pwa.js:3167 ⚠️ Ya se está actualizando el título, evitando recursión
+```
+(Repetido decenas de veces consecutivas)
+
+## **Causa Raíz**
+Existían **MÚLTIPLES funciones con el mismo nombre** en diferentes archivos:
+1. `Crono_CRI_js_UI.js` - Función simple con `textContent`
+2. `Crono_CRI_js_Storage_Pwa.js` - Función completa con anti-recursión
+
+Además, había **llamadas redundantes** desde varios lugares.
+
+## **Pasos de Diagnóstico**
+
+### 1. **Identificar todas las llamadas**
+```javascript
+// Añadir este código temporal para depurar
+function updateRaceManagementCardTitle() {
+    const error = new Error();
+    const stack = error.stack || '';
+    const callerLine = stack.split('\n')[2] || 'Origen desconocido';
+    console.log(`🔍 Llamada desde: ${callerLine.trim()}`);
+    // ... resto del código
+}
+```
+
+### 2. **Encontrar los orígenes**
+Ejecutar en consola o buscar en código:
+```bash
+grep -n "updateRaceManagementCardTitle" *.js
+```
+
+## **Solución Aplicada**
+
+### **Paso 1: Eliminar funciones duplicadas**
+- Mantener SOLO la función en `Crono_CRI_js_Storage_Pwa.js`
+- Comentar/Eliminar otras funciones con el mismo nombre
+
+### **Paso 2: Eliminar llamadas redundantes**
+Comentar estas llamadas (dejando solo la esencial):
+
+| Archivo | Línea | Función | ¿Comentar? |
+|---------|-------|---------|------------|
+| `Crono_CRI_js_UI.js` | ~162 | `updateCardTitles` | ✅ **SÍ** |
+| `Crono_CRI_js_Storage_Pwa.js` | ~243 | `loadRaceData` | ❌ NO (esencial) |
+| `Crono_CRI_js_Storage_Pwa.js` | ~3355 | `initRaceManagementCard` | ✅ **SÍ** |
+| `Crono_CRI_js_Main.js` | ~345 | `initApp` | ✅ **SÍ** |
+| `Crono_CRI_js_Salidas_1.js` | ~1679 | `updateStartOrderUI` | ✅ **SÍ** |
+
+### **Paso 3: Implementar protección anti-recursión**
+```javascript
+function updateRaceManagementCardTitle() {
+    // Protección contra múltiples llamadas
+    if (window._raceTitleUpdating) {
+        return; // Ya se está actualizando
+    }
+    
+    window._raceTitleUpdating = true;
+    
+    try {
+        // Lógica de actualización...
+    } finally {
+        setTimeout(() => {
+            window._raceTitleUpdating = false;
+        }, 50); // Desbloquear después de 50ms
+    }
+}
+```
+
+### **Paso 4: Optimizar actualizaciones**
+- Solo actualizar el DOM si el contenido realmente cambió
+- Usar comparación de strings antes de modificar `innerHTML`
+
+## **Función Final Optimizada**
+```javascript
+function updateRaceManagementCardTitle() {
+    const titleElement = document.getElementById('card-race-title');
+    if (!titleElement) return;
+    
+    if (window._raceTitleUpdating) return;
+    window._raceTitleUpdating = true;
+    
+    try {
+        if (appState.currentRace && appState.currentRace.name) {
+            let titleHTML = `<i class="fas fa-flag-checkered"></i> ${appState.currentRace.name}`;
+            if (appState.currentRace.date) {
+                titleHTML += ` <span class="race-date">(${appState.currentRace.date})</span>`;
+            }
+            
+            // Solo actualizar si cambió
+            if (titleElement.innerHTML !== titleHTML) {
+                titleElement.innerHTML = titleHTML;
+                titleElement.classList.add('race-title-active');
+            }
+        } else {
+            const t = translations[appState.currentLanguage];
+            const defaultTitle = `<i class="fas fa-flag-checkered"></i> ${t.raceManagement || 'Gestión de Carrera'}`;
+            
+            if (titleElement.innerHTML !== defaultTitle) {
+                titleElement.innerHTML = defaultTitle;
+                titleElement.classList.remove('race-title-active');
+            }
+        }
+    } catch (error) {
+        console.error("Error actualizando título:", error);
+    } finally {
+        setTimeout(() => { window._raceTitleUpdating = false; }, 50);
+    }
+}
+```
+
+## **Prevención Futura**
+
+### **Reglas a seguir:**
+1. **Nombres únicos**: No crear múltiples funciones con el mismo nombre
+2. **Llamadas mínimas**: Solo llamar desde lugares esenciales
+3. **Protección**: Siempre incluir protección anti-recursión en funciones que actualizan UI
+4. **Optimización**: Verificar cambios antes de actualizar el DOM
+
+### **Comando de verificación:**
+```bash
+# Verificar si hay funciones duplicadas
+grep -n "function updateRaceManagementCardTitle" *.js
+
+# Verificar todas las llamadas
+grep -n "updateRaceManagementCardTitle(" *.js
+```
+
+## **Lecciones Clave**
+1. **Los nombres duplicados son peligrosos** - JavaScript sobrescribe funciones
+2. **La recursión puede ser sutil** - No siempre es llamarse a sí misma directamente
+3. **La depuración sistemática funciona** - Seguir el stack trace lleva a la solución
+4. **Menos es más** en actualizaciones de UI - Actualizar solo cuando es necesario
+
+---
+
+**Fecha de resolución**: Enero 2026  
+**Tiempo invertido**: ~1 hora  
+**Resultado**: ✅ **PROBLEMA COMPLETAMENTE RESUELTO**

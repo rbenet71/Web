@@ -1003,7 +1003,7 @@ function clearRaceDepartures() {
 // FUNCIONES DE PWA (PROGRESSIVE WEB APP)
 // ============================================
 function setupServiceWorker() {
-    console.log("🔄 Configurando ServiceWorker para Crono CRI v2.5.2.2...");
+    console.log("🔄 Configurando ServiceWorker para Crono CRI v2.5.3...");
     
     // Verificar si el navegador soporta Service Workers
     if (!('serviceWorker' in navigator)) {
@@ -1028,12 +1028,12 @@ function setupServiceWorker() {
     // Solo registrar si estamos en localhost o HTTPS
     if (isLocalhost || isHttps) {
         // 🔥 CAMBIO PRINCIPAL: Registrar el SW específico de Crono CRI
-        const swFile = 'Crono_CRI_ws.js?v=2.5.2.2';
+        const swFile = 'Crono_CRI_ws.js?v=2.5.3';
         console.log(`📁 Registrando ServiceWorker: ${swFile}`);
         
         navigator.serviceWorker.register(swFile)
             .then(registration => {
-                console.log('✅ ServiceWorker Crono CRI v2.5.2.2 registrado exitosamente:', registration.scope);
+                console.log('✅ ServiceWorker Crono CRI v2.5.3 registrado exitosamente:', registration.scope);
                 
                 // 🔥 NUEVO: Forzar actualización inmediata
                 console.log('🔄 Forzando actualización del ServiceWorker...');
@@ -1128,7 +1128,7 @@ function cleanupOldCaches() {
     console.log('🧹 Limpiando cachés antiguos...');
     
     // Limpiar localStorage de versiones antiguas
-    const currentVersion = '2.5.2.2';
+    const currentVersion = '2.5.3';
     const keysToKeep = [
         'app-mode',
         'card-expanded-race-management',
@@ -1990,7 +1990,7 @@ function createRaceBackup() {
         version: '1.0',
         appName: 'Crono CRI',
         exportDate: new Date().toISOString(),
-        exportVersion: 'V_2.5.2.2',
+        exportVersion: 'V_2.5.3',
         dataType: 'single-race',
         race: {
             // Copiar TODOS los datos de la carrera del array
@@ -2516,8 +2516,21 @@ function performRaceRestore(backupData, restoreOption, selectedData, existingRac
         
         if (appState.currentRace && appState.currentRace.id === restoredRace.id) {
             loadRaceData();
-            renderDeparturesList();
-            renderLlegadasList();
+            
+            // ====== CORRECCIÓN 1: Verificar si la función existe ======
+            if (typeof renderDeparturesList === 'function') {
+                renderDeparturesList();
+            } else {
+                console.log('ℹ️ Función renderDeparturesList no disponible, omitiendo');
+            }
+            
+            // ====== CORRECCIÓN 2: Verificar si la función existe ======
+            if (typeof renderLlegadasList === 'function') {
+                renderLlegadasList();
+            } else {
+                console.log('ℹ️ Función renderLlegadasList no disponible, omitiendo');
+            }
+            
             updateStartOrderTableThrottled();
             updateRaceManagementCardTitle();
         }
