@@ -667,12 +667,6 @@ function setupStartOrderEventListeners() {
         });
     }
     
-    // Botón para iniciar cuenta atrás
-    const startCountdownBtn = document.getElementById('start-countdown-btn');
-    if (startCountdownBtn && typeof startCountdown === 'function') {
-        startCountdownBtn.addEventListener('click', startCountdown);
-    }
-
  // En Crono_CRI_js_Main.js, línea 682 aproximadamente
 
 console.log("✅ Aplicación completamente inicializada y lista");
@@ -805,12 +799,7 @@ function handleKeyboardShortcuts(e) {
         document.getElementById('config-during-countdown-modal').classList.add('active');
     }
     
-    // Ctrl+Enter para iniciar cuenta atrás
-    if (e.ctrlKey && e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('start-countdown-btn').click();
-    }
-    
+
     // Tecla L para registro rápido de llegada
     if ((e.key === 'l' || e.key === 'L') && 
         document.getElementById('mode-llegadas-content').classList.contains('active') && 

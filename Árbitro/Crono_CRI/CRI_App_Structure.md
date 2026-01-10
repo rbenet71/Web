@@ -1492,3 +1492,81 @@ Esto asegura coherencia en toda la aplicación.
 *Módulos documentados: Main, Salidas (1-4), UI, Storage_Pwa, Utilidades, Traducciones, Cuenta_Atras*
 *Funcionalidades clave: Sistema de audio, exportación Excel/PDF, conversiones tiempo, throttling de 3 niveles, sistema de cuenta atrás especializado*
 *SIMPLIFICACIÓN: Eliminada tabla redundante de salidas registradas - datos almacenados en cada corredor*
+
+
+¡Excelente! Ahora que ya funciona, vamos a documentar esto en el archivo MD.
+
+**ARCHIVO A ACTUALIZAR**: `CRI_App_Structure.md` (o el nombre que tenga tu archivo de documentación)
+
+**SECCIÓN A AÑADIR**: En "LECCIONES APRENDIDAS - CRI APP", añadir un nuevo punto:
+
+---
+
+**17. CORRECCIÓN: Conflicto de Event Listeners en Inicio Manual de Cuenta Atrás**
+
+**Problema**: 
+- El botón "INICIAR CUENTA ATRÁS" tenía dos event listeners configurados
+- Uno llamaba a `iniciarCuentaAtrasManual()` (correcto)
+- Otro llamaba a `startCountdown()` (incorrecto)
+- Esto causaba que se ejecutaran ambas funciones simultáneamente
+
+**Solución**:
+1. **Identificación**: Encontrar que había dos funciones configurando el mismo botón:
+   - `configurarEventListenersCuentaAtras()` en `Crono_CRI_js_Cuenta_Atras.js`
+   - `setupStartOrderEventListeners()` en otro archivo
+2. **Corrección**: Eliminar el listener incorrecto de `setupStartOrderEventListeners()`
+3. **Verificación**: Asegurar que solo `iniciarCuentaAtrasManual()` maneje el inicio manual
+
+**Código eliminado**:
+```javascript
+// ❌ ELIMINAR ESTO de setupStartOrderEventListeners():
+// Botón para iniciar cuenta atrás
+const startCountdownBtn = document.getElementById('start-countdown-btn');
+if (startCountdownBtn && typeof startCountdown === 'function') {
+    startCountdownBtn.addEventListener('click', startCountdown);
+}
+```
+
+**Lección aprendida**:
+- Revisar siempre si hay conflictos de event listeners duplicados
+- El botón "INICIAR CUENTA ATRÁS" debe usar exclusivamente la función manual
+- La función `startCountdown()` es para el sistema automático, no para inicio manual
+
+**Archivos afectados**:
+- `Crono_CRI_js_Cuenta_Atras.js` - Configuración correcta del botón
+- [Archivo donde estaba `setupStartOrderEventListeners()`] - Se eliminó el listener duplicado
+
+---
+
+**18. MEJORA: Búsqueda Robusta del Input "Tiempo Previo"**
+
+**Problema**: 
+- La función `iniciarCuentaAtrasManual()` no encontraba consistentemente el input de "Tiempo Previo"
+- Dependía de un ID específico que podía cambiar
+
+**Solución**:
+1. Implementar búsqueda por múltiples IDs posibles
+2. Añadir búsqueda por placeholder o etiqueta
+3. Usar valor por defecto (60s) si no se encuentra
+
+**Código implementado**:
+```javascript
+// Búsqueda mejorada del input de tiempo previo
+const possibleIds = ['pre-countdown-time', 'pre-countdown', 'countdown-pre-time', 'pre-time'];
+for (const id of possibleIds) {
+    inputPreTime = document.getElementById(id);
+    if (inputPreTime) {
+        console.log(`✅ Input de tiempo previo encontrado con ID: ${id}`);
+        break;
+    }
+}
+```
+
+**Resultado**: 
+- El tiempo previo configurado ahora se usa correctamente
+- El sistema es más robusto ante cambios en la interfaz
+- Mensajes de log claros para depuración
+
+---
+
+¿Te parece bien esta documentación? ¿Quieres que añada algo más o prefieres un formato diferente?
