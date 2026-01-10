@@ -212,6 +212,7 @@ la hora de salida real y el crono de salida real se asignaran al corredor que ac
 2.3.4.2 Bien el manual y cuenta atras
 2.3.5 Quitar espacio intercvalos de salida
 2.3.5.1 boton de esconder apartados
+2.3.6 reinicio funcionando
 
 quiero rediseñar y mejorar el apartado de inicio cuenta atras manual.
 el diseño debe seguir la linea del resto de apartados (configuracion de audio, orden de salida)

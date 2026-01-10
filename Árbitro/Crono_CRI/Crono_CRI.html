@@ -551,7 +551,7 @@ ESTRUCTURA MODULAR:
                 <div class="copyright" id="copyright-text">
                     2025 © Copyright 
                     <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                        Roberto Benet - rbenet71@gmail.com - Ver: 2.3.5.1
+                        Roberto Benet - rbenet71@gmail.com - Ver: 2.3.6
                     </a>
                 </div>
             </div>
@@ -742,20 +742,29 @@ ESTRUCTURA MODULAR:
                 <button class="modal-close" id="restart-modal-close">&times;</button>
             </div>
             <div class="modal-body">
-                <p id="restart-modal-text">¿Estás seguro de que quieres reiniciar completamente? Esta acción:</p>
+                <p id="restart-modal-text">¿Estás seguro de que quieres reiniciar todo el sistema? Esta acción:</p>
                 <ul style="margin: 15px 0; padding-left: 20px;">
-                    <li>Detendrá la cuenta atrás si está activa</li>
-                    <li>Borrará todos los datos de la sesión actual</li>
-                    <li>Reiniciará los contadores a cero</li>
-                    <li>Volverá a la pantalla de configuración inicial</li>
+                    <li><strong>Detendrá la cuenta atrás</strong> si está activa</li>
+                    <li><strong>Borrará todos los tiempos de salida reales</strong> de los corredores</li>
+                    <li><strong>Reiniciará el contador de corredores salidos</strong> a cero</li>
+                    <li><strong>Reiniciará el cronómetro de carrera</strong> a 00:00:00</li>
+                    <li><strong>Volverá al primer corredor</strong> en la lista</li>
+                    <li><strong>Reiniciará la posición y dorsal</strong> de inicio manual</li>
                 </ul>
                 <p style="color: var(--danger); font-weight: 600;">
-                    Esta acción no se puede deshacer.
+                    ⚠️ Los tiempos de salida reales se perderán permanentemente.
+                </p>
+                <p style="color: var(--warning); font-style: italic;">
+                    Nota: Esto NO afecta al orden de salida ni a los tiempos previstos.
                 </p>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-danger" id="restart-confirm-btn">Sí, reiniciar completamente</button>
-                <button class="btn" id="restart-cancel-btn">Cancelar</button>
+                <button class="btn btn-danger" id="restart-confirm-btn">
+                    <i class="fas fa-redo"></i> Sí, reiniciar completamente
+                </button>
+                <button class="btn btn-secondary" id="restart-cancel-btn">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
             </div>
         </div>
     </div>

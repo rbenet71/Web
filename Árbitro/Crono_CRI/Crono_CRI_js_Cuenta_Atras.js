@@ -58,24 +58,43 @@ function configurarEventListenersCuentaAtras() {
         });
     }
     
-    // Botón de reiniciar/parar
+    // Botón de reiniciar/parar - 🔥 MODIFICADO
     const exitBtn = document.getElementById('exit-complete-btn');
     if (exitBtn) {
-        // Primero remover cualquier listener existente
-        const newExitBtn = exitBtn.cloneNode(true);
-        exitBtn.parentNode.replaceChild(newExitBtn, exitBtn);
+        // 🔥 SOLUCIÓN: Reemplazar completamente el botón para eliminar listeners antiguos
+        const parent = exitBtn.parentNode;
+        const newExitBtn = exitBtn.cloneNode(true); // Clonar
+        parent.replaceChild(newExitBtn, exitBtn);   // Reemplazar
         
-        // Añadir nuevo listener con confirmación
-        document.getElementById('exit-complete-btn').addEventListener('click', function() {
-            const t = translations[appState.currentLanguage];
-            const confirmMessage = t.confirmResetMessage || '¿Estás seguro de que quieres reiniciar todo?\n\nEsto borrará:\n• Todos los tiempos de salida reales\n• El contador de corredores salidos\n• El cronómetro de carrera';
+        // Configurar NUEVO listener en el botón clonado
+        document.getElementById('exit-complete-btn').addEventListener('click', function(e) {
+            e.preventDefault(); // 🔥 IMPORTANTE: Prevenir comportamiento por defecto
+            e.stopPropagation(); // 🔥 IMPORTANTE: Detener propagación
             
-            if (confirm(confirmMessage)) {
-                ejecutarReinicioCompleto();
+            console.log("🔘 Botón REINICIAR TODO presionado - Abriendo modal personalizado");
+            
+            // 🔥 SOLO abrir el modal personalizado - NO usar confirm() nativo
+            const modal = document.getElementById('restart-confirm-modal');
+            if (modal) {
+                console.log("✅ Modal restart-confirm-modal encontrado, abriendo...");
+                modal.classList.add('active');
+            } else {
+                console.error("❌ ERROR: No se encontró modal restart-confirm-modal");
             }
-        });
+        }, { once: false }); // 🔥 Asegurar que se puede llamar múltiples veces
     }
-       
+    
+    // Configuración de tiempo entre salidas
+    const intervalMinutes = document.getElementById('interval-minutes');
+    const intervalSeconds = document.getElementById('interval-seconds');
+    
+    if (intervalMinutes) {
+        intervalMinutes.addEventListener('change', updateCadenceTime);
+    }
+    if (intervalSeconds) {
+        intervalSeconds.addEventListener('change', updateCadenceTime);
+    }
+    
     // Botón de configuración durante cuenta atrás
     const configToggleBtn = document.getElementById('config-toggle');
     if (configToggleBtn) {
@@ -107,9 +126,118 @@ function configurarEventListenersCuentaAtras() {
                 sincronizarDorsalAPosicion(dorsal);
             }
         });
-    
     }
+    
+    // 🔥 MODIFICADO: Esperar a que el DOM esté completamente listo
+    setTimeout(() => {
+        console.log("🕒 Inicializando botones del modal de reinicio...");
+        configurarBotonesModalReinicio();
+    }, 100);
 }
+
+// ============================================
+// CONFIGURACIÓN MODAL DE REINICIO (NUEVO)
+// ============================================
+
+function configurarBotonesModalReinicio() {
+    console.log("🔄 Configurando botones del modal de reinicio...");
+    
+    // Verificar que los elementos existen
+    const modal = document.getElementById('restart-confirm-modal');
+    const closeBtn = document.getElementById('restart-modal-close');
+    const cancelBtn = document.getElementById('restart-cancel-btn');
+    const confirmBtn = document.getElementById('restart-confirm-btn');
+    
+    if (!modal) {
+        console.error("❌ ERROR: No se encontró modal restart-confirm-modal");
+        return;
+    }
+    
+    console.log("✅ Elementos encontrados:", {
+        modal: !!modal,
+        closeBtn: !!closeBtn,
+        cancelBtn: !!cancelBtn,
+        confirmBtn: !!confirmBtn
+    });
+    
+    // 1. Botón de cerrar modal (X)
+    if (closeBtn) {
+        // Remover listeners antiguos primero
+        const newCloseBtn = closeBtn.cloneNode(true);
+        closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+        
+        document.getElementById('restart-modal-close').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("❌ Cerrar modal (X) clickeado");
+            modal.classList.remove('active');
+        });
+    }
+    
+    // 2. Botón Cancelar
+    if (cancelBtn) {
+        // Remover listeners antiguos primero
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+        
+        document.getElementById('restart-cancel-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("❌ Cancelar clickeado");
+            modal.classList.remove('active');
+        });
+    }
+    
+    // 3. Botón Confirmar Reinicio
+    if (confirmBtn) {
+        // Remover listeners antiguos primero
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        
+        document.getElementById('restart-confirm-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("✅ Confirmar reinicio clickeado");
+            modal.classList.remove('active');
+            
+            // Ejecutar reinicio completo
+            if (typeof ejecutarReinicioCompleto === 'function') {
+                console.log("🔄 Ejecutando reinicio completo...");
+                ejecutarReinicioCompleto();
+            } else {
+                console.error("❌ ERROR: función ejecutarReinicioCompleto no encontrada");
+            }
+        });
+    }
+    
+    // 4. Cerrar modal al hacer clic fuera
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            console.log("👆 Clic fuera del modal - cerrando");
+            modal.classList.remove('active');
+        }
+    });
+    
+    // 5. Cerrar con tecla Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            console.log("⎋ Tecla Escape presionada - cerrando modal");
+            modal.classList.remove('active');
+        }
+    });
+    
+    console.log("✅ Botones del modal de reinicio configurados correctamente");
+}
+
+// 🔥 Asegurar que se llame cuando el DOM esté listo
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(configurarBotonesModalReinicio, 200);
+    });
+} else {
+    setTimeout(configurarBotonesModalReinicio, 200);
+}
+
 
 // ============================================
 // FUNCIONES DE SINCRONIZACIÓN DORSAL↔POSICIÓN
@@ -180,6 +308,30 @@ function ejecutarReinicioCompleto() {
     
     // 5. Actualizar cronómetro display
     actualizarCronoDisplay();
+    
+    // 🔥🔥🔥 CORRECCIÓN: Usar updateStartOrderTableImmediate() en lugar de updateStartOrderTable()
+    console.log("🔄 Actualizando tabla de orden de salida (INMEDIATO)...");
+    
+    // Opción A: Usar updateStartOrderTableImmediate() (throttling nivel 3 - inmediato)
+    if (typeof updateStartOrderTableImmediate === 'function') {
+        console.log("✅ Llamando a updateStartOrderTableImmediate()...");
+        updateStartOrderTableImmediate();
+    }
+    // Opción B: Usar updateStartOrderTableCritical() (throttling nivel 2 - crítico)
+    else if (typeof updateStartOrderTableCritical === 'function') {
+        console.log("✅ Llamando a updateStartOrderTableCritical()...");
+        updateStartOrderTableCritical();
+    }
+    // Opción C: Usar updateStartOrderTable() normal (puede ser bloqueado por throttling)
+    else if (typeof updateStartOrderTable === 'function') {
+        console.log("⚠️ Llamando a updateStartOrderTable() (puede ser bloqueado por throttling)...");
+        updateStartOrderTable();
+    }
+    // Opción D: Actualizar manualmente
+    else {
+        console.log("⚠️ Actualizando tabla manualmente...");
+        actualizarTablaManualmente();
+    }
     
     // 6. Mostrar mensaje de confirmación
     showMessage(t.resetCompleteMessage || 'Reinicio completo realizado', 'success');
@@ -1075,27 +1227,69 @@ function calcularTiempoCuentaAtras(corredor) {
 }
 
 function resetearTiemposReales() {
-    // Usar window.startOrderData como fuente principal
-    let startOrderData = window.startOrderData;
+    console.log("🗑️ ResetearTiemposReales() llamado");
     
-    // Si no está disponible, usar appState
-    if (!startOrderData && window.appState && window.appState.currentRace && window.appState.currentRace.startOrder) {
-        startOrderData = window.appState.currentRace.startOrder;
+    // 1. Limpiar window.startOrderData
+    if (window.startOrderData && Array.isArray(window.startOrderData)) {
+        window.startOrderData.forEach(corredor => {
+            corredor.horaSalidaReal = '';
+            corredor.cronoSalidaReal = '';
+            corredor.horaSalidaRealSegundos = 0;
+            corredor.cronoSalidaRealSegundos = 0;
+            corredor.salido = false;
+            corredor.salidaRegistrada = false;
+        });
+        console.log("✅ window.startOrderData limpiado:", window.startOrderData.length, "corredores");
     }
     
-    if (!startOrderData) return;
+    // 2. Limpiar appState.currentRace.startOrder
+    if (appState.currentRace && appState.currentRace.startOrder && Array.isArray(appState.currentRace.startOrder)) {
+        appState.currentRace.startOrder.forEach(corredor => {
+            corredor.horaSalidaReal = '';
+            corredor.cronoSalidaReal = '';
+            corredor.horaSalidaRealSegundos = 0;
+            corredor.cronoSalidaRealSegundos = 0;
+            corredor.salido = false;
+            corredor.salidaRegistrada = false;
+        });
+        console.log("✅ appState.currentRace.startOrder limpiado:", appState.currentRace.startOrder.length, "corredores");
+    }
     
-    startOrderData.forEach(corredor => {
-        corredor.horaSalidaReal = '';
-        corredor.cronoSalidaReal = '';
-        corredor.horaSalidaRealSegundos = 0;
-        corredor.cronoSalidaRealSegundos = 0;
-    });
-    
-    // Guardar cambios
+    // 3. Guardar cambios inmediatamente
     if (typeof saveStartOrderData === 'function') {
         saveStartOrderData();
     }
+    
+    if (typeof saveRaceData === 'function') {
+        saveRaceData();
+    }
+    
+    // 4. Limpiar localStorage también para esta carrera
+    if (appState.currentRace && appState.currentRace.id) {
+        const raceKey = `race-${appState.currentRace.id}`;
+        const savedData = localStorage.getItem(raceKey);
+        if (savedData) {
+            try {
+                const parsed = JSON.parse(savedData);
+                if (parsed.startOrder && Array.isArray(parsed.startOrder)) {
+                    parsed.startOrder.forEach(corredor => {
+                        corredor.horaSalidaReal = '';
+                        corredor.cronoSalidaReal = '';
+                        corredor.horaSalidaRealSegundos = 0;
+                        corredor.cronoSalidaRealSegundos = 0;
+                        corredor.salido = false;
+                        corredor.salidaRegistrada = false;
+                    });
+                    localStorage.setItem(raceKey, JSON.stringify(parsed));
+                    console.log("✅ localStorage limpiado para carrera:", raceKey);
+                }
+            } catch (e) {
+                console.error("Error limpiando localStorage:", e);
+            }
+        }
+    }
+    
+    console.log("🗑️ ResetearTiemposReales() completado");
 }
 
 function actualizarCronoDisplay() {
