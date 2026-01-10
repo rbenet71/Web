@@ -1304,40 +1304,20 @@ function obtenerProximoCorredor() {
         return null;
     }
     
-    console.log("🔍 obtenerProximoCorredor() - Índice solicitado:", proximoCorredorIndex, 
-                "de", startOrderData.length, "corredores totales",
-                "(próximo en orden:", (proximoCorredorIndex + 1), ")");
+    console.log("🔍 obtenerProximoCorredor() - Índice actual:", proximoCorredorIndex, 
+                "de", startOrderData.length, "corredores totales");
     
     // Verificar si el índice actual es válido
     if (proximoCorredorIndex >= startOrderData.length) {
-        console.log("🏁 Todos los corredores ya han sido procesados");
+        console.log("🏁 Índice fuera de rango: todos los corredores procesados");
         return null;
     }
     
     const corredor = startOrderData[proximoCorredorIndex];
     
-    // Verificar si este corredor ya tiene hora de salida
-    if (corredor.horaSalidaReal && corredor.horaSalidaReal !== '') {
-        console.log(`⚠️ Corredor ${corredor.dorsal} ya tiene hora de salida, buscando siguiente...`);
-        
-        // Buscar el siguiente corredor sin hora de salida
-        for (let i = proximoCorredorIndex + 1; i < startOrderData.length; i++) {
-            const siguienteCorredor = startOrderData[i];
-            if (!siguienteCorredor.horaSalidaReal || siguienteCorredor.horaSalidaReal === '') {
-                proximoCorredorIndex = i;
-                console.log(`✅ Próximo corredor encontrado: ${siguienteCorredor.dorsal} en índice ${i}`);
-                return {
-                    index: i,
-                    corredor: siguienteCorredor
-                };
-            }
-        }
-        
-        console.log("🏁 No hay más corredores sin hora de salida");
-        return null;
-    }
-    
-    console.log(`✅ Próximo corredor: ${corredor.dorsal} en índice ${proximoCorredorIndex}`);
+    // 🔥🔥🔥 NUEVA LÓGICA: SIEMPRE devolver el corredor en la posición actual
+    // SIN verificar si ya tiene hora de salida, SIN saltar
+    console.log(`✅ Próximo corredor: dorsal ${corredor.dorsal} en índice ${proximoCorredorIndex}`);
     return {
         index: proximoCorredorIndex,
         corredor: corredor
@@ -1655,35 +1635,16 @@ function obtenerSiguienteCorredorDespuesDelActual() {
     if (siguienteIndex < startOrderData.length) {
         const corredor = startOrderData[siguienteIndex];
         
-        // Verificar que el corredor existe y no tiene hora de salida real
-        if (corredor && (!corredor.horaSalidaReal || corredor.horaSalidaReal === '')) {
-            console.log(`✅ Siguiente corredor encontrado: ${corredor.dorsal} en índice ${siguienteIndex}`, {
-                diferencia: corredor.diferencia,
-                cronoSalida: corredor.cronoSalida,
-                horaSalidaReal: corredor.horaSalidaReal
-            });
-            return {
-                index: siguienteIndex,
-                corredor: corredor
-            };
-        } else {
-            console.log(`⏭️ Corredor ${corredor.dorsal} ya tiene hora de salida, buscando siguiente...`);
-            
-            // Buscar el siguiente corredor sin hora de salida
-            for (let i = siguienteIndex + 1; i < startOrderData.length; i++) {
-                const siguienteCorredor = startOrderData[i];
-                if (siguienteCorredor && (!siguienteCorredor.horaSalidaReal || siguienteCorredor.horaSalidaReal === '')) {
-                    console.log(`✅ Siguiente corredor disponible: ${siguienteCorredor.dorsal} en índice ${i}`);
-                    return {
-                        index: i,
-                        corredor: siguienteCorredor
-                    };
-                }
-            }
-            
-            console.log("🏁 No hay más corredores sin hora de salida");
-            return null;
-        }
+        // 🔥 NUEVA LÓGICA: SIEMPRE devolver el siguiente, sin verificar si ya salió
+        console.log(`✅ Siguiente corredor después del actual: ${corredor.dorsal} en índice ${siguienteIndex}`, {
+            dorsal: corredor.dorsal,
+            diferencia: corredor.diferencia,
+            cronoSalida: corredor.cronoSalida
+        });
+        return {
+            index: siguienteIndex,
+            corredor: corredor
+        };
     }
     
     console.log("🏁 No hay más corredores después del actual");

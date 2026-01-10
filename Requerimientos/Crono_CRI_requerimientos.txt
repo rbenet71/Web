@@ -215,6 +215,7 @@ la hora de salida real y el crono de salida real se asignaran al corredor que ac
 2.3.6 reinicio funcionando
 2.3.6.1 actulizando bien siguente posicion y dorsal a salir
 2.3.6.2 actualizar tabla orden de salid con tiempos
+2.4 Programa funcionando (siguiente corredor el del orden)
 
 quiero rediseñar y mejorar el apartado de inicio cuenta atras manual.
 el diseño debe seguir la linea del resto de apartados (configuracion de audio, orden de salida)
