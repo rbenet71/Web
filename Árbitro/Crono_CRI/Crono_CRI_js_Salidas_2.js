@@ -92,19 +92,19 @@ function updateStartOrderTable() {
             
             if (rider.diferencia.includes('(+)')) {
                 diferenciaClass = 'positiva';
-                diferenciaSign = ' (+)';
+                diferenciaSign = '';
                 valorLimpio = rider.diferencia.replace('(+)', '').trim();
             } else if (rider.diferencia.includes('(-)')) {
                 diferenciaClass = 'negativa';
-                diferenciaSign = ' (-)';
+                diferenciaSign = '';
                 valorLimpio = rider.diferencia.replace('(-)', '').trim();
             } else if (rider.diferencia.includes('+')) {
                 diferenciaClass = 'positiva';
-                diferenciaSign = ' (+)';
+                diferenciaSign = '';
                 valorLimpio = rider.diferencia.replace('+', '').trim();
             } else if (rider.diferencia.includes('-')) {
                 diferenciaClass = 'negativa';
-                diferenciaSign = ' (-)';
+                diferenciaSign = '';
                 valorLimpio = rider.diferencia.replace('-', '').trim();
             }
             
@@ -130,7 +130,7 @@ function updateStartOrderTable() {
                     
                     // Asignar diferencia por defecto para el segundo corredor
                     diferenciaValue = '00:01:00';
-                    diferenciaSign = ' (+)';
+                    diferenciaSign = '';
                     diferenciaClass = 'positiva';
                     diferenciaHtml = `<span class="diferencia ${diferenciaClass}" data-value="${diferenciaValue}">${diferenciaValue}${diferenciaSign}</span>`;
                     

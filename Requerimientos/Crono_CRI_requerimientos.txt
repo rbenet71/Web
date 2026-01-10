@@ -249,3 +249,9 @@ diferencia primero siempre es 00:00:00
 2.4.8 el boton de sugerencias que haga lo mismo que el de la calculadora
 2.4.8 ayuda funcionando
 ------
+2.4.9 quitar la marca de + para marcar los modificados, mantener el fondo verde
+verificar añadir corredor
+añadir eliminar corredor
+problemas al restaurar copia de seguridad
+
+revisar los tiempos de salida
