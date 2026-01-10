@@ -1147,6 +1147,10 @@ function createNewRiderAtPosition(position, riderData = {}) {
     
     console.log(`Posición validada: ${position}, total corredores actual: ${startOrderData.length}`);
     
+    // 🔥 GUARDAR DIFERENCIAS ORIGINALES ANTES DE INSERTAR
+    const diferenciasOriginales = [...startOrderData.map(r => r.diferencia)];
+    console.log('📋 Diferencias originales guardadas:', diferenciasOriginales);
+    
     // Variables para el nuevo corredor
     let cronoSalida = '00:00:00';
     let horaSalida = '09:00:00';
@@ -1157,14 +1161,17 @@ function createNewRiderAtPosition(position, riderData = {}) {
     // Si hay corredores existentes, calcular basándose en ellos
     if (startOrderData.length > 0) {
         if (position === 1) {
+            // 🔥 CASO ESPECIAL: AÑADIR EN POSICIÓN 1
             // Insertar al principio - usar la hora de inicio del input
             horaSalida = document.getElementById('first-start-time').value || '09:00:00';
             horaSegundos = timeToSeconds(horaSalida);
             diferencia = '00:00:00';
             
-            console.log(`Añadiendo al principio. Hora: ${horaSalida}`);
+            console.log(`🔥 Añadiendo al PRINCIPIO. Hora: ${horaSalida}`);
+            console.log(`🔥 Se usarán las diferencias originales para los desplazados`);
+            
         } else {
-            // Insertar en medio o al final
+            // Insertar en medio o al final (CASO NORMAL)
             const corredorAnterior = startOrderData[position - 2];
             
             // ✅ USAR la diferencia del registro anterior
@@ -1244,11 +1251,11 @@ function createNewRiderAtPosition(position, riderData = {}) {
         horaSalida: nuevoCorredor.horaSalida,
         cronoSalida: nuevoCorredor.cronoSalida,
         diferencia: nuevoCorredor.diferencia,
-        horaSalidaImportado: nuevoCorredor.horaSalidaImportado,  // ✅ VACÍO
-        cronoSalidaImportado: nuevoCorredor.cronoSalidaImportado // ✅ VACÍO
+        horaSalidaImportado: nuevoCorredor.horaSalidaImportado,
+        cronoSalidaImportado: nuevoCorredor.cronoSalidaImportado
     });
     
-    // Insertar corredor
+    // 🔥 INSERTAR CORREDOR
     startOrderData.splice(position - 1, 0, nuevoCorredor);
     
     // Recalcular órdenes de todos los corredores
@@ -1256,14 +1263,44 @@ function createNewRiderAtPosition(position, riderData = {}) {
         startOrderData[i].order = i + 1;
     }
     
-    // ✅ Recalcular corredores posteriores si los hay y NO es la última posición
-    // IMPORTANTE: Después del splice, startOrderData.length YA INCLUYE al nuevo corredor
-    // Así que si position === startOrderData.length - 1, estamos añadiendo en la penúltima posición
-    if (position < startOrderData.length - 1) {
-        console.log(`🔄 Recalculando corredores desde posición ${position + 1} (hay corredores posteriores)`);
-        recalculateFollowingRiders(position + 1);
+    // 🔥 MANEJO ESPECIAL PARA POSICIÓN 1 - ASIGNAR DIFERENCIAS CORRECTAS
+    if (position === 1 && startOrderData.length > 1) {
+        console.log('🔥 MANEJO ESPECIAL PARA POSICIÓN 1');
+        
+        // 1. El corredor en posición 2 recibe la diferencia D2 (del corredor que estará en posición 3)
+        if (diferenciasOriginales.length >= 2) {
+            // diferenciasOriginales[1] es D2 (diferencia del corredor que estaba en posición 2)
+            const D2 = diferenciasOriginales[1] || '00:01:00 (+)';
+            startOrderData[1].diferencia = D2;
+            console.log(`   🔄 Posición 2 asignada D2 = ${D2}`);
+            
+            // 2. Los corredores en posiciones 3+ mantienen sus diferencias originales
+            for (let i = 2; i < startOrderData.length; i++) {
+                if (diferenciasOriginales[i]) {
+                    startOrderData[i].diferencia = diferenciasOriginales[i];
+                    console.log(`   🔄 Posición ${i + 1} mantiene diferencia original = ${diferenciasOriginales[i]}`);
+                }
+            }
+        } else if (diferenciasOriginales.length === 1) {
+            // Solo había un corredor antes
+            const unicaDiferencia = diferenciasOriginales[0] || '00:01:00 (+)';
+            startOrderData[1].diferencia = unicaDiferencia;
+            console.log(`   🔄 Solo había un corredor: Posición 2 asignada = ${unicaDiferencia}`);
+        }
+        
+        // 3. 🔥 RECALCULAR TODOS LOS TIEMPOS USANDO LA FUNCIÓN EXISTENTE recalculateFollowingRiders
+        // Simplemente llamamos a recalculateFollowingRiders desde la posición 2
+        console.log(`🔄 Recalculando todos los tiempos desde posición 2`);
+        recalculateFollowingRiders(2);
+        
     } else {
-        console.log(`✅ Añadido en posición ${position} (última o penúltima), no hay corredores posteriores para recalcular`);
+        // ✅ CASO NORMAL: Recalcular corredores posteriores si los hay y NO es la última posición
+        if (position < startOrderData.length - 1) {
+            console.log(`🔄 Recalculando corredores desde posición ${position + 1} (hay corredores posteriores)`);
+            recalculateFollowingRiders(position + 1);
+        } else {
+            console.log(`✅ Añadido en posición ${position} (última o penúltima), no hay corredores posteriores para recalcular`);
+        }
     }
     
     // ✅ Actualizar UI
