@@ -1003,11 +1003,11 @@ function clearRaceDepartures() {
 // FUNCIONES DE PWA (PROGRESSIVE WEB APP)
 // ============================================
 function setupServiceWorker() {
-    console.log("Configurando ServiceWorker...");
+    console.log("🔄 Configurando ServiceWorker para Crono CRI v2.4.4...");
     
     // Verificar si el navegador soporta Service Workers
     if (!('serviceWorker' in navigator)) {
-        console.log('Este navegador no soporta Service Workers');
+        console.log('❌ Este navegador no soporta Service Workers');
         return;
     }
     
@@ -1021,16 +1021,23 @@ function setupServiceWorker() {
     // Los Service Workers NO funcionan con file://
     if (isFileProtocol) {
         console.log('ℹ️ ServiceWorker no disponible para protocolo file://');
-        console.log('   La aplicación funcionará normalmente, pero sin funciones PWA.');
-        console.log('   Para probar PWA, ejecuta desde un servidor local.');
+        console.log('   La aplicación funcionará, pero sin funciones PWA offline.');
         return;
     }
     
     // Solo registrar si estamos en localhost o HTTPS
     if (isLocalhost || isHttps) {
-        navigator.serviceWorker.register('sw.js')
+        // 🔥 CAMBIO PRINCIPAL: Registrar el SW específico de Crono CRI
+        const swFile = 'Crono_CRI_ws.js?v=2.4.4';
+        console.log(`📁 Registrando ServiceWorker: ${swFile}`);
+        
+        navigator.serviceWorker.register(swFile)
             .then(registration => {
-                console.log('✅ ServiceWorker registrado exitosamente:', registration.scope);
+                console.log('✅ ServiceWorker Crono CRI v2.4.4 registrado exitosamente:', registration.scope);
+                
+                // 🔥 NUEVO: Forzar actualización inmediata
+                console.log('🔄 Forzando actualización del ServiceWorker...');
+                registration.update();
                 
                 // Verificar actualizaciones
                 registration.addEventListener('updatefound', () => {
@@ -1038,22 +1045,113 @@ function setupServiceWorker() {
                     const newWorker = registration.installing;
                     
                     newWorker.addEventListener('statechange', () => {
+                        console.log(`📊 Estado del nuevo ServiceWorker: ${newWorker.state}`);
+                        
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                             console.log('📱 Nueva versión lista para instalar');
                             appState.updateAvailable = true;
-                            showUpdateNotification();
+                            
+                            // Mostrar notificación al usuario
+                            if (typeof showUpdateNotification === 'function') {
+                                showUpdateNotification();
+                            } else {
+                                console.log('💡 Nueva versión disponible. Recarga la página.');
+                            }
+                        } else if (newWorker.state === 'activated') {
+                            console.log('✅ Nuevo ServiceWorker activado');
+                            
+                            // 🔥 IMPORTANTE: Limpiar cachés antiguos de localStorage
+                            cleanupOldCaches();
                         }
                     });
                 });
+                
+                // 🔥 NUEVO: Escuchar mensajes del ServiceWorker
+                navigator.serviceWorker.addEventListener('message', event => {
+                    console.log('📨 Mensaje recibido del ServiceWorker:', event.data);
+                    
+                    if (event.data && event.data.type === 'UPDATE_AVAILABLE') {
+                        console.log('🚀 Actualización disponible - forzando recarga');
+                        window.location.reload();
+                    }
+                });
+                
+                // 🔥 NUEVO: Verificar versión periódicamente
+                setInterval(() => {
+                    console.log('⏰ Verificando actualizaciones del ServiceWorker...');
+                    registration.update();
+                }, 30 * 60 * 1000); // Cada 30 minutos
+                
+                console.log('✅ ServiceWorker configurado correctamente');
+                
             })
             .catch(error => {
-                console.log('❌ Error registrando ServiceWorker:', error.name, '-', error.message);
-                console.log('   Esto es normal si el archivo sw.js no existe o tiene errores.');
+                console.error('❌ Error registrando ServiceWorker:', error);
+                console.log('⚠️ Detalles del error:', {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                });
+                
+                // 🔥 NUEVO: Intentar sin parámetro de versión como fallback
+                console.log('🔄 Intentando registrar sin parámetro de versión...');
+                navigator.serviceWorker.register('Crono_CRI_ws.js')
+                    .then(backupReg => {
+                        console.log('✅ ServiceWorker registrado (sin parámetro versión):', backupReg.scope);
+                    })
+                    .catch(backupError => {
+                        console.error('❌ Error con registro de backup:', backupError);
+                    });
             });
+        
+        // 🔥 NUEVO: Controlador para actualizaciones manuales
+        window.forceServiceWorkerUpdate = function() {
+            console.log('🔄 Forzando actualización manual del ServiceWorker...');
+            navigator.serviceWorker.getRegistration()
+                .then(registration => {
+                    if (registration) {
+                        registration.update();
+                        console.log('✅ Actualización forzada solicitada');
+                    }
+                });
+        };
+        
     } else {
-        console.log('⚠️ ServiceWorker requiere HTTPS o localhost');
+        console.warn('⚠️ ServiceWorker requiere HTTPS o localhost');
         console.log('   Protocolo actual:', protocol);
+        console.log('   La aplicación funcionará, pero sin funciones PWA offline.');
     }
+}
+
+// 🔥 NUEVA FUNCIÓN AUXILIAR: Limpiar cachés antiguos
+function cleanupOldCaches() {
+    console.log('🧹 Limpiando cachés antiguos...');
+    
+    // Limpiar localStorage de versiones antiguas
+    const currentVersion = '2.4.4';
+    const keysToKeep = [
+        'app-mode',
+        'card-expanded-race-management',
+        'card-expanded-start-order',
+        'card-expanded-countdown',
+        'countdown-audio-type',
+        'countdown-current-race',
+        `race-${appState.currentRace ? appState.currentRace.id : 'current'}`,
+        'races-list'
+    ];
+    
+    Object.keys(localStorage).forEach(key => {
+        // Eliminar claves que no están en la lista de mantener
+        if (!keysToKeep.includes(key) && 
+            !key.startsWith('race-') && 
+            !key.startsWith('backup-') &&
+            key !== 'language-preference') {
+            console.log(`🗑️ Eliminando clave antigua: ${key}`);
+            localStorage.removeItem(key);
+        }
+    });
+    
+    console.log('✅ Limpieza de cachés completada');
 }
 
 function setupPWA() {

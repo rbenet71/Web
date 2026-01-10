@@ -1886,3 +1886,53 @@ setTimeout(() => {
 ---
 
 **¿Quieres que añada algo más o modifico alguna sección?**
+
+
+
+Sí, debemos actualizar el archivo MD para documentar esta corrección. Añadiré una nueva lección aprendida en la sección correspondiente:
+
+**Añadir al archivo `CRI_App_Structure.md` en la sección "LECCIONES APRENDIDAS":**
+
+---
+
+### **28. CORRECCIÓN: Compensación de 1 Segundo en Registro de Salidas**
+
+**Problema:**
+- Al registrar la salida de un corredor, los tiempos guardados (`cronoSalidaReal` y `horaSalidaReal`) eran 1 segundo menores que lo que deberían ser
+- Esto se debía al retardo de 2 segundos entre que la cuenta atrás llega a 0 y se llama a `registerDeparture()`
+
+**Solución implementada:**
+1. **Modificar `registerDeparture()`** en `Crono_CRI_js_Cuenta_Atras.js`
+2. **Obtener valores directamente de pantalla:** Usar los elementos `total-time-value` y `current-time-value`
+3. **Añadir 1 segundo de compensación:** Convertir a segundos → sumar 1 segundo → volver a formato HH:MM:SS
+4. **Logs detallados:** Mostrar valores antes y después de la compensación
+
+**Código modificado:**
+```javascript
+// 1. Obtener valores de pantalla
+const cronoSalidaRealPantalla = document.getElementById('total-time-value').textContent;
+const horaSalidaRealPantalla = document.getElementById('current-time-value').textContent;
+
+// 2. Convertir a segundos y añadir 1 segundo
+cronoSalidaRealSegundos = timeToSeconds(cronoSalidaRealPantalla) + 1;
+horaSalidaRealSegundos = convertirHoraASegundos(horaSalidaRealPantalla) + 1;
+
+// 3. Volver a formato HH:MM:SS
+corredor.cronoSalidaReal = secondsToTime(cronoSalidaRealSegundos);
+corredor.horaSalidaReal = secondsToTime(horaSalidaRealSegundos);
+```
+
+**Impacto:**
+- ✅ Los tiempos registrados ahora son precisos
+- ✅ Compensación automática del retardo de 2 segundos
+- ✅ Valores consistentes entre pantalla y almacenamiento
+- ✅ Compatible con todos los modos (automático y manual)
+
+**Archivos afectados:**
+- `Crono_CRI_js_Cuenta_Atras.js` - Función `registerDeparture()`
+
+**Lección aprendida:** Cuando hay retrasos entre la visualización y el registro de datos, es necesario implementar compensaciones temporales. En sistemas de cronometraje, incluso 1 segundo de diferencia puede ser crítico.
+
+---
+
+¿Quieres que añada esta sección al archivo MD o prefieres algún formato diferente?
