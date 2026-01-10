@@ -548,10 +548,18 @@ function createFirstRider() {
 function showRiderPositionModal() {
     const t = translations[appState.currentLanguage];
     
+    // 🔥 GUARDA EL LENGTH INICIAL
+    const initialLength = startOrderData.length;
+    console.log(`🔍 showRiderPositionModal - initialLength guardado: ${initialLength}`);
+    
     // Crear el modal - Asegúrate de que tenga TODOS estos elementos:
     const modal = document.createElement('div');
     modal.id = 'rider-position-modal';
     modal.className = 'modal';
+    
+    // 🔥 AÑADE EL DATASET CON EL LENGTH INICIAL
+    modal.dataset.initialLength = initialLength;
+    
     modal.innerHTML = `
         <div class="modal-content">
             <div class="modal-header">
@@ -574,8 +582,8 @@ function showRiderPositionModal() {
                         <div id="specific-position-container" class="form-group" style="display: none;">
                             <label for="specific-position-input">${t.positionNumber || 'Número de posición:'}</label>
                             <input type="number" id="specific-position-input" class="form-control" 
-                                   min="1" max="${startOrderData.length + 1}" 
-                                   value="${startOrderData.length + 1}">
+                                   min="1" max="${initialLength + 1}" 
+                                   value="">
                         </div>
                     </div>
                     
@@ -623,7 +631,7 @@ function showRiderPositionModal() {
                             <div class="preview-grid">
                                 <div class="preview-item">
                                     <strong>${t.position || 'Posición'}</strong>
-                                    <div id="preview-position" class="preview-value">${startOrderData.length + 1}</div>
+                                    <div id="preview-position" class="preview-value">${initialLength + 1}</div>
                                 </div>
                                 <div class="preview-item">
                                     <strong>${t.dorsal || 'Dorsal'}</strong>
@@ -695,6 +703,9 @@ function showRiderPositionModal() {
     }, 10);
 }
 
+
+
+
 function setupRiderPositionModalEvents(modal) {
     const t = translations[appState.currentLanguage];
     
@@ -714,15 +725,22 @@ function setupRiderPositionModalEvents(modal) {
     
     // Función auxiliar para inicializar vista previa
     function initializeRiderPreview() {
+        const modal = document.getElementById('rider-position-modal');
+        const modalInitialLength = modal ? parseInt(modal.dataset.initialLength) : startOrderData.length;
+        
+        console.log(`🔍 initializeRiderPreview - modalInitialLength: ${modalInitialLength}, actual: ${startOrderData.length}`);
+        
         // Establecer valores por defecto si no existen
         if (positionSelect) {
             positionSelect.value = 'end';
         }
         
         if (specificInput) {
-            specificInput.value = startOrderData.length + 1;
-            specificInput.max = startOrderData.length + 1;
+            // 🔥 USA modalInitialLength
+            specificInput.max = modalInitialLength + 1;
             specificInput.min = 1;
+            specificInput.value = '';
+            console.log(`🔍 specificInput.max establecido a: ${modalInitialLength + 1}`);
         }
         
         if (dorsalInput) {
@@ -741,7 +759,10 @@ function setupRiderPositionModalEvents(modal) {
         positionSelect.addEventListener('change', function() {
             if (this.value === 'specific') {
                 if (specificContainer) specificContainer.style.display = 'block';
-                if (specificInput) specificInput.focus();
+                if (specificInput) {
+                    specificInput.focus();
+                    specificInput.select();
+                }
             } else {
                 if (specificContainer) specificContainer.style.display = 'none';
             }
@@ -769,23 +790,41 @@ function setupRiderPositionModalEvents(modal) {
             
             console.log("Botón confirmar clickeado");
             
+            // 🔥 OBTENER EL MODAL PARA ACCEDER A SU INITIAL LENGTH
+            const modal = document.getElementById('rider-position-modal');
+            const modalInitialLength = modal ? parseInt(modal.dataset.initialLength) : startOrderData.length;
+            
+            console.log(`🔍 Botón confirmar - modalInitialLength: ${modalInitialLength}, actual: ${startOrderData.length}`);
+            
             // Obtener datos del formulario
+            const positionSelect = modal.querySelector('#rider-position-select');
+            const specificInput = modal.querySelector('#specific-position-input');
             const positionType = positionSelect ? positionSelect.value : 'end';
             let position;
             
+            // 🔥 IMPORTANTE: Usar modalInitialLength, NO startOrderData.length
             if (positionType === 'end') {
-                position = startOrderData.length + 1;
+                position = modalInitialLength + 1;  // ← CAMBIADO A modalInitialLength
+                console.log(`🔍 Posición 'end' calculada: ${position} (modalInitialLength: ${modalInitialLength})`);
             } else if (positionType === 'beginning') {
                 position = 1;
+                console.log(`🔍 Posición 'beginning' calculada: ${position}`);
             } else if (positionType === 'specific') {
-                position = specificInput ? parseInt(specificInput.value) || startOrderData.length + 1 : startOrderData.length + 1;
+                position = specificInput ? parseInt(specificInput.value) || modalInitialLength + 1 : modalInitialLength + 1;  // ← CAMBIADO
                 if (position < 1) position = 1;
-                if (position > startOrderData.length + 1) position = startOrderData.length + 1;
+                if (position > modalInitialLength + 1) position = modalInitialLength + 1;  // ← CAMBIADO
+                console.log(`🔍 Posición 'specific' calculada: ${position}`);
             } else {
-                position = startOrderData.length + 1;
+                position = modalInitialLength + 1;  // ← CAMBIADO
+                console.log(`🔍 Posición por defecto calculada: ${position}`);
             }
             
             // Obtener datos del corredor
+            const dorsalInput = modal.querySelector('#rider-dorsal');
+            const nameInput = modal.querySelector('#rider-name');
+            const surnameInput = modal.querySelector('#rider-surname');
+            const chipInput = modal.querySelector('#rider-chip');
+            
             const riderData = {
                 dorsal: parseInt(dorsalInput.value) || position,
                 nombre: nameInput.value.trim(),
@@ -794,7 +833,7 @@ function setupRiderPositionModalEvents(modal) {
             };
             
             console.log("Datos del corredor:", riderData);
-            console.log("Posición:", position);
+            console.log("Posición final:", position, "(se usó modalInitialLength, NO startOrderData.length)");
             
             // Validar dorsal
             const dorsalExistente = startOrderData.find(rider => rider.dorsal == riderData.dorsal);
@@ -811,7 +850,7 @@ function setupRiderPositionModalEvents(modal) {
                 }
             }, 300);
             
-            // Añadir corredor
+            // Añadir corredor con la posición correcta
             createNewRiderAtPosition(position, riderData);
         });
     }
@@ -897,12 +936,38 @@ function findNextAvailableDorsal() {
 }
 
 function updateRiderPreview() {
+    console.log(`🔍 updateRiderPreview llamada - timestamp: ${Date.now()}`);
+    
     const modal = document.getElementById('rider-position-modal');
-    if (!modal) return;
+    if (!modal) {
+        console.log(`❌ Modal no encontrado en updateRiderPreview`);
+        return;
+    }
+    
+    // 🔥 OBTENER EL INITIAL LENGTH DEL MODAL
+    const modalInitialLength = parseInt(modal.dataset.initialLength) || startOrderData.length;
+    console.log(`🔍 Usando modalInitialLength: ${modalInitialLength} (actual: ${startOrderData.length})`);
     
     // Elementos de posición
     const positionSelect = modal.querySelector('#rider-position-select');
     const specificInput = modal.querySelector('#specific-position-input');
+    
+    // 🔥 ACTUALIZAR EL MAX DEL INPUT ESPECÍFICO (IMPORTANTE)
+    if (specificInput) {
+        // Si hay un modalInitialLength, usarlo, sino usar startOrderData.length
+        const maxPosition = modalInitialLength + 1;
+        if (parseInt(specificInput.max) !== maxPosition) {
+            specificInput.max = maxPosition;
+            console.log(`🔍 specificInput.max actualizado a: ${maxPosition}`);
+        }
+        
+        // Si el valor actual es mayor que el nuevo máximo, ajustarlo
+        const currentValue = parseInt(specificInput.value);
+        if (currentValue > maxPosition) {
+            specificInput.value = maxPosition;
+            console.log(`🔍 specificInput.value ajustado a: ${maxPosition}`);
+        }
+    }
     
     // Elementos del formulario
     const dorsalInput = modal.querySelector('#rider-dorsal');
@@ -920,20 +985,20 @@ function updateRiderPreview() {
     const previewChip = modal.querySelector('#preview-chip');
     const previewDiferencia = modal.querySelector('#preview-diferencia');
     
-    // Calcular posición
+    // Calcular posición - 🔥 USA modalInitialLength
     let position;
     const positionType = positionSelect ? positionSelect.value : 'end';
     
     if (positionType === 'end') {
-        position = startOrderData.length + 1;
+        position = modalInitialLength + 1;
     } else if (positionType === 'beginning') {
         position = 1;
     } else if (positionType === 'specific') {
-        position = specificInput ? parseInt(specificInput.value) || startOrderData.length + 1 : startOrderData.length + 1;
+        position = specificInput ? parseInt(specificInput.value) || modalInitialLength + 1 : modalInitialLength + 1;
         if (position < 1) position = 1;
-        if (position > startOrderData.length + 1) position = startOrderData.length + 1;
+        if (position > modalInitialLength + 1) position = modalInitialLength + 1;
     } else {
-        position = startOrderData.length + 1;
+        position = modalInitialLength + 1;
     }
     
     // Actualizar vista previa de posición
@@ -963,6 +1028,8 @@ function updateRiderPreview() {
     let cronoSalida = '00:00:00';
     let diferencia = '00:00:00';
     
+    // 🔥 IMPORTANTE: Para cálculos de tiempos, usa startOrderData REAL
+    // pero para posición, usa modalInitialLength
     if (startOrderData.length > 0) {
         if (position === 1) {
             // PRIMER CORREDOR
@@ -1056,19 +1123,18 @@ function updateRiderPreview() {
     }
     
     // Actualizar specific input con el valor calculado
-    if (specificInput) {
-        specificInput.max = startOrderData.length + 1;
-        if (positionType === 'specific') {
-            specificInput.value = position;
-        }
+    if (specificInput && positionType === 'specific') {
+        specificInput.value = position;
     }
     
+    console.log(`🔍 Posición final calculada: ${position} (usando modalInitialLength: ${modalInitialLength})`);
     console.log('Vista previa actualizada para posición', position, ':', {
         horaSalida,
         cronoSalida,
         diferencia
     });
 }
+
 
 function createNewRiderAtPosition(position, riderData = {}) {
     console.log(`=== createNewRiderAtPosition llamada para posición ${position} ===`);
@@ -1190,9 +1256,14 @@ function createNewRiderAtPosition(position, riderData = {}) {
         startOrderData[i].order = i + 1;
     }
     
-    // ✅ Recalcular corredores posteriores si los hay
-    if (position < startOrderData.length) {
+    // ✅ Recalcular corredores posteriores si los hay y NO es la última posición
+    // IMPORTANTE: Después del splice, startOrderData.length YA INCLUYE al nuevo corredor
+    // Así que si position === startOrderData.length - 1, estamos añadiendo en la penúltima posición
+    if (position < startOrderData.length - 1) {
+        console.log(`🔄 Recalculando corredores desde posición ${position + 1} (hay corredores posteriores)`);
         recalculateFollowingRiders(position + 1);
+    } else {
+        console.log(`✅ Añadido en posición ${position} (última o penúltima), no hay corredores posteriores para recalcular`);
     }
     
     // ✅ Actualizar UI
@@ -1213,27 +1284,70 @@ function createNewRiderAtPosition(position, riderData = {}) {
 }
 
 function recalculateFollowingRiders(fromPosition) {
-    console.log(`=== Recalculando corredores desde posición ${fromPosition} ===`);
+    console.log(`🔍🔍🔍 === recalculateFollowingRiders INICIANDO ===`);
+    console.log(`🔍 Parámetro fromPosition: ${fromPosition}`);
+    console.log(`🔍 startOrderData.length: ${startOrderData.length}`);
     
-    if (fromPosition > startOrderData.length) {
-        console.log('No hay corredores para recalcular');
+    // 🔥 DIAGNÓSTICO 1: Verificar si debería ejecutarse
+    if (fromPosition >= startOrderData.length) {
+        console.log(`❌❌❌ DIAGNÓSTICO 1: NO debería ejecutarse`);
+        console.log(`❌ fromPosition (${fromPosition}) >= length (${startOrderData.length})`);
+        console.log(`❌ Esta función NO debería haberse llamado`);
         return;
     }
     
+    console.log(`✅ DIAGNÓSTICO 1: Condición OK, puede ejecutarse`);
+    
     // Ajustar fromPosition para que sea base 0
-    const startIndex = Math.max(1, fromPosition - 1); // Empezar desde el corredor después del insertado
+    const startIndex = Math.max(0, fromPosition - 1);
+    console.log(`🔍 startIndex calculado: ${startIndex} (fromPosition ${fromPosition} - 1)`);
+    
+    // 🔥 DIAGNÓSTICO 2: Verificar índices
+    console.log(`🔍 DIAGNÓSTICO 2: Bucle desde i=${startIndex} hasta i<${startOrderData.length}`);
+    
+    let corredoresProcesados = 0;
     
     for (let i = startIndex; i < startOrderData.length; i++) {
+        corredoresProcesados++;
+        console.log(`\n🔍 Iteración ${corredoresProcesados}: i=${i}`);
+        
+        // 🔥 DIAGNÓSTICO 3: Verificar acceso a array
+        if (i >= startOrderData.length) {
+            console.log(`❌❌❌ ERROR: i (${i}) >= length (${startOrderData.length})`);
+            break;
+        }
+        
+        if (i < 1) {
+            console.log(`⚠️ i=${i} < 1, saltando (no hay corredor anterior)`);
+            continue;
+        }
+        
         const corredorActual = startOrderData[i];
         const corredorAnterior = startOrderData[i - 1];
         
-        // 1. Actualizar orden
-        corredorActual.order = i + 1;
+        // 🔥 DIAGNÓSTICO 4: Verificar corredores
+        if (!corredorActual) {
+            console.log(`❌❌❌ ERROR: corredorActual no existe en índice ${i}`);
+            continue;
+        }
+        if (!corredorAnterior) {
+            console.log(`❌❌❌ ERROR: corredorAnterior no existe en índice ${i-1}`);
+            continue;
+        }
         
-        // 2. ✅ USAR la diferencia del corredor actual (NO cambiarla)
-        // Si no tiene diferencia, usar la del anterior
+        console.log(`🔍 Procesando: Corredor ${i} (order ${corredorActual.order})`);
+        console.log(`🔍 Anterior: Corredor ${i-1} (order ${corredorAnterior.order})`);
+        
+        // 1. Actualizar orden
+        const ordenViejo = corredorActual.order;
+        corredorActual.order = i + 1;
+        console.log(`📝 Orden cambiado: ${ordenViejo} -> ${corredorActual.order}`);
+        
+        // 2. USAR la diferencia del corredor actual (NO cambiarla)
+        const diferenciaVieja = corredorActual.diferencia;
         if (!corredorActual.diferencia || corredorActual.diferencia === '' || corredorActual.diferencia === '00:00:00') {
             corredorActual.diferencia = corredorAnterior.diferencia || '00:01:00 (+)';
+            console.log(`📝 Diferencia asignada: "${diferenciaVieja}" -> "${corredorActual.diferencia}"`);
         }
         
         let diferencia = corredorActual.diferencia;
@@ -1247,40 +1361,41 @@ function recalculateFollowingRiders(fromPosition) {
         }
         
         const diferenciaSegundos = timeToSeconds(diferenciaLimpia) || 60;
+        console.log(`🔍 Diferencia en segundos: ${diferenciaSegundos}s`);
         
         // 4. Calcular nuevos valores basados en el anterior + diferencia
-        // Crono salida: crono del anterior + diferencia
         const cronoAnteriorSegundos = corredorAnterior.cronoSegundos || timeToSeconds(corredorAnterior.cronoSalida) || 0;
+        const cronoViejo = corredorActual.cronoSalida;
         corredorActual.cronoSegundos = cronoAnteriorSegundos + diferenciaSegundos;
         corredorActual.cronoSalida = secondsToTime(corredorActual.cronoSegundos);
+        console.log(`📝 Crono cambiado: ${cronoViejo} -> ${corredorActual.cronoSalida} (${cronoAnteriorSegundos}s + ${diferenciaSegundos}s)`);
         
-        // Hora salida: hora del anterior + diferencia
         const horaAnteriorSegundos = corredorAnterior.horaSegundos || timeToSeconds(corredorAnterior.horaSalida) || 0;
+        const horaVieja = corredorActual.horaSalida;
         corredorActual.horaSegundos = horaAnteriorSegundos + diferenciaSegundos;
         corredorActual.horaSalida = secondsToTime(corredorActual.horaSegundos);
+        console.log(`📝 Hora cambiada: ${horaVieja} -> ${corredorActual.horaSalida} (${horaAnteriorSegundos}s + ${diferenciaSegundos}s)`);
         
-        // 5. ✅ Actualizar campos previstas (iguales a los principales)
+        // 5. Actualizar campos previstas
         corredorActual.horaSalidaPrevista = corredorActual.horaSalida;
         corredorActual.cronoSalidaPrevista = corredorActual.cronoSalida;
         
-        // 6. ✅ NO modificar campos importados - PRESERVAR valores existentes
-        console.log(`  ${corredorActual.order}: horaSalidaImportado="${corredorActual.horaSalidaImportado}", cronoSalidaImportado="${corredorActual.cronoSalidaImportado}"`);
-        
-        // 7. ✅ NO modificar campos reales - PRESERVAR valores existentes
-        console.log(`  ${corredorActual.order}: horaSalidaReal="${corredorActual.horaSalidaReal}", cronoSalidaReal="${corredorActual.cronoSalidaReal}"`);
-        
-        // 8. Actualizar diferenciaSegundos
+        // 6. Actualizar diferenciaSegundos
         if (!corredorActual.diferenciaSegundos || corredorActual.diferenciaSegundos === 0) {
             corredorActual.diferenciaSegundos = diferenciaSegundos;
             if (diferencia.includes('(-)')) {
                 corredorActual.diferenciaSegundos = -Math.abs(corredorActual.diferenciaSegundos);
             }
+            console.log(`📝 diferenciaSegundos asignado: ${corredorActual.diferenciaSegundos}`);
         }
         
-        console.log(`Corredor ${i + 1} recalculado: ${corredorActual.horaSalida} (+${diferencia})`);
+        console.log(`✅ Corredor ${corredorActual.order} procesado`);
     }
     
-    console.log(`=== Recalculo completado para ${startOrderData.length - startIndex} corredores ===`);
+    console.log(`\n🔍🔍🔍 === recalculateFollowingRiders COMPLETADO ===`);
+    console.log(`🔍 Total corredores procesados: ${corredoresProcesados}`);
+    console.log(`🔍 Total corredores en array: ${startOrderData.length}`);
+    console.log(`🔍 Diferencia: ${startOrderData.length - corredoresProcesados} corredores NO procesados`);
     
     // ✅ Actualizar UI después del recálculo
     updateStartOrderUI();

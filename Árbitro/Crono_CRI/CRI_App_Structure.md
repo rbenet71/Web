@@ -1936,3 +1936,134 @@ corredor.horaSalidaReal = secondsToTime(horaSalidaRealSegundos);
 ---
 
 ¿Quieres que añada esta sección al archivo MD o prefieres algún formato diferente?
+
+lecciones aprendidas
+
+# Lección Aprendida: Resolución del Problema de Doble Click en Añadir Corredor
+
+## Problema Identificado
+**Síntoma**: Al abrir el modal para añadir un corredor, se producía un "corredor fantasma" donde el sistema calculaba mal la posición de inserción.
+
+**Evidencia en logs**:
+```
+Botón añadir corredor clickeado  ← Primer click (abre modal)
+Añadir corredor clickeado        ← Segundo click (¡mientras el modal ya está abierto!)
+```
+
+## Causa Raíz
+Se identificaron **dos problemas simultáneos**:
+
+### 1. **Múltiples Event Listeners Registrados**
+El botón `add-rider-btn` tenía **dos configuraciones diferentes**:
+- **En `Main.js`**: Configuración principal con `showRiderPositionModal()`
+- **En `UI.js`**: Configuración duplicada con `addNewRider()` (líneas 19-32)
+
+### 2. **Doble Click Involuntario**
+Cuando el modal ya estaba abierto, un segundo click (posiblemente accidental) en el botón principal disparaba:
+- `updateStartOrderTableThrottled()` que modificaba `startOrderData`
+- Cambiaba `startOrderData.length` de 25 a 26 mientras el modal usaba este valor dinámico
+
+## Solución Implementada
+
+### 1. **Eliminación del Listener Duplicado**
+```javascript
+/*
+// 19. Botón de añadir corredor ← COMENTADO/ELIMINADO
+const addRiderBtn = document.getElementById('add-rider-btn');
+if (addRiderBtn) {
+    console.log("✅ Configurando add-rider-btn");
+    addRiderBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log("Añadir corredor clickeado");
+        
+        // Verificar que la función existe
+        if (typeof addNewRider === 'function') {
+            addNewRider();
+        }
+    });
+}
+*/
+```
+
+### 2. **Protección en `showRiderPositionModal()`**
+Añadido al inicio de la función:
+```javascript
+// Verificar si ya hay un modal abierto
+const existingModal = document.getElementById('rider-position-modal');
+if (existingModal) {
+    console.log("⚠️ Ya hay un modal de añadir corredor abierto, enfocándolo");
+    existingModal.classList.add('active');
+    return;
+}
+```
+
+### 3. **Uso de `modalInitialLength` en lugar de `startOrderData.length`**
+Modificamos el cálculo de posición para usar el valor capturado al abrir el modal:
+```javascript
+// ANTES (problemático):
+position = startOrderData.length + 1;
+
+// DESPUÉS (correcto):
+const modalInitialLength = parseInt(modal.dataset.initialLength);
+position = modalInitialLength + 1;
+```
+
+### 4. **Protección contra Doble Click en Botón Principal** (en `Main.js`)
+```javascript
+let isProcessing = false; // Variable de estado
+newAddRiderBtn.addEventListener('click', function(e) {
+    if (isProcessing) {
+        console.log("⚠️ Ya se está procesando, ignorando click");
+        return;
+    }
+    isProcessing = true;
+    // ... lógica del modal ...
+    setTimeout(() => { isProcessing = false; }, 1000);
+});
+```
+
+## Lecciones Clave Aprendidas
+
+### 1. **Manejo de Estado en Modales**
+- Los modales deben capturar el estado inicial al abrirse
+- No deben depender de valores que pueden cambiar mientras están abiertos
+- Usar `dataset` para almacenar valores iniciales específicos del modal
+
+### 2. **Gestión de Event Listeners**
+- Verificar que no haya múltiples configuraciones del mismo botón
+- Usar `cloneNode()` y reemplazar para limpiar listeners antiguos
+- Documentar claramente dónde se configura cada funcionalidad
+
+### 3. **Protección contra Interacción del Usuario**
+- Los usuarios pueden hacer doble click accidentalmente
+- Implementar protección de estado (`isProcessing`) en botones críticos
+- Considerar tiempos de reset adecuados (1-2 segundos)
+
+### 4. **Depuración Efectiva**
+- Usar logs descriptivos con prefijos claros (`🔍`, `⚠️`, `✅`)
+- Seguir la secuencia temporal de eventos en los logs
+- Monitorear cambios en estructuras de datos críticas
+
+## Resultado
+**Antes**: Posición calculada incorrectamente (27 en lugar de 26)
+**Después**: Posición calculada correctamente usando `modalInitialLength`
+
+**Flujo corregido**:
+1. Modal se abre con `initialLength = 25`
+2. Posición calculada como `25 + 1 = 26` (correcto)
+3. Botón protegido contra doble click
+4. No hay listeners duplicados
+5. Los cálculos usan valores consistentes
+
+## Buenas Prácticas Establecidas
+
+1. **Single Source of Truth**: Cada botón debe configurarse en un solo lugar
+2. **Estado Inmutable en Modales**: Capturar valores iniciales y no cambiarlos
+3. **Defensive Programming**: Asumir que los usuarios harán doble click
+4. **Clean Architecture**: Separar responsabilidades claramente entre módulos
+5. **Logging Estratégico**: Logs que permitan seguir el flujo completo
+
+Este caso demuestra la importancia de:
+- **Auditar listeners duplicados** en proyectos grandes
+- **Proteger interacciones críticas** con estado
+- **Diseñar modales resistentes** a cambios externos

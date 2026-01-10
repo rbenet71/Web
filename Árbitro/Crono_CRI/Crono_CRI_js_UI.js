@@ -1268,21 +1268,7 @@ function setupModalActionListeners() {
             }
         });
     }
-    
-    // 19. Botón de añadir corredor
-    const addRiderBtn = document.getElementById('add-rider-btn');
-    if (addRiderBtn) {
-        console.log("✅ Configurando add-rider-btn");
-        addRiderBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log("Añadir corredor clickeado");
-            
-            // Verificar que la función existe
-            if (typeof addNewRider === 'function') {
-                addNewRider();
-            }
-        });
-    }
+
     
     // Marcar como configurado
     window.modalActionListenersConfigured = true;

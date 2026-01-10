@@ -4,6 +4,7 @@ Una vez las tienes proponme que ficheros has de modificar y porque, y no añadas
 Importante yo no se programar en Javascript, por lo que se poco sobre codigo,
 una vez te doy el visto bueno, me haces los cambios. Si la función a modificar es pequeña me pasas la función completa y me indicas a sustituir la función. Si la función es muy grande y hay varios cambios sobre ella, me la pasas también toda, pero si es un solo cambio o una parte continua, solo haré ese cambio, pero sobretodo me dices sustituir esta parte por esta otra. NUNCA me pases la función como si me la pasases completa, pero en medio del cóldigo pones mantener el codigo anterior.
 Una vez propuestos los cambios a continuación pasame completa la nueva versión del fichero MD con la estrucutra de la app.
+No empieces a escribir codigo hasta que no te valide las explicaciones que me des.
 
 NUEVA App
 

@@ -147,13 +147,13 @@ function processImportedOrderData(jsonData) {
     // Ordenar por número de orden
     importedData.sort((a, b) => a.order - b.order);
     
-    // ============ VALIDACIÓN 2.4.8: PRIMER CRONO DEBE SER 00:00:00 ============
+    // ============ VALIDACIÓN 2.5.0: PRIMER CRONO DEBE SER 00:00:00 ============
     if (importedData.length > 0) {
         const primerCorredor = importedData[0];
         const primerCrono = primerCorredor.cronoSalida || primerCorredor.cronoSalidaImportado;
         
         // DEPURACIÓN: Mostrar información detallada
-        console.log("🔍 VALIDACIÓN 2.4.8 - Primer corredor (después de applyImportRules):", {
+        console.log("🔍 VALIDACIÓN 2.5.0 - Primer corredor (después de applyImportRules):", {
             orden: primerCorredor.order,
             cronoSalida: primerCorredor.cronoSalida,
             cronoSalidaImportado: primerCorredor.cronoSalidaImportado,
@@ -1591,7 +1591,10 @@ function updateStartOrderUI() {
         }
         
         // 🔴 PROTECCIÓN: Controlar la llamada a updateStartOrderTableThrottled
-        if (typeof updateStartOrderTableThrottled === 'function') {
+        if (typeof updateStartOrderTableThrottled === 'function' && !window.skipTableUpdate) {
+            // Marcar para evitar llamadas recursivas
+            window.skipTableUpdate = true;
+            
             // Limpiar cualquier throttling pendiente para evitar acumulación
             if (window.updateStartOrderTableTimeout) {
                 clearTimeout(window.updateStartOrderTableTimeout);
@@ -1603,7 +1606,12 @@ function updateStartOrderUI() {
                 // Usar la versión "force" para ejecución inmediata
                 updateStartOrderTableThrottled(true);
                 console.log("✅ Tabla actualizada inmediatamente");
-            }, 20);
+                
+                // Quitar la marca después de actualizar
+                setTimeout(() => {
+                    window.skipTableUpdate = false;
+                }, 100);
+            }, 50);
         }
         
         // Actualizar diferencia de tiempo si la función existe
