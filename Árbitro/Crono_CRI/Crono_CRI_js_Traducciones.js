@@ -529,6 +529,11 @@ const translations = {
         "errorIndexOutOfRange": "Error: Índice de corredor inválido",
         diferenciaHeader: "Diferencia",
 
+        startControlTitle: "Inicio Cuenta Atrás",
+        preCountdownLabel: "Tiempo Previo:",
+        positionLabel: "Posición a Salir:",
+        dorsalLabel: "Dorsal a Salir:",
+
     },
 
     ca: {
@@ -1066,6 +1071,11 @@ const translations = {
         page:"Pàgina",
         of:"de",   
         diferenciaHeader: "Diferència",
+
+        startControlTitle: "Inici Compte Enrere",
+        preCountdownLabel: "Temps Previ:",
+        positionLabel: "Posició a Sortir:",
+        dorsalLabel: "Dorsal a Sortir:",
     },
 
     en: {
@@ -1598,6 +1608,11 @@ const translations = {
         of:"of",
 
         diferenciaHeader: "Gap",
+
+        startControlTitle: "Countdown Start",
+        preCountdownLabel: "Pre-countdown Time:",
+        positionLabel: "Position to Start:",
+        dorsalLabel: "Bib Number to Start:",
     },
 
     fr: {
@@ -2148,7 +2163,12 @@ const translations = {
         time:"CRONO",
         page:"Page",
         of:"de",
-        diferenciaHeader:"Diferencia"
+        diferenciaHeader:"Diferencia",
+
+        startControlTitle: "Démarrage Compte à Rebours",
+        preCountdownLabel: "Temps Pré-décompte:",
+        positionLabel: "Position à Départ:",
+        dorsalLabel: "Dossard à Départ:",
 
     }
 };
@@ -2285,6 +2305,12 @@ function updateModeContent(t) {
     setTextIfExists('clear-departures-text', t.clearDeparturesText);
     setTextIfExists('export-excel-text', t.exportExcelText);
     setTextIfExists('no-departures-text', t.noDeparturesText);
+    
+    // NUEVO: Contenido tarjeta de inicio manual
+    setTextIfExists('start-control-title', t.startControlTitle);
+    setTextIfExists('pre-countdown-label', t.preCountdownLabel);
+    setTextIfExists('position-label', t.positionLabel);
+    setTextIfExists('dorsal-label', t.dorsalLabel);
     
     // Contenido llegadas
     setTextIfExists('llegadas-timer-title', t.llegadasTimerTitle);
