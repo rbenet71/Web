@@ -206,6 +206,8 @@ la hora de salida real y el crono de salida real se asignaran al corredor que ac
 2.3 inicio Cuenta atras manualmente
 2.3.1 Traducciones
 2.3.2 Aplicacion Inicial JS
+2.3.3 hora sistema acutalizada
+
 quiero rediseñar y mejorar el apartado de inicio cuenta atras manual.
 el diseño debe seguir la linea del resto de apartados (configuracion de audio, orden de salida)
 el titulo será inicio Manual Cuena Atrás

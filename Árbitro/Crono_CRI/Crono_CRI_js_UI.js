@@ -1510,5 +1510,45 @@ function setupSingleImportListener() {
     });
 }
 
+// Función específica para manejar todos los relojes
+function initializeAllTimeDisplays() {
+    console.log("🕐 Inicializando todos los displays de tiempo...");
+    
+    // 1. Actualizar hora del sistema
+    function updateSystemClock() {
+        const displays = [
+            'current-system-time-display',
+            'current-system-time'
+        ];
+        
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('es-ES', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false 
+        });
+        
+        displays.forEach(id => {
+            const display = document.getElementById(id);
+            if (display) {
+                display.textContent = timeString;
+            }
+        });
+        
+        // Actualizar diferencia de tiempo
+        updateTimeDifference();
+    }
+    
+    // 2. Iniciar intervalos
+    updateSystemClock(); // Primera ejecución inmediata
+    setInterval(updateSystemClock, 1000);
+    
+    console.log("✅ Todos los displays de tiempo inicializados");
+}
+
+// Llamar después de inicializar
+setTimeout(initializeAllTimeDisplays, 1000);
+
 // Llamar esta función después de inicializar la aplicación
 // setTimeout(checkDuplicateImportListeners, 1000);
