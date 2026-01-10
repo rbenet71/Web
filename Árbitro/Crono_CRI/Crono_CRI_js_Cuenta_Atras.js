@@ -75,6 +75,21 @@ function configurarEventListenersCuentaAtras() {
     if (intervalSeconds) {
         intervalSeconds.addEventListener('change', updateCadenceTime);
     }
+    
+    // 🔥 NUEVO: Botón de configuración durante cuenta atrás
+    const configToggleBtn = document.getElementById('config-toggle');
+    if (configToggleBtn) {
+        configToggleBtn.addEventListener('click', function() {
+            console.log("Botón de configuración clickeado");
+            const configModal = document.getElementById('config-during-countdown-modal');
+            if (configModal) {
+                configModal.classList.add('active');
+                console.log("✅ Modal de configuración durante cuenta atrás abierto");
+            }
+        });
+    }
+
+    
 }
 
 function resetearSistemaCuentaAtras() {
@@ -1059,6 +1074,91 @@ function formatTimeValue(timeStr) {
     // Implementación básica
     if (!timeStr) return '00:00:00';
     return timeStr;
+}
+
+// ============================================
+// CONFIGURACIÓN DE BOTONES MODALES (SISTEMA AISLADO)
+// ============================================
+
+function configurarBotonesModalCountdown() {
+    console.log("🔄 Configurando botones modales para cuenta atrás...");
+    
+    // 1. Botón de engranaje (config-toggle) - SOLO ESTE ES CRÍTICO
+    const configToggleBtn = document.getElementById('config-toggle');
+    if (configToggleBtn) {
+        // Remover listeners antiguos para evitar duplicados
+        const newBtn = configToggleBtn.cloneNode(true);
+        configToggleBtn.parentNode.replaceChild(newBtn, configToggleBtn);
+        
+        document.getElementById('config-toggle').addEventListener('click', function(e) {
+            e.stopPropagation();
+            console.log("⚙️ Botón de configuración clickeado");
+            const modal = document.getElementById('config-during-countdown-modal');
+            if (modal) {
+                modal.classList.add('active');
+                console.log("✅ Modal de configuración abierto");
+            }
+        });
+    }
+    
+    // 2. Botón para cerrar modal de configuración
+    const configCloseBtn = document.getElementById('config-during-countdown-close');
+    if (configCloseBtn) {
+        configCloseBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const modal = document.getElementById('config-during-countdown-modal');
+            if (modal) modal.classList.remove('active');
+        });
+    }
+    
+    // 3. Botón "Continuar viendo"
+    const resumeBtn = document.getElementById('resume-countdown-btn');
+    if (resumeBtn) {
+        resumeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const modal = document.getElementById('config-during-countdown-modal');
+            if (modal) modal.classList.remove('active');
+        });
+    }
+    
+    // 4. Botón "Detener cuenta atrás" (SOLO CIERRA EL MODAL, NO LLAMA A stopCountdown)
+    const stopBtn = document.getElementById('stop-countdown-btn');
+    if (stopBtn) {
+        stopBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const modal = document.getElementById('config-during-countdown-modal');
+            if (modal) modal.classList.remove('active');
+            
+            // Detener cuenta atrás con la función existente
+            if (typeof stopCountdown === 'function') {
+                stopCountdown();
+            }
+        });
+    }
+    
+    
+    console.log("✅ Botones modales configurados correctamente");
+}
+
+// ============================================
+// INICIALIZACIÓN SEGURA
+// ============================================
+
+// Inicializar cuando se cargue el DOM
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(configurarBotonesModalCountdown, 500);
+});
+
+// También inicializar después de que se inicie cuenta atrás
+// (cuando se crea la pantalla de cuenta atrás)
+let originalStartCountdown = window.startCountdown;
+if (originalStartCountdown && typeof originalStartCountdown === 'function') {
+    window.startCountdown = function() {
+        const result = originalStartCountdown.apply(this, arguments);
+        // Configurar botones después de iniciar cuenta atrás
+        setTimeout(configurarBotonesModalCountdown, 300);
+        return result;
+    };
 }
 
 console.log("✅ Módulo de cuenta atrás cargado y listo");
