@@ -377,31 +377,61 @@ ESTRUCTURA MODULAR:
                     </div>
                 </div>
 
-                <!-- Botón principal de inicio (Modo Salida) -->
-                <div class="start-main-btn-container">
-                    <div class="system-time-container">
-                        <div class="system-time-display">
-                            <i class="fas fa-clock"> </i>
-                            <span id="current-system-time"> 00:00:00</span>
+                <!-- Tarjeta de Inicio Cuenta Atrás -->
+                <div class="app-card start-control-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-hand-pointer"></i> <span id="start-control-title">Inicio Cuenta Atrás</span></h2>
+                        <div class="card-header-controls">
+                            <button class="card-toggle-btn" data-target="start-control-card" title="Minimizar/Expandir">
+                                <i class="fas fa-chevron-up"></i>
+                            </button>
+                            <span class="card-collapse-indicator"><i class="fas fa-chevron-down"></i></span>
                         </div>
                     </div>
-                    <button class="btn btn-success btn-lg start-main-btn" id="start-countdown-btn">
-                        <i class="fas fa-rocket"></i>
-                        <span id="start-countdown-text">INICIAR CUENTA ATRÁS</span>
-                    </button>
-                    
-                    <!-- Punto de inicio simplificado -->
-                    <div class="start-point-simple">
-                        <div class="form-inline-group">
-                            <span id="start-from-x-text">Posición actual:</span>
-                            <input type="number" id="start-position" class="form-control form-control-sm" min="1" value="1">
+                    <div class="card-body">
+                        <div class="config-section">
+                            <!-- Grid para controles principales -->
+                            <div class="time-config-grid">
+                                <!-- 1. Hora actual del sistema -->
+                                <div class="time-config-item">
+                                    <label class="form-label" id="current-time-label">Hora del Sistema:</label>
+                                    <div class="time-display" id="current-system-time">00:00:00</div>
+                                </div>
+                                
+                                <!-- 2. Tiempo previo de cuenta atrás (NUEVO) -->
+                                <div class="time-config-item">
+                                    <label for="pre-countdown-time" class="form-label" id="pre-countdown-label">Tiempo Previo:</label>
+                                    <input type="text" id="pre-countdown-time" class="form-control time-input" 
+                                        placeholder="HH:MM:SS" value="00:01:00">
+                                </div>
+                                
+                                <!-- 3. Posición a Salir (ya existe) -->
+                                <div class="time-config-item">
+                                    <label for="start-position" class="form-label" id="position-label">Posición a Salir:</label>
+                                    <input type="number" id="start-position" class="form-control" min="1" value="1">
+                                </div>
+                                
+                                <!-- 4. Dorsal a Salir (NUEVO - para sincronización) -->
+                                <div class="time-config-item">
+                                    <label for="manual-dorsal" class="form-label" id="dorsal-label">Dorsal a Salir:</label>
+                                    <input type="number" id="manual-dorsal" class="form-control" min="1" value="1">
+                                </div>
+                            </div>
+                            
+                            <!-- Botones con diseño mejorado -->
+                            <div class="manual-buttons-grid" style="margin-top: 25px; gap: 15px;">
+                                <button class="btn btn-success btn-lg" id="start-countdown-btn" style="flex: 1;">
+                                    <i class="fas fa-rocket"></i>
+                                    <span id="start-countdown-text">INICIAR CUENTA ATRÁS</span>
+                                </button>
+                                
+                                <button class="btn btn-danger btn-lg" id="exit-complete-btn" style="flex: 1;">
+                                    <i class="fas fa-redo"></i>
+                                    <span id="exit-complete-text">REINICIAR TODO</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    
-                    <button class="btn btn-danger responsive-btn btn-block" id="exit-complete-btn" style="max-width: 400px; margin: 20px auto 0;">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span id="exit-complete-text">REINICIAR</span>
-                    </button>
                 </div>
             </div>
 
@@ -555,7 +585,7 @@ ESTRUCTURA MODULAR:
                 <div class="copyright" id="copyright-text">
                     2025 © Copyright 
                     <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                        Roberto Benet - rbenet71@gmail.com - Ver: 2.2.1
+                        Roberto Benet - rbenet71@gmail.com - Ver: 2.3
                     </a>
                 </div>
             </div>

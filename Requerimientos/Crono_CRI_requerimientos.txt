@@ -203,9 +203,24 @@ la hora de salida real y el crono de salida real se asignaran al corredor que ac
 2.2 Funcionando el Audio
 2.2.1 funcionando 4,3,2
 
-El programa deberá poder iniciar la cuenta atrás manualmente, para ello el usuario introducirá el dorsal del siguiente corredor a salir. Entonces a partir de que diga iniciar,se iniciará una cuenta atrás de un minuto. El tiempo del crono cuando se inicie la cuenta atrás será el valor del crono salida de ese corredor menos el minuto que sale antes. y el numero de corredores salidos sera su valor de orden en la tabla menos 1.
+2.3 inicio Cuenta atras manualmente
+quiero rediseñar y mejorar el apartado de inicio cuenta atras manual.
+el diseño debe seguir la linea del resto de apartados (configuracion de audio, orden de salida)
+el titulo será inicio Manual Cuena Atrás
+en su interior tiene que tener:
 
-hemos pasado las funciones que solo se utilizan en este proceso de cuenta atras las pongamos en otro arhivo, que se llame Crono_CRI_Cuenta_Atras.js. es por eso que puede haber alguna funcion que no este donde esperamos. 
+1.- la hora actual del sistema (no se si se puede aprovechar alguna otra función que esta mostrando la hora del sistema para no tener muchas haciendo lo mismo)
+2.- tiempo previo de cuenta atras (utiliza alguna otra función dentro de la app para el manejo de entradas de tiempo) por defecto sera 01:00
+3.- posición actual la llamaremos Posición a Salir:
+4.- Dorsal a Salir:
+5.- botón Iniciar Cuenta atrás
+6.- botón Reiniciar
+
+Recuerda indicarme las traducciones a relizar (algunas ya estan por tanto no repitamos)
+Si el usuario modifica el dorsal o la posición, el irá a buscar en la tabla de orden de salida, el otro valor, si modifico el dorsal irá a buscar el valor de orden, y a la inversa.
+Cuando se de al botón iniciar cuenta atras, se actualizará el crono de carrera, con el tiempo de Crono salida de ese corredor menos el tiempo que hemos indicado en tiempo previo de cuenta atras, y además se actualizará el valor de salidos, con el valor de posición -1.
+
+el boton reiniciar, previa pregunta de confirmación, borrará todos los tiempos de salida y crono real (función implementada ya en el inicio de cuenta atras automatica), también dejará a cero el valor de salidos.
 
 por eso primero pideme las funciones que crees que intervienen en el proceso.
 ------
