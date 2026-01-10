@@ -1626,3 +1626,126 @@ if (!cronoDeCarreraIniciado) {
 ---
 
 ¿Te parece bien este punto para el MD? ¿Quieres añadir algo más sobre cómo funciona el cálculo del tiempo inicial?
+
+¡Excelente! Sí, actualicemos el archivo MD con las lecciones aprendidas y las soluciones implementadas.
+
+## **AÑADIR AL ARCHIVO `CRI_App_Structure.md` EN LA SECCIÓN "LECCIONES APRENDIDAS":**
+
+---
+
+### **20. CORRECCIÓN: Manejo de Índices en Cuenta Atrás Manual vs Automático**
+
+**Problema:** 
+- En modo manual al iniciar con corredor en posición 5, después de salir mostraba "próximo: 6" pero hacía cuenta atrás del corredor 7
+- Conflicto entre dos sistemas de manejo de índices
+
+**Causa:** 
+1. **Doble incremento de índice:** `registerDeparture()` no actualizaba `proximoCorredorIndex`, pero `prepararSiguienteCorredor()` sí lo incrementaba
+2. **Función `obtenerProximoCorredor()`** tenía lógica inteligente para buscar siguiente corredor disponible, causando conflictos con incrementos manuales
+3. **Modo automático vs manual:** Lógica diferente para cada modo causaba inconsistencia
+
+**Solución implementada:**
+1. **Eliminar incremento en `prepararSiguienteCorredor()`** - La línea `proximoCorredorIndex++;` fue comentada/eliminada
+2. **Mover incremento a `registerDeparture()`** - Añadir `proximoCorredorIndex = index + 1;` después de registrar salida
+3. **Unificar lógica:** Ambos modos (automático y manual) ahora usan el mismo flujo:
+   - Corredor sale → índice se actualiza inmediatamente → buscar siguiente corredor
+
+**Código modificado en `Crono_CRI_js_Cuenta_Atras.js`:**
+- `registerDeparture()`: Añadida actualización de `proximoCorredorIndex`
+- `prepararSiguienteCorredor()`: Eliminado incremento manual
+- `obtenerProximoCorredor()`: Mantenida lógica de búsqueda inteligente pero sin conflictos
+
+**Lección aprendida:** Mantener un único punto de control para índices críticos. Si múltiples funciones modifican la misma variable, se producen inconsistencias.
+
+---
+
+### **21. CORRECCIÓN: Modal de Reinicio Personalizado vs Confirm() Nativo**
+
+**Problema:** 
+- El botón "REINICIAR TODO" (`exit-complete-btn`) abría el modal nativo `confirm()` del navegador (feo)
+- Se quería usar el modal personalizado `restart-confirm-modal` (bonito)
+
+**Causa:** 
+- Configuración duplicada de event listeners
+- El método `cloneNode()` + `replaceChild()` no eliminaba completamente los listeners antiguos
+- El modal nativo `confirm()` tenía prioridad
+
+**Solución implementada:**
+1. **Reemplazo completo del botón:** Usar `outerHTML` para recrear completamente el botón y eliminar todos los listeners antiguos
+2. **Configuración robusta del modal:** Función `configurarBotonesModalReinicio()` con:
+   - Clonado y reemplazo de botones del modal
+   - `preventDefault()` y `stopPropagation()` para evitar comportamientos por defecto
+   - Manejo de tecla Escape y clic fuera del modal
+   - Inicialización con `setTimeout()` para asegurar que el DOM está listo
+
+**Código clave en `Crono_CRI_js_Cuenta_Atras.js`:**
+```javascript
+// Reemplazo completo del botón
+exitBtn.outerHTML = newExitBtnHTML;
+
+// Configuración segura de listeners
+newExitBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    // Solo abrir modal personalizado
+    document.getElementById('restart-confirm-modal').classList.add('active');
+});
+```
+
+**Lección aprendida:** Para eliminar completamente event listeners antiguos en JavaScript, a veces es necesario recrear completamente el elemento HTML.
+
+---
+
+### **22. CORRECCIÓN: Actualización de Tabla después de Reinicio Completo**
+
+**Problema:** 
+- `ejecutarReinicioCompleto()` limpiaba los datos en memoria pero no actualizaba la tabla visual
+- Los tiempos de salida real seguían apareciendo en la tabla
+
+**Causa:** 
+1. **Sistema de throttling:** `updateStartOrderTable()` estaba siendo bloqueada por el sistema de throttling de 3 niveles
+2. **Múltiples fuentes de datos:** Solo se limpiaba una fuente de datos pero no todas
+3. **Llamada incorrecta:** Se usaba `updateStartOrderTable()` en lugar de `updateStartOrderTableImmediate()`
+
+**Solución implementada:**
+1. **Usar función inmediata:** Cambiar a `updateStartOrderTableImmediate()` que ignora el throttling
+2. **Limpieza exhaustiva:** Modificar `resetearTiemposReales()` para limpiar TODAS las fuentes:
+   - `window.startOrderData`
+   - `appState.currentRace.startOrder`
+   - `localStorage`
+3. **Verificación por niveles:** Implementar fallback si una función no existe
+
+**Código modificado en `ejecutarReinicioCompleto()`:**
+```javascript
+// Usar función inmediata para evitar throttling
+if (typeof updateStartOrderTableImmediate === 'function') {
+    updateStartOrderTableImmediate();
+} else if (typeof updateStartOrderTableCritical === 'function') {
+    updateStartOrderTableCritical();
+} else if (typeof updateStartOrderTable === 'function') {
+    updateStartOrderTable();
+}
+```
+
+**Lección aprendida:** Cuando hay sistemas de throttling/optimización, usar las funciones de nivel apropiado (`Immediate`, `Critical`, `Throttled`) según la necesidad.
+
+---
+
+### **23. PROTOCOLO PARA ACTUALIZACIONES DE UI DESPUÉS DE OPERACIONES CRÍTICAS**
+
+**Regla establecida:** Después de cualquier operación que modifique datos visualizados, seguir este orden:
+1. **Actualizar datos en memoria** (`window.startOrderData`, `appState`)
+2. **Actualizar persistencia** (`localStorage`, `saveRaceData()`)
+3. **Actualizar UI inmediatamente** usando funciones de nivel apropiado:
+   - `updateStartOrderTableImmediate()` - Para cambios críticos que deben verse ahora
+   - `updateStartOrderTableCritical()` - Para respuesta a acciones de usuario
+   - `updateStartOrderTableThrottled()` - Para actualizaciones normales de UI
+
+**Archivos afectados:** 
+- `Crono_CRI_js_Cuenta_Atras.js` - Funciones de reinicio
+- `Crono_CRI_js_Salidas_2.js` - Sistema de throttling
+- `Crono_CRI_js_Storage_Pwa.js` - Persistencia de datos
+
+---
+
+**¿Quieres que añada estas secciones al archivo MD o prefieres algún formato diferente?**

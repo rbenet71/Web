@@ -731,7 +731,9 @@ function registerDeparture() {
         dorsal: dorsal,
         nombre: corredor.nombre,
         apellidos: corredor.apellidos,
-        cronoSalida: corredor.cronoSalida
+        cronoSalida: corredor.cronoSalida,
+        ordenTabla: corredor.order,
+        indiceArray: index
     });
     
     // 1. Calcular tiempo transcurrido (como en la versión funcional)
@@ -764,7 +766,7 @@ function registerDeparture() {
     
     // 4. Asignar tiempos al corredor
     corredor.horaSalidaReal = horaActual;
-    corredor.cronoSalidaReal = timeValue; // Usar timeValue en lugar de calcularlo aparte
+    corredor.cronoSalidaReal = timeValue;
     corredor.horaSalidaRealSegundos = Math.floor(ahora.getTime() / 1000);
     corredor.cronoSalidaRealSegundos = accumulatedSeconds;
     
@@ -772,33 +774,107 @@ function registerDeparture() {
     corredor.salido = true;
     corredor.salidaRegistrada = true;
     
-    // 6. Incrementar contador de salidos (como en la versión funcional)
+    // 6. Incrementar contador de salidos
     appState.departedCount = (appState.departedCount || 0) + 1;
 
+    // 🔥 CRÍTICO: Actualizar proximoCorredorIndex para apuntar al siguiente corredor
+    // Usamos index (del corredor que acaba de salir) + 1
+    proximoCorredorIndex = index + 1;
+    
+    // 🔥 DEBUG: Información de depuración
+    console.log("🔥 DEBUG registerDeparture():");
+    console.log("  - Corredor que acaba de salir:", {
+        dorsal: dorsal,
+        ordenTabla: corredor.order,
+        indiceArray: index
+    });
+    console.log("  - departedCount ANTES:", (appState.departedCount - 1));
+    console.log("  - departedCount AHORA:", appState.departedCount);
+    console.log("  - proximoCorredorIndex NUEVO:", proximoCorredorIndex);
     
     // 8. Actualizar UI
     const departedCountElement = document.getElementById('departed-count');
     if (departedCountElement) {
         departedCountElement.textContent = appState.departedCount;
+        console.log("  - departed-count display actualizado a:", appState.departedCount);
     }
     
-    // Actualizar posición de inicio si existe
+    // Obtener datos para actualizar posición y dorsal
+    const startOrderData = obtenerStartOrderData();
+    
+    // 🔥 CORREGIDO: Actualizar POSICIÓN (start-position) usando ORDER del próximo corredor
     const startPositionElement = document.getElementById('start-position');
     if (startPositionElement) {
-        startPositionElement.value = appState.departedCount + 1;
+        if (startOrderData && startOrderData.length > proximoCorredorIndex) {
+            const proximoCorredor = startOrderData[proximoCorredorIndex];
+            
+            if (proximoCorredor && proximoCorredor.order) {
+                // ✅ USAR EL ORDER REAL del próximo corredor (no índice + 1)
+                startPositionElement.value = proximoCorredor.order;
+                console.log("✅ POSICIÓN actualizada usando ORDER del próximo corredor:", {
+                    order: proximoCorredor.order,
+                    dorsal: proximoCorredor.dorsal,
+                    nombre: proximoCorredor.nombre,
+                    indiceArray: proximoCorredorIndex
+                });
+            } else {
+                // Fallback: usar índice + 1
+                startPositionElement.value = proximoCorredorIndex + 1;
+                console.log("⚠️ POSICIÓN: Próximo corredor sin order, usando índice+1:", proximoCorredorIndex + 1);
+            }
+        } else {
+            // No hay más corredores
+            startPositionElement.value = 0;
+            console.log("🏁 POSICIÓN: No hay más corredores, puesto a 0");
+        }
     }
     
-    // 🔥 CRÍTICO: Actualizar proximoCorredorIndex para apuntar al siguiente corredor
-    // Esto asegura consistencia entre modo automático y manual
-    // index es la posición del corredor que acaba de salir (0-based)
-    proximoCorredorIndex = index + 1;
+    // 🔥 CORREGIDO: Actualizar DORSAL (manual-dorsal) usando dorsal del próximo corredor
+    const manualDorsalElement = document.getElementById('manual-dorsal');
+    if (manualDorsalElement) {
+        if (startOrderData && startOrderData.length > proximoCorredorIndex) {
+            const proximoCorredor = startOrderData[proximoCorredorIndex];
+            
+            if (proximoCorredor && proximoCorredor.dorsal) {
+                // ✅ USAR EL DORSAL REAL del próximo corredor
+                manualDorsalElement.value = proximoCorredor.dorsal;
+                console.log("✅ DORSAL actualizado para próximo corredor:", {
+                    dorsal: proximoCorredor.dorsal,
+                    nombre: proximoCorredor.nombre,
+                    order: proximoCorredor.order,
+                    indiceArray: proximoCorredorIndex
+                });
+            } else {
+                // Si el próximo corredor no tiene dorsal definido, usar su ORDER
+                manualDorsalElement.value = proximoCorredor.order || (proximoCorredorIndex + 1);
+                console.log("⚠️ DORSAL: Próximo corredor sin dorsal, usando order:", proximoCorredor.order || (proximoCorredorIndex + 1));
+            }
+        } else {
+            // No hay más corredores
+            manualDorsalElement.value = 0;
+            console.log("🏁 DORSAL: No hay más corredores, puesto a 0");
+        }
+    }
     
-    console.log("✅ Salida registrada:", {
-        dorsal: dorsal,
-        horaSalidaReal: horaActual,
-        cronoSalidaReal: timeValue,
-        elapsedSeconds: accumulatedSeconds,
-        totalSalidos: appState.departedCount
+    console.log("✅ Salida registrada COMPLETA:", {
+        corredorSalido: {
+            dorsal: dorsal,
+            order: corredor.order,
+            nombre: corredor.nombre
+        },
+        proximoCorredor: startOrderData && startOrderData.length > proximoCorredorIndex ? {
+            dorsal: startOrderData[proximoCorredorIndex].dorsal,
+            order: startOrderData[proximoCorredorIndex].order,
+            nombre: startOrderData[proximoCorredorIndex].nombre
+        } : null,
+        tiempos: {
+            horaSalidaReal: horaActual,
+            cronoSalidaReal: timeValue
+        },
+        contadores: {
+            departedCount: appState.departedCount,
+            proximoCorredorIndex: proximoCorredorIndex
+        }
     });
     
     // 9. Actualizar tabla visual
@@ -816,6 +892,8 @@ function registerDeparture() {
     
     saveAppState();
 }
+
+
 
 // Función mejorada para actualizar la tabla
 function actualizarTablaConSalidaRegistrada(dorsal, horaSalidaReal, cronoSalidaReal) {
