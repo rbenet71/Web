@@ -147,6 +147,65 @@ function processImportedOrderData(jsonData) {
     // Ordenar por número de orden
     importedData.sort((a, b) => a.order - b.order);
     
+    // ============ VALIDACIÓN 2.4.2: PRIMER CRONO DEBE SER 00:00:00 ============
+    if (importedData.length > 0) {
+        const primerCorredor = importedData[0];
+        const primerCrono = primerCorredor.cronoSalida || primerCorredor.cronoSalidaImportado;
+        
+        // DEPURACIÓN: Mostrar información detallada
+        console.log("🔍 VALIDACIÓN 2.4.2 - Primer corredor (después de applyImportRules):", {
+            orden: primerCorredor.order,
+            cronoSalida: primerCorredor.cronoSalida,
+            cronoSalidaImportado: primerCorredor.cronoSalidaImportado,
+            cronoSegundos: primerCorredor.cronoSegundos,
+            // Verificar si hay discrepancia entre lo importado y lo calculado
+            hayDiscrepancia: (primerCorredor.cronoSalida !== primerCorredor.cronoSalidaImportado && 
+                             primerCorredor.cronoSalidaImportado !== '')
+        });
+        
+        // Verificar si el primer crono no es 00:00:00 (ahora respetando valores del Excel)
+        const esCronoValido = (primerCrono === "00:00:00" || 
+                              primerCrono === "0:00:00" || 
+                              primerCrono === "00:00" ||
+                              primerCrono === "0:00" ||
+                              primerCorredor.cronoSegundos === 0);
+        
+        if (primerCrono && primerCrono.trim() !== "" && !esCronoValido) {
+            // Mostrar mensaje con información clara
+            const confirmMessage = t.confirmFirstCrono 
+                ? t.confirmFirstCrono.replace('{crono}', primerCrono)
+                : `El primer corredor tiene crono "${primerCrono}", no "00:00:00".\n\n¿Qué deseas hacer?\n\n1. Importar tal como está (mantener ${primerCrono})\n2. Normalizar: cambiar solo el primer corredor a 00:00:00\n\nSelecciona "Aceptar" para normalizar o "Cancelar" para importar tal como está.`;
+            
+            // Mostrar confirmación al usuario
+            const userConfirmed = confirm(confirmMessage);
+            
+            if (userConfirmed) {
+                // OPCIÓN 2: Normalizar - Solo cambiar el primer corredor a 00:00:00
+                console.log(`🔄 Normalizando: primer corredor de ${primerCrono} → 00:00:00`);
+                
+                // Cambiar solo el primer corredor
+                primerCorredor.cronoSalida = "00:00:00";
+                if (primerCorredor.cronoSegundos !== undefined) {
+                    primerCorredor.cronoSegundos = 0;
+                }
+                
+                // Asegurar que cronoSalidaImportado también se actualice si existe
+                if (primerCorredor.cronoSalidaImportado) {
+                    primerCorredor.cronoSalidaImportado = "00:00:00";
+                }
+                
+                console.log(`✅ Solo primer corredor normalizado a 00:00:00`);
+                showMessage(`Normalizado: primer corredor ahora es 00:00:00`, 'success');
+            } else {
+                // OPCIÓN 1: Importar tal como está
+                console.log(`⚠️ Importando tal como está: primer crono mantiene ${primerCrono}`);
+                showMessage(`Importación completada sin cambios`, 'info');
+            }
+        } else {
+            console.log(`✅ Primer crono válido: ${primerCrono || '(vacío)'}`);
+        }
+    }
+    
     // ASIGNAR A VARIABLE GLOBAL
     startOrderData = importedData;
     
@@ -279,44 +338,6 @@ function processImportedOrderData(jsonData) {
     showMessage(message, 'success');
 }
 
-// ============================================
-// ✅ FUNCIÓN AUXILIAR PARA FORMATEAR HORA
-// ============================================
-function formatTimeValue(timeStr) {
-    if (!timeStr || timeStr === '') return '00:00:00';
-    
-    // Convertir a string si es necesario
-    timeStr = String(timeStr).trim();
-    
-    // Si ya está en formato HH:MM:SS, devolverlo
-    if (/^\d{1,2}:\d{1,2}:\d{1,2}$/.test(timeStr)) {
-        const parts = timeStr.split(':');
-        const hours = parts[0].padStart(2, '0');
-        const minutes = parts[1].padStart(2, '0');
-        const seconds = parts[2].padStart(2, '0');
-        return `${hours}:${minutes}:${seconds}`;
-    }
-    
-    // Si está en formato HH:MM, añadir segundos
-    if (/^\d{1,2}:\d{1,2}$/.test(timeStr)) {
-        const parts = timeStr.split(':');
-        const hours = parts[0].padStart(2, '0');
-        const minutes = parts[1].padStart(2, '0');
-        return `${hours}:${minutes}:00`;
-    }
-    
-    // Si es un número, asumir que son segundos desde medianoche
-    if (/^\d+$/.test(timeStr)) {
-        const totalSeconds = parseInt(timeStr);
-        const hours = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
-        const minutes = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
-        const seconds = (totalSeconds % 60).toString().padStart(2, '0');
-        return `${hours}:${minutes}:${seconds}`;
-    }
-    
-    // Por defecto, devolver 09:00:00
-    return '09:00:00';
-}
 // ============================================
 // ✅ NUEVA FUNCIÓN PARA ACTUALIZAR UI DESPUÉS DE IMPORTAR
 // ============================================
@@ -1336,7 +1357,7 @@ function createRiderFromRow(row, columnIndexes, index) {
     if (!horaSalidaExcel || horaSalidaExcel === '') {
         // Calcular hora basada en posición (9:00:00 + (index-1)*60 segundos)
         const baseSeconds = 9 * 3600; // 9:00:00 en segundos
-        const positionSeconds = (index) * 60; // 1 minuto por posición
+        const positionSeconds = (index - 1) * 60; // ¡CORRECCIÓN: index-1 en lugar de index!
         horaSalidaExcel = secondsToTime(baseSeconds + positionSeconds);
     }
     
@@ -1393,15 +1414,14 @@ function createRiderFromRow(row, columnIndexes, index) {
 }
 
 function applyImportRules(rider, index) {
-    // 1. Guardar los datos importados en los campos "Importado"
-    if (rider.horaSalida && rider.horaSalida !== '00:00:00' && rider.horaSalida !== '') {
+    // 1. Guardar los datos importados en los campos "Importado" (solo si no existen ya)
+    if ((rider.horaSalida && rider.horaSalida !== '00:00:00' && rider.horaSalida !== '') &&
+        (!rider.horaSalidaImportado || rider.horaSalidaImportado === '')) {
         rider.horaSalidaImportado = rider.horaSalida;
     }
-    if (rider.cronoSalida && rider.cronoSalida !== '00:00:00' && rider.cronoSalida !== '') {
+    if ((rider.cronoSalida && rider.cronoSalida !== '00:00:00' && rider.cronoSalida !== '') &&
+        (!rider.cronoSalidaImportado || rider.cronoSalidaImportado === '')) {
         rider.cronoSalidaImportado = rider.cronoSalida;
-    }
-    if (rider.diferencia && rider.diferencia !== '00:00:00' && rider.diferencia !== '') {
-        // La diferencia se mantiene como está, no necesita campo "importado" especial
     }
     
     // 2. Campos reales deben estar VACÍOS inicialmente (a menos que vengan del Excel)
@@ -1414,11 +1434,13 @@ function applyImportRules(rider, index) {
         rider.cronoSalidaRealSegundos = 0;
     }
     
-    // 3. Si faltan valores críticos en los campos principales, calcularlos
-    if (!rider.horaSalida || rider.horaSalida === '00:00:00' || rider.horaSalida === '') {
+    // 3. IMPORTANTE: ¡NO SOBREESCRIBIR valores existentes del Excel!
+    // Solo calcular si el campo está realmente vacío
+    if (!rider.horaSalida || rider.horaSalida === '') {
         rider.horaSalida = calculateStartTime(index);
     }
-    if (!rider.cronoSalida || rider.cronoSalida === '00:00:00' || rider.cronoSalida === '') {
+    // CORRECCIÓN CRÍTICA: Respetar "00:00:00" del Excel
+    if (!rider.cronoSalida || rider.cronoSalida === '') {
         rider.cronoSalida = secondsToTime(index * 60);
     }
     

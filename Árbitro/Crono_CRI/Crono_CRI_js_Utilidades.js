@@ -46,30 +46,8 @@
 // MÓDULO DE UTILIDADES GENERALES
 // ============================================
 
-// ============================================
-// FUNCIONES DE MANEJO DE TIEMPO
-// ============================================
-function timeToSeconds(timeString) {
-    if (!timeString || timeString === '--:--:--') return 0;
-    
-    const parts = timeString.split(':');
-    if (parts.length === 3) {
-        return (parseInt(parts[0]) * 3600) + (parseInt(parts[1]) * 60) + parseInt(parts[2]);
-    } else if (parts.length === 2) {
-        return (parseInt(parts[0]) * 60) + parseInt(parts[1]);
-    }
-    return 0;
-}
 
-function secondsToTime(totalSeconds) {
-    if (totalSeconds < 0) totalSeconds = 0;
-    
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-}
+
 
 function formatTimeWithSeconds(timeStr) {
     if (!timeStr) return '00:00:00';
@@ -129,44 +107,7 @@ function timeToExcelValue(timeStr) {
     return (hours / 24) + (minutes / 24 / 60) + (seconds / 24 / 60 / 60);
 }
 
-// ============================================
-// FUNCIONES DE MANEJO DE ARCHIVOS EXCEL
-// ============================================
-function formatTimeValue(value) {
-    if (!value && value !== 0) return '';
-    
-    // Si es un número (formato Excel)
-    if (typeof value === 'number') {
-        // Convertir valor decimal de Excel a tiempo
-        const totalSeconds = Math.round(value * 86400); // 24 horas * 60 minutos * 60 segundos
-        const hours = Math.floor(totalSeconds / 3600) % 24;
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
-    
-    // Si ya es un string de tiempo
-    if (typeof value === 'string') {
-        // Limpiar el string
-        let timeStr = value.trim();
-        
-        // Añadir segundos si faltan
-        if (timeStr.match(/^\d{1,2}:\d{2}$/)) {
-            timeStr += ':00';
-        }
-        
-        // Verificar formato HH:MM:SS
-        if (timeStr.match(/^\d{1,2}:\d{2}:\d{2}$/)) {
-            const parts = timeStr.split(':');
-            const hours = parseInt(parts[0]).toString().padStart(2, '0');
-            const minutes = parseInt(parts[1]).toString().padStart(2, '0');
-            const seconds = parseInt(parts[2]).toString().padStart(2, '0');
-            return `${hours}:${minutes}:${seconds}`;
-        }
-    }
-    
-    return '';
-}
+
 
 function getCellValue(row, index) {
     if (index === undefined || index < 0) return null;
@@ -1042,53 +983,7 @@ function exportStartOrder() {
 }
 
 
-// Función auxiliar para formatear tiempo (asegurar formato HH:MM:SS)
-function formatTimeValue(timeStr) {
-    // Si es undefined, null o vacío, devolver cadena vacía
-    if (timeStr === undefined || timeStr === null || timeStr === '') {
-        return '';
-    }
-    
-    // Si ya es un string con signos de diferencia, devolverlo tal cual
-    if (typeof timeStr === 'string' && (timeStr.includes('(+)') || timeStr.includes('(-)'))) {
-        return timeStr;
-    }
-    
-    // Convertir a string si es un número
-    if (typeof timeStr === 'number') {
-        // Si es un número de Excel (formato de fecha/hora), convertirlo a string
-        // En Excel, 1 = 24 horas, 0.0416666666666667 = 1 hora
-        if (timeStr < 1 && timeStr > 0) {
-            // Es un valor de tiempo de Excel
-            const totalSeconds = Math.round(timeStr * 86400); // 86400 segundos en un día
-            return secondsToTime(totalSeconds);
-        } else {
-            // Es un número de segundos
-            return secondsToTime(timeStr);
-        }
-    }
-    
-    // Asegurarnos de que es un string
-    timeStr = String(timeStr).trim();
-    
-    // Si ya tiene formato HH:MM:SS, devolverlo
-    if (timeStr.includes(':') && timeStr.length >= 8) {
-        return timeStr;
-    }
-    
-    // Si es un número string, convertirlo a tiempo
-    if (!isNaN(timeStr) && timeStr !== '') {
-        return secondsToTime(parseInt(timeStr));
-    }
-    
-    // Si es HH:MM, agregar :00
-    if (timeStr.includes(':') && timeStr.length === 5) {
-        return timeStr + ':00';
-    }
-    
-    // Para otros casos, devolver el string original
-    return timeStr;
-}
+
 function excelTimeToSeconds(excelTime) {
     // Excel almacena el tiempo como fracción de un día
     // 1 = 24 horas, 0.0416666666666667 = 1 hora, 0.000694444444444444 = 1 minuto
@@ -1568,26 +1463,7 @@ function formatTimeForPDF(totalSeconds) {
     }
 }
 
-// Función para convertir tiempo a segundos (debe existir)
-function timeToSeconds(timeStr) {
-    if (!timeStr || timeStr === '') return 0;
-    
-    let formattedTime = timeStr;
-    if (!formattedTime.includes(':')) {
-        formattedTime = '00:00:00';
-    }
-    
-    const parts = formattedTime.split(':');
-    if (parts.length === 2) {
-        parts.push('00');
-    }
-    
-    const hours = parseInt(parts[0]) || 0;
-    const minutes = parseInt(parts[1]) || 0;
-    const seconds = parseInt(parts[2]) || 0;
-    
-    return (hours * 3600) + (minutes * 60) + seconds;
-}
+
 
 // Función auxiliar para pie de página
 function drawPageFooter() {
@@ -1777,37 +1653,9 @@ function secondsToMMSS(seconds) {
     return `${mins.toString().padStart(2, '0')}:${remainingSecs.toString().padStart(2, '0')}`;
 }
 
-// Función para convertir tiempo a segundos
-function timeToSeconds(timeStr) {
-    if (!timeStr) return 0;
-    
-    // Asegurar formato HH:MM:SS
-    let formattedTime = timeStr;
-    if (!formattedTime.includes(':')) {
-        formattedTime = '00:00:00';
-    }
-    
-    const parts = formattedTime.split(':');
-    if (parts.length === 2) {
-        // Formato HH:MM -> agregar :00
-        parts.push('00');
-    }
-    
-    const hours = parseInt(parts[0]) || 0;
-    const minutes = parseInt(parts[1]) || 0;
-    const seconds = parseInt(parts[2]) || 0;
-    
-    return (hours * 3600) + (minutes * 60) + seconds;
-}
 
-// Función para convertir segundos a tiempo HH:MM:SS
-function secondsToTime(totalSeconds) {
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-}
+
+
 
 
 // ============================================
@@ -2191,60 +2039,11 @@ function getOriginalIndex(order, dorsal) {
     return originalIndex !== -1 ? originalIndex : 0;
 }
 
-// Función para formatear tiempo
-function formatTimeValue(timeStr) {
-    if (!timeStr) return '00:00:00';
-    
-    // Asegurar formato HH:MM:SS
-    let formattedTime = timeStr.toString().trim();
-    
-    if (!formattedTime.includes(':')) {
-        return '00:00:00';
-    }
-    
-    const parts = formattedTime.split(':');
-    if (parts.length === 2) {
-        // Formato HH:MM -> agregar :00
-        parts.push('00');
-    }
-    
-    // Asegurar 2 dígitos
-    const hours = parts[0].padStart(2, '0');
-    const minutes = parts[1].padStart(2, '0');
-    const seconds = parts[2] ? parts[2].padStart(2, '0') : '00';
-    
-    return `${hours}:${minutes}:${seconds}`;
-}
 
-// Función para convertir segundos a tiempo
-function secondsToTime(totalSeconds) {
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-}
 
-// Función para convertir tiempo a segundos
-function timeToSeconds(timeStr) {
-    if (!timeStr || timeStr === '') return 0;
-    
-    let formattedTime = timeStr;
-    if (!formattedTime.includes(':')) {
-        formattedTime = '00:00:00';
-    }
-    
-    const parts = formattedTime.split(':');
-    if (parts.length === 2) {
-        parts.push('00');
-    }
-    
-    const hours = parseInt(parts[0]) || 0;
-    const minutes = parseInt(parts[1]) || 0;
-    const seconds = parseInt(parts[2]) || 0;
-    
-    return (hours * 3600) + (minutes * 60) + seconds;
-}
+
+
+
 
 // En Crono_CRI_js_Salidas.js, agrega estas funciones:
 
@@ -2598,3 +2397,332 @@ function fixGhostRace() {
     console.log("✅ Problema de carrera fantasma solucionado");
     showMessage(t.ghostRacesFixed || "Carreras fantasma eliminadas del selector", 'success');
 }
+
+function formatTimeValue(value) {
+    // Si es undefined, null o vacío, devolver cadena vacía
+    if (value === undefined || value === null || value === '') {
+        return '';
+    }
+    
+    // Si es un string con signos de diferencia, devolverlo tal cual
+    if (typeof value === 'string' && (value.includes('(+)') || value.includes('(-)'))) {
+        return value;
+    }
+    
+    // Si es un número (formato Excel o segundos)
+    if (typeof value === 'number') {
+        // Si es un número de Excel (formato de fecha/hora, valor entre 0 y 1)
+        if (value < 1 && value > 0) {
+            // Es un valor de tiempo de Excel (1 = 24 horas)
+            const totalSeconds = Math.round(value * 86400); // 86400 segundos en un día
+            return secondsToTime(totalSeconds);
+        } else {
+            // Es un número de segundos
+            return secondsToTime(value);
+        }
+    }
+    
+    // Si ya es un string de tiempo
+    if (typeof value === 'string') {
+        let timeStr = value.trim();
+        
+        // Si está vacío después de trim
+        if (timeStr === '') return '';
+        
+        // Si ya tiene formato HH:MM:SS completo, devolverlo formateado
+        if (timeStr.match(/^\d{1,2}:\d{2}:\d{2}$/)) {
+            const parts = timeStr.split(':');
+            const hours = parseInt(parts[0]).toString().padStart(2, '0');
+            const minutes = parseInt(parts[1]).toString().padStart(2, '0');
+            const seconds = parseInt(parts[2]).toString().padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        }
+        
+        // Si es HH:MM, agregar :00
+        if (timeStr.match(/^\d{1,2}:\d{2}$/)) {
+            const parts = timeStr.split(':');
+            const hours = parseInt(parts[0]).toString().padStart(2, '0');
+            const minutes = parseInt(parts[1]).toString().padStart(2, '0');
+            return `${hours}:${minutes}:00`;
+        }
+        
+        // Si es un número string, convertirlo a tiempo
+        if (!isNaN(timeStr) && timeStr !== '') {
+            return secondsToTime(parseInt(timeStr));
+        }
+        
+        // Para otros casos (como "--:--:--"), devolver el string original
+        return timeStr;
+    }
+    
+    // Para cualquier otro tipo, devolver cadena vacía
+    return '';
+}
+
+function secondsToTime(totalSeconds) {
+    // Manejar valores no válidos
+    if (!totalSeconds && totalSeconds !== 0) return '00:00:00';
+    if (totalSeconds < 0) totalSeconds = 0;
+    
+    // Asegurar que sea un número entero
+    const secs = Math.abs(Math.round(totalSeconds));
+    
+    const hours = Math.floor(secs / 3600);
+    const minutes = Math.floor((secs % 3600) / 60);
+    const seconds = secs % 60;
+    
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function timeToSeconds(timeString) {
+    // Si es undefined, null, vacío o formato inválido
+    if (!timeString || timeString === '' || timeString === '--:--:--' || timeString === '00:00:00') {
+        return 0;
+    }
+    
+    // Si ya es un número
+    if (typeof timeString === 'number') {
+        return timeString;
+    }
+    
+    // Si es string, convertir a tiempo
+    let formattedTime = timeString.toString().trim();
+    
+    // Agregar segundos si faltan
+    const parts = formattedTime.split(':');
+    
+    if (parts.length === 3) {
+        // Formato HH:MM:SS
+        const hours = parseInt(parts[0]) || 0;
+        const minutes = parseInt(parts[1]) || 0;
+        const seconds = parseInt(parts[2]) || 0;
+        return (hours * 3600) + (minutes * 60) + seconds;
+    } else if (parts.length === 2) {
+        // Formato HH:MM → agregar 0 segundos
+        const hours = parseInt(parts[0]) || 0;
+        const minutes = parseInt(parts[1]) || 0;
+        return (hours * 3600) + (minutes * 60);
+    } else if (parts.length === 1 && !isNaN(formattedTime)) {
+        // Es solo un número (segundos)
+        return parseInt(formattedTime) || 0;
+    }
+    
+    return 0;
+}
+
+/* funCIONES ANULADas
+// ============================================
+// FUNCIONES DE MANEJO DE ARCHIVOS EXCEL
+// ============================================
+function formatTimeValue(value) {
+    if (!value && value !== 0) return '';
+    
+    // Si es un número (formato Excel)
+    if (typeof value === 'number') {
+        // Convertir valor decimal de Excel a tiempo
+        const totalSeconds = Math.round(value * 86400); // 24 horas * 60 minutos * 60 segundos
+        const hours = Math.floor(totalSeconds / 3600) % 24;
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    // Si ya es un string de tiempo
+    if (typeof value === 'string') {
+        // Limpiar el string
+        let timeStr = value.trim();
+        
+        // Añadir segundos si faltan
+        if (timeStr.match(/^\d{1,2}:\d{2}$/)) {
+            timeStr += ':00';
+        }
+        
+        // Verificar formato HH:MM:SS
+        if (timeStr.match(/^\d{1,2}:\d{2}:\d{2}$/)) {
+            const parts = timeStr.split(':');
+            const hours = parseInt(parts[0]).toString().padStart(2, '0');
+            const minutes = parseInt(parts[1]).toString().padStart(2, '0');
+            const seconds = parseInt(parts[2]).toString().padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        }
+    }
+    
+    return '';
+}
+
+// Función para formatear tiempo
+function formatTimeValue(timeStr) {
+    if (!timeStr) return '00:00:00';
+    
+    // Asegurar formato HH:MM:SS
+    let formattedTime = timeStr.toString().trim();
+    
+    if (!formattedTime.includes(':')) {
+        return '00:00:00';
+    }
+    
+    const parts = formattedTime.split(':');
+    if (parts.length === 2) {
+        // Formato HH:MM -> agregar :00
+        parts.push('00');
+    }
+    
+    // Asegurar 2 dígitos
+    const hours = parts[0].padStart(2, '0');
+    const minutes = parts[1].padStart(2, '0');
+    const seconds = parts[2] ? parts[2].padStart(2, '0') : '00';
+    
+    return `${hours}:${minutes}:${seconds}`;
+}
+
+// Función auxiliar para formatear tiempo (asegurar formato HH:MM:SS)
+function formatTimeValue(timeStr) {
+    // Si es undefined, null o vacío, devolver cadena vacía
+    if (timeStr === undefined || timeStr === null || timeStr === '') {
+        return '';
+    }
+    
+    // Si ya es un string con signos de diferencia, devolverlo tal cual
+    if (typeof timeStr === 'string' && (timeStr.includes('(+)') || timeStr.includes('(-)'))) {
+        return timeStr;
+    }
+    
+    // Convertir a string si es un número
+    if (typeof timeStr === 'number') {
+        // Si es un número de Excel (formato de fecha/hora), convertirlo a string
+        // En Excel, 1 = 24 horas, 0.0416666666666667 = 1 hora
+        if (timeStr < 1 && timeStr > 0) {
+            // Es un valor de tiempo de Excel
+            const totalSeconds = Math.round(timeStr * 86400); // 86400 segundos en un día
+            return secondsToTime(totalSeconds);
+        } else {
+            // Es un número de segundos
+            return secondsToTime(timeStr);
+        }
+    }
+    
+    // Asegurarnos de que es un string
+    timeStr = String(timeStr).trim();
+    
+    // Si ya tiene formato HH:MM:SS, devolverlo
+    if (timeStr.includes(':') && timeStr.length >= 8) {
+        return timeStr;
+    }
+    
+    // Si es un número string, convertirlo a tiempo
+    if (!isNaN(timeStr) && timeStr !== '') {
+        return secondsToTime(parseInt(timeStr));
+    }
+    
+    // Si es HH:MM, agregar :00
+    if (timeStr.includes(':') && timeStr.length === 5) {
+        return timeStr + ':00';
+    }
+    
+    // Para otros casos, devolver el string original
+    return timeStr;
+}
+***************************************************************
+
+function secondsToTime(totalSeconds) {
+    if (totalSeconds < 0) totalSeconds = 0;
+    
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Función para convertir segundos a tiempo
+function secondsToTime(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// ============================================
+// FUNCIONES DE MANEJO DE TIEMPO
+// ============================================
+function timeToSeconds(timeString) {
+    if (!timeString || timeString === '--:--:--') return 0;
+    
+    const parts = timeString.split(':');
+    if (parts.length === 3) {
+        return (parseInt(parts[0]) * 3600) + (parseInt(parts[1]) * 60) + parseInt(parts[2]);
+    } else if (parts.length === 2) {
+        return (parseInt(parts[0]) * 60) + parseInt(parts[1]);
+    }
+    return 0;
+}
+
+// Función para convertir tiempo a segundos (debe existir)
+function timeToSeconds(timeStr) {
+    if (!timeStr || timeStr === '') return 0;
+    
+    let formattedTime = timeStr;
+    if (!formattedTime.includes(':')) {
+        formattedTime = '00:00:00';
+    }
+    
+    const parts = formattedTime.split(':');
+    if (parts.length === 2) {
+        parts.push('00');
+    }
+    
+    const hours = parseInt(parts[0]) || 0;
+    const minutes = parseInt(parts[1]) || 0;
+    const seconds = parseInt(parts[2]) || 0;
+    
+    return (hours * 3600) + (minutes * 60) + seconds;
+}
+
+// Función para convertir tiempo a segundos
+function timeToSeconds(timeStr) {
+    if (!timeStr) return 0;
+    
+    // Asegurar formato HH:MM:SS
+    let formattedTime = timeStr;
+    if (!formattedTime.includes(':')) {
+        formattedTime = '00:00:00';
+    }
+    
+    const parts = formattedTime.split(':');
+    if (parts.length === 2) {
+        // Formato HH:MM -> agregar :00
+        parts.push('00');
+    }
+    
+    const hours = parseInt(parts[0]) || 0;
+    const minutes = parseInt(parts[1]) || 0;
+    const seconds = parseInt(parts[2]) || 0;
+    
+    return (hours * 3600) + (minutes * 60) + seconds;
+}
+
+// Función para convertir tiempo a segundos
+function timeToSeconds(timeStr) {
+    if (!timeStr || timeStr === '') return 0;
+    
+    let formattedTime = timeStr;
+    if (!formattedTime.includes(':')) {
+        formattedTime = '00:00:00';
+    }
+    
+    const parts = formattedTime.split(':');
+    if (parts.length === 2) {
+        parts.push('00');
+    }
+    
+    const hours = parseInt(parts[0]) || 0;
+    const minutes = parseInt(parts[1]) || 0;
+    const seconds = parseInt(parts[2]) || 0;
+    
+    return (hours * 3600) + (minutes * 60) + seconds;
+}
+
+*/
+
+

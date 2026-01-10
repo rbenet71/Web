@@ -203,21 +203,7 @@ la hora de salida real y el crono de salida real se asignaran al corredor que ac
 2.2 Funcionando el Audio
 2.2.1 funcionando 4,3,2
 
-2.3 inicio Cuenta atras manualmente
-2.3.1 Traducciones
-2.3.2 Aplicacion Inicial JS
-2.3.3 hora sistema acutalizada
-2.3.4 Inicio cuenta atras manual bien
-2.3.4.1 mejorado inicio manual dorsal o
-2.3.4.2 Bien el manual y cuenta atras
-2.3.5 Quitar espacio intercvalos de salida
-2.3.5.1 boton de esconder apartados
-2.3.6 reinicio funcionando
-2.3.6.1 actulizando bien siguente posicion y dorsal a salir
-2.3.6.2 actualizar tabla orden de salid con tiempos
-2.4 Programa funcionando (siguiente corredor el del orden)
 
-2.4.1 Cuantos faltan por salir y dorsal siguiente en salir - quiero que en la pantalla de cuenta atras donde indica el tiempo en que saldra el proxmo corredor indiques tambien su dorsal ejmplo 20s (300) y donde dice salidos indique 1 de [total de corredores a salir]
 
 quiero rediseñar y mejorar el apartado de inicio cuenta atras manual.
 el diseño debe seguir la linea del resto de apartados (configuracion de audio, orden de salida)
@@ -240,4 +226,24 @@ Cuando se de al botón iniciar cuenta atras, se actualizará el crono de carrera
 el boton reiniciar, previa pregunta de confirmación, borrará todos los tiempos de salida y crono real (función implementada ya en el inicio de cuenta atras automatica), también dejará a cero el valor de salidos.
 
 por eso primero pideme las funciones que crees que intervienen en el proceso.
+2.3 inicio Cuenta atras manualmente
+2.3.1 Traducciones
+2.3.2 Aplicacion Inicial JS
+2.3.3 hora sistema acutalizada
+2.3.4 Inicio cuenta atras manual bien
+2.3.4.1 mejorado inicio manual dorsal o
+2.3.4.2 Bien el manual y cuenta atras
+2.3.5 Quitar espacio intercvalos de salida
+2.3.5.1 boton de esconder apartados
+2.3.6 reinicio funcionando
+2.3.6.1 actulizando bien siguente posicion y dorsal a salir
+2.3.6.2 actualizar tabla orden de salid con tiempos
+2.4 Programa funcionando (siguiente corredor el del orden)
+2.4.1 Cuantos faltan por salir y dorsal siguiente en salir - quiero que en la pantalla de cuenta atras donde indica el tiempo en que saldra el proxmo corredor indiques tambien su dorsal ejmplo 20s (300) y donde dice salidos indique 1 de [total de corredores a salir]
 ------
+
+2.4.2 al importar orden de salida, la hora crono primero  deberia ser 00:00:00 si no es así pregunta al usuario
+diferencia primero siempre es 00:00:00
+
+las horas registradas de crono salida estan mal
+la hora salida real registrada esta mal.

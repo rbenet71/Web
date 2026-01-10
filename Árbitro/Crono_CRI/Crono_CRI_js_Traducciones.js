@@ -533,6 +533,7 @@ const translations = {
         preCountdownLabel: "Tiempo Previo:",
         positionLabel: "Posición a Salir:",
         dorsalLabel: "Dorsal a Salir:",
+        confirmFirstCrono: "El primer corredor tiene crono \"{crono}\", no \"00:00:00\".\n\n¿Qué deseas hacer?\n\n1. Importar tal como está (mantener {crono})\n2. Normalizar: cambiar solo el primer corredor a 00:00:00\n\nSelecciona \"Aceptar\" para normalizar o \"Cancelar\" para importar tal como está.",
 
     },
 
@@ -1076,6 +1077,7 @@ const translations = {
         preCountdownLabel: "Temps Previ:",
         positionLabel: "Posició a Sortir:",
         dorsalLabel: "Dorsal a Sortir:",
+        confirmFirstCrono: "El primer corredor té crono \"{crono}\", no \"00:00:00\".\n\nQuè vols fer?\n\n1. Importar tal com està (mantenir {crono})\n2. Normalitzar: canviar només el primer corredor a 00:00:00\n\nSelecciona \"Acceptar\" per normalitzar o \"Cancel·lar\" per importar tal com està.",
     },
 
     en: {
@@ -1613,6 +1615,8 @@ const translations = {
         preCountdownLabel: "Pre-countdown Time:",
         positionLabel: "Position to Start:",
         dorsalLabel: "Bib Number to Start:",
+
+        confirmFirstCrono: "The first rider has crono \"{crono}\", not \"00:00:00\".\n\nWhat do you want to do?\n\n1. Import as is (keep {crono})\n2. Normalize: change only the first rider to 00:00:00\n\nSelect \"OK\" to normalize or \"Cancel\" to import as is.",
     },
 
     fr: {
@@ -2169,6 +2173,8 @@ const translations = {
         preCountdownLabel: "Temps Pré-décompte:",
         positionLabel: "Position à Départ:",
         dorsalLabel: "Dossard à Départ:",
+
+        confirmFirstCrono: "Le premier coureur a le chrono \"{crono}\", pas \"00:00:00\".\n\nQue voulez-vous faire?\n\n1. Importer tel quel (garder {crono})\n2. Normaliser: changer seulement le premier coureur à 00:00:00\n\nSélectionnez \"OK\" pour normaliser ou \"Annuler\" pour importer tel quel.",
 
     }
 };
