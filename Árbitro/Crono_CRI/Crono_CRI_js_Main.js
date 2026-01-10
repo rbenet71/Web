@@ -364,9 +364,8 @@ window.addEventListener('beforeunload', () => {
         if (typeof saveLastUpdate === 'function') saveLastUpdate();
     }
 });
-// ============================================
-// EVENT LISTENERS PRINCIPALES
-// ============================================
+
+
 // ============================================
 // EVENT LISTENERS PRINCIPALES
 // ============================================
@@ -597,7 +596,179 @@ function setupEventListeners() {
         }
     });
     
+    // 21. BOTONES DEL FOOTER - NUEVOS
+    console.log('Configurando botones del footer...');
+    
+    // Botón de Ayuda
+    const footerHelpBtn = document.getElementById('footer-help-btn');
+    if (footerHelpBtn) {
+        footerHelpBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Botón Ayuda del footer clickeado');
+            
+            const helpModal = document.getElementById('help-modal');
+            if (helpModal) {
+                helpModal.classList.add('active');
+                console.log('✅ Modal de ayuda abierto');
+            } else {
+                console.error('❌ Modal de ayuda no encontrado');
+                // Fallback: usar el botón de ayuda existente si hay uno
+                const mainHelpBtn = document.getElementById('help-btn');
+                if (mainHelpBtn) {
+                    console.log('⚠️ Usando botón de ayuda principal como fallback');
+                    mainHelpBtn.click();
+                } else {
+                    // Último recurso: mostrar mensaje
+                    if (typeof showMessage === 'function') {
+                        showMessage('La ayuda no está disponible en este momento', 'warning');
+                    }
+                }
+            }
+        });
+    }
+    
+    // Botón de Sugerencias
+    const suggestionsBtn = document.getElementById('suggestions-btn');
+    if (suggestionsBtn) {
+        suggestionsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Botón Sugerencias clickeado');
+            
+            const suggestionsModal = document.getElementById('suggestions-modal');
+            if (suggestionsModal) {
+                suggestionsModal.classList.add('active');
+                console.log('✅ Modal de sugerencias abierto');
+            } else {
+                // Si no hay modal, abrir email directamente
+                openSuggestionsEmail();
+            }
+        });
+    }
+    
+    // Botón de Instalar App (PWA)
+    const installBtn = document.getElementById('install-btn');
+    if (installBtn) {
+        // Ocultar inicialmente - solo mostrar cuando esté disponible
+        installBtn.style.display = 'none';
+        
+        // Configurar listener para cuando se dispare el evento beforeinstallprompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            window.deferredPrompt = e;
+            
+            // Mostrar el botón
+            installBtn.style.display = 'flex';
+            
+            installBtn.addEventListener('click', async () => {
+                if (window.deferredPrompt) {
+                    window.deferredPrompt.prompt();
+                    const choiceResult = await window.deferredPrompt.userChoice;
+                    console.log('Usuario eligió:', choiceResult.outcome);
+                    window.deferredPrompt = null;
+                    installBtn.style.display = 'none'; // Ocultar después de instalar
+                }
+            });
+        });
+        
+        // También verificar si ya está instalado
+        if (window.matchMedia('(display-mode: standalone)').matches || 
+            window.navigator.standalone === true) {
+            installBtn.style.display = 'none'; // Ya está instalado
+        }
+    }
+    
+    // Botón de Buscar actualizaciones (MEJORADO - maneja protocolo file://)
+    const updateBtn = document.getElementById('update-btn');
+    if (updateBtn) {
+        updateBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Botón Buscar actualizaciones clickeado');
+            
+            // Verificar protocolo actual
+            const protocol = window.location.protocol;
+            const isFileProtocol = protocol === 'file:';
+            const isLocalhost = window.location.hostname === 'localhost' || 
+                               window.location.hostname === '127.0.0.1';
+            const isHttps = protocol === 'https:';
+            
+            // 🔥 VERIFICACIÓN MEJORADA: Mostrar mensaje apropiado según protocolo
+            if (isFileProtocol) {
+                console.log('⚠️ Service Workers no funcionan desde file://');
+                if (typeof showMessage === 'function') {
+                    showMessage('⚠️ Actualizaciones automáticas no disponibles', 'warning');
+                    showMessage('Ejecuta desde localhost o HTTPS para usar esta función', 'info');
+                }
+                return;
+            }
+            
+            // Solo continuar si estamos en localhost o HTTPS
+            if (isLocalhost || isHttps) {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistration()
+                        .then(registration => {
+                            if (registration) {
+                                registration.update();
+                                if (typeof showMessage === 'function') {
+                                    showMessage('🔄 Buscando actualizaciones...', 'info');
+                                }
+                                console.log('✅ Actualización del Service Worker solicitada');
+                                
+                                // Verificar después de un tiempo
+                                setTimeout(() => {
+                                    if (window.updateAvailable) {
+                                        showMessage('🎉 ¡Nueva versión disponible! Recarga la página.', 'success');
+                                    } else {
+                                        showMessage('✅ Ya tienes la última versión', 'success');
+                                    }
+                                }, 2000);
+                            } else {
+                                // Service Worker no registrado
+                                if (typeof showMessage === 'function') {
+                                    showMessage('⚠️ Service Worker no registrado', 'warning');
+                                    showMessage('La aplicación debe instalarse primero', 'info');
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('❌ Error buscando actualizaciones:', error);
+                            if (typeof showMessage === 'function') {
+                                showMessage('❌ Error buscando actualizaciones', 'error');
+                                showMessage('Detalles: ' + error.message, 'info');
+                            }
+                        });
+                } else {
+                    // Navegador no soporta Service Workers
+                    if (typeof showMessage === 'function') {
+                        showMessage('⚠️ Navegador no compatible con actualizaciones automáticas', 'warning');
+                    }
+                }
+            } else {
+                // Protocolo no soportado (no file://, no localhost, no https://)
+                console.log('⚠️ Protocolo no soportado para Service Workers:', protocol);
+                if (typeof showMessage === 'function') {
+                    showMessage('⚠️ Protocolo no soportado: ' + protocol, 'warning');
+                    showMessage('Usa HTTPS o localhost para actualizaciones automáticas', 'info');
+                }
+            }
+        });
+    }
+    
     console.log('Event listeners principales configurados');
+}
+
+// Función auxiliar para abrir email de sugerencias
+function openSuggestionsEmail() {
+    const email = 'rbenet71@gmail.com';
+    const subject = 'Sugerencias para Crono CRI';
+    const body = `Hola Roberto,\n\nTengo algunas sugerencias para la aplicación Crono CRI:\n\n1. \n2. \n3. \n\n---\nApp: Crono CRI v2.4.6\nNavegador: ${navigator.userAgent}\nURL: ${window.location.href}`;
+    
+    const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    
+    console.log('Abriendo email de sugerencias:', mailtoLink);
+    window.open(mailtoLink, '_blank');
 }
 
 // ============================================
