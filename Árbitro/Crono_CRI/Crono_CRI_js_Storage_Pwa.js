@@ -1850,7 +1850,7 @@ function createRaceBackup() {
         version: '1.0',
         appName: 'Crono CRI',
         exportDate: new Date().toISOString(),
-        exportVersion: 'V_19_12_2025',
+        exportVersion: 'V_2.4.5',
         dataType: 'single-race',
         race: {
             // Copiar TODOS los datos de la carrera del array
