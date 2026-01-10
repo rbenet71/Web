@@ -87,6 +87,9 @@ let startOrderData = [];
 // ============================================
 // INICIALIZACIÓN PRINCIPAL DE LA APLICACIÓN
 // ============================================
+// ============================================
+// INICIALIZACIÓN PRINCIPAL DE LA APLICACIÓN
+// ============================================
 function initApp() {
     console.log("Inicializando aplicación Crono CRI...");
     
@@ -123,6 +126,30 @@ function initApp() {
             deferredPrompt: null,
             updateAvailable: false
         };
+    }
+    
+    // ============================================
+    // INICIALIZACIÓN DEL SISTEMA DE AUDIO
+    // ============================================
+    
+    // 1. Cargar preferencias de audio
+    if (typeof loadAudioPreferences === 'function') {
+        loadAudioPreferences();
+    } else {
+        console.warn("⚠️ Función loadAudioPreferences no disponible - usando valores por defecto");
+        // Cargar preferencia manualmente si la función no existe
+        const savedAudioType = localStorage.getItem('countdown-audio-type');
+        if (savedAudioType && ['beep', 'voice', 'none'].includes(savedAudioType)) {
+            appState.audioType = savedAudioType;
+            console.log("✅ Preferencia de audio cargada:", savedAudioType);
+        }
+    }
+    
+    // 2. Configurar listeners de botones de audio
+    if (typeof setupAudioEventListeners === 'function') {
+        setupAudioEventListeners();
+    } else {
+        console.error("❌ Función setupAudioEventListeners no disponible - botones de audio NO funcionarán");
     }
     
     // Inicializar estado de llegadas si no existe
@@ -322,6 +349,8 @@ function initApp() {
     console.log("Estado final:");
     console.log("- Carrera actual:", appState.currentRace ? appState.currentRace.name : "Ninguna");
     console.log("- Corredores en orden de salida:", startOrderData ? startOrderData.length : 0);
+    console.log("- Tipo de audio configurado:", appState.audioType);
+    console.log("- Listeners de audio:", typeof setupAudioEventListeners === 'function' ? '✅ Configurados' : '❌ No configurados');
     
     // Marcar como completamente inicializada
     setTimeout(() => {

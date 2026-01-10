@@ -447,14 +447,130 @@ function loadAudioPreferences() {
 }
 
 function setupAudioEventListeners() {
-    document.querySelectorAll('.audio-option').forEach(option => {
-        option.addEventListener('click', function() {
+    console.log("🎵 Configurando listeners de audio...");
+    
+    // 1. Configurar botones de opción de audio (.audio-option)
+    const audioOptions = document.querySelectorAll('.audio-option');
+    console.log(`🔍 Encontrados ${audioOptions.length} botones .audio-option`);
+    
+    audioOptions.forEach(option => {
+        // Remover cualquier listener previo para evitar duplicados
+        const newOption = option.cloneNode(true);
+        option.parentNode.replaceChild(newOption, option);
+        
+        newOption.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
             const audioType = this.getAttribute('data-audio-type');
-            selectAudioType(audioType);
+            console.log(`🎵 Botón de audio clickeado: ${audioType}`);
+            
+            if (typeof selectAudioType === 'function') {
+                selectAudioType(audioType);
+            } else {
+                console.error("❌ Función selectAudioType no disponible");
+                // Fallback manual
+                appState.audioType = audioType;
+                localStorage.setItem('countdown-audio-type', audioType);
+                
+                // Actualizar UI
+                document.querySelectorAll('.audio-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                showMessage(`Audio configurado: ${audioType}`, 'success');
+            }
         });
     });
     
-    document.getElementById('test-audio-btn').addEventListener('click', testCurrentAudio);
+    // 2. Configurar botón de prueba de audio (#test-audio-btn)
+    const testAudioBtn = document.getElementById('test-audio-btn');
+    if (testAudioBtn) {
+        console.log("✅ Botón de prueba de audio encontrado");
+        
+        // Clonar para eliminar listeners previos
+        const newTestBtn = testAudioBtn.cloneNode(true);
+        testAudioBtn.parentNode.replaceChild(newTestBtn, testAudioBtn);
+        
+        newTestBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log("🔊 Probando audio...");
+            
+            if (typeof testCurrentAudio === 'function') {
+                testCurrentAudio();
+            } else {
+                console.error("❌ Función testCurrentAudio no disponible");
+                // Fallback simple
+                if (appState.audioType === 'beep') {
+                    generateBeep(440, 0.5);
+                    showMessage("Beep de prueba", 'info');
+                } else if (appState.audioType === 'voice') {
+                    showMessage("Modo voz activado (prueba no disponible)", 'info');
+                } else {
+                    showMessage("Audio desactivado", 'info');
+                }
+            }
+        });
+    } else {
+        console.warn("⚠️ Botón #test-audio-btn no encontrado en el DOM");
+    }
+    
+    // 3. Configurar selectores de tipo de audio (#audio-type-selector)
+    const audioTypeSelect = document.getElementById('audio-type-selector');
+    if (audioTypeSelect) {
+        console.log("✅ Selector de tipo de audio encontrado");
+        
+        audioTypeSelect.addEventListener('change', function(e) {
+            const audioType = e.target.value;
+            console.log(`🎵 Tipo de audio cambiado vía selector: ${audioType}`);
+            
+            if (typeof selectAudioType === 'function') {
+                selectAudioType(audioType);
+            } else {
+                appState.audioType = audioType;
+                localStorage.setItem('countdown-audio-type', audioType);
+                showMessage(`Audio configurado: ${audioType}`, 'success');
+            }
+        });
+        
+        // Establecer valor actual
+        audioTypeSelect.value = appState.audioType;
+    }
+    
+    // 4. Configurar botones de idioma de audio si existen
+    const audioLanguageButtons = document.querySelectorAll('[data-audio-lang]');
+    audioLanguageButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const lang = this.getAttribute('data-audio-lang');
+            if (appState.currentLanguage !== lang) {
+                appState.currentLanguage = lang;
+                localStorage.setItem('cri_language', lang);
+                showMessage(`Idioma cambiado a: ${lang}`, 'success');
+            }
+        });
+    });
+    
+    // 5. Actualizar UI de botones de audio
+    setTimeout(() => {
+        if (typeof updateAudioButtonsUI === 'function') {
+            updateAudioButtonsUI();
+        } else {
+            // Actualización manual
+            document.querySelectorAll('.audio-option').forEach(option => {
+                const audioType = option.getAttribute('data-audio-type');
+                if (audioType === appState.audioType) {
+                    option.classList.add('active');
+                } else {
+                    option.classList.remove('active');
+                }
+            });
+        }
+    }, 100);
+    
+    console.log("✅ Listeners de audio configurados correctamente");
 }
 
 // ============================================

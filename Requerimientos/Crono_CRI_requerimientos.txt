@@ -200,6 +200,7 @@ la hora de salida real y el crono de salida real se asignaran al corredor que ac
 2.1.9 Cuenta atras como estaba antes.
 2.1.10 Boton Configura cuenta atras
 2.1.11 Eliminar el registro de salidas
+2.2 Funcionando el Audio
 
 El programa deberá poder iniciar la cuenta atrás manualmente, para ello el usuario introducirá el dorsal del siguiente corredor a salir. Entonces a partir de que diga iniciar,se iniciará una cuenta atrás de un minuto. El tiempo del crono cuando se inicie la cuenta atrás será el valor del crono salida de ese corredor menos el minuto que sale antes. y el numero de corredores salidos sera su valor de orden en la tabla menos 1.
 
