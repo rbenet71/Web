@@ -1311,12 +1311,24 @@ function setupLanguageButtons() {
         button.addEventListener('click', handleLanguageChange);
     });
     
-    // También configurar el botón de ayuda
+    // También configurar el botón de ayuda del header
     const helpButton = document.getElementById('help-icon-header');
     if (helpButton) {
+        // Remover el listener antiguo si existe
         helpButton.removeEventListener('click', showHelpModal);
-        helpButton.addEventListener('click', showHelpModal);
+        
+        // Agregar nuevo listener para abrir el archivo de ayuda
+        helpButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Botón de ayuda del header clickeado');
+            
+            // 📄 ABRIR ARCHIVO DE AYUDA EN LUGAR DEL MODAL
+            window.open('Crono_CRI_ayuda.html', '_blank');
+            console.log('✅ Archivo de ayuda abierto desde el header');
+        });
     }
+
     
     console.log("Botones de idioma configurados:", languageButtons.length);
 }

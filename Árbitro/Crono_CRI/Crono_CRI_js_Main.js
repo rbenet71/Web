@@ -480,13 +480,17 @@ function setupEventListeners() {
         });
     }
     
-    // 14. Botón de ayuda/información
+
+    // 14. Botón de ayuda/información - MODIFICADO
     const helpBtn = document.getElementById('help-btn');
     if (helpBtn) {
-        helpBtn.addEventListener('click', function() {
-            if (typeof showHelpModal === 'function') {
-                showHelpModal();
-            }
+        helpBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Botón de ayuda principal clickeado');
+            
+            // 📄 ABRIR ARCHIVO DE AYUDA EN LUGAR DEL MODAL
+            window.open('Crono_CRI_ayuda.html', '_blank');
+            console.log('✅ Archivo de ayuda abierto en nueva pestaña');
         });
     }
     
@@ -600,6 +604,10 @@ function setupEventListeners() {
     console.log('Configurando botones del footer...');
     
     // Botón de Ayuda
+    // 21. BOTONES DEL FOOTER - NUEVOS
+    console.log('Configurando botones del footer...');
+
+    // Botón de Ayuda - MODIFICADO
     const footerHelpBtn = document.getElementById('footer-help-btn');
     if (footerHelpBtn) {
         footerHelpBtn.addEventListener('click', function(e) {
@@ -607,24 +615,9 @@ function setupEventListeners() {
             e.stopPropagation();
             console.log('Botón Ayuda del footer clickeado');
             
-            const helpModal = document.getElementById('help-modal');
-            if (helpModal) {
-                helpModal.classList.add('active');
-                console.log('✅ Modal de ayuda abierto');
-            } else {
-                console.error('❌ Modal de ayuda no encontrado');
-                // Fallback: usar el botón de ayuda existente si hay uno
-                const mainHelpBtn = document.getElementById('help-btn');
-                if (mainHelpBtn) {
-                    console.log('⚠️ Usando botón de ayuda principal como fallback');
-                    mainHelpBtn.click();
-                } else {
-                    // Último recurso: mostrar mensaje
-                    if (typeof showMessage === 'function') {
-                        showMessage('La ayuda no está disponible en este momento', 'warning');
-                    }
-                }
-            }
+            // 📄 ABRIR ARCHIVO DE AYUDA EN LUGAR DEL MODAL
+            window.open('Crono_CRI_ayuda.html', '_blank');
+            console.log('✅ Archivo de ayuda abierto en nueva pestaña');
         });
     }
     
@@ -780,7 +773,7 @@ function setupEventListeners() {
 function openSuggestionsEmail() {
     const email = 'rbenet71@gmail.com';
     const subject = 'Sugerencias para Crono CRI';
-    const body = `Hola Roberto,\n\nTengo algunas sugerencias para la aplicación Crono CRI:\n\n1. \n2. \n3. \n\n---\nApp: Crono CRI v2.4.7\nNavegador: ${navigator.userAgent}\nURL: ${window.location.href}`;
+    const body = `Hola Roberto,\n\nTengo algunas sugerencias para la aplicación Crono CRI:\n\n1. \n2. \n3. \n\n---\nApp: Crono CRI v2.4.8\nNavegador: ${navigator.userAgent}\nURL: ${window.location.href}`;
     
     const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     

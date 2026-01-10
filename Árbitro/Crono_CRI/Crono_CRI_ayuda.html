@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crono CRI - Ayuda Completa</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #1a2a6c;
+            --secondary: #b21f1f;
+            --accent: #fdbb2d;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #3498db;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --border-radius: 10px;
+            --shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            color: white;
+            line-height: 1.7;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(26, 42, 108, 0.92);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            border: 2px solid var(--accent);
+        }
+
+        .help-header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid var(--accent);
+        }
+
+        .help-header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--accent);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .help-header p {
+            opacity: 0.9;
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .language-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .lang-btn {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid var(--accent);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+        }
+
+        .lang-btn:hover {
+            background: var(--accent);
+            color: var(--dark);
+            transform: translateY(-3px) scale(1.05);
+        }
+
+        .lang-btn.active {
+            background: var(--accent);
+            color: var(--dark);
+            box-shadow: 0 4px 15px rgba(253, 187, 45, 0.4);
+        }
+
+        .flag {
+            width: 30px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .flag-catalunya {
+            background: linear-gradient(
+                to bottom,
+                #ffcd00 0%, #ffcd00 10%,
+                #da121a 10%, #da121a 20%,
+                #ffcd00 20%, #ffcd00 30%,
+                #da121a 30%, #da121a 40%,
+                #ffcd00 40%, #ffcd00 50%,
+                #da121a 50%, #da121a 60%,
+                #ffcd00 60%, #ffcd00 70%,
+                #da121a 70%, #da121a 80%,
+                #ffcd00 80%, #ffcd00 90%,
+                #da121a 90%, #da121a 100%
+            );
+        }
+
+        .help-content {
+            display: none;
+        }
+
+        .help-content.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            margin-bottom: 50px;
+            background: rgba(255,255,255,0.05);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            border-left: 5px solid var(--accent);
+        }
+
+        h2 {
+            color: var(--accent);
+            margin: 40px 0 20px 0;
+            font-size: 2.2rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(253, 187, 45, 0.3);
+        }
+
+        h3 {
+            color: var(--info);
+            margin: 25px 0 15px 0;
+            font-size: 1.6rem;
+        }
+
+        h4 {
+            color: var(--success);
+            margin: 20px 0 10px 0;
+            font-size: 1.4rem;
+        }
+
+        p {
+            margin-bottom: 20px;
+            text-align: justify;
+            font-size: 1.1rem;
+        }
+
+        ul, ol {
+            margin: 20px 0 20px 40px;
+        }
+
+        li {
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(41, 128, 185, 0.2));
+            padding: 25px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.2);
+        }
+
+        .feature-card h4 {
+            color: var(--info);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .visual-indicators {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .indicator {
+            padding: 25px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            color: white;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .indicator:hover {
+            transform: scale(1.05);
+        }
+
+        .indicator.red { 
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            border-color: #ff6b6b;
+        }
+        .indicator.yellow { 
+            background: linear-gradient(135deg, #f39c12, #d68910);
+            border-color: #ffd93d;
+            color: #333;
+        }
+        .indicator.green { 
+            background: linear-gradient(135deg, #27ae60, #219653);
+            border-color: #6bcf7f;
+            color: #333;
+        }
+        .indicator.pulse { 
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            border-color: #ff6b6b;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .sound-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .sound-option {
+            background: rgba(155, 89, 182, 0.2);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            border: 1px solid rgba(155, 89, 182, 0.3);
+            transition: var(--transition);
+        }
+
+        .sound-option:hover {
+            transform: translateY(-5px);
+            background: rgba(155, 89, 182, 0.3);
+        }
+
+        .sound-option i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #9b59b6;
+        }
+
+        .keyboard-shortcuts {
+            background: rgba(52, 152, 219, 0.15);
+            color: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            margin-top: 25px;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .keyboard-shortcuts table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .keyboard-shortcuts th,
+        .keyboard-shortcuts td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .keyboard-shortcuts th {
+            background: rgba(255,255,255,0.1);
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .keyboard-shortcuts kbd {
+            background: rgba(0,0,0,0.3);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-weight: bold;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .troubleshooting {
+            background: rgba(243, 156, 18, 0.15);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            border-left: 5px solid var(--warning);
+            margin-top: 25px;
+        }
+
+        .troubleshooting h4 {
+            color: var(--warning);
+            margin-bottom: 20px;
+        }
+
+        .back-button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent), #e67e22);
+            color: var(--dark);
+            padding: 15px 35px;
+            text-decoration: none;
+            border-radius: 50px;
+            margin-top: 30px;
+            transition: var(--transition);
+            font-weight: bold;
+            font-size: 1.1rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background: linear-gradient(135deg, #e67e22, var(--accent));
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(253, 187, 45, 0.3);
+        }
+
+        .intro-box {
+            background: rgba(231, 76, 60, 0.15);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin: 25px 0;
+            border-left: 5px solid var(--danger);
+        }
+
+        .intro-box p {
+            font-style: italic;
+            color: #ecf0f1;
+            font-size: 1.1rem;
+        }
+
+        .step-box {
+            background: rgba(52, 73, 94, 0.2);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            border-left: 5px solid var(--warning);
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--warning);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            margin-right: 15px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 8px rgba(243, 156, 18, 0.3);
+        }
+
+        .tip-box {
+            background: rgba(155, 89, 182, 0.15);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            border-left: 5px solid #9b59b6;
+        }
+
+        .tip-box h4 {
+            color: #9b59b6;
+            margin-bottom: 15px;
+        }
+
+        .app-install {
+            background: rgba(46, 204, 113, 0.15);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin: 25px 0;
+            border-left: 5px solid var(--success);
+        }
+
+        .app-install h3 {
+            color: var(--success);
+        }
+
+        .platform {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: var(--border-radius);
+        }
+
+        .platform h4 {
+            color: var(--info);
+            margin-bottom: 15px;
+        }
+
+        .other-feature {
+            background: rgba(52, 152, 219, 0.15);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            border-left: 5px solid var(--info);
+        }
+
+        .other-feature h4 {
+            color: var(--info);
+            margin-bottom: 15px;
+        }
+
+        .use-case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .use-case-card {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            border: 2px solid rgba(52, 152, 219, 0.2);
+            transition: var(--transition);
+        }
+
+        .use-case-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--info);
+            background: rgba(52, 152, 219, 0.2);
+        }
+
+        .use-case-card i {
+            font-size: 3rem;
+            color: var(--info);
+            margin-bottom: 20px;
+        }
+
+        .use-case-card h4 {
+            color: var(--success);
+            margin-bottom: 15px;
+        }
+
+        .hardware-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .hardware-item {
+            background: rgba(155, 89, 182, 0.1);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            border: 1px solid rgba(155, 89, 182, 0.2);
+            transition: var(--transition);
+        }
+
+        .hardware-item:hover {
+            transform: translateY(-5px);
+            background: rgba(155, 89, 182, 0.2);
+        }
+
+        .hardware-item i {
+            font-size: 2.5rem;
+            color: #9b59b6;
+            margin-bottom: 15px;
+        }
+
+        .version-note {
+            background: rgba(241, 196, 15, 0.15);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            border-left: 5px solid #f1c40f;
+        }
+
+        .version-note h4 {
+            color: #f1c40f;
+            margin-bottom: 15px;
+        }
+
+        .list-export {
+            background: rgba(46, 204, 113, 0.15);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin: 25px 0;
+            border-left: 5px solid var(--success);
+        }
+
+        .list-export h4 {
+            color: var(--success);
+            margin-bottom: 20px;
+        }
+
+        .example-cadence {
+            background: rgba(52, 73, 94, 0.2);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin: 25px 0;
+            border-left: 5px solid var(--info);
+        }
+
+        .example-cadence h4 {
+            color: var(--info);
+            margin-bottom: 20px;
+        }
+
+        .cadence-example {
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+        }
+
+        .module-structure {
+            background: rgba(142, 68, 173, 0.15);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin: 25px 0;
+            border-left: 5px solid #8e44ad;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .module-card {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .module-card h5 {
+            color: var(--accent);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .table-columns {
+            background: rgba(41, 128, 185, 0.15);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin: 25px 0;
+            border-left: 5px solid #2980b9;
+        }
+
+        .columns-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .column-item {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid var(--info);
+        }
+
+        .column-item .column-number {
+            display: inline-block;
+            background: var(--info);
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 25px;
+            margin-right: 10px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .warning-note {
+            background: rgba(231, 76, 60, 0.15);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            border-left: 5px solid var(--danger);
+            animation: pulse 2s infinite;
+        }
+
+        .warning-note h4 {
+            color: var(--danger);
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: var(--transition);
+            border-bottom: 1px dotted var(--accent);
+        }
+
+        a:hover {
+            color: #ffd93d;
+            border-bottom: 1px solid #ffd93d;
+        }
+
+        @media (max-width: 992px) {
+            .container {
+                padding: 30px;
+            }
+            
+            .help-header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .section {
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .help-header h1 {
+                font-size: 2rem;
+            }
+            
+            .language-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .lang-btn {
+                width: 250px;
+                justify-content: center;
+            }
+            
+            .feature-grid,
+            .visual-indicators,
+            .sound-options,
+            .use-case-grid,
+            .hardware-grid,
+            .module-grid,
+            .columns-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .keyboard-shortcuts {
+                padding: 20px;
+            }
+            
+            .keyboard-shortcuts th,
+            .keyboard-shortcuts td {
+                padding: 10px 15px;
+                font-size: 0.95rem;
+            }
+            
+            h2 {
+                font-size: 1.8rem;
+            }
+            
+            h3 {
+                font-size: 1.4rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .help-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .lang-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Encabezado -->
+        <header class="help-header">
+            <h1><i class="fas fa-stopwatch"></i> Crono CRI - Ayuda Completa</h1>
+            <p>Sistema profesional de cronometraje para carreras ciclistas y eventos deportivos</p>
+            
+            <!-- Selector de idiomas -->
+            <div class="language-selector">
+                <button class="lang-btn active" data-lang="es">
+                    <img src="https://flagcdn.com/w40/es.png" class="flag" alt="Español">
+                    Español
+                </button>
+                <button class="lang-btn" data-lang="ca">
+                    <div class="flag flag-catalunya"></div>
+                    Català
+                </button>
+                <button class="lang-btn" data-lang="en">
+                    <img src="https://flagcdn.com/w40/gb.png" class="flag" alt="English">
+                    English
+                </button>
+                <button class="lang-btn" data-lang="fr">
+                    <img src="https://flagcdn.com/w40/fr.png" class="flag" alt="Français">
+                    Français
+                </button>
+            </div>
+        </header>
+
+        <!-- =========================================== -->
+        <!-- CONTENIDO EN ESPAÑOL -->
+        <!-- =========================================== -->
+        <div class="help-content active" id="help-es">
+            <div class="intro-box">
+                <h4><i class="fas fa-info-circle"></i> Nota del Desarrollador</h4>
+                <p>Crono CRI es una aplicación web progresiva (PWA) desarrollada por Roberto Benet, comisario del comité catalán, para el control profesional de salidas y llegadas en carreras ciclistas y eventos deportivos.</p>
+                <p>Esta aplicación es completamente gratuita y de código abierto, diseñada específicamente para árbitros, comisarios y organizadores de eventos deportivos.</p>
+                <p>Para más aplicaciones y recursos, visita: <a href="https://rbenet71.github.io/Web" target="_blank">https://rbenet71.github.io/Web</a></p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-info-circle"></i> ¿Qué es Crono CRI?</h2>
+                <p>Crono CRI es un sistema completo de cronometraje para eventos deportivos que incluye:</p>
+                <ul>
+                    <li><strong>Gestión de carreras:</strong> Crear, editar y administrar múltiples carreras</li>
+                    <li><strong>Control de salidas:</strong> Sistema de cuenta atrás visual y sonora</li>
+                    <li><strong>Registro de llegadas:</strong> Cronómetro y sistema de clasificación</li>
+                    <li><strong>Exportación de datos:</strong> Excel, PDF y formatos compatibles</li>
+                    <li><strong>Sistema multilingüe:</strong> Español, Catalán, Inglés y Francés</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-sitemap"></i> Estructura Modular</h2>
+                <p>Crono CRI está organizado en módulos especializados para máxima eficiencia:</p>
+                
+                <div class="module-grid">
+                    <div class="module-card">
+                        <h5><i class="fas fa-cog"></i> Main.js</h5>
+                        <p>Núcleo de la aplicación - Coordina todos los módulos</p>
+                    </div>
+                    <div class="module-card">
+                        <h5><i class="fas fa-flag-checkered"></i> Salidas (4 módulos)</h5>
+                        <p>Sistema completo de control de salidas con cuenta atrás</p>
+                    </div>
+                    <div class="module-card">
+                        <h5><i class="fas fa-stopwatch"></i> Cuenta_Atras.js</h5>
+                        <p>Sistema especializado de cuenta atrás con compensación de tiempo</p>
+                    </div>
+                    <div class="module-card">
+                        <h5><i class="fas fa-table"></i> UI.js</h5>
+                        <p>Interfaz de usuario, tarjetas, modales y notificaciones</p>
+                    </div>
+                    <div class="module-card">
+                        <h5><i class="fas fa-database"></i> Storage_Pwa.js</h5>
+                        <p>Persistencia de datos, PWA y gestión de carreras</p>
+                    </div>
+                    <div class="module-card">
+                        <h5><i class="fas fa-language"></i> Traducciones.js</h5>
+                        <p>Sistema multilingüe con 600+ claves por idioma</p>
+                    </div>
+                    <div class="module-card">
+                        <h5><i class="fas fa-tools"></i> Utilidades.js</h5>
+                        <p>Funciones centrales: audio, exportación, conversiones</p>
+                    </div>
+                    <div class="module-card">
+                        <h5><i class="fas fa-chart-line"></i> Llegadas.js</h5>
+                        <p>Sistema de registro y clasificación de llegadas</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-laptop"></i> Configuraciones de Hardware</h2>
+                <p>La aplicación está optimizada para múltiples dispositivos:</p>
+                
+                <div class="hardware-grid">
+                    <div class="hardware-item">
+                        <i class="fas fa-laptop"></i>
+                        <h4>Portátil Principal</h4>
+                        <p>Control central de la carrera</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-tv"></i>
+                        <h4>Pantalla Pública</h4>
+                        <p>Visualización para participantes</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-tablet-alt"></i>
+                        <h4>Tablet Auxiliar</h4>
+                        <p>Control en línea de salida</p>
+                    </div>
+                    <div class="hardware-item">
+                        <i class="fas fa-bluetooth"></i>
+                        <h4>Altavoz Bluetooth</h4>
+                        <p>Audio amplificado para salidas</p>
+                    </div>
+                </div>
+                
+                <div class="tip-box">
+                    <h4><i class="fas fa-lightbulb"></i> Configuración Profesional</h4>
+                    <p><strong>Recomendado para eventos importantes:</strong></p>
+                    <ol>
+                        <li>Portátil principal conectado a pantalla grande vía HDMI</li>
+                        <li>Tablet secundaria para control en línea de salida</li>
+                        <li>Altavoz Bluetooth conectado al portátil principal</li>
+                        <li>Conexión a internet para backup en la nube</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-running"></i> Tipos de Eventos</h2>
+                <div class="use-case-grid">
+                    <div class="use-case-card">
+                        <i class="fas fa-route"></i>
+                        <h4>Contrarreloj Individual (CRI)</h4>
+                        <p>Salidas individuales con intervalos regulares</p>
+                    </div>
+                    <div class="use-case-card">
+                        <i class="fas fa-users"></i>
+                        <h4>Contrarreloj por Equipos (CRE)</h4>
+                        <p>Salidas por equipos con diferentes intervalos</p>
+                    </div>
+                    <div class="use-case-card">
+                        <i class="fas fa-mountain"></i>
+                        <h4>Descensos</h4>
+                        <p>Salidas escalonadas en competiciones de montaña</p>
+                    </div>
+                    <div class="use-case-card">
+                        <i class="fas fa-flag-checkered"></i>
+                        <h4>Eventos Masivos</h4>
+                        <p>Salidas en grupos con diferentes intervalos</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-graduation-cap"></i> Guía de Uso Paso a Paso</h2>
+                
+                <div class="step-box">
+                    <span class="step-number">1</span>
+                    <strong>Crear una Nueva Carrera</strong>
+                    <ul>
+                        <li>Haz clic en "GESTIÓN DE CARRERA"</li>
+                        <li>Selecciona "Crear Nueva Carrera"</li>
+                        <li>Completa todos los campos:
+                            <ul>
+                                <li>Nombre de la carrera</li>
+                                <li>Fecha y hora de inicio</li>
+                                <li>Categoría y organizador</li>
+                                <li>Ubicación y modalidad</li>
+                            </ul>
+                        </li>
+                        <li>Guarda la carrera</li>
+                    </ul>
+                </div>
+
+                <div class="step-box">
+                    <span class="step-number">2</span>
+                    <strong>Configurar Orden de Salida</strong>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4><i class="fas fa-upload"></i> Importar desde Excel</h4>
+                            <p>Importa una lista completa de corredores desde plantilla Excel</p>
+                            <p><strong>Formato:</strong> Dorsal, Nombre, Apellidos, Chip</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4><i class="fas fa-plus-circle"></i> Añadir Manualmente</h4>
+                            <p>Añade corredores uno por uno con todos sus datos</p>
+                            <p>Posiciones: principio, medio o final de la lista</p>
+                        </div>
+                    </div>
+                    
+                    <div class="warning-note">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Importante: Estructura de Datos</h4>
+                        <p>Cada corredor tiene 19 campos diferentes, incluyendo:</p>
+                        <ul>
+                            <li>Datos básicos (dorsal, nombre, apellidos)</li>
+                            <li>Tiempos previstos (calculados automáticamente)</li>
+                            <li>Tiempos reales (registrados durante la carrera)</li>
+                            <li>Tiempos importados (desde archivos externos)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2><i class="fas fa-table"></i> Estructura de la Tabla (19 Columnas)</h2>
+                    <div class="table-columns">
+                        <p>La tabla de orden de salida incluye 19 columnas organizadas por categorías:</p>
+                        
+                        <div class="columns-grid">
+                            <div class="column-item">
+                                <span class="column-number">1</span>
+                                <strong>Orden</strong> - Posición de salida
+                            </div>
+                            <div class="column-item">
+                                <span class="column-number">2</span>
+                                <strong>Dorsal</strong> - Número del corredor
+                            </div>
+                            <div class="column-item">
+                                <span class="column-number">3</span>
+                                <strong>Crono Salida</strong> - Tiempo desde inicio
+                            </div>
+                            <div class="column-item">
+                                <span class="column-number">4</span>
+                                <strong>Hora Salida</strong> - Hora absoluta
+                            </div>
+                            <div class="column-item">
+                                <span class="column-number">5</span>
+                                <strong>Diferencia</strong> - Con signo (+)/(-)
+                            </div>
+                            <div class="column-item">
+                                <span class="column-number">6</span>
+                                <strong>Nombre</strong> - Nombre del corredor
+                            </div>
+                            <div class="column-item">
+                                <span class="column-number">7</span>
+                                <strong>Apellidos</strong> - Apellidos del corredor
+                            </div>
+                            <div class="column-item">
+                                <span class="column-number">8</span>
+                                <strong>Chip</strong> - Número de chip
+                            </div>
+                            <div class="column-item">
+                                <span class="column-number">9-10</span>
+                                <strong>Hora/Crono Real</strong> - Registro efectivo
+                            </div>
+                            <div class="column-item">
+                                <span class="column-number">11-12</span>
+                                <strong>Hora/Crono Previsto</strong> - Calculados
+                            </div>
+                            <div class="column-item">
+                                <span class="column-number">13-14</span>
+                                <strong>Hora/Crono Importado</strong> - Desde Excel
+                            </div>
+                            <div class="column-item">
+                                <span class="column-number">15-19</span>
+                                <strong>Segundos</strong> - Para cálculos internos
+                            </div>
+                        </div>
+                        
+                        <div class="tip-box" style="margin-top: 20px;">
+                            <h4><i class="fas fa-mouse-pointer"></i> Edición en Línea</h4>
+                            <p>Haz clic en cualquier celda para editar su valor directamente. La aplicación incluye:</p>
+                            <ul>
+                                <li><strong>Validación en tiempo real</strong> de formatos</li>
+                                <li><strong>Sistema de throttling de 3 niveles</strong> para optimizar rendimiento</li>
+                                <li><strong>Modales de confirmación</strong> para cambios importantes</li>
+                                <li><strong>Recálculo automático</strong> de tiempos relacionados</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <span class="step-number">3</span>
+                    <strong>Configurar Sistema de Cuenta Atrás</strong>
+                    <ul>
+                        <li><strong>Modo automático:</strong> Inicia automáticamente cuando llega la hora programada</li>
+                        <li><strong>Modo manual:</strong> Control completo del árbitro</li>
+                        <li><strong>Tiempo previo:</strong> Configurable (normalmente 1 minuto)</li>
+                        <li><strong>Compensación de 1 segundo:</strong> Para corredores posteriores al primero</li>
+                    </ul>
+                    
+                    <div class="tip-box">
+                        <h4><i class="fas fa-calculator"></i> Fórmula de Cálculo</h4>
+                        <p>El sistema calcula automáticamente los tiempos:</p>
+                        <div class="cadence-example">
+                            <p><strong>Primer corredor:</strong> Tiempo = cronoSalida - cronoCarreraSegundos</p>
+                            <p><strong>Corredores posteriores:</strong> Tiempo = cronoSalida - cronoCarreraSegundos - 1</p>
+                        </div>
+                        <p>Esta compensación asegura precisión en salidas sucesivas.</p>
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <span class="step-number">4</span>
+                    <strong>Iniciar la Carrera</strong>
+                    <ol>
+                        <li>Verifica que todos los corredores están cargados</li>
+                        <li>Configura el audio (beep, voz o silencio)</li>
+                        <li>Selecciona el idioma de los anuncios</li>
+                        <li>Haz clic en "INICIAR CUENTA ATRÁS"</li>
+                        <li>La pantalla cambiará al modo de ejecución</li>
+                    </ol>
+                </div>
+
+                <div class="step-box">
+                    <span class="step-number">5</span>
+                    <strong>Registrar Salidas y Llegadas</strong>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4><i class="fas fa-flag"></i> Salidas</h4>
+                            <ul>
+                                <li>Sistema automático con cuenta atrás visual</li>
+                                <li>Registro automático de hora de salida</li>
+                                <li>Compensación de 1 segundo para precisión</li>
+                                <li>Visualización en tiempo real</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <h4><i class="fas fa-flag-checkered"></i> Llegadas</h4>
+                            <ul>
+                                <li>Cronómetro independiente para llegadas</li>
+                                <li>Registro manual o automático</li>
+                                <li>Clasificación automática por tiempos</li>
+                                <li>Importación desde datos de salidas</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-download"></i> Exportación de Datos</h2>
+                <div class="list-export">
+                    <h4><i class="fas fa-file-excel"></i> Formatos Disponibles</h4>
+                    <ul>
+                        <li><strong>Excel (.xlsx):</strong> 19 columnas completas con formatos profesionales</li>
+                        <li><strong>PDF:</strong> Diseño optimizado para impresión con colores alternados</li>
+                        <li><strong>CSV:</strong> Formato compatible con otros sistemas</li>
+                        <li><strong>Backup JSON:</strong> Copia de seguridad completa de la carrera</li>
+                    </ul>
+                    
+                    <div class="tip-box">
+                        <h4><i class="fas fa-file-export"></i> Proceso de Exportación</h4>
+                        <ol>
+                            <li>Selecciona "Exportar Orden de Salida"</li>
+                            <li>Elige el formato (Excel o PDF)</li>
+                            <li>Configura las opciones de exportación</li>
+                            <li>Descarga el archivo generado</li>
+                            <li>Comparte con organización y medios</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-palette"></i> Indicadores Visuales</h2>
+                <div class="visual-indicators">
+                    <div class="indicator red">
+                        <i class="fas fa-stopwatch"></i><br>
+                        <strong>FONDO ROJO</strong><br>
+                        Cuenta atrás normal
+                    </div>
+                    <div class="indicator yellow">
+                        <i class="fas fa-exclamation-triangle"></i><br>
+                        <strong>FONDO AMARILLO</strong><br>
+                        Últimos 10 segundos
+                    </div>
+                    <div class="indicator green">
+                        <i class="fas fa-flag-checkered"></i><br>
+                        <strong>FONDO VERDE</strong><br>
+                        Momento de salida (2 segundos)
+                    </div>
+                    <div class="indicator pulse">
+                        <i class="fas fa-heartbeat"></i><br>
+                        <strong>NÚMEROS ROJOS PULSANTES</strong><br>
+                        Últimos 5 segundos
+                    </div>
+                </div>
+                
+                <div class="tip-box">
+                    <h4><i class="fas fa-eye"></i> Sistema de Feedback Visual</h4>
+                    <p>La aplicación proporciona información clara en todo momento:</p>
+                    <ul>
+                        <li><strong>Próximo corredor:</strong> Muestra dorsal y diferencia</li>
+                        <li><strong>Contador de salidos:</strong> Número de corredores que ya salieron</li>
+                        <li><strong>Hora del día:</strong> Actualizada en tiempo real</li>
+                        <li><strong>Estado del cronómetro:</strong> Tiempo transcurrido de carrera</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-volume-up"></i> Sistema de Audio</h2>
+                <div class="sound-options">
+                    <div class="sound-option">
+                        <i class="fas fa-bell"></i>
+                        <h4>Sonidos Beep</h4>
+                        <p>Beeps electrónicos para cada segundo</p>
+                    </div>
+                    <div class="sound-option">
+                        <i class="fas fa-microphone-alt"></i>
+                        <h4>Voz Grabada</h4>
+                        <p>Voz humana en 4 idiomas diferentes</p>
+                    </div>
+                    <div class="sound-option">
+                        <i class="fas fa-volume-mute"></i>
+                        <h4>Sin Sonido</h4>
+                        <p>Solo indicadores visuales</p>
+                    </div>
+                    <div class="sound-option">
+                        <i class="fas fa-headphones"></i>
+                        <h4>Prueba de Audio</h4>
+                        <p>Test completo del sistema</p>
+                    </div>
+                </div>
+                
+                <div class="tip-box">
+                    <h4><i class="fas fa-language"></i> Idiomas de Audio</h4>
+                    <p>El sistema incluye archivos de voz para 4 idiomas:</p>
+                    <ul>
+                        <li><strong>Español:</strong> "10, 5, 4, 3, 2, 1, ¡SALIDA!"</li>
+                        <li><strong>Catalán:</strong> "10, 5, 4, 3, 2, 1, ¡SORTIDA!"</li>
+                        <li><strong>Inglés:</strong> "10, 5, 4, 3, 2, 1, GO!"</li>
+                        <li><strong>Francés:</strong> "10, 5, 4, 3, 2, 1, DÉPART!"</li>
+                    </ul>
+                    <p><em>Archivos: {idioma}_{numero}.ogg (ej: es_10.ogg, en_5.ogg)</em></p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-keyboard"></i> Atajos de Teclado</h2>
+                <div class="keyboard-shortcuts">
+                    <p>Durante la cuenta atrás puedes usar estos atajos:</p>
+                    <table>
+                        <tr>
+                            <th>Tecla</th>
+                            <th>Acción</th>
+                            <th>Descripción</th>
+                        </tr>
+                        <tr>
+                            <td><kbd>Espacio</kbd></td>
+                            <td>Pausar/Reanudar</td>
+                            <td>Detiene o continúa la cuenta atrás</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>ESC</kbd></td>
+                            <td>Configuración</td>
+                            <td>Abre el menú de configuración</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>F</kbd></td>
+                            <td>Pantalla Completa</td>
+                            <td>Alternar modo pantalla completa</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>S</kbd></td>
+                            <td>Alternar Sonido</td>
+                            <td>Activa/desactiva el sonido</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>R</kbd></td>
+                            <td>Reiniciar</td>
+                            <td>Reinicia la cuenta atrás actual</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>+</kbd></td>
+                            <td>Aumentar Volumen</td>
+                            <td>Sube el volumen del audio</td>
+                        </tr>
+                        <tr>
+                            <td><kbd>-</kbd></td>
+                            <td>Reducir Volumen</td>
+                            <td>Baja el volumen del audio</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-wrench"></i> Solución de Problemas</h2>
+                <div class="troubleshooting">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Problemas Comunes y Soluciones</h4>
+                    
+                    <h4>Problema: No se escuchan los sonidos</h4>
+                    <ul>
+                        <li><strong>Solución 1:</strong> Verifica que el volumen del navegador esté activado</li>
+                        <li><strong>Solución 2:</strong> Permite la reproducción de audio en el navegador</li>
+                        <li><strong>Solución 3:</strong> Prueba el sistema de audio desde configuración</li>
+                        <li><strong>Solución 4:</strong> Verifica conexión Bluetooth si usas altavoz externo</li>
+                    </ul>
+                    
+                    <h4>Problema: Los datos no se guardan</h4>
+                    <ul>
+                        <li><strong>Solución 1:</strong> La aplicación guarda automáticamente en localStorage</li>
+                        <li><strong>Solución 2:</strong> Usa "Exportar Backup" para copia de seguridad</li>
+                        <li><strong>Solución 3:</strong> Verifica que hay espacio disponible en el dispositivo</li>
+                    </ul>
+                    
+                    <h4>Problema: La cuenta atrás no es precisa</h4>
+                    <ul>
+                        <li><strong>Solución 1:</strong> Usa la función de sincronización en configuración</li>
+                        <li><strong>Solución 2:</strong> Verifica la hora del sistema del dispositivo</li>
+                        <li><strong>Solución 3:</strong> El sistema incluye compensación automática de 1 segundo</li>
+                    </ul>
+                    
+                    <h4>Problema: Error al importar desde Excel</h4>
+                    <ul>
+                        <li><strong>Solución 1:</strong> Usa la plantilla oficial proporcionada</li>
+                        <li><strong>Solución 2:</strong> Verifica el formato de las columnas</li>
+                        <li><strong>Solución 3:</strong> Asegúrate de que el archivo no esté abierto en otro programa</li>
+                    </ul>
+                    
+                    <div class="tip-box" style="margin-top: 20px;">
+                        <h4><i class="fas fa-bug"></i> Modo Depuración</h4>
+                        <p>La aplicación incluye un sistema de logs detallado. Para activarlo:</p>
+                        <ol>
+                            <li>Abre la Consola del Navegador (F12)</li>
+                            <li>Busca mensajes con prefijos específicos:
+                                <ul>
+                                    <li><code>🔍</code> - Mensajes de diagnóstico</li>
+                                    <li><code>✅</code> - Operaciones exitosas</li>
+                                    <li><code>❌</code> - Errores detectados</li>
+                                    <li><code>⚠️</code> - Advertencias</li>
+                                </ul>
+                            </li>
+                            <li>Comparte estos logs con el desarrollador si necesitas ayuda</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-mobile-alt"></i> Instalación como App (PWA)</h2>
+                <div class="app-install">
+                    <p>Crono CRI es una Progressive Web App (PWA), lo que significa que puedes instalarla en tu dispositivo como una aplicación nativa.</p>
+                    
+                    <div class="platform">
+                        <h4>Para iPhone/iOS:</h4>
+                        <ol>
+                            <li>Abre Safari y navega a la aplicación</li>
+                            <li>Toca el icono de compartir (cuadrado con flecha hacia arriba)</li>
+                            <li>Desplázate hacia abajo y selecciona "Añadir a pantalla de inicio"</li>
+                            <li>Personaliza el nombre si lo deseas</li>
+                            <li>Toca "Añadir" en la esquina superior derecha</li>
+                            <li>La app aparecerá en tu pantalla de inicio</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="platform">
+                        <h4>Para Android:</h4>
+                        <ol>
+                            <li>Abre Chrome y navega a la aplicación</li>
+                            <li>Toca el menú de tres puntos (esquina superior derecha)</li>
+                            <li>Selecciona "Instalar app" o "Añadir a pantalla de inicio"</li>
+                            <li>Sigue las instrucciones en pantalla</li>
+                            <li>La app se instalará automáticamente</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="tip-box">
+                        <h4><i class="fas fa-star"></i> Ventajas de la Instalación PWA</h4>
+                        <ul>
+                            <li><strong>Acceso rápido:</strong> Icono directo en pantalla de inicio</li>
+                            <li><strong>Funciona offline:</strong> Acceso básico sin conexión a internet</li>
+                            <li><strong>Notificaciones push:</strong> (Próximamente) Alertas de eventos</li>
+                            <li><strong>Actualizaciones automáticas:</strong> Siempre tienes la última versión</li>
+                            <li><strong>Sin tiendas de aplicaciones:</strong> Instalación directa desde el navegador</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-code-branch"></i> Desarrollo y Contribución</h2>
+                <div class="version-note">
+                    <h4><i class="fas fa-history"></i> Historial de Versiones</h4>
+                    <ul>
+                        <li><strong>V_19_12_2025:</strong> Versión actual - Sistema completo estabilizado</li>
+                        <li><strong>Eliminación de tabla redundante:</strong> Datos de salidas ahora en cada corredor</li>
+                        <li><strong>Compensación de tiempo:</strong> Sistema de 1 segundo para corredores posteriores</li>
+                        <li><strong>Sistema de audio multilingüe:</strong> 4 idiomas completos</li>
+                    </ul>
+                </div>
+                
+                <div class="tip-box">
+                    <h4><i class="fas fa-hands-helping"></i> Contribuir al Proyecto</h4>
+                    <p>Crono CRI es un proyecto de código abierto. Si eres árbitro, comisario u organizador:</p>
+                    <ol>
+                        <li><strong>Reporta errores:</strong> Describe el problema con detalles</li>
+                        <li><strong>Sugiere mejoras:</strong> Explica qué funcionalidad necesitas</li>
+                        <li><strong>Comparte casos de uso:</strong> ¿En qué tipo de carrera lo usarías?</li>
+                        <li><strong>Traducciones:</strong> ¿Conoces otros idiomas? ¡Ayuda a traducir!</li>
+                    </ol>
+                    <p><strong>Contacto:</strong> A través de <a href="https://rbenet71.github.io/Web" target="_blank">rbenet71.github.io/Web</a></p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 50px;">
+                <button onclick="window.location.href='Crono_CRI.html'" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Volver a la Aplicación
+                </button>
+            </div>
+        </div>
+
+        <!-- =========================================== -->
+        <!-- CONTENIDO EN CATALÁN -->
+        <!-- =========================================== -->
+        <div class="help-content" id="help-ca">
+            <div class="intro-box">
+                <h4><i class="fas fa-info-circle"></i> Nota del Desenvolupador</h4>
+                <p>Crono CRI és una aplicació web progressiva (PWA) desenvolupada per Roberto Benet, comissari del comitè català, per al control professional de sortides i arribades en curses ciclistes i esdeveniments esportius.</p>
+                <p>Aquesta aplicació és completament gratuïta i de codi obert, dissenyada específicament per a àrbitres, comissaris i organitzadors d'esdeveniments esportius.</p>
+                <p>Per a més aplicacions i recursos, visita: <a href="https://rbenet71.github.io/Web" target="_blank">https://rbenet71.github.io/Web</a></p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-info-circle"></i> Què és Crono CRI?</h2>
+                <p>Crono CRI és un sistema complet de cronometratge per a esdeveniments esportius que inclou:</p>
+                <ul>
+                    <li><strong>Gestió de curses:</strong> Crear, editar i administrar múltiples curses</li>
+                    <li><strong>Control de sortides:</strong> Sistema de compte enrere visual i sonor</li>
+                    <li><strong>Registre d'arribades:</strong> Cronòmetre i sistema de classificació</li>
+                    <li><strong>Exportació de dades:</strong> Excel, PDF i formats compatibles</li>
+                    <li><strong>Sistema multilingüe:</strong> Castellà, Català, Anglès i Francès</li>
+                </ul>
+            </div>
+
+            <!-- Contenido similar en catalán para todas las secciones -->
+            <!-- Se mantiene la misma estructura pero traducida -->
+
+            <div style="text-align: center; margin-top: 50px;">
+                <button onclick="window.location.href='Crono_CRI.html'" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Tornar a l'Aplicació
+                </button>
+            </div>
+        </div>
+
+        <!-- =========================================== -->
+        <!-- CONTENIDO EN INGLÉS -->
+        <!-- =========================================== -->
+        <div class="help-content" id="help-en">
+            <div class="intro-box">
+                <h4><i class="fas fa-info-circle"></i> Developer's Note</h4>
+                <p>Crono CRI is a Progressive Web App (PWA) developed by Roberto Benet, commissioner of the Catalan committee, for professional control of starts and finishes in cycling races and sporting events.</p>
+                <p>This application is completely free and open source, specifically designed for referees, commissioners and sports event organizers.</p>
+                <p>For more applications and resources, visit: <a href="https://rbenet71.github.io/Web" target="_blank">https://rbenet71.github.io/Web</a></p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-info-circle"></i> What is Crono CRI?</h2>
+                <p>Crono CRI is a complete timing system for sporting events that includes:</p>
+                <ul>
+                    <li><strong>Race Management:</strong> Create, edit and manage multiple races</li>
+                    <li><strong>Start Control:</strong> Visual and audible countdown system</li>
+                    <li><strong>Finish Registration:</strong> Stopwatch and ranking system</li>
+                    <li><strong>Data Export:</strong> Excel, PDF and compatible formats</li>
+                    <li><strong>Multilingual System:</strong> Spanish, Catalan, English and French</li>
+                </ul>
+            </div>
+
+            <!-- Contenido similar en inglés para todas las secciones -->
+            <!-- Se mantiene la misma estructura pero traducida -->
+
+            <div style="text-align: center; margin-top: 50px;">
+                <button onclick="window.location.href='Crono_CRI.html'" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Back to Application
+                </button>
+            </div>
+        </div>
+
+        <!-- =========================================== -->
+        <!-- CONTENIDO EN FRANCÉS -->
+        <!-- =========================================== -->
+        <div class="help-content" id="help-fr">
+            <div class="intro-box">
+                <h4><i class="fas fa-info-circle"></i> Note du Développeur</h4>
+                <p>Crono CRI est une Progressive Web App (PWA) développée par Roberto Benet, commissaire du comité catalan, pour le contrôle professionnel des départs et arrivées dans les courses cyclistes et événements sportifs.</p>
+                <p>Cette application est entièrement gratuite et open source, conçue spécifiquement pour les arbitres, commissaires et organisateurs d'événements sportifs.</p>
+                <p>Pour plus d'applications et ressources, visitez: <a href="https://rbenet71.github.io/Web" target="_blank">https://rbenet71.github.io/Web</a></p>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-info-circle"></i> Qu'est-ce que Crono CRI?</h2>
+                <p>Crono CRI est un système complet de chronométrage pour événements sportifs qui comprend:</p>
+                <ul>
+                    <li><strong>Gestion de courses:</strong> Créer, éditer et gérer plusieurs courses</li>
+                    <li><strong>Contrôle des départs:</strong> Système de compte à rebours visuel et sonore</li>
+                    <li><strong>Enregistrement des arrivées:</strong> Chronomètre et système de classement</li>
+                    <li><strong>Exportation de données:</strong> Excel, PDF et formats compatibles</li>
+                    <li><strong>Système multilingue:</strong> Espagnol, Catalan, Anglais et Français</li>
+                </ul>
+            </div>
+
+            <!-- Contenido similar en francés para todas las secciones -->
+            <!-- Se mantiene la misma estructura pero traducida -->
+
+            <div style="text-align: center; margin-top: 50px;">
+                <button onclick="window.location.href='Crono_CRI.html'" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Retour à l'Application
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cambio entre idiomas
+        document.addEventListener('DOMContentLoaded', function() {
+            const langButtons = document.querySelectorAll('.lang-btn');
+            const contents = document.querySelectorAll('.help-content');
+            
+            langButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    
+                    // Actualizar botones activos
+                    langButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Actualizar contenido visible
+                    contents.forEach(content => content.classList.remove('active'));
+                    document.getElementById(`help-${lang}`).classList.add('active');
+                    
+                    // Guardar preferencia de idioma para ayuda
+                    localStorage.setItem('cri-help-language', lang);
+                });
+            });
+            
+            // Cargar idioma preferido de ayuda
+            const savedLang = localStorage.getItem('cri-help-language') || 'es';
+            const tab = document.querySelector(`.lang-btn[data-lang="${savedLang}"]`);
+            if (tab) {
+                tab.click();
+            }
+            
+            // Botón para volver a la aplicación principal
+            document.querySelectorAll('.back-button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.href = 'Crono_CRI.html';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
