@@ -1570,3 +1570,59 @@ for (const id of possibleIds) {
 ---
 
 ¿Te parece bien esta documentación? ¿Quieres que añada algo más o prefieres un formato diferente?
+
+Sí, vamos a añadir este punto al MD:
+
+---
+
+**19. CORRECCIÓN: Cronómetro de Carrera en Modo Manual**
+
+**Problema**: 
+- Cuando se iniciaba cuenta atrás manual, el cronómetro de carrera no se movía
+- O si se movía, empezaba desde 00:00 en lugar de desde el tiempo calculado
+
+**Causa**: 
+- La función `iniciarCronoDeCarrera()` siempre empezaba desde 0
+- En modo manual, necesitaba empezar desde `cronoSalida_corredor - tiempo_previo`
+
+**Solución**:
+1. **Modificar `iniciarCronoDeCarrera()`** para aceptar tiempo inicial opcional
+2. **Ajustar cálculo del tiempo inicial** en modo manual
+3. **Llamar con tiempo inicial** cuando sea modo manual
+
+**Código modificado**:
+```javascript
+// Versión mejorada de iniciarCronoDeCarrera
+function iniciarCronoDeCarrera(tiempoInicialSegundos = null) {
+    cronoDeCarreraIniciado = true;
+    
+    // Si se proporciona tiempo inicial, ajustar el startTime
+    const tiempoInicial = tiempoInicialSegundos || cronoCarreraSegundos;
+    const startTime = Date.now() - (tiempoInicial * 1000);
+    // ... resto del código
+}
+
+// En iniciarCuentaAtrasManual():
+if (!cronoDeCarreraIniciado) {
+    iniciarCronoDeCarrera(cronoCarreraSegundos); // Pasar tiempo inicial calculado
+}
+```
+
+**Lógica del cálculo**:
+- Modo automático: `cronoCarreraSegundos = 0` → cronómetro empieza en 00:00
+- Modo manual: `cronoCarreraSegundos = cronoSalida_corredor - tiempo_previo` → cronómetro empieza en tiempo avanzado
+
+**Ejemplo**:
+- Corredor con `cronoSalida = 01:30` (90 segundos)
+- Tiempo previo configurado: `00:30` (30 segundos)
+- Cronómetro inicia en: `90 - 30 = 60` segundos (01:00)
+- Cuando llegue a 90 segundos, el corredor sale
+
+**Resultado**:
+- Cronómetro de carrera funciona correctamente en ambos modos
+- Los tiempos se calculan correctamente para corredores siguientes
+- La sincronización entre cuenta atrás y cronómetro es precisa
+
+---
+
+¿Te parece bien este punto para el MD? ¿Quieres añadir algo más sobre cómo funciona el cálculo del tiempo inicial?
