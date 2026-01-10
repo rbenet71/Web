@@ -60,8 +60,18 @@ function configurarEventListenersCuentaAtras() {
     // Botón de reiniciar/parar
     const exitBtn = document.getElementById('exit-complete-btn');
     if (exitBtn) {
-        exitBtn.addEventListener('click', function() {
-            stopCountdown();
+        // Primero remover cualquier listener existente
+        const newExitBtn = exitBtn.cloneNode(true);
+        exitBtn.parentNode.replaceChild(newExitBtn, exitBtn);
+        
+        // Añadir nuevo listener con confirmación
+        document.getElementById('exit-complete-btn').addEventListener('click', function() {
+            const t = translations[appState.currentLanguage];
+            const confirmMessage = t.confirmResetMessage || '¿Estás seguro de que quieres reiniciar todo?\n\nEsto borrará:\n• Todos los tiempos de salida reales\n• El contador de corredores salidos\n• El cronómetro de carrera';
+            
+            if (confirm(confirmMessage)) {
+                ejecutarReinicioCompleto();
+            }
         });
     }
     
@@ -76,7 +86,7 @@ function configurarEventListenersCuentaAtras() {
         intervalSeconds.addEventListener('change', updateCadenceTime);
     }
     
-    // 🔥 NUEVO: Botón de configuración durante cuenta atrás
+    // Botón de configuración durante cuenta atrás
     const configToggleBtn = document.getElementById('config-toggle');
     if (configToggleBtn) {
         configToggleBtn.addEventListener('click', function() {
@@ -88,8 +98,108 @@ function configurarEventListenersCuentaAtras() {
             }
         });
     }
-
     
+    // 🔥 NUEVO: Configurar sincronización dorsal↔posición
+    const inputPosicion = document.getElementById('start-position');
+    const inputDorsal = document.getElementById('manual-dorsal');
+    
+    if (inputPosicion && inputDorsal) {
+        // Sincronizar: posición → dorsal
+        inputPosicion.addEventListener('change', function() {
+            const posicion = parseInt(this.value);
+            if (posicion > 0) {
+                sincronizarPosicionADorsal(posicion);
+            }
+        });
+        
+        // Sincronizar: dorsal → posición
+        inputDorsal.addEventListener('change', function() {
+            const dorsal = parseInt(this.value);
+            if (dorsal > 0) {
+                sincronizarDorsalAPosicion(dorsal);
+            }
+        });
+        
+        console.log("✅ Sincronización dorsal↔posición configurada");
+    }
+}
+
+// ============================================
+// FUNCIONES DE SINCRONIZACIÓN DORSAL↔POSICIÓN
+// ============================================
+
+function sincronizarPosicionADorsal(posicion) {
+    const startOrderData = obtenerStartOrderData();
+    if (!startOrderData) {
+        console.warn("⚠️ No hay datos de orden de salida para sincronizar");
+        return;
+    }
+    
+    const corredor = startOrderData.find(c => c.order === posicion);
+    const inputDorsal = document.getElementById('manual-dorsal');
+    
+    if (corredor && corredor.dorsal && inputDorsal) {
+        inputDorsal.value = corredor.dorsal;
+        console.log(`✅ Sincronizado: Posición ${posicion} → Dorsal ${corredor.dorsal}`);
+    } else if (inputDorsal) {
+        inputDorsal.value = posicion;
+        console.log(`⚠️ No se encontró dorsal para posición ${posicion}, usando valor por defecto`);
+    }
+}
+
+function sincronizarDorsalAPosicion(dorsal) {
+    const startOrderData = obtenerStartOrderData();
+    if (!startOrderData) {
+        console.warn("⚠️ No hay datos de orden de salida para sincronizar");
+        return;
+    }
+    
+    const corredor = startOrderData.find(c => c.dorsal == dorsal);
+    const inputPosicion = document.getElementById('start-position');
+    
+    if (corredor && corredor.order && inputPosicion) {
+        inputPosicion.value = corredor.order;
+        console.log(`✅ Sincronizado: Dorsal ${dorsal} → Posición ${corredor.order}`);
+    } else if (inputPosicion) {
+        inputPosicion.value = dorsal;
+        console.log(`⚠️ No se encontró posición para dorsal ${dorsal}, usando valor por defecto`);
+    }
+}
+
+function ejecutarReinicioCompleto() {
+    console.log("🔄 Ejecutando reinicio completo...");
+    
+    const t = translations[appState.currentLanguage];
+    
+    // 1. Detener cuenta atrás si está activa
+    if (cuentaAtrasActiva) {
+        stopCountdown();
+    }
+    
+    // 2. Resetear todos los tiempos reales
+    resetearTiemposReales();
+    
+    // 3. Resetear contadores
+    appState.departedCount = 0;
+    proximoCorredorIndex = 0;
+    cronoCarreraSegundos = 0;
+    
+    // 4. Actualizar inputs
+    const startPosition = document.getElementById('start-position');
+    const manualDorsal = document.getElementById('manual-dorsal');
+    const departedCountElement = document.getElementById('departed-count');
+    
+    if (startPosition) startPosition.value = 1;
+    if (manualDorsal) manualDorsal.value = 1;
+    if (departedCountElement) departedCountElement.textContent = "0";
+    
+    // 5. Actualizar cronómetro display
+    actualizarCronoDisplay();
+    
+    // 6. Mostrar mensaje de confirmación
+    showMessage(t.resetCompleteMessage || 'Reinicio completo realizado', 'success');
+    
+    console.log("✅ Reinicio completo ejecutado");
 }
 
 function resetearSistemaCuentaAtras() {
@@ -663,12 +773,38 @@ function actualizarTablaConSalidaRegistrada(dorsal, horaSalidaReal, cronoSalidaR
 // FUNCIONES DE INICIO MANUAL (MODIFICADAS)
 // ============================================
 
-function iniciarCuentaAtrasManual(dorsal) {
-    console.log("🎯 Iniciando cuenta atrás manual para dorsal:", dorsal);
+function iniciarCuentaAtrasManual(dorsal = null) {
+    console.log("🎯 Iniciando cuenta atrás manual...");
     
     const t = translations[appState.currentLanguage];
     
-    // Obtener startOrderData
+    // 🔥 MODIFICADO: Obtener dorsal del input si no viene como parámetro
+    let dorsalABuscar = dorsal;
+    if (!dorsalABuscar) {
+        const inputDorsal = document.getElementById('manual-dorsal');
+        if (inputDorsal && inputDorsal.value) {
+            dorsalABuscar = parseInt(inputDorsal.value);
+        }
+    }
+    
+    // 🔥 MODIFICADO: Obtener tiempo previo configurable
+    const inputPreTime = document.getElementById('pre-countdown-time');
+    let preTimeSeconds = 60; // Por defecto 1 minuto
+    
+    if (inputPreTime && inputPreTime.value) {
+        preTimeSeconds = timeToSeconds(inputPreTime.value);
+        if (preTimeSeconds <= 0) {
+            showMessage("Ingresa un tiempo previo válido (HH:MM:SS)", 'error');
+            return;
+        }
+    }
+    
+    if (!dorsalABuscar || dorsalABuscar <= 0) {
+        showMessage("Ingresa un dorsal válido", 'error');
+        return;
+    }
+    
+    // Resto del código existente pero usando preTimeSeconds en lugar de 60 fijo
     const startOrderData = obtenerStartOrderData();
     if (!startOrderData || startOrderData.length === 0) {
         showMessage("No hay datos de orden de salida", 'error');
@@ -676,9 +812,9 @@ function iniciarCuentaAtrasManual(dorsal) {
     }
     
     // 1. Buscar corredor por dorsal en startOrderData
-    const corredorIndex = startOrderData.findIndex(c => c.dorsal == dorsal);
+    const corredorIndex = startOrderData.findIndex(c => c.dorsal == dorsalABuscar);
     if (corredorIndex === -1) {
-        showMessage(`No se encontró el dorsal ${dorsal}`, 'error');
+        showMessage(`No se encontró el dorsal ${dorsalABuscar}`, 'error');
         return;
     }
     
@@ -694,15 +830,15 @@ function iniciarCuentaAtrasManual(dorsal) {
     // 2. Establecer como próximo corredor a salir
     proximoCorredorIndex = corredorIndex;
     
-    // 3. El tiempo del crono cuando se inicie la cuenta atrás será el valor del crono salida de ese corredor menos el minuto que sale antes.
-    //    cronoCarreraSegundos = cronoSalida_corredor - 60 segundos
+    // 🔥 MODIFICADO: Usar tiempo previo configurable en lugar de 60 fijo
+    // cronoCarreraSegundos = cronoSalida_corredor - tiempo_previo
     if (corredor.cronoSegundos && corredor.cronoSegundos > 0) {
-        cronoCarreraSegundos = corredor.cronoSegundos - 60;
+        cronoCarreraSegundos = corredor.cronoSegundos - preTimeSeconds;
         if (cronoCarreraSegundos < 0) cronoCarreraSegundos = 0;
     } else if (corredor.cronoSalida && corredor.cronoSalida !== "00:00:00") {
         // Convertir cronoSalida a segundos si cronoSegundos no está disponible
         const segundosCronoSalida = timeToSeconds(corredor.cronoSalida);
-        cronoCarreraSegundos = segundosCronoSalida - 60;
+        cronoCarreraSegundos = segundosCronoSalida - preTimeSeconds;
         if (cronoCarreraSegundos < 0) cronoCarreraSegundos = 0;
     } else {
         cronoCarreraSegundos = 0;
@@ -711,8 +847,8 @@ function iniciarCuentaAtrasManual(dorsal) {
     // 4. Número de corredores salidos será su valor de orden en la tabla menos 1
     appState.departedCount = corredor.order - 1;
     
-    // 5. Entonces a partir de que diga iniciar, se iniciará una cuenta atrás de un minuto.
-    tiempoCuentaAtrasActual = 60;
+    // 🔥 MODIFICADO: Usar tiempo previo configurable
+    tiempoCuentaAtrasActual = preTimeSeconds;
     cuentaAtrasActiva = true;
     
     // Ocultar elementos durante cuenta atrás
@@ -736,7 +872,6 @@ function iniciarCuentaAtrasManual(dorsal) {
     // Actualizar displays
     actualizarCronoDisplay();
     updateCountdownDisplay();
-    // CAMBIO: Usar actualizarDisplayProximoCorredor() en lugar de updateNextCorredorDisplay()
     actualizarDisplayProximoCorredor();
     
     // Iniciar intervalo
@@ -751,9 +886,10 @@ function iniciarCuentaAtrasManual(dorsal) {
         keepScreenAwake();
     }
     
-    showMessage(`Cuenta atrás manual iniciada para dorsal ${dorsal}`, 'success');
+    // 🔥 MODIFICADO: Mensaje con tiempo configurable
+    showMessage(`Cuenta atrás manual iniciada para dorsal ${dorsalABuscar} (${preTimeSeconds}s)`, 'success');
     console.log("✅ Cuenta atrás manual iniciada:", {
-        dorsal: dorsal,
+        dorsal: dorsalABuscar,
         cronoCarrera: cronoCarreraSegundos,
         salidos: appState.departedCount,
         tiempoCuentaAtras: tiempoCuentaAtrasActual
