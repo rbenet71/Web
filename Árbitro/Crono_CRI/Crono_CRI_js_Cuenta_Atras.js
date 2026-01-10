@@ -830,11 +830,6 @@ function iniciarCuentaAtrasManual(dorsal = null) {
     
     console.log(`⏱️ Tiempo previo final a usar: ${preTimeSeconds}s`);
     
-    if (!dorsalABuscar || dorsalABuscar <= 0) {
-        showMessage("Ingresa un dorsal válido", 'error');
-        return;
-    }
-    
     // Resto del código existente pero usando preTimeSeconds en lugar de 60 fijo
     const startOrderData = obtenerStartOrderData();
     if (!startOrderData || startOrderData.length === 0) {
@@ -842,20 +837,64 @@ function iniciarCuentaAtrasManual(dorsal = null) {
         return;
     }
     
-    // 1. Buscar corredor por dorsal en startOrderData
-    const corredorIndex = startOrderData.findIndex(c => c.dorsal == dorsalABuscar);
-    if (corredorIndex === -1) {
-        showMessage(`No se encontró el dorsal ${dorsalABuscar}`, 'error');
-        return;
-    }
+    // 🔥 MODIFICADO: Si no hay dorsal válido, buscar por posición
+    let corredor = null;
+    let corredorIndex = -1;
     
-    const corredor = startOrderData[corredorIndex];
+    if (dorsalABuscar && dorsalABuscar > 0) {
+        // 1. Buscar por dorsal
+        corredorIndex = startOrderData.findIndex(c => c.dorsal == dorsalABuscar);
+        if (corredorIndex === -1) {
+            showMessage(`No se encontró el dorsal ${dorsalABuscar}`, 'error');
+            return;
+        }
+        corredor = startOrderData[corredorIndex];
+    } else {
+        // 2. Buscar por posición
+        const inputPosicion = document.getElementById('start-position');
+        let posicionABuscar = 1; // Valor por defecto
+        
+        if (inputPosicion && inputPosicion.value) {
+            posicionABuscar = parseInt(inputPosicion.value);
+        }
+        
+        if (posicionABuscar <= 0 || posicionABuscar > startOrderData.length) {
+            showMessage(`Posición ${posicionABuscar} no válida. Debe estar entre 1 y ${startOrderData.length}`, 'error');
+            return;
+        }
+        
+        // Buscar por orden/posición
+        corredorIndex = startOrderData.findIndex(c => c.order == posicionABuscar);
+        if (corredorIndex === -1) {
+            // Si no encuentra por order, usar posición como índice (0-based)
+            corredorIndex = posicionABuscar - 1;
+            if (corredorIndex >= 0 && corredorIndex < startOrderData.length) {
+                corredor = startOrderData[corredorIndex];
+            }
+        } else {
+            corredor = startOrderData[corredorIndex];
+        }
+        
+        if (!corredor) {
+            showMessage(`No se encontró corredor en posición ${posicionABuscar}`, 'error');
+            return;
+        }
+        
+        // Actualizar el input de dorsal con el dorsal encontrado
+        const inputDorsal = document.getElementById('manual-dorsal');
+        if (inputDorsal && corredor.dorsal) {
+            inputDorsal.value = corredor.dorsal;
+        }
+        
+        dorsalABuscar = corredor.dorsal; // Actualizar para mostrar en mensajes
+    }
     
     console.log("📊 Corredor encontrado:", {
         dorsal: corredor.dorsal,
         orden: corredor.order,
         cronoSalida: corredor.cronoSalida,
-        cronoSegundos: corredor.cronoSegundos
+        cronoSegundos: corredor.cronoSegundos,
+        encontradoPor: dorsalABuscar && dorsalABuscar > 0 ? 'dorsal' : 'posición'
     });
     
     // 2. Establecer como próximo corredor a salir
@@ -912,7 +951,7 @@ function iniciarCuentaAtrasManual(dorsal = null) {
     
     intervaloCuentaAtras = setInterval(updateCountdown, 1000);
     
-    // 🔥 NUEVO: Iniciar cronómetro de carrera si no está iniciado
+    // 🔥 NUEVO: Iniciar cronómetro de carrera si no está iniciado CON TIEMPO INICIAL
     if (!cronoDeCarreraIniciado) {
         iniciarCronoDeCarrera(cronoCarreraSegundos);
     }
