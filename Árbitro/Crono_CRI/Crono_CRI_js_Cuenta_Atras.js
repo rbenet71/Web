@@ -137,6 +137,9 @@ function startCountdown() {
     appState.departedCount = 0;
     proximoCorredorIndex = 0;
 
+    // 🔥 CRÍTICO: Inicializar countdownValue para que los sonidos funcionen
+    appState.countdownValue = 0;
+
     // 3. Todos los tiempos de salida real y crono salida real se ponen a valor vacío
     resetearTiemposReales();
 
@@ -257,6 +260,10 @@ function updateCountdown() {
     // Actualizar cuenta atrás
     tiempoCuentaAtrasActual--;
     
+    // 🔥 CRÍTICO: Actualizar appState.countdownValue para que los sonidos funcionen
+    // Esto permite que playSound('number') sepa qué número reproducir
+    appState.countdownValue = tiempoCuentaAtrasActual;
+    
     // Actualizar display
     updateCountdownDisplay();
     
@@ -306,6 +313,8 @@ function updateCountdown() {
             if (appState.audioType === 'beep') {
                 playSound('beep');
             } else if (appState.audioType === 'voice') {
+                // 🔥 CORRECCIÓN: appState.countdownValue ya está actualizado arriba
+                // así que playSound('number') sabrá reproducir el número correcto
                 playSound('number');
             }
         }
