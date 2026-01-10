@@ -1003,7 +1003,7 @@ function clearRaceDepartures() {
 // FUNCIONES DE PWA (PROGRESSIVE WEB APP)
 // ============================================
 function setupServiceWorker() {
-    console.log("🔄 Configurando ServiceWorker para Crono CRI v2.4.6...");
+    console.log("🔄 Configurando ServiceWorker para Crono CRI v2.4.7...");
     
     // Verificar si el navegador soporta Service Workers
     if (!('serviceWorker' in navigator)) {
@@ -1028,12 +1028,12 @@ function setupServiceWorker() {
     // Solo registrar si estamos en localhost o HTTPS
     if (isLocalhost || isHttps) {
         // 🔥 CAMBIO PRINCIPAL: Registrar el SW específico de Crono CRI
-        const swFile = 'Crono_CRI_ws.js?v=2.4.6';
+        const swFile = 'Crono_CRI_ws.js?v=2.4.7';
         console.log(`📁 Registrando ServiceWorker: ${swFile}`);
         
         navigator.serviceWorker.register(swFile)
             .then(registration => {
-                console.log('✅ ServiceWorker Crono CRI v2.4.6 registrado exitosamente:', registration.scope);
+                console.log('✅ ServiceWorker Crono CRI v2.4.7 registrado exitosamente:', registration.scope);
                 
                 // 🔥 NUEVO: Forzar actualización inmediata
                 console.log('🔄 Forzando actualización del ServiceWorker...');
@@ -1128,7 +1128,7 @@ function cleanupOldCaches() {
     console.log('🧹 Limpiando cachés antiguos...');
     
     // Limpiar localStorage de versiones antiguas
-    const currentVersion = '2.4.6';
+    const currentVersion = '2.4.7';
     const keysToKeep = [
         'app-mode',
         'card-expanded-race-management',
@@ -1193,23 +1193,163 @@ function showUpdateNotification() {
 // FUNCIONES DE SUGERENCIAS
 // ============================================
 function sendSuggestion() {
+    console.log('📤 Enviando sugerencia a Google Forms...');
+    
     const t = translations[appState.currentLanguage];
     
-    const email = document.getElementById('suggestion-email').value.trim();
-    const text = document.getElementById('suggestion-text').value.trim();
+    // Elementos del formulario
+    const emailInput = document.getElementById('email-suggestions');
+    const cityInput = document.getElementById('city-suggestions');
+    const suggestionInput = document.getElementById('suggestion-text');
+    const submitBtn = document.getElementById('send-suggestion-btn');
+    const loadingElement = document.getElementById('loading-suggestions');
     
-    if (!text) {
-        showMessage(t.suggestionTextLabel, 'error');
+    if (!emailInput || !cityInput || !suggestionInput || !submitBtn || !loadingElement) {
+        console.error('❌ Elementos del formulario no encontrados');
+        showMessage('Error: Formulario incompleto', 'error');
         return;
     }
     
-    console.log('Sugerencia enviada:', { email, text });
+    const email = emailInput.value.trim();
+    let city = cityInput.value.trim();
+    const suggestion = suggestionInput.value.trim();
     
-    document.getElementById('suggestions-modal').classList.remove('active');
-    document.getElementById('suggestion-email').value = '';
-    document.getElementById('suggestion-text').value = '';
+    // Configuración de Google Forms (MISMO QUE CALCULADORA DE TIEMPOS)
+    const FORM_ENDPOINT = "https://docs.google.com/forms/d/e/1FAIpQLSeLeD6lAmBweVOubmEqydUONe6mutpQLlFSU_zKfHEhjhZVLg/formResponse";
+    const FIELD_IDS = {
+        email: "entry.1597282778",
+        ciudad: "entry.1552097675",
+        sugerencia: "entry.48109616",
+        programa: "entry.1706983066",
+        fecha: "entry.1734009197",
+        hora: "entry.686693357"
+    };
     
-    showMessage(t.suggestionSent || 'Sugerencia enviada', 'success');
+    // FUNCIONES AUXILIARES (IGUALES A CALCULADORA DE TIEMPOS)
+    function getCurrentDate() {
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+    
+    function getCurrentTime() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        return `${hours}:${minutes}:${seconds}`;
+    }
+    
+    function isValidEmail(email) {
+        if (!email) return false;
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+    
+    function isValidCity(city) {
+        if (!city) return false;
+        city = city.trim();
+        return city.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛçÇ\s\-]+$/.test(city);
+    }
+    
+    function formatCity(city) {
+        if (!city) return '';
+        return city.trim()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
+    }
+    
+    // VALIDACIONES CON TRADUCCIONES
+    if (!email) {
+        showMessage(t.enterEmail || 'Por favor, introduce tu email', 'error');
+        emailInput.focus();
+        return;
+    }
+    
+    if (!isValidEmail(email)) {
+        showMessage(t.invalidEmail || 'Email no válido', 'error');
+        emailInput.focus();
+        return;
+    }
+    
+    if (!city) {
+        showMessage(t.enterCity || 'Por favor, introduce tu ciudad', 'error');
+        cityInput.focus();
+        return;
+    }
+    
+    if (!isValidCity(city)) {
+        showMessage(t.invalidCity || 'Ciudad no válida', 'error');
+        cityInput.focus();
+        return;
+    }
+    
+    // Formatear ciudad
+    city = formatCity(city);
+    
+    // Obtener fecha y hora actual (FORMATO IDÉNTICO A CALCULADORA)
+    const fecha = getCurrentDate();  // DD/MM/AAAA
+    const hora = getCurrentTime();   // HH:MM:SS
+    
+    // Mostrar carga
+    submitBtn.disabled = true;
+    loadingElement.style.display = 'block';
+    
+    console.log('📋 Datos a enviar (formato Calculadora de Tiempos):', {
+        email: email,
+        ciudad: city,
+        sugerencia: suggestion || "(sin sugerencia)",
+        programa: "Crono CRI",
+        fecha: fecha,
+        hora: hora
+    });
+    
+    // ENVÍO CON FormData (MÁS ROBUSTO, IGUAL QUE CALCULADORA)
+    const formData = new FormData();
+    
+    formData.append(FIELD_IDS.email, email);
+    formData.append(FIELD_IDS.ciudad, city);
+    formData.append(FIELD_IDS.sugerencia, suggestion || "(sin sugerencia)");
+    formData.append(FIELD_IDS.programa, "Crono CRI");
+    formData.append(FIELD_IDS.fecha, fecha);
+    formData.append(FIELD_IDS.hora, hora);
+    
+    // Enviar a Google Forms
+    fetch(FORM_ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: formData
+    })
+    .then(() => {
+        console.log('✅ Sugerencia enviada exitosamente');
+        showMessage(t.suggestionSent || '✅ Sugerencia enviada exitosamente', 'success');
+        
+        // Limpiar campos
+        emailInput.value = '';
+        cityInput.value = '';
+        suggestionInput.value = '';
+        
+        // Cerrar modal después de 1.5 segundos
+        setTimeout(() => {
+            const modal = document.getElementById('suggestions-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                modal.style.display = 'none';
+            }
+        }, 1500);
+    })
+    .catch(error => {
+        console.error('❌ Error enviando sugerencia:', error);
+        showMessage(t.errorMessage || '❌ Error al enviar la sugerencia', 'error');
+    })
+    .finally(() => {
+        // Restaurar estado del botón
+        submitBtn.disabled = false;
+        loadingElement.style.display = 'none';
+    });
 }
 
 // ============================================
@@ -1850,7 +1990,7 @@ function createRaceBackup() {
         version: '1.0',
         appName: 'Crono CRI',
         exportDate: new Date().toISOString(),
-        exportVersion: 'V_2.4.6',
+        exportVersion: 'V_2.4.7',
         dataType: 'single-race',
         race: {
             // Copiar TODOS los datos de la carrera del array

@@ -551,7 +551,7 @@ ESTRUCTURA MODULAR:
                 <div class="copyright" id="copyright-text">
                     2026 © Copyright 
                     <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                        Roberto Benet - rbenet71@gmail.com - Ver: 2.4.6
+                        Roberto Benet - rbenet71@gmail.com - Ver: 2.4.7
                     </a>
                 </div>
             </div>
@@ -838,32 +838,6 @@ ESTRUCTURA MODULAR:
         </div>
     </div>
 
-    <!-- Modal de sugerencias -->
-    <div class="modal" id="suggestions-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="suggestions-modal-title">Enviar sugerencias</h3>
-                <button class="modal-close" id="suggestions-modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="suggestion-form">
-                    <div class="config-line" style="flex-direction: column; align-items: stretch;">
-                        <label for="suggestion-email" id="suggestion-email-label">Email (opcional):</label>
-                        <input type="email" id="suggestion-email" class="config-input" placeholder="tu@email.com">
-                    </div>
-                    <div class="config-line" style="flex-direction: column; align-items: stretch;">
-                        <label for="suggestion-text" id="suggestion-text-label">Sugerencias:</label>
-                        <textarea id="suggestion-text" class="config-input" rows="5" placeholder="Tus ideas para mejorar la aplicación..."></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" id="send-suggestion-btn">Enviar</button>
-                <button class="btn" id="cancel-suggestion-btn">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Modal de nueva carrera -->
     <div class="modal" id="new-race-modal">
         <div class="modal-content medium-modal">
@@ -1000,6 +974,72 @@ ESTRUCTURA MODULAR:
             <div class="modal-footer">
                 <button class="btn btn-success" id="create-race-btn">Crear carrera</button>
                 <button class="btn" id="cancel-create-race-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de sugerencias (similar a Calculadora de Tiempos) -->
+    <!-- Modal de sugerencias - AÑADIR AL FINAL DEL BODY -->
+    <div class="modal" id="suggestions-modal">
+        <div class="modal-content medium-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-lightbulb"></i> <span id="suggestions-modal-title">Sugerencias para Crono CRI</span></h3>
+                <button class="modal-close" id="suggestions-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="suggestion-form">
+                    <div class="form-group">
+                        <label for="email-suggestions" id="email-suggestions-label">
+                            Facilítanos tu email para mantenerte informado de las actualizaciones *
+                        </label>
+                        <input type="email" 
+                            id="email-suggestions" 
+                            class="form-control config-input" 
+                            placeholder="tu@email.com"
+                            required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="city-suggestions" id="city-suggestions-label">
+                            Ciudad *
+                        </label>
+                        <input type="text" 
+                            id="city-suggestions" 
+                            class="form-control config-input" 
+                            placeholder="Ej: Madrid"
+                            required>
+                        <small class="form-text" id="city-examples-text">Madrid, Barcelona, Valencia, etc.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="suggestion-text" id="suggestion-text-label">
+                            Sugerencias para mejorar la aplicación
+                        </label>
+                        <textarea id="suggestion-text" 
+                                class="form-control config-input" 
+                                rows="4" 
+                                placeholder="Tus ideas para mejorar Crono CRI..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label id="program-label">Programa</label>
+                        <div class="prefilled-field" id="program-value">Crono CRI</div>
+                    </div>
+                    
+                    <!-- Loading spinner -->
+                    <div class="loading" id="loading-suggestions" style="display: none;">
+                        <div class="spinner"></div>
+                        <p id="loading-suggestions-text">Enviando sugerencia...</p>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" id="send-suggestion-btn">
+                    <i class="fas fa-paper-plane"></i> <span id="send-suggestion-text">Enviar Sugerencia</span>
+                </button>
+                <button class="btn btn-secondary" id="cancel-suggestion-btn">
+                    <i class="fas fa-times"></i> <span id="cancel-suggestion-text">Cancelar</span>
+                </button>
             </div>
         </div>
     </div>

@@ -81,12 +81,7 @@ const translations = {
         // Modal eliminar carrera
         deleteRaceModalTitle: "Confirmar eliminación",
         deleteRaceModalText: "¿Estás seguro de que quieres eliminar esta carrera? Todos los datos se perderán.",
-        
-        // Modal sugerencias
-        suggestionsModalTitle: "Enviar sugerencias",
-        suggestionEmailLabel: "Email (opcional):",
-        suggestionTextLabel: "Sugerencias:",
-        
+
         // Modal reiniciar
         restartModalTitle: "Confirmar reinicio completo",
         restartModalText: "¿Estás seguro de que quieres reiniciar completamente? Esta acción:",
@@ -533,6 +528,26 @@ const translations = {
         dorsalLabel: "Dorsal a Salir:",
         confirmFirstCrono: "El primer corredor tiene crono \"{crono}\", no \"00:00:00\".\n\n¿Qué deseas hacer?\n\n1. Importar tal como está (mantener {crono})\n2. Normalizar: cambiar solo el primer corredor a 00:00:00\n\nSelecciona \"Aceptar\" para normalizar o \"Cancelar\" para importar tal como está.",
 
+        suggestionsModalTitle: "Sugerencias para Crono CRI",
+        emailSuggestionsLabel: "Facilítanos tu email para mantenerte informado de las actualizaciones *",
+        citySuggestionsLabel: "Ciudad *",
+        suggestionTextLabel: "Sugerencias para mejorar la aplicación",
+        programLabel: "Programa",
+        programValue: "Crono CRI",
+        cityExamplesText: "Madrid, Barcelona, Valencia, etc.",
+        loadingSuggestionsText: "Enviando sugerencia...",
+        sendSuggestionText: "Enviar Sugerencia",
+        cancelSuggestionText: "Cancelar",
+        emailPlaceholder: "tu@email.com",
+        cityPlaceholder: "Ej: Madrid",
+        suggestionPlaceholder: "Tus ideas para mejorar Crono CRI...",
+        enterEmail: "Por favor, introduce tu email",
+        invalidEmail: "Email no válido",
+        enterCity: "Por favor, introduce tu ciudad",
+        invalidCity: "Ciudad no válida",
+        suggestionSent: "✅ Sugerencia enviada exitosamente",
+        errorMessage: "❌ Error al enviar la sugerencia",
+
     },
 
     ca: {
@@ -614,13 +629,7 @@ const translations = {
         // Modal eliminar carrera
         deleteRaceModalTitle: "Confirmar eliminació",
         deleteRaceModalText: "Esteu segur que voleu eliminar aquesta cursa? Totes les dades es perdran.",
-        
-       
-        // Modal sugerencias
-        suggestionsModalTitle: "Enviar suggeriments",
-        suggestionEmailLabel: "Email (opcional):",
-        suggestionTextLabel: "Suggeriments:",
-        
+                
         // Modal reiniciar
         restartModalTitle: "Confirmar reinici complet",
         restartModalText: "Esteu segur que voleu reiniciar completament? Aquesta acció:",
@@ -1074,6 +1083,27 @@ const translations = {
         positionLabel: "Posició a Sortir:",
         dorsalLabel: "Dorsal a Sortir:",
         confirmFirstCrono: "El primer corredor té crono \"{crono}\", no \"00:00:00\".\n\nQuè vols fer?\n\n1. Importar tal com està (mantenir {crono})\n2. Normalitzar: canviar només el primer corredor a 00:00:00\n\nSelecciona \"Acceptar\" per normalitzar o \"Cancel·lar\" per importar tal com està.",
+
+        suggestionsModalTitle: "Suggerències per a Crono CRI",
+        emailSuggestionsLabel: "Facilita'ns el teu email per mantenir-te informat de les actualitzacions *",
+        citySuggestionsLabel: "Ciutat *",
+        suggestionTextLabel: "Suggerències per millorar l'aplicació",
+        programLabel: "Programa",
+        programValue: "Crono CRI",
+        cityExamplesText: "Madrid, Barcelona, València, etc.",
+        loadingSuggestionsText: "Enviant suggerència...",
+        sendSuggestionText: "Enviar Suggerència",
+        cancelSuggestionText: "Cancel·lar",
+        emailPlaceholder: "el_teu@email.com",
+        cityPlaceholder: "Ex: Barcelona",
+        suggestionPlaceholder: "Les teves idees per millorar Crono CRI...",
+        enterEmail: "Si us plau, introdueix el teu email",
+        invalidEmail: "Email no vàlid",
+        enterCity: "Si us plau, introdueix la teva ciutat",
+        invalidCity: "Ciutat no vàlida",
+        suggestionSent: "✅ Suggerència enviada correctament",
+        errorMessage: "❌ Error en enviar la suggerència",
+
     },
 
     en: {
@@ -1153,12 +1183,7 @@ const translations = {
         // Modal eliminar carrera
         deleteRaceModalTitle: "Confirm deletion",
         deleteRaceModalText: "Are you sure you want to delete this race? All data will be lost.",
-               
-        // Modal sugerencias
-        suggestionsModalTitle: "Send Suggestions",
-        suggestionEmailLabel: "Email (optional):",
-        suggestionTextLabel: "Suggestions:",
-        
+                       
         // Modal reiniciar
         restartModalTitle: "Confirm complete reset",
         restartModalText: "Are you sure you want to completely reset? This action:",
@@ -1610,6 +1635,27 @@ const translations = {
         dorsalLabel: "Bib Number to Start:",
 
         confirmFirstCrono: "The first rider has crono \"{crono}\", not \"00:00:00\".\n\nWhat do you want to do?\n\n1. Import as is (keep {crono})\n2. Normalize: change only the first rider to 00:00:00\n\nSelect \"OK\" to normalize or \"Cancel\" to import as is.",
+
+        suggestionsModalTitle: "Suggestions for Crono CRI",
+        emailSuggestionsLabel: "Provide your email to stay informed about updates *",
+        citySuggestionsLabel: "City *",
+        suggestionTextLabel: "Suggestions to improve the application",
+        programLabel: "Program",
+        programValue: "Crono CRI",
+        cityExamplesText: "Madrid, Barcelona, Valencia, etc.",
+        loadingSuggestionsText: "Sending suggestion...",
+        sendSuggestionText: "Send Suggestion",
+        cancelSuggestionText: "Cancel",
+        emailPlaceholder: "your@email.com",
+        cityPlaceholder: "Ex: Madrid",
+        suggestionPlaceholder: "Your ideas to improve Crono CRI...",
+        enterEmail: "Please enter your email",
+        invalidEmail: "Invalid email",
+        enterCity: "Please enter your city",
+        invalidCity: "Invalid city",
+        suggestionSent: "✅ Suggestion sent successfully",
+        errorMessage: "❌ Error sending suggestion",
+
     },
 
     fr: {
@@ -1689,12 +1735,7 @@ const translations = {
         // Modal eliminar carrera
         deleteRaceModalTitle: "Confirmer la suppression",
         deleteRaceModalText: "Êtes-vous sûr de vouloir supprimer cette course? Toutes les données seront perdues.",
-        
-        // Modal sugerencias
-        suggestionsModalTitle: "Envoyer des suggestions",
-        suggestionEmailLabel: "Email (optionnel):",
-        suggestionTextLabel: "Suggestions:",
-        
+               
         // Modal reiniciar
         restartModalTitle: "Confirmer la réinitialisation complète",
         restartModalText: "Êtes-vous sûr de vouloir réinitialiser complètement? Cette action:",
@@ -2167,6 +2208,26 @@ const translations = {
 
         confirmFirstCrono: "Le premier coureur a le chrono \"{crono}\", pas \"00:00:00\".\n\nQue voulez-vous faire?\n\n1. Importer tel quel (garder {crono})\n2. Normaliser: changer seulement le premier coureur à 00:00:00\n\nSélectionnez \"OK\" pour normaliser ou \"Annuler\" pour importer tel quel.",
 
+        suggestionsModalTitle: "Suggestions pour Crono CRI",
+        emailSuggestionsLabel: "Fournissez votre email pour rester informé des mises à jour *",
+        citySuggestionsLabel: "Ville *",
+        suggestionTextLabel: "Suggestions pour améliorer l'application",
+        programLabel: "Programme",
+        programValue: "Crono CRI",
+        cityExamplesText: "Paris, Lyon, Marseille, etc.",
+        loadingSuggestionsText: "Envoi en cours...",
+        sendSuggestionText: "Envoyer Suggestion",
+        cancelSuggestionText: "Annuler",
+        emailPlaceholder: "votre@email.com",
+        cityPlaceholder: "Ex: Paris",
+        suggestionPlaceholder: "Vos idées pour améliorer Crono CRI...",
+        enterEmail: "Veuillez entrer votre email",
+        invalidEmail: "Email non valide",
+        enterCity: "Veuillez entrer votre ville",
+        invalidCity: "Ville non valide",
+        suggestionSent: "✅ Suggestion envoyée avec succès",
+        errorMessage: "❌ Erreur d'envoi de la suggestion",
+
     }
 };
 
@@ -2388,10 +2449,21 @@ function updateModalTexts(t) {
     
     // Modal sugerencias
     setTextIfExists('suggestions-modal-title', t.suggestionsModalTitle);
-    setTextIfExists('suggestion-email-label', t.suggestionEmailLabel);
+    setTextIfExists('email-suggestions-label', t.emailSuggestionsLabel);
+    setTextIfExists('city-suggestions-label', t.citySuggestionsLabel);
     setTextIfExists('suggestion-text-label', t.suggestionTextLabel);
-    setTextIfExists('send-suggestion-btn', t.sendSuggestion);
-    setTextIfExists('cancel-suggestion-btn', t.cancel);
+    setTextIfExists('program-label', t.programLabel);
+    setTextIfExists('program-value', t.programValue);
+    setTextIfExists('city-examples-text', t.cityExamplesText);
+    setTextIfExists('loading-suggestions-text', t.loadingSuggestionsText);
+    setTextIfExists('send-suggestion-text', t.sendSuggestionText);
+    setTextIfExists('cancel-suggestion-text', t.cancelSuggestionText);
+    
+    // Actualizar placeholders (si tu función setTextIfExists no maneja placeholders)
+    const emailInput = document.getElementById('email-suggestions');
+    const cityInput = document.getElementById('city-suggestions');
+    const suggestionInput = document.getElementById('suggestion-text');
+
     
     // Modal reiniciar
     setTextIfExists('restart-modal-title', t.restartModalTitle);
@@ -2517,4 +2589,29 @@ function updateTableTooltips() {
     });
     
     console.log("Tooltips de tabla actualizados");
+}
+// Función para traducir el modal de sugerencias
+function translateSuggestionsModal() {
+    const t = translations[appState.currentLanguage];
+    
+    // Usar tu función setTextIfExists para cada elemento
+    setTextIfExists('suggestions-modal-title', t.suggestionsModalTitle);
+    setTextIfExists('email-suggestions-label', t.emailSuggestionsLabel);
+    setTextIfExists('city-suggestions-label', t.citySuggestionsLabel);
+    setTextIfExists('suggestion-text-label', t.suggestionTextLabel);
+    setTextIfExists('program-label', t.programLabel);
+    setTextIfExists('program-value', t.programValue);
+    setTextIfExists('city-examples-text', t.cityExamplesText);
+    setTextIfExists('loading-suggestions-text', t.loadingSuggestionsText);
+    setTextIfExists('send-suggestion-text', t.sendSuggestionText);
+    setTextIfExists('cancel-suggestion-text', t.cancelSuggestionText);
+    
+    // Actualizar placeholders (si tu función setTextIfExists no maneja placeholders)
+    const emailInput = document.getElementById('email-suggestions');
+    const cityInput = document.getElementById('city-suggestions');
+    const suggestionInput = document.getElementById('suggestion-text');
+    
+    if (emailInput) emailInput.placeholder = t.emailPlaceholder;
+    if (cityInput) cityInput.placeholder = t.cityPlaceholder;
+    if (suggestionInput) suggestionInput.placeholder = t.suggestionPlaceholder;
 }

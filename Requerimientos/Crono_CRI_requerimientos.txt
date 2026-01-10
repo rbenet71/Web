@@ -245,5 +245,6 @@ por eso primero pideme las funciones que crees que intervienen en el proceso.
 diferencia primero siempre es 00:00:00
 2.4.3 Registrar bien las salidas. tras la salida de los corredores las horas registradas de crono salida estan mal y la hora salida real registrada esta mal. haz que se pongan los valores que se estan mostrando en la pantalla de cuenta atras cuando llega a o la cuenta atras. total-time-value y current-time-value"
 2.4.5 actualizar version  copyriht actualizado
-2.4.6 Botones pie funcionando 
+2.4.7 Botones pie funcionando 
+2.4.7 el boton de sugerencias que haga lo mismo que el de la calculadora
 ------

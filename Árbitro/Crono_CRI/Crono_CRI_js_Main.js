@@ -629,19 +629,36 @@ function setupEventListeners() {
     }
     
     // Botón de Sugerencias
+    // Botón de Sugerencias (ACTUALIZADO - siempre abre el modal con formulario)
     const suggestionsBtn = document.getElementById('suggestions-btn');
     if (suggestionsBtn) {
         suggestionsBtn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Botón Sugerencias clickeado');
+            console.log('📝 Botón Sugerencias clickeado - Abriendo formulario');
             
             const suggestionsModal = document.getElementById('suggestions-modal');
             if (suggestionsModal) {
                 suggestionsModal.classList.add('active');
-                console.log('✅ Modal de sugerencias abierto');
+                console.log('✅ Modal de sugerencias con formulario abierto');
+                
+                // 🔥 OPCIONAL: Resetear el formulario cada vez que se abre
+                setTimeout(() => {
+                    const emailInput = document.getElementById('email-suggestions');
+                    const cityInput = document.getElementById('city-suggestions');
+                    const suggestionInput = document.getElementById('suggestion-text');
+                    
+                    if (emailInput) {
+                        emailInput.value = '';
+                        emailInput.focus();
+                    }
+                    if (cityInput) cityInput.value = '';
+                    if (suggestionInput) suggestionInput.value = '';
+                }, 100);
+                
             } else {
-                // Si no hay modal, abrir email directamente
+                console.error('❌ Modal de sugerencias no encontrado');
+                // Fallback al email antiguo
                 openSuggestionsEmail();
             }
         });
@@ -763,7 +780,7 @@ function setupEventListeners() {
 function openSuggestionsEmail() {
     const email = 'rbenet71@gmail.com';
     const subject = 'Sugerencias para Crono CRI';
-    const body = `Hola Roberto,\n\nTengo algunas sugerencias para la aplicación Crono CRI:\n\n1. \n2. \n3. \n\n---\nApp: Crono CRI v2.4.6\nNavegador: ${navigator.userAgent}\nURL: ${window.location.href}`;
+    const body = `Hola Roberto,\n\nTengo algunas sugerencias para la aplicación Crono CRI:\n\n1. \n2. \n3. \n\n---\nApp: Crono CRI v2.4.7\nNavegador: ${navigator.userAgent}\nURL: ${window.location.href}`;
     
     const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     

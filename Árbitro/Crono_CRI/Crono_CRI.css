@@ -2922,6 +2922,43 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     position: static;
 }
 
+/* Estilos para el modal de sugerencias */
+.prefilled-field {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    border-radius: 5px;
+    color: #495057;
+    font-weight: 500;
+}
+
+.loading {
+    text-align: center;
+    margin: 15px 0;
+}
+
+.spinner {
+    border: 3px solid rgba(0, 123, 255, 0.2);
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.form-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 5px;
+    display: block;
+}
+
 /* 19/12/2025
 He organizado el CSS en las siguientes secciones principales:
 Reset y variables globales - Estilos base y variables CSS
