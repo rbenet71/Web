@@ -853,11 +853,7 @@ function registerDeparture() {
     console.log("  - proximoCorredorIndex NUEVO:", proximoCorredorIndex);
     
     // 8. Actualizar UI
-    const departedCountElement = document.getElementById('departed-count');
-    if (departedCountElement) {
-        departedCountElement.textContent = appState.departedCount;
-        console.log("  - departed-count display actualizado a:", appState.departedCount);
-    }
+    actualizarDisplaySalidos();
     
     // Obtener datos para actualizar posición y dorsal
     const startOrderData = obtenerStartOrderData();
@@ -1573,16 +1569,19 @@ function prepararSiguienteCorredor() {
 
 function actualizarDisplayProximoCorredor() {
     const display = document.getElementById('next-corredor-time');
-    if (!display) return;
+    if (!display) {
+        console.warn("⚠️ Elemento next-corredor-time no encontrado");
+        return;
+    }
     
-    // Obtener el siguiente corredor (el que sale después del actual)
+    // Obtener el siguiente corredor después del actual
     const siguiente = obtenerSiguienteCorredorDespuesDelActual();
     
     if (siguiente && siguiente.corredor) {
-        // Obtener la diferencia del corredor
-        let diferenciaValor = siguiente.corredor.diferencia;
+        const corredor = siguiente.corredor;
         
-        console.log(`📊 Procesando diferencia para corredor ${siguiente.corredor.dorsal}:`, diferenciaValor);
+        // Obtener la diferencia del corredor
+        let diferenciaValor = corredor.diferencia;
         
         // Convertir diferencia a segundos si es necesario
         let segundosDiferencia = 0;
@@ -1590,31 +1589,55 @@ function actualizarDisplayProximoCorredor() {
         if (diferenciaValor) {
             if (typeof diferenciaValor === 'number') {
                 segundosDiferencia = diferenciaValor;
-                console.log(`✅ Diferencia como número: ${segundosDiferencia}s`);
             } else if (typeof diferenciaValor === 'string') {
                 const diferenciaLimpia = diferenciaValor.split(' ')[0];
                 segundosDiferencia = timeToSeconds(diferenciaLimpia);
-                console.log(`✅ Diferencia convertida: "${diferenciaValor}" -> "${diferenciaLimpia}" -> ${segundosDiferencia}s`);
             }
         }
         
-        // Formatear para mostrar
+        // Obtener el dorsal (usar order si no hay dorsal)
+        const dorsal = corredor.dorsal || corredor.order || (siguiente.index + 1);
+        
+        // Formatear para mostrar: "20s (300)" o "1:00 (300)"
         if (segundosDiferencia > 0) {
             if (segundosDiferencia >= 60) {
                 const minutes = Math.floor(segundosDiferencia / 60);
                 const seconds = segundosDiferencia % 60;
-                display.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                display.textContent = `${minutes}:${seconds.toString().padStart(2, '0')} (${dorsal})`;
             } else {
-                display.textContent = segundosDiferencia + "s";
+                display.textContent = `${segundosDiferencia}s (${dorsal})`;
             }
-            console.log(`➡️ Próximo corredor (${siguiente.corredor.dorsal}) sale en: ${display.textContent} (${segundosDiferencia}s)`);
+            
+            console.log(`➡️ Próximo corredor actualizado: ${display.textContent}`, {
+                dorsal: dorsal,
+                segundosDiferencia: segundosDiferencia,
+                order: corredor.order,
+                index: siguiente.index
+            });
         } else {
-            display.textContent = "--";
+            // Si no hay diferencia válida, mostrar solo el dorsal
+            display.textContent = `-- (${dorsal})`;
         }
     } else {
         display.textContent = "--";
         console.log("🏁 No hay más corredores después del actual");
     }
+}
+
+function actualizarDisplaySalidos() {
+    const departedCountElement = document.getElementById('departed-count');
+    if (!departedCountElement) {
+        console.warn("⚠️ Elemento departed-count no encontrado");
+        return;
+    }
+    
+    const totalCorredores = obtenerTotalCorredores();
+    const salidos = appState.departedCount || 0;
+    
+    // Formato: "1 de 10"
+    departedCountElement.textContent = `${salidos} de ${totalCorredores}`;
+    
+    console.log(`📊 Display "Salidos" actualizado: ${salidos} de ${totalCorredores}`);
 }
 
 function obtenerSiguienteCorredorDespuesDelActual() {
@@ -1800,6 +1823,17 @@ if (originalStartCountdown && typeof originalStartCountdown === 'function') {
         setTimeout(configurarBotonesModalCountdown, 300);
         return result;
     };
+}
+
+function obtenerTotalCorredores() {
+    const totalRidersElement = document.getElementById('total-riders');
+    if (totalRidersElement && totalRidersElement.value) {
+        return parseInt(totalRidersElement.value) || 0;
+    }
+    
+    // Fallback: contar desde startOrderData
+    const startOrderData = obtenerStartOrderData();
+    return startOrderData ? startOrderData.length : 0;
 }
 
 console.log("✅ Módulo de cuenta atrás cargado y listo");

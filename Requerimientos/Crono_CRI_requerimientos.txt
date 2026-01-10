@@ -217,6 +217,8 @@ la hora de salida real y el crono de salida real se asignaran al corredor que ac
 2.3.6.2 actualizar tabla orden de salid con tiempos
 2.4 Programa funcionando (siguiente corredor el del orden)
 
+2.4.1 Cuantos faltan por salir y dorsal siguiente en salir - quiero que en la pantalla de cuenta atras donde indica el tiempo en que saldra el proxmo corredor indiques tambien su dorsal ejmplo 20s (300) y donde dice salidos indique 1 de [total de corredores a salir]
+
 quiero rediseñar y mejorar el apartado de inicio cuenta atras manual.
 el diseño debe seguir la linea del resto de apartados (configuracion de audio, orden de salida)
 el titulo será inicio Manual Cuena Atrás
@@ -229,7 +231,7 @@ en su interior tiene que tener:
 5.- botón Iniciar Cuenta atrás
 6.- botón Reiniciar
 
-cuantos faltan por salir
+
 
 Recuerda indicarme las traducciones a relizar (algunas ya estan por tanto no repitamos)
 Si el usuario modifica el dorsal o la posición, el irá a buscar en la tabla de orden de salida, el otro valor, si modifico el dorsal irá a buscar el valor de orden, y a la inversa.

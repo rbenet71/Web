@@ -1749,3 +1749,140 @@ if (typeof updateStartOrderTableImmediate === 'function') {
 ---
 
 **¿Quieres que añada estas secciones al archivo MD o prefieres algún formato diferente?**
+
+Aquí tienes las nuevas secciones para añadir al archivo `CRI_App_Structure.md` en la sección "LECCIONES APRENDIDAS":
+
+---
+
+### **24. CORRECCIÓN: Secuencia Estricta de Corredores en Cuenta Atrás**
+
+**Problema:** 
+- El sistema buscaba el "siguiente corredor disponible" (sin hora de salida) en lugar del siguiente en orden secuencial
+- Esto permitía saltar corredores accidentalmente, rompiendo la secuencia de salida
+
+**Causa:** 
+- Funciones `obtenerProximoCorredor()` y `obtenerSiguienteCorredorDespuesDelActual()` tenían lógica para:
+  1. Verificar si el corredor actual ya tenía `horaSalidaReal`
+  2. Si sí, buscar el siguiente corredor sin `horaSalidaReal`
+  3. Esto causaba saltos inesperados en la secuencia
+
+**Solución implementada:**
+1. **Eliminar lógica de salto** en ambas funciones
+2. **Secuencia estricta numérica:** Siempre usar corredor en posición `proximoCorredorIndex`
+3. **Sin verificaciones:** No comprobar si el corredor ya salió
+4. **Flujo simplificado:** Índice → corredor en esa posición → fin
+
+**Código modificado en `Crono_CRI_js_Cuenta_Atras.js`:**
+- `obtenerProximoCorredor()`: Eliminado bucle de búsqueda de siguiente disponible
+- `obtenerSiguienteCorredorDespuesDelActual()`: Eliminada verificación de `horaSalidaReal`
+- Ahora ambas devuelven siempre el corredor en la posición indicada
+
+**Impacto:**
+- ✅ Secuencia predecible: 1, 2, 3, 4, 5...
+- ❌ Si un corredor ya salió, se sobrescribirá su `horaSalidaReal`
+- ❌ No hay protección contra "doble salida" del mismo corredor
+
+**Lección aprendida:** En sistemas de cronometraje secuencial, la consistencia de secuencia es más importante que la protección contra errores de usuario.
+
+---
+
+### **25. CORRECCIÓN: Sincronización Posición↔Dorsal al Registrar Salidas**
+
+**Problema:** 
+- Al registrar la salida de un corredor, solo se actualizaba la posición (`start-position`)
+- El dorsal (`manual-dorsal`) se mantenía en el valor anterior
+- Desincronización entre lo que muestra la UI y la realidad
+
+**Causa:** 
+- Función `registerDeparture()` actualizaba solo `start-position`
+- No había código para actualizar `manual-dorsal` con el dorsal del próximo corredor
+
+**Solución implementada:**
+1. **Actualización doble:** Modificar `registerDeparture()` para actualizar ambos campos
+2. **Usar ORDER, no índice:** Para posición, usar `corredor.order` (orden en tabla) no `índice + 1`
+3. **Búsqueda del próximo:** Obtener el próximo corredor real de `startOrderData[proximoCorredorIndex]`
+4. **Fallbacks:** Si no hay dorsal, usar order; si no hay más corredores, poner 0
+
+**Código añadido en `registerDeparture()`:**
+```javascript
+// Actualizar dorsal del próximo corredor
+const manualDorsalElement = document.getElementById('manual-dorsal');
+if (manualDorsalElement && startOrderData && startOrderData.length > proximoCorredorIndex) {
+    const proximoCorredor = startOrderData[proximoCorredorIndex];
+    manualDorsalElement.value = proximoCorredor.dorsal || proximoCorredor.order;
+}
+```
+
+**Lección aprendida:** Mantener sincronizados todos los elementos de UI que representan el mismo estado. Un solo campo desactualizado confunde al usuario.
+
+---
+
+### **26. CORRECCIÓN: Actualización Visual de Tabla al Salir de Cuenta Atrás**
+
+**Problema:** 
+- Los tiempos de salida real se guardaban correctamente en `localStorage`
+- Pero al salir de la pantalla de cuenta atrás, la tabla no mostraba los cambios
+- Solo al refrescar la página se veían los tiempos actualizados
+
+**Causa:**
+1. **Función obsoleta:** `actualizarTablaConSalidaRegistrada()` usaba selectores complejos que no encontraban elementos
+2. **Tabla dinámica:** La tabla se re-renderiza frecuentemente, cambiando referencias DOM
+3. **Sin actualización al salir:** `stopCountdown()` no forzaba actualización de tabla
+
+**Solución implementada:**
+1. **Reemplazar función completa:** Nueva `actualizarTablaConSalidaRegistrada()` que usa `updateStartOrderTableImmediate()`
+2. **Sistema de prioridades:** Intentar primero funciones de throttling de alto nivel:
+   - `updateStartOrderTableImmediate()` (nivel 3 - inmediato)
+   - `updateStartOrderTableCritical()` (nivel 2 - crítico)  
+   - `updateStartOrderTable()` (nivel 1 - normal)
+3. **Añadir a `stopCountdown()`:** Forzar actualización al salir de cuenta atrás
+4. **Delays estratégicos:** Usar `setTimeout()` para asegurar que:
+   - Primero se guarden los datos
+   - Se complete la transición de pantalla
+   - Luego se actualice la tabla
+
+**Código clave:**
+```javascript
+// En actualizarTablaConSalidaRegistrada()
+setTimeout(() => {
+    if (typeof updateStartOrderTableImmediate === 'function') {
+        updateStartOrderTableImmediate();
+    }
+}, 150);
+
+// En stopCountdown()
+setTimeout(() => {
+    if (typeof updateStartOrderTableImmediate === 'function') {
+        updateStartOrderTableImmediate();
+    }
+}, 400);
+```
+
+**Lección aprendida:** Cuando se trabaja con sistemas de throttling/optimización, usar las funciones de nivel apropiado (`Immediate`, `Critical`, `Throttled`) según la necesidad de inmediatez.
+
+---
+
+### **27. PROTOCOLO ACTUALIZADO PARA ACTUALIZACIONES DE UI**
+
+**Reglas establecidas tras todas las correcciones:**
+
+1. **Datos primero, UI después:** Siempre guardar datos antes de actualizar UI
+2. **Actualización completa:** Usar `updateStartOrderTableImmediate()` para cambios críticos
+3. **Delays estratégicos:** 
+   - 150ms después de guardar datos
+   - 400ms después de transiciones de pantalla
+4. **Sincronización múltiple:** Actualizar TODOS los elementos relacionados (posición Y dorsal)
+5. **Secuencia estricta:** No añadir lógica "inteligente" que rompa el flujo esperado por el usuario
+
+**Orden recomendado para operaciones:**
+```javascript
+1. Actualizar datos en memoria (window.startOrderData, appState)
+2. Guardar en persistencia (saveStartOrderData(), saveRaceData())
+3. Esperar 100-150ms (setTimeout)
+4. Actualizar UI (updateStartOrderTableImmediate())
+5. Actualizar otros elementos UI (departed-count, start-position, manual-dorsal)
+```
+
+---
+
+**¿Quieres que añada algo más o modifico alguna sección?**
