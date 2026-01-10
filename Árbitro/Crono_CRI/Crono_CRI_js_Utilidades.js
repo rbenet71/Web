@@ -2396,9 +2396,7 @@ function clearAllRaces() {
     const elementsToReset = [
         { id: 'first-start-time', defaultValue: '09:00:00' },
         { id: 'total-riders', defaultValue: '1' },
-        { id: 'start-position', defaultValue: '1' },
-        { id: 'interval-minutes', defaultValue: '1' },
-        { id: 'interval-seconds', defaultValue: '0' }
+        { id: 'start-position', defaultValue: '1' }
     ];
     
     elementsToReset.forEach(item => {

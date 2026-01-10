@@ -2289,10 +2289,6 @@ function updateModeContent(t) {
     setTextIfExists('mode-llegadas-text', t.modeLlegadasText);
     
     // Contenido salidas
-    setTextIfExists('card-time-title', t.cardTimeTitle);
-    setTextIfExists('interval-time-label', t.intervalTimeLabel);
-    setTextIfExists('minutes-text', t.minutesText);
-    setTextIfExists('seconds-text', t.secondsText);
     setTextIfExists('audio-config-title', t.audioConfigTitle);
     setTextIfExists('beep-option-title', t.beepOptionTitle);
     setTextIfExists('voice-option-title', t.voiceOptionTitle);

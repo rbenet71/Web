@@ -75,18 +75,7 @@ function configurarEventListenersCuentaAtras() {
             }
         });
     }
-    
-    // Configuración de tiempo entre salidas
-    const intervalMinutes = document.getElementById('interval-minutes');
-    const intervalSeconds = document.getElementById('interval-seconds');
-    
-    if (intervalMinutes) {
-        intervalMinutes.addEventListener('change', updateCadenceTime);
-    }
-    if (intervalSeconds) {
-        intervalSeconds.addEventListener('change', updateCadenceTime);
-    }
-    
+       
     // Botón de configuración durante cuenta atrás
     const configToggleBtn = document.getElementById('config-toggle');
     if (configToggleBtn) {
@@ -508,18 +497,6 @@ function updateCountdownDisplay() {
     }
 }
 
-function updateCadenceTime() {
-    const minutes = parseInt(document.getElementById('interval-minutes').value) || 0;
-    const seconds = parseInt(document.getElementById('interval-seconds').value) || 0;
-    const totalSeconds = minutes * 60 + seconds;
-    
-    console.log("Intervalo configurado:", minutes, "min", seconds, "seg");
-    
-    // Esto se usará solo para el modo manual/emergencia
-    appState.nextCorredorTime = totalSeconds;
-    
-    updateNextCorredorDisplay();
-}
 
 // ============================================
 // NUEVAS FUNCIONES PARA MOSTRAR INFO DEL CORREDOR

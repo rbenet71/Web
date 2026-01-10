@@ -2172,17 +2172,6 @@ input[type="time"][step="1"]::-webkit-datetime-edit-second-field {
     border-radius: 6px;
     font-size: 0.75rem;
 }
-
-/* =========================================== */
-/* TIME INPUTS PARA INTERVALOS */
-/* =========================================== */
-.time-inputs {
-    background: #f8f9fa;
-    padding: 10px;
-    border-radius: var(--border-radius);
-    border: 1px dashed #dee2e6;
-}
-
 /* =========================================== */
 /* RESPONSIVE */
 /* =========================================== */
