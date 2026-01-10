@@ -22,7 +22,7 @@ ELEMENTOS CLAVE:
 - Tabla de orden de salida (19 columnas complejas)
 - Pantalla de cuenta atrás en pantalla completa
 - Footer con botones de utilidad
-- 15+ modales para diversas funcionalidades
+- 13+ modales para diversas funcionalidades
 - Sistema de mensajes flotantes
 
 DEPENDENCIAS EXTERNAS:
@@ -46,7 +46,7 @@ SECCIONES ORGANIZADAS:
 9. CUENTA ATRÁS - Pantalla completa con estados
 10. MODO LLEGADAS - Cronómetro y tablas
 11. FOOTER - Pie de página con utilidades
-12. MODALES - 15+ ventanas emergentes
+12. MODALES - 13+ ventanas emergentes
 13. RESPONSIVE - 4 breakpoints específicos
 
 CARACTERÍSTICAS:
@@ -94,7 +94,7 @@ DEPENDENCIAS:
 ```
 RESPONSABILIDADES:
 1. Sistema completo de cuenta atrás con sonidos y modos visuales
-2. Gestión de salidas registradas (departures) con tabla ordenable
+2. Gestión de salidas registradas en cada corredor individualmente
 3. Sistema de intervalos múltiples para diferentes rangos de corredores
 4. Plantillas Excel para orden de salida (generación e importación)
 5. Procesamiento de datos importados con corrección de formatos
@@ -102,7 +102,7 @@ RESPONSABILIDADES:
 
 FUNCIONES CRÍTICAS:
 - startCountdown() - Inicia cuenta atrás
-- registerDeparture() - Registra salida de corredor
+- registerDeparture() - Registra salida de corredor (en el corredor individual)
 - processImportedOrderData() - Procesa Excel importado
 - createExcelTemplate() - Genera plantilla Excel
 - formatTimeForPDF() - Formatea tiempo para exportación
@@ -273,7 +273,7 @@ SISTEMAS DE ESTADO UI:
 FUNCIONES CRÍTICAS EXPORTADAS:
 - setupCardToggles() - Configura tarjetas expandibles con persistencia
 - initModeSlider() - Inicializa selector de modo con carga de preferencias
-- setupModalEventListeners() - Gestión automática de cierre de 15+ modales
+- setupModalEventListeners() - Gestión automática de cierre de 13+ modales
 - setupModalActionListeners() - Configura acciones específicas de modales
 - adjustCountdownSize() - Redimensiona countdown responsive
 - showMessage() - Sistema de notificaciones de 3 segundos
@@ -282,7 +282,7 @@ FUNCIONES CRÍTICAS EXPORTADAS:
 - updateStartOrderCardTitle() - Título dinámico de orden de salida
 
 GESTIÓN DE MODALES MEJORADA:
-✓ Mapeo centralizado de botones de cancelar (15+ modales)
+✓ Mapeo centralizado de botones de cancelar (13+ modales)
 ✓ Cierre automático con Escape
 ✓ Cierre al hacer clic fuera del contenido
 ✓ Sistema de depuración `debugModalButtons()` para verificar integridad
@@ -385,7 +385,7 @@ RESPONSABILIDADES:
 
 FUNCIONES CRÍTICAS EXPORTADAS:
 - timeToSeconds() / secondsToTime() - Conversiones tiempo↔segundos
-- exportToExcel() - Exporta datos de salidas
+- exportToExcel() - Exporta datos de salidas (individualmente por corredor)
 - exportStartOrder() - Exporta orden con 19 columnas (INCLUYENDO DIFERENCIA)
 - generateStartOrderPDF() / generateSimpleStartOrderPDF() - Genera PDF profesional
 - playSound() / playVoiceAudio() - Sistema de audio
@@ -476,7 +476,7 @@ VERIFICACIÓN Y DEPURACIÓN:
 - verifyAudioFiles() - Verifica existencia de archivos de audio
 - checkAvailableAudioFiles() - Comprueba formatos de audio disponibles
 - showExpectedFilenames() - Muestra nombres de archivos esperados
-- testCurrentAudio() - Prueba completa del sistema de audio actual
+- testCurrentAudio() - Prueba completo del sistema de audio actual
 
 DEPENDENCIAS:
 ← Todos los módulos: Usan funciones de utilidad
@@ -511,7 +511,7 @@ SECCIONES PRINCIPALES DE TRADUCCIÓN:
 2. Botones y controles de carrera
 3. Configuración de audio y tiempo
 4. Posición inicial y cuenta atrás
-5. Lista de salidas y llegadas
+5. Lista de salidas (individual en cada corredor)
 6. Footer y modales de ayuda
 7. Orden de salida (19 columnas + tooltips)
 8. Mensajes de estado, error y éxito
@@ -609,7 +609,7 @@ FUNCIONES CLAVE:
 DESCRIPCIÓN: Módulo especializado para el sistema de cuenta atrás basado en cronoSalida de la tabla
 RESPONSABILIDADES:
 1. Sistema de cuenta atrás basado en cronoSalida de la tabla
-2. Gestión de salidas con tiempos reales
+2. Gestión de salidas con tiempos reales registrados en cada corredor
 3. Inicio manual con dorsal específico
 4. Cálculo automático de tiempos entre corredores
 5. Compensación de 1 segundo para corredores posteriores al primero
@@ -631,7 +631,7 @@ SISTEMA DE COMPENSACIÓN:
 DEPENDENCIAS:
 ← Main.js: Recibe appState y startOrderData
 ← Utilidades.js: Funciones de tiempo y audio
-→ Storage_Pwa.js: Guarda datos de salidas
+→ Storage_Pwa.js: Guarda datos de salidas en cada corredor
 → UI.js: Muestra información en pantalla
 ```
 
@@ -693,7 +693,7 @@ Main.js (Coordinador Principal)
       ↓
 ├── Salidas_1.js (Core: Cuenta atrás, importación Excel)
 │   ├──→ Salidas_2.js (Proporciona datos procesados)
-│   ├──→ Storage_Pwa.js (Guarda datos de salidas)
+│   ├──→ Storage_Pwa.js (Guarda datos de salidas en cada corredor)
 │   └──→ UI.js (Muestra mensajes)
 │
 ├── Salidas_2.js (UI: Tabla, edición, sistema de throttling de 3 niveles)
@@ -717,7 +717,7 @@ Main.js (Coordinador Principal)
 ├── Cuenta_Atras.js (Módulo especializado de cuenta atrás - NUEVO)
 │   ├──← Main.js (Recibe appState y startOrderData)
 │   ├──← Utilidades.js (Funciones de tiempo y audio)
-│   ├──→ Storage_Pwa.js (Guarda datos de salidas)
+│   ├──→ Storage_Pwa.js (Guarda datos de salidas en cada corredor)
 │   └──→ UI.js (Muestra información en pantalla)
 │
 ├── UI.js (Componentes de interfaz)
@@ -741,7 +741,7 @@ Main.js (Coordinador Principal)
 ├── Storage_Pwa.js (Persistencia y PWA)
 │   ├──← Main.js (Carga datos)
 │   ├──→ UI.js (Actualiza título de gestión)
-│   ├──→ Salidas_1.js (Guarda cambios)
+│   ├──→ Salidas_1.js (Guarda cambios en cada corredor)
 │   └──→ Llegadas.js (Guarda datos de llegadas)
 │
 └── Llegadas.js (Gestión llegadas)
@@ -771,17 +771,17 @@ Main.js (Coordinador Principal)
     firstStartTime: string,
     createdAt: string,
     lastModified: string,
-    departures: array,
+    // NOTA: departureTimes ya no existe
     intervals: array,
-    startOrder: array,
+    startOrder: array, // Cada corredor tiene sus tiempos reales
     metadata: object
   },
   races: [], // Array de todas las carreras
   
-  // Estado de salidas
+  // Estado de salidas (simplificado)
   countdownActive: boolean,
   countdownValue: number,
-  departureTimes: [], // Registro de salidas
+  // NOTA: departureTimes eliminado - los datos están en cada corredor
   departedCount: number,
   intervals: [], // Intervalos múltiples
   currentIntervalIndex: number,
@@ -815,7 +815,7 @@ Main.js (Coordinador Principal)
   horaSalida: string,      // 4 - Hora absoluta de salida
   diferencia: string,      // 5 - Diferencia con signo (+)/(-)
   
-  // Campos reales (registro efectivo)
+  // Campos reales (registro efectivo) - AHORA ÚNICA FUENTE DE VERDAD
   horaSalidaReal: string,          // 9
   cronoSalidaReal: string,         // 10
   horaSalidaRealSegundos: number,  // 18
@@ -879,6 +879,11 @@ Main.js (Coordinador Principal)
 20. **Limpieza de datos antiguos:** `cleanupOldData()` en Utilidades.js
 21. **Sistema de cuenta atrás:** `calcularTiempoCuentaAtras()` en Cuenta_Atras.js con compensación de 1s para corredores posteriores
 
+**CAMBIOS RECIENTES:**
+22. **ELIMINADO: Tabla de salidas registradas** - Los datos se almacenan individualmente en cada corredor
+23. **ELIMINADO: Modal de limpiar salidas** - Ya no es necesario
+24. **SIMPLIFICADO: Estado global** - Eliminado `departureTimes` del appState
+
 ## 📝 **CONVENIOS DE DESARROLLO - ACTUALIZADO**
 
 1. **Comentarios:** Cada archivo tiene cabecera con responsabilidades y dependencias
@@ -905,6 +910,7 @@ Main.js (Coordinador Principal)
 19. **Manejo de errores:** Capturar y mostrar errores en reproducción de audio y generación de PDF
 20. **Compatibilidad:** Asegurar funcionamiento en múltiples navegadores y dispositivos móviles
 21. **Sistema de cuenta atrás:** Usar `calcularTiempoCuentaAtras()` para cálculos consistentes con compensación de 1s
+22. **Datos de salidas:** Almacenar tiempos reales directamente en cada corredor, no en tablas separadas
 
 ## 🔍 **DEPURACIÓN COMÚN - ACTUALIZADO**
 
@@ -1095,6 +1101,7 @@ Main.js (Coordinador Principal)
 19. **Incluir fallback en sistema de audio** - Beep si falla la voz
 20. **Cargar librerías externas dinámicamente cuando sea necesario**
 21. **Usar `calcularTiempoCuentaAtras()` para cálculos de cuenta atrás** - Incluye compensación de 1s para corredores posteriores
+22. **Almacenar datos de salidas en cada corredor individualmente** - No usar tablas separadas
 
 ## 📞 **PROTOCOLO DE COMUNICACIÓN PARA CAMBIOS**
 
@@ -1264,6 +1271,20 @@ Cuando necesites hacer un cambio:
    - Corredores posteriores: tiempo = cronoSalida - cronoCarreraSegundos - 1
 **Archivos:** `Cuenta_Atras.js` - Función `calcularTiempoCuentaAtras()`
 
+### **16. Eliminación de Tabla de Salidas Registradas**
+**Problema:** Tabla redundante que duplicaba información ya existente en cada corredor
+**Solución:** Eliminar completamente la tarjeta `departures-card` y sus elementos asociados
+**Beneficios:**
+   - Simplificación de la interfaz
+   - Reducción de código a mantener
+   - Unificación de fuente de verdad (datos en cada corredor)
+   - Mejor rendimiento (menos elementos DOM)
+**Archivos afectados:**
+   - `Crono_CRI.html`: Eliminada tarjeta `departures-card` y modal `clear-departures-modal`
+   - `Crono_CRI.css`: Eliminados estilos de `departures-table`
+   - `Crono_CRI_js_Main.js`: Eliminadas referencias a `clear-departures-btn` y `export-excel-btn`
+   - `Crono_CRI_js_Cuenta_Atras.js`: Eliminado código de `departureTimes` en `registerDeparture()`
+
 ## **🕒 CORRECCIÓN: Cálculo de "Cuenta atrás en:"**
 
 ### **Problema**
@@ -1404,6 +1425,11 @@ Cuando "Cuenta atrás en:" llegaba a 00:00:00 y se iniciaba automáticamente la 
 - Compensar 1 segundo para corredores posteriores
 - Mantener "Próximo sale a:" con diferencia exacta de tabla
 
+### **7. Simplificación de Datos de Salidas**
+- **ELIMINADO**: Tabla redundante de salidas registradas
+- **MANTENIDO**: Datos de salida en cada corredor individualmente
+- **BENEFICIO**: Unificación de fuente de verdad, menos código, mejor rendimiento
+
 ## **COMANDOS DIAGNÓSTICO**
 
 ```javascript
@@ -1461,7 +1487,8 @@ Esto asegura coherencia en toda la aplicación.
 
 ---
 
-*Última actualización: Documentación completamente actualizada con el módulo Cuenta_Atras.js y todas las lecciones aprendidas*
+*Última actualización: Documentación completamente actualizada con eliminación de tabla de salidas registradas*
 *Versión de aplicación: V_19_12_2025*
 *Módulos documentados: Main, Salidas (1-4), UI, Storage_Pwa, Utilidades, Traducciones, Cuenta_Atras*
 *Funcionalidades clave: Sistema de audio, exportación Excel/PDF, conversiones tiempo, throttling de 3 niveles, sistema de cuenta atrás especializado*
+*SIMPLIFICACIÓN: Eliminada tabla redundante de salidas registradas - datos almacenados en cada corredor*

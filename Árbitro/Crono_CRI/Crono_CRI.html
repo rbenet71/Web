@@ -403,48 +403,6 @@ ESTRUCTURA MODULAR:
                         <span id="exit-complete-text">REINICIAR</span>
                     </button>
                 </div>
-
-                <!-- Tarjeta de Salidas Registradas (Modo Salida) -->
-                <div class="app-card departures-card">
-                    <div class="card-header">
-                        <h2><i class="fas fa-history"></i> <span id="card-departures-title">Salidas Registradas</span></h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="config-section">
-                            <div class="departures-header">
-                                <div class="btn-group">
-                                    <button class="btn btn-danger responsive-btn" id="clear-departures-btn">
-                                        <i class="fas fa-broom"></i>
-                                        <span id="clear-departures-text">Limpiar lista</span>
-                                    </button>
-                                    <button class="btn btn-success responsive-btn" id="export-excel-btn">
-                                        <i class="fas fa-file-excel"></i>
-                                        <span id="export-excel-text">Exportar Excel</span>
-                                    </button>
-                                </div>
-                            </div>
-                            <div id="departures-table-container" class="departures-table-container">
-                                <table class="departures-table" id="departures-table">
-                                    <thead>
-                                        <tr>
-                                            <th class="sortable" data-sort="dorsal" id="departure-header-dorsal">Salida</th>
-                                            <th class="sortable" data-sort="timeValue" id="departure-header-time">Tiempo</th>
-                                            <th class="sortable" data-sort="notes" id="departure-header-notes">Nota</th>
-                                            <th class="sortable" data-sort="date" id="departure-header-date">Hora</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="departures-table-body">
-                                        <!-- Las filas se agregarán aquí dinámicamente -->
-                                    </tbody>
-                                </table>
-                                <div id="departures-empty" class="empty-state" style="display: none;">
-                                    <i class="fas fa-clock"></i>
-                                    <p id="no-departures-text">No hay salidas registradas</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- =========================================== -->
@@ -597,7 +555,7 @@ ESTRUCTURA MODULAR:
                 <div class="copyright" id="copyright-text">
                     2025 © Copyright 
                     <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                        Roberto Benet - rbenet71@gmail.com - Ver: 2.1.10
+                        Roberto Benet - rbenet71@gmail.com - Ver: 2.1.11
                     </a>
                 </div>
             </div>
@@ -871,23 +829,6 @@ ESTRUCTURA MODULAR:
             <div class="modal-footer">
                 <button class="btn btn-danger" id="delete-race-confirm-btn">Eliminar</button>
                 <button class="btn" id="delete-race-cancel-btn">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de confirmación limpiar salidas -->
-    <div class="modal" id="clear-departures-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="clear-departures-modal-title">Confirmar limpieza</h3>
-                <button class="modal-close" id="clear-departures-modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p id="clear-departures-modal-text">¿Estás seguro de que quieres limpiar la lista de salidas? Esta acción no se puede deshacer.</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-danger" id="clear-departures-confirm-btn">Limpiar</button>
-                <button class="btn" id="clear-departures-cancel-btn">Cancelar</button>
             </div>
         </div>
     </div>

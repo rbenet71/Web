@@ -1682,7 +1682,6 @@ function clearDataOnRaceChange() {
     
     // Limpiar datos globales
     startOrderData = [];
-    appState.departureTimes = [];
     appState.departedCount = 0;
     appState.raceStartTime = null;
     appState.intervals = [];

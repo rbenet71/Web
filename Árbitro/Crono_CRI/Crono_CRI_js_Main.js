@@ -54,7 +54,6 @@ const appState = {
     nextCorredorTime: 60,
     intervals: [],
     currentIntervalIndex: 0,
-    departureTimes: [],
     audioContext: null,
     isSalidaShowing: false,
     salidaTimeout: null,
@@ -111,7 +110,6 @@ function initApp() {
             races: [],
             countdownActive: false,
             countdownValue: 0,
-            departureTimes: [],
             departedCount: 0,
             intervals: [],
             currentIntervalIndex: 0,
@@ -414,18 +412,6 @@ function setupEventListeners() {
         });
     }
     
-
-    
-    // 8. Botón de exportar Excel
-    const exportExcelBtn = document.getElementById('export-excel-btn');
-    if (exportExcelBtn) {
-        exportExcelBtn.addEventListener('click', function() {
-            if (typeof exportStartOrder === 'function') {
-                exportStartOrder();
-            }
-        });
-    }
-    
     // 9. Botón de exportar PDF
     const exportPdfBtn = document.getElementById('export-pdf-btn');
     if (exportPdfBtn) {
@@ -642,20 +628,6 @@ function setupStartOrderEventListeners() {
         });
     }
     
-    // Botón para limpiar lista
-    const clearDeparturesBtn = document.getElementById('clear-departures-btn');
-    if (clearDeparturesBtn) {
-        clearDeparturesBtn.addEventListener('click', () => {
-            const modal = document.getElementById('clear-departures-modal');
-            if (modal) modal.classList.add('active');
-        });
-    }
-    
-    // Botón para exportar a Excel
-    const exportExcelBtn = document.getElementById('export-excel-btn');
-    if (exportExcelBtn && typeof exportToExcel === 'function') {
-        exportExcelBtn.addEventListener('click', exportToExcel);
-    }
     
     // Botón para reiniciar completamente
     const exitCompleteBtn = document.getElementById('exit-complete-btn');

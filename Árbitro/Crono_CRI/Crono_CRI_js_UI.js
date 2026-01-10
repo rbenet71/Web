@@ -1075,17 +1075,7 @@ function setupModalActionListeners() {
         });
     }
     
-    // 6. Botón de cancelar limpieza de salidas
-    const cancelClearDeparturesBtn = document.getElementById('cancel-clear-departures-btn');
-    if (cancelClearDeparturesBtn) {
-        console.log("✅ Configurando cancel-clear-departures-btn");
-        cancelClearDeparturesBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log("Cancelar limpieza de salidas clickeado");
-            document.getElementById('clear-departures-modal').classList.remove('active');
-        });
-    }
-    
+   
     // 7. Botón de enviar sugerencia
     const sendSuggestionBtn = document.getElementById('send-suggestion-btn');
     if (sendSuggestionBtn) {
@@ -1393,7 +1383,6 @@ function updateRaceActionButtonsState() {
         { id: 'delete-race-btn', type: 'danger' },
         { id: 'delete-race-confirm-btn', type: 'danger' },
         { id: 'edit-race-btn', type: 'secondary' },
-        { id: 'clear-departures-btn', type: 'warning' },
         { id: 'backup-race-btn', type: 'info' },
         { id: 'restore-race-btn', type: 'info' },
         { id: 'export-order-btn', type: 'success' }

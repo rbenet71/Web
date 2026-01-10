@@ -10,7 +10,6 @@ const translations = {
         // Tarjetas
         cardRaceTitle: "Gestión de Carrera",
         cardTimeTitle: "Configuración de Tiempo",
-        cardDeparturesTitle: "Salidas Registradas",
         audioConfigTitle: "Configuración de Audio",
         cardStartOrderTitle: "Orden de Salida",
 
@@ -39,15 +38,7 @@ const translations = {
         startCountdownText: "INICIAR CUENTA ATRÁS",
         exitCompleteText: "REINICIAR",
         
-        // Lista de salidas
-        clearDeparturesText: "Limpiar lista",
-        exportExcelText: "Exportar Excel",
-        noDeparturesText: "No hay salidas registradas",
-        departureHeaderDorsal: "Salida",
-        departureHeaderTime: "Tiempo",
-        departureHeaderNotes: "Nota",
-        departureHeaderDate: "Hora",
-        
+       
         // Footer
         helpText: "Ayuda",
         suggestionsText: "Sugerencias",
@@ -93,10 +84,6 @@ const translations = {
         deleteRaceModalTitle: "Confirmar eliminación",
         deleteRaceModalText: "¿Estás seguro de que quieres eliminar esta carrera? Todos los datos se perderán.",
         
-        // Modal limpiar salidas
-        clearDeparturesModalTitle: "Confirmar limpieza",
-        clearDeparturesModalText: "¿Estás seguro de que quieres limpiar la lista de salidas? Esta acción no se puede deshacer.",
-        
         // Modal sugerencias
         suggestionsModalTitle: "Enviar sugerencias",
         suggestionEmailLabel: "Email (opcional):",
@@ -109,7 +96,6 @@ const translations = {
         // Mensajes
         raceCreated: "Carrera creada correctamente",
         raceDeleted: "Carrera eliminada",
-        departuresCleared: "Lista de salidas limpiada",
         excelExported: "Datos exportados a Excel",
         sessionRestarted: "Sesión reiniciada completamente",
         countdownStarted: "Cuenta atrás iniciada",
@@ -394,7 +380,6 @@ const translations = {
         raceUpdated: "Carrera actualizada correctamente",
         raceDeleted: "Carrera eliminada correctamente",
         selectRaceFirst: "Selecciona una carrera primero",
-        departuresCleared: "Salidas reiniciadas correctamente",
         sessionRestarted: "Sesión reiniciada completamente",
         
         // Start order
@@ -554,7 +539,6 @@ const translations = {
         // Tarjetas
         cardRaceTitle: "Gestió de Cursa",
         cardTimeTitle: "Configuració de Temps",
-        cardDeparturesTitle: "Sortides Registrades",
         audioConfigTitle: "Configuració d'Àudio",
         cardStartOrderTitle: "Ordre de Sortida",
         
@@ -583,15 +567,7 @@ const translations = {
         startCountdownText: "INICIAR COMPTE ENRERE",
         exitCompleteText: "REINICIAR",
         
-        // Lista de salidas
-        clearDeparturesText: "Netejar llista",
-        exportExcelText: "Exportar Excel",
-        noDeparturesText: "No hi ha sortides registrades",
-        departureHeaderDorsal: "Sortida",
-        departureHeaderTime: "Temps",
-        departureHeaderNotes: "Nota",
-        departureHeaderDate: "Hora",
-        
+       
         // Footer
         helpText: "Ajuda",
         suggestionsText: "Suggeriments",
@@ -637,10 +613,7 @@ const translations = {
         deleteRaceModalTitle: "Confirmar eliminació",
         deleteRaceModalText: "Esteu segur que voleu eliminar aquesta cursa? Totes les dades es perdran.",
         
-        // Modal limpiar salidas
-        clearDeparturesModalTitle: "Confirmar neteja",
-        clearDeparturesModalText: "Esteu segur que voleu netejar la llista de sortides? Aquesta acció no es pot desfer.",
-        
+       
         // Modal sugerencias
         suggestionsModalTitle: "Enviar suggeriments",
         suggestionEmailLabel: "Email (opcional):",
@@ -653,7 +626,6 @@ const translations = {
         // Mensajes
         raceCreated: "Cursa creada correctament",
         raceDeleted: "Cursa eliminada",
-        departuresCleared: "Llista de sortides netejada",
         excelExported: "Dades exportades a Excel",
         sessionRestarted: "Sessió reiniciada completament",
         countdownStarted: "Compte enrere iniciat",
@@ -771,17 +743,6 @@ const translations = {
         noLlegadasText: "No hi ha arribades registrades",
         
         // ============================================
-        // TRADUCCIONES PARA REGISTRO DE LLEGADAS
-        // ============================================
-        registerLlegadaModalTitle: "Registrar Arribada",
-        llegadaDorsalLabel: "Dorsal del corredor:",
-        llegadaHoraLabel: "Hora d'arribada:",
-        llegadaNotasLabel: "Notes (opcional):",
-        confirmLlegadaBtn: "Registrar Arribada",
-        cancelLlegadaBtn: "Cancel·lar",
-        quickRegisterTitle: "Registrar arribada ràpida",
-        
-        // ============================================
         // TRADUCCIONES PARA IMPORTACIÓN DE SALIDAS
         // ============================================
         importSalidasModalTitle: "Importar Dades de Sortides",
@@ -806,17 +767,7 @@ const translations = {
         rankingDiferencia: "Diferència",
         exportRankingBtn: "Exportar Classificació",
         closeRankingBtn: "Tancar",
-        
-        // ============================================
-        // TRADUCCIONES PARA CABECERAS DE TABLAS (LLEGADAS)
-        // ============================================
-        llegadaHeaderDorsal: "Dorsal",
-        llegadaHeaderNombre: "Nom",
-        llegadaHeaderSalida: "Hora Sortida",
-        llegadaHeaderLlegada: "Hora Arribada",
-        llegadaHeaderCrono: "Temps Crono",
-        llegadaHeaderNotas: "Notes",
-        
+               
         // ============================================
         // TRADUCCIONES PARA CONFIGURACIÓN DE AUDIO
         // ============================================
@@ -973,7 +924,6 @@ const translations = {
         raceUpdated: "Cursa actualitzada correctament",
         raceDeleted: "Cursa eliminada correctament",
         selectRaceFirst: "Selecciona una cursa primer",
-        departuresCleared: "Sortides reiniciades correctament",
         sessionRestarted: "Sessió reiniciada completament",
         
         // Start order
@@ -1125,7 +1075,6 @@ const translations = {
         // Tarjetas
         cardRaceTitle: "Race Management",
         cardTimeTitle: "Time Configuration",
-        cardDeparturesTitle: "Registered Departures",
         audioConfigTitle: "Audio Configuration",
         cardStartOrderTitle: "Start Order",
         
@@ -1153,15 +1102,6 @@ const translations = {
         startFromXText: "Current position:",
         startCountdownText: "START COUNTDOWN",
         exitCompleteText: "RESET",
-        
-        // Lista de salidas
-        clearDeparturesText: "Clear list",
-        exportExcelText: "Export Excel",
-        noDeparturesText: "No departures registered",
-        departureHeaderDorsal: "Departure",
-        departureHeaderTime: "Time",
-        departureHeaderNotes: "Note",
-        departureHeaderDate: "Time",
         
         // Footer
         helpText: "Help",
@@ -1208,11 +1148,7 @@ const translations = {
         // Modal eliminar carrera
         deleteRaceModalTitle: "Confirm deletion",
         deleteRaceModalText: "Are you sure you want to delete this race? All data will be lost.",
-        
-        // Modal limpiar salidas
-        clearDeparturesModalTitle: "Confirm cleanup",
-        clearDeparturesModalText: "Are you sure you want to clear the departures list? This action cannot be undone.",
-        
+               
         // Modal sugerencias
         suggestionsModalTitle: "Send Suggestions",
         suggestionEmailLabel: "Email (optional):",
@@ -1225,7 +1161,6 @@ const translations = {
         // Mensajes
         raceCreated: "Race created successfully",
         raceDeleted: "Race deleted",
-        departuresCleared: "Departures list cleared",
         excelExported: "Data exported to Excel",
         sessionRestarted: "Session completely restarted",
         countdownStarted: "Countdown started",
@@ -1342,17 +1277,7 @@ const translations = {
         showRankingText: "View Ranking",
         noLlegadasText: "No finishes registered",
         
-        // ============================================
-        // TRANSLATIONS FOR FINISH REGISTRATION
-        // ============================================
-        registerLlegadaModalTitle: "Register Finish",
-        llegadaDorsalLabel: "Rider number:",
-        llegadaHoraLabel: "Finish time:",
-        llegadaNotasLabel: "Notes (optional):",
-        confirmLlegadaBtn: "Register Finish",
-        cancelLlegadaBtn: "Cancel",
-        quickRegisterTitle: "Quick finish registration",
-        
+       
         // ============================================
         // TRANSLATIONS FOR START DATA IMPORT
         // ============================================
@@ -1378,16 +1303,6 @@ const translations = {
         rankingDiferencia: "Gap",
         exportRankingBtn: "Export Ranking",
         closeRankingBtn: "Close",
-        
-        // ============================================
-        // TRANSLATIONS FOR TABLE HEADERS (FINISHES)
-        // ============================================
-        llegadaHeaderDorsal: "Number",
-        llegadaHeaderNombre: "Name",
-        llegadaHeaderSalida: "Start Time",
-        llegadaHeaderLlegada: "Finish Time",
-        llegadaHeaderCrono: "Race Time",
-        llegadaHeaderNotas: "Notes",
         
         // ============================================
         // TRANSLATIONS FOR AUDIO CONFIGURATION
@@ -1544,7 +1459,6 @@ const translations = {
         raceUpdated: "Race updated successfully",
         raceDeleted: "Race deleted successfully",
         selectRaceFirst: "Select a race first",
-        departuresCleared: "Departures reset successfully",
         sessionRestarted: "Session completely restarted",
         
         // Start order
@@ -1693,7 +1607,6 @@ const translations = {
         // Tarjetas
         cardRaceTitle: "Gestion de Course",
         cardTimeTitle: "Configuration du Temps",
-        cardDeparturesTitle: "Départs Enregistrés",
         audioConfigTitle: "Configuration Audio",
         cardStartOrderTitle: "Ordre de Départ",
         
@@ -1721,16 +1634,7 @@ const translations = {
         startFromXText: "Position actuelle:",
         startCountdownText: "DÉMARRER LE COMPTE À REBOURS",
         exitCompleteText: "RÉINITIALISER",
-        
-        // Lista de salidas
-        clearDeparturesText: "Effacer la liste",
-        exportExcelText: "Exporter Excel",
-        noDeparturesText: "Aucun départ enregistré",
-        departureHeaderDorsal: "Départ",
-        departureHeaderTime: "Temps",
-        departureHeaderNotes: "Note",
-        departureHeaderDate: "Heure",
-        
+               
         // Footer
         helpText: "Aide",
         suggestionsText: "Suggestions",
@@ -1776,10 +1680,6 @@ const translations = {
         deleteRaceModalTitle: "Confirmer la suppression",
         deleteRaceModalText: "Êtes-vous sûr de vouloir supprimer cette course? Toutes les données seront perdues.",
         
-        // Modal limpiar salidas
-        clearDeparturesModalTitle: "Confirmer le nettoyage",
-        clearDeparturesModalText: "Êtes-vous sûr de vouloir effacer la liste des départs? Cette action ne peut pas être annulée.",
-        
         // Modal sugerencias
         suggestionsModalTitle: "Envoyer des suggestions",
         suggestionEmailLabel: "Email (optionnel):",
@@ -1792,7 +1692,6 @@ const translations = {
         // Mensajes
         raceCreated: "Course créée avec succès",
         raceDeleted: "Course supprimée",
-        departuresCleared: "Liste des départs effacée",
         excelExported: "Données exportées vers Excel",
         sessionRestarted: "Session complètement réinitialisée",
         countdownStarted: "Compte à rebours démarré",
@@ -1910,17 +1809,6 @@ const translations = {
         noLlegadasText: "Aucune arrivée enregistrée",
         
         // ============================================
-        // TRADUCTIONS POUR L'ENREGISTREMENT DES ARRIVÉES
-        // ============================================
-        registerLlegadaModalTitle: "Enregistrer Arrivée",
-        llegadaDorsalLabel: "Dossard du coureur :",
-        llegadaHoraLabel: "Heure d'arrivée :",
-        llegadaNotasLabel: "Notes (optionnel) :",
-        confirmLlegadaBtn: "Enregistrer Arrivée",
-        cancelLlegadaBtn: "Annuler",
-        quickRegisterTitle: "Enregistrement rapide d'arrivée",
-        
-        // ============================================
         // TRADUCTIONS POUR L'IMPORTATION DES DÉPARTS
         // ============================================
         importSalidasModalTitle: "Importer Données de Départs",
@@ -1945,16 +1833,6 @@ const translations = {
         rankingDiferencia: "Écart",
         exportRankingBtn: "Exporter Classement",
         closeRankingBtn: "Fermer",
-        
-        // ============================================
-        // TRADUCTIONS POUR LES EN-TÊTES DE TABLEAU (ARRIVÉES)
-        // ============================================
-        llegadaHeaderDorsal: "Dossard",
-        llegadaHeaderNombre: "Nom",
-        llegadaHeaderSalida: "Heure Départ",
-        llegadaHeaderLlegada: "Heure Arrivée",
-        llegadaHeaderCrono: "Temps Chrono",
-        llegadaHeaderNotas: "Notes",
         
         // ============================================
         // TRADUCTIONS POUR LA CONFIGURATION AUDIO
@@ -2113,7 +1991,6 @@ const translations = {
         raceUpdated: "Course mise à jour avec succès",
         raceDeleted: "Course supprimée avec succès",
         selectRaceFirst: "Sélectionnez d'abord une course",
-        departuresCleared: "Départs réinitialisés avec succès",
         sessionRestarted: "Session complètement redémarrée",
         
         // Start order

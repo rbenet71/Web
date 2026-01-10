@@ -485,7 +485,7 @@ function ocultarInfoCorredorEnPantalla() {
 }
 
 // ============================================
-// REGISTRO DE SALIDAS (NUEVO SISTEMA)
+// REGISTRO DE SALIDAS (SISTEMA CRI - MÍNIMO)
 // ============================================
 
 // ============================================
@@ -550,26 +550,7 @@ function registerDeparture() {
     
     // 6. Incrementar contador de salidos (como en la versión funcional)
     appState.departedCount = (appState.departedCount || 0) + 1;
-    
-    // 7. Crear registro en departureTimes (como en la versión funcional)
-    const departure = {
-        corredor: appState.departedCount, // Número secuencial de salida
-        dorsal: dorsal, // Dorsal específico
-        timestamp: Date.now(),
-        notes: '', // Podrías agregar notas del dorsal si quieres
-        editing: false,
-        timeValue: timeValue,
-        elapsedSeconds: accumulatedSeconds,
-        horaSalidaReal: horaActual,
-        cronoSalidaReal: timeValue
-    };
-    
-    // Asegurar que appState.departureTimes existe
-    if (!appState.departureTimes) {
-        appState.departureTimes = [];
-    }
-    
-    appState.departureTimes.push(departure);
+
     
     // 8. Actualizar UI
     const departedCountElement = document.getElementById('departed-count');
@@ -608,260 +589,66 @@ function registerDeparture() {
 }
 
 // Función mejorada para actualizar la tabla
-// ============================================
-// REGISTRO DE SALIDAS (SISTEMA CRI - CON TABLA DE SALIDAS)
-// ============================================
-
-function registerDeparture() {
-    const siguiente = obtenerProximoCorredor();
-    if (!siguiente || !siguiente.corredor) {
-        console.warn("⚠️ No hay corredor para registrar salida");
-        return;
+function actualizarTablaConSalidaRegistrada(dorsal, horaSalidaReal, cronoSalidaReal) {
+    console.log("🔄 Actualizando tabla para dorsal:", dorsal);
+    
+    // Buscar en startOrderData
+    if (window.startOrderData && Array.isArray(window.startOrderData)) {
+        const corredor = window.startOrderData.find(c => c.dorsal == dorsal);
+        if (corredor) {
+            console.log("✅ Corredor encontrado en startOrderData, tiempos actualizados");
+        }
     }
     
-    const corredor = siguiente.corredor;
-    const index = siguiente.index;
-    const dorsal = corredor.dorsal;
+    // Buscar en la tabla HTML
+    const filas = document.querySelectorAll(`tr[data-dorsal="${dorsal}"]`);
     
-    console.log("📝 Registrando salida para corredor:", {
-        dorsal: dorsal,
-        nombre: corredor.nombre,
-        apellidos: corredor.apellidos,
-        cronoSalida: corredor.cronoSalida
-    });
-    
-    // 1. Calcular tiempo transcurrido
-    let accumulatedSeconds = 0;
-    
-    if (appState.raceStartTime) {
-        accumulatedSeconds = Math.floor((Date.now() - appState.raceStartTime) / 1000);
-    } else {
-        // Si no hay raceStartTime, establecerlo ahora
-        accumulatedSeconds = cronoCarreraSegundos;
-        appState.raceStartTime = Date.now() - (cronoCarreraSegundos * 1000);
-        console.log("🔄 Estableciendo raceStartTime basado en cronoCarreraSegundos");
+    if (filas.length === 0) {
+        // Intentar con selector más genérico
+        const todasLasFilas = document.querySelectorAll('tr');
+        todasLasFilas.forEach(fila => {
+            const celdaDorsal = fila.querySelector('.dorsal-cell, .dorsal, [data-dorsal]');
+            if (celdaDorsal && celdaDorsal.textContent.trim() == dorsal) {
+                filas.push(fila);
+            }
+        });
     }
-    
-    // 2. Formatear tiempo
-    const hours = Math.floor(accumulatedSeconds / 3600);
-    const minutes = Math.floor((accumulatedSeconds % 3600) / 60);
-    const seconds = accumulatedSeconds % 60;
-    const timeValue = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    
-    // 3. Obtener hora actual del sistema
-    const ahora = new Date();
-    const horaActual = ahora.toLocaleTimeString('es-ES', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false 
-    });
-    const fechaActual = ahora.toLocaleDateString('es-ES');
-    
-    // 4. Asignar tiempos al corredor en startOrderData
-    corredor.horaSalidaReal = horaActual;
-    corredor.cronoSalidaReal = timeValue;
-    corredor.horaSalidaRealSegundos = Math.floor(ahora.getTime() / 1000);
-    corredor.cronoSalidaRealSegundos = accumulatedSeconds;
-    corredor.salido = true;
-    corredor.salidaRegistrada = true;
-    
-    // 5. Incrementar contador de salidos
-    appState.departedCount = (appState.departedCount || 0) + 1;
-    
-    // 6. Crear registro PARA LA TABLA DE SALIDAS (igual que en cuenta atrás)
-    const departure = {
-        corredor: appState.departedCount, // Número secuencial de salida
-        dorsal: dorsal, // Dorsal específico
-        nombre: corredor.nombre || '',
-        apellidos: corredor.apellidos || '',
-        timestamp: Date.now(),
-        notes: '', // Notas editables (como en cuenta atrás)
-        editing: false, // Para modo edición
-        timeValue: timeValue, // Tiempo desde inicio (HH:MM:SS)
-        elapsedSeconds: accumulatedSeconds, // Segundos desde inicio
-        horaSalidaReal: horaActual, // Hora del sistema
-        cronoSalidaReal: timeValue, // Tiempo de crono
-        fecha: fechaActual // Fecha para la tabla
-    };
-    
-    // Asegurar que appState.departureTimes existe (igual que en cuenta atrás)
-    if (!appState.departureTimes) {
-        appState.departureTimes = [];
-    }
-    
-    // Añadir a la lista de salidas (igual que en cuenta atrás)
-    appState.departureTimes.push(departure);
-    
-    console.log("✅ Salida registrada en departureTimes:", departure);
-    
-    // 7. Actualizar UI
-    const departedCountElement = document.getElementById('departed-count');
-    if (departedCountElement) {
-        departedCountElement.textContent = appState.departedCount;
-    }
-    
-    const startPositionElement = document.getElementById('start-position');
-    if (startPositionElement) {
-        startPositionElement.value = appState.departedCount + 1;
-    }
-    
-    // 8. ACTUALIZAR TABLA DE SALIDAS (igual que en cuenta atrás)
-    if (typeof renderDeparturesList === 'function') {
-        renderDeparturesList();
-    } else {
-        console.warn("⚠️ Función renderDeparturesList no disponible");
-        // Crear una versión básica si no existe
-        actualizarTablaSalidasBasica(departure);
-    }
-    
-    // 9. Actualizar tabla de orden de salida
-    actualizarTablaOrdenSalida(dorsal, horaActual, timeValue);
-    
-    // 10. Guardar datos
-    if (typeof saveStartOrderData === 'function') {
-        saveStartOrderData();
-    }
-    
-    if (appState.currentRace) {
-        saveRaceData();
-    }
-    
-    saveAppState();
-    
-    console.log("✅ Registro completo:", {
-        dorsal: dorsal,
-        hora: horaActual,
-        crono: timeValue,
-        totalSalidos: appState.departedCount
-    });
-}
-
-// ============================================
-// FUNCIONES AUXILIARES
-// ============================================
-
-function actualizarTablaOrdenSalida(dorsal, horaSalidaReal, cronoSalidaReal) {
-    console.log("🔄 Actualizando tabla de orden de salida para dorsal:", dorsal);
-    
-    // Buscar filas en la tabla de orden de salida
-    const filas = document.querySelectorAll('#start-order-table tr[data-dorsal]');
     
     filas.forEach(fila => {
-        if (fila.getAttribute('data-dorsal') == dorsal) {
-            // Buscar celdas específicas
-            const horaCell = fila.querySelector('.hora-salida-real');
-            const cronoCell = fila.querySelector('.crono-salida-real');
+        // Buscar celdas por clase o data-attribute
+        const celdas = fila.querySelectorAll('td');
+        
+        celdas.forEach((celda, index) => {
+            const textoCelda = celda.textContent.trim().toLowerCase();
             
-            if (horaCell) {
-                horaCell.textContent = horaSalidaReal;
-                horaCell.classList.add('salida-registrada');
+            // Intentar identificar columnas por contenido
+            if (textoCelda.includes('hora') || textoCelda.includes('real')) {
+                celda.textContent = horaSalidaReal;
+                celda.classList.add('salida-registrada');
             }
             
-            if (cronoCell) {
-                cronoCell.textContent = cronoSalidaReal;
-                cronoCell.classList.add('salida-registrada');
+            if (textoCelda.includes('crono') || textoCelda.includes('tiempo')) {
+                celda.textContent = cronoSalidaReal;
+                celda.classList.add('salida-registrada');
             }
-            
-            // Marcar fila completa
-            fila.classList.add('corredor-salido');
-            fila.style.backgroundColor = '#e8f5e9';
-            
-            console.log("✅ Tabla de orden de salida actualizada para dorsal", dorsal);
-        }
+        });
+        
+        // Marcar fila completa
+        fila.classList.add('corredor-salido', 'salida-registrada');
+        fila.style.backgroundColor = '#e8f5e9'; // Verde claro para indicar salida
+        
+        console.log("✅ Fila actualizada para dorsal", dorsal);
     });
+    
+    if (filas.length === 0) {
+        console.log("📊 Resumen de salida (sin tabla visible):", {
+            dorsal: dorsal,
+            horaSalidaReal: horaSalidaReal,
+            cronoSalidaReal: cronoSalidaReal,
+            elapsedSeconds: cronoCarreraSegundos
+        });
+    }
 }
-
-function actualizarTablaSalidasBasica(departure) {
-    // Versión básica si no existe renderDeparturesList
-    const tableBody = document.getElementById('departures-table-body');
-    const emptyState = document.getElementById('departures-empty');
-    
-    if (!tableBody) {
-        console.warn("⚠️ No se encontró departures-table-body");
-        return;
-    }
-    
-    // Ocultar estado vacío
-    if (emptyState) {
-        emptyState.style.display = 'none';
-    }
-    
-    // Crear nueva fila
-    const row = document.createElement('tr');
-    
-    const time = new Date(departure.timestamp);
-    const timeStr = time.toLocaleTimeString('es-ES', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        second: '2-digit'
-    });
-    const dateStr = time.toLocaleDateString('es-ES');
-    
-    row.innerHTML = `
-        <td class="departure-dorsal-cell">${departure.dorsal}</td>
-        <td class="departure-time-value-cell">${departure.timeValue}</td>
-        <td class="departure-notes-cell">
-            <div class="departure-notes-display empty" data-index="${appState.departureTimes.length - 1}">
-                ${departure.dorsal} - ${departure.nombre || ''} ${departure.apellidos || ''}
-            </div>
-        </td>
-        <td class="departure-date-cell">
-            ${dateStr}<br>${timeStr}
-        </td>
-    `;
-    
-    tableBody.appendChild(row);
-    console.log("✅ Añadido a tabla básica de salidas");
-}
-
-// ============================================
-// FUNCIÓN PARA GUARDAR DATOS DE CARRERA (compatible con cuenta atrás)
-// ============================================
-
-function saveRaceData() {
-    if (!appState.currentRace) {
-        console.log("⚠️ No hay carrera actual para guardar");
-        return;
-    }
-    
-    // Guardar los datos en la estructura de cuenta atrás
-    const cadenceMode = appState.isVariableMode ? 'variable' : 'single';
-    
-    const raceIndex = appState.races.findIndex(r => r.id === appState.currentRace.id);
-    if (raceIndex === -1) {
-        console.log("❌ Carrera no encontrada");
-        return;
-    }
-    
-    appState.races[raceIndex] = {
-        ...appState.currentRace,
-        cadenceMode: cadenceMode,
-        departures: [...appState.departureTimes], // ¡IMPORTANTE! Guardar salidas
-        intervals: appState.intervals || [],
-        lastModified: new Date().toISOString()
-    };
-    
-    appState.currentRace = appState.races[raceIndex];
-    
-    // Guardar en localStorage (igual que en cuenta atrás)
-    localStorage.setItem('countdown-races', JSON.stringify(appState.races));
-    localStorage.setItem('countdown-current-race', JSON.stringify(appState.currentRace));
-    
-    console.log("💾 Datos de carrera guardados:", {
-        carrera: appState.currentRace.name,
-        salidas: appState.departureTimes.length,
-        modo: cadenceMode
-    });
-}
-
-
-
-
-
-
-
-
 
 // ============================================
 // FUNCIONES DE INICIO MANUAL (MODIFICADAS)
