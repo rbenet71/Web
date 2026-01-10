@@ -340,10 +340,12 @@ function initApp() {
         setupPDFExportButton();
     }
     
+    /*
     // Actualizar título de gestión de carrera
     if (typeof updateRaceManagementCardTitle === 'function') {
         updateRaceManagementCardTitle();
     }
+    */
     
     console.log("Aplicación inicializada correctamente");
     console.log("Estado final:");
@@ -773,7 +775,7 @@ function setupEventListeners() {
 function openSuggestionsEmail() {
     const email = 'rbenet71@gmail.com';
     const subject = 'Sugerencias para Crono CRI';
-    const body = `Hola Roberto,\n\nTengo algunas sugerencias para la aplicación Crono CRI:\n\n1. \n2. \n3. \n\n---\nApp: Crono CRI v2.5.1\nNavegador: ${navigator.userAgent}\nURL: ${window.location.href}`;
+    const body = `Hola Roberto,\n\nTengo algunas sugerencias para la aplicación Crono CRI:\n\n1. \n2. \n3. \n\n---\nApp: Crono CRI v2.5.2.2\nNavegador: ${navigator.userAgent}\nURL: ${window.location.href}`;
     
     const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     

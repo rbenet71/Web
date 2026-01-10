@@ -147,13 +147,13 @@ function processImportedOrderData(jsonData) {
     // Ordenar por número de orden
     importedData.sort((a, b) => a.order - b.order);
     
-    // ============ VALIDACIÓN 2.5.1: PRIMER CRONO DEBE SER 00:00:00 ============
+    // ============ VALIDACIÓN 2.5.2.2: PRIMER CRONO DEBE SER 00:00:00 ============
     if (importedData.length > 0) {
         const primerCorredor = importedData[0];
         const primerCrono = primerCorredor.cronoSalida || primerCorredor.cronoSalidaImportado;
         
         // DEPURACIÓN: Mostrar información detallada
-        console.log("🔍 VALIDACIÓN 2.5.1 - Primer corredor (después de applyImportRules):", {
+        console.log("🔍 VALIDACIÓN 2.5.2.2 - Primer corredor (después de applyImportRules):", {
             orden: primerCorredor.order,
             cronoSalida: primerCorredor.cronoSalida,
             cronoSalidaImportado: primerCorredor.cronoSalidaImportado,
@@ -1673,6 +1673,7 @@ function updateStartOrderUI() {
             }
         }, 1000);
         
+        /*
         // Actualizar título de la tarjeta de gestión
         if (typeof updateRaceManagementCardTitle === 'function') {
             setTimeout(() => {
@@ -1680,6 +1681,7 @@ function updateStartOrderUI() {
                 console.log("✅ Título de gestión actualizado");
             }, 300);
         }
+        */
         
         // Actualizar estadísticas si existen
         if (typeof updateStartOrderStats === 'function') {

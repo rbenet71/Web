@@ -1003,7 +1003,7 @@ function clearRaceDepartures() {
 // FUNCIONES DE PWA (PROGRESSIVE WEB APP)
 // ============================================
 function setupServiceWorker() {
-    console.log("🔄 Configurando ServiceWorker para Crono CRI v2.5.1...");
+    console.log("🔄 Configurando ServiceWorker para Crono CRI v2.5.2.2...");
     
     // Verificar si el navegador soporta Service Workers
     if (!('serviceWorker' in navigator)) {
@@ -1028,12 +1028,12 @@ function setupServiceWorker() {
     // Solo registrar si estamos en localhost o HTTPS
     if (isLocalhost || isHttps) {
         // 🔥 CAMBIO PRINCIPAL: Registrar el SW específico de Crono CRI
-        const swFile = 'Crono_CRI_ws.js?v=2.5.1';
+        const swFile = 'Crono_CRI_ws.js?v=2.5.2.2';
         console.log(`📁 Registrando ServiceWorker: ${swFile}`);
         
         navigator.serviceWorker.register(swFile)
             .then(registration => {
-                console.log('✅ ServiceWorker Crono CRI v2.5.1 registrado exitosamente:', registration.scope);
+                console.log('✅ ServiceWorker Crono CRI v2.5.2.2 registrado exitosamente:', registration.scope);
                 
                 // 🔥 NUEVO: Forzar actualización inmediata
                 console.log('🔄 Forzando actualización del ServiceWorker...');
@@ -1128,7 +1128,7 @@ function cleanupOldCaches() {
     console.log('🧹 Limpiando cachés antiguos...');
     
     // Limpiar localStorage de versiones antiguas
-    const currentVersion = '2.5.1';
+    const currentVersion = '2.5.2.2';
     const keysToKeep = [
         'app-mode',
         'card-expanded-race-management',
@@ -1990,7 +1990,7 @@ function createRaceBackup() {
         version: '1.0',
         appName: 'Crono CRI',
         exportDate: new Date().toISOString(),
-        exportVersion: 'V_2.5.1',
+        exportVersion: 'V_2.5.2.2',
         dataType: 'single-race',
         race: {
             // Copiar TODOS los datos de la carrera del array
@@ -3149,6 +3149,8 @@ function saveRaceChanges() {
     
     console.log("Carrera actualizada:", appState.currentRace);
 }
+
+
 // ========
 // 
 // ============================================
@@ -3158,23 +3160,19 @@ function updateRaceManagementCardTitle() {
     const titleElement = document.getElementById('card-race-title');
     
     if (!titleElement) {
-        console.log("⚠️ Elemento del título de gestión no encontrado");
-        return;
+        return; // Elemento no encontrado, salir silenciosamente
     }
     
-    // Verificar si ya estamos actualizando (prevenir recursión)
-    if (window.isUpdatingRaceTitle) {
-        console.log("⚠️ Ya se está actualizando el título, evitando recursión");
-        return;
+    // Protección simple contra múltiples llamadas simultáneas
+    if (window._raceTitleUpdating) {
+        return; // Ya se está actualizando, omitir
     }
     
-    window.isUpdatingRaceTitle = true;
+    window._raceTitleUpdating = true;
     
     try {
         if (appState.currentRace && appState.currentRace.name) {
-            const t = translations[appState.currentLanguage];
-            
-            // Crear el título simple
+            // Crear el título con nombre de carrera
             let titleHTML = `<i class="fas fa-flag-checkered"></i> ${appState.currentRace.name}`;
             
             // Añadir fecha si existe
@@ -3182,27 +3180,32 @@ function updateRaceManagementCardTitle() {
                 titleHTML += ` <span class="race-date">(${appState.currentRace.date})</span>`;
             }
             
-            titleElement.innerHTML = titleHTML;
-            titleElement.classList.add('race-title-active');
-            
-            console.log("📝 Título de gestión actualizado:", appState.currentRace.name);
+            // Solo actualizar si realmente cambió
+            if (titleElement.innerHTML !== titleHTML) {
+                titleElement.innerHTML = titleHTML;
+                titleElement.classList.add('race-title-active');
+            }
         } else {
-            // Si no hay carrera seleccionada, mostrar el título por defecto
+            // Título por defecto (sin carrera seleccionada)
             const t = translations[appState.currentLanguage];
-            titleElement.innerHTML = `<i class="fas fa-flag-checkered"></i> ${t.raceManagement || 'Gestión de Carrera'}`;
-            titleElement.classList.remove('race-title-active');
+            const defaultTitle = `<i class="fas fa-flag-checkered"></i> ${t.raceManagement || 'Gestión de Carrera'}`;
             
-            console.log("📝 Título de gestión restablecido (sin carrera)");
+            // Solo actualizar si realmente cambió
+            if (titleElement.innerHTML !== defaultTitle) {
+                titleElement.innerHTML = defaultTitle;
+                titleElement.classList.remove('race-title-active');
+            }
         }
     } catch (error) {
-        console.error("❌ Error actualizando título:", error);
+        console.error("Error actualizando título de gestión:", error);
     } finally {
-        // Liberar el bloqueo después de un breve retraso
+        // Desbloquear después de un breve retraso
         setTimeout(() => {
-            window.isUpdatingRaceTitle = false;
-        }, 100);
+            window._raceTitleUpdating = false;
+        }, 50);
     }
 }
+
 // ============================================
 // AÑADIR ESTILOS PARA EL TÍTULO DE GESTIÓN
 // ============================================
@@ -3299,7 +3302,7 @@ function initRaceManagementCard() {
     addRaceManagementCardStyles();
     
     // Actualizar título inicial
-    updateRaceManagementCardTitle();
+    // updateRaceManagementCardTitle(); // <-- COMENTADA
     
     // Establecer intervalo para actualizar dinámicamente (opcional)
     setInterval(updateRaceManagementCardTitle, 5000);

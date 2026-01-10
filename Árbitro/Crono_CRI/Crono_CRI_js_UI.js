@@ -159,11 +159,12 @@ function toggleAllCards(action) {
 // FUNCIONES DE TÍTULOS DE TARJETAS
 // ============================================
 function updateCardTitles() {
-    updateRaceManagementCardTitle();
+    // updateRaceManagementCardTitle(); // <-- COMENTADA
     updateModeSelectorCardTitle();
     updateStartOrderCardTitle();
 }
 
+/* funcion repetida eliminar
 function updateRaceManagementCardTitle() {
     const cardTitleElement = document.querySelector('#card-race-title');
     if (!cardTitleElement) return;
@@ -179,7 +180,7 @@ function updateRaceManagementCardTitle() {
         cardTitleElement.textContent = `${t.cardRaceTitle || 'Gestión de Carrera'} - ${raceName}`;
     }
 }
-
+*/
 function updateModeSelectorCardTitle() {
     console.log("Actualizando título del selector de modo...");
     
@@ -791,6 +792,8 @@ function debugModeState() {
     
     console.log("=== FIN DEPURACIÓN ===");
 }
+
+
 // ============================================
 // FUNCIONES DE MANEJO DE MODALES (MOVIDAS A UI.js)
 // ============================================
@@ -835,17 +838,13 @@ function setupModalEventListeners() {
         });
     });
     
-    // Mapeo de botones de cancelar a sus modales
+    // Mapeo de botones de cancelar a sus modales - ACTUALIZADO
     const cancelButtons = {
         // Carreras
         'delete-race-cancel-btn': 'delete-race-modal',
         'delete-race-modal-close': 'delete-race-modal',
         'new-race-modal-close': 'new-race-modal',
         'cancel-create-race-btn': 'new-race-modal',
-        
-        // Salidas
-        'clear-departures-cancel-btn': 'clear-departures-modal',
-        'clear-departures-modal-close': 'clear-departures-modal',
         
         // Reinicio
         'restart-modal-close': 'restart-confirm-modal',
@@ -878,7 +877,7 @@ function setupModalEventListeners() {
         'template-config-modal-close': 'template-config-modal',
         'cancel-template-btn': 'template-config-modal',
         
-        // Ayuda
+        // Ayuda (si el modal help-modal existe)
         'help-modal-close': 'help-modal',
         'help-modal-ok': 'help-modal'
     };
@@ -886,16 +885,26 @@ function setupModalEventListeners() {
     // Asignar listeners a todos los botones de cancelar
     Object.keys(cancelButtons).forEach(buttonId => {
         const button = document.getElementById(buttonId);
+        const modalId = cancelButtons[buttonId];
+        
+        // Verificar primero si el modal existe
+        const modal = document.getElementById(modalId);
+        
+        if (!modal) {
+            // Si el modal no existe, no configurar el botón
+            console.log(`ℹ️ Modal ${modalId} no existe, omitiendo botón ${buttonId}`);
+            return;
+        }
+        
         if (button) {
             button.addEventListener('click', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
-                const modalId = cancelButtons[buttonId];
                 closeModal(modalId);
                 console.log(`Modal ${modalId} cerrado (botón ${buttonId})`);
             });
         } else {
-            console.warn(`⚠️ Botón ${buttonId} no encontrado en el DOM`);
+            console.log(`ℹ️ Botón ${buttonId} no encontrado (modal ${modalId} existe pero no el botón)`);
         }
     });
     
@@ -920,18 +929,31 @@ function setupModalEventListeners() {
 function debugModalButtons() {
     console.log("=== DEPURACIÓN DE BOTONES DE MODAL ===");
     
-    // Lista completa de botones que deberían existir
+    // Lista actualizada de botones que realmente existen en la aplicación
     const expectedButtons = [
+        // Carreras
         'delete-race-cancel-btn', 'delete-race-modal-close',
-        'clear-departures-cancel-btn', 'clear-departures-modal-close',
+        
+        // Reinicio
         'restart-cancel-btn', 'restart-modal-close',
+        
+        // Sugerencias
         'cancel-suggestion-btn', 'suggestions-modal-close',
+        
+        // Llegadas
         'cancel-llegada-btn', 'register-llegada-modal-close',
+        
+        // Importación
         'cancel-import-salidas-btn', 'import-salidas-modal-close',
+        
+        // Clasificación
         'close-ranking-btn', 'ranking-modal-close',
+        
+        // Ajuste de tiempos
         'cancel-adjustments-btn', 'adjust-times-close',
-        'cancel-template-btn', 'template-config-modal-close',
-        'help-modal-ok', 'help-modal-close'
+        
+        // Plantilla
+        'cancel-template-btn', 'template-config-modal-close'
     ];
     
     let found = 0;
@@ -943,7 +965,8 @@ function debugModalButtons() {
             console.log(`✅ ${buttonId} - ENCONTRADO`);
             found++;
         } else {
-            console.warn(`❌ ${buttonId} - NO ENCONTRADO`);
+            // Cambiado de console.warn a console.log para evitar warnings
+            console.log(`ℹ️ ${buttonId} - NO ENCONTRADO (pero es normal si el modal no existe)`);
             missing++;
         }
     });

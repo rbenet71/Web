@@ -245,13 +245,15 @@ por eso primero pideme las funciones que crees que intervienen en el proceso.
 diferencia primero siempre es 00:00:00
 2.4.3 Registrar bien las salidas. tras la salida de los corredores las horas registradas de crono salida estan mal y la hora salida real registrada esta mal. haz que se pongan los valores que se estan mostrando en la pantalla de cuenta atras cuando llega a o la cuenta atras. total-time-value y current-time-value"
 2.4.5 actualizar version  copyriht actualizado
-2.5.1 Botones pie funcionando 
-2.5.1 el boton de sugerencias que haga lo mismo que el de la calculadora
-2.5.1 ayuda funcionando
+2.5.2.2 Botones pie funcionando 
+2.5.2.2 el boton de sugerencias que haga lo mismo que el de la calculadora
+2.5.2.2 ayuda funcionando
 ------
 2.4.9 quitar la marca de + para marcar los modificados, mantener el fondo verde
-2.5.1 Al añadir un corredor en la ultima posicion añade 2 corredores mas entre el ultimo corredor y el anterior.
-2.5.1.1 Añadir corredor 1 diferencia ok
+2.5.2.2 Al añadir un corredor en la ultima posicion añade 2 corredores mas entre el ultimo corredor y el anterior.
+2.5.2.2.1 Añadir corredor 1 diferencia ok
+
+2.5.2.2.2 Arreglar multiples carga del titulo de carrera
 
 añadir eliminar corredor
 problemas al restaurar copia de seguridad

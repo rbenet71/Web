@@ -140,6 +140,17 @@ function configurarEventListenersCuentaAtras() {
 // ============================================
 
 function configurarBotonesModalReinicio() {
+    // Variable para controlar inicialización única
+    if (typeof window.modalReinicioConfigurado === 'undefined') {
+        window.modalReinicioConfigurado = false;
+    }
+    
+    // Evitar inicialización duplicada
+    if (window.modalReinicioConfigurado) {
+        console.log("✅ Modal de reinicio ya configurado, omitiendo");
+        return;
+    }
+    
     console.log("🔄 Configurando botones del modal de reinicio...");
     
     // Verificar que los elementos existen
@@ -160,73 +171,101 @@ function configurarBotonesModalReinicio() {
         confirmBtn: !!confirmBtn
     });
     
+    // Función para clonar y reemplazar un botón (elimina listeners antiguos)
+    function reemplazarBotonConClon(id) {
+        const botonOriginal = document.getElementById(id);
+        if (!botonOriginal) return null;
+        
+        const nuevoBoton = botonOriginal.cloneNode(true);
+        botonOriginal.parentNode.replaceChild(nuevoBoton, botonOriginal);
+        return document.getElementById(id);
+    }
+    
     // 1. Botón de cerrar modal (X)
     if (closeBtn) {
-        // Remover listeners antiguos primero
-        const newCloseBtn = closeBtn.cloneNode(true);
-        closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
-        
-        document.getElementById('restart-modal-close').addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log("❌ Cerrar modal (X) clickeado");
-            modal.classList.remove('active');
-        });
+        const nuevoCloseBtn = reemplazarBotonConClon('restart-modal-close');
+        if (nuevoCloseBtn) {
+            nuevoCloseBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("❌ Cerrar modal (X) clickeado");
+                modal.classList.remove('active');
+            });
+        }
     }
     
     // 2. Botón Cancelar
     if (cancelBtn) {
-        // Remover listeners antiguos primero
-        const newCancelBtn = cancelBtn.cloneNode(true);
-        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-        
-        document.getElementById('restart-cancel-btn').addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log("❌ Cancelar clickeado");
-            modal.classList.remove('active');
-        });
+        const nuevoCancelBtn = reemplazarBotonConClon('restart-cancel-btn');
+        if (nuevoCancelBtn) {
+            nuevoCancelBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("❌ Cancelar clickeado");
+                modal.classList.remove('active');
+            });
+        }
     }
     
     // 3. Botón Confirmar Reinicio
     if (confirmBtn) {
-        // Remover listeners antiguos primero
-        const newConfirmBtn = confirmBtn.cloneNode(true);
-        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-        
-        document.getElementById('restart-confirm-btn').addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log("✅ Confirmar reinicio clickeado");
-            modal.classList.remove('active');
-            
-            // Ejecutar reinicio completo
-            if (typeof ejecutarReinicioCompleto === 'function') {
-                console.log("🔄 Ejecutando reinicio completo...");
-                ejecutarReinicioCompleto();
-            } else {
-                console.error("❌ ERROR: función ejecutarReinicioCompleto no encontrada");
-            }
-        });
+        const nuevoConfirmBtn = reemplazarBotonConClon('restart-confirm-btn');
+        if (nuevoConfirmBtn) {
+            nuevoConfirmBtn.addEventListener('click', function ejecutarReinicioHandler(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("✅ Confirmar reinicio clickeado");
+                modal.classList.remove('active');
+                
+                // Ejecutar reinicio completo
+                if (typeof ejecutarReinicioCompleto === 'function') {
+                    console.log("🔄 Ejecutando reinicio completo...");
+                    ejecutarReinicioCompleto();
+                } else {
+                    console.error("❌ ERROR: función ejecutarReinicioCompleto no encontrada");
+                    // Intentar cargar la función de otro lugar si existe
+                    if (window.ejecutarReinicioCompleto) {
+                        console.log("ℹ️ Encontrada función global, ejecutando...");
+                        window.ejecutarReinicioCompleto();
+                    }
+                }
+            });
+        }
     }
     
-    // 4. Cerrar modal al hacer clic fuera
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            console.log("👆 Clic fuera del modal - cerrando");
-            modal.classList.remove('active');
-        }
-    });
+    // 4. Cerrar modal al hacer clic fuera (solo configurar una vez)
+    if (!modal.dataset.outsideClickConfigured) {
+        modal.addEventListener('click', function modalOutsideClickHandler(e) {
+            if (e.target === modal) {
+                console.log("👆 Clic fuera del modal - cerrando");
+                modal.classList.remove('active');
+            }
+        });
+        modal.dataset.outsideClickConfigured = 'true';
+    }
     
-    // 5. Cerrar con tecla Escape
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && modal.classList.contains('active')) {
-            console.log("⎋ Tecla Escape presionada - cerrando modal");
-            modal.classList.remove('active');
-        }
-    });
+    // 5. Cerrar con tecla Escape (solo configurar una vez)
+    if (!modal.dataset.escapeKeyConfigured) {
+        const escapeKeyHandler = function(e) {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                console.log("⎋ Tecla Escape presionada - cerrando modal");
+                modal.classList.remove('active');
+            }
+        };
+        
+        document.addEventListener('keydown', escapeKeyHandler);
+        modal.dataset.escapeKeyHandler = escapeKeyHandler;
+        modal.dataset.escapeKeyConfigured = 'true';
+    }
     
+    // Marcar como configurado
+    window.modalReinicioConfigurado = true;
     console.log("✅ Botones del modal de reinicio configurados correctamente");
+}
+
+// Asegurar que la función esté disponible globalmente si es necesario
+if (typeof window.configurarBotonesModalReinicio === 'undefined') {
+    window.configurarBotonesModalReinicio = configurarBotonesModalReinicio;
 }
 
 // 🔥 Asegurar que se llame cuando el DOM esté listo

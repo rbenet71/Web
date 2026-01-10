@@ -28,7 +28,7 @@ ELEMENTOS CLAVE:
 DEPENDENCIAS EXTERNAS:
 - Font Awesome 6.4.0 (iconos)
 - XLSX 0.18.5 (exportación Excel)
-- jsPDF 2.5.1 + AutoTable (exportación PDF)
+- jsPDF 2.5.2.2 + AutoTable (exportación PDF)
 - Google Analytics (G-CV925PMBQV)
 ```
 
