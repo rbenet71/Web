@@ -245,5 +245,4 @@ por eso primero pideme las funciones que crees que intervienen en el proceso.
 2.4.2 al importar orden de salida, la hora crono primero  deberia ser 00:00:00 si no es así pregunta al usuario
 diferencia primero siempre es 00:00:00
 
-las horas registradas de crono salida estan mal
-la hora salida real registrada esta mal.
+2.4.3 Registrar bien las salidas. tras la salida de los corredores las horas registradas de crono salida estan mal y la hora salida real registrada esta mal. haz que se pongan los valores que se estan mostrando en la pantalla de cuenta atras cuando llega a o la cuenta atras. total-time-value y current-time-value"

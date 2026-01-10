@@ -796,39 +796,76 @@ function registerDeparture() {
         indiceArray: index
     });
     
-    // 1. Calcular tiempo transcurrido (como en la versión funcional)
-    let accumulatedSeconds = 0;
+    // 🔥 MODIFICACIÓN: OBTENER VALORES DIRECTAMENTE DE LA PANTALLA Y AÑADIR 1 SEGUNDO
     
-    if (appState.raceStartTime) {
-        // Usar el mismo cálculo que la versión funcional
-        accumulatedSeconds = Math.floor((Date.now() - appState.raceStartTime) / 1000);
-    } else {
-        // Si no hay raceStartTime, usar el crono de carrera actual
-        accumulatedSeconds = cronoCarreraSegundos;
-        appState.raceStartTime = Date.now() - (cronoCarreraSegundos * 1000);
-        console.log("🔄 Estableciendo raceStartTime basado en cronoCarreraSegundos");
-    }
+    // 1. Obtener cronoSalidaReal desde total-time-value (lo que el usuario ve)
+    const totalTimeElement = document.getElementById('total-time-value');
+    let cronoSalidaRealPantalla = totalTimeElement ? totalTimeElement.textContent.trim() : '00:00:00';
     
-    // 2. Formatear tiempo (como en la versión funcional)
-    const hours = Math.floor(accumulatedSeconds / 3600);
-    const minutes = Math.floor((accumulatedSeconds % 3600) / 60);
-    const seconds = accumulatedSeconds % 60;
-    const timeValue = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    // 2. Obtener horaSalidaReal desde current-time-value (lo que el usuario ve)
+    const currentTimeElement = document.getElementById('current-time-value');
+    let horaSalidaRealPantalla = currentTimeElement ? currentTimeElement.textContent.trim() : '00:00:00';
     
-    // 3. Obtener hora actual del sistema
-    const ahora = new Date();
-    const horaActual = ahora.toLocaleTimeString('es-ES', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false 
+    console.log("📊 Valores obtenidos de pantalla (ANTES de añadir 1s):", {
+        totalTimeValue: cronoSalidaRealPantalla,
+        currentTimeValue: horaSalidaRealPantalla
     });
     
-    // 4. Asignar tiempos al corredor
-    corredor.horaSalidaReal = horaActual;
-    corredor.cronoSalidaReal = timeValue;
-    corredor.horaSalidaRealSegundos = Math.floor(ahora.getTime() / 1000);
-    corredor.cronoSalidaRealSegundos = accumulatedSeconds;
+    // 3. AÑADIR 1 SEGUNDO A AMBOS VALORES
+    
+    // Convertir cronoSalidaReal a segundos, añadir 1 segundo, y volver a formato HH:MM:SS
+    let cronoSalidaRealSegundos = 0;
+    let cronoSalidaReal = '00:00:00';
+    
+    if (cronoSalidaRealPantalla && cronoSalidaRealPantalla !== '00:00:00') {
+        cronoSalidaRealSegundos = timeToSeconds(cronoSalidaRealPantalla);
+        // AÑADIR 1 SEGUNDO
+        cronoSalidaRealSegundos += 1;
+        cronoSalidaReal = secondsToTime(cronoSalidaRealSegundos);
+    } else {
+        cronoSalidaReal = cronoSalidaRealPantalla;
+    }
+    
+    // Convertir horaSalidaReal a segundos, añadir 1 segundo, y volver a formato HH:MM:SS
+    let horaSalidaRealSegundos = 0;
+    let horaSalidaReal = '00:00:00';
+    
+    if (horaSalidaRealPantalla && horaSalidaRealPantalla !== '00:00:00') {
+        // Convertir formato HH:MM:SS a segundos desde medianoche
+        const partes = horaSalidaRealPantalla.split(':');
+        if (partes.length === 3) {
+            const horas = parseInt(partes[0]) || 0;
+            const minutos = parseInt(partes[1]) || 0;
+            const segundos = parseInt(partes[2]) || 0;
+            horaSalidaRealSegundos = (horas * 3600) + (minutos * 60) + segundos;
+            // AÑADIR 1 SEGUNDO
+            horaSalidaRealSegundos += 1;
+            
+            // Convertir de nuevo a HH:MM:SS
+            const nuevasHoras = Math.floor(horaSalidaRealSegundos / 3600);
+            const nuevosMinutos = Math.floor((horaSalidaRealSegundos % 3600) / 60);
+            const nuevosSegundos = horaSalidaRealSegundos % 60;
+            
+            horaSalidaReal = `${nuevasHoras.toString().padStart(2, '0')}:${nuevosMinutos.toString().padStart(2, '0')}:${nuevosSegundos.toString().padStart(2, '0')}`;
+        } else {
+            horaSalidaReal = horaSalidaRealPantalla;
+        }
+    } else {
+        horaSalidaReal = horaSalidaRealPantalla;
+    }
+    
+    console.log("📊 Valores después de añadir 1 segundo:", {
+        cronoSalidaRealPantalla: cronoSalidaRealPantalla,
+        cronoSalidaRealFinal: cronoSalidaReal,
+        horaSalidaRealPantalla: horaSalidaRealPantalla,
+        horaSalidaRealFinal: horaSalidaReal
+    });
+    
+    // 4. Asignar tiempos al corredor (valores de pantalla + 1 segundo)
+    corredor.horaSalidaReal = horaSalidaReal;
+    corredor.cronoSalidaReal = cronoSalidaReal;
+    corredor.horaSalidaRealSegundos = horaSalidaRealSegundos;
+    corredor.cronoSalidaRealSegundos = cronoSalidaRealSegundos;
     
     // 5. Marcar como salido
     corredor.salido = true;
@@ -848,11 +885,16 @@ function registerDeparture() {
         ordenTabla: corredor.order,
         indiceArray: index
     });
-    console.log("  - departedCount ANTES:", (appState.departedCount - 1));
+    console.log("  - Tiempos registrados (pantalla + 1s):", {
+        cronoSalidaReal: cronoSalidaReal,
+        horaSalidaReal: horaSalidaReal,
+        cronoSalidaRealSegundos: cronoSalidaRealSegundos,
+        horaSalidaRealSegundos: horaSalidaRealSegundos
+    });
     console.log("  - departedCount AHORA:", appState.departedCount);
     console.log("  - proximoCorredorIndex NUEVO:", proximoCorredorIndex);
     
-    // 8. Actualizar UI
+    // 7. Actualizar UI
     actualizarDisplaySalidos();
     
     // Obtener datos para actualizar posición y dorsal
@@ -912,7 +954,7 @@ function registerDeparture() {
         }
     }
     
-    console.log("✅ Salida registrada COMPLETA:", {
+    console.log("✅ Salida registrada COMPLETA (valores de pantalla + 1s):", {
         corredorSalido: {
             dorsal: dorsal,
             order: corredor.order,
@@ -924,8 +966,8 @@ function registerDeparture() {
             nombre: startOrderData[proximoCorredorIndex].nombre
         } : null,
         tiempos: {
-            horaSalidaReal: horaActual,
-            cronoSalidaReal: timeValue
+            horaSalidaReal: horaSalidaReal,
+            cronoSalidaReal: cronoSalidaReal
         },
         contadores: {
             departedCount: appState.departedCount,
@@ -933,10 +975,10 @@ function registerDeparture() {
         }
     });
     
-    // 9. Actualizar tabla visual
-    actualizarTablaConSalidaRegistrada(dorsal, horaActual, timeValue);
+    // 8. Actualizar tabla visual
+    actualizarTablaConSalidaRegistrada(dorsal, horaSalidaReal, cronoSalidaReal);
     
-    // 10. Guardar datos
+    // 9. Guardar datos
     if (typeof saveStartOrderData === 'function') {
         saveStartOrderData();
     }
