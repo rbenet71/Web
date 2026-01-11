@@ -147,13 +147,13 @@ function processImportedOrderData(jsonData) {
     // Ordenar por número de orden
     importedData.sort((a, b) => a.order - b.order);
     
-    // ============ VALIDACIÓN 3.1.4: PRIMER CRONO DEBE SER 00:00:00 ============
+    // ============ VALIDACIÓN 3.1.5: PRIMER CRONO DEBE SER 00:00:00 ============
     if (importedData.length > 0) {
         const primerCorredor = importedData[0];
         const primerCrono = primerCorredor.cronoSalida || primerCorredor.cronoSalidaImportado;
         
         // DEPURACIÓN: Mostrar información detallada
-        console.log("🔍 VALIDACIÓN 3.1.4 - Primer corredor (después de applyImportRules):", {
+        console.log("🔍 VALIDACIÓN 3.1.5 - Primer corredor (después de applyImportRules):", {
             orden: primerCorredor.order,
             cronoSalida: primerCorredor.cronoSalida,
             cronoSalidaImportado: primerCorredor.cronoSalidaImportado,
