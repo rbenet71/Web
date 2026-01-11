@@ -2875,7 +2875,24 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 /***********************************************************************/
 
 
+/* Para tiempos con milésimas */
+.crono-llegada,
+.tiempo-final {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    text-align: center;
+    min-width: 100px; /* Más ancho para decimales */
+}
 
+.crono-llegada {
+    color: #007bff;
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.tiempo-final {
+    color: #28a745;
+    background-color: rgba(40, 167, 69, 0.05);
+}
 
 
 

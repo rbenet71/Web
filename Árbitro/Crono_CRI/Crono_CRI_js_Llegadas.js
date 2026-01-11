@@ -1,19 +1,22 @@
 // ============================================
-// MÓDULO DE LLEGADAS - SISTEMA DIRECTO
+// MÓDULO DE LLEGADAS - SISTEMA 3.1.1 CORREGIDO
 // ============================================
-// DESCRIPCIÓN: Sistema de llegadas directo - tiempo a tabla sin diálogos
-// FUNCIONAMIENTO:
-// 1. Pulsas "Registrar Llegada" → Captura tiempo inmediato
-// 2. Se inserta directamente en la tabla con dorsal vacío
-// 3. El usuario introduce dorsal directamente en la tabla
-// 4. Tabla en orden inverso (último arriba)
+// ORDEN DE 9 COLUMNAS:
+// 1. Dorsal
+// 2. Crono Llegada (capturado)
+// 3. Tiempo Final (Crono Llegada - Crono Salida)
+// 4. Nombre
+// 5. Apellidos
+// 6. Crono Salida (de salida: Real > Previsto)
+// 7. Hora Llegada (capturada)
+// 8. Hora Salida (de salida: Real > Previsto)
+// 9. Chip
 // ============================================
 
 // Variables globales
-let llegadasPendientes = [];
 let tiempoCapturaActiva = false;
 
-// Estado de llegadas - DECLARACIÓN CONDICIONAL
+// Estado de llegadas
 if (typeof llegadasState === 'undefined') {
     window.llegadasState = {
         llegadas: [],
@@ -48,51 +51,68 @@ function getFirstStartTimeInSeconds() {
     return 0;
 }
 
-function getFirstStartTimeInMilliseconds() {
-    const firstStartElement = document.getElementById('first-start-time');
-    if (firstStartElement && firstStartElement.value) {
-        return timeToSeconds(firstStartElement.value) * 1000;
+// ============================================
+// FUNCIÓN PARA OBTENER DATOS DE CORREDOR
+// ============================================
+function obtenerDatosCorredor(dorsal) {
+    console.log(`🔍 Buscando dorsal ${dorsal} en startOrderData...`);
+    
+    const corredor = startOrderData.find(r => r.dorsal === dorsal);
+    
+    // SI NO ENCUENTRA EL DORSAL, DEVOLVER OBJETO VACÍO PERO NO NULL
+    if (!corredor) {
+        console.log(`⚠️ Dorsal ${dorsal} no encontrado - datos vacíos`);
+        return {
+            dorsal: dorsal,
+            nombre: '',
+            apellidos: '',
+            chip: '',
+            horaSalida: '',
+            cronoSalida: '',  // VACÍO si no se encuentra
+            cronoSalidaSegundos: 0,  // CERO si no se encuentra
+            orden: 0
+        };
     }
-    return 0;
-}
-
-function formatMillisecondsToTime(ms) {
-    let totalSeconds = Math.floor(ms / 1000);
-    let milliseconds = ms % 1000;
     
-    let hours = Math.floor(totalSeconds / 3600);
-    let minutes = Math.floor((totalSeconds % 3600) / 60);
-    let seconds = totalSeconds % 60;
+    // PRIORIDAD: Real > Previsto
+    const horaSalida = corredor.horaSalidaReal || corredor.horaSalida || '';
     
-    // Formato HH:MM:SS.mmm
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
-}
-
-function formatMillisecondsToTimeSimple(ms) {
-    let totalSeconds = Math.floor(ms / 1000);
-    let milliseconds = ms % 1000;
+    // OBTENER CRONO SALIDA PERO SOLO SI NO ES EL PRIMER CORREDOR
+    let cronoSalida = '';
+    let cronoSalidaSegundos = 0;
     
-    let hours = Math.floor(totalSeconds / 3600);
-    let minutes = Math.floor((totalSeconds % 3600) / 60);
-    let seconds = totalSeconds % 60;
+    if (corredor.orden && corredor.orden > 1) {
+        // Solo traer cronoSalida si NO es el primer corredor (orden > 1)
+        cronoSalida = corredor.cronoSalidaReal || corredor.cronoSalida || '';
+        
+        // Convertir a segundos solo si hay valor
+        if (cronoSalida) {
+            cronoSalidaSegundos = timeToSeconds(cronoSalida);
+        }
+    }
+    // Si es el primer corredor (orden = 1), dejar cronoSalida vacío
     
-    // Formato HH:MM:SS
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    return {
+        dorsal: corredor.dorsal,
+        nombre: corredor.nombre || '',
+        apellidos: corredor.apellidos || '',
+        chip: corredor.chip || '',
+        horaSalida: horaSalida,
+        cronoSalida: cronoSalida,  // VACÍO para primer corredor
+        cronoSalidaSegundos: cronoSalidaSegundos,  // CERO para primer corredor
+        orden: corredor.orden || 0
+    };
 }
 
 // ============================================
 // CRONÓMETRO DE LLEGADAS
 // ============================================
 function initLlegadasMode() {
-    console.log("Inicializando modo llegadas - SISTEMA DIRECTO");
+    console.log("Inicializando modo llegadas - SISTEMA 3.1.1");
     
-    // Cargar estado guardado
     loadLlegadasState();
-    
-    // Inicializar cronómetro
     updateLlegadasTimerDisplay();
     
-    // Iniciar intervalo de actualización
     if (window.llegadasUpdateInterval) {
         clearInterval(window.llegadasUpdateInterval);
     }
@@ -103,13 +123,10 @@ function initLlegadasMode() {
         }
     }, 100);
     
-    // Configurar listeners
     setupLlegadasEventListeners();
-    
-    // Renderizar lista
     renderLlegadasList();
     
-    console.log("Modo llegadas inicializado - SISTEMA DIRECTO");
+    console.log("Modo llegadas inicializado");
 }
 
 function updateLlegadasTimerDisplay() {
@@ -120,85 +137,199 @@ function updateLlegadasTimerDisplay() {
     const firstStartSeconds = getFirstStartTimeInSeconds();
     
     let diferenciaSegundos = currentTimeSeconds - firstStartSeconds;
-    if (diferenciaSegundos < 0) {
-        diferenciaSegundos = 0;
-    }
+    if (diferenciaSegundos < 0) diferenciaSegundos = 0;
     
     display.textContent = secondsToTime(diferenciaSegundos);
     llegadasState.currentTime = diferenciaSegundos;
 }
 
 // ============================================
-// SISTEMA DIRECTO - CAPTURA INMEDIATA A TABLA
+// CAPTURA DIRECTA DE LLEGADA
 // ============================================
 function capturarLlegadaDirecta() {
-    if (tiempoCapturaActiva) {
-        console.log("⚠️ Captura ya en progreso");
-        return;
-    }
+    if (tiempoCapturaActiva) return;
     
     tiempoCapturaActiva = true;
     
     try {
-        console.log("⏱️ Capturando llegada DIRECTAMENTE...");
+        console.log("⏱️ Capturando llegada...");
         
-        // Obtener tiempo actual
-        const currentTimeMs = getCurrentTimeInMilliseconds();
-        const firstStartMs = getFirstStartTimeInMilliseconds();
+        // Obtener tiempo actual CON MILÉSIMAS
+        const now = new Date();
+        const currentTimeWithMs = getCurrentTimeInSecondsWithMilliseconds();
+        const firstStartSeconds = getFirstStartTimeInSeconds();
         
-        let diferenciaMs = currentTimeMs - firstStartMs;
-        if (diferenciaMs < 0) diferenciaMs = 0;
+        // Hora Llegada (HH:MM:SS)
+        const horaHours = now.getHours().toString().padStart(2, '0');
+        const horaMinutes = now.getMinutes().toString().padStart(2, '0');
+        const horaSeconds = now.getSeconds().toString().padStart(2, '0');
+        const horaLlegada = `${horaHours}:${horaMinutes}:${horaSeconds}`;
         
-        // Crear llegada con dorsal vacío (se asignará después)
+        // Crono Llegada CON MILÉSIMAS
+        let cronoLlegadaWithMs = currentTimeWithMs - firstStartSeconds;
+        if (cronoLlegadaWithMs < 0) cronoLlegadaWithMs = 0;
+        
+        // Crear llegada con milésimas
         const llegada = {
             id: Date.now() + Math.random(),
-            timestamp: currentTimeMs,
-            dorsal: null, // Vacío - el usuario lo introducirá después
+            timestamp: Date.now(),
+            dorsal: null,
             nombre: '',
+            apellidos: '',
+            chip: '',
             horaSalida: '',
-            horaLlegada: formatMillisecondsToTime(currentTimeMs),
-            tiempoCrono: formatMillisecondsToTime(diferenciaMs),
-            milliseconds: diferenciaMs,
+            cronoSalida: '',
+            cronoSalidaSegundos: 0,
+            horaLlegada: horaLlegada,
+            cronoLlegadaWithMs: cronoLlegadaWithMs, // CON MILÉSIMAS
+            tiempoFinalWithMs: 0, // CON MILÉSIMAS
             notas: '',
             capturadoEn: new Date().toLocaleTimeString(),
-            pendiente: true // Marcar como pendiente de asignar dorsal
+            pendiente: true
         };
         
-        // Añadir al PRINCIPIO de la lista (orden inverso)
+        // Añadir al principio (orden inverso)
         llegadasState.llegadas.unshift(llegada);
         
-        // Guardar y renderizar
         saveLlegadasState();
         renderLlegadasList();
         
-        // Mostrar confirmación breve
-        showMessage(`Tiempo capturado: ${llegada.tiempoCrono.split('.')[0]}`, 'success', 1500);
+        showMessage(`Llegada capturada: ${formatSecondsWithMilliseconds(cronoLlegadaWithMs)}`, 'success', 1500);
         
-        // Hacer focus en el campo de dorsal de la primera fila
+        // Focus en dorsal
         setTimeout(() => {
             const primeraFila = document.querySelector('#llegadas-table-body tr:first-child');
             if (primeraFila) {
                 const dorsalCell = primeraFila.querySelector('td:first-child');
-                if (dorsalCell) {
-                    dorsalCell.focus();
-                }
+                if (dorsalCell) dorsalCell.focus();
             }
         }, 300);
         
-        console.log("✅ Llegada añadida directamente a tabla");
-        
     } catch (error) {
-        console.error("❌ Error capturando llegada:", error);
-        showMessage("Error al capturar llegada", 'error');
+        console.error("❌ Error:", error);
+        showMessage("Error al capturar", 'error');
     } finally {
-        setTimeout(() => {
-            tiempoCapturaActiva = false;
-        }, 200);
+        setTimeout(() => { tiempoCapturaActiva = false; }, 200);
     }
 }
 
 // ============================================
-// RENDERIZADO DE TABLA CON EDICIÓN DIRECTA
+// ACTUALIZACIÓN DE DORSAL CON CÁLCULO
+// ============================================
+function actualizarDorsal(index, nuevoDorsal) {
+    if (!llegadasState.llegadas[index]) return;
+    
+    const dorsal = parseInt(nuevoDorsal.trim());
+    
+    if (isNaN(dorsal) || dorsal <= 0) {
+        resetearDatosLlegada(index);
+        return;
+    }
+    
+    // Verificar si dorsal ya existe (PERMITIR DUPLICADOS PARA PRUEBAS)
+    const dorsalExistente = llegadasState.llegadas.find((l, i) => 
+        i !== index && l.dorsal === dorsal);
+    
+    if (dorsalExistente) {
+        // Mostrar advertencia pero PERMITIR igualmente
+        showMessage(`⚠️ Dorsal ${dorsal} ya registrado - se mantendrá igual`, 'warning');
+        // Continuar igualmente sin resetear
+    }
+    
+    // Buscar datos en tabla de salida (SIEMPRE devuelve algo)
+    const datosCorredor = obtenerDatosCorredor(dorsal);
+    
+    // Actualizar llegada CON O SIN DATOS ENCONTRADOS
+    const llegada = llegadasState.llegadas[index];
+    
+    llegada.dorsal = dorsal;
+    llegada.nombre = datosCorredor.nombre;
+    llegada.apellidos = datosCorredor.apellidos;
+    llegada.chip = datosCorredor.chip;
+    llegada.horaSalida = datosCorredor.horaSalida;
+    llegada.cronoSalida = datosCorredor.cronoSalida;
+    llegada.cronoSalidaSegundos = datosCorredor.cronoSalidaSegundos;
+    llegada.pendiente = false;
+    
+    // CALCULAR TIEMPO FINAL SOLO SI HAY CRONO SALIDA (no es primer corredor)
+    if (llegada.cronoSalidaSegundos > 0 && llegada.cronoLlegadaWithMs > 0) {
+        llegada.tiempoFinalWithMs = llegada.cronoLlegadaWithMs - llegada.cronoSalidaSegundos;
+        if (llegada.tiempoFinalWithMs < 0) llegada.tiempoFinalWithMs = 0;
+    } else {
+        // Si es primer corredor o no tiene cronoSalida, Tiempo Final = Crono Llegada
+        llegada.tiempoFinalWithMs = llegada.cronoLlegadaWithMs;
+    }
+    
+    saveLlegadasState();
+    actualizarFilaLlegada(index);
+    
+    // Mensaje diferente según si se encontró o no
+    if (datosCorredor.nombre || datosCorredor.apellidos) {
+        const tiempoFinalDisplay = formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs);
+        showMessage(`✅ Dorsal ${dorsal}: ${tiempoFinalDisplay}`, 'success', 2000);
+    } else {
+        showMessage(`📝 Dorsal ${dorsal} almacenado (datos no encontrados)`, 'info', 2000);
+    }
+}
+
+function resetearDatosLlegada(index) {
+    const llegada = llegadasState.llegadas[index];
+    if (!llegada) return;
+    
+    llegada.dorsal = null;
+    llegada.nombre = '';
+    llegada.apellidos = '';
+    llegada.chip = '';
+    llegada.horaSalida = '';
+    llegada.cronoSalida = '';
+    llegada.cronoSalidaSegundos = 0;
+    llegada.tiempoFinalSegundos = 0;
+    llegada.pendiente = true;
+    
+    saveLlegadasState();
+    actualizarFilaLlegada(index);
+}
+
+function actualizarFilaLlegada(index) {
+    const llegada = llegadasState.llegadas[index];
+    if (!llegada) return;
+    
+    const fila = document.querySelector(`#llegadas-table-body tr[data-index="${index}"]`);
+    if (!fila) return;
+    
+    const celdas = fila.querySelectorAll('td');
+    
+    // Actualizar las 9 columnas con formato correcto
+    celdas[0].textContent = llegada.dorsal || '';
+    celdas[0].className = llegada.dorsal ? '' : 'dorsal-pendiente';
+    
+    // Crono Llegada (col 2) - CON 3 DECIMALES
+    celdas[1].textContent = formatSecondsWithMilliseconds(llegada.cronoLlegadaWithMs);
+    
+    // Tiempo Final (col 3) - CON 3 DECIMALES
+    celdas[2].textContent = formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs);
+    
+    // Nombre (col 4)
+    celdas[3].textContent = llegada.nombre || '';
+    
+    // Apellidos (col 5)
+    celdas[4].textContent = llegada.apellidos || '';
+    
+    // Crono Salida (col 6) - SIN DECIMALES (de tabla salida)
+    celdas[5].textContent = llegada.cronoSalida || '--:--:--';
+    
+    // Hora Llegada (col 7)
+    celdas[6].textContent = llegada.horaLlegada || '--:--:--';
+    
+    // Hora Salida (col 8)
+    celdas[7].textContent = llegada.horaSalida || '--:--:--';
+    
+    // Chip (col 9)
+    celdas[8].textContent = llegada.chip || '';
+}
+
+// ============================================
+// RENDERIZADO DE TABLA CON 9 COLUMNAS
 // ============================================
 function renderLlegadasList() {
     const tableBody = document.getElementById('llegadas-table-body');
@@ -214,120 +345,57 @@ function renderLlegadasList() {
     
     emptyState.style.display = 'none';
     
-    // Crear tabla completa
     let html = '';
     
     llegadasState.llegadas.forEach((llegada, index) => {
-        const esUltima = index === 0; // La primera en la lista es la última en llegar
+        const esUltima = index === 0;
         const tieneDorsal = llegada.dorsal && llegada.dorsal !== null;
         const claseFila = esUltima ? 'ultima-llegada' : '';
         const claseDorsal = tieneDorsal ? '' : 'dorsal-pendiente';
         
-        // Formatear tiempos para visualización
-        const horaLlegadaDisplay = llegada.horaLlegada ? 
-            llegada.horaLlegada.split('.')[0] : '--:--:--';
-        const tiempoCronoDisplay = llegada.tiempoCrono ? 
-            llegada.tiempoCrono.split('.')[0] : '--:--:--';
-        
-        // Nombre (se autocompletará al poner dorsal)
-        const nombreDisplay = llegada.nombre || 
-            (tieneDorsal ? getNombreFromDorsal(llegada.dorsal) : '');
-        
         html += `
         <tr class="${claseFila}" data-id="${llegada.id}" data-index="${index}">
+            <!-- 1. Dorsal -->
             <td class="${claseDorsal}" contenteditable="true" 
                 onfocus="this.classList.add('editing')"
                 onblur="this.classList.remove('editing'); actualizarDorsal(${index}, this.textContent)"
                 onkeypress="if(event.key === 'Enter') { this.blur(); event.preventDefault(); }">
                 ${tieneDorsal ? llegada.dorsal : ''}
             </td>
-            <td>${nombreDisplay}</td>
+            
+            <!-- 2. Crono Llegada -->
+            <td class="crono-llegada">${formatSecondsWithMilliseconds(llegada.cronoLlegadaWithMs)}</td>
+            
+            <!-- 3. Tiempo Final -->
+            <td class="tiempo-final">${formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs)}</td>
+            
+            <!-- 4. Nombre -->
+            <td>${llegada.nombre || ''}</td>
+            
+            <!-- 5. Apellidos -->
+            <td>${llegada.apellidos || ''}</td>
+            
+            <!-- 6. Crono Salida -->
+            <td class="crono-salida">${llegada.cronoSalida || '--:--:--'}</td>
+            
+            <!-- 7. Hora Llegada -->
+            <td>${llegada.horaLlegada || '--:--:--'}</td>
+            
+            <!-- 8. Hora Salida -->
             <td>${llegada.horaSalida || '--:--:--'}</td>
-            <td><strong>${horaLlegadaDisplay}</strong></td>
-            <td><strong class="tiempo-crono">${tiempoCronoDisplay}</strong></td>
-            <td contenteditable="true"
-                onfocus="this.classList.add('editing')"
-                onblur="this.classList.remove('editing'); actualizarNotas(${index}, this.textContent)"
-                onkeypress="if(event.key === 'Enter') { this.blur(); event.preventDefault(); }">
-                ${llegada.notas || ''}
-            </td>
+            
+            <!-- 9. Chip -->
+            <td>${llegada.chip || ''}</td>
         </tr>
         `;
     });
     
     tableBody.innerHTML = html;
-    
-    // Añadir estilos dinámicos
-    setTimeout(() => {
-        const filasPendientes = document.querySelectorAll('.dorsal-pendiente');
-        filasPendientes.forEach(fila => {
-            fila.style.backgroundColor = '#fff3cd';
-            fila.style.borderLeft = '4px solid #ffc107';
-        });
-    }, 100);
 }
 
 // ============================================
-// FUNCIONES DE ACTUALIZACIÓN EN TIEMPO REAL
+// FUNCIONES AUXILIARES
 // ============================================
-function actualizarDorsal(index, nuevoDorsal) {
-    if (!llegadasState.llegadas[index]) return;
-    
-    const dorsal = parseInt(nuevoDorsal.trim());
-    
-    if (isNaN(dorsal) || dorsal <= 0) {
-        // Si no es un dorsal válido, dejar vacío
-        llegadasState.llegadas[index].dorsal = null;
-        llegadasState.llegadas[index].nombre = '';
-    } else {
-        // Verificar si el dorsal ya existe
-        const dorsalExistente = llegadasState.llegadas.find((l, i) => 
-            i !== index && l.dorsal === dorsal);
-        
-        if (dorsalExistente) {
-            showMessage(`⚠️ Dorsal ${dorsal} ya registrado`, 'warning');
-            // Restaurar valor anterior
-            const fila = document.querySelector(`#llegadas-table-body tr[data-index="${index}"] td:first-child`);
-            if (fila) {
-                fila.textContent = llegadasState.llegadas[index].dorsal || '';
-            }
-            return;
-        }
-        
-        // Actualizar dorsal
-        llegadasState.llegadas[index].dorsal = dorsal;
-        llegadasState.llegadas[index].pendiente = false;
-        
-        // Buscar y actualizar nombre automáticamente
-        const nombreCompleto = getNombreFromDorsal(dorsal);
-        if (nombreCompleto) {
-            llegadasState.llegadas[index].nombre = nombreCompleto;
-            
-            // Actualizar celda de nombre en tiempo real
-            const nombreCell = document.querySelector(`#llegadas-table-body tr[data-index="${index}"] td:nth-child(2)`);
-            if (nombreCell) {
-                nombreCell.textContent = nombreCompleto;
-            }
-        }
-        
-        // Actualizar hora de salida si existe
-        const salidaData = llegadasState.importedSalidas.find(s => s.dorsal === dorsal);
-        if (salidaData && salidaData.horaSalida) {
-            llegadasState.llegadas[index].horaSalida = salidaData.horaSalida;
-            
-            // Actualizar celda de hora salida
-            const salidaCell = document.querySelector(`#llegadas-table-body tr[data-index="${index}"] td:nth-child(3)`);
-            if (salidaCell) {
-                salidaCell.textContent = salidaData.horaSalida;
-            }
-        }
-        
-        showMessage(`✅ Dorsal ${dorsal} asignado`, 'success', 1000);
-    }
-    
-    saveLlegadasState();
-}
-
 function actualizarNotas(index, nuevasNotas) {
     if (llegadasState.llegadas[index]) {
         llegadasState.llegadas[index].notas = nuevasNotas.trim();
@@ -335,55 +403,37 @@ function actualizarNotas(index, nuevasNotas) {
     }
 }
 
-function getNombreFromDorsal(dorsal) {
-    // Buscar en datos importados
-    const salidaData = llegadasState.importedSalidas.find(s => s.dorsal === dorsal);
-    if (salidaData && salidaData.nombre && salidaData.apellidos) {
-        return `${salidaData.nombre} ${salidaData.apellidos}`;
-    }
-    
-    // Buscar en datos de orden de salida
-    const orderData = startOrderData.find(r => r.dorsal === dorsal);
-    if (orderData && orderData.nombre && orderData.apellidos) {
-        return `${orderData.nombre} ${orderData.apellidos}`;
-    }
-    
-    return '';
-}
-
-// ============================================
-// FUNCIONES DE GESTIÓN
-// ============================================
 function clearLlegadas() {
     if (llegadasState.llegadas.length === 0) {
-        showMessage("No hay llegadas registradas", 'info');
+        showMessage("No hay llegadas", 'info');
         return;
     }
     
-    if (confirm(`¿Eliminar todas las ${llegadasState.llegadas.length} llegadas registradas?`)) {
+    if (confirm(`¿Eliminar ${llegadasState.llegadas.length} llegadas?`)) {
         llegadasState.llegadas = [];
         saveLlegadasState();
         renderLlegadasList();
-        showMessage("Todas las llegadas eliminadas", 'success');
+        showMessage("Llegadas eliminadas", 'success');
     }
 }
 
 // ============================================
-// FUNCIONES DE CLASIFICACIÓN Y EXPORTACIÓN
+// CLASIFICACIÓN POR TIEMPO FINAL
 // ============================================
 function showRankingModal() {
     const t = translations[appState.currentLanguage];
     
+    // Filtrar por tiempo final calculado
     const llegadasConTiempo = llegadasState.llegadas.filter(l => 
-        l.dorsal && l.milliseconds && l.milliseconds > 0);
+        l.dorsal && l.tiempoFinalSegundos && l.tiempoFinalSegundos > 0);
     
     if (llegadasConTiempo.length === 0) {
         showMessage(t.noRankingText, 'info');
         return;
     }
     
-    // Ordenar por tiempo
-    llegadasConTiempo.sort((a, b) => a.milliseconds - b.milliseconds);
+    // ORDENAR POR TIEMPO FINAL MÁS BAJO (más rápido)
+    llegadasConTiempo.sort((a, b) => a.tiempoFinalSegundos - b.tiempoFinalSegundos);
     
     const tableBody = document.getElementById('ranking-table-body');
     const emptyState = document.getElementById('ranking-empty');
@@ -392,26 +442,31 @@ function showRankingModal() {
         emptyState.style.display = 'none';
         
         let html = '';
-        let bestTime = null;
+        let mejorTiempo = null;
         
         llegadasConTiempo.forEach((llegada, index) => {
-            const tiempoDisplay = llegada.tiempoCrono ? 
-                llegada.tiempoCrono.split('.')[0] : formatMillisecondsToTimeSimple(llegada.milliseconds);
-            
+            // Diferencia con el mejor
             let diferencia = '--:--:--';
-            if (bestTime === null) {
-                bestTime = llegada.milliseconds;
+            if (mejorTiempo === null) {
+                mejorTiempo = llegada.tiempoFinalSegundos;
             } else {
-                const diffMs = llegada.milliseconds - bestTime;
-                diferencia = formatMillisecondsToTimeSimple(diffMs);
+                const diffSegundos = llegada.tiempoFinalSegundos - mejorTiempo;
+                diferencia = secondsToTime(diffSegundos);
             }
             
+            const nombreCompleto = llegada.nombre && llegada.apellidos ? 
+                `${llegada.nombre} ${llegada.apellidos}` : '';
+            
+            const clasePuesto = index < 3 ? `puesto-${index + 1}` : '';
+            
             html += `
-            <tr>
+            <tr class="${clasePuesto}">
                 <td><strong>${index + 1}</strong></td>
                 <td>${llegada.dorsal}</td>
-                <td>${llegada.nombre || getNombreFromDorsal(llegada.dorsal)}</td>
-                <td><strong>${tiempoDisplay}</strong></td>
+                <td>${nombreCompleto}</td>
+                <td>${llegada.cronoSalida || '--:--:--'}</td>
+                <td>${secondsToTime(llegada.cronoLlegadaSegundos)}</td>
+                <td><strong class="tiempo-final-ranking">${secondsToTime(llegada.tiempoFinalSegundos)}</strong></td>
                 <td>${diferencia}</td>
             </tr>
             `;
@@ -425,6 +480,9 @@ function showRankingModal() {
     document.getElementById('ranking-modal').classList.add('active');
 }
 
+// ============================================
+// EXPORTACIÓN
+// ============================================
 function exportLlegadasToExcel() {
     const t = translations[appState.currentLanguage];
     
@@ -433,23 +491,52 @@ function exportLlegadasToExcel() {
         return;
     }
     
+    // Ordenar por tiempo final
+    const llegadasOrdenadas = [...llegadasState.llegadas]
+        .filter(l => l.tiempoFinalSegundos > 0)
+        .sort((a, b) => a.tiempoFinalSegundos - b.tiempoFinalSegundos);
+    
+    const llegadasSinTiempo = llegadasState.llegadas.filter(l => !l.tiempoFinalSegundos || l.tiempoFinalSegundos <= 0);
+    
     const data = [
         ['Carrera', appState.currentRace ? appState.currentRace.name : 'Sin nombre'],
-        ['Fecha de exportación', new Date().toLocaleDateString()],
-        ['Hora de exportación', new Date().toLocaleTimeString()],
-        ['Total de llegadas', llegadasState.llegadas.length],
+        ['Fecha', new Date().toLocaleDateString()],
+        ['Hora', new Date().toLocaleTimeString()],
+        ['Total llegadas', llegadasState.llegadas.length],
         [''],
-        ['Dorsal', 'Nombre', 'Hora Salida', 'Hora Llegada', 'Tiempo Crono', 'Notas']
+        ['Pos', 'Dorsal', 'Crono Llegada', 'Tiempo Final', 'Nombre', 'Apellidos', 
+         'Crono Salida', 'Hora Llegada', 'Hora Salida', 'Chip', 'Notas']
     ];
     
-    // Exportar en orden cronológico (primero en llegar primero)
-    llegadasState.llegadas.slice().reverse().forEach(llegada => {
+    let posicion = 1;
+    llegadasOrdenadas.forEach(llegada => {
         data.push([
-            llegada.dorsal || 'PENDIENTE',
-            llegada.nombre || getNombreFromDorsal(llegada.dorsal) || '',
-            llegada.horaSalida || '',
+            posicion++,
+            llegada.dorsal || '',
+            secondsToTime(llegada.cronoLlegadaSegundos),
+            secondsToTime(llegada.tiempoFinalSegundos),
+            llegada.nombre || '',
+            llegada.apellidos || '',
+            llegada.cronoSalida || '',
             llegada.horaLlegada || '',
-            llegada.tiempoCrono || '',
+            llegada.horaSalida || '',
+            llegada.chip || '',
+            llegada.notas || ''
+        ]);
+    });
+    
+    llegadasSinTiempo.forEach(llegada => {
+        data.push([
+            '--',
+            llegada.dorsal || 'PENDIENTE',
+            secondsToTime(llegada.cronoLlegadaSegundos),
+            'SIN TIEMPO',
+            llegada.nombre || '',
+            llegada.apellidos || '',
+            llegada.cronoSalida || '',
+            llegada.horaLlegada || '',
+            llegada.horaSalida || '',
+            llegada.chip || '',
             llegada.notas || ''
         ]);
     });
@@ -467,10 +554,9 @@ function exportLlegadasToExcel() {
 function exportRankingToExcel() {
     const t = translations[appState.currentLanguage];
     
-    const llegadasConTiempo = llegadasState.llegadas.filter(l => 
-        l.dorsal && l.milliseconds && l.milliseconds > 0);
-    
-    llegadasConTiempo.sort((a, b) => a.milliseconds - b.milliseconds);
+    const llegadasConTiempo = llegadasState.llegadas
+        .filter(l => l.dorsal && l.tiempoFinalSegundos && l.tiempoFinalSegundos > 0)
+        .sort((a, b) => a.tiempoFinalSegundos - b.tiempoFinalSegundos);
     
     if (llegadasConTiempo.length === 0) {
         showMessage(t.noDataToExport, 'warning');
@@ -479,31 +565,33 @@ function exportRankingToExcel() {
     
     const data = [
         ['Carrera', appState.currentRace ? appState.currentRace.name : 'Sin nombre'],
-        ['Fecha de exportación', new Date().toLocaleDateString()],
-        ['Hora de exportación', new Date().toLocaleTimeString()],
-        ['Total en clasificación', llegadasConTiempo.length],
+        ['Fecha', new Date().toLocaleDateString()],
+        ['Hora', new Date().toLocaleTimeString()],
+        ['Total', llegadasConTiempo.length],
         [''],
-        ['Posición', 'Dorsal', 'Nombre', 'Tiempo Crono', 'Diferencia']
+        ['Pos', 'Dorsal', 'Nombre', 'Crono Salida', 'Crono Llegada', 'Tiempo Final', 'Diferencia']
     ];
     
-    let bestTime = null;
+    let mejorTiempo = null;
     llegadasConTiempo.forEach((llegada, index) => {
-        const tiempoDisplay = llegada.tiempoCrono ? 
-            llegada.tiempoCrono.split('.')[0] : formatMillisecondsToTimeSimple(llegada.milliseconds);
-        
         let diferencia = '--:--:--';
-        if (bestTime === null) {
-            bestTime = llegada.milliseconds;
+        if (mejorTiempo === null) {
+            mejorTiempo = llegada.tiempoFinalSegundos;
         } else {
-            const diffMs = llegada.milliseconds - bestTime;
-            diferencia = formatMillisecondsToTimeSimple(diffMs);
+            const diffSegundos = llegada.tiempoFinalSegundos - mejorTiempo;
+            diferencia = secondsToTime(diffSegundos);
         }
+        
+        const nombreCompleto = llegada.nombre && llegada.apellidos ? 
+            `${llegada.nombre} ${llegada.apellidos}` : '';
         
         data.push([
             index + 1,
             llegada.dorsal,
-            llegada.nombre || getNombreFromDorsal(llegada.dorsal),
-            tiempoDisplay,
+            nombreCompleto,
+            llegada.cronoSalida || '--:--:--',
+            secondsToTime(llegada.cronoLlegadaSegundos),
+            secondsToTime(llegada.tiempoFinalSegundos),
             diferencia
         ]);
     });
@@ -528,7 +616,7 @@ function loadLlegadasState() {
         llegadasState.llegadas = state.llegadas || [];
         llegadasState.importedSalidas = state.importedSalidas || [];
         llegadasState.currentTime = state.currentTime || 0;
-        console.log("Estado de llegadas cargado:", llegadasState.llegadas.length, "llegadas");
+        console.log("Estado cargado:", llegadasState.llegadas.length, "llegadas");
     }
 }
 
@@ -544,37 +632,27 @@ function saveLlegadasState() {
 // CONFIGURACIÓN DE LISTENERS
 // ============================================
 function setupLlegadasEventListeners() {
-    console.log("🔧 Configurando listeners del modo llegadas - SISTEMA DIRECTO");
+    console.log("🔧 Configurando listeners - SISTEMA 3.1.1");
     
-    // Botón principal "Registrar Llegada" - CAPTURA DIRECTA
+    // Botón Registrar Llegada
     const registerBtn = document.getElementById('register-llegada-btn');
     if (registerBtn) {
         const newRegisterBtn = registerBtn.cloneNode(true);
         registerBtn.parentNode.replaceChild(newRegisterBtn, registerBtn);
         
-        document.getElementById('register-llegada-btn').addEventListener('click', function(e) {
-            console.log("🎯 CAPTURA DIRECTA de llegada");
-            e.preventDefault();
-            e.stopPropagation();
-            capturarLlegadaDirecta();
-        });
+        document.getElementById('register-llegada-btn').addEventListener('click', capturarLlegadaDirecta);
     }
     
-    // Botón de registro rápido (flotante)
+    // Botón rápido
     const quickBtn = document.getElementById('quick-register-btn');
     if (quickBtn) {
         const newQuickBtn = quickBtn.cloneNode(true);
         quickBtn.parentNode.replaceChild(newQuickBtn, quickBtn);
         
-        document.getElementById('quick-register-btn').addEventListener('click', function(e) {
-            console.log("⚡ CAPTURA RÁPIDA DIRECTA");
-            e.preventDefault();
-            e.stopPropagation();
-            capturarLlegadaDirecta();
-        });
+        document.getElementById('quick-register-btn').addEventListener('click', capturarLlegadaDirecta);
     }
     
-    // Botones de gestión
+    // Botones gestión
     const clearBtn = document.getElementById('clear-llegadas-btn');
     const exportBtn = document.getElementById('export-llegadas-btn');
     const rankingBtn = document.getElementById('show-ranking-btn');
@@ -583,19 +661,42 @@ function setupLlegadasEventListeners() {
     if (exportBtn) exportBtn.addEventListener('click', exportLlegadasToExcel);
     if (rankingBtn) rankingBtn.addEventListener('click', showRankingModal);
     
-    console.log("✅ Listeners del modo llegadas configurados - SISTEMA DIRECTO");
+    console.log("✅ Listeners configurados");
+}
+
+// Añade esta función en Crono_CRI_js_Llegadas.js
+function formatSecondsWithMilliseconds(seconds) {
+    if (!seconds && seconds !== 0) return '00:00:00.000';
+    
+    const totalSeconds = Math.abs(seconds);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const secs = Math.floor(totalSeconds % 60);
+    const milliseconds = Math.round((seconds - Math.floor(seconds)) * 1000);
+    
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
+}
+
+// Función para obtener segundos con milésimas
+function getCurrentTimeInSecondsWithMilliseconds() {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const seconds = now.getSeconds();
+    const milliseconds = now.getMilliseconds();
+    
+    return (hours * 3600) + (minutes * 60) + seconds + (milliseconds / 1000);
 }
 
 // ============================================
-// EXPORTACIÓN DE FUNCIONES
+// EXPORTACIÓN GLOBAL
 // ============================================
 window.initLlegadasMode = initLlegadasMode;
 window.capturarLlegadaDirecta = capturarLlegadaDirecta;
 window.actualizarDorsal = actualizarDorsal;
-window.actualizarNotas = actualizarNotas;
 window.showRankingModal = showRankingModal;
 window.exportLlegadasToExcel = exportLlegadasToExcel;
 window.exportRankingToExcel = exportRankingToExcel;
 window.clearLlegadas = clearLlegadas;
 
-console.log("✅ Módulo de llegadas DIRECTO cargado y listo");
+console.log("✅ Módulo de llegadas 3.1.1 cargado");

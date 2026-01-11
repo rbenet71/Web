@@ -1,7 +1,7 @@
 Te paso el archivo MD actualizado con los últimos cambios:
 
 ```markdown
-# Crono CRI - Documentación Técnica v3.0.4
+# Crono CRI - Documentación Técnica v3.1.1
 
 ## 📋 ÍNDICE
 1. [Arquitectura del Sistema](#arquitectura-del-sistema)
@@ -99,7 +99,7 @@ Hora Salida Real Segundos
 - ✅ Intervalos variables entre corredores
 - ✅ Reinicio completo del sistema
 
-### **4. Sistema de Llegadas (SIMPLIFICADO - v3.0.4)**
+### **4. Sistema de Llegadas (SIMPLIFICADO - v3.1.1)**
 - ⏱️ **CRONÓMETRO AUTOMÁTICO**: Se activa automáticamente al entrar en modo llegadas
 - 📋 Registro manual de llegadas por dorsal
 - 🚫 **ELIMINADO**: Botones "Iniciar/Detener Cronómetro"
@@ -248,7 +248,7 @@ Hora Salida Real Segundos
 
 ### **4. Llegadas.js - Sistema de Llegadas (SIMPLIFICADO)**
 ```javascript
-// 🔥 CAMBIOS PRINCIPALES v3.0.4:
+// 🔥 CAMBIOS PRINCIPALES v3.1.1:
 // - ELIMINADO: startLlegadasTimer(), stopLlegadasTimer()
 // - ELIMINADO: importSalidasForLlegadas()
 // - MODIFICADO: Cronómetro SIEMPRE activo
@@ -451,7 +451,7 @@ Datos carrera → Procesamiento → Formato → Descarga
 ```bash
 # 1. Subir a GitHub Pages
 git add .
-git commit -m "Versión 3.0.4"
+git commit -m "Versión 3.1.1"
 git push
 
 # 2. Verificar en
@@ -466,7 +466,7 @@ https://rbenet71.github.io/Web/Árbitro/Crono_CRI/
 ```javascript
 // En Main.js
 const CONFIG = {
-    VERSION: '3.0.4',
+    VERSION: '3.1.1',
     DEBUG: false,
     AUTO_SAVE_INTERVAL: 30000, // 30 segundos
     MAX_RACES: 100,
@@ -536,13 +536,13 @@ navigator.serviceWorker.getRegistrations()
 
 ## 📝 HISTORIAL DE CAMBIOS
 
-### **Versión 3.0.4 (Actual)**
+### **Versión 3.1.1 (Actual)**
 - **SIMPLIFICACIÓN MODALIDAD LLEGADAS**: Eliminados botones de control manual
 - **CRONÓMETRO AUTOMÁTICO**: Se activa automáticamente en modo llegadas
 - **ELIMINADO**: Importación manual de datos de salidas para llegadas
 - **OPTIMIZACIÓN**: Flujo más simple y directo para usuarios
 
-### **Versión 3.0.4**
+### **Versión 3.1.1**
 - ✅ Sistema completo de llegadas con cronómetro
 - ✅ Importación de datos de salidas para cálculos
 - ✅ Clasificación automática por tiempos
@@ -615,7 +615,7 @@ tableBody.appendChild(fragment);
 
 ### **Lecciones de UX/UI**
 
-#### **4. Simplificación de Flujos (APLICADO EN v3.0.4)**
+#### **4. Simplificación de Flujos (APLICADO EN v3.1.1)**
 ```javascript
 // ✅ ANTES: Flujo complejo con múltiples pasos
 1. Cambiar a modo llegadas
@@ -668,7 +668,7 @@ indexedDB.save('primary', data);
 #### **7. Service Worker y Offline**
 ```javascript
 // ✅ CACHÉ ESTRATÉGICO: Recursos críticos primero
-const CACHE_NAME = 'cri-v3.0.4';
+const CACHE_NAME = 'cri-v3.1.1';
 const CRITICAL_RESOURCES = [
     '/',
     '/Crono_CRI.html',
@@ -703,7 +703,7 @@ showMessage(t.llegadaRegistered.replace('{dorsal}', dorsal));
 const t = translations[lang] || translations.es;
 ```
 
-### **Lecciones Recientes (v3.0.4)**
+### **Lecciones Recientes (v3.1.1)**
 
 #### **9. Simplificación de Interfaces Complejas**
 ```markdown
@@ -756,7 +756,7 @@ const t = translations[lang] || translations.es;
 
 #### **12. KISS (Keep It Simple, Stupid)**
 ```markdown
-✅ APLICADO EN v3.0.4:
+✅ APLICADO EN v3.1.1:
 - Eliminados 3 botones innecesarios
 - Reducido de 4 a 1 paso para iniciar llegadas
 - Menos dependencias entre módulos
@@ -851,14 +851,14 @@ try {
 ---
 
 **Última actualización**: Marzo 2024  
-**Versión**: 3.0.4  
+**Versión**: 3.1.1  
 **Estado**: Estable en producción  
 **Compatibilidad**: Chrome, Firefox, Safari, Edge (últimas versiones)
 ```
 
 ## Resumen de los cambios añadidos:
 
-### Sección 4. Sistema de Llegadas (SIMPLIFICADO - v3.0.4)
+### Sección 4. Sistema de Llegadas (SIMPLIFICADO - v3.1.1)
 - Se ha actualizado para reflejar la simplificación del cronómetro automático
 - Se ha documentado el flujo simplificado
 
@@ -873,10 +873,10 @@ Se han añadido 3 nuevas lecciones importantes:
 3. **Lección 11: Deprecación Elegante** - Proporciona criterios y metodología para eliminar funcionalidad de manera responsable
 
 ### Sección 12. Principios Guía para Futuras Versiones
-- **KISS (Keep It Simple, Stupid)**: Documenta cómo se aplicó este principio en v3.0.4
+- **KISS (Keep It Simple, Stupid)**: Documenta cómo se aplicó este principio en v3.1.1
 - Se mantienen los principios existentes (Mobile-First, Resiliencia)
 
 ### Historial de Cambios
-- Se ha añadido la entrada para v3.0.4 con la simplificación del módulo de llegadas
+- Se ha añadido la entrada para v3.1.1 con la simplificación del módulo de llegadas
 
 La documentación ahora refleja completamente la arquitectura simplificada donde el cronómetro de llegadas es automático y no requiere interacción manual para iniciarse.
