@@ -71,7 +71,31 @@ function handleFirstStartTimeBlur() {
     // Si no hay datos en la tabla, actualizar directamente
     if (!startOrderData || startOrderData.length === 0) {
         console.log('No hay datos en tabla, actualizando directamente...');
+        
+        // ✅ CORRECCIÓN: ACTUALIZAR EL INPUT también
+        const input = document.getElementById('first-start-time');
+        input.value = newValue;
+        
+        // ✅ Actualizar la variable
         originalTimeValue = newValue;
+        
+        // ✅ Actualizar la carrera actual también
+        if (appState.currentRace) {
+            appState.currentRace.firstStartTime = newValue;
+            
+            // ✅ Guardar el cambio
+            if (typeof saveRaceData === 'function') {
+                setTimeout(() => {
+                    saveRaceData();
+                    console.log(`✅ Hora de inicio guardada en carrera: "${appState.currentRace.name}"`);
+                    
+                    // ✅ Mostrar mensaje de confirmación
+                    const t = translations[appState.currentLanguage];
+                    showMessage(t.timeUpdated || 'Hora de inicio actualizada', 'success');
+                }, 100);
+            }
+        }
+        
         return;
     }
     
@@ -79,7 +103,6 @@ function handleFirstStartTimeBlur() {
     console.log('Mostrando modal de confirmación...');
     showTimeChangeConfirmation(newValue, originalTimeValue);
 }
-
 
 // ============================================
 // FUNCIÓN DE CONFIRMACIÓN DE CAMBIO DE HORA

@@ -1572,7 +1572,7 @@ function loadJSPDFLibrary() {
         
         // Crear script para jsPDF
         const jspdfScript = document.createElement('script');
-        jspdfScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js';
+        jspdfScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js';
         jspdfScript.integrity = 'sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==';
         jspdfScript.crossOrigin = 'anonymous';
         
@@ -1683,7 +1683,7 @@ function generateSimpleStartOrderPDF() {
             console.log("jsPDF no está cargado, cargando dinámicamente...");
             
             const script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js';
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js';
             script.onload = function() {
                 console.log("jsPDF cargado, generando PDF...");
                 setTimeout(generateSimpleStartOrderPDF, 500);
