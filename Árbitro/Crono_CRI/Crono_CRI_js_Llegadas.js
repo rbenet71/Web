@@ -1,5 +1,5 @@
 // ============================================
-// MÓDULO DE LLEGADAS - SISTEMA 3.1.3 CORREGIDO
+// MÓDULO DE LLEGADAS - SISTEMA 3.1.4 CORREGIDO
 // ============================================
 // ORDEN DE 9 COLUMNAS:
 // 1. Dorsal
@@ -52,7 +52,7 @@ function getFirstStartTimeInSeconds() {
 }
 
 // ============================================
-// FUNCIÓN PARA OBTENER DATOS DE CORREDOR - SISTEMA 3.1.3
+// FUNCIÓN PARA OBTENER DATOS DE CORREDOR - SISTEMA 3.1.4
 // ============================================
 function obtenerDatosCorredor(dorsal) {
     console.log(`🔍 Buscando dorsal ${dorsal} en startOrderData...`);
@@ -67,7 +67,7 @@ function obtenerDatosCorredor(dorsal) {
             nombre: '',
             apellidos: '',
             chip: '',
-            // VERSIÓN 3.1.3 - CAMPOS NUEVOS
+            // VERSIÓN 3.1.4 - CAMPOS NUEVOS
             categoria: '',
             equipo: '',
             licencia: '',
@@ -78,7 +78,7 @@ function obtenerDatosCorredor(dorsal) {
         };
     }
     
-    // SISTEMA 3.1.3 - PRIORIDAD MEJORADA
+    // SISTEMA 3.1.4 - PRIORIDAD MEJORADA
     // 1. Verificar horaSalidaReal (si existe y es válida)
     let horaSalidaSeleccionada = '';
     let cronoSalidaSeleccionada = '';
@@ -88,7 +88,7 @@ function obtenerDatosCorredor(dorsal) {
                                      corredor.horaSalidaReal.trim() !== '';
     
     if (tieneHoraSalidaRealValida) {
-        // USAR HORA SALIDA REAL (sistema 3.1.3)
+        // USAR HORA SALIDA REAL (sistema 3.1.4)
         horaSalidaSeleccionada = corredor.horaSalidaReal;
         
         // Verificar también cronoSalidaReal (si existe y es válida)
@@ -137,7 +137,7 @@ function obtenerDatosCorredor(dorsal) {
         nombre: corredor.nombre || '',
         apellidos: corredor.apellidos || '',
         chip: corredor.chip || '',
-        // VERSIÓN 3.1.3 - CAMPOS NUEVOS (IMPORTACIÓN COMENTADA HASTA QUE EXISTAN EN startOrderData)
+        // VERSIÓN 3.1.4 - CAMPOS NUEVOS (IMPORTACIÓN COMENTADA HASTA QUE EXISTAN EN startOrderData)
         categoria: '', // corredor.categoria || '',
         equipo: '', // corredor.equipo || '',
         licencia: '', // corredor.licencia || '',
@@ -152,7 +152,7 @@ function obtenerDatosCorredor(dorsal) {
 // CRONÓMETRO DE LLEGADAS
 // ============================================
 function initLlegadasMode() {
-    console.log("Inicializando modo llegadas - SISTEMA 3.1.3");
+    console.log("Inicializando modo llegadas - SISTEMA 3.1.4");
     
     loadLlegadasState();
     updateLlegadasTimerDisplay();
@@ -221,7 +221,7 @@ function capturarLlegadaDirecta() {
             nombre: '',
             apellidos: '',
             chip: '',
-            // VERSIÓN 3.1.3 - CAMPOS NUEVOS (ACTIVOS)
+            // VERSIÓN 3.1.4 - CAMPOS NUEVOS (ACTIVOS)
             categoria: '',
             equipo: '',
             licencia: '',
@@ -375,7 +375,7 @@ function actualizarFilaLlegada(index) {
     // Chip (col 9)
     celdas[8].textContent = llegada.chip || '';
     
-    // VERSIÓN 3.1.3 - NUEVAS COLUMNAS (ACTIVAS)
+    // VERSIÓN 3.1.4 - NUEVAS COLUMNAS (ACTIVAS)
     celdas[9].textContent = llegada.categoria || '';
     celdas[10].textContent = llegada.equipo || '';
     celdas[11].textContent = llegada.licencia || '';
@@ -441,7 +441,7 @@ function renderLlegadasList() {
             <!-- 9. Chip -->
             <td>${llegada.chip || ''}</td>
             
-            <!-- VERSIÓN 3.1.3 - CAMPOS NUEVOS (ACTIVOS) -->
+            <!-- VERSIÓN 3.1.4 - CAMPOS NUEVOS (ACTIVOS) -->
             <!-- 10. Categoría -->
             <td>${llegada.categoria || ''}</td>
             
@@ -518,22 +518,18 @@ function showRankingModal() {
                 diferencia = formatSecondsWithMilliseconds(diffSegundos);
             }
             
-            const nombreCompleto = llegada.nombre && llegada.apellidos ? 
-                `${llegada.nombre} ${llegada.apellidos}` : '';
-            
             const clasePuesto = index < 3 ? `puesto-${index + 1}` : '';
             
             html += `
             <tr class="${clasePuesto}">
                 <td><strong>${index + 1}</strong></td>
                 <td>${llegada.dorsal}</td>
-                <td>${nombreCompleto}</td>
-                <td>${llegada.categoria || ''}</td> <!-- NUEVO CAMPO 3.1.3 -->
-                <td>${llegada.equipo || ''}</td> <!-- NUEVO CAMPO 3.1.3 -->
-                <td>${llegada.cronoSalida || '--:--:--'}</td>
-                <td>${formatSecondsWithMilliseconds(llegada.cronoLlegadaWithMs)}</td>
                 <td><strong class="tiempo-final-ranking">${formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs)}</strong></td>
                 <td>${diferencia}</td>
+                <td>${llegada.nombre || ''}</td>
+                <td>${llegada.apellidos || ''}</td>
+                <td>${llegada.categoria || ''}</td>
+                <td>${llegada.equipo || ''}</td>
             </tr>
             `;
         });
@@ -542,6 +538,9 @@ function showRankingModal() {
     } else {
         emptyState.style.display = 'block';
     }
+    
+    // Configurar los botones del modal
+    setupRankingModalButtons();
     
     document.getElementById('ranking-modal').classList.add('active');
 }
@@ -570,7 +569,7 @@ function exportLlegadasToExcel() {
         ['Hora', new Date().toLocaleTimeString()],
         ['Total llegadas', llegadasState.llegadas.length],
         [''],
-        // VERSIÓN 3.1.3 - HEADER ACTUALIZADO (12 COLUMNAS + NOTAS)
+        // VERSIÓN 3.1.4 - HEADER ACTUALIZADO (12 COLUMNAS + NOTAS)
         ['Pos', 'Dorsal', 'Crono Llegada', 'Tiempo Final', 'Nombre', 'Apellidos', 
          'Crono Salida', 'Hora Llegada', 'Hora Salida', 'Chip', 
          'Categoria', 'Equipo', 'Licencia', 'Notas']
@@ -589,9 +588,9 @@ function exportLlegadasToExcel() {
             llegada.horaLlegada || '',
             llegada.horaSalida || '',
             llegada.chip || '',
-            llegada.categoria || '', // NUEVO CAMPO 3.1.3
-            llegada.equipo || '', // NUEVO CAMPO 3.1.3
-            llegada.licencia || '', // NUEVO CAMPO 3.1.3
+            llegada.categoria || '', // NUEVO CAMPO 3.1.4
+            llegada.equipo || '', // NUEVO CAMPO 3.1.4
+            llegada.licencia || '', // NUEVO CAMPO 3.1.4
             llegada.notas || ''
         ]);
     });
@@ -608,9 +607,9 @@ function exportLlegadasToExcel() {
             llegada.horaLlegada || '',
             llegada.horaSalida || '',
             llegada.chip || '',
-            llegada.categoria || '', // NUEVO CAMPO 3.1.3
-            llegada.equipo || '', // NUEVO CAMPO 3.1.3
-            llegada.licencia || '', // NUEVO CAMPO 3.1.3
+            llegada.categoria || '', // NUEVO CAMPO 3.1.4
+            llegada.equipo || '', // NUEVO CAMPO 3.1.4
+            llegada.licencia || '', // NUEVO CAMPO 3.1.4
             llegada.notas || ''
         ]);
     });
@@ -643,7 +642,7 @@ function exportRankingToExcel() {
         ['Hora', new Date().toLocaleTimeString()],
         ['Total', llegadasConTiempo.length],
         [''],
-        // VERSIÓN 3.1.3 - HEADER ACTUALIZADO
+        // VERSIÓN 3.1.4 - HEADER ACTUALIZADO
         ['Pos', 'Dorsal', 'Nombre', 'Categoria', 'Equipo', 'Crono Salida', 
          'Crono Llegada', 'Tiempo Final', 'Diferencia']
     ];
@@ -665,8 +664,8 @@ function exportRankingToExcel() {
             index + 1,
             llegada.dorsal,
             nombreCompleto,
-            llegada.categoria || '', // NUEVO CAMPO 3.1.3
-            llegada.equipo || '', // NUEVO CAMPO 3.1.3
+            llegada.categoria || '', // NUEVO CAMPO 3.1.4
+            llegada.equipo || '', // NUEVO CAMPO 3.1.4
             llegada.cronoSalida || '--:--:--',
             formatSecondsWithMilliseconds(llegada.cronoLlegadaWithMs),
             formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs),
@@ -710,7 +709,7 @@ function saveLlegadasState() {
 // CONFIGURACIÓN DE LISTENERS
 // ============================================
 function setupLlegadasEventListeners() {
-    console.log("🔧 Configurando listeners - SISTEMA 3.1.3");
+    console.log("🔧 Configurando listeners - SISTEMA 3.1.4");
     
     // Botón Registrar Llegada
     const registerBtn = document.getElementById('register-llegada-btn');
@@ -767,6 +766,179 @@ function getCurrentTimeInSecondsWithMilliseconds() {
 }
 
 // ============================================
+// FUNCIÓN PARA GENERAR PDF DE CLASIFICACIÓN
+// ============================================
+function exportRankingToPDF() {
+    const t = translations[appState.currentLanguage];
+    
+    const llegadasConTiempo = llegadasState.llegadas
+        .filter(l => l.dorsal && l.tiempoFinalWithMs && l.tiempoFinalWithMs > 0)
+        .sort((a, b) => a.tiempoFinalWithMs - b.tiempoFinalWithMs);
+    
+    if (llegadasConTiempo.length === 0) {
+        showMessage(t.noDataToExport, 'warning');
+        return;
+    }
+    
+    // Crear documento PDF
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+    });
+    
+    // Configuración
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 10;
+    const tableStartY = 40;
+    let currentY = tableStartY;
+    
+    // Título
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CLASIFICACIÓN DE LA CARRERA', pageWidth / 2, 15, { align: 'center' });
+    
+    // Información de la carrera
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Carrera: ${appState.currentRace ? appState.currentRace.name : 'Sin nombre'}`, margin, 25);
+    doc.text(`Fecha: ${new Date().toLocaleDateString()}`, pageWidth - margin, 25, { align: 'right' });
+    doc.text(`Hora: ${new Date().toLocaleTimeString()}`, pageWidth - margin, 30, { align: 'right' });
+    doc.text(`Total participantes: ${llegadasConTiempo.length}`, margin, 30);
+    
+    // Cabecera de la tabla (8 columnas como solicitaste)
+    doc.setFillColor(41, 128, 185);
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    
+    const columnHeaders = ['Pos', 'Dorsal', 'Tiempo Final', 'Diferencia', 'Nombre', 'Apellidos', 'Categoría', 'Equipo'];
+    const columnWidths = [12, 15, 25, 25, 30, 30, 25, 30];
+    
+    let xPos = margin;
+    for (let i = 0; i < columnHeaders.length; i++) {
+        doc.rect(xPos, currentY - 5, columnWidths[i], 8, 'F');
+        doc.text(columnHeaders[i], xPos + 2, currentY, { maxWidth: columnWidths[i] - 4 });
+        xPos += columnWidths[i];
+    }
+    
+    // Datos de la tabla
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'normal');
+    currentY += 3;
+    
+    let mejorTiempo = null;
+    let rowCount = 0;
+    
+    llegadasConTiempo.forEach((llegada, index) => {
+        // Verificar si necesitamos una nueva página
+        if (currentY > pageHeight - 20) {
+            doc.addPage();
+            currentY = margin + 10;
+            
+            // Redibujar cabecera
+            doc.setFillColor(41, 128, 185);
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            
+            xPos = margin;
+            for (let i = 0; i < columnHeaders.length; i++) {
+                doc.rect(xPos, currentY - 5, columnWidths[i], 8, 'F');
+                doc.text(columnHeaders[i], xPos + 2, currentY, { maxWidth: columnWidths[i] - 4 });
+                xPos += columnWidths[i];
+            }
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFont('helvetica', 'normal');
+            currentY += 3;
+        }
+        
+        // Calcular diferencia
+        let diferencia = '--:--:--.000';
+        if (mejorTiempo === null) {
+            mejorTiempo = llegada.tiempoFinalWithMs;
+        } else {
+            const diffSegundos = llegada.tiempoFinalWithMs - mejorTiempo;
+            diferencia = formatSecondsWithMilliseconds(diffSegundos);
+        }
+        
+        // Resaltar los 3 primeros puestos
+        if (index < 3) {
+            doc.setFillColor(255, 255, 204); // Amarillo claro para los primeros
+            doc.rect(margin, currentY - 4, pageWidth - (margin * 2), 6, 'F');
+        }
+        
+        // Datos de la fila (8 columnas)
+        xPos = margin;
+        const rowData = [
+            (index + 1).toString(),
+            llegada.dorsal.toString(),
+            formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs),
+            diferencia,
+            llegada.nombre || '',
+            llegada.apellidos || '',
+            llegada.categoria || '',
+            llegada.equipo || ''
+        ];
+        
+        for (let i = 0; i < rowData.length; i++) {
+            // Para los primeros 3 puestos, usar negrita en posición y tiempo
+            if (index < 3 && (i === 0 || i === 2)) {
+                doc.setFont('helvetica', 'bold');
+            } else {
+                doc.setFont('helvetica', 'normal');
+            }
+            
+            doc.text(rowData[i], xPos + 2, currentY, { maxWidth: columnWidths[i] - 4 });
+            xPos += columnWidths[i];
+        }
+        
+        currentY += 7;
+        rowCount++;
+    });
+    
+    // Pie de página
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(128, 128, 128);
+    doc.text(`Generado el ${new Date().toLocaleString()} - Sistema de Cronometraje 3.1.4`, 
+             pageWidth / 2, pageHeight - 5, { align: 'center' });
+    
+    // Guardar PDF
+    const filename = `clasificacion_${appState.currentRace ? appState.currentRace.name.replace(/\s+/g, '_') : 'carrera'}_${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(filename);
+    
+    showMessage('PDF de clasificación generado con éxito', 'success');
+}
+
+// ============================================
+// CONFIGURAR BOTONES DEL MODAL DE CLASIFICACIÓN
+// ============================================
+function setupRankingModalButtons() {
+    // Botón para cerrar modal (X)
+    const closeModalBtn = document.getElementById('ranking-modal-close');
+    if (closeModalBtn) {
+        closeModalBtn.onclick = function() {
+            document.getElementById('ranking-modal').classList.remove('active');
+        };
+    }
+    
+    // Botón para cerrar modal (Cerrar)
+    const closeBtn = document.getElementById('close-ranking-btn');
+    if (closeBtn) {
+        closeBtn.onclick = function() {
+            document.getElementById('ranking-modal').classList.remove('active');
+        };
+    }
+    
+    // Botón para exportar PDF
+    const exportPdfBtn = document.getElementById('export-ranking-pdf-btn');
+    if (exportPdfBtn) {
+        exportPdfBtn.onclick = exportRankingToPDF;
+    }
+}
+// ============================================
 // EXPORTACIÓN GLOBAL
 // ============================================
 window.initLlegadasMode = initLlegadasMode;
@@ -777,4 +949,4 @@ window.exportLlegadasToExcel = exportLlegadasToExcel;
 window.exportRankingToExcel = exportRankingToExcel;
 window.clearLlegadas = clearLlegadas;
 
-console.log("✅ Módulo de llegadas 3.1.3 cargado");
+console.log("✅ Módulo de llegadas 3.1.4 cargado");
