@@ -851,31 +851,54 @@ function setupModalEventListeners() {
         }
     };
     
-    // Botones de cierre (×)
+    // Botones de cierre (×) - EXCLUIR modal de llegadas
     document.querySelectorAll('.modal-close').forEach(closeBtn => {
         closeBtn.addEventListener('click', function(e) {
             e.stopPropagation();
             const modal = this.closest('.modal');
             if (modal) {
                 const modalId = modal.id;
+                
+                // 🔥 NUEVO: NO cerrar el modal de llegadas desde aquí
+                if (modalId === 'register-llegada-modal') {
+                    console.log("⚠️ Modal de llegadas - cierre manejado por Llegadas.js");
+                    return; // Dejar que Llegadas.js lo maneje
+                }
+                
                 modal.classList.remove('active');
                 console.log(`Modal ${modalId} cerrado (botón ×)`);
             }
         });
     });
     
-    // Cerrar modal al hacer clic fuera del contenido
+    // Cerrar modal al hacer clic fuera del contenido - EXCLUIR modal de llegadas
     document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('click', function(e) {
             if (e.target === this) {
                 const modalId = this.id;
+                
+                // 🔥 NUEVO: NO cerrar el modal de llegadas desde aquí
+                if (modalId === 'register-llegada-modal') {
+                    console.log("⚠️ Modal de llegadas - click fuera bloqueado");
+                    return; // Dejar que Llegadas.js lo maneje
+                }
+                
                 this.classList.remove('active');
                 console.log(`Modal ${modalId} cerrado (clic fuera)`);
             }
         });
     });
     
-    // Mapeo de botones de cancelar a sus modales - ACTUALIZADO
+    // 🔥 NUEVO: Función para cerrar específicamente el modal de llegadas
+    window.closeLlegadaModal = function() {
+        const modal = document.getElementById('register-llegada-modal');
+        if (modal) {
+            modal.classList.remove('active');
+            console.log("✅ Modal de llegadas cerrado por Llegadas.js");
+        }
+    };
+    
+    // Mapeo de botones de cancelar a sus modales - EXCLUYENDO LLEGADAS
     const cancelButtons = {
         // Carreras
         'delete-race-cancel-btn': 'delete-race-modal',
@@ -891,9 +914,9 @@ function setupModalEventListeners() {
         'suggestions-modal-close': 'suggestions-modal',
         'cancel-suggestion-btn': 'suggestions-modal',
         
-        // Llegadas
-        'register-llegada-modal-close': 'register-llegada-modal',
-        'cancel-llegada-btn': 'register-llegada-modal',
+        // 🔥 MODIFICADO: Llegadas - EXCLUIDAS del sistema automático
+        // NO incluir: 'register-llegada-modal-close', 'cancel-llegada-btn'
+        // Estos serán manejados por Llegadas.js
         
         // Importación
         'import-salidas-modal-close': 'import-salidas-modal',
@@ -919,7 +942,7 @@ function setupModalEventListeners() {
         'help-modal-ok': 'help-modal'
     };
     
-    // Asignar listeners a todos los botones de cancelar
+    // Asignar listeners a todos los botones de cancelar (excepto llegadas)
     Object.keys(cancelButtons).forEach(buttonId => {
         const button = document.getElementById(buttonId);
         const modalId = cancelButtons[buttonId];
@@ -945,12 +968,19 @@ function setupModalEventListeners() {
         }
     });
     
-    // Atajo de teclado ESC para cerrar modales abiertos
+    // Atajo de teclado ESC para cerrar modales abiertos - EXCLUIR modal de llegadas
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             const openModal = document.querySelector('.modal.active');
             if (openModal) {
                 const modalId = openModal.id;
+                
+                // 🔥 NUEVO: NO cerrar el modal de llegadas con ESC
+                if (modalId === 'register-llegada-modal') {
+                    console.log("⚠️ Modal de llegadas - ESC bloqueado");
+                    return; // Dejar que Llegadas.js lo maneje
+                }
+                
                 openModal.classList.remove('active');
                 console.log(`Modal ${modalId} cerrado (tecla ESC)`);
             }

@@ -100,7 +100,6 @@ function initLlegadasMode() {
     }
     
     // 🔥 CAMBIO IMPORTANTE: El timer debe actualizarse SIEMPRE en modo llegadas
-    // No solo cuando está "activo" porque el cálculo es hora_actual - first_start_time
     window.llegadasUpdateInterval = setInterval(() => {
         // ACTUALIZAR SIEMPRE, independientemente de timerActive
         // Porque el cálculo es hora actual - primera salida
@@ -108,51 +107,22 @@ function initLlegadasMode() {
             updateLlegadasTimerDisplay();
         }
         
-        // 🔥 OPCIONAL: Solo ejecutar otras lógicas si timerActive es true
-        if (window.llegadasState && window.llegadasState.timerActive) {
-            // Guardar estado cada 10 segundos (solo si está activo)
-            if (llegadasState.currentTime % 10 === 0) {
-                saveLlegadasState();
-            }
+        // 🔥 MODIFICADO: Ya no hay timerActive, siempre actualizar
+        // Guardar estado cada 10 segundos
+        if (llegadasState.currentTime % 10 === 0) {
+            saveLlegadasState();
         }
     }, 100); // Actualizar cada 100ms para mayor precisión
     
     console.log("⏱️ Intervalo de actualización del timer configurado (SIEMPRE activo, 100ms)");
     
+    // 🔥 NUEVO: Configurar los listeners de los botones
+    setupLlegadasEventListeners();
+    
     // Renderizar lista si hay datos
     renderLlegadasList();
     
     console.log("Modo llegadas inicializado");
-}
-
-function startLlegadasTimer() {
-    const t = translations[appState.currentLanguage];
-    
-    if (!llegadasState.timerActive) {
-        llegadasState.timerActive = true;
-        llegadasState.timerStarted = true;
-        
-        // 🔥 MODIFICADO: No crear un nuevo intervalo, ya existe uno
-        // Solo marcar como activo para otras funciones (registro de llegadas, etc.)
-        showMessage(t.timerStarted, 'success');
-        console.log("Cronómetro de llegadas marcado como activo");
-        
-        // 🔥 AÑADIDO: Guardar estado inmediatamente
-        saveLlegadasState();
-    }
-}
-
-function stopLlegadasTimer() {
-    const t = translations[appState.currentLanguage];
-    
-    if (llegadasState.timerActive) {
-        clearInterval(llegadasState.timerInterval);
-        llegadasState.timerActive = false;
-        saveLlegadasState();
-        
-        showMessage(t.timerStopped, 'info');
-        console.log("Cronómetro de llegadas detenido");
-    }
 }
 
 function updateLlegadasTimerDisplay() {
@@ -182,10 +152,16 @@ function updateLlegadasTimerDisplay() {
 // FUNCIONES DE REGISTRO DE LLEGADAS
 // ============================================
 function showRegisterLlegadaModal() {
-    const modal = document.getElementById('register-llegada-modal');
-    const horaInput = document.getElementById('llegada-hora');
+    console.log("🚀 ABRIENDO modal de registro de llegada");
     
-    // Establecer hora actual CON MILÉSIMAS
+    const modal = document.getElementById('register-llegada-modal');
+    if (!modal) {
+        console.error("❌ Modal 'register-llegada-modal' no encontrado");
+        return;
+    }
+    
+    // Establecer hora actual
+    const horaInput = document.getElementById('llegada-hora');
     const currentTimeMs = getCurrentTimeInMilliseconds();
     const firstStartMs = getFirstStartTimeInMilliseconds();
     
@@ -198,7 +174,9 @@ function showRegisterLlegadaModal() {
     document.getElementById('llegada-dorsal').value = '';
     document.getElementById('llegada-notas').value = '';
     
+    // Abrir modal
     modal.classList.add('active');
+    console.log("✅ Modal de registro de llegada ABIERTO");
 }
 
 function showQuickRegisterLlegada() {
@@ -396,127 +374,10 @@ function getNombreFromDorsal(dorsal) {
 }
 
 // ============================================
-// FUNCIONES DE IMPORTACIÓN DE SALIDAS
+// FUNCIONES DE IMPORTACIÓN DE SALIDAS (ELIMINADAS)
 // ============================================
-function previewImportFile(input) {
-    const previewContainer = document.getElementById('import-preview');
-    const previewContent = document.getElementById('import-preview-content');
-    
-    if (!input.files || !input.files[0]) {
-        previewContainer.style.display = 'none';
-        return;
-    }
-    
-    const file = input.files[0];
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-        try {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-            
-            let previewHtml = '<table style="width:100%; font-size:12px;">';
-            const maxRows = Math.min(5, jsonData.length);
-            
-            for (let i = 0; i < maxRows; i++) {
-                previewHtml += '<tr>';
-                const row = jsonData[i] || [];
-                for (let j = 0; j < Math.min(6, row.length); j++) {
-                    previewHtml += `<td style="border:1px solid #ddd; padding:4px;">${row[j] || ''}</td>`;
-                }
-                previewHtml += '</tr>';
-            }
-            previewHtml += '</table>';
-            
-            previewContent.innerHTML = previewHtml;
-            previewContainer.style.display = 'block';
-        } catch (error) {
-            previewContent.innerHTML = 'Error al leer el archivo';
-            previewContainer.style.display = 'block';
-        }
-    };
-    
-    reader.readAsArrayBuffer(file);
-}
-
-function importSalidasForLlegadas() {
-    const t = translations[appState.currentLanguage];
-    const fileInput = document.getElementById('salidas-file-input');
-    
-    if (!fileInput.files || !fileInput.files[0]) {
-        showMessage(t.selectFileFirst, 'error');
-        return;
-    }
-    
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-        try {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-            
-            llegadasState.importedSalidas = [];
-            
-            // Procesar datos (asumiendo formato estándar)
-            for (let i = 1; i < jsonData.length; i++) {
-                const row = jsonData[i];
-                if (row && row.length >= 7) {
-                    const salida = {
-                        dorsal: parseInt(row[1]) || 0,
-                        nombre: row[2] || '',
-                        apellidos: row[3] || '',
-                        horaSalida: row[5] || '',
-                        cronoSalida: row[6] || '',
-                        timestamp: Date.now()
-                    };
-                    
-                    if (salida.dorsal > 0) {
-                        llegadasState.importedSalidas.push(salida);
-                    }
-                }
-            }
-            
-            saveLlegadasState();
-            
-            // Actualizar llegadas existentes con datos de salida
-            llegadasState.llegadas.forEach(llegada => {
-                const salidaData = llegadasState.importedSalidas.find(s => s.dorsal === llegada.dorsal);
-                if (salidaData) {
-                    llegada.horaSalida = salidaData.horaSalida;
-                    if (salidaData.horaSalida && llegada.horaLlegada) {
-                        const segundosSalida = timeToSeconds(salidaData.horaSalida) * 1000;
-                        const horaLlegadaParts = llegada.horaLlegada.split('.');
-                        const horaLlegadaBase = horaLlegadaParts[0];
-                        const milliseconds = horaLlegadaParts[1] ? parseInt(horaLlegadaParts[1]) : 0;
-                        const segundosLlegada = timeToSeconds(horaLlegadaBase) * 1000 + milliseconds;
-                        const tiempoCronoMs = segundosLlegada - segundosSalida - getFirstStartTimeInMilliseconds();
-                        
-                        if (tiempoCronoMs > 0) {
-                            llegada.tiempoCrono = formatMillisecondsToTime(tiempoCronoMs);
-                            llegada.milliseconds = tiempoCronoMs;
-                        }
-                    }
-                }
-            });
-            
-            renderLlegadasList();
-            
-            document.getElementById('import-salidas-modal').classList.remove('active');
-            showMessage(t.importSuccess.replace('{count}', llegadasState.importedSalidas.length), 'success');
-            
-        } catch (error) {
-            console.error('Error importing file:', error);
-            showMessage(t.importError, 'error');
-        }
-    };
-    
-    reader.readAsArrayBuffer(file);
-}
+// NOTA: Las funciones de importación de salidas han sido eliminadas
+// según lo solicitado. El sistema ahora funciona con el cronómetro automático.
 
 // ============================================
 // FUNCIONES DE CLASIFICACIÓN
@@ -682,13 +543,7 @@ function loadLlegadasState() {
         llegadasState.llegadas = state.llegadas || [];
         llegadasState.importedSalidas = state.importedSalidas || [];
         llegadasState.currentTime = state.currentTime || 0;
-        llegadasState.timerStarted = state.timerStarted || false;
-        
-        if (state.timerStarted) {
-            // Si el cronómetro estaba activo, reiniciarlo desde el tiempo guardado
-            startLlegadasTimer();
-        }
-        
+        // timerStarted ya no existe en el nuevo diseño
         console.log("Estado de llegadas cargado:", llegadasState.llegadas.length, "llegadas");
     }
 }
@@ -697,8 +552,8 @@ function saveLlegadasState() {
     localStorage.setItem('llegadas-state', JSON.stringify({
         llegadas: llegadasState.llegadas,
         importedSalidas: llegadasState.importedSalidas,
-        currentTime: llegadasState.currentTime,
-        timerStarted: llegadasState.timerActive || llegadasState.timerStarted
+        currentTime: llegadasState.currentTime
+        // timerStarted ya no se guarda
     }));
 }
 
@@ -706,73 +561,117 @@ function saveLlegadasState() {
 // FUNCIONES AUXILIARES DE LLEGADAS
 // ============================================
 function setupLlegadasEventListeners() {
-    // Cronómetro de llegadas
-    document.getElementById('start-llegadas-btn').addEventListener('click', startLlegadasTimer);
-    document.getElementById('stop-llegadas-btn').addEventListener('click', stopLlegadasTimer);
+    console.log("🔧 Configurando listeners del modo llegadas...");
     
-    // Registro de llegadas
-    document.getElementById('register-llegada-btn').addEventListener('click', () => {
-        if (!llegadasState.timerActive) {
-            const t = translations[appState.currentLanguage];
-            showMessage(t.startTimerFirst, 'warning');
-            return;
-        }
-        showRegisterLlegadaModal();
-    });
+    // Verificar que los elementos existen antes de añadir listeners
+    const registerBtn = document.getElementById('register-llegada-btn');
+    const quickBtn = document.getElementById('quick-register-btn');
+    const clearBtn = document.getElementById('clear-llegadas-btn');
+    const exportBtn = document.getElementById('export-llegadas-btn');
+    const rankingBtn = document.getElementById('show-ranking-btn');
     
-    document.getElementById('quick-register-btn').addEventListener('click', () => {
-        if (!llegadasState.timerActive) {
-            const t = translations[appState.currentLanguage];
-            showMessage(t.startTimerFirst, 'warning');
-            return;
-        }
-        showQuickRegisterLlegada();
-    });
+    // 🔥 NUEVO: Verificar y configurar modal de llegadas
+    const modal = document.getElementById('register-llegada-modal');
+    const modalClose = document.getElementById('register-llegada-modal-close');
+    const cancelBtn = document.getElementById('cancel-llegada-btn');
+    const confirmBtn = document.getElementById('confirm-llegada-btn');
     
-    // Importación de salidas
-    document.getElementById('import-llegadas-btn').addEventListener('click', () => {
-        document.getElementById('import-salidas-modal').classList.add('active');
-    });
+    console.log("📋 Elementos de modal de llegadas:");
+    console.log(`  - Modal: ${modal ? '✅' : '❌'} ${modal ? 'ENCONTRADO' : 'NO ENCONTRADO'}`);
+    console.log(`  - Botón cerrar: ${modalClose ? '✅' : '❌'}`);
+    console.log(`  - Botón cancelar: ${cancelBtn ? '✅' : '❌'}`);
+    console.log(`  - Botón confirmar: ${confirmBtn ? '✅' : '❌'}`);
     
-    // Gestión de llegadas
-    document.getElementById('clear-llegadas-btn').addEventListener('click', clearLlegadas);
-    document.getElementById('export-llegadas-btn').addEventListener('click', exportLlegadasToExcel);
-    document.getElementById('show-ranking-btn').addEventListener('click', showRankingModal);
-
-    // Modal de registro de llegada
-    document.getElementById('register-llegada-modal-close').addEventListener('click', () => {
-        document.getElementById('register-llegada-modal').classList.remove('active');
-    });
+    // 1. Configurar botón "Registrar Llegada"
+    if (registerBtn) {
+        // Clonar y reemplazar para eliminar listeners antiguos
+        const newRegisterBtn = registerBtn.cloneNode(true);
+        registerBtn.parentNode.replaceChild(newRegisterBtn, registerBtn);
+        
+        document.getElementById('register-llegada-btn').addEventListener('click', function(e) {
+            console.log("🎯 Botón 'Registrar Llegada' clickeado");
+            e.preventDefault();
+            e.stopPropagation();
+            showRegisterLlegadaModal();
+        });
+    }
     
-    document.getElementById('cancel-llegada-btn').addEventListener('click', () => {
-        document.getElementById('register-llegada-modal').classList.remove('active');
-    });
+    // 2. Configurar botón de registro rápido
+    if (quickBtn) {
+        const newQuickBtn = quickBtn.cloneNode(true);
+        quickBtn.parentNode.replaceChild(newQuickBtn, quickBtn);
+        
+        document.getElementById('quick-register-btn').addEventListener('click', function(e) {
+            console.log("⚡ Botón 'Registro rápido' clickeado");
+            e.preventDefault();
+            e.stopPropagation();
+            showQuickRegisterLlegada();
+        });
+    }
     
-    document.getElementById('confirm-llegada-btn').addEventListener('click', confirmRegisterLlegada);
+    // 3. Configurar botones de gestión
+    if (clearBtn) {
+        clearBtn.addEventListener('click', clearLlegadas);
+    }
+    if (exportBtn) {
+        exportBtn.addEventListener('click', exportLlegadasToExcel);
+    }
+    if (rankingBtn) {
+        rankingBtn.addEventListener('click', showRankingModal);
+    }
     
-    // Modal de importación de salidas
-    document.getElementById('import-salidas-modal-close').addEventListener('click', () => {
-        document.getElementById('import-salidas-modal').classList.remove('active');
-    });
+    // 🔥 NUEVO: Configurar CERRADO del modal de llegadas
+    if (modalClose) {
+        const newModalClose = modalClose.cloneNode(true);
+        modalClose.parentNode.replaceChild(newModalClose, modalClose);
+        
+        document.getElementById('register-llegada-modal-close').addEventListener('click', function(e) {
+            console.log("❌ Cerrando modal de llegadas (botón ×)");
+            e.preventDefault();
+            e.stopPropagation();
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        });
+    }
     
-    document.getElementById('cancel-import-salidas-btn').addEventListener('click', () => {
-        document.getElementById('import-salidas-modal').classList.remove('active');
-    });
+    if (cancelBtn) {
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+        
+        document.getElementById('cancel-llegada-btn').addEventListener('click', function(e) {
+            console.log("❌ Cerrando modal de llegadas (botón Cancelar)");
+            e.preventDefault();
+            e.stopPropagation();
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        });
+    }
     
-    document.getElementById('confirm-import-salidas-btn').addEventListener('click', importSalidasForLlegadas);
+    if (confirmBtn) {
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        
+        document.getElementById('confirm-llegada-btn').addEventListener('click', function(e) {
+            console.log("✅ Confirmando llegada");
+            e.preventDefault();
+            e.stopPropagation();
+            confirmRegisterLlegada();
+        });
+    }
     
-    document.getElementById('salidas-file-input').addEventListener('change', function() {
-        previewImportFile(this);
-    });
+    // 🔥 NUEVO: Prevenir cierre al hacer clic fuera del modal
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                console.log("⚠️ Intento de cerrar modal haciendo clic fuera - BLOQUEADO");
+                e.stopPropagation();
+                e.preventDefault();
+                // NO cerrar - el usuario debe usar los botones
+            }
+        });
+    }
     
-    // Modal de clasificación
-    document.getElementById('ranking-modal-close').addEventListener('click', () => {
-        document.getElementById('ranking-modal').classList.remove('active');
-    });
-    
-    document.getElementById('close-ranking-btn').addEventListener('click', () => {
-        document.getElementById('ranking-modal').classList.remove('active');
-    });
-    
-    document.getElementById('export-ranking-btn').addEventListener('click', exportRankingToExcel);
+    console.log("✅ Listeners del modo llegadas configurados");
 }

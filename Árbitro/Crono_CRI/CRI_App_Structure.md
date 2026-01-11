@@ -28,7 +28,7 @@ ELEMENTOS CLAVE:
 DEPENDENCIAS EXTERNAS:
 - Font Awesome 6.4.0 (iconos)
 - XLSX 0.18.5 (exportación Excel)
-- jsPDF 3.0.3 + AutoTable (exportación PDF)
+- jsPDF 3.0.4 + AutoTable (exportación PDF)
 - Google Analytics (G-CV925PMBQV)
 ```
 
@@ -2544,3 +2544,95 @@ if (!startOrderData || startOrderData.length === 0) {
 ---
 
 **¿Quieres que añada esta sección al archivo MD?** ¿O prefieres algún formato diferente?
+
+¡Excelente! La lección aprendida es **muy importante** para documentar. Aquí está lo que aprendimos:
+
+## 🎯 **LECCIÓN APRENDIDA: DIFERENCIA ENTRE "CRONÓMETRO ACTIVO" Y "TIEMPO TRANSCURRIDO"**
+
+### **PROBLEMA:**
+- Se confundió el concepto de **"cronómetro activo"** (botón iniciar/detener) con **"tiempo transcurrido desde primera salida"**
+- El tiempo transcurrido se calcula como: `hora_actual - hora_primera_salida`
+- Este cálculo **NO depende** de que el usuario presione "iniciar cronómetro"
+
+### **SOLUCIÓN:**
+1. **El display del tiempo debe actualizarse SIEMPRE** cuando se está en modo llegadas
+2. **El estado `timerActive` solo controla**:
+   - Si se permiten registros de llegadas
+   - Otras funcionalidades que requieren "cronómetro iniciado"
+3. **Dos intervalos separados**:
+   - Uno **siempre activo** para mostrar el tiempo transcurrido
+   - Otro **opcional** para funcionalidades específicas del cronómetro
+
+### **CÓDIGO CORREGIDO:**
+```javascript
+// ❌ INCORRECTO - Solo actualiza si timerActive es true
+setInterval(() => {
+    if (llegadasState.timerActive) {
+        updateLlegadasTimerDisplay();
+    }
+}, 100);
+
+// ✅ CORRECTO - Actualiza SIEMPRE en modo llegadas
+setInterval(() => {
+    updateLlegadasTimerDisplay();  // SIEMPRE se ejecuta
+    
+    // Otras lógicas solo si timerActive es true
+    if (llegadasState.timerActive) {
+        // Guardar estado, etc.
+    }
+}, 100);
+```
+
+### **ANÁLOGIA:**
+- **Reloj de pared**: Siempre muestra la hora actual, no necesita "iniciarse"
+- **Cronómetro de mano**: Necesita que lo inicies para medir intervalos
+
+### **DOCUMENTACIÓN PARA EL .md:**
+```markdown
+## 🕐 SISTEMA DE TIEMPO EN MODO LLEGADAS
+
+### **CONCEPTOS CLAVE:**
+1. **Tiempo Transcurrido**: Calculado automáticamente como `hora_actual - hora_primera_salida`
+   - Se actualiza continuamente (cada 100ms)
+   - NO depende del botón "Iniciar Cronómetro"
+   - Siempre visible en modo llegadas
+
+2. **Cronómetro Activo**: Estado que permite:
+   - Registrar llegadas
+   - Guardar estado periódicamente
+   - Controlado por botones "Iniciar/Detener Cronómetro"
+
+### **ARQUITECTURA:**
+- **Intervalo Principal**: Actualiza display cada 100ms (SIEMPRE activo)
+- `timerActive = true`: Permite funcionalidades adicionales
+- `timerActive = false`: Solo muestra tiempo, bloquea registros
+
+### **EJEMPLO DE USO:**
+1. Usuario entra en modo llegadas → tiempo comienza a actualizarse automáticamente
+2. Usuario presiona "Iniciar Cronómetro" → `timerActive = true`, permite registrar llegadas
+3. Tiempo sigue actualizándose independientemente del estado del cronómetro
+```
+
+### **PATRÓN A APLICAR EN FUTUROS DESARROLLOS:**
+```javascript
+// Patrón recomendado para timers que muestran tiempo relativo
+function setupRelativeTimeDisplay(baseTimeElementId, displayElementId) {
+    // Intervalo SIEMPRE activo para mostrar tiempo
+    return setInterval(() => {
+        const baseTime = getTimeFromElement(baseTimeElementId);
+        const currentTime = getCurrentTime();
+        const elapsed = currentTime - baseTime;
+        updateDisplay(displayElementId, elapsed);
+    }, 100);
+}
+
+// Estado separado para funcionalidades que requieren "activo"
+let isFunctionalityActive = false;
+
+function toggleFunctionality(active) {
+    isFunctionalityActive = active;
+    // Controla funcionalidades adicionales, NO el display del tiempo
+}
+```
+
+**¿Quieres que añada esta lección aprendida a algún archivo .md específico de la documentación?**

@@ -22,7 +22,7 @@ ELEMENTOS PRINCIPALES:
 TECNOLOGÍAS INCLUIDAS:
    - Font Awesome 6.4.0 (iconos)
    - XLSX 0.18.5 (exportación Excel)
-   - jsPDF 3.0.3 (exportación PDF)
+   - jsPDF 3.0.4 (exportación PDF)
    - Google Analytics (G-CV925PMBQV)
 
 ARCHIVOS RELACIONADOS:
@@ -418,21 +418,10 @@ ESTRUCTURA MODULAR:
                             <div class="llegadas-timer-display" id="llegadas-timer-display">00:00:00</div>
                             
                             <div class="llegadas-controls">
-                                <button class="btn btn-success" id="start-llegadas-btn">
-                                    <i class="fas fa-play"></i>
-                                    <span id="start-llegadas-text">Iniciar Cronómetro</span>
-                                </button>
-                                <button class="btn btn-danger" id="stop-llegadas-btn">
-                                    <i class="fas fa-stop"></i>
-                                    <span id="stop-llegadas-text">Detener</span>
-                                </button>
+                                <!-- 🔥 ELIMINADOS: Botones de inicio/detención e importación -->
                                 <button class="btn btn-primary" id="register-llegada-btn">
                                     <i class="fas fa-user-check"></i>
                                     <span id="register-llegada-text">Registrar Llegada</span>
-                                </button>
-                                <button class="btn btn-warning" id="import-llegadas-btn">
-                                    <i class="fas fa-file-import"></i>
-                                    <span id="import-llegadas-text">Importar Salidas</span>
                                 </button>
                             </div>
                         </div>
@@ -551,7 +540,7 @@ ESTRUCTURA MODULAR:
                 <div class="copyright" id="copyright-text">
                     2026 © Copyright 
                     <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                        Roberto Benet - rbenet71@gmail.com - Ver: 3.0.3
+                        Roberto Benet - rbenet71@gmail.com - Ver: 3.0.4
                     </a>
                 </div>
             </div>
@@ -1031,28 +1020,6 @@ ESTRUCTURA MODULAR:
         </div>
     </div>
 
-    <!-- Modal de importación de salidas para llegadas -->
-    <div class="modal" id="import-salidas-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="import-salidas-modal-title">Importar Datos de Salidas</h3>
-                <button class="modal-close" id="import-salidas-modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p id="import-salidas-modal-text">Selecciona el archivo Excel con los datos de salidas de los corredores.</p>
-                <input type="file" id="salidas-file-input" accept=".xlsx,.xls,.csv" style="width: 100%; padding: 10px; margin-top: 10px;">
-                <div id="import-preview" style="margin-top: 20px; display: none;">
-                    <h4>Vista previa de datos:</h4>
-                    <div id="import-preview-content" style="max-height: 200px; overflow-y: auto;"></div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" id="confirm-import-salidas-btn">Importar</button>
-                <button class="btn" id="cancel-import-salidas-btn">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Modal de clasificación -->
     <div class="modal" id="ranking-modal">
         <div class="modal-content">
@@ -1118,7 +1085,7 @@ ESTRUCTURA MODULAR:
 
     <!-- Script para XLSX -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.3/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.4/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
     <script>
