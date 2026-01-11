@@ -1,5 +1,5 @@
 // ============================================
-// MÓDULO DE LLEGADAS - SISTEMA 3.1.6.2 CORREGIDO
+// MÓDULO DE LLEGADAS - SISTEMA 3.1.7 CORREGIDO
 // ============================================
 // ORDEN DE 9 COLUMNAS:
 // 1. Dorsal
@@ -52,7 +52,7 @@ function getFirstStartTimeInSeconds() {
 }
 
 // ============================================
-// FUNCIÓN PARA OBTENER DATOS DE CORREDOR - SISTEMA 3.1.6.2
+// FUNCIÓN PARA OBTENER DATOS DE CORREDOR - SISTEMA 3.1.7
 // ============================================
 function obtenerDatosCorredor(dorsal) {
     console.log(`🔍 Buscando dorsal ${dorsal} en startOrderData...`);
@@ -67,7 +67,7 @@ function obtenerDatosCorredor(dorsal) {
             nombre: '',
             apellidos: '',
             chip: '',
-            // VERSIÓN 3.1.6.2 - CAMPOS NUEVOS
+            // VERSIÓN 3.1.7 - CAMPOS NUEVOS
             categoria: '',
             equipo: '',
             licencia: '',
@@ -78,7 +78,7 @@ function obtenerDatosCorredor(dorsal) {
         };
     }
     
-    // SISTEMA 3.1.6.2 - PRIORIDAD MEJORADA
+    // SISTEMA 3.1.7 - PRIORIDAD MEJORADA
     // 1. Verificar horaSalidaReal (si existe y es válida)
     let horaSalidaSeleccionada = '';
     let cronoSalidaSeleccionada = '';
@@ -88,7 +88,7 @@ function obtenerDatosCorredor(dorsal) {
                                      corredor.horaSalidaReal.trim() !== '';
     
     if (tieneHoraSalidaRealValida) {
-        // USAR HORA SALIDA REAL (sistema 3.1.6.2)
+        // USAR HORA SALIDA REAL (sistema 3.1.7)
         horaSalidaSeleccionada = corredor.horaSalidaReal;
         
         // Verificar también cronoSalidaReal (si existe y es válida)
@@ -137,7 +137,7 @@ function obtenerDatosCorredor(dorsal) {
         nombre: corredor.nombre || '',
         apellidos: corredor.apellidos || '',
         chip: corredor.chip || '',
-        // VERSIÓN 3.1.6.2 - CAMPOS NUEVOS (IMPORTACIÓN COMENTADA HASTA QUE EXISTAN EN startOrderData)
+        // VERSIÓN 3.1.7 - CAMPOS NUEVOS (IMPORTACIÓN COMENTADA HASTA QUE EXISTAN EN startOrderData)
         categoria: '', // corredor.categoria || '',
         equipo: '', // corredor.equipo || '',
         licencia: '', // corredor.licencia || '',
@@ -152,7 +152,7 @@ function obtenerDatosCorredor(dorsal) {
 // CRONÓMETRO DE LLEGADAS
 // ============================================
 function initLlegadasMode() {
-    console.log("Inicializando modo llegadas - SISTEMA 3.1.6.2");
+    console.log("Inicializando modo llegadas - SISTEMA 3.1.7");
     
     loadLlegadasState();
     updateLlegadasTimerDisplay();
@@ -221,7 +221,7 @@ function capturarLlegadaDirecta() {
             nombre: '',
             apellidos: '',
             chip: '',
-            // VERSIÓN 3.1.6.2 - CAMPOS NUEVOS (ACTIVOS)
+            // VERSIÓN 3.1.7 - CAMPOS NUEVOS (ACTIVOS)
             categoria: '',
             equipo: '',
             licencia: '',
@@ -287,9 +287,11 @@ function actualizarDorsal(index, nuevoDorsal) {
     // Buscar datos en tabla de salida (SIEMPRE devuelve algo)
     const datosCorredor = obtenerDatosCorredor(dorsal);
     
-    // Actualizar llegada CON O SIN DATOS ENCONTRADOS
+    // Guardar tiempo anterior para comparar
     const llegada = llegadasState.llegadas[index];
+    const tiempoAnterior = llegada.tiempoFinalWithMs || 0;
     
+    // Actualizar llegada
     llegada.dorsal = dorsal;
     llegada.nombre = datosCorredor.nombre;
     llegada.apellidos = datosCorredor.apellidos;
@@ -299,17 +301,56 @@ function actualizarDorsal(index, nuevoDorsal) {
     llegada.cronoSalidaSegundos = datosCorredor.cronoSalidaSegundos;
     llegada.pendiente = false;
     
-    // CALCULAR TIEMPO FINAL SOLO SI HAY CRONO SALIDA (no es primer corredor)
+    // CALCULAR NUEVO TIEMPO FINAL
+    let tiempoNuevo = 0;
     if (llegada.cronoSalidaSegundos > 0 && llegada.cronoLlegadaWithMs > 0) {
-        llegada.tiempoFinalWithMs = llegada.cronoLlegadaWithMs - llegada.cronoSalidaSegundos;
-        if (llegada.tiempoFinalWithMs < 0) llegada.tiempoFinalWithMs = 0;
+        tiempoNuevo = llegada.cronoLlegadaWithMs - llegada.cronoSalidaSegundos;
+        if (tiempoNuevo < 0) tiempoNuevo = 0;
     } else {
-        // Si es primer corredor o no tiene cronoSalida, Tiempo Final = Crono Llegada
-        llegada.tiempoFinalWithMs = llegada.cronoLlegadaWithMs;
+        tiempoNuevo = llegada.cronoLlegadaWithMs;
     }
+    
+    llegada.tiempoFinalWithMs = tiempoNuevo;
     
     saveLlegadasState();
     actualizarFilaLlegada(index);
+    
+    // ✅ DETECTAR SI EL TIEMPO CAMBIÓ
+    const tiempoCambioSignificativo = 
+        (tiempoAnterior <= 0 && tiempoNuevo > 0) ||  // Sin tiempo → Con tiempo
+        (tiempoAnterior > 0 && tiempoNuevo <= 0) ||  // Con tiempo → Sin tiempo
+        Math.abs(tiempoAnterior - tiempoNuevo) > 0.001; // Tiempo cambió
+    
+    // ✅ SI CAMBIÓ EL TIEMPO → ACTUALIZAR TODAS LAS POSICIONES
+    if (tiempoCambioSignificativo) {
+        console.log(`🔄 Tiempo cambió (${tiempoAnterior} → ${tiempoNuevo}), actualizando TODAS las posiciones...`);
+        
+        setTimeout(() => {
+            try {
+                // 1. Calcular mapa de posiciones
+                const mapaPosiciones = calcularMapaPosiciones(llegadasState.llegadas);
+                
+                // 2. Actualizar TODAS las filas
+                const filas = document.querySelectorAll('#llegadas-table-body tr');
+                filas.forEach((fila, i) => {
+                    const llegadaActual = llegadasState.llegadas[i];
+                    if (!llegadaActual) return;
+                    
+                    const celdaPosicion = fila.querySelector('td:nth-child(4)'); // Columna 4
+                    if (celdaPosicion) {
+                        const nuevaPosicion = llegadaActual.tiempoFinalWithMs && llegadaActual.tiempoFinalWithMs > 0
+                            ? (mapaPosiciones[llegadaActual.id] || '')
+                            : '';
+                        celdaPosicion.textContent = nuevaPosicion;
+                    }
+                });
+                
+                console.log('✅ Todas las posiciones actualizadas');
+            } catch (error) {
+                console.error('❌ Error actualizando posiciones:', error);
+            }
+        }, 200);
+    }
     
     // Mensaje diferente según si se encontró o no
     if (datosCorredor.nombre || datosCorredor.apellidos) {
@@ -324,6 +365,9 @@ function resetearDatosLlegada(index) {
     const llegada = llegadasState.llegadas[index];
     if (!llegada) return;
     
+    // Guardar si tenía tiempo antes
+    const teniaTiempo = llegada.tiempoFinalWithMs && llegada.tiempoFinalWithMs > 0;
+    
     llegada.dorsal = null;
     llegada.nombre = '';
     llegada.apellidos = '';
@@ -331,11 +375,38 @@ function resetearDatosLlegada(index) {
     llegada.horaSalida = '';
     llegada.cronoSalida = '';
     llegada.cronoSalidaSegundos = 0;
-    llegada.tiempoFinalSegundos = 0;
+    llegada.tiempoFinalWithMs = 0;
     llegada.pendiente = true;
     
     saveLlegadasState();
     actualizarFilaLlegada(index);
+    
+    // ✅ SI TENÍA TIEMPO Y AHORA NO → ACTUALIZAR TODAS LAS POSICIONES
+    if (teniaTiempo) {
+        console.log('🔄 Se eliminó tiempo, actualizando TODAS las posiciones...');
+        
+        setTimeout(() => {
+            try {
+                const mapaPosiciones = calcularMapaPosiciones(llegadasState.llegadas);
+                
+                const filas = document.querySelectorAll('#llegadas-table-body tr');
+                filas.forEach((fila, i) => {
+                    const llegadaActual = llegadasState.llegadas[i];
+                    if (!llegadaActual) return;
+                    
+                    const celdaPosicion = fila.querySelector('td:nth-child(4)');
+                    if (celdaPosicion) {
+                        const nuevaPosicion = llegadaActual.tiempoFinalWithMs && llegadaActual.tiempoFinalWithMs > 0
+                            ? (mapaPosiciones[llegadaActual.id] || '')
+                            : '';
+                        celdaPosicion.textContent = nuevaPosicion;
+                    }
+                });
+            } catch (error) {
+                console.error('❌ Error actualizando posiciones:', error);
+            }
+        }, 200);
+    }
 }
 
 function actualizarFilaLlegada(index) {
@@ -347,7 +418,68 @@ function actualizarFilaLlegada(index) {
     
     const celdas = fila.querySelectorAll('td');
     
-    // Actualizar las 12 columnas con formato correcto (9 + 3 nuevas)
+    // Actualizar las 13 columnas (12 originales + posición) - VERSIÓN 3.1.7
+    // 0: Dorsal, 1: Crono Llegada, 2: Tiempo Final, 3: Posición, 4: Nombre, etc.
+    
+    // 0: Dorsal
+    celdas[0].textContent = llegada.dorsal || '';
+    celdas[0].className = llegada.dorsal ? '' : 'dorsal-pendiente';
+    
+    // 1: Crono Llegada - CON 3 DECIMALES
+    celdas[1].textContent = formatSecondsWithMilliseconds(llegada.cronoLlegadaWithMs);
+    
+    // 2: Tiempo Final - CON 3 DECIMALES
+    celdas[2].textContent = formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs);
+    
+    // 3: POSICIÓN - NO actualizar aquí (se actualiza en renderLlegadasList o actualizarDorsal)
+    // Mantener el valor actual
+    
+    // 4: Nombre
+    celdas[4].textContent = llegada.nombre || '';
+    
+    // 5: Apellidos
+    celdas[5].textContent = llegada.apellidos || '';
+    
+    // 6: Crono Salida - SIN DECIMALES (de tabla salida)
+    celdas[6].textContent = llegada.cronoSalida || '--:--:--';
+    
+    // 7: Hora Llegada
+    celdas[7].textContent = llegada.horaLlegada || '--:--:--';
+    
+    // 8: Hora Salida
+    celdas[8].textContent = llegada.horaSalida || '--:--:--';
+    
+    // 9: Chip
+    celdas[9].textContent = llegada.chip || '';
+    
+    // VERSIÓN 3.1.7 - NUEVAS COLUMNAS (ACTIVAS)
+    // 10: Categoría
+    celdas[10].textContent = llegada.categoria || '';
+    
+    // 11: Equipo
+    celdas[11].textContent = llegada.equipo || '';
+    
+    // 12: Licencia
+    celdas[12].textContent = llegada.licencia || '';
+}
+
+// ============================================
+// ACTUALIZAR UNA SOLA FILA CON POSICIÓN - NUEVO 3.1.7
+// ============================================
+function actualizarFilaLlegadaIndividual(index) {
+    const llegada = llegadasState.llegadas[index];
+    if (!llegada) return;
+    
+    const fila = document.querySelector(`#llegadas-table-body tr[data-index="${index}"]`);
+    if (!fila) return;
+    
+    const celdas = fila.querySelectorAll('td');
+    
+    // Calcular posición actual (basada en TODAS las llegadas)
+    const mapaPosiciones = calcularMapaPosiciones(llegadasState.llegadas);
+    const posicion = mapaPosiciones[llegada.id] || '';
+    
+    // Actualizar las 13 columnas
     celdas[0].textContent = llegada.dorsal || '';
     celdas[0].className = llegada.dorsal ? '' : 'dorsal-pendiente';
     
@@ -357,30 +489,37 @@ function actualizarFilaLlegada(index) {
     // Tiempo Final (col 3) - CON 3 DECIMALES
     celdas[2].textContent = formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs);
     
-    // Nombre (col 4)
-    celdas[3].textContent = llegada.nombre || '';
+    // POSICIÓN (col 4) - NUEVO 3.1.7
+    celdas[3].textContent = posicion;
+    celdas[3].className = 'posicion';
     
-    // Apellidos (col 5)
-    celdas[4].textContent = llegada.apellidos || '';
+    // Nombre (col 5)
+    celdas[4].textContent = llegada.nombre || '';
     
-    // Crono Salida (col 6) - SIN DECIMALES (de tabla salida)
-    celdas[5].textContent = llegada.cronoSalida || '--:--:--';
+    // Apellidos (col 6)
+    celdas[5].textContent = llegada.apellidos || '';
     
-    // Hora Llegada (col 7)
-    celdas[6].textContent = llegada.horaLlegada || '--:--:--';
+    // Crono Salida (col 7)
+    celdas[6].textContent = llegada.cronoSalida || '--:--:--';
     
-    // Hora Salida (col 8)
-    celdas[7].textContent = llegada.horaSalida || '--:--:--';
+    // Hora Llegada (col 8)
+    celdas[7].textContent = llegada.horaLlegada || '--:--:--';
     
-    // Chip (col 9)
-    celdas[8].textContent = llegada.chip || '';
+    // Hora Salida (col 9)
+    celdas[8].textContent = llegada.horaSalida || '--:--:--';
     
-    // VERSIÓN 3.1.6.2 - NUEVAS COLUMNAS (ACTIVAS)
-    celdas[9].textContent = llegada.categoria || '';
-    celdas[10].textContent = llegada.equipo || '';
-    celdas[11].textContent = llegada.licencia || '';
+    // Chip (col 10)
+    celdas[9].textContent = llegada.chip || '';
+    
+    // Categoría (col 11)
+    celdas[10].textContent = llegada.categoria || '';
+    
+    // Equipo (col 12)
+    celdas[11].textContent = llegada.equipo || '';
+    
+    // Licencia (col 13)
+    celdas[12].textContent = llegada.licencia || '';
 }
-
 
 // ============================================
 // RENDERIZADO DE TABLA CON 9 COLUMNAS
@@ -399,6 +538,9 @@ function renderLlegadasList() {
     
     emptyState.style.display = 'none';
     
+    // NUEVO 3.1.7: Calcular posiciones ANTES de renderizar
+    const mapaPosiciones = calcularMapaPosiciones(llegadasState.llegadas);
+    
     let html = '';
     
     llegadasState.llegadas.forEach((llegada, index) => {
@@ -407,9 +549,14 @@ function renderLlegadasList() {
         const claseFila = esUltima ? 'ultima-llegada' : '';
         const claseDorsal = tieneDorsal ? '' : 'dorsal-pendiente';
         
+        // Obtener posición del mapa
+        const posicion = llegada.tiempoFinalWithMs && llegada.tiempoFinalWithMs > 0
+            ? (mapaPosiciones[llegada.id] || '')
+            : '';
+        
         html += `
         <tr class="${claseFila}" data-id="${llegada.id}" data-index="${index}">
-            <!-- 1. Dorsal -->
+            <!-- 1. Dorsal (columna 1) -->
             <td class="${claseDorsal}" contenteditable="true" 
                 onfocus="this.classList.add('editing')"
                 onblur="this.classList.remove('editing'); actualizarDorsal(${index}, this.textContent)"
@@ -417,38 +564,41 @@ function renderLlegadasList() {
                 ${tieneDorsal ? llegada.dorsal : ''}
             </td>
             
-            <!-- 2. Crono Llegada -->
+            <!-- 2. Crono Llegada (columna 2) -->
             <td class="crono-llegada">${formatSecondsWithMilliseconds(llegada.cronoLlegadaWithMs)}</td>
             
-            <!-- 3. Tiempo Final -->
+            <!-- 3. Tiempo Final (columna 3) -->
             <td class="tiempo-final">${formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs)}</td>
             
-            <!-- 4. Nombre -->
+            <!-- 4. POSICIÓN (columna 4) - NUEVO 3.1.7 - SOLO LECTURA -->
+            <td class="posicion">${posicion}</td>
+            
+            <!-- 5. Nombre (columna 5) -->
             <td>${llegada.nombre || ''}</td>
             
-            <!-- 5. Apellidos -->
+            <!-- 6. Apellidos (columna 6) -->
             <td>${llegada.apellidos || ''}</td>
             
-            <!-- 6. Crono Salida -->
+            <!-- 7. Crono Salida (columna 7) -->
             <td class="crono-salida">${llegada.cronoSalida || '--:--:--'}</td>
             
-            <!-- 7. Hora Llegada -->
+            <!-- 8. Hora Llegada (columna 8) -->
             <td>${llegada.horaLlegada || '--:--:--'}</td>
             
-            <!-- 8. Hora Salida -->
+            <!-- 9. Hora Salida (columna 9) -->
             <td>${llegada.horaSalida || '--:--:--'}</td>
             
-            <!-- 9. Chip -->
+            <!-- 10. Chip (columna 10) -->
             <td>${llegada.chip || ''}</td>
             
-            <!-- VERSIÓN 3.1.6.2 - CAMPOS NUEVOS (ACTIVOS) -->
-            <!-- 10. Categoría -->
+            <!-- VERSIÓN 3.1.7 - CAMPOS NUEVOS (ACTIVOS) -->
+            <!-- 11. Categoría (columna 11) -->
             <td>${llegada.categoria || ''}</td>
             
-            <!-- 11. Equipo -->
+            <!-- 12. Equipo (columna 12) -->
             <td>${llegada.equipo || ''}</td>
             
-            <!-- 12. Licencia -->
+            <!-- 13. Licencia (columna 13) -->
             <td>${llegada.licencia || ''}</td>
         </tr>
         `;
@@ -457,7 +607,7 @@ function renderLlegadasList() {
     tableBody.innerHTML = html;
 }
 
-// ============================================
+// =====================================
 // FUNCIONES AUXILIARES
 // ============================================
 function actualizarNotas(index, nuevasNotas) {
@@ -572,47 +722,64 @@ function exportLlegadasToExcel() {
         ['Hora', new Date().toLocaleTimeString()],
         ['Total llegadas', llegadasState.llegadas.length],
         [''],
-        // VERSIÓN 3.1.6.2 - HEADER ACTUALIZADO (12 COLUMNAS + NOTAS)
-        ['Pos', 'Dorsal', 'Crono Llegada', 'Tiempo Final', 'Nombre', 'Apellidos', 
+        // VERSIÓN 3.1.7 - HEADER ACTUALIZADO (13 COLUMNAS + NOTAS)
+        ['Dorsal', 'Crono Llegada', 'Tiempo Final', 'Posición', 'Nombre', 'Apellidos', 
          'Crono Salida', 'Hora Llegada', 'Hora Salida', 'Chip', 
          'Categoria', 'Equipo', 'Licencia', 'Notas']
     ];
     
     let posicion = 1;
-    llegadasOrdenadas.forEach(llegada => {
+    let tiempoAnterior = null;
+    
+    // Procesar llegadas con tiempo para manejar empates
+    llegadasOrdenadas.forEach((llegada, index) => {
+        // Calcular posición considerando empates
+        let posicionActual = posicion;
+        if (index > 0 && tiempoAnterior !== null && 
+            llegada.tiempoFinalWithMs === tiempoAnterior) {
+            // Mismo tiempo que el anterior, misma posición
+            posicionActual = posicion - 1;
+        } else {
+            // Tiempo diferente, incrementar posición
+            posicion = index + 1;
+            posicionActual = posicion;
+            tiempoAnterior = llegada.tiempoFinalWithMs;
+        }
+        
         data.push([
-            posicion++,
             llegada.dorsal || '',
             formatSecondsWithMilliseconds(llegada.cronoLlegadaWithMs),
             formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs),
+            posicionActual, // NUEVO: Posición calculada
             llegada.nombre || '',
             llegada.apellidos || '',
             llegada.cronoSalida || '',
             llegada.horaLlegada || '',
             llegada.horaSalida || '',
             llegada.chip || '',
-            llegada.categoria || '', // NUEVO CAMPO 3.1.6.2
-            llegada.equipo || '', // NUEVO CAMPO 3.1.6.2
-            llegada.licencia || '', // NUEVO CAMPO 3.1.6.2
+            llegada.categoria || '', // NUEVO CAMPO 3.1.7
+            llegada.equipo || '', // NUEVO CAMPO 3.1.7
+            llegada.licencia || '', // NUEVO CAMPO 3.1.7
             llegada.notas || ''
         ]);
     });
     
+    // Procesar llegadas sin tiempo
     llegadasSinTiempo.forEach(llegada => {
         data.push([
-            '--',
             llegada.dorsal || 'PENDIENTE',
             formatSecondsWithMilliseconds(llegada.cronoLlegadaWithMs),
             'SIN TIEMPO',
+            '--', // Sin posición
             llegada.nombre || '',
             llegada.apellidos || '',
             llegada.cronoSalida || '',
             llegada.horaLlegada || '',
             llegada.horaSalida || '',
             llegada.chip || '',
-            llegada.categoria || '', // NUEVO CAMPO 3.1.6.2
-            llegada.equipo || '', // NUEVO CAMPO 3.1.6.2
-            llegada.licencia || '', // NUEVO CAMPO 3.1.6.2
+            llegada.categoria || '', // NUEVO CAMPO 3.1.7
+            llegada.equipo || '', // NUEVO CAMPO 3.1.7
+            llegada.licencia || '', // NUEVO CAMPO 3.1.7
             llegada.notas || ''
         ]);
     });
@@ -645,7 +812,7 @@ function exportRankingToExcel() {
         ['Hora', new Date().toLocaleTimeString()],
         ['Total', llegadasConTiempo.length],
         [''],
-        // VERSIÓN 3.1.6.2 - HEADER ACTUALIZADO
+        // VERSIÓN 3.1.7 - HEADER ACTUALIZADO
         ['Pos', 'Dorsal', 'Nombre', 'Categoria', 'Equipo', 'Crono Salida', 
          'Crono Llegada', 'Tiempo Final', 'Diferencia']
     ];
@@ -667,8 +834,8 @@ function exportRankingToExcel() {
             index + 1,
             llegada.dorsal,
             nombreCompleto,
-            llegada.categoria || '', // NUEVO CAMPO 3.1.6.2
-            llegada.equipo || '', // NUEVO CAMPO 3.1.6.2
+            llegada.categoria || '', // NUEVO CAMPO 3.1.7
+            llegada.equipo || '', // NUEVO CAMPO 3.1.7
             llegada.cronoSalida || '--:--:--',
             formatSecondsWithMilliseconds(llegada.cronoLlegadaWithMs),
             formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs),
@@ -712,7 +879,7 @@ function saveLlegadasState() {
 // CONFIGURACIÓN DE LISTENERS
 // ============================================
 function setupLlegadasEventListeners() {
-    console.log("🔧 Configurando listeners - SISTEMA 3.1.6.2");
+    console.log("🔧 Configurando listeners - SISTEMA 3.1.7");
     
     // Botón Registrar Llegada
     const registerBtn = document.getElementById('registerLlegadaBtn');
@@ -756,6 +923,186 @@ function formatSecondsWithMilliseconds(seconds) {
     const milliseconds = Math.round((seconds - Math.floor(seconds)) * 1000);
     
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
+}
+
+// ============================================
+// CALCULAR POSICIONES BASADAS EN TIEMPO FINAL - NUEVO 3.1.7
+// ============================================
+function calcularPosiciones(llegadas) {
+    // 1. Filtrar llegadas con tiempo final válido
+    const llegadasConTiempo = llegadas.filter(l => 
+        l.tiempoFinalWithMs && l.tiempoFinalWithMs > 0);
+    
+    // 2. Ordenar por tiempo final (más rápido primero)
+    llegadasConTiempo.sort((a, b) => a.tiempoFinalWithMs - b.tiempoFinalWithMs);
+    
+    // 3. Asignar posiciones (1, 2, 3...)
+    // Manejar empates: mismos tiempos = misma posición
+    let posicionActual = 1;
+    let tiempoAnterior = null;
+    
+    llegadasConTiempo.forEach((llegada, index) => {
+        if (tiempoAnterior === null || llegada.tiempoFinalWithMs > tiempoAnterior) {
+            // Tiempo diferente, posición normal
+            llegada.posicion = posicionActual;
+            tiempoAnterior = llegada.tiempoFinalWithMs;
+        } else {
+            // Mismo tiempo que el anterior, misma posición
+            llegada.posicion = posicionActual - 1;
+        }
+        posicionActual++;
+    });
+    
+    // 4. Para llegadas sin tiempo, mantener posición vacía
+    const llegadasSinTiempo = llegadas.filter(l => 
+        !l.tiempoFinalWithMs || l.tiempoFinalWithMs <= 0);
+    
+    llegadasSinTiempo.forEach(llegada => {
+        llegada.posicion = '';
+    });
+    
+    // 5. Devolver todas las llegadas
+    return [...llegadasConTiempo, ...llegadasSinTiempo];
+}
+
+// ============================================
+// RECALCULAR TODAS LAS POSICIONES - NUEVO 3.1.7
+// ============================================
+function recalcularTodasLasPosiciones() {
+    console.log('🧮 Iniciando recálculo de posiciones...');
+    
+    // 1. Evitar múltiples recalculos simultáneos
+    if (window.recalculacionPosicionesPendiente) {
+        console.log('⏭️ Ya hay un recálculo pendiente, omitiendo...');
+        return;
+    }
+    
+    window.recalculacionPosicionesPendiente = true;
+    
+    // 2. Ejecutar con delay para no bloquear UI
+    setTimeout(() => {
+        try {
+            console.log('🔢 Procesando recálculo de posiciones...');
+            
+            // 3. Filtrar llegadas con tiempo final válido
+            const llegadasConTiempo = llegadasState.llegadas.filter(l => 
+                l.tiempoFinalWithMs && l.tiempoFinalWithMs > 0);
+            
+            console.log(`📊 ${llegadasConTiempo.length} llegadas con tiempo de ${llegadasState.llegadas.length} totales`);
+            
+            if (llegadasConTiempo.length === 0) {
+                // No hay tiempos → todas las posiciones vacías
+                console.log('📭 No hay llegadas con tiempo, limpiando posiciones...');
+                document.querySelectorAll('#llegadas-table-body td.posicion').forEach(celda => {
+                    celda.textContent = '';
+                });
+                return;
+            }
+            
+            // 4. Ordenar por tiempo (más rápido primero)
+            const llegadasOrdenadas = [...llegadasConTiempo].sort((a, b) => 
+                a.tiempoFinalWithMs - b.tiempoFinalWithMs);
+            
+            // 5. Calcular posiciones con manejo de empates
+            const mapaPosiciones = {};
+            let posicionActual = 1;
+            let tiempoAnterior = null;
+            
+            llegadasOrdenadas.forEach((llegada, index) => {
+                if (tiempoAnterior === null || llegada.tiempoFinalWithMs > tiempoAnterior) {
+                    // Tiempo diferente → posición nueva
+                    mapaPosiciones[llegada.id] = posicionActual;
+                    tiempoAnterior = llegada.tiempoFinalWithMs;
+                } else {
+                    // Mismo tiempo → misma posición
+                    mapaPosiciones[llegada.id] = posicionActual - 1;
+                }
+                posicionActual++;
+            });
+            
+            console.log('🗺️ Mapa de posiciones calculado:', mapaPosiciones);
+            
+            // 6. Actualizar las celdas de posición en la tabla
+            const filas = document.querySelectorAll('#llegadas-table-body tr');
+            let actualizadas = 0;
+            
+            filas.forEach((fila, index) => {
+                const llegada = llegadasState.llegadas[index];
+                if (!llegada) return;
+                
+                // La columna 4 es posición (0: dorsal, 1: cronoLlegada, 2: tiempoFinal, 3: posición)
+                const celdaPosicion = fila.querySelector('td:nth-child(4)');
+                if (!celdaPosicion) {
+                    console.warn(`⚠️ No se encontró celda de posición en fila ${index}`);
+                    return;
+                }
+                
+                // Determinar nueva posición
+                let nuevaPosicion = '';
+                if (llegada.tiempoFinalWithMs && llegada.tiempoFinalWithMs > 0) {
+                    nuevaPosicion = mapaPosiciones[llegada.id] || '';
+                }
+                
+                // Solo actualizar si cambió
+                if (celdaPosicion.textContent !== nuevaPosicion.toString()) {
+                    celdaPosicion.textContent = nuevaPosicion;
+                    celdaPosicion.className = 'posicion';
+                    actualizadas++;
+                }
+            });
+            
+            console.log(`✅ Recálculo completado: ${actualizadas} posiciones actualizadas`);
+            
+        } catch (error) {
+            console.error('❌ Error en recálculo de posiciones:', error);
+        } finally {
+            window.recalculacionPosicionesPendiente = false;
+        }
+    }, 400); // 400ms de delay
+}
+
+// ============================================
+// CALCULAR MAPA DE POSICIONES SIN CAMBIAR ORDEN - CORREGIDA 3.1.7
+// ============================================
+function calcularMapaPosiciones(llegadas) {
+    // 1. Filtrar llegadas con tiempo final válido
+    const llegadasConTiempo = llegadas.filter(l => 
+        l.tiempoFinalWithMs && l.tiempoFinalWithMs > 0);
+    
+    if (llegadasConTiempo.length === 0) {
+        return {};
+    }
+    
+    // 2. Hacer copia para ordenar (sin modificar original)
+    const llegadasParaOrdenar = [...llegadasConTiempo];
+    
+    // 3. Ordenar por tiempo final (más rápido primero)
+    llegadasParaOrdenar.sort((a, b) => a.tiempoFinalWithMs - b.tiempoFinalWithMs);
+    
+    console.log('🔢 Llegadas ordenadas por tiempo:');
+    llegadasParaOrdenar.forEach((l, i) => {
+        console.log(`  ${i+1}. Dorsal ${l.dorsal}: ${formatSecondsWithMilliseconds(l.tiempoFinalWithMs)}`);
+    });
+    
+    // 4. Crear mapa {id: posicion} con manejo de empates CORREGIDO
+    const mapaPosiciones = {};
+    let posicionActual = 1;
+    
+    for (let i = 0; i < llegadasParaOrdenar.length; i++) {
+        const llegada = llegadasParaOrdenar[i];
+        
+        // Si es el primero o tiene tiempo diferente al anterior
+        if (i === 0 || llegada.tiempoFinalWithMs > llegadasParaOrdenar[i-1].tiempoFinalWithMs) {
+            mapaPosiciones[llegada.id] = posicionActual;
+            posicionActual = i + 2; // Siguiente posición
+        } else {
+            // Mismo tiempo que el anterior → misma posición
+            mapaPosiciones[llegada.id] = posicionActual - 1;
+        }
+    }
+    
+    console.log('🗺️ Mapa de posiciones calculado:', mapaPosiciones);
+    return mapaPosiciones;
 }
 
 // Función para obtener segundos con milésimas
@@ -1242,4 +1589,4 @@ window.exportLlegadasToExcel = exportLlegadasToExcel;
 window.exportRankingToExcel = exportRankingToExcel;
 window.clearLlegadas = clearLlegadas;
 
-console.log("✅ Módulo de llegadas 3.1.6.2 cargado");
+console.log("✅ Módulo de llegadas 3.1.7 cargado");

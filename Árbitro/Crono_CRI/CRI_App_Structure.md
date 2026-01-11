@@ -2641,7 +2641,7 @@ Aquí está la **estructura MD actualizada** para documentar los cambios realiza
 
 # SISTEMA DE CRONOMETRAJE - DOCUMENTACIÓN TÉCNICA
 
-## VERSIÓN ACTUAL: 3.1.6.2
+## VERSIÓN ACTUAL: 3.1.7
 
 ### MÓDULO DE LLEGADAS
 
@@ -2653,7 +2653,7 @@ Aquí está la **estructura MD actualizada** para documentar los cambios realiza
 - Cronómetro de llegadas funcionando
 - Captura directa de tiempos
 
-**3.1.6.2 - Prioridad de Datos Mejorada:**
+**3.1.7 - Prioridad de Datos Mejorada:**
 - ✅ **FUNCIÓN MODIFICADA:** `obtenerDatosCorredor(dorsal)`
 - Lógica de prioridad: `horaSalidaReal` > `horaSalida`
 - Validaciones: excluye `"--:--:--"` pero acepta `"00:00:00"` para primer corredor
@@ -2661,7 +2661,7 @@ Aquí está la **estructura MD actualizada** para documentar los cambios realiza
 - Resto de corredores: requiere crono salida diferente de `"00:00:00"`
 - Corregido: uso de `tiempoFinalWithMs` en lugar de `tiempoFinalSegundos`
 
-**3.1.6.2 - Campos Nuevos (Activados):**
+**3.1.7 - Campos Nuevos (Activados):**
 - ✅ **CAMPOS AÑADIDOS:** `categoria`, `equipo`, `licencia`
 - ✅ **FUNCIONES MODIFICADAS:**
   - `obtenerDatosCorredor(dorsal)` - campos inicializados vacíos
@@ -2685,9 +2685,9 @@ Aquí está la **estructura MD actualizada** para documentar los cambios realiza
     nombre: String,
     apellidos: String,
     chip: String,
-    categoria: String,      // NUEVO 3.1.6.2
-    equipo: String,         // NUEVO 3.1.6.2
-    licencia: String,       // NUEVO 3.1.6.2
+    categoria: String,      // NUEVO 3.1.7
+    equipo: String,         // NUEVO 3.1.7
+    licencia: String,       // NUEVO 3.1.7
     horaSalida: String,
     cronoSalida: String,
     cronoSalidaSegundos: Number,
@@ -2718,7 +2718,7 @@ Aquí está la **estructura MD actualizada** para documentar los cambios realiza
 
 **`obtenerDatosCorredor(dorsal)` - Lógica de prioridad:**
 ```javascript
-// PRIORIDAD 3.1.6.2:
+// PRIORIDAD 3.1.7:
 1. Si horaSalidaReal existe y NO es "--:--:--" → usar horaSalidaReal
 2. Si no → usar horaSalida
 
@@ -2728,7 +2728,7 @@ Aquí está la **estructura MD actualizada** para documentar los cambios realiza
 // PARA RESTO DE CORREDORES:
 - Requiere cronoSalida ≠ "00:00:00" y ≠ "--:--:--"
 
-// CAMPOS 3.1.6.2 (PENDIENTE IMPLEMENTACIÓN EN startOrderData):
+// CAMPOS 3.1.7 (PENDIENTE IMPLEMENTACIÓN EN startOrderData):
 categoria: '', // corredor.categoria || '', (COMENTADO)
 equipo: '',    // corredor.equipo || '',    (COMENTADO)
 licencia: '',  // corredor.licencia || '',  (COMENTADO)
@@ -2736,11 +2736,11 @@ licencia: '',  // corredor.licencia || '',  (COMENTADO)
 
 #### PENDIENTES PARA FUTURAS VERSIONES:
 
-**PARA COMPLETAR 3.1.6.2:**
+**PARA COMPLETAR 3.1.7:**
 1. ⚠️ **Implementar campos en `startOrderData`:**
    - Añadir propiedades: `categoria`, `equipo`, `licencia`
    - Actualizar función `obtenerDatosCorredor()` para importarlos
-   - Descomentar líneas marcadas con `// VERSIÓN 3.1.6.2`
+   - Descomentar líneas marcadas con `// VERSIÓN 3.1.7`
 
 **MEJORAS FUTURAS:**
 1. **Scroll horizontal** en tabla de llegadas
@@ -2767,7 +2767,7 @@ licencia: '',  // corredor.licencia || '',  (COMENTADO)
 4. Implementar CSS para tabla de 12 columnas
 
 ---
-*Documentación actualizada: Versión 3.1.6.2 - Campos nuevos activados pero no importados aún*
+*Documentación actualizada: Versión 3.1.7 - Campos nuevos activados pero no importados aún*
 
 # 📚 **LO QUE HEMOS APRENDIDO EN ESTE PROYECTO**
 

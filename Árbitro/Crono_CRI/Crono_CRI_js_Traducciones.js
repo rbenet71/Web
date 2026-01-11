@@ -560,6 +560,8 @@ const translations = {
         category: "CATEGORÍA",
         team: "EQUIPO",
 
+        positionHeader: "Posición",  // es
+
     },
 
     ca: {
@@ -1128,6 +1130,7 @@ const translations = {
         category: "CATEGORIA",
         team: "EQUIP",
 
+        positionHeader: "Posició",   // ca  
     },
 
     en: {
@@ -1691,6 +1694,7 @@ const translations = {
         difference: "DIFFERENCE",
         category: "CATEGORY",
         team: "TEAM",
+        positionHeader: "Position",  // en
     },
 
     fr: {
@@ -2275,6 +2279,7 @@ const translations = {
         category: "CATÉGORIE",
         team: "ÉQUIPE",
 
+        positionHeader: "Position",  // fr
     }
 };
 

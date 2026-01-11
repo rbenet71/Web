@@ -22,7 +22,7 @@ ELEMENTOS PRINCIPALES:
 TECNOLOGÍAS INCLUIDAS:
    - Font Awesome 6.4.0 (iconos)
    - XLSX 0.18.5 (exportación Excel)
-   - jsPDF 3.1.6.2 (exportación PDF)
+   - jsPDF 3.1.7 (exportación PDF)
    - Google Analytics (G-CV925PMBQV)
 
 ARCHIVOS RELACIONADOS:
@@ -434,24 +434,26 @@ ESTRUCTURA MODULAR:
                     </div>
                     <div class="card-body">
                         <div class="llegadas-table-container">
-                            <!-- Busca esta sección y reemplaza la tabla de llegadas: -->
+                            <!-- REEMPLAZAR LA SECCIÓN COMPLETA CON ESTA -->
                             <table class="llegadas-table" id="llegadas-table">
                                 <thead>
                                     <tr>
-                                        <!-- ORDEN DE 12 COLUMNAS (9 + 3 nuevas) - VERSIÓN 3.1.6.2 -->
-                                        <th class="sortable" data-sort="dorsal">Dorsal</th>
-                                        <th class="sortable" data-sort="cronoLlegada">Crono Llegada</th>
-                                        <th class="sortable" data-sort="tiempoFinal">Tiempo Final</th>
-                                        <th class="sortable" data-sort="nombre">Nombre</th>
-                                        <th class="sortable" data-sort="apellidos">Apellidos</th>
-                                        <th class="sortable" data-sort="cronoSalida">Crono Salida</th>
-                                        <th class="sortable" data-sort="horaLlegada">Hora Llegada</th>
-                                        <th class="sortable" data-sort="horaSalida">Hora Salida</th>
-                                        <th class="sortable" data-sort="chip">Chip</th>
-                                        <!-- VERSIÓN 3.1.6.2 - CAMPOS NUEVOS -->
-                                        <th class="sortable" data-sort="categoria">Categoría</th>
-                                        <th class="sortable" data-sort="equipo">Equipo</th>
-                                        <th class="sortable" data-sort="licencia">Licencia</th>
+                                        <!-- ORDEN DE 13 COLUMNAS (12 + posición) - VERSIÓN 3.1.7 -->
+                                        <th class="sortable" data-sort="dorsal" id="dorsalHeader">Dorsal</th>
+                                        <th class="sortable" data-sort="cronoLlegada" id="cronoLlegadaHeader">Crono Llegada</th>
+                                        <th class="sortable" data-sort="tiempoFinal" id="tiempoFinalHeader">Tiempo Final</th>
+                                        <!-- NUEVA COLUMNA 3.1.7 - POSICIÓN -->
+                                        <th class="sortable" data-sort="position" id="positionHeader">Posición</th>
+                                        <th class="sortable" data-sort="nombre" id="nombreHeader">Nombre</th>
+                                        <th class="sortable" data-sort="apellidos" id="apellidosHeader">Apellidos</th>
+                                        <th class="sortable" data-sort="cronoSalida" id="cronoSalidaHeader">Crono Salida</th>
+                                        <th class="sortable" data-sort="horaLlegada" id="horaLlegadaHeader">Hora Llegada</th>
+                                        <th class="sortable" data-sort="horaSalida" id="horaSalidaHeader">Hora Salida</th>
+                                        <th class="sortable" data-sort="chip" id="chipHeader">Chip</th>
+                                        <!-- VERSIÓN 3.1.7 - CAMPOS NUEVOS -->
+                                        <th class="sortable" data-sort="categoria" id="categoriaHeader">Categoría</th>
+                                        <th class="sortable" data-sort="equipo" id="equipoHeader">Equipo</th>
+                                        <th class="sortable" data-sort="licencia" id="licenciaHeader">Licencia</th>
                                     </tr>
                                 </thead>
                                 <tbody id="llegadas-table-body">
@@ -558,7 +560,7 @@ ESTRUCTURA MODULAR:
                 <div class="copyright" id="copyright-text">
                     2026 © Copyright 
                     <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                        Roberto Benet - rbenet71@gmail.com - Ver: 3.1.6.2
+                        Roberto Benet - rbenet71@gmail.com - Ver: 3.1.7
                     </a>
                 </div>
             </div>
