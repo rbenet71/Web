@@ -702,7 +702,8 @@ function createExcelTemplate(numCorredores, intervalo, horaInicio) {
     
     // Crear encabezados
     const headers = [
-        'Orden', 'Dorsal', 'Crono Salida', 'Hora Salida', 'Diferencia', 'Nombre', 'Apellidos', 'Chip', 
+        'Orden', 'Dorsal', 'Crono Salida', 'Hora Salida', 'Diferencia', 'Nombre', 'Apellidos',
+        'Categoría', 'Equipo', 'Licencia', 'Chip',  // NUEVO ORDEN: Chip después de Licencia
         'Hora Salida Real', 'Crono Salida Real', 
         'Hora Salida Prevista', 'Crono Salida Prevista', 
         'Hora Salida Importado', 'Crono Salida Importado', 
@@ -753,51 +754,54 @@ function createExcelTemplate(numCorredores, intervalo, horaInicio) {
             row[4] = { t: 'n', v: intervaloSeconds / 86400, z: 'hh:mm:ss' };
         }
         
-        // Nombre, Apellidos, Chip (F, G, H) - VACÍOS
-        row[5] = '';
-        row[6] = '';
-        row[7] = '';
+        // Nombre, Apellidos, Categoría, Equipo, Licencia, Chip (F, G, H, I, J, K) - VACÍOS
+        row[5] = ''; // Nombre
+        row[6] = ''; // Apellidos
+        row[7] = ''; // Categoría - NUEVO
+        row[8] = ''; // Equipo - NUEVO
+        row[9] = ''; // Licencia - NUEVO
+        row[10] = ''; // Chip
         
-        // Hora Salida Real (I) - VACÍO (para llenar manualmente)
-        row[8] = '';
-        
-        // Crono Salida Real (J) - VACÍO (para llenar manualmente)
-        row[9] = '';
-        
-        // Hora Salida Prevista (K) - VACÍO (para llenar manualmente)
-        row[10] = '';
-        
-        // Crono Salida Prevista (L) - VACÍO (para llenar manualmente)
+        // Hora Salida Real (L) - VACÍO (para llenar manualmente)
         row[11] = '';
         
-        // Hora Salida Importado (M) - VACÍO
+        // Crono Salida Real (M) - VACÍO (para llenar manualmente)
         row[12] = '';
         
-        // Crono Salida Importado (N) - VACÍO
+        // Hora Salida Prevista (N) - VACÍO (para llenar manualmente)
         row[13] = '';
         
-        // Crono Segundos (O) - FÓRMULA: =HORA(C2)*3600+MINUTO(C2)*60+SEGUNDO(C2)
-        row[14] = { 
+        // Crono Salida Prevista (O) - VACÍO (para llenar manualmente)
+        row[14] = '';
+        
+        // Hora Salida Importado (P) - VACÍO
+        row[15] = '';
+        
+        // Crono Salida Importado (Q) - VACÍO
+        row[16] = '';
+        
+        // Crono Segundos (R) - FÓRMULA: =HORA(C2)*3600+MINUTO(C2)*60+SEGUNDO(C2)
+        row[17] = { 
             t: 'n', 
             f: `HOUR(${XLSX.utils.encode_col(2)}${excelRow})*3600+MINUTE(${XLSX.utils.encode_col(2)}${excelRow})*60+SECOND(${XLSX.utils.encode_col(2)}${excelRow})`
         };
         
-        // Hora Segundos (P) - FÓRMULA: =HORA(D2)*3600+MINUTO(D2)*60+SEGUNDO(D2)
-        row[15] = { 
+        // Hora Segundos (S) - FÓRMULA: =HORA(D2)*3600+MINUTO(D2)*60+SEGUNDO(D2)
+        row[18] = { 
             t: 'n', 
             f: `HOUR(${XLSX.utils.encode_col(3)}${excelRow})*3600+MINUTE(${XLSX.utils.encode_col(3)}${excelRow})*60+SECOND(${XLSX.utils.encode_col(3)}${excelRow})`
         };
         
-        // Crono Salida Real Segundos (Q) - FÓRMULA: =SI(J2="",0,HORA(J2)*3600+MINUTO(J2)*60+SEGUNDO(J2))
-        row[16] = { 
+        // Crono Salida Real Segundos (T) - FÓRMULA: =SI(M2="",0,HORA(M2)*3600+MINUTO(M2)*60+SEGUNDO(M2))
+        row[19] = { 
             t: 'n', 
-            f: `IF(${XLSX.utils.encode_col(9)}${excelRow}="",0,HOUR(${XLSX.utils.encode_col(9)}${excelRow})*3600+MINUTE(${XLSX.utils.encode_col(9)}${excelRow})*60+SECOND(${XLSX.utils.encode_col(9)}${excelRow}))`
+            f: `IF(${XLSX.utils.encode_col(12)}${excelRow}="",0,HOUR(${XLSX.utils.encode_col(12)}${excelRow})*3600+MINUTE(${XLSX.utils.encode_col(12)}${excelRow})*60+SECOND(${XLSX.utils.encode_col(12)}${excelRow}))`
         };
         
-        // Hora Salida Real Segundos (R) - FÓRMULA: =SI(I2="",0,HORA(I2)*3600+MINUTO(I2)*60+SEGUNDO(I2))
-        row[17] = { 
+        // Hora Salida Real Segundos (U) - FÓRMULA: =SI(L2="",0,HORA(L2)*3600+MINUTO(L2)*60+SEGUNDO(L2))
+        row[20] = { 
             t: 'n', 
-            f: `IF(${XLSX.utils.encode_col(8)}${excelRow}="",0,HOUR(${XLSX.utils.encode_col(8)}${excelRow})*3600+MINUTE(${XLSX.utils.encode_col(8)}${excelRow})*60+SECOND(${XLSX.utils.encode_col(8)}${excelRow}))`
+            f: `IF(${XLSX.utils.encode_col(11)}${excelRow}="",0,HOUR(${XLSX.utils.encode_col(11)}${excelRow})*3600+MINUTE(${XLSX.utils.encode_col(11)}${excelRow})*60+SECOND(${XLSX.utils.encode_col(11)}${excelRow}))`
         };
         
         data.push(row);
@@ -811,8 +815,8 @@ function createExcelTemplate(numCorredores, intervalo, horaInicio) {
     // Ajustar anchos
     const colWidths = [
         {wch: 8}, {wch: 8}, {wch: 12}, {wch: 12}, {wch: 12},
-        {wch: 15}, {wch: 20}, {wch: 12}, {wch: 12}, {wch: 12},
-        {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12},
+        {wch: 15}, {wch: 20}, {wch: 12}, {wch: 15}, {wch: 12}, {wch: 12}, // NUEVOS: Categoría, Equipo, Licencia, Chip
+        {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 12},
         {wch: 12}, {wch: 12}, {wch: 10}, {wch: 10}
     ];
     ws['!cols'] = colWidths;
