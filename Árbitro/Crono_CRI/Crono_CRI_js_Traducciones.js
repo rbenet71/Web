@@ -439,6 +439,9 @@ const translations = {
         cronosegundosTooltip: "Crono Salida en segundos (para cálculos internos)",
         horasegundosTooltip: "Hora Salida en segundos (para cálculos internos)",
         horarealsegundosTooltip: "Hora Salida Real en segundos (para cálculos internos)",
+        categoriaTooltip: "Categoría del corredor (ej: Junior, Sub23, Elite, etc.)",
+        equipoTooltip: "Equipo o club al que pertenece el corredor",
+        licenciaTooltip: "Número de licencia federativa del corredor",
 
         addRiderTitle: 'Añadir corredor',
         selectPosition: 'Seleccionar posición:',
@@ -1014,6 +1017,10 @@ const translations = {
         cronosegundosTooltip: "Crono Sortida en segons (per a càlculs interns)",
         horasegundosTooltip: "Hora Sortida en segons (per a càlculs interns)",
         horarealsegundosTooltip: "Hora Sortida Real en segons (per a càlculs interns)",
+        categoriaTooltip: "Categoria del corredor (ex: Junior, Sub23, Elite, etc.)",
+        equipoTooltip: "Equip o club al qual pertany el corredor",
+        licenciaTooltip: "Número de llicència federativa del corredor",
+
 
         addRiderTitle: 'Afegir corredor',
         selectPosition: 'Seleccionar posició:',
@@ -1582,6 +1589,9 @@ const translations = {
         cronosegundosTooltip: "Departure Time in seconds (for internal calculations)",
         horasegundosTooltip: "Departure Hour in seconds (for internal calculations)",
         horarealsegundosTooltip: "Real Departure Hour in seconds (for internal calculations)",
+        categoriaTooltip: "Rider's category (e.g., Junior, U23, Elite, etc.)",
+        equipoTooltip: "Team or club the rider belongs to",
+        licenciaTooltip: "Rider's federation license number",
 
         addRiderTitle: 'Add Rider',
         selectPosition: 'Select position:',
@@ -2163,6 +2173,9 @@ const translations = {
         cronosegundosTooltip: "Temps de départ en secondes (pour calculs internes)",
         horasegundosTooltip: "Heure de départ en secondes (pour calculs internes)",
         horarealsegundosTooltip: "Heure réelle de départ en secondes (pour calculs internes)",
+        categoriaTooltip: "Catégorie du coureur (ex: Junior, U23, Elite, etc.)",
+        equipoTooltip: "Équipe ou club auquel appartient le coureur",
+        licenciaTooltip: "Numéro de licence fédérale du coureur",
 
         addRiderTitle: 'Ajouter un coureur',
         selectPosition: 'Sélectionner la position:',
@@ -2625,9 +2638,13 @@ function updateTableTooltips() {
         'dorsalHeader': t.dorsalTooltip,
         'cronosalidaHeader': t.cronosalidaTooltip,
         'horasalidaHeader': t.horasalidaTooltip,
+        'diferenciaHeader': t.diferenciaTooltip,
         'nombreHeader': t.nombreTooltip,
         'apellidosHeader': t.apellidosTooltip,
         'chipHeader': t.chipTooltip,
+        'categoriaHeader': t.categoriaTooltip,
+        'equipoHeader': t.equipoTooltip,
+        'licenciaHeader': t.licenciaTooltip,
         'horarealHeader': t.horarealTooltip,
         'cronorealHeader': t.cronorealTooltip,
         'horaprevistaHeader': t.horaprevistaTooltip,
@@ -2636,6 +2653,7 @@ function updateTableTooltips() {
         'cronoimportadoHeader': t.cronoimportadoTooltip,
         'cronosegundosHeader': t.cronosegundosTooltip,
         'horasegundosHeader': t.horasegundosTooltip,
+        'cronorealsegundosHeader': t.cronorealsegundosTooltip,
         'horarealsegundosHeader': t.horarealsegundosTooltip
     };
     
@@ -2648,6 +2666,7 @@ function updateTableTooltips() {
     
     console.log("Tooltips de tabla actualizados");
 }
+
 // Función para traducir el modal de sugerencias
 function translateSuggestionsModal() {
     const t = translations[appState.currentLanguage];

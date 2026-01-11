@@ -236,6 +236,15 @@ function updateStartOrderTable() {
             <!-- APELLIDOS - EDITABLE -->
             <td class="name-cell editable" data-field="apellidos">${escapeHtml(rider.apellidos || '')}</td>
             
+            <!-- CATEGORÍA - EDITABLE - NUEVO -->
+            <td class="editable" data-field="categoria">${escapeHtml(rider.categoria || '')}</td>
+
+            <!-- EQUIPO - EDITABLE - NUEVO -->
+            <td class="editable" data-field="equipo">${escapeHtml(rider.equipo || '')}</td>
+
+            <!-- LICENCIA - EDITABLE - NUEVO -->
+            <td class="editable" data-field="licencia">${escapeHtml(rider.licencia || '')}</td>
+            
             <!-- CHIP - EDITABLE -->
             <td class="editable" data-field="chip">${escapeHtml(rider.chip || '')}</td>
             

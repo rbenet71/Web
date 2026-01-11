@@ -1368,12 +1368,15 @@ function createRiderFromRow(row, columnIndexes, index) {
     // Asegurar formato HH:MM:SS
     horaSalidaExcel = formatTimeValue(horaSalidaExcel);
     
-    // OBTENER TODOS LOS CAMPOS DEL EXCEL (AÑADIDO)
+    // OBTENER TODOS LOS CAMPOS DEL EXCEL
     const cronoSalidaExcel = getExcelValue('Crono Salida', '00:00:00');
     const diferenciaExcel = getExcelValue('Diferencia', '00:00:00');
-    const nombreExcel = getExcelValue('Nombre', '');           // AÑADIDO
-    const apellidosExcel = getExcelValue('Apellidos', '');     // AÑADIDO
-    const chipExcel = getExcelValue('Chip', '');               // AÑADIDO
+    const nombreExcel = getExcelValue('Nombre', '');
+    const apellidosExcel = getExcelValue('Apellidos', '');
+    const categoriaExcel = getExcelValue('Categoría', '');      // NUEVO
+    const equipoExcel = getExcelValue('Equipo', '');            // NUEVO
+    const licenciaExcel = getExcelValue('Licencia', '');        // NUEVO
+    const chipExcel = getExcelValue('Chip', '');                // Ahora en nueva posición
     
     const rider = {
         order: parseInt(getExcelValue('Orden', index + 1)) || (index + 1),
@@ -1384,10 +1387,17 @@ function createRiderFromRow(row, columnIndexes, index) {
         horaSalida: horaSalidaExcel, // ✅ Usar la hora procesada
         diferencia: formatTimeValue(diferenciaExcel),
         
-        // Campos de datos personales (AÑADIDOS)
-        nombre: nombreExcel,        // AÑADIDO
-        apellidos: apellidosExcel,  // AÑADIDO
-        chip: chipExcel,            // AÑADIDO
+        // Campos de datos personales
+        nombre: nombreExcel,
+        apellidos: apellidosExcel,
+        
+        // NUEVOS CAMPOS
+        categoria: categoriaExcel,  // NUEVO
+        equipo: equipoExcel,        // NUEVO
+        licencia: licenciaExcel,    // NUEVO
+        
+        // Chip en nueva posición
+        chip: chipExcel,
         
         // Campos reales vacíos inicialmente
         horaSalidaReal: '',
