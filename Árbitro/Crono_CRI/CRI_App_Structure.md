@@ -2641,7 +2641,7 @@ Aquí está la **estructura MD actualizada** para documentar los cambios realiza
 
 # SISTEMA DE CRONOMETRAJE - DOCUMENTACIÓN TÉCNICA
 
-## VERSIÓN ACTUAL: 3.1.6.1
+## VERSIÓN ACTUAL: 3.1.6.2
 
 ### MÓDULO DE LLEGADAS
 
@@ -2653,7 +2653,7 @@ Aquí está la **estructura MD actualizada** para documentar los cambios realiza
 - Cronómetro de llegadas funcionando
 - Captura directa de tiempos
 
-**3.1.6.1 - Prioridad de Datos Mejorada:**
+**3.1.6.2 - Prioridad de Datos Mejorada:**
 - ✅ **FUNCIÓN MODIFICADA:** `obtenerDatosCorredor(dorsal)`
 - Lógica de prioridad: `horaSalidaReal` > `horaSalida`
 - Validaciones: excluye `"--:--:--"` pero acepta `"00:00:00"` para primer corredor
@@ -2661,7 +2661,7 @@ Aquí está la **estructura MD actualizada** para documentar los cambios realiza
 - Resto de corredores: requiere crono salida diferente de `"00:00:00"`
 - Corregido: uso de `tiempoFinalWithMs` en lugar de `tiempoFinalSegundos`
 
-**3.1.6.1 - Campos Nuevos (Activados):**
+**3.1.6.2 - Campos Nuevos (Activados):**
 - ✅ **CAMPOS AÑADIDOS:** `categoria`, `equipo`, `licencia`
 - ✅ **FUNCIONES MODIFICADAS:**
   - `obtenerDatosCorredor(dorsal)` - campos inicializados vacíos
@@ -2685,9 +2685,9 @@ Aquí está la **estructura MD actualizada** para documentar los cambios realiza
     nombre: String,
     apellidos: String,
     chip: String,
-    categoria: String,      // NUEVO 3.1.6.1
-    equipo: String,         // NUEVO 3.1.6.1
-    licencia: String,       // NUEVO 3.1.6.1
+    categoria: String,      // NUEVO 3.1.6.2
+    equipo: String,         // NUEVO 3.1.6.2
+    licencia: String,       // NUEVO 3.1.6.2
     horaSalida: String,
     cronoSalida: String,
     cronoSalidaSegundos: Number,
@@ -2718,7 +2718,7 @@ Aquí está la **estructura MD actualizada** para documentar los cambios realiza
 
 **`obtenerDatosCorredor(dorsal)` - Lógica de prioridad:**
 ```javascript
-// PRIORIDAD 3.1.6.1:
+// PRIORIDAD 3.1.6.2:
 1. Si horaSalidaReal existe y NO es "--:--:--" → usar horaSalidaReal
 2. Si no → usar horaSalida
 
@@ -2728,7 +2728,7 @@ Aquí está la **estructura MD actualizada** para documentar los cambios realiza
 // PARA RESTO DE CORREDORES:
 - Requiere cronoSalida ≠ "00:00:00" y ≠ "--:--:--"
 
-// CAMPOS 3.1.6.1 (PENDIENTE IMPLEMENTACIÓN EN startOrderData):
+// CAMPOS 3.1.6.2 (PENDIENTE IMPLEMENTACIÓN EN startOrderData):
 categoria: '', // corredor.categoria || '', (COMENTADO)
 equipo: '',    // corredor.equipo || '',    (COMENTADO)
 licencia: '',  // corredor.licencia || '',  (COMENTADO)
@@ -2736,11 +2736,11 @@ licencia: '',  // corredor.licencia || '',  (COMENTADO)
 
 #### PENDIENTES PARA FUTURAS VERSIONES:
 
-**PARA COMPLETAR 3.1.6.1:**
+**PARA COMPLETAR 3.1.6.2:**
 1. ⚠️ **Implementar campos en `startOrderData`:**
    - Añadir propiedades: `categoria`, `equipo`, `licencia`
    - Actualizar función `obtenerDatosCorredor()` para importarlos
-   - Descomentar líneas marcadas con `// VERSIÓN 3.1.6.1`
+   - Descomentar líneas marcadas con `// VERSIÓN 3.1.6.2`
 
 **MEJORAS FUTURAS:**
 1. **Scroll horizontal** en tabla de llegadas
@@ -2767,4 +2767,116 @@ licencia: '',  // corredor.licencia || '',  (COMENTADO)
 4. Implementar CSS para tabla de 12 columnas
 
 ---
-*Documentación actualizada: Versión 3.1.6.1 - Campos nuevos activados pero no importados aún*
+*Documentación actualizada: Versión 3.1.6.2 - Campos nuevos activados pero no importados aún*
+
+# 📚 **LO QUE HEMOS APRENDIDO EN ESTE PROYECTO**
+
+## **1. PROBLEMAS CON VERSIONES DE BIBLIOTECAS**
+- **jsPDF 2.5.1 ≠ jsPDF 3.x** → APIs diferentes
+- **Solución**: Mantener versiones compatibles y verificar cómo se accede a la librería
+  ```javascript
+  // Versión 2.5.1: funciona
+  const { jsPDF } = window.jspdf;
+  
+  // Versión 3.x: puede necesitar diferente acceso
+  ```
+
+## **2. ORDEN DE CARGA DE SCRIPTS ES CRÍTICO**
+- **Problema**: Si tus scripts usan `window.jspdf` pero jsPDF se carga después → `undefined`
+- **Solución**: Cargar bibliotecas externas ANTES de tus scripts
+  ```html
+  <!-- MAL: Tus scripts primero -->
+  <script src="tu-script.js"></script>
+  <script src="jspdf.js"></script>
+  
+  <!-- BIEN: Bibliotecas primero -->
+  <script src="jspdf.js"></script>
+  <script src="tu-script.js"></script>
+  ```
+
+## **3. SISTEMA DE TRADUCCIONES CONSISTENTE**
+- **Problema**: IDs con guiones bajos (`export-ranking-text`) son problemáticos
+- **Solución**: Usar **camelCase** para todas las claves de traducción
+  ```javascript
+  // MAL
+  "export-ranking-text": "Exportar PDF"
+  
+  // BIEN
+  exportRankingText: "Exportar PDF"
+  ```
+
+## **4. GENERACIÓN DE PDFs CON DISEÑO PROFESIONAL**
+### **Estructura del PDF:**
+1. **Cabecera limpia** (sin fondos innecesarios)
+2. **Información organizada en 2 líneas**:
+   - Línea 1: Fecha | Total corredores
+   - Línea 2: Lugar | Categoría
+3. **Tabla con cabecera oscura** y texto blanco
+4. **Alternancia de colores** en filas
+5. **Pie de página minimalista**
+
+### **Código clave aprendido:**
+```javascript
+// Alternancia de colores CORRECTA
+function drawDataRow(llegada, startY, rowNumber) {
+    const isEvenRow = rowNumber % 2 === 0;
+    
+    // 1. Aplicar alternancia base
+    if (isEvenRow) {
+        doc.setFillColor(240, 240, 240); // Gris
+        doc.rect(x, y, width, height, 'F');
+    }
+    
+    // 2. Sobreescribir para casos especiales (PRIMERO 3)
+    if (rowNumber <= 3) {
+        doc.setFillColor(255, 255, 204); // Amarillo
+        doc.rect(x, y, width, height, 'F');
+    }
+}
+```
+
+## **5. FORMATO DE TIEMPO MEJORADO**
+- **Eliminar ceros innecesarios**:
+  ```javascript
+  // MAL: 00:15:20.135
+  // BIEN: 15:20.135
+  
+  // MAL: 00:00:20.135  
+  // BIEN: 20.135
+  ```
+
+## **6. MANEJO DE ERRORES EN FUNCIONES COMPLEJAS**
+- **Try-catch** con mensajes informativos
+- **Logs detallados** para debugging
+- **Validación de datos** antes de procesar
+
+## **7. ORGANIZACIÓN DE CÓDIGO MODULAR**
+- **Funciones pequeñas** y específicas
+- **Separación de responsabilidades**:
+  - `drawPageHeader()` → Solo cabecera
+  - `drawTableHeaders()` → Solo cabeceras de tabla
+  - `drawDataRow()` → Solo una fila
+  - `drawPageFooter()` → Solo pie
+
+## **8. BUENAS PRÁCTICAS IDENTIFICADAS**
+1. **Consistencia en naming**: camelCase en todo
+2. **Orden lógico**: Cargar dependencias antes de usarlas
+3. **Validación temprana**: Verificar datos antes de procesar
+4. **Mensajes de error útiles**: Decir QUÉ falló y POR QUÉ
+5. **Logs para debugging**: `console.log()` con emojis para claridad
+
+## **9. LECCIONES SOBRE COMUNICACIÓN**
+- **Especificar exactamente** qué cambió cuando algo deja de funcionar
+- **Proveer ejemplos visuales** (como el dibujo de cómo debe verse el PDF)
+- **Validar entendimiento** antes de implementar cambios grandes
+
+## **10. WORKFLOW EFICIENTE PARA CORRECCIÓN DE BUGS**
+1. **Identificar** el cambio que rompió algo
+2. **Aislar** el problema (¿versión? ¿orden? ¿sintaxis?)
+3. **Probar solución mínima** primero
+4. **Implementar** en todo el sistema
+5. **Verificar** que no rompa nada más
+
+---
+
+**RESUMEN FINAL**: Este proyecto enseñó la importancia de la **consistencia**, el **orden adecuado de dependencias**, y la **comunicación clara** entre especificaciones técnicas y implementación.

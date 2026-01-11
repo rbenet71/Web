@@ -33,3 +33,32 @@ Opciones:
     <video id="keep-alive-video" style="display: none;" muted playsinline>
         <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
     </video>
+
+
+
+sistema de traducciones
+
+// ===========================================
+// TRADUCCIONES MULTI-IDIOMA
+// ===========================================
+const translations = {
+    es: {
+        // Títulos generales
+        appTitle: "Crono CRI - en Construcción",
+        languagesLabel: "Idioma / Language",
+
+
+    ca: en: fr: 
+
+
+function updateModeContent(t) {
+    // Selector de modo
+    setTextIfExists('mode-selector-title', t.modeSelectorTitle);
+    setTextIfExists('mode-salida-text', t.modeSalidaText);
+    setTextIfExists('mode-llegadas-text', t.modeLlegadasText);
+    
+    // Contenido salidas
+    setTextIfExists('audio-config-title', t.audioConfigTitle);
+    setTextIfExists('beep-option-title', t.beepOptionTitle);
+    setTextIfExists('voice-option-title', t.voiceOptionTitle);
+    setTextIfExists('mute-option-title', t.muteOptionTitle);

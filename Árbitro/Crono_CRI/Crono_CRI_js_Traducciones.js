@@ -554,6 +554,12 @@ const translations = {
         showRankingText: "Ver Clasificación",
         exportRankingPdfDirectText: "Clasificación PDF",
 
+        classification: "CLASIFICACIÓN",
+        timeFinal: "TIEMPO FINAL",
+        difference: "DIFERENCIA",
+        category: "CATEGORÍA",
+        team: "EQUIPO",
+
     },
 
     ca: {
@@ -1116,6 +1122,11 @@ const translations = {
         showRankingText: "Veure Classificació",
         exportRankingPdfDirectText: "Classificació PDF",
 
+        classification: "CLASSIFICACIÓ",
+        timeFinal: "TEMPS FINAL",
+        difference: "DIFERÈNCIA",
+        category: "CATEGORIA",
+        team: "EQUIP",
 
     },
 
@@ -1675,7 +1686,11 @@ const translations = {
         showRankingText: "View Ranking",
         exportRankingPdfDirectText: "Ranking PDF",
 
-
+        classification: "CLASSIFICATION",
+        timeFinal: "FINAL TIME",
+        difference: "DIFFERENCE",
+        category: "CATEGORY",
+        team: "TEAM",
     },
 
     fr: {
@@ -2253,6 +2268,12 @@ const translations = {
         exportLlegadasText: "Exporter Excel",
         showRankingText: "Voir Classement",
         exportRankingPdfDirectText: "Classement PDF",
+
+        classification: "CLASSEMENT",
+        timeFinal: "TEMPS FINAL",
+        difference: "DIFFÉRENCE",
+        category: "CATÉGORIE",
+        team: "ÉQUIPE",
 
     }
 };
