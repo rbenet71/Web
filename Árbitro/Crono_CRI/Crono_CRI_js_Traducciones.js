@@ -562,6 +562,7 @@ const translations = {
         difference: "DIFERENCIA",
         category: "CATEGORÍA",
         team: "EQUIPO",
+        license: "LICENCIA",
 
         positionHeader: "Posición",  // es
 
@@ -1136,6 +1137,7 @@ const translations = {
         difference: "DIFERÈNCIA",
         category: "CATEGORIA",
         team: "EQUIP",
+        license: "LLICÈNCIA",
 
         positionHeader: "Posició",   // ca  
     },
@@ -1704,6 +1706,7 @@ const translations = {
         difference: "DIFFERENCE",
         category: "CATEGORY",
         team: "TEAM",
+        license: "LICENSE",
         positionHeader: "Position",  // en
     },
 
@@ -2291,6 +2294,7 @@ const translations = {
         difference: "DIFFÉRENCE",
         category: "CATÉGORIE",
         team: "ÉQUIPE",
+        license: "LICENCE",
 
         positionHeader: "Position",  // fr
     }

@@ -745,14 +745,6 @@ function exportToExcel() {
 // FUNCIÓN PARA EXPORTAR ORDEN DE SALIDA A EXCEL
 // ============================================
 
-// ============================================
-// FUNCIÓN PARA EXPORTAR ORDEN DE SALIDA A EXCEL
-// ============================================
-
-// ============================================
-// FUNCIÓN PARA EXPORTAR ORDEN DE SALIDA A EXCEL
-// ============================================
-
 function exportStartOrder() {
     const t = translations[appState.currentLanguage];
     
@@ -764,16 +756,19 @@ function exportStartOrder() {
     // Mostrar mensaje de progreso
     showMessage(t.exportingOrder || 'Exportando orden de salida...', 'info');
     
-    // Crear encabezados CORREGIDOS (19 columnas - INCLUYENDO DIFERENCIA)
+    // Crear encabezados CORREGIDOS (22 columnas - INCLUYENDO NUEVOS CAMPOS)
     const headers = [
         'Orden', 
         'Dorsal', 
         'Crono Salida', 
         'Hora Salida', 
-        'Diferencia',  // COLUMNA AÑADIDA
+        'Diferencia',
         'Nombre', 
         'Apellidos', 
-        'Chip', 
+        'Categoría',    // NUEVO - posición 7
+        'Equipo',       // NUEVO - posición 8
+        'Licencia',     // NUEVO - posición 9
+        'Chip',         // MOVIDO - posición 10 (antes estaba en 8)
         'Hora Salida Real', 
         'Crono Salida Real', 
         'Hora Salida Prevista', 
@@ -784,7 +779,7 @@ function exportStartOrder() {
         'Hora Segundos',
         'Crono Salida Real Segundos', 
         'Hora Salida Real Segundos',
-        'Diferencia Segundos'  // NUEVA: Segundos de diferencia para cálculos
+        'Diferencia Segundos'
     ];
     
     // Crear los datos
@@ -847,10 +842,13 @@ function exportStartOrder() {
             rider.dorsal || '',
             formatTimeValue(rider.cronoSalida) || '00:00:00',
             formatTimeValue(rider.horaSalida) || '09:00:00',
-            diferenciaFormato,  // COLUMNA 5: Diferencia formateada
+            diferenciaFormato,
             rider.nombre || '',
             rider.apellidos || '',
-            rider.chip || '',
+            rider.categoria || '',     // NUEVO - posición 7
+            rider.equipo || '',        // NUEVO - posición 8
+            rider.licencia || '',      // NUEVO - posición 9
+            rider.chip || '',          // MOVIDO - posición 10
             formatTimeValue(rider.horaSalidaReal) || '',
             formatTimeValue(rider.cronoSalidaReal) || '',
             formatTimeValue(rider.horaSalidaPrevista) || formatTimeValue(rider.horaSalida) || '09:00:00',
@@ -861,7 +859,7 @@ function exportStartOrder() {
             horaSegundos,
             cronoRealSegundos,
             horaRealSegundos,
-            diferenciaSegundos  // ÚLTIMA COLUMNA: Diferencia en segundos (para cálculos)
+            diferenciaSegundos
         ];
         
         data.push(row);
@@ -878,27 +876,30 @@ function exportStartOrder() {
     
     XLSX.utils.book_append_sheet(wb, ws, sheetName);
     
-    // Ajustar anchos de columna CORREGIDOS (19 columnas)
+    // Ajustar anchos de columna CORREGIDOS (22 columnas)
     const colWidths = [
         {wch: 8},   // 1. Orden
         {wch: 8},   // 2. Dorsal
         {wch: 12},  // 3. Crono Salida
         {wch: 12},  // 4. Hora Salida
-        {wch: 15},  // 5. Diferencia (NUEVA COLUMNA)
+        {wch: 15},  // 5. Diferencia
         {wch: 15},  // 6. Nombre
         {wch: 20},  // 7. Apellidos
-        {wch: 12},  // 8. Chip
-        {wch: 12},  // 9. Hora Salida Real
-        {wch: 12},  // 10. Crono Salida Real
-        {wch: 12},  // 11. Hora Salida Prevista
-        {wch: 12},  // 12. Crono Salida Prevista
-        {wch: 12},  // 13. Hora Salida Importado
-        {wch: 12},  // 14. Crono Salida Importado
-        {wch: 12},  // 15. Crono Segundos
-        {wch: 12},  // 16. Hora Segundos
-        {wch: 12},  // 17. Crono Salida Real Segundos
-        {wch: 12},  // 18. Hora Salida Real Segundos
-        {wch: 12}   // 19. Diferencia Segundos
+        {wch: 12},  // 8. Categoría - NUEVO
+        {wch: 15},  // 9. Equipo - NUEVO
+        {wch: 12},  // 10. Licencia - NUEVO
+        {wch: 12},  // 11. Chip - MOVIDO
+        {wch: 12},  // 12. Hora Salida Real
+        {wch: 12},  // 13. Crono Salida Real
+        {wch: 12},  // 14. Hora Salida Prevista
+        {wch: 12},  // 15. Crono Salida Prevista
+        {wch: 12},  // 16. Hora Salida Importado
+        {wch: 12},  // 17. Crono Salida Importado
+        {wch: 12},  // 18. Crono Segundos
+        {wch: 12},  // 19. Hora Segundos
+        {wch: 12},  // 20. Crono Salida Real Segundos
+        {wch: 12},  // 21. Hora Salida Real Segundos
+        {wch: 12}   // 22. Diferencia Segundos
     ];
     ws['!cols'] = colWidths;
     
@@ -911,7 +912,7 @@ function exportStartOrder() {
     };
     
     // Formato de número para columnas de segundos
-    const numberColumns = [14, 15, 16, 17, 18]; // Índices de columnas de segundos (0-based): 14-18
+    const numberColumns = [17, 18, 19, 20, 21]; // Índices de columnas de segundos (0-based): 17-21
     
     // Aplicar formato a las filas
     for (let i = 1; i <= startOrderData.length; i++) {
@@ -923,7 +924,7 @@ function exportStartOrder() {
         });
         
         // Formato tiempo para columnas de tiempo
-        const timeColumns = [2, 3, 8, 9, 10, 11, 12, 13]; // Índices de columnas de tiempo
+        const timeColumns = [2, 3, 11, 12, 13, 14, 15, 16]; // Índices de columnas de tiempo
         timeColumns.forEach(colIndex => {
             const cellRef = XLSX.utils.encode_cell({ r: i, c: colIndex });
             if (ws[cellRef] && ws[cellRef].v && ws[cellRef].v !== '') {
@@ -975,13 +976,15 @@ function exportStartOrder() {
             dorsal: firstRider.dorsal,
             diferencia: firstRider.diferencia,
             diferenciaSegundos: firstRider.diferenciaSegundos,
+            categoria: firstRider.categoria,  // NUEVO
+            equipo: firstRider.equipo,        // NUEVO
+            licencia: firstRider.licencia,    // NUEVO
             horaSalida: firstRider.horaSalida,
             horaSalidaReal: firstRider.horaSalidaReal,
-            exportadoComo: data[1][4] // Valor en la fila de datos
+            exportadoComo: data[1][4]
         });
     }
 }
-
 
 
 function excelTimeToSeconds(excelTime) {
@@ -1129,8 +1132,6 @@ function generateStartOrderPDF() {
             const charsPerMM = 0.8; // 1mm ≈ 0.4 caracteres (2.5mm por char)
             const maxChars = Math.floor(availableWidth * charsPerMM);
             
-            console.log(`Texto: "${text.substring(0, 20)}...", Ancho disp: ${availableWidth}mm, Max chars: ${maxChars}, Longitud: ${text.length}`);
-            
             // Si el texto cabe completamente, devolverlo
             if (text.length <= maxChars) {
                 return text;
@@ -1164,35 +1165,34 @@ function generateStartOrderPDF() {
 
         const pageWidth = doc.internal.pageSize.width;
         const pageHeight = doc.internal.pageSize.height;
-        const margin = 20;
+        const margin = 15; // Reducido margen para más espacio
         const contentWidth = pageWidth - 2 * margin;
         
-        // ANCHOS OPTIMIZADOS (más espacio para NOMBRE/APELLIDOS)
-        const posWidth = 12;        // POS
-        const dorsalWidth = 15;     // DORSAL  
-        const horaSalidaWidth = 25; // HORA SALIDA (HH:MM:SS)
-        const cronoWidth = 25;      // CRONO (HH:MM:SS)
-        
-        // ANCHOS MÁXIMOS POSIBLES para NOMBRE y APELLIDOS
-        // Calcular espacio restante después de columnas fijas
-        const fixedWidths = posWidth + dorsalWidth + horaSalidaWidth + cronoWidth;
-        const remainingWidth = contentWidth - fixedWidths;
-        
-        // Distribuir: 45% para NOMBRE, 55% para APELLIDOS
-        const nombreWidth = Math.floor(remainingWidth * 0.45);
-        const apellidosWidth = Math.floor(remainingWidth * 0.55);
+        // ANCHOS OPTIMIZADOS PARA 9 COLUMNAS
+        const posWidth = 8;          // POS
+        const dorsalWidth = 10;      // DORSAL
+        const nombreWidth = 22;      // NOMBRE
+        const apellidosWidth = 22;   // APELLIDOS
+        const categoriaWidth = 15;   // CATEGORÍA
+        const equipoWidth = 20;      // EQUIPO
+        const licenciaWidth = 12;    // LICENCIA
+        const horaSalidaWidth = 18;  // HORA SALIDA
+        const cronoWidth = 18;       // CRONO
         
         // Ancho total de la tabla
-        const totalTableWidth = fixedWidths + nombreWidth + apellidosWidth;
+        const totalTableWidth = posWidth + dorsalWidth + nombreWidth + apellidosWidth + 
+                               categoriaWidth + equipoWidth + licenciaWidth + 
+                               horaSalidaWidth + cronoWidth;
         
         // Calcular margen izquierdo para centrar tabla
         const tableMarginLeft = margin + (contentWidth - totalTableWidth) / 2;
         
         // Array de anchos de columna
-        const columnWidths = [posWidth, dorsalWidth, nombreWidth, apellidosWidth, horaSalidaWidth, cronoWidth];
-        
-        console.log(`PDF - Anchos: NOMBRE=${nombreWidth}mm, APELLIDOS=${apellidosWidth}mm, Total=${totalTableWidth}mm`);
-        console.log(`Esto permite ~${Math.floor(nombreWidth * 0.4)} chars en NOMBRE y ~${Math.floor(apellidosWidth * 0.4)} chars en APELLIDOS`);
+        const columnWidths = [
+            posWidth, dorsalWidth, nombreWidth, apellidosWidth, 
+            categoriaWidth, equipoWidth, licenciaWidth, 
+            horaSalidaWidth, cronoWidth
+        ];
         
         // CALCULAR FILAS POR PÁGINA
         const headerHeight = 50;
@@ -1261,7 +1261,7 @@ function generateStartOrderPDF() {
             doc.rect(tableMarginLeft, startY - 3, totalTableWidth, 8, 'F');
             
             // Texto de cabeceras en blanco (usar traducciones)
-            doc.setFontSize(10);
+            doc.setFontSize(9); // Reducido tamaño para que quepan 9 columnas
             doc.setFont("helvetica", "bold");
             doc.setTextColor(255, 255, 255);
             
@@ -1271,11 +1271,14 @@ function generateStartOrderPDF() {
                 t.bibNumber || "DORSAL", 
                 t.name || "NOMBRE",
                 t.surname || "APELLIDOS",
-                t.startTime || "HORA SALIDA",
+                t.category || "CAT",
+                t.team || "EQUIPO",
+                t.license || "LIC",
+                t.startTime || "H.SALIDA",
                 t.time || "CRONO"
             ];
             
-            const aligns = ["center", "center", "left", "left", "center", "center"];
+            const aligns = ["center", "center", "left", "left", "center", "left", "center", "center", "center"];
             let xPosition = tableMarginLeft;
             
             headers.forEach((header, index) => {
@@ -1319,42 +1322,61 @@ function generateStartOrderPDF() {
             
             lastDifference = currentDifference;
             
-            doc.setFontSize(9);
+            doc.setFontSize(8); // Reducido tamaño para que quepan 9 columnas
             doc.setFont("helvetica", "normal");
             doc.setTextColor(0, 0, 0);
             
-            const aligns = ["center", "center", "left", "left", "center", "center"];
+            const aligns = ["center", "center", "left", "left", "center", "left", "center", "center", "center"];
             let xPosition = tableMarginLeft;
             
-            // POS
+            // 1. POS
             doc.text(rider.order.toString(), xPosition + (columnWidths[0] / 2), startY + 2, { align: "center" });
             xPosition += columnWidths[0];
             
-            // DORSAL
+            // 2. DORSAL
             doc.text(rider.dorsal.toString(), xPosition + (columnWidths[1] / 2), startY + 2, { align: "center" });
             xPosition += columnWidths[1];
             
-            // NOMBRE (usa TODO el espacio disponible)
+            // 3. NOMBRE
             const nombre = rider.nombre || "";
             const adjustedNombre = handleLongText(nombre, columnWidths[2]);
             doc.text(adjustedNombre, xPosition + 2, startY + 2);
             xPosition += columnWidths[2];
             
-            // APELLIDOS (usa TODO el espacio disponible)
+            // 4. APELLIDOS
             const apellidos = rider.apellidos || "";
             const adjustedApellidos = handleLongText(apellidos, columnWidths[3]);
             doc.text(adjustedApellidos, xPosition + 2, startY + 2);
             xPosition += columnWidths[3];
             
-            // HORA SALIDA
-            const horaSalida = rider.horaSalida || "00:00:00";
-            doc.text(horaSalida, xPosition + (columnWidths[4] / 2), startY + 2, { align: "center" });
+            // 5. CATEGORÍA
+            const categoria = rider.categoria || "";
+            const adjustedCategoria = handleLongText(categoria, columnWidths[4]);
+            doc.text(adjustedCategoria, xPosition + (columnWidths[4] / 2), startY + 2, { align: "center" });
             xPosition += columnWidths[4];
             
-            // CRONO
-            const timeForDisplay = formatCronoForPDF(rider);
-            doc.text(timeForDisplay, xPosition + (columnWidths[5] / 2), startY + 2, { align: "center" });
+            // 6. EQUIPO
+            const equipo = rider.equipo || "";
+            const adjustedEquipo = handleLongText(equipo, columnWidths[5]);
+            doc.text(adjustedEquipo, xPosition + 2, startY + 2);
+            xPosition += columnWidths[5];
             
+            // 7. LICENCIA
+            const licencia = rider.licencia || "";
+            const adjustedLicencia = handleLongText(licencia, columnWidths[6]);
+            doc.text(adjustedLicencia, xPosition + (columnWidths[6] / 2), startY + 2, { align: "center" });
+            xPosition += columnWidths[6];
+            
+            // 8. HORA SALIDA
+            const horaSalida = rider.horaSalida || "00:00:00";
+            doc.text(horaSalida, xPosition + (columnWidths[7] / 2), startY + 2, { align: "center" });
+            xPosition += columnWidths[7];
+            
+            // 9. CRONO
+            const timeForDisplay = formatCronoForPDF(rider);
+            doc.text(timeForDisplay, xPosition + (columnWidths[8] / 2), startY + 2, { align: "center" });
+            
+            // Línea divisoria fina
             doc.setDrawColor(220, 220, 220);
             doc.setLineWidth(0.2);
             doc.line(tableMarginLeft, startY + 4, tableMarginLeft + totalTableWidth, startY + 4);
