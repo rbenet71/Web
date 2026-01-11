@@ -2636,3 +2636,135 @@ function toggleFunctionality(active) {
 ```
 
 **¿Quieres que añada esta lección aprendida a algún archivo .md específico de la documentación?**
+
+Aquí está la **estructura MD actualizada** para documentar los cambios realizados y los pendientes:
+
+# SISTEMA DE CRONOMETRAJE - DOCUMENTACIÓN TÉCNICA
+
+## VERSIÓN ACTUAL: 3.1.3
+
+### MÓDULO DE LLEGADAS
+
+#### CAMBIOS IMPLEMENTADOS:
+
+**3.1.1 - Sistema Corregido:**
+- Base del sistema de llegadas con 9 columnas iniciales
+- Persistencia de datos en localStorage
+- Cronómetro de llegadas funcionando
+- Captura directa de tiempos
+
+**3.1.3 - Prioridad de Datos Mejorada:**
+- ✅ **FUNCIÓN MODIFICADA:** `obtenerDatosCorredor(dorsal)`
+- Lógica de prioridad: `horaSalidaReal` > `horaSalida`
+- Validaciones: excluye `"--:--:--"` pero acepta `"00:00:00"` para primer corredor
+- Primer corredor (orden = 1): acepta crono salida `"00:00:00"` como válido
+- Resto de corredores: requiere crono salida diferente de `"00:00:00"`
+- Corregido: uso de `tiempoFinalWithMs` en lugar de `tiempoFinalSegundos`
+
+**3.1.3 - Campos Nuevos (Activados):**
+- ✅ **CAMPOS AÑADIDOS:** `categoria`, `equipo`, `licencia`
+- ✅ **FUNCIONES MODIFICADAS:**
+  - `obtenerDatosCorredor(dorsal)` - campos inicializados vacíos
+  - `actualizarFilaLlegada(index)` - maneja 12 columnas
+  - `renderLlegadasList()` - genera HTML con 12 columnas
+  - `capturarLlegadaDirecta()` - incluye nuevos campos en objeto
+  - `exportLlegadasToExcel()` - exporta 14 columnas (12 + notas)
+  - `exportRankingToExcel()` - incluye categoría y equipo
+  - `showRankingModal()` - muestra categoría y equipo en ranking
+- ✅ **HTML MODIFICADO:** Tabla con 12 columnas en `<thead>`
+- ⚠️ **PENDIENTE:** Importación desde `startOrderData` (campos comentados)
+
+#### ESTRUCTURA DE DATOS:
+
+**Objeto `llegada`:**
+```javascript
+{
+    id: Number,
+    timestamp: Number,
+    dorsal: Number/null,
+    nombre: String,
+    apellidos: String,
+    chip: String,
+    categoria: String,      // NUEVO 3.1.3
+    equipo: String,         // NUEVO 3.1.3
+    licencia: String,       // NUEVO 3.1.3
+    horaSalida: String,
+    cronoSalida: String,
+    cronoSalidaSegundos: Number,
+    horaLlegada: String,
+    cronoLlegadaWithMs: Number,    // CON milésimas
+    tiempoFinalWithMs: Number,     // CON milésimas
+    notas: String,
+    capturadoEn: String,
+    pendiente: Boolean
+}
+```
+
+**Orden de Columnas (12):**
+1. Dorsal
+2. Crono Llegada (HH:MM:SS.mmm)
+3. Tiempo Final (HH:MM:SS.mmm)
+4. Nombre
+5. Apellidos
+6. Crono Salida (HH:MM:SS)
+7. Hora Llegada (HH:MM:SS)
+8. Hora Salida (HH:MM:SS)
+9. Chip
+10. Categoría (NUEVO)
+11. Equipo (NUEVO)
+12. Licencia (NUEVO)
+
+#### FUNCIONES CRÍTICAS:
+
+**`obtenerDatosCorredor(dorsal)` - Lógica de prioridad:**
+```javascript
+// PRIORIDAD 3.1.3:
+1. Si horaSalidaReal existe y NO es "--:--:--" → usar horaSalidaReal
+2. Si no → usar horaSalida
+
+// PARA PRIMER CORREDOR (orden = 1):
+- Acepta cronoSalida = "00:00:00"
+
+// PARA RESTO DE CORREDORES:
+- Requiere cronoSalida ≠ "00:00:00" y ≠ "--:--:--"
+
+// CAMPOS 3.1.3 (PENDIENTE IMPLEMENTACIÓN EN startOrderData):
+categoria: '', // corredor.categoria || '', (COMENTADO)
+equipo: '',    // corredor.equipo || '',    (COMENTADO)
+licencia: '',  // corredor.licencia || '',  (COMENTADO)
+```
+
+#### PENDIENTES PARA FUTURAS VERSIONES:
+
+**PARA COMPLETAR 3.1.3:**
+1. ⚠️ **Implementar campos en `startOrderData`:**
+   - Añadir propiedades: `categoria`, `equipo`, `licencia`
+   - Actualizar función `obtenerDatosCorredor()` para importarlos
+   - Descomentar líneas marcadas con `// VERSIÓN 3.1.3`
+
+**MEJORAS FUTURAS:**
+1. **Scroll horizontal** en tabla de llegadas
+2. **Ordenamiento** por nuevas columnas (categoría, equipo)
+3. **Filtros** por categoría o equipo
+4. **Clasificación por categorías** en modal de ranking
+5. **Validación** de formatos de licencia
+
+#### ARCHIVOS MODIFICADOS:
+1. `Crono_CRI_js_Llegadas.js` - Todas las funciones principales
+2. `HTML` de tabla de llegadas - Cabeceras con 12 columnas
+3. `CSS` - Estilos para scroll horizontal (pendiente implementar)
+
+#### NOTAS TÉCNICAS:
+- **Milisegundos:** Todas las funciones usan `WithMs` para tiempos
+- **Exportación Excel:** Formato HH:MM:SS.mmm para tiempos con milésimas
+- **Persistencia:** `localStorage` con clave 'llegadas-state'
+- **Compatibilidad:** Mantiene compatibilidad con datos anteriores
+
+**PRÓXIMOS PASOS:**
+1. Implementar campos en `startOrderData`
+2. Descomentar importación en `obtenerDatosCorredor()`
+3. Añadir contenedor con scroll horizontal en HTML
+4. Implementar CSS para tabla de 12 columnas
+
+---
+*Documentación actualizada: Versión 3.1.3 - Campos nuevos activados pero no importados aún*

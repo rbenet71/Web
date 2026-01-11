@@ -1,5 +1,5 @@
 // ============================================
-// MÓDULO DE LLEGADAS - SISTEMA 3.1.2 CORREGIDO
+// MÓDULO DE LLEGADAS - SISTEMA 3.1.3 CORREGIDO
 // ============================================
 // ORDEN DE 9 COLUMNAS:
 // 1. Dorsal
@@ -52,10 +52,7 @@ function getFirstStartTimeInSeconds() {
 }
 
 // ============================================
-// FUNCIÓN PARA OBTENER DATOS DE CORREDOR
-// ============================================
-// ============================================
-// FUNCIÓN PARA OBTENER DATOS DE CORREDOR - SISTEMA 3.1.2
+// FUNCIÓN PARA OBTENER DATOS DE CORREDOR - SISTEMA 3.1.3
 // ============================================
 function obtenerDatosCorredor(dorsal) {
     console.log(`🔍 Buscando dorsal ${dorsal} en startOrderData...`);
@@ -70,6 +67,10 @@ function obtenerDatosCorredor(dorsal) {
             nombre: '',
             apellidos: '',
             chip: '',
+            // VERSIÓN 3.1.3 - CAMPOS NUEVOS
+            categoria: '',
+            equipo: '',
+            licencia: '',
             horaSalida: '',
             cronoSalida: '',  // VACÍO si no se encuentra
             cronoSalidaSegundos: 0,  // CERO si no se encuentra
@@ -77,7 +78,7 @@ function obtenerDatosCorredor(dorsal) {
         };
     }
     
-    // SISTEMA 3.1.2 - PRIORIDAD MEJORADA
+    // SISTEMA 3.1.3 - PRIORIDAD MEJORADA
     // 1. Verificar horaSalidaReal (si existe y es válida)
     let horaSalidaSeleccionada = '';
     let cronoSalidaSeleccionada = '';
@@ -87,7 +88,7 @@ function obtenerDatosCorredor(dorsal) {
                                      corredor.horaSalidaReal.trim() !== '';
     
     if (tieneHoraSalidaRealValida) {
-        // USAR HORA SALIDA REAL (sistema 3.1.2)
+        // USAR HORA SALIDA REAL (sistema 3.1.3)
         horaSalidaSeleccionada = corredor.horaSalidaReal;
         
         // Verificar también cronoSalidaReal (si existe y es válida)
@@ -136,7 +137,11 @@ function obtenerDatosCorredor(dorsal) {
         nombre: corredor.nombre || '',
         apellidos: corredor.apellidos || '',
         chip: corredor.chip || '',
-        horaSalida: horaSalidaSeleccionada, // Hora seleccionada (real o prevista)
+        // VERSIÓN 3.1.3 - CAMPOS NUEVOS (IMPORTACIÓN COMENTADA HASTA QUE EXISTAN EN startOrderData)
+        categoria: '', // corredor.categoria || '',
+        equipo: '', // corredor.equipo || '',
+        licencia: '', // corredor.licencia || '',
+        horaSalida: horaSalidaSeleccionada,
         cronoSalida: cronoSalida,
         cronoSalidaSegundos: cronoSalidaSegundos,
         orden: corredor.orden || 0
@@ -147,7 +152,7 @@ function obtenerDatosCorredor(dorsal) {
 // CRONÓMETRO DE LLEGADAS
 // ============================================
 function initLlegadasMode() {
-    console.log("Inicializando modo llegadas - SISTEMA 3.1.2");
+    console.log("Inicializando modo llegadas - SISTEMA 3.1.3");
     
     loadLlegadasState();
     updateLlegadasTimerDisplay();
@@ -216,6 +221,10 @@ function capturarLlegadaDirecta() {
             nombre: '',
             apellidos: '',
             chip: '',
+            // VERSIÓN 3.1.3 - CAMPOS NUEVOS (ACTIVOS)
+            categoria: '',
+            equipo: '',
+            licencia: '',
             horaSalida: '',
             cronoSalida: '',
             cronoSalidaSegundos: 0,
@@ -338,7 +347,7 @@ function actualizarFilaLlegada(index) {
     
     const celdas = fila.querySelectorAll('td');
     
-    // Actualizar las 9 columnas con formato correcto
+    // Actualizar las 12 columnas con formato correcto (9 + 3 nuevas)
     celdas[0].textContent = llegada.dorsal || '';
     celdas[0].className = llegada.dorsal ? '' : 'dorsal-pendiente';
     
@@ -365,7 +374,13 @@ function actualizarFilaLlegada(index) {
     
     // Chip (col 9)
     celdas[8].textContent = llegada.chip || '';
+    
+    // VERSIÓN 3.1.3 - NUEVAS COLUMNAS (ACTIVAS)
+    celdas[9].textContent = llegada.categoria || '';
+    celdas[10].textContent = llegada.equipo || '';
+    celdas[11].textContent = llegada.licencia || '';
 }
+
 
 // ============================================
 // RENDERIZADO DE TABLA CON 9 COLUMNAS
@@ -425,6 +440,16 @@ function renderLlegadasList() {
             
             <!-- 9. Chip -->
             <td>${llegada.chip || ''}</td>
+            
+            <!-- VERSIÓN 3.1.3 - CAMPOS NUEVOS (ACTIVOS) -->
+            <!-- 10. Categoría -->
+            <td>${llegada.categoria || ''}</td>
+            
+            <!-- 11. Equipo -->
+            <td>${llegada.equipo || ''}</td>
+            
+            <!-- 12. Licencia -->
+            <td>${llegada.licencia || ''}</td>
         </tr>
         `;
     });
@@ -457,14 +482,14 @@ function clearLlegadas() {
 }
 
 // ============================================
-// CLASIFICACIÓN POR TIEMPO FINAL
+// CLASIFICACIÓN POR TIEMPO FINAL - ACTUALIZADO
 // ============================================
 function showRankingModal() {
     const t = translations[appState.currentLanguage];
     
-    // Filtrar por tiempo final calculado
+    // Filtrar por tiempo final calculado (USANDO tiempoFinalWithMs)
     const llegadasConTiempo = llegadasState.llegadas.filter(l => 
-        l.dorsal && l.tiempoFinalSegundos && l.tiempoFinalSegundos > 0);
+        l.dorsal && l.tiempoFinalWithMs && l.tiempoFinalWithMs > 0);
     
     if (llegadasConTiempo.length === 0) {
         showMessage(t.noRankingText, 'info');
@@ -472,7 +497,7 @@ function showRankingModal() {
     }
     
     // ORDENAR POR TIEMPO FINAL MÁS BAJO (más rápido)
-    llegadasConTiempo.sort((a, b) => a.tiempoFinalSegundos - b.tiempoFinalSegundos);
+    llegadasConTiempo.sort((a, b) => a.tiempoFinalWithMs - b.tiempoFinalWithMs);
     
     const tableBody = document.getElementById('ranking-table-body');
     const emptyState = document.getElementById('ranking-empty');
@@ -485,12 +510,12 @@ function showRankingModal() {
         
         llegadasConTiempo.forEach((llegada, index) => {
             // Diferencia con el mejor
-            let diferencia = '--:--:--';
+            let diferencia = '--:--:--.000';
             if (mejorTiempo === null) {
-                mejorTiempo = llegada.tiempoFinalSegundos;
+                mejorTiempo = llegada.tiempoFinalWithMs;
             } else {
-                const diffSegundos = llegada.tiempoFinalSegundos - mejorTiempo;
-                diferencia = secondsToTime(diffSegundos);
+                const diffSegundos = llegada.tiempoFinalWithMs - mejorTiempo;
+                diferencia = formatSecondsWithMilliseconds(diffSegundos);
             }
             
             const nombreCompleto = llegada.nombre && llegada.apellidos ? 
@@ -503,9 +528,11 @@ function showRankingModal() {
                 <td><strong>${index + 1}</strong></td>
                 <td>${llegada.dorsal}</td>
                 <td>${nombreCompleto}</td>
+                <td>${llegada.categoria || ''}</td> <!-- NUEVO CAMPO 3.1.3 -->
+                <td>${llegada.equipo || ''}</td> <!-- NUEVO CAMPO 3.1.3 -->
                 <td>${llegada.cronoSalida || '--:--:--'}</td>
-                <td>${secondsToTime(llegada.cronoLlegadaSegundos)}</td>
-                <td><strong class="tiempo-final-ranking">${secondsToTime(llegada.tiempoFinalSegundos)}</strong></td>
+                <td>${formatSecondsWithMilliseconds(llegada.cronoLlegadaWithMs)}</td>
+                <td><strong class="tiempo-final-ranking">${formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs)}</strong></td>
                 <td>${diferencia}</td>
             </tr>
             `;
@@ -520,7 +547,7 @@ function showRankingModal() {
 }
 
 // ============================================
-// EXPORTACIÓN
+// EXPORTACIÓN - ACTUALIZADO
 // ============================================
 function exportLlegadasToExcel() {
     const t = translations[appState.currentLanguage];
@@ -530,12 +557,12 @@ function exportLlegadasToExcel() {
         return;
     }
     
-    // Ordenar por tiempo final
+    // Ordenar por tiempo final (USANDO tiempoFinalWithMs)
     const llegadasOrdenadas = [...llegadasState.llegadas]
-        .filter(l => l.tiempoFinalSegundos > 0)
-        .sort((a, b) => a.tiempoFinalSegundos - b.tiempoFinalSegundos);
+        .filter(l => l.tiempoFinalWithMs > 0)
+        .sort((a, b) => a.tiempoFinalWithMs - b.tiempoFinalWithMs);
     
-    const llegadasSinTiempo = llegadasState.llegadas.filter(l => !l.tiempoFinalSegundos || l.tiempoFinalSegundos <= 0);
+    const llegadasSinTiempo = llegadasState.llegadas.filter(l => !l.tiempoFinalWithMs || l.tiempoFinalWithMs <= 0);
     
     const data = [
         ['Carrera', appState.currentRace ? appState.currentRace.name : 'Sin nombre'],
@@ -543,8 +570,10 @@ function exportLlegadasToExcel() {
         ['Hora', new Date().toLocaleTimeString()],
         ['Total llegadas', llegadasState.llegadas.length],
         [''],
+        // VERSIÓN 3.1.3 - HEADER ACTUALIZADO (12 COLUMNAS + NOTAS)
         ['Pos', 'Dorsal', 'Crono Llegada', 'Tiempo Final', 'Nombre', 'Apellidos', 
-         'Crono Salida', 'Hora Llegada', 'Hora Salida', 'Chip', 'Notas']
+         'Crono Salida', 'Hora Llegada', 'Hora Salida', 'Chip', 
+         'Categoria', 'Equipo', 'Licencia', 'Notas']
     ];
     
     let posicion = 1;
@@ -552,14 +581,17 @@ function exportLlegadasToExcel() {
         data.push([
             posicion++,
             llegada.dorsal || '',
-            secondsToTime(llegada.cronoLlegadaSegundos),
-            secondsToTime(llegada.tiempoFinalSegundos),
+            formatSecondsWithMilliseconds(llegada.cronoLlegadaWithMs),
+            formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs),
             llegada.nombre || '',
             llegada.apellidos || '',
             llegada.cronoSalida || '',
             llegada.horaLlegada || '',
             llegada.horaSalida || '',
             llegada.chip || '',
+            llegada.categoria || '', // NUEVO CAMPO 3.1.3
+            llegada.equipo || '', // NUEVO CAMPO 3.1.3
+            llegada.licencia || '', // NUEVO CAMPO 3.1.3
             llegada.notas || ''
         ]);
     });
@@ -568,7 +600,7 @@ function exportLlegadasToExcel() {
         data.push([
             '--',
             llegada.dorsal || 'PENDIENTE',
-            secondsToTime(llegada.cronoLlegadaSegundos),
+            formatSecondsWithMilliseconds(llegada.cronoLlegadaWithMs),
             'SIN TIEMPO',
             llegada.nombre || '',
             llegada.apellidos || '',
@@ -576,6 +608,9 @@ function exportLlegadasToExcel() {
             llegada.horaLlegada || '',
             llegada.horaSalida || '',
             llegada.chip || '',
+            llegada.categoria || '', // NUEVO CAMPO 3.1.3
+            llegada.equipo || '', // NUEVO CAMPO 3.1.3
+            llegada.licencia || '', // NUEVO CAMPO 3.1.3
             llegada.notas || ''
         ]);
     });
@@ -594,8 +629,8 @@ function exportRankingToExcel() {
     const t = translations[appState.currentLanguage];
     
     const llegadasConTiempo = llegadasState.llegadas
-        .filter(l => l.dorsal && l.tiempoFinalSegundos && l.tiempoFinalSegundos > 0)
-        .sort((a, b) => a.tiempoFinalSegundos - b.tiempoFinalSegundos);
+        .filter(l => l.dorsal && l.tiempoFinalWithMs && l.tiempoFinalWithMs > 0)
+        .sort((a, b) => a.tiempoFinalWithMs - b.tiempoFinalWithMs);
     
     if (llegadasConTiempo.length === 0) {
         showMessage(t.noDataToExport, 'warning');
@@ -608,17 +643,19 @@ function exportRankingToExcel() {
         ['Hora', new Date().toLocaleTimeString()],
         ['Total', llegadasConTiempo.length],
         [''],
-        ['Pos', 'Dorsal', 'Nombre', 'Crono Salida', 'Crono Llegada', 'Tiempo Final', 'Diferencia']
+        // VERSIÓN 3.1.3 - HEADER ACTUALIZADO
+        ['Pos', 'Dorsal', 'Nombre', 'Categoria', 'Equipo', 'Crono Salida', 
+         'Crono Llegada', 'Tiempo Final', 'Diferencia']
     ];
     
     let mejorTiempo = null;
     llegadasConTiempo.forEach((llegada, index) => {
-        let diferencia = '--:--:--';
+        let diferencia = '--:--:--.000';
         if (mejorTiempo === null) {
-            mejorTiempo = llegada.tiempoFinalSegundos;
+            mejorTiempo = llegada.tiempoFinalWithMs;
         } else {
-            const diffSegundos = llegada.tiempoFinalSegundos - mejorTiempo;
-            diferencia = secondsToTime(diffSegundos);
+            const diffSegundos = llegada.tiempoFinalWithMs - mejorTiempo;
+            diferencia = formatSecondsWithMilliseconds(diffSegundos);
         }
         
         const nombreCompleto = llegada.nombre && llegada.apellidos ? 
@@ -628,9 +665,11 @@ function exportRankingToExcel() {
             index + 1,
             llegada.dorsal,
             nombreCompleto,
+            llegada.categoria || '', // NUEVO CAMPO 3.1.3
+            llegada.equipo || '', // NUEVO CAMPO 3.1.3
             llegada.cronoSalida || '--:--:--',
-            secondsToTime(llegada.cronoLlegadaSegundos),
-            secondsToTime(llegada.tiempoFinalSegundos),
+            formatSecondsWithMilliseconds(llegada.cronoLlegadaWithMs),
+            formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs),
             diferencia
         ]);
     });
@@ -671,7 +710,7 @@ function saveLlegadasState() {
 // CONFIGURACIÓN DE LISTENERS
 // ============================================
 function setupLlegadasEventListeners() {
-    console.log("🔧 Configurando listeners - SISTEMA 3.1.2");
+    console.log("🔧 Configurando listeners - SISTEMA 3.1.3");
     
     // Botón Registrar Llegada
     const registerBtn = document.getElementById('register-llegada-btn');
@@ -738,4 +777,4 @@ window.exportLlegadasToExcel = exportLlegadasToExcel;
 window.exportRankingToExcel = exportRankingToExcel;
 window.clearLlegadas = clearLlegadas;
 
-console.log("✅ Módulo de llegadas 3.1.2 cargado");
+console.log("✅ Módulo de llegadas 3.1.3 cargado");

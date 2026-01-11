@@ -1840,6 +1840,9 @@ input[type="time"][step="1"]::-webkit-datetime-edit-second-field {
     border: 1px solid #e9ecef;
     border-radius: var(--border-radius);
     margin-top: 15px;
+     overflow-x: auto;
+    width: 100%;
+    max-width: 100%;
 }
 
 .llegadas-table {
@@ -2894,6 +2897,37 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     background-color: rgba(40, 167, 69, 0.05);
 }
 
+
+/* Contenedor para scroll horizontal en tabla de llegadas */
+.table-scroll-container {
+    overflow-x: auto;
+    width: 100%;
+    max-width: 100%;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Ancho mínimo para la tabla con 12 columnas */
+.llegadas-table {
+    min-width: 1400px; /* Ajustado para 12 columnas */
+    width: 100%;
+    margin-bottom: 0;
+}
+
+/* Opcional: ajustar ancho de columnas específicas */
+.llegadas-table th:nth-child(1) { width: 80px; }  /* Dorsal */
+.llegadas-table th:nth-child(2) { width: 120px; } /* Crono Llegada */
+.llegadas-table th:nth-child(3) { width: 120px; } /* Tiempo Final */
+.llegadas-table th:nth-child(4) { width: 100px; } /* Nombre */
+.llegadas-table th:nth-child(5) { width: 120px; } /* Apellidos */
+.llegadas-table th:nth-child(6) { width: 100px; } /* Crono Salida */
+.llegadas-table th:nth-child(7) { width: 100px; } /* Hora Llegada */
+.llegadas-table th:nth-child(8) { width: 100px; } /* Hora Salida */
+.llegadas-table th:nth-child(9) { width: 80px; }  /* Chip */
+.llegadas-table th:nth-child(10) { width: 100px; } /* Categoría */
+.llegadas-table th:nth-child(11) { width: 120px; } /* Equipo */
+.llegadas-table th:nth-child(12) { width: 100px; } /* Licencia */
 
 
 /* 19/12/2025
