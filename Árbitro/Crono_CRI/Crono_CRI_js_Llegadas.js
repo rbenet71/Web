@@ -92,6 +92,33 @@ function initLlegadasMode() {
     // Inicializar cronómetro
     updateLlegadasTimerDisplay();
     
+    // 🔥 MODIFICADO: Iniciar intervalo de actualización del timer
+    // Limpiar intervalo previo si existe
+    if (window.llegadasUpdateInterval) {
+        clearInterval(window.llegadasUpdateInterval);
+        console.log("🔄 Intervalo previo de llegadas limpiado");
+    }
+    
+    // 🔥 CAMBIO IMPORTANTE: El timer debe actualizarse SIEMPRE en modo llegadas
+    // No solo cuando está "activo" porque el cálculo es hora_actual - first_start_time
+    window.llegadasUpdateInterval = setInterval(() => {
+        // ACTUALIZAR SIEMPRE, independientemente de timerActive
+        // Porque el cálculo es hora actual - primera salida
+        if (typeof updateLlegadasTimerDisplay === 'function') {
+            updateLlegadasTimerDisplay();
+        }
+        
+        // 🔥 OPCIONAL: Solo ejecutar otras lógicas si timerActive es true
+        if (window.llegadasState && window.llegadasState.timerActive) {
+            // Guardar estado cada 10 segundos (solo si está activo)
+            if (llegadasState.currentTime % 10 === 0) {
+                saveLlegadasState();
+            }
+        }
+    }, 100); // Actualizar cada 100ms para mayor precisión
+    
+    console.log("⏱️ Intervalo de actualización del timer configurado (SIEMPRE activo, 100ms)");
+    
     // Renderizar lista si hay datos
     renderLlegadasList();
     
@@ -105,18 +132,13 @@ function startLlegadasTimer() {
         llegadasState.timerActive = true;
         llegadasState.timerStarted = true;
         
-        // Iniciar intervalo que se basa en hora actual - first-start-time
-        llegadasState.timerInterval = setInterval(() => {
-            updateLlegadasTimerDisplay(); // Ahora usa cálculo basado en first-start-time
-            
-            // Guardar estado cada 10 segundos
-            if (llegadasState.currentTime % 10 === 0) {
-                saveLlegadasState();
-            }
-        }, 100); // Intervalo de 100ms
-        
+        // 🔥 MODIFICADO: No crear un nuevo intervalo, ya existe uno
+        // Solo marcar como activo para otras funciones (registro de llegadas, etc.)
         showMessage(t.timerStarted, 'success');
-        console.log("Cronómetro de llegadas iniciado (basado en first-start-time)");
+        console.log("Cronómetro de llegadas marcado como activo");
+        
+        // 🔥 AÑADIDO: Guardar estado inmediatamente
+        saveLlegadasState();
     }
 }
 

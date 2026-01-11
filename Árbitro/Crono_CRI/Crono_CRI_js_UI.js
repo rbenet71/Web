@@ -297,9 +297,24 @@ function initModeSlider() {
         if (mode === 'salida') {
             if (salidaContent) salidaContent.classList.add('active');
             if (llegadasContent) llegadasContent.classList.remove('active');
+            
+            // 🔥 AÑADIDO: Limpiar intervalo de llegadas cuando cambiamos a modo salida
+            if (window.llegadasUpdateInterval) {
+                clearInterval(window.llegadasUpdateInterval);
+                window.llegadasUpdateInterval = null;
+                console.log("⏹️ Intervalo de llegadas detenido (cambio a modo salida)");
+            }
         } else {
             if (salidaContent) salidaContent.classList.remove('active');
             if (llegadasContent) llegadasContent.classList.add('active');
+            
+            // 🔥 AÑADIDO: Inicializar módulo de llegadas
+            if (!isInitialLoad && typeof initLlegadasMode === 'function') {
+                console.log("🔄 Inicializando módulo de llegadas desde cambio de modo...");
+                setTimeout(() => {
+                    initLlegadasMode();
+                }, 100);
+            }
         }
         
         // Guardar preferencia (solo si no es carga inicial)
@@ -337,9 +352,24 @@ function initModeSlider() {
             if (savedMode === 'salida') {
                 if (salidaContent) salidaContent.classList.add('active');
                 if (llegadasContent) llegadasContent.classList.remove('active');
+                
+                // 🔥 AÑADIDO: Limpiar intervalo de llegadas al cargar modo salida
+                if (window.llegadasUpdateInterval) {
+                    clearInterval(window.llegadasUpdateInterval);
+                    window.llegadasUpdateInterval = null;
+                    console.log("⏹️ Intervalo de llegadas detenido (carga inicial modo salida)");
+                }
             } else {
                 if (salidaContent) salidaContent.classList.remove('active');
                 if (llegadasContent) llegadasContent.classList.add('active');
+                
+                // 🔥 AÑADIDO: Inicializar módulo de llegadas al cargar
+                if (typeof initLlegadasMode === 'function') {
+                    console.log("🔄 Inicializando módulo de llegadas desde modo guardado...");
+                    setTimeout(() => {
+                        initLlegadasMode();
+                    }, 200);
+                }
             }
             
             console.log(`Selector de modo: modo ${savedMode} establecido directamente`);
@@ -353,6 +383,13 @@ function initModeSlider() {
                 if (salidaContent) salidaContent.classList.add('active');
                 if (llegadasContent) llegadasContent.classList.remove('active');
                 console.log("Selector de modo: salida establecida por defecto");
+                
+                // 🔥 AÑADIDO: Limpiar intervalo al establecer salida por defecto
+                if (window.llegadasUpdateInterval) {
+                    clearInterval(window.llegadasUpdateInterval);
+                    window.llegadasUpdateInterval = null;
+                    console.log("⏹️ Intervalo de llegadas detenido (modo salida por defecto)");
+                }
             }
         }
         
