@@ -1,5 +1,5 @@
 // ============================================
-// MÓDULO DE LLEGADAS - SISTEMA 3.1.6 CORREGIDO
+// MÓDULO DE LLEGADAS - SISTEMA 3.1.6.1 CORREGIDO
 // ============================================
 // ORDEN DE 9 COLUMNAS:
 // 1. Dorsal
@@ -52,7 +52,7 @@ function getFirstStartTimeInSeconds() {
 }
 
 // ============================================
-// FUNCIÓN PARA OBTENER DATOS DE CORREDOR - SISTEMA 3.1.6
+// FUNCIÓN PARA OBTENER DATOS DE CORREDOR - SISTEMA 3.1.6.1
 // ============================================
 function obtenerDatosCorredor(dorsal) {
     console.log(`🔍 Buscando dorsal ${dorsal} en startOrderData...`);
@@ -67,7 +67,7 @@ function obtenerDatosCorredor(dorsal) {
             nombre: '',
             apellidos: '',
             chip: '',
-            // VERSIÓN 3.1.6 - CAMPOS NUEVOS
+            // VERSIÓN 3.1.6.1 - CAMPOS NUEVOS
             categoria: '',
             equipo: '',
             licencia: '',
@@ -78,7 +78,7 @@ function obtenerDatosCorredor(dorsal) {
         };
     }
     
-    // SISTEMA 3.1.6 - PRIORIDAD MEJORADA
+    // SISTEMA 3.1.6.1 - PRIORIDAD MEJORADA
     // 1. Verificar horaSalidaReal (si existe y es válida)
     let horaSalidaSeleccionada = '';
     let cronoSalidaSeleccionada = '';
@@ -88,7 +88,7 @@ function obtenerDatosCorredor(dorsal) {
                                      corredor.horaSalidaReal.trim() !== '';
     
     if (tieneHoraSalidaRealValida) {
-        // USAR HORA SALIDA REAL (sistema 3.1.6)
+        // USAR HORA SALIDA REAL (sistema 3.1.6.1)
         horaSalidaSeleccionada = corredor.horaSalidaReal;
         
         // Verificar también cronoSalidaReal (si existe y es válida)
@@ -137,7 +137,7 @@ function obtenerDatosCorredor(dorsal) {
         nombre: corredor.nombre || '',
         apellidos: corredor.apellidos || '',
         chip: corredor.chip || '',
-        // VERSIÓN 3.1.6 - CAMPOS NUEVOS (IMPORTACIÓN COMENTADA HASTA QUE EXISTAN EN startOrderData)
+        // VERSIÓN 3.1.6.1 - CAMPOS NUEVOS (IMPORTACIÓN COMENTADA HASTA QUE EXISTAN EN startOrderData)
         categoria: '', // corredor.categoria || '',
         equipo: '', // corredor.equipo || '',
         licencia: '', // corredor.licencia || '',
@@ -152,7 +152,7 @@ function obtenerDatosCorredor(dorsal) {
 // CRONÓMETRO DE LLEGADAS
 // ============================================
 function initLlegadasMode() {
-    console.log("Inicializando modo llegadas - SISTEMA 3.1.6");
+    console.log("Inicializando modo llegadas - SISTEMA 3.1.6.1");
     
     loadLlegadasState();
     updateLlegadasTimerDisplay();
@@ -221,7 +221,7 @@ function capturarLlegadaDirecta() {
             nombre: '',
             apellidos: '',
             chip: '',
-            // VERSIÓN 3.1.6 - CAMPOS NUEVOS (ACTIVOS)
+            // VERSIÓN 3.1.6.1 - CAMPOS NUEVOS (ACTIVOS)
             categoria: '',
             equipo: '',
             licencia: '',
@@ -375,7 +375,7 @@ function actualizarFilaLlegada(index) {
     // Chip (col 9)
     celdas[8].textContent = llegada.chip || '';
     
-    // VERSIÓN 3.1.6 - NUEVAS COLUMNAS (ACTIVAS)
+    // VERSIÓN 3.1.6.1 - NUEVAS COLUMNAS (ACTIVAS)
     celdas[9].textContent = llegada.categoria || '';
     celdas[10].textContent = llegada.equipo || '';
     celdas[11].textContent = llegada.licencia || '';
@@ -441,7 +441,7 @@ function renderLlegadasList() {
             <!-- 9. Chip -->
             <td>${llegada.chip || ''}</td>
             
-            <!-- VERSIÓN 3.1.6 - CAMPOS NUEVOS (ACTIVOS) -->
+            <!-- VERSIÓN 3.1.6.1 - CAMPOS NUEVOS (ACTIVOS) -->
             <!-- 10. Categoría -->
             <td>${llegada.categoria || ''}</td>
             
@@ -572,7 +572,7 @@ function exportLlegadasToExcel() {
         ['Hora', new Date().toLocaleTimeString()],
         ['Total llegadas', llegadasState.llegadas.length],
         [''],
-        // VERSIÓN 3.1.6 - HEADER ACTUALIZADO (12 COLUMNAS + NOTAS)
+        // VERSIÓN 3.1.6.1 - HEADER ACTUALIZADO (12 COLUMNAS + NOTAS)
         ['Pos', 'Dorsal', 'Crono Llegada', 'Tiempo Final', 'Nombre', 'Apellidos', 
          'Crono Salida', 'Hora Llegada', 'Hora Salida', 'Chip', 
          'Categoria', 'Equipo', 'Licencia', 'Notas']
@@ -591,9 +591,9 @@ function exportLlegadasToExcel() {
             llegada.horaLlegada || '',
             llegada.horaSalida || '',
             llegada.chip || '',
-            llegada.categoria || '', // NUEVO CAMPO 3.1.6
-            llegada.equipo || '', // NUEVO CAMPO 3.1.6
-            llegada.licencia || '', // NUEVO CAMPO 3.1.6
+            llegada.categoria || '', // NUEVO CAMPO 3.1.6.1
+            llegada.equipo || '', // NUEVO CAMPO 3.1.6.1
+            llegada.licencia || '', // NUEVO CAMPO 3.1.6.1
             llegada.notas || ''
         ]);
     });
@@ -610,9 +610,9 @@ function exportLlegadasToExcel() {
             llegada.horaLlegada || '',
             llegada.horaSalida || '',
             llegada.chip || '',
-            llegada.categoria || '', // NUEVO CAMPO 3.1.6
-            llegada.equipo || '', // NUEVO CAMPO 3.1.6
-            llegada.licencia || '', // NUEVO CAMPO 3.1.6
+            llegada.categoria || '', // NUEVO CAMPO 3.1.6.1
+            llegada.equipo || '', // NUEVO CAMPO 3.1.6.1
+            llegada.licencia || '', // NUEVO CAMPO 3.1.6.1
             llegada.notas || ''
         ]);
     });
@@ -645,7 +645,7 @@ function exportRankingToExcel() {
         ['Hora', new Date().toLocaleTimeString()],
         ['Total', llegadasConTiempo.length],
         [''],
-        // VERSIÓN 3.1.6 - HEADER ACTUALIZADO
+        // VERSIÓN 3.1.6.1 - HEADER ACTUALIZADO
         ['Pos', 'Dorsal', 'Nombre', 'Categoria', 'Equipo', 'Crono Salida', 
          'Crono Llegada', 'Tiempo Final', 'Diferencia']
     ];
@@ -667,8 +667,8 @@ function exportRankingToExcel() {
             index + 1,
             llegada.dorsal,
             nombreCompleto,
-            llegada.categoria || '', // NUEVO CAMPO 3.1.6
-            llegada.equipo || '', // NUEVO CAMPO 3.1.6
+            llegada.categoria || '', // NUEVO CAMPO 3.1.6.1
+            llegada.equipo || '', // NUEVO CAMPO 3.1.6.1
             llegada.cronoSalida || '--:--:--',
             formatSecondsWithMilliseconds(llegada.cronoLlegadaWithMs),
             formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs),
@@ -712,31 +712,39 @@ function saveLlegadasState() {
 // CONFIGURACIÓN DE LISTENERS
 // ============================================
 function setupLlegadasEventListeners() {
-    console.log("🔧 Configurando listeners - SISTEMA 3.1.6");
+    console.log("🔧 Configurando listeners - SISTEMA 3.1.6.1");
     
     // Botón Registrar Llegada
-    const registerBtn = document.getElementById('register-llegada-btn');
+    const registerBtn = document.getElementById('registerLlegadaBtn');
     if (registerBtn) {
         registerBtn.addEventListener('click', capturarLlegadaDirecta);
     }
     
     // Botón rápido
-    const quickBtn = document.getElementById('quick-register-btn');
+    const quickBtn = document.getElementById('quickRegisterBtn');
     if (quickBtn) {
         quickBtn.addEventListener('click', capturarLlegadaDirecta);
     }
     
-    // Botones gestión
-    const clearBtn = document.getElementById('clear-llegadas-btn');
-    const exportBtn = document.getElementById('export-llegadas-btn');
-    const rankingBtn = document.getElementById('show-ranking-btn');
+    // Botones gestión - TODOS EN CAMELCASE
+    const clearBtn = document.getElementById('clearLlegadasBtn');
+    const exportBtn = document.getElementById('exportLlegadasBtn');
+    const rankingBtn = document.getElementById('showRankingBtn');
+    const exportPdfDirectBtn = document.getElementById('exportRankingPdfDirectBtn');
     
     if (clearBtn) clearBtn.addEventListener('click', clearLlegadas);
     if (exportBtn) exportBtn.addEventListener('click', exportLlegadasToExcel);
     if (rankingBtn) rankingBtn.addEventListener('click', showRankingModal);
+    if (exportPdfDirectBtn) {
+        exportPdfDirectBtn.addEventListener('click', exportRankingToPDF);
+        console.log("✅ Listener añadido para exportRankingPdfDirectBtn");
+    } else {
+        console.error("❌ NO se encontró exportRankingPdfDirectBtn");
+    }
     
     console.log("✅ Listeners configurados");
 }
+
 // Añade esta función en Crono_CRI_js_Llegadas.js
 function formatSecondsWithMilliseconds(seconds) {
     if (!seconds && seconds !== 0) return '00:00:00.000';
@@ -1095,7 +1103,7 @@ function exportRankingToPDF() {
             doc.text(`${pageText} ${pageNum} ${t.of || "de"} ${totalPages}`, pageWidth - margin, pageHeight - 10, { align: "right" });
             
             // Sistema de cronometraje
-            doc.text('Crono CRI - Sistema de Cronometraje 3.1.6', pageWidth / 2, pageHeight - 5, { align: "center" });
+            doc.text('Crono CRI - Sistema de Cronometraje 3.1.6.1', pageWidth / 2, pageHeight - 5, { align: "center" });
         }
         
         // CALCULAR DIFERENCIAS ANTES DE DIBUJAR
@@ -1220,4 +1228,4 @@ window.exportLlegadasToExcel = exportLlegadasToExcel;
 window.exportRankingToExcel = exportRankingToExcel;
 window.clearLlegadas = clearLlegadas;
 
-console.log("✅ Módulo de llegadas 3.1.6 cargado");
+console.log("✅ Módulo de llegadas 3.1.6.1 cargado");

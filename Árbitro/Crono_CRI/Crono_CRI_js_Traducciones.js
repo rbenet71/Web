@@ -548,6 +548,12 @@ const translations = {
         suggestionSent: "✅ Sugerencia enviada exitosamente",
         errorMessage: "❌ Error al enviar la sugerencia",
 
+        registerLlegadaText: "Registrar Llegada",
+        clearLlegadasText: "Limpiar llegadas",
+        exportLlegadasText: "Exportar Excel", 
+        showRankingText: "Ver Clasificación",
+        exportRankingPdfDirectText: "Clasificación PDF",
+
     },
 
     ca: {
@@ -1104,6 +1110,13 @@ const translations = {
         suggestionSent: "✅ Suggerència enviada correctament",
         errorMessage: "❌ Error en enviar la suggerència",
 
+        registerLlegadaText: "Registrar Arribada",
+        clearLlegadasText: "Netejar arribades",
+        exportLlegadasText: "Exportar Excel",
+        showRankingText: "Veure Classificació",
+        exportRankingPdfDirectText: "Classificació PDF",
+
+
     },
 
     en: {
@@ -1655,6 +1668,13 @@ const translations = {
         invalidCity: "Invalid city",
         suggestionSent: "✅ Suggestion sent successfully",
         errorMessage: "❌ Error sending suggestion",
+
+        registerLlegadaText: "Register Arrival",
+        clearLlegadasText: "Clear arrivals",
+        exportLlegadasText: "Export Excel",
+        showRankingText: "View Ranking",
+        exportRankingPdfDirectText: "Ranking PDF",
+
 
     },
 
@@ -2228,6 +2248,12 @@ const translations = {
         suggestionSent: "✅ Suggestion envoyée avec succès",
         errorMessage: "❌ Erreur d'envoi de la suggestion",
 
+        registerLlegadaText: "Enregistrer Arrivée",
+        clearLlegadasText: "Effacer arrivées",
+        exportLlegadasText: "Exporter Excel",
+        showRankingText: "Voir Classement",
+        exportRankingPdfDirectText: "Classement PDF",
+
     }
 };
 
@@ -2378,6 +2404,12 @@ function updateModeContent(t) {
     setTextIfExists('export-llegadas-text', t.exportLlegadasText);
     setTextIfExists('show-ranking-text', t.showRankingText);
     setTextIfExists('no-llegadas-text', t.noLlegadasText);
+
+    setTextIfExists('registerLlegadaText', t.registerLlegadaText);
+    setTextIfExists('clearLlegadasText', t.clearLlegadasText);
+    setTextIfExists('exportLlegadasText', t.exportLlegadasText);
+    setTextIfExists('showRankingText', t.showRankingText);
+    setTextIfExists('exportRankingPdfDirectText', t.exportRankingPdfDirectText);
 }
 
 function updateFooter(t) {

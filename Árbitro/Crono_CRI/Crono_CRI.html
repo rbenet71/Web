@@ -22,7 +22,7 @@ ELEMENTOS PRINCIPALES:
 TECNOLOGÍAS INCLUIDAS:
    - Font Awesome 6.4.0 (iconos)
    - XLSX 0.18.5 (exportación Excel)
-   - jsPDF 3.1.6 (exportación PDF)
+   - jsPDF 3.1.6.1 (exportación PDF)
    - Google Analytics (G-CV925PMBQV)
 
 ARCHIVOS RELACIONADOS:
@@ -418,10 +418,9 @@ ESTRUCTURA MODULAR:
                             <div class="llegadas-timer-display" id="llegadas-timer-display">00:00:00</div>
                             
                             <div class="llegadas-controls">
-                                <!-- 🔥 ELIMINADOS: Botones de inicio/detención e importación -->
-                                <button class="btn btn-primary" id="register-llegada-btn">
+                                <button class="btn btn-primary" id="registerLlegadaBtn">
                                     <i class="fas fa-user-check"></i>
-                                    <span id="register-llegada-text">Registrar Llegada</span>
+                                    <span id="registerLlegadaText">Registrar Llegada</span>
                                 </button>
                             </div>
                         </div>
@@ -439,7 +438,7 @@ ESTRUCTURA MODULAR:
                             <table class="llegadas-table" id="llegadas-table">
                                 <thead>
                                     <tr>
-                                        <!-- ORDEN DE 12 COLUMNAS (9 + 3 nuevas) - VERSIÓN 3.1.6 -->
+                                        <!-- ORDEN DE 12 COLUMNAS (9 + 3 nuevas) - VERSIÓN 3.1.6.1 -->
                                         <th class="sortable" data-sort="dorsal">Dorsal</th>
                                         <th class="sortable" data-sort="cronoLlegada">Crono Llegada</th>
                                         <th class="sortable" data-sort="tiempoFinal">Tiempo Final</th>
@@ -449,7 +448,7 @@ ESTRUCTURA MODULAR:
                                         <th class="sortable" data-sort="horaLlegada">Hora Llegada</th>
                                         <th class="sortable" data-sort="horaSalida">Hora Salida</th>
                                         <th class="sortable" data-sort="chip">Chip</th>
-                                        <!-- VERSIÓN 3.1.6 - CAMPOS NUEVOS -->
+                                        <!-- VERSIÓN 3.1.6.1 - CAMPOS NUEVOS -->
                                         <th class="sortable" data-sort="categoria">Categoría</th>
                                         <th class="sortable" data-sort="equipo">Equipo</th>
                                         <th class="sortable" data-sort="licencia">Licencia</th>
@@ -466,24 +465,34 @@ ESTRUCTURA MODULAR:
                         </div>
                         
                         <div class="llegadas-actions" style="margin-top: 20px; display: flex; gap: 15px; flex-wrap: wrap;">
-                            <button class="btn btn-danger" id="clear-llegadas-btn">
+                            <!-- Botón Limpiar Llegadas -->
+                            <button class="btn btn-danger" id="clearLlegadasBtn">
                                 <i class="fas fa-broom"></i>
-                                <span id="clear-llegadas-text">Limpiar llegadas</span>
+                                <span id="clearLlegadasText">Limpiar llegadas</span>
                             </button>
-                            <button class="btn btn-success" id="export-llegadas-btn">
+                            
+                            <!-- Botón Exportar Excel -->
+                            <button class="btn btn-success" id="exportLlegadasBtn">
                                 <i class="fas fa-file-excel"></i>
-                                <span id="export-llegadas-text">Exportar Excel</span>
+                                <span id="exportLlegadasText">Exportar Excel</span>
                             </button>
-                            <button class="btn btn-info" id="show-ranking-btn">
+                            
+                            <!-- Botón Ver Clasificación -->
+                            <button class="btn btn-info" id="showRankingBtn">
                                 <i class="fas fa-trophy"></i>
-                                <span id="show-ranking-text">Ver Clasificación</span>
+                                <span id="showRankingText">Ver Clasificación</span>
+                            </button>
+                            
+                            <!-- NUEVO: Botón Clasificación PDF -->
+                            <button class="btn btn-danger" id="exportRankingPdfDirectBtn">
+                                <i class="fas fa-file-pdf"></i>
+                                <span id="exportRankingPdfDirectText">Clasificación PDF</span>
                             </button>
                         </div>
                     </div>
                 </div>
-
                 <!-- Botón flotante para registro rápido -->
-                <button class="quick-register-btn" id="quick-register-btn" title="Registrar llegada rápida">
+                <button class="quick-register-btn" id="quickRegisterBtn" title="Registrar llegada rápida">
                     <i class="fas fa-flag-checkered"></i>
                 </button>
             </div>
@@ -549,7 +558,7 @@ ESTRUCTURA MODULAR:
                 <div class="copyright" id="copyright-text">
                     2026 © Copyright 
                     <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                        Roberto Benet - rbenet71@gmail.com - Ver: 3.1.6
+                        Roberto Benet - rbenet71@gmail.com - Ver: 3.1.6.1
                     </a>
                 </div>
             </div>
@@ -933,7 +942,6 @@ ESTRUCTURA MODULAR:
         </div>
     </div>
 
-    <!-- Modal de sugerencias (similar a Calculadora de Tiempos) -->
     <!-- Modal de sugerencias - AÑADIR AL FINAL DEL BODY -->
     <div class="modal" id="suggestions-modal">
         <div class="modal-content medium-modal">
