@@ -264,7 +264,7 @@ diferencia primero siempre es 00:00:00
 3.0.3 limpiar fucniones anteriores: quitar los botones y funciones de iniciar cronometro, detener, importar salidas. modificar html y js y las funciones que dependiean de ello.
 3.0.4 -Botones llegadas funcionando
 
-
+3.1 Llegadas funcionando con captura de tiempo. La mecanica de captura de los tiempos de llegada ha de ser el siguiente, el usuario da al boton Registrar llegada y sin preguntarle automaticamente se registra la llega en la tabla de llegada, cuando ya no hay previsión que llegue otro corredor el usuario introduce tranquilamente el dorsal (piensa que pueden llegar dos y tres corredores a la vez y se ha de coger el tiempo de cada uno). Se deberá asignar al tiempo un dorsal, desde la tabla de orden de llegada que debera estar ordenadade forma inversa esto es que el ultimo en llegar este en la primera linea.
 
 añadir eliminar corredor???
 revisar los tiempos de salida
