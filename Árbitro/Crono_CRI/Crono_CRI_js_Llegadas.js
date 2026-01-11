@@ -1,5 +1,5 @@
 // ============================================
-// MÓDULO DE LLEGADAS - SISTEMA 3.2 CORREGIDO
+// MÓDULO DE LLEGADAS - SISTEMA 3.2.1 CORREGIDO
 // ============================================
 // ORDEN DE 9 COLUMNAS:
 // 1. Dorsal
@@ -52,7 +52,7 @@ function getFirstStartTimeInSeconds() {
 }
 
 // ============================================
-// FUNCIÓN PARA OBTENER DATOS DE CORREDOR - SISTEMA 3.2
+// FUNCIÓN PARA OBTENER DATOS DE CORREDOR - SISTEMA 3.2.1
 // ============================================
 function obtenerDatosCorredor(dorsal) {
     console.log(`🔍 Buscando dorsal ${dorsal} en startOrderData...`);
@@ -67,7 +67,7 @@ function obtenerDatosCorredor(dorsal) {
             nombre: '',
             apellidos: '',
             chip: '',
-            // VERSIÓN 3.2 - CAMPOS NUEVOS
+            // VERSIÓN 3.2.1 - CAMPOS NUEVOS
             categoria: '',
             equipo: '',
             licencia: '',
@@ -78,7 +78,7 @@ function obtenerDatosCorredor(dorsal) {
         };
     }
     
-    // SISTEMA 3.2 - PRIORIDAD MEJORADA
+    // SISTEMA 3.2.1 - PRIORIDAD MEJORADA
     // 1. Verificar horaSalidaReal (si existe y es válida)
     let horaSalidaSeleccionada = '';
     let cronoSalidaSeleccionada = '';
@@ -88,7 +88,7 @@ function obtenerDatosCorredor(dorsal) {
                                      corredor.horaSalidaReal.trim() !== '';
     
     if (tieneHoraSalidaRealValida) {
-        // USAR HORA SALIDA REAL (sistema 3.2)
+        // USAR HORA SALIDA REAL (sistema 3.2.1)
         horaSalidaSeleccionada = corredor.horaSalidaReal;
         
         // Verificar también cronoSalidaReal (si existe y es válida)
@@ -137,7 +137,7 @@ function obtenerDatosCorredor(dorsal) {
         nombre: corredor.nombre || '',
         apellidos: corredor.apellidos || '',
         chip: corredor.chip || '',
-        // VERSIÓN 3.2 - CAMPOS NUEVOS DESCOMENTADOS
+        // VERSIÓN 3.2.1 - CAMPOS NUEVOS DESCOMENTADOS
         categoria: corredor.categoria || '',
         equipo: corredor.equipo || '',
         licencia: corredor.licencia || '',
@@ -152,7 +152,7 @@ function obtenerDatosCorredor(dorsal) {
 // CRONÓMETRO DE LLEGADAS
 // ============================================
 function initLlegadasMode() {
-    console.log("Inicializando modo llegadas - SISTEMA 3.2");
+    console.log("Inicializando modo llegadas - SISTEMA 3.2.1");
     
     loadLlegadasState();
     updateLlegadasTimerDisplay();
@@ -221,7 +221,7 @@ function capturarLlegadaDirecta() {
             nombre: '',
             apellidos: '',
             chip: '',
-            // VERSIÓN 3.2 - CAMPOS NUEVOS (ACTIVOS)
+            // VERSIÓN 3.2.1 - CAMPOS NUEVOS (ACTIVOS)
             categoria: '',
             equipo: '',
             licencia: '',
@@ -291,11 +291,17 @@ function actualizarDorsal(index, nuevoDorsal) {
     const llegada = llegadasState.llegadas[index];
     const tiempoAnterior = llegada.tiempoFinalWithMs || 0;
     
-    // Actualizar llegada
+    // Actualizar llegada - CORRECCIÓN: AÑADIR LOS 3 NUEVOS CAMPOS
     llegada.dorsal = dorsal;
     llegada.nombre = datosCorredor.nombre;
     llegada.apellidos = datosCorredor.apellidos;
     llegada.chip = datosCorredor.chip;
+    
+    // ✅ AÑADIDO: ACTUALIZAR LOS 3 NUEVOS CAMPOS
+    llegada.categoria = datosCorredor.categoria;
+    llegada.equipo = datosCorredor.equipo;
+    llegada.licencia = datosCorredor.licencia;
+    
     llegada.horaSalida = datosCorredor.horaSalida;
     llegada.cronoSalida = datosCorredor.cronoSalida;
     llegada.cronoSalidaSegundos = datosCorredor.cronoSalidaSegundos;
@@ -418,7 +424,7 @@ function actualizarFilaLlegada(index) {
     
     const celdas = fila.querySelectorAll('td');
     
-    // Actualizar las 13 columnas (12 originales + posición) - VERSIÓN 3.2
+    // Actualizar las 13 columnas (12 originales + posición) - VERSIÓN 3.2.1
     // 0: Dorsal, 1: Crono Llegada, 2: Tiempo Final, 3: Posición, 4: Nombre, etc.
     
     // 0: Dorsal
@@ -452,7 +458,7 @@ function actualizarFilaLlegada(index) {
     // 9: Chip
     celdas[9].textContent = llegada.chip || '';
     
-    // VERSIÓN 3.2 - NUEVAS COLUMNAS (ACTIVAS)
+    // VERSIÓN 3.2.1 - NUEVAS COLUMNAS (ACTIVAS)
     // 10: Categoría
     celdas[10].textContent = llegada.categoria || '';
     
@@ -464,7 +470,7 @@ function actualizarFilaLlegada(index) {
 }
 
 // ============================================
-// ACTUALIZAR UNA SOLA FILA CON POSICIÓN - NUEVO 3.2
+// ACTUALIZAR UNA SOLA FILA CON POSICIÓN - NUEVO 3.2.1
 // ============================================
 function actualizarFilaLlegadaIndividual(index) {
     const llegada = llegadasState.llegadas[index];
@@ -489,7 +495,7 @@ function actualizarFilaLlegadaIndividual(index) {
     // Tiempo Final (col 3) - CON 3 DECIMALES
     celdas[2].textContent = formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs);
     
-    // POSICIÓN (col 4) - NUEVO 3.2
+    // POSICIÓN (col 4) - NUEVO 3.2.1
     celdas[3].textContent = posicion;
     celdas[3].className = 'posicion';
     
@@ -538,7 +544,7 @@ function renderLlegadasList() {
     
     emptyState.style.display = 'none';
     
-    // NUEVO 3.2: Calcular posiciones ANTES de renderizar
+    // NUEVO 3.2.1: Calcular posiciones ANTES de renderizar
     const mapaPosiciones = calcularMapaPosiciones(llegadasState.llegadas);
     
     let html = '';
@@ -570,7 +576,7 @@ function renderLlegadasList() {
             <!-- 3. Tiempo Final (columna 3) -->
             <td class="tiempo-final">${formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs)}</td>
             
-            <!-- 4. POSICIÓN (columna 4) - NUEVO 3.2 - SOLO LECTURA -->
+            <!-- 4. POSICIÓN (columna 4) - NUEVO 3.2.1 - SOLO LECTURA -->
             <td class="posicion">${posicion}</td>
             
             <!-- 5. Nombre (columna 5) -->
@@ -591,7 +597,7 @@ function renderLlegadasList() {
             <!-- 10. Chip (columna 10) -->
             <td>${llegada.chip || ''}</td>
             
-            <!-- VERSIÓN 3.2 - CAMPOS NUEVOS (ACTIVOS) -->
+            <!-- VERSIÓN 3.2.1 - CAMPOS NUEVOS (ACTIVOS) -->
             <!-- 11. Categoría (columna 11) -->
             <td>${llegada.categoria || ''}</td>
             
@@ -722,7 +728,7 @@ function exportLlegadasToExcel() {
         ['Hora', new Date().toLocaleTimeString()],
         ['Total llegadas', llegadasState.llegadas.length],
         [''],
-        // VERSIÓN 3.2 - HEADER ACTUALIZADO (13 COLUMNAS + NOTAS)
+        // VERSIÓN 3.2.1 - HEADER ACTUALIZADO (13 COLUMNAS + NOTAS)
         ['Dorsal', 'Crono Llegada', 'Tiempo Final', 'Posición', 'Nombre', 'Apellidos', 
          'Crono Salida', 'Hora Llegada', 'Hora Salida', 'Chip', 
          'Categoria', 'Equipo', 'Licencia', 'Notas']
@@ -757,9 +763,9 @@ function exportLlegadasToExcel() {
             llegada.horaLlegada || '',
             llegada.horaSalida || '',
             llegada.chip || '',
-            llegada.categoria || '', // NUEVO CAMPO 3.2
-            llegada.equipo || '', // NUEVO CAMPO 3.2
-            llegada.licencia || '', // NUEVO CAMPO 3.2
+            llegada.categoria || '', // NUEVO CAMPO 3.2.1
+            llegada.equipo || '', // NUEVO CAMPO 3.2.1
+            llegada.licencia || '', // NUEVO CAMPO 3.2.1
             llegada.notas || ''
         ]);
     });
@@ -777,9 +783,9 @@ function exportLlegadasToExcel() {
             llegada.horaLlegada || '',
             llegada.horaSalida || '',
             llegada.chip || '',
-            llegada.categoria || '', // NUEVO CAMPO 3.2
-            llegada.equipo || '', // NUEVO CAMPO 3.2
-            llegada.licencia || '', // NUEVO CAMPO 3.2
+            llegada.categoria || '', // NUEVO CAMPO 3.2.1
+            llegada.equipo || '', // NUEVO CAMPO 3.2.1
+            llegada.licencia || '', // NUEVO CAMPO 3.2.1
             llegada.notas || ''
         ]);
     });
@@ -812,7 +818,7 @@ function exportRankingToExcel() {
         ['Hora', new Date().toLocaleTimeString()],
         ['Total', llegadasConTiempo.length],
         [''],
-        // VERSIÓN 3.2 - HEADER ACTUALIZADO
+        // VERSIÓN 3.2.1 - HEADER ACTUALIZADO
         ['Pos', 'Dorsal', 'Nombre', 'Categoria', 'Equipo', 'Crono Salida', 
          'Crono Llegada', 'Tiempo Final', 'Diferencia']
     ];
@@ -834,8 +840,8 @@ function exportRankingToExcel() {
             index + 1,
             llegada.dorsal,
             nombreCompleto,
-            llegada.categoria || '', // NUEVO CAMPO 3.2
-            llegada.equipo || '', // NUEVO CAMPO 3.2
+            llegada.categoria || '', // NUEVO CAMPO 3.2.1
+            llegada.equipo || '', // NUEVO CAMPO 3.2.1
             llegada.cronoSalida || '--:--:--',
             formatSecondsWithMilliseconds(llegada.cronoLlegadaWithMs),
             formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs),
@@ -879,7 +885,7 @@ function saveLlegadasState() {
 // CONFIGURACIÓN DE LISTENERS
 // ============================================
 function setupLlegadasEventListeners() {
-    console.log("🔧 Configurando listeners - SISTEMA 3.2");
+    console.log("🔧 Configurando listeners - SISTEMA 3.2.1");
     
     // Botón Registrar Llegada
     const registerBtn = document.getElementById('registerLlegadaBtn');
@@ -926,7 +932,7 @@ function formatSecondsWithMilliseconds(seconds) {
 }
 
 // ============================================
-// CALCULAR POSICIONES BASADAS EN TIEMPO FINAL - NUEVO 3.2
+// CALCULAR POSICIONES BASADAS EN TIEMPO FINAL - NUEVO 3.2.1
 // ============================================
 function calcularPosiciones(llegadas) {
     // 1. Filtrar llegadas con tiempo final válido
@@ -966,7 +972,7 @@ function calcularPosiciones(llegadas) {
 }
 
 // ============================================
-// RECALCULAR TODAS LAS POSICIONES - NUEVO 3.2
+// RECALCULAR TODAS LAS POSICIONES - NUEVO 3.2.1
 // ============================================
 function recalcularTodasLasPosiciones() {
     console.log('🧮 Iniciando recálculo de posiciones...');
@@ -1062,7 +1068,7 @@ function recalcularTodasLasPosiciones() {
 }
 
 // ============================================
-// CALCULAR MAPA DE POSICIONES SIN CAMBIAR ORDEN - CORREGIDA 3.2
+// CALCULAR MAPA DE POSICIONES SIN CAMBIAR ORDEN - CORREGIDA 3.2.1
 // ============================================
 function calcularMapaPosiciones(llegadas) {
     // 1. Filtrar llegadas con tiempo final válido
@@ -1589,4 +1595,4 @@ window.exportLlegadasToExcel = exportLlegadasToExcel;
 window.exportRankingToExcel = exportRankingToExcel;
 window.clearLlegadas = clearLlegadas;
 
-console.log("✅ Módulo de llegadas 3.2 cargado");
+console.log("✅ Módulo de llegadas 3.2.1 cargado");

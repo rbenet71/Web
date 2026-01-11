@@ -228,7 +228,7 @@ el boton reiniciar, previa pregunta de confirmación, borrará todos los tiempos
 por eso primero pideme las funciones que crees que intervienen en el proceso.
 2.3 inicio Cuenta atras manualmente
 2.3.1 Traducciones
-2.3.2 Aplicacion Inicial JS
+2.3.2.1 Aplicacion Inicial JS
 2.3.3 hora sistema acutalizada
 2.3.4 Inicio cuenta atras manual bien
 2.3.4.1 mejorado inicio manual dorsal o
