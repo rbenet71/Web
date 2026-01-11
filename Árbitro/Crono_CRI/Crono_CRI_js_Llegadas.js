@@ -1,5 +1,5 @@
 // ============================================
-// MÓDULO DE LLEGADAS - SISTEMA 3.1.1 CORREGIDO
+// MÓDULO DE LLEGADAS - SISTEMA 3.1.2 CORREGIDO
 // ============================================
 // ORDEN DE 9 COLUMNAS:
 // 1. Dorsal
@@ -54,6 +54,9 @@ function getFirstStartTimeInSeconds() {
 // ============================================
 // FUNCIÓN PARA OBTENER DATOS DE CORREDOR
 // ============================================
+// ============================================
+// FUNCIÓN PARA OBTENER DATOS DE CORREDOR - SISTEMA 3.1.2
+// ============================================
 function obtenerDatosCorredor(dorsal) {
     console.log(`🔍 Buscando dorsal ${dorsal} en startOrderData...`);
     
@@ -74,32 +77,68 @@ function obtenerDatosCorredor(dorsal) {
         };
     }
     
-    // PRIORIDAD: Real > Previsto
-    const horaSalida = corredor.horaSalidaReal || corredor.horaSalida || '';
+    // SISTEMA 3.1.2 - PRIORIDAD MEJORADA
+    // 1. Verificar horaSalidaReal (si existe y es válida)
+    let horaSalidaSeleccionada = '';
+    let cronoSalidaSeleccionada = '';
     
-    // OBTENER CRONO SALIDA PERO SOLO SI NO ES EL PRIMER CORREDOR
+    const tieneHoraSalidaRealValida = corredor.horaSalidaReal && 
+                                     corredor.horaSalidaReal !== '--:--:--' && 
+                                     corredor.horaSalidaReal.trim() !== '';
+    
+    if (tieneHoraSalidaRealValida) {
+        // USAR HORA SALIDA REAL (sistema 3.1.2)
+        horaSalidaSeleccionada = corredor.horaSalidaReal;
+        
+        // Verificar también cronoSalidaReal (si existe y es válida)
+        const tieneCronoRealValido = corredor.cronoSalidaReal && 
+                                    corredor.cronoSalidaReal !== '--:--:--' && 
+                                    corredor.cronoSalidaReal.trim() !== '';
+        
+        if (tieneCronoRealValido) {
+            cronoSalidaSeleccionada = corredor.cronoSalidaReal;
+        } else {
+            // Si cronoSalidaReal no es válido, usar cronoSalida
+            cronoSalidaSeleccionada = corredor.cronoSalida || '';
+        }
+    } else {
+        // USAR HORA SALIDA PREVISTA (sistema anterior)
+        horaSalidaSeleccionada = corredor.horaSalida || '';
+        cronoSalidaSeleccionada = corredor.cronoSalida || '';
+    }
+    
+    // OBTENER CRONO SALIDA - LÓGICA ESPECIAL PARA PRIMER CORREDOR
     let cronoSalida = '';
     let cronoSalidaSegundos = 0;
     
-    if (corredor.orden && corredor.orden > 1) {
-        // Solo traer cronoSalida si NO es el primer corredor (orden > 1)
-        cronoSalida = corredor.cronoSalidaReal || corredor.cronoSalida || '';
+    const esPrimerCorredor = corredor.orden && corredor.orden === 1;
+    
+    if (esPrimerCorredor) {
+        // PRIMER CORREDOR: Aceptar crono salida incluso si es "00:00:00"
+        cronoSalida = cronoSalidaSeleccionada;
         
-        // Convertir a segundos solo si hay valor
-        if (cronoSalida) {
+        // Convertir a segundos (acepta 00:00:00 como válido para primer corredor)
+        if (cronoSalida && cronoSalida !== '--:--:--') {
+            cronoSalidaSegundos = timeToSeconds(cronoSalida);
+        }
+    } else {
+        // RESTO DE CORREDORES: Solo traer cronoSalida si tiene valor válido
+        cronoSalida = cronoSalidaSeleccionada;
+        
+        // Convertir a segundos solo si hay valor y no es "00:00:00" o "--:--:--"
+        if (cronoSalida && cronoSalida !== '00:00:00' && cronoSalida !== '--:--:--') {
             cronoSalidaSegundos = timeToSeconds(cronoSalida);
         }
     }
-    // Si es el primer corredor (orden = 1), dejar cronoSalida vacío
     
     return {
         dorsal: corredor.dorsal,
         nombre: corredor.nombre || '',
         apellidos: corredor.apellidos || '',
         chip: corredor.chip || '',
-        horaSalida: horaSalida,
-        cronoSalida: cronoSalida,  // VACÍO para primer corredor
-        cronoSalidaSegundos: cronoSalidaSegundos,  // CERO para primer corredor
+        horaSalida: horaSalidaSeleccionada, // Hora seleccionada (real o prevista)
+        cronoSalida: cronoSalida,
+        cronoSalidaSegundos: cronoSalidaSegundos,
         orden: corredor.orden || 0
     };
 }
@@ -108,7 +147,7 @@ function obtenerDatosCorredor(dorsal) {
 // CRONÓMETRO DE LLEGADAS
 // ============================================
 function initLlegadasMode() {
-    console.log("Inicializando modo llegadas - SISTEMA 3.1.1");
+    console.log("Inicializando modo llegadas - SISTEMA 3.1.2");
     
     loadLlegadasState();
     updateLlegadasTimerDisplay();
@@ -632,7 +671,7 @@ function saveLlegadasState() {
 // CONFIGURACIÓN DE LISTENERS
 // ============================================
 function setupLlegadasEventListeners() {
-    console.log("🔧 Configurando listeners - SISTEMA 3.1.1");
+    console.log("🔧 Configurando listeners - SISTEMA 3.1.2");
     
     // Botón Registrar Llegada
     const registerBtn = document.getElementById('register-llegada-btn');
@@ -699,4 +738,4 @@ window.exportLlegadasToExcel = exportLlegadasToExcel;
 window.exportRankingToExcel = exportRankingToExcel;
 window.clearLlegadas = clearLlegadas;
 
-console.log("✅ Módulo de llegadas 3.1.1 cargado");
+console.log("✅ Módulo de llegadas 3.1.2 cargado");
