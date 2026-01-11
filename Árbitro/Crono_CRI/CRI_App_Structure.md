@@ -28,7 +28,7 @@ ELEMENTOS CLAVE:
 DEPENDENCIAS EXTERNAS:
 - Font Awesome 6.4.0 (iconos)
 - XLSX 0.18.5 (exportación Excel)
-- jsPDF 3.0.1 + AutoTable (exportación PDF)
+- jsPDF 3.0.2 + AutoTable (exportación PDF)
 - Google Analytics (G-CV925PMBQV)
 ```
 
@@ -2445,3 +2445,102 @@ grep -n "updateRaceManagementCardTitle(" *.js
 **Fecha de resolución**: Enero 2026  
 **Tiempo invertido**: ~1 hora  
 **Resultado**: ✅ **PROBLEMA COMPLETAMENTE RESUELTO**
+
+
+Perfecto. Vamos a documentar esta lección aprendida en el archivo MD. Aquí tienes la sección que debes añadir:
+
+---
+
+## **29. CORRECCIÓN: Actualización de `first-start-time` cuando no hay corredores en la tabla**
+
+### **Problema:**
+- Al cambiar el valor de `first-start-time` cuando la tabla está vacía (`startOrderData.length === 0`), solo se actualizaba la variable `originalTimeValue`
+- **NO** se actualizaba el valor en el input visible
+- **NO** se guardaba en la carrera actual
+- **NO** se mostraba confirmación al usuario
+
+### **Síntomas en logs:**
+```
+handleFirstStartTimeBlur called
+Nuevo valor: 07:29:20
+Valor original: 20:29:20
+Tiempo en progreso: true
+No hay datos en tabla, actualizando directamente...
+```
+*(pero el input seguía mostrando el valor antiguo)*
+
+### **Causa:**
+En la función `handleFirstStartTimeBlur()` de `Crono_CRI_js_Salidas_3.js`, había este código:
+
+```javascript
+// Si no hay datos en la tabla, actualizar directamente
+if (!startOrderData || startOrderData.length === 0) {
+    console.log('No hay datos en tabla, actualizando directamente...');
+    originalTimeValue = newValue;  // ❌ SOLO actualizaba esta variable
+    return;  // ❌ Se salía sin hacer nada más
+}
+```
+
+### **Solución implementada:**
+Modificar la sección para actualizar **TODOS** los componentes necesarios:
+
+```javascript
+// Si no hay datos en la tabla, actualizar directamente
+if (!startOrderData || startOrderData.length === 0) {
+    console.log('No hay datos en tabla, actualizando directamente...');
+    
+    // ✅ CORRECCIÓN: ACTUALIZAR EL INPUT también
+    const input = document.getElementById('first-start-time');
+    input.value = newValue;
+    
+    // ✅ Actualizar la variable
+    originalTimeValue = newValue;
+    
+    // ✅ Actualizar la carrera actual también
+    if (appState.currentRace) {
+        appState.currentRace.firstStartTime = newValue;
+        
+        // ✅ Guardar el cambio
+        if (typeof saveRaceData === 'function') {
+            setTimeout(() => {
+                saveRaceData();
+                console.log(`✅ Hora de inicio guardada en carrera: "${appState.currentRace.name}"`);
+                
+                // ✅ Mostrar mensaje de confirmación
+                const t = translations[appState.currentLanguage];
+                showMessage(t.timeUpdated || 'Hora de inicio actualizada', 'success');
+            }, 100);
+        }
+    }
+    
+    return;
+}
+```
+
+### **Lecciones aprendidas:**
+
+1. **Actualización completa**: Cuando se cambia un valor en la UI, hay que actualizar:
+   - ✅ El elemento HTML visible
+   - ✅ Las variables internas
+   - ✅ El estado de la aplicación (`appState`)
+   - ✅ La persistencia (`localStorage`)
+
+2. **Feedback al usuario**: Siempre mostrar confirmación visual (`showMessage()`) cuando se realizan cambios
+
+3. **Consistencia de datos**: Mantener sincronizadas todas las fuentes de datos:
+   - `originalTimeValue` (variable temporal)
+   - `appState.currentRace.firstStartTime` (estado de la carrera)
+   - `localStorage` (persistencia)
+   - Elementos HTML (interfaz visible)
+
+4. **Logs útiles**: Los logs mostraron claramente que el valor estaba cambiando pero no se estaba reflejando en la interfaz
+
+### **Archivos afectados:**
+- `Crono_CRI_js_Salidas_3.js` - Función `handleFirstStartTimeBlur()`
+
+### **Regla establecida:**
+> "Cuando se modifica un valor configurable, siempre actualizar TODOS los componentes relacionados: interfaz, estado interno y persistencia, independientemente de si hay otros datos en la aplicación."
+
+---
+
+**¿Quieres que añada esta sección al archivo MD?** ¿O prefieres algún formato diferente?

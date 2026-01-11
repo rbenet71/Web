@@ -1533,39 +1533,33 @@ function setupSingleImportListener() {
 
 // Función específica para manejar todos los relojes
 function initializeAllTimeDisplays() {
-    console.log("🕐 Inicializando todos los displays de tiempo...");
+    console.log("🕐 Configurando hora estática (sin intervalo)...");
     
-    // 1. Actualizar hora del sistema
-    function updateSystemClock() {
-        const displays = [
-            'current-system-time-display',
-            'current-system-time'
-        ];
-        
-        const now = new Date();
-        const timeString = now.toLocaleTimeString('es-ES', { 
-            hour: '2-digit', 
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false 
-        });
-        
-        displays.forEach(id => {
-            const display = document.getElementById(id);
-            if (display) {
-                display.textContent = timeString;
-            }
-        });
-        
-        // Actualizar diferencia de tiempo
-        updateTimeDifference();
-    }
+    // Solo establecer la hora UNA VEZ, sin intervalos
+    const displays = [
+        'current-system-time-display',
+        'current-system-time'
+    ];
     
-    // 2. Iniciar intervalos
-    updateSystemClock(); // Primera ejecución inmediata
-    setInterval(updateSystemClock, 1000);
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('es-ES', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false 
+    });
     
-    console.log("✅ Todos los displays de tiempo inicializados");
+    displays.forEach(id => {
+        const display = document.getElementById(id);
+        if (display) {
+            display.textContent = timeString;
+        }
+    });
+    
+    // 🔥 NO llamar a updateTimeDifference automáticamente
+    // updateTimeDifference(); // COMENTA ESTA LÍNEA hacer parpadear current-system-time-display
+    
+    console.log("✅ Hora estática configurada:", timeString);
 }
 
 // Llamar después de inicializar

@@ -245,20 +245,21 @@ por eso primero pideme las funciones que crees que intervienen en el proceso.
 diferencia primero siempre es 00:00:00
 2.4.3 Registrar bien las salidas. tras la salida de los corredores las horas registradas de crono salida estan mal y la hora salida real registrada esta mal. haz que se pongan los valores que se estan mostrando en la pantalla de cuenta atras cuando llega a o la cuenta atras. total-time-value y current-time-value"
 2.4.5 actualizar version  copyriht actualizado
-3.0.1 Botones pie funcionando 
-3.0.1 el boton de sugerencias que haga lo mismo que el de la calculadora
-3.0.1 ayuda funcionando
+3.0.2 Botones pie funcionando 
+3.0.2 el boton de sugerencias que haga lo mismo que el de la calculadora
+3.0.2 ayuda funcionando
 
 2.4.9 quitar la marca de + para marcar los modificados, mantener el fondo verde
-3.0.1 Al añadir un corredor en la ultima posicion añade 2 corredores mas entre el ultimo corredor y el anterior.
-3.0.1.1 Añadir corredor 1 diferencia ok
+3.0.2 Al añadir un corredor en la ultima posicion añade 2 corredores mas entre el ultimo corredor y el anterior.
+3.0.2.1 Añadir corredor 1 diferencia ok
 
-3.0.1.2 Arreglar multiples carga del titulo de carrera
-3.0.1 Restaurar Copia de Seguridad Bien
+3.0.2.2 Arreglar multiples carga del titulo de carrera
+3.0.2 Restaurar Copia de Seguridad Bien
 ------
 
 3.0 llegadas-timer-display ( es el tiempo del crono en la llegadas) sea igual  = hora del sistema - first-start-time
-3.0.1 - arreglado modificacion hora salida primer corredor
+3.0.2 - arreglado modificacion hora salida primer corredor
+3.0.2 -  Parpadeo de current-system-time-display
 
 3.1 limpiar fucniones anteriores: quitar los botones y funciones de iniciar cronometro, detener, importar salidas.
 
