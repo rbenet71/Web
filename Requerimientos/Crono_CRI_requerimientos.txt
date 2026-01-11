@@ -248,15 +248,18 @@ diferencia primero siempre es 00:00:00
 2.5.3 Botones pie funcionando 
 2.5.3 el boton de sugerencias que haga lo mismo que el de la calculadora
 2.5.3 ayuda funcionando
-------
+
 2.4.9 quitar la marca de + para marcar los modificados, mantener el fondo verde
 2.5.3 Al añadir un corredor en la ultima posicion añade 2 corredores mas entre el ultimo corredor y el anterior.
 2.5.3.1 Añadir corredor 1 diferencia ok
 
 2.5.3.2 Arreglar multiples carga del titulo de carrera
 2.5.3 Restaurar Copia de Seguridad Bien
+------
 
-añadir eliminar corredor
-problemas al restaurar copia de seguridad
+3.0 llegadas-timer-display ( es el tiempo del crono en la llegadas) sea igual  = hora del sistema - first-start-time
 
+3.1 limpiar fucniones anteriores: quitar los botones y funciones de iniciar cronometro, detener, importar salidas.
+
+añadir eliminar corredor???
 revisar los tiempos de salida

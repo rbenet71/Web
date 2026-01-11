@@ -35,6 +35,52 @@
 // ============================================
 
 // ============================================
+// FUNCIONES AUXILIARES DE TIEMPO
+// ============================================
+function getCurrentTimeInSeconds() {
+    const now = new Date();
+    return (now.getHours() * 3600) + (now.getMinutes() * 60) + now.getSeconds();
+}
+
+function getCurrentTimeInMilliseconds() {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const seconds = now.getSeconds();
+    const milliseconds = now.getMilliseconds();
+    
+    return (hours * 3600000) + (minutes * 60000) + (seconds * 1000) + milliseconds;
+}
+
+function getFirstStartTimeInSeconds() {
+    const firstStartElement = document.getElementById('first-start-time');
+    if (firstStartElement && firstStartElement.value) {
+        return timeToSeconds(firstStartElement.value);
+    }
+    return 0;
+}
+
+function getFirstStartTimeInMilliseconds() {
+    const firstStartElement = document.getElementById('first-start-time');
+    if (firstStartElement && firstStartElement.value) {
+        return timeToSeconds(firstStartElement.value) * 1000;
+    }
+    return 0;
+}
+
+function formatMillisecondsToTime(ms) {
+    let totalSeconds = Math.floor(ms / 1000);
+    let milliseconds = ms % 1000;
+    
+    let hours = Math.floor(totalSeconds / 3600);
+    let minutes = Math.floor((totalSeconds % 3600) / 60);
+    let seconds = totalSeconds % 60;
+    
+    // Formato HH:MM:SS.mmm
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
+}
+
+// ============================================
 // FUNCIONES DEL CRONÓMETRO DE LLEGADAS
 // ============================================
 function initLlegadasMode() {
@@ -56,27 +102,21 @@ function startLlegadasTimer() {
     const t = translations[appState.currentLanguage];
     
     if (!llegadasState.timerActive) {
-        // Si no hay tiempo de inicio, usar el tiempo actual
-        if (!llegadasState.startTime) {
-            llegadasState.startTime = Date.now() - (llegadasState.currentTime * 1000);
-        }
-        
         llegadasState.timerActive = true;
         llegadasState.timerStarted = true;
         
-        // Iniciar intervalo de actualización
+        // Iniciar intervalo que se basa en hora actual - first-start-time
         llegadasState.timerInterval = setInterval(() => {
-            llegadasState.currentTime = Math.floor((Date.now() - llegadasState.startTime) / 1000);
-            updateLlegadasTimerDisplay();
+            updateLlegadasTimerDisplay(); // Ahora usa cálculo basado en first-start-time
             
             // Guardar estado cada 10 segundos
             if (llegadasState.currentTime % 10 === 0) {
                 saveLlegadasState();
             }
-        }, 100);
+        }, 100); // Intervalo de 100ms
         
         showMessage(t.timerStarted, 'success');
-        console.log("Cronómetro de llegadas iniciado");
+        console.log("Cronómetro de llegadas iniciado (basado en first-start-time)");
     }
 }
 
@@ -97,11 +137,23 @@ function updateLlegadasTimerDisplay() {
     const display = document.getElementById('llegadas-timer-display');
     if (!display) return;
     
-    const hours = Math.floor(llegadasState.currentTime / 3600);
-    const minutes = Math.floor((llegadasState.currentTime % 3600) / 60);
-    const seconds = llegadasState.currentTime % 60;
+    // Obtener hora actual y first-start-time en segundos
+    const currentTimeSeconds = getCurrentTimeInSeconds();
+    const firstStartSeconds = getFirstStartTimeInSeconds();
     
-    display.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    // Calcular diferencia
+    let diferenciaSegundos = currentTimeSeconds - firstStartSeconds;
+    
+    // Si es negativo (la carrera no ha empezado), mostrar 00:00:00
+    if (diferenciaSegundos < 0) {
+        diferenciaSegundos = 0;
+    }
+    
+    // Convertir a HH:MM:SS (sin milésimas para display)
+    display.textContent = secondsToTime(diferenciaSegundos);
+    
+    // Actualizar estado en segundos (para otros cálculos)
+    llegadasState.currentTime = diferenciaSegundos;
 }
 
 // ============================================
@@ -111,8 +163,14 @@ function showRegisterLlegadaModal() {
     const modal = document.getElementById('register-llegada-modal');
     const horaInput = document.getElementById('llegada-hora');
     
-    // Establecer hora actual
-    horaInput.value = secondsToTime(llegadasState.currentTime);
+    // Establecer hora actual CON MILÉSIMAS
+    const currentTimeMs = getCurrentTimeInMilliseconds();
+    const firstStartMs = getFirstStartTimeInMilliseconds();
+    
+    let diferenciaMs = currentTimeMs - firstStartMs;
+    if (diferenciaMs < 0) diferenciaMs = 0;
+    
+    horaInput.value = formatMillisecondsToTime(currentTimeMs);
     
     // Limpiar otros campos
     document.getElementById('llegada-dorsal').value = '';
@@ -140,14 +198,22 @@ function showQuickRegisterLlegada() {
         return;
     }
     
-    // Crear llegada
+    // OBTENER TIEMPOS CON MILÉSIMAS
+    const currentTimeMs = getCurrentTimeInMilliseconds();
+    const firstStartMs = getFirstStartTimeInMilliseconds();
+    
+    let diferenciaMs = currentTimeMs - firstStartMs;
+    if (diferenciaMs < 0) diferenciaMs = 0;
+    
+    // Crear llegada CON PRECISIÓN DE MILÉSIMAS
     const llegada = {
         dorsal: dorsalNum,
         horaSalida: '',
-        horaLlegada: secondsToTime(llegadasState.currentTime),
-        tiempoCrono: '',
+        horaLlegada: formatMillisecondsToTime(currentTimeMs), // HH:MM:SS.mmm
+        tiempoCrono: formatMillisecondsToTime(diferenciaMs), // HH:MM:SS.mmm
         notas: 'Registro rápido',
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        milliseconds: diferenciaMs // Guardar también en milisegundos para cálculos
     };
     
     // Intentar obtener hora de salida si hay datos importados
@@ -155,9 +221,12 @@ function showQuickRegisterLlegada() {
     if (salidaData) {
         llegada.horaSalida = salidaData.horaSalida;
         if (salidaData.horaSalida) {
-            const segundosSalida = timeToSeconds(salidaData.horaSalida);
-            const tiempoCronoSegundos = llegadasState.currentTime - segundosSalida;
-            llegada.tiempoCrono = secondsToTime(tiempoCronoSegundos);
+            const segundosSalida = timeToSeconds(salidaData.horaSalida) * 1000; // Convertir a ms
+            const tiempoCronoMs = currentTimeMs - segundosSalida - firstStartMs;
+            if (tiempoCronoMs > 0) {
+                llegada.tiempoCrono = formatMillisecondsToTime(tiempoCronoMs);
+                llegada.milliseconds = tiempoCronoMs;
+            }
         }
     }
     
@@ -187,14 +256,23 @@ function confirmRegisterLlegada() {
         return;
     }
     
-    // Crear llegada
+    // OBTENER HORA ACTUAL CON MILÉSIMAS
+    const currentTimeMs = getCurrentTimeInMilliseconds();
+    const firstStartMs = getFirstStartTimeInMilliseconds();
+    
+    // Calcular diferencia en milisegundos
+    let diferenciaMs = currentTimeMs - firstStartMs;
+    if (diferenciaMs < 0) diferenciaMs = 0;
+    
+    // Crear llegada CON PRECISIÓN DE MILÉSIMAS
     const llegada = {
         dorsal: dorsal,
         horaSalida: '',
-        horaLlegada: document.getElementById('llegada-hora').value,
-        tiempoCrono: '',
+        horaLlegada: formatMillisecondsToTime(currentTimeMs), // HH:MM:SS.mmm
+        tiempoCrono: formatMillisecondsToTime(diferenciaMs), // HH:MM:SS.mmm
         notas: notasInput.value.trim(),
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        milliseconds: diferenciaMs // Guardar también en milisegundos para cálculos
     };
     
     // Intentar obtener hora de salida
@@ -202,10 +280,12 @@ function confirmRegisterLlegada() {
     if (salidaData) {
         llegada.horaSalida = salidaData.horaSalida;
         if (salidaData.horaSalida) {
-            const segundosSalida = timeToSeconds(salidaData.horaSalida);
-            const segundosLlegada = timeToSeconds(llegada.horaLlegada);
-            const tiempoCronoSegundos = segundosLlegada - segundosSalida;
-            llegada.tiempoCrono = secondsToTime(tiempoCronoSegundos);
+            const segundosSalida = timeToSeconds(salidaData.horaSalida) * 1000; // Convertir a ms
+            const tiempoCronoMs = currentTimeMs - segundosSalida - firstStartMs;
+            if (tiempoCronoMs > 0) {
+                llegada.tiempoCrono = formatMillisecondsToTime(tiempoCronoMs);
+                llegada.milliseconds = tiempoCronoMs;
+            }
         }
     } else {
         // Si no hay datos de salida, mostrar advertencia
@@ -387,10 +467,17 @@ function importSalidasForLlegadas() {
                 if (salidaData) {
                     llegada.horaSalida = salidaData.horaSalida;
                     if (salidaData.horaSalida && llegada.horaLlegada) {
-                        const segundosSalida = timeToSeconds(salidaData.horaSalida);
-                        const segundosLlegada = timeToSeconds(llegada.horaLlegada);
-                        const tiempoCronoSegundos = segundosLlegada - segundosSalida;
-                        llegada.tiempoCrono = secondsToTime(tiempoCronoSegundos);
+                        const segundosSalida = timeToSeconds(salidaData.horaSalida) * 1000;
+                        const horaLlegadaParts = llegada.horaLlegada.split('.');
+                        const horaLlegadaBase = horaLlegadaParts[0];
+                        const milliseconds = horaLlegadaParts[1] ? parseInt(horaLlegadaParts[1]) : 0;
+                        const segundosLlegada = timeToSeconds(horaLlegadaBase) * 1000 + milliseconds;
+                        const tiempoCronoMs = segundosLlegada - segundosSalida - getFirstStartTimeInMilliseconds();
+                        
+                        if (tiempoCronoMs > 0) {
+                            llegada.tiempoCrono = formatMillisecondsToTime(tiempoCronoMs);
+                            llegada.milliseconds = tiempoCronoMs;
+                        }
                     }
                 }
             });
@@ -415,17 +502,17 @@ function importSalidasForLlegadas() {
 function showRankingModal() {
     const t = translations[appState.currentLanguage];
     
-    // Filtrar llegadas que tienen tiempo crono
-    const llegadasConTiempo = llegadasState.llegadas.filter(l => l.tiempoCrono && l.tiempoCrono !== '--:--:--');
+    // Filtrar llegadas que tienen tiempo crono (usando milliseconds para precisión)
+    const llegadasConTiempo = llegadasState.llegadas.filter(l => l.milliseconds && l.milliseconds > 0);
     
     if (llegadasConTiempo.length === 0) {
         showMessage(t.noRankingText, 'info');
         return;
     }
     
-    // Ordenar por tiempo crono (ascendente)
+    // Ordenar por tiempo crono en milisegundos (ascendente)
     llegadasConTiempo.sort((a, b) => {
-        return timeToSeconds(a.tiempoCrono) - timeToSeconds(b.tiempoCrono);
+        return a.milliseconds - b.milliseconds;
     });
     
     // Generar tabla de ranking
@@ -439,15 +526,15 @@ function showRankingModal() {
         let bestTime = null;
         
         llegadasConTiempo.forEach((llegada, index) => {
-            const tiempoSegundos = timeToSeconds(llegada.tiempoCrono);
+            const tiempoMs = llegada.milliseconds;
             
             let diferencia = '';
             if (bestTime === null) {
-                bestTime = tiempoSegundos;
-                diferencia = '--:--:--';
+                bestTime = tiempoMs;
+                diferencia = '--:--:--.000';
             } else {
-                const diffSegundos = tiempoSegundos - bestTime;
-                diferencia = secondsToTime(diffSegundos);
+                const diffMs = tiempoMs - bestTime;
+                diferencia = formatMillisecondsToTime(diffMs);
             }
             
             html += `
@@ -455,7 +542,7 @@ function showRankingModal() {
                 <td>${index + 1}</td>
                 <td>${llegada.dorsal}</td>
                 <td>${getNombreFromDorsal(llegada.dorsal)}</td>
-                <td>${llegada.tiempoCrono}</td>
+                <td>${llegada.tiempoCrono || formatMillisecondsToTime(tiempoMs)}</td>
                 <td>${diferencia}</td>
             </tr>
             `;
@@ -513,9 +600,9 @@ function exportLlegadasToExcel() {
 function exportRankingToExcel() {
     const t = translations[appState.currentLanguage];
     
-    // Filtrar y ordenar como en showRankingModal
-    const llegadasConTiempo = llegadasState.llegadas.filter(l => l.tiempoCrono && l.tiempoCrono !== '--:--:--');
-    llegadasConTiempo.sort((a, b) => timeToSeconds(a.tiempoCrono) - timeToSeconds(b.tiempoCrono));
+    // Filtrar y ordenar usando milisegundos para precisión
+    const llegadasConTiempo = llegadasState.llegadas.filter(l => l.milliseconds && l.milliseconds > 0);
+    llegadasConTiempo.sort((a, b) => a.milliseconds - b.milliseconds);
     
     if (llegadasConTiempo.length === 0) {
         showMessage(t.noDataToExport, 'warning');
@@ -533,22 +620,22 @@ function exportRankingToExcel() {
     
     let bestTime = null;
     llegadasConTiempo.forEach((llegada, index) => {
-        const tiempoSegundos = timeToSeconds(llegada.tiempoCrono);
+        const tiempoMs = llegada.milliseconds;
         
         let diferencia = '';
         if (bestTime === null) {
-            bestTime = tiempoSegundos;
-            diferencia = '--:--:--';
+            bestTime = tiempoMs;
+            diferencia = '--:--:--.000';
         } else {
-            const diffSegundos = tiempoSegundos - bestTime;
-            diferencia = secondsToTime(diffSegundos);
+            const diffMs = tiempoMs - bestTime;
+            diferencia = formatMillisecondsToTime(diffMs);
         }
         
         data.push([
             index + 1,
             llegada.dorsal,
             getNombreFromDorsal(llegada.dorsal),
-            llegada.tiempoCrono,
+            llegada.tiempoCrono || formatMillisecondsToTime(tiempoMs),
             diferencia
         ]);
     });
@@ -577,7 +664,6 @@ function loadLlegadasState() {
         
         if (state.timerStarted) {
             // Si el cronómetro estaba activo, reiniciarlo desde el tiempo guardado
-            llegadasState.startTime = Date.now() - (state.currentTime * 1000);
             startLlegadasTimer();
         }
         
