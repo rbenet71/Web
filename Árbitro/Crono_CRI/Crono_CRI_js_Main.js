@@ -643,7 +643,7 @@ function setupPWAInstallListener() {
 function openSuggestionsEmail() {
     const email = 'rbenet71@gmail.com';
     const subject = 'Sugerencias para Crono CRI';
-    const body = `Hola Roberto,\n\nTengo algunas sugerencias para la aplicación Crono CRI:\n\n1. \n2. \n3. \n\n---\nApp: Crono CRI v3.2.4\nNavegador: ${navigator.userAgent}\nURL: ${window.location.href}`;
+    const body = `Hola Roberto,\n\nTengo algunas sugerencias para la aplicación Crono CRI:\n\n1. \n2. \n3. \n\n---\nApp: Crono CRI v3.3\nNavegador: ${navigator.userAgent}\nURL: ${window.location.href}`;
     
     const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     

@@ -63,6 +63,7 @@ Con tu aprobación, procederé según estos criterios:
 3. **Sin código redundante** o duplicado
 4. **Eliminación proactiva** de código no utilizado
 5. **Instrucciones claras** y autocontenidas
+Intentar minimizar el uso del fichero de CSS, esta quedando muy extenso.
 
 ## **CONFIRMACIÓN EN CADA INTERACCIÓN**
 Después de cada propuesta o pregunta, mi mensaje incluirá:

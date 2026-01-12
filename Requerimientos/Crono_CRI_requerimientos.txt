@@ -287,5 +287,11 @@ La clasificacion de la carrera se calculará en base a que dorsal tiene el Tiemp
 3_2.3 Arreglar muestra diferencia primer corredor
 3_2.4 Limpieza Consola
 
+3.3 Pantalla externa - en el modulo de llegadas al lado del boton de Clasificacion PDF quiero poner un botón que se llama Pantalla Externa. Este botón estará visible si es posible mostrar la clasificacion en una pantalla externa al ordenador, para eso comprobaremos si tenemos conectada una pantalla externa en modo ampliación de escritorio. Al hacer click mostrara el modal "ranking-modal", que deberá ir actualizandose cada vez que haya una modificación en la tabla de llegadas, para así ir mostrando como van evolucionando los resultados a medida que llegan los corredores
+
+En la cabecera de Llegadas contar los dorsales llegados del total de corredores que hay en la tabla orden de salida.
+
+pantalla externa de resultados
+
 añadir eliminar corredor???
 revisar los tiempos de salida
