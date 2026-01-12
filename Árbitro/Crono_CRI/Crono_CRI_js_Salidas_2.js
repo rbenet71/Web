@@ -86,8 +86,8 @@ function updateStartOrderTable() {
         let isDiferenciaEditable = !isFirstRider; // No editable para primer corredor
         
         // Primero verificar si hay diferencia importada o calculada
-        if (rider.diferencia && rider.diferencia !== '' && rider.diferencia !== '00:00:00') {
-            // Ya tiene diferencia asignada
+        if (rider.diferencia && rider.diferencia !== '') {
+            // Ya tiene diferencia asignada (puede ser '00:00:00')
             let valorLimpio = rider.diferencia;
             
             if (rider.diferencia.includes('(+)')) {
@@ -106,6 +106,9 @@ function updateStartOrderTable() {
                 diferenciaClass = 'negativa';
                 diferenciaSign = '';
                 valorLimpio = rider.diferencia.replace('-', '').trim();
+            } else if (rider.diferencia === '00:00:00') {
+                diferenciaClass = 'cero';
+                diferenciaSign = '';
             }
             
             diferenciaValue = valorLimpio;
@@ -130,7 +133,7 @@ function updateStartOrderTable() {
                     
                     // Asignar diferencia por defecto para el segundo corredor
                     diferenciaValue = '00:01:00';
-                    diferenciaSign = '';
+                    diferenciaSign = ' (+)';
                     diferenciaClass = 'positiva';
                     diferenciaHtml = `<span class="diferencia ${diferenciaClass}" data-value="${diferenciaValue}">${diferenciaValue}${diferenciaSign}</span>`;
                     

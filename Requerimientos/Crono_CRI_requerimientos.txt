@@ -283,6 +283,8 @@ La clasificacion de la carrera se calculará en base a que dorsal tiene el Tiemp
 3_1.7 En la tabla de llegadas quiero una columna con la psociín de cada corredor 
 
 3_2 En la tabla de salidas añadir campos nuevos - categoria, equipo, licencia
+3_2.2 añadir corredor campos nuevos
+3.2.3 Arreglar muestra diferencia primer corredor
 
 añadir eliminar corredor???
 revisar los tiempos de salida
