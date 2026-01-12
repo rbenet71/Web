@@ -29,6 +29,58 @@
 // → UI.js: Usa updateRaceManagementCardTitle()
 // → Salidas_1.js: Usa saveRaceData()
 // → Llegadas.js: Guarda datos en carrera
+
+/**
+ * =========================================================
+ * CRONO CRI – STORAGE & PWA
+ * =========================================================
+ * Resumen rápido de funciones (orden lógico, no de aparición)
+ *
+ * --- CARGA / GUARDADO GENERAL ---
+ * loadLanguagePreference()      → Carga idioma desde localStorage
+ * loadRacesFromStorage()        → Carga lista de carreras y carrera actual
+ * saveRacesToStorage()          → Guarda todas las carreras
+ * loadAppState()                → Restaura estado de la sesión (countdown)
+ * saveAppState()                → Guarda estado de la sesión
+ *
+ * --- DATOS DE CARRERA ---
+ * loadRaceData()                → Carga TODOS los datos de la carrera actual
+ * saveRaceData()                → Guarda TODOS los datos de la carrera actual
+ * initializeEmptyData()         → Inicializa carrera vacía
+ * clearRaceDepartures()         → Borra salidas de una carrera
+ *
+ * --- ORDEN DE SALIDA ---
+ * loadStartOrderData()          → Carga orden de salida de la carrera
+ * saveStartOrderData()          → Guarda orden de salida (legacy/global)
+ * deleteStartOrder()            → Solicita borrado del orden
+ * createDeleteOrderConfirmationModal() → Modal de confirmación
+ *
+ * --- GESTIÓN DE CARRERAS ---
+ * createNewRace()               → Crea una nueva carrera
+ * showNewRaceModal()            → Abre modal de creación
+ * resetRaceForm()               → Limpia formulario de carrera
+ * deleteCurrentRace()           → Elimina carrera completa
+ *
+ * --- PWA / SERVICE WORKER ---
+ * setupServiceWorker()          → Registra y gestiona Service Worker
+ * cleanupOldCaches()            → Limpia claves antiguas de localStorage
+ * setupPWA()                    → Maneja evento beforeinstallprompt
+ * installPWA()                  → Instala la PWA
+ * showUpdateNotification()      → Notifica actualización disponible
+ *
+ * --- SUGERENCIAS ---
+ * sendSuggestion()              → Envía sugerencias a Google Forms
+ *
+ * --- REINICIO / MODALES ---
+ * handleCompleteRestart()       → Reinicio completo de sesión
+ *
+ * =========================================================
+ * NOTAS:
+ * - startOrderData y appState.currentRace.startOrder conviven
+ * - localStorage global se mantiene solo por compatibilidad
+ * - Este archivo mezcla lógica + UI (candidato a dividir)
+ * =========================================================
+ */
 // ============================================
 
 // ============================================

@@ -1,65 +1,290 @@
-MODIFICACIONES App
-Voy a pedir unas modificacion/es de la app, y es importante que primero me pidas las funciones que necesitas ver para hacer estas modificaciones. 
-Una vez las tienes proponme que ficheros has de modificar y porque, y no añadas ninguna nueva información o funcionalidad sin que antes te de el visto bueno.
-Importante yo no se programar en Javascript, por lo que se poco sobre codigo,
-una vez te doy el visto bueno, me haces los cambios. Si la función a modificar es pequeña me pasas la función completa y me indicas a sustituir la función. Si la función es muy grande y hay varios cambios sobre ella, me la pasas también toda, pero si es un solo cambio o una parte continua, solo haré ese cambio, pero sobretodo me dices sustituir esta parte por esta otra. NUNCA me pases la función como si me la pasases completa, pero en medio del cóldigo pones mantener el codigo anterior.
-Una vez propuestos los cambios a continuación pasame completa la nueva versión del fichero MD con la estrucutra de la app.
-siempre pensar que se ha de traducir y los nombres de las variables en camelcase para no tener problemes.
-cuando se tenga que modificar una función completa no hace falta que me muestres la versión anterior, solo la nueva.
-No empieces a escribir codigo hasta que no te valide las explicaciones que me des.
+# **PROTOCOLO COMPLETO PARA MODIFICACIONES DE APPS PWA**
 
-NUEVA App
+## **CONTEXTO TÉCNICO IMPORTANTE**
+1. **Limitación de mensajes:** Superamos frecuentemente el límite de mensajes en el chat
+2. **Consecuencia directa:** Los procesos de modificación se interrumpen a mitad de camino  
+3. **Problemas resultantes:**
+   - Archivos cada vez más grandes con código no utilizado o mal aprovechado
+   - Archivos que no puedo enviarte por exceso de tamaño
 
-Quiero hacer una app PWA:
-- que pueda funcionar offline
-- que esté preparada para traducir a Castellano, CAtalan, Ingles y Frances
-- que tenga un botón de ayuda. (en fichero HTML)
-- que tenga un boton de instalarse, si no está instalado.
-- Al pie : <span id="copyright-text">2026 © Copyright</span> <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link"> Roberto Benet - rbenet71@gmail.com - V_18_12_2026</a>
+## **PROTOCOLO DE COMUNICACIÓN PRINCIPAL**
+- **Una opción a la vez:** Solo presentaré UNA propuesta/opción en cada mensaje
+- **Confirmación obligatoria:** Esperaré tu "visto bueno" explícito para cada paso
+- **Flujo secuencial:** Opción 1 → Tu respuesta → Opción 2 → Tu respuesta
+- **Preguntas con pausa:** Cuando te haga una pregunta, esperaré tu respuesta antes de continuar
 
-Como lo previsible es que se haga muy grande, deben hacer varios ficheros JS con prevision que cuando se hagan cambios sea facil hcaerlo por encontrarse en pocos ficheros. Por ejemplo un solo js para las traducciones. Lo ideal arhivos de 300 a 500 lineas.
+## **FLUJO DE TRABAJO PARA MODIFICACIONES**
 
-los nombres de los ficheros siempre llevaran el nombre de la app, por ejemplo Crono_CRI_Manifest.json (styles, ws,manifest, app,..), incluso el html que no se ha de llamar index. es para cuando se tenga que modificar saber que app es, ya que tendremos muchas. Los iconos pictos, y demas recursos estaran en una carpeta que se llame assets, el resto de arhivos estaran en el directorio raiz.
+### **FASE 1: CONFIRMACIÓN INICIAL**
+1. Me describirás la modificación solicitada
+2. Yo repetiré exactamente lo que he entendido
+3. **Esperaré tu confirmación** antes de pasar a la Fase 2
 
-Se ha de crear el fichero [nombre app]+"Estructura.md" en el que se explique como funciona toda la app que funciones tiene y todo aquello que sea necesario para hacer cambios en la app. En el se ha de indicar que siempre que se haga un cambio, recordar actualizar el fichero completo.
+### **FASE 2: SOLICITUD DE ARCHIVOS**
+1. Te pediré SOLO los archivos/funciones específicas que necesito ver
+2. **Esperaré a que me los envíes** antes de analizarlos
+3. No asumiré ni adivinaré qué código necesito
 
-Todas las opciones elegidas se han de memorizar, para que cuando vuelvas a entrar, si por ejemplo seleccionaste un arhivo vuelva a aparecer.
+### **FASE 3: ANÁLISIS Y PROPUESTA ÚNICA**
+1. Analizaré los archivos recibidos
+2. Te presentaré UNA sola propuesta de modificación:
+   - Archivo(s) a modificar
+   - Razón del cambio
+   - **Nada más** - sin opciones alternativas
+3. **Esperaré tu "visto bueno"** antes de cualquier acción
 
-La app se ha de actualizar automaticamente, por tanto que sea facil modificar la version de la app.
+### **FASE 4: EJECUCIÓN DIRIGIDA**
+Con tu aprobación, procederé según estos criterios:
 
-Opciones:
+**ESCENARIO A - Función pequeña o cambio completo:**
+- Te enviaré la NUEVA función completa
+- Instrucción: "SUSTITUIR [nombre función] por esta nueva versión"
+- **Esperaré confirmación** de que lo has implementado
 
-- mantener Pantalla Activa
-    <!-- Video oculto para mantener pantalla activa -->
-    <video id="keep-alive-video" style="display: none;" muted playsinline>
-        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
-    </video>
+**ESCENARIO B - Cambio específico/puntual:**
+- Te indicaré EXACTAMENTE: "SUSTITUIR [líneas X a Y] por [este nuevo código]"
+- El cambio será autocontenido, sin instrucciones de "mantener código anterior"
+- **Esperaré confirmación** de implementación
+
+**ESCENARIO C - Archivo muy grande:**
+- Te propondré dividir el trabajo en partes manejables
+- **Cada parte por separado** con su propia confirmación
+- Priorizaremos eliminar código no utilizado primero
+
+### **FASE 5: DOCUMENTACIÓN FINAL**
+1. Tras confirmación de cambios implementados
+2. Te enviaré la NUEVA versión completa del archivo modificado
+3. Actualizaré el fichero MD con estructura actualizada
+4. **Esperaré tu validación** final
+
+## **REGLAS TÉCNICAS OBLIGATORIAS**
+1. **CamelCase estricto** para variables/funciones
+2. **Preparado para traducción** desde el diseño
+3. **Sin código redundante** o duplicado
+4. **Eliminación proactiva** de código no utilizado
+5. **Instrucciones claras** y autocontenidas
+
+## **CONFIRMACIÓN EN CADA INTERACCIÓN**
+Después de cada propuesta o pregunta, mi mensaje incluirá:
+- "¿He entendido correctamente [resumen]?"
+- O: "¿Puedo proceder con [acción específica]?"
+- **Y esperaré tu respuesta antes de continuar**
 
 
+# **PROTOCOLO COMPLETO PARA CREACIÓN DE NUEVA APP PWA**
 
-sistema de traducciones
+## **OBJETIVO**
+Crear una aplicación PWA completa desde cero con características específicas predefinidas.
 
-// ===========================================
-// TRADUCCIONES MULTI-IDIOMA
-// ===========================================
+## **CARACTERÍSTICAS OBLIGATORIAS DE LA APP**
+
+### **1. FUNCIONALIDAD BÁSICA**
+- ✅ Funcionamiento offline completo (PWA estándar)
+- ✅ Sistema de traducción para 4 idiomas:
+  - Castellano (es)
+  - Catalán (ca)
+  - Inglés (en)
+  - Francés (fr)
+- ✅ Botón de ayuda en HTML
+- ✅ Botón de instalación (solo visible si no está instalada)
+- ✅ Pie de página con:
+  ```html
+  <span id="copyright-text">2026 © Copyright</span>
+  <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
+    Roberto Benet - rbenet71@gmail.com - V_18_12_2026
+  </a>
+  ```
+
+### **2. OPCIÓN ADICIONAL**
+- [ ] **Mantener Pantalla Activa** (opcional):
+  ```html
+  <video id="keep-alive-video" style="display: none;" muted playsinline>
+    <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+  </video>
+  ```
+
+## **RECORDATORIO: SISTEMA DE TRADUCCIONES**
+
+### **ESTRUCTURA BÁSICA:**
+```javascript
+// En [NombreApp]_Translations.js
 const translations = {
-    es: {
-        // Títulos generales
-        appTitle: "Crono CRI - en Construcción",
-        languagesLabel: "Idioma / Language",
+    es: { clave: "texto español", appTitle: "App - Construcción" },
+    ca: { clave: "texto català", appTitle: "App - Construcció" },
+    en: { clave: "text english", appTitle: "App - Under Construction" },
+    fr: { clave: "texte français", appTitle: "App - en Construction" }
+};
+```
+
+### **FUNCIONAMIENTO RESUMIDO:**
+1. **Archivo separado** solo para traducciones
+2. **Claves idénticas** en los 4 idiomas
+3. Función `updateModeContent(t)` mapea textos a elementos HTML
+4. Cada elemento HTML necesita `id` que coincida con la clave
+5. Cambio de idioma actualiza toda la interfaz
+
+**IMPORTANTE:** Incluir explicación detallada en el fichero de estructura.
+
+## **ESTRUCTURA DE ARCHIVOS**
+
+### **REGLAS DE NOMENCLATURA**
+- **Todos los archivos** llevarán prefijo: `[NombreApp]_`
+- **Ejemplos:**
+  - `Crono_CRI_Manifest.json`
+  - `Crono_CRI_Styles.css`
+  - `Crono_CRI_App.js`
+  - `Crono_CRI_Translations.js`
+  - `Crono_CRI_Main.html` (NO index.html)
+
+### **ORGANIZACIÓN DE CARPETAS**
+```
+/NombreAppDirectorio/
+├── assets/           # Iconos, imágenes, pictogramas
+├── [NombreApp]_Main.html
+├── [NombreApp]_Manifest.json
+├── [NombreApp]_Styles.css
+├── [NombreApp]_App.js
+├── [NombreApp]_Translations.js
+├── [NombreApp]_ServiceWorker.js
+├── [NombreApp]_Storage.js
+└── [NombreApp]_Estructura.md
+```
+
+### **TAMAÑO Y DIVISIÓN DE ARCHIVOS**
+- **Objetivo:** 300-500 líneas por archivo
+- **División lógica:**
+  1. `[NombreApp]_Translations.js` - Solo traducciones
+  2. `[NombreApp]_App.js` - Lógica principal
+  3. `[NombreApp]_UI.js` - Interfaz de usuario
+  4. `[NombreApp]_Storage.js` - Persistencia y almacenamiento
+  5. `[NombreApp]_ServiceWorker.js` - Funcionalidad offline
+
+## **DOCUMENTACIÓN OBLIGATORIA**
+
+### **ARCHIVO: `[NombreApp]_Estructura.md`**
+**Contenido obligatorio:**
+1. **Descripción general** de la app
+2. **Sistema de traducciones** (explicación detallada)
+3. **Lista completa** de funciones con explicación
+4. **Flujo de trabajo** de la aplicación
+5. **Estructura de datos** y almacenamiento
+6. **Instrucciones para modificar** cada parte
+7. **NOTA:** "Recordar actualizar este fichero tras cada cambio"
+
+## **CARACTERÍSTICAS TÉCNICAS**
+
+### **PERSISTENCIA**
+- Todas las opciones/configuraciones se guardarán automáticamente
+- Al reabrir la app, restaurará el último estado
+- Usar `localStorage` o `IndexedDB` según complejidad
+
+### **ACTUALIZACIÓN DE VERSIÓN**
+- Sistema sencillo para modificar versión (un solo lugar de cambio)
+- Auto-actualización mediante Service Worker
+- Versión visible en interfaz (pie de página)
+
+### **ESTÁNDARES DE CÓDIGO**
+- **camelCase** para todas las variables/funciones
+- **Comentarios** en partes complejas
+- **Preparado para traducción** desde el diseño
+- **Manejo de errores** básico
+
+## **PROCESO DE CREACIÓN**
+
+### **PASO 1: DEFINICIÓN INICIAL**
+1. Confirmar nombre de la app
+2. Confirmar funcionalidad principal
+3. Confirmar si incluir "Mantener Pantalla Activa"
+4. **Esperar visto bueno** antes de continuar
+
+### **PASO 2: ESTRUCTURA BÁSICA**
+1. Crear archivos principales con prefijo
+2. Configurar manifest.json básico
+3. Configurar Service Worker mínimo
+4. **Esperar confirmación** antes de añadir lógica
+
+### **PASO 3: IMPLEMENTACIÓN POR MÓDULOS**
+1. Sistema de traducciones (primer módulo)
+2. Interfaz HTML básica
+3. Lógica principal de app
+4. **Cada módulo por separado** con confirmación
+
+### **PASO 4: PRUEBAS Y AJUSTES**
+1. Probar funcionamiento offline
+2. Verificar traducciones
+3. Probar persistencia
+4. **Validación final** antes de documentación
+
+### **PASO 5: DOCUMENTACIÓN**
+1. Crear `[NombreApp]_Estructura.md` con explicación de traducciones
+2. Revisar completitud
+3. **Última validación** antes de entrega
+
+**************************
+ACTUALIZAR ESTRUCTURA APP
+**************************
+
+**Objetivo:** Actualizar completamente el fichero MD para que refleje toda la información necesaria para modificar la app.
+
+**Contenido requerido en MD:**
+- Funciones existentes y su propósito (resumen breve)
+- Variables globales importantes
+- Flujos de la aplicación
+- Campos de tablas
+- Sistema de traducciones (funcionamiento)
+- Cualquier información relevante para modificaciones
+- Aprendizajes
+
+**Proceso de actualización:**
+1. Me pasarás los archivos uno por uno
+2. Actualizaré el MD con la información de cada archivo
+3. Después me volverás a pasar los archivos por si hay modificaciones cruzadas
+4. Yo mismo identificaré y marcaré los elementos clave dentro del MD
+
+**Resultado final:** Un fichero MD conciso que me permita realizar modificaciones con seguridad, sabiendo qué funciones se ven afectadas.
 
 
-    ca: en: fr: 
+****
+# **MEJORAS MD POR FUSION DE ARCHIVOS**
+***
+
+**Situación:** Dos archivos MD que deben fusionarse en uno solo.
+
+**Problema:** Uno contiene aprendizajes no incorporados aún.
+
+**Objetivo:** Crear un único MD que refleje la información de ambos archivos.
+
+**Contenido requerido en MD fusionado:**
+- Funciones y su propósito (breve)
+- Variables globales importantes
+- Flujos de la aplicación
+- Campos de tablas
+- Sistema de traducciones
+- Información relevante para modificaciones
+- **Aprendizajes** (incluyendo los no incorporados)
+
+**Proceso:**
+1. Me pasarás ambos archivos
+2. Fusionaré la información en uno solo
+3. Mantendré los aprendizajes (incluso no incorporados) como sección separada
+4. Crearé un MD unificado y actualizado
 
 
-function updateModeContent(t) {
-    // Selector de modo
-    setTextIfExists('mode-selector-title', t.modeSelectorTitle);
-    setTextIfExists('mode-salida-text', t.modeSalidaText);
-    setTextIfExists('mode-llegadas-text', t.modeLlegadasText);
-    
-    // Contenido salidas
-    setTextIfExists('audio-config-title', t.audioConfigTitle);
-    setTextIfExists('beep-option-title', t.beepOptionTitle);
-    setTextIfExists('voice-option-title', t.voiceOptionTitle);
-    setTextIfExists('mute-option-title', t.muteOptionTitle);
+*************
+MEJORAR TEXTOS
+**************
+
+Estoy desarrollando una serie de aplicaciones PWA contigo. No programo en JavaScript, pero sí en otros lenguajes. Te utilizo como asistente para construir estas apps.
+
+Para optimizar nuestro flujo de trabajo, he preparado mensajes estructurados que te enviaré antes de cada acción importante. Estos mensajes clarificarán el contexto y los objetivos cuando:
+
+Iniciemos un nuevo programa
+
+Realicemos modificaciones en código existente
+
+Actualicemos archivos que contienen la estructura del proyecto
+
+He documentado problemas recurrentes que hemos enfrentado para evitar que se repitan. Además, enfrentamos un desafío técnico: frecuentemente superamos el límite de mensajes en el chat, lo que interrumpe procesos de modificación a mitad de camino. Esto ha resultado en archivos cada vez más grandes que contienen código no utilizado.
+
+Es importante que sean lo mas concreto posible, para que no sean muy largos, son textos para ti, por tanto no necesitan "florituras"
+En este momento, necesito que revises y mejores este texto que usaré como plantilla para nuestras comunicaciones futuras:

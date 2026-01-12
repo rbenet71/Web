@@ -27,6 +27,79 @@
 // → Main.js: Inicialización principal
 // → Storage_Pwa.js: Usa updateRaceManagementCardTitle()
 // → Todos los módulos: Proporciona componentes UI
+
+/**
+ * =========================================================
+ * CRONO CRI – UI (INTERFAZ DE USUARIO)
+ * =========================================================
+ * Resumen rápido de funciones (agrupadas por responsabilidad)
+ *
+ * --- TARJETAS / LAYOUT ---
+ * setupCardToggles()            → Inicializa tarjetas expandibles
+ * toggleAllCards()              → Expandir / colapsar todas
+ * saveCardState()               → Guarda estado de tarjeta
+ * loadCardStates()              → Restaura estado de tarjetas
+ *
+ * --- TÍTULOS DINÁMICOS ---
+ * updateCardTitles()            → Actualiza todos los títulos
+ * updateModeSelectorCardTitle() → Título del modo activo
+ * updateStartOrderCardTitle()   → Título orden de salida
+ * onRaceChanged()               → Hook cambio de carrera
+ * onModeChanged()               → Hook cambio de modo
+ * onTimesChanged()              → Hook cambio de tiempos
+ *
+ * --- SELECTOR DE MODO ---
+ * initModeSlider()              → Inicializa slider Salidas/Llegadas
+ * changeMode()                  → Cambia modo programáticamente
+ * debugModeState()              → Depuración del estado del modo
+ *
+ * --- REDIMENSIONAMIENTO ---
+ * adjustCountdownSize()         → Tamaño responsive del countdown
+ * adjustInfoCornersSize()       → Tamaño de info corners
+ * setupCountdownResize()        → Listeners resize/orientation
+ *
+ * --- SALIDAS / TIEMPOS ---
+ * resetearEstadoSalidas()       → Reseteo manual de salidas
+ * resetearCamposRealesAutomatico() → Reseteo automático
+ * resetearCamposRealesEnCorredores() → Limpieza de corredores
+ * obtenerStartOrderDataParaUI() → Fuente unificada de startOrder
+ * updateTimeDifference()        → Diferencia de tiempo
+ * updateCurrentTime()           → Hora actual
+ * updateTotalTime()             → Tiempo total de carrera
+ *
+ * --- MENSAJES / NOTIFICACIONES ---
+ * showMessage()                 → Mensajes temporales UI
+ *
+ * --- MODALES (VISUAL) ---
+ * setupModalEventListeners()    → Cierre automático de modales
+ * debugModalButtons()           → Depuración de botones
+ *
+ * --- MODALES (ACCIONES) ---
+ * setupModalActionListeners()   → Acciones de botones de modales
+ *
+ * --- IDIOMA ---
+ * setupLanguageButtons()        → Configura botones de idioma
+ * handleLanguageChange()        → Cambio de idioma
+ * updateActiveLanguageFlag()    → Marca idioma activo
+ * showHelpModal()               → Modal de ayuda
+ *
+ * --- CARRERAS ---
+ * updateRaceActionButtonsState() → Habilita/deshabilita botones
+ * setupRacesSelectListener()     → Listener selector carreras
+ * handleRacesSelectChange()      → Cambio de carrera
+ *
+ * --- DEPURACIÓN / PROTECCIÓN ---
+ * checkDuplicateImportListeners() → Detecta listeners duplicados
+ * setupSingleImportListener()     → Listener único importación
+ * initializeAllTimeDisplays()     → Inicializa relojes estáticos
+ *
+ * =========================================================
+ * NOTAS:
+ * - Archivo UI “god-file”: mezcla layout, estado y acciones
+ * - startOrderData tiene múltiples fuentes (legacy)
+ * - Muchos bloques son defensivos por bugs históricos
+ * =========================================================
+ */
 // ============================================
 
 // ============================================

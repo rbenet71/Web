@@ -34,7 +34,40 @@
 // 5. Inicialización de módulos especializados
 // 6. Configuración PWA y timers
 // ============================================
-
+/**
+ * =========================================================
+ * CRONO CRI – MAIN (Bootstrap / Orquestador)
+ * =========================================================
+ * Punto de entrada y coordinación global de la aplicación.
+ *
+ * --- ESTADO GLOBAL ---
+ * appState                → Estado principal de la app
+ * llegadasState           → Estado del modo llegadas
+ * sortState               → Estado de ordenación tablas
+ * startOrderData          → Datos del orden de salida
+ *
+ * --- INICIALIZACIÓN ---
+ * initApp()               → Inicialización completa y ordenada
+ *
+ * --- EVENTOS GLOBALES ---
+ * setupEventListeners()   → Listeners generales UI + teclado
+ * setupStartOrderEventListeners() → Listeners orden de salida
+ *
+ * --- CAMBIO DE CONTEXTO ---
+ * handleRaceChange()      → Cambio de carrera activa
+ *
+ * --- UTILIDADES ---
+ * openSuggestionsEmail()  → Envío de sugerencias por email
+ * handleKeyboardShortcuts() → Atajos de teclado adicionales
+ *
+ * =========================================================
+ * NOTAS:
+ * - Archivo actúa como "God Bootstrap"
+ * - Mezcla estado, UI, lógica y timers
+ * - Existen duplicaciones de estado global
+ * - Hay listeners y timers fuera de initApp()
+ * =========================================================
+ */
 // ============================================
 // PUNTO DE ENTRADA Y CONFIGURACIÓN GLOBAL
 // ============================================
