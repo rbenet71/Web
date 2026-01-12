@@ -71,6 +71,11 @@ Después de cada propuesta o pregunta, mi mensaje incluirá:
 - **Y esperaré tu respuesta antes de continuar**
 
 
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+
 # **PROTOCOLO COMPLETO PARA CREACIÓN DE NUEVA APP PWA**
 
 ## **OBJETIVO**

@@ -614,36 +614,48 @@ function showRiderPositionModal() {
                     <div class="form-section">
                         <h4><i class="fas fa-user"></i> ${t.riderData || 'Datos del Corredor'}</h4>
                         <div class="form-row">
-                            <div class="half-width">
-                                <div class="form-group">
-                                    <label for="rider-dorsal"><i class="fas fa-hashtag"></i> ${t.dorsal || 'Dorsal'}:</label>
-                                    <input type="number" id="rider-dorsal" class="form-control" 
-                                           min="1" value="${findNextAvailableDorsal()}">
-                                </div>
+                            <div class="form-group half-width">
+                                <label for="rider-dorsal"><i class="fas fa-hashtag"></i> ${t.dorsal || 'Dorsal'}:</label>
+                                <input type="number" id="rider-dorsal" class="form-control" 
+                                       min="1" value="${findNextAvailableDorsal()}">
                             </div>
-                            <div class="half-width">
-                                <div class="form-group">
-                                    <label for="rider-name"><i class="fas fa-user"></i> ${t.name || 'Nombre'}:</label>
-                                    <input type="text" id="rider-name" class="form-control" 
-                                           placeholder="${t.name || 'Nombre'}">
-                                </div>
+                            <div class="form-group half-width">
+                                <label for="rider-name"><i class="fas fa-user"></i> ${t.name || 'Nombre'}:</label>
+                                <input type="text" id="rider-name" class="form-control" 
+                                       placeholder="${t.name || 'Nombre'}">
                             </div>
                         </div>
                         <div class="form-row">
-                            <div class="half-width">
-                                <div class="form-group">
-                                    <label for="rider-surname"><i class="fas fa-users"></i> ${t.surname || 'Apellidos'}:</label>
-                                    <input type="text" id="rider-surname" class="form-control" 
-                                           placeholder="${t.surname || 'Apellidos'}">
-                                </div>
+                            <div class="form-group half-width">
+                                <label for="rider-surname"><i class="fas fa-users"></i> ${t.surname || 'Apellidos'}:</label>
+                                <input type="text" id="rider-surname" class="form-control" 
+                                       placeholder="${t.surname || 'Apellidos'}">
                             </div>
-                            <div class="half-width">
-                                <div class="form-group">
-                                    <label for="rider-chip"><i class="fas fa-microchip"></i> ${t.chip || 'Chip'}:</label>
-                                    <input type="text" id="rider-chip" class="form-control" 
-                                           placeholder="${t.chip || 'Código del chip'}">
-                                </div>
+                            <div class="form-group half-width">
+                                <label for="rider-chip"><i class="fas fa-microchip"></i> ${t.chip || 'Chip'}:</label>
+                                <input type="text" id="rider-chip" class="form-control" 
+                                       placeholder="${t.chip || 'Código del chip'}">
                             </div>
+                        </div>
+                        
+                        <!-- NUEVOS CAMPOS: categoria, equipo, licencia (MISMA ESTRUCTURA) -->
+                        <div class="form-row">
+                            <div class="form-group half-width">
+                                <label for="rider-categoria"><i class="fas fa-tag"></i> ${t.category || 'Categoría'}:</label>
+                                <input type="text" id="rider-categoria" class="form-control" 
+                                       placeholder="${t.category || 'Categoría'}">
+                            </div>
+                            <div class="form-group half-width">
+                                <label for="rider-equipo"><i class="fas fa-users"></i> ${t.team || 'Equipo'}:</label>
+                                <input type="text" id="rider-equipo" class="form-control" 
+                                       placeholder="${t.team || 'Equipo'}">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="rider-licencia"><i class="fas fa-id-card"></i> ${t.license || 'Licencia'}:</label>
+                            <input type="text" id="rider-licencia" class="form-control" 
+                                   placeholder="${t.license || 'Número de licencia'}">
                         </div>
                     </div>
                     
@@ -679,6 +691,18 @@ function showRiderPositionModal() {
                                 <div class="preview-item">
                                     <strong>${t.surname || 'Apellidos'}</strong>
                                     <div id="preview-surname" class="preview-value">--</div>
+                                </div>
+                                <div class="preview-item">
+                                    <strong>${t.category || 'Categoría'}</strong>
+                                    <div id="preview-categoria" class="preview-value">--</div>
+                                </div>
+                                <div class="preview-item">
+                                    <strong>${t.team || 'Equipo'}</strong>
+                                    <div id="preview-equipo" class="preview-value">--</div>
+                                </div>
+                                <div class="preview-item">
+                                    <strong>${t.license || 'Licencia'}</strong>
+                                    <div id="preview-licencia" class="preview-value">--</div>
                                 </div>
                                 <div class="preview-item">
                                     <strong>${t.chip || 'Chip'}</strong>
@@ -1233,7 +1257,24 @@ function createNewRiderAtPosition(position, riderData = {}) {
         console.log(`Primer corredor de la tabla. Hora: ${horaSalida}`);
     }
     
-    // Crear nuevo corredor
+    // 🔥 OBTENER DATOS DE LOS CAMPOS DEL MODAL SI NO VIENEN EN riderData
+    // (Esto asegura que cuando se llame desde el modal, se capturen los nuevos campos)
+    let categoria = riderData.categoria || '';
+    let equipo = riderData.equipo || '';
+    let licencia = riderData.licencia || '';
+    
+    // Si los campos están vacíos, intentar obtenerlos de los inputs del modal
+    if (!categoria && document.getElementById('rider-categoria')) {
+        categoria = document.getElementById('rider-categoria').value.trim();
+    }
+    if (!equipo && document.getElementById('rider-equipo')) {
+        equipo = document.getElementById('rider-equipo').value.trim();
+    }
+    if (!licencia && document.getElementById('rider-licencia')) {
+        licencia = document.getElementById('rider-licencia').value.trim();
+    }
+    
+    // Crear nuevo corredor (CON CAMPOS COMPLETOS)
     const nuevoCorredor = {
         order: position,
         dorsal: riderData.dorsal || position,
@@ -1243,9 +1284,12 @@ function createNewRiderAtPosition(position, riderData = {}) {
         horaSalida: horaSalida,
         diferencia: diferencia,
         
-        // Datos personales
+        // Datos personales (INCLUYENDO NUEVOS CAMPOS)
         nombre: riderData.nombre || '',
         apellidos: riderData.apellidos || '',
+        categoria: categoria,              // ← NUEVO
+        equipo: equipo,                    // ← NUEVO
+        licencia: licencia,                // ← NUEVO
         chip: riderData.chip || '',
         
         // Campos reales - VACÍOS
@@ -1274,6 +1318,9 @@ function createNewRiderAtPosition(position, riderData = {}) {
         horaSalida: nuevoCorredor.horaSalida,
         cronoSalida: nuevoCorredor.cronoSalida,
         diferencia: nuevoCorredor.diferencia,
+        categoria: nuevoCorredor.categoria,
+        equipo: nuevoCorredor.equipo,
+        licencia: nuevoCorredor.licencia,
         horaSalidaImportado: nuevoCorredor.horaSalidaImportado,
         cronoSalidaImportado: nuevoCorredor.cronoSalidaImportado
     });

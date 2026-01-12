@@ -648,7 +648,7 @@ function handleTableClick(event) {
     const field = cell.getAttribute('data-field');
     console.log("Campo de la celda:", field);
     
-    const allowedFields = ['dorsal', 'nombre', 'apellidos', 'chip'];
+    const allowedFields = ['dorsal', 'nombre', 'apellidos', 'categoria', 'equipo', 'licencia', 'chip'];
     
     // Solo permitir edición de campos específicos (excluyendo diferencia que ya manejamos)
     if (!allowedFields.includes(field)) {
