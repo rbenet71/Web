@@ -906,7 +906,7 @@ function setupLlegadasEventListeners() {
     
     if (clearBtn) clearBtn.addEventListener('click', clearLlegadas);
     if (exportBtn) exportBtn.addEventListener('click', exportLlegadasToExcel);
-    if (rankingBtn) rankingBtn.addEventListener('click', showRankingModal);
+    if (rankingBtn) rankingBtn.addEventListener('click', showExternalScreen);
     if (exportPdfDirectBtn) {
         exportPdfDirectBtn.addEventListener('click', exportRankingToPDF);
         console.log("✅ Listener añadido para exportRankingPdfDirectBtn");
@@ -1582,24 +1582,23 @@ function setupRankingModalButtons() {
 }
 
 // ============================================
-// SISTEMA DE PANTALLA EXTERNA - TODO EN LLEGADAS.JS
+// SISTEMA DE PANTALLA EXTERNA - VERSIÓN LIMPIA
 // ============================================
 
-let externalScreenInterval = null;
-let externalScreenActive = false;
+// Variables globales
+let externalScreenCloseDetector = null;
 
-// 1. DETECTAR PANTALLAS EXTERNAS
+// 1. DETECTAR PANTALLAS EXTERNAS (MANTENER)
 function hasExternalScreens() {
     console.log("🔍 Iniciando detección de pantallas...");
     
-    // MÉTODO 1: API MODERNA (Chrome 100+, Edge 100+)
     if ('getScreenDetails' in window) {
         console.log("✅ API getScreenDetails disponible");
         return new Promise((resolve) => {
             window.getScreenDetails()
                 .then(screenDetails => {
                     const numScreens = screenDetails.screens.length;
-                    console.log(`📊 Pantallas detectadas (getScreenDetails): ${numScreens}`);
+                    console.log(`📊 Pantallas detectadas: ${numScreens}`);
                     resolve(numScreens > 1);
                 })
                 .catch(error => {
@@ -1609,39 +1608,22 @@ function hasExternalScreens() {
         });
     }
     
-    // MÉTODO 2: DETECCIÓN POR ANCHO (para navegadores antiguos)
     return checkFallbackMethods();
 }
 
-// Función auxiliar para métodos alternativos
 function checkFallbackMethods() {
     console.log("🔄 Usando métodos alternativos...");
     
-    // A. Detectar por tamaño de pantalla (si el ancho es > 2500px, probablemente sean 2 pantallas)
     const isVeryWide = window.screen.width > 2500;
-    console.log(`- Ancho de pantalla: ${window.screen.width}px, Muy ancho (>2500): ${isVeryWide}`);
-    
-    // B. Detectar por disponibilidad (algunos navegadores)
     const isExtended = window.screen.isExtended || false;
+    
+    console.log(`- Ancho: ${window.screen.width}px, Muy ancho: ${isVeryWide}`);
     console.log(`- screen.isExtended: ${isExtended}`);
     
-    // C. Detectar por matchMedia
-    let mediaMatchResult = false;
-    try {
-        mediaMatchResult = window.matchMedia('(min-width: 2000px)').matches;
-        console.log(`- matchMedia (>2000px): ${mediaMatchResult}`);
-    } catch (e) {
-        console.log("❌ Error en matchMedia");
-    }
-    
-    // RESULTADO FINAL: Cualquiera de estos métodos puede indicar pantallas múltiples
-    const result = isVeryWide || isExtended || mediaMatchResult;
-    console.log(`📋 Resultado detección: ${result}`);
-    
-    return result;
+    return isVeryWide || isExtended;
 }
 
-// 2. ACTUALIZAR VISIBILIDAD DEL BOTÓN
+// 2. ACTUALIZAR VISIBILIDAD DEL BOTÓN (SIMPLIFICADA)
 function updateExternalScreenButton() {
     const btn = document.getElementById('external-screen-btn');
     if (!btn) {
@@ -1649,43 +1631,20 @@ function updateExternalScreenButton() {
         return;
     }
     
-    console.log("🔄 Actualizando botón pantalla externa...");
-    
-    // La nueva función puede devolver una Promesa
     const detectionResult = hasExternalScreens();
     
     if (detectionResult instanceof Promise) {
-        // Es una promesa (API moderna)
         detectionResult.then(hasExternal => {
-            console.log(`✅ Resultado promesa: ${hasExternal}`);
             btn.style.display = hasExternal ? 'inline-flex' : 'none';
-            
-            // Forzar visibilidad para testing si es necesario
-            if (!hasExternal) {
-                console.log("⚠️ No detectado, pero forzando para testing...");
-                btn.style.display = 'inline-flex'; // <-- CAMBIA ESTO TEMPORALMENTE
-            }
-        }).catch(error => {
-            console.error("❌ Error en detección:", error);
+        }).catch(() => {
             btn.style.display = 'none';
         });
     } else {
-        // Es un booleano (métodos antiguos)
-        console.log(`✅ Resultado booleano: ${detectionResult}`);
         btn.style.display = detectionResult ? 'inline-flex' : 'none';
-        
-        // Forzar visibilidad para testing si es necesario
-        if (!detectionResult) {
-            console.log("⚠️ No detectado, pero forzando para testing...");
-            btn.style.display = 'inline-flex'; // <-- CAMBIA ESTO TEMPORALMENTE
-        }
     }
 }
 
-// REEMPLAZA la función showExternalScreen() con ESTO:
-
-let externalWindow = null;
-
+// 3. FUNCIÓN PRINCIPAL - TOGGLE PANTALLA EXTERNA (VERSIÓN CORREGIDA)
 function showExternalScreen() {
     console.log("🖥️ Gestionando pantalla externa...");
     
@@ -1694,20 +1653,52 @@ function showExternalScreen() {
         console.log("✅ Pantalla externa ya activa, cerrando...");
         window.externalScreenWindow.close();
         window.externalScreenWindow = null;
+        updateExternalScreenButtonText(false);
         showMessage("Pantalla externa cerrada", 'info');
         return;
     }
     
-    // 2. SI NO EXISTE → CREAR NUEVA
+    // 2. CREAR NUEVA VENTANA
     try {
-        // Calcular posición para segunda pantalla (a la derecha de la principal)
-        const primaryScreenWidth = window.screen.width;
-        const secondaryScreenLeft = primaryScreenWidth + 100;
+        // ESTRATEGIA AGRESIVA PARA SEGUNDA PANTALLA
+        let windowLeft, windowTop;
+        const screenWidth = window.screen.width;
+        const screenAvailWidth = window.screen.availWidth;
+        
+        console.log(`📊 Detectando pantallas: Ancho total=${screenWidth}px, Disponible=${screenAvailWidth}px`);
+        
+        // PROBAR DIFERENTES ESTRATEGIAS
+        if (screenWidth > 3000) {
+            // Posiblemente 2 pantallas 1920px
+            windowLeft = 1920 + 100;
+            windowTop = 100;
+            console.log("📍 Estrategia 1: 2 pantallas 1920px (posición 2020,100)");
+        } else if (screenAvailWidth > 2500) {
+            // Mucho ancho disponible
+            windowLeft = screenAvailWidth - 1300;
+            windowTop = 100;
+            console.log(`📍 Estrategia 2: Ancho disponible grande (posición ${windowLeft},100)`);
+        } else if (screenWidth > 1920 && screenWidth <= 2560) {
+            // Pantalla ancha única
+            windowLeft = Math.floor(screenWidth * 0.6);
+            windowTop = 100;
+            console.log(`📍 Estrategia 3: Pantalla ancha (posición ${windowLeft},100)`);
+        } else {
+            // Por defecto, intentar fuera de la pantalla principal
+            windowLeft = Math.max(100, screenAvailWidth + 100);
+            windowTop = 100;
+            console.log(`📍 Estrategia 4: Fuera de pantalla (posición ${windowLeft},100)`);
+        }
+        
+        // Si la posición parece incorrecta, probar valores comunes
+        if (windowLeft < 100 || windowLeft > 5000) {
+            windowLeft = 2020; // Valor por defecto para segunda pantalla
+            windowTop = 100;
+            console.log("📍 Estrategia 5: Usando posición por defecto (2020,100)");
+        }
         
         const windowWidth = 1200;
         const windowHeight = 800;
-        const windowLeft = secondaryScreenLeft + 100;
-        const windowTop = 100;
         
         const windowFeatures = `
             width=${windowWidth},
@@ -1722,323 +1713,270 @@ function showExternalScreen() {
             scrollbars=yes
         `.replace(/\s+/g, '');
         
-        console.log(`📍 Abriendo ventana en: left=${windowLeft}, top=${windowTop}`);
+        console.log(`📍 Abriendo ventana: ${windowWidth}x${windowHeight} en (${windowLeft},${windowTop})`);
         
-        // Contenido HTML MEJORADO (SIN BOTÓN FEO DE CERRAR)
-        const content = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Crono CRI - Pantalla Externa</title>
-            <style>
-                * { margin: 0; padding: 0; box-sizing: border-box; }
-                body { 
-                    font-family: 'Segoe UI', Arial, sans-serif; 
-                    background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
-                    color: white;
-                    height: 100vh;
-                    overflow: hidden;
-                }
-                
-                .header { 
-                    background: linear-gradient(135deg, #1a237e, #0d47a1);
-                    padding: 30px 25px;
-                    text-align: center;
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-                }
-                
-                .header h1 { 
-                    font-size: 2.8em; 
-                    margin: 0 0 10px 0; 
-                    color: white;
-                    text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
-                    letter-spacing: 1px;
-                }
-                
-                .subtitle {
-                    font-size: 1.3em;
-                    opacity: 0.9;
-                }
-                
-                .content {
-                    height: calc(100vh - 160px);
-                    overflow-y: auto;
-                    padding: 20px;
-                }
-                
-                .table-container {
-                    max-width: 95%;
-                    margin: 0 auto;
-                    background: white;
-                    border-radius: 12px;
-                    overflow: hidden;
-                    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-                }
-                
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    font-size: 1.5em;
-                }
-                
-                th {
-                    background: linear-gradient(135deg, #2c3e50, #34495e);
-                    color: white;
-                    padding: 25px 15px;
-                    text-align: center;
-                    font-weight: bold;
-                    font-size: 1.1em;
-                    position: sticky;
-                    top: 0;
-                    z-index: 10;
-                }
-                
-                td {
-                    padding: 20px 15px;
-                    text-align: center;
-                    border-bottom: 1px solid #eee;
-                    color: #333;
-                }
-                
-                tr:nth-child(even) { background: #f8f9fa; }
-                tr:hover { background: #e9ecef; }
-                
-                .gold { 
-                    background: linear-gradient(135deg, #ffd700, #ffecb3) !important; 
-                    font-weight: bold;
-                    color: #333;
-                }
-                
-                .silver { 
-                    background: linear-gradient(135deg, #c0c0c0, #e0e0e0) !important; 
-                    color: #333;
-                }
-                
-                .bronze { 
-                    background: linear-gradient(135deg, #cd7f32, #e0b880) !important; 
-                    color: #333;
-                }
-                
-                .time-cell {
-                    font-family: 'Courier New', monospace;
-                    font-weight: bold;
-                    font-size: 1.1em;
-                }
-                
-                .status-bar {
-                    position: fixed;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
-                    background: rgba(21, 101, 192, 0.95);
-                    color: white;
-                    padding: 12px 20px;
-                    text-align: center;
-                    font-size: 1em;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    backdrop-filter: blur(10px);
-                }
-                
-                .loading {
-                    text-align: center;
-                    padding: 60px;
-                    font-size: 1.8em;
-                    color: #666;
-                }
-                
-                /* Indicador sutil de que está en pantalla externa */
-                .external-indicator {
-                    position: absolute;
-                    top: 15px;
-                    right: 20px;
-                    font-size: 0.9em;
-                    opacity: 0.7;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h1>🏁 CLASIFICACIÓN EN DIRECTO</h1>
-                <div class="subtitle" id="race-title">Crono CRI - Modo Llegadas</div>
-                <div class="external-indicator">🖥️ Pantalla Externa</div>
-            </div>
-            
-            <div class="content">
-                <div class="table-container">
-                    <table id="ranking-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 100px;">POS</th>
-                                <th style="width: 120px;">DORSAL</th>
-                                <th>NOMBRE</th>
-                                <th style="width: 200px;">TIEMPO FINAL</th>
-                                <th style="width: 200px;">DIFERENCIA</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-body">
-                            <tr>
-                                <td colspan="5" class="loading">🕒 Cargando clasificación...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <div class="status-bar">
-                <span id="update-time">Esperando datos...</span>
-                <span id="participant-count" style="font-weight: bold;">0 participantes</span>
-                <span id="auto-update" style="color: #4caf50;">🔄 Actualización automática</span>
-            </div>
-            
-            <script>
-                // Variables
-                let lastUpdate = null;
-                
-                // Formatear tiempo
-                function formatTime(seconds) {
-                    if (!seconds && seconds !== 0) return '00:00:00.000';
-                    const hours = Math.floor(seconds / 3600);
-                    const minutes = Math.floor((seconds % 3600) / 60);
-                    const secs = Math.floor(seconds % 60);
-                    const ms = Math.round((seconds - Math.floor(seconds)) * 1000);
-                    return \`\${hours.toString().padStart(2, '0')}:\${minutes.toString().padStart(2, '0')}:\${secs.toString().padStart(2, '0')}.\${ms.toString().padStart(3, '0')}\`;
-                }
-                
-                // Actualizar contenido
-                function updateContent(data) {
-                    if (!data || !data.llegadas) return;
-                    
-                    try {
-                        // Filtrar y ordenar llegadas
-                        const llegadasConTiempo = data.llegadas
-                            .filter(l => l.dorsal && l.tiempoFinalWithMs && l.tiempoFinalWithMs > 0)
-                            .sort((a, b) => a.tiempoFinalWithMs - b.tiempoFinalWithMs);
-                        
-                        const tbody = document.getElementById('table-body');
-                        let html = '';
-                        let mejorTiempo = null;
-                        
-                        // Generar filas
-                        llegadasConTiempo.forEach((llegada, index) => {
-                            // Calcular diferencia
-                            let diferencia = '0.000';
-                            if (mejorTiempo === null) {
-                                mejorTiempo = llegada.tiempoFinalWithMs;
-                            } else {
-                                const diffSegundos = llegada.tiempoFinalWithMs - mejorTiempo;
-                                diferencia = formatTime(diffSegundos);
-                            }
-                            
-                            // Clase para podio
-                            let rowClass = '';
-                            if (index === 0) rowClass = 'gold';
-                            else if (index === 1) rowClass = 'silver';
-                            else if (index === 2) rowClass = 'bronze';
-                            
-                            const nombreCompleto = \`\${llegada.nombre || ''} \${llegada.apellidos || ''}\`.trim();
-                            
-                            html += \`
-                            <tr class="\${rowClass}">
-                                <td style="font-weight: \${index < 3 ? 'bold' : 'normal'}; font-size: 1.3em">
-                                    \${index + 1}
-                                </td>
-                                <td style="font-weight: bold; font-size: 1.4em">
-                                    \${llegada.dorsal}
-                                </td>
-                                <td style="text-align: left; padding-left: 30px; font-size: 1.2em">
-                                    \${nombreCompleto || '---'}
-                                </td>
-                                <td class="time-cell">
-                                    \${formatTime(llegada.tiempoFinalWithMs)}
-                                </td>
-                                <td class="time-cell" style="color: \${index === 0 ? '#2e7d32' : '#d32f2f'}">
-                                    \${index === 0 ? '---' : \`+\${diferencia}\`}
-                                </td>
-                            </tr>
-                            \`;
-                        });
-                        
-                        // Si no hay datos
-                        if (llegadasConTiempo.length === 0) {
-                            html = \`
-                            <tr>
-                                <td colspan="5" style="padding: 60px; text-align: center; color: #666; font-size: 1.8em">
-                                    🕒 Esperando llegadas...
-                                </td>
-                            </tr>
-                            \`;
-                        }
-                        
-                        tbody.innerHTML = html;
-                        
-                        // Actualizar información
-                        document.getElementById('update-time').textContent = 
-                            \`Última actualización: \${new Date().toLocaleTimeString()}\`;
-                        document.getElementById('participant-count').textContent = 
-                            \`\${llegadasConTiempo.length} participantes\`;
-                        
-                        // Actualizar título si hay datos de carrera
-                        if (data.raceName) {
-                            document.getElementById('race-title').textContent = data.raceName;
-                        }
-                        
-                        lastUpdate = Date.now();
-                        
-                    } catch (error) {
-                        console.error('Error actualizando:', error);
-                    }
-                }
-                
-                // Solicitar datos
-                function requestData() {
-                    if (window.opener && !window.opener.closed) {
-                        window.opener.postMessage({ 
-                            type: 'requestExternalScreenData' 
-                        }, '*');
-                    }
-                }
-                
-                // Escuchar mensajes del padre
-                window.addEventListener('message', function(event) {
-                    if (event.data.type === 'updateExternalScreenData') {
-                        updateContent(event.data);
-                    }
-                });
-                
-                // Inicializar
-                window.addEventListener('load', function() {
-                    requestData();
-                    
-                    // Auto-refrescar cada 2 segundos
-                    setInterval(requestData, 2000);
-                });
-                
-                // Cerrar automáticamente si la ventana principal se cierra
-                window.addEventListener('beforeunload', function() {
-                    // No hacer nada - dejar que el padre maneje el cierre
-                });
-                
-                // Intentar pantalla completa (opcional, descomenta si quieres)
-                /*
-                setTimeout(() => {
-                    if (document.documentElement.requestFullscreen) {
-                        document.documentElement.requestFullscreen().catch(e => {
-                            console.log('Pantalla completa no disponible:', e);
-                        });
-                    }
-                }, 1000);
-                */
-                
-            </script>
-        </body>
-        </html>
-        `;
+        // HTML COMPLETO CON DISEÑO MODERNO
+        const content = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crono CRI - Pantalla Externa</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+        }
         
-        // Abrir la ventana
+        .header { 
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
+            padding: 30px 25px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        
+        .header h1 { 
+            font-size: 2.8em; 
+            margin: 0 0 10px 0; 
+            color: white;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.9;
+        }
+        
+        .external-indicator {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+        
+        .content {
+            height: calc(100vh - 160px);
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .table-container {
+            max-width: 95%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 1.5em;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 25px 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        td {
+            padding: 20px 15px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+        
+        tr:nth-child(even) { background: #f8f9fa; }
+        tr:hover { background: #e9ecef; }
+        
+        .gold { 
+            background: linear-gradient(135deg, #ffd700, #ffecb3) !important; 
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .silver { 
+            background: linear-gradient(135deg, #c0c0c0, #e0e0e0) !important; 
+            color: #333;
+        }
+        
+        .bronze { 
+            background: linear-gradient(135deg, #cd7f32, #e0b880) !important; 
+            color: #333;
+        }
+        
+        .time-cell {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(21, 101, 192, 0.95);
+            color: white;
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.8em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏁 CLASIFICACIÓN EN DIRECTO</h1>
+        <div class="subtitle" id="race-title">Crono CRI - Modo Llegadas</div>
+        <div class="external-indicator">🖥️ Pantalla Externa</div>
+    </div>
+    
+    <div class="content">
+        <div class="table-container">
+            <table id="ranking-table">
+                <thead>
+                    <tr>
+                        <th style="width: 100px;">POS</th>
+                        <th style="width: 120px;">DORSAL</th>
+                        <th>NOMBRE</th>
+                        <th style="width: 200px;">TIEMPO FINAL</th>
+                        <th style="width: 200px;">DIFERENCIA</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <tr>
+                        <td colspan="5" class="loading">🕒 Cargando clasificación...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="status-bar">
+        <span id="update-time">Esperando datos...</span>
+        <span id="participant-count" style="font-weight: bold;">0 participantes</span>
+        <span id="auto-update" style="color: #4caf50;">🔄 Actualización automática</span>
+    </div>
+    
+    <script>
+        let lastUpdate = null;
+        
+        function formatTime(seconds) {
+            if (!seconds && seconds !== 0) return '00:00:00.000';
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            const ms = Math.round((seconds - Math.floor(seconds)) * 1000);
+            return hours.toString().padStart(2, '0') + ':' + 
+                   minutes.toString().padStart(2, '0') + ':' + 
+                   secs.toString().padStart(2, '0') + '.' + 
+                   ms.toString().padStart(3, '0');
+        }
+        
+        function updateContent(data) {
+            if (!data || !data.llegadas) return;
+            
+            try {
+                const llegadasConTiempo = data.llegadas
+                    .filter(l => l.dorsal && l.tiempoFinalWithMs && l.tiempoFinalWithMs > 0)
+                    .sort((a, b) => a.tiempoFinalWithMs - b.tiempoFinalWithMs);
+                
+                const tbody = document.getElementById('table-body');
+                let html = '';
+                let mejorTiempo = null;
+                
+                llegadasConTiempo.forEach((llegada, index) => {
+                    let diferencia = '0.000';
+                    if (mejorTiempo === null) {
+                        mejorTiempo = llegada.tiempoFinalWithMs;
+                    } else {
+                        const diffSegundos = llegada.tiempoFinalWithMs - mejorTiempo;
+                        diferencia = formatTime(diffSegundos);
+                    }
+                    
+                    let rowClass = '';
+                    if (index === 0) rowClass = 'gold';
+                    else if (index === 1) rowClass = 'silver';
+                    else if (index === 2) rowClass = 'bronze';
+                    
+                    const nombreCompleto = (llegada.nombre || '') + ' ' + (llegada.apellidos || '');
+                    
+                    html += '<tr class="' + rowClass + '">' +
+                        '<td style="font-weight: ' + (index < 3 ? 'bold' : 'normal') + '; font-size: 1.3em">' + (index + 1) + '</td>' +
+                        '<td style="font-weight: bold; font-size: 1.4em">' + llegada.dorsal + '</td>' +
+                        '<td style="text-align: left; padding-left: 30px; font-size: 1.2em">' + (nombreCompleto.trim() || '---') + '</td>' +
+                        '<td class="time-cell">' + formatTime(llegada.tiempoFinalWithMs) + '</td>' +
+                        '<td class="time-cell" style="color: ' + (index === 0 ? '#2e7d32' : '#d32f2f') + '">' + 
+                        (index === 0 ? '---' : '+' + diferencia) + '</td>' +
+                        '</tr>';
+                });
+                
+                if (llegadasConTiempo.length === 0) {
+                    html = '<tr><td colspan="5" style="padding: 60px; text-align: center; color: #666; font-size: 1.8em">🕒 Esperando llegadas...</td></tr>';
+                }
+                
+                tbody.innerHTML = html;
+                
+                document.getElementById('update-time').textContent = 'Última actualización: ' + new Date().toLocaleTimeString();
+                document.getElementById('participant-count').textContent = llegadasConTiempo.length + ' participantes';
+                
+                if (data.raceName) {
+                    document.getElementById('race-title').textContent = data.raceName;
+                }
+                
+                lastUpdate = Date.now();
+                
+            } catch (error) {
+                console.error('Error actualizando:', error);
+            }
+        }
+        
+        function requestData() {
+            if (window.opener && !window.opener.closed) {
+                window.opener.postMessage({ type: 'requestExternalScreenData' }, '*');
+            }
+        }
+        
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'updateExternalScreenData') {
+                updateContent(event.data);
+            }
+        });
+        
+        window.addEventListener('load', function() {
+            requestData();
+            setInterval(requestData, 2000);
+        });
+    </script>
+</body>
+</html>`;
+        
+        // ABRIR VENTANA
         window.externalScreenWindow = window.open('', 'CronoCRI_ExternalScreen', windowFeatures);
         
         if (!window.externalScreenWindow) {
@@ -2046,15 +1984,12 @@ function showExternalScreen() {
             return;
         }
         
-        // Escribir contenido
         window.externalScreenWindow.document.write(content);
         window.externalScreenWindow.document.close();
         
-        // Configurar comunicación
         setupExternalScreenCommunication();
-        
-        // Actualizar texto del botón para indicar que se puede cerrar
-        updateExternalScreenButtonState(true);
+        updateExternalScreenButtonText(true);
+        setupWindowCloseDetector();
         
         showMessage("✅ Pantalla externa activada", 'success');
         
@@ -2064,67 +1999,55 @@ function showExternalScreen() {
     }
 }
 
-// Función para actualizar estado del botón
-function updateExternalScreenButtonState(isActive) {
+// 4. ACTUALIZAR TEXTO DEL BOTÓN (SOLO UNA VERSIÓN)
+function updateExternalScreenButtonText(isActive) {
     const btn = document.getElementById('external-screen-btn');
     if (!btn) return;
     
     const icon = btn.querySelector('i');
-    const text = btn.querySelector('#external-screen-text');
+    const textSpan = btn.querySelector('#external-screen-text');
     
     if (isActive) {
         // Cambiar a "Cerrar Pantalla"
         if (icon) icon.className = 'fas fa-times-circle';
-        if (text) text.textContent = 'Cerrar Pantalla';
+        if (textSpan) textSpan.textContent = 'Cerrar Pantalla';
         btn.classList.remove('btn-warning');
         btn.classList.add('btn-danger');
     } else {
         // Cambiar a "Pantalla Externa"
         if (icon) icon.className = 'fas fa-external-display-alt';
-        if (text) text.textContent = 'Pantalla Externa';
+        if (textSpan) textSpan.textContent = 'Pantalla Externa';
         btn.classList.remove('btn-danger');
         btn.classList.add('btn-warning');
     }
 }
 
-// Modificar setupExternalScreenSystem para incluir detección de cierre
-function setupExternalScreenSystem() {
-    const btn = document.getElementById('external-screen-btn');
-    if (btn) {
-        btn.addEventListener('click', showExternalScreen);
-        console.log("✅ Listener añadido a botón Pantalla Externa");
+// 5. DETECTOR DE CIERRE (MANTENER)
+function setupWindowCloseDetector() {
+    if (externalScreenCloseDetector) {
+        clearInterval(externalScreenCloseDetector);
     }
     
-    // Verificar periódicamente si la ventana se cerró
-    setInterval(() => {
+    externalScreenCloseDetector = setInterval(() => {
         if (window.externalScreenWindow && window.externalScreenWindow.closed) {
-            window.externalScreenWindow = null;
-            updateExternalScreenButtonState(false);
             console.log("✅ Ventana externa cerrada detectada");
+            window.externalScreenWindow = null;
+            updateExternalScreenButtonText(false);
+            clearInterval(externalScreenCloseDetector);
+            externalScreenCloseDetector = null;
+        }
+        
+        if (!window.externalScreenWindow) {
+            clearInterval(externalScreenCloseDetector);
+            externalScreenCloseDetector = null;
         }
     }, 1000);
-    
-    // Actualizar visibilidad inicial
-    updateExternalScreenButton();
 }
 
-// Modificar closeExternalScreen (ahora se llama desde showExternalScreen)
-function closeExternalScreen() {
-    // Esta función ahora es manejada por showExternalScreen
-    // Mantenemos la función por compatibilidad
-    if (window.externalScreenWindow && !window.externalScreenWindow.closed) {
-        window.externalScreenWindow.close();
-        window.externalScreenWindow = null;
-        updateExternalScreenButtonState(false);
-    }
-}
-
-// Configurar comunicación entre ventanas
+// 6. COMUNICACIÓN (MANTENER)
 function setupExternalScreenCommunication() {
-    // Escuchar solicitudes de datos desde la ventana externa
     window.addEventListener('message', function(event) {
         if (event.data.type === 'requestExternalScreenData') {
-            // Enviar datos actualizados
             const data = {
                 type: 'updateExternalScreenData',
                 llegadas: llegadasState.llegadas,
@@ -2137,12 +2060,10 @@ function setupExternalScreenCommunication() {
         }
     });
     
-    // También enviar datos automáticamente cuando cambien
-    const originalSaveLlegadasState = saveLlegadasState;
+    const originalSave = saveLlegadasState;
     window.saveLlegadasState = function() {
-        const result = originalSaveLlegadasState();
+        const result = originalSave();
         
-        // Enviar datos a la ventana externa si está abierta
         if (window.externalScreenWindow && !window.externalScreenWindow.closed) {
             setTimeout(() => {
                 const data = {
@@ -2158,604 +2079,40 @@ function setupExternalScreenCommunication() {
     };
 }
 
-// Modificar closeExternalScreen para cerrar la ventana
-function closeExternalScreen() {
-    console.log("🖥️ Cerrando pantalla externa...");
-    
-    if (window.externalScreenWindow && !window.externalScreenWindow.closed) {
-        window.externalScreenWindow.close();
-        window.externalScreenWindow = null;
-    }
-    
-    showMessage("Pantalla externa cerrada", 'info');
-}
-
-// Función para actualizar el contenido de la pantalla externa
-function updateExternalScreenContent() {
-    if (!externalScreenActive) return;
-    
-    const container = document.getElementById('external-screen-container');
-    if (!container) {
-        externalScreenActive = false;
-        return;
-    }
-    
-    try {
-        // Obtener datos actualizados
-        const llegadasConTiempo = llegadasState.llegadas
-            .filter(l => l.dorsal && l.tiempoFinalWithMs && l.tiempoFinalWithMs > 0)
-            .sort((a, b) => a.tiempoFinalWithMs - b.tiempoFinalWithMs);
-        
-        const tbody = document.getElementById('external-screen-table-body');
-        if (!tbody) return;
-        
-        let html = '';
-        let mejorTiempo = null;
-        
-        // Generar filas de tabla
-        llegadasConTiempo.forEach((llegada, index) => {
-            // Calcular diferencia
-            let diferencia = '0.000';
-            if (mejorTiempo === null) {
-                mejorTiempo = llegada.tiempoFinalWithMs;
-            } else {
-                const diffSegundos = llegada.tiempoFinalWithMs - mejorTiempo;
-                diferencia = formatSecondsWithMilliseconds(diffSegundos);
-            }
-            
-            // Clases para podio
-            let rowClass = '';
-            if (index === 0) rowClass = 'background: linear-gradient(135deg, #ffd700, #ffecb3); font-weight: bold;';
-            else if (index === 1) rowClass = 'background: linear-gradient(135deg, #c0c0c0, #e0e0e0);';
-            else if (index === 2) rowClass = 'background: linear-gradient(135deg, #cd7f32, #e0b880);';
-            else if (index % 2 === 0) rowClass = 'background: #f8f9fa;';
-            
-            const nombreCompleto = `${llegada.nombre || ''} ${llegada.apellidos || ''}`.trim();
-            
-            html += `
-            <tr style="${rowClass}">
-                <td style="padding: 15px; text-align: center; font-size: 1.2em; font-weight: ${index < 3 ? 'bold' : 'normal'}">
-                    ${index + 1}
-                </td>
-                <td style="padding: 15px; text-align: center; font-weight: bold; font-size: 1.3em">
-                    ${llegada.dorsal}
-                </td>
-                <td style="padding: 15px; text-align: left; font-size: 1.1em">
-                    ${nombreCompleto || '---'}
-                </td>
-                <td style="padding: 15px; text-align: center; font-family: monospace; font-weight: bold; font-size: 1.2em">
-                    ${formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs)}
-                </td>
-                <td style="padding: 15px; text-align: center; font-family: monospace; font-size: 1.1em; color: ${index === 0 ? '#2e7d32' : '#d32f2f'}">
-                    ${index === 0 ? '---' : `+${diferencia}`}
-                </td>
-            </tr>
-            `;
-        });
-        
-        // Si no hay datos
-        if (llegadasConTiempo.length === 0) {
-            html = `
-            <tr>
-                <td colspan="5" style="padding: 60px; text-align: center; color: #666; font-size: 1.3em">
-                    🕒 Esperando llegadas...
-                </td>
-            </tr>
-            `;
-        }
-        
-        tbody.innerHTML = html;
-        
-        // Actualizar información de estado
-        const updateTime = document.getElementById('external-screen-update-time');
-        const count = document.getElementById('external-screen-count');
-        
-        if (updateTime) {
-            updateTime.textContent = `Última actualización: ${new Date().toLocaleTimeString()}`;
-        }
-        
-        if (count) {
-            count.textContent = `${llegadasConTiempo.length} participantes`;
-        }
-        
-        console.log(`🔄 Pantalla externa actualizada: ${llegadasConTiempo.length} participantes`);
-        
-    } catch (error) {
-        console.error("❌ Error actualizando pantalla externa:", error);
-    }
-}
-
-// Modificar closeExternalScreen para manejar el nuevo sistema
-function closeExternalScreen() {
-    console.log("🖥️ Cerrando pantalla externa...");
-    
-    externalScreenActive = false;
-    
-    // Salir de pantalla completa si estamos en ella
-    if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
-    }
-    
-    // Eliminar contenedor
-    const container = document.getElementById('external-screen-container');
-    if (container) {
-        container.remove();
-    }
-    
-    // Detener actualizaciones
-    if (externalScreenInterval) {
-        clearInterval(externalScreenInterval);
-        externalScreenInterval = null;
-    }
-    
-    showMessage("Pantalla externa cerrada", 'info');
-}
-
-// Modificar startExternalScreenUpdates para el nuevo sistema
-function startExternalScreenUpdates() {
-    if (externalScreenInterval) {
-        clearInterval(externalScreenInterval);
-    }
-    
-    // Actualizar cada 2 segundos
-    externalScreenInterval = setInterval(() => {
-        if (externalScreenActive) {
-            updateExternalScreenContent();
-        }
-    }, 2000);
-    
-    // También actualizar cuando se guardan nuevas llegadas
-    const originalSaveLlegadasState = saveLlegadasState;
-    window.saveLlegadasState = function() {
-        const result = originalSaveLlegadasState();
-        
-        // Actualizar pantalla externa si está activa
-        if (externalScreenActive) {
-            setTimeout(updateExternalScreenContent, 300);
-        }
-        
-        return result;
-    };
-}
-
-
-// Abrir ventana en pantalla específica
-function openWindowOnScreen(screen) {
-    console.log(`📍 Abriendo en pantalla: ${screen.width}x${screen.height} en (${screen.left}, ${screen.top})`);
-    
-    // Configuración de la ventana
-    const width = Math.min(screen.availWidth - 100, 1200);
-    const height = Math.min(screen.availHeight - 100, 800);
-    const left = screen.left + (screen.availWidth - width) / 2;
-    const top = screen.top + (screen.availHeight - height) / 2;
-    
-    // Parámetros de la ventana
-    const windowFeatures = `
-        width=${width},
-        height=${height},
-        left=${left},
-        top=${top},
-        menubar=no,
-        toolbar=no,
-        location=no,
-        status=no,
-        resizable=yes,
-        scrollbars=yes
-    `.replace(/\s+/g, '');
-    
-    // Crear contenido HTML para la ventana
-    const content = generateExternalScreenContent();
-    
-    // Abrir ventana
-    externalWindow = window.open('', 'CronoCRI_ExternalScreen', windowFeatures);
-    
-    if (!externalWindow) {
-        showMessage("El navegador bloqueó la ventana emergente. Permite popups.", 'error');
-        return;
-    }
-    
-    // Escribir contenido
-    externalWindow.document.write(content);
-    externalWindow.document.close();
-    
-    // Configurar actualizaciones automáticas
-    startExternalScreenUpdates();
-    
-    showMessage("Pantalla externa abierta en segunda pantalla", 'success');
-}
-
-// Método alternativo (cuando no podemos detectar la pantalla)
-function openFallbackWindow() {
-    console.log("🔄 Usando método alternativo...");
-    
-    // Intentar abrir en el lado derecho de la pantalla principal
-    const width = 1200;
-    const height = 800;
-    const left = window.screen.availWidth + 100; // Forzar a la derecha
-    const top = 100;
-    
-    const windowFeatures = `
-        width=${width},
-        height=${height},
-        left=${left},
-        top=${top},
-        menubar=no,
-        toolbar=no,
-        location=no,
-        status=no,
-        resizable=yes,
-        scrollbars=yes
-    `.replace(/\s+/g, '');
-    
-    const content = generateExternalScreenContent();
-    externalWindow = window.open('', 'CronoCRI_ExternalScreen', windowFeatures);
-    
-    if (!externalWindow) {
-        showMessage("Permite ventanas emergentes para usar pantalla externa", 'error');
-        return;
-    }
-    
-    externalWindow.document.write(content);
-    externalWindow.document.close();
-    startExternalScreenUpdates();
-    
-    showMessage("Pantalla externa abierta", 'success');
-}
-
-// Generar contenido HTML para la ventana externa
-function generateExternalScreenContent() {
-    const t = translations[appState.currentLanguage];
-    
-    // Obtener datos actualizados
-    const llegadasConTiempo = llegadasState.llegadas
-        .filter(l => l.dorsal && l.tiempoFinalWithMs && l.tiempoFinalWithMs > 0)
-        .sort((a, b) => a.tiempoFinalWithMs - b.tiempoFinalWithMs);
-    
-    // Construir tabla HTML
-    let tableRows = '';
-    let mejorTiempo = null;
-    
-    llegadasConTiempo.forEach((llegada, index) => {
-        let diferencia = '0.000';
-        if (mejorTiempo === null) {
-            mejorTiempo = llegada.tiempoFinalWithMs;
-        } else {
-            const diffSegundos = llegada.tiempoFinalWithMs - mejorTiempo;
-            diferencia = formatSecondsWithMilliseconds(diffSegundos);
-        }
-        
-        tableRows += `
-        <tr class="${index < 3 ? 'puesto-' + (index + 1) : ''}">
-            <td><strong>${index + 1}</strong></td>
-            <td>${llegada.dorsal}</td>
-            <td><strong>${formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs)}</strong></td>
-            <td>${diferencia}</td>
-            <td>${llegada.nombre || ''}</td>
-            <td>${llegada.apellidos || ''}</td>
-            <td>${llegada.categoria || ''}</td>
-            <td>${llegada.equipo || ''}</td>
-        </tr>
-        `;
-    });
-    
-    // HTML completo
-    return `
-    <!DOCTYPE html>
-    <html lang="${appState.currentLanguage}">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Crono CRI - Pantalla Externa</title>
-        <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { 
-                font-family: Arial, sans-serif; 
-                background: #1a1a1a; 
-                color: white;
-                padding: 20px;
-                height: 100vh;
-                overflow: hidden;
-            }
-            .container { 
-                max-width: 100%; 
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-            }
-            .header { 
-                background: #2c3e50; 
-                color: white; 
-                padding: 15px; 
-                text-align: center;
-                border-radius: 8px 8px 0 0;
-                margin-bottom: 10px;
-            }
-            .header h1 { font-size: 2em; margin-bottom: 5px; }
-            .header .subtitle { font-size: 0.9em; opacity: 0.8; }
-            .content {
-                flex: 1;
-                overflow-y: auto;
-                background: white;
-                color: #333;
-                border-radius: 0 0 8px 8px;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 1.2em;
-            }
-            th {
-                background: #34495e;
-                color: white;
-                padding: 12px 8px;
-                text-align: center;
-                position: sticky;
-                top: 0;
-                z-index: 10;
-            }
-            td {
-                padding: 10px 8px;
-                text-align: center;
-                border-bottom: 1px solid #ddd;
-            }
-            tr:nth-child(even) { background: #f8f9fa; }
-            tr:hover { background: #e9ecef; }
-            .puesto-1 { background: #ffd700 !important; font-weight: bold; }
-            .puesto-2 { background: #c0c0c0 !important; }
-            .puesto-3 { background: #cd7f32 !important; }
-            .status-bar {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: #2c3e50;
-                color: white;
-                padding: 8px;
-                text-align: center;
-                font-size: 0.9em;
-            }
-            .close-btn {
-                position: absolute;
-                top: 10px;
-                right: 10px;
-                background: #e74c3c;
-                color: white;
-                border: none;
-                padding: 5px 15px;
-                border-radius: 4px;
-                cursor: pointer;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>🏁 ${t.classification || 'CLASIFICACIÓN'}</h1>
-                <div class="subtitle">
-                    ${appState.currentRace ? appState.currentRace.name : 'Carrera'} | 
-                    ${new Date().toLocaleTimeString()} | 
-                    <span id="count">${llegadasConTiempo.length} participantes</span>
-                </div>
-                <button class="close-btn" onclick="window.close()">✕ Cerrar</button>
-            </div>
-            
-            <div class="content">
-                <table id="ranking-table">
-                    <thead>
-                        <tr>
-                            <th>POS</th>
-                            <th>DORSAL</th>
-                            <th>TIEMPO FINAL</th>
-                            <th>DIFERENCIA</th>
-                            <th>NOMBRE</th>
-                            <th>APELLIDOS</th>
-                            <th>CATEGORÍA</th>
-                            <th>EQUIPO</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${tableRows || '<tr><td colspan="8" style="text-align:center;padding:40px;">Esperando datos...</td></tr>'}
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="status-bar">
-                <span id="update-time">Última actualización: ${new Date().toLocaleTimeString()}</span> | 
-                <span id="auto-update">Actualización automática activada</span>
-            </div>
-        </div>
-        
-        <script>
-            // Función para actualizar desde la ventana principal
-            function updateContent(data) {
-                if (data && data.llegadas) {
-                    const tbody = document.querySelector('#ranking-table tbody');
-                    let html = '';
-                    let mejorTiempo = null;
-                    
-                    // Ordenar por tiempo
-                    const llegadasOrdenadas = data.llegadas
-                        .filter(l => l.tiempoFinalWithMs > 0)
-                        .sort((a, b) => a.tiempoFinalWithMs - b.tiempoFinalWithMs);
-                    
-                    llegadasOrdenadas.forEach((llegada, index) => {
-                        let diferencia = '0.000';
-                        if (mejorTiempo === null) {
-                            mejorTiempo = llegada.tiempoFinalWithMs;
-                        } else {
-                            const diffSegundos = llegada.tiempoFinalWithMs - mejorTiempo;
-                            diferencia = formatTime(diffSegundos);
-                        }
-                        
-                        html += \`
-                        <tr class="\${index < 3 ? 'puesto-' + (index + 1) : ''}">
-                            <td><strong>\${index + 1}</strong></td>
-                            <td>\${llegada.dorsal}</td>
-                            <td><strong>\${formatTime(llegada.tiempoFinalWithMs)}</strong></td>
-                            <td>\${diferencia}</td>
-                            <td>\${llegada.nombre || ''}</td>
-                            <td>\${llegada.apellidos || ''}</td>
-                            <td>\${llegada.categoria || ''}</td>
-                            <td>\${llegada.equipo || ''}</td>
-                        </tr>
-                        \`;
-                    });
-                    
-                    tbody.innerHTML = html || '<tr><td colspan="8" style="text-align:center;padding:40px;">Esperando datos...</td></tr>';
-                    document.getElementById('count').textContent = llegadasOrdenadas.length + ' participantes';
-                    document.getElementById('update-time').textContent = 'Última actualización: ' + new Date().toLocaleTimeString();
-                }
-            }
-            
-            function formatTime(seconds) {
-                if (!seconds && seconds !== 0) return '00:00:00.000';
-                const hours = Math.floor(seconds / 3600);
-                const minutes = Math.floor((seconds % 3600) / 60);
-                const secs = Math.floor(seconds % 60);
-                const ms = Math.round((seconds - Math.floor(seconds)) * 1000);
-                return \`\${hours.toString().padStart(2, '0')}:\${minutes.toString().padStart(2, '0')}:\${secs.toString().padStart(2, '0')}.\${ms.toString().padStart(3, '0')}\`;
-            }
-            
-            // Solicitar datos iniciales al padre
-            if (window.opener) {
-                window.opener.postMessage({ type: 'requestData' }, '*');
-            }
-            
-            // Escuchar actualizaciones del padre
-            window.addEventListener('message', function(event) {
-                if (event.data.type === 'updateData') {
-                    updateContent(event.data);
-                }
-            });
-            
-            // Auto-refrescar cada 30 segundos por si falla la conexión
-            setInterval(() => {
-                if (window.opener && !window.opener.closed) {
-                    window.opener.postMessage({ type: 'requestData' }, '*');
-                }
-            }, 30000);
-        </script>
-    </body>
-    </html>
-    `;
-}
-
-// 4. CERRAR PANTALLA EXTERNA
-function closeExternalScreen() {
-    console.log("🖥️ Desactivando pantalla externa...");
-    
-    externalScreenActive = false;
-    
-    // A. Detener actualizaciones automáticas
-    if (externalScreenInterval) {
-        clearInterval(externalScreenInterval);
-        externalScreenInterval = null;
-    }
-    
-    // B. Restaurar estilos originales del modal
-    const modal = document.getElementById('ranking-modal');
-    if (modal && modal._originalStyles) {
-        Object.assign(modal.style, modal._originalStyles);
-        delete modal._originalStyles;
-    }
-    
-    // C. Mostrar botones normales
-    const closeSelectors = ['.modal-close', '#close-ranking-btn', '#export-ranking-pdf-btn'];
-    closeSelectors.forEach(selector => {
-        const elem = modal?.querySelector(selector);
-        if (elem) elem.style.display = '';
-    });
-    
-    // D. Eliminar botón de cerrar específico
-    const customCloseBtn = modal?.querySelector('#external-screen-close-btn');
-    if (customCloseBtn) customCloseBtn.remove();
-    
-    // E. Restaurar tabla
-    const table = modal?.querySelector('#ranking-table');
-    if (table) {
-        table.style.fontSize = '';
-        table.style.width = '';
-    }
-    
-    // F. Cerrar modal
-    if (modal) {
-        modal.classList.remove('active');
-    }
-    
-    showMessage("Pantalla externa desactivada", 'info');
-}
-
-// 5. ACTUALIZACIONES AUTOMÁTICAS
-function startExternalScreenUpdates() {
-    // Limpiar intervalo anterior
-    if (externalScreenInterval) {
-        clearInterval(externalScreenInterval);
-    }
-    
-    // Actualizar cada 3 segundos si el modal está visible
-    externalScreenInterval = setInterval(() => {
-        if (!externalScreenActive) return;
-        
-        const modal = document.getElementById('ranking-modal');
-        if (!modal || !modal.classList.contains('active')) return;
-        
-        // Forzar actualización de la clasificación
-        showRankingModal();
-        console.log("🔄 Actualizando pantalla externa automáticamente");
-    }, 3000);
-    
-    // También actualizar cuando haya cambios en llegadas
-    const originalSaveLlegadasState = saveLlegadasState;
-    window.saveLlegadasState = function() {
-        originalSaveLlegadasState();
-        
-        if (externalScreenActive) {
-            setTimeout(() => {
-                const modal = document.getElementById('ranking-modal');
-                if (modal && modal.classList.contains('active')) {
-                    showRankingModal();
-                }
-            }, 500);
-        }
-    };
-}
-
-// 6. CONFIGURAR EVENT LISTENERS (TODO EN LLEGADAS.JS)
+// 7. CONFIGURACIÓN DEL SISTEMA (SIMPLIFICADA)
 function setupExternalScreenSystem() {
-    // A. Configurar botón
     const btn = document.getElementById('external-screen-btn');
     if (btn) {
         btn.addEventListener('click', showExternalScreen);
-        console.log("✅ Listener añadido a botón Pantalla Externa");
-    } else {
-        console.error("❌ No se encontró #external-screen-btn");
+        updateExternalScreenButtonText(false);
+        console.log("✅ Sistema de pantalla externa configurado");
     }
     
-    // B. Actualizar visibilidad inicial
     updateExternalScreenButton();
-    
-    // C. Detectar cambios en pantallas
-    window.addEventListener('resize', function() {
-        setTimeout(updateExternalScreenButton, 500);
-    });
-    
-    // D. Detectar cuando el modo llegadas se activa
-    const modeSlider = document.querySelector('.mode-slider');
-    if (modeSlider) {
-        modeSlider.addEventListener('click', function() {
-            setTimeout(updateExternalScreenButton, 300);
-        });
-    }
 }
 
-// 7. INTEGRAR CON INICIALIZACIÓN DE LLEGADAS
-// Modificar initLlegadasMode() para incluir el sistema
+// 8. INTEGRAR CON LLEGADAS (MANTENER)
 const originalInitLlegadasMode = initLlegadasMode;
 window.initLlegadasMode = function() {
     originalInitLlegadasMode();
     setupExternalScreenSystem();
     console.log("✅ Sistema de pantalla externa inicializado");
 };
+
+// 9. CERRAR PANTALLA (OPCIONAL)
+function closeExternalScreen() {
+    if (window.externalScreenWindow && !window.externalScreenWindow.closed) {
+        window.externalScreenWindow.close();
+        window.externalScreenWindow = null;
+    }
+    
+    updateExternalScreenButtonText(false);
+    
+    if (externalScreenCloseDetector) {
+        clearInterval(externalScreenCloseDetector);
+        externalScreenCloseDetector = null;
+    }
+}
 
 // 8. EXPORTAR FUNCIONES
 window.showExternalScreen = showExternalScreen;

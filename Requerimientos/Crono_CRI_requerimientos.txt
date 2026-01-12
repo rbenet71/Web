@@ -229,7 +229,7 @@ por eso primero pideme las funciones que crees que intervienen en el proceso.
 2.3 inicio Cuenta atras manualmente
 2.3.1 Traducciones
 2.3.2.1 Aplicacion Inicial JS
-2.3.3 hora sistema acutalizada
+2.3.3-1 hora sistema acutalizada
 2.3.4 Inicio cuenta atras manual bien
 2.3.4.1 mejorado inicio manual dorsal o
 2.3.4.2 Bien el manual y cuenta atras
@@ -289,7 +289,13 @@ La clasificacion de la carrera se calculará en base a que dorsal tiene el Tiemp
 
 3.3 Pantalla externa - en el modulo de llegadas al lado del boton de Clasificacion PDF quiero poner un botón que se llama Pantalla Externa. Este botón estará visible si es posible mostrar la clasificacion en una pantalla externa al ordenador, para eso comprobaremos si tenemos conectada una pantalla externa en modo ampliación de escritorio. Al hacer click mostrara el modal "ranking-modal", que deberá ir actualizandose cada vez que haya una modificación en la tabla de llegadas, para así ir mostrando como van evolucionando los resultados a medida que llegan los corredores
 
-En la cabecera de Llegadas contar los dorsales llegados del total de corredores que hay en la tabla orden de salida.
+3.3.1 Mejoras botones
+--------------------------
+
+-------------------------------
+3.3.2 Mejorar diseño pantalla resultados 
+
+3.4 En la cabecera de Llegadas contar los dorsales llegados del total de corredores que hay en la tabla orden de salida.
 
 pantalla externa de resultados
 

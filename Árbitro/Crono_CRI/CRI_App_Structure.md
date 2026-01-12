@@ -1,4 +1,4 @@
-# **CRI App - Documentación Optimizada para Modificaciones v3.3**
+# **CRI App - Documentación Optimizada para Modificaciones v3.3-1**
 
 ## 📋 **ÍNDICE RÁPIDO**
 - [**1. Visión General**](#1-visión-general)
@@ -17,7 +17,7 @@
 ---
 
 ## **1. VISIÓN GENERAL**
-Crono CRI v3.3 - PWA para control de salidas/llegadas en carreras ciclistas.
+Crono CRI v3.3-1 - PWA para control de salidas/llegadas en carreras ciclistas.
 - **Modo Salidas**: Cuenta atrás basada en cronoSalida de tabla
 - **Modo Llegadas**: Cronometraje con milésimas, posiciones automáticas
 - **4 idiomas**: ES, CA, EN, FR
@@ -30,13 +30,13 @@ Crono CRI v3.3 - PWA para control de salidas/llegadas en carreras ciclistas.
 
 | Módulo | Responsabilidad Principal | Dependencias Clave | Versión |
 |--------|--------------------------|-------------------|---------|
-| **Main.js** | Coordinación global, estado app, PWA, pantalla countdown, logging optimizado | TODOS | 3.3 |
+| **Main.js** | Coordinación global, estado app, PWA, pantalla countdown, logging optimizado | TODOS | 3.3-1 |
 | **Salidas_1.js** | Importación/exportación Excel (22 cols), validación 3.2.1 | Storage_Pwa, UI, Salidas_2 | 3.2.1 |
 | **Salidas_2.js** | Tabla UI, edición inline, throttling 3 niveles | Salidas_1, Salidas_3, Salidas_4 | 3.2.1 |
 | **Salidas_3.js** | Modales, añadir corredores, cambios globales | Salidas_2, UI, Storage_Pwa | 3.2.1 |
 | **Salidas_4.js** | Confirmaciones, validaciones, edición avanzada | Salidas_2, Salidas_3, Utilidades | 3.2.1 |
 | **Cuenta_Atras.js** | Sistema cuenta atrás, salidas, sincronización dorsal↔posición | Main, Utilidades, Salidas_2, Storage_Pwa | 3.2.1 |
-| **UI.js** | Interfaz, tarjetas, modales, gestión tiempo | Main, Storage_Pwa, Cuenta_Atras, Llegadas | 3.3 |
+| **UI.js** | Interfaz, tarjetas, modales, gestión tiempo | Main, Storage_Pwa, Cuenta_Atras, Llegadas | 3.3-1 |
 | **Storage_Pwa.js** | Persistencia, backup/restore, gestión carreras (35 funciones) | TODOS (persistencia central) | 3.2.2 |
 | **Utilidades.js** | Conversiones tiempo, audio, exportación, diagnóstico | TODOS (utilidades centrales) | 3.2.1 |
 | **Traducciones.js** | Sistema multilingüe (4 idiomas) | TODOS (textos UI) | 3.2.1 |
@@ -48,7 +48,7 @@ Crono CRI v3.3 - PWA para control de salidas/llegadas en carreras ciclistas.
 
 ## **3. FUNCIONES CRÍTICAS POR MÓDULO**
 
-### **MAIN.JS v3.3** (Coordinación Global con Logging Optimizado)
+### **MAIN.JS v3.3-1** (Coordinación Global con Logging Optimizado)
 ```javascript
 // ✅ NUEVO: Sistema de logging por niveles
 const LOG_LEVEL = { ERROR: 0, WARN: 1, INFO: 2, DEBUG: 3 };
@@ -144,7 +144,7 @@ sincronizarDorsalAPosicion()     // Sincronización automática
 configurarBotonesModalReinicio() // Modal personalizado (no confirm() nativo)
 ```
 
-### **UI.JS v3.3** (Interfaz y Gestión Tiempo)
+### **UI.JS v3.3-1** (Interfaz y Gestión Tiempo)
 ```javascript
 // SISTEMA RESETEO AUTOMÁTICO:
 updateTimeDifference()           // "Cuenta atrás en:" (horaSalida - 1min - horaActual)
@@ -427,7 +427,7 @@ formatSecondsWithMilliseconds(seconds) // HH:MM:SS.mmm
 7. → saveLlegadasState()
 ```
 
-### **Inicialización Optimizada (v3.3):**
+### **Inicialización Optimizada (v3.3-1):**
 ```
 1. Main.js: initApp() con logging optimizado
 2. → Configuración agrupada (quickConfigs array)
@@ -504,7 +504,7 @@ PROTECCIONES ACTIVAS:
 
 ## **9. SISTEMA DE LOGGING OPTIMIZADO** ⭐
 
-### **Niveles de Log (v3.3):**
+### **Niveles de Log (v3.3-1):**
 ```javascript
 const LOG_LEVEL = {
     ERROR: 0,   // 🚨 Solo errores críticos (funciones fallan, datos corruptos)
@@ -562,7 +562,7 @@ ANTES (v3.2.2):
 - Warnings de throttling constantes
 - Información redundante
 
-DESPUÉS (v3.3):
+DESPUÉS (v3.3-1):
 ✅ Inicializando aplicación Crono CRI...
 ✅ Carrera actual cargada: Pruebas 2.4.8 x
 ✅ Configurando event listeners principales...
@@ -663,7 +663,7 @@ log(LOG_LEVEL.INFO, `Configuraciones completadas: ${configSuccess} éxitos, ${co
 **Solución:** Actualizar a v3.2.1 (posiciones automáticas, PDF profesional)  
 **Archivo:** `Llegadas.js`
 
-#### **10. ✅ LOGS EXCESIVOS EN CONSOLA (v3.3)**
+#### **10. ✅ LOGS EXCESIVOS EN CONSOLA (v3.3-1)**
 **Problema:** 100+ líneas de logs, 80% redundantes  
 **Solución:** Sistema de logging por niveles con inicialización agrupada  
 **Archivo:** `Main.js` - Sistema optimizado de logging
@@ -750,7 +750,7 @@ log(LOG_LEVEL.INFO, `Configuraciones completadas: ${configSuccess} éxitos, ${co
 
 ---
 
-## **🎯 RESUMEN DE CAMBIOS v3.3**
+## **🎯 RESUMEN DE CAMBIOS v3.3-1**
 
 ### **Mejoras principales:**
 1. **✅ Sistema de logging optimizado** (80% reducción logs)
@@ -769,7 +769,7 @@ log(LOG_LEVEL.INFO, `Configuraciones completadas: ${configSuccess} éxitos, ${co
 - **Mantenibilidad**: Configuraciones agrupadas
 - **Rendimiento**: Menos operaciones de console.log
 
-**Documentación optimizada para modificaciones - v3.3**  
+**Documentación optimizada para modificaciones - v3.3-1**  
 **Caracteres:** ~30,500 (incluye sistema logging optimizado)  
 **Cobertura:** 100% funcionalidades necesarias para programar  
 **Última actualización:** Enero 2026  
