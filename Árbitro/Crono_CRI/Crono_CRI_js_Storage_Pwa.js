@@ -161,13 +161,6 @@ function loadRaceData() {
         return;
     }
     
-    console.log("🚀 =========================================");
-    console.log("🚀 CARGA DE DATOS PARA CARRERA:", appState.currentRace.name);
-    console.log("🚀 ID:", appState.currentRace.id);
-    console.log("🚀 =========================================");
-    
-    console.log("Cargando datos para carrera:", appState.currentRace.name);
-    
     // Cargar datos específicos de la carrera
     const raceKey = `race-${appState.currentRace.id}`;
     const raceData = localStorage.getItem(raceKey);
@@ -187,18 +180,15 @@ function loadRaceData() {
             if (data.startOrderData && data.startOrderData.length > 0) {
                 startOrderData = [...data.startOrderData];
                 appState.currentRace.startOrder = [...data.startOrderData];
-                console.log("Cargados", startOrderData.length, "corredores desde datos de carrera (startOrderData)");
             } 
             // Prioridad 2: startOrder del archivo de carrera (formato alternativo)
             else if (data.startOrder && data.startOrder.length > 0) {
                 startOrderData = [...data.startOrder];
                 appState.currentRace.startOrder = [...data.startOrder];
-                console.log("Cargados", startOrderData.length, "corredores desde datos de carrera (startOrder)");
             }
             // Prioridad 3: startOrder de la carrera actual en memoria
             else if (appState.currentRace.startOrder && appState.currentRace.startOrder.length > 0) {
                 startOrderData = [...appState.currentRace.startOrder];
-                console.log("Cargados", startOrderData.length, "corredores desde carrera en memoria");
             }
             // Sin datos
             else {
@@ -207,11 +197,6 @@ function loadRaceData() {
                 console.log("Sin datos de orden de salida para esta carrera");
             }
             
-            console.log("Datos de carrera cargados:");
-            console.log("- Hora inicio:", appState.raceStartTime);
-            console.log("- Salidas:", appState.departedCount);
-            console.log("- Orden de salida:", startOrderData.length);
-            
             // CRÍTICO: ACTUALIZAR CAMPOS DE CONFIGURACIÓN
             // 1. Actualizar "Salida Primero:" (first-start-time)
             const firstStartTimeInput = document.getElementById('first-start-time');
@@ -219,12 +204,10 @@ function loadRaceData() {
                 // Primero buscar en datos de carrera específicos
                 if (data.firstStartTime) {
                     firstStartTimeInput.value = data.firstStartTime;
-                    console.log("Actualizado first-start-time desde datos de carrera:", data.firstStartTime);
                 } 
                 // Luego buscar en la carrera actual
                 else if (appState.currentRace.firstStartTime) {
                     firstStartTimeInput.value = appState.currentRace.firstStartTime;
-                    console.log("Actualizado first-start-time desde carrera actual:", appState.currentRace.firstStartTime);
                 }
                 // Finalmente, valor por defecto
                 else {
@@ -275,11 +258,6 @@ function loadRaceData() {
                 renderDeparturesList();
             }
             
-            console.log("✅ UI actualizada para carrera:", appState.currentRace.name);
-            console.log("   - Total corredores:", startOrderData.length);
-            console.log("   - Hora primer salida:", document.getElementById('first-start-time')?.value);
-            console.log("   - Salidas realizadas:", appState.departedCount);
-            
         } catch (error) {
             console.error("Error cargando datos de carrera:", error);
             console.log("Inicializando datos vacíos");
@@ -306,7 +284,6 @@ function loadRaceData() {
 }
 
 function initializeEmptyData() {
-    console.log("Inicializando datos vacíos para nueva carrera...");
     
     // Inicializar datos vacíos
     startOrderData = [];
@@ -568,9 +545,7 @@ function saveRaceData() {
     
     // Guardar array de carreras
     saveRacesToStorage();
-    
-    console.log("✅ Datos guardados para:", appState.currentRace.name);
-    console.log("   - Corredores:", orderToSave.length);
+
 }
 
 // Guardar todas las carreras
@@ -1055,7 +1030,6 @@ function clearRaceDepartures() {
 // FUNCIONES DE PWA (PROGRESSIVE WEB APP)
 // ============================================
 function setupServiceWorker() {
-    console.log("🔄 Configurando ServiceWorker para Crono CRI v3.2.3...");
     
     // Verificar si el navegador soporta Service Workers
     if (!('serviceWorker' in navigator)) {
@@ -1080,12 +1054,12 @@ function setupServiceWorker() {
     // Solo registrar si estamos en localhost o HTTPS
     if (isLocalhost || isHttps) {
         // 🔥 CAMBIO PRINCIPAL: Registrar el SW específico de Crono CRI
-        const swFile = 'Crono_CRI_ws.js?v=3.2.3';
+        const swFile = 'Crono_CRI_ws.js?v=3.2.4';
         console.log(`📁 Registrando ServiceWorker: ${swFile}`);
         
         navigator.serviceWorker.register(swFile)
             .then(registration => {
-                console.log('✅ ServiceWorker Crono CRI v3.2.3 registrado exitosamente:', registration.scope);
+                console.log('✅ ServiceWorker Crono CRI v3.2.4 registrado exitosamente:', registration.scope);
                 
                 // 🔥 NUEVO: Forzar actualización inmediata
                 console.log('🔄 Forzando actualización del ServiceWorker...');
@@ -1180,7 +1154,7 @@ function cleanupOldCaches() {
     console.log('🧹 Limpiando cachés antiguos...');
     
     // Limpiar localStorage de versiones antiguas
-    const currentVersion = '3.2.3';
+    const currentVersion = '3.2.4';
     const keysToKeep = [
         'app-mode',
         'card-expanded-race-management',
@@ -2003,8 +1977,7 @@ window.addEventListener('beforeunload', () => {
 // ============================================
 
 function setupBackupEventListeners() {
-    console.log("Configurando listeners de copia de seguridad...");
-    
+
     // Botón de copia de seguridad
     const backupBtn = document.getElementById('backup-race-btn');
     if (backupBtn) {
@@ -2045,7 +2018,7 @@ function createRaceBackup() {
         version: '1.0',
         appName: 'Crono CRI',
         exportDate: new Date().toISOString(),
-        exportVersion: 'V_3.2.3',
+        exportVersion: 'V_3.2.4',
         dataType: 'single-race',
         race: {
             // Copiar TODOS los datos de la carrera del array
@@ -2832,8 +2805,6 @@ function setupRaceFormEvents() {
         return;
     }
     
-    console.log("Configurando eventos del formulario de carrera...");
-    
     // Mostrar/ocultar campo de "Otras modalidades"
     document.querySelectorAll('input[name="modality"]').forEach(input => {
         input.addEventListener('change', function() {
@@ -3364,7 +3335,6 @@ function addRaceManagementCardStyles() {
 // En la función initApp (en tu archivo principal) o en DOMContentLoaded:
 
 function initRaceManagementCard() {
-    console.log("Inicializando tarjeta de gestión de carrera...");
     
     // Añadir estilos
     addRaceManagementCardStyles();
@@ -3571,8 +3541,7 @@ function updateDeleteRaceButtonState() {
         
         deleteRaceConfirmBtn.disabled = false;
         deleteRaceConfirmBtn.classList.remove('disabled');
-        
-        console.log("✅ Botón de eliminar carrera HABILITADO para:", appState.currentRace.name);
+
     } else {
         // No hay carrera seleccionada - deshabilitar botón
         deleteRaceBtn.disabled = true;
@@ -3620,7 +3589,6 @@ function addDisabledButtonStyles() {
     `;
     
     document.head.appendChild(style);
-    console.log("Estilos de botones deshabilitados añadidos");
 }
 
 // ============================================
@@ -3631,8 +3599,7 @@ function addDisabledButtonStyles() {
 // RENDERIZAR SELECTOR CON VERIFICACIÓN DE SINCRO
 // ============================================
 function renderRacesSelect() {
-    console.log("🔄 Renderizando selector de carreras con verificación...");
-    
+
     let racesSelect = document.getElementById('race-select');
     
     if (!racesSelect) {
@@ -3690,8 +3657,7 @@ function renderRacesSelect() {
     const sortedRaces = [...appState.races].sort((a, b) => {
         return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
     });
-    
-    console.log(`📋 Añadiendo ${sortedRaces.length} carreras al selector:`);
+
     
     sortedRaces.forEach((race, index) => {
         const option = document.createElement('option');
@@ -3728,8 +3694,6 @@ function renderRacesSelect() {
         racesSelect.selectedIndex = 0;
     }
     
-    console.log(`✅ Selector actualizado: ${sortedRaces.length} carreras, selección actual: ${racesSelect.value}`);
-    
     // Configurar event listener
     setupRacesSelectListener();
 }
@@ -3751,15 +3715,12 @@ function setupRacesSelectListener(selectElement) {
         return;
     }
     
-    console.log("🎯 Configurando event listener para selector de carreras:", selectElement.id || 'sin ID');
-    
     // Remover listeners antiguos
     selectElement.removeEventListener('change', handleRacesSelectChange);
     
     // Añadir nuevo listener
     selectElement.addEventListener('change', handleRacesSelectChange);
-    
-    console.log("✅ Listener de selector de carreras configurado");
+
 }
 
 // ============================================

@@ -51,7 +51,6 @@
  * --- SELECTOR DE MODO ---
  * initModeSlider()              → Inicializa slider Salidas/Llegadas
  * changeMode()                  → Cambia modo programáticamente
- * debugModeState()              → Depuración del estado del modo
  *
  * --- REDIMENSIONAMIENTO ---
  * adjustCountdownSize()         → Tamaño responsive del countdown
@@ -121,7 +120,6 @@ function setupCardToggles() {
         return;
     }
     uiInitialized.cardToggles = true;
-    console.log("Configurando botones de minimizar/expandir...");
     
     // Cargar estado guardado de tarjetas minimizadas
     loadCardStates();
@@ -161,8 +159,7 @@ function setupCardToggles() {
             }
         });
     });
-    
-    console.log("Botones de minimizar/expandir configurados.");
+
 }
 
 function saveCardState(cardClass, isCollapsed) {
@@ -255,7 +252,6 @@ function updateRaceManagementCardTitle() {
 }
 */
 function updateModeSelectorCardTitle() {
-    console.log("Actualizando título del selector de modo...");
     
     // Esperar a que el DOM esté listo
     if (!document.getElementById('mode-selector-title')) {
@@ -283,7 +279,6 @@ function updateModeSelectorCardTitle() {
         // Usar el modo del slider como fuente principal
         const mode = activeModeOption.getAttribute('data-mode');
         modeText = (mode === 'salida') ? t.modeSalidaTitle : t.modeLlegadasTitle;
-        console.log(`Modo detectado desde slider: ${mode} -> ${modeText}`);
     } else {
         // Fallback: verificar contenido visible
         const salidaContent = document.getElementById('mode-salida-content');
@@ -298,8 +293,6 @@ function updateModeSelectorCardTitle() {
     // Formato: "Modo de Operación - [Salidas/Llegadas]"
     const newTitle = `${t.modeSelectorTitle || 'Modo de Operación'} - ${modeText}`;
     cardTitleElement.textContent = newTitle;
-    
-    console.log(`Título actualizado: "${newTitle}" (Idioma: ${appState.currentLanguage}, Modo: ${modeText})`);
 }
 
 function updateStartOrderCardTitle() {
@@ -343,14 +336,11 @@ function initModeSlider() {
     const salidaContent = document.getElementById('mode-salida-content');
     const llegadasContent = document.getElementById('mode-llegadas-content');
     
-    console.log("Inicializando selector de modo...");
-    
     // Variable para prevenir inicialización múltiple
     let isInitializing = false;
     
     // Cargar modo guardado
     const savedMode = localStorage.getItem('app-mode') || 'salida';
-    console.log(`Selector de modo: modo guardado (app-mode) = ${savedMode}`);
     
     // Función para cambiar modo
     const changeModeInternal = function(mode, isInitialLoad = false) {
@@ -383,7 +373,6 @@ function initModeSlider() {
             
             // 🔥 AÑADIDO: Inicializar módulo de llegadas
             if (!isInitialLoad && typeof initLlegadasMode === 'function') {
-                console.log("🔄 Inicializando módulo de llegadas desde cambio de modo...");
                 setTimeout(() => {
                     initLlegadasMode();
                 }, 100);
@@ -473,7 +462,6 @@ function initModeSlider() {
         }, 100);
     }, 50);
     
-    console.log("Selector de modo inicializado");
 }
 
 // ============================================
@@ -879,32 +867,6 @@ function changeMode(mode) {
 }
 
 // ============================================
-// FUNCIONES DE DEPURACIÓN
-// ============================================
-function debugModeState() {
-    console.log("=== DEPURACIÓN DE ESTADO DE MODO ===");
-    
-    // Verificar slider
-    const slider = document.querySelector('.mode-slider');
-    const activeOption = document.querySelector('.mode-slider-option.active');
-    console.log("Slider data-mode:", slider ? slider.dataset.mode : "No encontrado");
-    console.log("Opción activa:", activeOption ? activeOption.dataset.mode : "No encontrada");
-    
-    // Verificar contenido visible
-    const salidaContent = document.getElementById('mode-salida-content');
-    const llegadasContent = document.getElementById('mode-llegadas-content');
-    console.log("Contenido salida activo:", salidaContent ? salidaContent.classList.contains('active') : "No encontrado");
-    console.log("Contenido llegadas activo:", llegadasContent ? llegadasContent.classList.contains('active') : "No encontrado");
-    
-    // Verificar localStorage
-    console.log("app-mode en localStorage:", localStorage.getItem('app-mode'));
-    console.log("selectedMode en localStorage:", localStorage.getItem('selectedMode'));
-    
-    console.log("=== FIN DEPURACIÓN ===");
-}
-
-
-// ============================================
 // FUNCIONES DE MANEJO DE MODALES (MOVIDAS A UI.js)
 // ============================================
 function setupModalEventListeners() {
@@ -913,7 +875,6 @@ function setupModalEventListeners() {
         return;
     }
     uiInitialized.modalEvents = true;
-    console.log("Configurando listeners de modales...");
     
     // Función genérica para cerrar modales
     const closeModal = function(modalId) {
@@ -1059,15 +1020,12 @@ function setupModalEventListeners() {
             }
         }
     });
-    
-    console.log("✅ Listeners de modales configurados correctamente");
 }
 
 // ============================================
 // FUNCIÓN DE DEPURACIÓN DE MODALES
 // ============================================
 function debugModalButtons() {
-    console.log("=== DEPURACIÓN DE BOTONES DE MODAL ===");
     
     // Lista actualizada de botones que realmente existen en la aplicación
     const expectedButtons = [
@@ -1102,7 +1060,6 @@ function debugModalButtons() {
     expectedButtons.forEach(buttonId => {
         const button = document.getElementById(buttonId);
         if (button) {
-            console.log(`✅ ${buttonId} - ENCONTRADO`);
             found++;
         } else {
             // Cambiado de console.warn a console.log para evitar warnings
@@ -1122,7 +1079,7 @@ function debugModalButtons() {
 // CONFIGURAR LISTENERS DE ACCIONES DE MODALES
 // ============================================
 function setupModalActionListeners() {
-    console.log("Configurando listeners de acciones de modales...");
+
     
     // Verificar si ya se configuró
     if (window.modalActionListenersConfigured) {
@@ -1136,7 +1093,6 @@ function setupModalActionListeners() {
     // 1. Botón de crear carrera
     const createRaceBtn = document.getElementById('create-race-btn');
     if (createRaceBtn) {
-        console.log("✅ Configurando create-race-btn");
         
         // Remover listener anterior si existe
         createRaceBtn.removeEventListener('click', handleCreateRace);
@@ -1169,7 +1125,6 @@ function setupModalActionListeners() {
     // 2. Botón de cancelar creación de carrera
     const cancelCreateRaceBtn = document.getElementById('cancel-create-race-btn');
     if (cancelCreateRaceBtn) {
-        console.log("✅ Configurando cancel-create-race-btn");
         cancelCreateRaceBtn.addEventListener('click', function(e) {
             e.preventDefault();
             console.log("Cancelar creación de carrera clickeado");
@@ -1180,7 +1135,6 @@ function setupModalActionListeners() {
     // 3. Botón de confirmar eliminación de carrera
     const deleteRaceConfirmBtn = document.getElementById('delete-race-confirm-btn');
     if (deleteRaceConfirmBtn) {
-        console.log("✅ Configurando delete-race-confirm-btn");
         
         // Remover listener anterior si existe
         deleteRaceConfirmBtn.removeEventListener('click', handleDeleteRaceConfirm);
@@ -1213,7 +1167,7 @@ function setupModalActionListeners() {
     // 4. Botón de cancelar eliminación de carrera
     const cancelDeleteRaceBtn = document.getElementById('cancel-delete-race-btn');
     if (cancelDeleteRaceBtn) {
-        console.log("✅ Configurando cancel-delete-race-btn");
+
         cancelDeleteRaceBtn.addEventListener('click', function(e) {
             e.preventDefault();
             console.log("Cancelar eliminación de carrera clickeado");
@@ -1224,7 +1178,6 @@ function setupModalActionListeners() {
     // 5. Botón de confirmar limpieza de salidas
     const clearDeparturesConfirmBtn = document.getElementById('clear-departures-confirm-btn');
     if (clearDeparturesConfirmBtn) {
-        console.log("✅ Configurando clear-departures-confirm-btn");
         clearDeparturesConfirmBtn.addEventListener('click', function(e) {
             e.preventDefault();
             console.log("Confirmar limpieza de salidas clickeado");
@@ -1242,7 +1195,7 @@ function setupModalActionListeners() {
     // 7. Botón de enviar sugerencia
     const sendSuggestionBtn = document.getElementById('send-suggestion-btn');
     if (sendSuggestionBtn) {
-        console.log("✅ Configurando send-suggestion-btn");
+
         sendSuggestionBtn.addEventListener('click', function(e) {
             e.preventDefault();
             console.log("Enviar sugerencia clickeado");
@@ -1257,7 +1210,6 @@ function setupModalActionListeners() {
     // 8. Botón de cancelar sugerencia
     const cancelSuggestionBtn = document.getElementById('cancel-suggestion-btn');
     if (cancelSuggestionBtn) {
-        console.log("✅ Configurando cancel-suggestion-btn");
         cancelSuggestionBtn.addEventListener('click', function(e) {
             e.preventDefault();
             console.log("Cancelar sugerencia clickeado");
@@ -1268,7 +1220,6 @@ function setupModalActionListeners() {
     // 9. Botón de confirmar reinicio completo
     const restartConfirmBtn = document.getElementById('restart-confirm-btn');
     if (restartConfirmBtn) {
-        console.log("✅ Configurando restart-confirm-btn");
         restartConfirmBtn.addEventListener('click', function(e) {
             e.preventDefault();
             console.log("Confirmar reinicio completo clickeado");
@@ -1283,7 +1234,6 @@ function setupModalActionListeners() {
     // 10. Botón de cancelar reinicio
     const cancelRestartBtn = document.getElementById('cancel-restart-btn');
     if (cancelRestartBtn) {
-        console.log("✅ Configurando cancel-restart-btn");
         cancelRestartBtn.addEventListener('click', function(e) {
             e.preventDefault();
             console.log("Cancelar reinicio clickeado");
@@ -1294,7 +1244,6 @@ function setupModalActionListeners() {
     // 11. Botón OK de ayuda
     const helpModalOk = document.getElementById('help-modal-ok');
     if (helpModalOk) {
-        console.log("✅ Configurando help-modal-ok");
         helpModalOk.addEventListener('click', function(e) {
             e.preventDefault();
             console.log("OK ayuda clickeado");
@@ -1305,7 +1254,6 @@ function setupModalActionListeners() {
     // 12. Botón de nueva carrera en la tarjeta
     const newRaceCardBtn = document.getElementById('new-race-card-btn');
     if (newRaceCardBtn) {
-        console.log("✅ Configurando new-race-card-btn");
         newRaceCardBtn.addEventListener('click', function(e) {
             e.preventDefault();
             console.log("Nueva carrera (card) clickeado");
@@ -1320,7 +1268,6 @@ function setupModalActionListeners() {
     // 13. Botón de editar carrera
     const editRaceBtn = document.getElementById('edit-race-btn');
     if (editRaceBtn) {
-        console.log("✅ Configurando edit-race-btn");
         editRaceBtn.addEventListener('click', function(e) {
             e.preventDefault();
             console.log("Editar carrera clickeado");
@@ -1335,7 +1282,6 @@ function setupModalActionListeners() {
     // 14. Botón de guardar edición de carrera
     const saveEditRaceBtn = document.getElementById('save-edit-race-btn');
     if (saveEditRaceBtn) {
-        console.log("✅ Configurando save-edit-race-btn");
         saveEditRaceBtn.addEventListener('click', function(e) {
             e.preventDefault();
             console.log("Guardar edición de carrera clickeado");
@@ -1350,7 +1296,6 @@ function setupModalActionListeners() {
     // 15. Botón de cancelar edición de carrera
     const cancelEditRaceBtn = document.getElementById('cancel-edit-race-btn');
     if (cancelEditRaceBtn) {
-        console.log("✅ Configurando cancel-edit-race-btn");
         cancelEditRaceBtn.addEventListener('click', function(e) {
             e.preventDefault();
             console.log("Cancelar edición de carrera clickeado");
@@ -1361,7 +1306,6 @@ function setupModalActionListeners() {
     // 16. Botón de importar orden de salida
     const importOrderBtn = document.getElementById('import-order-btn');
     if (importOrderBtn) {
-        console.log("✅ Configurando import-order-btn con prevención de múltiples listeners");
         
         // **SOLUCIÓN CRÍTICA: Reemplazar el botón para eliminar TODOS los listeners**
         const newBtn = importOrderBtn.cloneNode(true); // Clonar manteniendo atributos
@@ -1405,7 +1349,6 @@ function setupModalActionListeners() {
     // 17. Botón de crear plantilla Excel
     const createTemplateBtn = document.getElementById('create-template-btn');
     if (createTemplateBtn) {
-        console.log("✅ Configurando create-template-btn");
         createTemplateBtn.addEventListener('click', function(e) {
             e.preventDefault();
             console.log("Crear plantilla Excel clickeado");
@@ -1420,7 +1363,6 @@ function setupModalActionListeners() {
     // 18. Botón de eliminar orden de salida
     const deleteOrderBtn = document.getElementById('delete-order-btn');
     if (deleteOrderBtn) {
-        console.log("✅ Configurando delete-order-btn");
         deleteOrderBtn.addEventListener('click', function(e) {
             e.preventDefault();
             console.log("Eliminar orden de salida clickeado");
@@ -1447,7 +1389,6 @@ function setupModalActionListeners() {
 // ============================================
 
 function setupLanguageButtons() {
-    console.log("Configurando botones de idioma...");
     
     // Obtener todos los botones de idioma
     const languageButtons = document.querySelectorAll('.flag');
@@ -1537,7 +1478,6 @@ function showHelpModal() {
 // FUNCIÓN PARA ACTUALIZAR ESTADO DE BOTONES DE CARRERA
 // ============================================
 function updateRaceActionButtonsState() {
-    console.log("🔄 Actualizando estado de botones de carrera...");
     
     // Botones que dependen de tener carrera seleccionada
     const buttonsToUpdate = [
@@ -1571,8 +1511,6 @@ function updateRaceActionButtonsState() {
             }
         }
     });
-    
-    console.log(`✅ Botones de carrera ${hasCurrentRace ? 'HABILITADOS' : 'DESHABILITADOS'}`);
 }
 
 // ============================================
@@ -1586,15 +1524,11 @@ function setupRacesSelectListener() {
         return;
     }
     
-    console.log("Configurando event listener para selector de carreras...");
-    
     // Remover listeners antiguos si existen
     racesSelect.removeEventListener('change', handleRacesSelectChange);
     
     // Añadir nuevo listener
     racesSelect.addEventListener('change', handleRacesSelectChange);
-    
-    console.log("✅ Listener de selector de carreras configurado");
 }
 
 function handleRacesSelectChange(event) {
@@ -1624,7 +1558,6 @@ function checkDuplicateImportListeners() {
     const listeners = getEventListeners ? getEventListeners(importBtn) : null;
     
     if (listeners && listeners.click) {
-        console.log(`⚠️ Encontrados ${listeners.click.length} listeners de click en import-order-btn`);
         
         if (listeners.click.length > 1) {
             console.log("🚨 MÚLTIPLES LISTENERS DETECTADOS - Limpiando...");

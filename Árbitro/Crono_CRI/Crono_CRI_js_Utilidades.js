@@ -388,11 +388,9 @@ function loadAudioPreferences() {
 }
 
 function setupAudioEventListeners() {
-    console.log("🎵 Configurando listeners de audio...");
     
     // 1. Configurar botones de opción de audio (.audio-option)
     const audioOptions = document.querySelectorAll('.audio-option');
-    console.log(`🔍 Encontrados ${audioOptions.length} botones .audio-option`);
     
     audioOptions.forEach(option => {
         // Remover cualquier listener previo para evitar duplicados
@@ -428,7 +426,6 @@ function setupAudioEventListeners() {
     // 2. Configurar botón de prueba de audio (#test-audio-btn)
     const testAudioBtn = document.getElementById('test-audio-btn');
     if (testAudioBtn) {
-        console.log("✅ Botón de prueba de audio encontrado");
         
         // Clonar para eliminar listeners previos
         const newTestBtn = testAudioBtn.cloneNode(true);
@@ -511,7 +508,6 @@ function setupAudioEventListeners() {
         }
     }, 100);
     
-    console.log("✅ Listeners de audio configurados correctamente");
 }
 
 // ============================================
@@ -1913,14 +1909,11 @@ function generateSimpleStartOrderPDF() {
         showMessage(`❌ Error al generar el PDF: ${error.message}`, 'error');
     }
 }
-// ============================================
-// CONFIGURAR BOTÓN DE PDF (VERSIÓN SIMPLIFICADA)
-// ============================================
+
 // ============================================
 // CONFIGURAR BOTÓN DE PDF (VERSIÓN SIMPLIFICADA)
 // ============================================
 function setupPDFExportButton() {
-    console.log("Configurando botón de exportar PDF...");
     
     // Buscar el botón de exportar PDF que ya existe en el HTML
     const pdfButton = document.getElementById('export-order-pdf-btn');
@@ -1955,8 +1948,7 @@ function setupPDFExportButton() {
             showMessage('Error: Función de PDF no disponible', 'error');
         }
     });
-    
-    console.log("✅ Botón de exportar PDF configurado exitosamente");
+
 }
 
 function handlePDFExport(e) {
@@ -1978,8 +1970,7 @@ function handlePDFExport(e) {
 // INICIALIZAR MÓDULO PDF MEJORADO
 // ============================================
 function initPDFModule() {
-    console.log("Inicializando módulo PDF...");
-    
+   
     // Control para evitar inicialización múltiple
     if (window.pdfModuleInitialized) {
         console.log("Módulo PDF ya inicializado");

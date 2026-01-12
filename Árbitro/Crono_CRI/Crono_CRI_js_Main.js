@@ -68,11 +68,46 @@
  * - Hay listeners y timers fuera de initApp()
  * =========================================================
  */
-// ============================================
-// PUNTO DE ENTRADA Y CONFIGURACIÓN GLOBAL
-// ============================================
 
+// ============================================
+// SISTEMA DE LOGGING OPTIMIZADO
+// ============================================
+const LOG_LEVEL = {
+    ERROR: 0,   // 🚨 Solo errores críticos
+    WARN: 1,    // ⚠️ Problemas recuperables
+    INFO: 2,    // ✅ Confirmaciones importantes
+    DEBUG: 3    // 🔍 Solo desarrollo
+};
+
+// Nivel actual: cambiar a LOG_LEVEL.INFO para producción
+const CURRENT_LOG_LEVEL = LOG_LEVEL.INFO;
+
+function log(level, message, data = null) {
+    if (level <= CURRENT_LOG_LEVEL) {
+        const prefixes = ['🚨', '⚠️', '✅', '🔍'];
+        const prefix = prefixes[level] || '';
+        
+        if (data) {
+            console.log(`${prefix} ${message}`, data);
+        } else {
+            console.log(`${prefix} ${message}`);
+        }
+    }
+}
+
+// Función auxiliar para llamar funciones solo si existen
+function callIfFunction(fn, fallbackMessage = null) {
+    if (typeof fn === 'function') {
+        return fn();
+    } else if (fallbackMessage) {
+        log(LOG_LEVEL.WARN, fallbackMessage);
+    }
+    return null;
+}
+
+// ============================================
 // ESTADO DE LA APLICACIÓN
+// ============================================
 const appState = {
     audioType: 'beep',
     voiceAudioCache: {},
@@ -120,15 +155,11 @@ let startOrderData = [];
 // ============================================
 // INICIALIZACIÓN PRINCIPAL DE LA APLICACIÓN
 // ============================================
-// ============================================
-// INICIALIZACIÓN PRINCIPAL DE LA APLICACIÓN
-// ============================================
 function initApp() {
-    console.log("Inicializando aplicación Crono CRI...");
     
     // Verificar si ya se inicializó
     if (window.appInitialized) {
-        console.log("La aplicación ya está inicializada");
+        log(LOG_LEVEL.WARN, "La aplicación ya está inicializada");
         return;
     }
     
@@ -169,12 +200,12 @@ function initApp() {
     if (typeof loadAudioPreferences === 'function') {
         loadAudioPreferences();
     } else {
-        console.warn("⚠️ Función loadAudioPreferences no disponible - usando valores por defecto");
+        log(LOG_LEVEL.WARN, "Función loadAudioPreferences no disponible - usando valores por defecto");
         // Cargar preferencia manualmente si la función no existe
         const savedAudioType = localStorage.getItem('countdown-audio-type');
         if (savedAudioType && ['beep', 'voice', 'none'].includes(savedAudioType)) {
             appState.audioType = savedAudioType;
-            console.log("✅ Preferencia de audio cargada:", savedAudioType);
+            log(LOG_LEVEL.INFO, `Preferencia de audio cargada: ${savedAudioType}`);
         }
     }
     
@@ -182,7 +213,7 @@ function initApp() {
     if (typeof setupAudioEventListeners === 'function') {
         setupAudioEventListeners();
     } else {
-        console.error("❌ Función setupAudioEventListeners no disponible - botones de audio NO funcionarán");
+        log(LOG_LEVEL.ERROR, "Función setupAudioEventListeners no disponible - botones de audio NO funcionarán");
     }
     
     // Inicializar estado de llegadas si no existe
@@ -228,9 +259,9 @@ function initApp() {
     if (savedCurrentRace) {
         try {
             appState.currentRace = JSON.parse(savedCurrentRace);
-            console.log("✅ Carrera actual cargada desde localStorage:", appState.currentRace ? appState.currentRace.name : "Ninguna");
+            log(LOG_LEVEL.INFO, `Carrera actual cargada: ${appState.currentRace?.name || "Ninguna"}`);
         } catch (error) {
-            console.error("❌ Error cargando carrera actual:", error);
+            log(LOG_LEVEL.ERROR, "Error cargando carrera actual:", error);
             appState.currentRace = null;
         }
     }
@@ -244,155 +275,73 @@ function initApp() {
     if (typeof updateLanguageUI === 'function') {
         updateLanguageUI();
     } else {
-        console.error("❌ Función updateLanguageUI no disponible");
+        log(LOG_LEVEL.ERROR, "Función updateLanguageUI no disponible");
     }
     
-    // Añadir estilos para botones deshabilitados
-    if (typeof addDisabledButtonStyles === 'function') {
-        addDisabledButtonStyles();
-    }
+    // Configuraciones rápidas (sin logs individuales)
+    const quickConfigs = [
+        { fn: addDisabledButtonStyles, name: 'addDisabledButtonStyles' },
+        { fn: updateDeleteRaceButtonState, name: 'updateDeleteRaceButtonState' },
+        { fn: updateRaceActionButtonsState, name: 'updateRaceActionButtonsState' },
+        { fn: renderRacesSelect, name: 'renderRacesSelect' },
+        { fn: loadRaceData, name: 'loadRaceData' },
+        { fn: setupTimeInputs, name: 'setupTimeInputs' },
+        { fn: setupEventListeners, name: 'setupEventListeners' },
+        { fn: setupStartOrderEventListeners, name: 'setupStartOrderEventListeners' },
+        { fn: setupCardToggles, name: 'setupCardToggles' },
+        { fn: initModeSlider, name: 'initModeSlider' },
+        { fn: setupModalEventListeners, name: 'setupModalEventListeners' },
+        { fn: setupModalActionListeners, name: 'setupModalActionListeners' },
+        { fn: setupLanguageButtons, name: 'setupLanguageButtons' },
+        { fn: setupServiceWorker, name: 'setupServiceWorker' },
+        { fn: setupPWA, name: 'setupPWA' },
+        { fn: initRaceManagementCard, name: 'initRaceManagementCard' },
+        { fn: loadStartOrderData, name: 'loadStartOrderData' },
+        { fn: initPDFModule, name: 'initPDFModule' },
+        { fn: initBackupModule, name: 'initBackupModule' },
+        { fn: preloadVoiceAudios, name: 'preloadVoiceAudios' },
+        { fn: setupPDFExportButton, name: 'setupPDFExportButton' },
+        { fn: setupRaceFormEvents, name: 'setupRaceFormEvents' },
+        { fn: setupStartOrderTableSorting, name: 'setupStartOrderTableSorting' }
+    ];
     
-    // Actualizar estado inicial de botones
-    if (typeof updateDeleteRaceButtonState === 'function') {
-        updateDeleteRaceButtonState();
-    }
+    let configSuccess = 0;
+    let configErrors = 0;
     
-    if (typeof updateRaceActionButtonsState === 'function') {
-        updateRaceActionButtonsState();
-    }
+    quickConfigs.forEach(config => {
+        if (typeof config.fn === 'function') {
+            try {
+                config.fn();
+                configSuccess++;
+            } catch (error) {
+                log(LOG_LEVEL.WARN, `Error en ${config.name}:`, error);
+                configErrors++;
+            }
+        } else {
+            log(LOG_LEVEL.DEBUG, `Función ${config.name} no disponible`);
+        }
+    });
     
-    // Renderizar selector de carreras
-    if (typeof renderRacesSelect === 'function') {
-        renderRacesSelect();
-    }
-    
-    // Cargar datos de carrera (si hay carrera seleccionada)
-    if (typeof loadRaceData === 'function') {
-        loadRaceData();
-    }
-    
-    // Configurar inputs de tiempo para móviles
-    if (typeof setupTimeInputs === 'function') {
-        setupTimeInputs();
-    }
-    
-    // Configurar event listeners principales
-    if (typeof setupEventListeners === 'function') {
-        setupEventListeners();
-    }
-    
-    // Configurar event listeners de orden de salida
-    if (typeof setupStartOrderEventListeners === 'function') {
-        setupStartOrderEventListeners();
-    }
-    
-    // Configurar UI
-    if (typeof setupCardToggles === 'function') {
-        setupCardToggles();
-    }
-    
-    if (typeof initModeSlider === 'function') {
-        initModeSlider();
-    }
-    
-    if (typeof setupModalEventListeners === 'function') {
-        setupModalEventListeners();
-    }
-    
-    if (typeof setupModalActionListeners === 'function') {
-        setupModalActionListeners();
-    }
-    
-    if (typeof setupLanguageButtons === 'function') {
-        setupLanguageButtons();
-    }
-    
-    // Configurar Service Worker (PWA)
-    if (typeof setupServiceWorker === 'function') {
-        setupServiceWorker();
-    }
-    
-    // Configurar PWA
-    if (typeof setupPWA === 'function') {
-        setupPWA();
-    }
-    
-    // Inicializar tarjeta de gestión de carrera
-    if (typeof initRaceManagementCard === 'function') {
-        initRaceManagementCard();
-    }
-    
-    // Cargar orden de salida después de carrera
-    if (typeof loadStartOrderData === 'function') {
-        loadStartOrderData();
-    }
-    
-    // Actualizar tabla de orden de salida
-    console.log("Actualizando tabla de orden de salida...");
-    console.log("startOrderData disponible?", !!startOrderData);
-    if (startOrderData) {
-        console.log("Número de corredores en startOrderData:", startOrderData.length);
-    }
+    // Actualizar tabla de orden de salida (una vez al final)
+    log(LOG_LEVEL.DEBUG, `startOrderData disponible: ${!!startOrderData}, longitud: ${startOrderData?.length || 0}`);
     
     if (typeof updateStartOrderTableThrottled === 'function') {
         updateStartOrderTableThrottled();
     }
     
-    // Inicializar selector de modo
-    if (typeof initModeSlider === 'function') {
-        // Ya se llamó arriba, pero llamamos a la función específica si existe separada
-    }
+    // Iniciar intervalos de tiempo
+    setupTimeIntervals();
     
-    // Configurar eventos del formulario de carrera
-    if (typeof setupRaceFormEvents === 'function') {
-        setupRaceFormEvents();
-    }
-    
-    // Configurar ordenación para tabla
-    if (typeof setupStartOrderTableSorting === 'function') {
-        setupStartOrderTableSorting();
-    }
-    
-    // Inicializar módulo PDF
-    if (typeof initPDFModule === 'function') {
-        initPDFModule();
-    }
-    
-    // Inicializar módulo de backup
-    if (typeof initBackupModule === 'function') {
-        initBackupModule();
-    }
-    
-    // Precargar audios
-    if (typeof preloadVoiceAudios === 'function') {
-        preloadVoiceAudios();
-    }
-    
-    // Configurar botón de exportar PDF
-    if (typeof setupPDFExportButton === 'function') {
-        setupPDFExportButton();
-    }
-    
-    /*
-    // Actualizar título de gestión de carrera
-    if (typeof updateRaceManagementCardTitle === 'function') {
-        updateRaceManagementCardTitle();
-    }
-    */
-    
-    console.log("Aplicación inicializada correctamente");
-    console.log("Estado final:");
-    console.log("- Carrera actual:", appState.currentRace ? appState.currentRace.name : "Ninguna");
-    console.log("- Corredores en orden de salida:", startOrderData ? startOrderData.length : 0);
-    console.log("- Tipo de audio configurado:", appState.audioType);
-    console.log("- Listeners de audio:", typeof setupAudioEventListeners === 'function' ? '✅ Configurados' : '❌ No configurados');
+    log(LOG_LEVEL.INFO, `Configuraciones completadas: ${configSuccess} éxitos, ${configErrors} errores`);
+    log(LOG_LEVEL.INFO, `Estado final - Carrera: ${appState.currentRace?.name || "Ninguna"}, Corredores: ${startOrderData?.length || 0}, Audio: ${appState.audioType}`);
     
     // Marcar como completamente inicializada
     setTimeout(() => {
         window.appFullyInitialized = true;
-        console.log("✅ Aplicación completamente inicializada y lista");
+        log(LOG_LEVEL.INFO, "Aplicación completamente inicializada y lista");
     }, 500);
 }
+
 // Guardar estado antes de cerrar
 window.addEventListener('beforeunload', () => {
     if (appState.countdownActive) {
@@ -400,136 +349,157 @@ window.addEventListener('beforeunload', () => {
     }
 });
 
+// ============================================
+// FUNCIÓN AUXILIAR PARA INTERVALOS DE TIEMPO
+// ============================================
+function setupTimeIntervals() {
+    // 1. Hora del sistema
+    if (typeof updateSystemTimeDisplay === 'function') {
+        updateSystemTimeDisplay();
+        setInterval(updateSystemTimeDisplay, 1000);
+    } else {
+        // Fallback simple
+        const updateCurrentTime = () => {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('es-ES', { hour12: false });
+            const currentTimeElement = document.getElementById('current-time-value');
+            if (currentTimeElement) {
+                currentTimeElement.textContent = timeString;
+            }
+        };
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 1000);
+    }
+    
+    // 2. Redimensionamiento
+    if (typeof setupCountdownResize === 'function') {
+        setupCountdownResize();
+    }
+    
+    // 3. Actualización de cuenta atrás
+    function updateCountdownIfActive() {
+        if (appState.countdownActive && typeof updateCountdownDisplay === 'function') {
+            updateCountdownDisplay();
+        }
+    }
+    setInterval(updateCountdownIfActive, 1000);
+    
+    log(LOG_LEVEL.DEBUG, "Intervalos de tiempo configurados");
+}
 
 // ============================================
 // EVENT LISTENERS PRINCIPALES
 // ============================================
 function setupEventListeners() {
-    console.log('Configurando event listeners principales...');
+    log(LOG_LEVEL.INFO, "Configurando event listeners principales...");
     
-    // 1. Selector de idioma
-    const languageSelector = document.getElementById('language-selector');
-    if (languageSelector) {
-        languageSelector.addEventListener('change', function(e) {
-            const newLanguage = e.target.value;
-            if (window.appState && window.appState.currentLanguage !== newLanguage) {
-                window.appState.currentLanguage = newLanguage;
-                if (typeof updateLanguageUI === 'function') {
-                    updateLanguageUI();
-                }
-                // Guardar preferencia de idioma
-                localStorage.setItem('cri_language', newLanguage);
-                console.log('Idioma cambiado a:', newLanguage);
-            }
-        });
-    }
+    // Manejadores auxiliares
+    const handleLanguageChange = function(e) {
+        const newLanguage = e.target.value;
+        if (window.appState && window.appState.currentLanguage !== newLanguage) {
+            window.appState.currentLanguage = newLanguage;
+            callIfFunction(updateLanguageUI, "Función updateLanguageUI no disponible");
+            localStorage.setItem('cri_language', newLanguage);
+            log(LOG_LEVEL.INFO, `Idioma cambiado a: ${newLanguage}`);
+        }
+    };
     
-    // 2. Configuración de audio
-    const audioTypeSelector = document.getElementById('audio-type-selector');
-    if (audioTypeSelector) {
-        audioTypeSelector.addEventListener('change', function(e) {
-            if (window.appState) {
-                window.appState.audioType = e.target.value;
-                // Opcional: Guardar preferencia
-                localStorage.setItem('cri_audio_type', e.target.value);
-            }
-        });
-    }
+    const handleAudioTypeChange = function(e) {
+        if (window.appState) {
+            window.appState.audioType = e.target.value;
+            localStorage.setItem('cri_audio_type', e.target.value);
+        }
+    };
     
-    // 3. Cambio de carrera
-    const raceSelector = document.getElementById('race-selector');
-    if (raceSelector) {
-        raceSelector.addEventListener('change', handleRaceChange);
-    }
-    
-    // 4. Botón de nueva carrera
-    const newRaceBtn = document.getElementById('new-race-btn');
-    if (newRaceBtn) {
-        newRaceBtn.addEventListener('click', function() {
-            // Lógica para crear nueva carrera
-            if (typeof showNewRaceModal === 'function') {
-                showNewRaceModal();
-            } else {
-                console.warn('Función showNewRaceModal no disponible');
-            }
-        });
-    }
-    
-    // 5. Botón de editar carrera
-    const editRaceBtn = document.getElementById('edit-race-btn');
-    if (editRaceBtn) {
-        editRaceBtn.addEventListener('click', function() {
-            if (typeof editRaceDetails === 'function') {
-                editRaceDetails();
-            }
-        });
-    }
-    
-    // 6. Botón de eliminar carrera
-    const deleteRaceBtn = document.getElementById('delete-race-btn');
-    if (deleteRaceBtn) {
-        deleteRaceBtn.addEventListener('click', function() {
-            if (typeof deleteCurrentRace === 'function') {
-                deleteCurrentRace();
-            }
-        });
-    }
-    
-    // 9. Botón de exportar PDF
-    const exportPdfBtn = document.getElementById('export-pdf-btn');
-    if (exportPdfBtn) {
-        exportPdfBtn.addEventListener('click', function() {
-            if (typeof generateStartOrderPDF === 'function') {
-                generateStartOrderPDF();
-            }
-        });
-    }
-    
-    // 11. Botón de copia de seguridad
-    const backupBtn = document.getElementById('backup-btn');
-    if (backupBtn) {
-        backupBtn.addEventListener('click', function() {
-            if (typeof createRaceBackup === 'function') {
-                createRaceBackup();
-            }
-        });
-    }
-    
-    // 12. Botón de restaurar backup
-    const restoreBtn = document.getElementById('restore-btn');
-    if (restoreBtn) {
-        restoreBtn.addEventListener('click', function() {
-            if (typeof restoreRaceFromBackup === 'function') {
-                restoreRaceFromBackup();
-            }
-        });
-    }
-    
-    // 13. Botón de limpiar datos
-    const clearDataBtn = document.getElementById('clear-data-btn');
-    if (clearDataBtn) {
-        clearDataBtn.addEventListener('click', function() {
-            if (typeof clearAppData === 'function') {
-                clearAppData();
-            }
-        });
-    }
-    
-
-    // 14. Botón de ayuda/información - MODIFICADO
-    const helpBtn = document.getElementById('help-btn');
-    if (helpBtn) {
-        helpBtn.addEventListener('click', function(e) {
+    const openHelpFile = function(e) {
+        if (e) {
             e.preventDefault();
-            console.log('Botón de ayuda principal clickeado');
-            
-            // 📄 ABRIR ARCHIVO DE AYUDA EN LUGAR DEL MODAL
-            window.open('Crono_CRI_ayuda.html', '_blank');
-            console.log('✅ Archivo de ayuda abierto en nueva pestaña');
-        });
-    }
+            e.stopPropagation();
+        }
+        log(LOG_LEVEL.INFO, "Abriendo archivo de ayuda...");
+        window.open('Crono_CRI_ayuda.html', '_blank');
+    };
     
-    // 15. Atajos de teclado globales
+    const openSuggestionsModal = function(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        log(LOG_LEVEL.INFO, "Abriendo modal de sugerencias...");
+        const suggestionsModal = document.getElementById('suggestions-modal');
+        if (suggestionsModal) {
+            suggestionsModal.classList.add('active');
+            
+            // Resetear formulario
+            setTimeout(() => {
+                const emailInput = document.getElementById('email-suggestions');
+                const cityInput = document.getElementById('city-suggestions');
+                const suggestionInput = document.getElementById('suggestion-text');
+                
+                if (emailInput) {
+                    emailInput.value = '';
+                    emailInput.focus();
+                }
+                if (cityInput) cityInput.value = '';
+                if (suggestionInput) suggestionInput.value = '';
+            }, 100);
+        } else {
+            log(LOG_LEVEL.WARN, "Modal de sugerencias no encontrado - usando fallback a email");
+            openSuggestionsEmail();
+        }
+    };
+    
+    const handleModeChange = function(e) {
+        if (window.isModeChanging) return;
+        window.isModeChanging = true;
+        
+        const newMode = e.target.checked ? 'llegadas' : 'salidas';
+        log(LOG_LEVEL.INFO, `Cambiando modo a: ${newMode}`);
+        
+        callIfFunction(() => switchAppMode(newMode), `Función switchAppMode no disponible para modo ${newMode}`);
+        
+        setTimeout(() => {
+            window.isModeChanging = false;
+        }, 100);
+    };
+    
+    // Lista de listeners principales
+    const listeners = [
+        { id: 'language-selector', event: 'change', handler: handleLanguageChange },
+        { id: 'audio-type-selector', event: 'change', handler: handleAudioTypeChange },
+        { id: 'race-selector', event: 'change', handler: handleRaceChange },
+        { id: 'new-race-btn', event: 'click', handler: () => callIfFunction(showNewRaceModal, "Función showNewRaceModal no disponible") },
+        { id: 'edit-race-btn', event: 'click', handler: () => callIfFunction(editRaceDetails, "Función editRaceDetails no disponible") },
+        { id: 'delete-race-btn', event: 'click', handler: () => callIfFunction(deleteCurrentRace, "Función deleteCurrentRace no disponible") },
+        { id: 'export-pdf-btn', event: 'click', handler: () => callIfFunction(generateStartOrderPDF, "Función generateStartOrderPDF no disponible") },
+        { id: 'backup-btn', event: 'click', handler: () => callIfFunction(createRaceBackup, "Función createRaceBackup no disponible") },
+        { id: 'restore-btn', event: 'click', handler: () => callIfFunction(restoreRaceFromBackup, "Función restoreRaceFromBackup no disponible") },
+        { id: 'clear-data-btn', event: 'click', handler: () => callIfFunction(clearAppData, "Función clearAppData no disponible") },
+        { id: 'help-btn', event: 'click', handler: openHelpFile },
+        { id: 'footer-help-btn', event: 'click', handler: openHelpFile },
+        { id: 'suggestions-btn', event: 'click', handler: openSuggestionsModal },
+        { id: 'mode-slider', event: 'change', handler: handleModeChange }
+    ];
+    
+    let listenersConfigured = 0;
+    let listenersFailed = 0;
+    
+    listeners.forEach(listener => {
+        const element = document.getElementById(listener.id);
+        if (element) {
+            try {
+                element.addEventListener(listener.event, listener.handler);
+                listenersConfigured++;
+            } catch (error) {
+                log(LOG_LEVEL.WARN, `Error configurando listener para ${listener.id}:`, error);
+                listenersFailed++;
+            }
+        } else {
+            log(LOG_LEVEL.DEBUG, `Elemento ${listener.id} no encontrado`);
+        }
+    });
+    
+    // Atajos de teclado globales
     document.addEventListener('keydown', function(e) {
         // Solo si no hay inputs activos
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
@@ -538,14 +508,10 @@ function setupEventListeners() {
         
         switch(e.key) {
             case ' ': // Espacio - Iniciar/pausar cuenta atrás
-                if (typeof toggleCountdown === 'function') {
-                    toggleCountdown();
-                }
+                callIfFunction(toggleCountdown, "Función toggleCountdown no disponible");
                 break;
             case 'Enter': // Enter - Registrar salida
-                if (typeof registerDeparture === 'function') {
-                    registerDeparture();
-                }
+                callIfFunction(registerDeparture, "Función registerDeparture no disponible");
                 break;
             case 'Escape': // Escape - Cancelar modales
                 const activeModal = document.querySelector('.modal.show');
@@ -557,148 +523,43 @@ function setupEventListeners() {
                 }
                 break;
             case 'r': // R - Resetear cuenta atrás (con Ctrl)
-                if (e.ctrlKey && typeof resetCountdown === 'function') {
-                    resetCountdown();
+                if (e.ctrlKey) {
+                    callIfFunction(resetCountdown, "Función resetCountdown no disponible");
                 }
                 break;
             case 's': // S - Siguiente intervalo (con Ctrl)
-                if (e.ctrlKey && typeof nextInterval === 'function') {
-                    nextInterval();
+                if (e.ctrlKey) {
+                    callIfFunction(nextInterval, "Función nextInterval no disponible");
                 }
                 break;
         }
     });
     
-    // 16. Listeners específicos para orden de salida
+    // Listeners específicos
     setupStartOrderEventListeners();
     
-    // 17. Listener para cambio de modo (salidas/llegadas)
-    const modeSlider = document.getElementById('mode-slider');
-    if (modeSlider) {
-        modeSlider.addEventListener('change', function(e) {
-            if (window.isModeChanging) return;
-            window.isModeChanging = true;
-            
-            const newMode = e.target.checked ? 'llegadas' : 'salidas';
-            console.log('Cambiando modo a:', newMode);
-            
-            // Lógica de cambio de modo
-            if (typeof switchAppMode === 'function') {
-                switchAppMode(newMode);
-            }
-            
-            setTimeout(() => {
-                window.isModeChanging = false;
-            }, 100);
-        });
-    }
+    // Configurar instalación PWA
+    setupPWAInstallListener();
     
-    // 18. Listener para instalación PWA
-    window.addEventListener('beforeinstallprompt', (e) => {
-        // Previene que el navegador muestre el prompt automático
-        e.preventDefault();
-        // Guarda el evento para poder mostrarlo más tarde
-        window.deferredPrompt = e;
-        
-        // Opcional: Mostrar botón de instalación
-        const installBtn = document.getElementById('install-btn');
-        if (installBtn) {
-            installBtn.style.display = 'block';
-            installBtn.addEventListener('click', async () => {
-                if (window.deferredPrompt) {
-                    window.deferredPrompt.prompt();
-                    const { outcome } = await window.deferredPrompt.userChoice;
-                    console.log(`User response to the install prompt: ${outcome}`);
-                    window.deferredPrompt = null;
-                }
-            });
-        }
-    });
-    
-    // 19. Listener para actualizaciones del Service Worker
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-            if (window.updateAvailable) {
-                // Mostrar notificación de actualización disponible
-                if (typeof showMessage === 'function') {
-                    showMessage('Nueva versión disponible. Recarga la página.', 'info');
-                }
-            }
-        });
-    }
-    
-    // 20. Listener para visibilidad de página (pausar cuenta atrás cuando no está visible)
+    // Listener para visibilidad de página
     document.addEventListener('visibilitychange', function() {
         if (document.hidden && window.appState && window.appState.countdownActive) {
-            console.log('Página no visible, considerando pausar cuenta atrás...');
-            // Aquí podrías pausar automáticamente el countdown
+            log(LOG_LEVEL.DEBUG, "Página no visible - cuenta atrás activa");
         }
     });
     
-    // 21. BOTONES DEL FOOTER - NUEVOS
-    console.log('Configurando botones del footer...');
-    
-    // Botón de Ayuda
-    // 21. BOTONES DEL FOOTER - NUEVOS
-    console.log('Configurando botones del footer...');
+    log(LOG_LEVEL.INFO, `Listeners configurados: ${listenersConfigured} éxitos, ${listenersFailed} fallos`);
+}
 
-    // Botón de Ayuda - MODIFICADO
-    const footerHelpBtn = document.getElementById('footer-help-btn');
-    if (footerHelpBtn) {
-        footerHelpBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Botón Ayuda del footer clickeado');
-            
-            // 📄 ABRIR ARCHIVO DE AYUDA EN LUGAR DEL MODAL
-            window.open('Crono_CRI_ayuda.html', '_blank');
-            console.log('✅ Archivo de ayuda abierto en nueva pestaña');
-        });
-    }
-    
-    // Botón de Sugerencias
-    // Botón de Sugerencias (ACTUALIZADO - siempre abre el modal con formulario)
-    const suggestionsBtn = document.getElementById('suggestions-btn');
-    if (suggestionsBtn) {
-        suggestionsBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('📝 Botón Sugerencias clickeado - Abriendo formulario');
-            
-            const suggestionsModal = document.getElementById('suggestions-modal');
-            if (suggestionsModal) {
-                suggestionsModal.classList.add('active');
-                console.log('✅ Modal de sugerencias con formulario abierto');
-                
-                // 🔥 OPCIONAL: Resetear el formulario cada vez que se abre
-                setTimeout(() => {
-                    const emailInput = document.getElementById('email-suggestions');
-                    const cityInput = document.getElementById('city-suggestions');
-                    const suggestionInput = document.getElementById('suggestion-text');
-                    
-                    if (emailInput) {
-                        emailInput.value = '';
-                        emailInput.focus();
-                    }
-                    if (cityInput) cityInput.value = '';
-                    if (suggestionInput) suggestionInput.value = '';
-                }, 100);
-                
-            } else {
-                console.error('❌ Modal de sugerencias no encontrado');
-                // Fallback al email antiguo
-                openSuggestionsEmail();
-            }
-        });
-    }
-    
+// Configuración de instalación PWA
+function setupPWAInstallListener() {
     // Botón de Instalar App (PWA)
     const installBtn = document.getElementById('install-btn');
     if (installBtn) {
-        // Ocultar inicialmente - solo mostrar cuando esté disponible
+        // Ocultar inicialmente
         installBtn.style.display = 'none';
         
-        // Configurar listener para cuando se dispare el evento beforeinstallprompt
+        // Configurar listener para when the beforeinstallprompt event is fired
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             window.deferredPrompt = e;
@@ -710,109 +571,82 @@ function setupEventListeners() {
                 if (window.deferredPrompt) {
                     window.deferredPrompt.prompt();
                     const choiceResult = await window.deferredPrompt.userChoice;
-                    console.log('Usuario eligió:', choiceResult.outcome);
+                    log(LOG_LEVEL.INFO, `Usuario eligió instalar: ${choiceResult.outcome}`);
                     window.deferredPrompt = null;
-                    installBtn.style.display = 'none'; // Ocultar después de instalar
+                    installBtn.style.display = 'none';
                 }
             });
         });
         
-        // También verificar si ya está instalado
+        // Verificar si ya está instalado
         if (window.matchMedia('(display-mode: standalone)').matches || 
             window.navigator.standalone === true) {
-            installBtn.style.display = 'none'; // Ya está instalado
+            installBtn.style.display = 'none';
         }
     }
     
-    // Botón de Buscar actualizaciones (MEJORADO - maneja protocolo file://)
+    // Botón de Buscar actualizaciones
     const updateBtn = document.getElementById('update-btn');
     if (updateBtn) {
         updateBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Botón Buscar actualizaciones clickeado');
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
             
-            // Verificar protocolo actual
             const protocol = window.location.protocol;
             const isFileProtocol = protocol === 'file:';
             const isLocalhost = window.location.hostname === 'localhost' || 
                                window.location.hostname === '127.0.0.1';
             const isHttps = protocol === 'https:';
             
-            // 🔥 VERIFICACIÓN MEJORADA: Mostrar mensaje apropiado según protocolo
             if (isFileProtocol) {
-                console.log('⚠️ Service Workers no funcionan desde file://');
-                if (typeof showMessage === 'function') {
-                    showMessage('⚠️ Actualizaciones automáticas no disponibles', 'warning');
-                    showMessage('Ejecuta desde localhost o HTTPS para usar esta función', 'info');
-                }
+                log(LOG_LEVEL.WARN, "Service Workers no funcionan desde file://");
+                callIfFunction(() => showMessage('Actualizaciones automáticas no disponibles desde archivos locales', 'warning'));
                 return;
             }
             
-            // Solo continuar si estamos en localhost o HTTPS
             if (isLocalhost || isHttps) {
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.getRegistration()
                         .then(registration => {
                             if (registration) {
                                 registration.update();
-                                if (typeof showMessage === 'function') {
-                                    showMessage('🔄 Buscando actualizaciones...', 'info');
-                                }
-                                console.log('✅ Actualización del Service Worker solicitada');
+                                callIfFunction(() => showMessage('Buscando actualizaciones...', 'info'));
                                 
-                                // Verificar después de un tiempo
                                 setTimeout(() => {
                                     if (window.updateAvailable) {
-                                        showMessage('🎉 ¡Nueva versión disponible! Recarga la página.', 'success');
+                                        callIfFunction(() => showMessage('¡Nueva versión disponible! Recarga la página.', 'success'));
                                     } else {
-                                        showMessage('✅ Ya tienes la última versión', 'success');
+                                        callIfFunction(() => showMessage('Ya tienes la última versión', 'success'));
                                     }
                                 }, 2000);
                             } else {
-                                // Service Worker no registrado
-                                if (typeof showMessage === 'function') {
-                                    showMessage('⚠️ Service Worker no registrado', 'warning');
-                                    showMessage('La aplicación debe instalarse primero', 'info');
-                                }
+                                callIfFunction(() => showMessage('La aplicación debe instalarse primero para actualizaciones', 'info'));
                             }
                         })
                         .catch(error => {
-                            console.error('❌ Error buscando actualizaciones:', error);
-                            if (typeof showMessage === 'function') {
-                                showMessage('❌ Error buscando actualizaciones', 'error');
-                                showMessage('Detalles: ' + error.message, 'info');
-                            }
+                            log(LOG_LEVEL.ERROR, "Error buscando actualizaciones:", error);
                         });
                 } else {
-                    // Navegador no soporta Service Workers
-                    if (typeof showMessage === 'function') {
-                        showMessage('⚠️ Navegador no compatible con actualizaciones automáticas', 'warning');
-                    }
+                    callIfFunction(() => showMessage('Navegador no compatible con actualizaciones automáticas', 'warning'));
                 }
             } else {
-                // Protocolo no soportado (no file://, no localhost, no https://)
-                console.log('⚠️ Protocolo no soportado para Service Workers:', protocol);
-                if (typeof showMessage === 'function') {
-                    showMessage('⚠️ Protocolo no soportado: ' + protocol, 'warning');
-                    showMessage('Usa HTTPS o localhost para actualizaciones automáticas', 'info');
-                }
+                log(LOG_LEVEL.WARN, `Protocolo no soportado para Service Workers: ${protocol}`);
+                callIfFunction(() => showMessage(`Usa HTTPS o localhost para actualizaciones automáticas`, 'info'));
             }
         });
     }
-    
-    console.log('Event listeners principales configurados');
 }
 
 // Función auxiliar para abrir email de sugerencias
 function openSuggestionsEmail() {
     const email = 'rbenet71@gmail.com';
     const subject = 'Sugerencias para Crono CRI';
-    const body = `Hola Roberto,\n\nTengo algunas sugerencias para la aplicación Crono CRI:\n\n1. \n2. \n3. \n\n---\nApp: Crono CRI v3.2.3\nNavegador: ${navigator.userAgent}\nURL: ${window.location.href}`;
+    const body = `Hola Roberto,\n\nTengo algunas sugerencias para la aplicación Crono CRI:\n\n1. \n2. \n3. \n\n---\nApp: Crono CRI v3.2.4\nNavegador: ${navigator.userAgent}\nURL: ${window.location.href}`;
     
     const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     
-    console.log('Abriendo email de sugerencias:', mailtoLink);
     window.open(mailtoLink, '_blank');
 }
 
@@ -820,138 +654,59 @@ function openSuggestionsEmail() {
 // EVENT LISTENERS PARA ORDEN DE SALIDA
 // ============================================
 function setupStartOrderEventListeners() {
-    
     if (window.startOrderListenersConfigured) {
-        console.log("Event listeners de orden de salida ya configurados");
+        log(LOG_LEVEL.DEBUG, "Event listeners de orden de salida ya configurados");
         return;
     }
-    console.log("Configurando event listeners de orden de salida...");
     
-    // Botón para crear plantilla
-    const createTemplateBtn = document.getElementById('create-template-btn');
-    if (createTemplateBtn && typeof createStartOrderTemplate === 'function') {
-        createTemplateBtn.addEventListener('click', createStartOrderTemplate);
-    }
+    log(LOG_LEVEL.INFO, "Configurando event listeners de orden de salida...");
     
-    // Botón para importar orden
-    const importOrderBtn = document.getElementById('import-order-btn');
-    if (importOrderBtn && typeof importStartOrder === 'function') {
-        importOrderBtn.addEventListener('click', importStartOrder);
-    }
+    // Lista de listeners específicos
+    const orderListeners = [
+        { id: 'create-template-btn', handler: createStartOrderTemplate, name: 'createStartOrderTemplate' },
+        { id: 'import-order-btn', handler: importStartOrder, name: 'importStartOrder' },
+        { id: 'delete-order-btn', handler: deleteStartOrder, name: 'deleteStartOrder' },
+        { id: 'export-order-btn', handler: exportStartOrder, name: 'exportStartOrder' },
+        { id: 'export-order-pdf-btn', handler: generateStartOrderPDF, name: 'generateStartOrderPDF' },
+        { id: 'add-rider-btn', handler: showRiderPositionModal, fallback: addNewRider, name: 'addRider' },
+        { id: 'exit-complete-btn', handler: showRestartConfirmModal, name: 'restartConfirm' }
+    ];
     
-    // Botón para eliminar orden
-    const deleteOrderBtn = document.getElementById('delete-order-btn');
-    if (deleteOrderBtn && typeof deleteStartOrder === 'function') {
-        deleteOrderBtn.addEventListener('click', deleteStartOrder);
-    }
-    
-    // Botón para exportar orden
-    const exportOrderBtn = document.getElementById('export-order-btn');
-    if (exportOrderBtn && typeof exportStartOrder === 'function') {
-        exportOrderBtn.addEventListener('click', exportStartOrder);
-    }
-    
-    const exportPDFBtn = document.getElementById('export-order-pdf-btn');
-    if (exportPDFBtn) {
-        console.log("Configurando botón de exportar PDF...");
-        exportPDFBtn.addEventListener('click', generateStartOrderPDF);
-    }
-   
-    // BOTÓN AÑADIR CORREDOR - USANDO LA NUEVA FUNCIÓN
-    const addRiderBtn = document.getElementById('add-rider-btn');
-    if (addRiderBtn) {
-        console.log("Configurando botón añadir corredor con nueva funcionalidad...");
-        addRiderBtn.addEventListener('click', function() {
-            console.log("Botón añadir corredor clickeado");
-            if (typeof showRiderPositionModal === 'function') {
-                showRiderPositionModal();
-            } else if (typeof addNewRider === 'function') {
-                addNewRider(); // Fallback a la versión antigua
-            } else {
-                console.error("Función addNewRider no encontrada");
-            }
-        });
-    }
-    
-    
-    // Botón para reiniciar completamente
-    const exitCompleteBtn = document.getElementById('exit-complete-btn');
-    if (exitCompleteBtn) {
-        exitCompleteBtn.addEventListener('click', () => {
-            const modal = document.getElementById('restart-confirm-modal');
-            if (modal) modal.classList.add('active');
-        });
-    }
-    
- // En Crono_CRI_js_Main.js, línea 682 aproximadamente
-
-console.log("✅ Aplicación completamente inicializada y lista");
-
-// 🔥 CORRECCIÓN DE INTERVALOS DE TIEMPO 🔥
-
-// 1. Iniciar actualización de hora del sistema (debe existir en UI.js)
-if (typeof updateSystemTimeDisplay === 'function') {
-    updateSystemTimeDisplay();
-    setInterval(updateSystemTimeDisplay, 1000); // Actualizar cada segundo
-    console.log("⏰ Actualización de hora del sistema iniciada");
-}
-
-// 2. Iniciar actualización de hora actual (si existe)
-if (typeof updateCurrentTime === 'function') {
-    setInterval(updateCurrentTime, 1000);
-    console.log("⏰ Actualización de hora actual iniciada");
-}
-
-// 3. Si updateCurrentTime no existe, usar una función alternativa
-if (typeof updateCurrentTime === 'undefined') {
-    // Crear función simple para mostrar hora actual
-    function updateCurrentTime() {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString('es-ES', { hour12: false });
-        const currentTimeElement = document.getElementById('current-time-value');
-        if (currentTimeElement) {
-            currentTimeElement.textContent = timeString;
+    orderListeners.forEach(listener => {
+        const element = document.getElementById(listener.id);
+        if (element) {
+            element.addEventListener('click', function() {
+                if (typeof listener.handler === 'function') {
+                    listener.handler();
+                } else if (listener.fallback && typeof listener.fallback === 'function') {
+                    listener.fallback();
+                } else {
+                    log(LOG_LEVEL.WARN, `Función ${listener.name} no disponible`);
+                }
+            });
+        } else {
+            log(LOG_LEVEL.DEBUG, `Botón ${listener.id} no encontrado`);
         }
-    }
+    });
     
-    updateCurrentTime();
-    setInterval(updateCurrentTime, 1000);
-    console.log("⏰ Función updateCurrentTime creada e iniciada");
-}
-
-// 4. Configurar redimensionamiento del countdown (si existe)
-if (typeof setupCountdownResize === 'function') {
-    setupCountdownResize();
-    console.log("📱 Redimensionamiento del countdown configurado");
-}
-
-// 5. Iniciar actualización de cuenta atrás si está activa
-function updateCountdownIfActive() {
-    if (appState.countdownActive && typeof updateCountdownDisplay === 'function') {
-        updateCountdownDisplay();
-    }
-}
-
-// Actualizar countdown cada segundo
-setInterval(updateCountdownIfActive, 1000);
-
-console.log("⏰ Todos los intervalos de tiempo iniciados correctamente");
-
     window.startOrderListenersConfigured = true;
-    console.log("Event listeners de orden de salida configurados.");
+    log(LOG_LEVEL.INFO, "Event listeners de orden de salida configurados");
+}
+
+// Función auxiliar para mostrar modal de reinicio
+function showRestartConfirmModal() {
+    const modal = document.getElementById('restart-confirm-modal');
+    if (modal) modal.classList.add('active');
 }
 
 // ============================================
 // MANEJADORES DE EVENTOS
 // ============================================
-// ============================================
-// FUNCIÓN CORREGIDA PARA CAMBIAR DE CARRERA
-// ============================================
 function handleRaceChange(raceId) {
-    console.log("🔄 Cambiando carrera a ID:", raceId);
+    log(LOG_LEVEL.INFO, `Cambiando carrera a ID: ${raceId}`);
     
     if (!raceId || raceId === 0) {
-        console.log("⚠️ ID de carrera inválido o 0");
+        log(LOG_LEVEL.WARN, "ID de carrera inválido o 0");
         return;
     }
     
@@ -959,13 +714,13 @@ function handleRaceChange(raceId) {
     const selectedRace = appState.races.find(r => r.id === raceId);
     
     if (!selectedRace) {
-        console.error("❌ No se encontró la carrera con ID:", raceId);
+        log(LOG_LEVEL.ERROR, `No se encontró la carrera con ID: ${raceId}`);
         const t = translations[appState.currentLanguage];
-        showMessage(t.raceNotFound || 'Carrera no encontrada', 'error');
+        callIfFunction(() => showMessage(t.raceNotFound || 'Carrera no encontrada', 'error'));
         return;
     }
     
-    console.log("✅ Carrera encontrada:", selectedRace.name);
+    log(LOG_LEVEL.INFO, `Carrera encontrada: ${selectedRace.name}`);
     
     // 1. Establecer nueva carrera como actual
     appState.currentRace = selectedRace;
@@ -974,55 +729,27 @@ function handleRaceChange(raceId) {
     localStorage.setItem('countdown-current-race', JSON.stringify(selectedRace));
     
     // 3. Cargar datos de la nueva carrera
-    if (typeof loadRaceData === 'function') {
-        loadRaceData();
-    }
-    
-    if (typeof loadStartOrderData === 'function') {
-        loadStartOrderData();
-    }
+    callIfFunction(loadRaceData, "Función loadRaceData no disponible");
+    callIfFunction(loadStartOrderData, "Función loadStartOrderData no disponible");
     
     // 4. Actualizar UI
-    if (typeof updateRaceManagementCardTitle === 'function') {
-        updateRaceManagementCardTitle();
-    }
+    callIfFunction(updateRaceManagementCardTitle, "Función updateRaceManagementCardTitle no disponible");
+    callIfFunction(updateDeleteRaceButtonState, "Función updateDeleteRaceButtonState no disponible");
+    callIfFunction(updateRaceActionButtonsState, "Función updateRaceActionButtonsState no disponible");
     
-    if (typeof updateDeleteRaceButtonState === 'function') {
-        updateDeleteRaceButtonState();
-    }
-    
-    if (typeof updateRaceActionButtonsState === 'function') {
-        updateRaceActionButtonsState();
-    }
-    
-    // 5. Actualizar el selector para mostrar la opción seleccionada
+    // 5. Actualizar el selector
     const racesSelect = document.getElementById('races-select');
     if (racesSelect) {
         racesSelect.value = selectedRace.id;
-        console.log("✅ Selector actualizado a carrera:", selectedRace.name);
     }
     
-    console.log(`✅ Carrera cambiada a: ${selectedRace.name} (ID: ${selectedRace.id})`);
+    log(LOG_LEVEL.INFO, `Carrera cambiada a: ${selectedRace.name} (ID: ${selectedRace.id})`);
     
     // 6. Mostrar mensaje de confirmación
     const t = translations[appState.currentLanguage];
-    showMessage(`${t.raceSelected || 'Carrera seleccionada'}: ${selectedRace.name}`, 'success');
+    callIfFunction(() => showMessage(`${t.raceSelected || 'Carrera seleccionada'}: ${selectedRace.name}`, 'success'));
 }
-function handleKeyboardShortcuts(e) {
-    // ESC para pausar cuenta atrás
-    if (e.key === 'Escape' && appState.countdownActive && !appState.configModalOpen) {
-        pauseCountdownVisual();
-        document.getElementById('config-during-countdown-modal').classList.add('active');
-    }
-    
 
-    // Tecla L para registro rápido de llegada
-    if ((e.key === 'l' || e.key === 'L') && 
-        document.getElementById('mode-llegadas-content').classList.contains('active') && 
-        llegadasState.timerActive) {
-        showQuickRegisterLlegada();
-    }
-}
 // ============================================
 // ESTADO DE ORDENACIÓN PARA TABLA DE ORDEN DE SALIDA
 // ============================================

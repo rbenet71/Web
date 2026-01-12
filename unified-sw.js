@@ -1,6 +1,6 @@
 // unified-sw.js
 // Service Worker unificado para todas las aplicaciones
-// Versión: 2.3 (incluye Crono CRI v3.2.3)
+// Versión: 2.3 (incluye Crono CRI v3.2.4)
 
 const APP_CACHES = {
   'calculadora': 'calculadora-tiempos-v1.2',
@@ -8,7 +8,7 @@ const APP_CACHES = {
   'cronollegadas': 'crono-llegadas-v1.2',
   'crono_tops': 'crono-tops-v1.0',
   'crono_cuenta_atras': 'crono-cuenta-atras-v1.0', 
-  'crono_cri': 'crono-cri-v3.2.3',  // 🔥 NUEVO: Crono CRI
+  'crono_cri': 'crono-cri-v3.2.4',  // 🔥 NUEVO: Crono CRI
   'gps': 'GPS-v1.0', 
   'damas': 'Damas-v1.0', 
   'marcianitos': 'Marcianitos-v1.0', 
@@ -84,25 +84,25 @@ const APP_RESOURCES = {
     'https://rbenet71.github.io/Web/Árbitro/crono_cuenta_atras/audio/fr_1.ogg',
     'https://rbenet71.github.io/Web/Árbitro/crono_cuenta_atras/audio/fr_0.ogg',
   ],
-  // 🔥 NUEVO: CRONO CRI v3.2.3
+  // 🔥 NUEVO: CRONO CRI v3.2.4
   'crono_cri': [
     // Archivos principales
-    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI.html?v=3.2.3',
-    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI.css?v=3.2.3',
-    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Main.js?v=3.2.3',
-    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_UI.js?v=3.2.3',
-    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Utilidades.js?v=3.2.3',
-    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Traducciones.js?v=3.2.3',
-    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Storage_Pwa.js?v=3.2.3',
-    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Salidas_1.js?v=3.2.3',
-    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Salidas_2.js?v=3.2.3',
-    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Salidas_3.js?v=3.2.3',
-    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Salidas_4.js?v=3.2.3',
-    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Llegadas.js?v=3.2.3',
-    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Cuenta_Atras.js?v=3.2.3',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI.html?v=3.2.4',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI.css?v=3.2.4',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Main.js?v=3.2.4',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_UI.js?v=3.2.4',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Utilidades.js?v=3.2.4',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Traducciones.js?v=3.2.4',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Storage_Pwa.js?v=3.2.4',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Salidas_1.js?v=3.2.4',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Salidas_2.js?v=3.2.4',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Salidas_3.js?v=3.2.4',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Salidas_4.js?v=3.2.4',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Llegadas.js?v=3.2.4',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_js_Cuenta_Atras.js?v=3.2.4',
     
     // Recursos estáticos
-    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_manifest.json?v=3.2.3',
+    'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_manifest.json?v=3.2.4',
     'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_192x192.png',
     'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI_512x512.png',
     
@@ -176,7 +176,7 @@ const UNIFIED_SW_CACHE = `unified-sw-v${UNIFIED_SW_VERSION}`;
 // Instalación del Service Worker unificado
 self.addEventListener('install', event => {
   console.log(`Service Worker Unificado v${UNIFIED_SW_VERSION}: Instalando...`);
-  console.log(`Incluye Crono CRI v3.2.3`);
+  console.log(`Incluye Crono CRI v3.2.4`);
   
   event.waitUntil(
     Promise.all(
@@ -228,7 +228,7 @@ self.addEventListener('activate', event => {
             version: UNIFIED_SW_VERSION,
             apps: Object.keys(APP_CACHES),
             includesCronoCRI: true,
-            cronoCRIVersion: '3.2.3'
+            cronoCRIVersion: '3.2.4'
           });
         });
       })
@@ -400,7 +400,7 @@ async function getFallbackPage(appName) {
     'cronollegadas': 'https://rbenet71.github.io/Web/Árbitro/Crono_Llegadas/Crono_Llegadas.html',
     'crono_tops': 'https://rbenet71.github.io/Web/Árbitro/Crono_Tops/Crono_Tops.html',
     'crono_cuenta_atras': 'https://rbenet71.github.io/Web/Árbitro/crono_cuenta_atras/Crono_cuenta_atras.html',
-    'crono_cri': 'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI.html?v=3.2.3', // 🔥 VERSIÓN ESPECÍFICA
+    'crono_cri': 'https://rbenet71.github.io/Web/Árbitro/Crono_CRI/Crono_CRI.html?v=3.2.4', // 🔥 VERSIÓN ESPECÍFICA
     'gps': 'https://rbenet71.github.io/Web/Ciclismo/GPS/GPS.html', 
     'damas': 'https://rbenet71.github.io/Web/Entretenimiento/Damas/Damas.html', 
     'marcianitos': 'https://rbenet71.github.io/Web/Entretenimiento/Marcianitos/Marcianitos.html', 
@@ -547,7 +547,7 @@ self.addEventListener('message', event => {
     event.ports[0]?.postMessage({
       version: UNIFIED_SW_VERSION,
       apps: Object.keys(APP_CACHES),
-      cronoCriVersion: '3.2.3'
+      cronoCriVersion: '3.2.4'
     });
   }
   
@@ -563,11 +563,11 @@ self.addEventListener('message', event => {
     
     event.ports[0]?.postMessage({
       app: detectedApp,
-      version: detectedApp === 'crono_cri' ? '3.2.3' : 'N/A'
+      version: detectedApp === 'crono_cri' ? '3.2.4' : 'N/A'
     });
   }
 });
 
 console.log(`✅ Service Worker Unificado v${UNIFIED_SW_VERSION} cargado`);
 console.log(`📊 Incluye ${Object.keys(APP_CACHES).length} aplicaciones`);
-console.log(`🔥 Crono CRI v3.2.3 integrado`);
+console.log(`🔥 Crono CRI v3.2.4 integrado`);

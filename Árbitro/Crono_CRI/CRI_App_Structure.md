@@ -1,4 +1,4 @@
-# **CRI App - Documentación Optimizada para Modificaciones**
+# **CRI App - Documentación Optimizada para Modificaciones v3.2.4**
 
 ## 📋 **ÍNDICE RÁPIDO**
 - [**1. Visión General**](#1-visión-general)
@@ -7,38 +7,40 @@
 - [**4. Estructuras de Datos Clave**](#4-estructuras-de-datos-clave)
 - [**5. Sistema de Traducciones**](#5-sistema-de-traducciones)
 - [**6. HTML/CSS Esencial**](#6-htmlcss-esencial)
-- [**7. Flujos Principales**](#7-flujos-principales)
+- [**7. Flujos Principales**](#7-flujos-princiales)
 - [**8. Modificaciones Comunes**](#8-modificaciones-comunes) ⭐
-- [**9. Reglas de Oro**](#9-reglas-de-oro)
-- [**10. Lecciones Aprendidas**](#10-lecciones-aprendidas)
-- [**11. Checklist para Cambios**](#11-checklist-para-cambios) ⭐
+- [**9. Sistema de Logging Optimizado**](#9-sistema-de-logging-optimizado) ⭐
+- [**10. Reglas de Oro**](#10-reglas-de-oro)
+- [**11. Lecciones Aprendidas**](#11-lecciones-aprendidas)
+- [**12. Checklist para Cambios**](#12-checklist-para-cambios) ⭐
 
 ---
 
 ## **1. VISIÓN GENERAL**
-Crono CRI v3.2.1 - PWA para control de salidas/llegadas en carreras ciclistas.
+Crono CRI v3.2.4 - PWA para control de salidas/llegadas en carreras ciclistas.
 - **Modo Salidas**: Cuenta atrás basada en cronoSalida de tabla
 - **Modo Llegadas**: Cronometraje con milésimas, posiciones automáticas
 - **4 idiomas**: ES, CA, EN, FR
 - **Exportación**: Excel (22 cols), PDF (2 versiones)
+- **Sistema de logging optimizado** (reducción 80% logs en consola)
 
 ---
 
 ## **2. MAPA DE MÓDULOS** ⭐
 
-| Módulo | Responsabilidad Principal | Dependencias Clave |
-|--------|--------------------------|-------------------|
-| **Main.js** | Coordinación global, estado app, PWA, pantalla countdown | TODOS |
-| **Salidas_1.js** | Importación/exportación Excel (22 cols), validación 3.2.1 | Storage_Pwa, UI, Salidas_2 |
-| **Salidas_2.js** | Tabla UI, edición inline, throttling 3 niveles | Salidas_1, Salidas_3, Salidas_4 |
-| **Salidas_3.js** | Modales, añadir corredores, cambios globales | Salidas_2, UI, Storage_Pwa |
-| **Salidas_4.js** | Confirmaciones, validaciones, edición avanzada | Salidas_2, Salidas_3, Utilidades |
-| **Cuenta_Atras.js** | Sistema cuenta atrás, salidas, sincronización dorsal↔posición | Main, Utilidades, Salidas_2, Storage_Pwa |
-| **UI.js** | Interfaz, tarjetas, modales, gestión tiempo | Main, Storage_Pwa, Cuenta_Atras, Llegadas |
-| **Storage_Pwa.js** | Persistencia, backup/restore, gestión carreras | TODOS (persistencia central) |
-| **Utilidades.js** | Conversiones tiempo, audio, exportación, diagnóstico | TODOS (utilidades centrales) |
-| **Traducciones.js** | Sistema multilingüe (4 idiomas) | TODOS (textos UI) |
-| **Llegadas.js** | Modo llegadas (13 cols), milésimas, posiciones auto | Main, Utilidades, Traducciones |
+| Módulo | Responsabilidad Principal | Dependencias Clave | Versión |
+|--------|--------------------------|-------------------|---------|
+| **Main.js** | Coordinación global, estado app, PWA, pantalla countdown, logging optimizado | TODOS | 3.2.4 |
+| **Salidas_1.js** | Importación/exportación Excel (22 cols), validación 3.2.1 | Storage_Pwa, UI, Salidas_2 | 3.2.1 |
+| **Salidas_2.js** | Tabla UI, edición inline, throttling 3 niveles | Salidas_1, Salidas_3, Salidas_4 | 3.2.1 |
+| **Salidas_3.js** | Modales, añadir corredores, cambios globales | Salidas_2, UI, Storage_Pwa | 3.2.1 |
+| **Salidas_4.js** | Confirmaciones, validaciones, edición avanzada | Salidas_2, Salidas_3, Utilidades | 3.2.1 |
+| **Cuenta_Atras.js** | Sistema cuenta atrás, salidas, sincronización dorsal↔posición | Main, Utilidades, Salidas_2, Storage_Pwa | 3.2.1 |
+| **UI.js** | Interfaz, tarjetas, modales, gestión tiempo | Main, Storage_Pwa, Cuenta_Atras, Llegadas | 3.2.4 |
+| **Storage_Pwa.js** | Persistencia, backup/restore, gestión carreras (35 funciones) | TODOS (persistencia central) | 3.2.2 |
+| **Utilidades.js** | Conversiones tiempo, audio, exportación, diagnóstico | TODOS (utilidades centrales) | 3.2.1 |
+| **Traducciones.js** | Sistema multilingüe (4 idiomas) | TODOS (textos UI) | 3.2.1 |
+| **Llegadas.js** | Modo llegadas (13 cols), milésimas, posiciones auto | Main, Utilidades, Traducciones | 3.2.1 |
 
 **Flujo principal**: Main → [Salidas_1-4 / Llegadas] ↔ UI ↔ Storage_Pwa ↔ Utilidades
 
@@ -46,10 +48,17 @@ Crono CRI v3.2.1 - PWA para control de salidas/llegadas en carreras ciclistas.
 
 ## **3. FUNCIONES CRÍTICAS POR MÓDULO**
 
-### **MAIN.JS** (Coordinación Global)
+### **MAIN.JS v3.2.4** (Coordinación Global con Logging Optimizado)
 ```javascript
-// Estado global
-const appState = {  // ✅ También existe window.appState (duplicación)
+// ✅ NUEVO: Sistema de logging por niveles
+const LOG_LEVEL = { ERROR: 0, WARN: 1, INFO: 2, DEBUG: 3 };
+const CURRENT_LOG_LEVEL = LOG_LEVEL.INFO; // Cambiar según entorno
+
+function log(level, message, data = null) // Sistema centralizado
+function callIfFunction(fn, fallbackMessage) // Llama funciones solo si existen
+
+// Estado global optimizado
+const appState = {
   audioType, currentLanguage, soundEnabled, aggressiveMode,
   currentRace: { id, name, firstStartTime, startOrder: [] }, races: [],
   countdownActive, countdownValue, departedCount, nextCorredorTime: 60,
@@ -57,16 +66,12 @@ const appState = {  // ✅ También existe window.appState (duplicación)
   deferredPrompt, updateAvailable, countdownPaused, accumulatedTime
 };
 
-// Funciones críticas
-initApp()              // Inicialización coordinada
-loadAppPreferences()   // Carga idioma/audio/modo agresivo
-saveAppPreferences()   // Guarda preferencias localStorage
-showCountdownScreen()  // Pantalla completa countdown
-hideCountdownScreen()  // Oculta pantalla countdown
-handleRaceChange(raceId) // ⚠️ Recibe raceId (NO event)
-updateSystemTimeDisplay() // Hora sistema (cada 1s)
-updateCurrentTime()    // Hora actual pantalla countdown
-updateCountdownIfActive() // Actualiza countdown si activa
+// Funciones críticas OPTIMIZADAS
+initApp()              // Inicialización con logging optimizado (80% menos logs)
+setupEventListeners()  // Configuración agrupada con manejo de errores
+setupTimeIntervals()   // Gestión centralizada de intervalos de tiempo
+handleRaceChange(raceId) // Recibe solo raceId
+openHelpFile()         // Abre Crono_CRI_ayuda.html externo
 ```
 
 ### **SALIDAS_1.JS** (Importación/Exportación Excel)
@@ -86,14 +91,15 @@ applyImportRules()            // Reglas consistencia datos importados
 
 ### **SALIDAS_2.JS** (UI Tabla - Throttling 3 Niveles)
 ```javascript
-// SISTEMA THROTTLING:
+// SISTEMA THROTTLING OPTIMIZADO:
 updateStartOrderTableThrottled()   // Throttling estándar (50ms min)
 updateStartOrderTableCritical()    // Ejecución crítica inmediata  
 updateStartOrderTableImmediate()   // Ejecución forzada inmediata
 
-// PROTECCIONES:
+// PROTECCIONES MEJORADAS:
 window.updatingStartOrderUI        // Evita ejecuciones simultáneas
 MIN_FORCE_UPDATE_INTERVAL = 100ms  // Mínimo entre updates forzados
+// ✅ LOGS REDUCIDOS: Solo warnings si hay problemas reales
 
 handleTableClick()                 // Event delegation para edición
 startDiferenciaEditing()          // Edición diferencia con signos (+)/(-)
@@ -105,6 +111,7 @@ setupTimeInputs()                 // Inputs tiempo optimizados móviles
 handleFirstStartTimeBlur()        // Cambio hora inicio con confirmación
 showTimeChangeConfirmation()      // Modal detallado cambio hora
 addNewRider()                     // Añade corredor con modal complejo
+showRiderPositionModal()          // NUEVO: Modal para elegir posición
 createNewRiderAtPosition()        // Inserta en posición específica
 recalculateFollowingRiders()      // Recalcula posteriores preservando datos
 updateRiderPreview()              // Vista previa tiempo real
@@ -137,13 +144,13 @@ sincronizarDorsalAPosicion()     // Sincronización automática
 configurarBotonesModalReinicio() // Modal personalizado (no confirm() nativo)
 ```
 
-### **UI.JS** (Interfaz y Gestión Tiempo)
+### **UI.JS v3.2.4** (Interfaz y Gestión Tiempo)
 ```javascript
 // SISTEMA RESETEO AUTOMÁTICO:
 updateTimeDifference()           // "Cuenta atrás en:" (horaSalida - 1min - horaActual)
 resetearCamposRealesAutomatico() // Limpia campos al iniciar countdown automático
 
-// GESTIÓN INTERFAZ:
+// GESTIÓN INTERFAZ OPTIMIZADA:
 setupCardToggles()              // Tarjetas expandibles con persistencia
 initModeSlider()                // Selector modo salidas/llegadas
 updateSystemTimeDisplay()       // Hora sistema en UI
@@ -151,12 +158,15 @@ showMessage(text, type)         // Notificaciones (info/success/error)
 setupModalEventListeners()      // ⚠️ Excluye modal de llegadas
 updateRaceActionButtonsState()  // Habilita/deshabilita botones dinámicamente
 setupLanguageButtons()          // Configura cambio idioma
-showHelpModal()                 // Abre Crono_CRI_ayuda.html externo
+openHelpFile()                  // Abre Crono_CRI_ayuda.html externo
+
+// ✅ NUEVO: Sistema tiempo sin intervalos (optimización)
+setupStaticTimeDisplay()        // Configura hora estática
 ```
 
-### **STORAGE_PWA.JS** (Persistencia Completa)
+### **STORAGE_PWA.JS v3.2.2** (Persistencia Completa)
 ```javascript
-// 35 FUNCIONES IMPLEMENTADAS (solo 6 estaban documentadas):
+// 35 FUNCIONES IMPLEMENTADAS (documentadas):
 loadRaceData(raceId)           // Carga datos específicos carrera
 saveRaceData()                 // Guarda carrera actual
 loadStartOrderData()           // Carga orden salida
@@ -170,6 +180,10 @@ updateDeleteRaceButtonState()  // Actualiza estado botón eliminar
 renderRacesSelect()            // Renderiza selector carreras
 forceFullSync()                // Sincroniza memoria↔localStorage
 cleanOrphanedRaces()           // Limpia carreras huérfanas
+
+// ✅ SERVICEWORKER MEJORADO:
+setupServiceWorker()           // Configura PWA con manejo de protocolos
+setupPWA()                     // Configuración PWA completa
 ```
 
 ### **UTILIDADES.JS** (Utilidades Centrales)
@@ -344,6 +358,9 @@ formatSecondsWithMilliseconds(seconds) // HH:MM:SS.mmm
 // Modales (13+)
 '#new-race-modal', '#import-confirmation-modal'
 '#delete-race-modal', '#llegadas-modal'
+
+// ✅ NUEVO: Footer mejorado
+'#footer-help-btn', '#suggestions-btn', '#install-btn', '#update-btn'
 ```
 
 ### **CLASES CSS DE ESTADO (JavaScript las añade/remueve):**
@@ -408,6 +425,15 @@ formatSecondsWithMilliseconds(seconds) // HH:MM:SS.mmm
 5. → calcularMapaPosiciones() (posiciones automáticas)
 6. → actualizarFilaLlegadaIndividual()
 7. → saveLlegadasState()
+```
+
+### **Inicialización Optimizada (v3.2.4):**
+```
+1. Main.js: initApp() con logging optimizado
+2. → Configuración agrupada (quickConfigs array)
+3. → setupEventListeners() centralizado
+4. → setupTimeIntervals() para relojes
+5. → Resumen final: "Configuraciones completadas: X éxitos, Y errores"
 ```
 
 ---
@@ -476,7 +502,99 @@ PROTECCIONES ACTIVAS:
 
 ---
 
-## **9. REGLAS DE ORO**
+## **9. SISTEMA DE LOGGING OPTIMIZADO** ⭐
+
+### **Niveles de Log (v3.2.4):**
+```javascript
+const LOG_LEVEL = {
+    ERROR: 0,   // 🚨 Solo errores críticos (funciones fallan, datos corruptos)
+    WARN: 1,    // ⚠️ Problemas recuperables (elementos no encontrados)
+    INFO: 2,    // ✅ Confirmaciones importantes (carga completada, cambios guardados)
+    DEBUG: 3    // 🔍 Solo desarrollo (detalles internos, múltiples ejecuciones)
+};
+
+// Cambiar según entorno:
+const CURRENT_LOG_LEVEL = LOG_LEVEL.INFO;    // PRODUCCIÓN (solo errores y confirmaciones)
+const CURRENT_LOG_LEVEL = LOG_LEVEL.DEBUG;   // DESARROLLO (todos los logs)
+```
+
+### **Función centralizada de logging:**
+```javascript
+function log(level, message, data = null) {
+    if (level <= CURRENT_LOG_LEVEL) {
+        const prefixes = ['🚨', '⚠️', '✅', '🔍'];
+        const prefix = prefixes[level] || '';
+        
+        if (data) {
+            console.log(`${prefix} ${message}`, data);
+        } else {
+            console.log(`${prefix} ${message}`);
+        }
+    }
+}
+
+// Uso en código:
+log(LOG_LEVEL.INFO, "Inicializando aplicación Crono CRI...");
+log(LOG_LEVEL.ERROR, "Error cargando carrera actual:", error);
+log(LOG_LEVEL.DEBUG, `startOrderData disponible: ${!!startOrderData}`);
+```
+
+### **Función auxiliar callIfFunction:**
+```javascript
+function callIfFunction(fn, fallbackMessage = null) {
+    if (typeof fn === 'function') {
+        return fn();
+    } else if (fallbackMessage) {
+        log(LOG_LEVEL.WARN, fallbackMessage);
+    }
+    return null;
+}
+
+// Uso: Evita errores cuando funciones no existen
+callIfFunction(updateLanguageUI, "Función updateLanguageUI no disponible");
+```
+
+### **Resultado de logs optimizados:**
+```
+ANTES (v3.2.2):
+- 100+ líneas de consola
+- "Configurando...", "✅ Botón X configurado" repetitivos
+- Warnings de throttling constantes
+- Información redundante
+
+DESPUÉS (v3.2.4):
+✅ Inicializando aplicación Crono CRI...
+✅ Carrera actual cargada: Pruebas 2.4.8 x
+✅ Configurando event listeners principales...
+✅ Listeners configurados: 14 éxitos, 0 fallos
+✅ Configuraciones completadas: 22 éxitos, 2 errores
+✅ Estado final - Carrera: Pruebas 2.4.8 x, Corredores: 25, Audio: voice
+✅ Aplicación completamente inicializada y lista
+```
+
+### **Logs eliminados/optimizados:**
+1. ❌ "Configurando botón X..."
+2. ❌ "✅ Botón X configurado"
+3. ❌ "⚠️ Updates forzados demasiado frecuentes" (a menos que sea problema real)
+4. ❌ "UI actualizada", "Tabla actualizada" repetitivos
+5. ✅ Mantenidos: Errores, confirmaciones finales, problemas reales
+
+### **Mejoras en inicialización:**
+```javascript
+// Configuraciones agrupadas (antes: llamadas individuales con logs)
+const quickConfigs = [
+    { fn: addDisabledButtonStyles, name: 'addDisabledButtonStyles' },
+    { fn: updateDeleteRaceButtonState, name: 'updateDeleteRaceButtonState' },
+    // ... 20+ configuraciones más
+];
+
+// Resumen final en lugar de logs individuales
+log(LOG_LEVEL.INFO, `Configuraciones completadas: ${configSuccess} éxitos, ${configErrors} errores`);
+```
+
+---
+
+## **10. REGLAS DE ORO**
 
 1. **Nunca sobrescribir** campos `_Real` o `_Importado` - Solo usuario puede
 2. **Usar throttling adecuado** según necesidad (3 niveles)
@@ -491,10 +609,12 @@ PROTECCIONES ACTIVAS:
 11. **Datos en cada corredor** - No usar tablas separadas de salidas
 12. **Sincronización automática** - dorsal↔posición en Cuenta_Atras.js
 13. **Modal personalizado** - Para reinicio (no confirm() nativo)
+14. **✅ LOGGING OPTIMIZADO** - Usar sistema por niveles, evitar logs redundantes
+15. **✅ INICIALIZACIÓN AGRUPADA** - Configuraciones rápidas sin logs individuales
 
 ---
 
-## **10. LECCIONES APRENDIDAS**
+## **11. LECCIONES APRENDIDAS**
 
 ### **Problemas Críticos Solucionados:**
 
@@ -543,22 +663,30 @@ PROTECCIONES ACTIVAS:
 **Solución:** Actualizar a v3.2.1 (posiciones automáticas, PDF profesional)  
 **Archivo:** `Llegadas.js`
 
+#### **10. ✅ LOGS EXCESIVOS EN CONSOLA (v3.2.4)**
+**Problema:** 100+ líneas de logs, 80% redundantes  
+**Solución:** Sistema de logging por niveles con inicialización agrupada  
+**Archivo:** `Main.js` - Sistema optimizado de logging
+
 ---
 
-## **11. CHECKLIST PARA CAMBIOS** ⭐
+## **12. CHECKLIST PARA CAMBIOS** ⭐
 
 ### **ANTES de modificar:**
 - [ ] Identificar módulos afectados (usar **Mapa de Módulos**)
 - [ ] Verificar dependencias cruzadas
 - [ ] Revisar **Reglas de Oro** relevantes
 - [ ] Comprobar si afecta a traducciones (4 idiomas)
+- [ ] **✅ Configurar nivel de log apropiado** (DEBUG para desarrollo, INFO para producción)
 
 ### **DURANTE modificación:**
 - [ ] Usar funciones centralizadas (ej: `timeToSeconds()` de Utilidades.js)
 - [ ] Aplicar throttling adecuado (3 niveles)
 - [ ] Preservar campos `_Real` e `_Importado`
 - [ ] Mantener estructura 22 columnas para Excel
-- [ ] Añadir logs para depuración en funciones críticas
+- [ ] **✅ Usar sistema de logging optimizado** (`log()` con niveles)
+- [ ] **✅ Agrupar configuraciones** cuando sea posible
+- [ ] **✅ Usar `callIfFunction()`** para manejo elegante de funciones faltantes
 
 ### **DESPUÉS de modificar:**
 - [ ] Probar en múltiples navegadores
@@ -568,12 +696,15 @@ PROTECCIONES ACTIVAS:
 - [ ] Probar cuenta atrás (compensación 1s)
 - [ ] Verificar sincronización dorsal↔posición
 - [ ] Probar modo llegadas (milésimas, posiciones)
+- [ ] **✅ Verificar logs en consola** (solo información necesaria)
+- [ ] **✅ Probar inicialización optimizada** (resumen claro, no logs excesivos)
 
 ### **SI hay errores:**
 - [ ] Revisar **Lecciones Aprendidas** (problemas similares)
 - [ ] Usar funciones diagnóstico (`diagnoseCurrentState()`)
-- [ ] Verificar consola JavaScript
+- [ ] Verificar consola JavaScript con nivel DEBUG
 - [ ] Comprobar localStorage (datos corruptos)
+- [ ] **✅ Usar `callIfFunction()`** para identificar funciones faltantes
 
 ---
 
@@ -613,12 +744,33 @@ PROTECCIONES ACTIVAS:
 | **Conversiones tiempo, audio, PDF** | `Utilidades.js` | `Traducciones.js` |
 | **Textos, idiomas** | `Traducciones.js` | `UI.js`, `Main.js` |
 | **Llegadas, clasificación** | `Llegadas.js` | `Utilidades.js`, `Traducciones.js` |
-| **Estado global, PWA, preferencias** | `Main.js` | `UI.js`, `Storage_Pwa.js` |
+| **Estado global, PWA, logging** | `Main.js` | `UI.js`, `Storage_Pwa.js` |
+| **✅ Sistema de logging** | `Main.js` | (centralizado) |
+| **✅ Optimización consola** | `Main.js` | (todos los módulos) |
 
 ---
 
-**Documentación optimizada para modificaciones - v3.2.1**  
-**Caracteres:** ~28,000 (45% reducción)  
+## **🎯 RESUMEN DE CAMBIOS v3.2.4**
+
+### **Mejoras principales:**
+1. **✅ Sistema de logging optimizado** (80% reducción logs)
+2. **✅ Función `log()` centralizada** con 4 niveles
+3. **✅ Función `callIfFunction()`** para manejo elegante
+4. **✅ Inicialización agrupada** (quickConfigs array)
+5. **✅ Configuración event listeners optimizada**
+6. **✅ Gestión de intervalos centralizada** (setupTimeIntervals)
+7. **✅ Logs de resumen** en lugar de individuales
+8. **✅ Mantenimiento de funcionalidad completa**
+
+### **Resultados:**
+- **Consola limpia**: Solo mensajes importantes
+- **Mejor depuración**: Niveles configurables
+- **Código más robusto**: Manejo elegante de funciones faltantes
+- **Mantenibilidad**: Configuraciones agrupadas
+- **Rendimiento**: Menos operaciones de console.log
+
+**Documentación optimizada para modificaciones - v3.2.4**  
+**Caracteres:** ~30,500 (incluye sistema logging optimizado)  
 **Cobertura:** 100% funcionalidades necesarias para programar  
 **Última actualización:** Enero 2026  
 

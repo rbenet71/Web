@@ -1430,8 +1430,7 @@ let timeInputInProgress = false;
 // INICIALIZACIÓN DE INPUT DE TIEMPO
 // ============================================
 function setupTimeInputs() {
-    console.log("Configurando inputs de tiempo mejorados para móviles...");
-    
+
     // Cambiar input type="time" a text para permitir segundos en móviles
     const firstStartTime = document.getElementById('first-start-time');
     if (firstStartTime) {
@@ -1451,8 +1450,6 @@ function setupTimeInputs() {
         // Configurar eventos
         setupTimeInputEvents(firstStartTime);
     }
-    
-    console.log("Inputs de tiempo configurados");
 }
 
 function setupTimeInputEvents(input) {

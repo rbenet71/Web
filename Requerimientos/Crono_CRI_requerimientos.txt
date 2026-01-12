@@ -284,7 +284,8 @@ La clasificacion de la carrera se calculará en base a que dorsal tiene el Tiemp
 
 3_2 En la tabla de salidas añadir campos nuevos - categoria, equipo, licencia
 3_2.2 añadir corredor campos nuevos
-3.2.3 Arreglar muestra diferencia primer corredor
+3_2.3 Arreglar muestra diferencia primer corredor
+3_2.4 Limpieza Consola
 
 añadir eliminar corredor???
 revisar los tiempos de salida

@@ -34,8 +34,6 @@ function inicializarSistemaCuentaAtras() {
         return;
     }
     
-    console.log("🔄 Inicializando sistema de cuenta atrás...");
-    
     // Configurar event listeners específicos
     configurarEventListenersCuentaAtras();
     
@@ -47,8 +45,6 @@ function inicializarSistemaCuentaAtras() {
 }
 
 function configurarEventListenersCuentaAtras() {
-    console.log("Configurando event listeners para cuenta atrás...");
-
     // Botón de iniciar cuenta atrás MANUAL
     const startBtn = document.getElementById('start-countdown-btn');
     if (startBtn) {
@@ -130,7 +126,6 @@ function configurarEventListenersCuentaAtras() {
     
     // 🔥 MODIFICADO: Esperar a que el DOM esté completamente listo
     setTimeout(() => {
-        console.log("🕒 Inicializando botones del modal de reinicio...");
         configurarBotonesModalReinicio();
     }, 100);
 }
@@ -151,7 +146,6 @@ function configurarBotonesModalReinicio() {
         return;
     }
     
-    console.log("🔄 Configurando botones del modal de reinicio...");
     
     // Verificar que los elementos existen
     const modal = document.getElementById('restart-confirm-modal');
@@ -390,7 +384,6 @@ function resetearSistemaCuentaAtras() {
         intervaloCuentaAtras = null;
     }
     
-    console.log("🔄 Sistema de cuenta atrás reseteado");
 }
 
 // ============================================
@@ -1829,7 +1822,6 @@ function formatTimeValue(timeStr) {
 // ============================================
 
 function configurarBotonesModalCountdown() {
-    console.log("🔄 Configurando botones modales para cuenta atrás...");
     
     // 1. Botón de engranaje (config-toggle) - SOLO ESTE ES CRÍTICO
     const configToggleBtn = document.getElementById('config-toggle');

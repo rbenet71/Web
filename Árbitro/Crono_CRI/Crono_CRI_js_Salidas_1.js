@@ -268,7 +268,6 @@ function processImportedOrderData(jsonData) {
         localStorage.removeItem('start-order-data');
         localStorage.removeItem('cri_start_order_backup_' + Date.now());
         localStorage.removeItem('cri_start_order_data_final');
-        console.log("🗑️ Datos globales antiguos eliminados");
         
         console.log("✅ IMPORTACIÓN COMPLETA para carrera específica");
         
@@ -509,7 +508,6 @@ function updateImportUIAfterProcessing() {
                 
                 // ELIMINAR cualquier dato global antiguo (evitar mezcla)
                 localStorage.removeItem('cri_start_order_data_final');
-                console.log("🗑️ Datos globales antiguos eliminados");
             }
         } catch (error) {
             console.error("❌ Error en guardado final:", error);
@@ -531,8 +529,6 @@ function updateImportUIAfterProcessing() {
             console.log("✅ Estadísticas actualizadas");
         }, 400);
     }
-    
-    console.log("✅ UI completamente actualizada después de importación");
     
     // 10. Mostrar notificación final
     setTimeout(() => {
@@ -1680,7 +1676,6 @@ function updateStartOrderUI() {
                     
                     // ELIMINAR cualquier dato global antiguo (evitar mezcla)
                     localStorage.removeItem('cri_start_order_data_final');
-                    console.log("🗑️ Datos globales antiguos eliminados");
                 }
             } catch (error) {
                 console.error("❌ Error en guardado final:", error);
@@ -1704,8 +1699,7 @@ function updateStartOrderUI() {
                 console.log("✅ Estadísticas actualizadas");
             }, 400);
         }
-        
-        console.log("✅ UI completamente actualizada");
+
         
     } catch (error) {
         console.error("❌ Error en updateStartOrderUI:", error);

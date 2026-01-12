@@ -2346,8 +2346,7 @@ function updateLanguageUI() {
     
     // 10. Forzar actualización de títulos de tarjetas
     updateCardTitles();
-    
-    console.log("UI completamente actualizada al idioma:", lang);
+
 }
 // ===========================================
 // FUNCIONES AUXILIARES PARA ACTUALIZACIÓN
@@ -2569,7 +2568,6 @@ function updateModalTexts(t) {
 }
 
 function updateTableHeaders(t) {
-    console.log("=== ACTUALIZANDO CABECERAS DE TABLA ===");
     console.log("Idioma:", appState.currentLanguage);
     
     // Lista completa de IDs
@@ -2592,8 +2590,6 @@ function updateTableHeaders(t) {
             }
         }
     });
-    
-    console.log(`Cabeceras de tabla actualizadas: ${updated} de ${headerIds.length} columnas`);
     
     // También actualizar tooltips si existen
     if (typeof updateTableTooltips === 'function') {
@@ -2667,8 +2663,7 @@ function updateTableTooltips() {
             element.title = tooltipMap[id];
         }
     });
-    
-    console.log("Tooltips de tabla actualizados");
+
 }
 
 // Función para traducir el modal de sugerencias

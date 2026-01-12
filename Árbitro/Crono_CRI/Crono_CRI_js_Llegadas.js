@@ -885,7 +885,6 @@ function saveLlegadasState() {
 // CONFIGURACIÓN DE LISTENERS
 // ============================================
 function setupLlegadasEventListeners() {
-    console.log("🔧 Configurando listeners - SISTEMA 3.2.1");
     
     // Botón Registrar Llegada
     const registerBtn = document.getElementById('registerLlegadaBtn');
@@ -1087,7 +1086,7 @@ function calcularMapaPosiciones(llegadas) {
     
     console.log('🔢 Llegadas ordenadas por tiempo:');
     llegadasParaOrdenar.forEach((l, i) => {
-        console.log(`  ${i+1}. Dorsal ${l.dorsal}: ${formatSecondsWithMilliseconds(l.tiempoFinalWithMs)}`);
+        ;
     });
     
     // 4. Crear mapa {id: posicion} con manejo de empates CORREGIDO
@@ -1536,7 +1535,6 @@ function exportRankingToPDF() {
 // CONFIGURAR BOTONES DEL MODAL DE CLASIFICACIÓN
 // ============================================
 function setupRankingModalButtons() {
-    console.log("🔧 Configurando botones del modal de ranking...");
     
     // Botón para cerrar modal (X)
     const closeModalBtn = document.getElementById('ranking-modal-close');

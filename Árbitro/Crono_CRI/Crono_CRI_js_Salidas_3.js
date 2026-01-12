@@ -473,10 +473,8 @@ function showTimeValidationMessage(input, message) {
 // ============================================
 
 function setupStartOrderTableSorting() {
-    console.log("Configurando ordenación para tabla de orden de salida...");
     
     const sortableHeaders = document.querySelectorAll('.start-order-table th.sortable');
-    console.log(`Encontrados ${sortableHeaders.length} encabezados ordenables`);
     
     if (sortableHeaders.length === 0) {
         console.warn("⚠️ No se encontraron encabezados con clase 'sortable'");
@@ -486,7 +484,6 @@ function setupStartOrderTableSorting() {
     sortableHeaders.forEach((th, index) => {
         const column = th.getAttribute('data-sort');
         const text = th.textContent.trim();
-        console.log(`Encabezado ${index + 1}: "${text}" -> data-sort="${column}"`);
         
         th.addEventListener('click', function() {
             console.log(`Clic en columna: ${column} (${text})`);
