@@ -34,7 +34,8 @@
 
 function handleTableCellClick(e) {
     // SOLO permitir edición de campos específicos
-    const allowedFields = ['dorsal', 'diferencia', 'nombre', 'apellidos', 'chip'];
+    const allowedFields = ['dorsal', 'diferencia', 'nombre', 'apellidos', 'chip', 'categoria', 'equipo', 'licencia'];
+
     
     const cell = e.target;
     
