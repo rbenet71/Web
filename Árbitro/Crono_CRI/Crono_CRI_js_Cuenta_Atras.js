@@ -1748,74 +1748,11 @@ function obtenerSiguienteCorredorDespuesDelActual() {
     return null;
 }
 
-// ============================================
-// FUNCIONES DE TIEMPO (placeholder - se deben mover de Utilidades.js)
-// ============================================
 
-function secondsToTime(seconds) {
-    if (typeof window.secondsToTime === 'function') {
-        return window.secondsToTime(seconds);
-    }
-    
-    // Implementación básica si no existe
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    
-    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-}
 
-function timeToSeconds(timeStr) {
-    if (typeof window.timeToSeconds === 'function') {
-        return window.timeToSeconds(timeStr);
-    }
-    
-    // Implementación mejorada
-    if (!timeStr || timeStr === '' || timeStr === '00:00:00') {
-        return 0;
-    }
-    
-    // Limpiar el string (eliminar espacios, paréntesis, etc.)
-    const cleanedStr = String(timeStr).trim().split(' ')[0];
-    
-    const parts = cleanedStr.split(':');
-    
-    // Validar que tengamos partes válidas
-    if (parts.length < 2 || parts.length > 3) {
-        console.warn(`⚠️ Formato de tiempo inválido: "${timeStr}"`);
-        return 0;
-    }
-    
-    try {
-        let horas = 0, minutos = 0, segundos = 0;
-        
-        if (parts.length === 3) {
-            horas = parseInt(parts[0]) || 0;
-            minutos = parseInt(parts[1]) || 0;
-            segundos = parseInt(parts[2]) || 0;
-        } else if (parts.length === 2) {
-            // Asumir formato MM:SS
-            minutos = parseInt(parts[0]) || 0;
-            segundos = parseInt(parts[1]) || 0;
-        }
-        
-        const totalSegundos = horas * 3600 + minutos * 60 + segundos;
-        return totalSegundos;
-    } catch (e) {
-        console.error(`❌ Error convirtiendo tiempo "${timeStr}":`, e);
-        return 0;
-    }
-}
 
-function formatTimeValue(timeStr) {
-    if (typeof window.formatTimeValue === 'function') {
-        return window.formatTimeValue(timeStr);
-    }
-    
-    // Implementación básica
-    if (!timeStr) return '00:00:00';
-    return timeStr;
-}
+
+
 
 // ============================================
 // CONFIGURACIÓN DE BOTONES MODALES (SISTEMA AISLADO)
@@ -1910,3 +1847,74 @@ function obtenerTotalCorredores() {
 }
 
 console.log("✅ Módulo de cuenta atrás cargado y listo");
+
+/*************** BORRRAR POR REPETIDAS */
+
+/*
+function timeToSeconds(timeStr) {
+    if (typeof window.timeToSeconds === 'function') {
+        return window.timeToSeconds(timeStr);
+    }
+    
+    // Implementación mejorada
+    if (!timeStr || timeStr === '' || timeStr === '00:00:00') {
+        return 0;
+    }
+    
+    // Limpiar el string (eliminar espacios, paréntesis, etc.)
+    const cleanedStr = String(timeStr).trim().split(' ')[0];
+    
+    const parts = cleanedStr.split(':');
+    
+    // Validar que tengamos partes válidas
+    if (parts.length < 2 || parts.length > 3) {
+        console.warn(`⚠️ Formato de tiempo inválido: "${timeStr}"`);
+        return 0;
+    }
+    
+    try {
+        let horas = 0, minutos = 0, segundos = 0;
+        
+        if (parts.length === 3) {
+            horas = parseInt(parts[0]) || 0;
+            minutos = parseInt(parts[1]) || 0;
+            segundos = parseInt(parts[2]) || 0;
+        } else if (parts.length === 2) {
+            // Asumir formato MM:SS
+            minutos = parseInt(parts[0]) || 0;
+            segundos = parseInt(parts[1]) || 0;
+        }
+        
+        const totalSegundos = horas * 3600 + minutos * 60 + segundos;
+        return totalSegundos;
+    } catch (e) {
+        console.error(`❌ Error convirtiendo tiempo "${timeStr}":`, e);
+        return 0;
+    }
+}
+// ============================================
+// FUNCIONES DE TIEMPO (placeholder - se deben mover de Utilidades.js)
+// ============================================
+
+function secondsToTime(seconds) {
+    if (typeof window.secondsToTime === 'function') {
+        return window.secondsToTime(seconds);
+    }
+    
+    // Implementación básica si no existe
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    
+    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+    function formatTimeValue(timeStr) {
+    if (typeof window.formatTimeValue === 'function') {
+        return window.formatTimeValue(timeStr);
+    }
+    
+    // Implementación básica
+    if (!timeStr) return '00:00:00';
+    return timeStr;
+}
+*/

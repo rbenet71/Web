@@ -2411,66 +2411,179 @@ function fixGhostRace() {
     showMessage(t.ghostRacesFixed || "Carreras fantasma eliminadas del selector", 'success');
 }
 
-function formatTimeValue(value) {
-    // Si es undefined, null o vacío, devolver cadena vacía
-    if (value === undefined || value === null || value === '') {
-        return '';
+// =====================================================
+// DEFINITIVAS (poner en Crono_CRI_js_Utilidades.js)
+// =====================================================
+
+function formatTimeValue(value, opts = {}) {
+    const {
+        defaultValue = '00:00:00',
+        allowMMSS = true,     // diferencia suele venir como MM:SS
+        clamp24h = false      // true si esto representa "hora del día"
+    } = opts;
+
+    if (value === undefined || value === null) return defaultValue;
+
+    // Si es número => segundos
+    if (typeof value === 'number' && Number.isFinite(value)) {
+        return secondsToTime(Math.max(0, Math.floor(value)), { clamp24h });
     }
-    
-    // Si es un string con signos de diferencia, devolverlo tal cual
-    if (typeof value === 'string' && (value.includes('(+)') || value.includes('(-)'))) {
-        return value;
+
+    let str = String(value).trim();
+
+    if (!str || str === '--:--:--') return defaultValue;
+
+    // Quitar etiquetas tipo "(+)" "(-)" y signos sueltos al final
+    // Ej: "00:01:00 (+)" -> "00:01:00"
+    str = str.replace(/\(\s*[+-]\s*\)/g, '').trim();
+    str = str.replace(/[+-]\s*$/g, '').trim();
+
+    // Si es string numérico => segundos
+    if (/^\d+$/.test(str)) {
+        return secondsToTime(Math.max(0, parseInt(str, 10)), { clamp24h });
     }
-    
-    // Si es un número (formato Excel o segundos)
-    if (typeof value === 'number') {
-        // Si es un número de Excel (formato de fecha/hora, valor entre 0 y 1)
-        if (value < 1 && value > 0) {
-            // Es un valor de tiempo de Excel (1 = 24 horas)
-            const totalSeconds = Math.round(value * 86400); // 86400 segundos en un día
-            return secondsToTime(totalSeconds);
+
+    // Normalizar separadores y eliminar dobles espacios
+    str = str.replace(/\s+/g, '');
+
+    const parts = str.split(':');
+    if (parts.length < 2 || parts.length > 3) return defaultValue;
+
+    const a = parseInt(parts[0], 10);
+    const b = parseInt(parts[1], 10);
+    const c = parts.length === 3 ? parseInt(parts[2], 10) : 0;
+
+    if ([a, b, c].some(n => Number.isNaN(n))) return defaultValue;
+
+    // Caso HH:MM:SS
+    if (parts.length === 3) {
+        const h = a, m = b, s = c;
+        if (m < 0 || m > 59 || s < 0 || s > 59) return defaultValue;
+        if (clamp24h && (h < 0 || h > 23)) return defaultValue;
+        if (!clamp24h && h < 0) return defaultValue;
+
+        return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+
+    // Caso HH:MM o MM:SS
+    if (parts.length === 2) {
+        if (!allowMMSS) {
+            // Interpretar estrictamente como HH:MM
+            const h = a, m = b;
+            if (m < 0 || m > 59) return defaultValue;
+            if (clamp24h && (h < 0 || h > 23)) return defaultValue;
+            if (!clamp24h && h < 0) return defaultValue;
+
+            return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:00`;
+        }
+
+        // Heurística:
+        // - Si el primer bloque >= 24 => casi seguro MM:SS (diferencia larga en minutos)
+        // - Si el segundo bloque <= 59 siempre puede ser MM:SS o HH:MM.
+        // Como en tu app:
+        //   * horaSalida normalmente viene como HH:MM o HH:MM:SS (clamp24h=true)
+        //   * diferencia normalmente viene como MM:SS o HH:MM:SS (clamp24h=false)
+        // Por eso se recomienda pasar clamp24h=true cuando sea hora del día.
+        if (clamp24h) {
+            // Hora del día => HH:MM
+            const h = a, m = b;
+            if (m < 0 || m > 59) return defaultValue;
+            if (h < 0 || h > 23) return defaultValue;
+            return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:00`;
         } else {
-            // Es un número de segundos
-            return secondsToTime(value);
+            // Duración/diferencia => MM:SS (por defecto)
+            const mm = a, ss = b;
+            if (mm < 0) return defaultValue;
+            if (ss < 0 || ss > 59) return defaultValue;
+            // lo llevamos a HH:MM:SS
+            return secondsToTime(mm * 60 + ss, { clamp24h: false });
         }
     }
-    
-    // Si ya es un string de tiempo
-    if (typeof value === 'string') {
-        let timeStr = value.trim();
-        
-        // Si está vacío después de trim
-        if (timeStr === '') return '';
-        
-        // Si ya tiene formato HH:MM:SS completo, devolverlo formateado
-        if (timeStr.match(/^\d{1,2}:\d{2}:\d{2}$/)) {
-            const parts = timeStr.split(':');
-            const hours = parseInt(parts[0]).toString().padStart(2, '0');
-            const minutes = parseInt(parts[1]).toString().padStart(2, '0');
-            const seconds = parseInt(parts[2]).toString().padStart(2, '0');
-            return `${hours}:${minutes}:${seconds}`;
-        }
-        
-        // Si es HH:MM, agregar :00
-        if (timeStr.match(/^\d{1,2}:\d{2}$/)) {
-            const parts = timeStr.split(':');
-            const hours = parseInt(parts[0]).toString().padStart(2, '0');
-            const minutes = parseInt(parts[1]).toString().padStart(2, '0');
-            return `${hours}:${minutes}:00`;
-        }
-        
-        // Si es un número string, convertirlo a tiempo
-        if (!isNaN(timeStr) && timeStr !== '') {
-            return secondsToTime(parseInt(timeStr));
-        }
-        
-        // Para otros casos (como "--:--:--"), devolver el string original
-        return timeStr;
-    }
-    
-    // Para cualquier otro tipo, devolver cadena vacía
-    return '';
+
+    return defaultValue;
 }
+
+function timeToSeconds(value, opts = {}) {
+    const {
+        allowMMSS = true,
+        clamp24h = false
+    } = opts;
+
+    if (value === undefined || value === null) return 0;
+
+    // Si es número => ya son segundos
+    if (typeof value === 'number' && Number.isFinite(value)) {
+        return Math.max(0, Math.floor(value));
+    }
+
+    let str = String(value).trim();
+    if (!str || str === '--:--:--') return 0;
+
+    // Quitar "(+)" "(-)" y signos
+    str = str.replace(/\(\s*[+-]\s*\)/g, '').trim();
+    str = str.replace(/[+-]\s*$/g, '').trim();
+
+    // Si es string numérico => segundos
+    if (/^\d+$/.test(str)) return Math.max(0, parseInt(str, 10));
+
+    str = str.replace(/\s+/g, '');
+    const parts = str.split(':');
+    if (parts.length < 2 || parts.length > 3) return 0;
+
+    const a = parseInt(parts[0], 10);
+    const b = parseInt(parts[1], 10);
+    const c = parts.length === 3 ? parseInt(parts[2], 10) : 0;
+
+    if ([a, b, c].some(n => Number.isNaN(n))) return 0;
+
+    // HH:MM:SS
+    if (parts.length === 3) {
+        const h = a, m = b, s = c;
+        if (m < 0 || m > 59 || s < 0 || s > 59) return 0;
+        if (clamp24h && (h < 0 || h > 23)) return 0;
+        if (!clamp24h && h < 0) return 0;
+        return (h * 3600) + (m * 60) + s;
+    }
+
+    // HH:MM o MM:SS
+    if (parts.length === 2) {
+        if (!allowMMSS || clamp24h) {
+            // Hora del día => HH:MM
+            const h = a, m = b;
+            if (m < 0 || m > 59) return 0;
+            if (clamp24h && (h < 0 || h > 23)) return 0;
+            if (!clamp24h && h < 0) return 0;
+            return (h * 3600) + (m * 60);
+        } else {
+            // Duración/diferencia => MM:SS
+            const mm = a, ss = b;
+            if (mm < 0) return 0;
+            if (ss < 0 || ss > 59) return 0;
+            return (mm * 60) + ss;
+        }
+    }
+
+    return 0;
+}
+
+// Versión única (opcional) de secondsToTime con opción clamp24h
+function secondsToTime(totalSeconds, opts = {}) {
+    const { clamp24h = false } = opts;
+
+    if (!totalSeconds && totalSeconds !== 0) return '00:00:00';
+    let secs = Math.max(0, Math.floor(totalSeconds));
+
+    let hours = Math.floor(secs / 3600);
+    const minutes = Math.floor((secs % 3600) / 60);
+    const seconds = secs % 60;
+
+    if (clamp24h) hours = hours % 24;
+
+    return `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+}
+
+
+
 
 function secondsToTime(totalSeconds) {
     // Manejar valores no válidos
@@ -2487,6 +2600,12 @@ function secondsToTime(totalSeconds) {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
+
+
+/* funCIONES ANULADas
+// ============================================
+// FUNCIONES DE MANEJO DE ARCHIVOS EXCEL
+// ============================================
 function timeToSeconds(timeString) {
     // Si es undefined, null, vacío o formato inválido
     if (!timeString || timeString === '' || timeString === '--:--:--' || timeString === '00:00:00') {
@@ -2522,11 +2641,6 @@ function timeToSeconds(timeString) {
     
     return 0;
 }
-
-/* funCIONES ANULADas
-// ============================================
-// FUNCIONES DE MANEJO DE ARCHIVOS EXCEL
-// ============================================
 function formatTimeValue(value) {
     if (!value && value !== 0) return '';
     

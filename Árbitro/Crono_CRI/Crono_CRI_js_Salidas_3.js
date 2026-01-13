@@ -300,36 +300,7 @@ function updateAllStartTimes(newTime, oldTime) {
     console.log('Actualización completada');
 }
 
-// Funciones auxiliares (si no existen)
-function timeToSeconds(timeStr) {
-    if (!timeStr || timeStr === '') return 0;
-    
-    // Asegurar formato HH:MM:SS
-    let formattedTime = timeStr;
-    if (!formattedTime.includes(':')) {
-        formattedTime = '00:00:00';
-    }
-    
-    const parts = formattedTime.split(':');
-    if (parts.length === 2) {
-        // Formato HH:MM -> agregar :00
-        parts.push('00');
-    }
-    
-    const hours = parseInt(parts[0]) || 0;
-    const minutes = parseInt(parts[1]) || 0;
-    const seconds = parseInt(parts[2]) || 0;
-    
-    return (hours * 3600) + (minutes * 60) + seconds;
-}
 
-function secondsToTime(totalSeconds) {
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-}
 
 function validateTime(timeStr) {
     if (!timeStr) return false;
@@ -1751,3 +1722,38 @@ function addRiderPositionStyles() {
     
     document.head.appendChild(style);
 } 
+
+
+/******* BORRAR POR REPETIAS... */
+/* REPETIDA EN UTILIDADES
+function secondsToTime(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+// Funciones auxiliares (si no existen)
+function timeToSeconds(timeStr) {
+    if (!timeStr || timeStr === '') return 0;
+    
+    // Asegurar formato HH:MM:SS
+    let formattedTime = timeStr;
+    if (!formattedTime.includes(':')) {
+        formattedTime = '00:00:00';
+    }
+    
+    const parts = formattedTime.split(':');
+    if (parts.length === 2) {
+        // Formato HH:MM -> agregar :00
+        parts.push('00');
+    }
+    
+    const hours = parseInt(parts[0]) || 0;
+    const minutes = parseInt(parts[1]) || 0;
+    const seconds = parseInt(parts[2]) || 0;
+    
+    return (hours * 3600) + (minutes * 60) + seconds;
+}
+
+*/

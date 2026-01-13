@@ -229,7 +229,7 @@ por eso primero pideme las funciones que crees que intervienen en el proceso.
 2.3 inicio Cuenta atras manualmente
 2.3.1 Traducciones
 2.3.2.1 Aplicacion Inicial JS
-2.3.3.2 hora sistema acutalizada
+2.3.3.3 hora sistema acutalizada
 2.3.4 Inicio cuenta atras manual bien
 2.3.4.1 mejorado inicio manual dorsal o
 2.3.4.2 Bien el manual y cuenta atras
@@ -291,6 +291,7 @@ La clasificacion de la carrera se calculará en base a que dorsal tiene el Tiemp
 
 3_3.1 Mejoras botones
 3_3.2 editar licencia, equipo, categoria
+3_3.3 Limpieza funciones duplicadas
 --------------------------
 
 -------------------------------
@@ -299,7 +300,7 @@ en el modulo orden de salida al añadir un corredor, falta que se pidan y se gua
 
 Clasificacion por categorias
 revisar los ficheros offline (banderas)
-3.3.2 Mejorar diseño pantalla resultados 
+3.3.3 Mejorar diseño pantalla resultados 
 
 3.4 En la cabecera de Llegadas contar los dorsales llegados del total de corredores que hay en la tabla orden de salida.
 
