@@ -114,6 +114,9 @@ let uiInitialized = {
 // ============================================
 // FUNCIONES DE TARJETAS EXPANDIBLES
 // ============================================
+// ============================================
+// FUNCIONES DE TARJETAS EXPANDIBLES - ACTUALIZADO 3.4.2
+// ============================================
 function setupCardToggles() {
     if (uiInitialized.cardToggles) {
         console.log("Card toggles ya configurados");
@@ -139,27 +142,110 @@ function setupCardToggles() {
             const indicator = card.querySelector('.card-collapse-indicator');
             
             if (cardBody.classList.contains('collapsed')) {
-                // Expandir
+                // EXPANDIR tarjeta
                 cardBody.classList.remove('collapsed');
                 icon.classList.remove('fa-chevron-down');
                 icon.classList.add('fa-chevron-up');
                 if (indicator) indicator.classList.remove('collapsed');
                 
+                // CASO ESPECIAL: Cronómetro de llegadas - OCULTAR tiempo compacto
+                if (targetClass === 'llegadas-timer-card') {
+                    const compactDisplay = document.getElementById('llegadas-timer-compact');
+                    if (compactDisplay) {
+                        compactDisplay.style.display = 'none';
+                    }
+                }
+                
                 // Guardar estado
                 saveCardState(targetClass, false);
             } else {
-                // Minimizar
+                // MINIMIZAR tarjeta
                 cardBody.classList.add('collapsed');
                 icon.classList.remove('fa-chevron-up');
                 icon.classList.add('fa-chevron-down');
                 if (indicator) indicator.classList.add('collapsed');
+                
+                // CASO ESPECIAL: Cronómetro de llegadas - MOSTRAR tiempo compacto
+                if (targetClass === 'llegadas-timer-card') {
+                    const compactDisplay = document.getElementById('llegadas-timer-compact');
+                    if (compactDisplay) {
+                        compactDisplay.style.display = 'inline';
+                        // Actualizar inmediatamente con el tiempo actual
+                        updateLlegadasCompactTimer();
+                    }
+                }
                 
                 // Guardar estado
                 saveCardState(targetClass, true);
             }
         });
     });
+    
+    // Configurar actualización continua del tiempo compacto (solo para cronómetro de llegadas)
+    setupCompactTimerUpdates();
+}
 
+// ============================================
+// ACTUALIZAR TIEMPO COMPACTO DE LLEGADAS - NUEVO 3.4.2
+// ============================================
+function updateLlegadasCompactTimer() {
+    const compactDisplay = document.getElementById('llegadas-timer-compact');
+    if (!compactDisplay) return;
+    
+    // Solo actualizar si está visible (tarjeta minimizada)
+    if (compactDisplay.style.display === 'none' || compactDisplay.style.display === '') {
+        return;
+    }
+    
+    // Obtener tiempo actual del cronómetro de llegadas
+    const mainDisplay = document.getElementById('llegadas-timer-display');
+    let timeText = '00:00:00';
+    
+    if (mainDisplay && mainDisplay.textContent) {
+        timeText = mainDisplay.textContent;
+    } else {
+        // Calcular tiempo desde salida del primer corredor
+        const currentTimeSeconds = llegadasState.currentTime || 0;
+        timeText = secondsToTime(currentTimeSeconds);
+    }
+    
+    // Actualizar display compacto
+    compactDisplay.textContent = `- ${timeText}`;
+}
+
+// ============================================
+// CONFIGURAR ACTUALIZACIONES DEL TIEMPO COMPACTO - NUEVO 3.4.2
+// ============================================
+function setupCompactTimerUpdates() {
+    // Verificar si ya existe el intervalo
+    if (window.compactTimerUpdateInterval) {
+        clearInterval(window.compactTimerUpdateInterval);
+    }
+    
+    // Actualizar cada segundo (misma frecuencia que el cronómetro principal)
+    window.compactTimerUpdateInterval = setInterval(() => {
+        updateLlegadasCompactTimer();
+    }, 1000);
+    
+    console.log("✅ Actualizaciones de tiempo compacto configuradas");
+}
+
+// ============================================
+// ACTUALIZAR ESTADO INICIAL DE TIEMPO COMPACTO - NUEVO 3.4.2
+// ============================================
+function updateInitialCompactTimerState() {
+    // Verificar si la tarjeta de cronómetro de llegadas está minimizada al cargar
+    const llegadasTimerCard = document.querySelector('.llegadas-timer-card');
+    if (!llegadasTimerCard) return;
+    
+    const cardBody = llegadasTimerCard.querySelector('.card-body');
+    const compactDisplay = document.getElementById('llegadas-timer-compact');
+    
+    if (cardBody && compactDisplay && cardBody.classList.contains('collapsed')) {
+        // Tarjeta ya está minimizada - mostrar tiempo compacto
+        compactDisplay.style.display = 'inline';
+        updateLlegadasCompactTimer();
+    }
 }
 
 function saveCardState(cardClass, isCollapsed) {
