@@ -314,6 +314,7 @@ Nom app
 3_5.1 en la edicion de carrera pedir un logo para poner a la derecha e izquierda de los pdf que se generan (orden de salida y clasificación).
 3_5.2 mejora pdf
 3_5.3 bloqueo cabecera columnas
+3.5.4 mejora de ayuda
 
 --------------------------
 
@@ -324,4 +325,3 @@ Nom app
 pantalla externa de resultados
 revisar los tiempos de salida
 
-mejorar ayuda

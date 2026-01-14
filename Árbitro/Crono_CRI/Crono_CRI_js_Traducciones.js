@@ -4,7 +4,7 @@
 const translations = {
     es: {
         // Títulos generales
-        appTitle: "Crono CRI - 3.5.3",
+        appTitle: "Crono CRI - 3.5.4",
         languagesLabel: "Idioma / Language",
         
         // Tarjetas
@@ -596,7 +596,7 @@ const translations = {
 
     ca: {
         // Títulos generales
-        appTitle: "Crono CRI - 3.5.3",
+        appTitle: "Crono CRI - 3.5.4",
         languagesLabel: "Idioma / Language",
         
         // Tarjetas
@@ -1197,7 +1197,7 @@ const translations = {
     },
 
     en: {
-        appTitle: "TT Crono - 3.5.3",
+        appTitle: "TT Crono - 3.5.4",
         languagesLabel: "Language / Idioma",
         
         // Tarjetas
@@ -1793,7 +1793,7 @@ const translations = {
     },
 
     fr: {
-        appTitle: "Crono CRI - 3.5.3",
+        appTitle: "Crono CRI - 3.5.4",
         languagesLabel: "Langue / Language",
         
         // Tarjetas
@@ -2445,7 +2445,7 @@ function updateLanguageUI() {
     // 6. Actualizar textos de modales
     updateModalTexts(t);
     
-    // ⭐ NUEVO 3.5.3.1: Actualizar textos de logos
+    // ⭐ NUEVO 3.5.4.1: Actualizar textos de logos
     updateLogoTexts(t);
     
     // 7. Actualizar títulos de tablas
@@ -2461,7 +2461,7 @@ function updateLanguageUI() {
     updateCardTitles();
 }
 
-// ⭐ NUEVO 3.5.3.1: Actualizar textos de logos en modales
+// ⭐ NUEVO 3.5.4.1: Actualizar textos de logos en modales
 function updateLogoTexts(t) {
     console.log("Actualizando textos de logos...");
     
@@ -2740,7 +2740,7 @@ function updateTableHeaders(t) {
     // ✅ USAR SISTEMA DE LOGGING OPTIMIZADO
     log(LOG_LEVEL.DEBUG, "Actualizando cabeceras de tabla...");
     
-    // Lista COMPLETA de IDs (21 columnas - versión 3.5.3)
+    // Lista COMPLETA de IDs (21 columnas - versión 3.5.4)
     const headerIds = [
         'orderHeader', 'dorsalHeader', 'cronoSalidaHeader', 'horaSalidaHeader',
         'diferenciaHeader', 'nombreHeader', 'apellidosHeader', 'categoriaHeader', // ✅ NUEVO 3.2.1

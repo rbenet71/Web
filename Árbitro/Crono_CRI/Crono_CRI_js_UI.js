@@ -115,7 +115,7 @@ let uiInitialized = {
 // FUNCIONES DE TARJETAS EXPANDIBLES
 // ============================================
 // ============================================
-// FUNCIONES DE TARJETAS EXPANDIBLES - ACTUALIZADO 3.5.3
+// FUNCIONES DE TARJETAS EXPANDIBLES - ACTUALIZADO 3.5.4
 // ============================================
 function setupCardToggles() {
     if (uiInitialized.cardToggles) {
@@ -186,7 +186,7 @@ function setupCardToggles() {
 }
 
 // ============================================
-// ACTUALIZAR TIEMPO COMPACTO DE LLEGADAS - NUEVO 3.5.3
+// ACTUALIZAR TIEMPO COMPACTO DE LLEGADAS - NUEVO 3.5.4
 // ============================================
 function updateLlegadasCompactTimer() {
     const compactDisplay = document.getElementById('llegadas-timer-compact');
@@ -214,7 +214,7 @@ function updateLlegadasCompactTimer() {
 }
 
 // ============================================
-// CONFIGURAR ACTUALIZACIONES DEL TIEMPO COMPACTO - NUEVO 3.5.3
+// CONFIGURAR ACTUALIZACIONES DEL TIEMPO COMPACTO - NUEVO 3.5.4
 // ============================================
 function setupCompactTimerUpdates() {
     // Verificar si ya existe el intervalo
@@ -231,7 +231,7 @@ function setupCompactTimerUpdates() {
 }
 
 // ============================================
-// ACTUALIZAR ESTADO INICIAL DE TIEMPO COMPACTO - NUEVO 3.5.3
+// ACTUALIZAR ESTADO INICIAL DE TIEMPO COMPACTO - NUEVO 3.5.4
 // ============================================
 function updateInitialCompactTimerState() {
     // Verificar si la tarjeta de cronómetro de llegadas está minimizada al cargar

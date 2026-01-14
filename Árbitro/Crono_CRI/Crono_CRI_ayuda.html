@@ -1,1472 +1,1525 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crono CRI - Ayuda Completa</title>
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        :root {
-            --primary: #1a2a6c;
-            --secondary: #b21f1f;
-            --accent: #fdbb2d;
-            --success: #2ecc71;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --info: #3498db;
-            --light: #ecf0f1;
-            --dark: #2c3e50;
-            --border-radius: 10px;
-            --shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-            --transition: all 0.3s ease;
-        }
-
-        body {
-            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
-            color: white;
-            line-height: 1.7;
-            padding: 20px;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: rgba(26, 42, 108, 0.92);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: var(--shadow);
-            border: 2px solid var(--accent);
-        }
-
-        .help-header {
-            text-align: center;
-            margin-bottom: 50px;
-            padding-bottom: 30px;
-            border-bottom: 3px solid var(--accent);
-        }
-
-        .help-header h1 {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: var(--accent);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .help-header p {
-            opacity: 0.9;
-            font-size: 1.2rem;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .language-selector {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin: 30px 0;
-            flex-wrap: wrap;
-        }
-
-        .lang-btn {
-            background: rgba(255,255,255,0.1);
-            border: 2px solid var(--accent);
-            color: white;
-            padding: 12px 25px;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.1rem;
-        }
-
-        .lang-btn:hover {
-            background: var(--accent);
-            color: var(--dark);
-            transform: translateY(-3px) scale(1.05);
-        }
-
-        .lang-btn.active {
-            background: var(--accent);
-            color: var(--dark);
-            box-shadow: 0 4px 15px rgba(253, 187, 45, 0.4);
-        }
-
-        .flag {
-            width: 30px;
-            height: 20px;
-            border-radius: 3px;
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-
-        .flag-catalunya {
-            background: linear-gradient(
-                to bottom,
-                #ffcd00 0%, #ffcd00 10%,
-                #da121a 10%, #da121a 20%,
-                #ffcd00 20%, #ffcd00 30%,
-                #da121a 30%, #da121a 40%,
-                #ffcd00 40%, #ffcd00 50%,
-                #da121a 50%, #da121a 60%,
-                #ffcd00 60%, #ffcd00 70%,
-                #da121a 70%, #da121a 80%,
-                #ffcd00 80%, #ffcd00 90%,
-                #da121a 90%, #da121a 100%
-            );
-        }
-
-        .help-content {
-            display: none;
-        }
-
-        .help-content.active {
-            display: block;
-            animation: slideIn 0.5s ease-out;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .section {
-            margin-bottom: 50px;
-            background: rgba(255,255,255,0.05);
-            padding: 30px;
-            border-radius: var(--border-radius);
-            border-left: 5px solid var(--accent);
-        }
-
-        h2 {
-            color: var(--accent);
-            margin: 40px 0 20px 0;
-            font-size: 2.2rem;
-            padding-bottom: 10px;
-            border-bottom: 2px solid rgba(253, 187, 45, 0.3);
-        }
-
-        h3 {
-            color: var(--info);
-            margin: 25px 0 15px 0;
-            font-size: 1.6rem;
-        }
-
-        h4 {
-            color: var(--success);
-            margin: 20px 0 10px 0;
-            font-size: 1.4rem;
-        }
-
-        p {
-            margin-bottom: 20px;
-            text-align: justify;
-            font-size: 1.1rem;
-        }
-
-        ul, ol {
-            margin: 20px 0 20px 40px;
-        }
-
-        li {
-            margin-bottom: 12px;
-            font-size: 1.1rem;
-        }
-
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
-            margin: 25px 0;
-        }
-
-        .feature-card {
-            background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(41, 128, 185, 0.2));
-            padding: 25px;
-            border-radius: var(--border-radius);
-            border: 1px solid rgba(52, 152, 219, 0.3);
-            transition: var(--transition);
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.2);
-        }
-
-        .feature-card h4 {
-            color: var(--info);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .visual-indicators {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .indicator {
-            padding: 25px;
-            border-radius: var(--border-radius);
-            text-align: center;
-            color: white;
-            font-weight: 600;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            transition: var(--transition);
-            border: 2px solid transparent;
-        }
-
-        .indicator:hover {
-            transform: scale(1.05);
-        }
-
-        .indicator.red { 
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            border-color: #ff6b6b;
-        }
-        .indicator.yellow { 
-            background: linear-gradient(135deg, #f39c12, #d68910);
-            border-color: #ffd93d;
-            color: #333;
-        }
-        .indicator.green { 
-            background: linear-gradient(135deg, #27ae60, #219653);
-            border-color: #6bcf7f;
-            color: #333;
-        }
-        .indicator.pulse { 
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            border-color: #ff6b6b;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .sound-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .sound-option {
-            background: rgba(155, 89, 182, 0.2);
-            padding: 25px;
-            border-radius: var(--border-radius);
-            text-align: center;
-            border: 1px solid rgba(155, 89, 182, 0.3);
-            transition: var(--transition);
-        }
-
-        .sound-option:hover {
-            transform: translateY(-5px);
-            background: rgba(155, 89, 182, 0.3);
-        }
-
-        .sound-option i {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            color: #9b59b6;
-        }
-
-        .keyboard-shortcuts {
-            background: rgba(52, 152, 219, 0.15);
-            color: white;
-            padding: 30px;
-            border-radius: var(--border-radius);
-            margin-top: 25px;
-            border: 1px solid rgba(52, 152, 219, 0.3);
-        }
-
-        .keyboard-shortcuts table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        .keyboard-shortcuts th,
-        .keyboard-shortcuts td {
-            padding: 15px 20px;
-            text-align: left;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .keyboard-shortcuts th {
-            background: rgba(255,255,255,0.1);
-            font-weight: 600;
-            color: var(--accent);
-        }
-
-        .keyboard-shortcuts kbd {
-            background: rgba(0,0,0,0.3);
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-family: monospace;
-            font-weight: bold;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .troubleshooting {
-            background: rgba(243, 156, 18, 0.15);
-            padding: 30px;
-            border-radius: var(--border-radius);
-            border-left: 5px solid var(--warning);
-            margin-top: 25px;
-        }
-
-        .troubleshooting h4 {
-            color: var(--warning);
-            margin-bottom: 20px;
-        }
-
-        .back-button {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--accent), #e67e22);
-            color: var(--dark);
-            padding: 15px 35px;
-            text-decoration: none;
-            border-radius: 50px;
-            margin-top: 30px;
-            transition: var(--transition);
-            font-weight: bold;
-            font-size: 1.1rem;
-            border: none;
-            cursor: pointer;
-        }
-
-        .back-button:hover {
-            background: linear-gradient(135deg, #e67e22, var(--accent));
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 10px 20px rgba(253, 187, 45, 0.3);
-        }
-
-        .intro-box {
-            background: rgba(231, 76, 60, 0.15);
-            padding: 25px;
-            border-radius: var(--border-radius);
-            margin: 25px 0;
-            border-left: 5px solid var(--danger);
-        }
-
-        .intro-box p {
-            font-style: italic;
-            color: #ecf0f1;
-            font-size: 1.1rem;
-        }
-
-        .step-box {
-            background: rgba(52, 73, 94, 0.2);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            margin: 20px 0;
-            border-left: 5px solid var(--warning);
-        }
-
-        .step-number {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--warning);
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            text-align: center;
-            margin-right: 15px;
-            font-weight: bold;
-            font-size: 1.2rem;
-            box-shadow: 0 4px 8px rgba(243, 156, 18, 0.3);
-        }
-
-        .tip-box {
-            background: rgba(155, 89, 182, 0.15);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            margin: 20px 0;
-            border-left: 5px solid #9b59b6;
-        }
-
-        .tip-box h4 {
-            color: #9b59b6;
-            margin-bottom: 15px;
-        }
-
-        .app-install {
-            background: rgba(46, 204, 113, 0.15);
-            padding: 25px;
-            border-radius: var(--border-radius);
-            margin: 25px 0;
-            border-left: 5px solid var(--success);
-        }
-
-        .app-install h3 {
-            color: var(--success);
-        }
-
-        .platform {
-            margin: 20px 0;
-            padding: 20px;
-            background: rgba(255,255,255,0.05);
-            border-radius: var(--border-radius);
-        }
-
-        .platform h4 {
-            color: var(--info);
-            margin-bottom: 15px;
-        }
-
-        .other-feature {
-            background: rgba(52, 152, 219, 0.15);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            margin: 20px 0;
-            border-left: 5px solid var(--info);
-        }
-
-        .other-feature h4 {
-            color: var(--info);
-            margin-bottom: 15px;
-        }
-
-        .use-case-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin: 25px 0;
-        }
-
-        .use-case-card {
-            background: rgba(52, 152, 219, 0.1);
-            padding: 25px;
-            border-radius: var(--border-radius);
-            text-align: center;
-            border: 2px solid rgba(52, 152, 219, 0.2);
-            transition: var(--transition);
-        }
-
-        .use-case-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--info);
-            background: rgba(52, 152, 219, 0.2);
-        }
-
-        .use-case-card i {
-            font-size: 3rem;
-            color: var(--info);
-            margin-bottom: 20px;
-        }
-
-        .use-case-card h4 {
-            color: var(--success);
-            margin-bottom: 15px;
-        }
-
-        .hardware-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 25px 0;
-        }
-
-        .hardware-item {
-            background: rgba(155, 89, 182, 0.1);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            text-align: center;
-            border: 1px solid rgba(155, 89, 182, 0.2);
-            transition: var(--transition);
-        }
-
-        .hardware-item:hover {
-            transform: translateY(-5px);
-            background: rgba(155, 89, 182, 0.2);
-        }
-
-        .hardware-item i {
-            font-size: 2.5rem;
-            color: #9b59b6;
-            margin-bottom: 15px;
-        }
-
-        .version-note {
-            background: rgba(241, 196, 15, 0.15);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            margin: 20px 0;
-            border-left: 5px solid #f1c40f;
-        }
-
-        .version-note h4 {
-            color: #f1c40f;
-            margin-bottom: 15px;
-        }
-
-        .list-export {
-            background: rgba(46, 204, 113, 0.15);
-            padding: 25px;
-            border-radius: var(--border-radius);
-            margin: 25px 0;
-            border-left: 5px solid var(--success);
-        }
-
-        .list-export h4 {
-            color: var(--success);
-            margin-bottom: 20px;
-        }
-
-        .example-cadence {
-            background: rgba(52, 73, 94, 0.2);
-            padding: 25px;
-            border-radius: var(--border-radius);
-            margin: 25px 0;
-            border-left: 5px solid var(--info);
-        }
-
-        .example-cadence h4 {
-            color: var(--info);
-            margin-bottom: 20px;
-        }
-
-        .cadence-example {
-            background: rgba(0,0,0,0.2);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            margin: 15px 0;
-            font-family: 'Courier New', monospace;
-            font-size: 1.1rem;
-        }
-
-        .module-structure {
-            background: rgba(142, 68, 173, 0.15);
-            padding: 25px;
-            border-radius: var(--border-radius);
-            margin: 25px 0;
-            border-left: 5px solid #8e44ad;
-        }
-
-        .module-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-
-        .module-card {
-            background: rgba(255,255,255,0.05);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .module-card h5 {
-            color: var(--accent);
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-        }
-
-        .table-columns {
-            background: rgba(41, 128, 185, 0.15);
-            padding: 25px;
-            border-radius: var(--border-radius);
-            margin: 25px 0;
-            border-left: 5px solid #2980b9;
-        }
-
-        .columns-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .column-item {
-            background: rgba(255,255,255,0.05);
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 3px solid var(--info);
-        }
-
-        .column-item .column-number {
-            display: inline-block;
-            background: var(--info);
-            color: white;
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 25px;
-            margin-right: 10px;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-
-        .warning-note {
-            background: rgba(231, 76, 60, 0.15);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            margin: 20px 0;
-            border-left: 5px solid var(--danger);
-            animation: pulse 2s infinite;
-        }
-
-        .warning-note h4 {
-            color: var(--danger);
-            margin-bottom: 10px;
-        }
-
-        a {
-            color: var(--accent);
-            text-decoration: none;
-            transition: var(--transition);
-            border-bottom: 1px dotted var(--accent);
-        }
-
-        a:hover {
-            color: #ffd93d;
-            border-bottom: 1px solid #ffd93d;
-        }
-
-        @media (max-width: 992px) {
-            .container {
-                padding: 30px;
-            }
-            
-            .help-header h1 {
-                font-size: 2.5rem;
-            }
-            
-            .section {
-                padding: 25px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-            
-            .help-header h1 {
-                font-size: 2rem;
-            }
-            
-            .language-selector {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .lang-btn {
-                width: 250px;
-                justify-content: center;
-            }
-            
-            .feature-grid,
-            .visual-indicators,
-            .sound-options,
-            .use-case-grid,
-            .hardware-grid,
-            .module-grid,
-            .columns-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .keyboard-shortcuts {
-                padding: 20px;
-            }
-            
-            .keyboard-shortcuts th,
-            .keyboard-shortcuts td {
-                padding: 10px 15px;
-                font-size: 0.95rem;
-            }
-            
-            h2 {
-                font-size: 1.8rem;
-            }
-            
-            h3 {
-                font-size: 1.4rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .help-header h1 {
-                font-size: 1.8rem;
-            }
-            
-            .section {
-                padding: 20px;
-            }
-            
-            .lang-btn {
-                width: 100%;
-                max-width: 300px;
-            }
-        }
-    </style>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crono CRI - Ayuda Completa</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+    :root{
+      --primary:#1a2a6c;
+      --secondary:#b21f1f;
+      --accent:#fdbb2d;
+      --success:#2ecc71;
+      --warning:#f39c12;
+      --danger:#e74c3c;
+      --info:#3498db;
+      --light:#ecf0f1;
+      --dark:#2c3e50;
+      --border-radius:12px;
+      --shadow:0 6px 20px rgba(0,0,0,.18);
+      --transition:all .25s ease;
+    }
+
+    body{
+      background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+      color:#fff;
+      line-height:1.75;
+      padding:20px;
+      min-height:100vh;
+    }
+
+    .container{
+      max-width:1400px;
+      margin:0 auto;
+      background: rgba(26,42,108,.92);
+      border-radius:20px;
+      padding:36px;
+      box-shadow:var(--shadow);
+      border:2px solid var(--accent);
+    }
+
+    .help-header{
+      text-align:center;
+      margin-bottom:28px;
+      padding-bottom:18px;
+      border-bottom:3px solid var(--accent);
+    }
+
+    .help-header h1{
+      font-size:2.6rem;
+      margin-bottom:10px;
+      color:var(--accent);
+      text-shadow:2px 2px 4px rgba(0,0,0,.3);
+    }
+
+    .help-header p{
+      opacity:.92;
+      font-size:1.1rem;
+      max-width:900px;
+      margin:0 auto;
+    }
+
+    .topbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+      margin:18px 0 8px 0;
+    }
+
+    .language-selector{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .lang-btn{
+      background: rgba(255,255,255,.1);
+      border:2px solid var(--accent);
+      color:#fff;
+      padding:10px 18px;
+      border-radius:999px;
+      cursor:pointer;
+      transition:var(--transition);
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-size:1rem;
+    }
+    .lang-btn:hover{ background:var(--accent); color:var(--dark); transform:translateY(-2px); }
+    .lang-btn.active{ background:var(--accent); color:var(--dark); box-shadow:0 4px 15px rgba(253,187,45,.35); }
+
+    .flag{ width:28px; height:18px; border-radius:3px; border:1px solid rgba(255,255,255,.35); }
+    .flag-catalunya{
+      width:28px; height:18px; border-radius:3px; border:1px solid rgba(255,255,255,.35);
+      background: linear-gradient(
+        to bottom,
+        #ffcd00 0%, #ffcd00 10%,
+        #da121a 10%, #da121a 20%,
+        #ffcd00 20%, #ffcd00 30%,
+        #da121a 30%, #da121a 40%,
+        #ffcd00 40%, #ffcd00 50%,
+        #da121a 50%, #da121a 60%,
+        #ffcd00 60%, #ffcd00 70%,
+        #da121a 70%, #da121a 80%,
+        #ffcd00 80%, #ffcd00 90%,
+        #da121a 90%, #da121a 100%
+      );
+    }
+
+    .search-box{
+      flex:1;
+      min-width:260px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    .search-box input{
+      width:100%;
+      max-width:520px;
+      padding:12px 14px;
+      border-radius:999px;
+      border:2px solid rgba(253,187,45,.45);
+      background: rgba(255,255,255,.08);
+      color:#fff;
+      outline:none;
+      transition:var(--transition);
+    }
+    .search-box input::placeholder{ color: rgba(255,255,255,.7); }
+    .search-box input:focus{
+      border-color:var(--accent);
+      background: rgba(255,255,255,.12);
+    }
+
+    .help-content{ display:none; }
+    .help-content.active{ display:block; animation: slideIn .35s ease-out; }
+    @keyframes slideIn{ from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:translateY(0);} }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap:16px;
+      margin-top:16px;
+    }
+
+    .section{
+      margin:18px 0 26px 0;
+      background: rgba(255,255,255,.05);
+      padding:22px;
+      border-radius:var(--border-radius);
+      border-left:5px solid var(--accent);
+    }
+
+    .section.compact{ padding:18px; }
+
+    h2{
+      color:var(--accent);
+      margin: 4px 0 12px 0;
+      font-size:2rem;
+      padding-bottom:10px;
+      border-bottom:2px solid rgba(253,187,45,.28);
+    }
+    h3{
+      color:var(--info);
+      margin:18px 0 10px 0;
+      font-size:1.45rem;
+    }
+    h4{
+      color:var(--success);
+      margin:14px 0 8px 0;
+      font-size:1.2rem;
+    }
+
+    p{ margin: 0 0 14px 0; font-size:1.05rem; text-align:justify; }
+    ul,ol{ margin: 10px 0 10px 26px; }
+    li{ margin-bottom:9px; font-size:1.05rem; }
+
+    .intro-box{
+      background: rgba(231,76,60,.15);
+      padding:18px;
+      border-radius:var(--border-radius);
+      border-left:5px solid var(--danger);
+      margin-bottom:16px;
+    }
+    .intro-box p{ font-style:italic; color:#ecf0f1; }
+
+    .quickstart{
+      background: rgba(46,204,113,.15);
+      padding:18px;
+      border-radius:var(--border-radius);
+      border-left:5px solid var(--success);
+    }
+    .step{
+      background: rgba(0,0,0,.18);
+      padding:14px;
+      border-radius:12px;
+      margin:10px 0;
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-weight:800;
+      font-size:.95rem;
+      margin-bottom:10px;
+      border:1px solid rgba(255,255,255,.16);
+    }
+    .badge.info{ background: rgba(52,152,219,.18); }
+    .badge.warn{ background: rgba(243,156,18,.18); }
+    .badge.ok{ background: rgba(46,204,113,.16); }
+    .badge.danger{ background: rgba(231,76,60,.16); }
+
+    .card{
+      background: linear-gradient(135deg, rgba(52,152,219,.18), rgba(41,128,185,.12));
+      padding:16px;
+      border-radius:var(--border-radius);
+      border:1px solid rgba(52,152,219,.25);
+      transition:var(--transition);
+    }
+    .card:hover{ transform: translateY(-3px); box-shadow:0 10px 24px rgba(52,152,219,.18); }
+    .card h4{ color:var(--info); margin:0 0 10px 0; display:flex; align-items:center; gap:10px; }
+    .card p{ margin-bottom:0; }
+
+    .toc{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:10px;
+    }
+    .toc a{
+      color:var(--accent);
+      text-decoration:none;
+      border:1px dotted rgba(253,187,45,.7);
+      padding:8px 12px;
+      border-radius:999px;
+      transition:var(--transition);
+      font-weight:700;
+      background: rgba(0,0,0,.12);
+    }
+    .toc a:hover{
+      color:#ffd93d;
+      border-style:solid;
+      transform: translateY(-2px);
+      background: rgba(0,0,0,.18);
+    }
+
+    .note{
+      background: rgba(243,156,18,.15);
+      padding:14px;
+      border-radius:var(--border-radius);
+      border-left:5px solid var(--warning);
+      margin-top:12px;
+    }
+
+    .tip{
+      background: rgba(155,89,182,.15);
+      padding:14px;
+      border-radius:var(--border-radius);
+      border-left:5px solid #9b59b6;
+      margin-top:12px;
+    }
+    .tip h4{ color:#caa3ff; }
+
+    .visual-indicators{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap:12px;
+      margin-top:14px;
+    }
+    .indicator{
+      padding:16px;
+      border-radius:var(--border-radius);
+      text-align:center;
+      font-weight:800;
+      border:2px solid transparent;
+      text-shadow:0 2px 4px rgba(0,0,0,.25);
+    }
+    .indicator.red{ background:linear-gradient(135deg,#e74c3c,#c0392b); border-color:#ff6b6b; }
+    .indicator.yellow{ background:linear-gradient(135deg,#f39c12,#d68910); border-color:#ffd93d; color:#222; }
+    .indicator.green{ background:linear-gradient(135deg,#27ae60,#219653); border-color:#6bcf7f; color:#222; }
+    .indicator.pulse{
+      background:linear-gradient(135deg,#e74c3c,#c0392b);
+      border-color:#ff6b6b;
+      animation:pulse 1.35s infinite;
+    }
+    @keyframes pulse{ 0%,100%{transform:scale(1);} 50%{transform:scale(1.035);} }
+
+    .kbd{
+      display:inline-block;
+      padding:3px 8px;
+      border-radius:6px;
+      background: rgba(0,0,0,.3);
+      border:1px solid rgba(255,255,255,.18);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      font-weight:800;
+      font-size:.95rem;
+    }
+
+    .faq{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap:14px;
+      margin-top:12px;
+    }
+    details{
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:var(--border-radius);
+      padding:14px 14px;
+    }
+    summary{
+      cursor:pointer;
+      font-weight:900;
+      color:#fff;
+      list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    details[open]{ border-color: rgba(253,187,45,.35); background: rgba(0,0,0,.14); }
+    .details-body{ margin-top:10px; opacity:.95; }
+
+    .back-wrap{ text-align:center; margin-top:22px; }
+    .back-button{
+      display:inline-block;
+      background: linear-gradient(135deg, var(--accent), #e67e22);
+      color:var(--dark);
+      padding:14px 28px;
+      text-decoration:none;
+      border-radius:999px;
+      transition:var(--transition);
+      font-weight:900;
+      font-size:1.05rem;
+      border:none;
+      cursor:pointer;
+    }
+    .back-button:hover{
+      transform: translateY(-2px) scale(1.03);
+      box-shadow:0 10px 20px rgba(253,187,45,.25);
+    }
+
+    a{ color:var(--accent); text-decoration:none; border-bottom:1px dotted var(--accent); transition:var(--transition); }
+    a:hover{ color:#ffd93d; border-bottom:1px solid #ffd93d; }
+
+    .hide{ display:none !important; }
+
+    @media (max-width: 992px){
+      .container{ padding:26px; }
+      .help-header h1{ font-size:2.2rem; }
+    }
+    @media (max-width: 768px){
+      .container{ padding:18px; }
+      .help-header h1{ font-size:1.9rem; }
+      h2{ font-size:1.65rem; }
+      .topbar{ justify-content:center; }
+      .search-box{ width:100%; justify-content:center; }
+      .search-box input{ max-width:100%; }
+      .lang-btn{ width:240px; justify-content:center; }
+    }
+  </style>
 </head>
+
 <body>
-    <div class="container">
-        <!-- Encabezado -->
-        <header class="help-header">
-            <h1><i class="fas fa-stopwatch"></i> Crono CRI - Ayuda Completa</h1>
-            <p>Sistema profesional de cronometraje para carreras ciclistas y eventos deportivos</p>
-            
-            <!-- Selector de idiomas -->
-            <div class="language-selector">
-                <button class="lang-btn active" data-lang="es">
-                    <img src="https://flagcdn.com/w40/es.png" class="flag" alt="Español">
-                    Español
-                </button>
-                <button class="lang-btn" data-lang="ca">
-                    <div class="flag flag-catalunya"></div>
-                    Català
-                </button>
-                <button class="lang-btn" data-lang="en">
-                    <img src="https://flagcdn.com/w40/gb.png" class="flag" alt="English">
-                    English
-                </button>
-                <button class="lang-btn" data-lang="fr">
-                    <img src="https://flagcdn.com/w40/fr.png" class="flag" alt="Français">
-                    Français
-                </button>
-            </div>
-        </header>
+  <div class="container">
+    <header class="help-header">
+      <h1><i class="fas fa-stopwatch"></i> <span data-i18n="title">Crono CRI - Ayuda Completa</span></h1>
+      <p data-i18n="subtitle">Sistema profesional de cronometraje para carreras ciclistas y eventos deportivos</p>
 
-        <!-- =========================================== -->
-        <!-- CONTENIDO EN ESPAÑOL -->
-        <!-- =========================================== -->
-        <div class="help-content active" id="help-es">
-            <div class="intro-box">
-                <h4><i class="fas fa-info-circle"></i> Nota del Desarrollador</h4>
-                <p>Crono CRI es una aplicación web progresiva (PWA) desarrollada por Roberto Benet, comisario del comité catalán, para el control profesional de salidas y llegadas en carreras ciclistas y eventos deportivos.</p>
-                <p>Esta aplicación es completamente gratuita y de código abierto, diseñada específicamente para árbitros, comisarios y organizadores de eventos deportivos.</p>
-                <p>Para más aplicaciones y recursos, visita: <a href="https://rbenet71.github.io/Web" target="_blank">https://rbenet71.github.io/Web</a></p>
-            </div>
-
-            <div class="section">
-                <h2><i class="fas fa-info-circle"></i> ¿Qué es Crono CRI?</h2>
-                <p>Crono CRI es un sistema completo de cronometraje para eventos deportivos que incluye:</p>
-                <ul>
-                    <li><strong>Gestión de carreras:</strong> Crear, editar y administrar múltiples carreras</li>
-                    <li><strong>Control de salidas:</strong> Sistema de cuenta atrás visual y sonora</li>
-                    <li><strong>Registro de llegadas:</strong> Cronómetro y sistema de clasificación</li>
-                    <li><strong>Exportación de datos:</strong> Excel, PDF y formatos compatibles</li>
-                    <li><strong>Sistema multilingüe:</strong> Español, Catalán, Inglés y Francés</li>
-                </ul>
-            </div>
-
-            <div class="section">
-                <h2><i class="fas fa-sitemap"></i> Estructura Modular</h2>
-                <p>Crono CRI está organizado en módulos especializados para máxima eficiencia:</p>
-                
-                <div class="module-grid">
-                    <div class="module-card">
-                        <h5><i class="fas fa-cog"></i> Main.js</h5>
-                        <p>Núcleo de la aplicación - Coordina todos los módulos</p>
-                    </div>
-                    <div class="module-card">
-                        <h5><i class="fas fa-flag-checkered"></i> Salidas (4 módulos)</h5>
-                        <p>Sistema completo de control de salidas con cuenta atrás</p>
-                    </div>
-                    <div class="module-card">
-                        <h5><i class="fas fa-stopwatch"></i> Cuenta_Atras.js</h5>
-                        <p>Sistema especializado de cuenta atrás con compensación de tiempo</p>
-                    </div>
-                    <div class="module-card">
-                        <h5><i class="fas fa-table"></i> UI.js</h5>
-                        <p>Interfaz de usuario, tarjetas, modales y notificaciones</p>
-                    </div>
-                    <div class="module-card">
-                        <h5><i class="fas fa-database"></i> Storage_Pwa.js</h5>
-                        <p>Persistencia de datos, PWA y gestión de carreras</p>
-                    </div>
-                    <div class="module-card">
-                        <h5><i class="fas fa-language"></i> Traducciones.js</h5>
-                        <p>Sistema multilingüe con 600+ claves por idioma</p>
-                    </div>
-                    <div class="module-card">
-                        <h5><i class="fas fa-tools"></i> Utilidades.js</h5>
-                        <p>Funciones centrales: audio, exportación, conversiones</p>
-                    </div>
-                    <div class="module-card">
-                        <h5><i class="fas fa-chart-line"></i> Llegadas.js</h5>
-                        <p>Sistema de registro y clasificación de llegadas</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2><i class="fas fa-laptop"></i> Configuraciones de Hardware</h2>
-                <p>La aplicación está optimizada para múltiples dispositivos:</p>
-                
-                <div class="hardware-grid">
-                    <div class="hardware-item">
-                        <i class="fas fa-laptop"></i>
-                        <h4>Portátil Principal</h4>
-                        <p>Control central de la carrera</p>
-                    </div>
-                    <div class="hardware-item">
-                        <i class="fas fa-tv"></i>
-                        <h4>Pantalla Pública</h4>
-                        <p>Visualización para participantes</p>
-                    </div>
-                    <div class="hardware-item">
-                        <i class="fas fa-tablet-alt"></i>
-                        <h4>Tablet Auxiliar</h4>
-                        <p>Control en línea de salida</p>
-                    </div>
-                    <div class="hardware-item">
-                        <i class="fas fa-bluetooth"></i>
-                        <h4>Altavoz Bluetooth</h4>
-                        <p>Audio amplificado para salidas</p>
-                    </div>
-                </div>
-                
-                <div class="tip-box">
-                    <h4><i class="fas fa-lightbulb"></i> Configuración Profesional</h4>
-                    <p><strong>Recomendado para eventos importantes:</strong></p>
-                    <ol>
-                        <li>Portátil principal conectado a pantalla grande vía HDMI</li>
-                        <li>Tablet secundaria para control en línea de salida</li>
-                        <li>Altavoz Bluetooth conectado al portátil principal</li>
-                        <li>Conexión a internet para backup en la nube</li>
-                    </ol>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2><i class="fas fa-running"></i> Tipos de Eventos</h2>
-                <div class="use-case-grid">
-                    <div class="use-case-card">
-                        <i class="fas fa-route"></i>
-                        <h4>Contrarreloj Individual (CRI)</h4>
-                        <p>Salidas individuales con intervalos regulares</p>
-                    </div>
-                    <div class="use-case-card">
-                        <i class="fas fa-users"></i>
-                        <h4>Contrarreloj por Equipos (CRE)</h4>
-                        <p>Salidas por equipos con diferentes intervalos</p>
-                    </div>
-                    <div class="use-case-card">
-                        <i class="fas fa-mountain"></i>
-                        <h4>Descensos</h4>
-                        <p>Salidas escalonadas en competiciones de montaña</p>
-                    </div>
-                    <div class="use-case-card">
-                        <i class="fas fa-flag-checkered"></i>
-                        <h4>Eventos Masivos</h4>
-                        <p>Salidas en grupos con diferentes intervalos</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2><i class="fas fa-graduation-cap"></i> Guía de Uso Paso a Paso</h2>
-                
-                <div class="step-box">
-                    <span class="step-number">1</span>
-                    <strong>Crear una Nueva Carrera</strong>
-                    <ul>
-                        <li>Haz clic en "GESTIÓN DE CARRERA"</li>
-                        <li>Selecciona "Crear Nueva Carrera"</li>
-                        <li>Completa todos los campos:
-                            <ul>
-                                <li>Nombre de la carrera</li>
-                                <li>Fecha y hora de inicio</li>
-                                <li>Categoría y organizador</li>
-                                <li>Ubicación y modalidad</li>
-                            </ul>
-                        </li>
-                        <li>Guarda la carrera</li>
-                    </ul>
-                </div>
-
-                <div class="step-box">
-                    <span class="step-number">2</span>
-                    <strong>Configurar Orden de Salida</strong>
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h4><i class="fas fa-upload"></i> Importar desde Excel</h4>
-                            <p>Importa una lista completa de corredores desde plantilla Excel</p>
-                            <p><strong>Formato:</strong> Dorsal, Nombre, Apellidos, Chip</p>
-                        </div>
-                        <div class="feature-card">
-                            <h4><i class="fas fa-plus-circle"></i> Añadir Manualmente</h4>
-                            <p>Añade corredores uno por uno con todos sus datos</p>
-                            <p>Posiciones: principio, medio o final de la lista</p>
-                        </div>
-                    </div>
-                    
-                    <div class="warning-note">
-                        <h4><i class="fas fa-exclamation-triangle"></i> Importante: Estructura de Datos</h4>
-                        <p>Cada corredor tiene 19 campos diferentes, incluyendo:</p>
-                        <ul>
-                            <li>Datos básicos (dorsal, nombre, apellidos)</li>
-                            <li>Tiempos previstos (calculados automáticamente)</li>
-                            <li>Tiempos reales (registrados durante la carrera)</li>
-                            <li>Tiempos importados (desde archivos externos)</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <h2><i class="fas fa-table"></i> Estructura de la Tabla (19 Columnas)</h2>
-                    <div class="table-columns">
-                        <p>La tabla de orden de salida incluye 19 columnas organizadas por categorías:</p>
-                        
-                        <div class="columns-grid">
-                            <div class="column-item">
-                                <span class="column-number">1</span>
-                                <strong>Orden</strong> - Posición de salida
-                            </div>
-                            <div class="column-item">
-                                <span class="column-number">2</span>
-                                <strong>Dorsal</strong> - Número del corredor
-                            </div>
-                            <div class="column-item">
-                                <span class="column-number">3</span>
-                                <strong>Crono Salida</strong> - Tiempo desde inicio
-                            </div>
-                            <div class="column-item">
-                                <span class="column-number">4</span>
-                                <strong>Hora Salida</strong> - Hora absoluta
-                            </div>
-                            <div class="column-item">
-                                <span class="column-number">5</span>
-                                <strong>Diferencia</strong> - Con signo (+)/(-)
-                            </div>
-                            <div class="column-item">
-                                <span class="column-number">6</span>
-                                <strong>Nombre</strong> - Nombre del corredor
-                            </div>
-                            <div class="column-item">
-                                <span class="column-number">7</span>
-                                <strong>Apellidos</strong> - Apellidos del corredor
-                            </div>
-                            <div class="column-item">
-                                <span class="column-number">8</span>
-                                <strong>Chip</strong> - Número de chip
-                            </div>
-                            <div class="column-item">
-                                <span class="column-number">9-10</span>
-                                <strong>Hora/Crono Real</strong> - Registro efectivo
-                            </div>
-                            <div class="column-item">
-                                <span class="column-number">11-12</span>
-                                <strong>Hora/Crono Previsto</strong> - Calculados
-                            </div>
-                            <div class="column-item">
-                                <span class="column-number">13-14</span>
-                                <strong>Hora/Crono Importado</strong> - Desde Excel
-                            </div>
-                            <div class="column-item">
-                                <span class="column-number">15-19</span>
-                                <strong>Segundos</strong> - Para cálculos internos
-                            </div>
-                        </div>
-                        
-                        <div class="tip-box" style="margin-top: 20px;">
-                            <h4><i class="fas fa-mouse-pointer"></i> Edición en Línea</h4>
-                            <p>Haz clic en cualquier celda para editar su valor directamente. La aplicación incluye:</p>
-                            <ul>
-                                <li><strong>Validación en tiempo real</strong> de formatos</li>
-                                <li><strong>Sistema de throttling de 3 niveles</strong> para optimizar rendimiento</li>
-                                <li><strong>Modales de confirmación</strong> para cambios importantes</li>
-                                <li><strong>Recálculo automático</strong> de tiempos relacionados</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="step-box">
-                    <span class="step-number">3</span>
-                    <strong>Configurar Sistema de Cuenta Atrás</strong>
-                    <ul>
-                        <li><strong>Modo automático:</strong> Inicia automáticamente cuando llega la hora programada</li>
-                        <li><strong>Modo manual:</strong> Control completo del árbitro</li>
-                        <li><strong>Tiempo previo:</strong> Configurable (normalmente 1 minuto)</li>
-                        <li><strong>Compensación de 1 segundo:</strong> Para corredores posteriores al primero</li>
-                    </ul>
-                    
-                    <div class="tip-box">
-                        <h4><i class="fas fa-calculator"></i> Fórmula de Cálculo</h4>
-                        <p>El sistema calcula automáticamente los tiempos:</p>
-                        <div class="cadence-example">
-                            <p><strong>Primer corredor:</strong> Tiempo = cronoSalida - cronoCarreraSegundos</p>
-                            <p><strong>Corredores posteriores:</strong> Tiempo = cronoSalida - cronoCarreraSegundos - 1</p>
-                        </div>
-                        <p>Esta compensación asegura precisión en salidas sucesivas.</p>
-                    </div>
-                </div>
-
-                <div class="step-box">
-                    <span class="step-number">4</span>
-                    <strong>Iniciar la Carrera</strong>
-                    <ol>
-                        <li>Verifica que todos los corredores están cargados</li>
-                        <li>Configura el audio (beep, voz o silencio)</li>
-                        <li>Selecciona el idioma de los anuncios</li>
-                        <li>Haz clic en "INICIAR CUENTA ATRÁS"</li>
-                        <li>La pantalla cambiará al modo de ejecución</li>
-                    </ol>
-                </div>
-
-                <div class="step-box">
-                    <span class="step-number">5</span>
-                    <strong>Registrar Salidas y Llegadas</strong>
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h4><i class="fas fa-flag"></i> Salidas</h4>
-                            <ul>
-                                <li>Sistema automático con cuenta atrás visual</li>
-                                <li>Registro automático de hora de salida</li>
-                                <li>Compensación de 1 segundo para precisión</li>
-                                <li>Visualización en tiempo real</li>
-                            </ul>
-                        </div>
-                        <div class="feature-card">
-                            <h4><i class="fas fa-flag-checkered"></i> Llegadas</h4>
-                            <ul>
-                                <li>Cronómetro independiente para llegadas</li>
-                                <li>Registro manual o automático</li>
-                                <li>Clasificación automática por tiempos</li>
-                                <li>Importación desde datos de salidas</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2><i class="fas fa-download"></i> Exportación de Datos</h2>
-                <div class="list-export">
-                    <h4><i class="fas fa-file-excel"></i> Formatos Disponibles</h4>
-                    <ul>
-                        <li><strong>Excel (.xlsx):</strong> 19 columnas completas con formatos profesionales</li>
-                        <li><strong>PDF:</strong> Diseño optimizado para impresión con colores alternados</li>
-                        <li><strong>CSV:</strong> Formato compatible con otros sistemas</li>
-                        <li><strong>Backup JSON:</strong> Copia de seguridad completa de la carrera</li>
-                    </ul>
-                    
-                    <div class="tip-box">
-                        <h4><i class="fas fa-file-export"></i> Proceso de Exportación</h4>
-                        <ol>
-                            <li>Selecciona "Exportar Orden de Salida"</li>
-                            <li>Elige el formato (Excel o PDF)</li>
-                            <li>Configura las opciones de exportación</li>
-                            <li>Descarga el archivo generado</li>
-                            <li>Comparte con organización y medios</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2><i class="fas fa-palette"></i> Indicadores Visuales</h2>
-                <div class="visual-indicators">
-                    <div class="indicator red">
-                        <i class="fas fa-stopwatch"></i><br>
-                        <strong>FONDO ROJO</strong><br>
-                        Cuenta atrás normal
-                    </div>
-                    <div class="indicator yellow">
-                        <i class="fas fa-exclamation-triangle"></i><br>
-                        <strong>FONDO AMARILLO</strong><br>
-                        Últimos 10 segundos
-                    </div>
-                    <div class="indicator green">
-                        <i class="fas fa-flag-checkered"></i><br>
-                        <strong>FONDO VERDE</strong><br>
-                        Momento de salida (2 segundos)
-                    </div>
-                    <div class="indicator pulse">
-                        <i class="fas fa-heartbeat"></i><br>
-                        <strong>NÚMEROS ROJOS PULSANTES</strong><br>
-                        Últimos 5 segundos
-                    </div>
-                </div>
-                
-                <div class="tip-box">
-                    <h4><i class="fas fa-eye"></i> Sistema de Feedback Visual</h4>
-                    <p>La aplicación proporciona información clara en todo momento:</p>
-                    <ul>
-                        <li><strong>Próximo corredor:</strong> Muestra dorsal y diferencia</li>
-                        <li><strong>Contador de salidos:</strong> Número de corredores que ya salieron</li>
-                        <li><strong>Hora del día:</strong> Actualizada en tiempo real</li>
-                        <li><strong>Estado del cronómetro:</strong> Tiempo transcurrido de carrera</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2><i class="fas fa-volume-up"></i> Sistema de Audio</h2>
-                <div class="sound-options">
-                    <div class="sound-option">
-                        <i class="fas fa-bell"></i>
-                        <h4>Sonidos Beep</h4>
-                        <p>Beeps electrónicos para cada segundo</p>
-                    </div>
-                    <div class="sound-option">
-                        <i class="fas fa-microphone-alt"></i>
-                        <h4>Voz Grabada</h4>
-                        <p>Voz humana en 4 idiomas diferentes</p>
-                    </div>
-                    <div class="sound-option">
-                        <i class="fas fa-volume-mute"></i>
-                        <h4>Sin Sonido</h4>
-                        <p>Solo indicadores visuales</p>
-                    </div>
-                    <div class="sound-option">
-                        <i class="fas fa-headphones"></i>
-                        <h4>Prueba de Audio</h4>
-                        <p>Test completo del sistema</p>
-                    </div>
-                </div>
-                
-                <div class="tip-box">
-                    <h4><i class="fas fa-language"></i> Idiomas de Audio</h4>
-                    <p>El sistema incluye archivos de voz para 4 idiomas:</p>
-                    <ul>
-                        <li><strong>Español:</strong> "10, 5, 4, 3, 2, 1, ¡SALIDA!"</li>
-                        <li><strong>Catalán:</strong> "10, 5, 4, 3, 2, 1, ¡SORTIDA!"</li>
-                        <li><strong>Inglés:</strong> "10, 5, 4, 3, 2, 1, GO!"</li>
-                        <li><strong>Francés:</strong> "10, 5, 4, 3, 2, 1, DÉPART!"</li>
-                    </ul>
-                    <p><em>Archivos: {idioma}_{numero}.ogg (ej: es_10.ogg, en_5.ogg)</em></p>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2><i class="fas fa-keyboard"></i> Atajos de Teclado</h2>
-                <div class="keyboard-shortcuts">
-                    <p>Durante la cuenta atrás puedes usar estos atajos:</p>
-                    <table>
-                        <tr>
-                            <th>Tecla</th>
-                            <th>Acción</th>
-                            <th>Descripción</th>
-                        </tr>
-                        <tr>
-                            <td><kbd>Espacio</kbd></td>
-                            <td>Pausar/Reanudar</td>
-                            <td>Detiene o continúa la cuenta atrás</td>
-                        </tr>
-                        <tr>
-                            <td><kbd>ESC</kbd></td>
-                            <td>Configuración</td>
-                            <td>Abre el menú de configuración</td>
-                        </tr>
-                        <tr>
-                            <td><kbd>F</kbd></td>
-                            <td>Pantalla Completa</td>
-                            <td>Alternar modo pantalla completa</td>
-                        </tr>
-                        <tr>
-                            <td><kbd>S</kbd></td>
-                            <td>Alternar Sonido</td>
-                            <td>Activa/desactiva el sonido</td>
-                        </tr>
-                        <tr>
-                            <td><kbd>R</kbd></td>
-                            <td>Reiniciar</td>
-                            <td>Reinicia la cuenta atrás actual</td>
-                        </tr>
-                        <tr>
-                            <td><kbd>+</kbd></td>
-                            <td>Aumentar Volumen</td>
-                            <td>Sube el volumen del audio</td>
-                        </tr>
-                        <tr>
-                            <td><kbd>-</kbd></td>
-                            <td>Reducir Volumen</td>
-                            <td>Baja el volumen del audio</td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2><i class="fas fa-wrench"></i> Solución de Problemas</h2>
-                <div class="troubleshooting">
-                    <h4><i class="fas fa-exclamation-triangle"></i> Problemas Comunes y Soluciones</h4>
-                    
-                    <h4>Problema: No se escuchan los sonidos</h4>
-                    <ul>
-                        <li><strong>Solución 1:</strong> Verifica que el volumen del navegador esté activado</li>
-                        <li><strong>Solución 2:</strong> Permite la reproducción de audio en el navegador</li>
-                        <li><strong>Solución 3:</strong> Prueba el sistema de audio desde configuración</li>
-                        <li><strong>Solución 4:</strong> Verifica conexión Bluetooth si usas altavoz externo</li>
-                    </ul>
-                    
-                    <h4>Problema: Los datos no se guardan</h4>
-                    <ul>
-                        <li><strong>Solución 1:</strong> La aplicación guarda automáticamente en localStorage</li>
-                        <li><strong>Solución 2:</strong> Usa "Exportar Backup" para copia de seguridad</li>
-                        <li><strong>Solución 3:</strong> Verifica que hay espacio disponible en el dispositivo</li>
-                    </ul>
-                    
-                    <h4>Problema: La cuenta atrás no es precisa</h4>
-                    <ul>
-                        <li><strong>Solución 1:</strong> Usa la función de sincronización en configuración</li>
-                        <li><strong>Solución 2:</strong> Verifica la hora del sistema del dispositivo</li>
-                        <li><strong>Solución 3:</strong> El sistema incluye compensación automática de 1 segundo</li>
-                    </ul>
-                    
-                    <h4>Problema: Error al importar desde Excel</h4>
-                    <ul>
-                        <li><strong>Solución 1:</strong> Usa la plantilla oficial proporcionada</li>
-                        <li><strong>Solución 2:</strong> Verifica el formato de las columnas</li>
-                        <li><strong>Solución 3:</strong> Asegúrate de que el archivo no esté abierto en otro programa</li>
-                    </ul>
-                    
-                    <div class="tip-box" style="margin-top: 20px;">
-                        <h4><i class="fas fa-bug"></i> Modo Depuración</h4>
-                        <p>La aplicación incluye un sistema de logs detallado. Para activarlo:</p>
-                        <ol>
-                            <li>Abre la Consola del Navegador (F12)</li>
-                            <li>Busca mensajes con prefijos específicos:
-                                <ul>
-                                    <li><code>🔍</code> - Mensajes de diagnóstico</li>
-                                    <li><code>✅</code> - Operaciones exitosas</li>
-                                    <li><code>❌</code> - Errores detectados</li>
-                                    <li><code>⚠️</code> - Advertencias</li>
-                                </ul>
-                            </li>
-                            <li>Comparte estos logs con el desarrollador si necesitas ayuda</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2><i class="fas fa-mobile-alt"></i> Instalación como App (PWA)</h2>
-                <div class="app-install">
-                    <p>Crono CRI es una Progressive Web App (PWA), lo que significa que puedes instalarla en tu dispositivo como una aplicación nativa.</p>
-                    
-                    <div class="platform">
-                        <h4>Para iPhone/iOS:</h4>
-                        <ol>
-                            <li>Abre Safari y navega a la aplicación</li>
-                            <li>Toca el icono de compartir (cuadrado con flecha hacia arriba)</li>
-                            <li>Desplázate hacia abajo y selecciona "Añadir a pantalla de inicio"</li>
-                            <li>Personaliza el nombre si lo deseas</li>
-                            <li>Toca "Añadir" en la esquina superior derecha</li>
-                            <li>La app aparecerá en tu pantalla de inicio</li>
-                        </ol>
-                    </div>
-                    
-                    <div class="platform">
-                        <h4>Para Android:</h4>
-                        <ol>
-                            <li>Abre Chrome y navega a la aplicación</li>
-                            <li>Toca el menú de tres puntos (esquina superior derecha)</li>
-                            <li>Selecciona "Instalar app" o "Añadir a pantalla de inicio"</li>
-                            <li>Sigue las instrucciones en pantalla</li>
-                            <li>La app se instalará automáticamente</li>
-                        </ol>
-                    </div>
-                    
-                    <div class="tip-box">
-                        <h4><i class="fas fa-star"></i> Ventajas de la Instalación PWA</h4>
-                        <ul>
-                            <li><strong>Acceso rápido:</strong> Icono directo en pantalla de inicio</li>
-                            <li><strong>Funciona offline:</strong> Acceso básico sin conexión a internet</li>
-                            <li><strong>Notificaciones push:</strong> (Próximamente) Alertas de eventos</li>
-                            <li><strong>Actualizaciones automáticas:</strong> Siempre tienes la última versión</li>
-                            <li><strong>Sin tiendas de aplicaciones:</strong> Instalación directa desde el navegador</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2><i class="fas fa-code-branch"></i> Desarrollo y Contribución</h2>
-                <div class="version-note">
-                    <h4><i class="fas fa-history"></i> Historial de Versiones</h4>
-                    <ul>
-                        <li><strong>V_19_12_2025:</strong> Versión actual - Sistema completo estabilizado</li>
-                        <li><strong>Eliminación de tabla redundante:</strong> Datos de salidas ahora en cada corredor</li>
-                        <li><strong>Compensación de tiempo:</strong> Sistema de 1 segundo para corredores posteriores</li>
-                        <li><strong>Sistema de audio multilingüe:</strong> 4 idiomas completos</li>
-                    </ul>
-                </div>
-                
-                <div class="tip-box">
-                    <h4><i class="fas fa-hands-helping"></i> Contribuir al Proyecto</h4>
-                    <p>Crono CRI es un proyecto de código abierto. Si eres árbitro, comisario u organizador:</p>
-                    <ol>
-                        <li><strong>Reporta errores:</strong> Describe el problema con detalles</li>
-                        <li><strong>Sugiere mejoras:</strong> Explica qué funcionalidad necesitas</li>
-                        <li><strong>Comparte casos de uso:</strong> ¿En qué tipo de carrera lo usarías?</li>
-                        <li><strong>Traducciones:</strong> ¿Conoces otros idiomas? ¡Ayuda a traducir!</li>
-                    </ol>
-                    <p><strong>Contacto:</strong> A través de <a href="https://rbenet71.github.io/Web" target="_blank">rbenet71.github.io/Web</a></p>
-                </div>
-            </div>
-
-            <div style="text-align: center; margin-top: 50px;">
-                <button onclick="window.location.href='Crono_CRI.html'" class="back-button">
-                    <i class="fas fa-arrow-left"></i> Volver a la Aplicación
-                </button>
-            </div>
+      <div class="topbar">
+        <div class="language-selector">
+          <button class="lang-btn active" data-lang="es">
+            <img src="https://flagcdn.com/w40/es.png" class="flag" alt="Español"> Español
+          </button>
+          <button class="lang-btn" data-lang="ca">
+            <span class="flag-catalunya" aria-label="Català"></span> Català
+          </button>
+          <button class="lang-btn" data-lang="en">
+            <img src="https://flagcdn.com/w40/gb.png" class="flag" alt="English"> English
+          </button>
+          <button class="lang-btn" data-lang="fr">
+            <img src="https://flagcdn.com/w40/fr.png" class="flag" alt="Français"> Français
+          </button>
         </div>
 
-        <!-- =========================================== -->
-        <!-- CONTENIDO EN CATALÁN -->
-        <!-- =========================================== -->
-        <div class="help-content" id="help-ca">
-            <div class="intro-box">
-                <h4><i class="fas fa-info-circle"></i> Nota del Desenvolupador</h4>
-                <p>Crono CRI és una aplicació web progressiva (PWA) desenvolupada per Roberto Benet, comissari del comitè català, per al control professional de sortides i arribades en curses ciclistes i esdeveniments esportius.</p>
-                <p>Aquesta aplicació és completament gratuïta i de codi obert, dissenyada específicament per a àrbitres, comissaris i organitzadors d'esdeveniments esportius.</p>
-                <p>Per a més aplicacions i recursos, visita: <a href="https://rbenet71.github.io/Web" target="_blank">https://rbenet71.github.io/Web</a></p>
-            </div>
+        <div class="search-box">
+          <input id="helpSearch" type="search" data-i18n-ph="searchPlaceholder" placeholder="Buscar en la ayuda (ej: PDF, dorsal, backup, audio...)" />
+        </div>
+      </div>
 
-            <div class="section">
-                <h2><i class="fas fa-info-circle"></i> Què és Crono CRI?</h2>
-                <p>Crono CRI és un sistema complet de cronometratge per a esdeveniments esportius que inclou:</p>
-                <ul>
-                    <li><strong>Gestió de curses:</strong> Crear, editar i administrar múltiples curses</li>
-                    <li><strong>Control de sortides:</strong> Sistema de compte enrere visual i sonor</li>
-                    <li><strong>Registre d'arribades:</strong> Cronòmetre i sistema de classificació</li>
-                    <li><strong>Exportació de dades:</strong> Excel, PDF i formats compatibles</li>
-                    <li><strong>Sistema multilingüe:</strong> Castellà, Català, Anglès i Francès</li>
-                </ul>
-            </div>
+      <div class="toc" aria-label="Table of contents">
+        <a href="#quickstart" data-i18n="tocQuickstart">Inicio rápido</a>
+        <a href="#races" data-i18n="tocRaces">Carreras</a>
+        <a href="#salidas" data-i18n="tocSalidas">Salidas</a>
+        <a href="#countdown" data-i18n="tocCountdown">Cuenta atrás</a>
+        <a href="#llegadas" data-i18n="tocLlegadas">Llegadas</a>
+        <a href="#exports" data-i18n="tocExports">Exportación</a>
+        <a href="#pwa" data-i18n="tocPwa">Instalación</a>
+        <a href="#tips" data-i18n="tocTips">Consejos</a>
+        <a href="#faq" data-i18n="tocFaq">FAQ</a>
+      </div>
+    </header>
 
-            <!-- Contenido similar en catalán para todas las secciones -->
-            <!-- Se mantiene la misma estructura pero traducida -->
+    <!-- ==========================
+         CONTENT ROOT (single, translated by JS)
+         ========================== -->
+    <div class="help-content active" id="help-root">
+      <!-- INTRO (keep concept) -->
+      <div class="intro-box">
+        <h4><i class="fas fa-info-circle"></i> <span data-i18n="devNoteTitle">Nota del Desarrollador</span></h4>
+        <p data-i18n="devNoteP1">
+          Crono CRI es una aplicación web progresiva (PWA) desarrollada por Roberto Benet, comisario del comité catalán,
+          para el control profesional de salidas y llegadas en carreras ciclistas y eventos deportivos.
+        </p>
+        <p data-i18n="devNoteP2">
+          Es gratuita y de código abierto, pensada para árbitros, comisarios y organizadores: funciona sin instalaciones,
+          guarda los datos en el dispositivo y permite exportar listados y clasificaciones.
+        </p>
+        <p>
+          <span data-i18n="devNoteP3">Más aplicaciones y recursos:</span>
+          <a href="https://rbenet71.github.io/Web" target="_blank" rel="noopener">rbenet71.github.io/Web</a>
+        </p>
+      </div>
 
-            <div style="text-align: center; margin-top: 50px;">
-                <button onclick="window.location.href='Crono_CRI.html'" class="back-button">
-                    <i class="fas fa-arrow-left"></i> Tornar a l'Aplicació
-                </button>
-            </div>
+      <!-- QUICKSTART -->
+      <div class="section" id="quickstart">
+        <h2><i class="fas fa-bolt"></i> <span data-i18n="qsTitle">Inicio rápido (2 minutos)</span></h2>
+
+        <div class="quickstart">
+          <div class="step">
+            <div class="badge ok"><i class="fas fa-flag-checkered"></i> <span data-i18n="qsS1T">1) Crea o selecciona una carrera</span></div>
+            <p data-i18n="qsS1P">
+              En “Gestión de Carrera”, elige una carrera existente o pulsa “Nueva”. Define nombre/fecha, la hora de salida del primer corredor
+              y (opcional) sube logos para que aparezcan en los PDFs.
+            </p>
+          </div>
+
+          <div class="step">
+            <div class="badge info"><i class="fas fa-list-ol"></i> <span data-i18n="qsS2T">2) Carga el orden de salida</span></div>
+            <p data-i18n="qsS2P">
+              Usa “Crear Plantilla” si quieres un Excel de ejemplo, o “Importar Orden” para cargar tu listado (dorsal, nombre, categoría, etc.).
+              Puedes añadir o eliminar corredores y la app recalcula tiempos posteriores automáticamente.
+            </p>
+          </div>
+
+          <div class="step">
+            <div class="badge warn"><i class="fas fa-volume-up"></i> <span data-i18n="qsS3T">3) Configura el audio y el tiempo previo</span></div>
+            <p data-i18n="qsS3P">
+              En SALIDAS elige Beeps, Voz o Sin sonido, y prueba el audio. Ajusta “Tiempo previo” (por ejemplo 00:01:00) para la cuenta atrás.
+            </p>
+          </div>
+
+          <div class="step">
+            <div class="badge danger"><i class="fas fa-rocket"></i> <span data-i18n="qsS4T">4) Inicia la cuenta atrás y registra llegadas</span></div>
+            <p data-i18n="qsS4P">
+              Pulsa “INICIAR CUENTA ATRÁS”. Para LLEGADAS, cambia el modo y usa “Registrar Llegada”:
+              se capturan milésimas y se asignan posiciones generales y por categoría.
+            </p>
+          </div>
         </div>
 
-        <!-- =========================================== -->
-        <!-- CONTENIDO EN INGLÉS -->
-        <!-- =========================================== -->
-        <div class="help-content" id="help-en">
-            <div class="intro-box">
-                <h4><i class="fas fa-info-circle"></i> Developer's Note</h4>
-                <p>Crono CRI is a Progressive Web App (PWA) developed by Roberto Benet, commissioner of the Catalan committee, for professional control of starts and finishes in cycling races and sporting events.</p>
-                <p>This application is completely free and open source, specifically designed for referees, commissioners and sports event organizers.</p>
-                <p>For more applications and resources, visit: <a href="https://rbenet71.github.io/Web" target="_blank">https://rbenet71.github.io/Web</a></p>
-            </div>
+        <div class="note">
+          <p data-i18n="qsNote">
+            Consejo: antes del evento, crea una carrera “Pruebas” para familiarizarte con el flujo y comprobar audio/exportaciones.
+          </p>
+        </div>
+      </div>
 
-            <div class="section">
-                <h2><i class="fas fa-info-circle"></i> What is Crono CRI?</h2>
-                <p>Crono CRI is a complete timing system for sporting events that includes:</p>
-                <ul>
-                    <li><strong>Race Management:</strong> Create, edit and manage multiple races</li>
-                    <li><strong>Start Control:</strong> Visual and audible countdown system</li>
-                    <li><strong>Finish Registration:</strong> Stopwatch and ranking system</li>
-                    <li><strong>Data Export:</strong> Excel, PDF and compatible formats</li>
-                    <li><strong>Multilingual System:</strong> Spanish, Catalan, English and French</li>
-                </ul>
-            </div>
+      <!-- WHAT IS -->
+      <div class="section" id="what">
+        <h2><i class="fas fa-circle-question"></i> <span data-i18n="whatTitle">¿Qué hace Crono CRI?</span></h2>
 
-            <!-- Contenido similar en inglés para todas las secciones -->
-            <!-- Se mantiene la misma estructura pero traducida -->
+        <div class="grid">
+          <div class="card">
+            <h4><i class="fas fa-flag-checkered"></i> <span data-i18n="whatC1T">Gestión de carreras</span></h4>
+            <p data-i18n="whatC1P">Crea, edita, elimina y mantén varias carreras. Cada carrera guarda su orden de salida, llegadas, configuración y (si quieres) logos para PDFs.</p>
+          </div>
+          <div class="card">
+            <h4><i class="fas fa-list-ol"></i> <span data-i18n="whatC2T">Control de salidas</span></h4>
+            <p data-i18n="whatC2P">Tabla completa de orden de salida con tiempos previstos/real/importados, edición y recálculos automáticos.</p>
+          </div>
+          <div class="card">
+            <h4><i class="fas fa-stopwatch"></i> <span data-i18n="whatC3T">Cuenta atrás profesional</span></h4>
+            <p data-i18n="whatC3P">Pantalla de cuenta atrás a pantalla completa con señales visuales y audio (beeps o voz) para marcar cada segundo.</p>
+          </div>
+          <div class="card">
+            <h4><i class="fas fa-flag-checkered"></i> <span data-i18n="whatC4T">Llegadas y clasificación</span></h4>
+            <p data-i18n="whatC4P">Registro de llegadas con milésimas, posición general y posición por categoría (Pos. Cat.), y exportación para resultados.</p>
+          </div>
+        </div>
+      </div>
 
-            <div style="text-align: center; margin-top: 50px;">
-                <button onclick="window.location.href='Crono_CRI.html'" class="back-button">
-                    <i class="fas fa-arrow-left"></i> Back to Application
-                </button>
-            </div>
+      <!-- RACES -->
+      <div class="section" id="races">
+        <h2><i class="fas fa-flag-checkered"></i> <span data-i18n="racesTitle">Carreras: crear, editar, copiar, restaurar</span></h2>
+
+        <h3><i class="fas fa-folder-open"></i> <span data-i18n="racesH1">Selector de carrera</span></h3>
+        <ul>
+          <li data-i18n="racesL1">Selecciona una carrera para cargar todos sus datos (orden de salida, llegadas, logos, etc.).</li>
+          <li data-i18n="racesL2">Si cambias de carrera, la app actualiza automáticamente contadores y pantallas asociadas.</li>
+        </ul>
+
+        <h3><i class="fas fa-pen-to-square"></i> <span data-i18n="racesH2">Editar carrera</span></h3>
+        <ul>
+          <li data-i18n="racesL3">Cambia nombre, fecha y hora de salida del primer corredor.</li>
+          <li data-i18n="racesL4">Sube logos (izquierdo/derecho) para que aparezcan en los PDFs. Formatos: PNG/JPG/SVG, máximo 5MB.</li>
+        </ul>
+
+        <h3><i class="fas fa-shield-halved"></i> <span data-i18n="racesH3">Copia de seguridad y restauración</span></h3>
+        <ul>
+          <li data-i18n="racesL5">“Copia Seguridad” guarda una copia completa de la carrera actual para recuperar datos si algo sale mal.</li>
+          <li data-i18n="racesL6">“Restaurar” reemplaza la carrera actual por la copia guardada.</li>
+        </ul>
+
+        <div class="tip">
+          <h4><i class="fas fa-lightbulb"></i> <span data-i18n="racesTipT">Buenas prácticas</span></h4>
+          <ul>
+            <li data-i18n="racesTip1">Antes de importar un Excel definitivo, crea una copia de seguridad.</li>
+            <li data-i18n="racesTip2">Si cambias logos o exportaciones importantes, revisa un PDF de prueba antes del evento.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- SALIDAS -->
+      <div class="section" id="salidas">
+        <h2><i class="fas fa-list-ol"></i> <span data-i18n="salidasTitle">SALIDAS: Orden de salida (tabla)</span></h2>
+
+        <h3><i class="fas fa-clock"></i> <span data-i18n="salidasH1">Configuración de horarios</span></h3>
+        <ul>
+          <li data-i18n="salidasL1">“Hora Salida Primer Corredor” define el inicio de referencia para calcular el resto de salidas.</li>
+          <li data-i18n="salidasL2">“Hora del Sistema” muestra el reloj actual del dispositivo (sirve para sincronizar).</li>
+          <li data-i18n="salidasL3">“Inicio Cuenta atrás en” indica cuánto falta para la próxima cuenta atrás según tu configuración.</li>
+          <li data-i18n="salidasL4">“Total Corredores” se actualiza según el orden importado o editado.</li>
+        </ul>
+
+        <h3><i class="fas fa-gears"></i> <span data-i18n="salidasH2">Acciones típicas</span></h3>
+        <div class="grid">
+          <div class="card">
+            <h4><i class="fas fa-file-excel"></i> <span data-i18n="salidasC1T">Crear Plantilla</span></h4>
+            <p data-i18n="salidasC1P">Genera un Excel ejemplo con columnas esperadas para que puedas rellenarlo y reimportarlo sin errores.</p>
+          </div>
+          <div class="card">
+            <h4><i class="fas fa-file-import"></i> <span data-i18n="salidasC2T">Importar Orden</span></h4>
+            <p data-i18n="salidasC2P">Carga un Excel y construye el orden de salida. Ideal para dorsales, nombres, categorías, equipos y chips.</p>
+          </div>
+          <div class="card">
+            <h4><i class="fas fa-user-plus"></i> <span data-i18n="salidasC3T">Añadir Corredor</span></h4>
+            <p data-i18n="salidasC3P">Añade un corredor manualmente (útil para altas de última hora). La app recalcula tiempos si procede.</p>
+          </div>
+          <div class="card">
+            <h4><i class="fas fa-user-minus"></i> <span data-i18n="salidasC4T">Eliminar Corredor</span></h4>
+            <p data-i18n="salidasC4P">Selecciona una fila y pulsa “Eliminar Corredor”. Se reasignan posiciones y se recalculan tiempos posteriores automáticamente.</p>
+          </div>
         </div>
 
-        <!-- =========================================== -->
-        <!-- CONTENIDO EN FRANCÉS -->
-        <!-- =========================================== -->
-        <div class="help-content" id="help-fr">
-            <div class="intro-box">
-                <h4><i class="fas fa-info-circle"></i> Note du Développeur</h4>
-                <p>Crono CRI est une Progressive Web App (PWA) développée par Roberto Benet, commissaire du comité catalan, pour le contrôle professionnel des départs et arrivées dans les courses cyclistes et événements sportifs.</p>
-                <p>Cette application est entièrement gratuite et open source, conçue spécifiquement pour les arbitres, commissaires et organisateurs d'événements sportifs.</p>
-                <p>Pour plus d'applications et ressources, visitez: <a href="https://rbenet71.github.io/Web" target="_blank">https://rbenet71.github.io/Web</a></p>
-            </div>
+        <h3><i class="fas fa-table"></i> <span data-i18n="salidasH3">Ordenación y edición</span></h3>
+        <ul>
+          <li data-i18n="salidasL5">Puedes ordenar por columnas (cabeceras “sortable”). Útil para encontrar dorsales, nombres o categorías.</li>
+          <li data-i18n="salidasL6">La tabla incluye campos previstos, reales e importados (si se usan), y conversiones a segundos para cálculos internos.</li>
+        </ul>
 
-            <div class="section">
-                <h2><i class="fas fa-info-circle"></i> Qu'est-ce que Crono CRI?</h2>
-                <p>Crono CRI est un système complet de chronométrage pour événements sportifs qui comprend:</p>
-                <ul>
-                    <li><strong>Gestion de courses:</strong> Créer, éditer et gérer plusieurs courses</li>
-                    <li><strong>Contrôle des départs:</strong> Système de compte à rebours visuel et sonore</li>
-                    <li><strong>Enregistrement des arrivées:</strong> Chronomètre et système de classement</li>
-                    <li><strong>Exportation de données:</strong> Excel, PDF et formats compatibles</li>
-                    <li><strong>Système multilingue:</strong> Espagnol, Catalan, Anglais et Français</li>
-                </ul>
-            </div>
-
-            <!-- Contenido similar en francés para todas las secciones -->
-            <!-- Se mantiene la misma estructura pero traducida -->
-
-            <div style="text-align: center; margin-top: 50px;">
-                <button onclick="window.location.href='Crono_CRI.html'" class="back-button">
-                    <i class="fas fa-arrow-left"></i> Retour à l'Application
-                </button>
-            </div>
+        <div class="note">
+          <p data-i18n="salidasNote">
+            Importante: si eliminas un corredor, revisa “Hora Salida Prevista” de los siguientes para confirmar el recálculo esperado.
+          </p>
         </div>
+      </div>
+
+      <!-- COUNTDOWN -->
+      <div class="section" id="countdown">
+        <h2><i class="fas fa-hourglass-half"></i> <span data-i18n="cdTitle">SALIDAS: Cuenta atrás (pantalla)</span></h2>
+
+        <h3><i class="fas fa-volume-high"></i> <span data-i18n="cdH1">Audio</span></h3>
+        <ul>
+          <li data-i18n="cdL1"><strong>Beeps:</strong> pitidos electrónicos cada segundo.</li>
+          <li data-i18n="cdL2"><strong>Voz:</strong> cuenta atrás hablada en tu idioma.</li>
+          <li data-i18n="cdL3"><strong>Sin sonido:</strong> solo señales visuales.</li>
+          <li data-i18n="cdL4">Usa “Probar sonido actual” antes del inicio.</li>
+        </ul>
+
+        <h3><i class="fas fa-play"></i> <span data-i18n="cdH2">Inicio de la cuenta atrás</span></h3>
+        <ul>
+          <li data-i18n="cdL5">“Tiempo previo” define la duración de la cuenta atrás (ej. 00:01:00).</li>
+          <li data-i18n="cdL6">“Posición a salir” permite seleccionar quién sale a continuación.</li>
+          <li data-i18n="cdL7">“Dorsal a salir” sirve para sincronizar rápidamente cuando trabajas por dorsal.</li>
+          <li data-i18n="cdL8">“INICIAR CUENTA ATRÁS” lanza la pantalla a pantalla completa.</li>
+          <li data-i18n="cdL9">“REINICIAR TODO” vuelve al estado inicial (usar solo si necesitas recomenzar el procedimiento).</li>
+        </ul>
+
+        <h3><i class="fas fa-eye"></i> <span data-i18n="cdH3">Indicadores visuales</span></h3>
+        <div class="visual-indicators">
+          <div class="indicator red" data-i18n="cdV1">ROJO: cuenta atrás normal</div>
+          <div class="indicator yellow" data-i18n="cdV2">AMARILLO: últimos 10 segundos</div>
+          <div class="indicator pulse" data-i18n="cdV3">AMARILLO + pulso: últimos 5 segundos</div>
+          <div class="indicator green" data-i18n="cdV4">VERDE: SALIDA</div>
+        </div>
+
+        <div class="tip">
+          <h4><i class="fas fa-headset"></i> <span data-i18n="cdTipT">Truco de operación</span></h4>
+          <p data-i18n="cdTipP">Si trabajas con un altavoz externo, prueba “Voz” con antelación: algunos móviles limitan volumen en PWA si no hubo interacción reciente.</p>
+        </div>
+      </div>
+
+      <!-- LLEGADAS -->
+      <div class="section" id="llegadas">
+        <h2><i class="fas fa-flag-checkered"></i> <span data-i18n="arrTitle">LLEGADAS: Cronómetro y lista</span></h2>
+
+        <h3><i class="fas fa-stopwatch"></i> <span data-i18n="arrH1">Cronómetro de llegadas</span></h3>
+        <ul>
+          <li data-i18n="arrL1">Muestra el tiempo transcurrido desde la salida del primer corredor.</li>
+          <li data-i18n="arrL2">Puede capturar tiempos con milésimas (precisión suficiente para control operativo).</li>
+          <li data-i18n="arrL3">Al minimizar la tarjeta, se muestra un “tiempo compacto” en la cabecera para no perder referencia.</li>
+        </ul>
+
+        <h3><i class="fas fa-user-check"></i> <span data-i18n="arrH2">Registrar llegada</span></h3>
+        <ul>
+          <li data-i18n="arrL4">Pulsa “Registrar Llegada” para guardar el dorsal y el tiempo exacto de llegada.</li>
+          <li data-i18n="arrL5">La app calcula automáticamente la <strong>posición general</strong> y la <strong>posición por categoría (Pos. Cat.)</strong>.</li>
+          <li data-i18n="arrL6">El contador muestra “X de Y corredores” (llegadas registradas vs total).</li>
+        </ul>
+
+        <h3><i class="fas fa-list-ol"></i> <span data-i18n="arrH3">Tabla de llegadas</span></h3>
+        <ul>
+          <li data-i18n="arrL7">Incluye dorsal, crono llegada, tiempo final, posición, nombre, apellidos, Pos. Cat., categoría y más.</li>
+          <li data-i18n="arrL8">El orden de columnas está pensado para imprimir/exportar resultados con rapidez.</li>
+        </ul>
+
+        <div class="note">
+          <p data-i18n="arrNote">
+            Consejo: si importaste el orden de salida con categoría/equipo/licencia, en llegadas tendrás datos completos automáticamente (sin reescribir).
+          </p>
+        </div>
+      </div>
+
+      <!-- EXPORTS -->
+      <div class="section" id="exports">
+        <h2><i class="fas fa-file-export"></i> <span data-i18n="exTitle">Exportación: Excel y PDF</span></h2>
+
+        <h3><i class="fas fa-file-excel"></i> <span data-i18n="exH1">Excel</span></h3>
+        <ul>
+          <li data-i18n="exL1">SALIDAS: exporta el orden de salida a Excel para revisión o intercambio.</li>
+          <li data-i18n="exL2">LLEGADAS: exporta llegadas/clasificación con 14 columnas (incluye Pos. Cat.).</li>
+          <li data-i18n="exL3">Si un campo de tiempo no tiene valor, se exporta como celda vacía (evita “00:00:00” engañosos).</li>
+        </ul>
+
+        <h3><i class="fas fa-file-pdf"></i> <span data-i18n="exH2">PDF</span></h3>
+        <ul>
+          <li data-i18n="exL4">“Exportar PDF” en SALIDAS genera un PDF del orden de salida.</li>
+          <li data-i18n="exL5">“Clasificación PDF” en LLEGADAS genera un PDF de resultados con posiciones generales y por categoría.</li>
+          <li data-i18n="exL6">Si configuraste logos en la carrera, se añaden automáticamente al encabezado de ambos PDFs.</li>
+        </ul>
+
+        <div class="tip">
+          <h4><i class="fas fa-image"></i> <span data-i18n="exTipT">Logos en PDF</span></h4>
+          <p data-i18n="exTipP">
+            Recomendación: usa PNG con fondo transparente o SVG. Mantén los archivos ligeros (aunque el límite sea 5MB) para que exporte más rápido.
+          </p>
+        </div>
+      </div>
+
+      <!-- PWA -->
+      <div class="section" id="pwa">
+        <h2><i class="fas fa-mobile-screen"></i> <span data-i18n="pwaTitle">Instalación como App (PWA) y actualizaciones</span></h2>
+
+        <h3><i class="fas fa-download"></i> <span data-i18n="pwaH1">Instalar</span></h3>
+        <div class="grid">
+          <div class="card">
+            <h4><i class="fab fa-apple"></i> <span data-i18n="pwaIOS">iPhone / iOS</span></h4>
+            <ul>
+              <li data-i18n="pwaIOS1">Abre la app en Safari.</li>
+              <li data-i18n="pwaIOS2">Pulsa “Compartir” → “Añadir a pantalla de inicio”.</li>
+              <li data-i18n="pwaIOS3">Ábrela desde el icono como si fuera una app.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4><i class="fab fa-android"></i> <span data-i18n="pwaAND">Android</span></h4>
+            <ul>
+              <li data-i18n="pwaAND1">Abre la app en Chrome.</li>
+              <li data-i18n="pwaAND2">Pulsa el botón “Instalar App” (o el menú → “Instalar”).</li>
+              <li data-i18n="pwaAND3">Se añadirá un icono y funcionará como app nativa.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4><i class="fas fa-desktop"></i> <span data-i18n="pwaPC">PC / Mac</span></h4>
+            <ul>
+              <li data-i18n="pwaPC1">En Chrome/Edge suele aparecer un icono de instalar en la barra.</li>
+              <li data-i18n="pwaPC2">También puedes usar “Instalar App” desde la propia aplicación.</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3><i class="fas fa-rotate"></i> <span data-i18n="pwaH2">Actualizaciones</span></h3>
+        <ul>
+          <li data-i18n="pwaU1">“Buscar actualizaciones” comprueba si hay una versión nueva disponible.</li>
+          <li data-i18n="pwaU2">Si trabajas offline, la app seguirá funcionando, pero no descargará cambios hasta recuperar conexión.</li>
+        </ul>
+
+        <div class="note">
+          <p data-i18n="pwaNote">Importante: los datos se guardan en el dispositivo. Si cambias de móvil/PC, exporta y/o usa copias de seguridad.</p>
+        </div>
+      </div>
+
+      <!-- TIPS -->
+      <div class="section" id="tips">
+        <h2><i class="fas fa-lightbulb"></i> <span data-i18n="tipsTitle">Consejos y flujo recomendado</span></h2>
+
+        <h3><i class="fas fa-route"></i> <span data-i18n="tipsH1">Flujo recomendado para un CRI</span></h3>
+        <ol>
+          <li data-i18n="tipsS1">Crea/selecciona carrera → haz “Copia Seguridad”.</li>
+          <li data-i18n="tipsS2">Importa el orden de salida → revisa dorsales y categorías.</li>
+          <li data-i18n="tipsS3">Prueba audio → ajusta “Tiempo previo”.</li>
+          <li data-i18n="tipsS4">Inicia cuenta atrás → controla “Salidos” y “Próximo sale a”.</li>
+          <li data-i18n="tipsS5">En LLEGADAS registra llegadas → revisa posiciones y Pos. Cat.</li>
+          <li data-i18n="tipsS6">Exporta Excel/PDF → comparte resultados.</li>
+        </ol>
+
+        <div class="tip">
+          <h4><i class="fas fa-wifi"></i> <span data-i18n="tipsTipT">Uso offline</span></h4>
+          <p data-i18n="tipsTipP">Instalada como PWA, la app puede usarse sin internet. Ideal para zonas con mala cobertura.</p>
+        </div>
+
+        <div class="tip">
+          <h4><i class="fas fa-keyboard"></i> <span data-i18n="tipsKbdT">Atajos útiles</span></h4>
+          <p data-i18n="tipsKbdP">
+            En PC, abre la consola con <span class="kbd">F12</span> si necesitas diagnóstico. Guarda capturas o logs si vas a reportar un error.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="section" id="faq">
+        <h2><i class="fas fa-circle-info"></i> <span data-i18n="faqTitle">FAQ y resolución de problemas</span></h2>
+
+        <div class="faq" id="faqList">
+          <details>
+            <summary><span data-i18n="faqQ1">No me deja eliminar un corredor</span><span><i class="fas fa-chevron-down"></i></span></summary>
+            <div class="details-body" data-i18n="faqA1">
+              Primero selecciona una fila (quedará resaltada). Luego pulsa “Eliminar Corredor”. Si no hay selección, la app lo avisará.
+            </div>
+          </details>
+
+          <details>
+            <summary><span data-i18n="faqQ2">El audio no suena o suena bajo</span><span><i class="fas fa-chevron-down"></i></span></summary>
+            <div class="details-body" data-i18n="faqA2">
+              Verifica volumen del dispositivo, modo silencio y permisos del navegador. Pulsa “Probar sonido actual”. En iOS, es recomendable usar Safari y haber interactuado con la pantalla antes de iniciar.
+            </div>
+          </details>
+
+          <details>
+            <summary><span data-i18n="faqQ3">He importado un Excel y faltan datos</span><span><i class="fas fa-chevron-down"></i></span></summary>
+            <div class="details-body" data-i18n="faqA3">
+              Asegúrate de usar la plantilla o respetar nombres/orden de columnas. Si dudas, vuelve a “Crear Plantilla”, copia tus datos y reimporta.
+            </div>
+          </details>
+
+          <details>
+            <summary><span data-i18n="faqQ4">Quiero pasar datos a otro dispositivo</span><span><i class="fas fa-chevron-down"></i></span></summary>
+            <div class="details-body" data-i18n="faqA4">
+              Exporta a Excel/PDF y, además, usa “Copia Seguridad” para poder restaurar si lo implementas en el mismo dispositivo.
+              Recuerda: el almacenamiento principal es local.
+            </div>
+          </details>
+
+          <details>
+            <summary><span data-i18n="faqQ5">¿Cómo reporto un problema o propongo mejoras?</span><span><i class="fas fa-chevron-down"></i></span></summary>
+            <div class="details-body">
+              <span data-i18n="faqA5">Puedes enviar sugerencias desde la propia app (botón “Sugerencias”). Si necesitas soporte, incluye: versión, navegador/dispositivo y pasos exactos para reproducir.</span>
+            </div>
+          </details>
+        </div>
+
+        <div class="note">
+          <p data-i18n="faqNote">
+            Si vas a reportar un bug, indica también si estabas en modo SALIDAS o LLEGADAS, y si la app estaba instalada como PWA.
+          </p>
+        </div>
+      </div>
+
+      <div class="back-wrap">
+        <button onclick="window.location.href='Crono_CRI.html'" class="back-button">
+          <i class="fas fa-arrow-left"></i> <span data-i18n="backBtn">Volver a la Aplicación</span>
+        </button>
+      </div>
     </div>
+  </div>
 
-    <script>
-        // Cambio entre idiomas
-        document.addEventListener('DOMContentLoaded', function() {
-            const langButtons = document.querySelectorAll('.lang-btn');
-            const contents = document.querySelectorAll('.help-content');
-            
-            langButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const lang = this.getAttribute('data-lang');
-                    
-                    // Actualizar botones activos
-                    langButtons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Actualizar contenido visible
-                    contents.forEach(content => content.classList.remove('active'));
-                    document.getElementById(`help-${lang}`).classList.add('active');
-                    
-                    // Guardar preferencia de idioma para ayuda
-                    localStorage.setItem('cri-help-language', lang);
-                });
-            });
-            
-            // Cargar idioma preferido de ayuda
-            const savedLang = localStorage.getItem('cri-help-language') || 'es';
-            const tab = document.querySelector(`.lang-btn[data-lang="${savedLang}"]`);
-            if (tab) {
-                tab.click();
-            }
-            
-            // Botón para volver a la aplicación principal
-            document.querySelectorAll('.back-button').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    window.location.href = 'Crono_CRI.html';
-                });
-            });
+  <script>
+    const I18N = {
+      es: {
+        title: "Crono CRI - Ayuda Completa",
+        subtitle: "Sistema profesional de cronometraje para carreras ciclistas y eventos deportivos",
+        searchPlaceholder: "Buscar en la ayuda (ej: PDF, dorsal, backup, audio...)",
+        tocQuickstart:"Inicio rápido", tocRaces:"Carreras", tocSalidas:"Salidas", tocCountdown:"Cuenta atrás",
+        tocLlegadas:"Llegadas", tocExports:"Exportación", tocPwa:"Instalación", tocTips:"Consejos", tocFaq:"FAQ",
+
+        devNoteTitle:"Nota del Desarrollador",
+        devNoteP1:"Crono CRI es una aplicación web progresiva (PWA) desarrollada por Roberto Benet, comisario del comité catalán, para el control profesional de salidas y llegadas en carreras ciclistas y eventos deportivos.",
+        devNoteP2:"Es gratuita y de código abierto, pensada para árbitros, comisarios y organizadores: funciona sin instalaciones, guarda los datos en el dispositivo y permite exportar listados y clasificaciones.",
+        devNoteP3:"Más aplicaciones y recursos:",
+
+        qsTitle:"Inicio rápido (2 minutos)",
+        qsS1T:"1) Crea o selecciona una carrera",
+        qsS1P:"En “Gestión de Carrera”, elige una carrera existente o pulsa “Nueva”. Define nombre/fecha, la hora de salida del primer corredor y (opcional) sube logos para que aparezcan en los PDFs.",
+        qsS2T:"2) Carga el orden de salida",
+        qsS2P:"Usa “Crear Plantilla” si quieres un Excel de ejemplo, o “Importar Orden” para cargar tu listado (dorsal, nombre, categoría, etc.). Puedes añadir o eliminar corredores y la app recalcula tiempos posteriores automáticamente.",
+        qsS3T:"3) Configura el audio y el tiempo previo",
+        qsS3P:"En SALIDAS elige Beeps, Voz o Sin sonido, y prueba el audio. Ajusta “Tiempo previo” (por ejemplo 00:01:00) para la cuenta atrás.",
+        qsS4T:"4) Inicia la cuenta atrás y registra llegadas",
+        qsS4P:"Pulsa “INICIAR CUENTA ATRÁS”. Para LLEGADAS, cambia el modo y usa “Registrar Llegada”: se capturan milésimas y se asignan posiciones generales y por categoría.",
+        qsNote:"Consejo: antes del evento, crea una carrera “Pruebas” para familiarizarte con el flujo y comprobar audio/exportaciones.",
+
+        whatTitle:"¿Qué hace Crono CRI?",
+        whatC1T:"Gestión de carreras",
+        whatC1P:"Crea, edita, elimina y mantén varias carreras. Cada carrera guarda su orden de salida, llegadas, configuración y (si quieres) logos para PDFs.",
+        whatC2T:"Control de salidas",
+        whatC2P:"Tabla completa de orden de salida con tiempos previstos/real/importados, edición y recálculos automáticos.",
+        whatC3T:"Cuenta atrás profesional",
+        whatC3P:"Pantalla de cuenta atrás a pantalla completa con señales visuales y audio (beeps o voz) para marcar cada segundo.",
+        whatC4T:"Llegadas y clasificación",
+        whatC4P:"Registro de llegadas con milésimas, posición general y posición por categoría (Pos. Cat.), y exportación para resultados.",
+
+        racesTitle:"Carreras: crear, editar, copiar, restaurar",
+        racesH1:"Selector de carrera",
+        racesL1:"Selecciona una carrera para cargar todos sus datos (orden de salida, llegadas, logos, etc.).",
+        racesL2:"Si cambias de carrera, la app actualiza automáticamente contadores y pantallas asociadas.",
+        racesH2:"Editar carrera",
+        racesL3:"Cambia nombre, fecha y hora de salida del primer corredor.",
+        racesL4:"Sube logos (izquierdo/derecho) para que aparezcan en los PDFs. Formatos: PNG/JPG/SVG, máximo 5MB.",
+        racesH3:"Copia de seguridad y restauración",
+        racesL5:"“Copia Seguridad” guarda una copia completa de la carrera actual para recuperar datos si algo sale mal.",
+        racesL6:"“Restaurar” reemplaza la carrera actual por la copia guardada.",
+        racesTipT:"Buenas prácticas",
+        racesTip1:"Antes de importar un Excel definitivo, crea una copia de seguridad.",
+        racesTip2:"Si cambias logos o exportaciones importantes, revisa un PDF de prueba antes del evento.",
+
+        salidasTitle:"SALIDAS: Orden de salida (tabla)",
+        salidasH1:"Configuración de horarios",
+        salidasL1:"“Hora Salida Primer Corredor” define el inicio de referencia para calcular el resto de salidas.",
+        salidasL2:"“Hora del Sistema” muestra el reloj actual del dispositivo (sirve para sincronizar).",
+        salidasL3:"“Inicio Cuenta atrás en” indica cuánto falta para la próxima cuenta atrás según tu configuración.",
+        salidasL4:"“Total Corredores” se actualiza según el orden importado o editado.",
+        salidasH2:"Acciones típicas",
+        salidasC1T:"Crear Plantilla",
+        salidasC1P:"Genera un Excel ejemplo con columnas esperadas para que puedas rellenarlo y reimportarlo sin errores.",
+        salidasC2T:"Importar Orden",
+        salidasC2P:"Carga un Excel y construye el orden de salida. Ideal para dorsales, nombres, categorías, equipos y chips.",
+        salidasC3T:"Añadir Corredor",
+        salidasC3P:"Añade un corredor manualmente (útil para altas de última hora). La app recalcula tiempos si procede.",
+        salidasC4T:"Eliminar Corredor",
+        salidasC4P:"Selecciona una fila y pulsa “Eliminar Corredor”. Se reasignan posiciones y se recalculan tiempos posteriores automáticamente.",
+        salidasH3:"Ordenación y edición",
+        salidasL5:"Puedes ordenar por columnas (cabeceras “sortable”). Útil para encontrar dorsales, nombres o categorías.",
+        salidasL6:"La tabla incluye campos previstos, reales e importados (si se usan), y conversiones a segundos para cálculos internos.",
+        salidasNote:"Importante: si eliminas un corredor, revisa “Hora Salida Prevista” de los siguientes para confirmar el recálculo esperado.",
+
+        cdTitle:"SALIDAS: Cuenta atrás (pantalla)",
+        cdH1:"Audio",
+        cdL1:"Beeps: pitidos electrónicos cada segundo.",
+        cdL2:"Voz: cuenta atrás hablada en tu idioma.",
+        cdL3:"Sin sonido: solo señales visuales.",
+        cdL4:"Usa “Probar sonido actual” antes del inicio.",
+        cdH2:"Inicio de la cuenta atrás",
+        cdL5:"“Tiempo previo” define la duración de la cuenta atrás (ej. 00:01:00).",
+        cdL6:"“Posición a salir” permite seleccionar quién sale a continuación.",
+        cdL7:"“Dorsal a salir” sirve para sincronizar rápidamente cuando trabajas por dorsal.",
+        cdL8:"“INICIAR CUENTA ATRÁS” lanza la pantalla a pantalla completa.",
+        cdL9:"“REINICIAR TODO” vuelve al estado inicial (usar solo si necesitas recomenzar el procedimiento).",
+        cdH3:"Indicadores visuales",
+        cdV1:"ROJO: cuenta atrás normal",
+        cdV2:"AMARILLO: últimos 10 segundos",
+        cdV3:"AMARILLO + pulso: últimos 5 segundos",
+        cdV4:"VERDE: SALIDA",
+        cdTipT:"Truco de operación",
+        cdTipP:"Si trabajas con un altavoz externo, prueba “Voz” con antelación: algunos móviles limitan volumen en PWA si no hubo interacción reciente.",
+
+        arrTitle:"LLEGADAS: Cronómetro y lista",
+        arrH1:"Cronómetro de llegadas",
+        arrL1:"Muestra el tiempo transcurrido desde la salida del primer corredor.",
+        arrL2:"Puede capturar tiempos con milésimas (precisión suficiente para control operativo).",
+        arrL3:"Al minimizar la tarjeta, se muestra un “tiempo compacto” en la cabecera para no perder referencia.",
+        arrH2:"Registrar llegada",
+        arrL4:"Pulsa “Registrar Llegada” para guardar el dorsal y el tiempo exacto de llegada.",
+        arrL5:"La app calcula automáticamente la posición general y la posición por categoría (Pos. Cat.).",
+        arrL6:"El contador muestra “X de Y corredores” (llegadas registradas vs total).",
+        arrH3:"Tabla de llegadas",
+        arrL7:"Incluye dorsal, crono llegada, tiempo final, posición, nombre, apellidos, Pos. Cat., categoría y más.",
+        arrL8:"El orden de columnas está pensado para imprimir/exportar resultados con rapidez.",
+        arrNote:"Consejo: si importaste el orden de salida con categoría/equipo/licencia, en llegadas tendrás datos completos automáticamente (sin reescribir).",
+
+        exTitle:"Exportación: Excel y PDF",
+        exH1:"Excel",
+        exL1:"SALIDAS: exporta el orden de salida a Excel para revisión o intercambio.",
+        exL2:"LLEGADAS: exporta llegadas/clasificación con 14 columnas (incluye Pos. Cat.).",
+        exL3:"Si un campo de tiempo no tiene valor, se exporta como celda vacía (evita “00:00:00” engañosos).",
+        exH2:"PDF",
+        exL4:"“Exportar PDF” en SALIDAS genera un PDF del orden de salida.",
+        exL5:"“Clasificación PDF” en LLEGADAS genera un PDF de resultados con posiciones generales y por categoría.",
+        exL6:"Si configuraste logos en la carrera, se añaden automáticamente al encabezado de ambos PDFs.",
+        exTipT:"Logos en PDF",
+        exTipP:"Recomendación: usa PNG con fondo transparente o SVG. Mantén los archivos ligeros (aunque el límite sea 5MB) para que exporte más rápido.",
+
+        pwaTitle:"Instalación como App (PWA) y actualizaciones",
+        pwaH1:"Instalar",
+        pwaIOS:"iPhone / iOS",
+        pwaIOS1:"Abre la app en Safari.",
+        pwaIOS2:"Pulsa “Compartir” → “Añadir a pantalla de inicio”.",
+        pwaIOS3:"Ábrela desde el icono como si fuera una app.",
+        pwaAND:"Android",
+        pwaAND1:"Abre la app en Chrome.",
+        pwaAND2:"Pulsa el botón “Instalar App” (o el menú → “Instalar”).",
+        pwaAND3:"Se añadirá un icono y funcionará como app nativa.",
+        pwaPC:"PC / Mac",
+        pwaPC1:"En Chrome/Edge suele aparecer un icono de instalar en la barra.",
+        pwaPC2:"También puedes usar “Instalar App” desde la propia aplicación.",
+        pwaH2:"Actualizaciones",
+        pwaU1:"“Buscar actualizaciones” comprueba si hay una versión nueva disponible.",
+        pwaU2:"Si trabajas offline, la app seguirá funcionando, pero no descargará cambios hasta recuperar conexión.",
+        pwaNote:"Importante: los datos se guardan en el dispositivo. Si cambias de móvil/PC, exporta y/o usa copias de seguridad.",
+
+        tipsTitle:"Consejos y flujo recomendado",
+        tipsH1:"Flujo recomendado para un CRI",
+        tipsS1:"Crea/selecciona carrera → haz “Copia Seguridad”.",
+        tipsS2:"Importa el orden de salida → revisa dorsales y categorías.",
+        tipsS3:"Prueba audio → ajusta “Tiempo previo”.",
+        tipsS4:"Inicia cuenta atrás → controla “Salidos” y “Próximo sale a”.",
+        tipsS5:"En LLEGADAS registra llegadas → revisa posiciones y Pos. Cat.",
+        tipsS6:"Exporta Excel/PDF → comparte resultados.",
+        tipsTipT:"Uso offline",
+        tipsTipP:"Instalada como PWA, la app puede usarse sin internet. Ideal para zonas con mala cobertura.",
+        tipsKbdT:"Atajos útiles",
+        tipsKbdP:"En PC, abre la consola con F12 si necesitas diagnóstico. Guarda capturas o logs si vas a reportar un error.",
+
+        faqTitle:"FAQ y resolución de problemas",
+        faqQ1:"No me deja eliminar un corredor",
+        faqA1:"Primero selecciona una fila (quedará resaltada). Luego pulsa “Eliminar Corredor”. Si no hay selección, la app lo avisará.",
+        faqQ2:"El audio no suena o suena bajo",
+        faqA2:"Verifica volumen del dispositivo, modo silencio y permisos del navegador. Pulsa “Probar sonido actual”. En iOS, es recomendable usar Safari y haber interactuado con la pantalla antes de iniciar.",
+        faqQ3:"He importado un Excel y faltan datos",
+        faqA3:"Asegúrate de usar la plantilla o respetar nombres/orden de columnas. Si dudas, vuelve a “Crear Plantilla”, copia tus datos y reimporta.",
+        faqQ4:"Quiero pasar datos a otro dispositivo",
+        faqA4:"Exporta a Excel/PDF y, además, usa “Copia Seguridad” para poder restaurar si lo implementas en el mismo dispositivo. Recuerda: el almacenamiento principal es local.",
+        faqQ5:"¿Cómo reporto un problema o propongo mejoras?",
+        faqA5:"Puedes enviar sugerencias desde la propia app (botón “Sugerencias”). Si necesitas soporte, incluye: versión, navegador/dispositivo y pasos exactos para reproducir.",
+        faqNote:"Si vas a reportar un bug, indica también si estabas en modo SALIDAS o LLEGADAS, y si la app estaba instalada como PWA.",
+
+        backBtn:"Volver a la Aplicación"
+      },
+
+      ca: {
+        title: "Crono CRI - Ajuda Completa",
+        subtitle: "Sistema professional de cronometratge per a curses ciclistes i esdeveniments esportius",
+        searchPlaceholder: "Cerca a l'ajuda (ex: PDF, dorsal, còpia, àudio...)",
+        tocQuickstart:"Inici ràpid", tocRaces:"Curses", tocSalidas:"Sortides", tocCountdown:"Compte enrere",
+        tocLlegadas:"Arribades", tocExports:"Exportació", tocPwa:"Instal·lació", tocTips:"Consells", tocFaq:"FAQ",
+
+        devNoteTitle:"Nota del Desenvolupador",
+        devNoteP1:"Crono CRI és una aplicació web progressiva (PWA) desenvolupada per Roberto Benet, comissari del comitè català, per al control professional de sortides i arribades en curses ciclistes i esdeveniments esportius.",
+        devNoteP2:"És gratuïta i de codi obert, pensada per a àrbitres, comissaris i organitzadors: funciona sense instal·lacions, desa les dades al dispositiu i permet exportar llistats i classificacions.",
+        devNoteP3:"Més aplicacions i recursos:",
+
+        qsTitle:"Inici ràpid (2 minuts)",
+        qsS1T:"1) Crea o selecciona una cursa",
+        qsS1P:"A “Gestió de Cursa”, tria una cursa existent o prem “Nova”. Defineix nom/data, l’hora de sortida del primer corredor i (opcional) puja logotips perquè apareguin als PDFs.",
+        qsS2T:"2) Carrega l’ordre de sortida",
+        qsS2P:"Fes servir “Crear Plantilla” si vols un Excel d’exemple, o “Importar Ordre” per carregar el llistat (dorsal, nom, categoria, etc.). Pots afegir o eliminar corredors i l’app recalcula els temps posteriors automàticament.",
+        qsS3T:"3) Configura l’àudio i el temps previ",
+        qsS3P:"A SORTIDES tria Beeps, Veu o Sense so, i prova l’àudio. Ajusta “Temps previ” (per exemple 00:01:00) per al compte enrere.",
+        qsS4T:"4) Inicia el compte enrere i registra arribades",
+        qsS4P:"Prem “INICIAR COMPTE ENRERE”. Per a ARRIBADES, canvia el mode i usa “Registrar Arribada”: es capturen mil·lèsimes i s’assignen posicions generals i per categoria.",
+        qsNote:"Consell: abans de l’esdeveniment, crea una cursa “Proves” per familiaritzar-te amb el flux i comprovar àudio/exportacions.",
+
+        whatTitle:"Què fa Crono CRI?",
+        whatC1T:"Gestió de curses",
+        whatC1P:"Crea, edita, elimina i mantén diverses curses. Cada cursa desa l’ordre de sortida, arribades, configuració i (si vols) logotips per a PDFs.",
+        whatC2T:"Control de sortides",
+        whatC2P:"Taula completa d’ordre de sortida amb temps previstos/reals/importats, edició i recalculs automàtics.",
+        whatC3T:"Compte enrere professional",
+        whatC3P:"Pantalla de compte enrere a pantalla completa amb senyals visuals i àudio (beeps o veu) per marcar cada segon.",
+        whatC4T:"Arribades i classificació",
+        whatC4P:"Registre d’arribades amb mil·lèsimes, posició general i posició per categoria (Pos. Cat.), i exportació de resultats.",
+
+        racesTitle:"Curses: crear, editar, copiar, restaurar",
+        racesH1:"Selector de cursa",
+        racesL1:"Selecciona una cursa per carregar totes les dades (ordre de sortida, arribades, logotips, etc.).",
+        racesL2:"Si canvies de cursa, l’app actualitza automàticament comptadors i pantalles associades.",
+        racesH2:"Editar cursa",
+        racesL3:"Canvia nom, data i hora de sortida del primer corredor.",
+        racesL4:"Puja logotips (esquerra/dreta) perquè apareguin als PDFs. Formats: PNG/JPG/SVG, màxim 5MB.",
+        racesH3:"Còpia de seguretat i restauració",
+        racesL5:"“Còpia Seguretat” desa una còpia completa de la cursa actual per recuperar dades si alguna cosa surt malament.",
+        racesL6:"“Restaurar” substitueix la cursa actual per la còpia desada.",
+        racesTipT:"Bones pràctiques",
+        racesTip1:"Abans d’importar un Excel definitiu, crea una còpia de seguretat.",
+        racesTip2:"Si canvies logotips o exportacions importants, revisa un PDF de prova abans de l’esdeveniment.",
+
+        salidasTitle:"SORTIDES: Ordre de sortida (taula)",
+        salidasH1:"Configuració d’horaris",
+        salidasL1:"“Hora sortida primer corredor” defineix l’inici de referència per calcular la resta de sortides.",
+        salidasL2:"“Hora del sistema” mostra el rellotge actual del dispositiu (serveix per sincronitzar).",
+        salidasL3:"“Inici compte enrere en” indica quant falta per al proper compte enrere segons la configuració.",
+        salidasL4:"“Total corredors” s’actualitza segons l’ordre importat o editat.",
+        salidasH2:"Accions típiques",
+        salidasC1T:"Crear Plantilla",
+        salidasC1P:"Genera un Excel d’exemple amb les columnes esperades per omplir-lo i reimportar-lo sense errors.",
+        salidasC2T:"Importar Ordre",
+        salidasC2P:"Carrega un Excel i construeix l’ordre de sortida. Ideal per dorsals, noms, categories, equips i xips.",
+        salidasC3T:"Afegir Corredor",
+        salidasC3P:"Afegeix un corredor manualment (útil per altes d’última hora). L’app recalcula els temps si cal.",
+        salidasC4T:"Eliminar Corredor",
+        salidasC4P:"Selecciona una fila i prem “Eliminar Corredor”. Es reasignen posicions i es recalculen els temps posteriors automàticament.",
+        salidasH3:"Ordenació i edició",
+        salidasL5:"Pots ordenar per columnes (capçaleres “sortable”). Útil per trobar dorsals, noms o categories.",
+        salidasL6:"La taula inclou camps previstos, reals i importats (si s’usen), i conversions a segons per als càlculs interns.",
+        salidasNote:"Important: si elimines un corredor, revisa “Hora sortida prevista” dels següents per confirmar el recàlcul esperat.",
+
+        cdTitle:"SORTIDES: Compte enrere (pantalla)",
+        cdH1:"Àudio",
+        cdL1:"Beeps: xiulets electrònics cada segon.",
+        cdL2:"Veu: compte enrere parlat en el teu idioma.",
+        cdL3:"Sense so: només senyals visuals.",
+        cdL4:"Fes servir “Provar so actual” abans de l’inici.",
+        cdH2:"Inici del compte enrere",
+        cdL5:"“Temps previ” defineix la durada del compte enrere (ex. 00:01:00).",
+        cdL6:"“Posició a sortir” permet seleccionar qui surt a continuació.",
+        cdL7:"“Dorsal a sortir” serveix per sincronitzar ràpidament quan treballes per dorsal.",
+        cdL8:"“INICIAR COMPTE ENRERE” obre la pantalla a pantalla completa.",
+        cdL9:"“REINICIAR TOT” torna a l’estat inicial (només si necessites recomençar).",
+        cdH3:"Indicadors visuals",
+        cdV1:"VERMELL: compte enrere normal",
+        cdV2:"GROC: últims 10 segons",
+        cdV3:"GROC + pols: últims 5 segons",
+        cdV4:"VERD: SORTIDA",
+        cdTipT:"Truc d’operació",
+        cdTipP:"Si treballes amb un altaveu extern, prova “Veu” amb antelació: alguns mòbils limiten volum en PWA si no hi ha hagut interacció recent.",
+
+        arrTitle:"ARRIBADES: Cronòmetre i llista",
+        arrH1:"Cronòmetre d’arribades",
+        arrL1:"Mostra el temps transcorregut des de la sortida del primer corredor.",
+        arrL2:"Pot capturar temps amb mil·lèsimes (precisió suficient per a control operatiu).",
+        arrL3:"En minimitzar la targeta, es mostra un “temps compacte” a la capçalera per no perdre referència.",
+        arrH2:"Registrar arribada",
+        arrL4:"Prem “Registrar Arribada” per desar el dorsal i el temps exacte d’arribada.",
+        arrL5:"L’app calcula automàticament la posició general i la posició per categoria (Pos. Cat.).",
+        arrL6:"El comptador mostra “X de Y corredors” (arribades registrades vs total).",
+        arrH3:"Taula d’arribades",
+        arrL7:"Inclou dorsal, crono arribada, temps final, posició, nom, cognoms, Pos. Cat., categoria i més.",
+        arrL8:"L’ordre de columnes està pensat per imprimir/exportar resultats ràpidament.",
+        arrNote:"Consell: si has importat l’ordre de sortida amb categoria/equip/llicència, a arribades tindràs dades completes automàticament (sense reescriure).",
+
+        exTitle:"Exportació: Excel i PDF",
+        exH1:"Excel",
+        exL1:"SORTIDES: exporta l’ordre de sortida a Excel per revisar o compartir.",
+        exL2:"ARRIBADES: exporta arribades/classificació amb 14 columnes (inclou Pos. Cat.).",
+        exL3:"Si un camp de temps no té valor, s’exporta com a cel·la buida (evita “00:00:00” enganyosos).",
+        exH2:"PDF",
+        exL4:"“Exportar PDF” a SORTIDES genera un PDF de l’ordre de sortida.",
+        exL5:"“Classificació PDF” a ARRIBADES genera un PDF de resultats amb posicions generals i per categoria.",
+        exL6:"Si has configurat logotips a la cursa, s’afegeixen automàticament a la capçalera de tots dos PDFs.",
+        exTipT:"Logotips en PDF",
+        exTipP:"Recomanació: usa PNG amb fons transparent o SVG. Mantén els fitxers lleugers (encara que el límit sigui 5MB) per exportar més ràpid.",
+
+        pwaTitle:"Instal·lació com a App (PWA) i actualitzacions",
+        pwaH1:"Instal·lar",
+        pwaIOS:"iPhone / iOS",
+        pwaIOS1:"Obre l’app a Safari.",
+        pwaIOS2:"Prem “Compartir” → “Afegir a la pantalla d’inici”.",
+        pwaIOS3:"Obre-la des de la icona com si fos una app.",
+        pwaAND:"Android",
+        pwaAND1:"Obre l’app a Chrome.",
+        pwaAND2:"Prem “Instal·lar App” (o menú → “Instal·lar”).",
+        pwaAND3:"S’afegirà una icona i funcionarà com a app nativa.",
+        pwaPC:"PC / Mac",
+        pwaPC1:"A Chrome/Edge sol aparèixer una icona d’instal·lació a la barra.",
+        pwaPC2:"També pots usar “Instal·lar App” des de la pròpia aplicació.",
+        pwaH2:"Actualitzacions",
+        pwaU1:"“Cercar actualitzacions” comprova si hi ha una versió nova disponible.",
+        pwaU2:"Si treballes offline, l’app seguirà funcionant, però no descarregarà canvis fins recuperar connexió.",
+        pwaNote:"Important: les dades es guarden al dispositiu. Si canvies de mòbil/PC, exporta i/o fes còpies de seguretat.",
+
+        tipsTitle:"Consells i flux recomanat",
+        tipsH1:"Flux recomanat per a un CRI",
+        tipsS1:"Crea/selecciona cursa → fes “Còpia Seguretat”.",
+        tipsS2:"Importa l’ordre de sortida → revisa dorsals i categories.",
+        tipsS3:"Prova l’àudio → ajusta “Temps previ”.",
+        tipsS4:"Inicia el compte enrere → controla “Sortits” i “Proper surt a”.",
+        tipsS5:"A ARRIBADES registra arribades → revisa posicions i Pos. Cat.",
+        tipsS6:"Exporta Excel/PDF → comparteix resultats.",
+        tipsTipT:"Ús offline",
+        tipsTipP:"Instal·lada com a PWA, l’app es pot usar sense internet. Ideal per zones amb mala cobertura.",
+        tipsKbdT:"Dreceres útils",
+        tipsKbdP:"A PC, obre la consola amb F12 si necessites diagnòstic. Desa captures o logs si vols reportar un error.",
+
+        faqTitle:"FAQ i resolució de problemes",
+        faqQ1:"No em deixa eliminar un corredor",
+        faqA1:"Primer selecciona una fila (quedarà ressaltada). Després prem “Eliminar Corredor”. Si no hi ha selecció, l’app t’avisarà.",
+        faqQ2:"L’àudio no sona o sona fluix",
+        faqA2:"Revisa volum del dispositiu, mode silenci i permisos del navegador. Prem “Provar so actual”. A iOS és recomanable Safari i haver interactuat amb la pantalla abans d’iniciar.",
+        faqQ3:"He importat un Excel i falten dades",
+        faqA3:"Assegura’t d’usar la plantilla o respectar noms/ordre de columnes. Si tens dubtes, torna a “Crear Plantilla”, copia les dades i reimporta.",
+        faqQ4:"Vull passar dades a un altre dispositiu",
+        faqA4:"Exporta a Excel/PDF i, a més, usa “Còpia Seguretat” per restaurar si ho implementes al mateix dispositiu. Recorda: l’emmagatzematge principal és local.",
+        faqQ5:"Com reporto un problema o proposo millores?",
+        faqA5:"Pots enviar suggeriments des de la pròpia app (botó “Suggeriments”). Si necessites suport, inclou: versió, navegador/dispositiu i passos exactes per reproduir.",
+        faqNote:"Si reportes un bug, indica també si estaves en mode SORTIDES o ARRIBADES i si l’app era instal·lada com a PWA.",
+
+        backBtn:"Tornar a l’Aplicació"
+      },
+
+      en: {
+        title: "Crono CRI - Full Help",
+        subtitle: "Professional timing system for cycling races and sporting events",
+        searchPlaceholder: "Search in help (e.g., PDF, bib, backup, audio...)",
+        tocQuickstart:"Quick start", tocRaces:"Races", tocSalidas:"Starts", tocCountdown:"Countdown",
+        tocLlegadas:"Finishes", tocExports:"Export", tocPwa:"Install", tocTips:"Tips", tocFaq:"FAQ",
+
+        devNoteTitle:"Developer's Note",
+        devNoteP1:"Crono CRI is a Progressive Web App (PWA) developed by Roberto Benet, commissioner of the Catalan committee, for professional control of starts and finishes in cycling races and sporting events.",
+        devNoteP2:"It is free and open source, designed for referees, commissaires and organizers: no installation required, data is stored on the device, and you can export start lists and results.",
+        devNoteP3:"More apps and resources:",
+
+        qsTitle:"Quick start (2 minutes)",
+        qsS1T:"1) Create or select a race",
+        qsS1P:"In “Race Management”, choose an existing race or press “New”. Set name/date, first rider start time and (optional) upload logos to show on PDFs.",
+        qsS2T:"2) Load the start order",
+        qsS2P:"Use “Create Template” to get an example Excel, or “Import Order” to load your list (bib, name, category, etc.). You can add or delete riders and the app recalculates subsequent times automatically.",
+        qsS3T:"3) Configure audio and pre-countdown time",
+        qsS3P:"In STARTS choose Beeps, Voice or No sound, then test audio. Set “Pre time” (for example 00:01:00) for the countdown duration.",
+        qsS4T:"4) Start the countdown and register finishes",
+        qsS4P:"Press “START COUNTDOWN”. For FINISHES, switch mode and use “Register Finish”: milliseconds are captured and positions are assigned (overall and by category).",
+        qsNote:"Tip: before the event, create a “Test” race to practice the workflow and verify audio/exports.",
+
+        whatTitle:"What does Crono CRI do?",
+        whatC1T:"Race management",
+        whatC1P:"Create, edit, delete and manage multiple races. Each race stores start order, finishes, settings and (if desired) PDF logos.",
+        whatC2T:"Start control",
+        whatC2P:"Full start-order table with planned/real/imported times, editing and automatic recalculation.",
+        whatC3T:"Professional countdown",
+        whatC3P:"Full-screen countdown with visual signals and audio (beeps or voice) every second.",
+        whatC4T:"Finishes & ranking",
+        whatC4P:"Finish capture with milliseconds, overall position and category position (Cat. Pos.), plus exports for results.",
+
+        racesTitle:"Races: create, edit, backup, restore",
+        racesH1:"Race selector",
+        racesL1:"Select a race to load all its data (start order, finishes, logos, etc.).",
+        racesL2:"When you change race, counters and related screens update automatically.",
+        racesH2:"Edit race",
+        racesL3:"Change name, date and first rider start time.",
+        racesL4:"Upload left/right logos for PDFs. Formats: PNG/JPG/SVG, max 5MB.",
+        racesH3:"Backup & restore",
+        racesL5:"“Backup” stores a full copy of the current race to recover data if something goes wrong.",
+        racesL6:"“Restore” replaces the current race with the saved backup.",
+        racesTipT:"Best practices",
+        racesTip1:"Before importing a final Excel, create a backup.",
+        racesTip2:"If you change logos or important exports, generate a test PDF before the event.",
+
+        salidasTitle:"STARTS: Start order (table)",
+        salidasH1:"Time configuration",
+        salidasL1:"“First start time” is the reference used to calculate subsequent starts.",
+        salidasL2:"“System time” shows the device clock (useful for syncing).",
+        salidasL3:"“Countdown starts in” shows how long until the next countdown based on your settings.",
+        salidasL4:"“Total riders” updates from the imported/edited order.",
+        salidasH2:"Typical actions",
+        salidasC1T:"Create Template",
+        salidasC1P:"Generates an example Excel with expected columns so you can fill it and re-import safely.",
+        salidasC2T:"Import Order",
+        salidasC2P:"Loads an Excel and builds the start order. Great for bibs, names, categories, teams and chips.",
+        salidasC3T:"Add rider",
+        salidasC3P:"Add a rider manually (useful for last-minute entries). The app recalculates times when needed.",
+        salidasC4T:"Delete rider",
+        salidasC4P:"Select a row and press “Delete rider”. Positions are reassigned and subsequent times are recalculated automatically.",
+        salidasH3:"Sorting & editing",
+        salidasL5:"You can sort by columns (sortable headers). Useful to find bibs, names or categories.",
+        salidasL6:"The table includes planned, real and imported fields (if used), plus seconds conversions for internal calculations.",
+        salidasNote:"Important: after deleting a rider, review planned start times for the next riders to confirm the expected recalculation.",
+
+        cdTitle:"STARTS: Countdown (screen)",
+        cdH1:"Audio",
+        cdL1:"Beeps: electronic beeps every second.",
+        cdL2:"Voice: spoken countdown in your language.",
+        cdL3:"No sound: visual cues only.",
+        cdL4:"Use “Test current sound” before starting.",
+        cdH2:"Starting the countdown",
+        cdL5:"“Pre time” sets the countdown duration (e.g., 00:01:00).",
+        cdL6:"“Start position” selects who starts next.",
+        cdL7:"“Bib to start” helps quick synchronization when working by bib number.",
+        cdL8:"“START COUNTDOWN” launches the full-screen display.",
+        cdL9:"“RESET ALL” returns to the initial state (use only if you must restart the procedure).",
+        cdH3:"Visual indicators",
+        cdV1:"RED: normal countdown",
+        cdV2:"YELLOW: last 10 seconds",
+        cdV3:"YELLOW + pulse: last 5 seconds",
+        cdV4:"GREEN: START",
+        cdTipT:"Operational tip",
+        cdTipP:"If you use an external speaker, test “Voice” ahead of time: some phones limit audio in PWAs if there was no recent user interaction.",
+
+        arrTitle:"FINISHES: Timer and list",
+        arrH1:"Finish timer",
+        arrL1:"Shows elapsed time since the first rider started.",
+        arrL2:"Can capture finish times with milliseconds (enough for operational control).",
+        arrL3:"When minimized, a “compact time” appears in the header so you keep reference.",
+        arrH2:"Register finish",
+        arrL4:"Press “Register Finish” to save the bib and exact finish time.",
+        arrL5:"The app automatically computes overall position and category position (Cat. Pos.).",
+        arrL6:"The counter shows “X of Y riders” (registered finishes vs total).",
+        arrH3:"Finishes table",
+        arrL7:"Includes bib, finish chrono, final time, position, name, Cat. Pos., category and more.",
+        arrL8:"Column order is optimized for quick printing/exporting of results.",
+        arrNote:"Tip: if you imported the start order with category/team/license, finishes will be automatically enriched (no retyping).",
+
+        exTitle:"Export: Excel and PDF",
+        exH1:"Excel",
+        exL1:"STARTS: export the start order to Excel for review/sharing.",
+        exL2:"FINISHES: export finishes/ranking with 14 columns (includes Cat. Pos.).",
+        exL3:"If a time field has no value, it is exported as an empty cell (avoids misleading “00:00:00”).",
+        exH2:"PDF",
+        exL4:"“Export PDF” in STARTS generates a start order PDF.",
+        exL5:"“Ranking PDF” in FINISHES generates a results PDF with overall and category positions.",
+        exL6:"If race logos are configured, they are automatically added to the header of both PDFs.",
+        exTipT:"PDF logos",
+        exTipP:"Recommendation: use PNG with transparent background or SVG. Keep files small (even if the limit is 5MB) for faster export.",
+
+        pwaTitle:"Install as App (PWA) and updates",
+        pwaH1:"Install",
+        pwaIOS:"iPhone / iOS",
+        pwaIOS1:"Open the app in Safari.",
+        pwaIOS2:"Tap Share → Add to Home Screen.",
+        pwaIOS3:"Launch it from the icon like a native app.",
+        pwaAND:"Android",
+        pwaAND1:"Open the app in Chrome.",
+        pwaAND2:"Tap “Install App” (or menu → Install).",
+        pwaAND3:"An icon will be added and it will run like a native app.",
+        pwaPC:"PC / Mac",
+        pwaPC1:"In Chrome/Edge you often see an install icon in the address bar.",
+        pwaPC2:"You can also use “Install App” from within the application.",
+        pwaH2:"Updates",
+        pwaU1:"“Check updates” looks for a newer version.",
+        pwaU2:"If you work offline, the app keeps running, but it won’t download updates until you reconnect.",
+        pwaNote:"Important: data is stored on the device. If you change phone/PC, export and/or use backups.",
+
+        tipsTitle:"Tips and recommended workflow",
+        tipsH1:"Recommended workflow for a TT",
+        tipsS1:"Create/select race → make a backup.",
+        tipsS2:"Import start order → check bibs and categories.",
+        tipsS3:"Test audio → set pre-countdown time.",
+        tipsS4:"Start countdown → monitor “Departed” and “Next starts in”.",
+        tipsS5:"In FINISHES register arrivals → check positions and Cat. Pos.",
+        tipsS6:"Export Excel/PDF → share results.",
+        tipsTipT:"Offline use",
+        tipsTipP:"Installed as a PWA, the app can be used without internet. Perfect for low-coverage areas.",
+        tipsKbdT:"Useful shortcuts",
+        tipsKbdP:"On PC, open developer tools with F12 if you need diagnostics. Save screenshots/logs when reporting issues.",
+
+        faqTitle:"FAQ and troubleshooting",
+        faqQ1:"I cannot delete a rider",
+        faqA1:"First select a row (it will highlight). Then press “Delete rider”. If nothing is selected, the app will warn you.",
+        faqQ2:"Audio doesn’t play or is too low",
+        faqA2:"Check device volume, silent mode and browser permissions. Press “Test current sound”. On iOS, Safari is recommended and you should interact with the screen before starting.",
+        faqQ3:"I imported an Excel and data is missing",
+        faqA3:"Make sure you use the template or keep the expected column order. If unsure, generate a template again, paste your data and re-import.",
+        faqQ4:"I want to move data to another device",
+        faqA4:"Export Excel/PDF and use backup features where applicable. Remember: the primary storage is local to the device.",
+        faqQ5:"How do I report a bug or suggest improvements?",
+        faqA5:"Use the in-app “Suggestions” feature. For support, include: version, browser/device and exact steps to reproduce.",
+        faqNote:"When reporting a bug, also mention whether you were in STARTS or FINISHES mode and if the app was installed as a PWA.",
+
+        backBtn:"Back to Application"
+      },
+
+      fr: {
+        title: "Crono CRI - Aide Complète",
+        subtitle: "Système professionnel de chronométrage pour courses cyclistes et événements sportifs",
+        searchPlaceholder: "Rechercher dans l'aide (ex : PDF, dossard, sauvegarde, audio...)",
+        tocQuickstart:"Démarrage", tocRaces:"Courses", tocSalidas:"Départs", tocCountdown:"Compte à rebours",
+        tocLlegadas:"Arrivées", tocExports:"Export", tocPwa:"Installer", tocTips:"Conseils", tocFaq:"FAQ",
+
+        devNoteTitle:"Note du Développeur",
+        devNoteP1:"Crono CRI est une Progressive Web App (PWA) développée par Roberto Benet, commissaire du comité catalan, pour le contrôle professionnel des départs et arrivées dans les courses cyclistes et événements sportifs.",
+        devNoteP2:"Elle est gratuite et open source, conçue pour les arbitres, commissaires et organisateurs : pas d’installation nécessaire, les données sont stockées sur l’appareil et vous pouvez exporter listes et classements.",
+        devNoteP3:"Plus d’applications et ressources :",
+
+        qsTitle:"Démarrage rapide (2 minutes)",
+        qsS1T:"1) Créer ou sélectionner une course",
+        qsS1P:"Dans « Gestion de Course », choisissez une course existante ou cliquez sur « Nouvelle ». Définissez nom/date, l’heure de départ du premier coureur et (optionnel) des logos pour les PDFs.",
+        qsS2T:"2) Charger l’ordre de départ",
+        qsS2P:"Utilisez « Créer Modèle » pour un Excel exemple, ou « Importer Ordre » pour charger votre liste (dossard, nom, catégorie, etc.). Vous pouvez ajouter/supprimer des coureurs : l’app recalcule automatiquement les temps suivants.",
+        qsS3T:"3) Configurer l’audio et le temps préalable",
+        qsS3P:"En DÉPARTS, choisissez Bips, Voix ou Sans son, puis testez l’audio. Réglez « Temps préalable » (ex. 00:01:00) pour la durée du compte à rebours.",
+        qsS4T:"4) Lancer le compte à rebours et enregistrer les arrivées",
+        qsS4P:"Cliquez sur « DÉMARRER COMPTE À REBOURS ». Pour ARRIVÉES, changez de mode et utilisez « Enregistrer Arrivée » : millisecondes + positions (générale et par catégorie).",
+        qsNote:"Conseil : avant l’événement, créez une course « Tests » pour pratiquer et vérifier audio/exports.",
+
+        whatTitle:"Que fait Crono CRI ?",
+        whatC1T:"Gestion des courses",
+        whatC1P:"Créer, éditer, supprimer et gérer plusieurs courses. Chaque course stocke ordre de départ, arrivées, réglages et (si souhaité) logos PDF.",
+        whatC2T:"Contrôle des départs",
+        whatC2P:"Table complète d’ordre de départ avec temps prévus/réels/importés, édition et recalcul automatique.",
+        whatC3T:"Compte à rebours professionnel",
+        whatC3P:"Écran plein format avec signaux visuels et audio (bips ou voix) chaque seconde.",
+        whatC4T:"Arrivées & classement",
+        whatC4P:"Enregistrement des arrivées avec millisecondes, position générale et position par catégorie (Pos. Cat.), plus exports pour résultats.",
+
+        racesTitle:"Courses : créer, éditer, sauvegarder, restaurer",
+        racesH1:"Sélecteur de course",
+        racesL1:"Sélectionnez une course pour charger toutes ses données (ordre de départ, arrivées, logos, etc.).",
+        racesL2:"En changeant de course, compteurs et écrans associés se mettent à jour automatiquement.",
+        racesH2:"Éditer la course",
+        racesL3:"Modifier nom, date et heure de départ du premier coureur.",
+        racesL4:"Téléverser des logos (gauche/droite) pour les PDFs. Formats : PNG/JPG/SVG, max 5MB.",
+        racesH3:"Sauvegarde & restauration",
+        racesL5:"« Sauvegarde » crée une copie complète de la course courante pour récupérer les données en cas de problème.",
+        racesL6:"« Restaurer » remplace la course courante par la sauvegarde.",
+        racesTipT:"Bonnes pratiques",
+        racesTip1:"Avant d’importer un Excel final, faites une sauvegarde.",
+        racesTip2:"Si vous changez logos ou exports importants, générez un PDF de test avant l’événement.",
+
+        salidasTitle:"DÉPARTS : Ordre de départ (table)",
+        salidasH1:"Configuration horaire",
+        salidasL1:"« Heure du premier départ » sert de référence pour calculer les départs suivants.",
+        salidasL2:"« Heure système » affiche l’horloge de l’appareil (utile pour synchroniser).",
+        salidasL3:"« Début du compte à rebours dans » indique le temps restant avant le prochain compte à rebours.",
+        salidasL4:"« Total coureurs » se met à jour selon l’ordre importé/édité.",
+        salidasH2:"Actions courantes",
+        salidasC1T:"Créer Modèle",
+        salidasC1P:"Génère un Excel exemple avec les colonnes attendues pour remplir et réimporter sans erreurs.",
+        salidasC2T:"Importer Ordre",
+        salidasC2P:"Charge un Excel et construit l’ordre de départ. Idéal pour dossards, noms, catégories, équipes et puces.",
+        salidasC3T:"Ajouter coureur",
+        salidasC3P:"Ajoute un coureur manuellement (utile pour inscriptions de dernière minute). Recalcul si nécessaire.",
+        salidasC4T:"Supprimer coureur",
+        salidasC4P:"Sélectionnez une ligne puis cliquez « Supprimer coureur ». Les positions sont réattribuées et les temps suivants recalculés automatiquement.",
+        salidasH3:"Tri & édition",
+        salidasL5:"Vous pouvez trier par colonnes (en-têtes triables). Pratique pour trouver dossards, noms ou catégories.",
+        salidasL6:"La table inclut champs prévus, réels et importés (si utilisés), plus conversions en secondes pour calculs internes.",
+        salidasNote:"Important : après suppression d’un coureur, vérifiez les heures de départ prévues des suivants pour confirmer le recalcul.",
+
+        cdTitle:"DÉPARTS : Compte à rebours (écran)",
+        cdH1:"Audio",
+        cdL1:"Bips : bips électroniques chaque seconde.",
+        cdL2:"Voix : compte à rebours parlé dans votre langue.",
+        cdL3:"Sans son : signaux visuels uniquement.",
+        cdL4:"Utilisez « Tester le son » avant de démarrer.",
+        cdH2:"Démarrer le compte à rebours",
+        cdL5:"« Temps préalable » définit la durée (ex. 00:01:00).",
+        cdL6:"« Position à partir » sélectionne qui part ensuite.",
+        cdL7:"« Dossard à partir » aide à synchroniser rapidement quand vous travaillez au dossard.",
+        cdL8:"« DÉMARRER COMPTE À REBOURS » lance l’écran plein format.",
+        cdL9:"« RÉINITIALISER TOUT » revient à l’état initial (uniquement si nécessaire).",
+        cdH3:"Indicateurs visuels",
+        cdV1:"ROUGE : compte à rebours normal",
+        cdV2:"JAUNE : 10 dernières secondes",
+        cdV3:"JAUNE + pulsation : 5 dernières secondes",
+        cdV4:"VERT : DÉPART",
+        cdTipT:"Astuce opérationnelle",
+        cdTipP:"Si vous utilisez un haut-parleur externe, testez « Voix » à l’avance : certains téléphones limitent l’audio en PWA sans interaction récente.",
+
+        arrTitle:"ARRIVÉES : Chronomètre et liste",
+        arrH1:"Chronomètre des arrivées",
+        arrL1:"Affiche le temps écoulé depuis le départ du premier coureur.",
+        arrL2:"Capture les temps avec millisecondes (suffisant pour le contrôle opérationnel).",
+        arrL3:"En réduisant la carte, un « temps compact » apparaît dans l’en-tête.",
+        arrH2:"Enregistrer une arrivée",
+        arrL4:"Cliquez « Enregistrer Arrivée » pour sauvegarder dossard et temps exact.",
+        arrL5:"L’app calcule automatiquement la position générale et la position par catégorie (Pos. Cat.).",
+        arrL6:"Le compteur affiche « X sur Y coureurs » (arrivées enregistrées vs total).",
+        arrH3:"Table des arrivées",
+        arrL7:"Inclut dossard, chrono arrivée, temps final, position, nom, Pos. Cat., catégorie et plus.",
+        arrL8:"L’ordre des colonnes est optimisé pour impression/export rapide.",
+        arrNote:"Conseil : si l’ordre de départ a été importé avec catégorie/équipe/licence, les arrivées seront automatiquement complétées.",
+
+        exTitle:"Export : Excel et PDF",
+        exH1:"Excel",
+        exL1:"DÉPARTS : exportez l’ordre de départ en Excel pour vérification/partage.",
+        exL2:"ARRIVÉES : exportez arrivées/classement en 14 colonnes (inclut Pos. Cat.).",
+        exL3:"Si un champ de temps n’a pas de valeur, il est exporté vide (évite « 00:00:00 » trompeur).",
+        exH2:"PDF",
+        exL4:"« Exporter PDF » dans DÉPARTS génère un PDF de l’ordre de départ.",
+        exL5:"« Classement PDF » dans ARRIVÉES génère un PDF des résultats (positions générale et catégorie).",
+        exL6:"Si des logos sont définis pour la course, ils sont ajoutés automatiquement dans l’en-tête des deux PDFs.",
+        exTipT:"Logos PDF",
+        exTipP:"Recommandation : PNG transparent ou SVG. Gardez des fichiers légers (même si la limite est 5MB) pour exporter plus vite.",
+
+        pwaTitle:"Installer comme App (PWA) et mises à jour",
+        pwaH1:"Installer",
+        pwaIOS:"iPhone / iOS",
+        pwaIOS1:"Ouvrez l’app dans Safari.",
+        pwaIOS2:"Partager → Ajouter à l’écran d’accueil.",
+        pwaIOS3:"Lancez depuis l’icône comme une app native.",
+        pwaAND:"Android",
+        pwaAND1:"Ouvrez l’app dans Chrome.",
+        pwaAND2:"Appuyez sur « Installer l’app » (ou menu → Installer).",
+        pwaAND3:"Une icône sera ajoutée et l’app fonctionnera comme native.",
+        pwaPC:"PC / Mac",
+        pwaPC1:"Sur Chrome/Edge, une icône d’installation apparaît souvent dans la barre d’adresse.",
+        pwaPC2:"Vous pouvez aussi utiliser « Installer l’app » depuis l’application.",
+        pwaH2:"Mises à jour",
+        pwaU1:"« Vérifier les mises à jour » recherche une version plus récente.",
+        pwaU2:"Hors ligne, l’app continue de fonctionner, mais ne téléchargera pas les mises à jour avant reconnexion.",
+        pwaNote:"Important : les données sont stockées sur l’appareil. En changeant de téléphone/PC, exportez et/ou sauvegardez.",
+
+        tipsTitle:"Conseils et flux recommandé",
+        tipsH1:"Flux recommandé pour un CLM",
+        tipsS1:"Créer/sélectionner la course → faire une sauvegarde.",
+        tipsS2:"Importer l’ordre de départ → vérifier dossards et catégories.",
+        tipsS3:"Tester audio → régler le temps préalable.",
+        tipsS4:"Lancer le compte à rebours → surveiller « Partis » et « Prochain départ ». ",
+        tipsS5:"Dans ARRIVÉES enregistrer → vérifier positions et Pos. Cat.",
+        tipsS6:"Exporter Excel/PDF → partager résultats.",
+        tipsTipT:"Utilisation hors ligne",
+        tipsTipP:"Installée en PWA, l’app peut fonctionner sans internet. Parfait en zones à faible couverture.",
+        tipsKbdT:"Raccourcis utiles",
+        tipsKbdP:"Sur PC, ouvrez les outils développeur avec F12 pour diagnostic. Sauvegardez captures/logs pour les rapports.",
+
+        faqTitle:"FAQ et dépannage",
+        faqQ1:"Je ne peux pas supprimer un coureur",
+        faqA1:"Sélectionnez d’abord une ligne (elle sera surlignée). Puis cliquez « Supprimer coureur ». Sans sélection, l’app vous avertit.",
+        faqQ2:"Pas de son ou son trop faible",
+        faqA2:"Vérifiez volume, mode silencieux et permissions navigateur. Cliquez « Tester le son ». Sur iOS, Safari est recommandé et une interaction préalable est souvent nécessaire.",
+        faqQ3:"J’ai importé un Excel et il manque des données",
+        faqA3:"Utilisez le modèle ou respectez l’ordre/les colonnes attendues. En cas de doute, régénérez le modèle, collez vos données et réimportez.",
+        faqQ4:"Je veux déplacer les données vers un autre appareil",
+        faqA4:"Exportez Excel/PDF et utilisez les sauvegardes lorsque c’est applicable. Rappel : le stockage principal est local à l’appareil.",
+        faqQ5:"Comment signaler un bug ou proposer une amélioration ?",
+        faqA5:"Utilisez la fonction « Suggestions » dans l’app. Pour le support, indiquez version, navigateur/appareil et étapes pour reproduire.",
+        faqNote:"Pour un bug, précisez aussi si vous étiez en mode DÉPARTS ou ARRIVÉES et si l’app était installée en PWA.",
+
+        backBtn:"Retour à l’Application"
+      }
+    };
+
+    function setLanguage(lang){
+      const dict = I18N[lang] || I18N.es;
+
+      // Update text nodes
+      document.querySelectorAll("[data-i18n]").forEach(el=>{
+        const key = el.getAttribute("data-i18n");
+        if(dict[key] !== undefined) el.textContent = dict[key];
+      });
+
+      // Update placeholders
+      document.querySelectorAll("[data-i18n-ph]").forEach(el=>{
+        const key = el.getAttribute("data-i18n-ph");
+        if(dict[key] !== undefined) el.setAttribute("placeholder", dict[key]);
+      });
+
+      // Also update document language
+      document.documentElement.lang = lang;
+    }
+
+    function normalize(s){ return (s||"").toString().toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, ""); }
+
+    function applySearchFilter(query){
+      const q = normalize(query).trim();
+      const content = document.getElementById("help-root");
+
+      // Show all if empty
+      if(!q){
+        content.querySelectorAll(".section, details").forEach(el=>el.classList.remove("hide"));
+        return;
+      }
+
+      // Filter sections by their visible text
+      content.querySelectorAll(".section").forEach(section=>{
+        const text = normalize(section.innerText);
+        section.classList.toggle("hide", !text.includes(q));
+      });
+
+      // Additionally filter FAQ items within visible FAQ section
+      const faqSection = document.getElementById("faq");
+      if(faqSection && !faqSection.classList.contains("hide")){
+        faqSection.querySelectorAll("details").forEach(d=>{
+          const t = normalize(d.innerText);
+          d.classList.toggle("hide", !t.includes(q));
         });
-    </script>
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", ()=>{
+      const langButtons = document.querySelectorAll(".lang-btn");
+      const search = document.getElementById("helpSearch");
+
+      langButtons.forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          langButtons.forEach(b=>b.classList.remove("active"));
+          btn.classList.add("active");
+          const lang = btn.getAttribute("data-lang");
+          setLanguage(lang);
+          // Re-apply search in new language
+          applySearchFilter(search.value);
+        });
+      });
+
+      // Default language: ES
+      setLanguage("es");
+
+      // Search
+      search.addEventListener("input", ()=> applySearchFilter(search.value));
+
+      // Smooth anchor scroll
+      document.querySelectorAll('a[href^="#"]').forEach(a=>{
+        a.addEventListener("click", (e)=>{
+          const id = a.getAttribute("href").slice(1);
+          const target = document.getElementById(id);
+          if(target){
+            e.preventDefault();
+            target.scrollIntoView({ behavior:"smooth", block:"start" });
+          }
+        });
+      });
+    });
+  </script>
 </body>
 </html>

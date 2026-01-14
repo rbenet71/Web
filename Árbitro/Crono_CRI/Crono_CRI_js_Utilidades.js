@@ -1206,7 +1206,7 @@ function generateStartOrderPDF() {
         let lastDifference = null;
         let useGrayBackground = false;
         
-        // ⭐ NUEVO 3.5.3.1: Añadir logos al PDF (orden de salida)
+        // ⭐ NUEVO 3.5.4.1: Añadir logos al PDF (orden de salida)
         addLogosToPDF(doc, race);
         
         // FUNCIÓN PARA DIBUJAR CABECERA (CON TRADUCCIONES)
@@ -1602,7 +1602,7 @@ function loadJSPDFLibrary() {
         
         // Crear script para AutoTable
         const autotableScript = document.createElement('script');
-        autotableScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.3.25/jspdf.plugin.autotable.min.js';
+        autotableScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.4.25/jspdf.plugin.autotable.min.js';
         autotableScript.integrity = 'sha512-XdquZ5dW5lK1/7ZEQe7l5qTq5q7Yk7HkQpGcgPhPcFZrGqZaxBvW0k+1+uXeSqNvKJb8sRlKzGX7ciAJK2p7XA==';
         autotableScript.crossOrigin = 'anonymous';
         
@@ -2607,7 +2607,7 @@ function secondsToTime(totalSeconds) {
 }
 
 // ============================================
-// FUNCIÓN PARA AÑADIR LOGOS A PDF (NUEVO 3.5.3.1)
+// FUNCIÓN PARA AÑADIR LOGOS A PDF (NUEVO 3.5.4.1)
 // ============================================
 function addLogosToPDF(doc, race) {
     if (!race || !race.logos) {
