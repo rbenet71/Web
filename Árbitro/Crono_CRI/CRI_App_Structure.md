@@ -1,4 +1,4 @@
-# **CRI App - Documentación Optimizada para Modificaciones v3.4.2**
+# **CRI App - Documentación Optimizada para Modificaciones v3.5**
 
 ## 📋 **ÍNDICE RÁPIDO**
 - [**1. Visión General**](#1-visión-general)
@@ -13,19 +13,20 @@
 - [**10. Reglas de Oro**](#10-reglas-de-oro)
 - [**11. Lecciones Aprendidas**](#11-lecciones-aprendidas)
 - [**12. Checklist para Cambios**](#12-checklist-para-cambios) ⭐
-- [**13. Cambios v3.4.2**](#13-cambios-v342) ⭐
+- [**13. Cambios v3.4.2 - v3.5**](#13-cambios-v342---v345) ⭐
 
 ---
 
 ## **1. VISIÓN GENERAL**
-Crono CRI v3.4.2 - PWA para control de salidas/llegadas en carreras ciclistas.
+Crono CRI v3.5 - PWA para control de salidas/llegadas en carreras ciclistas.
 - **Modo Salidas**: Cuenta atrás basada en cronoSalida de tabla
 - **Modo Llegadas**: Cronometraje con milésimas, posiciones automáticas, posición por categoría
 - **4 idiomas**: ES, CA, EN, FR
-- **Exportación**: Excel (22 cols), PDF (2 versiones)
+- **Exportación**: Excel (14 cols llegadas), PDF (clasificación)
 - **Sistema de logging optimizado** (reducción 80% logs en consola)
 - **Contador dinámico** de llegadas registradas
 - **Tiempo compacto** en cronómetro minimizado
+- **Celdas vacías** en Excel para tiempos sin valor
 
 ---
 
@@ -43,7 +44,7 @@ Crono CRI v3.4.2 - PWA para control de salidas/llegadas en carreras ciclistas.
 | **Storage_Pwa.js** | Persistencia, backup/restore, gestión carreras (35 funciones) | TODOS (persistencia central) | 3.2.2 |
 | **Utilidades.js** | Conversiones tiempo, audio, exportación, diagnóstico | TODOS (utilidades centrales) | 3.2.1 |
 | **Traducciones.js** | Sistema multilingüe (4 idiomas) | TODOS (textos UI) | 3.4.2 |
-| **Llegadas.js** | Modo llegadas (14 cols), milésimas, posiciones auto, posición por categoría | Main, Utilidades, Traducciones | 3.4.2 |
+| **Llegadas.js** | Modo llegadas (14 cols), milésimas, posiciones auto, posición por categoría | Main, Utilidades, Traducciones | 3.5 |
 
 **Flujo principal**: Main → [Salidas_1-4 / Llegadas] ↔ UI ↔ Storage_Pwa ↔ Utilidades
 
@@ -102,7 +103,7 @@ openHelpFile()                      // Abre Crono_CRI_ayuda.html externo
 setupStaticTimeDisplay()            // Configura hora estática
 ```
 
-### **LLEGADAS.JS v3.4.2** (14 Columnas, Posición por Categoría - ACTUALIZADO)
+### **LLEGADAS.JS v3.5** (14 Columnas, Exportación Unificada - ACTUALIZADO)
 ```javascript
 // ESTRUCTURA LLEGADA (14 campos + notas):
 {
@@ -121,8 +122,18 @@ calcularMapaPosiciones(llegadas)       // Posiciones generales automáticas
 // NUEVAS FUNCIONES 3.4.1/3.4.2:
 calcularPosicionesPorCategoria()       // Posiciones dentro de cada categoría
 actualizarContadorLlegadas()           // "Llegadas Registradas - X de Y Corredores"
-exportRankingToPDF()                   // PDF profesional con Pos. Cat.
+
+// EXPORTACIÓN UNIFICADA (3.5):
+exportLlegadasToExcel()                // ✅ UNIFICADA: Excel llegadas y clasificación (14 cols)
+exportRankingToPDF()                   // PDF de clasificación con Pos. Cat.
 formatSecondsWithMilliseconds(seconds) // HH:MM:SS.mmm
+formatTimeForExcel(timeValue)          // ✅ NUEVO 3.5: Celdas vacías para tiempos sin valor
+```
+
+### **FUNCIONES ELIMINADAS (v3.5):**
+```javascript
+// ❌ ELIMINADA - Función redundante
+exportRankingToExcel()  // Ahora se usa exportLlegadasToExcel() para todo
 ```
 
 ### **TRADUCCIONES.JS v3.4.2** (Sistema Multilingüe - ACTUALIZADO)
@@ -152,30 +163,11 @@ updateTableTooltips()        // Tooltips columnas
 // ⭐ Claves camelCase, IDs DOM con guiones
 ```
 
-### **FUNCIONES NUEVAS EN LLEGADAS.JS v3.4.2:**
-```javascript
-// ========== POSICIÓN POR CATEGORÍA (3.3.4) ==========
-calcularPosicionesPorCategoria(llegadas) // Calcula posiciones dentro de cada categoría
-
-// ========== CONTADOR DE LLEGADAS (3.4.1) ==========
-actualizarContadorLlegadas()             // Actualiza "Llegadas Registradas - X de Y"
-
-// ========== TIEMPO COMPACTO (3.4.2) ==========
-updateLlegadasCompactTimer()             // Actualiza tiempo en cabecera minimizada
-setupCompactTimerUpdates()               // Configura intervalo de actualización
-updateInitialCompactTimerState()         // Estado inicial al cargar
-
-// ========== EXPORTACIONES ACTUALIZADAS ==========
-exportLlegadasToExcel()                  // Excel con columna Pos. Cat. (nueva columna 7)
-exportRankingToExcel()                   // Clasificación con Pos. Cat.
-exportRankingToPDF()                     // PDF con Pos. Cat. (columna nueva)
-```
-
 ---
 
 ## **4. ESTRUCTURAS DE DATOS CLAVE**
 
-### **llegadasState** (Estado de Llegadas - ACTUALIZADO 3.4.2)
+### **llegadasState** (Estado de Llegadas - ACTUALIZADO 3.5)
 ```javascript
 window.llegadasState = {
   llegadas: [
@@ -269,7 +261,7 @@ posCatHeaderTooltip: "Posición dentro de la categoría" (ES), etc.
 - **Orden salida**: 22 columnas (incluye categoría, equipo, licencia 3.2.1)
 - **Llegadas**: 14 columnas (13 originales + Pos. Cat. 3.4.2)
 
-**NUEVO ORDEN DE COLUMNAS LLEGADAS (3.4.2):**
+**NUEVO ORDEN DE COLUMNAS LLEGADAS (3.5):**
 1. Dorsal (0)
 2. Crono Llegada (1)
 3. Tiempo Final (2)
@@ -335,6 +327,17 @@ posCatHeaderTooltip: "Posición dentro de la categoría" (ES), etc.
 7. → Actualiza #llegadas-timer-compact con "- HH:MM:SS"
 ```
 
+### **Exportación Excel Unificada (3.5):**
+```
+1. Usuario hace clic en "Exportar Excel" (tabla o clasificación)
+2. → exportLlegadasToExcel() se ejecuta
+3. → formatTimeForExcel() procesa cada campo de tiempo:
+   - Si valor es null/undefined/'--:--:--'/'00:00:00' → celda vacía
+   - Si valor es válido → mantiene valor
+4. → Genera Excel con 14 columnas (incluye Pos. Cat.)
+5. → Descarga archivo "llegadas_YYYY-MM-DD.xlsx"
+```
+
 ### **Actualización Múltiples Relojes (3.4.2):**
 ```
 1. Main.js: setupTimeIntervals() inicia
@@ -356,9 +359,8 @@ posCatHeaderTooltip: "Posición dentro de la categoría" (ES), etc.
 2. Llegadas.js: Añadir en renderLlegadasList() (columna 15)
 3. Llegadas.js: Añadir en actualizarFilaLlegada() y actualizarFilaLlegadaIndividual()
 4. Llegadas.js: Actualizar exportLlegadasToExcel() (columna 16)
-5. Llegadas.js: Actualizar exportRankingToExcel() si corresponde
-6. Llegadas.js: Actualizar exportRankingToPDF() si corresponde
-7. Traducciones.js: Añadir clave header y tooltip (4 idiomas)
+5. Llegadas.js: Actualizar exportRankingToPDF() si corresponde
+6. Traducciones.js: Añadir clave header y tooltip (4 idiomas)
 ```
 
 ### **Modificar sistema de tarjetas expandibles:**
@@ -369,6 +371,16 @@ ARCHIVO: UI.js (setupCardToggles())
   if (targetClass === 'nombre-tarjeta') { ... }
 - Usar saveCardState() para persistencia
 - card-collapse-indicator para feedback visual
+```
+
+### **Modificar exportación Excel:**
+```
+ARCHIVO: `Llegadas.js` (exportLlegadasToExcel())
+- Mantener 14 columnas (nuevo orden 3.4.2)
+- Usar `formatTimeForExcel()` para tiempos (celdas vacías si no hay valor 3.5)
+- Incluir posición por categoría (columna 7)
+- ✅ ESTA FUNCIÓN SIRVE PARA TODAS LAS EXPORTACIONES EXCEL
+- No usar `exportRankingToExcel()` (ELIMINADA en 3.5)
 ```
 
 ### **Añadir nuevo reloj del sistema:**
@@ -435,11 +447,12 @@ log(LOG_LEVEL.ERROR, "Error cargando carrera actual:", error);
 log(LOG_LEVEL.DEBUG, `startOrderData disponible: ${!!startOrderData}`);
 ```
 
-### **Logs nuevos en v3.4.2:**
+### **Logs nuevos en v3.4.2 - v3.5:**
 ```javascript
 log(LOG_LEVEL.INFO, "📊 Contador actualizado: ${x} de ${y} corredores");
 log(LOG_LEVEL.DEBUG, "🔄 Actualizando tiempo compacto de llegadas");
 log(LOG_LEVEL.INFO, "✅ Actualizaciones de tiempo compacto configuradas");
+log(LOG_LEVEL.DEBUG, "📊 Exportación Excel unificada - celdas vacías para tiempos sin valor");
 ```
 
 ---
@@ -449,7 +462,7 @@ log(LOG_LEVEL.INFO, "✅ Actualizaciones de tiempo compacto configuradas");
 1. **Nunca sobrescribir** campos `_Real` o `_Importado` - Solo usuario puede
 2. **Usar throttling adecuado** según necesidad (3 niveles)
 3. **Validar formatos tiempo** con funciones de Utilidades.js
-4. **Mantener 22 columnas** en exportación Excel (incluye 3.2.1)
+4. **Mantener 22 columnas** en exportación Excel de salidas
 5. **Traducciones completas** - Nuevos textos en 4 idiomas
 6. **Seguir convención nombres** - camelCase claves, guiones IDs
 7. **Control inicialización única** - Variables `*Initialized`
@@ -474,6 +487,8 @@ log(LOG_LEVEL.INFO, "✅ Actualizaciones de tiempo compacto configuradas");
 21. **✅ TIEMPO COMPACTO EN MINIMIZAR**: Al minimizar cronómetro, mostrar tiempo en cabecera
 22. **✅ POSICIÓN POR CATEGORÍA**: Calcular y mostrar posición dentro de cada categoría
 23. **✅ MÚLTIPLES RELOJES SINCRONIZADOS**: Todos los relojes del sistema deben actualizarse juntos
+24. **✅ CELDAS VACÍAS EN EXCEL**: Para tiempos sin valor, dejar celda vacía (no 00:00:00)
+25. **✅ EXPORTACIÓN EXCEL UNIFICADA**: Usar `exportLlegadasToExcel()` para todas las exportaciones Excel
 
 ---
 
@@ -702,6 +717,39 @@ if (countdownElement) {
 
 **Estado:** ✅ SOLUCIONADO en v3.4.2
 
+#### **16. ✅ Celdas Excel con 00:00:00 para tiempos sin valor (v3.5)**
+**Problema:** En exportación Excel, campos de tiempo sin valor mostraban `00:00:00` o `--:--:--`.
+
+**Causa raíz:**
+- `llegada.cronoSalida || ''` ponía cadena vacía, pero algunos valores eran `'00:00:00'`
+- No se diferenciaba entre "valor cero válido" y "sin valor"
+
+**Solución implementada:**
+```javascript
+// Función formatTimeForExcel()
+function formatTimeForExcel(timeValue, esPrimerCorredor = false) {
+    if (!timeValue && timeValue !== 0) return '';
+    const timeStr = timeValue.toString().trim();
+    if (timeStr === '--:--:--' || timeStr === '00:00:00' && !esPrimerCorredor) {
+        return '';
+    }
+    return timeStr;
+}
+
+// Uso en exportLlegadasToExcel()
+formatTimeForExcel(llegada.cronoSalida)  // Celda vacía si no hay valor
+```
+
+**Archivos modificados:**
+- `Llegadas.js`: `formatTimeForExcel()`, `exportLlegadasToExcel()`
+- Se eliminó `exportRankingToExcel()` (redundante)
+
+**Regla de oro añadida:**
+- ✅ **Celdas vacías en Excel**: Para tiempos sin valor, dejar celda vacía (no 00:00:00)
+- ✅ **Exportación Excel unificada**: Usar `exportLlegadasToExcel()` para todas las exportaciones Excel
+
+**Estado:** ✅ SOLUCIONADO en v3.5
+
 ---
 
 ## **12. CHECKLIST PARA CAMBIOS** ⭐
@@ -717,7 +765,7 @@ if (countdownElement) {
 - [ ] Usar funciones centralizadas (ej: `timeToSeconds()` de Utilidades.js)
 - [ ] Aplicar throttling adecuado (3 niveles)
 - [ ] Preservar campos `_Real` e `_Importado`
-- [ ] Mantener estructura 22 columnas para Excel
+- [ ] Mantener estructura 22 columnas para Excel de salidas
 - [ ] **✅ Usar sistema de logging optimizado** (`log()` con niveles)
 - [ ] **✅ Agrupar configuraciones** cuando sea posible
 - [ ] **✅ Usar `callIfFunction()`** para manejo elegante de funciones faltantes
@@ -725,6 +773,7 @@ if (countdownElement) {
 - [ ] **✅ Verificar duplicación de event listeners** en botones
 - [ ] **✅ Actualizar contador de llegadas** si afecta a llegadasState
 - [ ] **✅ Verificar tiempo compacto** si modifica cronómetro de llegadas
+- [ ] **✅ Usar `formatTimeForExcel()`** para campos de tiempo en exportaciones
 
 ### **DESPUÉS de modificar:**
 - [ ] Probar en múltiples navegadores
@@ -740,6 +789,7 @@ if (countdownElement) {
 - [ ] **✅ Verificar que botones no abran múltiples modales**
 - [ ] **✅ Probar contador de llegadas** se actualiza correctamente
 - [ ] **✅ Probar tiempo compacto** al minimizar cronómetro
+- [ ] **✅ Probar exportación Excel** con tiempos vacíos (celdas vacías)
 
 ### **SI hay errores:**
 - [ ] Revisar **Lecciones Aprendidas** (problemas similares)
@@ -749,12 +799,13 @@ if (countdownElement) {
 - [ ] **✅ Usar `callIfFunction()`** para identificar funciones faltantes
 - [ ] **✅ Verificar atributos HTML** en campos problemáticos
 - [ ] **✅ Verificar duplicación de event listeners**
+- [ ] **✅ Verificar `formatTimeForExcel()`** para tiempos en Excel
 
 ---
 
-## **13. CAMBIOS v3.4.2** ⭐
+## **13. CAMBIOS v3.4.2 - v3.5** ⭐
 
-### **Nuevas Funcionalidades:**
+### **v3.4.2 - Posición por Categoría y Mejoras UI**
 
 #### **1. Posición por Categoría (3.3.4)**
 - **Columna nueva**: "Pos. Cat." (posición 7, después de Apellidos)
@@ -781,11 +832,30 @@ if (countdownElement) {
 - **Solución**: `updateSystemTimeDisplay()` actualiza múltiples elementos
 - **Función alternativa**: `updateAllSystemClocks()` para sincronización completa
 
+### **v3.5 - Exportación Excel Mejorada**
+
+#### **5. Celdas Vacías para Tiempos sin Valor (3.5)**
+- **Problema**: Excel mostraba `00:00:00` o `--:--:--` para tiempos sin valor
+- **Solución**: `formatTimeForExcel()` - Devuelve cadena vacía para:
+  - `null` / `undefined` / `''`
+  - `'--:--:--'` / `'--:--'` / `'--'`
+  - `'00:00:00'` (excepto primer corredor)
+- **Uso**: En `exportLlegadasToExcel()` para `cronoSalida`, `horaLlegada`, `horaSalida`
+
+#### **6. Exportación Excel Unificada (3.5)**
+- **Eliminada**: `exportRankingToExcel()` - Función redundante
+- **Unificada**: `exportLlegadasToExcel()` ahora sirve para:
+  - Exportar todas las llegadas (tabla principal)
+  - Exportar clasificación (desde modal)
+  - Incluye posición por categoría
+  - Celdas vacías para tiempos sin valor
+- **Botones actualizados**: "Exportar Excel" en modal clasificación ahora llama a `exportLlegadasToExcel()`
+
 ### **Archivos Modificados:**
 
 | Archivo | Cambios Principales | Versión |
 |---------|-------------------|---------|
-| **Llegadas.js** | Posición por categoría, contador llegadas, tiempo compacto | 3.4.2 |
+| **Llegadas.js** | Posición por categoría, contador llegadas, tiempo compacto, exportación unificada | 3.5 |
 | **UI.js** | `setupCardToggles()` actualizado, funciones tiempo compacto | 3.4.2 |
 | **Traducciones.js** | Nuevas claves para Pos. Cat. y contador | 3.4.2 |
 | **HTML principal** | Estructura corregida, elementos nuevos | 3.4.2 |
@@ -795,11 +865,14 @@ if (countdownElement) {
 21. **✅ TIEMPO COMPACTO EN MINIMIZAR**: Al minimizar cronómetro, mostrar tiempo en cabecera
 22. **✅ POSICIÓN POR CATEGORÍA**: Calcular y mostrar posición dentro de cada categoría
 23. **✅ MÚLTIPLES RELOJES SINCRONIZADOS**: Todos los relojes del sistema deben actualizarse juntos
+24. **✅ CELDAS VACÍAS EN EXCEL**: Para tiempos sin valor, dejar celda vacía (no 00:00:00)
+25. **✅ EXPORTACIÓN EXCEL UNIFICADA**: Usar `exportLlegadasToExcel()` para todas las exportaciones Excel
 
 ### **Lecciones Aprendidas Añadidas:**
 13. ✅ Contador de llegadas no se actualizaba al cambiar de carrera
 14. ✅ Botón de minimizar en cronómetro de llegadas mal posicionado
 15. ✅ Reloj "Hora del Sistema" no se actualizaba en tarjeta de cuenta atrás
+16. ✅ Celdas Excel con 00:00:00 para tiempos sin valor
 
 ---
 
@@ -853,10 +926,12 @@ if (countdownElement) {
 | **✅ Posición por categoría** | `Llegadas.js` | `Traducciones.js` |
 | **✅ Contador de llegadas** | `Llegadas.js`, `UI.js` | `Traducciones.js` |
 | **✅ Tiempo compacto cronómetro** | `UI.js` | `Llegadas.js` |
+| **✅ Exportación Excel unificada** | `Llegadas.js` | `Traducciones.js` |
+| **✅ Celdas vacías en Excel** | `Llegadas.js` | (formato interno) |
 
 ---
 
-## **🎯 RESUMEN DE CAMBIOS v3.4.2**
+## **🎯 RESUMEN DE CAMBIOS v3.4.2 - v3.5**
 
 ### **Mejoras principales:**
 1. **✅ Posición por categoría**: Nueva columna en llegadas, Excel y PDF
@@ -864,6 +939,8 @@ if (countdownElement) {
 3. **✅ Tiempo compacto al minimizar**: Cronómetro muestra tiempo en cabecera
 4. **✅ Corrección relojes sistema**: Todos los relojes sincronizados
 5. **✅ Botones minimizar corregidos**: Estructura HTML correcta
+6. **✅ Celdas vacías en Excel**: Tiempos sin valor → celdas vacías (no 00:00:00)
+7. **✅ Exportación Excel unificada**: Una función para todas las exportaciones
 
 ### **Nuevas funciones:**
 1. `calcularPosicionesPorCategoria()` - Posiciones dentro de categorías
@@ -871,6 +948,10 @@ if (countdownElement) {
 3. `updateLlegadasCompactTimer()` - Tiempo en cabecera minimizada
 4. `setupCompactTimerUpdates()` - Intervalo para tiempo compacto
 5. `updateAllSystemClocks()` - Sincroniza múltiples relojes
+6. `formatTimeForExcel()` - Celdas vacías para tiempos sin valor
+
+### **Funciones eliminadas:**
+1. ❌ `exportRankingToExcel()` - Redundante, reemplazada por `exportLlegadasToExcel()`
 
 ### **Nuevas traducciones:**
 1. `llegadasListTitle` - Título de tarjeta de llegadas
@@ -883,16 +964,20 @@ if (countdownElement) {
 2. **Tiempo compacto en minimizar**
 3. **Posición por categoría**
 4. **Múltiples relojes sincronizados**
+5. **Celdas vacías en Excel**
+6. **Exportación Excel unificada**
 
 ### **Resultados:**
 - **Usabilidad mejorada**: Información más completa al instante
 - **Profesionalidad**: Posición por categoría para organizadores
 - **Eficiencia**: Tiempo visible incluso minimizado
 - **Consistencia**: Todos los relojes sincronizados
+- **Calidad datos**: Excel más limpio (sin 00:00:00 falsos)
+- **Mantenibilidad**: Código más simple (una función para exportación)
 - **Internacionalización**: Nuevos textos traducidos a 4 idiomas
 
-**Documentación optimizada para modificaciones - v3.4.2**  
-**Caracteres:** ~40,500 (incluye todas las mejoras)  
+**Documentación optimizada para modificaciones - v3.5**  
+**Caracteres:** ~42,800 (incluye todas las mejoras)  
 **Cobertura:** 100% funcionalidades necesarias para programar  
 **Última actualización:** Enero 2026  
 
@@ -968,6 +1053,8 @@ Con tu aprobación, procederé según estos criterios:
 5. **Instrucciones claras** y autocontenidas
 6. **Para campos numéricos de texto**: Validación JS, no atributos HTML conflictivos
 7. **Un botón, un configurador**: Evitar múltiples funciones configurando el mismo elemento
+8. **Celdas vacías en Excel**: Usar `formatTimeForExcel()` para tiempos sin valor
+9. **Exportación unificada**: Usar `exportLlegadasToExcel()` para todas las exportaciones Excel
 
 ## **CONFIRMACIÓN EN CADA INTERACCIÓN**
 Después de cada propuesta o pregunta, mi mensaje incluirá:

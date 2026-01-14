@@ -4,7 +4,7 @@
 const translations = {
     es: {
         // Títulos generales
-        appTitle: "Crono CRI - 3.4.5",
+        appTitle: "Crono CRI - 3.5",
         languagesLabel: "Idioma / Language",
         
         // Tarjetas
@@ -578,11 +578,16 @@ const translations = {
 
         llegadasCounterTemplate: "{x} de {y} Corredores",  // Ej: "6 de 33 Corredores"
 
+        deleteRiderText: "Eliminar Corredor",
+        deleteRiderNoSelection: "Has de seleccionar un corredor",
+        deleteRiderConfirm: "¿Eliminar corredor {dorsal} {nombre}?",
+        deleteRiderNotFound: "Corredor no encontrado",
+        deleteRiderSuccess: "Corredor eliminado correctamente",
     },
 
     ca: {
         // Títulos generales
-        appTitle: "Crono CRI - 3.4.5",
+        appTitle: "Crono CRI - 3.5",
         languagesLabel: "Idioma / Language",
         
         // Tarjetas
@@ -1164,10 +1169,17 @@ const translations = {
         posCatHeaderTooltip: "Posició dins de la categoria",
 
         llegadasCounterTemplate: "{x} de {y} Corredors",  // Ej: "6 de 33 Corredors"
+
+        deleteRiderText: "Eliminar Corredor",
+        deleteRiderNoSelection: "Has de seleccionar un corredor",
+        deleteRiderConfirm: "¿Eliminar corredor {dorsal} {nombre}?",
+        deleteRiderNotFound: "Corredor no trobat",
+        deleteRiderSuccess: "Corredor eliminat correctament",
+
     },
 
     en: {
-        appTitle: "TT Crono - 3.4.5",
+        appTitle: "TT Crono - 3.5",
         languagesLabel: "Language / Idioma",
         
         // Tarjetas
@@ -1744,10 +1756,17 @@ const translations = {
         posCatHeaderTooltip: "Position within category",
 
         llegadasCounterTemplate: "{x} of {y} Riders",  // Ej: "6 of 33 Riders"
+
+        deleteRiderText: "Delete Rider",
+        deleteRiderNoSelection: "You must select a rider",
+        deleteRiderConfirm: "Delete rider {dorsal} {nombre}?",
+        deleteRiderNotFound: "Rider not found",
+        deleteRiderSuccess: "Rider deleted successfully",
+
     },
 
     fr: {
-        appTitle: "Crono CRI - 3.4.5",
+        appTitle: "Crono CRI - 3.5",
         languagesLabel: "Langue / Language",
         
         // Tarjetas
@@ -2345,6 +2364,12 @@ const translations = {
         posCatHeaderTooltip: "Position dans la catégorie",
 
         llegadasCounterTemplate: "{x} sur {y} Coureurs",  // Ej: "6 sur 33 Coureurs"
+
+        deleteRiderText: "Supprimer Coureur",
+        deleteRiderNoSelection: "Vous devez sélectionner un coureur",
+        deleteRiderConfirm: "Supprimer le coureur {dorsal} {nombre} ?",
+        deleteRiderNotFound: "Coureur non trouvé",
+        deleteRiderSuccess: "Coureur supprimé avec succès",
     }
 };
 
@@ -2620,7 +2645,7 @@ function updateTableHeaders(t) {
     // ✅ USAR SISTEMA DE LOGGING OPTIMIZADO
     log(LOG_LEVEL.DEBUG, "Actualizando cabeceras de tabla...");
     
-    // Lista COMPLETA de IDs (21 columnas - versión 3.4.5)
+    // Lista COMPLETA de IDs (21 columnas - versión 3.5)
     const headerIds = [
         'orderHeader', 'dorsalHeader', 'cronoSalidaHeader', 'horaSalidaHeader',
         'diferenciaHeader', 'nombreHeader', 'apellidosHeader', 'categoriaHeader', // ✅ NUEVO 3.2.1

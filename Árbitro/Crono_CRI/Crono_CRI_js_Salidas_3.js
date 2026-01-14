@@ -1831,5 +1831,21 @@ function addRiderPositionStyles() {
     document.head.appendChild(style);
 } 
 
-
+function setupStartOrderTableRowSelection() {
+    const table = document.getElementById('start-order-table');
+    if (!table) return;
+    
+    table.addEventListener('click', function(e) {
+        const row = e.target.closest('tbody tr');
+        if (!row) return;
+        
+        // Limpiar selección anterior
+        document.querySelectorAll('#start-order-table tbody tr.selected').forEach(r => {
+            r.classList.remove('selected');
+        });
+        
+        // Seleccionar nueva fila
+        row.classList.add('selected');
+    });
+}
 /******* BORRAR POR REPETIAS... */

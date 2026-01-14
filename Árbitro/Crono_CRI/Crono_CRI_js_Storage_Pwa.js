@@ -1054,12 +1054,12 @@ function setupServiceWorker() {
     // Solo registrar si estamos en localhost o HTTPS
     if (isLocalhost || isHttps) {
         // 🔥 CAMBIO PRINCIPAL: Registrar el SW específico de Crono CRI
-        const swFile = 'Crono_CRI_ws.js?v=3.4.5';
+        const swFile = 'Crono_CRI_ws.js?v=3.5';
         console.log(`📁 Registrando ServiceWorker: ${swFile}`);
         
         navigator.serviceWorker.register(swFile)
             .then(registration => {
-                console.log('✅ ServiceWorker Crono CRI v3.4.5 registrado exitosamente:', registration.scope);
+                console.log('✅ ServiceWorker Crono CRI v3.5 registrado exitosamente:', registration.scope);
                 
                 // 🔥 NUEVO: Forzar actualización inmediata
                 console.log('🔄 Forzando actualización del ServiceWorker...');
@@ -1154,7 +1154,7 @@ function cleanupOldCaches() {
     console.log('🧹 Limpiando cachés antiguos...');
     
     // Limpiar localStorage de versiones antiguas
-    const currentVersion = '3.4.5';
+    const currentVersion = '3.5';
     const keysToKeep = [
         'app-mode',
         'card-expanded-race-management',
@@ -1936,6 +1936,118 @@ function addNewRider() {
     showMessage(t.riderAdded, 'success');
 }
 
+function deleteSelectedRider() {
+    const t = translations[appState.currentLanguage];
+    
+    // 1. OBTENER CORREDOR SELECCIONADO (dos métodos)
+    let selectedRider = null;
+    let selectionMethod = '';
+    
+    // Método A: Por click en fila (selección visual)
+    const selectedRow = document.querySelector('#start-order-table tbody tr.selected');
+    if (selectedRow) {
+        const rowIndex = selectedRow.rowIndex - 1; // -1 para contar encabezado
+        if (rowIndex >= 0 && rowIndex < startOrderData.length) {
+            selectedRider = startOrderData[rowIndex];
+            selectionMethod = 'row';
+        }
+    }
+    
+    // Método B: Por dorsal o posición (input manual)
+    if (!selectedRider) {
+        const dorsalInput = document.getElementById('rider-dorsal-input');
+        const positionInput = document.getElementById('rider-position-input');
+        
+        let searchValue = '';
+        let searchBy = '';
+        
+        if (dorsalInput && dorsalInput.value.trim() !== '') {
+            searchValue = dorsalInput.value.trim();
+            searchBy = 'dorsal';
+        } else if (positionInput && positionInput.value.trim() !== '') {
+            searchValue = positionInput.value.trim();
+            searchBy = 'order';
+        }
+        
+        if (searchValue !== '') {
+            if (searchBy === 'dorsal') {
+                selectedRider = startOrderData.find(rider => rider.dorsal.toString() === searchValue);
+            } else if (searchBy === 'order') {
+                const orderNum = parseInt(searchValue);
+                if (!isNaN(orderNum)) {
+                    selectedRider = startOrderData.find(rider => rider.order === orderNum);
+                }
+            }
+            
+            if (selectedRider) {
+                selectionMethod = 'input';
+            }
+        }
+    }
+    
+    // 2. VALIDAR QUE HAYA SELECCIÓN
+    if (!selectedRider) {
+        showMessage(t.deleteRiderNoSelection || "Has de seleccionar un corredor", 'error');
+        return;
+    }
+    
+    // 3. CONFIRMAR ELIMINACIÓN
+    const confirmMessage = t.deleteRiderConfirm 
+        ? t.deleteRiderConfirm.replace('{dorsal}', selectedRider.dorsal)
+                             .replace('{nombre}', selectedRider.nombre || '')
+        : `¿Eliminar corredor ${selectedRider.dorsal} ${selectedRider.nombre || ''}?`;
+    
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+    
+    // 4. ELIMINAR CORREDOR
+    const riderIndex = startOrderData.findIndex(rider => 
+        selectionMethod === 'row' 
+            ? rider === selectedRider 
+            : rider.dorsal === selectedRider.dorsal
+    );
+    
+    if (riderIndex === -1) {
+        showMessage(t.deleteRiderNotFound || "Corredor no encontrado", 'error');
+        return;
+    }
+    
+    // Eliminar de los datos
+    startOrderData.splice(riderIndex, 1);
+    
+    // 5. REORDENAR Y RECALCULAR
+    // Reasignar números de orden
+    startOrderData.forEach((rider, index) => {
+        rider.order = index + 1;
+    });
+    
+    // Recalcular TODOS los tiempos
+    recalculateAllStartTimes();
+    
+    // 6. ACTUALIZAR UI Y GUARDAR
+    document.getElementById('total-riders').value = startOrderData.length;
+    updateStartOrderTableThrottled();
+    saveStartOrderData();
+    
+    // 7. LIMPIAR SELECCIONES
+    if (selectionMethod === 'row') {
+        document.querySelectorAll('#start-order-table tbody tr.selected').forEach(row => {
+            row.classList.remove('selected');
+        });
+    }
+    
+    if (selectionMethod === 'input') {
+        const dorsalInput = document.getElementById('rider-dorsal-input');
+        const positionInput = document.getElementById('rider-position-input');
+        if (dorsalInput) dorsalInput.value = '';
+        if (positionInput) positionInput.value = '';
+    }
+    
+    // 8. MENSAJE DE CONFIRMACIÓN
+    showMessage(t.deleteRiderSuccess || "Corredor eliminado correctamente", 'success');
+}
+
 function updateStartOrderTimes() {
     updateTimeDifference();
     
@@ -2018,7 +2130,7 @@ function createRaceBackup() {
         version: '1.0',
         appName: 'Crono CRI',
         exportDate: new Date().toISOString(),
-        exportVersion: 'V_3.4.5',
+        exportVersion: 'V_3.5',
         dataType: 'single-race',
         race: {
             // Copiar TODOS los datos de la carrera del array

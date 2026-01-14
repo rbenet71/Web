@@ -115,7 +115,7 @@ let uiInitialized = {
 // FUNCIONES DE TARJETAS EXPANDIBLES
 // ============================================
 // ============================================
-// FUNCIONES DE TARJETAS EXPANDIBLES - ACTUALIZADO 3.4.5
+// FUNCIONES DE TARJETAS EXPANDIBLES - ACTUALIZADO 3.5
 // ============================================
 function setupCardToggles() {
     if (uiInitialized.cardToggles) {
@@ -186,7 +186,7 @@ function setupCardToggles() {
 }
 
 // ============================================
-// ACTUALIZAR TIEMPO COMPACTO DE LLEGADAS - NUEVO 3.4.5
+// ACTUALIZAR TIEMPO COMPACTO DE LLEGADAS - NUEVO 3.5
 // ============================================
 function updateLlegadasCompactTimer() {
     const compactDisplay = document.getElementById('llegadas-timer-compact');
@@ -214,7 +214,7 @@ function updateLlegadasCompactTimer() {
 }
 
 // ============================================
-// CONFIGURAR ACTUALIZACIONES DEL TIEMPO COMPACTO - NUEVO 3.4.5
+// CONFIGURAR ACTUALIZACIONES DEL TIEMPO COMPACTO - NUEVO 3.5
 // ============================================
 function setupCompactTimerUpdates() {
     // Verificar si ya existe el intervalo
@@ -231,7 +231,7 @@ function setupCompactTimerUpdates() {
 }
 
 // ============================================
-// ACTUALIZAR ESTADO INICIAL DE TIEMPO COMPACTO - NUEVO 3.4.5
+// ACTUALIZAR ESTADO INICIAL DE TIEMPO COMPACTO - NUEVO 3.5
 // ============================================
 function updateInitialCompactTimerState() {
     // Verificar si la tarjeta de cronómetro de llegadas está minimizada al cargar
@@ -1118,8 +1118,32 @@ function setupModalEventListeners() {
             }
         }
     });
+
+    // Configurar botón Eliminar Corredor
+    const deleteRiderBtn = document.getElementById('delete-rider-btn');
+    if (deleteRiderBtn) {
+        deleteRiderBtn.addEventListener('click', deleteSelectedRider);
+    }
 }
 
+function setupDeleteRiderButton() {
+    const deleteRiderBtn = document.getElementById('delete-rider-btn');
+    if (deleteRiderBtn) {
+        // Clonar botón para eliminar listeners anteriores
+        const newBtn = deleteRiderBtn.cloneNode(true);
+        deleteRiderBtn.parentNode.replaceChild(newBtn, deleteRiderBtn);
+        
+        // Configurar nuevo listener
+        document.getElementById('delete-rider-btn').addEventListener('click', function() {
+            log(LOG_LEVEL.INFO, "Botón Eliminar Corredor clickeado");
+            deleteSelectedRider();
+        });
+        
+        log(LOG_LEVEL.DEBUG, "Botón Eliminar Corredor configurado correctamente");
+    } else {
+        log(LOG_LEVEL.WARN, "Botón delete-rider-btn no encontrado en el DOM");
+    }
+}
 // ============================================
 // FUNCIÓN DE DEPURACIÓN DE MODALES
 // ============================================

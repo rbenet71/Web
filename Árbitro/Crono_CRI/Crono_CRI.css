@@ -2915,6 +2915,8 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     margin-bottom: 0;
 }
 
+
+
 /* Opcional: ajustar ancho de columnas específicas */
 .llegadas-table th:nth-child(1) { width: 80px; }  /* Dorsal */
 .llegadas-table th:nth-child(2) { width: 120px; } /* Crono Llegada */
@@ -2929,6 +2931,12 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 .llegadas-table th:nth-child(11) { width: 120px; } /* Equipo */
 .llegadas-table th:nth-child(12) { width: 100px; } /* Licencia */
 
+
+/* Estilo para fila seleccionada en tabla de salida */
+#start-order-table tbody tr.selected {
+    background-color: #ffe6e6 !important;
+    border-left: 4px solid #dc3545 !important;
+}
 
 /* 19/12/2025
 He organizado el CSS en las siguientes secciones principales:
