@@ -1,4 +1,4 @@
-# **CRI App - Documentación Optimizada para Modificaciones v3.3.5**
+# **CRI App - Documentación Optimizada para Modificaciones v3.3.4**
 
 ## 📋 **ÍNDICE RÁPIDO**
 - [**1. Visión General**](#1-visión-general)
@@ -17,7 +17,7 @@
 ---
 
 ## **1. VISIÓN GENERAL**
-Crono CRI v3.3.5 - PWA para control de salidas/llegadas en carreras ciclistas.
+Crono CRI v3.3.4 - PWA para control de salidas/llegadas en carreras ciclistas.
 - **Modo Salidas**: Cuenta atrás basada en cronoSalida de tabla
 - **Modo Llegadas**: Cronometraje con milésimas, posiciones automáticas
 - **4 idiomas**: ES, CA, EN, FR
@@ -30,13 +30,13 @@ Crono CRI v3.3.5 - PWA para control de salidas/llegadas en carreras ciclistas.
 
 | Módulo | Responsabilidad Principal | Dependencias Clave | Versión |
 |--------|--------------------------|-------------------|---------|
-| **Main.js** | Coordinación global, estado app, PWA, pantalla countdown, logging optimizado | TODOS | 3.3.5 |
+| **Main.js** | Coordinación global, estado app, PWA, pantalla countdown, logging optimizado | TODOS | 3.3.3 |
 | **Salidas_1.js** | Importación/exportación Excel (22 cols), validación 3.2.1 | Storage_Pwa, UI, Salidas_2 | 3.2.1 |
 | **Salidas_2.js** | Tabla UI, edición inline, throttling 3 niveles | Salidas_1, Salidas_3, Salidas_4 | 3.2.1 |
 | **Salidas_3.js** | Modales, añadir corredores, cambios globales | Salidas_2, UI, Storage_Pwa | 3.2.1 |
 | **Salidas_4.js** | Confirmaciones, validaciones, edición avanzada | Salidas_2, Salidas_3, Utilidades | 3.2.1 |
 | **Cuenta_Atras.js** | Sistema cuenta atrás, salidas, sincronización dorsal↔posición | Main, Utilidades, Salidas_2, Storage_Pwa | 3.2.1 |
-| **UI.js** | Interfaz, tarjetas, modales, gestión tiempo | Main, Storage_Pwa, Cuenta_Atras, Llegadas | 3.3.5 |
+| **UI.js** | Interfaz, tarjetas, modales, gestión tiempo | Main, Storage_Pwa, Cuenta_Atras, Llegadas | 3.3.3 |
 | **Storage_Pwa.js** | Persistencia, backup/restore, gestión carreras (35 funciones) | TODOS (persistencia central) | 3.2.2 |
 | **Utilidades.js** | Conversiones tiempo, audio, exportación, diagnóstico | TODOS (utilidades centrales) | 3.2.1 |
 | **Traducciones.js** | Sistema multilingüe (4 idiomas) | TODOS (textos UI) | 3.2.1 |
@@ -48,7 +48,7 @@ Crono CRI v3.3.5 - PWA para control de salidas/llegadas en carreras ciclistas.
 
 ## **3. FUNCIONES CRÍTICAS POR MÓDULO**
 
-### **MAIN.JS v3.3.5** (Coordinación Global con Logging Optimizado)
+### **MAIN.JS v3.3.3** (Coordinación Global con Logging Optimizado)
 ```javascript
 // ✅ NUEVO: Sistema de logging por niveles
 const LOG_LEVEL = { ERROR: 0, WARN: 1, INFO: 2, DEBUG: 3 };
@@ -144,7 +144,7 @@ sincronizarDorsalAPosicion()     // Sincronización automática
 configurarBotonesModalReinicio() // Modal personalizado (no confirm() nativo)
 ```
 
-### **UI.JS v3.3.5** (Interfaz y Gestión Tiempo)
+### **UI.JS v3.3.3** (Interfaz y Gestión Tiempo)
 ```javascript
 // SISTEMA RESETEO AUTOMÁTICO:
 updateTimeDifference()           // "Cuenta atrás en:" (horaSalida - 1min - horaActual)
@@ -427,7 +427,7 @@ formatSecondsWithMilliseconds(seconds) // HH:MM:SS.mmm
 7. → saveLlegadasState()
 ```
 
-### **Inicialización Optimizada (v3.3.5):**
+### **Inicialización Optimizada (v3.3.3):**
 ```
 1. Main.js: initApp() con logging optimizado
 2. → Configuración agrupada (quickConfigs array)
@@ -504,7 +504,7 @@ PROTECCIONES ACTIVAS:
 
 ## **9. SISTEMA DE LOGGING OPTIMIZADO** ⭐
 
-### **Niveles de Log (v3.3.5):**
+### **Niveles de Log (v3.3.3):**
 ```javascript
 const LOG_LEVEL = {
     ERROR: 0,   // 🚨 Solo errores críticos (funciones fallan, datos corruptos)
@@ -562,7 +562,7 @@ ANTES (v3.2.2):
 - Warnings de throttling constantes
 - Información redundante
 
-DESPUÉS (v3.3.5):
+DESPUÉS (v3.3.3):
 ✅ Inicializando aplicación Crono CRI...
 ✅ Carrera actual cargada: Pruebas 2.4.8 x
 ✅ Configurando event listeners principales...
@@ -611,6 +611,12 @@ log(LOG_LEVEL.INFO, `Configuraciones completadas: ${configSuccess} éxitos, ${co
 13. **Modal personalizado** - Para reinicio (no confirm() nativo)
 14. **✅ LOGGING OPTIMIZADO** - Usar sistema por niveles, evitar logs redundantes
 15. **✅ INICIALIZACIÓN AGRUPADA** - Configuraciones rápidas sin logs individuales
+16. **✅ CAMPOS DE TEXTO NUMÉRICOS**: Para campos que solo deben contener números pero necesitan permitir borrado completo:
+    - Usar `type="text"` en lugar de `type="number"`
+    - **NO usar** `pattern="[0-9]*"`, `max`, `min`, `inputmode="numeric"`
+    - Validar con JavaScript (`validatePositionInput()`)
+    - Permitir explícitamente teclas de control en `keydown` (`handlePositionKeydown()`)
+    - Forzar `value = ''` después de crear elementos dinámicamente
 
 ---
 
@@ -663,10 +669,72 @@ log(LOG_LEVEL.INFO, `Configuraciones completadas: ${configSuccess} éxitos, ${co
 **Solución:** Actualizar a v3.2.1 (posiciones automáticas, PDF profesional)  
 **Archivo:** `Llegadas.js`
 
-#### **10. ✅ LOGS EXCESIVOS EN CONSOLA (v3.3.5)**
+#### **10. ✅ LOGS EXCESIVOS EN CONSOLA (v3.3.3)**
 **Problema:** 100+ líneas de logs, 80% redundantes  
 **Solución:** Sistema de logging por niveles con inicialización agrupada  
 **Archivo:** `Main.js` - Sistema optimizado de logging
+
+#### **11. Campo de posición no permitía borrar completamente en modal de añadir corredor**
+**Problema:** En el modal "Añadir Corredor", cuando se seleccionaba "Posición específica", el campo mostraba un valor por defecto (ej: "26") y no se podía borrar completamente. Solo se podía borrar el último dígito, no el primero.
+
+**Causa raíz:**
+1. **Atributos HTML conflictivos:** `pattern="[0-9]*"` en inputs type="text" causa comportamiento inconsistente en algunos navegadores
+2. **Atributo incorrecto:** `max="26"` solo funciona en inputs type="number", no en type="text"
+3. **Restricción de teclado:** `inputmode="numeric"` puede forzar teclados móviles que bloquean teclas como Backspace completa
+4. **Valor por defecto bloqueado:** El campo tenía un valor inicial que algunos navegadores protegen
+
+**Solución implementada (v3.3.4+):**
+```javascript
+// 1. HTML limpio (sin atributos problemáticos)
+<input type="text" 
+       id="specific-position-input" 
+       class="form-control specific-position-input" 
+       placeholder="26"
+       data-max-position="26">
+
+// 2. Limpieza agresiva después de crear el modal
+setTimeout(() => {
+    const positionInput = document.getElementById('specific-position-input');
+    if (positionInput) {
+        positionInput.removeAttribute('pattern');
+        positionInput.removeAttribute('inputmode');
+        positionInput.removeAttribute('max');
+        positionInput.removeAttribute('min');
+        positionInput.value = ''; // Forzar vacío
+    }
+}, 50);
+
+// 3. Validación manual con JavaScript
+function validatePositionInput(input, maxPosition) {
+    // Permitir vacío completamente
+    if (input.value === '' || input.value === null) {
+        return { valid: true, position: null };
+    }
+    // ... validación personalizada
+}
+
+// 4. Teclado permisivo
+function handlePositionKeydown(event, maxPosition) {
+    // Permitir TODAS las teclas de control
+    const controlKeys = ['Backspace', 'Delete', 'Tab', 'ArrowLeft', ...];
+    if (controlKeys.includes(event.key)) {
+        return true;
+    }
+    // ... resto de validación
+}
+```
+
+**Archivos modificados:**
+- `Salidas_3.js`: `showRiderPositionModal()`, `setupRiderPositionModalEvents()`
+- **Funciones nuevas:** `validatePositionInput()`, `handlePositionKeydown()` (en sección auxiliar)
+
+**Regla de oro añadida:**
+- ✅ **Nunca usar** `pattern="[0-9]*"` en campos type="text" que necesiten permitir borrado completo
+- ✅ **No mezclar** atributos de type="number" (min, max) con type="text"
+- ✅ **Validar con JavaScript** en lugar de depender de validación HTML
+- ✅ **Permitir teclas de control** explícitamente en manejadores de teclado
+
+**Estado:** ✅ COMPLETAMENTE SOLUCIONADO en v3.3.4
 
 ---
 
@@ -687,6 +755,7 @@ log(LOG_LEVEL.INFO, `Configuraciones completadas: ${configSuccess} éxitos, ${co
 - [ ] **✅ Usar sistema de logging optimizado** (`log()` con niveles)
 - [ ] **✅ Agrupar configuraciones** cuando sea posible
 - [ ] **✅ Usar `callIfFunction()`** para manejo elegante de funciones faltantes
+- [ ] **✅ Para campos numéricos de texto**: NO usar `pattern`, `max`, `min`; validar con JS
 
 ### **DESPUÉS de modificar:**
 - [ ] Probar en múltiples navegadores
@@ -698,6 +767,7 @@ log(LOG_LEVEL.INFO, `Configuraciones completadas: ${configSuccess} éxitos, ${co
 - [ ] Probar modo llegadas (milésimas, posiciones)
 - [ ] **✅ Verificar logs en consola** (solo información necesaria)
 - [ ] **✅ Probar inicialización optimizada** (resumen claro, no logs excesivos)
+- [ ] **✅ Probar campos de texto numéricos** permiten borrado completo
 
 ### **SI hay errores:**
 - [ ] Revisar **Lecciones Aprendidas** (problemas similares)
@@ -705,6 +775,7 @@ log(LOG_LEVEL.INFO, `Configuraciones completadas: ${configSuccess} éxitos, ${co
 - [ ] Verificar consola JavaScript con nivel DEBUG
 - [ ] Comprobar localStorage (datos corruptos)
 - [ ] **✅ Usar `callIfFunction()`** para identificar funciones faltantes
+- [ ] **✅ Verificar atributos HTML** en campos problemáticos
 
 ---
 
@@ -747,10 +818,11 @@ log(LOG_LEVEL.INFO, `Configuraciones completadas: ${configSuccess} éxitos, ${co
 | **Estado global, PWA, logging** | `Main.js` | `UI.js`, `Storage_Pwa.js` |
 | **✅ Sistema de logging** | `Main.js` | (centralizado) |
 | **✅ Optimización consola** | `Main.js` | (todos los módulos) |
+| **✅ Validación campos numéricos** | `Salidas_3.js` | `UI.js` |
 
 ---
 
-## **🎯 RESUMEN DE CAMBIOS v3.3.5**
+## **🎯 RESUMEN DE CAMBIOS v3.3.4**
 
 ### **Mejoras principales:**
 1. **✅ Sistema de logging optimizado** (80% reducción logs)
@@ -761,6 +833,9 @@ log(LOG_LEVEL.INFO, `Configuraciones completadas: ${configSuccess} éxitos, ${co
 6. **✅ Gestión de intervalos centralizada** (setupTimeIntervals)
 7. **✅ Logs de resumen** en lugar de individuales
 8. **✅ Mantenimiento de funcionalidad completa**
+9. **✅ Corrección campo de posición en modal**: Solucionado problema que no permitía borrar completamente el campo de posición
+10. **✅ Validación manual de campos numéricos**: Reemplazada validación HTML por JavaScript para mayor control
+11. **✅ Eliminación de atributos conflictivos**: `pattern`, `max`, `inputmode` removidos de campos type="text"
 
 ### **Resultados:**
 - **Consola limpia**: Solo mensajes importantes
@@ -768,11 +843,88 @@ log(LOG_LEVEL.INFO, `Configuraciones completadas: ${configSuccess} éxitos, ${co
 - **Código más robusto**: Manejo elegante de funciones faltantes
 - **Mantenibilidad**: Configuraciones agrupadas
 - **Rendimiento**: Menos operaciones de console.log
+- **Usabilidad mejorada**: Campos numéricos permiten borrado completo
+- **Compatibilidad**: Funciona en todos los navegadores modernos
 
-**Documentación optimizada para modificaciones - v3.3.5**  
-**Caracteres:** ~30,500 (incluye sistema logging optimizado)  
+**Documentación optimizada para modificaciones - v3.3.4**  
+**Caracteres:** ~31,800 (incluye sistema logging optimizado y correcciones)  
 **Cobertura:** 100% funcionalidades necesarias para programar  
 **Última actualización:** Enero 2026  
 
 **✅ Listo para recibir solicitudes de modificación.**  
 **Solo dime: "Quiero cambiar [X]" y te pediré los archivos necesarios.**
+
+---
+
+**PROTOCOLO COMPLETO PARA MODIFICACIONES DE APPS PWA**
+
+## **CONTEXTO TÉCNICO IMPORTANTE**
+1. **Limitación de mensajes:** Superamos frecuentemente el límite de mensajes en el chat
+2. **Consecuencia directa:** Los procesos de modificación se interrumpen a mitad de camino  
+3. **Problemas resultantes:**
+   - Archivos cada vez más grandes con código no utilizado o mal aprovechado
+   - Archivos que no puedo enviarte por exceso de tamaño
+
+## **PROTOCOLO DE COMUNICACIÓN PRINCIPAL**
+- **Una opción a la vez:** Solo presentaré UNA propuesta/opción en cada mensaje
+- **Confirmación obligatoria:** Esperaré tu "visto bueno" explícito para cada paso
+- **Flujo secuencial:** Opción 1 → Tu respuesta → Opción 2 → Tu respuesta
+- **Preguntas con pausa:** Cuando te haga una pregunta, esperaré tu respuesta antes de continuar
+
+## **FLUJO DE TRABAJO PARA MODIFICACIONES**
+
+### **FASE 1: CONFIRMACIÓN INICIAL**
+1. Me describirás la modificación solicitada
+2. Yo repetiré exactamente lo que he entendido
+3. **Esperaré tu confirmación** antes de pasar a la Fase 2
+
+### **FASE 2: SOLICITUD DE ARCHIVOS**
+1. Te pediré SOLO los archivos/funciones específicas que necesito ver
+2. **Esperaré a que me los envíes** antes de analizarlos
+3. No asumiré ni adivinaré qué código necesito
+
+### **FASE 3: ANÁLISIS Y PROPUESTA ÚNICA**
+1. Analizaré los archivos recibidos
+2. Te presentaré UNA sola propuesta de modificación:
+   - Archivo(s) a modificar
+   - Razón del cambio
+   - **Nada más** - sin opciones alternativas
+3. **Esperaré tu "visto bueno"** antes de cualquier acción
+
+### **FASE 4: EJECUCIÓN DIRIGIDA**
+Con tu aprobación, procederé según estos criterios:
+
+**ESCENARIO A - Función pequeña o cambio completo:**
+- Te enviaré la NUEVA función completa
+- Instrucción: "SUSTITUIR [nombre función] por esta nueva versión"
+- **Esperaré confirmación** de que lo has implementado
+
+**ESCENARIO B - Cambio específico/puntual:**
+- Te indicaré EXACTAMENTE: "SUSTITUIR [líneas X a Y] por [este nuevo código]"
+- El cambio será autocontenido, sin instrucciones de "mantener código anterior"
+- **Esperaré confirmación** de implementación
+
+**ESCENARIO C - Archivo muy grande:**
+- Te propondré dividir el trabajo en partes manejables
+- **Cada parte por separado** con su propia confirmación
+- Priorizaremos eliminar código no utilizado primero
+
+### **FASE 5: DOCUMENTACIÓN FINAL**
+1. Tras confirmación de cambios implementados
+2. Te enviaré la NUEVA versión completa del archivo modificado
+3. Actualizaré el fichero MD con estructura actualizada
+4. **Esperaré tu validación** final
+
+## **REGLAS TÉCNICAS OBLIGATORIAS**
+1. **CamelCase estricto** para variables/funciones
+2. **Preparado para traducción** desde el diseño
+3. **Sin código redundante** o duplicado
+4. **Eliminación proactiva** de código no utilizado
+5. **Instrucciones claras** y autocontenidas
+6. **Para campos numéricos de texto**: Validación JS, no atributos HTML conflictivos
+
+## **CONFIRMACIÓN EN CADA INTERACCIÓN**
+Después de cada propuesta o pregunta, mi mensaje incluirá:
+- "¿He entendido correctamente [resumen]?"
+- O: "¿Puedo proceder con [acción específica]?"
+- **Y esperaré tu respuesta antes de continuar**
