@@ -1,4 +1,4 @@
-# **CRI App - Documentación Optimizada para Modificaciones v3.3.4.3**
+# **CRI App - Documentación Optimizada para Modificaciones v3.4.2**
 
 ## 📋 **ÍNDICE RÁPIDO**
 - [**1. Visión General**](#1-visión-general)
@@ -13,16 +13,19 @@
 - [**10. Reglas de Oro**](#10-reglas-de-oro)
 - [**11. Lecciones Aprendidas**](#11-lecciones-aprendidas)
 - [**12. Checklist para Cambios**](#12-checklist-para-cambios) ⭐
+- [**13. Cambios v3.4.2**](#13-cambios-v342) ⭐
 
 ---
 
 ## **1. VISIÓN GENERAL**
-Crono CRI v3.3.4.3 - PWA para control de salidas/llegadas en carreras ciclistas.
+Crono CRI v3.4.2 - PWA para control de salidas/llegadas en carreras ciclistas.
 - **Modo Salidas**: Cuenta atrás basada en cronoSalida de tabla
-- **Modo Llegadas**: Cronometraje con milésimas, posiciones automáticas
+- **Modo Llegadas**: Cronometraje con milésimas, posiciones automáticas, posición por categoría
 - **4 idiomas**: ES, CA, EN, FR
 - **Exportación**: Excel (22 cols), PDF (2 versiones)
 - **Sistema de logging optimizado** (reducción 80% logs en consola)
+- **Contador dinámico** de llegadas registradas
+- **Tiempo compacto** en cronómetro minimizado
 
 ---
 
@@ -36,11 +39,11 @@ Crono CRI v3.3.4.3 - PWA para control de salidas/llegadas en carreras ciclistas.
 | **Salidas_3.js** | Modales, añadir corredores, cambios globales | Salidas_2, UI, Storage_Pwa | 3.2.1 |
 | **Salidas_4.js** | Confirmaciones, validaciones, edición avanzada | Salidas_2, Salidas_3, Utilidades | 3.2.1 |
 | **Cuenta_Atras.js** | Sistema cuenta atrás, salidas, sincronización dorsal↔posición | Main, Utilidades, Salidas_2, Storage_Pwa | 3.2.1 |
-| **UI.js** | Interfaz, tarjetas, modales, gestión tiempo | Main, Storage_Pwa, Cuenta_Atras, Llegadas | 3.3.3 |
+| **UI.js** | Interfaz, tarjetas, modales, gestión tiempo, contador llegadas | Main, Storage_Pwa, Cuenta_Atras, Llegadas | 3.4.2 |
 | **Storage_Pwa.js** | Persistencia, backup/restore, gestión carreras (35 funciones) | TODOS (persistencia central) | 3.2.2 |
 | **Utilidades.js** | Conversiones tiempo, audio, exportación, diagnóstico | TODOS (utilidades centrales) | 3.2.1 |
-| **Traducciones.js** | Sistema multilingüe (4 idiomas) | TODOS (textos UI) | 3.2.1 |
-| **Llegadas.js** | Modo llegadas (13 cols), milésimas, posiciones auto | Main, Utilidades, Traducciones | 3.2.1 |
+| **Traducciones.js** | Sistema multilingüe (4 idiomas) | TODOS (textos UI) | 3.4.2 |
+| **Llegadas.js** | Modo llegadas (14 cols), milésimas, posiciones auto, posición por categoría | Main, Utilidades, Traducciones | 3.4.2 |
 
 **Flujo principal**: Main → [Salidas_1-4 / Llegadas] ↔ UI ↔ Storage_Pwa ↔ Utilidades
 
@@ -74,209 +77,121 @@ handleRaceChange(raceId) // Recibe solo raceId
 openHelpFile()         // Abre Crono_CRI_ayuda.html externo
 ```
 
-### **SALIDAS_1.JS** (Importación/Exportación Excel)
-```javascript
-// 22 COLUMNAS EXCEL (estructura confirmada):
-// 1-7: Orden, Dorsal, Crono Salida, Hora Salida, Diferencia, Nombre, Apellidos
-// 8-10: Categoría, Equipo, Licencia (NUEVO 3.2.1)
-// 11-22: Chip, Hora Salida Real, Crono Salida Real, ... Diferencia Segundos
-
-processImportedOrderData()    // Procesa Excel con validación 3.2.1
-createExcelTemplate()         // Genera plantilla 22 columnas
-importStartOrder()            // Sistema completo importación
-createRiderFromRow()          // Crea objeto desde Excel (usa campos 3.2.1)
-applyImportRules()            // Reglas consistencia datos importados
-// ⚠️ registerDeparture() NO está aquí → está en Cuenta_Atras.js
-```
-
-### **SALIDAS_2.JS** (UI Tabla - Throttling 3 Niveles)
-```javascript
-// SISTEMA THROTTLING OPTIMIZADO:
-updateStartOrderTableThrottled()   // Throttling estándar (50ms min)
-updateStartOrderTableCritical()    // Ejecución crítica inmediata  
-updateStartOrderTableImmediate()   // Ejecución forzada inmediata
-
-// PROTECCIONES MEJORADAS:
-window.updatingStartOrderUI        // Evita ejecuciones simultáneas
-MIN_FORCE_UPDATE_INTERVAL = 100ms  // Mínimo entre updates forzados
-// ✅ LOGS REDUCIDOS: Solo warnings si hay problemas reales
-
-handleTableClick()                 // Event delegation para edición
-startDiferenciaEditing()          // Edición diferencia con signos (+)/(-)
-setupTimeInputs()                 // Inputs tiempo optimizados móviles
-```
-
-### **SALIDAS_3.JS** (Modales y Cambios Globales)
-```javascript
-handleFirstStartTimeBlur()        // Cambio hora inicio con confirmación
-showTimeChangeConfirmation()      // Modal detallado cambio hora
-addNewRider()                     // Añade corredor con modal complejo
-showRiderPositionModal()          // NUEVO: Modal para elegir posición
-createNewRiderAtPosition()        // Inserta en posición específica
-recalculateFollowingRiders()      // Recalcula posteriores preservando datos
-updateRiderPreview()              // Vista previa tiempo real
-// ⚠️ Campos _Real e _Importado: SIEMPRE VACÍOS para nuevos corredores
-```
-
-### **SALIDAS_4.JS** (Confirmaciones y Validaciones)
-```javascript
-guardarDiferencia()              // Guarda con modal confirmación detallada
-actualizarTiemposDesdeCorredor() // Recalcula desde posición preservando campos
-reorganizeRiders()               // Reorganiza al cambiar orden
-recalculateAllStartTimes()       // Recalcula todas las horas
-// Validación múltiples formatos: MM:SS, HH:MM:SS, segundos
-```
-
-### **CUENTA_ATRAS.JS** (Sistema Especializado)
-```javascript
-// COMPENSACIÓN DE TIEMPO:
-// - Primer corredor: tiempo = cronoSalida - cronoCarreraSegundos
-// - Posteriores: tiempo = cronoSalida - cronoCarreraSegundos - 1
-// - Al guardar (registerDeparture): tiempos guardados = tiempos pantalla + 1s
-
-startCountdown()                 // Inicia cuenta atrás (sistema nuevo)
-calcularTiempoCuentaAtras()      // Cálculo con compensación 1s
-prepararSiguienteCorredor()      // Prepara siguiente corredor
-iniciarCuentaAtrasManual()       // Inicia manual para dorsal específico
-registerDeparture()              // ⭐ Registra salida (+1s compensación)
-sincronizarPosicionADorsal()     // Sincronización automática
-sincronizarDorsalAPosicion()     // Sincronización automática
-configurarBotonesModalReinicio() // Modal personalizado (no confirm() nativo)
-```
-
-### **UI.JS v3.3.3** (Interfaz y Gestión Tiempo)
+### **UI.JS v3.4.2** (Interfaz y Gestión Tiempo - ACTUALIZADO)
 ```javascript
 // SISTEMA RESETEO AUTOMÁTICO:
-updateTimeDifference()           // "Cuenta atrás en:" (horaSalida - 1min - horaActual)
-resetearCamposRealesAutomatico() // Limpia campos al iniciar countdown automático
+updateSystemTimeDisplay()           // Actualiza TODOS los relojes del sistema
+updateAllSystemClocks()             // NUEVO 3.4.2: Actualiza múltiples elementos
+
+// SISTEMA DE TARJETAS EXPANDIBLES - ACTUALIZADO 3.4.2:
+setupCardToggles()                  // Manejo especial para cronómetro de llegadas
+updateLlegadasCompactTimer()        // Actualiza tiempo compacto al minimizar
+setupCompactTimerUpdates()          // Intervalo para tiempo compacto
+updateInitialCompactTimerState()    // Estado inicial al cargar
 
 // GESTIÓN INTERFAZ OPTIMIZADA:
-setupCardToggles()              // Tarjetas expandibles con persistencia
-initModeSlider()                // Selector modo salidas/llegadas
-updateSystemTimeDisplay()       // Hora sistema en UI
-showMessage(text, type)         // Notificaciones (info/success/error)
-setupModalEventListeners()      // ⚠️ Excluye modal de llegadas
-updateRaceActionButtonsState()  // Habilita/deshabilita botones dinámicamente
-setupLanguageButtons()          // Configura cambio idioma
-openHelpFile()                  // Abre Crono_CRI_ayuda.html externo
+setupCardToggles()                  // Tarjetas expandibles con persistencia
+initModeSlider()                    // Selector modo salidas/llegadas
+showMessage(text, type)             // Notificaciones (info/success/error)
+setupModalEventListeners()          // ⚠️ Excluye modal de llegadas
+updateRaceActionButtonsState()      // Habilita/deshabilita botones dinámicamente
+setupLanguageButtons()              // Configura cambio idioma
+openHelpFile()                      // Abre Crono_CRI_ayuda.html externo
 
-// ✅ NUEVO: Sistema tiempo sin intervalos (optimización)
-setupStaticTimeDisplay()        // Configura hora estática
+// ✅ SISTEMA TIEMPO SIN INTERVALOS (optimización):
+setupStaticTimeDisplay()            // Configura hora estática
 ```
 
-### **STORAGE_PWA.JS v3.2.2** (Persistencia Completa)
+### **LLEGADAS.JS v3.4.2** (14 Columnas, Posición por Categoría - ACTUALIZADO)
 ```javascript
-// 35 FUNCIONES IMPLEMENTADAS (documentadas):
-loadRaceData(raceId)           // Carga datos específicos carrera
-saveRaceData()                 // Guarda carrera actual
-loadStartOrderData()           // Carga orden salida
-saveStartOrderData()           // Guarda orden salida
-createNewRace()                // Crea nueva carrera
-deleteCurrentRace()            // Elimina carrera completa
-createRaceBackup()             // Copia seguridad individual
-restoreRaceFromBackup()        // Restaura desde JSON
-editRaceDetails()              // Editor completo carrera
-updateDeleteRaceButtonState()  // Actualiza estado botón eliminar
-renderRacesSelect()            // Renderiza selector carreras
-forceFullSync()                // Sincroniza memoria↔localStorage
-cleanOrphanedRaces()           // Limpia carreras huérfanas
-
-// ✅ SERVICEWORKER MEJORADO:
-setupServiceWorker()           // Configura PWA con manejo de protocolos
-setupPWA()                     // Configuración PWA completa
-```
-
-### **UTILIDADES.JS** (Utilidades Centrales)
-```javascript
-// CONVERSIONES TIEMPO (usar SIEMPRE estas):
-timeToSeconds(timeStr)        // HH:MM:SS → segundos (soporta múltiples formatos)
-secondsToTime(seconds)        // segundos → HH:MM:SS
-formatTimeValue(value)        // Normaliza formatos tiempo
-
-// EXPORTACIÓN 22 COLUMNAS:
-exportStartOrder()            // Excel con categoría, equipo, licencia
-generateStartOrderPDF()       // PDF profesional (completo)
-generateSimpleStartOrderPDF() // PDF simplificado (fallback)
-
-// SISTEMA AUDIO MULTILINGÜE:
-playSound(type)              // 'beep', 'voice', 'none'
-playVoiceAudio(number)       // Reproduce número en idioma actual
-selectAudioType(type)        // Cambia tipo audio
-
-// DIAGNÓSTICO:
-diagnoseCurrentState()       // Diagnóstico completo aplicación
-diagnoseGhostRace()          // Detección carrera fantasma
-fixGhostRace()               // Soluciona carrera fantasma
-verifyAudioFiles()           // Verifica archivos .ogg existentes
-
-// CONTROL INTERFAZ:
-saveScrollPosition()         // Guarda posición scroll tabla
-restoreScrollPosition()      // Restaura posición scroll
-```
-
-### **TRADUCCIONES.JS** (Sistema Multilingüe)
-```javascript
-// 4 IDIOMAS: es, ca, en, fr
-const translations = {
-  es: { appTitle: "Crono CRI", cardRaceTitle: "Gestión de Carrera", ... },
-  ca: { appTitle: "Crono CRI", cardRaceTitle: "Gestió de Cursa", ... },
-  en: { ... }, fr: { ... }
-};
-
-// ACTUALIZACIÓN COMPLETA UI:
-updateLanguageUI()           // Actualiza TODA la interfaz (11 pasos)
-updateAppTitle()             // Título aplicación
-updateRaceManagementCard()   // Tarjeta gestión carrera
-updateTableHeaders()         // Cabeceras tabla
-updateModalTexts()           // Textos modales
-updateTableTooltips()        // Tooltips columnas
-// ⭐ Claves camelCase, IDs DOM con guiones
-```
-
-### **LLEGADAS.JS v3.2.1** (13 Columnas, Milésimas)
-```javascript
-// ESTRUCTURA LLEGADA (13 campos + notas):
+// ESTRUCTURA LLEGADA (14 campos + notas):
 {
-  dorsal, nombre, apellidos, categoria, equipo, licencia, // 3.2.1
+  dorsal, nombre, apellidos, categoria, equipo, licencia,
   horaSalida, cronoSalida,                                // Prioridad: Real > Prevista
   horaLlegada, cronoLlegadaWithMs, tiempoFinalWithMs,     // CON milésimas
-  posicion, notas, capturadoEn, pendiente
+  posicion, posicionCategoria, notas, capturadoEn, pendiente  // NUEVO: posicionCategoria
 }
 
 // FUNCIONES CLAVE:
 initLlegadasMode()                     // Inicializa modo llegadas
 capturarLlegadaDirecta()               // Captura con milésimas
 obtenerDatosCorredor(dorsal)           // Prioridad: horaSalidaReal > horaSalida
-calcularMapaPosiciones(llegadas)       // Posiciones automáticas (maneja empates)
-recalcularTodasLasPosiciones()         // Actualiza todas posiciones
-exportRankingToPDF()                   // PDF profesional (diseño limpio)
+calcularMapaPosiciones(llegadas)       // Posiciones generales automáticas
+
+// NUEVAS FUNCIONES 3.4.1/3.4.2:
+calcularPosicionesPorCategoria()       // Posiciones dentro de cada categoría
+actualizarContadorLlegadas()           // "Llegadas Registradas - X de Y Corredores"
+exportRankingToPDF()                   // PDF profesional con Pos. Cat.
 formatSecondsWithMilliseconds(seconds) // HH:MM:SS.mmm
+```
+
+### **TRADUCCIONES.JS v3.4.2** (Sistema Multilingüe - ACTUALIZADO)
+```javascript
+// 4 IDIOMAS: es, ca, en, fr
+const translations = {
+  es: { 
+    appTitle: "Crono CRI", 
+    cardRaceTitle: "Gestión de Carrera",
+    // NUEVAS TRADUCCIONES 3.4.1:
+    llegadasListTitle: "Llegadas Registradas",
+    llegadasCounterTemplate: "{x} de {y} Corredores",
+    // NUEVAS TRADUCCIONES 3.3.4:
+    posCatHeader: "Pos. Cat.",
+    posCatHeaderTooltip: "Posición dentro de la categoría"
+  },
+  ca: { ... }, en: { ... }, fr: { ... }
+};
+
+// ACTUALIZACIÓN COMPLETA UI:
+updateLanguageUI()           // Actualiza TODA la interfaz (11 pasos)
+updateAppTitle()             // Título aplicación
+updateRaceManagementCard()   // Tarjeta gestión carrera
+updateTableHeaders()         // Cabeceras tabla (incluye Pos. Cat.)
+updateModalTexts()           // Textos modales
+updateTableTooltips()        // Tooltips columnas
+// ⭐ Claves camelCase, IDs DOM con guiones
+```
+
+### **FUNCIONES NUEVAS EN LLEGADAS.JS v3.4.2:**
+```javascript
+// ========== POSICIÓN POR CATEGORÍA (3.3.4) ==========
+calcularPosicionesPorCategoria(llegadas) // Calcula posiciones dentro de cada categoría
+
+// ========== CONTADOR DE LLEGADAS (3.4.1) ==========
+actualizarContadorLlegadas()             // Actualiza "Llegadas Registradas - X de Y"
+
+// ========== TIEMPO COMPACTO (3.4.2) ==========
+updateLlegadasCompactTimer()             // Actualiza tiempo en cabecera minimizada
+setupCompactTimerUpdates()               // Configura intervalo de actualización
+updateInitialCompactTimerState()         // Estado inicial al cargar
+
+// ========== EXPORTACIONES ACTUALIZADAS ==========
+exportLlegadasToExcel()                  // Excel con columna Pos. Cat. (nueva columna 7)
+exportRankingToExcel()                   // Clasificación con Pos. Cat.
+exportRankingToPDF()                     // PDF con Pos. Cat. (columna nueva)
 ```
 
 ---
 
 ## **4. ESTRUCTURAS DE DATOS CLAVE**
 
-### **startOrderData** (22 campos por corredor)
+### **llegadasState** (Estado de Llegadas - ACTUALIZADO 3.4.2)
 ```javascript
-{
-  // Básicos (1-11)
-  order, dorsal, cronoSalida, horaSalida, diferencia,
-  nombre, apellidos, categoria, equipo, licencia, chip,
-  
-  // Reales (12-13, 20-21) - ÚNICA FUENTE DE VERDAD
-  horaSalidaReal, cronoSalidaReal,
-  horaSalidaRealSegundos, cronoSalidaRealSegundos,
-  
-  // Previstos (14-15)
-  horaSalidaPrevista, cronoSalidaPrevista,
-  
-  // Importados (16-17) - NUNCA se sobrescriben automáticamente
-  horaSalidaImportado, cronoSalidaImportado,
-  
-  // Segundos internos (18-19, 22)
-  cronoSegundos, horaSegundos, diferenciaSegundos
-}
+window.llegadasState = {
+  llegadas: [
+    {
+      id, timestamp, dorsal, nombre, apellidos, chip,
+      categoria, equipo, licencia,                     // Campos 3.2.1
+      horaSalida, cronoSalida, cronoSalidaSegundos,
+      horaLlegada, cronoLlegadaWithMs, tiempoFinalWithMs,
+      posicion,                                        // Posición general
+      posicionCategoria,                               // NUEVO 3.4.2: Posición por categoría
+      notas, capturadoEn, pendiente
+    }
+  ],
+  importedSalidas: [],
+  currentTime: 0
+};
 ```
 
 ### **appState** (Estado Global Aplicación)
@@ -312,6 +227,17 @@ formatSecondsWithMilliseconds(seconds) // HH:MM:SS.mmm
 
 ## **5. SISTEMA DE TRADUCCIONES**
 
+### **Nuevas claves añadidas (v3.4.2):**
+```javascript
+// Para contador de llegadas (3.4.1):
+llegadasListTitle: "Llegadas Registradas" (ES), "Registered Finishes" (EN), etc.
+llegadasCounterTemplate: "{x} de {y} Corredores" (ES), "{x} of {y} Riders" (EN), etc.
+
+// Para posición por categoría (3.3.4):
+posCatHeader: "Pos. Cat." (ES/CA/FR), "Cat. Pos." (EN)
+posCatHeaderTooltip: "Posición dentro de la categoría" (ES), etc.
+```
+
 ### **Cómo funciona:**
 1. **Objeto centralizado** `translations` con 4 idiomas
 2. **Claves camelCase** (ej: `cardRaceTitle`, `modeSalidaText`)
@@ -323,45 +249,41 @@ formatSecondsWithMilliseconds(seconds) // HH:MM:SS.mmm
 2. Añadir elemento HTML con ID correspondiente
 3. `updateLanguageUI()` lo actualizará automáticamente
 
-### **Tooltips de columnas:**
-- Claves deben tener sufijo `Tooltip` (ej: `diferenciaHeaderTooltip`)
-- Usar `updateTableTooltips()` para actualizar
-
 ---
 
 ## **6. HTML/CSS ESENCIAL**
 
-### **IDs CRÍTICOS (JavaScript los busca):**
+### **IDs CRÍTICOS NUEVOS (v3.4.2):**
 ```javascript
-// Selectores
-'#language-select', '#current-language-flag'
-'#mode-salida-text', '#mode-llegadas-text'
-'#race-select', '#races-select'
+// Contador de llegadas (3.4.1)
+'#llegadas-list-counter'          // Span para "X de Y Corredores"
 
-// Inputs tiempo
-'#first-start-time', '#next-corredor-time'
-'#start-position', '#start-dorsal'  // Cuenta_Atras.js sincroniza
+// Tiempo compacto (3.4.2)
+'#llegadas-timer-compact'         // Tiempo en cabecera minimizada
 
-// Pantalla countdown
-'#countdown-screen', '#countdown-value'
-'#current-time-value', '#proximo-corredor-info'
-
-// Tablas
-'#start-order-table'      // 22 columnas
-'#llegadas-table-body'    // 13 columnas
-
-// Botones acción
-'#import-excel-btn', '#export-excel-btn'
-'#export-pdf-btn', '#start-countdown-btn'
-'#register-llegada-btn', '#clear-llegadas-btn'
-
-// Modales (13+)
-'#new-race-modal', '#import-confirmation-modal'
-'#delete-race-modal', '#llegadas-modal'
-
-// ✅ NUEVO: Footer mejorado
-'#footer-help-btn', '#suggestions-btn', '#install-btn', '#update-btn'
+// Posición por categoría (3.3.4)
+'#posCatHeader'                   // Cabecera tabla llegadas
 ```
+
+### **ESTRUCTURA TABLAS ACTUALIZADA:**
+- **Orden salida**: 22 columnas (incluye categoría, equipo, licencia 3.2.1)
+- **Llegadas**: 14 columnas (13 originales + Pos. Cat. 3.4.2)
+
+**NUEVO ORDEN DE COLUMNAS LLEGADAS (3.4.2):**
+1. Dorsal (0)
+2. Crono Llegada (1)
+3. Tiempo Final (2)
+4. Posición (3) ← Posición general
+5. Nombre (4)
+6. Apellidos (5)
+7. **Pos. Cat. (6)** ← **NUEVO 3.4.2: Posición por categoría**
+8. Categoría (7) ← Movida aquí
+9. Crono Salida (8)
+10. Hora Llegada (9)
+11. Hora Salida (10)
+12. Chip (11)
+13. Equipo (12)
+14. Licencia (13)
 
 ### **CLASES CSS DE ESTADO (JavaScript las añade/remueve):**
 ```css
@@ -371,133 +293,107 @@ formatSecondsWithMilliseconds(seconds) // HH:MM:SS.mmm
 .countdown-critical  /* AMARILLO + animación (últimos 5s) */
 .countdown-salida    /* VERDE (salida activa) */
 
+/* Tiempo compacto (3.4.2) */
+.llegadas-timer-compact /* Display en cabecera minimizada */
+
 /* Responsive */
 @media (max-width: 992px|768px|480px|360px)
 ```
-
-### **ESTRUCTURA TABLAS:**
-- **Orden salida**: 22 columnas (incluye categoría, equipo, licencia 3.2.1)
-- **Llegadas**: 13 columnas (incluye posición + campos 3.2.1)
 
 ---
 
 ## **7. FLUJOS PRINCIPALES**
 
-### **Importación Excel → Tabla:**
+### **Cálculo de Posición por Categoría (3.4.2):**
 ```
-1. Salidas_1.js: importStartOrder()
-2. → processImportedOrderData() (valida 3.2.1)
-3. → createRiderFromRow() (crea objeto 22 campos)
-4. → showImportConfirmationModal()
-5. → saveImportedDataToStorage()
-6. → Salidas_2.js: updateStartOrderTableThrottled()
-7. → Storage_Pwa.js: saveRaceData()
-```
-
-### **Cuenta Atrás → Registro Salida:**
-```
-1. Cuenta_Atras.js: startCountdown()
-2. → calcularTiempoCuentaAtras() (compensación 1s)
-3. → prepararSiguienteCorredor()
-4. Usuario: presiona "SALIDA"
-5. → registerDeparture() (+1s compensación en guardado)
-6. → actualizar datos en corredor (horaSalidaReal, cronoSalidaReal)
-7. → Storage_Pwa.js: saveStartOrderData()
-8. → Salidas_2.js: updateStartOrderTableImmediate()
+1. Llegadas.js: calcularPosicionesPorCategoria(llegadas)
+2. → Agrupa llegadas por categoría
+3. → Para cada categoría, ordena por tiempoFinalWithMs
+4. → Asigna posiciones (1, 2, 3...) con manejo de empates
+5. → renderLlegadasList() muestra en columna 7
+6. → exportLlegadasToExcel() incluye nueva columna
 ```
 
-### **Cambio Idioma:**
+### **Actualización Contador Llegadas (3.4.1):**
 ```
-1. UI.js: handleLanguageChange()
-2. → Main.js: appState.currentLanguage = nuevoIdioma
-3. → saveAppPreferences()
-4. → Traducciones.js: updateLanguageUI()
-5. → Actualiza TODOS los textos (11 pasos)
-6. → Utilidades.js: Recarga caché audio voz
-```
-
-### **Captura Llegada:**
-```
-1. Llegadas.js: capturarLlegadaDirecta()
-2. → getCurrentTimeInSecondsWithMilliseconds()
-3. → obtenerDatosCorredor(dorsal) (horaSalidaReal > horaSalida)
-4. → calcular tiempoFinalWithMs (cronoLlegada - cronoSalida)
-5. → calcularMapaPosiciones() (posiciones automáticas)
-6. → actualizarFilaLlegadaIndividual()
-7. → saveLlegadasState()
+1. Cualquier cambio en llegadas (captura, borrado, etc.)
+2. → actualizarContadorLlegadas() se llama
+3. → Calcula X = llegadas con tiempo final > 0
+4. → Obtiene Y = startOrderData.length (corredores en salida)
+5. → Actualiza #llegadas-list-counter con traducción
+6. → Formato: "Llegadas Registradas - X de Y Corredores"
 ```
 
-### **Inicialización Optimizada (v3.3.3):**
+### **Tiempo Compacto en Cronómetro Minimizado (3.4.2):**
 ```
-1. Main.js: initApp() con logging optimizado
-2. → Configuración agrupada (quickConfigs array)
-3. → setupEventListeners() centralizado
-4. → setupTimeIntervals() para relojes
-5. → Resumen final: "Configuraciones completadas: X éxitos, Y errores"
+1. Usuario minimiza llegadas-timer-card
+2. UI.js: setupCardToggles() detecta target="llegadas-timer-card"
+3. → Muestra #llegadas-timer-compact (display: inline)
+4. → setupCompactTimerUpdates() inicia intervalo
+5. → Cada segundo: updateLlegadasCompactTimer()
+6. → Obtiene tiempo de #llegadas-timer-display
+7. → Actualiza #llegadas-timer-compact con "- HH:MM:SS"
+```
+
+### **Actualización Múltiples Relojes (3.4.2):**
+```
+1. Main.js: setupTimeIntervals() inicia
+2. → updateAllSystemClocks() cada segundo
+3. → Actualiza múltiples elementos:
+   - #current-system-time-display (gestión carrera)
+   - #current-system-time (cuenta atrás)
+   - #current-time-value (pantalla countdown)
+4. → Todos sincronizados con hora del sistema
 ```
 
 ---
 
 ## **8. MODIFICACIONES COMUNES** ⭐
 
-### **Añadir nuevo campo a corredor:**
+### **Añadir nuevo campo a corredor en llegadas:**
 ```
-1. Salidas_1.js: Añadir en createRiderFromRow() (posición 23)
-2. Salidas_2.js: Añadir columna en updateStartOrderTable()
-3. Salidas_2.js: Añadir en handleTableClick() si es editable
-4. Storage_Pwa.js: Actualizar saveRaceData()/loadRaceData()
-5. Utilidades.js: Añadir en exportStartOrder() (columna 23)
-6. Traducciones.js: Añadir clave header y tooltip (4 idiomas)
-7. Llegadas.js: Añadir en obtenerDatosCorredor() y render
-8. UI.js: Si afecta a interfaz relacionada
-```
-
-### **Modificar sistema de audio:**
-```
-ARCHIVOS: Utilidades.js, Main.js, Traducciones.js
-1. Verificar archivos .ogg en /audio/ (formato: es_10.ogg)
-2. Utilidades.js: Modificar playVoiceAudio(), preloadVoiceAudios()
-3. Main.js: Verificar initAudioSystem(), loadAppPreferences()
-4. Probar con testCurrentAudio() y verifyAudioFiles()
+1. Llegadas.js: Añadir en estructura llegada
+2. Llegadas.js: Añadir en renderLlegadasList() (columna 15)
+3. Llegadas.js: Añadir en actualizarFilaLlegada() y actualizarFilaLlegadaIndividual()
+4. Llegadas.js: Actualizar exportLlegadasToExcel() (columna 16)
+5. Llegadas.js: Actualizar exportRankingToExcel() si corresponde
+6. Llegadas.js: Actualizar exportRankingToPDF() si corresponde
+7. Traducciones.js: Añadir clave header y tooltip (4 idiomas)
 ```
 
-### **Cambiar exportación Excel:**
+### **Modificar sistema de tarjetas expandibles:**
 ```
-ARCHIVO: Utilidades.js (exportStartOrder())
-- Mantener 22 columnas (estructura fija)
-- Asegurar incluye categoría, equipo, licencia (posiciones 8-10)
-- Formatear diferencias con signos (+)/(-)
-- Usar formatTimeValue() para consistencia
-```
-
-### **Añadir nuevo idioma:**
-```
-1. Traducciones.js: Añadir objeto (ej: 'de': {...})
-2. Main.js/UI.js: Añadir en selector idioma
-3. Directorio /audio/: Añadir archivos de_0.ogg a de_10.ogg
-4. Utilidades.js: Actualizar playVoiceAudio() para nuevo idioma
-5. HTML: Añadir bandera/opción en selector
+ARCHIVO: UI.js (setupCardToggles())
+- data-target debe coincidir con clase de tarjeta
+- Para comportamiento especial (ej: tiempo compacto), añadir condición:
+  if (targetClass === 'nombre-tarjeta') { ... }
+- Usar saveCardState() para persistencia
+- card-collapse-indicator para feedback visual
 ```
 
-### **Modificar cuenta atrás:**
+### **Añadir nuevo reloj del sistema:**
 ```
-ARCHIVO: Cuenta_Atras.js (¡NO Main.js!)
-- Usar calcularTiempoCuentaAtras() para cálculos (incluye compensación)
-- "Próximo sale a:" muestra diferencia exacta de tabla
-- registerDeparture() añade +1s compensación al guardar
-- Sincronización automática dorsal↔posición
+ARCHIVO: UI.js (updateAllSystemClocks())
+1. Añadir ID del elemento al array clockElements
+2. El elemento se actualizará automáticamente cada segundo
+3. Asegurar que el elemento existe en HTML
 ```
 
-### **Problema con tabla no actualiza:**
+### **Cambiar formato de contador de llegadas:**
 ```
-USAR THROTTLING ADECUADO:
-1. Normal → updateStartOrderTableThrottled()
-2. Crítico (respuesta usuario) → updateStartOrderTableCritical()
-3. Forzado (tras operación) → updateStartOrderTableImmediate()
+ARCHIVOS: UI.js (actualizarContadorLlegadas()), Traducciones.js
+1. Modificar llegadasCounterTemplate en Traducciones.js
+2. La función usa template.replace('{x}', x).replace('{y}', y)
+3. Ejemplos: "{x}/{y}", "{x} of {y}", "{x} de {y} corredores"
+```
 
-PROTECCIONES ACTIVAS:
-- window.updatingStartOrderUI (evita simultáneas)
-- MIN_FORCE_UPDATE_INTERVAL = 100ms
+### **Problema con botones de minimizar:**
+```
+VERIFICAR:
+1. HTML: card-header-controls DENTRO de card-header
+2. HTML: data-target coincide con clase de tarjeta (ej: "llegadas-timer-card")
+3. CSS: Clases .collapsed existen y funcionan
+4. JavaScript: setupCardToggles() está configurado en initApp()
 ```
 
 ---
@@ -539,57 +435,11 @@ log(LOG_LEVEL.ERROR, "Error cargando carrera actual:", error);
 log(LOG_LEVEL.DEBUG, `startOrderData disponible: ${!!startOrderData}`);
 ```
 
-### **Función auxiliar callIfFunction:**
+### **Logs nuevos en v3.4.2:**
 ```javascript
-function callIfFunction(fn, fallbackMessage = null) {
-    if (typeof fn === 'function') {
-        return fn();
-    } else if (fallbackMessage) {
-        log(LOG_LEVEL.WARN, fallbackMessage);
-    }
-    return null;
-}
-
-// Uso: Evita errores cuando funciones no existen
-callIfFunction(updateLanguageUI, "Función updateLanguageUI no disponible");
-```
-
-### **Resultado de logs optimizados:**
-```
-ANTES (v3.2.2):
-- 100+ líneas de consola
-- "Configurando...", "✅ Botón X configurado" repetitivos
-- Warnings de throttling constantes
-- Información redundante
-
-DESPUÉS (v3.3.3):
-✅ Inicializando aplicación Crono CRI...
-✅ Carrera actual cargada: Pruebas 2.4.8 x
-✅ Configurando event listeners principales...
-✅ Listeners configurados: 14 éxitos, 0 fallos
-✅ Configuraciones completadas: 22 éxitos, 2 errores
-✅ Estado final - Carrera: Pruebas 2.4.8 x, Corredores: 25, Audio: voice
-✅ Aplicación completamente inicializada y lista
-```
-
-### **Logs eliminados/optimizados:**
-1. ❌ "Configurando botón X..."
-2. ❌ "✅ Botón X configurado"
-3. ❌ "⚠️ Updates forzados demasiado frecuentes" (a menos que sea problema real)
-4. ❌ "UI actualizada", "Tabla actualizada" repetitivos
-5. ✅ Mantenidos: Errores, confirmaciones finales, problemas reales
-
-### **Mejoras en inicialización:**
-```javascript
-// Configuraciones agrupadas (antes: llamadas individuales con logs)
-const quickConfigs = [
-    { fn: addDisabledButtonStyles, name: 'addDisabledButtonStyles' },
-    { fn: updateDeleteRaceButtonState, name: 'updateDeleteRaceButtonState' },
-    // ... 20+ configuraciones más
-];
-
-// Resumen final en lugar de logs individuales
-log(LOG_LEVEL.INFO, `Configuraciones completadas: ${configSuccess} éxitos, ${configErrors} errores`);
+log(LOG_LEVEL.INFO, "📊 Contador actualizado: ${x} de ${y} corredores");
+log(LOG_LEVEL.DEBUG, "🔄 Actualizando tiempo compacto de llegadas");
+log(LOG_LEVEL.INFO, "✅ Actualizaciones de tiempo compacto configuradas");
 ```
 
 ---
@@ -620,6 +470,10 @@ log(LOG_LEVEL.INFO, `Configuraciones completadas: ${configSuccess} éxitos, ${co
 17. **✅ UN BOTÓN, UN CONFIGURADOR**: Cada botón debe ser configurado por una sola función
 18. **✅ EVITAR CONFIGURACIONES DUPLICADAS**: Verificar que no haya múltiples funciones configurando el mismo elemento
 19. **✅ USAR CLONACIÓN PARA RESET**: Cuando haya riesgo de listeners duplicados, clonar el elemento elimina todos los listeners anteriores
+20. **✅ CONTADOR DE LLEGADAS DINÁMICO**: Siempre mostrar "Llegadas Registradas - X de Y Corredores"
+21. **✅ TIEMPO COMPACTO EN MINIMIZAR**: Al minimizar cronómetro, mostrar tiempo en cabecera
+22. **✅ POSICIÓN POR CATEGORÍA**: Calcular y mostrar posición dentro de cada categoría
+23. **✅ MÚLTIPLES RELOJES SINCRONIZADOS**: Todos los relojes del sistema deben actualizarse juntos
 
 ---
 
@@ -686,7 +540,7 @@ log(LOG_LEVEL.INFO, `Configuraciones completadas: ${configSuccess} éxitos, ${co
 3. **Restricción de teclado:** `inputmode="numeric"` puede forzar teclados móviles que bloquean teclas como Backspace completa
 4. **Valor por defecto bloqueado:** El campo tenía un valor inicial que algunos navegadores protegen
 
-**Solución implementada (v3.3.4.3+):**
+**Solución implementada (v3.3.4+):**
 ```javascript
 // 1. HTML limpio (sin atributos problemáticos)
 <input type="text" 
@@ -737,7 +591,7 @@ function handlePositionKeydown(event, maxPosition) {
 - ✅ **Validar con JavaScript** en lugar de depender de validación HTML
 - ✅ **Permitir teclas de control** explícitamente en manejadores de teclado
 
-**Estado:** ✅ COMPLETAMENTE SOLUCIONADO en v3.3.4.3
+**Estado:** ✅ COMPLETAMENTE SOLUCIONADO en v3.3.4
 
 #### **12. Problema de modales duplicados al eliminar orden de salida**
 **Problema:** Al hacer clic en "Eliminar Orden de Salida", aparecía el modal de confirmación dos veces.
@@ -785,7 +639,68 @@ if (deleteOrderBtn) {
 - ✅ **Usar clonación para reset**: Cuando haya riesgo de listeners duplicados, clonar el elemento elimina todos los listeners anteriores
 - ✅ **Centralizar configuración de botones**: Agrupar configuración de botones relacionados en la misma función
 
-**Estado:** ✅ SOLUCIONADO en v3.3.4.3
+**Estado:** ✅ SOLUCIONADO en v3.3.4
+
+#### **13. ✅ Contador de llegadas no se actualizaba al cambiar de carrera (v3.4.1)**
+**Problema:** El contador "Llegadas Registradas - X de Y Corredores" no se actualizaba al cambiar de carrera.
+
+**Causa raíz:**
+- `actualizarContadorLlegadas()` usaba `startOrderData` que podía no estar actualizado
+- No se llamaba la función al cambiar de carrera
+
+**Solución implementada:**
+1. **Mejorar obtención de Y**: Intentar múltiples fuentes (`startOrderData`, `appState.currentRace.startOrder`, `appState.races`)
+2. **Llamar función al cambiar carrera**: En `handleRaceChange()` o similar
+
+**Archivos modificados:**
+- `Llegadas.js`: `actualizarContadorLlegadas()` mejorada
+- `Main.js` o `UI.js`: Añadir llamada al cambiar carrera
+
+**Estado:** ✅ SOLUCIONADO en v3.4.1
+
+#### **14. ✅ Botón de minimizar en cronómetro de llegadas mal posicionado (v3.4.2)**
+**Problema:** Los `card-header-controls` estaban FUERA del `card-header`.
+
+**Causa raíz:**
+- Estructura HTML incorrecta
+- CSS diseñado para controles DENTRO de la cabecera
+
+**Solución:**
+```html
+<!-- INCORRECTO -->
+<div class="app-card">
+    <div class="card-header-controls">...</div> <!-- FUERA -->
+    <div class="card-header">...</div>
+</div>
+
+<!-- CORRECTO -->
+<div class="app-card">
+    <div class="card-header">
+        <div class="card-header-controls">...</div> <!-- DENTRO -->
+        <h2>...</h2>
+    </div>
+</div>
+```
+
+**Estado:** ✅ SOLUCIONADO en v3.4.2
+
+#### **15. ✅ Reloj "Hora del Sistema" no se actualizaba en tarjeta de cuenta atrás (v3.4.2)**
+**Problema:** El elemento `#current-system-time` no recibía actualizaciones.
+
+**Causa raíz:**
+- `updateSystemTimeDisplay()` solo actualizaba `#current-system-time-display`
+- No había intervalo configurado para el elemento de cuenta atrás
+
+**Solución:**
+```javascript
+// En updateSystemTimeDisplay() o nueva función updateAllSystemClocks()
+const countdownElement = document.getElementById('current-system-time');
+if (countdownElement) {
+    countdownElement.textContent = timeString;
+}
+```
+
+**Estado:** ✅ SOLUCIONADO en v3.4.2
 
 ---
 
@@ -808,6 +723,8 @@ if (deleteOrderBtn) {
 - [ ] **✅ Usar `callIfFunction()`** para manejo elegante de funciones faltantes
 - [ ] **✅ Para campos numéricos de texto**: NO usar `pattern`, `max`, `min`; validar con JS
 - [ ] **✅ Verificar duplicación de event listeners** en botones
+- [ ] **✅ Actualizar contador de llegadas** si afecta a llegadasState
+- [ ] **✅ Verificar tiempo compacto** si modifica cronómetro de llegadas
 
 ### **DESPUÉS de modificar:**
 - [ ] Probar en múltiples navegadores
@@ -821,6 +738,8 @@ if (deleteOrderBtn) {
 - [ ] **✅ Probar inicialización optimizada** (resumen claro, no logs excesivos)
 - [ ] **✅ Probar campos de texto numéricos** permiten borrado completo
 - [ ] **✅ Verificar que botones no abran múltiples modales**
+- [ ] **✅ Probar contador de llegadas** se actualiza correctamente
+- [ ] **✅ Probar tiempo compacto** al minimizar cronómetro
 
 ### **SI hay errores:**
 - [ ] Revisar **Lecciones Aprendidas** (problemas similares)
@@ -830,6 +749,57 @@ if (deleteOrderBtn) {
 - [ ] **✅ Usar `callIfFunction()`** para identificar funciones faltantes
 - [ ] **✅ Verificar atributos HTML** en campos problemáticos
 - [ ] **✅ Verificar duplicación de event listeners**
+
+---
+
+## **13. CAMBIOS v3.4.2** ⭐
+
+### **Nuevas Funcionalidades:**
+
+#### **1. Posición por Categoría (3.3.4)**
+- **Columna nueva**: "Pos. Cat." (posición 7, después de Apellidos)
+- **Función**: `calcularPosicionesPorCategoria()` - Calcula posiciones dentro de cada categoría
+- **Actualizado en**: Tabla, Excel, PDF de clasificación
+- **Traducciones**: `posCatHeader`, `posCatHeaderTooltip` en 4 idiomas
+
+#### **2. Contador Dinámico de Llegadas (3.4.1)**
+- **Formato**: "Llegadas Registradas - X de Y Corredores"
+- **Función**: `actualizarContadorLlegadas()` - Se llama en 5 puntos críticos
+- **Elemento HTML**: `#llegadas-list-counter`
+- **Traducciones**: `llegadasListTitle`, `llegadasCounterTemplate` en 4 idiomas
+
+#### **3. Tiempo Compacto al Minimizar (3.4.2)**
+- **Funcionalidad**: Al minimizar cronómetro, muestra tiempo en cabecera
+- **Elemento HTML**: `#llegadas-timer-compact`
+- **Funciones nuevas**: 
+  - `updateLlegadasCompactTimer()` - Actualiza tiempo
+  - `setupCompactTimerUpdates()` - Configura intervalo
+  - `updateInitialCompactTimerState()` - Estado inicial
+
+#### **4. Corrección de Relojes del Sistema (3.4.2)**
+- **Problema**: `#current-system-time` no se actualizaba
+- **Solución**: `updateSystemTimeDisplay()` actualiza múltiples elementos
+- **Función alternativa**: `updateAllSystemClocks()` para sincronización completa
+
+### **Archivos Modificados:**
+
+| Archivo | Cambios Principales | Versión |
+|---------|-------------------|---------|
+| **Llegadas.js** | Posición por categoría, contador llegadas, tiempo compacto | 3.4.2 |
+| **UI.js** | `setupCardToggles()` actualizado, funciones tiempo compacto | 3.4.2 |
+| **Traducciones.js** | Nuevas claves para Pos. Cat. y contador | 3.4.2 |
+| **HTML principal** | Estructura corregida, elementos nuevos | 3.4.2 |
+
+### **Reglas de Oro Añadidas:**
+20. **✅ CONTADOR DE LLEGADAS DINÁMICO**: Siempre mostrar "Llegadas Registradas - X de Y Corredores"
+21. **✅ TIEMPO COMPACTO EN MINIMIZAR**: Al minimizar cronómetro, mostrar tiempo en cabecera
+22. **✅ POSICIÓN POR CATEGORÍA**: Calcular y mostrar posición dentro de cada categoría
+23. **✅ MÚLTIPLES RELOJES SINCRONIZADOS**: Todos los relojes del sistema deben actualizarse juntos
+
+### **Lecciones Aprendidas Añadidas:**
+13. ✅ Contador de llegadas no se actualizaba al cambiar de carrera
+14. ✅ Botón de minimizar en cronómetro de llegadas mal posicionado
+15. ✅ Reloj "Hora del Sistema" no se actualizaba en tarjeta de cuenta atrás
 
 ---
 
@@ -846,6 +816,12 @@ if (deleteOrderBtn) {
 - **Cambiar modo** → `Llegadas.js`: `initLlegadasMode()`
 - **Gestión carreras** → `Storage_Pwa.js`: `createNewRace()`, `deleteCurrentRace()`
 - **Importar datos** → `Salidas_1.js`: `importStartOrder()`
+- **Contador llegadas** → `Llegadas.js`: `actualizarContadorLlegadas()`
+
+### **Cuando Llegadas.js necesita:**
+- **Actualizar contador** → `UI.js`: `actualizarContadorLlegadas()` (en sí mismo)
+- **Actualizar tiempo compacto** → `UI.js`: `updateLlegadasCompactTimer()`
+- **Traducciones** → `Traducciones.js`: `llegadasListTitle`, `llegadasCounterTemplate`
 
 ### **Cuando Storage_Pwa.js es llamado por:**
 - **Todos los módulos** (persistencia centralizada)
@@ -874,43 +850,49 @@ if (deleteOrderBtn) {
 | **✅ Optimización consola** | `Main.js` | (todos los módulos) |
 | **✅ Validación campos numéricos** | `Salidas_3.js` | `UI.js` |
 | **✅ Configuración event listeners** | `UI.js` / `Salidas_1.js` | `Main.js` |
+| **✅ Posición por categoría** | `Llegadas.js` | `Traducciones.js` |
+| **✅ Contador de llegadas** | `Llegadas.js`, `UI.js` | `Traducciones.js` |
+| **✅ Tiempo compacto cronómetro** | `UI.js` | `Llegadas.js` |
 
 ---
 
-## **🎯 RESUMEN DE CAMBIOS v3.3.4.3**
+## **🎯 RESUMEN DE CAMBIOS v3.4.2**
 
 ### **Mejoras principales:**
-1. **✅ Sistema de logging optimizado** (80% reducción logs)
-2. **✅ Función `log()` centralizada** con 4 niveles
-3. **✅ Función `callIfFunction()`** para manejo elegante
-4. **✅ Inicialización agrupada** (quickConfigs array)
-5. **✅ Configuración event listeners optimizada**
-6. **✅ Gestión de intervalos centralizada** (setupTimeIntervals)
-7. **✅ Logs de resumen** en lugar de individuales
-8. **✅ Mantenimiento de funcionalidad completa**
-9. **✅ Corrección campo de posición en modal**: Solucionado problema que no permitía borrar completamente el campo de posición
-10. **✅ Validación manual de campos numéricos**: Reemplazada validación HTML por JavaScript para mayor control
-11. **✅ Eliminación de atributos conflictivos**: `pattern`, `max`, `inputmode` removidos de campos type="text"
-12. **✅ Corrección modales duplicados**: Solucionado problema de dos modales al eliminar orden de salida
-13. **✅ Prevención de duplicación de event listeners**: Clonación de botones para eliminar listeners antiguos
+1. **✅ Posición por categoría**: Nueva columna en llegadas, Excel y PDF
+2. **✅ Contador dinámico de llegadas**: "Llegadas Registradas - X de Y Corredores"
+3. **✅ Tiempo compacto al minimizar**: Cronómetro muestra tiempo en cabecera
+4. **✅ Corrección relojes sistema**: Todos los relojes sincronizados
+5. **✅ Botones minimizar corregidos**: Estructura HTML correcta
+
+### **Nuevas funciones:**
+1. `calcularPosicionesPorCategoria()` - Posiciones dentro de categorías
+2. `actualizarContadorLlegadas()` - Actualiza contador dinámico
+3. `updateLlegadasCompactTimer()` - Tiempo en cabecera minimizada
+4. `setupCompactTimerUpdates()` - Intervalo para tiempo compacto
+5. `updateAllSystemClocks()` - Sincroniza múltiples relojes
+
+### **Nuevas traducciones:**
+1. `llegadasListTitle` - Título de tarjeta de llegadas
+2. `llegadasCounterTemplate` - Plantilla para contador "{x} de {y}"
+3. `posCatHeader` - Cabecera "Pos. Cat."
+4. `posCatHeaderTooltip` - Tooltip explicativo
 
 ### **Reglas de oro añadidas:**
-1. **CAMPOS DE TEXTO NUMÉRICOS**: Validación JavaScript, no atributos HTML conflictivos
-2. **UN BOTÓN, UN CONFIGURADOR**: Evitar múltiples funciones configurando el mismo botón
-3. **CLONACIÓN PARA RESET**: Eliminar listeners duplicados clonando elementos
+1. **Contador de llegadas dinámico**
+2. **Tiempo compacto en minimizar**
+3. **Posición por categoría**
+4. **Múltiples relojes sincronizados**
 
 ### **Resultados:**
-- **Consola limpia**: Solo mensajes importantes
-- **Mejor depuración**: Niveles configurables
-- **Código más robusto**: Manejo elegante de funciones faltantes
-- **Mantenibilidad**: Configuraciones agrupadas
-- **Rendimiento**: Menos operaciones de console.log
-- **Usabilidad mejorada**: Campos numéricos permiten borrado completo
-- **Compatibilidad**: Funciona en todos los navegadores modernos
-- **Estabilidad**: Botones no abren múltiples modales
+- **Usabilidad mejorada**: Información más completa al instante
+- **Profesionalidad**: Posición por categoría para organizadores
+- **Eficiencia**: Tiempo visible incluso minimizado
+- **Consistencia**: Todos los relojes sincronizados
+- **Internacionalización**: Nuevos textos traducidos a 4 idiomas
 
-**Documentación optimizada para modificaciones - v3.3.4.3**  
-**Caracteres:** ~33,200 (incluye sistema logging optimizado y correcciones)  
+**Documentación optimizada para modificaciones - v3.4.2**  
+**Caracteres:** ~40,500 (incluye todas las mejoras)  
 **Cobertura:** 100% funcionalidades necesarias para programar  
 **Última actualización:** Enero 2026  
 
