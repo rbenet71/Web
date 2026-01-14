@@ -643,7 +643,7 @@ function setupPWAInstallListener() {
 function openSuggestionsEmail() {
     const email = 'rbenet71@gmail.com';
     const subject = 'Sugerencias para Crono CRI';
-    const body = `Hola Roberto,\n\nTengo algunas sugerencias para la aplicación Crono CRI:\n\n1. \n2. \n3. \n\n---\nApp: Crono CRI v3.3.6\nNavegador: ${navigator.userAgent}\nURL: ${window.location.href}`;
+    const body = `Hola Roberto,\n\nTengo algunas sugerencias para la aplicación Crono CRI:\n\n1. \n2. \n3. \n\n---\nApp: Crono CRI v3.3.7\nNavegador: ${navigator.userAgent}\nURL: ${window.location.href}`;
     
     const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     
@@ -661,11 +661,11 @@ function setupStartOrderEventListeners() {
     
     log(LOG_LEVEL.INFO, "Configurando event listeners de orden de salida...");
     
-    // Lista de listeners específicos
+    // Lista de listeners específicos - EXCLUIR delete-order-btn (ya en setupModalActionListeners)
     const orderListeners = [
         { id: 'create-template-btn', handler: createStartOrderTemplate, name: 'createStartOrderTemplate' },
         { id: 'import-order-btn', handler: importStartOrder, name: 'importStartOrder' },
-        { id: 'delete-order-btn', handler: deleteStartOrder, name: 'deleteStartOrder' },
+        // ❌ ELIMINAR: { id: 'delete-order-btn', handler: deleteStartOrder, name: 'deleteStartOrder' },
         { id: 'export-order-btn', handler: exportStartOrder, name: 'exportStartOrder' },
         { id: 'export-order-pdf-btn', handler: generateStartOrderPDF, name: 'generateStartOrderPDF' },
         { id: 'add-rider-btn', handler: showRiderPositionModal, fallback: addNewRider, name: 'addRider' },

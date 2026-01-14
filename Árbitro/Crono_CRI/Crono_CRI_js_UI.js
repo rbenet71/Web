@@ -1075,315 +1075,7 @@ function debugModalButtons() {
 // ============================================
 // FUNCIONES DE ACCIONES DE MODALES
 // ============================================
-// ============================================
-// CONFIGURAR LISTENERS DE ACCIONES DE MODALES
-// ============================================
-function setupModalActionListeners() {
 
-    
-    // Verificar si ya se configuró
-    if (window.modalActionListenersConfigured) {
-        console.log("Listeners de acciones de modales ya configurados");
-        return;
-    }
-
-    // Marcar como configurado inmediatamente
-    window.modalActionListenersConfigured = true;
-    
-    // 1. Botón de crear carrera
-    const createRaceBtn = document.getElementById('create-race-btn');
-    if (createRaceBtn) {
-        
-        // Remover listener anterior si existe
-        createRaceBtn.removeEventListener('click', handleCreateRace);
-        
-        // Definir handler
-        function handleCreateRace(e) {
-            e.preventDefault();
-            console.log("Crear carrera clickeado");
-            
-            // Verificar que la función existe
-            if (typeof createNewRace === 'function') {
-                console.log("✅ Llamando a createNewRace()");
-                createNewRace();
-            } else {
-                console.error("❌ Función createNewRace no disponible");
-                const t = translations[appState.currentLanguage];
-                showMessage(t.errorCreatingRace || 'Error creando carrera', 'error');
-            }
-        }
-        
-        // Añadir listener
-        createRaceBtn.addEventListener('click', handleCreateRace);
-        
-        // Guardar referencia para poder removerla después
-        window.handleCreateRace = handleCreateRace;
-    } else {
-        console.log("⚠️ create-race-btn no encontrado");
-    }
-    
-    // 2. Botón de cancelar creación de carrera
-    const cancelCreateRaceBtn = document.getElementById('cancel-create-race-btn');
-    if (cancelCreateRaceBtn) {
-        cancelCreateRaceBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log("Cancelar creación de carrera clickeado");
-            document.getElementById('new-race-modal').classList.remove('active');
-        });
-    }
-    
-    // 3. Botón de confirmar eliminación de carrera
-    const deleteRaceConfirmBtn = document.getElementById('delete-race-confirm-btn');
-    if (deleteRaceConfirmBtn) {
-        
-        // Remover listener anterior si existe
-        deleteRaceConfirmBtn.removeEventListener('click', handleDeleteRaceConfirm);
-        
-        // Definir handler
-        function handleDeleteRaceConfirm(e) {
-            e.preventDefault();
-            console.log("Confirmar eliminación de carrera clickeado");
-            
-            // Verificar que la función existe
-            if (typeof deleteCurrentRace === 'function') {
-                console.log("✅ Llamando a deleteCurrentRace()");
-                deleteCurrentRace();
-            } else {
-                console.error("❌ Función deleteCurrentRace no disponible");
-                const t = translations[appState.currentLanguage];
-                showMessage(t.errorDeletingRace || 'Error eliminando carrera', 'error');
-            }
-        }
-        
-        // Añadir listener
-        deleteRaceConfirmBtn.addEventListener('click', handleDeleteRaceConfirm);
-        
-        // Guardar referencia para poder removerla después
-        window.handleDeleteRaceConfirm = handleDeleteRaceConfirm;
-    } else {
-        console.log("⚠️ delete-race-confirm-btn no encontrado");
-    }
-    
-    // 4. Botón de cancelar eliminación de carrera
-    const cancelDeleteRaceBtn = document.getElementById('cancel-delete-race-btn');
-    if (cancelDeleteRaceBtn) {
-
-        cancelDeleteRaceBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log("Cancelar eliminación de carrera clickeado");
-            document.getElementById('delete-race-modal').classList.remove('active');
-        });
-    }
-    
-    // 5. Botón de confirmar limpieza de salidas
-    const clearDeparturesConfirmBtn = document.getElementById('clear-departures-confirm-btn');
-    if (clearDeparturesConfirmBtn) {
-        clearDeparturesConfirmBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log("Confirmar limpieza de salidas clickeado");
-            
-            // Verificar que la función existe
-            if (typeof clearRaceDepartures === 'function') {
-                clearRaceDepartures();
-            }
-            
-            document.getElementById('clear-departures-modal').classList.remove('active');
-        });
-    }
-    
-   
-    // 7. Botón de enviar sugerencia
-    const sendSuggestionBtn = document.getElementById('send-suggestion-btn');
-    if (sendSuggestionBtn) {
-
-        sendSuggestionBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log("Enviar sugerencia clickeado");
-            
-            // Verificar que la función existe
-            if (typeof sendSuggestion === 'function') {
-                sendSuggestion();
-            }
-        });
-    }
-    
-    // 8. Botón de cancelar sugerencia
-    const cancelSuggestionBtn = document.getElementById('cancel-suggestion-btn');
-    if (cancelSuggestionBtn) {
-        cancelSuggestionBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log("Cancelar sugerencia clickeado");
-            document.getElementById('suggestions-modal').classList.remove('active');
-        });
-    }
-    
-    // 9. Botón de confirmar reinicio completo
-    const restartConfirmBtn = document.getElementById('restart-confirm-btn');
-    if (restartConfirmBtn) {
-        restartConfirmBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log("Confirmar reinicio completo clickeado");
-            
-            // Verificar que la función existe
-            if (typeof handleCompleteRestart === 'function') {
-                handleCompleteRestart();
-            }
-        });
-    }
-    
-    // 10. Botón de cancelar reinicio
-    const cancelRestartBtn = document.getElementById('cancel-restart-btn');
-    if (cancelRestartBtn) {
-        cancelRestartBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log("Cancelar reinicio clickeado");
-            document.getElementById('restart-confirm-modal').classList.remove('active');
-        });
-    }
-    
-    // 11. Botón OK de ayuda
-    const helpModalOk = document.getElementById('help-modal-ok');
-    if (helpModalOk) {
-        helpModalOk.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log("OK ayuda clickeado");
-            document.getElementById('help-modal').classList.remove('active');
-        });
-    }
-    
-    // 12. Botón de nueva carrera en la tarjeta
-    const newRaceCardBtn = document.getElementById('new-race-card-btn');
-    if (newRaceCardBtn) {
-        newRaceCardBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log("Nueva carrera (card) clickeado");
-            
-            // Verificar que la función existe
-            if (typeof showNewRaceModal === 'function') {
-                showNewRaceModal();
-            }
-        });
-    }
-    
-    // 13. Botón de editar carrera
-    const editRaceBtn = document.getElementById('edit-race-btn');
-    if (editRaceBtn) {
-        editRaceBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log("Editar carrera clickeado");
-            
-            // Verificar que la función existe
-            if (typeof editRaceDetails === 'function') {
-                editRaceDetails();
-            }
-        });
-    }
-    
-    // 14. Botón de guardar edición de carrera
-    const saveEditRaceBtn = document.getElementById('save-edit-race-btn');
-    if (saveEditRaceBtn) {
-        saveEditRaceBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log("Guardar edición de carrera clickeado");
-            
-            // Verificar que la función existe
-            if (typeof saveEditedRace === 'function') {
-                saveEditedRace();
-            }
-        });
-    }
-    
-    // 15. Botón de cancelar edición de carrera
-    const cancelEditRaceBtn = document.getElementById('cancel-edit-race-btn');
-    if (cancelEditRaceBtn) {
-        cancelEditRaceBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log("Cancelar edición de carrera clickeado");
-            document.getElementById('edit-race-modal').classList.remove('active');
-        });
-    }
-    
-    // 16. Botón de importar orden de salida
-    const importOrderBtn = document.getElementById('import-order-btn');
-    if (importOrderBtn) {
-        
-        // **SOLUCIÓN CRÍTICA: Reemplazar el botón para eliminar TODOS los listeners**
-        const newBtn = importOrderBtn.cloneNode(true); // Clonar manteniendo atributos
-        importOrderBtn.parentNode.replaceChild(newBtn, importOrderBtn);
-        
-        console.log("✅ Botón import-order-btn clonado - listeners HTML antiguos eliminados");
-        
-        // Obtener la referencia actualizada
-        const currentImportBtn = document.getElementById('import-order-btn');
-        
-        // Configurar UN ÚNICO listener
-        let isImportClickInProgress = false;
-        
-        currentImportBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            if (isImportClickInProgress) {
-                console.log("⚠️ Click en importación ya en progreso, ignorando");
-                return;
-            }
-            
-            isImportClickInProgress = true;
-            console.log("🖱️ ÚNICO listener de import-order-btn ejecutado");
-            
-            // Verificar que la función existe
-            if (typeof importStartOrder === 'function') {
-                importStartOrder();
-            }
-            
-            // Permitir siguiente click después de 1 segundo
-            setTimeout(() => {
-                isImportClickInProgress = false;
-                console.log("✅ Listener de importación listo para nuevo click");
-            }, 1000);
-        });
-        
-        console.log("✅ import-order-btn configurado con prevención de duplicados");
-    }
-    
-    // 17. Botón de crear plantilla Excel
-    const createTemplateBtn = document.getElementById('create-template-btn');
-    if (createTemplateBtn) {
-        createTemplateBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log("Crear plantilla Excel clickeado");
-            
-            // Verificar que la función existe
-            if (typeof createStartOrderTemplate === 'function') {
-                createStartOrderTemplate();
-            }
-        });
-    }
-    
-    // 18. Botón de eliminar orden de salida
-    const deleteOrderBtn = document.getElementById('delete-order-btn');
-    if (deleteOrderBtn) {
-        deleteOrderBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log("Eliminar orden de salida clickeado");
-            
-            // Verificar que la función existe
-            if (typeof deleteStartOrder === 'function') {
-                deleteStartOrder();
-            }
-        });
-    }
-
-    
-    // Marcar como configurado
-    window.modalActionListenersConfigured = true;
-    console.log("✅ Listeners de acciones de modales configurados");
-    
-    // Función para debug: mostrar qué botones están configurados
-    if (window.debugModalButtons) {
-        debugModalButtons();
-    }
-}
 // ============================================
 // FUNCIONES DE IDIOMA - AÑADIR A Main.js o UI.js
 // ============================================
@@ -1634,9 +1326,500 @@ function initializeAllTimeDisplays() {
     
     console.log("✅ Hora estática configurada:", timeString);
 }
+function setupModalActionListeners() {
+    // Verificar si ya se configuró
+    if (window.modalActionListenersConfigured) {
+        console.log("Listeners de acciones de modales ya configurados");
+        return;
+    }
+
+    // Marcar como configurado inmediatamente
+    window.modalActionListenersConfigured = true;
+    
+    // 1. Botón de crear carrera
+    const createRaceBtn = document.getElementById('create-race-btn');
+    if (createRaceBtn) {
+        
+        // Remover listener anterior si existe
+        createRaceBtn.removeEventListener('click', handleCreateRace);
+        
+        // Definir handler
+        function handleCreateRace(e) {
+            e.preventDefault();
+            console.log("Crear carrera clickeado");
+            
+            // Verificar que la función existe
+            if (typeof createNewRace === 'function') {
+                console.log("✅ Llamando a createNewRace()");
+                createNewRace();
+            } else {
+                console.error("❌ Función createNewRace no disponible");
+                const t = translations[appState.currentLanguage];
+                showMessage(t.errorCreatingRace || 'Error creando carrera', 'error');
+            }
+        }
+        
+        // Añadir listener
+        createRaceBtn.addEventListener('click', handleCreateRace);
+        
+        // Guardar referencia para poder removerla después
+        window.handleCreateRace = handleCreateRace;
+    } else {
+        console.log("⚠️ create-race-btn no encontrado");
+    }
+    
+    // 2. Botón de cancelar creación de carrera
+    const cancelCreateRaceBtn = document.getElementById('cancel-create-race-btn');
+    if (cancelCreateRaceBtn) {
+        cancelCreateRaceBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Cancelar creación de carrera clickeado");
+            document.getElementById('new-race-modal').classList.remove('active');
+        });
+    }
+    
+    // 3. Botón de confirmar eliminación de carrera
+    const deleteRaceConfirmBtn = document.getElementById('delete-race-confirm-btn');
+    if (deleteRaceConfirmBtn) {
+        
+        // Remover listener anterior si existe
+        deleteRaceConfirmBtn.removeEventListener('click', handleDeleteRaceConfirm);
+        
+        // Definir handler
+        function handleDeleteRaceConfirm(e) {
+            e.preventDefault();
+            console.log("Confirmar eliminación de carrera clickeado");
+            
+            // Verificar que la función existe
+            if (typeof deleteCurrentRace === 'function') {
+                console.log("✅ Llamando a deleteCurrentRace()");
+                deleteCurrentRace();
+            } else {
+                console.error("❌ Función deleteCurrentRace no disponible");
+                const t = translations[appState.currentLanguage];
+                showMessage(t.errorDeletingRace || 'Error eliminando carrera', 'error');
+            }
+        }
+        
+        // Añadir listener
+        deleteRaceConfirmBtn.addEventListener('click', handleDeleteRaceConfirm);
+        
+        // Guardar referencia para poder removerla después
+        window.handleDeleteRaceConfirm = handleDeleteRaceConfirm;
+    } else {
+        console.log("⚠️ delete-race-confirm-btn no encontrado");
+    }
+    
+    // 4. Botón de cancelar eliminación de carrera
+    const cancelDeleteRaceBtn = document.getElementById('cancel-delete-race-btn');
+    if (cancelDeleteRaceBtn) {
+        cancelDeleteRaceBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Cancelar eliminación de carrera clickeado");
+            document.getElementById('delete-race-modal').classList.remove('active');
+        });
+    }
+    
+    // 5. Botón de confirmar limpieza de salidas
+    const clearDeparturesConfirmBtn = document.getElementById('clear-departures-confirm-btn');
+    if (clearDeparturesConfirmBtn) {
+        clearDeparturesConfirmBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Confirmar limpieza de salidas clickeado");
+            
+            // Verificar que la función existe
+            if (typeof clearRaceDepartures === 'function') {
+                clearRaceDepartures();
+            }
+            
+            document.getElementById('clear-departures-modal').classList.remove('active');
+        });
+    }
+    
+    // 7. Botón de enviar sugerencia
+    const sendSuggestionBtn = document.getElementById('send-suggestion-btn');
+    if (sendSuggestionBtn) {
+        sendSuggestionBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Enviar sugerencia clickeado");
+            
+            // Verificar que la función existe
+            if (typeof sendSuggestion === 'function') {
+                sendSuggestion();
+            }
+        });
+    }
+    
+    // 8. Botón de cancelar sugerencia
+    const cancelSuggestionBtn = document.getElementById('cancel-suggestion-btn');
+    if (cancelSuggestionBtn) {
+        cancelSuggestionBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Cancelar sugerencia clickeado");
+            document.getElementById('suggestions-modal').classList.remove('active');
+        });
+    }
+    
+    // 9. Botón de confirmar reinicio completo
+    const restartConfirmBtn = document.getElementById('restart-confirm-btn');
+    if (restartConfirmBtn) {
+        restartConfirmBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Confirmar reinicio completo clickeado");
+            
+            // Verificar que la función existe
+            if (typeof handleCompleteRestart === 'function') {
+                handleCompleteRestart();
+            }
+        });
+    }
+    
+    // 10. Botón de cancelar reinicio
+    const cancelRestartBtn = document.getElementById('cancel-restart-btn');
+    if (cancelRestartBtn) {
+        cancelRestartBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Cancelar reinicio clickeado");
+            document.getElementById('restart-confirm-modal').classList.remove('active');
+        });
+    }
+    
+    // 11. Botón OK de ayuda
+    const helpModalOk = document.getElementById('help-modal-ok');
+    if (helpModalOk) {
+        helpModalOk.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("OK ayuda clickeado");
+            document.getElementById('help-modal').classList.remove('active');
+        });
+    }
+    
+    // 12. Botón de nueva carrera en la tarjeta
+    const newRaceCardBtn = document.getElementById('new-race-card-btn');
+    if (newRaceCardBtn) {
+        newRaceCardBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Nueva carrera (card) clickeado");
+            
+            // Verificar que la función existe
+            if (typeof showNewRaceModal === 'function') {
+                showNewRaceModal();
+            }
+        });
+    }
+    
+    // 13. Botón de editar carrera
+    const editRaceBtn = document.getElementById('edit-race-btn');
+    if (editRaceBtn) {
+        editRaceBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Editar carrera clickeado");
+            
+            // Verificar que la función existe
+            if (typeof editRaceDetails === 'function') {
+                editRaceDetails();
+            }
+        });
+    }
+    
+    // 14. Botón de guardar edición de carrera
+    const saveEditRaceBtn = document.getElementById('save-edit-race-btn');
+    if (saveEditRaceBtn) {
+        saveEditRaceBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Guardar edición de carrera clickeado");
+            
+            // Verificar que la función existe
+            if (typeof saveEditedRace === 'function') {
+                saveEditedRace();
+            }
+        });
+    }
+    
+    // 15. Botón de cancelar edición de carrera
+    const cancelEditRaceBtn = document.getElementById('cancel-edit-race-btn');
+    if (cancelEditRaceBtn) {
+        cancelEditRaceBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Cancelar edición de carrera clickeado");
+            document.getElementById('edit-race-modal').classList.remove('active');
+        });
+    }
+    
+    // 16. Botón de importar orden de salida - CON PREVENCIÓN DE DUPLICADOS
+    const importOrderBtn = document.getElementById('import-order-btn');
+    if (importOrderBtn) {
+        
+        // **SOLUCIÓN CRÍTICA: Reemplazar el botón para eliminar TODOS los listeners**
+        const newBtn = importOrderBtn.cloneNode(true); // Clonar manteniendo atributos
+        importOrderBtn.parentNode.replaceChild(newBtn, importOrderBtn);
+        
+        console.log("✅ Botón import-order-btn clonado - listeners HTML antiguos eliminados");
+        
+        // Obtener la referencia actualizada
+        const currentImportBtn = document.getElementById('import-order-btn');
+        
+        // Configurar UN ÚNICO listener
+        let isImportClickInProgress = false;
+        
+        currentImportBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (isImportClickInProgress) {
+                console.log("⚠️ Click en importación ya en progreso, ignorando");
+                return;
+            }
+            
+            isImportClickInProgress = true;
+            console.log("🖱️ ÚNICO listener de import-order-btn ejecutado");
+            
+            // Verificar que la función existe
+            if (typeof importStartOrder === 'function') {
+                importStartOrder();
+            }
+            
+            // Permitir siguiente click después de 1 segundo
+            setTimeout(() => {
+                isImportClickInProgress = false;
+                console.log("✅ Listener de importación listo para nuevo click");
+            }, 1000);
+        });
+        
+        console.log("✅ import-order-btn configurado con prevención de duplicados");
+    }
+    
+    // 17. Botón de crear plantilla Excel
+    const createTemplateBtn = document.getElementById('create-template-btn');
+    if (createTemplateBtn) {
+        createTemplateBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Crear plantilla Excel clickeado");
+            
+            // Verificar que la función existe
+            if (typeof createStartOrderTemplate === 'function') {
+                createStartOrderTemplate();
+            }
+        });
+    }
+    
+    // 18. Botón de eliminar orden de salida - CON PREVENCIÓN DE DUPLICADOS
+    const deleteOrderBtn = document.getElementById('delete-order-btn');
+    if (deleteOrderBtn) {
+        
+        // **SOLUCIÓN: Reemplazar el botón para eliminar TODOS los listeners**
+        const newBtn = deleteOrderBtn.cloneNode(true); // Clonar manteniendo atributos
+        deleteOrderBtn.parentNode.replaceChild(newBtn, deleteOrderBtn);
+        
+        console.log("✅ Botón delete-order-btn clonado - listeners antiguos eliminados");
+        
+        // Obtener la referencia actualizada
+        const currentDeleteBtn = document.getElementById('delete-order-btn');
+        
+        // Configurar UN ÚNICO listener
+        let isDeleteClickInProgress = false;
+        
+        currentDeleteBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (isDeleteClickInProgress) {
+                console.log("⚠️ Click en eliminación ya en progreso, ignorando");
+                return;
+            }
+            
+            isDeleteClickInProgress = true;
+            console.log("🖱️ ÚNICO listener de delete-order-btn ejecutado");
+            
+            // Verificar que la función existe
+            if (typeof deleteStartOrder === 'function') {
+                deleteStartOrder();
+            }
+            
+            // Permitir siguiente click después de 1 segundo
+            setTimeout(() => {
+                isDeleteClickInProgress = false;
+                console.log("✅ Listener de eliminación listo para nuevo click");
+            }, 1000);
+        });
+        
+        console.log("✅ delete-order-btn configurado con prevención de duplicados");
+    }
+
+    // 19. Botón de exportar orden de salida a Excel
+    const exportOrderBtn = document.getElementById('export-order-btn');
+    if (exportOrderBtn) {
+        exportOrderBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Exportar orden de salida clickeado");
+            
+            // Verificar que la función existe
+            if (typeof exportStartOrder === 'function') {
+                exportStartOrder();
+            }
+        });
+    }
+    
+    // 20. Botón de exportar orden de salida a PDF
+    const exportOrderPdfBtn = document.getElementById('export-order-pdf-btn');
+    if (exportOrderPdfBtn) {
+        exportOrderPdfBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Exportar orden de salida a PDF clickeado");
+            
+            // Verificar que la función existe
+            if (typeof generateStartOrderPDF === 'function') {
+                generateStartOrderPDF();
+            }
+        });
+    }
+    
+    // 21. Botón de añadir corredor
+    const addRiderBtn = document.getElementById('add-rider-btn');
+    if (addRiderBtn) {
+        addRiderBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Añadir corredor clickeado");
+            
+            // Verificar que la función existe
+            if (typeof addNewRider === 'function') {
+                addNewRider();
+            }
+        });
+    }
+    
+    // 22. Botón de configuración de plantilla (cancelar)
+    const cancelTemplateBtn = document.getElementById('cancel-template-btn');
+    if (cancelTemplateBtn) {
+        cancelTemplateBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Cancelar configuración de plantilla clickeado");
+            document.getElementById('template-config-modal').classList.remove('active');
+        });
+    }
+    
+    // 23. Botón de generar plantilla
+    const generateTemplateBtn = document.getElementById('generate-template-btn');
+    if (generateTemplateBtn) {
+        generateTemplateBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Generar plantilla clickeado");
+            
+            // Verificar que la función existe
+            if (typeof generateStartOrderTemplate === 'function') {
+                generateStartOrderTemplate();
+            }
+        });
+    }
+    
+    // 24. Botón de copia de seguridad de carrera
+    const backupRaceBtn = document.getElementById('backup-race-btn');
+    if (backupRaceBtn) {
+        backupRaceBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Copia de seguridad de carrera clickeado");
+            
+            // Verificar que la función existe
+            if (typeof createRaceBackup === 'function') {
+                createRaceBackup();
+            }
+        });
+    }
+    
+    // 25. Botón de restaurar carrera desde copia
+    const restoreRaceBtn = document.getElementById('restore-race-btn');
+    if (restoreRaceBtn) {
+        restoreRaceBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Restaurar carrera desde copia clickeado");
+            
+            // Verificar que la función existe
+            if (typeof restoreRaceFromBackup === 'function') {
+                restoreRaceFromBackup();
+            }
+        });
+    }
+    
+    // 26. Botón de ayuda del footer
+    const footerHelpBtn = document.getElementById('footer-help-btn');
+    if (footerHelpBtn) {
+        footerHelpBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Ayuda (footer) clickeado");
+            
+            // Verificar que la función existe
+            if (typeof openHelpFile === 'function') {
+                openHelpFile();
+            }
+        });
+    }
+    
+    // 27. Botón de sugerencias del footer
+    const suggestionsBtn = document.getElementById('suggestions-btn');
+    if (suggestionsBtn) {
+        suggestionsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Sugerencias (footer) clickeado");
+            
+            // Verificar que la función existe
+            if (typeof showSuggestionsModal === 'function') {
+                showSuggestionsModal();
+            } else {
+                // Fallback: mostrar modal directamente
+                document.getElementById('suggestions-modal').classList.add('active');
+            }
+        });
+    }
+    
+    // 28. Botón de instalar app
+    const installBtn = document.getElementById('install-btn');
+    if (installBtn) {
+        installBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Instalar app clickeado");
+            
+            // Verificar que la función existe
+            if (typeof handleInstallClick === 'function') {
+                handleInstallClick();
+            }
+        });
+    }
+    
+    // 29. Botón de buscar actualizaciones
+    const updateBtn = document.getElementById('update-btn');
+    if (updateBtn) {
+        updateBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Buscar actualizaciones clickeado");
+            
+            // Verificar que la función existe
+            if (typeof checkForUpdates === 'function') {
+                checkForUpdates();
+            }
+        });
+    }
+    
+    // Marcar como configurado
+    window.modalActionListenersConfigured = true;
+    console.log("✅ Listeners de acciones de modales configurados");
+    
+    // Función para debug: mostrar qué botones están configurados
+    if (window.debugModalButtons) {
+        debugModalButtons();
+    }
+}
 
 // Llamar después de inicializar
 setTimeout(initializeAllTimeDisplays, 1000);
 
 // Llamar esta función después de inicializar la aplicación
 // setTimeout(checkDuplicateImportListeners, 1000);
+
+/******* borrar */
+// ============================================
+// CONFIGURAR LISTENERS DE ACCIONES DE MODALES
+// ============================================
+/* NO SE LLAMA EN NINGUN SITIO A ESTA FUNCION
+*/
+
+/**/
