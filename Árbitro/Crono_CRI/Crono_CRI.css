@@ -1272,7 +1272,6 @@ input[type="time"][step="1"]::-webkit-datetime-edit-second-field {
 }
 
 .start-order-table th.sortable {
-    position: relative;
     padding-right: 20px;
 }
 
@@ -1433,7 +1432,7 @@ input[type="time"][step="1"]::-webkit-datetime-edit-second-field {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 3.5.2vw;
+    font-size: 3.5.3vw;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -2556,7 +2555,7 @@ input[type="time"][step="1"]::-webkit-datetime-edit-second-field {
     .countdown-label {
         height: 30px;
         line-height: 30px;
-        font-size: 3.5.2vw;
+        font-size: 3.5.3vw;
     }
     
     .info-corner {

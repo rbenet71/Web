@@ -1,4 +1,4 @@
-# CRI App - Documentación Optimizada para Modificaciones v3.5.2
+# CRI App - Documentación Optimizada para Modificaciones v3.5.3
 
 📋 **ÍNDICE RÁPIDO**
 1. Visión General
@@ -13,12 +13,12 @@
 10. Reglas de Oro
 11. Lecciones Aprendidas
 12. Checklist para Cambios ⭐
-13. Cambios v3.4.2 - v3.5.2 ⭐
+13. Cambios v3.4.2 - v3.5.3 ⭐
 
 ---
 
 ## 1. VISIÓN GENERAL
-Crono CRI v3.5.2 - PWA para control de salidas/llegadas en carreras ciclistas.
+Crono CRI v3.5.3 - PWA para control de salidas/llegadas en carreras ciclistas.
 
 **Modo Salidas**: Cuenta atrás basada en cronoSalida de tabla  
 **Modo Llegadas**: Cronometraje con milésimas, posiciones automáticas, posición por categoría  
@@ -28,7 +28,7 @@ Crono CRI v3.5.2 - PWA para control de salidas/llegadas en carreras ciclistas.
 **Contador dinámico** de llegadas registradas  
 **Tiempo compacto** en cronómetro minimizado  
 **Celdas vacías** en Excel para tiempos sin valor  
-**Nueva funcionalidad 3.5.2**: Logos personalizados para PDFs  
+**Nueva funcionalidad 3.5.3**: Logos personalizados para PDFs  
 **Nueva funcionalidad 3.4.5+**: Eliminar corredores con recálculo automático
 
 ---
@@ -43,10 +43,10 @@ Crono CRI v3.5.2 - PWA para control de salidas/llegadas en carreras ciclistas.
 | **Salidas_3.js** | **Modales, añadir/eliminar corredores, cambios globales** | Salidas_2, UI, Storage_Pwa | **3.4.5+** |
 | Salidas_4.js | Confirmaciones, validaciones, edición avanzada | Salidas_2, Salidas_3, Utilidades | 3.2.1 |
 | Cuenta_Atras.js | Sistema cuenta atrás, salidas, sincronización dorsal↔posición | Main, Utilidades, Salidas_2, Storage_Pwa | 3.2.1 |
-| UI.js | Interfaz, tarjetas, modales, gestión tiempo, contador llegadas | Main, Storage_Pwa, Cuenta_Atras, Llegadas | **3.5.2** |
-| Storage_Pwa.js | Persistencia, backup/restore, gestión carreras (35 funciones) | TODOS (persistencia central) | 3.5.2 |
-| Utilidades.js | Conversiones tiempo, audio, exportación, diagnóstico | TODOS (utilidades centrales) | **3.5.2** |
-| Traducciones.js | Sistema multilingüe (4 idiomas) | TODOS (textos UI) | **3.5.2** |
+| UI.js | Interfaz, tarjetas, modales, gestión tiempo, contador llegadas | Main, Storage_Pwa, Cuenta_Atras, Llegadas | **3.5.3** |
+| Storage_Pwa.js | Persistencia, backup/restore, gestión carreras (35 funciones) | TODOS (persistencia central) | 3.5.3 |
+| Utilidades.js | Conversiones tiempo, audio, exportación, diagnóstico | TODOS (utilidades centrales) | **3.5.3** |
+| Traducciones.js | Sistema multilingüe (4 idiomas) | TODOS (textos UI) | **3.5.3** |
 | Llegadas.js | Modo llegadas (14 cols), milésimas, posiciones auto, posición por categoría | Main, Utilidades, Traducciones | 3.4.5 |
 
 **Flujo principal**: Main → [Salidas_1-4 / Llegadas] ↔ UI ↔ Storage_Pwa ↔ Utilidades
@@ -69,7 +69,7 @@ const appState = {
   audioType, currentLanguage, soundEnabled, aggressiveMode,
   currentRace: { 
     id, name, firstStartTime, startOrder: [],
-    // ⭐ NUEVO 3.5.2: Logos para PDF
+    // ⭐ NUEVO 3.5.3: Logos para PDF
     logos: {
       left: null, right: null,
       leftFilename: '', rightFilename: '',
@@ -90,9 +90,9 @@ handleRaceChange(raceId) // Recibe solo raceId
 openHelpFile()         // Abre Crono_CRI_ayuda.html externo
 ```
 
-### UI.JS v3.5.2 (Interfaz y Gestión Tiempo - ACTUALIZADO)
+### UI.JS v3.5.3 (Interfaz y Gestión Tiempo - ACTUALIZADO)
 ```javascript
-// ⭐ NUEVO 3.5.2: Funciones para logos
+// ⭐ NUEVO 3.5.3: Funciones para logos
 function editRaceDetails()           // Carga logos existentes en modal edición
 function saveEditedRace()            // Guarda logos con validación (5MB)
 function createNewRace()             // Crea carrera con logos opcionales
@@ -138,9 +138,9 @@ function deleteSelectedRider()       // ⭐ NUEVO 3.4.5+: Elimina corredor selec
 function setupDeleteRiderButtonDirect() // Configura listener para botón eliminar
 ```
 
-### UTILIDADES.JS v3.5.2 (Conversiones y PDFs - ACTUALIZADO)
+### UTILIDADES.JS v3.5.3 (Conversiones y PDFs - ACTUALIZADO)
 ```javascript
-// ⭐ NUEVO 3.5.2: Funciones para logos en PDF
+// ⭐ NUEVO 3.5.3: Funciones para logos en PDF
 function addLogosToPDF(doc, race)   // Añade logos izquierdo/derecho a PDF
 function processLogoFile(file, side) // Procesa archivo de logo (5MB máximo)
 
@@ -190,7 +190,7 @@ exportRankingToPDF()                   // PDF de clasificación con Pos. Cat.
 exportRankingToExcel()  // Ahora se usa exportLlegadasToExcel() para todo
 ```
 
-### TRADUCCIONES.JS v3.5.2 (Sistema Multilingüe - ACTUALIZADO)
+### TRADUCCIONES.JS v3.5.3 (Sistema Multilingüe - ACTUALIZADO)
 ```javascript
 // 4 IDIOMAS: es, ca, en, fr
 const translations = {
@@ -209,7 +209,7 @@ const translations = {
     deleteRiderConfirm: "¿Eliminar corredor {dorsal} {nombre}?",
     deleteRiderNotFound: "Corredor no encontrado",
     deleteRiderSuccess: "Corredor eliminado correctamente",
-    // ⭐ NUEVAS TRADUCCIONES 3.5.2 (logos para PDF):
+    // ⭐ NUEVAS TRADUCCIONES 3.5.3 (logos para PDF):
     logoLeftLabel: "Logo Izquierdo",
     logoRightLabel: "Logo Derecho", 
     logoFormatInfo: "PNG, JPG, SVG (máx. 5MB)",
@@ -236,14 +236,14 @@ updateAppTitle()             // Título aplicación
 updateRaceManagementCard()   // Tarjeta gestión carrera
 updateTableHeaders()         // Cabeceras tabla (incluye Pos. Cat.)
 updateModalTexts()           // Textos modales
-updateLogoTexts()            // ⭐ NUEVO 3.5.2: Textos de logos
+updateLogoTexts()            // ⭐ NUEVO 3.5.3: Textos de logos
 updateTableTooltips()        // Tooltips columnas
 // ⭐ Claves camelCase, IDs DOM con guiones
 ```
 
-### STORAGE_PWA.JS v3.5.2 (Persistencia - ACTUALIZADO)
+### STORAGE_PWA.JS v3.5.3 (Persistencia - ACTUALIZADO)
 ```javascript
-// ⭐ NUEVO 3.5.2: Estructura de logos en saveRaceData()
+// ⭐ NUEVO 3.5.3: Estructura de logos en saveRaceData()
 function saveRaceData() {
     // ... código existente ...
     const updatedRace = {
@@ -275,7 +275,7 @@ getRaceById(raceId)          // Busca carrera por ID
 
 ## 4. ESTRUCTURAS DE DATOS CLAVE
 
-### appState (Estado Global Aplicación - ACTUALIZADO 3.5.2)
+### appState (Estado Global Aplicación - ACTUALIZADO 3.5.3)
 ```javascript
 {
   // Configuración
@@ -291,7 +291,7 @@ getRaceById(raceId)          // Busca carrera por ID
     startOrder: [],     // Array de objetos corredor
     departures: [],     // ⚠️ Ya NO se usa (datos en cada corredor)
     intervals: [],
-    // ⭐ NUEVO 3.5.2: Logos para PDF
+    // ⭐ NUEVO 3.5.3: Logos para PDF
     logos: {
       left: null,       // Base64 string del logo izquierdo
       right: null,      // Base64 string del logo derecho
@@ -336,7 +336,7 @@ window.llegadasState = {
 
 ## 5. SISTEMA DE TRADUCCIONES
 
-**Nuevas claves añadidas (v3.5.2):**
+**Nuevas claves añadidas (v3.5.3):**
 ```javascript
 // Para logos en PDF:
 logoLeftLabel: "Logo Izquierdo" (ES), "Logo Esquerre" (CA), "Left Logo" (EN), "Logo Gauche" (FR)
@@ -379,9 +379,9 @@ posCatHeaderTooltip: "Posición dentro de la categoría" (ES), etc.
 
 ## 6. HTML/CSS ESENCIAL
 
-**IDs CRÍTICOS NUEVOS (v3.5.2):**
+**IDs CRÍTICOS NUEVOS (v3.5.3):**
 ```javascript
-// Logos para PDF (3.5.2)
+// Logos para PDF (3.5.3)
 '#edit-race-logo-left'              // Input logo izquierdo (edición)
 '#edit-race-logo-right'             // Input logo derecho (edición)
 '#new-race-logo-left'               // Input logo izquierdo (nueva)
@@ -452,7 +452,7 @@ posCatHeaderTooltip: "Posición dentro de la categoría" (ES), etc.
 @media (max-width: 992px|768px|480px|360px)
 ```
 
-**ESTRUCTURA HTML DE MODALES CON LOGOS (3.5.2):**
+**ESTRUCTURA HTML DE MODALES CON LOGOS (3.5.3):**
 ```html
 <!-- Modal edición carrera -->
 <div id="edit-race-modal" class="modal">
@@ -488,7 +488,7 @@ posCatHeaderTooltip: "Posición dentro de la categoría" (ES), etc.
 
 ## 7. FLUJOS PRINCIPALES
 
-### Subida y Procesamiento de Logos (3.5.2):
+### Subida y Procesamiento de Logos (3.5.3):
 ```text
 1. Usuario abre modal edición/nueva carrera
    → HTML: Inputs para logos izquierdo/derecho
@@ -625,7 +625,7 @@ posCatHeaderTooltip: "Posición dentro de la categoría" (ES), etc.
    }
 ```
 
-### Añadir logos para PDFs en edición/nueva carrera (NUEVO 3.5.2)
+### Añadir logos para PDFs en edición/nueva carrera (NUEVO 3.5.3)
 ```text
 1. HTML: Añadir inputs de archivo en modales de edición y nueva carrera
 2. Traducciones.js: Añadir claves en 4 idiomas:
@@ -740,7 +740,7 @@ log(LOG_LEVEL.ERROR, "Error cargando carrera actual:", error);
 log(LOG_LEVEL.DEBUG, `startOrderData disponible: ${!!startOrderData}`);
 ```
 
-**Logs nuevos en v3.4.2 - v3.5.2:**
+**Logs nuevos en v3.4.2 - v3.5.3:**
 ```javascript
 log(LOG_LEVEL.INFO, "📊 Contador actualizado: ${x} de ${y} corredores");
 log(LOG_LEVEL.DEBUG, "🔄 Actualizando tiempo compacto de llegadas");
@@ -749,7 +749,7 @@ log(LOG_LEVEL.DEBUG, "📊 Exportación Excel unificada - celdas vacías para ti
 log(LOG_LEVEL.INFO, "Botón Eliminar Corredor clickeado"); // ⭐ NUEVO 3.4.5+
 log(LOG_LEVEL.DEBUG, "✅ Botón Eliminar Corredor configurado (configuración directa)");
 log(LOG_LEVEL.INFO, `Corredor eliminado: ${selectedRider.dorsal} - ${selectedRider.nombre}`);
-log(LOG_LEVEL.INFO, "Actualizando textos de logos..."); // ⭐ NUEVO 3.5.2
+log(LOG_LEVEL.INFO, "Actualizando textos de logos..."); // ⭐ NUEVO 3.5.3
 log(LOG_LEVEL.DEBUG, `Logo ${side} procesado: ${file.name} (${Math.round(file.size / 1024)}KB)`);
 log(LOG_LEVEL.INFO, "✅ Nueva carrera creada con logos");
 log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilename}`);
@@ -889,7 +889,7 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
     Problema: Necesidad de eliminar corredores de orden de salida  
     Solución: Botón "Eliminar Corredor" con selección por click y recálculo automático de tiempos posteriores
 
-18. **✅ Logos para PDFs implementados correctamente (v3.5.2)**  
+18. **✅ Logos para PDFs implementados correctamente (v3.5.3)**  
     Problema: Necesidad de personalizar PDFs con logos de organizadores  
     Solución: Sistema completo de subida, validación (5MB, PNG/JPG/SVG), procesamiento Base64 e integración en PDFs
 
@@ -962,7 +962,7 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 
 ---
 
-## 13. CAMBIOS v3.4.2 - v3.5.2 ⭐
+## 13. CAMBIOS v3.4.2 - v3.5.3 ⭐
 
 ### v3.4.2 - Posición por Categoría y Mejoras UI
 1. **Posición por Categoría (3.3.4)**  
@@ -1016,7 +1016,7 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 11. **Persistencia inmediata**: Cambios se guardan automáticamente  
 12. **Traducciones completas**: 5 nuevas claves por idioma para mensajes y botón
 
-### v3.5.2 - Logos para PDFs (NUEVO)
+### v3.5.3 - Logos para PDFs (NUEVO)
 13. **Modal de edición de carrera ampliado** con inputs para logos izquierdo/derecho  
 14. **Modal de nueva carrera ampliado** con inputs para logos izquierdo/derecho  
 15. **Validación completa**: Formatos PNG, JPG, SVG; tamaño máximo 5MB  
@@ -1027,24 +1027,24 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 20. **Posicionamiento automático**: Logos en márgenes izquierdo/derecho (20×20mm)  
 21. **Mantenimiento de logos**: No se pierden al editar sin subir nuevos
 
-**Archivos Modificados v3.5.2:**
+**Archivos Modificados v3.5.3:**
 | Archivo | Cambios Principales | Versión |
 |---------|-------------------|---------|
-| HTML principal | Inputs de logos en modales edición/nueva | 3.5.2 |
-| UI.js | Funciones `editRaceDetails()`, `saveEditedRace()`, `createNewRace()` actualizadas | 3.5.2 |
-| Utilidades.js | Funciones `addLogosToPDF()`, `processLogoFile()` creadas | 3.5.2 |
-| Utilidades.js | Funciones PDF actualizadas para incluir logos | 3.5.2 |
-| Storage_Pwa.js | Estructura de logos en `saveRaceData()` | 3.5.2 |
-| Traducciones.js | 8 nuevas claves por idioma (logos) | 3.5.2 |
-| Traducciones.js | Función `updateLogoTexts()` añadida | 3.5.2 |
+| HTML principal | Inputs de logos en modales edición/nueva | 3.5.3 |
+| UI.js | Funciones `editRaceDetails()`, `saveEditedRace()`, `createNewRace()` actualizadas | 3.5.3 |
+| Utilidades.js | Funciones `addLogosToPDF()`, `processLogoFile()` creadas | 3.5.3 |
+| Utilidades.js | Funciones PDF actualizadas para incluir logos | 3.5.3 |
+| Storage_Pwa.js | Estructura de logos en `saveRaceData()` | 3.5.3 |
+| Traducciones.js | 8 nuevas claves por idioma (logos) | 3.5.3 |
+| Traducciones.js | Función `updateLogoTexts()` añadida | 3.5.3 |
 
-**Reglas de Oro Añadidas v3.5.2:**
+**Reglas de Oro Añadidas v3.5.3:**
 - ✅ **LOGOS ESPECÍFICOS POR CARRERA**: Cada carrera puede tener logos únicos para PDFs
 - ✅ **VALIDACIÓN DE LOGOS**: 5MB máximo, formatos PNG/JPG/SVG, procesamiento con FileReader
 - ✅ **TRADUCCIONES PARA LOGOS**: Todos los textos relacionados con logos en 4 idiomas
 - ✅ **MANTENER LOGOS EXISTENTES**: Al editar, no eliminar logos si no se suben nuevos
 
-**Resultados finales v3.5.2:**
+**Resultados finales v3.5.3:**
 - **Personalización profesional**: PDFs con logos de organizadores
 - **Flexibilidad total**: Logos específicos por carrera, formatos múltiples
 - **Experiencia de usuario**: Interfaz intuitiva en modales
@@ -1122,7 +1122,7 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 
 ---
 
-## 🎯 RESUMEN DE CAMBIOS v3.4.2 - v3.5.2
+## 🎯 RESUMEN DE CAMBIOS v3.4.2 - v3.5.3
 
 ### Mejoras principales:
 ✅ **Posición por categoría**: Nueva columna en llegadas, Excel y PDF  
@@ -1135,7 +1135,7 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 ✅ **⭐ Eliminación de corredores**: Botón con selección por click y recálculo automático  
 ✅ **⭐ LOGOS PARA PDFs**: Sistema completo de subida, validación e integración en PDFs  
 
-### Nuevas funciones v3.5.2:
+### Nuevas funciones v3.5.3:
 - `addLogosToPDF()` - Añade logos a encabezados de PDF
 - `processLogoFile()` - Valida y convierte archivos de logo
 - `updateLogoTexts()` - Actualiza textos de logos en traducciones
@@ -1187,7 +1187,7 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 
 ---
 
-**Documentación optimizada para modificaciones - v3.5.2**  
+**Documentación optimizada para modificaciones - v3.5.3**  
 Caracteres: ~50,500 (documentación completa de todas las funcionalidades)  
 Cobertura: 100% funcionalidades necesarias para programar  
 Última actualización: Enero 2026
