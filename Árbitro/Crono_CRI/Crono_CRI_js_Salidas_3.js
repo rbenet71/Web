@@ -32,6 +32,92 @@
 // ============================================
 
 // ============================================
+// FUNCIONES AUXILIARES DE VALIDACIÓN
+// ============================================
+
+// ✅ FUNCIÓN ÚNICA DE VALIDACIÓN DE POSICIÓN (para todo el módulo)
+function validatePositionInput(input, maxPosition) {
+    // Permitir vacío completamente
+    if (input.value === '' || input.value === null) {
+        input.classList.remove('input-error', 'input-warning');
+        return { valid: true, position: null };
+    }
+    
+    // Solo números - limpiar cualquier carácter no numérico
+    const numericValue = input.value.replace(/[^0-9]/g, '');
+    if (numericValue !== input.value) {
+        input.value = numericValue; // Corregir automáticamente
+    }
+    
+    const position = parseInt(numericValue);
+    
+    // Si no es un número válido
+    if (isNaN(position)) {
+        input.classList.add('input-error');
+        input.classList.remove('input-warning');
+        return { valid: false, position: null };
+    }
+    
+    // Validar rango
+    if (position < 1 || position > maxPosition) {
+        input.classList.add('input-error');
+        input.classList.remove('input-warning');
+        return { valid: false, position: position };
+    } 
+    else if (position === maxPosition) {
+        input.classList.add('input-warning');
+        input.classList.remove('input-error');
+        return { valid: true, position: position };
+    } 
+    else {
+        input.classList.remove('input-error', 'input-warning');
+        return { valid: true, position: position };
+    }
+}
+
+// ✅ FUNCIÓN DE TECLADO PERMISIVA
+function handlePositionKeydown(event, maxPosition) {
+    const key = event.key;
+    const input = event.target;
+    
+    // PERMITIR TODAS las teclas de control y edición
+    const controlKeys = [
+        'Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight',
+        'ArrowUp', 'ArrowDown', 'Home', 'End', 'Escape', 'Enter',
+        'Control', 'Alt', 'Shift', 'Meta', 'ContextMenu',
+        'Insert', 'PageUp', 'PageDown'
+    ];
+    
+    // Si es una tecla de control, permitir siempre
+    if (controlKeys.includes(key)) {
+        return true;
+    }
+    
+    // Permitir Ctrl/Alt/Meta + cualquier tecla
+    if (event.ctrlKey || event.altKey || event.metaKey) {
+        return true;
+    }
+    
+    // Solo permitir números
+    if (!/^\d$/.test(key)) {
+        event.preventDefault();
+        return false;
+    }
+    
+    // Si estamos aquí, es un número
+    const newValue = input.value + key;
+    
+    // Verificar que no exceda el máximo
+    if (newValue && parseInt(newValue) > maxPosition) {
+        event.preventDefault();
+        showMessage(`Máximo: ${maxPosition}`, 'warning', 1500);
+        return false;
+    }
+    
+    return true;
+}
+
+// ============================================
 // MANEJADORES DE CAMBIO DE HORA
 // ============================================
 function handleFirstStartTimeBlur() {
@@ -486,22 +572,7 @@ function updateStartOrderSortIndicators() {
     });
 }
 
-// ============================================
-// FUNCIONES DE ORDEN DE SALIDA (CONTINUACIÓN)
-// ============================================
 
-function addNewRider() {
-    const t = translations[appState.currentLanguage];
-    
-    // Si no hay datos en la tabla, crear el primer corredor
-    if (!startOrderData || startOrderData.length === 0) {
-        createFirstRider();
-        return;
-    }
-    
-    // Mostrar modal para seleccionar posición
-    showRiderPositionModal();
-}
 
 function createFirstRider() {
     const t = translations[appState.currentLanguage];
@@ -543,13 +614,14 @@ function showRiderPositionModal() {
     const initialLength = startOrderData.length;
     console.log(`🔍 showRiderPositionModal - initialLength guardado: ${initialLength}`);
     
-    // Crear el modal - Asegúrate de que tenga TODOS estos elementos:
+    // Crear el modal
     const modal = document.createElement('div');
     modal.id = 'rider-position-modal';
     modal.className = 'modal';
     
-    // 🔥 AÑADE EL DATASET CON EL LENGTH INICIAL
+    // 🔥 AÑADE EL DATASET
     modal.dataset.initialLength = initialLength;
+    modal.dataset.maxPosition = initialLength + 1;
     
     modal.innerHTML = `
         <div class="modal-content">
@@ -570,11 +642,17 @@ function showRiderPositionModal() {
                                 <option value="specific">${t.addAtSpecificPosition || 'Posición específica...'}</option>
                             </select>
                         </div>
+                        <!-- ✅ CAMPO DE POSICIÓN CORREGIDO - SIN ATRIBUTOS PROBLEMÁTICOS -->
                         <div id="specific-position-container" class="form-group" style="display: none;">
                             <label for="specific-position-input">${t.positionNumber || 'Número de posición:'}</label>
-                            <input type="number" id="specific-position-input" class="form-control" 
-                                   min="1" max="${initialLength + 1}" 
-                                   value="">
+                            <input type="text" 
+                                   id="specific-position-input" 
+                                   class="form-control specific-position-input" 
+                                   placeholder="${initialLength + 1}"
+                                   data-max-position="${initialLength + 1}">
+                            <small class="form-text" style="color: var(--gray); font-size: 0.85rem; display: block; margin-top: 5px;">
+                                ${t.positionRange || 'Rango válido:'} 1 - ${initialLength + 1}
+                            </small>
                         </div>
                     </div>
                     
@@ -606,7 +684,7 @@ function showRiderPositionModal() {
                             </div>
                         </div>
                         
-                        <!-- NUEVOS CAMPOS: categoria, equipo, licencia (MISMA ESTRUCTURA) -->
+                        <!-- NUEVOS CAMPOS: categoria, equipo, licencia -->
                         <div class="form-row">
                             <div class="form-group half-width">
                                 <label for="rider-categoria"><i class="fas fa-tag"></i> ${t.category || 'Categoría'}:</label>
@@ -708,231 +786,261 @@ function showRiderPositionModal() {
     
     document.body.appendChild(modal);
     
-    // Configurar eventos del modal
-    setupRiderPositionModalEvents(modal);
-    
-    // Mostrar el modal
+    // ✅ CONFIGURACIÓN ESPECIAL DESPUÉS DE CREAR EL MODAL
     setTimeout(() => {
+        // ✅ LIMPIEZA AGRESIVA DEL CAMPO DE POSICIÓN
+        const positionInput = document.getElementById('specific-position-input');
+        if (positionInput) {
+            console.log('🔄 Limpiando campo de posición...');
+            
+            // 1. Eliminar atributos problemáticos
+            positionInput.removeAttribute('pattern');
+            positionInput.removeAttribute('inputmode');
+            positionInput.removeAttribute('max');
+            positionInput.removeAttribute('min');
+            positionInput.removeAttribute('value');
+            
+            // 2. Forzar campo vacío
+            positionInput.value = '';
+            
+            // 3. Añadir evento simple de validación
+            positionInput.addEventListener('input', function() {
+                // Solo permitir números, pero permitir borrar completamente
+                const numericValue = this.value.replace(/[^0-9]/g, '');
+                if (this.value !== numericValue) {
+                    this.value = numericValue;
+                }
+                
+                // Validar rango si hay valor
+                if (this.value) {
+                    const max = parseInt(this.dataset.maxPosition);
+                    const position = parseInt(this.value);
+                    
+                    if (position > max) {
+                        this.value = max.toString();
+                        showMessage(`Posición máxima: ${max}`, 'warning', 1500);
+                    }
+                }
+            });
+            
+            // 4. Añadir evento de teclado permisivo
+            positionInput.addEventListener('keydown', function(event) {
+                handlePositionKeydown(event, parseInt(this.dataset.maxPosition));
+            });
+            
+            console.log('✅ Campo de posición listo:', {
+                value: positionInput.value,
+                attributes: Array.from(positionInput.attributes).map(a => a.name)
+            });
+        }
+        
+        // Configurar eventos del modal
+        setupRiderPositionModalEvents(modal);
+        
+        // Mostrar el modal
         modal.classList.add('active');
         document.getElementById('rider-dorsal').focus();
-    }, 10);
+    }, 50);
+    
+    // ✅ ESTILOS CSS
+    const style = document.createElement('style');
+    style.textContent = `
+        .input-error {
+            border-color: var(--danger) !important;
+            box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25) !important;
+        }
+        .input-warning {
+            border-color: var(--warning) !important;
+            box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.25) !important;
+        }
+        .specific-position-input {
+            font-family: monospace;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+    `;
+    document.head.appendChild(style);
 }
 
-
-
-
-function setupRiderPositionModalEvents(modal) {
+// ✅ FUNCIÓN COMPLETA Y CORREGIDA setupRiderPositionModalEvents
+function setupRiderPositionModalEvents(modalElement) {
     const t = translations[appState.currentLanguage];
     
-    // Elementos del formulario
-    const positionSelect = modal.querySelector('#rider-position-select');
-    const specificContainer = modal.querySelector('#specific-position-container');
-    const specificInput = modal.querySelector('#specific-position-input');
-    const dorsalInput = modal.querySelector('#rider-dorsal');
-    const nameInput = modal.querySelector('#rider-name');
-    const surnameInput = modal.querySelector('#rider-surname');
-    const chipInput = modal.querySelector('#rider-chip');
-    
-    // Botones
-    const confirmBtn = modal.querySelector('#confirm-add-rider-btn');
-    const cancelBtn = modal.querySelector('#cancel-add-rider-btn');
-    const closeBtn = modal.querySelector('.modal-close');
-    
-    // Función auxiliar para inicializar vista previa
-    function initializeRiderPreview() {
-        const modal = document.getElementById('rider-position-modal');
-        const modalInitialLength = modal ? parseInt(modal.dataset.initialLength) : startOrderData.length;
-        
-        console.log(`🔍 initializeRiderPreview - modalInitialLength: ${modalInitialLength}, actual: ${startOrderData.length}`);
-        
-        // Establecer valores por defecto si no existen
-        if (positionSelect) {
-            positionSelect.value = 'end';
-        }
-        
-        if (specificInput) {
-            // 🔥 USA modalInitialLength
-            specificInput.max = modalInitialLength + 1;
-            specificInput.min = 1;
-            specificInput.value = '';
-            console.log(`🔍 specificInput.max establecido a: ${modalInitialLength + 1}`);
-        }
-        
-        if (dorsalInput) {
-            dorsalInput.value = findNextAvailableDorsal();
-        }
-        
-        // Actualizar vista previa
-        updateRiderPreview();
+    // 1. Botón cerrar modal
+    const closeBtn = modalElement.querySelector('.modal-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            modalElement.remove();
+        });
     }
     
-    // Inicializar vista previa
-    initializeRiderPreview();
+    // 2. Botón cancelar
+    const cancelBtn = modalElement.querySelector('#cancel-add-rider-btn');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            modalElement.remove();
+        });
+    }
     
-    // Actualizar cuando cambia la selección de posición
-    if (positionSelect) {
+    // 3. Selector de posición - MOSTRAR/OCULTAR campo específico
+    const positionSelect = modalElement.querySelector('#rider-position-select');
+    const specificContainer = modalElement.querySelector('#specific-position-container');
+    
+    if (positionSelect && specificContainer) {
+        // ✅ EJECUTAR INMEDIATAMENTE para estado inicial
+        if (positionSelect.value === 'specific') {
+            specificContainer.style.display = 'block';
+        } else {
+            specificContainer.style.display = 'none';
+        }
+        
         positionSelect.addEventListener('change', function() {
             if (this.value === 'specific') {
-                if (specificContainer) specificContainer.style.display = 'block';
-                if (specificInput) {
-                    specificInput.focus();
-                    specificInput.select();
-                }
+                specificContainer.style.display = 'block';
+                // Enfocar el campo de posición
+                setTimeout(() => {
+                    const positionInput = document.getElementById('specific-position-input');
+                    if (positionInput) positionInput.focus();
+                }, 100);
             } else {
-                if (specificContainer) specificContainer.style.display = 'none';
+                specificContainer.style.display = 'none';
             }
-            updateRiderPreview();
+            // Actualizar vista previa
+            if (typeof updateRiderPreview === 'function') {
+                updateRiderPreview();
+            }
         });
     }
     
-    // Actualizar cuando cambian los inputs
-    [specificInput, dorsalInput, nameInput, surnameInput, chipInput].forEach(input => {
-        if (input) {
-            input.addEventListener('input', updateRiderPreview);
-            input.addEventListener('change', updateRiderPreview);
-        }
-    });
+    // 4. ✅ EVENTO SIMPLIFICADO PARA EL CAMPO DE POSICIÓN
+    const positionInput = modalElement.querySelector('#specific-position-input');
+    if (positionInput && !positionInput.hasAttribute('data-events-configured')) {
+        positionInput.setAttribute('data-events-configured', 'true');
+        
+        // Solo añadir evento Enter (los otros ya están configurados en showRiderPositionModal)
+        positionInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const confirmBtn = document.getElementById('confirm-add-rider-btn');
+                if (confirmBtn) confirmBtn.click();
+            }
+        });
+    }
     
-    // ============================================
-    // CONFIGURACIÓN DE BOTONES DE CONFIRMAR Y CANCELAR
-    // ============================================
-    
-    // Confirmar - Añadir corredor
+    // 5. Botón confirmar - CON VALIDACIÓN MEJORADA
+    const confirmBtn = modalElement.querySelector('#confirm-add-rider-btn');
     if (confirmBtn) {
         confirmBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
+            e.preventDefault(); // ✅ PREVENIR COMPORTAMIENTO POR DEFECTO
             
-            console.log("Botón confirmar clickeado");
+            // OBTENER DATOS DEL MODAL
+            const dorsal = document.getElementById('rider-dorsal').value || '';
+            const nombre = document.getElementById('rider-name').value || '';
+            const apellidos = document.getElementById('rider-surname').value || '';
+            const categoria = document.getElementById('rider-categoria').value || '';
+            const equipo = document.getElementById('rider-equipo').value || '';
+            const licencia = document.getElementById('rider-licencia').value || '';
+            const chip = document.getElementById('rider-chip').value || '';
             
-            // 🔥 OBTENER EL MODAL PARA ACCEDER A SU INITIAL LENGTH
-            const modal = document.getElementById('rider-position-modal');
-            const modalInitialLength = modal ? parseInt(modal.dataset.initialLength) : startOrderData.length;
-            
-            console.log(`🔍 Botón confirmar - modalInitialLength: ${modalInitialLength}, actual: ${startOrderData.length}`);
-            
-            // Obtener datos del formulario
-            const positionSelect = modal.querySelector('#rider-position-select');
-            const specificInput = modal.querySelector('#specific-position-input');
-            const positionType = positionSelect ? positionSelect.value : 'end';
-            let position;
-            
-            // 🔥 IMPORTANTE: Usar modalInitialLength, NO startOrderData.length
-            if (positionType === 'end') {
-                position = modalInitialLength + 1;  // ← CAMBIADO A modalInitialLength
-                console.log(`🔍 Posición 'end' calculada: ${position} (modalInitialLength: ${modalInitialLength})`);
-            } else if (positionType === 'beginning') {
-                position = 1;
-                console.log(`🔍 Posición 'beginning' calculada: ${position}`);
-            } else if (positionType === 'specific') {
-                position = specificInput ? parseInt(specificInput.value) || modalInitialLength + 1 : modalInitialLength + 1;  // ← CAMBIADO
-                if (position < 1) position = 1;
-                if (position > modalInitialLength + 1) position = modalInitialLength + 1;  // ← CAMBIADO
-                console.log(`🔍 Posición 'specific' calculada: ${position}`);
-            } else {
-                position = modalInitialLength + 1;  // ← CAMBIADO
-                console.log(`🔍 Posición por defecto calculada: ${position}`);
+            // Validar datos mínimos
+            if (!dorsal || dorsal.trim() === '') {
+                showMessage(t.dorsalRequired || 'El dorsal es obligatorio', 'error');
+                document.getElementById('rider-dorsal').focus();
+                return false;
             }
             
-            // Obtener datos del corredor
-            const dorsalInput = modal.querySelector('#rider-dorsal');
-            const nameInput = modal.querySelector('#rider-name');
-            const surnameInput = modal.querySelector('#rider-surname');
-            const chipInput = modal.querySelector('#rider-chip');
+            // DETERMINAR LA POSICIÓN
+            let selectedPosition = null;
+            const positionSelect = document.getElementById('rider-position-select');
+            const maxPosition = parseInt(modalElement.dataset.maxPosition);
             
+            if (positionSelect) {
+                if (positionSelect.value === 'specific') {
+                    // 🔥 POSICIÓN ESPECÍFICA - NO PERMITIR VACÍO
+                    const positionInput = document.getElementById('specific-position-input');
+                    
+                    if (!positionInput.value || positionInput.value.trim() === '') {
+                        showMessage(t.positionRequired || 'Debes introducir un número de posición', 'error');
+                        positionInput.focus();
+                        return false;
+                    }
+                    
+                    // ✅ USA LA FUNCIÓN GLOBAL PARA VALIDAR
+                    const validation = validatePositionInput(positionInput, maxPosition);
+                    if (!validation.valid) {
+                        showMessage(t.positionError || 'Por favor, introduce una posición válida (1-' + maxPosition + ')', 'error');
+                        return false;
+                    }
+                    
+                    selectedPosition = validation.position;
+                    
+                } else if (positionSelect.value === 'end') {
+                    // Añadir al final
+                    selectedPosition = maxPosition; // startOrderData.length + 1
+                    
+                } else if (positionSelect.value === 'beginning') {
+                    // Añadir al principio
+                    selectedPosition = 1;
+                }
+            }
+            
+            // Crear objeto con los datos del corredor
             const riderData = {
-                dorsal: parseInt(dorsalInput.value) || position,
-                nombre: nameInput.value.trim(),
-                apellidos: surnameInput.value.trim(),
-                chip: chipInput.value.trim()
+                dorsal: parseInt(dorsal),
+                nombre: nombre.trim(),
+                apellidos: apellidos.trim(),
+                categoria: categoria.trim(),
+                equipo: equipo.trim(),
+                licencia: licencia.trim(),
+                chip: chip.trim()
             };
             
-            console.log("Datos del corredor:", riderData);
-            console.log("Posición final:", position, "(se usó modalInitialLength, NO startOrderData.length)");
+            console.log(`🔍 Añadiendo corredor en posición: ${selectedPosition}`, riderData);
             
-            // Validar dorsal
-            const dorsalExistente = startOrderData.find(rider => rider.dorsal == riderData.dorsal);
-            if (dorsalExistente) {
-                showMessage(`El dorsal ${riderData.dorsal} ya está asignado a otro corredor`, 'warning');
-                return;
+            // Si pasa todas las validaciones, crear el corredor
+            if (typeof createNewRiderAtPosition === 'function') {
+                // ✅ LLAMAR CON POSICIÓN Y DATOS
+                createNewRiderAtPosition(selectedPosition, riderData);
+            } else {
+                console.error('❌ Función createNewRiderAtPosition no encontrada');
+                showMessage('Error: No se pudo crear el corredor', 'error');
             }
             
-            // Cerrar modal
-            modal.classList.remove('active');
-            setTimeout(() => {
-                if (modal.parentNode) {
-                    modal.remove();
-                }
-            }, 300);
-            
-            // Añadir corredor con la posición correcta
-            createNewRiderAtPosition(position, riderData);
+            modalElement.remove();
+            return false;
         });
     }
     
-    // Cancelar - Cerrar modal
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            console.log("Botón cancelar clickeado");
-            
-            modal.classList.remove('active');
-            setTimeout(() => {
-                if (modal.parentNode) {
-                    modal.remove();
-                }
-            }, 300);
-            
-            showMessage('Operación cancelada', 'info');
-        });
-    }
+    // 6. Event listeners para actualizar vista previa en tiempo real
+    const inputsToWatch = ['rider-dorsal', 'rider-name', 'rider-surname', 'rider-chip', 
+                          'rider-categoria', 'rider-equipo', 'rider-licencia'];
     
-    // Cerrar con la X
-    if (closeBtn) {
-        closeBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            console.log("Botón cerrar clickeado");
-            
-            modal.classList.remove('active');
-            setTimeout(() => {
-                if (modal.parentNode) {
-                    modal.remove();
+    inputsToWatch.forEach(id => {
+        const input = modalElement.querySelector(`#${id}`);
+        if (input) {
+            input.addEventListener('input', function() {
+                if (typeof updateRiderPreview === 'function') {
+                    updateRiderPreview();
                 }
-            }, 300);
-            
-            showMessage('Operación cancelada', 'info');
-        });
-    }
-    
-    // Cerrar al hacer clic fuera del modal
-    modal.addEventListener('click', function(e) {
-        if (e.target === this) {
-            this.classList.remove('active');
-            setTimeout(() => {
-                if (this.parentNode) {
-                    this.remove();
-                }
-            }, 300);
-            
-            showMessage('Operación cancelada', 'info');
+            });
         }
     });
     
-    // Prevenir que el evento se propague al contenido
-    const modalContent = modal.querySelector('.modal-content');
-    if (modalContent) {
-        modalContent.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-    }
-    
-    // Añadir estilos si no existen
-    addRiderPositionStyles();
+    // ✅ AÑADIR EVENTO PARA ENTER EN CUALQUIER CAMPO
+    const allInputs = modalElement.querySelectorAll('input');
+    allInputs.forEach(input => {
+        if (!input.hasAttribute('data-enter-configured')) {
+            input.setAttribute('data-enter-configured', 'true');
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (confirmBtn) confirmBtn.click();
+                }
+            });
+        }
+    });
 }
+
 
 function findNextAvailableDorsal() {
     if (!startOrderData || startOrderData.length === 0) {
@@ -1754,6 +1862,22 @@ function timeToSeconds(timeStr) {
     const seconds = parseInt(parts[2]) || 0;
     
     return (hours * 3600) + (minutes * 60) + seconds;
+}
+// ============================================
+// FUNCIONES DE ORDEN DE SALIDA (CONTINUACIÓN)
+// ============================================
+
+function addNewRider() {
+    const t = translations[appState.currentLanguage];
+    
+    // Si no hay datos en la tabla, crear el primer corredor
+    if (!startOrderData || startOrderData.length === 0) {
+        createFirstRider();
+        return;
+    }
+    
+    // Mostrar modal para seleccionar posición
+    showRiderPositionModal();
 }
 
 */
