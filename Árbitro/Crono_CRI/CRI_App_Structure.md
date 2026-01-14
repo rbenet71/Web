@@ -617,6 +617,9 @@ log(LOG_LEVEL.INFO, `Configuraciones completadas: ${configSuccess} éxitos, ${co
     - Validar con JavaScript (`validatePositionInput()`)
     - Permitir explícitamente teclas de control en `keydown` (`handlePositionKeydown()`)
     - Forzar `value = ''` después de crear elementos dinámicamente
+17. **✅ UN BOTÓN, UN CONFIGURADOR**: Cada botón debe ser configurado por una sola función
+18. **✅ EVITAR CONFIGURACIONES DUPLICADAS**: Verificar que no haya múltiples funciones configurando el mismo elemento
+19. **✅ USAR CLONACIÓN PARA RESET**: Cuando haya riesgo de listeners duplicados, clonar el elemento elimina todos los listeners anteriores
 
 ---
 
@@ -736,6 +739,54 @@ function handlePositionKeydown(event, maxPosition) {
 
 **Estado:** ✅ COMPLETAMENTE SOLUCIONADO en v3.3.4
 
+#### **12. Problema de modales duplicados al eliminar orden de salida**
+**Problema:** Al hacer clic en "Eliminar Orden de Salida", aparecía el modal de confirmación dos veces.
+
+**Causa raíz:**
+- **Configuración duplicada**: El botón `#delete-order-btn` tenía dos event listeners
+- `setupModalActionListeners()` configuraba el botón con clonación para eliminar listeners antiguos
+- `setupStartOrderEventListeners()` también configuraba el mismo botón sin prevención de duplicados
+- **Ambas funciones** se llamaban desde `initApp()` en el array `quickConfigs`
+
+**Solución implementada:**
+1. **Eliminar configuración duplicada**: Remover `delete-order-btn` de `setupStartOrderEventListeners()`
+2. **Centralizar en una función**: Dejar que solo `setupModalActionListeners()` maneje este botón
+3. **Mantener solución robusta**: `setupModalActionListeners()` clona el botón para eliminar listeners antiguos
+
+**Código modificado:**
+```javascript
+// En setupStartOrderEventListeners() - ANTES:
+const orderListeners = [
+    { id: 'create-template-btn', handler: createStartOrderTemplate, name: 'createStartOrderTemplate' },
+    { id: 'import-order-btn', handler: importStartOrder, name: 'importStartOrder' },
+    { id: 'delete-order-btn', handler: deleteStartOrder, name: 'deleteStartOrder' }, // ❌ ELIMINADO
+    // ...
+];
+
+// En setupModalActionListeners() - MANTENIDO (solución robusta):
+const deleteOrderBtn = document.getElementById('delete-order-btn');
+if (deleteOrderBtn) {
+    // Clonar botón para eliminar todos los listeners anteriores
+    const newBtn = deleteOrderBtn.cloneNode(true);
+    deleteOrderBtn.parentNode.replaceChild(newBtn, deleteOrderBtn);
+    // Configurar UN único listener con prevención de duplicados
+    // ...
+}
+```
+
+**Archivos afectados:**
+- `Salidas_1.js` o donde esté `setupStartOrderEventListeners()`
+- `UI.js` o donde esté `setupModalActionListeners()`
+- `Main.js` - `initApp()` llama a ambas funciones
+
+**Regla de oro añadida:** 
+- ✅ **Un botón, un configurador**: Cada botón debe ser configurado por una sola función
+- ✅ **Evitar configuraciones duplicadas**: Verificar que no haya múltiples funciones configurando el mismo elemento
+- ✅ **Usar clonación para reset**: Cuando haya riesgo de listeners duplicados, clonar el elemento elimina todos los listeners anteriores
+- ✅ **Centralizar configuración de botones**: Agrupar configuración de botones relacionados en la misma función
+
+**Estado:** ✅ SOLUCIONADO en v3.3.4
+
 ---
 
 ## **12. CHECKLIST PARA CAMBIOS** ⭐
@@ -756,6 +807,7 @@ function handlePositionKeydown(event, maxPosition) {
 - [ ] **✅ Agrupar configuraciones** cuando sea posible
 - [ ] **✅ Usar `callIfFunction()`** para manejo elegante de funciones faltantes
 - [ ] **✅ Para campos numéricos de texto**: NO usar `pattern`, `max`, `min`; validar con JS
+- [ ] **✅ Verificar duplicación de event listeners** en botones
 
 ### **DESPUÉS de modificar:**
 - [ ] Probar en múltiples navegadores
@@ -768,6 +820,7 @@ function handlePositionKeydown(event, maxPosition) {
 - [ ] **✅ Verificar logs en consola** (solo información necesaria)
 - [ ] **✅ Probar inicialización optimizada** (resumen claro, no logs excesivos)
 - [ ] **✅ Probar campos de texto numéricos** permiten borrado completo
+- [ ] **✅ Verificar que botones no abran múltiples modales**
 
 ### **SI hay errores:**
 - [ ] Revisar **Lecciones Aprendidas** (problemas similares)
@@ -776,6 +829,7 @@ function handlePositionKeydown(event, maxPosition) {
 - [ ] Comprobar localStorage (datos corruptos)
 - [ ] **✅ Usar `callIfFunction()`** para identificar funciones faltantes
 - [ ] **✅ Verificar atributos HTML** en campos problemáticos
+- [ ] **✅ Verificar duplicación de event listeners**
 
 ---
 
@@ -819,6 +873,7 @@ function handlePositionKeydown(event, maxPosition) {
 | **✅ Sistema de logging** | `Main.js` | (centralizado) |
 | **✅ Optimización consola** | `Main.js` | (todos los módulos) |
 | **✅ Validación campos numéricos** | `Salidas_3.js` | `UI.js` |
+| **✅ Configuración event listeners** | `UI.js` / `Salidas_1.js` | `Main.js` |
 
 ---
 
@@ -836,6 +891,13 @@ function handlePositionKeydown(event, maxPosition) {
 9. **✅ Corrección campo de posición en modal**: Solucionado problema que no permitía borrar completamente el campo de posición
 10. **✅ Validación manual de campos numéricos**: Reemplazada validación HTML por JavaScript para mayor control
 11. **✅ Eliminación de atributos conflictivos**: `pattern`, `max`, `inputmode` removidos de campos type="text"
+12. **✅ Corrección modales duplicados**: Solucionado problema de dos modales al eliminar orden de salida
+13. **✅ Prevención de duplicación de event listeners**: Clonación de botones para eliminar listeners antiguos
+
+### **Reglas de oro añadidas:**
+1. **CAMPOS DE TEXTO NUMÉRICOS**: Validación JavaScript, no atributos HTML conflictivos
+2. **UN BOTÓN, UN CONFIGURADOR**: Evitar múltiples funciones configurando el mismo botón
+3. **CLONACIÓN PARA RESET**: Eliminar listeners duplicados clonando elementos
 
 ### **Resultados:**
 - **Consola limpia**: Solo mensajes importantes
@@ -845,9 +907,10 @@ function handlePositionKeydown(event, maxPosition) {
 - **Rendimiento**: Menos operaciones de console.log
 - **Usabilidad mejorada**: Campos numéricos permiten borrado completo
 - **Compatibilidad**: Funciona en todos los navegadores modernos
+- **Estabilidad**: Botones no abren múltiples modales
 
 **Documentación optimizada para modificaciones - v3.3.4**  
-**Caracteres:** ~31,800 (incluye sistema logging optimizado y correcciones)  
+**Caracteres:** ~33,200 (incluye sistema logging optimizado y correcciones)  
 **Cobertura:** 100% funcionalidades necesarias para programar  
 **Última actualización:** Enero 2026  
 
@@ -922,6 +985,7 @@ Con tu aprobación, procederé según estos criterios:
 4. **Eliminación proactiva** de código no utilizado
 5. **Instrucciones claras** y autocontenidas
 6. **Para campos numéricos de texto**: Validación JS, no atributos HTML conflictivos
+7. **Un botón, un configurador**: Evitar múltiples funciones configurando el mismo elemento
 
 ## **CONFIRMACIÓN EN CADA INTERACCIÓN**
 Después de cada propuesta o pregunta, mi mensaje incluirá:

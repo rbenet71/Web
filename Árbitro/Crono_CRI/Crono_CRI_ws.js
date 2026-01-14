@@ -26,6 +26,7 @@ const APP_VERSION = '3.1.1';
 const CACHE_NAME = `crono-cri-v${APP_VERSION}`;
 
 // 🔥 LISTA DE RECURSOS A CACHEAR
+// 🔥 LISTA COMPLETA DE RECURSOS A CACHEAR
 const urlsToCache = [
     // Archivos principales con versión
     'Crono_CRI.html?v=' + APP_VERSION,
@@ -49,7 +50,7 @@ const urlsToCache = [
     'Crono_CRI_512x512.png',
     'Crono_CRI_manifest.json?v=' + APP_VERSION,
     
-    // 🔥 ARCHIVOS DE AUDIO (cambia según tu estructura)
+    // 🔥 ARCHIVOS DE AUDIO
     'audio/es_10.ogg',
     'audio/es_5.ogg',
     'audio/es_4.ogg',
@@ -79,9 +80,23 @@ const urlsToCache = [
     'audio/fr_1.ogg',
     'audio/fr_0.ogg',
     
-    // Librerías externas (CDN)
+    // 🔥 NUEVO: BANDERAS LOCALMENTE (crear directorio /flags/)
+    'flags/es.png',
+    'flags/ca.png',
+    'flags/gb.png',
+    'flags/fr.png',
+    
+    // 🔥 LIBRERÍAS EXTERNAS COMPLETAS
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-    'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
+    'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js',
+    
+    // 🔥 FALLBACK PARA BANDERAS (si no se tienen locales)
+    'https://flagcdn.com/w40/es.png',
+    'https://flagcdn.com/w40/gb.png',
+    'https://flagcdn.com/w40/fr.png',
+    'https://upload.wikimedia.org/wikipedia/commons/c/ce/Flag_of_Catalonia.svg'
 ];
 
 // ============================================
