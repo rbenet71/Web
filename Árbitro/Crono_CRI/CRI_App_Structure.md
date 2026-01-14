@@ -1,4 +1,4 @@
-# **CRI App - Documentación Optimizada para Modificaciones v3.3.4**
+# **CRI App - Documentación Optimizada para Modificaciones v3.3.4.1**
 
 ## 📋 **ÍNDICE RÁPIDO**
 - [**1. Visión General**](#1-visión-general)
@@ -17,7 +17,7 @@
 ---
 
 ## **1. VISIÓN GENERAL**
-Crono CRI v3.3.4 - PWA para control de salidas/llegadas en carreras ciclistas.
+Crono CRI v3.3.4.1 - PWA para control de salidas/llegadas en carreras ciclistas.
 - **Modo Salidas**: Cuenta atrás basada en cronoSalida de tabla
 - **Modo Llegadas**: Cronometraje con milésimas, posiciones automáticas
 - **4 idiomas**: ES, CA, EN, FR
@@ -686,7 +686,7 @@ log(LOG_LEVEL.INFO, `Configuraciones completadas: ${configSuccess} éxitos, ${co
 3. **Restricción de teclado:** `inputmode="numeric"` puede forzar teclados móviles que bloquean teclas como Backspace completa
 4. **Valor por defecto bloqueado:** El campo tenía un valor inicial que algunos navegadores protegen
 
-**Solución implementada (v3.3.4+):**
+**Solución implementada (v3.3.4.1+):**
 ```javascript
 // 1. HTML limpio (sin atributos problemáticos)
 <input type="text" 
@@ -737,7 +737,7 @@ function handlePositionKeydown(event, maxPosition) {
 - ✅ **Validar con JavaScript** en lugar de depender de validación HTML
 - ✅ **Permitir teclas de control** explícitamente en manejadores de teclado
 
-**Estado:** ✅ COMPLETAMENTE SOLUCIONADO en v3.3.4
+**Estado:** ✅ COMPLETAMENTE SOLUCIONADO en v3.3.4.1
 
 #### **12. Problema de modales duplicados al eliminar orden de salida**
 **Problema:** Al hacer clic en "Eliminar Orden de Salida", aparecía el modal de confirmación dos veces.
@@ -785,7 +785,7 @@ if (deleteOrderBtn) {
 - ✅ **Usar clonación para reset**: Cuando haya riesgo de listeners duplicados, clonar el elemento elimina todos los listeners anteriores
 - ✅ **Centralizar configuración de botones**: Agrupar configuración de botones relacionados en la misma función
 
-**Estado:** ✅ SOLUCIONADO en v3.3.4
+**Estado:** ✅ SOLUCIONADO en v3.3.4.1
 
 ---
 
@@ -877,7 +877,7 @@ if (deleteOrderBtn) {
 
 ---
 
-## **🎯 RESUMEN DE CAMBIOS v3.3.4**
+## **🎯 RESUMEN DE CAMBIOS v3.3.4.1**
 
 ### **Mejoras principales:**
 1. **✅ Sistema de logging optimizado** (80% reducción logs)
@@ -909,7 +909,7 @@ if (deleteOrderBtn) {
 - **Compatibilidad**: Funciona en todos los navegadores modernos
 - **Estabilidad**: Botones no abren múltiples modales
 
-**Documentación optimizada para modificaciones - v3.3.4**  
+**Documentación optimizada para modificaciones - v3.3.4.1**  
 **Caracteres:** ~33,200 (incluye sistema logging optimizado y correcciones)  
 **Cobertura:** 100% funcionalidades necesarias para programar  
 **Última actualización:** Enero 2026  

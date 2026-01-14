@@ -22,7 +22,7 @@ ELEMENTOS PRINCIPALES:
 TECNOLOGÍAS INCLUIDAS:
    - Font Awesome 6.4.0 (iconos)
    - XLSX 0.18.5 (exportación Excel)
-   - jsPDF 3.4 (exportación PDF)
+   - jsPDF 3.4.1 (exportación PDF)
    - Google Analytics (G-CV925PMBQV)
 
 ARCHIVOS RELACIONADOS:
@@ -410,6 +410,12 @@ ESTRUCTURA MODULAR:
             <div id="mode-llegadas-content" class="mode-content">
                 <!-- Cronómetro principal (Modo Llegadas) -->
                 <div class="app-card llegadas-timer-card">
+                    <div class="card-header-controls">
+                        <button class="card-toggle-btn" data-target="race-management-card" title="Minimizar/Expandir">
+                            <i class="fas fa-chevron-up"></i>
+                        </button>
+                        <span class="card-collapse-indicator"><i class="fas fa-chevron-down"></i></span>
+                    </div>
                     <div class="card-header">
                         <h2><i class="fas fa-stopwatch"></i> <span id="llegadas-timer-title">Cronómetro de Llegadas</span></h2>
                     </div>
@@ -429,11 +435,20 @@ ESTRUCTURA MODULAR:
                         </div>
                     </div>
                 </div>
-
                 <!-- Tabla de llegadas registradas (Modo Llegadas) -->
                 <div class="app-card llegadas-list-card">
                     <div class="card-header">
-                        <h2><i class="fas fa-list-ol"></i> <span id="llegadas-list-title">Llegadas Registradas</span></h2>
+                        <div class="card-header-controls">
+                            <button class="card-toggle-btn" data-target="llegadas-list-card" title="Minimizar/Expandir">
+                                <i class="fas fa-chevron-up"></i>
+                            </button>
+                            <span class="card-collapse-indicator"><i class="fas fa-chevron-down"></i></span>
+                        </div>
+                        <h2><i class="fas fa-list-ol"></i> 
+                            <!-- Texto fijo + contador dinámico - VERSIÓN 3.4.1.1 -->
+                            <span id="llegadas-list-title-static">Llegadas Registradas</span>
+                            <span id="llegadas-list-counter" style="font-size: 0.9em; margin-left: 10px; color: #666;"></span>
+                        </h2>
                     </div>
                     <div class="card-body">
                         <div class="llegadas-table-container">
@@ -441,15 +456,15 @@ ESTRUCTURA MODULAR:
                             <table class="llegadas-table" id="llegadas-table">
                                 <thead>
                                     <tr>
-                                        <!-- ORDEN DE 14 COLUMNAS (13 + posición por categoría) - VERSIÓN 3.3.4 -->
+                                        <!-- ORDEN DE 14 COLUMNAS (13 + posición por categoría) - VERSIÓN 3.3.4.1 -->
                                         <th class="sortable" data-sort="dorsal" id="dorsalHeader">Dorsal</th>
                                         <th class="sortable" data-sort="cronoLlegada" id="cronoLlegadaHeader">Crono Llegada</th>
                                         <th class="sortable" data-sort="tiempoFinal" id="tiempoFinalHeader">Tiempo Final</th>
-                                        <!-- COLUMNA 3.3.4 - POSICIÓN GENERAL -->
+                                        <!-- COLUMNA 3.3.4.1 - POSICIÓN GENERAL -->
                                         <th class="sortable" data-sort="position" id="positionHeader">Posición</th>
                                         <th class="sortable" data-sort="nombre" id="nombreHeader">Nombre</th>
                                         <th class="sortable" data-sort="apellidos" id="apellidosHeader">Apellidos</th>
-                                        <!-- NUEVA COLUMNA 3.3.4 - POSICIÓN POR CATEGORÍA -->
+                                        <!-- NUEVA COLUMNA 3.3.4.1 - POSICIÓN POR CATEGORÍA -->
                                         <th class="sortable" data-sort="posCat" id="posCatHeader">Pos. Cat.</th>
                                         <th class="sortable" data-sort="categoria" id="categoriaHeader">Categoría</th>
                                         <th class="sortable" data-sort="cronoSalida" id="cronoSalidaHeader">Crono Salida</th>
@@ -502,9 +517,6 @@ ESTRUCTURA MODULAR:
                         </div>
                     </div>
                 </div>
-
-
-
                 <!-- Botón flotante para registro rápido -->
                 <button class="quick-register-btn" id="quickRegisterBtn" title="Registrar llegada rápida">
                     <i class="fas fa-flag-checkered"></i>
@@ -572,7 +584,7 @@ ESTRUCTURA MODULAR:
                 <div class="copyright" id="copyright-text">
                     2026 © Copyright 
                     <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                        Roberto Benet - rbenet71@gmail.com - Ver: 3.4
+                        Roberto Benet - rbenet71@gmail.com - Ver: 3.4.1
                     </a>
                 </div>
             </div>

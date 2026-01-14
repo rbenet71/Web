@@ -576,6 +576,8 @@ const translations = {
         posCatHeader: "Pos. Cat.",
         posCatHeaderTooltip: "Posición dentro de la categoría",
 
+        llegadasCounterTemplate: "{x} de {y} Corredores",  // Ej: "6 de 33 Corredores"
+
     },
 
     ca: {
@@ -1160,6 +1162,8 @@ const translations = {
 
         posCatHeader: "Pos. Cat.",
         posCatHeaderTooltip: "Posició dins de la categoria",
+
+        llegadasCounterTemplate: "{x} de {y} Corredors",  // Ej: "6 de 33 Corredors"
     },
 
     en: {
@@ -1738,6 +1742,8 @@ const translations = {
 
         posCatHeader: "Cat. Pos.",
         posCatHeaderTooltip: "Position within category",
+
+        llegadasCounterTemplate: "{x} of {y} Riders",  // Ej: "6 of 33 Riders"
     },
 
     fr: {
@@ -2337,6 +2343,8 @@ const translations = {
 
         posCatHeader: "Pos. Cat.",
         posCatHeaderTooltip: "Position dans la catégorie",
+
+        llegadasCounterTemplate: "{x} sur {y} Coureurs",  // Ej: "6 sur 33 Coureurs"
     }
 };
 
@@ -2481,7 +2489,8 @@ function updateModeContent(t) {
     setTextIfExists('stop-llegadas-text', t.stopLlegadasText);
     setTextIfExists('register-llegada-text', t.registerLlegadaText);
     setTextIfExists('import-llegadas-text', t.importLlegadasText);
-    setTextIfExists('llegadas-list-title', t.llegadasListTitle);
+    setTextIfExists('llegadasListTitle', t.llegadasListTitle);
+    setTextIfExists('llegadasCounterTemplate', t.llegadasCounterTemplate);
     setTextIfExists('clear-llegadas-text', t.clearLlegadasText);
     setTextIfExists('export-llegadas-text', t.exportLlegadasText);
     setTextIfExists('show-ranking-text', t.showRankingText);
@@ -2611,7 +2620,7 @@ function updateTableHeaders(t) {
     // ✅ USAR SISTEMA DE LOGGING OPTIMIZADO
     log(LOG_LEVEL.DEBUG, "Actualizando cabeceras de tabla...");
     
-    // Lista COMPLETA de IDs (21 columnas - versión 3.4)
+    // Lista COMPLETA de IDs (21 columnas - versión 3.4.1)
     const headerIds = [
         'orderHeader', 'dorsalHeader', 'cronoSalidaHeader', 'horaSalidaHeader',
         'diferenciaHeader', 'nombreHeader', 'apellidosHeader', 'categoriaHeader', // ✅ NUEVO 3.2.1

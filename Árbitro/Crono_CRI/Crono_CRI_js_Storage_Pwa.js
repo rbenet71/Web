@@ -1054,12 +1054,12 @@ function setupServiceWorker() {
     // Solo registrar si estamos en localhost o HTTPS
     if (isLocalhost || isHttps) {
         // 🔥 CAMBIO PRINCIPAL: Registrar el SW específico de Crono CRI
-        const swFile = 'Crono_CRI_ws.js?v=3.4';
+        const swFile = 'Crono_CRI_ws.js?v=3.4.1';
         console.log(`📁 Registrando ServiceWorker: ${swFile}`);
         
         navigator.serviceWorker.register(swFile)
             .then(registration => {
-                console.log('✅ ServiceWorker Crono CRI v3.4 registrado exitosamente:', registration.scope);
+                console.log('✅ ServiceWorker Crono CRI v3.4.1 registrado exitosamente:', registration.scope);
                 
                 // 🔥 NUEVO: Forzar actualización inmediata
                 console.log('🔄 Forzando actualización del ServiceWorker...');
@@ -1154,7 +1154,7 @@ function cleanupOldCaches() {
     console.log('🧹 Limpiando cachés antiguos...');
     
     // Limpiar localStorage de versiones antiguas
-    const currentVersion = '3.4';
+    const currentVersion = '3.4.1';
     const keysToKeep = [
         'app-mode',
         'card-expanded-race-management',
@@ -2018,7 +2018,7 @@ function createRaceBackup() {
         version: '1.0',
         appName: 'Crono CRI',
         exportDate: new Date().toISOString(),
-        exportVersion: 'V_3.4',
+        exportVersion: 'V_3.4.1',
         dataType: 'single-race',
         race: {
             // Copiar TODOS los datos de la carrera del array

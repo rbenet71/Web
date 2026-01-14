@@ -171,6 +171,7 @@ function initLlegadasMode() {
     renderLlegadasList();
     
     console.log("Modo llegadas inicializado");
+    actualizarContadorLlegadas();
 }
 
 function updateLlegadasTimerDisplay() {
@@ -241,6 +242,11 @@ function capturarLlegadaDirecta() {
         
         saveLlegadasState();
         renderLlegadasList();
+        
+        showMessage(`Llegada capturada: ${formatSecondsWithMilliseconds(cronoLlegadaWithMs)}`, 'success', 1500);
+        
+        // NUEVO 3.4.1.1: Actualizar contador
+        actualizarContadorLlegadas();
         
         showMessage(`Llegada capturada: ${formatSecondsWithMilliseconds(cronoLlegadaWithMs)}`, 'success', 1500);
         
@@ -365,6 +371,8 @@ function actualizarDorsal(index, nuevoDorsal) {
     } else {
         showMessage(`📝 Dorsal ${dorsal} almacenado (datos no encontrados)`, 'info', 2000);
     }
+
+    actualizarContadorLlegadas();
 }
 
 function resetearDatosLlegada(index) {
@@ -424,7 +432,7 @@ function actualizarFilaLlegada(index) {
     
     const celdas = fila.querySelectorAll('td');
     
-    // NUEVO 3.3.4: Calcular posiciones por categoría
+    // NUEVO 3.3.4.1: Calcular posiciones por categoría
     const mapaPosicionesPorCategoria = calcularPosicionesPorCategoria(llegadasState.llegadas);
     const posicionCategoria = mapaPosicionesPorCategoria[llegada.id] || '';
     
@@ -451,7 +459,7 @@ function actualizarFilaLlegada(index) {
     // 5: Apellidos
     celdas[5].textContent = llegada.apellidos || '';
     
-    // 6: POSICIÓN POR CATEGORÍA - NUEVO 3.3.4
+    // 6: POSICIÓN POR CATEGORÍA - NUEVO 3.3.4.1
     celdas[6].textContent = posicionCategoria;
     celdas[6].className = 'posicion-categoria';
     
@@ -479,7 +487,7 @@ function actualizarFilaLlegada(index) {
 }
 
 // ============================================
-// ACTUALIZAR UNA SOLA FILA CON POSICIÓN - ACTUALIZADO 3.3.4
+// ACTUALIZAR UNA SOLA FILA CON POSICIÓN - ACTUALIZADO 3.3.4.1
 // ============================================
 function actualizarFilaLlegadaIndividual(index) {
     const llegada = llegadasState.llegadas[index];
@@ -494,7 +502,7 @@ function actualizarFilaLlegadaIndividual(index) {
     const mapaPosiciones = calcularMapaPosiciones(llegadasState.llegadas);
     const posicion = mapaPosiciones[llegada.id] || '';
     
-    // NUEVO 3.3.4: Calcular posición por categoría
+    // NUEVO 3.3.4.1: Calcular posición por categoría
     const mapaPosicionesPorCategoria = calcularPosicionesPorCategoria(llegadasState.llegadas);
     const posicionCategoria = mapaPosicionesPorCategoria[llegada.id] || '';
     
@@ -518,7 +526,7 @@ function actualizarFilaLlegadaIndividual(index) {
     // Apellidos (col 6)
     celdas[5].textContent = llegada.apellidos || '';
     
-    // POSICIÓN POR CATEGORÍA (col 7) - NUEVO 3.3.4
+    // POSICIÓN POR CATEGORÍA (col 7) - NUEVO 3.3.4.1
     celdas[6].textContent = posicionCategoria;
     celdas[6].className = 'posicion-categoria';
     
@@ -546,7 +554,7 @@ function actualizarFilaLlegadaIndividual(index) {
 }
 
 // ============================================
-// RENDERIZADO DE TABLA CON 14 COLUMNAS (NUEVO ORDEN 3.3.4)
+// RENDERIZADO DE TABLA CON 14 COLUMNAS (NUEVO ORDEN 3.3.4.1)
 // ============================================
 function renderLlegadasList() {
     const tableBody = document.getElementById('llegadas-table-body');
@@ -565,7 +573,7 @@ function renderLlegadasList() {
     // Calcular posiciones generales
     const mapaPosiciones = calcularMapaPosiciones(llegadasState.llegadas);
     
-    // NUEVO 3.3.4: Calcular posiciones por categoría
+    // NUEVO 3.3.4.1: Calcular posiciones por categoría
     const mapaPosicionesPorCategoria = calcularPosicionesPorCategoria(llegadasState.llegadas);
     
     let html = '';
@@ -581,7 +589,7 @@ function renderLlegadasList() {
             ? (mapaPosiciones[llegada.id] || '')
             : '';
         
-        // Obtener posición por categoría (NUEVO 3.3.4)
+        // Obtener posición por categoría (NUEVO 3.3.4.1)
         const posicionCategoria = mapaPosicionesPorCategoria[llegada.id] || '';
         
         html += `
@@ -609,7 +617,7 @@ function renderLlegadasList() {
             <!-- 6. Apellidos (columna 6) -->
             <td>${llegada.apellidos || ''}</td>
             
-            <!-- 7. POSICIÓN POR CATEGORÍA (columna 7) - NUEVO 3.3.4 -->
+            <!-- 7. POSICIÓN POR CATEGORÍA (columna 7) - NUEVO 3.3.4.1 -->
             <td class="posicion-categoria">${posicionCategoria}</td>
             
             <!-- 8. Categoría (columna 8) - MOVIDA AQUÍ -->
@@ -637,6 +645,8 @@ function renderLlegadasList() {
     });
     
     tableBody.innerHTML = html;
+
+    actualizarContadorLlegadas();
 }
 
 // =====================================
@@ -660,6 +670,10 @@ function clearLlegadas() {
         saveLlegadasState();
         renderLlegadasList();
         showMessage("Llegadas eliminadas", 'success');
+       
+        // NUEVO 3.4.1.1: Actualizar contador
+        actualizarContadorLlegadas();
+
     }
 }
 
@@ -741,7 +755,7 @@ function exportLlegadasToExcel() {
         return;
     }
     
-    // NUEVO 3.3.4: Calcular posiciones por categoría
+    // NUEVO 3.3.4.1: Calcular posiciones por categoría
     const mapaPosicionesPorCategoria = calcularPosicionesPorCategoria(llegadasState.llegadas);
     
     // Ordenar por tiempo final (USANDO tiempoFinalWithMs)
@@ -757,7 +771,7 @@ function exportLlegadasToExcel() {
         ['Hora', new Date().toLocaleTimeString()],
         ['Total llegadas', llegadasState.llegadas.length],
         [''],
-        // VERSIÓN 3.3.4 - HEADER ACTUALIZADO (14 COLUMNAS - NUEVO ORDEN)
+        // VERSIÓN 3.3.4.1 - HEADER ACTUALIZADO (14 COLUMNAS - NUEVO ORDEN)
         ['Dorsal', 'Crono Llegada', 'Tiempo Final', 'Posición', 'Nombre', 'Apellidos', 
          'Pos. Cat.', 'Categoria', 'Crono Salida', 'Hora Llegada', 'Hora Salida', 'Chip', 
          'Equipo', 'Licencia', 'Notas']  // Notas sigue siendo la columna 15
@@ -849,7 +863,7 @@ function exportRankingToExcel() {
         return;
     }
     
-    // NUEVO 3.3.4: Calcular posiciones por categoría
+    // NUEVO 3.3.4.1: Calcular posiciones por categoría
     const mapaPosicionesPorCategoria = calcularPosicionesPorCategoria(llegadasConTiempo);
     
     const data = [
@@ -858,7 +872,7 @@ function exportRankingToExcel() {
         ['Hora', new Date().toLocaleTimeString()],
         ['Total', llegadasConTiempo.length],
         [''],
-        // VERSIÓN 3.3.4 - HEADER ACTUALIZADO (NUEVO ORDEN)
+        // VERSIÓN 3.3.4.1 - HEADER ACTUALIZADO (NUEVO ORDEN)
         ['Pos', 'Dorsal', 'Nombre', 'Apellidos', 'Pos. Cat.', 'Categoria', 'Equipo', 'Crono Salida', 
          'Crono Llegada', 'Tiempo Final', 'Diferencia']
     ];
@@ -1153,7 +1167,7 @@ function calcularMapaPosiciones(llegadas) {
 }
 
 // ============================================
-// CALCULAR POSICIONES POR CATEGORÍA - NUEVO 3.3.4
+// CALCULAR POSICIONES POR CATEGORÍA - NUEVO 3.3.4.1
 // ============================================
 function calcularPosicionesPorCategoria(llegadas) {
     // 1. Agrupar llegadas por categoría
@@ -1229,7 +1243,7 @@ function getCurrentTimeInSecondsWithMilliseconds() {
 // FUNCIÓN PARA GENERAR PDF DE CLASIFICACIÓN
 // ============================================
 // ============================================
-// FUNCIÓN PARA GENERAR PDF DE CLASIFICACIÓN - ACTUALIZADO 3.3.4
+// FUNCIÓN PARA GENERAR PDF DE CLASIFICACIÓN - ACTUALIZADO 3.3.4.1
 // ============================================
 function exportRankingToPDF() {
     console.log("📄 Iniciando exportación a PDF de clasificación...");
@@ -1317,11 +1331,11 @@ function exportRankingToPDF() {
             return { ...llegada, diferenciaFormatted };
         });
         
-        // NUEVO 3.3.4: Calcular posiciones por categoría para PDF
+        // NUEVO 3.3.4.1: Calcular posiciones por categoría para PDF
         const mapaPosicionesPorCategoria = calcularPosicionesPorCategoria(llegadasConDiferencia);
         
         // ============================================
-        // CONFIGURACIÓN DE TABLA - NUEVO ORDEN 3.3.4
+        // CONFIGURACIÓN DE TABLA - NUEVO ORDEN 3.3.4.1
         // ============================================
         const posWidth = 12;          // POS
         const dorsalWidth = 15;       // DORSAL  
@@ -1340,7 +1354,7 @@ function exportRankingToPDF() {
         // Calcular margen izquierdo para centrar tabla
         const tableMarginLeft = margin + (contentWidth - totalTableWidth) / 2;
         
-        // Array de anchos de columna (NUEVO ORDEN 3.3.4)
+        // Array de anchos de columna (NUEVO ORDEN 3.3.4.1)
         const columnWidths = [posWidth, dorsalWidth, nombreWidth, apellidosWidth, 
                             posCatWidth, categoriaWidth, equipoWidth, tiempoFinalWidth, diferenciaWidth];
         
@@ -1432,13 +1446,13 @@ function exportRankingToPDF() {
             doc.setFont("helvetica", "bold");
             doc.setTextColor(255, 255, 255);
             
-            // CABECERAS CON TRADUCCIONES (orden nuevo 3.3.4)
+            // CABECERAS CON TRADUCCIONES (orden nuevo 3.3.4.1)
             const headers = [
                 t.position || "POS",
                 t.bibNumber || "DORSAL", 
                 t.name || "NOMBRE",
                 t.surname || "APELLIDOS",
-                "POS. CAT.",  // NUEVO 3.3.4
+                "POS. CAT.",  // NUEVO 3.3.4.1
                 t.category || "CATEGORÍA",
                 t.team || "EQUIPO",
                 t.timeFinal || "TIEMPO FINAL",
@@ -1541,7 +1555,7 @@ function exportRankingToPDF() {
                     doc.text(adjustedApellidos, xPosition + 2, startY + 2);
                     xPosition += columnWidths[3];
                     
-                    // POS. CAT. (NUEVO 3.3.4) - ASEGURAR QUE ES STRING
+                    // POS. CAT. (NUEVO 3.3.4.1) - ASEGURAR QUE ES STRING
                     const posicionCategoria = mapaPosicionesPorCategoria[llegada.id] || "";
                     const posicionCategoriaStr = posicionCategoria.toString(); // CONVERTIR A STRING
                     doc.text(posicionCategoriaStr, xPosition + (columnWidths[4] / 2), startY + 2, { align: "center" });
@@ -2229,6 +2243,57 @@ function closeExternalScreen() {
     if (externalScreenCloseDetector) {
         clearInterval(externalScreenCloseDetector);
         externalScreenCloseDetector = null;
+    }
+}
+
+// ============================================
+// ACTUALIZAR CONTADOR DE LLEGADAS - NUEVO 3.4.1.1 (VERSIÓN CORREGIDA)
+// ============================================
+function actualizarContadorLlegadas() {
+    try {
+        const counterElement = document.getElementById('llegadas-list-counter');
+        if (!counterElement) {
+            console.log("⚠️ Elemento llegadas-list-counter no encontrado");
+            return;
+        }
+        
+        // 1. Calcular llegadas con tiempo válido
+        const llegadasConTiempo = llegadasState.llegadas.filter(l => 
+            l.dorsal && l.tiempoFinalWithMs && l.tiempoFinalWithMs > 0);
+        const x = llegadasConTiempo.length;
+        
+        // 2. Obtener total de corredores en orden de salida
+        let y = 0;
+        if (typeof startOrderData !== 'undefined' && Array.isArray(startOrderData)) {
+            y = startOrderData.length;
+        } else {
+            // Intentar obtener de otra manera
+            const currentRace = appState.currentRace;
+            if (currentRace && currentRace.startOrder && Array.isArray(currentRace.startOrder)) {
+                y = currentRace.startOrder.length;
+            } else if (appState.races && appState.races.length > 0) {
+                // Buscar en todas las carreras
+                const race = appState.races.find(r => r.id === appState.currentRace.id);
+                if (race && race.startOrder) {
+                    y = race.startOrder.length;
+                }
+            }
+        }
+        
+        // 3. Obtener traducciones
+        const t = translations[appState.currentLanguage];
+        const template = t.llegadasCounterTemplate || "{x} de {y} Corredores";
+        
+        // 4. Formatear contador
+        const contador = template.replace('{x}', x).replace('{y}', y);
+        
+        // 5. Actualizar elemento
+        counterElement.textContent = `- ${contador}`;
+        
+        console.log(`📊 Contador actualizado: ${x} de ${y} corredores`);
+        
+    } catch (error) {
+        console.error("❌ Error actualizando contador de llegadas:", error);
     }
 }
 
