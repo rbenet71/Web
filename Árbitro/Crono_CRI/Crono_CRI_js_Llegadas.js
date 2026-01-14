@@ -424,8 +424,13 @@ function actualizarFilaLlegada(index) {
     
     const celdas = fila.querySelectorAll('td');
     
-    // Actualizar las 13 columnas (12 originales + posición) - VERSIÓN 3.2.1
-    // 0: Dorsal, 1: Crono Llegada, 2: Tiempo Final, 3: Posición, 4: Nombre, etc.
+    // NUEVO 3.3.4: Calcular posiciones por categoría
+    const mapaPosicionesPorCategoria = calcularPosicionesPorCategoria(llegadasState.llegadas);
+    const posicionCategoria = mapaPosicionesPorCategoria[llegada.id] || '';
+    
+    // Actualizar las 14 columnas (nuevo orden)
+    // 0: Dorsal, 1: Crono Llegada, 2: Tiempo Final, 3: Posición general, 
+    // 4: Nombre, 5: Apellidos, 6: Posición Categoría, 7: Categoría, etc.
     
     // 0: Dorsal
     celdas[0].textContent = llegada.dorsal || '';
@@ -437,7 +442,7 @@ function actualizarFilaLlegada(index) {
     // 2: Tiempo Final - CON 3 DECIMALES
     celdas[2].textContent = formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs);
     
-    // 3: POSICIÓN - NO actualizar aquí (se actualiza en renderLlegadasList o actualizarDorsal)
+    // 3: POSICIÓN GENERAL - NO actualizar aquí (se actualiza en renderLlegadasList o actualizarDorsal)
     // Mantener el valor actual
     
     // 4: Nombre
@@ -446,31 +451,35 @@ function actualizarFilaLlegada(index) {
     // 5: Apellidos
     celdas[5].textContent = llegada.apellidos || '';
     
-    // 6: Crono Salida - SIN DECIMALES (de tabla salida)
-    celdas[6].textContent = llegada.cronoSalida || '--:--:--';
+    // 6: POSICIÓN POR CATEGORÍA - NUEVO 3.3.4
+    celdas[6].textContent = posicionCategoria;
+    celdas[6].className = 'posicion-categoria';
     
-    // 7: Hora Llegada
-    celdas[7].textContent = llegada.horaLlegada || '--:--:--';
+    // 7: Categoría (movida aquí)
+    celdas[7].textContent = llegada.categoria || '';
+    celdas[7].className = 'categoria';
     
-    // 8: Hora Salida
-    celdas[8].textContent = llegada.horaSalida || '--:--:--';
+    // 8: Crono Salida - SIN DECIMALES (de tabla salida)
+    celdas[8].textContent = llegada.cronoSalida || '--:--:--';
     
-    // 9: Chip
-    celdas[9].textContent = llegada.chip || '';
+    // 9: Hora Llegada
+    celdas[9].textContent = llegada.horaLlegada || '--:--:--';
     
-    // VERSIÓN 3.2.1 - NUEVAS COLUMNAS (ACTIVAS)
-    // 10: Categoría
-    celdas[10].textContent = llegada.categoria || '';
+    // 10: Hora Salida
+    celdas[10].textContent = llegada.horaSalida || '--:--:--';
     
-    // 11: Equipo
-    celdas[11].textContent = llegada.equipo || '';
+    // 11: Chip
+    celdas[11].textContent = llegada.chip || '';
     
-    // 12: Licencia
-    celdas[12].textContent = llegada.licencia || '';
+    // 12: Equipo
+    celdas[12].textContent = llegada.equipo || '';
+    
+    // 13: Licencia
+    celdas[13].textContent = llegada.licencia || '';
 }
 
 // ============================================
-// ACTUALIZAR UNA SOLA FILA CON POSICIÓN - NUEVO 3.2.1
+// ACTUALIZAR UNA SOLA FILA CON POSICIÓN - ACTUALIZADO 3.3.4
 // ============================================
 function actualizarFilaLlegadaIndividual(index) {
     const llegada = llegadasState.llegadas[index];
@@ -481,11 +490,15 @@ function actualizarFilaLlegadaIndividual(index) {
     
     const celdas = fila.querySelectorAll('td');
     
-    // Calcular posición actual (basada en TODAS las llegadas)
+    // Calcular posiciones generales (basada en TODAS las llegadas)
     const mapaPosiciones = calcularMapaPosiciones(llegadasState.llegadas);
     const posicion = mapaPosiciones[llegada.id] || '';
     
-    // Actualizar las 13 columnas
+    // NUEVO 3.3.4: Calcular posición por categoría
+    const mapaPosicionesPorCategoria = calcularPosicionesPorCategoria(llegadasState.llegadas);
+    const posicionCategoria = mapaPosicionesPorCategoria[llegada.id] || '';
+    
+    // Actualizar las 14 columnas (nuevo orden)
     celdas[0].textContent = llegada.dorsal || '';
     celdas[0].className = llegada.dorsal ? '' : 'dorsal-pendiente';
     
@@ -495,7 +508,7 @@ function actualizarFilaLlegadaIndividual(index) {
     // Tiempo Final (col 3) - CON 3 DECIMALES
     celdas[2].textContent = formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs);
     
-    // POSICIÓN (col 4) - NUEVO 3.2.1
+    // POSICIÓN GENERAL (col 4)
     celdas[3].textContent = posicion;
     celdas[3].className = 'posicion';
     
@@ -505,30 +518,35 @@ function actualizarFilaLlegadaIndividual(index) {
     // Apellidos (col 6)
     celdas[5].textContent = llegada.apellidos || '';
     
-    // Crono Salida (col 7)
-    celdas[6].textContent = llegada.cronoSalida || '--:--:--';
+    // POSICIÓN POR CATEGORÍA (col 7) - NUEVO 3.3.4
+    celdas[6].textContent = posicionCategoria;
+    celdas[6].className = 'posicion-categoria';
     
-    // Hora Llegada (col 8)
-    celdas[7].textContent = llegada.horaLlegada || '--:--:--';
+    // Categoría (col 8) - Movida aquí
+    celdas[7].textContent = llegada.categoria || '';
+    celdas[7].className = 'categoria';
     
-    // Hora Salida (col 9)
-    celdas[8].textContent = llegada.horaSalida || '--:--:--';
+    // Crono Salida (col 9)
+    celdas[8].textContent = llegada.cronoSalida || '--:--:--';
     
-    // Chip (col 10)
-    celdas[9].textContent = llegada.chip || '';
+    // Hora Llegada (col 10)
+    celdas[9].textContent = llegada.horaLlegada || '--:--:--';
     
-    // Categoría (col 11)
-    celdas[10].textContent = llegada.categoria || '';
+    // Hora Salida (col 11)
+    celdas[10].textContent = llegada.horaSalida || '--:--:--';
     
-    // Equipo (col 12)
-    celdas[11].textContent = llegada.equipo || '';
+    // Chip (col 12)
+    celdas[11].textContent = llegada.chip || '';
     
-    // Licencia (col 13)
-    celdas[12].textContent = llegada.licencia || '';
+    // Equipo (col 13)
+    celdas[12].textContent = llegada.equipo || '';
+    
+    // Licencia (col 14)
+    celdas[13].textContent = llegada.licencia || '';
 }
 
 // ============================================
-// RENDERIZADO DE TABLA CON 9 COLUMNAS
+// RENDERIZADO DE TABLA CON 14 COLUMNAS (NUEVO ORDEN 3.3.4)
 // ============================================
 function renderLlegadasList() {
     const tableBody = document.getElementById('llegadas-table-body');
@@ -544,8 +562,11 @@ function renderLlegadasList() {
     
     emptyState.style.display = 'none';
     
-    // NUEVO 3.2.1: Calcular posiciones ANTES de renderizar
+    // Calcular posiciones generales
     const mapaPosiciones = calcularMapaPosiciones(llegadasState.llegadas);
+    
+    // NUEVO 3.3.4: Calcular posiciones por categoría
+    const mapaPosicionesPorCategoria = calcularPosicionesPorCategoria(llegadasState.llegadas);
     
     let html = '';
     
@@ -555,10 +576,13 @@ function renderLlegadasList() {
         const claseFila = esUltima ? 'ultima-llegada' : '';
         const claseDorsal = tieneDorsal ? '' : 'dorsal-pendiente';
         
-        // Obtener posición del mapa
+        // Obtener posición general
         const posicion = llegada.tiempoFinalWithMs && llegada.tiempoFinalWithMs > 0
             ? (mapaPosiciones[llegada.id] || '')
             : '';
+        
+        // Obtener posición por categoría (NUEVO 3.3.4)
+        const posicionCategoria = mapaPosicionesPorCategoria[llegada.id] || '';
         
         html += `
         <tr class="${claseFila}" data-id="${llegada.id}" data-index="${index}">
@@ -576,7 +600,7 @@ function renderLlegadasList() {
             <!-- 3. Tiempo Final (columna 3) -->
             <td class="tiempo-final">${formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs)}</td>
             
-            <!-- 4. POSICIÓN (columna 4) - NUEVO 3.2.1 - SOLO LECTURA -->
+            <!-- 4. POSICIÓN GENERAL (columna 4) -->
             <td class="posicion">${posicion}</td>
             
             <!-- 5. Nombre (columna 5) -->
@@ -585,26 +609,28 @@ function renderLlegadasList() {
             <!-- 6. Apellidos (columna 6) -->
             <td>${llegada.apellidos || ''}</td>
             
-            <!-- 7. Crono Salida (columna 7) -->
+            <!-- 7. POSICIÓN POR CATEGORÍA (columna 7) - NUEVO 3.3.4 -->
+            <td class="posicion-categoria">${posicionCategoria}</td>
+            
+            <!-- 8. Categoría (columna 8) - MOVIDA AQUÍ -->
+            <td class="categoria">${llegada.categoria || ''}</td>
+            
+            <!-- 9. Crono Salida (columna 9) -->
             <td class="crono-salida">${llegada.cronoSalida || '--:--:--'}</td>
             
-            <!-- 8. Hora Llegada (columna 8) -->
+            <!-- 10. Hora Llegada (columna 10) -->
             <td>${llegada.horaLlegada || '--:--:--'}</td>
             
-            <!-- 9. Hora Salida (columna 9) -->
+            <!-- 11. Hora Salida (columna 11) -->
             <td>${llegada.horaSalida || '--:--:--'}</td>
             
-            <!-- 10. Chip (columna 10) -->
+            <!-- 12. Chip (columna 12) -->
             <td>${llegada.chip || ''}</td>
             
-            <!-- VERSIÓN 3.2.1 - CAMPOS NUEVOS (ACTIVOS) -->
-            <!-- 11. Categoría (columna 11) -->
-            <td>${llegada.categoria || ''}</td>
-            
-            <!-- 12. Equipo (columna 12) -->
+            <!-- 13. Equipo (columna 13) -->
             <td>${llegada.equipo || ''}</td>
             
-            <!-- 13. Licencia (columna 13) -->
+            <!-- 14. Licencia (columna 14) -->
             <td>${llegada.licencia || ''}</td>
         </tr>
         `;
@@ -715,6 +741,9 @@ function exportLlegadasToExcel() {
         return;
     }
     
+    // NUEVO 3.3.4: Calcular posiciones por categoría
+    const mapaPosicionesPorCategoria = calcularPosicionesPorCategoria(llegadasState.llegadas);
+    
     // Ordenar por tiempo final (USANDO tiempoFinalWithMs)
     const llegadasOrdenadas = [...llegadasState.llegadas]
         .filter(l => l.tiempoFinalWithMs > 0)
@@ -728,10 +757,10 @@ function exportLlegadasToExcel() {
         ['Hora', new Date().toLocaleTimeString()],
         ['Total llegadas', llegadasState.llegadas.length],
         [''],
-        // VERSIÓN 3.2.1 - HEADER ACTUALIZADO (13 COLUMNAS + NOTAS)
+        // VERSIÓN 3.3.4 - HEADER ACTUALIZADO (14 COLUMNAS - NUEVO ORDEN)
         ['Dorsal', 'Crono Llegada', 'Tiempo Final', 'Posición', 'Nombre', 'Apellidos', 
-         'Crono Salida', 'Hora Llegada', 'Hora Salida', 'Chip', 
-         'Categoria', 'Equipo', 'Licencia', 'Notas']
+         'Pos. Cat.', 'Categoria', 'Crono Salida', 'Hora Llegada', 'Hora Salida', 'Chip', 
+         'Equipo', 'Licencia', 'Notas']  // Notas sigue siendo la columna 15
     ];
     
     let posicion = 1;
@@ -739,7 +768,7 @@ function exportLlegadasToExcel() {
     
     // Procesar llegadas con tiempo para manejar empates
     llegadasOrdenadas.forEach((llegada, index) => {
-        // Calcular posición considerando empates
+        // Calcular posición general considerando empates
         let posicionActual = posicion;
         if (index > 0 && tiempoAnterior !== null && 
             llegada.tiempoFinalWithMs === tiempoAnterior) {
@@ -752,40 +781,48 @@ function exportLlegadasToExcel() {
             tiempoAnterior = llegada.tiempoFinalWithMs;
         }
         
+        // Obtener posición por categoría
+        const posicionCategoria = mapaPosicionesPorCategoria[llegada.id] || '';
+        
         data.push([
             llegada.dorsal || '',
             formatSecondsWithMilliseconds(llegada.cronoLlegadaWithMs),
             formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs),
-            posicionActual, // NUEVO: Posición calculada
+            posicionActual,
             llegada.nombre || '',
             llegada.apellidos || '',
+            posicionCategoria,  // NUEVO: Posición por categoría
+            llegada.categoria || '',
             llegada.cronoSalida || '',
             llegada.horaLlegada || '',
             llegada.horaSalida || '',
             llegada.chip || '',
-            llegada.categoria || '', // NUEVO CAMPO 3.2.1
-            llegada.equipo || '', // NUEVO CAMPO 3.2.1
-            llegada.licencia || '', // NUEVO CAMPO 3.2.1
+            llegada.equipo || '',
+            llegada.licencia || '',
             llegada.notas || ''
         ]);
     });
     
     // Procesar llegadas sin tiempo
     llegadasSinTiempo.forEach(llegada => {
+        // Obtener posición por categoría (vacía si no tiene tiempo)
+        const posicionCategoria = '';
+        
         data.push([
             llegada.dorsal || 'PENDIENTE',
             formatSecondsWithMilliseconds(llegada.cronoLlegadaWithMs),
             'SIN TIEMPO',
-            '--', // Sin posición
+            '--',
             llegada.nombre || '',
             llegada.apellidos || '',
+            posicionCategoria,  // NUEVO: Posición por categoría
+            llegada.categoria || '',
             llegada.cronoSalida || '',
             llegada.horaLlegada || '',
             llegada.horaSalida || '',
             llegada.chip || '',
-            llegada.categoria || '', // NUEVO CAMPO 3.2.1
-            llegada.equipo || '', // NUEVO CAMPO 3.2.1
-            llegada.licencia || '', // NUEVO CAMPO 3.2.1
+            llegada.equipo || '',
+            llegada.licencia || '',
             llegada.notas || ''
         ]);
     });
@@ -812,14 +849,17 @@ function exportRankingToExcel() {
         return;
     }
     
+    // NUEVO 3.3.4: Calcular posiciones por categoría
+    const mapaPosicionesPorCategoria = calcularPosicionesPorCategoria(llegadasConTiempo);
+    
     const data = [
         ['Carrera', appState.currentRace ? appState.currentRace.name : 'Sin nombre'],
         ['Fecha', new Date().toLocaleDateString()],
         ['Hora', new Date().toLocaleTimeString()],
         ['Total', llegadasConTiempo.length],
         [''],
-        // VERSIÓN 3.2.1 - HEADER ACTUALIZADO
-        ['Pos', 'Dorsal', 'Nombre', 'Categoria', 'Equipo', 'Crono Salida', 
+        // VERSIÓN 3.3.4 - HEADER ACTUALIZADO (NUEVO ORDEN)
+        ['Pos', 'Dorsal', 'Nombre', 'Apellidos', 'Pos. Cat.', 'Categoria', 'Equipo', 'Crono Salida', 
          'Crono Llegada', 'Tiempo Final', 'Diferencia']
     ];
     
@@ -833,15 +873,17 @@ function exportRankingToExcel() {
             diferencia = formatSecondsWithMilliseconds(diffSegundos);
         }
         
-        const nombreCompleto = llegada.nombre && llegada.apellidos ? 
-            `${llegada.nombre} ${llegada.apellidos}` : '';
+        // Obtener posición por categoría
+        const posicionCategoria = mapaPosicionesPorCategoria[llegada.id] || '';
         
         data.push([
             index + 1,
             llegada.dorsal,
-            nombreCompleto,
-            llegada.categoria || '', // NUEVO CAMPO 3.2.1
-            llegada.equipo || '', // NUEVO CAMPO 3.2.1
+            llegada.nombre || '',
+            llegada.apellidos || '',
+            posicionCategoria,  // NUEVO: Posición por categoría
+            llegada.categoria || '',
+            llegada.equipo || '',
             llegada.cronoSalida || '--:--:--',
             formatSecondsWithMilliseconds(llegada.cronoLlegadaWithMs),
             formatSecondsWithMilliseconds(llegada.tiempoFinalWithMs),
@@ -1110,6 +1152,66 @@ function calcularMapaPosiciones(llegadas) {
     return mapaPosiciones;
 }
 
+// ============================================
+// CALCULAR POSICIONES POR CATEGORÍA - NUEVO 3.3.4
+// ============================================
+function calcularPosicionesPorCategoria(llegadas) {
+    // 1. Agrupar llegadas por categoría
+    const llegadasPorCategoria = {};
+    
+    llegadas.forEach(llegada => {
+        const categoria = llegada.categoria || '';
+        if (!llegadasPorCategoria[categoria]) {
+            llegadasPorCategoria[categoria] = [];
+        }
+        // Solo incluir llegadas con tiempo válido para cálculo de posiciones
+        if (llegada.tiempoFinalWithMs && llegada.tiempoFinalWithMs > 0) {
+            llegadasPorCategoria[categoria].push({
+                ...llegada,
+                // Guardar referencia original
+                originalId: llegada.id
+            });
+        }
+    });
+    
+    // 2. Para cada categoría, calcular posiciones
+    const mapaPosicionesPorCategoria = {};
+    
+    Object.keys(llegadasPorCategoria).forEach(categoria => {
+        const llegadasCategoria = llegadasPorCategoria[categoria];
+        
+        if (llegadasCategoria.length === 0) return;
+        
+        // Ordenar por tiempo (más rápido primero)
+        llegadasCategoria.sort((a, b) => a.tiempoFinalWithMs - b.tiempoFinalWithMs);
+        
+        // Calcular posiciones con manejo de empates
+        let posicionActual = 1;
+        
+        for (let i = 0; i < llegadasCategoria.length; i++) {
+            const llegada = llegadasCategoria[i];
+            
+            // Si es el primero o tiene tiempo diferente al anterior
+            if (i === 0 || llegada.tiempoFinalWithMs > llegadasCategoria[i-1].tiempoFinalWithMs) {
+                mapaPosicionesPorCategoria[llegada.originalId] = posicionActual;
+                posicionActual = i + 2; // Siguiente posición
+            } else {
+                // Mismo tiempo que el anterior → misma posición
+                mapaPosicionesPorCategoria[llegada.originalId] = posicionActual - 1;
+            }
+        }
+    });
+    
+    // 3. Para llegadas sin categoría o sin tiempo, posición vacía
+    llegadas.forEach(llegada => {
+        if (!mapaPosicionesPorCategoria.hasOwnProperty(llegada.id)) {
+            mapaPosicionesPorCategoria[llegada.id] = '';
+        }
+    });
+    
+    return mapaPosicionesPorCategoria;
+}
+
 // Función para obtener segundos con milésimas
 function getCurrentTimeInSecondsWithMilliseconds() {
     const now = new Date();
@@ -1125,6 +1227,9 @@ function getCurrentTimeInSecondsWithMilliseconds() {
 
 // ============================================
 // FUNCIÓN PARA GENERAR PDF DE CLASIFICACIÓN
+// ============================================
+// ============================================
+// FUNCIÓN PARA GENERAR PDF DE CLASIFICACIÓN - ACTUALIZADO 3.3.4
 // ============================================
 function exportRankingToPDF() {
     console.log("📄 Iniciando exportación a PDF de clasificación...");
@@ -1168,7 +1273,7 @@ function exportRankingToPDF() {
         const contentWidth = pageWidth - 2 * margin;
         
         // ============================================
-        // NUEVA FUNCIÓN PARA FORMATO DE TIEMPO SIN CEROS INNECESARIOS
+        // NUEVO FUNCIÓN PARA FORMATO DE TIEMPO SIN CEROS INNECESARIOS
         // ============================================
         function formatTimeNoLeadingZeros(seconds) {
             if (!seconds && seconds !== 0) return '0.000';
@@ -1197,11 +1302,32 @@ function exportRankingToPDF() {
             return timeString;
         }
         
-        // ANCHOS DE COLUMNAS - ORDEN NUEVO
+        // ============================================
+        // CALCULAR DIFERENCIAS CON NUEVO FORMATO Y POSICIONES POR CATEGORÍA
+        // ============================================
+        let mejorTiempo = llegadasConTiempo[0]?.tiempoFinalWithMs || 0;
+        const llegadasConDiferencia = llegadasConTiempo.map((llegada, index) => {
+            let diferenciaFormatted = '0.000';
+            if (index === 0) {
+                diferenciaFormatted = '0.000';
+            } else {
+                const diffSegundos = llegada.tiempoFinalWithMs - mejorTiempo;
+                diferenciaFormatted = formatTimeNoLeadingZeros(diffSegundos);
+            }
+            return { ...llegada, diferenciaFormatted };
+        });
+        
+        // NUEVO 3.3.4: Calcular posiciones por categoría para PDF
+        const mapaPosicionesPorCategoria = calcularPosicionesPorCategoria(llegadasConDiferencia);
+        
+        // ============================================
+        // CONFIGURACIÓN DE TABLA - NUEVO ORDEN 3.3.4
+        // ============================================
         const posWidth = 12;          // POS
         const dorsalWidth = 15;       // DORSAL  
         const nombreWidth = 22;       // NOMBRE
         const apellidosWidth = 22;    // APELLIDOS
+        const posCatWidth = 12;       // NUEVO: POS. CAT.
         const categoriaWidth = 18;    // CATEGORÍA
         const equipoWidth = 20;       // EQUIPO
         const tiempoFinalWidth = 22;  // TIEMPO FINAL
@@ -1209,14 +1335,14 @@ function exportRankingToPDF() {
         
         // Ancho total de la tabla
         const totalTableWidth = posWidth + dorsalWidth + nombreWidth + apellidosWidth + 
-                               categoriaWidth + equipoWidth + tiempoFinalWidth + diferenciaWidth;
+                               posCatWidth + categoriaWidth + equipoWidth + tiempoFinalWidth + diferenciaWidth;
         
         // Calcular margen izquierdo para centrar tabla
         const tableMarginLeft = margin + (contentWidth - totalTableWidth) / 2;
         
-        // Array de anchos de columna (NUEVO ORDEN)
+        // Array de anchos de columna (NUEVO ORDEN 3.3.4)
         const columnWidths = [posWidth, dorsalWidth, nombreWidth, apellidosWidth, 
-                            categoriaWidth, equipoWidth, tiempoFinalWidth, diferenciaWidth];
+                            posCatWidth, categoriaWidth, equipoWidth, tiempoFinalWidth, diferenciaWidth];
         
         // CALCULAR FILAS POR PÁGINA
         const headerHeight = 35; // Más compacto
@@ -1306,19 +1432,20 @@ function exportRankingToPDF() {
             doc.setFont("helvetica", "bold");
             doc.setTextColor(255, 255, 255);
             
-            // CABECERAS CON TRADUCCIONES (orden nuevo)
+            // CABECERAS CON TRADUCCIONES (orden nuevo 3.3.4)
             const headers = [
                 t.position || "POS",
                 t.bibNumber || "DORSAL", 
                 t.name || "NOMBRE",
                 t.surname || "APELLIDOS",
+                "POS. CAT.",  // NUEVO 3.3.4
                 t.category || "CATEGORÍA",
                 t.team || "EQUIPO",
                 t.timeFinal || "TIEMPO FINAL",
                 t.difference || "DIFERENCIA"
             ];
             
-            const aligns = ["center", "center", "left", "left", "center", "center", "center", "center"];
+            const aligns = ["center", "center", "left", "left", "center", "center", "center", "center", "center"];
             let xPosition = tableMarginLeft;
             
             headers.forEach((header, index) => {
@@ -1366,78 +1493,84 @@ function exportRankingToPDF() {
         // FUNCIÓN PARA DIBUJAR UNA FILA DE DATOS - SOLO BLANCO/GRIS
         // ============================================
         function drawDataRow(llegada, startY, rowNumber, diferenciaFormatted) {
-            // ALTERNANCIA DE COLORES: impar = blanco, par = gris
-            const isEvenRow = rowNumber % 2 === 0;
-            
-            // Aplicar fondo según si es fila par (gris) o impar (blanco)
-            if (isEvenRow) {
-                // FILAS PARES (2, 4, 6...): GRIS CLARO
-                doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-                doc.rect(tableMarginLeft, startY - 2, totalTableWidth, rowHeight, 'F');
-                // Texto normal sobre gris
-                doc.setTextColor(0, 0, 0);
-            } else {
-                // FILAS IMPARES (1, 3, 5...): BLANCO (no hacer nada, fondo por defecto)
-                // Texto normal sobre blanco
-                doc.setTextColor(0, 0, 0);
-            }
-            
-            // Configurar fuente (NEGRITA para primeros 3 puestos)
-            doc.setFontSize(9);
-            
-            if (rowNumber <= 3) {
-                doc.setFont("helvetica", "bold");
-            } else {
-                doc.setFont("helvetica", "normal");
-            }
-            
-            const aligns = ["center", "center", "left", "left", "center", "center", "center", "center"];
-            let xPosition = tableMarginLeft;
-            
-            // POS
-            doc.text(rowNumber.toString(), xPosition + (columnWidths[0] / 2), startY + 2, { align: "center" });
-            xPosition += columnWidths[0];
-            
-            // DORSAL
-            doc.text(llegada.dorsal.toString(), xPosition + (columnWidths[1] / 2), startY + 2, { align: "center" });
-            xPosition += columnWidths[1];
-            
-            // NOMBRE
-            const nombre = llegada.nombre || "";
-            const adjustedNombre = handleLongText(nombre, columnWidths[2]);
-            doc.text(adjustedNombre, xPosition + 2, startY + 2);
-            xPosition += columnWidths[2];
-            
-            // APELLIDOS
-            const apellidos = llegada.apellidos || "";
-            const adjustedApellidos = handleLongText(apellidos, columnWidths[3]);
-            doc.text(adjustedApellidos, xPosition + 2, startY + 2);
-            xPosition += columnWidths[3];
-            
-            // CATEGORÍA
-            const categoria = llegada.categoria || "";
-            doc.text(categoria, xPosition + (columnWidths[4] / 2), startY + 2, { align: "center" });
-            xPosition += columnWidths[4];
-            
-            // EQUIPO
-            const equipo = llegada.equipo || "";
-            doc.text(equipo, xPosition + (columnWidths[5] / 2), startY + 2, { align: "center" });
-            xPosition += columnWidths[5];
-            
-            // TIEMPO FINAL (nuevo formato sin ceros innecesarios)
-            const tiempoFinal = formatTimeNoLeadingZeros(llegada.tiempoFinalWithMs);
-            doc.text(tiempoFinal, xPosition + (columnWidths[6] / 2), startY + 2, { align: "center" });
-            xPosition += columnWidths[6];
-            
-            // DIFERENCIA (nuevo formato sin ceros innecesarios)
-            doc.text(diferenciaFormatted, xPosition + (columnWidths[7] / 2), startY + 2, { align: "center" });
-            
-            // Línea divisoria entre filas (muy sutil)
-            doc.setDrawColor(220, 220, 220);
-            doc.setLineWidth(0.1);
-            doc.line(tableMarginLeft, startY + 4, tableMarginLeft + totalTableWidth, startY + 4);
-            
-            return startY + rowHeight;
+                    // ALTERNANCIA DE COLORES: impar = blanco, par = gris
+                    const isEvenRow = rowNumber % 2 === 0;
+                    
+                    // Aplicar fondo según si es fila par (gris) o impar (blanco)
+                    if (isEvenRow) {
+                        // FILAS PARES (2, 4, 6...): GRIS CLARO
+                        doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
+                        doc.rect(tableMarginLeft, startY - 2, totalTableWidth, rowHeight, 'F');
+                        // Texto normal sobre gris
+                        doc.setTextColor(0, 0, 0);
+                    } else {
+                        // FILAS IMPARES (1, 3, 5...): BLANCO (no hacer nada, fondo por defecto)
+                        // Texto normal sobre blanco
+                        doc.setTextColor(0, 0, 0);
+                    }
+                    
+                    // Configurar fuente (NEGRITA para primeros 3 puestos)
+                    doc.setFontSize(9);
+                    
+                    if (rowNumber <= 3) {
+                        doc.setFont("helvetica", "bold");
+                    } else {
+                        doc.setFont("helvetica", "normal");
+                    }
+                    
+                    const aligns = ["center", "center", "left", "left", "center", "center", "center", "center", "center"];
+                    let xPosition = tableMarginLeft;
+                    
+                    // POS
+                    doc.text(rowNumber.toString(), xPosition + (columnWidths[0] / 2), startY + 2, { align: "center" });
+                    xPosition += columnWidths[0];
+                    
+                    // DORSAL
+                    doc.text(llegada.dorsal.toString(), xPosition + (columnWidths[1] / 2), startY + 2, { align: "center" });
+                    xPosition += columnWidths[1];
+                    
+                    // NOMBRE
+                    const nombre = llegada.nombre || "";
+                    const adjustedNombre = handleLongText(nombre, columnWidths[2]);
+                    doc.text(adjustedNombre, xPosition + 2, startY + 2);
+                    xPosition += columnWidths[2];
+                    
+                    // APELLIDOS
+                    const apellidos = llegada.apellidos || "";
+                    const adjustedApellidos = handleLongText(apellidos, columnWidths[3]);
+                    doc.text(adjustedApellidos, xPosition + 2, startY + 2);
+                    xPosition += columnWidths[3];
+                    
+                    // POS. CAT. (NUEVO 3.3.4) - ASEGURAR QUE ES STRING
+                    const posicionCategoria = mapaPosicionesPorCategoria[llegada.id] || "";
+                    const posicionCategoriaStr = posicionCategoria.toString(); // CONVERTIR A STRING
+                    doc.text(posicionCategoriaStr, xPosition + (columnWidths[4] / 2), startY + 2, { align: "center" });
+                    xPosition += columnWidths[4];
+                    
+                    // CATEGORÍA
+                    const categoria = llegada.categoria || "";
+                    doc.text(categoria, xPosition + (columnWidths[5] / 2), startY + 2, { align: "center" });
+                    xPosition += columnWidths[5];
+                    
+                    // EQUIPO
+                    const equipo = llegada.equipo || "";
+                    doc.text(equipo, xPosition + (columnWidths[6] / 2), startY + 2, { align: "center" });
+                    xPosition += columnWidths[6];
+                    
+                    // TIEMPO FINAL (nuevo formato sin ceros innecesarios)
+                    const tiempoFinal = formatTimeNoLeadingZeros(llegada.tiempoFinalWithMs);
+                    doc.text(tiempoFinal, xPosition + (columnWidths[7] / 2), startY + 2, { align: "center" });
+                    xPosition += columnWidths[7];
+                    
+                    // DIFERENCIA (nuevo formato sin ceros innecesarios)
+                    doc.text(diferenciaFormatted, xPosition + (columnWidths[8] / 2), startY + 2, { align: "center" });
+                    
+                    // Línea divisoria entre filas (muy sutil)
+                    doc.setDrawColor(220, 220, 220);
+                    doc.setLineWidth(0.1);
+                    doc.line(tableMarginLeft, startY + 4, tableMarginLeft + totalTableWidth, startY + 4);
+                    
+                    return startY + rowHeight;
         }
         
         // ============================================
@@ -1465,21 +1598,6 @@ function exportRankingToPDF() {
             
             // NOTA: ELIMINADO "Crono CRI - Sistema de Cronometraje 3.1.6"
         }
-        
-        // ============================================
-        // CALCULAR DIFERENCIAS CON NUEVO FORMATO
-        // ============================================
-        let mejorTiempo = llegadasConTiempo[0]?.tiempoFinalWithMs || 0;
-        const llegadasConDiferencia = llegadasConTiempo.map((llegada, index) => {
-            let diferenciaFormatted = '0.000';
-            if (index === 0) {
-                diferenciaFormatted = '0.000';
-            } else {
-                const diffSegundos = llegada.tiempoFinalWithMs - mejorTiempo;
-                diferenciaFormatted = formatTimeNoLeadingZeros(diffSegundos);
-            }
-            return { ...llegada, diferenciaFormatted };
-        });
         
         // ============================================
         // GENERAR PDF CON PAGINACIÓN

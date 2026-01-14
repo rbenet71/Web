@@ -573,6 +573,9 @@ const translations = {
         equipoHeaderTooltip: "Equipo del corredor",
         licenciaHeaderTooltip: "Número de licencia",
 
+        posCatHeader: "Pos. Cat.",
+        posCatHeaderTooltip: "Posición dentro de la categoría",
+
     },
 
     ca: {
@@ -1154,6 +1157,9 @@ const translations = {
         categoriaHeaderTooltip: "Categoria del corredor",
         equipoHeaderTooltip: "Equip del corredor",
         licenciaHeaderTooltip: "Número de llicència",
+
+        posCatHeader: "Pos. Cat.",
+        posCatHeaderTooltip: "Posició dins de la categoria",
     },
 
     en: {
@@ -1729,6 +1735,9 @@ const translations = {
         categoriaHeaderTooltip: "Rider's category",
         equipoHeaderTooltip: "Rider's team", 
         licenciaHeaderTooltip: "License number",
+
+        posCatHeader: "Cat. Pos.",
+        posCatHeaderTooltip: "Position within category",
     },
 
     fr: {
@@ -2325,6 +2334,9 @@ const translations = {
         categoriaHeaderTooltip: "Catégorie du coureur",
         equipoHeaderTooltip: "Équipe du coureur",
         licenciaHeaderTooltip: "Numéro de licence",
+
+        posCatHeader: "Pos. Cat.",
+        posCatHeaderTooltip: "Position dans la catégorie",
     }
 };
 
@@ -2599,7 +2611,7 @@ function updateTableHeaders(t) {
     // ✅ USAR SISTEMA DE LOGGING OPTIMIZADO
     log(LOG_LEVEL.DEBUG, "Actualizando cabeceras de tabla...");
     
-    // Lista COMPLETA de IDs (21 columnas - versión 3.3.8)
+    // Lista COMPLETA de IDs (21 columnas - versión 3.4)
     const headerIds = [
         'orderHeader', 'dorsalHeader', 'cronoSalidaHeader', 'horaSalidaHeader',
         'diferenciaHeader', 'nombreHeader', 'apellidosHeader', 'categoriaHeader', // ✅ NUEVO 3.2.1

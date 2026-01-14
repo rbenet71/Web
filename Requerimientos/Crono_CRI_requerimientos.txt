@@ -229,7 +229,7 @@ por eso primero pideme las funciones que crees que intervienen en el proceso.
 2.3 inicio Cuenta atras manualmente
 2.3.1 Traducciones
 2.3.2.1 Aplicacion Inicial JS
-2.3.3.8 hora sistema acutalizada
+2.3.4 hora sistema acutalizada
 2.3.4 Inicio cuenta atras manual bien
 2.3.4.1 mejorado inicio manual dorsal o
 2.3.4.2 Bien el manual y cuenta atras
@@ -303,13 +303,12 @@ en el modulo orden de salida al añadir un corredor, falta que se pidan y se gua
 -------------------------------
 
 
-Clasificacion por categorias
+3_4 En la tabla de llegadas y en la Clasificacion quiero crear un campo que sea la posicion de ese corredor según su categoria.
 
+3. En la cabecera de Llegadas contar los dorsales llegados del total de corredores que hay en la tabla orden de salida.
 
+3. Mejorar diseño pantalla resultados 
 
-3.4 Mejorar diseño pantalla resultados 
-
-3.4 En la cabecera de Llegadas contar los dorsales llegados del total de corredores que hay en la tabla orden de salida.
 
 pantalla externa de resultados
 
