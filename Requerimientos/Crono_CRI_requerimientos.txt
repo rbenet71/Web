@@ -229,12 +229,12 @@ por eso primero pideme las funciones que crees que intervienen en el proceso.
 2.3 inicio Cuenta atras manualmente
 2.3.1 Traducciones
 2.3.2.1 Aplicacion Inicial JS
-2.3.5 hora sistema acutalizada
-2.3.5 Inicio cuenta atras manual bien
-2.3.5.1 mejorado inicio manual dorsal o
-2.3.5.2 Bien el manual y cuenta atras
-2.3.5 Quitar espacio intercvalos de salida
-2.3.5.1 boton de esconder apartados
+2.3.5.1 hora sistema acutalizada
+2.3.5.1 Inicio cuenta atras manual bien
+2.3.5.1.1 mejorado inicio manual dorsal o
+2.3.5.1.2 Bien el manual y cuenta atras
+2.3.5.1 Quitar espacio intercvalos de salida
+2.3.5.1.1 boton de esconder apartados
 2.3.6 reinicio funcionando
 2.3.6.1 actulizando bien siguente posicion y dorsal a salir
 2.3.6.2 actualizar tabla orden de salid con tiempos
@@ -293,8 +293,8 @@ La clasificacion de la carrera se calculará en base a que dorsal tiene el Tiemp
 3_3.2 editar licencia, equipo, categoria
 en el modulo orden de salida al añadir un corredor, falta que se pidan y se guarden  los campos equipo categoria y licencia.
 3_3.3 Limpieza funciones duplicadas
-3.3.5 He añadido campos y no coincide el titular de la columna con los nuevos datos que hay.
-3_3.5 Al añadir un corredor, en la opcion en una posición nueva, el campo posicion no deja borrar todos los caracteres. Me gustaria que funcionase igual que el dorsal.Eso si al añadir ese corredor hemos de comprobar que esa posición existe
+3.3.5.1 He añadido campos y no coincide el titular de la columna con los nuevos datos que hay.
+3_3.5.1 Al añadir un corredor, en la opcion en una posición nueva, el campo posicion no deja borrar todos los caracteres. Me gustaria que funcionase igual que el dorsal.Eso si al añadir ese corredor hemos de comprobar que esa posición existe
 3_3.6 borradas funciones repetidas.
 3_3.7 Al eliminar importar lo pregunta dos veces.
 3_3.8 revisar los ficheros offline (banderas)
@@ -307,18 +307,19 @@ Llegadas Registradas, contar los dorsales llegados del total de corredores que h
 
 3:4.4 Inici Compte Enrere - Hora del Sistema:
 Nom app
-3.5 Al exportar datos a excel de llegadas, si algun campo tiempo no tiene valor NO poner 00:00:00, sino dejar celda vacia.
+3.5.1 Al exportar datos a excel de llegadas, si algun campo tiempo no tiene valor NO poner 00:00:00, sino dejar celda vacia.
+
+3_5 En Orden de Salida crear un botón al lado de añadir corredor, que indique Eliminar Corredor y hacer la función que elimine un corredor de la tabla y recalcule tiempos.
+
+3_5.1 en la edicion de carrera pedir un logo para poner a la derecha e izquierda de los pdf que se generan (orden de salida y clasificación).
 
 --------------------------
-3.5 En Orden de Salida crear un botón al lado de añadir corredor, que indique Eliminar Corredor y hacer la función que elimine un corredor de la tabla y recalcule tiempos.
+
 -------------------------------
 
-
-
 3. Mejorar diseño pantalla resultados 
+
+
+
 pantalla externa de resultados
-
-
-
-
 revisar los tiempos de salida

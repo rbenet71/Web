@@ -569,13 +569,11 @@ function saveStartOrderData() {
     localStorage.setItem('start-order-data', JSON.stringify(startOrderData));
 }
 
+
 // ============================================
-// FUNCIONES DE GESTIÓN DE CARRERAS
+// FUNCIÓN CORREGIDA PARA CREAR NUEVA CARRERA (CON LOGOS)
 // ============================================
-// ============================================
-// FUNCIÓN CORREGIDA PARA CREAR NUEVA CARRERA
-// ============================================
-function createNewRace() {
+async function createNewRace() {
     const t = translations[appState.currentLanguage];
     
     console.log("Creando nueva carrera...");
@@ -587,6 +585,8 @@ function createNewRace() {
     const organizerInput = document.getElementById('new-race-organizer');
     const locationInput = document.getElementById('new-race-location');
     const descriptionInput = document.getElementById('new-race-description');
+    const logoLeftInput = document.getElementById('new-race-logo-left');    // ⭐ NUEVO
+    const logoRightInput = document.getElementById('new-race-logo-right');  // ⭐ NUEVO
     
     // Verificar que los elementos existen
     if (!nameInput || !dateInput) {
@@ -612,6 +612,28 @@ function createNewRace() {
     if (!date) {
         showMessage(t.enterValidDate || 'Introduce una fecha válida', 'error');
         dateInput.focus();
+        return;
+    }
+    
+    // ============================================
+    // PROCESAR LOGOS (NUEVO 3.5.1.1)
+    // ============================================
+    let leftLogoData = null;
+    let rightLogoData = null;
+    
+    try {
+        // Logo izquierdo
+        if (logoLeftInput && logoLeftInput.files && logoLeftInput.files[0]) {
+            leftLogoData = await processLogoFile(logoLeftInput.files[0], 'izquierdo');
+        }
+        
+        // Logo derecho
+        if (logoRightInput && logoRightInput.files && logoRightInput.files[0]) {
+            rightLogoData = await processLogoFile(logoRightInput.files[0], 'derecho');
+        }
+        
+    } catch (error) {
+        showMessage(`Error en logos: ${error}`, 'error');
         return;
     }
     
@@ -654,13 +676,26 @@ function createNewRace() {
         departures: [],
         intervals: [],
         startOrder: [],
+        // ⭐ NUEVO 3.5.1.1: Estructura de logos
+        logos: {
+            left: leftLogoData ? leftLogoData.base64 : null,
+            right: rightLogoData ? rightLogoData.base64 : null,
+            leftFilename: leftLogoData ? leftLogoData.filename : '',
+            rightFilename: rightLogoData ? rightLogoData.filename : '',
+            leftType: leftLogoData ? leftLogoData.type : '',
+            rightType: rightLogoData ? rightLogoData.type : ''
+        },
         metadata: {
             originalModality: modalityInput ? modalityInput.value : 'CRI',
             otherModality: otherModality
         }
     };
     
-    console.log("✅ Nueva carrera creada:", newRace);
+    console.log("✅ Nueva carrera creada con logos:", {
+        name: newRace.name,
+        leftLogo: leftLogoData ? `${leftLogoData.filename} (${Math.round(leftLogoData.base64.length / 1024)}KB)` : 'no',
+        rightLogo: rightLogoData ? `${rightLogoData.filename} (${Math.round(rightLogoData.base64.length / 1024)}KB)` : 'no'
+    });
     
     // Añadir a la lista de carreras
     appState.races.push(newRace);
@@ -729,13 +764,26 @@ function createNewRace() {
         newRaceModal.classList.remove('active');
     }
     
-    // Resetear formulario
+    // Resetear formulario (incluye logos)
     if (typeof resetRaceForm === 'function') {
         resetRaceForm();
+    } else {
+        // Si no existe la función, resetear manualmente
+        document.getElementById('new-race-name').value = '';
+        document.getElementById('new-race-date').value = '';
+        if (document.getElementById('new-race-category')) document.getElementById('new-race-category').value = '';
+        if (document.getElementById('new-race-organizer')) document.getElementById('new-race-organizer').value = '';
+        if (document.getElementById('new-race-location')) document.getElementById('new-race-location').value = '';
+        if (document.getElementById('new-race-description')) document.getElementById('new-race-description').value = '';
+        // Resetear logos
+        if (logoLeftInput) logoLeftInput.value = '';
+        if (logoRightInput) logoRightInput.value = '';
     }
     
     // Mostrar mensaje de éxito
-    showMessage(t.raceCreated || 'Carrera creada correctamente', 'success');
+    const message = t.raceCreated || 'Carrera creada correctamente';
+    const logoMessage = (leftLogoData || rightLogoData) ? ' con logos' : '';
+    showMessage(`${message}${logoMessage}`, 'success');
     
     console.log("✅ Proceso de creación completado:", {
         carrera: newRace.name,
@@ -1054,12 +1102,12 @@ function setupServiceWorker() {
     // Solo registrar si estamos en localhost o HTTPS
     if (isLocalhost || isHttps) {
         // 🔥 CAMBIO PRINCIPAL: Registrar el SW específico de Crono CRI
-        const swFile = 'Crono_CRI_ws.js?v=3.5';
+        const swFile = 'Crono_CRI_ws.js?v=3.5.1';
         console.log(`📁 Registrando ServiceWorker: ${swFile}`);
         
         navigator.serviceWorker.register(swFile)
             .then(registration => {
-                console.log('✅ ServiceWorker Crono CRI v3.5 registrado exitosamente:', registration.scope);
+                console.log('✅ ServiceWorker Crono CRI v3.5.1 registrado exitosamente:', registration.scope);
                 
                 // 🔥 NUEVO: Forzar actualización inmediata
                 console.log('🔄 Forzando actualización del ServiceWorker...');
@@ -1154,7 +1202,7 @@ function cleanupOldCaches() {
     console.log('🧹 Limpiando cachés antiguos...');
     
     // Limpiar localStorage de versiones antiguas
-    const currentVersion = '3.5';
+    const currentVersion = '3.5.1';
     const keysToKeep = [
         'app-mode',
         'card-expanded-race-management',
@@ -1702,7 +1750,7 @@ function addDeleteOrderModalStyles() {
         }
         
         .warning-icon-large {
-            font-size: 3.5rem;
+            font-size: 3.5.1rem;
             color: #dc3545;
             margin-bottom: 20px;
             width: 80px;
@@ -2130,7 +2178,7 @@ function createRaceBackup() {
         version: '1.0',
         appName: 'Crono CRI',
         exportDate: new Date().toISOString(),
-        exportVersion: 'V_3.5',
+        exportVersion: 'V_3.5.1',
         dataType: 'single-race',
         race: {
             // Copiar TODOS los datos de la carrera del array
@@ -2947,6 +2995,7 @@ function setupRaceFormEvents() {
     console.log("Eventos del formulario de carrera configurados");
 }
 
+
 // ============================================
 // FUNCIÓN PARA EDITAR DETALLES DE LA CARRERA
 // ============================================
@@ -2974,6 +3023,37 @@ function editRaceDetails() {
     document.getElementById('edit-race-location').value = race.location || '';
     document.getElementById('edit-race-date').value = race.date || new Date().toISOString().split('T')[0];
     document.getElementById('edit-race-description').value = race.description || '';
+    
+    // ⭐ NUEVO 3.5.1.1: Logos para PDF
+    // Limpiar inputs de logos (importante para no cargar datos previos)
+    const logoLeftInfo = document.getElementById('edit-race-logo-left-info');
+    const logoRightInfo = document.getElementById('edit-race-logo-right-info');
+    
+    if (logoLeftInfo) {
+        document.getElementById('edit-race-logo-left').value = '';
+        // Usar texto por defecto del atributo data-default
+        const defaultLeftText = logoLeftInfo.getAttribute('data-default') || t.logoFormatInfo || 'PNG, JPG, SVG (máx. 5MB)';
+        logoLeftInfo.textContent = defaultLeftText;
+    }
+    
+    if (logoRightInfo) {
+        document.getElementById('edit-race-logo-right').value = '';
+        // Usar texto por defecto del atributo data-default
+        const defaultRightText = logoRightInfo.getAttribute('data-default') || t.logoFormatInfo || 'PNG, JPG, SVG (máx. 5MB)';
+        logoRightInfo.textContent = defaultRightText;
+    }
+    
+    // Si hay logos existentes, mostrar información
+    if (race.logos) {
+        if (race.logos.left && race.logos.leftFilename && logoLeftInfo) {
+            const leftSizeKB = Math.round(race.logos.left.length / 1024);
+            logoLeftInfo.textContent = `✓ ${race.logos.leftFilename} (${leftSizeKB}KB)`;
+        }
+        if (race.logos.right && race.logos.rightFilename && logoRightInfo) {
+            const rightSizeKB = Math.round(race.logos.right.length / 1024);
+            logoRightInfo.textContent = `✓ ${race.logos.rightFilename} (${rightSizeKB}KB)`;
+        }
+    }
     
     // Configurar modalidad
     const modality = race.modality || 'CRI';
@@ -3083,10 +3163,11 @@ function editRaceDetails() {
     
     console.log("Editando carrera:", race.name, "ID:", race.id);
 }
+
 // ============================================
-// FUNCIÓN PARA GUARDAR CARRERA EDITADA (CON VALIDACIÓN)
+// FUNCIÓN PARA GUARDAR CARRERA EDITADA (CON VALIDACIÓN Y LOGOS)
 // ============================================
-function saveEditedRace() {
+async function saveEditedRace() {
     const t = translations[appState.currentLanguage];
     const modal = document.getElementById('edit-race-modal');
     
@@ -3105,19 +3186,12 @@ function saveEditedRace() {
     const dateElement = document.getElementById('edit-race-date');
     const descriptionElement = document.getElementById('edit-race-description');
     const otherModalityElement = document.getElementById('edit-race-other-modality');
+    const logoLeftInput = document.getElementById('edit-race-logo-left');
+    const logoRightInput = document.getElementById('edit-race-logo-right');
     
     // Verificar que todos los elementos requeridos existen
     if (!nameElement || !dateElement) {
         console.error("Elementos del formulario no encontrados");
-        console.log("Elementos encontrados:", {
-            nameElement: !!nameElement,
-            categoryElement: !!categoryElement,
-            organizerElement: !!organizerElement,
-            locationElement: !!locationElement,
-            dateElement: !!dateElement,
-            descriptionElement: !!descriptionElement,
-            otherModalityElement: !!otherModalityElement
-        });
         showMessage("Error: Formulario incompleto", 'error');
         return;
     }
@@ -3142,7 +3216,7 @@ function saveEditedRace() {
         }
     }
     
-    // Validaciones
+    // Validaciones básicas
     if (!name) {
         showMessage(t.enterRaceName || 'Introduce un nombre para la carrera', 'error');
         nameElement.focus();
@@ -3152,6 +3226,42 @@ function saveEditedRace() {
     if (!date) {
         showMessage(t.enterValidDate || 'Introduce una fecha válida', 'error');
         dateElement.focus();
+        return;
+    }
+    
+    // ============================================
+    // PROCESAR LOGOS (NUEVO 3.5.1.1)
+    // ============================================
+    let leftLogoData = null;
+    let rightLogoData = null;
+    
+    try {
+        // Logo izquierdo
+        if (logoLeftInput && logoLeftInput.files && logoLeftInput.files[0]) {
+            leftLogoData = await processLogoFile(logoLeftInput.files[0], 'izquierdo');
+        } else if (appState.currentRace.logos && appState.currentRace.logos.left) {
+            // Mantener logo existente
+            leftLogoData = {
+                base64: appState.currentRace.logos.left,
+                filename: appState.currentRace.logos.leftFilename || '',
+                type: appState.currentRace.logos.leftType || ''
+            };
+        }
+        
+        // Logo derecho
+        if (logoRightInput && logoRightInput.files && logoRightInput.files[0]) {
+            rightLogoData = await processLogoFile(logoRightInput.files[0], 'derecho');
+        } else if (appState.currentRace.logos && appState.currentRace.logos.right) {
+            // Mantener logo existente
+            rightLogoData = {
+                base64: appState.currentRace.logos.right,
+                filename: appState.currentRace.logos.rightFilename || '',
+                type: appState.currentRace.logos.rightType || ''
+            };
+        }
+        
+    } catch (error) {
+        showMessage(`Error en logos: ${error}`, 'error');
         return;
     }
     
@@ -3174,7 +3284,16 @@ function saveEditedRace() {
         date: date,
         modality: modality,
         description: description,
-        lastModified: new Date().toISOString()
+        lastModified: new Date().toISOString(),
+        // ⭐ NUEVO 3.5.1.1: Logos para PDF
+        logos: {
+            left: leftLogoData ? leftLogoData.base64 : null,
+            right: rightLogoData ? rightLogoData.base64 : null,
+            leftFilename: leftLogoData ? leftLogoData.filename : '',
+            rightFilename: rightLogoData ? rightLogoData.filename : '',
+            leftType: leftLogoData ? leftLogoData.type : '',
+            rightType: rightLogoData ? rightLogoData.type : ''
+        }
     };
     
     // Actualizar metadata si existe
@@ -3196,7 +3315,7 @@ function saveEditedRace() {
     // Actualizar el selector de carreras
     renderRacesSelect();
     
-    // AÑADIR ESTO: Actualizar título de la tarjeta de gestión
+    // Actualizar título de la tarjeta de gestión
     if (typeof updateRaceManagementCardTitle === 'function') {
         updateRaceManagementCardTitle();
     }
@@ -3205,16 +3324,62 @@ function saveEditedRace() {
     modal.classList.remove('active');
     
     // Mostrar mensaje de éxito
-    showMessage(t.raceUpdated || 'Carrera actualizada correctamente', 'success');
+    const message = t.raceUpdated || 'Carrera actualizada correctamente';
+    const logoMessage = (leftLogoData || rightLogoData) ? ' con logos' : '';
+    showMessage(`${message}${logoMessage}`, 'success');
     
-    console.log(`Carrera "${name}" actualizada correctamente`, {
+    console.log(`Carrera "${name}" actualizada`, {
         id: updatedRace.id,
         name: updatedRace.name,
         date: updatedRace.date,
-        category: updatedRace.category,
-        modality: updatedRace.modality
+        logos: {
+            left: leftLogoData ? `${leftLogoData.filename} (${Math.round(leftLogoData.base64.length / 1024)}KB)` : 'sin cambios',
+            right: rightLogoData ? `${rightLogoData.filename} (${Math.round(rightLogoData.base64.length / 1024)}KB)` : 'sin cambios'
+        }
     });
 }
+
+// ============================================
+// FUNCIÓN AUXILIAR PARA PROCESAR ARCHIVOS DE LOGO
+// ============================================
+function processLogoFile(file, side) {
+    return new Promise((resolve, reject) => {
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        
+        // Validar tamaño
+        if (file.size > maxSize) {
+            reject(`El logo ${side} excede 5MB (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+            return;
+        }
+        
+        // Validar tipo
+        const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'];
+        if (!validTypes.includes(file.type)) {
+            reject(`Formato no válido para logo ${side}. Usa PNG, JPG o SVG`);
+            return;
+        }
+        
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            const base64 = e.target.result;
+            console.log(`Logo ${side} procesado: ${file.name} (${Math.round(file.size / 1024)}KB)`);
+            
+            resolve({
+                base64: base64,
+                filename: file.name,
+                type: file.type
+            });
+        };
+        
+        reader.onerror = function() {
+            reject(`Error al leer el logo ${side}`);
+        };
+        
+        reader.readAsDataURL(file);
+    });
+}
+
 function saveRaceChanges() {
     const t = translations[appState.currentLanguage];
     

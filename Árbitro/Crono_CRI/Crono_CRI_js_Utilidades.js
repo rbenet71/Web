@@ -1206,6 +1206,9 @@ function generateStartOrderPDF() {
         let lastDifference = null;
         let useGrayBackground = false;
         
+        // ⭐ NUEVO 3.5.1.1: Añadir logos al PDF (orden de salida)
+        addLogosToPDF(doc, race);
+        
         // FUNCIÓN PARA DIBUJAR CABECERA (CON TRADUCCIONES)
         function drawPageHeader() {
             let y = 15;
@@ -1596,7 +1599,7 @@ function loadJSPDFLibrary() {
         
         // Crear script para AutoTable
         const autotableScript = document.createElement('script');
-        autotableScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js';
+        autotableScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.1.25/jspdf.plugin.autotable.min.js';
         autotableScript.integrity = 'sha512-XdquZ5dW5lK1/7ZEQe7l5qTq5q7Yk7HkQpGcgPhPcFZrGqZaxBvW0k+1+uXeSqNvKJb8sRlKzGX7ciAJK2p7XA==';
         autotableScript.crossOrigin = 'anonymous';
         
@@ -2598,4 +2601,59 @@ function secondsToTime(totalSeconds) {
     const seconds = secs % 60;
     
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// ============================================
+// FUNCIÓN PARA AÑADIR LOGOS A PDF (NUEVO 3.5.1.1)
+// ============================================
+function addLogosToPDF(doc, race) {
+    if (!race || !race.logos) {
+        console.log("No hay logos para añadir al PDF");
+        return;
+    }
+    
+    const pageWidth = doc.internal.pageSize.width;
+    const margin = 15;
+    const logoSize = 20; // Tamaño en mm
+    const logoTop = 15;  // Posición vertical desde arriba
+    
+    try {
+        // Logo izquierdo
+        if (race.logos.left && race.logos.leftType) {
+            console.log(`Añadiendo logo izquierdo al PDF: ${race.logos.leftFilename}`);
+            const logoLeftData = race.logos.left;
+            
+            // Calcular posición
+            const logoLeftX = margin;
+            const logoLeftY = logoTop;
+            
+            // Añadir imagen al PDF
+            doc.addImage(logoLeftData, race.logos.leftType, 
+                        logoLeftX, logoLeftY, 
+                        logoSize, logoSize);
+            
+            console.log(`✓ Logo izquierdo añadido en (${logoLeftX}, ${logoLeftY})`);
+        }
+        
+        // Logo derecho
+        if (race.logos.right && race.logos.rightType) {
+            console.log(`Añadiendo logo derecho al PDF: ${race.logos.rightFilename}`);
+            const logoRightData = race.logos.right;
+            
+            // Calcular posición (derecha de la página)
+            const logoRightX = pageWidth - margin - logoSize;
+            const logoRightY = logoTop;
+            
+            // Añadir imagen al PDF
+            doc.addImage(logoRightData, race.logos.rightType, 
+                        logoRightX, logoRightY, 
+                        logoSize, logoSize);
+            
+            console.log(`✓ Logo derecho añadido en (${logoRightX}, ${logoRightY})`);
+        }
+        
+    } catch (error) {
+        console.error("Error al añadir logos al PDF:", error);
+        // No mostrar error al usuario, solo continuar sin logos
+    }
 }

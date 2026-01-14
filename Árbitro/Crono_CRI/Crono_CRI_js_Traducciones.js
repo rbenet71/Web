@@ -4,7 +4,7 @@
 const translations = {
     es: {
         // Títulos generales
-        appTitle: "Crono CRI - 3.5",
+        appTitle: "Crono CRI - 3.5.1",
         languagesLabel: "Idioma / Language",
         
         // Tarjetas
@@ -583,11 +583,20 @@ const translations = {
         deleteRiderConfirm: "¿Eliminar corredor {dorsal} {nombre}?",
         deleteRiderNotFound: "Corredor no encontrado",
         deleteRiderSuccess: "Corredor eliminado correctamente",
+
+        logoLeftLabel: "Logo Izquierdo",
+        logoRightLabel: "Logo Derecho", 
+        logoFormatInfo: "PNG, JPG, SVG (máx. 5MB)",
+        logoInfoTooltip: "Los logos aparecerán en los PDFs generados",
+        logoSizeError: "El logo excede 5MB",
+        logoFormatError: "Formato no válido. Usa PNG, JPG o SVG",
+        logoReadError: "Error al leer el logo",
+        logosUpdated: "Logos actualizados correctamente",
     },
 
     ca: {
         // Títulos generales
-        appTitle: "Crono CRI - 3.5",
+        appTitle: "Crono CRI - 3.5.1",
         languagesLabel: "Idioma / Language",
         
         // Tarjetas
@@ -1176,10 +1185,19 @@ const translations = {
         deleteRiderNotFound: "Corredor no trobat",
         deleteRiderSuccess: "Corredor eliminat correctament",
 
+        logoLeftLabel: "Logo Esquerre",
+        logoRightLabel: "Logo Dret",
+        logoFormatInfo: "PNG, JPG, SVG (màx. 5MB)",
+        logoInfoTooltip: "Els logos apareixeran als PDFs generats",
+        logoSizeError: "El logo supera els 5MB",
+        logoFormatError: "Format no vàlid. Utilitza PNG, JPG o SVG",
+        logoReadError: "Error en llegir el logo",
+        logosUpdated: "Logos actualitzats correctament",
+
     },
 
     en: {
-        appTitle: "TT Crono - 3.5",
+        appTitle: "TT Crono - 3.5.1",
         languagesLabel: "Language / Idioma",
         
         // Tarjetas
@@ -1763,10 +1781,19 @@ const translations = {
         deleteRiderNotFound: "Rider not found",
         deleteRiderSuccess: "Rider deleted successfully",
 
+        logoLeftLabel: "Left Logo",
+        logoRightLabel: "Right Logo",
+        logoFormatInfo: "PNG, JPG, SVG (max. 5MB)",
+        logoInfoTooltip: "Logos will appear in generated PDFs",
+        logoSizeError: "Logo exceeds 5MB",
+        logoFormatError: "Invalid format. Use PNG, JPG or SVG",
+        logoReadError: "Error reading logo",
+        logosUpdated: "Logos updated successfully",
+
     },
 
     fr: {
-        appTitle: "Crono CRI - 3.5",
+        appTitle: "Crono CRI - 3.5.1",
         languagesLabel: "Langue / Language",
         
         // Tarjetas
@@ -2370,6 +2397,16 @@ const translations = {
         deleteRiderConfirm: "Supprimer le coureur {dorsal} {nombre} ?",
         deleteRiderNotFound: "Coureur non trouvé",
         deleteRiderSuccess: "Coureur supprimé avec succès",
+
+        logoLeftLabel: "Logo Gauche",
+        logoRightLabel: "Logo Droit",
+        logoFormatInfo: "PNG, JPG, SVG (max. 5MB)",
+        logoInfoTooltip: "Les logos apparaîtront dans les PDF générés",
+        logoSizeError: "Le logo dépasse 5MB",
+        logoFormatError: "Format invalide. Utilisez PNG, JPG ou SVG",
+        logoReadError: "Erreur de lecture du logo",
+        logosUpdated: "Logos mis à jour avec succès",
+
     }
 };
 
@@ -2408,6 +2445,9 @@ function updateLanguageUI() {
     // 6. Actualizar textos de modales
     updateModalTexts(t);
     
+    // ⭐ NUEVO 3.5.1.1: Actualizar textos de logos
+    updateLogoTexts(t);
+    
     // 7. Actualizar títulos de tablas
     updateTableHeaders(t);
     
@@ -2419,8 +2459,63 @@ function updateLanguageUI() {
     
     // 10. Forzar actualización de títulos de tarjetas
     updateCardTitles();
-
 }
+
+// ⭐ NUEVO 3.5.1.1: Actualizar textos de logos en modales
+function updateLogoTexts(t) {
+    console.log("Actualizando textos de logos...");
+    
+    // Labels de logos (modal edición)
+    setTextIfExists('logo-left-label-text', t.logoLeftLabel || 'Logo Izquierdo');
+    setTextIfExists('logo-right-label-text', t.logoRightLabel || 'Logo Derecho');
+    
+    // Labels de logos (modal nueva carrera)
+    setTextIfExists('new-logo-left-label-text', t.logoLeftLabel || 'Logo Izquierdo');
+    setTextIfExists('new-logo-right-label-text', t.logoRightLabel || 'Logo Derecho');
+    
+    // Información de formato (modal edición)
+    const leftInfo = document.getElementById('edit-race-logo-left-info');
+    const rightInfo = document.getElementById('edit-race-logo-right-info');
+    
+    if (leftInfo) {
+        const defaultText = leftInfo.getAttribute('data-default') || 'PNG, JPG, SVG (máx. 5MB)';
+        if (leftInfo.textContent === defaultText || leftInfo.textContent.includes('máx. 5MB') || leftInfo.textContent.includes('max. 5MB')) {
+            leftInfo.textContent = t.logoFormatInfo || defaultText;
+        }
+    }
+    
+    if (rightInfo) {
+        const defaultText = rightInfo.getAttribute('data-default') || 'PNG, JPG, SVG (máx. 5MB)';
+        if (rightInfo.textContent === defaultText || rightInfo.textContent.includes('máx. 5MB') || rightInfo.textContent.includes('max. 5MB')) {
+            rightInfo.textContent = t.logoFormatInfo || defaultText;
+        }
+    }
+    
+    // Información de formato (modal nueva carrera)
+    const newLeftInfo = document.getElementById('new-race-logo-left-info');
+    const newRightInfo = document.getElementById('new-race-logo-right-info');
+    
+    if (newLeftInfo) {
+        const defaultText = newLeftInfo.getAttribute('data-default') || 'PNG, JPG, SVG (máx. 5MB)';
+        if (newLeftInfo.textContent === defaultText || newLeftInfo.textContent.includes('máx. 5MB') || newLeftInfo.textContent.includes('max. 5MB')) {
+            newLeftInfo.textContent = t.logoFormatInfo || defaultText;
+        }
+    }
+    
+    if (newRightInfo) {
+        const defaultText = newRightInfo.getAttribute('data-default') || 'PNG, JPG, SVG (máx. 5MB)';
+        if (newRightInfo.textContent === defaultText || newRightInfo.textContent.includes('máx. 5MB') || newRightInfo.textContent.includes('max. 5MB')) {
+            newRightInfo.textContent = t.logoFormatInfo || defaultText;
+        }
+    }
+    
+    // Tooltips informativos
+    setTextIfExists('logo-info-tooltip-text', t.logoInfoTooltip || 'Los logos aparecerán en los PDFs generados');
+    setTextIfExists('new-logo-info-tooltip-text', t.logoInfoTooltip || 'Los logos aparecerán en los PDFs generados');
+    
+    console.log("Textos de logos actualizados");
+}
+
 // ===========================================
 // FUNCIONES AUXILIARES PARA ACTUALIZACIÓN
 // ===========================================
@@ -2645,7 +2740,7 @@ function updateTableHeaders(t) {
     // ✅ USAR SISTEMA DE LOGGING OPTIMIZADO
     log(LOG_LEVEL.DEBUG, "Actualizando cabeceras de tabla...");
     
-    // Lista COMPLETA de IDs (21 columnas - versión 3.5)
+    // Lista COMPLETA de IDs (21 columnas - versión 3.5.1)
     const headerIds = [
         'orderHeader', 'dorsalHeader', 'cronoSalidaHeader', 'horaSalidaHeader',
         'diferenciaHeader', 'nombreHeader', 'apellidosHeader', 'categoriaHeader', // ✅ NUEVO 3.2.1
