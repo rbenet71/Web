@@ -616,7 +616,7 @@ async function createNewRace() {
     }
     
     // ============================================
-    // PROCESAR LOGOS (NUEVO 3.5.1.1)
+    // PROCESAR LOGOS (NUEVO 3.5.2.1)
     // ============================================
     let leftLogoData = null;
     let rightLogoData = null;
@@ -676,7 +676,7 @@ async function createNewRace() {
         departures: [],
         intervals: [],
         startOrder: [],
-        // ⭐ NUEVO 3.5.1.1: Estructura de logos
+        // ⭐ NUEVO 3.5.2.1: Estructura de logos
         logos: {
             left: leftLogoData ? leftLogoData.base64 : null,
             right: rightLogoData ? rightLogoData.base64 : null,
@@ -1102,12 +1102,12 @@ function setupServiceWorker() {
     // Solo registrar si estamos en localhost o HTTPS
     if (isLocalhost || isHttps) {
         // 🔥 CAMBIO PRINCIPAL: Registrar el SW específico de Crono CRI
-        const swFile = 'Crono_CRI_ws.js?v=3.5.1';
+        const swFile = 'Crono_CRI_ws.js?v=3.5.2';
         console.log(`📁 Registrando ServiceWorker: ${swFile}`);
         
         navigator.serviceWorker.register(swFile)
             .then(registration => {
-                console.log('✅ ServiceWorker Crono CRI v3.5.1 registrado exitosamente:', registration.scope);
+                console.log('✅ ServiceWorker Crono CRI v3.5.2 registrado exitosamente:', registration.scope);
                 
                 // 🔥 NUEVO: Forzar actualización inmediata
                 console.log('🔄 Forzando actualización del ServiceWorker...');
@@ -1202,7 +1202,7 @@ function cleanupOldCaches() {
     console.log('🧹 Limpiando cachés antiguos...');
     
     // Limpiar localStorage de versiones antiguas
-    const currentVersion = '3.5.1';
+    const currentVersion = '3.5.2';
     const keysToKeep = [
         'app-mode',
         'card-expanded-race-management',
@@ -1750,7 +1750,7 @@ function addDeleteOrderModalStyles() {
         }
         
         .warning-icon-large {
-            font-size: 3.5.1rem;
+            font-size: 3.5.2rem;
             color: #dc3545;
             margin-bottom: 20px;
             width: 80px;
@@ -2178,7 +2178,7 @@ function createRaceBackup() {
         version: '1.0',
         appName: 'Crono CRI',
         exportDate: new Date().toISOString(),
-        exportVersion: 'V_3.5.1',
+        exportVersion: 'V_3.5.2',
         dataType: 'single-race',
         race: {
             // Copiar TODOS los datos de la carrera del array
@@ -3024,7 +3024,7 @@ function editRaceDetails() {
     document.getElementById('edit-race-date').value = race.date || new Date().toISOString().split('T')[0];
     document.getElementById('edit-race-description').value = race.description || '';
     
-    // ⭐ NUEVO 3.5.1.1: Logos para PDF
+    // ⭐ NUEVO 3.5.2.1: Logos para PDF
     // Limpiar inputs de logos (importante para no cargar datos previos)
     const logoLeftInfo = document.getElementById('edit-race-logo-left-info');
     const logoRightInfo = document.getElementById('edit-race-logo-right-info');
@@ -3230,7 +3230,7 @@ async function saveEditedRace() {
     }
     
     // ============================================
-    // PROCESAR LOGOS (NUEVO 3.5.1.1)
+    // PROCESAR LOGOS (NUEVO 3.5.2.1)
     // ============================================
     let leftLogoData = null;
     let rightLogoData = null;
@@ -3285,7 +3285,7 @@ async function saveEditedRace() {
         modality: modality,
         description: description,
         lastModified: new Date().toISOString(),
-        // ⭐ NUEVO 3.5.1.1: Logos para PDF
+        // ⭐ NUEVO 3.5.2.1: Logos para PDF
         logos: {
             left: leftLogoData ? leftLogoData.base64 : null,
             right: rightLogoData ? rightLogoData.base64 : null,

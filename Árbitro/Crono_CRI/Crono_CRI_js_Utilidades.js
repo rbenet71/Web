@@ -1168,10 +1168,10 @@ function generateStartOrderPDF() {
         const posWidth = 8;          // POS
         const dorsalWidth = 10;      // DORSAL
         const nombreWidth = 22;      // NOMBRE
-        const apellidosWidth = 22;   // APELLIDOS
+        const apellidosWidth = 45;   // APELLIDOS
         const categoriaWidth = 15;   // CATEGORÍA
-        const equipoWidth = 20;      // EQUIPO
-        const licenciaWidth = 12;    // LICENCIA
+        const equipoWidth = 35;      // EQUIPO
+        const licenciaWidth = 15;    // LICENCIA
         const horaSalidaWidth = 18;  // HORA SALIDA
         const cronoWidth = 18;       // CRONO
         
@@ -1206,7 +1206,7 @@ function generateStartOrderPDF() {
         let lastDifference = null;
         let useGrayBackground = false;
         
-        // ⭐ NUEVO 3.5.1.1: Añadir logos al PDF (orden de salida)
+        // ⭐ NUEVO 3.5.2.1: Añadir logos al PDF (orden de salida)
         addLogosToPDF(doc, race);
         
         // FUNCIÓN PARA DIBUJAR CABECERA (CON TRADUCCIONES)
@@ -1266,17 +1266,20 @@ function generateStartOrderPDF() {
             
             // Usar traducciones para cabeceras de tabla
             const headers = [
-                t.position || "POS",
-                t.bibNumber || "DORSAL", 
-                t.name || "NOMBRE",
-                t.surname || "APELLIDOS",
-                t.category || "CAT",
-                t.team || "EQUIPO",
-                t.license || "LIC",
-                t.startTime || "H.SALIDA",
-                t.time || "CRONO"
+                toTitleCase(t.position || "Pos"),
+                toTitleCase(t.bibNumber || "Dorsal"), 
+                toTitleCase(t.name || "Nombre"),
+                toTitleCase(t.surname || "Apellidos"),
+                toTitleCase(t.category || "Cat"),
+                toTitleCase(t.team || "Equipo"),
+                toTitleCase(t.license || "Lic"),
+                toTitleCase(t.startTime || "H. Salida"), // Espacio después del punto
+                toTitleCase(t.time || "Crono")
             ];
-            
+            function toTitleCase(str) {
+                if (!str || typeof str !== 'string') return '';
+                return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
             const aligns = ["center", "center", "left", "left", "center", "left", "center", "center", "center"];
             let xPosition = tableMarginLeft;
             
@@ -1599,7 +1602,7 @@ function loadJSPDFLibrary() {
         
         // Crear script para AutoTable
         const autotableScript = document.createElement('script');
-        autotableScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.1.25/jspdf.plugin.autotable.min.js';
+        autotableScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.2.25/jspdf.plugin.autotable.min.js';
         autotableScript.integrity = 'sha512-XdquZ5dW5lK1/7ZEQe7l5qTq5q7Yk7HkQpGcgPhPcFZrGqZaxBvW0k+1+uXeSqNvKJb8sRlKzGX7ciAJK2p7XA==';
         autotableScript.crossOrigin = 'anonymous';
         
@@ -2604,7 +2607,7 @@ function secondsToTime(totalSeconds) {
 }
 
 // ============================================
-// FUNCIÓN PARA AÑADIR LOGOS A PDF (NUEVO 3.5.1.1)
+// FUNCIÓN PARA AÑADIR LOGOS A PDF (NUEVO 3.5.2.1)
 // ============================================
 function addLogosToPDF(doc, race) {
     if (!race || !race.logos) {
@@ -2615,7 +2618,7 @@ function addLogosToPDF(doc, race) {
     const pageWidth = doc.internal.pageSize.width;
     const margin = 15;
     const logoSize = 20; // Tamaño en mm
-    const logoTop = 15;  // Posición vertical desde arriba
+    const logoTop = 5;  // Posición vertical desde arriba
     
     try {
         // Logo izquierdo

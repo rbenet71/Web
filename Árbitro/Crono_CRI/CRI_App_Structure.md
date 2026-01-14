@@ -1,4 +1,4 @@
-# CRI App - Documentación Optimizada para Modificaciones v3.4.5+
+# CRI App - Documentación Optimizada para Modificaciones v3.5.2
 
 📋 **ÍNDICE RÁPIDO**
 1. Visión General
@@ -13,12 +13,12 @@
 10. Reglas de Oro
 11. Lecciones Aprendidas
 12. Checklist para Cambios ⭐
-13. Cambios v3.4.2 - v3.4.5+ ⭐
+13. Cambios v3.4.2 - v3.5.2 ⭐
 
 ---
 
 ## 1. VISIÓN GENERAL
-Crono CRI v3.4.5+ - PWA para control de salidas/llegadas en carreras ciclistas.
+Crono CRI v3.5.2 - PWA para control de salidas/llegadas en carreras ciclistas.
 
 **Modo Salidas**: Cuenta atrás basada en cronoSalida de tabla  
 **Modo Llegadas**: Cronometraje con milésimas, posiciones automáticas, posición por categoría  
@@ -28,7 +28,8 @@ Crono CRI v3.4.5+ - PWA para control de salidas/llegadas en carreras ciclistas.
 **Contador dinámico** de llegadas registradas  
 **Tiempo compacto** en cronómetro minimizado  
 **Celdas vacías** en Excel para tiempos sin valor  
-**Nueva funcionalidad**: Eliminar corredores con recálculo automático
+**Nueva funcionalidad 3.5.2**: Logos personalizados para PDFs  
+**Nueva funcionalidad 3.4.5+**: Eliminar corredores con recálculo automático
 
 ---
 
@@ -42,10 +43,10 @@ Crono CRI v3.4.5+ - PWA para control de salidas/llegadas en carreras ciclistas.
 | **Salidas_3.js** | **Modales, añadir/eliminar corredores, cambios globales** | Salidas_2, UI, Storage_Pwa | **3.4.5+** |
 | Salidas_4.js | Confirmaciones, validaciones, edición avanzada | Salidas_2, Salidas_3, Utilidades | 3.2.1 |
 | Cuenta_Atras.js | Sistema cuenta atrás, salidas, sincronización dorsal↔posición | Main, Utilidades, Salidas_2, Storage_Pwa | 3.2.1 |
-| UI.js | Interfaz, tarjetas, modales, gestión tiempo, contador llegadas | Main, Storage_Pwa, Cuenta_Atras, Llegadas | 3.4.2 |
-| Storage_Pwa.js | Persistencia, backup/restore, gestión carreras (35 funciones) | TODOS (persistencia central) | 3.2.2 |
-| Utilidades.js | Conversiones tiempo, audio, exportación, diagnóstico | TODOS (utilidades centrales) | 3.2.1 |
-| Traducciones.js | Sistema multilingüe (4 idiomas) | TODOS (textos UI) | 3.4.5+ |
+| UI.js | Interfaz, tarjetas, modales, gestión tiempo, contador llegadas | Main, Storage_Pwa, Cuenta_Atras, Llegadas | **3.5.2** |
+| Storage_Pwa.js | Persistencia, backup/restore, gestión carreras (35 funciones) | TODOS (persistencia central) | 3.5.2 |
+| Utilidades.js | Conversiones tiempo, audio, exportación, diagnóstico | TODOS (utilidades centrales) | **3.5.2** |
+| Traducciones.js | Sistema multilingüe (4 idiomas) | TODOS (textos UI) | **3.5.2** |
 | Llegadas.js | Modo llegadas (14 cols), milésimas, posiciones auto, posición por categoría | Main, Utilidades, Traducciones | 3.4.5 |
 
 **Flujo principal**: Main → [Salidas_1-4 / Llegadas] ↔ UI ↔ Storage_Pwa ↔ Utilidades
@@ -66,7 +67,16 @@ function callIfFunction(fn, fallbackMessage) // Llama funciones solo si existen
 // Estado global optimizado
 const appState = {
   audioType, currentLanguage, soundEnabled, aggressiveMode,
-  currentRace: { id, name, firstStartTime, startOrder: [] }, races: [],
+  currentRace: { 
+    id, name, firstStartTime, startOrder: [],
+    // ⭐ NUEVO 3.5.2: Logos para PDF
+    logos: {
+      left: null, right: null,
+      leftFilename: '', rightFilename: '',
+      leftType: '', rightType: ''
+    }
+  }, 
+  races: [],
   countdownActive, countdownValue, departedCount, nextCorredorTime: 60,
   voiceAudioCache, audioContext, isSalidaShowing, salidaTimeout,
   deferredPrompt, updateAvailable, countdownPaused, accumulatedTime
@@ -80,26 +90,13 @@ handleRaceChange(raceId) // Recibe solo raceId
 openHelpFile()         // Abre Crono_CRI_ayuda.html externo
 ```
 
-### SALIDAS_3.JS v3.4.5+ (Añadir/Eliminar Corredores - ACTUALIZADO)
+### UI.JS v3.5.2 (Interfaz y Gestión Tiempo - ACTUALIZADO)
 ```javascript
-// ✅ NUEVO: Sistema de eliminación de corredores
-function addNewRider()               // Añade nuevo corredor con datos por defecto
-function deleteSelectedRider()       // ⭐ NUEVO 3.4.5+: Elimina corredor seleccionado
+// ⭐ NUEVO 3.5.2: Funciones para logos
+function editRaceDetails()           // Carga logos existentes en modal edición
+function saveEditedRace()            // Guarda logos con validación (5MB)
+function createNewRace()             // Crea carrera con logos opcionales
 
-// Flujo de deleteSelectedRider():
-// 1. Valida selección (fila con clase .selected)
-// 2. Muestra confirmación nativa (confirm())
-// 3. Elimina de startOrderData
-// 4. Recalcula tiempos con recalculateAllStartTimes()
-// 5. Actualiza tabla y guarda cambios
-// 6. Muestra mensaje de éxito
-
-// Configuración automática del botón
-function setupDeleteRiderButtonDirect() // Configura listener para botón eliminar
-```
-
-### UI.JS v3.4.2 (Interfaz y Gestión Tiempo - ACTUALIZADO)
-```javascript
 // SISTEMA RESETEO AUTOMÁTICO:
 updateSystemTimeDisplay()           // Actualiza TODOS los relojes del sistema
 updateAllSystemClocks()             // NUEVO 3.4.2: Actualiza múltiples elementos
@@ -121,6 +118,45 @@ openHelpFile()                      // Abre Crono_CRI_ayuda.html externo
 
 // ✅ SISTEMA TIEMPO SIN INTERVALOS (optimización):
 setupStaticTimeDisplay()            // Configura hora estática
+```
+
+### SALIDAS_3.JS v3.4.5+ (Añadir/Eliminar Corredores - ACTUALIZADO)
+```javascript
+// ✅ NUEVO: Sistema de eliminación de corredores
+function addNewRider()               // Añade nuevo corredor con datos por defecto
+function deleteSelectedRider()       // ⭐ NUEVO 3.4.5+: Elimina corredor seleccionado
+
+// Flujo de deleteSelectedRider():
+// 1. Valida selección (fila con clase .selected)
+// 2. Muestra confirmación nativa (confirm())
+// 3. Elimina de startOrderData
+// 4. Recalcula tiempos con recalculateAllStartTimes()
+// 5. Actualiza tabla y guarda cambios
+// 6. Muestra mensaje de éxito
+
+// Configuración automática del botón
+function setupDeleteRiderButtonDirect() // Configura listener para botón eliminar
+```
+
+### UTILIDADES.JS v3.5.2 (Conversiones y PDFs - ACTUALIZADO)
+```javascript
+// ⭐ NUEVO 3.5.2: Funciones para logos en PDF
+function addLogosToPDF(doc, race)   // Añade logos izquierdo/derecho a PDF
+function processLogoFile(file, side) // Procesa archivo de logo (5MB máximo)
+
+// FUNCIONES PDF ACTUALIZADAS:
+function generateStartOrderPDF()     // Incluye logos en PDF orden de salida
+function exportRankingToPDF()        // Incluye logos en PDF clasificación
+
+// FUNCIONES DE CONVERSIÓN:
+formatSecondsWithMilliseconds(seconds) // HH:MM:SS.mmm
+formatTimeForExcel(timeValue)        // ✅ NUEVO 3.4.5: Celdas vacías para tiempos sin valor
+formatTimeNoLeadingZeros(seconds)    // Formato compacto para PDFs
+
+// AUDIO Y EXPORTACIÓN:
+playSound(type)                      // Beep, voz o silencio
+playVoiceAudio(audioKey)             // Audio de voz con precaché
+exportLlegadasToExcel()              // ✅ UNIFICADA: Excel llegadas y clasificación
 ```
 
 ### LLEGADAS.JS v3.4.5 (14 Columnas, Exportación Unificada - ACTUALIZADO)
@@ -146,8 +182,6 @@ actualizarContadorLlegadas()           // "Llegadas Registradas - X de Y Corredo
 // EXPORTACIÓN UNIFICADA (3.4.5):
 exportLlegadasToExcel()                // ✅ UNIFICADA: Excel llegadas y clasificación (14 cols)
 exportRankingToPDF()                   // PDF de clasificación con Pos. Cat.
-formatSecondsWithMilliseconds(seconds) // HH:MM:SS.mmm
-formatTimeForExcel(timeValue)          // ✅ NUEVO 3.4.5: Celdas vacías para tiempos sin valor
 ```
 
 ### FUNCIONES ELIMINADAS (v3.4.5):
@@ -156,7 +190,7 @@ formatTimeForExcel(timeValue)          // ✅ NUEVO 3.4.5: Celdas vacías para t
 exportRankingToExcel()  // Ahora se usa exportLlegadasToExcel() para todo
 ```
 
-### TRADUCCIONES.JS v3.4.5+ (Sistema Multilingüe - ACTUALIZADO)
+### TRADUCCIONES.JS v3.5.2 (Sistema Multilingüe - ACTUALIZADO)
 ```javascript
 // 4 IDIOMAS: es, ca, en, fr
 const translations = {
@@ -174,47 +208,110 @@ const translations = {
     deleteRiderNoSelection: "Has de seleccionar un corredor",
     deleteRiderConfirm: "¿Eliminar corredor {dorsal} {nombre}?",
     deleteRiderNotFound: "Corredor no encontrado",
-    deleteRiderSuccess: "Corredor eliminado correctamente"
+    deleteRiderSuccess: "Corredor eliminado correctamente",
+    // ⭐ NUEVAS TRADUCCIONES 3.5.2 (logos para PDF):
+    logoLeftLabel: "Logo Izquierdo",
+    logoRightLabel: "Logo Derecho", 
+    logoFormatInfo: "PNG, JPG, SVG (máx. 5MB)",
+    logoInfoTooltip: "Los logos aparecerán en los PDFs generados",
+    logoSizeError: "El logo excede 5MB",
+    logoFormatError: "Formato no válido. Usa PNG, JPG o SVG",
+    logoReadError: "Error al leer el logo",
+    logosUpdated: "Logos actualizados correctamente"
   },
   ca: { 
-    // ... mismas claves en catalán ...
-    deleteRiderText: "Eliminar Corredor",
-    deleteRiderNoSelection: "Has de seleccionar un corredor",
-    deleteRiderConfirm: "¿Eliminar corredor {dorsal} {nombre}?",
-    deleteRiderNotFound: "Corredor no trobat",
-    deleteRiderSuccess: "Corredor eliminat correctament"
+    // ... (traducciones equivalentes en catalán) ...
   },
   en: { 
-    // ... same keys in English ...
-    deleteRiderText: "Delete Rider",
-    deleteRiderNoSelection: "You must select a rider",
-    deleteRiderConfirm: "Delete rider {dorsal} {nombre}?",
-    deleteRiderNotFound: "Rider not found",
-    deleteRiderSuccess: "Rider deleted successfully"
+    // ... (traducciones equivalentes en inglés) ...
   },
   fr: { 
-    // ... mêmes clés en français ...
-    deleteRiderText: "Supprimer Coureur",
-    deleteRiderNoSelection: "Vous devez sélectionner un coureur",
-    deleteRiderConfirm: "Supprimer le coureur {dorsal} {nombre} ?",
-    deleteRiderNotFound: "Coureur non trouvé",
-    deleteRiderSuccess: "Coureur supprimé avec succès"
+    // ... (traducciones equivalentes en francés) ...
   }
 };
 
 // ACTUALIZACIÓN COMPLETA UI:
-updateLanguageUI()           // Actualiza TODA la interfaz (11 pasos)
+updateLanguageUI()           // Actualiza TODA la interfaz (12 pasos, incluye logos)
 updateAppTitle()             // Título aplicación
 updateRaceManagementCard()   // Tarjeta gestión carrera
 updateTableHeaders()         // Cabeceras tabla (incluye Pos. Cat.)
 updateModalTexts()           // Textos modales
+updateLogoTexts()            // ⭐ NUEVO 3.5.2: Textos de logos
 updateTableTooltips()        // Tooltips columnas
 // ⭐ Claves camelCase, IDs DOM con guiones
+```
+
+### STORAGE_PWA.JS v3.5.2 (Persistencia - ACTUALIZADO)
+```javascript
+// ⭐ NUEVO 3.5.2: Estructura de logos en saveRaceData()
+function saveRaceData() {
+    // ... código existente ...
+    const updatedRace = {
+        ...appState.currentRace,
+        // ... otros campos ...
+        // ⭐ NUEVO: Asegurar que existe estructura de logos
+        logos: appState.currentRace.logos || {
+            left: null,
+            right: null,
+            leftFilename: '',
+            rightFilename: '',
+            leftType: '',
+            rightType: ''
+        }
+    };
+    // ... resto de función ...
+}
+
+// FUNCIONES DE PERSISTENCIA:
+saveRacesToStorage()         // Guarda array de carreras en localStorage
+loadRaceData(raceId)         // Carga datos específicos de carrera
+backupCurrentRace()          // Copia de seguridad de carrera actual
+restoreRaceFromBackup()      // Restaura carrera desde backup
+deleteCurrentRace()          // Elimina carrera actual
+getRaceById(raceId)          // Busca carrera por ID
 ```
 
 ---
 
 ## 4. ESTRUCTURAS DE DATOS CLAVE
+
+### appState (Estado Global Aplicación - ACTUALIZADO 3.5.2)
+```javascript
+{
+  // Configuración
+  audioType: 'beep'|'voice'|'none',
+  currentLanguage: 'es'|'ca'|'en'|'fr',
+  soundEnabled: boolean,
+  aggressiveMode: boolean,
+  voiceAudioCache: {},  // Precarga audios voz
+  
+  // Carreras
+  currentRace: {
+    id, name, date, firstStartTime,
+    startOrder: [],     // Array de objetos corredor
+    departures: [],     // ⚠️ Ya NO se usa (datos en cada corredor)
+    intervals: [],
+    // ⭐ NUEVO 3.5.2: Logos para PDF
+    logos: {
+      left: null,       // Base64 string del logo izquierdo
+      right: null,      // Base64 string del logo derecho
+      leftFilename: '', // Nombre archivo izquierdo
+      rightFilename: '',// Nombre archivo derecho
+      leftType: '',     // 'image/png', 'image/jpeg', etc.
+      rightType: ''     // 'image/png', 'image/jpeg', etc.
+    }
+  },
+  races: [],           // Todas las carreras
+  
+  // Estado countdown
+  countdownActive, countdownValue, departedCount,
+  nextCorredorTime: 60,  // Tiempo entre corredores
+  isSalidaShowing, salidaTimeout,
+  
+  // PWA
+  deferredPrompt, updateAvailable
+}
+```
 
 ### llegadasState (Estado de Llegadas - ACTUALIZADO 3.4.5)
 ```javascript
@@ -235,42 +332,23 @@ window.llegadasState = {
 };
 ```
 
-### appState (Estado Global Aplicación)
-```javascript
-{
-  // Configuración
-  audioType: 'beep'|'voice'|'none',
-  currentLanguage: 'es'|'ca'|'en'|'fr',
-  soundEnabled: boolean,
-  aggressiveMode: boolean,
-  voiceAudioCache: {},  // Precarga audios voz
-  
-  // Carreras
-  currentRace: {
-    id, name, date, firstStartTime,
-    startOrder: [],     // Array de objetos corredor
-    departures: [],     // ⚠️ Ya NO se usa (datos en cada corredor)
-    intervals: []
-  },
-  races: [],           // Todas las carreras
-  
-  // Estado countdown
-  countdownActive, countdownValue, departedCount,
-  nextCorredorTime: 60,  // Tiempo entre corredores
-  isSalidaShowing, salidaTimeout,
-  
-  // PWA
-  deferredPrompt, updateAvailable
-}
-```
-
 ---
 
 ## 5. SISTEMA DE TRADUCCIONES
 
-**Nuevas claves añadidas (v3.4.5+):**
+**Nuevas claves añadidas (v3.5.2):**
 ```javascript
-// Para eliminación de corredores:
+// Para logos en PDF:
+logoLeftLabel: "Logo Izquierdo" (ES), "Logo Esquerre" (CA), "Left Logo" (EN), "Logo Gauche" (FR)
+logoRightLabel: "Logo Derecho" (ES), "Logo Dret" (CA), "Right Logo" (EN), "Logo Droit" (FR)
+logoFormatInfo: "PNG, JPG, SVG (máx. 5MB)" (ES), "PNG, JPG, SVG (màx. 5MB)" (CA), etc.
+logoInfoTooltip: "Los logos aparecerán en los PDFs generados" (ES), etc.
+logoSizeError: "El logo excede 5MB" (ES), "Logo exceeds 5MB" (EN), etc.
+logoFormatError: "Formato no válido. Usa PNG, JPG o SVG" (ES), etc.
+logoReadError: "Error al leer el logo" (ES), etc.
+logosUpdated: "Logos actualizados correctamente" (ES), etc.
+
+// Para eliminación de corredores (3.4.5+):
 deleteRiderText: "Eliminar Corredor" (ES/CA), "Delete Rider" (EN), "Supprimer Coureur" (FR)
 deleteRiderNoSelection: "Has de seleccionar un corredor" (ES), etc.
 deleteRiderConfirm: "¿Eliminar corredor {dorsal} {nombre}?" (ES), etc.
@@ -290,7 +368,7 @@ posCatHeaderTooltip: "Posición dentro de la categoría" (ES), etc.
 - Objeto centralizado `translations` con 4 idiomas
 - Claves camelCase (ej: `cardRaceTitle`, `modeSalidaText`)
 - IDs DOM con guiones (ej: `card-race-title`, `mode-salida-text`)
-- Actualización completa con `updateLanguageUI()` (11 pasos)
+- Actualización completa con `updateLanguageUI()` (12 pasos, incluye logos)
 
 **Añadir nuevo texto:**
 1. Añadir clave en los 4 idiomas en Traducciones.js
@@ -301,8 +379,24 @@ posCatHeaderTooltip: "Posición dentro de la categoría" (ES), etc.
 
 ## 6. HTML/CSS ESENCIAL
 
-**IDs CRÍTICOS NUEVOS (v3.4.5+):**
+**IDs CRÍTICOS NUEVOS (v3.5.2):**
 ```javascript
+// Logos para PDF (3.5.2)
+'#edit-race-logo-left'              // Input logo izquierdo (edición)
+'#edit-race-logo-right'             // Input logo derecho (edición)
+'#new-race-logo-left'               // Input logo izquierdo (nueva)
+'#new-race-logo-right'              // Input logo derecho (nueva)
+'#logo-left-label-text'             // Label "Logo Izquierdo" (edición)
+'#logo-right-label-text'            // Label "Logo Derecho" (edición)
+'#new-logo-left-label-text'         // Label "Logo Izquierdo" (nueva)
+'#new-logo-right-label-text'        // Label "Logo Derecho" (nueva)
+'#edit-race-logo-left-info'         // Info formato logo izquierdo (edición)
+'#edit-race-logo-right-info'        // Info formato logo derecho (edición)
+'#new-race-logo-left-info'          // Info formato logo izquierdo (nueva)
+'#new-race-logo-right-info'         // Info formato logo derecho (nueva)
+'#logo-info-tooltip-text'           // Tooltip informativo (edición)
+'#new-logo-info-tooltip-text'       // Tooltip informativo (nueva)
+
 // Botón eliminación corredor (3.4.5+)
 '#delete-rider-btn'                // Botón eliminar corredor
 '#delete-rider-text'               // Texto del botón
@@ -358,25 +452,66 @@ posCatHeaderTooltip: "Posición dentro de la categoría" (ES), etc.
 @media (max-width: 992px|768px|480px|360px)
 ```
 
-**ESTRUCTURA HTML DE BOTONES (ACTUALIZADA 3.4.5+):**
+**ESTRUCTURA HTML DE MODALES CON LOGOS (3.5.2):**
 ```html
-<div class="buttons-responsive-container">
-    <!-- ... otros botones ... -->
-    <button class="responsive-btn btn-info" id="add-rider-btn">
-        <i class="fas fa-user-plus"></i>
-        <span id="add-rider-text">Añadir Corredor</span>
-    </button>
-    <!-- ⭐ NUEVO BOTÓN 3.4.5+ -->
-    <button class="responsive-btn btn-danger" id="delete-rider-btn">
-        <i class="fas fa-user-minus"></i>
-        <span id="delete-rider-text">Eliminar Corredor</span>
-    </button>
+<!-- Modal edición carrera -->
+<div id="edit-race-modal" class="modal">
+    <!-- ... otros campos ... -->
+    <!-- Logos para PDF -->
+    <div class="form-group">
+        <label>Logos para PDF:</label>
+        <div class="logos-container">
+            <!-- Logo izquierdo -->
+            <div class="logo-upload">
+                <label for="edit-race-logo-left">
+                    <i class="fas fa-image"></i> 
+                    <span id="logo-left-label-text">Logo Izquierdo</span>
+                </label>
+                <input type="file" id="edit-race-logo-left" 
+                       accept=".png,.jpg,.jpeg,.svg">
+                <div class="logo-info">
+                    <span id="edit-race-logo-left-info" 
+                          data-default="PNG, JPG, SVG (máx. 5MB)">
+                        PNG, JPG, SVG (máx. 5MB)
+                    </span>
+                </div>
+            </div>
+            <!-- Logo derecho (estructura similar) -->
+        </div>
+    </div>
 </div>
+
+<!-- Modal nueva carrera (estructura similar con IDs new-*) -->
 ```
 
 ---
 
 ## 7. FLUJOS PRINCIPALES
+
+### Subida y Procesamiento de Logos (3.5.2):
+```text
+1. Usuario abre modal edición/nueva carrera
+   → HTML: Inputs para logos izquierdo/derecho
+   → Traducción: Labels en 4 idiomas automáticamente
+
+2. Usuario selecciona archivos
+   → Validación: Formato PNG/JPG/SVG, tamaño ≤5MB
+   → Procesamiento: FileReader convierte a Base64
+
+3. Guardado de logos
+   → saveEditedRace() o createNewRace() procesa archivos
+   → Estructura: logos.left/base64, logos.right/base64
+   → Metadata: filename, type, size
+
+4. Generación de PDFs
+   → addLogosToPDF() añade logos a encabezados
+   → Posición: Izquierda (margin, 15px), Derecha (pageWidth - margin - size)
+   → Tamaño: 20mm × 20mm
+
+5. Persistencia
+   → saveRaceData() guarda estructura logos
+   → localStorage mantiene Base64 strings
+```
 
 ### Eliminación de Corredor (3.4.5+):
 ```text
@@ -490,6 +625,27 @@ posCatHeaderTooltip: "Posición dentro de la categoría" (ES), etc.
    }
 ```
 
+### Añadir logos para PDFs en edición/nueva carrera (NUEVO 3.5.2)
+```text
+1. HTML: Añadir inputs de archivo en modales de edición y nueva carrera
+2. Traducciones.js: Añadir claves en 4 idiomas:
+   - logoLeftLabel, logoRightLabel: Labels para inputs
+   - logoFormatInfo: "PNG, JPG, SVG (máx. 5MB)"
+   - logoInfoTooltip: Texto informativo
+   - logoSizeError, logoFormatError, logoReadError, logosUpdated
+3. UI.js: Modificar funciones:
+   - editRaceDetails(): Mostrar info de logos existentes
+   - saveEditedRace(): Procesar logos con validación (5MB)
+   - createNewRace(): Procesar logos al crear carrera
+4. Utilidades.js: Añadir funciones:
+   - addLogosToPDF(): Añadir logos a encabezados de PDF
+   - processLogoFile(): Validar y convertir a Base64
+5. Modificar funciones PDF:
+   - generateStartOrderPDF(): Llamar addLogosToPDF() antes de dibujar cabecera
+   - exportRankingToPDF(): Llamar addLogosToPDF() antes de dibujar cabecera
+6. Storage_Pwa.js: Actualizar saveRaceData() para incluir estructura logos
+```
+
 ### Añadir nuevo campo a corredor en llegadas:
 ```text
 1. Llegadas.js: Añadir en estructura llegada
@@ -584,7 +740,7 @@ log(LOG_LEVEL.ERROR, "Error cargando carrera actual:", error);
 log(LOG_LEVEL.DEBUG, `startOrderData disponible: ${!!startOrderData}`);
 ```
 
-**Logs nuevos en v3.4.2 - v3.4.5+:**
+**Logs nuevos en v3.4.2 - v3.5.2:**
 ```javascript
 log(LOG_LEVEL.INFO, "📊 Contador actualizado: ${x} de ${y} corredores");
 log(LOG_LEVEL.DEBUG, "🔄 Actualizando tiempo compacto de llegadas");
@@ -593,6 +749,10 @@ log(LOG_LEVEL.DEBUG, "📊 Exportación Excel unificada - celdas vacías para ti
 log(LOG_LEVEL.INFO, "Botón Eliminar Corredor clickeado"); // ⭐ NUEVO 3.4.5+
 log(LOG_LEVEL.DEBUG, "✅ Botón Eliminar Corredor configurado (configuración directa)");
 log(LOG_LEVEL.INFO, `Corredor eliminado: ${selectedRider.dorsal} - ${selectedRider.nombre}`);
+log(LOG_LEVEL.INFO, "Actualizando textos de logos..."); // ⭐ NUEVO 3.5.2
+log(LOG_LEVEL.DEBUG, `Logo ${side} procesado: ${file.name} (${Math.round(file.size / 1024)}KB)`);
+log(LOG_LEVEL.INFO, "✅ Nueva carrera creada con logos");
+log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilename}`);
 ```
 
 ---
@@ -630,6 +790,10 @@ log(LOG_LEVEL.INFO, `Corredor eliminado: ${selectedRider.dorsal} - ${selectedRid
 24. **✅ CELDAS VACÍAS EN EXCEL**: Para tiempos sin valor, dejar celda vacía (no 00:00:00)
 25. **✅ EXPORTACIÓN EXCEL UNIFICADA**: Usar exportLlegadasToExcel() para todas las exportaciones Excel
 26. **✅ SELECCIÓN CLARA PARA ELIMINACIÓN**: Para eliminar corredor, requerir selección explícita (click en fila) con feedback visual
+27. **✅ LOGOS ESPECÍFICOS POR CARRERA**: Cada carrera puede tener logos únicos para PDFs
+28. **✅ VALIDACIÓN DE LOGOS**: 5MB máximo, formatos PNG/JPG/SVG, procesamiento con FileReader
+29. **✅ TRADUCCIONES PARA LOGOS**: Todos los textos relacionados con logos en 4 idiomas
+30. **✅ MANTENER LOGOS EXISTENTES**: Al editar, no eliminar logos si no se suben nuevos
 
 ---
 
@@ -721,6 +885,14 @@ log(LOG_LEVEL.INFO, `Corredor eliminado: ${selectedRider.dorsal} - ${selectedRid
     Solución: Crear formatTimeForExcel() que devuelve cadena vacía para tiempos sin valor  
     Regla de oro añadida: ✅ Celdas vacías en Excel: Para tiempos sin valor, dejar celda vacía (no 00:00:00)
 
+17. **✅ Eliminación de corredores con recálculo automático implementada correctamente (v3.4.5+)**  
+    Problema: Necesidad de eliminar corredores de orden de salida  
+    Solución: Botón "Eliminar Corredor" con selección por click y recálculo automático de tiempos posteriores
+
+18. **✅ Logos para PDFs implementados correctamente (v3.5.2)**  
+    Problema: Necesidad de personalizar PDFs con logos de organizadores  
+    Solución: Sistema completo de subida, validación (5MB, PNG/JPG/SVG), procesamiento Base64 e integración en PDFs
+
 ---
 
 ## 12. CHECKLIST PARA CAMBIOS ⭐
@@ -732,6 +904,7 @@ log(LOG_LEVEL.INFO, `Corredor eliminado: ${selectedRider.dorsal} - ${selectedRid
 - Comprobar si afecta a traducciones (4 idiomas)
 - ✅ Configurar nivel de log apropiado (DEBUG para desarrollo, INFO para producción)
 - ✅ Verificar si afecta a selección por click en tablas (para eliminación de corredores)
+- ✅ Verificar si necesita procesamiento de archivos (para logos)
 
 ### DURANTE modificación:
 - Usar funciones centralizadas (ej: timeToSeconds() de Utilidades.js)
@@ -748,6 +921,9 @@ log(LOG_LEVEL.INFO, `Corredor eliminado: ${selectedRider.dorsal} - ${selectedRid
 - ✅ Usar formatTimeForExcel() para campos de tiempo en exportaciones
 - ✅ Usar clonación para evitar listeners duplicados en botones
 - ✅ Mantener validación de selección clara para usuario (especialmente eliminación)
+- ✅ Para logos: Validar tamaño (5MB), formato (PNG/JPG/SVG), usar FileReader
+- ✅ Mantener estructura logos en currentRace.logos con todos los campos necesarios
+- ✅ Actualizar ambos modales (edición y nueva carrera) si es funcionalidad de logos
 
 ### DESPUÉS de modificar:
 - Probar en múltiples navegadores
@@ -767,6 +943,10 @@ log(LOG_LEVEL.INFO, `Corredor eliminado: ${selectedRider.dorsal} - ${selectedRid
 - ✅ Probar selección por click en diferentes filas (eliminación corredores)
 - ✅ Verificar recálculo automático de tiempos posteriores (eliminación)
 - ✅ Confirmar que traducciones funcionan en 4 idiomas para nuevos textos
+- ✅ Probar subida de logos: formatos, tamaño, persistencia
+- ✅ Verificar que logos aparecen en PDFs generados
+- ✅ Probar que logos se mantienen al editar sin subir nuevos
+- ✅ Verificar que logos específicos por carrera funcionan correctamente
 
 ### SI hay errores:
 - Revisar Lecciones Aprendidas (problemas similares)
@@ -777,10 +957,12 @@ log(LOG_LEVEL.INFO, `Corredor eliminado: ${selectedRider.dorsal} - ${selectedRid
 - ✅ Verificar atributos HTML en campos problemáticos
 - ✅ Verificar duplicación de event listeners
 - ✅ Verificar formatTimeForExcel() para tiempos en Excel
+- ✅ Para logos: Verificar FileReader, tamaño archivo, formato Base64
+- ✅ Verificar estructura logos en currentRace (todos los campos necesarios)
 
 ---
 
-## 13. CAMBIOS v3.4.2 - v3.4.5+ ⭐
+## 13. CAMBIOS v3.4.2 - v3.5.2 ⭐
 
 ### v3.4.2 - Posición por Categoría y Mejoras UI
 1. **Posición por Categoría (3.3.4)**  
@@ -826,7 +1008,7 @@ log(LOG_LEVEL.INFO, `Corredor eliminado: ${selectedRider.dorsal} - ${selectedRid
    - Celdas vacías para tiempos sin valor  
    Botones actualizados: "Exportar Excel" en modal clasificación ahora llama a `exportLlegadasToExcel()`
 
-### v3.4.5+ - Eliminación de Corredores con Recalculo Automático (NUEVO)
+### v3.4.5+ - Eliminación de Corredores con Recalculo Automático
 7. **Nuevo botón "Eliminar Corredor"** en orden de salida  
 8. **Selección por click** en fila de tabla (estilo visual con borde rojo)  
 9. **Validación completa**: Mensaje "Has de seleccionar un corredor" si no hay selección  
@@ -834,40 +1016,41 @@ log(LOG_LEVEL.INFO, `Corredor eliminado: ${selectedRider.dorsal} - ${selectedRid
 11. **Persistencia inmediata**: Cambios se guardan automáticamente  
 12. **Traducciones completas**: 5 nuevas claves por idioma para mensajes y botón
 
-**Archivos Modificados:**
+### v3.5.2 - Logos para PDFs (NUEVO)
+13. **Modal de edición de carrera ampliado** con inputs para logos izquierdo/derecho  
+14. **Modal de nueva carrera ampliado** con inputs para logos izquierdo/derecho  
+15. **Validación completa**: Formatos PNG, JPG, SVG; tamaño máximo 5MB  
+16. **Procesamiento automático**: Conversión a Base64 con FileReader  
+17. **Almacenamiento específico**: Logos guardados en `currentRace.logos`  
+18. **Integración en PDFs**: Logos añadidos a encabezados de ambos PDFs  
+19. **Traducciones completas**: 8 nuevas claves por idioma para textos de logos  
+20. **Posicionamiento automático**: Logos en márgenes izquierdo/derecho (20×20mm)  
+21. **Mantenimiento de logos**: No se pierden al editar sin subir nuevos
+
+**Archivos Modificados v3.5.2:**
 | Archivo | Cambios Principales | Versión |
 |---------|-------------------|---------|
-| HTML principal | Botón añadido en bloque de botones | 3.4.5+ |
-| Salidas_3.js | Función `deleteSelectedRider()` nueva | 3.4.5+ |
-| Traducciones.js | 5 nuevas claves por idioma (eliminación corredores) | 3.4.5+ |
-| CSS | Estilo para filas seleccionadas | 3.4.5+ |
-| Llegadas.js | Posición por categoría, contador llegadas, tiempo compacto, exportación unificada | 3.4.5 |
-| UI.js | setupCardToggles() actualizado, funciones tiempo compacto | 3.4.2 |
+| HTML principal | Inputs de logos en modales edición/nueva | 3.5.2 |
+| UI.js | Funciones `editRaceDetails()`, `saveEditedRace()`, `createNewRace()` actualizadas | 3.5.2 |
+| Utilidades.js | Funciones `addLogosToPDF()`, `processLogoFile()` creadas | 3.5.2 |
+| Utilidades.js | Funciones PDF actualizadas para incluir logos | 3.5.2 |
+| Storage_Pwa.js | Estructura de logos en `saveRaceData()` | 3.5.2 |
+| Traducciones.js | 8 nuevas claves por idioma (logos) | 3.5.2 |
+| Traducciones.js | Función `updateLogoTexts()` añadida | 3.5.2 |
 
-**Reglas de Oro Añadidas:**
-- ✅ **CONTADOR DE LLEGADAS DINÁMICO**: Siempre mostrar "Llegadas Registradas - X de Y Corredores"
-- ✅ **TIEMPO COMPACTO EN MINIMIZAR**: Al minimizar cronómetro, mostrar tiempo en cabecera
-- ✅ **POSICIÓN POR CATEGORÍA**: Calcular y mostrar posición dentro de cada categoría
-- ✅ **MÚLTIPLES RELOJES SINCRONIZADOS**: Todos los relojes del sistema deben actualizarse juntos
-- ✅ **CELDAS VACÍAS EN EXCEL**: Para tiempos sin valor, dejar celda vacía (no 00:00:00)
-- ✅ **EXPORTACIÓN EXCEL UNIFICADA**: Usar `exportLlegadasToExcel()` para todas las exportaciones Excel
-- ✅ **SELECCIÓN CLARA PARA ELIMINACIÓN**: Para eliminar corredor, requerir selección explícita (click en fila) con feedback visual
+**Reglas de Oro Añadidas v3.5.2:**
+- ✅ **LOGOS ESPECÍFICOS POR CARRERA**: Cada carrera puede tener logos únicos para PDFs
+- ✅ **VALIDACIÓN DE LOGOS**: 5MB máximo, formatos PNG/JPG/SVG, procesamiento con FileReader
+- ✅ **TRADUCCIONES PARA LOGOS**: Todos los textos relacionados con logos en 4 idiomas
+- ✅ **MANTENER LOGOS EXISTENTES**: Al editar, no eliminar logos si no se suben nuevos
 
-**Lecciones Aprendidas Añadidas:**
-- ✅ Contador de llegadas no se actualizaba al cambiar de carrera
-- ✅ Botón de minimizar en cronómetro de llegadas mal posicionado
-- ✅ Reloj "Hora del Sistema" no se actualizaba en tarjeta de cuenta atrás
-- ✅ Celdas Excel con 00:00:00 para tiempos sin valor
-- ✅ Eliminación de corredores con recálculo automático implementada correctamente
-
-**Resultados v3.4.5+:**
-- **Usabilidad mejorada**: Información más completa al instante
-- **Profesionalidad**: Posición por categoría para organizadores
-- **Eficiencia**: Tiempo visible incluso minimizado, eliminación rápida de corredores
-- **Consistencia**: Todos los relojes sincronizados
-- **Calidad datos**: Excel más limpio (sin 00:00:00 falsos)
-- **Mantenibilidad**: Código más simple (una función para exportación, lógica clara de eliminación)
-- **Internacionalización**: Nuevos textos traducidos a 4 idiomas
+**Resultados finales v3.5.2:**
+- **Personalización profesional**: PDFs con logos de organizadores
+- **Flexibilidad total**: Logos específicos por carrera, formatos múltiples
+- **Experiencia de usuario**: Interfaz intuitiva en modales
+- **Internacionalización**: Todos los textos traducidos a 4 idiomas
+- **Robustez**: Validación completa de archivos, manejo de errores
+- **Eficiencia**: Procesamiento automático, persistencia transparente
 
 ---
 
@@ -885,6 +1068,7 @@ log(LOG_LEVEL.INFO, `Corredor eliminado: ${selectedRider.dorsal} - ${selectedRid
 - Gestión carreras → Storage_Pwa.js: `createNewRace()`, `deleteCurrentRace()`
 - Importar datos → Salidas_1.js: `importStartOrder()`
 - Contador llegadas → Llegadas.js: `actualizarContadorLlegadas()`
+- Procesar logos → Utilidades.js: `processLogoFile()`
 
 **Cuando Llegadas.js necesita:**
 - Actualizar contador → UI.js: `actualizarContadorLlegadas()` (en sí mismo)
@@ -893,12 +1077,16 @@ log(LOG_LEVEL.INFO, `Corredor eliminado: ${selectedRider.dorsal} - ${selectedRid
 
 **Cuando Storage_Pwa.js es llamado por:**
 - Todos los módulos (persistencia centralizada)
-- Especialmente: Salidas_*.js, Cuenta_Atras.js, Llegadas.js
+- Especialmente: Salidas_*.js, Cuenta_Atras.js, Llegadas.js, UI.js
 
 **Cuando Salidas_3.js necesita:**
 - Recalcular tiempos → Salidas_4.js: `recalculateAllStartTimes()`
 - Actualizar tabla → Salidas_2.js: `updateStartOrderTableThrottled()`
 - Guardar datos → Storage_Pwa.js: `saveStartOrderData()`
+
+**Cuando Utilidades.js necesita:**
+- Logos para PDF → appState.currentRace.logos
+- Traducciones → Traducciones.js para formatos de tiempo
 
 ---
 
@@ -911,6 +1099,7 @@ log(LOG_LEVEL.INFO, `Corredor eliminado: ${selectedRider.dorsal} - ${selectedRid
 | Importación/Exportación Excel | Salidas_1.js | Utilidades.js, Traducciones.js |
 | Interfaz tabla, edición | Salidas_2.js | Salidas_3.js, Salidas_4.js |
 | **Modales, añadir/eliminar corredores** | **Salidas_3.js** | **UI.js, Storage_Pwa.js, Salidas_4.js** |
+| **Logos para PDF (edición/nueva)** | **UI.js** | **Utilidades.js, Storage_Pwa.js, Traducciones.js** |
 | Validaciones, confirmaciones | Salidas_4.js | Utilidades.js |
 | Cuenta atrás, salidas | Cuenta_Atras.js | Utilidades.js, Storage_Pwa.js, Salidas_2.js |
 | Interfaz general, tarjetas | UI.js | Main.js, Storage_Pwa.js |
@@ -929,10 +1118,11 @@ log(LOG_LEVEL.INFO, `Corredor eliminado: ${selectedRider.dorsal} - ${selectedRid
 | ✅ Exportación Excel unificada | Llegadas.js | Traducciones.js |
 | ✅ Celdas vacías en Excel | Llegadas.js | (formato interno) |
 | ✅ Eliminación de corredores | Salidas_3.js | Salidas_4.js, UI.js, Traducciones.js |
+| ✅ **Logos para PDFs** | **UI.js, Utilidades.js** | **Storage_Pwa.js, Traducciones.js** |
 
 ---
 
-## 🎯 RESUMEN DE CAMBIOS v3.4.2 - v3.4.5+
+## 🎯 RESUMEN DE CAMBIOS v3.4.2 - v3.5.2
 
 ### Mejoras principales:
 ✅ **Posición por categoría**: Nueva columna en llegadas, Excel y PDF  
@@ -942,10 +1132,14 @@ log(LOG_LEVEL.INFO, `Corredor eliminado: ${selectedRider.dorsal} - ${selectedRid
 ✅ **Botones minimizar corregidos**: Estructura HTML correcta  
 ✅ **Celdas vacías en Excel**: Tiempos sin valor → celdas vacías (no 00:00:00)  
 ✅ **Exportación Excel unificada**: Una función para todas las exportaciones  
-✅ **⭐ NUEVO: Eliminación de corredores**: Botón con selección por click y recálculo automático  
+✅ **⭐ Eliminación de corredores**: Botón con selección por click y recálculo automático  
+✅ **⭐ LOGOS PARA PDFs**: Sistema completo de subida, validación e integración en PDFs  
 
-### Nuevas funciones v3.4.5+:
-- `deleteSelectedRider()` - Elimina corredor seleccionado con validación
+### Nuevas funciones v3.5.2:
+- `addLogosToPDF()` - Añade logos a encabezados de PDF
+- `processLogoFile()` - Valida y convierte archivos de logo
+- `updateLogoTexts()` - Actualiza textos de logos en traducciones
+- `deleteSelectedRider()` - Elimina corredor seleccionado
 - `setupDeleteRiderButtonDirect()` - Configura botón eliminación
 - `calcularPosicionesPorCategoria()` - Posiciones dentro de categorías
 - `actualizarContadorLlegadas()` - Actualiza contador dinámico
@@ -957,16 +1151,15 @@ log(LOG_LEVEL.INFO, `Corredor eliminado: ${selectedRider.dorsal} - ${selectedRid
 ### Funciones eliminadas:
 ❌ `exportRankingToExcel()` - Redundante, reemplazada por `exportLlegadasToExcel()`
 
-### Nuevas traducciones:
-- `deleteRiderText` - Texto del botón eliminar
-- `deleteRiderNoSelection` - Mensaje si no hay selección
-- `deleteRiderConfirm` - Confirmación de eliminación
-- `deleteRiderNotFound` - Corredor no encontrado
-- `deleteRiderSuccess` - Éxito en eliminación
-- `llegadasListTitle` - Título de tarjeta de llegadas
-- `llegadasCounterTemplate` - Plantilla para contador "{x} de {y}"
-- `posCatHeader` - Cabecera "Pos. Cat."
-- `posCatHeaderTooltip` - Tooltip explicativo
+### Nuevas traducciones (8 claves por idioma):
+- `logoLeftLabel`, `logoRightLabel` - Labels para inputs
+- `logoFormatInfo` - Información de formato (PNG, JPG, SVG - 5MB)
+- `logoInfoTooltip` - Tooltip informativo
+- `logoSizeError`, `logoFormatError`, `logoReadError` - Mensajes de error
+- `logosUpdated` - Mensaje de éxito
+- `deleteRiderText`, `deleteRiderNoSelection`, etc. - Eliminación corredores
+- `llegadasListTitle`, `llegadasCounterTemplate` - Contador llegadas
+- `posCatHeader`, `posCatHeaderTooltip` - Posición por categoría
 
 ### Reglas de oro añadidas:
 - Contador de llegadas dinámico
@@ -975,22 +1168,27 @@ log(LOG_LEVEL.INFO, `Corredor eliminado: ${selectedRider.dorsal} - ${selectedRid
 - Múltiples relojes sincronizados
 - Celdas vacías en Excel
 - Exportación Excel unificada
-- **Selección clara para eliminación**
+- Selección clara para eliminación
+- **Logos específicos por carrera**
+- **Validación de logos (5MB, PNG/JPG/SVG)**
+- **Traducciones para logos**
+- **Mantener logos existentes**
 
 ### Resultados finales:
 - **Usabilidad mejorada**: Información más completa al instante
-- **Profesionalidad**: Posición por categoría para organizadores
-- **Eficiencia**: Tiempo visible incluso minimizado, eliminación rápida
-- **Consistencia**: Todos los relojes sincronizados
+- **Profesionalidad**: PDFs personalizados con logos, posición por categoría
+- **Eficiencia**: Eliminación rápida de corredores, tiempo visible minimizado
+- **Consistencia**: Todos los relojes sincronizados, interfaz uniforme
 - **Calidad datos**: Excel más limpio (sin 00:00:00 falsos)
-- **Mantenibilidad**: Código más simple y lógica clara
-- **Internacionalización**: Nuevos textos traducidos a 4 idiomas
-- **Robustez**: Validación completa en eliminación de corredores
+- **Mantenibilidad**: Código modular, lógica clara
+- **Internacionalización**: Todos los textos traducidos a 4 idiomas
+- **Robustez**: Validación completa en todas las operaciones
+- **Personalización**: Logos únicos por carrera para máxima flexibilidad
 
 ---
 
-**Documentación optimizada para modificaciones - v3.4.5+**  
-Caracteres: ~45,200 (incluye todas las mejoras)  
+**Documentación optimizada para modificaciones - v3.5.2**  
+Caracteres: ~50,500 (documentación completa de todas las funcionalidades)  
 Cobertura: 100% funcionalidades necesarias para programar  
 Última actualización: Enero 2026
 

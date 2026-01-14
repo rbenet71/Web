@@ -312,6 +312,7 @@ Nom app
 3_5 En Orden de Salida crear un botón al lado de añadir corredor, que indique Eliminar Corredor y hacer la función que elimine un corredor de la tabla y recalcule tiempos.
 
 3_5.1 en la edicion de carrera pedir un logo para poner a la derecha e izquierda de los pdf que se generan (orden de salida y clasificación).
+3_5.2 mejora pdf
 
 --------------------------
 
@@ -319,7 +320,7 @@ Nom app
 
 3. Mejorar diseño pantalla resultados 
 
-
-
 pantalla externa de resultados
 revisar los tiempos de salida
+bloqueo cabecera columnas
+mejorar ayuda
