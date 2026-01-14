@@ -2620,7 +2620,7 @@ function updateTableHeaders(t) {
     // ✅ USAR SISTEMA DE LOGGING OPTIMIZADO
     log(LOG_LEVEL.DEBUG, "Actualizando cabeceras de tabla...");
     
-    // Lista COMPLETA de IDs (21 columnas - versión 3.4.2)
+    // Lista COMPLETA de IDs (21 columnas - versión 3.4.3)
     const headerIds = [
         'orderHeader', 'dorsalHeader', 'cronoSalidaHeader', 'horaSalidaHeader',
         'diferenciaHeader', 'nombreHeader', 'apellidosHeader', 'categoriaHeader', // ✅ NUEVO 3.2.1

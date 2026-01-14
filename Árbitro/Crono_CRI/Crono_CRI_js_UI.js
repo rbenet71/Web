@@ -115,7 +115,7 @@ let uiInitialized = {
 // FUNCIONES DE TARJETAS EXPANDIBLES
 // ============================================
 // ============================================
-// FUNCIONES DE TARJETAS EXPANDIBLES - ACTUALIZADO 3.4.2
+// FUNCIONES DE TARJETAS EXPANDIBLES - ACTUALIZADO 3.4.3
 // ============================================
 function setupCardToggles() {
     if (uiInitialized.cardToggles) {
@@ -186,7 +186,7 @@ function setupCardToggles() {
 }
 
 // ============================================
-// ACTUALIZAR TIEMPO COMPACTO DE LLEGADAS - NUEVO 3.4.2
+// ACTUALIZAR TIEMPO COMPACTO DE LLEGADAS - NUEVO 3.4.3
 // ============================================
 function updateLlegadasCompactTimer() {
     const compactDisplay = document.getElementById('llegadas-timer-compact');
@@ -214,7 +214,7 @@ function updateLlegadasCompactTimer() {
 }
 
 // ============================================
-// CONFIGURAR ACTUALIZACIONES DEL TIEMPO COMPACTO - NUEVO 3.4.2
+// CONFIGURAR ACTUALIZACIONES DEL TIEMPO COMPACTO - NUEVO 3.4.3
 // ============================================
 function setupCompactTimerUpdates() {
     // Verificar si ya existe el intervalo
@@ -231,7 +231,7 @@ function setupCompactTimerUpdates() {
 }
 
 // ============================================
-// ACTUALIZAR ESTADO INICIAL DE TIEMPO COMPACTO - NUEVO 3.4.2
+// ACTUALIZAR ESTADO INICIAL DE TIEMPO COMPACTO - NUEVO 3.4.3
 // ============================================
 function updateInitialCompactTimerState() {
     // Verificar si la tarjeta de cronómetro de llegadas está minimizada al cargar
@@ -727,7 +727,19 @@ function obtenerStartOrderDataParaUI() {
 function updateSystemTimeDisplay() {
     const now = new Date();
     const timeString = now.toLocaleTimeString();
-    document.getElementById('current-system-time-display').textContent = timeString;
+    
+    // 1. Actualizar en tarjeta de gestión de carrera
+    const displayElement = document.getElementById('current-system-time-display');
+    if (displayElement) {
+        displayElement.textContent = timeString;
+    }
+    
+    // 2. NUEVO: Actualizar en tarjeta de cuenta atrás
+    const countdownElement = document.getElementById('current-system-time');
+    if (countdownElement) {
+        countdownElement.textContent = timeString;
+    }
+    
     updateTimeDifference();
 }
 
