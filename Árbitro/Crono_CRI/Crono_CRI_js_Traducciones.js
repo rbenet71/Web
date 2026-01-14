@@ -566,6 +566,13 @@ const translations = {
 
         positionHeader: "Posición",  // es
 
+        categoriaHeader: "Categoría",
+        equipoHeader: "Equipo", 
+        licenciaHeader: "Licencia",
+        categoriaHeaderTooltip: "Categoría del corredor",
+        equipoHeaderTooltip: "Equipo del corredor",
+        licenciaHeaderTooltip: "Número de licencia",
+
     },
 
     ca: {
@@ -1140,6 +1147,13 @@ const translations = {
         license: "LLICÈNCIA",
 
         positionHeader: "Posició",   // ca  
+
+        categoriaHeader: "Categoria",
+        equipoHeader: "Equip",
+        licenciaHeader: "Llicència",
+        categoriaHeaderTooltip: "Categoria del corredor",
+        equipoHeaderTooltip: "Equip del corredor",
+        licenciaHeaderTooltip: "Número de llicència",
     },
 
     en: {
@@ -1708,6 +1722,13 @@ const translations = {
         team: "TEAM",
         license: "LICENSE",
         positionHeader: "Position",  // en
+
+        categoriaHeader: "Category",
+        equipoHeader: "Team",
+        licenciaHeader: "License",
+        categoriaHeaderTooltip: "Rider's category",
+        equipoHeaderTooltip: "Rider's team", 
+        licenciaHeaderTooltip: "License number",
     },
 
     fr: {
@@ -2297,6 +2318,13 @@ const translations = {
         license: "LICENCE",
 
         positionHeader: "Position",  // fr
+
+        categoriaHeader: "Catégorie",
+        equipoHeader: "Équipe",
+        licenciaHeader: "Licence",
+        categoriaHeaderTooltip: "Catégorie du coureur",
+        equipoHeaderTooltip: "Équipe du coureur",
+        licenciaHeaderTooltip: "Numéro de licence",
     }
 };
 
@@ -2568,18 +2596,22 @@ function updateModalTexts(t) {
 }
 
 function updateTableHeaders(t) {
-    console.log("Idioma:", appState.currentLanguage);
+    // ✅ USAR SISTEMA DE LOGGING OPTIMIZADO
+    log(LOG_LEVEL.DEBUG, "Actualizando cabeceras de tabla...");
     
-    // Lista completa de IDs
+    // Lista COMPLETA de IDs (21 columnas - versión 3.3.4)
     const headerIds = [
         'orderHeader', 'dorsalHeader', 'cronoSalidaHeader', 'horaSalidaHeader',
-        'diferenciaHeader', 'nombreHeader', 'apellidosHeader', 'chipHeader',
+        'diferenciaHeader', 'nombreHeader', 'apellidosHeader', 'categoriaHeader', // ✅ NUEVO 3.2.1
+        'equipoHeader', 'licenciaHeader', 'chipHeader',                           // ✅ NUEVO 3.2.1
         'horaRealHeader', 'cronoRealHeader', 'horaPrevistaHeader', 'cronoPrevistaHeader',
         'horaImportadoHeader', 'cronoImportadoHeader', 'cronoSegundosHeader',
         'horaSegundosHeader', 'cronoRealSegundosHeader', 'horaRealSegundosHeader'
     ];
     
     let updated = 0;
+    let missing = 0;
+    
     headerIds.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
@@ -2587,14 +2619,27 @@ function updateTableHeaders(t) {
             if (translation) {
                 element.textContent = translation;
                 updated++;
+            } else {
+                // ⚠️ Si falta traducción, mostrar ID para depuración
+                element.textContent = `[${id}]`;
+                missing++;
+                log(LOG_LEVEL.WARN, `Falta traducción para: ${id}`);
             }
+        } else {
+            log(LOG_LEVEL.DEBUG, `Elemento no encontrado: ${id}`);
         }
     });
     
-    // También actualizar tooltips si existen
-    if (typeof updateTableTooltips === 'function') {
-        updateTableTooltips(t);
+    // ✅ LOG FINAL OPTIMIZADO
+    if (updated > 0) {
+        log(LOG_LEVEL.INFO, `Cabeceras actualizadas: ${updated} de ${headerIds.length}`);
     }
+    if (missing > 0) {
+        log(LOG_LEVEL.WARN, `Faltan traducciones: ${missing} cabeceras`);
+    }
+    
+    // También actualizar tooltips si existen
+    callIfFunction(updateTableTooltips, "Función updateTableTooltips no disponible");
 }
 
 
