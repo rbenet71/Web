@@ -4,7 +4,7 @@
 const translations = {
     es: {
         // Títulos generales
-        appTitle: "Crono CRI - 3.5.5",
+        appTitle: "Crono CRI - 3.6",
         languagesLabel: "Idioma / Language",
         
         // Tarjetas
@@ -592,11 +592,26 @@ const translations = {
         logoFormatError: "Formato no válido. Usa PNG, JPG o SVG",
         logoReadError: "Error al leer el logo",
         logosUpdated: "Logos actualizados correctamente",
+
+        manualEntryText: "Entrada Manual",
+        manualEntryTitle: "Registrar tiempo manualmente",
+        manualEntryDescription: "Introduce manualmente un tiempo de llegada",
+        manualEntryModalTitle: "Entrada Manual de Tiempo",
+        manualEntryTimeLabel: "Tiempo de llegada (HH:MM:SS.mmm):",
+        manualEntryTimePlaceholder: "Ej: 01:23:45.678",
+        manualEntryFormatInfo: "Formato: horas:minutos:segundos.milésimas",
+        manualEntryTip: "Ejemplos: 00:45:23.123, 1:30:45.678, 02:15:30.000",
+        manualEntryDorsalNote: "El dorsal se asignará después editando la fila en la tabla",
+        manualEntryCancelBtn: "Cancelar",
+        manualEntrySaveBtn: "Guardar Tiempo",
+        manualEntryInvalidTime: "❌ Formato de tiempo inválido. Usa HH:MM:SS.mmm",
+        manualEntrySuccess: "✅ Tiempo guardado correctamente. Asigna el dorsal editando la fila.",
+        manualEntryNote: "Entrada manual",
     },
 
     ca: {
         // Títulos generales
-        appTitle: "Crono CRI - 3.5.5",
+        appTitle: "Crono CRI - 3.6",
         languagesLabel: "Idioma / Language",
         
         // Tarjetas
@@ -1194,10 +1209,25 @@ const translations = {
         logoReadError: "Error en llegir el logo",
         logosUpdated: "Logos actualitzats correctament",
 
+        manualEntryText: "Entrada Manual",
+        manualEntryTitle: "Registrar temps manualment",
+        manualEntryDescription: "Introdueix manualment un temps d'arribada",
+        manualEntryModalTitle: "Entrada Manual de Temps",
+        manualEntryTimeLabel: "Temps d'arribada (HH:MM:SS.mmm):",
+        manualEntryTimePlaceholder: "Ex: 01:23:45.678",
+        manualEntryFormatInfo: "Format: hores:minuts:segons.mil·lèsimes",
+        manualEntryTip: "Exemples: 00:45:23.123, 1:30:45.678, 02:15:30.000",
+        manualEntryDorsalNote: "El dorsal s'assignarà després editant la fila a la taula",
+        manualEntryCancelBtn: "Cancel·lar",
+        manualEntrySaveBtn: "Guardar Temps",
+        manualEntryInvalidTime: "❌ Format de temps invàlid. Utilitza HH:MM:SS.mmm",
+        manualEntrySuccess: "✅ Temps guardat correctament. Assigna el dorsal editant la fila.",
+        manualEntryNote: "Entrada manual",
+
     },
 
     en: {
-        appTitle: "TT Crono - 3.5.5",
+        appTitle: "TT Crono - 3.6",
         languagesLabel: "Language / Idioma",
         
         // Tarjetas
@@ -1790,10 +1820,25 @@ const translations = {
         logoReadError: "Error reading logo",
         logosUpdated: "Logos updated successfully",
 
+        manualEntryText: "Manual Entry",
+        manualEntryTitle: "Register time manually",
+        manualEntryDescription: "Manually enter a finish time",
+        manualEntryModalTitle: "Manual Time Entry",
+        manualEntryTimeLabel: "Finish time (HH:MM:SS.mmm):",
+        manualEntryTimePlaceholder: "Ex: 01:23:45.678",
+        manualEntryFormatInfo: "Format: hours:minutes:seconds.milliseconds",
+        manualEntryTip: "Examples: 00:45:23.123, 1:30:45.678, 02:15:30.000",
+        manualEntryDorsalNote: "Dorsal will be assigned later by editing the row in the table",
+        manualEntryCancelBtn: "Cancel",
+        manualEntrySaveBtn: "Save Time",
+        manualEntryInvalidTime: "❌ Invalid time format. Use HH:MM:SS.mmm",
+        manualEntrySuccess: "✅ Time saved successfully. Assign dorsal by editing the row.",
+        manualEntryNote: "Manual entry",
+
     },
 
     fr: {
-        appTitle: "Crono CRI - 3.5.5",
+        appTitle: "Crono CRI - 3.6",
         languagesLabel: "Langue / Language",
         
         // Tarjetas
@@ -2407,6 +2452,21 @@ const translations = {
         logoReadError: "Erreur de lecture du logo",
         logosUpdated: "Logos mis à jour avec succès",
 
+        manualEntryText: "Entrée Manuelle",
+        manualEntryTitle: "Enregistrer le temps manuellement",
+        manualEntryDescription: "Saisir manuellement un temps d'arrivée",
+        manualEntryModalTitle: "Entrée Manuelle de Temps",
+        manualEntryTimeLabel: "Temps d'arrivée (HH:MM:SS.mmm):",
+        manualEntryTimePlaceholder: "Ex: 01:23:45.678",
+        manualEntryFormatInfo: "Format: heures:minutes:secondes.millisecondes",
+        manualEntryTip: "Exemples: 00:45:23.123, 1:30:45.678, 02:15:30.000",
+        manualEntryDorsalNote: "Le dossard sera assigné plus tard en éditant la ligne dans le tableau",
+        manualEntryCancelBtn: "Annuler",
+        manualEntrySaveBtn: "Enregistrer le Temps",
+        manualEntryInvalidTime: "❌ Format de temps invalide. Utilisez HH:MM:SS.mmm",
+        manualEntrySuccess: "✅ Temps enregistré avec succès. Assignez le dossard en éditant la ligne.",
+        manualEntryNote: "Entrée manuelle",
+
     }
 };
 
@@ -2459,6 +2519,14 @@ function updateLanguageUI() {
     
     // 10. Forzar actualización de títulos de tarjetas
     updateCardTitles();
+
+    const manualEntryBtn = document.getElementById('manualEntryBtn');
+    if (manualEntryBtn) {
+        const t = translations[appState.currentLanguage];
+        manualEntryBtn.title = t.manualEntryTitle || "Registrar tiempo manualmente";
+    }
+    
+    console.log("🌍 Interfaz actualizada al idioma: " + appState.currentLanguage);
 }
 
 // ⭐ NUEVO 3.5.4.1: Actualizar textos de logos en modales
@@ -2740,7 +2808,7 @@ function updateTableHeaders(t) {
     // ✅ USAR SISTEMA DE LOGGING OPTIMIZADO
     log(LOG_LEVEL.DEBUG, "Actualizando cabeceras de tabla...");
     
-    // Lista COMPLETA de IDs (21 columnas - versión 3.5.5)
+    // Lista COMPLETA de IDs (21 columnas - versión 3.6)
     const headerIds = [
         'orderHeader', 'dorsalHeader', 'cronoSalidaHeader', 'horaSalidaHeader',
         'diferenciaHeader', 'nombreHeader', 'apellidosHeader', 'categoriaHeader', // ✅ NUEVO 3.2.1

@@ -26,7 +26,7 @@ if (typeof llegadasState === 'undefined') {
 }
 
 // ============================================
-// FORMATEAR TIEMPO PARA EXCEL - NUEVO 3.5.5
+// FORMATEAR TIEMPO PARA EXCEL - NUEVO 3.6
 // ============================================
 function formatTimeForExcel(timeValue, esPrimerCorredor = false) {
     // Si es null/undefined/vacío → celda vacía
@@ -184,11 +184,12 @@ function obtenerDatosCorredor(dorsal) {
 // CRONÓMETRO DE LLEGADAS
 // ============================================
 function initLlegadasMode() {
-    console.log("Inicializando modo llegadas - SISTEMA 3.2.1");
+    console.log("🚀 Inicializando modo llegadas - SISTEMA 3.5.2 con Entrada Manual");
     
+    // 1. Cargar estado
     loadLlegadasState();
-    updateLlegadasTimerDisplay();
     
+    // 2. Configurar intervalos de tiempo
     if (window.llegadasUpdateInterval) {
         clearInterval(window.llegadasUpdateInterval);
     }
@@ -199,17 +200,22 @@ function initLlegadasMode() {
         }
     }, 100);
     
+    // 3. Configurar event listeners
     setupLlegadasEventListeners();
+    
+    // ⭐ 4. CONFIGURAR BOTÓN DE ENTRADA MANUAL
+    console.log("🔧 Configurando botón Entrada Manual...");
+    setupManualEntryButton();
+    
+    // 5. Renderizar interfaz
     renderLlegadasList();
+    updateLlegadasTimerDisplay();
     
-    console.log("Modo llegadas inicializado");
+    // 6. Actualizar contadores y estado
     actualizarContadorLlegadas();
-
-    // NUEVO 3.5.4: Actualizar contador inicial
-    actualizarContadorLlegadas();
-    
-    // NUEVO 3.5.4: Actualizar estado inicial del tiempo compacto
     updateInitialCompactTimerState();
+    
+    console.log("✅ Modo llegadas inicializado con Entrada Manual");
 }
 
 function updateLlegadasTimerDisplay() {
@@ -2280,6 +2286,246 @@ function actualizarContadorLlegadas() {
     } catch (error) {
         console.error("❌ Error actualizando contador de llegadas:", error);
     }
+}
+
+// ============================================
+// ⭐ NUEVO: SISTEMA DE ENTRADA MANUAL DE TIEMPOS
+// ============================================
+
+/**
+ * Configura el botón de entrada manual en la interfaz
+ * Se debe llamar desde initLlegadasMode()
+ */
+function setupManualEntryButton() {
+    console.log("🔧 Configurando botón Entrada Manual...");
+    
+    const manualEntryBtn = document.getElementById('manualEntryBtn');
+    if (!manualEntryBtn) {
+        console.warn("⚠️ Botón Entrada Manual no encontrado en el DOM");
+        return;
+    }
+    
+    // Usar clonación para evitar listeners duplicados
+    const newBtn = manualEntryBtn.cloneNode(true);
+    manualEntryBtn.parentNode.replaceChild(newBtn, manualEntryBtn);
+    
+    // Configurar tooltip
+    const t = translations[appState.currentLanguage];
+    newBtn.title = t.manualEntryTitle || "Registrar tiempo manualmente";
+    
+    // Configurar event listener
+    newBtn.addEventListener('click', function(e) {
+        console.log("🎯 CLICK en botón Entrada Manual");
+        e.preventDefault();
+        e.stopPropagation();
+        openManualEntryModal();
+    });
+    
+    // Añadir estilo visual para confirmar configuración
+    newBtn.style.outline = '2px solid #28a745';
+    newBtn.style.boxShadow = '0 0 5px rgba(40, 167, 69, 0.5)';
+    
+    console.log("✅ Botón Entrada Manual configurado (clonación segura)");
+}
+
+/**
+ * Abre el modal para entrada manual de tiempo
+ * Solo pide el tiempo (HH:MM:SS.mmm), el dorsal queda vacío
+ */
+function openManualEntryModal() {
+    console.log("📋 Abriendo modal de entrada manual");
+    
+    const t = translations[appState.currentLanguage];
+    
+    // Crear modal HTML con las CLASES CORRECTAS que usa CRI
+    const modalHTML = `
+        <div class="modal show fade" id="manual-entry-modal" style="display: flex; background-color: rgba(0, 0, 0, 0.5);">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-keyboard"></i> 
+                            ${t.manualEntryModalTitle || "Entrada Manual de Tiempo"}
+                        </h5>
+                        <button type="button" class="btn-close" id="close-manual-modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>${t.manualEntryDescription || "Introduce manualmente un tiempo de llegada."}</p>
+                        
+                        <div class="mb-3">
+                            <label for="manual-time" class="form-label">
+                                ${t.manualEntryTimeLabel || "Tiempo de llegada (HH:MM:SS.mmm):"}
+                            </label>
+                            <input type="text" id="manual-time" class="form-control" 
+                                   placeholder="${t.manualEntryTimePlaceholder || 'Ej: 01:23:45.678'}" 
+                                   required autofocus>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i> 
+                                ${t.manualEntryFormatInfo || "Formato: horas:minutos:segundos.milésimas"}
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-lightbulb"></i> 
+                            ${t.manualEntryTip || "Ejemplos: 00:45:23.123, 1:30:45.678, 02:15:30.000"}
+                            <br>
+                            <i class="fas fa-edit"></i> 
+                            ${t.manualEntryDorsalNote || "El dorsal se asignará después editando la fila en la tabla."}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="cancel-manual-entry">
+                            ${t.manualEntryCancelBtn || "Cancelar"}
+                        </button>
+                        <button type="button" class="btn btn-primary" id="save-manual-entry">
+                            <i class="fas fa-save"></i> 
+                            ${t.manualEntrySaveBtn || "Guardar Tiempo"}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Añadir modal al DOM
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Configurar eventos
+    const modal = document.getElementById('manual-entry-modal');
+    const closeBtn = document.getElementById('close-manual-modal');
+    const cancelBtn = document.getElementById('cancel-manual-entry');
+    const saveBtn = document.getElementById('save-manual-entry');
+    const timeInput = document.getElementById('manual-time');
+    
+    // Función para cerrar modal
+    function closeModal() {
+        if (modal && modal.parentNode) {
+            modal.parentNode.removeChild(modal);
+        }
+    }
+    
+    // Event listeners para cerrar
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) closeModal();
+    });
+    
+    // Event listener para guardar
+    saveBtn.addEventListener('click', function() {
+        saveManualEntry(timeInput.value);
+    });
+    
+    // Permitir Enter para guardar
+    timeInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') saveManualEntry(timeInput.value);
+    });
+    
+    // Prevenir que Enter en el input submit el formulario (si existe)
+    timeInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            saveManualEntry(timeInput.value);
+        }
+    });
+    
+    console.log("📋 Modal de entrada manual creado con estilos CRI");
+}
+
+/**
+ * Guarda una entrada manual de tiempo en la tabla de llegadas
+ * @param {string} timeString - Tiempo en formato HH:MM:SS.mmm
+ */
+function saveManualEntry(timeString) {
+    console.log("💾 Guardando entrada manual:", timeString);
+    
+    const t = translations[appState.currentLanguage];
+    
+    // Validar formato de tiempo
+    const timeRegex = /^(\d{1,2}):([0-5]\d):([0-5]\d)\.(\d{3})$/;
+    const match = timeString.match(timeRegex);
+    
+    if (!match) {
+        showMessage(t.manualEntryInvalidTime || "❌ Formato de tiempo inválido. Usa HH:MM:SS.mmm", 'error');
+        return;
+    }
+    
+    // Extraer componentes del tiempo
+    const hours = parseInt(match[1]);
+    const minutes = parseInt(match[2]);
+    const seconds = parseInt(match[3]);
+    const milliseconds = parseInt(match[4]);
+    
+    // Calcular segundos totales con milésimas
+    const tiempoFinalWithMs = hours * 3600 + minutes * 60 + seconds + (milliseconds / 1000);
+    
+    // Obtener hora actual para horaLlegada
+    const now = new Date();
+    const horaLlegada = now.toLocaleTimeString('es-ES', { 
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+    
+    // Crear ID único
+    const llegadaId = 'manual_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    // Crear objeto de llegada con dorsal VACÍO
+    const nuevaLlegada = {
+        id: llegadaId,
+        timestamp: Date.now(),
+        dorsal: "", // ⭐ DORSAL VACÍO
+        nombre: "",
+        apellidos: "",
+        chip: "",
+        categoria: "",
+        equipo: "",
+        licencia: "",
+        horaSalida: "",
+        cronoSalida: "",
+        cronoSalidaSegundos: 0,
+        horaLlegada: horaLlegada,
+        cronoLlegadaWithMs: timeString,
+        tiempoFinalWithMs: tiempoFinalWithMs,
+        posicion: 0,
+        posicionCategoria: 0,
+        notas: `${t.manualEntryNote || "Entrada manual"} - ${timeString}`,
+        capturadoEn: "manual",
+        pendiente: false
+    };
+    
+    // Añadir a la lista de llegadas
+    llegadasState.llegadas.push(nuevaLlegada);
+    
+    // Recalcular posiciones - ⭐ CORREGIDO: Pasar parámetro
+    if (typeof calcularMapaPosiciones === 'function') {
+        calcularMapaPosiciones(llegadasState.llegadas);
+    }
+    
+    if (typeof calcularPosicionesPorCategoria === 'function') {
+        calcularPosicionesPorCategoria(llegadasState.llegadas); // ⭐ AÑADIDO PARÁMETRO
+    }
+    
+    // Actualizar interfaz
+    if (typeof renderLlegadasList === 'function') {
+        renderLlegadasList();
+    }
+    
+    if (typeof actualizarContadorLlegadas === 'function') {
+        actualizarContadorLlegadas();
+    }
+    
+    // Cerrar modal
+    const modal = document.getElementById('manual-entry-modal');
+    if (modal && modal.parentNode) {
+        modal.parentNode.removeChild(modal);
+    }
+    
+    // Mostrar mensaje de éxito
+    showMessage(t.manualEntrySuccess || "✅ Tiempo guardado correctamente", 'success');
+    
+    console.log(`💾 Entrada manual guardada: ${timeString} (ID: ${llegadaId})`);
 }
 
 // 8. EXPORTAR FUNCIONES

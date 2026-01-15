@@ -2916,6 +2916,8 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 
 
 
+
+
 /* Opcional: ajustar ancho de columnas específicas */
 .llegadas-table th:nth-child(1) { width: 80px; }  /* Dorsal */
 .llegadas-table th:nth-child(2) { width: 120px; } /* Crono Llegada */
