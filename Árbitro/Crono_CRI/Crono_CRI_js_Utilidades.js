@@ -2660,3 +2660,17 @@ function addLogosToPDF(doc, race) {
         // No mostrar error al usuario, solo continuar sin logos
     }
 }
+// Convierte "HH:MM:SS.mmm" a segundos con milésimas (Number)
+// Ej: "01:23:45.678" -> 5025.678
+function timeStringToSecondsWithMilliseconds(timeString) {
+    const timeRegex = /^(\d{1,2}):([0-5]\d):([0-5]\d)\.(\d{3})$/;
+    const match = (timeString || '').trim().match(timeRegex);
+    if (!match) return null;
+
+    const hours = parseInt(match[1], 10);
+    const minutes = parseInt(match[2], 10);
+    const seconds = parseInt(match[3], 10);
+    const ms = parseInt(match[4], 10);
+
+    return (hours * 3600) + (minutes * 60) + seconds + (ms / 1000);
+}

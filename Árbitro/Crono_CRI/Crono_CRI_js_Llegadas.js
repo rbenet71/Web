@@ -26,7 +26,7 @@ if (typeof llegadasState === 'undefined') {
 }
 
 // ============================================
-// FORMATEAR TIEMPO PARA EXCEL - NUEVO 3.7
+// FORMATEAR TIEMPO PARA EXCEL - NUEVO 3.7.1
 // ============================================
 function formatTimeForExcel(timeValue, esPrimerCorredor = false) {
     // Si es null/undefined/vacío → celda vacía
@@ -2422,6 +2422,7 @@ function openManualEntryModal() {
     // Event listener para guardar
     saveBtn.addEventListener('click', function() {
         saveManualEntry(timeInput.value);
+        closeModal(); // ✅ cerrar modal al guardar
     });
     
     // Permitir Enter para guardar
@@ -2441,103 +2442,50 @@ function openManualEntryModal() {
 }
 
 /**
- * Guarda una entrada manual de tiempo en la tabla de llegadas
- * @param {string} timeString - Tiempo en formato HH:MM:SS.mmm
+ * Guarda una entrada manual de tiempo en la tabla de llegadas - VERSIÓN DEFINITIVA
+ * @param {string} timeString - Tiempo en formato HH:MM:SS.mmm (CRONO de llegada)
  */
 function saveManualEntry(timeString) {
-    console.log("💾 Guardando entrada manual:", timeString);
-    
-    const t = translations[appState.currentLanguage];
-    
-    // Validar formato de tiempo
-    const timeRegex = /^(\d{1,2}):([0-5]\d):([0-5]\d)\.(\d{3})$/;
-    const match = timeString.match(timeRegex);
-    
-    if (!match) {
-        showMessage(t.manualEntryInvalidTime || "❌ Formato de tiempo inválido. Usa HH:MM:SS.mmm", 'error');
-        return;
-    }
-    
-    // Extraer componentes del tiempo
-    const hours = parseInt(match[1]);
-    const minutes = parseInt(match[2]);
-    const seconds = parseInt(match[3]);
-    const milliseconds = parseInt(match[4]);
-    
-    // Calcular segundos totales con milésimas
-    const tiempoFinalWithMs = hours * 3600 + minutes * 60 + seconds + (milliseconds / 1000);
-    
-    // Obtener hora actual para horaLlegada
-    const now = new Date();
-    const horaLlegada = now.toLocaleTimeString('es-ES', { 
-        hour12: false,
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-    });
-    
-    // Crear ID único
-    const llegadaId = 'manual_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    
-    // Crear objeto de llegada con dorsal VACÍO
-    const nuevaLlegada = {
-        id: llegadaId,
-        timestamp: Date.now(),
-        dorsal: "", // ⭐ DORSAL VACÍO
-        nombre: "",
-        apellidos: "",
-        chip: "",
-        categoria: "",
-        equipo: "",
-        licencia: "",
-        horaSalida: "",
-        cronoSalida: "",
-        cronoSalidaSegundos: 0,
-        horaLlegada: horaLlegada,
-        cronoLlegadaWithMs: timeString,
-        tiempoFinalWithMs: tiempoFinalWithMs,
-        posicion: 0,
-        posicionCategoria: 0,
-        notas: `${t.manualEntryNote || "Entrada manual"} - ${timeString}`,
-        capturadoEn: "manual",
-        pendiente: false
-    };
-    
-    // Añadir a la lista de llegadas
-    llegadasState.llegadas.push(nuevaLlegada);
-    
-    // Recalcular posiciones - ⭐ CORREGIDO: Pasar parámetro
-    if (typeof calcularMapaPosiciones === 'function') {
-        calcularMapaPosiciones(llegadasState.llegadas);
-    }
-    
-    if (typeof calcularPosicionesPorCategoria === 'function') {
-        calcularPosicionesPorCategoria(llegadasState.llegadas); // ⭐ AÑADIDO PARÁMETRO
-    }
-    
-    // Actualizar interfaz
-    if (typeof renderLlegadasList === 'function') {
-        renderLlegadasList();
-    }
-    
-    if (typeof actualizarContadorLlegadas === 'function') {
-        actualizarContadorLlegadas();
-    }
-    
-    // Cerrar modal
-    const modal = document.getElementById('manual-entry-modal');
-    if (modal && modal.parentNode) {
-        modal.parentNode.removeChild(modal);
-    }
-    
-    // Mostrar mensaje de éxito
-    showMessage(t.manualEntrySuccess || "✅ Tiempo guardado correctamente", 'success');
 
-    // Actualizar próximos dorsales después de entrada manual
-    updateNextDorsalsInfo();
-    
-    console.log(`💾 Entrada manual guardada: ${timeString} (ID: ${llegadaId})`);
+    const segundos = timeStringToSecondsWithMilliseconds(timeString);
+
+    const llegada = {
+        id: Date.now() + Math.random(),
+        timestamp: Date.now(),
+
+        dorsal: null,
+        nombre: '',
+        apellidos: '',
+        chip: '',
+
+        categoria: '',
+        equipo: '',
+        licencia: '',
+
+        horaSalida: '',
+        cronoSalida: '',
+        cronoSalidaSegundos: 0,
+
+        // ✅ AQUÍ ESTÁ LA CLAVE
+        cronoLlegadaWithMs: segundos,   // ← tiempo introducido
+        tiempoFinalWithMs: 0,            // ← se calculará después
+
+        horaLlegada: '--:--:--',
+
+        notas: 'Entrada manual',
+        capturadoEn: 'manual',
+        pendiente: true
+    };
+
+    llegadasState.llegadas.unshift(llegada);
+
+    saveLlegadasState();
+    renderLlegadasList();
+    actualizarContadorLlegadas();
+
+    showMessage('✅ Tiempo guardado correctamente', 'success');
 }
+
 
 // Calcular y mostrar próximos dorsales (VERSIÓN CORREGIDA)
 function updateNextDorsalsInfo() {
@@ -2704,6 +2652,8 @@ function getNextDorsalsWithFallback() {
     // Caso normal: Calcular normalmente
     updateNextDorsalsInfo();
 }
+
+
 
 // 8. EXPORTAR FUNCIONES
 window.showExternalScreen = showExternalScreen;
