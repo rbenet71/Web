@@ -317,11 +317,13 @@ Nom app
 3_5.4 mejora de ayuda
 3_5.5 Ubicación selector salida /llegadas
 3_6 añadir tiempo manual
+3_7 Proximos dorsales a llegar.En la cabecera de llegadas me gustaría que indicase cual es el último dorsal que ha llegado, y segun la tabla de salida que 3 dorsales seran los prómixos en llegar. Ejemplo: Último: 125 Próximos: 126,127 y 128.
 --------------------------
 
 -------------------------------
 
-Proximos dorsales a llegar
+
+
 3. Mejorar diseño pantalla resultados 
 pantalla externa de resultados
 revisar los tiempos de salida

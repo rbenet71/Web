@@ -1,4 +1,4 @@
-# CRI App - Documentación Optimizada para Modificaciones v3.5.4
+# CRI App - Documentación Optimizada para Modificaciones v3.5.2
 
 📋 **ÍNDICE RÁPIDO**
 1. Visión General
@@ -13,12 +13,16 @@
 10. Reglas de Oro
 11. Lecciones Aprendidas
 12. Checklist para Cambios ⭐
-13. Cambios v3.4.2 - v3.5.4 ⭐
+13. Cambios v3.4.2 - v3.5.2 ⭐
+14. ⭐ NUEVO: Entrada Manual de Tiempos (v3.5.2)
+15. 📞 Contacto Rápido entre Módulos
+16. ⚡ Referencia Ultra-Rápida
+17. 🎯 Resumen de Cambios v3.4.2 - v3.5.2
 
 ---
 
 ## 1. VISIÓN GENERAL
-Crono CRI v3.5.4 - PWA para control de salidas/llegadas en carreras ciclistas.
+Crono CRI v3.5.2 - PWA para control de salidas/llegadas en carreras ciclistas.
 
 **Modo Salidas**: Cuenta atrás basada en cronoSalida de tabla  
 **Modo Llegadas**: Cronometraje con milésimas, posiciones automáticas, posición por categoría  
@@ -28,7 +32,8 @@ Crono CRI v3.5.4 - PWA para control de salidas/llegadas en carreras ciclistas.
 **Contador dinámico** de llegadas registradas  
 **Tiempo compacto** en cronómetro minimizado  
 **Celdas vacías** en Excel para tiempos sin valor  
-**Nueva funcionalidad 3.5.4**: Logos personalizados para PDFs  
+**Nueva funcionalidad 3.5.2**: Entrada Manual de tiempos de llegada  
+**Nueva funcionalidad 3.5.1**: Logos personalizados para PDFs  
 **Nueva funcionalidad 3.4.5+**: Eliminar corredores con recálculo automático
 
 ---
@@ -43,11 +48,11 @@ Crono CRI v3.5.4 - PWA para control de salidas/llegadas en carreras ciclistas.
 | **Salidas_3.js** | **Modales, añadir/eliminar corredores, cambios globales** | Salidas_2, UI, Storage_Pwa | **3.4.5+** |
 | Salidas_4.js | Confirmaciones, validaciones, edición avanzada | Salidas_2, Salidas_3, Utilidades | 3.2.1 |
 | Cuenta_Atras.js | Sistema cuenta atrás, salidas, sincronización dorsal↔posición | Main, Utilidades, Salidas_2, Storage_Pwa | 3.2.1 |
-| UI.js | Interfaz, tarjetas, modales, gestión tiempo, contador llegadas | Main, Storage_Pwa, Cuenta_Atras, Llegadas | **3.5.4** |
-| Storage_Pwa.js | Persistencia, backup/restore, gestión carreras (35 funciones) | TODOS (persistencia central) | 3.5.4 |
-| Utilidades.js | Conversiones tiempo, audio, exportación, diagnóstico | TODOS (utilidades centrales) | **3.5.4** |
-| Traducciones.js | Sistema multilingüe (4 idiomas) | TODOS (textos UI) | **3.5.4** |
-| Llegadas.js | Modo llegadas (14 cols), milésimas, posiciones auto, posición por categoría | Main, Utilidades, Traducciones | 3.4.5 |
+| UI.js | Interfaz, tarjetas, modales, gestión tiempo, contador llegadas | Main, Storage_Pwa, Cuenta_Atras, Llegadas | **3.5.1** |
+| Storage_Pwa.js | Persistencia, backup/restore, gestión carreras (35 funciones) | TODOS (persistencia central) | 3.5.1 |
+| Utilidades.js | Conversiones tiempo, audio, exportación, diagnóstico | TODOS (utilidades centrales) | **3.5.1** |
+| Traducciones.js | Sistema multilingüe (4 idiomas) | TODOS (textos UI) | **3.5.2** |
+| **Llegadas.js** | **Modo llegadas (14 cols), milésimas, posiciones auto, posición por categoría, ENTRADA MANUAL** | Main, Utilidades, Traducciones | **3.5.2** |
 
 **Flujo principal**: Main → [Salidas_1-4 / Llegadas] ↔ UI ↔ Storage_Pwa ↔ Utilidades
 
@@ -69,7 +74,7 @@ const appState = {
   audioType, currentLanguage, soundEnabled, aggressiveMode,
   currentRace: { 
     id, name, firstStartTime, startOrder: [],
-    // ⭐ NUEVO 3.5.4: Logos para PDF
+    // ⭐ NUEVO 3.5.1: Logos para PDF
     logos: {
       left: null, right: null,
       leftFilename: '', rightFilename: '',
@@ -90,9 +95,9 @@ handleRaceChange(raceId) // Recibe solo raceId
 openHelpFile()         // Abre Crono_CRI_ayuda.html externo
 ```
 
-### UI.JS v3.5.4 (Interfaz y Gestión Tiempo - ACTUALIZADO)
+### UI.JS v3.5.1 (Interfaz y Gestión Tiempo - ACTUALIZADO)
 ```javascript
-// ⭐ NUEVO 3.5.4: Funciones para logos
+// ⭐ NUEVO 3.5.1: Funciones para logos
 function editRaceDetails()           // Carga logos existentes en modal edición
 function saveEditedRace()            // Guarda logos con validación (5MB)
 function createNewRace()             // Crea carrera con logos opcionales
@@ -138,9 +143,9 @@ function deleteSelectedRider()       // ⭐ NUEVO 3.4.5+: Elimina corredor selec
 function setupDeleteRiderButtonDirect() // Configura listener para botón eliminar
 ```
 
-### UTILIDADES.JS v3.5.4 (Conversiones y PDFs - ACTUALIZADO)
+### UTILIDADES.JS v3.5.1 (Conversiones y PDFs - ACTUALIZADO)
 ```javascript
-// ⭐ NUEVO 3.5.4: Funciones para logos en PDF
+// ⭐ NUEVO 3.5.1: Funciones para logos en PDF
 function addLogosToPDF(doc, race)   // Añade logos izquierdo/derecho a PDF
 function processLogoFile(file, side) // Procesa archivo de logo (5MB máximo)
 
@@ -159,8 +164,21 @@ playVoiceAudio(audioKey)             // Audio de voz con precaché
 exportLlegadasToExcel()              // ✅ UNIFICADA: Excel llegadas y clasificación
 ```
 
-### LLEGADAS.JS v3.4.5 (14 Columnas, Exportación Unificada - ACTUALIZADO)
+### LLEGADAS.JS v3.5.2 (14 Columnas, Entrada Manual - ACTUALIZADO)
 ```javascript
+// ⭐ NUEVO 3.5.2: Sistema de Entrada Manual de Tiempos
+function setupManualEntryButton()    // Configura botón "Entrada Manual"
+function openManualEntryModal()      // Abre modal para introducir tiempo manual
+function saveManualEntry(timeString) // Guarda tiempo manual en tabla de llegadas
+
+// Flujo de saveManualEntry():
+// 1. Valida formato HH:MM:SS.mmm
+// 2. Crea llegada con dorsal VACÍO (usuario asigna después)
+// 3. Añade a llegadasState.llegadas[]
+// 4. Recalcula posiciones generales y por categoría
+// 5. Actualiza tabla y contador
+// 6. Muestra mensaje de éxito
+
 // ESTRUCTURA LLEGADA (14 campos + notas):
 {
   dorsal, nombre, apellidos, categoria, equipo, licencia,
@@ -170,7 +188,7 @@ exportLlegadasToExcel()              // ✅ UNIFICADA: Excel llegadas y clasific
 }
 
 // FUNCIONES CLAVE:
-initLlegadasMode()                     // Inicializa modo llegadas
+initLlegadasMode()                     // Inicializa modo llegadas (incluye Entrada Manual)
 capturarLlegadaDirecta()               // Captura con milésimas
 obtenerDatosCorredor(dorsal)           // Prioridad: horaSalidaReal > horaSalida
 calcularMapaPosiciones(llegadas)       // Posiciones generales automáticas
@@ -190,7 +208,7 @@ exportRankingToPDF()                   // PDF de clasificación con Pos. Cat.
 exportRankingToExcel()  // Ahora se usa exportLlegadasToExcel() para todo
 ```
 
-### TRADUCCIONES.JS v3.5.4 (Sistema Multilingüe - ACTUALIZADO)
+### TRADUCCIONES.JS v3.5.2 (Sistema Multilingüe - ACTUALIZADO)
 ```javascript
 // 4 IDIOMAS: es, ca, en, fr
 const translations = {
@@ -209,7 +227,7 @@ const translations = {
     deleteRiderConfirm: "¿Eliminar corredor {dorsal} {nombre}?",
     deleteRiderNotFound: "Corredor no encontrado",
     deleteRiderSuccess: "Corredor eliminado correctamente",
-    // ⭐ NUEVAS TRADUCCIONES 3.5.4 (logos para PDF):
+    // ⭐ NUEVAS TRADUCCIONES 3.5.1 (logos para PDF):
     logoLeftLabel: "Logo Izquierdo",
     logoRightLabel: "Logo Derecho", 
     logoFormatInfo: "PNG, JPG, SVG (máx. 5MB)",
@@ -217,33 +235,52 @@ const translations = {
     logoSizeError: "El logo excede 5MB",
     logoFormatError: "Formato no válido. Usa PNG, JPG o SVG",
     logoReadError: "Error al leer el logo",
-    logosUpdated: "Logos actualizados correctamente"
+    logosUpdated: "Logos actualizados correctamente",
+    // ⭐ NUEVAS TRADUCCIONES 3.5.2 (Entrada Manual):
+    manualEntryText: "Entrada Manual",
+    manualEntryTitle: "Registrar tiempo manualmente",
+    manualEntryDescription: "Introduce manualmente un tiempo de llegada",
+    manualEntryModalTitle: "Entrada Manual de Tiempo",
+    manualEntryTimeLabel: "Tiempo de llegada (HH:MM:SS.mmm):",
+    manualEntryTimePlaceholder: "Ej: 01:23:45.678",
+    manualEntryFormatInfo: "Formato: horas:minutos:segundos.milésimas",
+    manualEntryTip: "Ejemplos: 00:45:23.123, 1:30:45.678, 02:15:30.000",
+    manualEntryDorsalNote: "El dorsal se asignará después editando la fila en la tabla",
+    manualEntryCancelBtn: "Cancelar",
+    manualEntrySaveBtn: "Guardar Tiempo",
+    manualEntryInvalidTime: "❌ Formato de tiempo inválido. Usa HH:MM:SS.mmm",
+    manualEntrySuccess: "✅ Tiempo guardado correctamente",
+    manualEntryNote: "Entrada manual"
   },
   ca: { 
     // ... (traducciones equivalentes en catalán) ...
+    // ⭐ INCLUIR LAS 13 NUEVAS CLAVES DE manualEntry* en catalán
   },
   en: { 
     // ... (traducciones equivalentes en inglés) ...
+    // ⭐ INCLUIR LAS 13 NUEVAS CLAVES DE manualEntry* en inglés
   },
   fr: { 
     // ... (traducciones equivalentes en francés) ...
+    // ⭐ INCLUIR LAS 13 NUEVAS CLAVES DE manualEntry* en francés
   }
 };
 
 // ACTUALIZACIÓN COMPLETA UI:
-updateLanguageUI()           // Actualiza TODA la interfaz (12 pasos, incluye logos)
+updateLanguageUI()           // Actualiza TODA la interfaz (13 pasos, incluye logos y entrada manual)
 updateAppTitle()             // Título aplicación
 updateRaceManagementCard()   // Tarjeta gestión carrera
 updateTableHeaders()         // Cabeceras tabla (incluye Pos. Cat.)
 updateModalTexts()           // Textos modales
-updateLogoTexts()            // ⭐ NUEVO 3.5.4: Textos de logos
+updateLogoTexts()            // ⭐ NUEVO 3.5.1: Textos de logos
+updateManualEntryTexts()     // ⭐ NUEVO 3.5.2: Textos de entrada manual
 updateTableTooltips()        // Tooltips columnas
 // ⭐ Claves camelCase, IDs DOM con guiones
 ```
 
-### STORAGE_PWA.JS v3.5.4 (Persistencia - ACTUALIZADO)
+### STORAGE_PWA.JS v3.5.1 (Persistencia - ACTUALIZADO)
 ```javascript
-// ⭐ NUEVO 3.5.4: Estructura de logos en saveRaceData()
+// ⭐ NUEVO 3.5.1: Estructura de logos en saveRaceData()
 function saveRaceData() {
     // ... código existente ...
     const updatedRace = {
@@ -275,7 +312,7 @@ getRaceById(raceId)          // Busca carrera por ID
 
 ## 4. ESTRUCTURAS DE DATOS CLAVE
 
-### appState (Estado Global Aplicación - ACTUALIZADO 3.5.4)
+### appState (Estado Global Aplicación - ACTUALIZADO 3.5.1)
 ```javascript
 {
   // Configuración
@@ -291,7 +328,7 @@ getRaceById(raceId)          // Busca carrera por ID
     startOrder: [],     // Array de objetos corredor
     departures: [],     // ⚠️ Ya NO se usa (datos en cada corredor)
     intervals: [],
-    // ⭐ NUEVO 3.5.4: Logos para PDF
+    // ⭐ NUEVO 3.5.1: Logos para PDF
     logos: {
       left: null,       // Base64 string del logo izquierdo
       right: null,      // Base64 string del logo derecho
@@ -313,7 +350,7 @@ getRaceById(raceId)          // Busca carrera por ID
 }
 ```
 
-### llegadasState (Estado de Llegadas - ACTUALIZADO 3.4.5)
+### llegadasState (Estado de Llegadas - ACTUALIZADO 3.5.2)
 ```javascript
 window.llegadasState = {
   llegadas: [
@@ -324,7 +361,8 @@ window.llegadasState = {
       horaLlegada, cronoLlegadaWithMs, tiempoFinalWithMs,
       posicion,                                        // Posición general
       posicionCategoria,                               // NUEVO 3.4.2: Posición por categoría
-      notas, capturadoEn, pendiente
+      notas, capturadoEn, pendiente,                   // ⭐ NUEVO 3.5.2: capturadoEn: "manual" para entradas manuales
+      // ⭐ NOTA: Entradas manuales tienen dorsal VACÍO inicialmente
     }
   ],
   importedSalidas: [],
@@ -336,9 +374,25 @@ window.llegadasState = {
 
 ## 5. SISTEMA DE TRADUCCIONES
 
-**Nuevas claves añadidas (v3.5.4):**
+**Nuevas claves añadidas (v3.5.2 - Entrada Manual):**
 ```javascript
-// Para logos en PDF:
+// Para entrada manual de tiempos:
+manualEntryText: "Entrada Manual" (ES), "Manual Entry" (EN), "Entrada Manual" (CA/FR)
+manualEntryTitle: "Registrar tiempo manualmente" (ES), "Register time manually" (EN)
+manualEntryDescription: "Introduce manualmente un tiempo de llegada" (ES)
+manualEntryModalTitle: "Entrada Manual de Tiempo" (ES), "Manual Time Entry" (EN)
+manualEntryTimeLabel: "Tiempo de llegada (HH:MM:SS.mmm):" (ES)
+manualEntryTimePlaceholder: "Ej: 01:23:45.678" (ES), "Ex: 01:23:45.678" (EN)
+manualEntryFormatInfo: "Formato: horas:minutos:segundos.milésimas" (ES)
+manualEntryTip: "Ejemplos: 00:45:23.123, 1:30:45.678, 02:15:30.000" (ES)
+manualEntryDorsalNote: "El dorsal se asignará después editando la fila en la tabla" (ES)
+manualEntryCancelBtn: "Cancelar" (ES), "Cancel" (EN)
+manualEntrySaveBtn: "Guardar Tiempo" (ES), "Save Time" (EN)
+manualEntryInvalidTime: "❌ Formato de tiempo inválido. Usa HH:MM:SS.mmm" (ES)
+manualEntrySuccess: "✅ Tiempo guardado correctamente" (ES)
+manualEntryNote: "Entrada manual" (ES), "Manual entry" (EN)
+
+// Para logos en PDF (3.5.1):
 logoLeftLabel: "Logo Izquierdo" (ES), "Logo Esquerre" (CA), "Left Logo" (EN), "Logo Gauche" (FR)
 logoRightLabel: "Logo Derecho" (ES), "Logo Dret" (CA), "Right Logo" (EN), "Logo Droit" (FR)
 logoFormatInfo: "PNG, JPG, SVG (máx. 5MB)" (ES), "PNG, JPG, SVG (màx. 5MB)" (CA), etc.
@@ -368,7 +422,7 @@ posCatHeaderTooltip: "Posición dentro de la categoría" (ES), etc.
 - Objeto centralizado `translations` con 4 idiomas
 - Claves camelCase (ej: `cardRaceTitle`, `modeSalidaText`)
 - IDs DOM con guiones (ej: `card-race-title`, `mode-salida-text`)
-- Actualización completa con `updateLanguageUI()` (12 pasos, incluye logos)
+- Actualización completa con `updateLanguageUI()` (13 pasos, incluye logos y entrada manual)
 
 **Añadir nuevo texto:**
 1. Añadir clave en los 4 idiomas en Traducciones.js
@@ -379,35 +433,40 @@ posCatHeaderTooltip: "Posición dentro de la categoría" (ES), etc.
 
 ## 6. HTML/CSS ESENCIAL
 
-**IDs CRÍTICOS NUEVOS (v3.5.4):**
-```javascript
-// Logos para PDF (3.5.4)
+**IDs CRÍTICOS NUEVOS (v3.5.2):**
+```html
+<!-- ⭐ NUEVO 3.5.2: Entrada Manual de Tiempos -->
+<button class="btn btn-secondary" id="manualEntryBtn">
+    <i class="fas fa-keyboard"></i>
+    <span id="manualEntryText">Entrada Manual</span>
+</button>
+
+<!-- Modal de entrada manual (se genera dinámicamente) -->
+<div class="modal show fade" id="manual-entry-modal">
+    <!-- Input para tiempo -->
+    <input type="text" id="manual-time" class="form-control" 
+           placeholder="Ej: 01:23:45.678" required>
+    <!-- Botones -->
+    <button class="btn btn-secondary" id="cancel-manual-entry">Cancelar</button>
+    <button class="btn btn-primary" id="save-manual-entry">Guardar Tiempo</button>
+</div>
+
+<!-- Logos para PDF (3.5.1) -->
 '#edit-race-logo-left'              // Input logo izquierdo (edición)
 '#edit-race-logo-right'             // Input logo derecho (edición)
 '#new-race-logo-left'               // Input logo izquierdo (nueva)
 '#new-race-logo-right'              // Input logo derecho (nueva)
-'#logo-left-label-text'             // Label "Logo Izquierdo" (edición)
-'#logo-right-label-text'            // Label "Logo Derecho" (edición)
-'#new-logo-left-label-text'         // Label "Logo Izquierdo" (nueva)
-'#new-logo-right-label-text'        // Label "Logo Derecho" (nueva)
-'#edit-race-logo-left-info'         // Info formato logo izquierdo (edición)
-'#edit-race-logo-right-info'        // Info formato logo derecho (edición)
-'#new-race-logo-left-info'          // Info formato logo izquierdo (nueva)
-'#new-race-logo-right-info'         // Info formato logo derecho (nueva)
-'#logo-info-tooltip-text'           // Tooltip informativo (edición)
-'#new-logo-info-tooltip-text'       // Tooltip informativo (nueva)
 
-// Botón eliminación corredor (3.4.5+)
+<!-- Botón eliminación corredor (3.4.5+) -->
 '#delete-rider-btn'                // Botón eliminar corredor
-'#delete-rider-text'               // Texto del botón
 
-// Contador de llegadas (3.4.1)
+<!-- Contador de llegadas (3.4.1) -->
 '#llegadas-list-counter'           // Span para "X de Y Corredores"
 
-// Tiempo compacto (3.4.2)
+<!-- Tiempo compacto (3.4.2) -->
 '#llegadas-timer-compact'          // Tiempo en cabecera minimizada
 
-// Posición por categoría (3.3.4)
+<!-- Posición por categoría (3.3.4) -->
 '#posCatHeader'                    // Cabecera tabla llegadas
 ```
 
@@ -450,45 +509,64 @@ posCatHeaderTooltip: "Posición dentro de la categoría" (ES), etc.
 
 /* Responsive */
 @media (max-width: 992px|768px|480px|360px)
+
+/* ⭐ NUEVO 3.5.2: Contenedor botones llegadas */
+.llegadas-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
 ```
 
-**ESTRUCTURA HTML DE MODALES CON LOGOS (3.5.4):**
+**ESTRUCTURA HTML DE BOTONES LLEGADAS (3.5.2):**
 ```html
-<!-- Modal edición carrera -->
-<div id="edit-race-modal" class="modal">
-    <!-- ... otros campos ... -->
-    <!-- Logos para PDF -->
-    <div class="form-group">
-        <label>Logos para PDF:</label>
-        <div class="logos-container">
-            <!-- Logo izquierdo -->
-            <div class="logo-upload">
-                <label for="edit-race-logo-left">
-                    <i class="fas fa-image"></i> 
-                    <span id="logo-left-label-text">Logo Izquierdo</span>
-                </label>
-                <input type="file" id="edit-race-logo-left" 
-                       accept=".png,.jpg,.jpeg,.svg">
-                <div class="logo-info">
-                    <span id="edit-race-logo-left-info" 
-                          data-default="PNG, JPG, SVG (máx. 5MB)">
-                        PNG, JPG, SVG (máx. 5MB)
-                    </span>
-                </div>
-            </div>
-            <!-- Logo derecho (estructura similar) -->
-        </div>
-    </div>
+<!-- Cronómetro de llegadas -->
+<div class="llegadas-controls">
+    <!-- Botón existente -->
+    <button class="btn btn-primary" id="registerLlegadaBtn">
+        <i class="fas fa-user-check"></i>
+        <span id="registerLlegadaText">Registrar Llegada</span>
+    </button>
+    
+    <!-- ⭐ NUEVO 3.5.2: Botón Entrada Manual -->
+    <button class="btn btn-secondary" id="manualEntryBtn">
+        <i class="fas fa-keyboard"></i>
+        <span id="manualEntryText">Entrada Manual</span>
+    </button>
 </div>
-
-<!-- Modal nueva carrera (estructura similar con IDs new-*) -->
 ```
 
 ---
 
 ## 7. FLUJOS PRINCIPALES
 
-### Subida y Procesamiento de Logos (3.5.4):
+### ⭐ Entrada Manual de Tiempo (NUEVO 3.5.2):
+```text
+1. Usuario hace clic en "Entrada Manual" junto a "Registrar Llegada"
+2. → openManualEntryModal() se ejecuta
+3. → Crea modal con input para tiempo (HH:MM:SS.mmm)
+4. Usuario introduce tiempo (ej: "01:23:45.678")
+5. → saveManualEntry(timeString) se ejecuta
+6. → Valida formato con regex: /^(\d{1,2}):([0-5]\d):([0-5]\d)\.(\d{3})$/
+7. → Crea objeto llegada con:
+   - dorsal: "" (VACÍO - usuario asigna después)
+   - capturadoEn: "manual"
+   - notas: "Entrada manual - [tiempo]"
+   - horaSalida: hora actual del sistema
+   - cronoLlegadaWithMs: tiempo introducido
+   - tiempoFinalWithMs: calculado en segundos
+8. → Añade a llegadasState.llegadas[]
+9. → Recalcula posiciones con calcularMapaPosiciones()
+10. → Recalcula posiciones por categoría con calcularPosicionesPorCategoria()
+11. → Actualiza tabla con renderLlegadasList()
+12. → Actualiza contador con actualizarContadorLlegadas()
+13. → Muestra mensaje: "✅ Tiempo guardado correctamente"
+14. → Usuario puede editar la fila posteriormente para asignar dorsal
+```
+
+### Subida y Procesamiento de Logos (3.5.1):
 ```text
 1. Usuario abre modal edición/nueva carrera
    → HTML: Inputs para logos izquierdo/derecho
@@ -558,7 +636,7 @@ posCatHeaderTooltip: "Posición dentro de la categoría" (ES), etc.
 
 ### Actualización Contador Llegadas (3.4.1):
 ```text
-1. Cualquier cambio en llegadas (captura, borrado, etc.)
+1. Cualquier cambio en llegadas (captura, borrado, entrada manual, etc.)
 2. → actualizarContadorLlegadas() se llama
 3. → Calcula X = llegadas con tiempo final > 0
 4. → Obtiene Y = startOrderData.length (corredores en salida)
@@ -603,6 +681,29 @@ posCatHeaderTooltip: "Posición dentro de la categoría" (ES), etc.
 
 ## 8. MODIFICACIONES COMUNES ⭐
 
+### Añadir botón "Entrada Manual" en cronómetro de llegadas (NUEVO 3.5.2)
+```text
+1. HTML: Añadir botón en .llegadas-controls junto a "Registrar Llegada"
+   <button class="btn btn-secondary" id="manualEntryBtn">
+       <i class="fas fa-keyboard"></i>
+       <span id="manualEntryText">Entrada Manual</span>
+   </button>
+2. CSS: Añadir estilos responsivos para .llegadas-controls
+   .llegadas-controls { display: flex; gap: 10px; flex-wrap: wrap; }
+3. Traducciones.js: Añadir 13 nuevas claves en 4 idiomas:
+   - manualEntryText, manualEntryTitle, manualEntryDescription
+   - manualEntryModalTitle, manualEntryTimeLabel, manualEntryTimePlaceholder
+   - manualEntryFormatInfo, manualEntryTip, manualEntryDorsalNote
+   - manualEntryCancelBtn, manualEntrySaveBtn, manualEntryInvalidTime
+   - manualEntrySuccess, manualEntryNote
+4. Llegadas.js: Crear 3 nuevas funciones:
+   - setupManualEntryButton(): Configura botón con clonación segura
+   - openManualEntryModal(): Crea modal con clases Bootstrap de CRI
+   - saveManualEntry(timeString): Valida y guarda tiempo manual
+5. Llegadas.js: Modificar initLlegadasMode() para llamar setupManualEntryButton()
+6. Verificar: Botón debe funcionar y crear entradas con dorsal vacío
+```
+
 ### Añadir botón "Eliminar Corredor" en Orden de Salida (NUEVO 3.4.5+)
 ```text
 1. HTML: Añadir botón en .buttons-responsive-container junto a "Añadir Corredor"
@@ -625,7 +726,7 @@ posCatHeaderTooltip: "Posición dentro de la categoría" (ES), etc.
    }
 ```
 
-### Añadir logos para PDFs en edición/nueva carrera (NUEVO 3.5.4)
+### Añadir logos para PDFs en edición/nueva carrera (NUEVO 3.5.1)
 ```text
 1. HTML: Añadir inputs de archivo en modales de edición y nueva carrera
 2. Traducciones.js: Añadir claves en 4 idiomas:
@@ -740,7 +841,7 @@ log(LOG_LEVEL.ERROR, "Error cargando carrera actual:", error);
 log(LOG_LEVEL.DEBUG, `startOrderData disponible: ${!!startOrderData}`);
 ```
 
-**Logs nuevos en v3.4.2 - v3.5.4:**
+**Logs nuevos en v3.4.2 - v3.5.2:**
 ```javascript
 log(LOG_LEVEL.INFO, "📊 Contador actualizado: ${x} de ${y} corredores");
 log(LOG_LEVEL.DEBUG, "🔄 Actualizando tiempo compacto de llegadas");
@@ -749,10 +850,17 @@ log(LOG_LEVEL.DEBUG, "📊 Exportación Excel unificada - celdas vacías para ti
 log(LOG_LEVEL.INFO, "Botón Eliminar Corredor clickeado"); // ⭐ NUEVO 3.4.5+
 log(LOG_LEVEL.DEBUG, "✅ Botón Eliminar Corredor configurado (configuración directa)");
 log(LOG_LEVEL.INFO, `Corredor eliminado: ${selectedRider.dorsal} - ${selectedRider.nombre}`);
-log(LOG_LEVEL.INFO, "Actualizando textos de logos..."); // ⭐ NUEVO 3.5.4
+log(LOG_LEVEL.INFO, "Actualizando textos de logos..."); // ⭐ NUEVO 3.5.1
 log(LOG_LEVEL.DEBUG, `Logo ${side} procesado: ${file.name} (${Math.round(file.size / 1024)}KB)`);
 log(LOG_LEVEL.INFO, "✅ Nueva carrera creada con logos");
 log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilename}`);
+// ⭐ NUEVO 3.5.2: Entrada Manual
+log(LOG_LEVEL.INFO, "🔧 Configurando botón Entrada Manual...");
+log(LOG_LEVEL.DEBUG, "✅ Botón Entrada Manual configurado (clonación segura)");
+log(LOG_LEVEL.INFO, "📋 Modal de entrada manual abierto");
+log(LOG_LEVEL.DEBUG, "📋 Modal de entrada manual creado con estilos CRI");
+log(LOG_LEVEL.INFO, "💾 Guardando entrada manual: " + timeString);
+log(LOG_LEVEL.DEBUG, `💾 Entrada manual guardada: ${timeString} (ID: ${llegadaId})`);
 ```
 
 ---
@@ -794,6 +902,10 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 28. **✅ VALIDACIÓN DE LOGOS**: 5MB máximo, formatos PNG/JPG/SVG, procesamiento con FileReader
 29. **✅ TRADUCCIONES PARA LOGOS**: Todos los textos relacionados con logos en 4 idiomas
 30. **✅ MANTENER LOGOS EXISTENTES**: Al editar, no eliminar logos si no se suben nuevos
+31. **⭐ ENTRADA MANUAL CON DORSAL VACÍO**: Las entradas manuales crean filas con dorsal vacío para asignar después
+32. **⭐ VALIDACIÓN ESTRICTA DE FORMATO**: Tiempos manuales deben usar HH:MM:SS.mmm exacto
+33. **⭐ ORIGEN CLARO**: Entradas manuales incluyen `capturadoEn: "manual"` y nota descriptiva
+34. **⭐ RECÁLCULO AUTOMÁTICO**: Entradas manuales disparan recálculo de posiciones
 
 ---
 
@@ -889,9 +1001,18 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
     Problema: Necesidad de eliminar corredores de orden de salida  
     Solución: Botón "Eliminar Corredor" con selección por click y recálculo automático de tiempos posteriores
 
-18. **✅ Logos para PDFs implementados correctamente (v3.5.4)**  
+18. **✅ Logos para PDFs implementados correctamente (v3.5.1)**  
     Problema: Necesidad de personalizar PDFs con logos de organizadores  
     Solución: Sistema completo de subida, validación (5MB, PNG/JPG/SVG), procesamiento Base64 e integración en PDFs
+
+19. **⭐ ENTRADA MANUAL DE TIEMPOS IMPLEMENTADA CORRECTAMENTE (v3.5.2)**  
+    Problema: Necesidad de introducir tiempos de llegada manualmente  
+    Solución: Botón "Entrada Manual" que abre modal para introducir tiempo en formato HH:MM:SS.mmm  
+    - Crea filas con dorsal vacío para asignar después  
+    - Valida formato estricto con regex  
+    - Incluye origen claro (capturadoEn: "manual")  
+    - Dispara recálculo automático de posiciones  
+    - Integrado completamente con traducciones en 4 idiomas
 
 ---
 
@@ -905,6 +1026,7 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 - ✅ Configurar nivel de log apropiado (DEBUG para desarrollo, INFO para producción)
 - ✅ Verificar si afecta a selección por click en tablas (para eliminación de corredores)
 - ✅ Verificar si necesita procesamiento de archivos (para logos)
+- ⭐ Verificar si es entrada manual de tiempo (formato HH:MM:SS.mmm)
 
 ### DURANTE modificación:
 - Usar funciones centralizadas (ej: timeToSeconds() de Utilidades.js)
@@ -924,6 +1046,9 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 - ✅ Para logos: Validar tamaño (5MB), formato (PNG/JPG/SVG), usar FileReader
 - ✅ Mantener estructura logos en currentRace.logos con todos los campos necesarios
 - ✅ Actualizar ambos modales (edición y nueva carrera) si es funcionalidad de logos
+- ⭐ Para entrada manual: Validar formato HH:MM:SS.mmm con regex estricto
+- ⭐ Para entrada manual: Crear filas con dorsal vacío inicialmente
+- ⭐ Para entrada manual: Incluir `capturadoEn: "manual"` y nota descriptiva
 
 ### DESPUÉS de modificar:
 - Probar en múltiples navegadores
@@ -947,6 +1072,11 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 - ✅ Verificar que logos aparecen en PDFs generados
 - ✅ Probar que logos se mantienen al editar sin subir nuevos
 - ✅ Verificar que logos específicos por carrera funcionan correctamente
+- ⭐ Probar entrada manual: Formato válido e inválido
+- ⭐ Probar entrada manual: Dorsal permanece vacío inicialmente
+- ⭐ Probar entrada manual: Recálculo automático de posiciones
+- ⭐ Probar entrada manual: Asignación posterior de dorsal editando fila
+- ⭐ Probar entrada manual: Origen claro en notas y capturadoEn
 
 ### SI hay errores:
 - Revisar Lecciones Aprendidas (problemas similares)
@@ -959,10 +1089,13 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 - ✅ Verificar formatTimeForExcel() para tiempos en Excel
 - ✅ Para logos: Verificar FileReader, tamaño archivo, formato Base64
 - ✅ Verificar estructura logos en currentRace (todos los campos necesarios)
+- ⭐ Para entrada manual: Verificar regex de formato HH:MM:SS.mmm
+- ⭐ Para entrada manual: Verificar que dorsal queda vacío inicialmente
+- ⭐ Para entrada manual: Verificar que calcularPosicionesPorCategoria() recibe parámetro
 
 ---
 
-## 13. CAMBIOS v3.4.2 - v3.5.4 ⭐
+## 13. CAMBIOS v3.4.2 - v3.5.2 ⭐
 
 ### v3.4.2 - Posición por Categoría y Mejoras UI
 1. **Posición por Categoría (3.3.4)**  
@@ -1016,7 +1149,7 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 11. **Persistencia inmediata**: Cambios se guardan automáticamente  
 12. **Traducciones completas**: 5 nuevas claves por idioma para mensajes y botón
 
-### v3.5.4 - Logos para PDFs (NUEVO)
+### v3.5.1 - Logos para PDFs (NUEVO)
 13. **Modal de edición de carrera ampliado** con inputs para logos izquierdo/derecho  
 14. **Modal de nueva carrera ampliado** con inputs para logos izquierdo/derecho  
 15. **Validación completa**: Formatos PNG, JPG, SVG; tamaño máximo 5MB  
@@ -1027,34 +1160,163 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 20. **Posicionamiento automático**: Logos en márgenes izquierdo/derecho (20×20mm)  
 21. **Mantenimiento de logos**: No se pierden al editar sin subir nuevos
 
-**Archivos Modificados v3.5.4:**
+### v3.5.2 - Entrada Manual de Tiempos (NUEVO)
+22. **Nuevo botón "Entrada Manual"** en cronómetro de llegadas  
+23. **Modal especializado** para introducir tiempo en formato HH:MM:SS.mmm  
+24. **Validación estricta**: Regex para formato exacto `(\d{1,2}):([0-5]\d):([0-5]\d)\.(\d{3})`  
+25. **Dorsal vacío inicial**: Entradas manuales crean filas con dorsal vacío  
+26. **Origen claro**: `capturadoEn: "manual"` y notas descriptivas  
+27. **Recálculo automático**: Dispara recálculo de posiciones generales y por categoría  
+28. **Traducciones completas**: 13 nuevas claves por idioma para entrada manual  
+29. **Integración completa**: Funciona con todas las funciones existentes de llegadas  
+
+**Archivos Modificados v3.5.2:**
 | Archivo | Cambios Principales | Versión |
 |---------|-------------------|---------|
-| HTML principal | Inputs de logos en modales edición/nueva | 3.5.4 |
-| UI.js | Funciones `editRaceDetails()`, `saveEditedRace()`, `createNewRace()` actualizadas | 3.5.4 |
-| Utilidades.js | Funciones `addLogosToPDF()`, `processLogoFile()` creadas | 3.5.4 |
-| Utilidades.js | Funciones PDF actualizadas para incluir logos | 3.5.4 |
-| Storage_Pwa.js | Estructura de logos en `saveRaceData()` | 3.5.4 |
-| Traducciones.js | 8 nuevas claves por idioma (logos) | 3.5.4 |
-| Traducciones.js | Función `updateLogoTexts()` añadida | 3.5.4 |
+| HTML principal | Botón "Entrada Manual" en .llegadas-controls | 3.5.2 |
+| Llegadas.js | Funciones `setupManualEntryButton()`, `openManualEntryModal()`, `saveManualEntry()` | 3.5.2 |
+| Llegadas.js | Modificación de `initLlegadasMode()` para incluir configuración | 3.5.2 |
+| Traducciones.js | 13 nuevas claves por idioma (entrada manual) | 3.5.2 |
+| CSS principal | Estilos para .llegadas-controls responsivos | 3.5.2 |
 
-**Reglas de Oro Añadidas v3.5.4:**
-- ✅ **LOGOS ESPECÍFICOS POR CARRERA**: Cada carrera puede tener logos únicos para PDFs
-- ✅ **VALIDACIÓN DE LOGOS**: 5MB máximo, formatos PNG/JPG/SVG, procesamiento con FileReader
-- ✅ **TRADUCCIONES PARA LOGOS**: Todos los textos relacionados con logos en 4 idiomas
-- ✅ **MANTENER LOGOS EXISTENTES**: Al editar, no eliminar logos si no se suben nuevos
+**Reglas de Oro Añadidas v3.5.2:**
+- ⭐ **ENTRADA MANUAL CON DORSAL VACÍO**: Las entradas manuales crean filas con dorsal vacío para asignar después
+- ⭐ **VALIDACIÓN ESTRICTA DE FORMATO**: Tiempos manuales deben usar HH:MM:SS.mmm exacto
+- ⭐ **ORIGEN CLARO**: Entradas manuales incluyen `capturadoEn: "manual"` y nota descriptiva
+- ⭐ **RECÁLCULO AUTOMÁTICO**: Entradas manuales disparan recálculo de posiciones
 
-**Resultados finales v3.5.4:**
-- **Personalización profesional**: PDFs con logos de organizadores
-- **Flexibilidad total**: Logos específicos por carrera, formatos múltiples
-- **Experiencia de usuario**: Interfaz intuitiva en modales
+**Resultados finales v3.5.2:**
+- **Flexibilidad máxima**: Tiempos manuales + automáticos en misma tabla
+- **Calidad datos**: Origen claro para cada entrada (manual/automática)
+- **Usabilidad**: Dorsal vacío permite asignación posterior sin restricciones
+- **Profesionalidad**: Formatos exactos, validación estricta
 - **Internacionalización**: Todos los textos traducidos a 4 idiomas
-- **Robustez**: Validación completa de archivos, manejo de errores
-- **Eficiencia**: Procesamiento automático, persistencia transparente
+- **Integración perfecta**: Funciona con todas las funciones existentes
 
 ---
 
-## 📞 CONTACTO RÁPIDO ENTRE MÓDULOS
+## 14. ⭐ NUEVO: ENTRADA MANUAL DE TIEMPOS (v3.5.2)
+
+### Descripción
+Sistema para introducir manualmente tiempos de llegada en formato HH:MM:SS.mmm, especialmente útil para:
+- Carreras con cronometraje manual externo
+- Corredores sin chip o con problemas de detección
+- Correcciones de tiempos erróneos
+- Importación de datos desde otros sistemas
+
+### Características
+1. **Botón dedicado**: "Entrada Manual" junto a "Registrar Llegada"
+2. **Formato exacto**: HH:MM:SS.mmm (horas:minutos:segundos.milésimas)
+3. **Dorsal vacío**: Se crea fila con dorsal vacío para asignar después
+4. **Origen claro**: `capturadoEn: "manual"` + notas descriptivas
+5. **Validación estricta**: Regex que asegura formato correcto
+6. **Recálculo automático**: Posiciones se actualizan inmediatamente
+7. **Traducciones completas**: 13 claves en 4 idiomas
+
+### Implementación Técnica
+
+**Funciones principales (Llegadas.js):**
+```javascript
+// Configuración del botón
+function setupManualEntryButton() {
+    // Clonación segura para evitar listeners duplicados
+    // Configura tooltip con traducción
+    // Añade event listener a openManualEntryModal()
+}
+
+// Apertura del modal
+function openManualEntryModal() {
+    // Crea modal con clases Bootstrap de CRI
+    // Incluye input para tiempo HH:MM:SS.mmm
+    // Configura eventos para guardar/cancelar
+    // Valida formato con Enter key
+}
+
+// Guardado del tiempo
+function saveManualEntry(timeString) {
+    // Valida con regex: /^(\d{1,2}):([0-5]\d):([0-5]\d)\.(\d{3})$/
+    // Crea objeto llegada con dorsal vacío
+    // Añade a llegadasState.llegadas[]
+    // Recalcula posiciones generales y por categoría
+    // Actualiza interfaz (tabla + contador)
+    // Muestra mensaje de éxito
+}
+```
+
+**Estructura de datos creada:**
+```javascript
+{
+    id: 'manual_TIMESTAMP_RANDOM',
+    timestamp: Date.now(),
+    dorsal: "", // ⭐ VACÍO - asignar después
+    nombre: "",
+    apellidos: "",
+    // ... otros campos vacíos ...
+    horaLlegada: "HH:MM:SS", // Hora actual del sistema
+    cronoLlegadaWithMs: "01:23:45.678", // Tiempo introducido
+    tiempoFinalWithMs: 5025.678, // En segundos con milésimas
+    capturadoEn: "manual", // ⭐ Origen claro
+    notas: "Entrada manual - 01:23:45.678", // ⭐ Nota descriptiva
+    pendiente: false
+}
+```
+
+### Integración con Sistema Existente
+
+**Inicialización:**
+```javascript
+function initLlegadasMode() {
+    // ... código existente ...
+    setupManualEntryButton(); // ⭐ NUEVA LÍNEA
+    // ... resto del código ...
+}
+```
+
+**Actualización de traducciones:**
+```javascript
+function updateLanguageUI() {
+    // ... pasos existentes ...
+    // ⭐ NUEVO: Actualizar tooltip del botón Entrada Manual
+    const manualEntryBtn = document.getElementById('manualEntryBtn');
+    if (manualEntryBtn) {
+        const t = translations[appState.currentLanguage];
+        manualEntryBtn.title = t.manualEntryTitle;
+    }
+}
+```
+
+### Casos de Uso
+
+1. **Tiempo manual externo:**
+   - Cronómetro manual en meta
+   - Introducir tiempo: "01:23:45.678"
+   - Asignar dorsal después editando la fila
+
+2. **Corrección de error:**
+   - Tiempo automático incorrecto
+   - Introducir tiempo correcto manualmente
+   - Borrar entrada automática errónea
+
+3. **Sin chip/detección:**
+   - Corredor sin chip o con fallo
+   - Introducir tiempo manualmente
+   - Asignar dorsal correspondiente
+
+4. **Importación desde otro sistema:**
+   - Datos de cronometraje externo
+   - Introducir múltiples tiempos manualmente
+   - Asignar dorsales masivamente
+
+### Ventajas
+- **No interfiere** con cronometraje automático
+- **Datos limpios**: Origen claro para cada entrada
+- **Flexibilidad**: Dorsal se asigna después sin presión
+- **Compatibilidad**: Funciona con todas las funciones existentes
+- **Profesional**: Formato exacto, validación estricta
+
+---
+
+## 15. 📞 CONTACTO RÁPIDO ENTRE MÓDULOS
 
 **Cuando Main.js necesita:**
 - Datos carrera → Storage_Pwa.js: `loadRaceData()`, `saveRaceData()`
@@ -1071,9 +1333,12 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 - Procesar logos → Utilidades.js: `processLogoFile()`
 
 **Cuando Llegadas.js necesita:**
-- Actualizar contador → UI.js: `actualizarContadorLlegadas()` (en sí mismo)
+- Entrada manual → Usuario introduce tiempo HH:MM:SS.mmm
+- Actualizar contador → Llamar a `actualizarContadorLlegadas()` 
 - Actualizar tiempo compacto → UI.js: `updateLlegadasCompactTimer()`
 - Traducciones → Traducciones.js: `llegadasListTitle`, `llegadasCounterTemplate`
+- Validación tiempo → Utilidades.js: `formatSecondsWithMilliseconds()`
+- Exportación → Utilidades.js: `exportLlegadasToExcel()`
 
 **Cuando Storage_Pwa.js es llamado por:**
 - Todos los módulos (persistencia centralizada)
@@ -1087,10 +1352,11 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 **Cuando Utilidades.js necesita:**
 - Logos para PDF → appState.currentRace.logos
 - Traducciones → Traducciones.js para formatos de tiempo
+- Validación formatos → Funciones internas de conversión
 
 ---
 
-## ⚡ REFERENCIA ULTRA-RÁPIDA
+## 16. ⚡ REFERENCIA ULTRA-RÁPIDA
 
 **"Necesito modificar X, ¿qué archivo pido?"**
 
@@ -1100,13 +1366,14 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 | Interfaz tabla, edición | Salidas_2.js | Salidas_3.js, Salidas_4.js |
 | **Modales, añadir/eliminar corredores** | **Salidas_3.js** | **UI.js, Storage_Pwa.js, Salidas_4.js** |
 | **Logos para PDF (edición/nueva)** | **UI.js** | **Utilidades.js, Storage_Pwa.js, Traducciones.js** |
+| **Entrada Manual de Tiempos** | **Llegadas.js** | **Traducciones.js, UI.js** |
 | Validaciones, confirmaciones | Salidas_4.js | Utilidades.js |
 | Cuenta atrás, salidas | Cuenta_Atras.js | Utilidades.js, Storage_Pwa.js, Salidas_2.js |
 | Interfaz general, tarjetas | UI.js | Main.js, Storage_Pwa.js |
 | Persistencia, backup, carreras | Storage_Pwa.js | UI.js, Main.js |
 | Conversiones tiempo, audio, PDF | Utilidades.js | Traducciones.js |
-| Textos, idiomas | Traducciones.js | UI.js, Main.js |
-| Llegadas, clasificación | Llegadas.js | Utilidades.js, Traducciones.js |
+| Textos, idiomas | Traducciones.js | UI.js, Main.js, Llegadas.js |
+| Llegadas, clasificación, entrada manual | Llegadas.js | Utilidades.js, Traducciones.js |
 | Estado global, PWA, logging | Main.js | UI.js, Storage_Pwa.js |
 | ✅ Sistema de logging | Main.js | (centralizado) |
 | ✅ Optimización consola | Main.js | (todos los módulos) |
@@ -1119,10 +1386,11 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 | ✅ Celdas vacías en Excel | Llegadas.js | (formato interno) |
 | ✅ Eliminación de corredores | Salidas_3.js | Salidas_4.js, UI.js, Traducciones.js |
 | ✅ **Logos para PDFs** | **UI.js, Utilidades.js** | **Storage_Pwa.js, Traducciones.js** |
+| ⭐ **Entrada Manual de Tiempos** | **Llegadas.js** | **Traducciones.js** |
 
 ---
 
-## 🎯 RESUMEN DE CAMBIOS v3.4.2 - v3.5.4
+## 17. 🎯 RESUMEN DE CAMBIOS v3.4.2 - v3.5.2
 
 ### Mejoras principales:
 ✅ **Posición por categoría**: Nueva columna en llegadas, Excel y PDF  
@@ -1134,8 +1402,12 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 ✅ **Exportación Excel unificada**: Una función para todas las exportaciones  
 ✅ **⭐ Eliminación de corredores**: Botón con selección por click y recálculo automático  
 ✅ **⭐ LOGOS PARA PDFs**: Sistema completo de subida, validación e integración en PDFs  
+✅ **⭐ ENTRADA MANUAL DE TIEMPOS**: Sistema completo para introducir tiempos manualmente HH:MM:SS.mmm  
 
-### Nuevas funciones v3.5.4:
+### Nuevas funciones v3.5.2:
+- `setupManualEntryButton()` - Configura botón Entrada Manual
+- `openManualEntryModal()` - Abre modal para tiempo manual
+- `saveManualEntry()` - Guarda tiempo manual con validación
 - `addLogosToPDF()` - Añade logos a encabezados de PDF
 - `processLogoFile()` - Valida y convierte archivos de logo
 - `updateLogoTexts()` - Actualiza textos de logos en traducciones
@@ -1151,15 +1423,12 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 ### Funciones eliminadas:
 ❌ `exportRankingToExcel()` - Redundante, reemplazada por `exportLlegadasToExcel()`
 
-### Nuevas traducciones (8 claves por idioma):
-- `logoLeftLabel`, `logoRightLabel` - Labels para inputs
-- `logoFormatInfo` - Información de formato (PNG, JPG, SVG - 5MB)
-- `logoInfoTooltip` - Tooltip informativo
-- `logoSizeError`, `logoFormatError`, `logoReadError` - Mensajes de error
-- `logosUpdated` - Mensaje de éxito
-- `deleteRiderText`, `deleteRiderNoSelection`, etc. - Eliminación corredores
-- `llegadasListTitle`, `llegadasCounterTemplate` - Contador llegadas
-- `posCatHeader`, `posCatHeaderTooltip` - Posición por categoría
+### Nuevas traducciones (21+ claves por idioma):
+- **Entrada Manual (13)**: `manualEntryText`, `manualEntryTitle`, `manualEntryDescription`, etc.
+- **Logos (8)**: `logoLeftLabel`, `logoRightLabel`, `logoFormatInfo`, etc.
+- **Eliminación corredores (5)**: `deleteRiderText`, `deleteRiderNoSelection`, etc.
+- **Contador llegadas (2)**: `llegadasListTitle`, `llegadasCounterTemplate`
+- **Posición categoría (2)**: `posCatHeader`, `posCatHeaderTooltip`
 
 ### Reglas de oro añadidas:
 - Contador de llegadas dinámico
@@ -1173,6 +1442,10 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 - **Validación de logos (5MB, PNG/JPG/SVG)**
 - **Traducciones para logos**
 - **Mantener logos existentes**
+- ⭐ **Entrada manual con dorsal vacío**
+- ⭐ **Validación estricta de formato**
+- ⭐ **Origen claro para entradas manuales**
+- ⭐ **Recálculo automático para entradas manuales**
 
 ### Resultados finales:
 - **Usabilidad mejorada**: Información más completa al instante
@@ -1184,11 +1457,12 @@ log(LOG_LEVEL.DEBUG, `Añadiendo logo izquierdo al PDF: ${race.logos.leftFilenam
 - **Internacionalización**: Todos los textos traducidos a 4 idiomas
 - **Robustez**: Validación completa en todas las operaciones
 - **Personalización**: Logos únicos por carrera para máxima flexibilidad
+- **⭐ Flexibilidad máxima**: Entrada manual + automática, formatos exactos, asignación flexible
 
 ---
 
-**Documentación optimizada para modificaciones - v3.5.4**  
-Caracteres: ~50,500 (documentación completa de todas las funcionalidades)  
+**Documentación optimizada para modificaciones - v3.5.2**  
+Caracteres: ~53,500 (documentación completa de todas las funcionalidades)  
 Cobertura: 100% funcionalidades necesarias para programar  
 Última actualización: Enero 2026
 

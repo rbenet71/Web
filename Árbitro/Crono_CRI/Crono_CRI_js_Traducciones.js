@@ -4,7 +4,7 @@
 const translations = {
     es: {
         // Títulos generales
-        appTitle: "Crono CRI - 3.6",
+        appTitle: "Crono CRI - 3.7",
         languagesLabel: "Idioma / Language",
         
         // Tarjetas
@@ -607,11 +607,19 @@ const translations = {
         manualEntryInvalidTime: "❌ Formato de tiempo inválido. Usa HH:MM:SS.mmm",
         manualEntrySuccess: "✅ Tiempo guardado correctamente. Asigna el dorsal editando la fila.",
         manualEntryNote: "Entrada manual",
+
+        lastDorsalLabel: "Último",
+        nextDorsalsLabel: "Próximos",
+        noDorsalsArrived: "Sin llegadas",
+        nextDorsalsFormat: "{d1}, {d2} y {d3}",
+        nextDorsalsTwoFormat: "{d1} y {d2}",
+        nextDorsalsOneFormat: "{d1}",
+        nextDorsalsNone: "ninguno",
     },
 
     ca: {
         // Títulos generales
-        appTitle: "Crono CRI - 3.6",
+        appTitle: "Crono CRI - 3.7",
         languagesLabel: "Idioma / Language",
         
         // Tarjetas
@@ -1224,10 +1232,18 @@ const translations = {
         manualEntrySuccess: "✅ Temps guardat correctament. Assigna el dorsal editant la fila.",
         manualEntryNote: "Entrada manual",
 
+        lastDorsalLabel: "Últim",
+        nextDorsalsLabel: "Propers",
+        noDorsalsArrived: "Sense arribades",
+        nextDorsalsFormat: "{d1}, {d2} i {d3}",
+        nextDorsalsTwoFormat: "{d1} i {d2}",
+        nextDorsalsOneFormat: "{d1}",
+        nextDorsalsNone: "cap",
+
     },
 
     en: {
-        appTitle: "TT Crono - 3.6",
+        appTitle: "TT Crono - 3.7",
         languagesLabel: "Language / Idioma",
         
         // Tarjetas
@@ -1835,10 +1851,18 @@ const translations = {
         manualEntrySuccess: "✅ Time saved successfully. Assign dorsal by editing the row.",
         manualEntryNote: "Manual entry",
 
+        lastDorsalLabel: "Last",
+        nextDorsalsLabel: "Next",
+        noDorsalsArrived: "No arrivals",
+        nextDorsalsFormat: "{d1}, {d2} and {d3}",
+        nextDorsalsTwoFormat: "{d1} and {d2}",
+        nextDorsalsOneFormat: "{d1}",
+        nextDorsalsNone: "none",
+
     },
 
     fr: {
-        appTitle: "Crono CRI - 3.6",
+        appTitle: "Crono CRI - 3.7",
         languagesLabel: "Langue / Language",
         
         // Tarjetas
@@ -2467,6 +2491,14 @@ const translations = {
         manualEntrySuccess: "✅ Temps enregistré avec succès. Assignez le dossard en éditant la ligne.",
         manualEntryNote: "Entrée manuelle",
 
+        lastDorsalLabel: "Dernier",
+        nextDorsalsLabel: "Suivants",
+        noDorsalsArrived: "Aucune arrivée",
+        nextDorsalsFormat: "{d1}, {d2} et {d3}",
+        nextDorsalsTwoFormat: "{d1} et {d2}",
+        nextDorsalsOneFormat: "{d1}",
+        nextDorsalsNone: "aucun",
+
     }
 };
 
@@ -2808,7 +2840,7 @@ function updateTableHeaders(t) {
     // ✅ USAR SISTEMA DE LOGGING OPTIMIZADO
     log(LOG_LEVEL.DEBUG, "Actualizando cabeceras de tabla...");
     
-    // Lista COMPLETA de IDs (21 columnas - versión 3.6)
+    // Lista COMPLETA de IDs (21 columnas - versión 3.7)
     const headerIds = [
         'orderHeader', 'dorsalHeader', 'cronoSalidaHeader', 'horaSalidaHeader',
         'diferenciaHeader', 'nombreHeader', 'apellidosHeader', 'categoriaHeader', // ✅ NUEVO 3.2.1

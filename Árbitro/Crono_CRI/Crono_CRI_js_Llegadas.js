@@ -26,7 +26,7 @@ if (typeof llegadasState === 'undefined') {
 }
 
 // ============================================
-// FORMATEAR TIEMPO PARA EXCEL - NUEVO 3.6
+// FORMATEAR TIEMPO PARA EXCEL - NUEVO 3.7
 // ============================================
 function formatTimeForExcel(timeValue, esPrimerCorredor = false) {
     // Si es null/undefined/vacío → celda vacía
@@ -214,6 +214,9 @@ function initLlegadasMode() {
     // 6. Actualizar contadores y estado
     actualizarContadorLlegadas();
     updateInitialCompactTimerState();
+        
+    // Configurar indicador de próximos dorsales
+    setupNextDorsalsIndicator();
     
     console.log("✅ Modo llegadas inicializado con Entrada Manual");
 }
@@ -309,6 +312,8 @@ function capturarLlegadaDirecta() {
     } finally {
         setTimeout(() => { tiempoCapturaActiva = false; }, 200);
     }
+
+    updateNextDorsalsInfo();
 }
 
 // ============================================
@@ -2286,6 +2291,9 @@ function actualizarContadorLlegadas() {
     } catch (error) {
         console.error("❌ Error actualizando contador de llegadas:", error);
     }
+    
+    // También actualizar próximos dorsales
+    updateNextDorsalsInfo();
 }
 
 // ============================================
@@ -2524,8 +2532,177 @@ function saveManualEntry(timeString) {
     
     // Mostrar mensaje de éxito
     showMessage(t.manualEntrySuccess || "✅ Tiempo guardado correctamente", 'success');
+
+    // Actualizar próximos dorsales después de entrada manual
+    updateNextDorsalsInfo();
     
     console.log(`💾 Entrada manual guardada: ${timeString} (ID: ${llegadaId})`);
+}
+
+// Calcular y mostrar próximos dorsales (VERSIÓN CORREGIDA)
+function updateNextDorsalsInfo() {
+    const t = translations[appState.currentLanguage] || translations.es;
+    
+    // Verificar que los elementos DOM existen
+    const lastDorsalElement = document.getElementById('last-dorsal-text');
+    const nextDorsalsElement = document.getElementById('next-dorsals-text');
+    const infoElement = document.getElementById('next-dorsals-info');
+    
+    if (!lastDorsalElement || !nextDorsalsElement) {
+        console.warn("❌ Elementos DOM para próximos dorsales no encontrados");
+        return;
+    }
+    
+    // Obtener todos los dorsales que YA han llegado
+    const arrivedDorsals = new Set();
+    if (llegadasState && llegadasState.llegadas) {
+        llegadasState.llegadas.forEach(llegada => {
+            if (llegada.dorsal && llegada.tiempoFinalWithMs > 0) {
+                arrivedDorsals.add(parseInt(llegada.dorsal));
+            }
+        });
+    }
+    
+    // Encontrar el último dorsal llegado (el mayor número)
+    let lastDorsal = null;
+    if (arrivedDorsals.size > 0) {
+        lastDorsal = Math.max(...arrivedDorsals);
+    }
+    
+    // Obtener el orden de salida actual
+    const startOrder = appState.currentRace?.startOrder || [];
+    if (startOrder.length === 0) {
+        // Si no hay orden de salida, mostrar información básica
+        lastDorsalElement.textContent = 
+            `${t.lastDorsalLabel || "Último"}: ${lastDorsal || (t.noDorsalsArrived || "Sin llegadas")}`;
+        nextDorsalsElement.textContent = 
+            `${t.nextDorsalsLabel || "Próximos"}: ${t.nextDorsalsNone || "ninguno"}`;
+        return;
+    }
+    
+    // Encontrar posición del último dorsal en el orden de salida
+    let lastDorsalIndex = -1;
+    if (lastDorsal !== null) {
+        lastDorsalIndex = startOrder.findIndex(corredor => {
+            if (!corredor || !corredor.dorsal) return false;
+            return parseInt(corredor.dorsal) === lastDorsal;
+        });
+    }
+    
+    // Determinar los próximos 3 dorsales
+    const nextDorsals = [];
+    const nextStartIndex = lastDorsalIndex + 1;
+    
+    // Tomar hasta 3 dorsales después del último llegado
+    for (let i = 0; i < 3; i++) {
+        const index = nextStartIndex + i;
+        if (index < startOrder.length) {
+            const corredor = startOrder[index];
+            if (corredor && corredor.dorsal) {
+                // Verificar que este dorsal no haya llegado ya
+                const dorsalNum = parseInt(corredor.dorsal);
+                if (!arrivedDorsals.has(dorsalNum)) {
+                    nextDorsals.push(corredor.dorsal);
+                }
+            }
+        }
+    }
+    
+    // Formatear texto del último dorsal
+    const lastDorsalText = lastDorsal !== null ? 
+        `${t.lastDorsalLabel || "Último"}: ${lastDorsal}` : 
+        `${t.lastDorsalLabel || "Último"}: ${t.noDorsalsArrived || "Sin llegadas"}`;
+    
+    // Formatear texto de próximos dorsales con validación segura
+    let nextDorsalsText = `${t.nextDorsalsLabel || "Próximos"}: `;
+    
+    if (nextDorsals.length === 0) {
+        nextDorsalsText += t.nextDorsalsNone || "ninguno";
+    } else if (nextDorsals.length === 1) {
+        const format = t.nextDorsalsOneFormat || "{d1}";
+        nextDorsalsText += format.replace('{d1}', nextDorsals[0]);
+    } else if (nextDorsals.length === 2) {
+        const format = t.nextDorsalsTwoFormat || "{d1} y {d2}";
+        nextDorsalsText += format
+            .replace('{d1}', nextDorsals[0])
+            .replace('{d2}', nextDorsals[1]);
+    } else {
+        const format = t.nextDorsalsFormat || "{d1}, {d2} y {d3}";
+        nextDorsalsText += format
+            .replace('{d1}', nextDorsals[0])
+            .replace('{d2}', nextDorsals[1])
+            .replace('{d3}', nextDorsals[2]);
+    }
+    
+    // Actualizar el DOM
+    lastDorsalElement.textContent = lastDorsalText;
+    nextDorsalsElement.textContent = nextDorsalsText;
+    
+    // Añadir tooltip informativo
+    if (infoElement) {
+        infoElement.title = (t.lastDorsalLabel || "Último") + ': ' + (lastDorsal || (t.noDorsalsArrived || "Sin llegadas")) + 
+                          ' | ' + (t.nextDorsalsLabel || "Próximos") + ': ' + nextDorsals.join(', ');
+    }
+    
+    console.log(`📊 Próximos dorsales actualizados: Último=${lastDorsal}, Próximos=[${nextDorsals.join(', ')}]`);
+}
+
+// ⭐ Función de inicialización para próximos dorsales
+// Función segura para inicialización
+function setupNextDorsalsIndicator() {
+    console.log("🔧 Configurando indicador de próximos dorsales...");
+    
+    // Verificar que los elementos HTML existen
+    setTimeout(() => {
+        const lastDorsalElement = document.getElementById('last-dorsal-text');
+        const nextDorsalsElement = document.getElementById('next-dorsals-text');
+        
+        if (!lastDorsalElement || !nextDorsalsElement) {
+            console.error("❌ Elementos HTML para próximos dorsales no encontrados");
+            console.log("🔍 Buscando elementos con ID:", {
+                'last-dorsal-text': document.getElementById('last-dorsal-text'),
+                'next-dorsals-text': document.getElementById('next-dorsals-text'),
+                'next-dorsals-info': document.getElementById('next-dorsals-info')
+            });
+            return;
+        }
+        
+        // Llamar inicialmente
+        updateNextDorsalsInfo();
+        
+        console.log("✅ Indicador de próximos dorsales configurado");
+    }, 100); // Pequeño delay para asegurar que el DOM está cargado
+}
+
+// ⭐ Función para manejar casos especiales de próximos dorsales
+function getNextDorsalsWithFallback() {
+    const t = translations[appState.currentLanguage];
+    
+    // Caso 1: No hay orden de salida
+    if (!appState.currentRace?.startOrder || appState.currentRace.startOrder.length === 0) {
+        return {
+            lastDorsal: null,
+            nextDorsals: [],
+            message: t.noStartOrder || "Sin orden de salida"
+        };
+    }
+    
+    // Caso 2: No hay llegadas aún
+    const llegadasConTiempo = llegadasState.llegadas.filter(l => l.tiempoFinalWithMs > 0);
+    if (llegadasConTiempo.length === 0) {
+        // Mostrar los primeros 3 dorsales del orden de salida
+        const startOrder = appState.currentRace.startOrder;
+        const firstThree = startOrder.slice(0, 3).map(c => c.dorsal).filter(d => d);
+        
+        return {
+            lastDorsal: null,
+            nextDorsals: firstThree,
+            isFirstOnes: true
+        };
+    }
+    
+    // Caso normal: Calcular normalmente
+    updateNextDorsalsInfo();
 }
 
 // 8. EXPORTAR FUNCIONES
@@ -2541,7 +2718,6 @@ window.capturarLlegadaDirecta = capturarLlegadaDirecta;
 window.actualizarDorsal = actualizarDorsal;
 window.showRankingModal = showRankingModal;
 window.exportLlegadasToExcel = exportLlegadasToExcel;
-window.exportRankingToExcel = exportRankingToExcel;
 window.clearLlegadas = clearLlegadas;
 
 console.log("✅ Módulo de llegadas 3.2.1 cargado");
