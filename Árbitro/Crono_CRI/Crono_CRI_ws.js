@@ -2,7 +2,7 @@
 // SERVICE WORKER PARA PWA - CRONO CRI
 // ============================================
 // DESCRIPCIÓN: Service Worker específico para Crono CRI
-// VERSIÓN: 3.1.1
+// VERSIÓN: 3.7.1
 // RESPONSABILIDADES:
 // 1. Cache de recursos estáticos para funcionamiento offline
 // 2. Instalación como aplicación PWA
@@ -10,7 +10,7 @@
 // 4. Servicio de recursos en modo offline
 //
 // CARACTERÍSTICAS:
-// - Cache: 'crono-cri-v3.1.1' con todos los recursos esenciales
+// - Cache: 'crono-cri-v3.7.1' con todos los recursos esenciales
 // - Recursos: HTML, CSS, JS, imágenes, librerías CDN
 // - Estrategia: Cache-first con fallback a network
 // - Limpieza: Elimina caches antiguas en activación
