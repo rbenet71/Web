@@ -26,7 +26,7 @@ if (typeof llegadasState === 'undefined') {
 }
 
 // ============================================
-// FORMATEAR TIEMPO PARA EXCEL - NUEVO 3.7.2
+// FORMATEAR TIEMPO PARA EXCEL - NUEVO 3.7.3
 // ============================================
 function formatTimeForExcel(timeValue, esPrimerCorredor = false) {
     // Si es null/undefined/vacío → celda vacía
@@ -1797,30 +1797,25 @@ function showExternalScreen() {
         
         // PROBAR DIFERENTES ESTRATEGIAS
         if (screenWidth > 3000) {
-            // Posiblemente 2 pantallas 1920px
             windowLeft = 1920 + 100;
             windowTop = 100;
             console.log("📍 Estrategia 1: 2 pantallas 1920px (posición 2020,100)");
         } else if (screenAvailWidth > 2500) {
-            // Mucho ancho disponible
             windowLeft = screenAvailWidth - 1300;
             windowTop = 100;
             console.log(`📍 Estrategia 2: Ancho disponible grande (posición ${windowLeft},100)`);
         } else if (screenWidth > 1920 && screenWidth <= 2560) {
-            // Pantalla ancha única
             windowLeft = Math.floor(screenWidth * 0.6);
             windowTop = 100;
             console.log(`📍 Estrategia 3: Pantalla ancha (posición ${windowLeft},100)`);
         } else {
-            // Por defecto, intentar fuera de la pantalla principal
             windowLeft = Math.max(100, screenAvailWidth + 100);
             windowTop = 100;
             console.log(`📍 Estrategia 4: Fuera de pantalla (posición ${windowLeft},100)`);
         }
         
-        // Si la posición parece incorrecta, probar valores comunes
         if (windowLeft < 100 || windowLeft > 5000) {
-            windowLeft = 2020; // Valor por defecto para segunda pantalla
+            windowLeft = 2020;
             windowTop = 100;
             console.log("📍 Estrategia 5: Usando posición por defecto (2020,100)");
         }
@@ -1838,12 +1833,12 @@ function showExternalScreen() {
             location=no,
             status=no,
             resizable=yes,
-            scrollbars=yes
+            scrollbars=no
         `.replace(/\s+/g, '');
         
         console.log(`📍 Abriendo ventana: ${windowWidth}x${windowHeight} en (${windowLeft},${windowTop})`);
         
-        // HTML COMPLETO CON DISEÑO MODERNO Y NUEVAS COLUMNAS
+        // HTML COMPLETO CON DISEÑO MEJORADO
         const content = `<!DOCTYPE html>
 <html>
 <head>
@@ -1862,13 +1857,15 @@ function showExternalScreen() {
         
         .header { 
             background: linear-gradient(135deg, #1a237e, #0d47a1);
-            padding: 15px 25px; /* ⭐ REDUCIDO */
+            padding: 15px 25px;
             text-align: center;
             box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            position: relative;
+            z-index: 100;
         }
         
         .race-name { 
-            font-size: 1.8em; /* ⭐ NUEVO: Nombre de prueba más grande */
+            font-size: 1.8em;
             margin: 0 0 5px 0;
             color: white;
             font-weight: bold;
@@ -1876,9 +1873,9 @@ function showExternalScreen() {
         }
         
         .header h1 { 
-            font-size: 1.6em; /* ⭐ REDUCIDO de 2.2em */
+            font-size: 1.6em;
             margin: 0;
-            color: #ffcc00; /* ⭐ AMARILLO para destacar */
+            color: #ffcc00;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
             letter-spacing: 0.5px;
         }
@@ -1891,68 +1888,180 @@ function showExternalScreen() {
             opacity: 0.7;
         }
         
-        .content {
-            height: calc(100vh - 130px); /* ⭐ AJUSTADO */
-            overflow-y: auto;
-            padding: 12px; /* ⭐ REDUCIDO de 15px */
+        /* ⭐ NUEVO: BOTÓN DE CIERRE PARA MÓVIL */
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 150;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
         
-        .table-container {
-            max-width: 98%;
-            margin: 0 auto;
-            background: white;
-            border-radius: 8px; /* ⭐ REDUCIDO */
+        .close-btn:hover {
+            background: rgba(200, 35, 51, 1);
+            transform: scale(1.1);
+        }
+        
+        /* ⭐ NUEVO: Mostrar solo en móviles */
+        @media (max-width: 768px) {
+            .close-btn {
+                display: flex;
+            }
+            
+            .external-indicator {
+                right: 70px;
+            }
+            
+            .header {
+                padding: 15px 60px 15px 70px;
+            }
+        }
+        
+        /* ⭐ NUEVO: Ocultar en desktop */
+        @media (min-width: 769px) {
+            .close-btn {
+                display: none;
+            }
+        }
+        
+        .scrolling-container {
+            height: calc(100vh - 130px);
             overflow: hidden;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+            position: relative;
+        }
+        
+        /* CONTENEDOR PARA LOS 5 PRIMEROS (FIJOS) */
+        .top5-fixed {
+            background: white;
+            border-radius: 8px 8px 0 0;
+            margin: 12px 12px 0 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 50;
+        }
+        
+        /* CONTENEDOR PARA SCROLL AUTOMÁTICO */
+        .scrolling-content {
+            margin: 0 12px 12px 12px;
+            background: white;
+            border-radius: 0 0 8px 8px;
+            overflow: hidden;
+            position: relative;
+            height: calc(100vh - 350px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        /* ANIMACIÓN DE SCROLL AUTOMÁTICO */
+        .scrolling-rows {
+            animation: scrollAnimation 30s linear infinite;
+        }
+        
+        @keyframes scrollAnimation {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(calc(-100% + 400px));
+            }
+        }
+        
+        .scrolling-rows:hover {
+            animation-play-state: paused;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 1em; /* ⭐ REDUCIDO de 1.1em */
+            font-size: 1em;
         }
         
         th {
             background: linear-gradient(135deg, #2c3e50, #34495e);
             color: white;
-            padding: 12px 6px; /* ⭐ REDUCIDO de 15px 8px */
+            padding: 12px 6px;
             text-align: center;
             font-weight: bold;
-            font-size: 0.9em; /* ⭐ REDUCIDO de 0.95em */
+            font-size: 0.9em;
             position: sticky;
             top: 0;
             z-index: 10;
         }
         
+        /* ESTILO ESPECIAL PARA TABLA FIJA (TOP5) */
+        .top5-fixed th {
+            top: 0;
+            z-index: 20;
+        }
+        
+        .scrolling-content th {
+            top: 0;
+            z-index: 20;
+        }
+        
         td {
-            padding: 10px 6px; /* ⭐ REDUCIDO de 12px 8px */
+            padding: 10px 6px;
             text-align: center;
             border-bottom: 1px solid #eee;
             color: #333;
-            font-size: 0.9em; /* ⭐ REDUCIDO */
+            font-size: 0.9em;
         }
         
         tr:nth-child(even) { background: #f8f9fa; }
         tr:hover { background: #e9ecef; }
         
-        /* ⭐ NUEVO: Clases para podium general - SOLO FONDO */
-        .gold-bg { 
-            background: linear-gradient(135deg, #fff9c4, #fff59d) !important; /* ⭐ FONDO AMARILLO CLARO */
+        /* CLASES PARA PODIUM GENERAL */
+        .gold-row { 
+            background: linear-gradient(135deg, #fff9c4, #fff59d) !important;
             font-weight: bold;
         }
         
-        .silver-bg { 
-            background: linear-gradient(135deg, #f5f5f5, #eeeeee) !important; /* ⭐ FONDO GRIS CLARO */
+        .silver-row { 
+            background: linear-gradient(135deg, #f5f5f5, #eeeeee) !important;
         }
         
-        .bronze-bg { 
-            background: linear-gradient(135deg, #ffecb3, #ffe082) !important; /* ⭐ FONDO NARANJA CLARO */
+        .bronze-row { 
+            background: linear-gradient(135deg, #ffecb3, #ffe082) !important;
+        }
+        
+        /* MEDALLAS PARA POSICIÓN GENERAL */
+        .pos-medal-1::before {
+            content: "🥇 ";
+            font-size: 1.1em;
+        }
+        
+        .pos-medal-2::before {
+            content: "🥈 ";
+            font-size: 1.1em;
+        }
+        
+        .pos-medal-3::before {
+            content: "🥉 ";
+            font-size: 1.1em;
+        }
+        
+        .pos-medal-4::before, .pos-medal-5::before {
+            content: "🏅 ";
+            font-size: 1em;
+            opacity: 0.8;
         }
         
         .time-cell {
             font-family: 'Courier New', monospace;
             font-weight: bold;
-            font-size: 0.9em; /* ⭐ REDUCIDO de 0.95em */
+            font-size: 0.9em;
         }
         
         .status-bar {
@@ -1962,90 +2071,205 @@ function showExternalScreen() {
             right: 0;
             background: rgba(21, 101, 192, 0.95);
             color: white;
-            padding: 8px 12px; /* ⭐ REDUCIDO */
+            padding: 8px 12px;
             text-align: center;
-            font-size: 0.85em; /* ⭐ REDUCIDO de 0.9em */
+            font-size: 0.85em;
             display: flex;
             justify-content: space-between;
             align-items: center;
             backdrop-filter: blur(10px);
+            z-index: 100;
         }
         
         .loading {
             text-align: center;
-            padding: 30px; /* ⭐ REDUCIDO de 40px */
-            font-size: 1.2em; /* ⭐ REDUCIDO de 1.4em */
+            padding: 30px;
+            font-size: 1.2em;
             color: #666;
         }
         
-        /* ⭐ NUEVO: Estilo para posición por categoría - SOLO MEDALLAS (sin color de texto) */
+        /* PICTOGRAMAS PARA POSICIÓN POR CATEGORÍA */
         .cat-pos-cell {
             font-weight: bold;
-            position: relative;
         }
         
-        /* ⭐ NUEVO: Pictogramas de medallas para posición por categoría */
         .cat-pos-1::before {
             content: "🥇 ";
+            font-size: 1em;
         }
         
         .cat-pos-2::before {
             content: "🥈 ";
+            font-size: 1em;
         }
         
         .cat-pos-3::before {
             content: "🥉 ";
+            font-size: 1em;
         }
         
-        /* ⭐ NUEVO: Categoría */
         .categoria-cell {
             font-weight: 600;
             color: #2e7d32;
         }
         
-        /* ⭐ NUEVO: Equipo */
         .equipo-cell {
             text-align: left;
-            padding-left: 12px; /* ⭐ REDUCIDO */
+            padding-left: 12px;
             color: #5d4037;
             font-weight: 500;
         }
         
-        /* ⭐ NUEVO: Nombre y apellidos en una sola columna */
         .nombre-cell {
             text-align: left;
-            padding-left: 12px; /* ⭐ REDUCIDO */
+            padding-left: 12px;
             color: #1a237e;
             font-weight: 500;
+        }
+        
+        /* CONTROLES DE SCROLL */
+        .scroll-controls {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            display: flex;
+            gap: 5px;
+            z-index: 30;
+        }
+        
+        .scroll-btn {
+            background: rgba(33, 150, 243, 0.9);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .scroll-btn:hover {
+            background: rgba(21, 101, 192, 0.9);
+        }
+        
+        /* ⭐ NUEVO: Ajustes para móvil */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.4em;
+            }
+            
+            .race-name {
+                font-size: 1.5em;
+            }
+            
+            table {
+                font-size: 0.9em;
+            }
+            
+            th, td {
+                padding: 8px 4px;
+            }
+            
+            .scrolling-content {
+                height: calc(100vh - 320px);
+            }
+        }
+        
+        /* ⭐ NUEVO: Ajustes para móvil muy pequeño */
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.2em;
+            }
+            
+            .race-name {
+                font-size: 1.3em;
+            }
+            
+            table {
+                font-size: 0.8em;
+            }
+            
+            th, td {
+                padding: 6px 3px;
+                font-size: 0.8em;
+            }
+            
+            .nombre-cell, .equipo-cell {
+                max-width: 100px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            
+            .scrolling-content {
+                height: calc(100vh - 300px);
+            }
+            
+            .scroll-controls {
+                top: 5px;
+                right: 10px;
+            }
+            
+            .scroll-btn {
+                padding: 3px 6px;
+                font-size: 0.7em;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- ⭐ NUEVO: Botón de cierre para móvil -->
+    <button class="close-btn" onclick="closeExternalScreen()" title="Cerrar pantalla">×</button>
+    
     <div class="header">
-        <div class="race-name" id="race-name">Nombre de la Prueba</div> <!-- ⭐ NUEVO: Nombre de prueba primero -->
-        <h1>🏁 Clasificación en Directo</h1> <!-- ⭐ CAMBIADO a minúsculas -->
+        <div class="race-name" id="race-name">Nombre de la Prueba</div>
+        <h1>🏁 Clasificación en Directo</h1>
         <div class="external-indicator">🖥️ Pantalla Externa</div>
     </div>
     
-    <div class="content">
-        <div class="table-container">
-            <table id="ranking-table">
+    <div class="scrolling-container">
+        <!-- TOP 5 FIJOS -->
+        <div class="top5-fixed">
+            <table id="top5-table">
                 <thead>
                     <tr>
-                        <th style="width: 55px;">Pos</th> <!-- ⭐ FORMATO TÍTULO -->
-                        <th style="width: 70px;">Dorsal</th> <!-- ⭐ FORMATO TÍTULO -->
-                        <th style="width: 180px;">Nombre</th> <!-- ⭐ FORMATO TÍTULO -->
-                        <th style="width: 75px;">Pos. Cat.</th> <!-- ⭐ FORMATO TÍTULO -->
-                        <th style="width: 90px;">Categoría</th> <!-- ⭐ FORMATO TÍTULO -->
-                        <th style="width: 140px;">Equipo</th> <!-- ⭐ FORMATO TÍTULO -->
-                        <th style="width: 130px;">Tiempo Final</th> <!-- ⭐ FORMATO TÍTULO -->
-                        <th style="width: 130px;">Diferencia</th> <!-- ⭐ FORMATO TÍTULO -->
+                        <th style="width: 60px;">Pos</th>
+                        <th style="width: 70px;">Dorsal</th>
+                        <th style="width: 180px;">Nombre</th>
+                        <th style="width: 80px;">Pos. Cat.</th>
+                        <th style="width: 90px;">Categoría</th>
+                        <th style="width: 140px;">Equipo</th>
+                        <th style="width: 130px;">Tiempo Final</th>
+                        <th style="width: 130px;">Diferencia</th>
                     </tr>
                 </thead>
-                <tbody id="table-body">
+                <tbody id="top5-body">
+                    <tr><td colspan="8" class="loading">🕒 Cargando top 5...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- CONTENIDO CON SCROLL AUTOMÁTICO -->
+        <div class="scrolling-content">
+            <div class="scroll-controls">
+                <button class="scroll-btn" onclick="toggleScroll()">⏸️ Pausar</button>
+                <button class="scroll-btn" onclick="resetScroll()">↻ Reiniciar</button>
+            </div>
+            <table id="scrolling-table">
+                <thead>
                     <tr>
-                        <td colspan="8" class="loading">🕒 Cargando clasificación...</td>
+                        <th style="width: 60px;">Pos</th>
+                        <th style="width: 70px;">Dorsal</th>
+                        <th style="width: 180px;">Nombre</th>
+                        <th style="width: 80px;">Pos. Cat.</th>
+                        <th style="width: 90px;">Categoría</th>
+                        <th style="width: 140px;">Equipo</th>
+                        <th style="width: 130px;">Tiempo Final</th>
+                        <th style="width: 130px;">Diferencia</th>
                     </tr>
+                </thead>
+                <tbody id="scrolling-body" class="scrolling-rows">
+                    <tr><td colspan="8" class="loading">🕒 Cargando clasificación...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -2054,16 +2278,28 @@ function showExternalScreen() {
     <div class="status-bar">
         <span id="update-time">Esperando datos...</span>
         <span id="participant-count" style="font-weight: bold;">0 participantes</span>
-        <span id="auto-update" style="color: #4caf50;">🔄 Actualización automática</span>
+        <span id="auto-update" style="color: #4caf50;">🔄 Scroll automático</span>
     </div>
     
     <script>
         let lastUpdate = null;
         let mapaPosicionesPorCategoria = {};
-        let currentLanguage = 'es'; // ⭐ NUEVO: Para traducciones
+        let currentLanguage = 'es';
+        let isScrolling = true;
+        let currentTranslations = null;
         
-        // ⭐ NUEVO: Traducciones para cabeceras
-        const translations = {
+        // ⭐ NUEVO: Función para cerrar la pantalla externa
+        function closeExternalScreen() {
+            if (window.opener && !window.opener.closed) {
+                window.opener.postMessage({ 
+                    type: 'closeExternalScreen'
+                }, '*');
+            }
+            window.close();
+        }
+        
+        // TRADUCCIONES POR DEFECTO (hasta recibir las reales)
+        const defaultTranslations = {
             es: {
                 position: "Pos",
                 bibNumber: "Dorsal",
@@ -2074,8 +2310,6 @@ function showExternalScreen() {
                 team: "Equipo",
                 timeFinal: "Tiempo Final",
                 difference: "Diferencia",
-                page: "Página",
-                of: "de",
                 classification: "Clasificación",
                 totalRiders: "Total",
                 date: "Fecha",
@@ -2083,7 +2317,17 @@ function showExternalScreen() {
                 raceWithoutName: "Sin nombre",
                 unspecifiedLocation: "No especificado",
                 unspecifiedCategory: "No especificada",
-                noDataToExport: "No hay datos para exportar"
+                noDataToExport: "No hay datos para exportar",
+                pause: "Pausar",
+                resume: "Reanudar",
+                restart: "Reiniciar",
+                page: "Página",
+                of: "de",
+                scrollAuto: "Scroll automático",
+                scrollPaused: "Scroll pausado",
+                scrollRestarted: "Scroll reiniciado",
+                moreRidersText: "Más clasificados aparecerán aquí...",
+                closeScreen: "Cerrar pantalla"
             },
             ca: {
                 position: "Pos",
@@ -2095,8 +2339,6 @@ function showExternalScreen() {
                 team: "Equip",
                 timeFinal: "Temps Final",
                 difference: "Diferència",
-                page: "Pàgina",
-                of: "de",
                 classification: "Classificació",
                 totalRiders: "Total",
                 date: "Data",
@@ -2104,7 +2346,17 @@ function showExternalScreen() {
                 raceWithoutName: "Sense nom",
                 unspecifiedLocation: "No especificat",
                 unspecifiedCategory: "No especificada",
-                noDataToExport: "No hi ha dades per exportar"
+                noDataToExport: "No hi ha dades per exportar",
+                pause: "Pausa",
+                resume: "Reprendre",
+                restart: "Reiniciar",
+                page: "Pàgina",
+                of: "de",
+                scrollAuto: "Scroll automàtic",
+                scrollPaused: "Scroll pausat",
+                scrollRestarted: "Scroll reiniciat",
+                moreRidersText: "Més classificats apareixeran aquí...",
+                closeScreen: "Tancar pantalla"
             },
             en: {
                 position: "Pos",
@@ -2116,8 +2368,6 @@ function showExternalScreen() {
                 team: "Team",
                 timeFinal: "Final Time",
                 difference: "Difference",
-                page: "Page",
-                of: "of",
                 classification: "Classification",
                 totalRiders: "Total",
                 date: "Date",
@@ -2125,7 +2375,17 @@ function showExternalScreen() {
                 raceWithoutName: "Unnamed",
                 unspecifiedLocation: "Unspecified",
                 unspecifiedCategory: "Unspecified",
-                noDataToExport: "No data to export"
+                noDataToExport: "No data to export",
+                pause: "Pause",
+                resume: "Resume",
+                restart: "Restart",
+                page: "Page",
+                of: "of",
+                scrollAuto: "Auto scroll",
+                scrollPaused: "Scroll paused",
+                scrollRestarted: "Scroll restarted",
+                moreRidersText: "More riders will appear here...",
+                closeScreen: "Close screen"
             },
             fr: {
                 position: "Pos",
@@ -2137,8 +2397,6 @@ function showExternalScreen() {
                 team: "Équipe",
                 timeFinal: "Temps Final",
                 difference: "Différence",
-                page: "Page",
-                of: "de",
                 classification: "Classement",
                 totalRiders: "Total",
                 date: "Date",
@@ -2146,23 +2404,20 @@ function showExternalScreen() {
                 raceWithoutName: "Sans nom",
                 unspecifiedLocation: "Non spécifié",
                 unspecifiedCategory: "Non spécifiée",
-                noDataToExport: "Aucune donnée à exporter"
+                noDataToExport: "Aucune donnée à exporter",
+                pause: "Pause",
+                resume: "Reprendre",
+                restart: "Redémarrer",
+                page: "Page",
+                of: "de",
+                scrollAuto: "Défilement automatique",
+                scrollPaused: "Défilement en pause",
+                scrollRestarted: "Défilement redémarré",
+                moreRidersText: "Plus de coureurs apparaîtront ici...",
+                closeScreen: "Fermer l'écran"
             }
         };
         
-        function formatTime(seconds) {
-            if (!seconds && seconds !== 0) return '00:00:00.000';
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
-            const secs = Math.floor(seconds % 60);
-            const ms = Math.round((seconds - Math.floor(seconds)) * 1000);
-            return hours.toString().padStart(2, '0') + ':' + 
-                   minutes.toString().padStart(2, '0') + ':' + 
-                   secs.toString().padStart(2, '0') + '.' + 
-                   ms.toString().padStart(3, '0');
-        }
-        
-        // ⭐ NUEVA: Función para formato de tiempo compacto
         function formatTimeCompact(seconds) {
             if (!seconds && seconds !== 0) return '0.000';
             const hours = Math.floor(seconds / 3600);
@@ -2186,15 +2441,16 @@ function showExternalScreen() {
             return timeString;
         }
         
-        // ⭐ NUEVO: Función para convertir a formato título (primera mayúscula)
         function toTitleCase(str) {
             if (!str || typeof str !== 'string') return '';
             return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
         }
         
-        // ⭐ NUEVO: Función para actualizar cabeceras según idioma
-        function updateTableHeaders(lang = 'es') {
-            const t = translations[lang] || translations.es;
+        // ACTUALIZAR CABECERAS SEGÚN IDIOMA Y TRADUCCIONES
+        function updateTableHeaders(lang = 'es', customTranslations = null) {
+            const t = customTranslations || defaultTranslations[lang] || defaultTranslations.es;
+            currentTranslations = t;
+            
             const headers = [
                 toTitleCase(t.position || "Pos"),
                 toTitleCase(t.bibNumber || "Dorsal"),
@@ -2206,96 +2462,163 @@ function showExternalScreen() {
                 toTitleCase(t.difference || "Diferencia")
             ];
             
-            const thElements = document.querySelectorAll('#ranking-table th');
+            // ACTUALIZAR AMBAS TABLAS
+            const allThElements = document.querySelectorAll('table th');
             headers.forEach((header, index) => {
-                if (thElements[index]) {
-                    thElements[index].textContent = header;
-                }
+                if (allThElements[index]) allThElements[index].textContent = header;
+                if (allThElements[index + 8]) allThElements[index + 8].textContent = header;
             });
             
-            // Actualizar título de clasificación
             const titleElement = document.querySelector('.header h1');
             if (titleElement) {
                 titleElement.innerHTML = '🏁 ' + toTitleCase(t.classification || "Clasificación") + ' en Directo';
             }
+            
+            // ACTUALIZAR BOTONES
+            const pauseBtn = document.querySelector('.scroll-btn');
+            if (pauseBtn) {
+                pauseBtn.textContent = isScrolling ? 
+                    '⏸️ ' + (t.pause || "Pausar") : 
+                    '▶️ ' + (t.resume || "Reanudar");
+            }
+            
+            const restartBtn = document.querySelectorAll('.scroll-btn')[1];
+            if (restartBtn) {
+                restartBtn.textContent = '↻ ' + (t.restart || "Reiniciar");
+            }
+            
+            // ⭐ NUEVO: Actualizar tooltip del botón de cierre
+            const closeBtn = document.querySelector('.close-btn');
+            if (closeBtn) {
+                closeBtn.title = t.closeScreen || "Cerrar pantalla";
+            }
+            
+            const autoUpdateSpan = document.getElementById('auto-update');
+            if (autoUpdateSpan) {
+                autoUpdateSpan.textContent = isScrolling ? 
+                    '🔄 ' + (t.scrollAuto || "Scroll automático") : 
+                    '⏸️ ' + (t.scrollPaused || "Scroll pausado");
+            }
+        }
+        
+        // CREAR FILA HTML
+        function createRowHTML(llegada, index, diferenciaCompact, posCat) {
+            const t = currentTranslations || defaultTranslations[currentLanguage] || defaultTranslations.es;
+            
+            let rowClass = '';
+            if (index === 0) rowClass = 'gold-row';
+            else if (index === 1) rowClass = 'silver-row';
+            else if (index === 2) rowClass = 'bronze-row';
+            
+            // MEDALLAS PARA POSICIÓN GENERAL (1-5)
+            let posMedalClass = '';
+            if (index === 0) posMedalClass = 'pos-medal-1';
+            else if (index === 1) posMedalClass = 'pos-medal-2';
+            else if (index === 2) posMedalClass = 'pos-medal-3';
+            else if (index === 3 || index === 4) posMedalClass = 'pos-medal-4';
+            
+            // MEDALLAS PARA POSICIÓN POR CATEGORÍA
+            let catPosClass = 'cat-pos-cell';
+            if (posCat === 1 || posCat === '1') catPosClass += ' cat-pos-1';
+            else if (posCat === 2 || posCat === '2') catPosClass += ' cat-pos-2';
+            else if (posCat === 3 || posCat === '3') catPosClass += ' cat-pos-3';
+            
+            const nombre = (llegada.nombre || '').substring(0, 15);
+            const apellidos = (llegada.apellidos || '').substring(0, 15);
+            const categoria = (llegada.categoria || '').substring(0, 10);
+            const equipo = (llegada.equipo || '').substring(0, 20);
+            const nombreCompleto = (nombre + ' ' + apellidos).trim();
+            
+            return '<tr class="' + rowClass + '">' +
+                '<td class="' + posMedalClass + '" style="font-weight: bold; font-size: 1em">' + (index + 1) + '</td>' +
+                '<td style="font-weight: bold; font-size: 1em">' + llegada.dorsal + '</td>' +
+                '<td class="nombre-cell" style="font-size: 0.95em">' + (nombreCompleto || '---') + '</td>' +
+                '<td class="' + catPosClass + '" style="font-size: 1em">' + (posCat || '--') + '</td>' +
+                '<td class="categoria-cell" style="font-size: 0.9em">' + (categoria || '--') + '</td>' +
+                '<td class="equipo-cell" style="font-size: 0.9em">' + (equipo || '--') + '</td>' +
+                '<td class="time-cell" style="font-size: 0.9em">' + formatTimeCompact(llegada.tiempoFinalWithMs) + '</td>' +
+                '<td class="time-cell" style="color: ' + (index === 0 ? '#2e7d32' : '#d32f2f') + '; font-size: 0.9em">' + 
+                (index === 0 ? '---' : '+' + diferenciaCompact) + '</td>' +
+                '</tr>';
         }
         
         function updateContent(data) {
             if (!data || !data.llegadas) return;
             
             try {
-                // Actualizar idioma si viene en los datos
-                if (data.language && translations[data.language]) {
+                // ACTUALIZAR TRADUCCIONES SI VIENEN EN LOS DATOS
+                if (data.translations) {
+                    currentTranslations = data.translations;
+                }
+                
+                if (data.language) {
                     currentLanguage = data.language;
-                    updateTableHeaders(currentLanguage);
+                    updateTableHeaders(currentLanguage, currentTranslations);
                 }
                 
                 const llegadasConTiempo = data.llegadas
                     .filter(l => l.dorsal && l.tiempoFinalWithMs && l.tiempoFinalWithMs > 0)
                     .sort((a, b) => a.tiempoFinalWithMs - b.tiempoFinalWithMs);
                 
-                // ⭐ NUEVO: Calcular posiciones por categoría si están disponibles
                 if (data.posicionesPorCategoria) {
                     mapaPosicionesPorCategoria = data.posicionesPorCategoria;
                 }
                 
-                const tbody = document.getElementById('table-body');
-                let html = '';
+                const t = currentTranslations || defaultTranslations[currentLanguage] || defaultTranslations.es;
                 let mejorTiempo = null;
                 
-                llegadasConTiempo.forEach((llegada, index) => {
+                // 1. ACTUALIZAR TOP 5 FIJOS
+                const top5Body = document.getElementById('top5-body');
+                let top5HTML = '';
+                
+                llegadasConTiempo.slice(0, 5).forEach((llegada, index) => {
                     // Calcular diferencia
-                    let diferencia = '0.000';
                     let diferenciaCompact = '0.000';
                     if (mejorTiempo === null) {
                         mejorTiempo = llegada.tiempoFinalWithMs;
                     } else {
                         const diffSegundos = llegada.tiempoFinalWithMs - mejorTiempo;
-                        diferencia = formatTime(diffSegundos);
                         diferenciaCompact = formatTimeCompact(diffSegundos);
                     }
                     
-                    // ⭐ CAMBIADO: Clases para podium general - SOLO FONDO (no texto)
-                    let rowClass = '';
-                    if (index === 0) rowClass = 'gold-bg';
-                    else if (index === 1) rowClass = 'silver-bg';
-                    else if (index === 2) rowClass = 'bronze-bg';
-                    
-                    // ⭐ NUEVO: Clase para posición por categoría - SOLO MEDALLAS
                     const posCat = mapaPosicionesPorCategoria[llegada.id] || "";
-                    let catPosClass = 'cat-pos-cell';
-                    if (posCat === 1 || posCat === '1') catPosClass += ' cat-pos-1';
-                    else if (posCat === 2 || posCat === '2') catPosClass += ' cat-pos-2';
-                    else if (posCat === 3 || posCat === '3') catPosClass += ' cat-pos-3';
-                    
-                    const nombre = (llegada.nombre || '').substring(0, 15);
-                    const apellidos = (llegada.apellidos || '').substring(0, 15);
-                    const categoria = (llegada.categoria || '').substring(0, 10);
-                    const equipo = (llegada.equipo || '').substring(0, 20);
-                    const nombreCompleto = (nombre + ' ' + apellidos).trim();
-                    
-                    html += '<tr class="' + rowClass + '">' +
-                        '<td style="font-weight: ' + (index < 3 ? 'bold' : 'normal') + '; font-size: 1em">' + (index + 1) + '</td>' +
-                        '<td style="font-weight: bold; font-size: 1em">' + llegada.dorsal + '</td>' +
-                        '<td class="nombre-cell" style="font-size: 0.95em">' + (nombreCompleto || '---') + '</td>' +
-                        '<td class="' + catPosClass + '" style="font-size: 1em">' + (posCat || '--') + '</td>' + // ⭐ MEDALLAS
-                        '<td class="categoria-cell" style="font-size: 0.9em">' + (categoria || '--') + '</td>' +
-                        '<td class="equipo-cell" style="font-size: 0.9em">' + (equipo || '--') + '</td>' +
-                        '<td class="time-cell" style="font-size: 0.9em">' + formatTimeCompact(llegada.tiempoFinalWithMs) + '</td>' +
-                        '<td class="time-cell" style="color: ' + (index === 0 ? '#2e7d32' : '#d32f2f') + '; font-size: 0.9em">' + 
-                        (index === 0 ? '---' : '+' + diferenciaCompact) + '</td>' +
-                        '</tr>';
+                    top5HTML += createRowHTML(llegada, index, diferenciaCompact, posCat);
                 });
                 
                 if (llegadasConTiempo.length === 0) {
-                    const t = translations[currentLanguage];
-                    html = '<tr><td colspan="8" style="padding: 30px; text-align: center; color: #666; font-size: 1.2em">🕒 ' + 
-                           (t.noDataToExport || 'Esperando llegadas...') + '</td></tr>';
+                    top5HTML = '<tr><td colspan="8" style="padding: 30px; text-align: center; color: #666; font-size: 1.2em">' +
+                              '🕒 ' + (t.noDataToExport || 'Esperando llegadas...') + '</td></tr>';
                 }
                 
-                tbody.innerHTML = html;
+                top5Body.innerHTML = top5HTML;
                 
-                // Actualizar información de pie de página
+                // 2. ACTUALIZAR CONTENIDO CON SCROLL (desde posición 6 en adelante)
+                const scrollingBody = document.getElementById('scrolling-body');
+                let scrollingHTML = '';
+                
+                if (llegadasConTiempo.length > 5) {
+                    // Continuar con el mejor tiempo del top 5
+                    mejorTiempo = llegadasConTiempo[0]?.tiempoFinalWithMs || 0;
+                    
+                    llegadasConTiempo.slice(5).forEach((llegada, index) => {
+                        const globalIndex = index + 5;
+                        const diffSegundos = llegada.tiempoFinalWithMs - mejorTiempo;
+                        const diferenciaCompact = formatTimeCompact(diffSegundos);
+                        
+                        const posCat = mapaPosicionesPorCategoria[llegada.id] || "";
+                        scrollingHTML += createRowHTML(llegada, globalIndex, diferenciaCompact, posCat);
+                    });
+                } else {
+                    scrollingHTML = '<tr><td colspan="8" style="padding: 30px; text-align: center; color: #666; font-size: 1.2em">' +
+                                   '📊 ' + (t.moreRidersText || 'Más clasificados aparecerán aquí...') + '</td></tr>';
+                }
+                
+                scrollingBody.innerHTML = scrollingHTML;
+                
+                // 3. AJUSTAR ANIMACIÓN DE SCROLL SEGÚN NÚMERO DE FILAS
+                adjustScrollAnimation(llegadasConTiempo.length);
+                
+                // ACTUALIZAR INFORMACIÓN
                 const now = new Date();
                 const timeStr = now.toLocaleTimeString(currentLanguage === 'en' ? 'en-US' : 'es-ES', { 
                     hour: '2-digit', 
@@ -2303,13 +2626,11 @@ function showExternalScreen() {
                     hour12: false
                 });
                 
-                const t = translations[currentLanguage];
                 document.getElementById('update-time').textContent = 
                     (t.date || 'Fecha') + ': ' + now.toLocaleDateString() + ' ' + timeStr;
                 document.getElementById('participant-count').textContent = 
                     llegadasConTiempo.length + ' ' + (t.totalRiders || 'participantes');
                 
-                // Actualizar nombre de la carrera
                 if (data.raceName) {
                     document.getElementById('race-name').textContent = data.raceName;
                 }
@@ -2321,11 +2642,78 @@ function showExternalScreen() {
             }
         }
         
+        // AJUSTAR ANIMACIÓN DE SCROLL SEGÚN NÚMERO DE FILAS
+        function adjustScrollAnimation(totalRows) {
+            const scrollingRows = document.querySelector('.scrolling-rows');
+            if (!scrollingRows) return;
+            
+            // Calcular duración basada en número de filas
+            const rowsAfterTop5 = Math.max(0, totalRows - 5);
+            const baseDuration = 30; // segundos base
+            const minDuration = 20;
+            const maxDuration = 60;
+            
+            let duration = baseDuration;
+            if (rowsAfterTop5 > 0) {
+                duration = Math.min(maxDuration, Math.max(minDuration, baseDuration * (rowsAfterTop5 / 15)));
+            }
+            
+            // Aplicar nueva animación (CORREGIDO: sin backticks)
+            scrollingRows.style.animation = 'scrollAnimation ' + duration + 's linear infinite';
+            
+            // Actualizar estado del scroll automático
+            const autoUpdateSpan = document.getElementById('auto-update');
+            if (autoUpdateSpan && isScrolling) {
+                const t = currentTranslations || defaultTranslations[currentLanguage] || defaultTranslations.es;
+                autoUpdateSpan.textContent = '🔄 ' + (t.scrollAuto || "Scroll automático") + 
+                    ' (' + Math.round(duration) + 's)';
+            }
+        }
+        
+        // CONTROLAR SCROLL AUTOMÁTICO
+        function toggleScroll() {
+            const scrollingRows = document.querySelector('.scrolling-rows');
+            const t = currentTranslations || defaultTranslations[currentLanguage] || defaultTranslations.es;
+            const pauseBtn = document.querySelector('.scroll-btn');
+            
+            if (scrollingRows) {
+                if (isScrolling) {
+                    scrollingRows.style.animationPlayState = 'paused';
+                    pauseBtn.textContent = '▶️ ' + (t.resume || "Reanudar");
+                    document.getElementById('auto-update').textContent = '⏸️ ' + (t.scrollPaused || "Scroll pausado");
+                } else {
+                    scrollingRows.style.animationPlayState = 'running';
+                    pauseBtn.textContent = '⏸️ ' + (t.pause || "Pausar");
+                    document.getElementById('auto-update').textContent = '🔄 ' + (t.scrollAuto || "Scroll automático");
+                }
+                isScrolling = !isScrolling;
+            }
+        }
+        
+        function resetScroll() {
+            const scrollingRows = document.querySelector('.scrolling-rows');
+            if (scrollingRows) {
+                scrollingRows.style.animation = 'none';
+                scrollingRows.offsetHeight; // Trigger reflow
+                scrollingRows.style.animation = '';
+                isScrolling = true;
+                
+                const pauseBtn = document.querySelector('.scroll-btn');
+                const t = currentTranslations || defaultTranslations[currentLanguage] || defaultTranslations.es;
+                pauseBtn.textContent = '⏸️ ' + (t.pause || "Pausar");
+                document.getElementById('auto-update').textContent = '🔄 ' + (t.scrollRestarted || "Scroll reiniciado");
+                
+                setTimeout(() => {
+                    document.getElementById('auto-update').textContent = '🔄 ' + (t.scrollAuto || "Scroll automático");
+                }, 2000);
+            }
+        }
+        
         function requestData() {
             if (window.opener && !window.opener.closed) {
                 window.opener.postMessage({ 
                     type: 'requestExternalScreenData',
-                    language: currentLanguage // ⭐ NUEVO: Enviar idioma actual
+                    language: currentLanguage
                 }, '*');
             }
         }
@@ -2333,6 +2721,11 @@ function showExternalScreen() {
         window.addEventListener('message', function(event) {
             if (event.data.type === 'updateExternalScreenData') {
                 updateContent(event.data);
+            }
+            
+            // ⭐ NUEVO: Manejar cierre desde la aplicación principal
+            if (event.data.type === 'closeExternalScreen') {
+                window.close();
             }
         });
         
@@ -2361,7 +2754,7 @@ function showExternalScreen() {
         updateExternalScreenButtonText(true);
         setupWindowCloseDetector();
         
-        showMessage("✅ Pantalla externa activada", 'success');
+        showMessage("✅ Pantalla externa activada con scroll automático", 'success');
         
     } catch (error) {
         console.error("❌ Error:", error);
@@ -2416,47 +2809,303 @@ function setupWindowCloseDetector() {
 
 // 6. COMUNICACIÓN (MANTENER)
 function setupExternalScreenCommunication() {
+    console.log("📡 Configurando comunicación con pantalla externa...");
+    
     window.addEventListener('message', function(event) {
+        // 1. SOLICITUD DE DATOS DESDE PANTALLA EXTERNA
         if (event.data.type === 'requestExternalScreenData') {
-            // ⭐ CALCULAR POSICIONES POR CATEGORÍA con TODAS las llegadas
-            // La función calcularPosicionesPorCategoria ya filtra internamente las que tienen tiempo
-            const posicionesPorCategoria = calcularPosicionesPorCategoria(llegadasState.llegadas);
+            console.log("📥 Solicitud de datos recibida desde pantalla externa");
+            
+            // ⭐ Obtener idioma solicitado
+            const requestedLanguage = event.data.language || appState.currentLanguage || 'es';
+            
+            // ⭐ CALCULAR POSICIONES POR CATEGORÍA
+            let posicionesPorCategoria = {};
+            try {
+                posicionesPorCategoria = calcularPosicionesPorCategoria(llegadasState.llegadas);
+                console.log("✅ Posiciones por categoría calculadas:", Object.keys(posicionesPorCategoria).length, "corredores");
+            } catch (error) {
+                console.error("❌ Error calculando posiciones por categoría:", error);
+                // En caso de error, usar objeto vacío
+                posicionesPorCategoria = {};
+            }
+            
+            // ⭐ Obtener traducciones desde el objeto centralizado
+            const t = translations[requestedLanguage] || translations.es;
             
             const data = {
                 type: 'updateExternalScreenData',
                 llegadas: llegadasState.llegadas,
                 raceName: appState.currentRace ? appState.currentRace.name : null,
-                // ⭐ NUEVO: Incluir posiciones por categoría
-                posicionesPorCategoria: posicionesPorCategoria
+                posicionesPorCategoria: posicionesPorCategoria,
+                language: requestedLanguage,
+                // ⭐ ENVIAR SOLO LAS TRADUCCIONES NECESARIAS
+                translations: {
+                    position: t.position || "Pos",
+                    bibNumber: t.bibNumber || "Dorsal",
+                    name: t.name || "Nombre",
+                    surname: t.surname || "Apellidos",
+                    posCat: t.posCatHeader || "Pos. Cat.",
+                    category: t.category || "Categoría",
+                    team: t.team || "Equipo",
+                    timeFinal: t.timeFinal || "Tiempo Final",
+                    difference: t.difference || "Diferencia",
+                    classification: t.classification || "Clasificación",
+                    totalRiders: t.totalRiders || "Total",
+                    date: t.date || "Fecha",
+                    location: t.location || "Lugar",
+                    raceWithoutName: t.raceWithoutName || "Sin nombre",
+                    unspecifiedLocation: t.unspecifiedLocation || "No especificado",
+                    unspecifiedCategory: t.unspecifiedCategory || "No especificada",
+                    noDataToExport: t.noDataToExport || "No hay datos para exportar",
+                    pause: "Pausar",
+                    resume: "Reanudar",
+                    restart: "Reiniciar",
+                    page: t.page || "Página",
+                    of: t.of || "de",
+                    scrollAuto: "Scroll automático",
+                    scrollPaused: "Scroll pausado",
+                    scrollRestarted: "Scroll reiniciado",
+                    moreRidersText: "Más clasificados aparecerán aquí...",
+                    closeScreen: "Cerrar pantalla"
+                }
             };
             
             if (window.externalScreenWindow && !window.externalScreenWindow.closed) {
-                window.externalScreenWindow.postMessage(data, '*');
+                try {
+                    window.externalScreenWindow.postMessage(data, '*');
+                    console.log("✅ Datos enviados a pantalla externa");
+                } catch (error) {
+                    console.error("❌ Error enviando datos a pantalla externa:", error);
+                }
+            } else {
+                console.log("⚠️ Pantalla externa no está disponible o cerrada");
+            }
+        }
+        
+        // ⭐ NUEVO: MANEJAR CIERRE DESDE PANTALLA EXTERNA (MÓVIL)
+        if (event.data.type === 'closeExternalScreen') {
+            console.log("📱 Cierre solicitado desde pantalla externa (móvil)");
+            
+            if (window.externalScreenWindow && !window.externalScreenWindow.closed) {
+                try {
+                    window.externalScreenWindow.close();
+                    console.log("✅ Pantalla externa cerrada desde móvil");
+                } catch (error) {
+                    console.error("❌ Error cerrando pantalla externa:", error);
+                }
+                
+                window.externalScreenWindow = null;
+                updateExternalScreenButtonText(false);
+                showMessage("Pantalla externa cerrada desde móvil", 'info');
             }
         }
     });
     
+    // 2. INTERCEPTAR GUARDADO DE LLEGADAS PARA ACTUALIZACIÓN AUTOMÁTICA
     const originalSave = saveLlegadasState;
-    window.saveLlegadasState = function() {
-        const result = originalSave();
+    if (typeof originalSave === 'function') {
+        window.saveLlegadasState = function() {
+            console.log("🔄 Guardando llegadas y actualizando pantalla externa...");
+            const result = originalSave();
+            
+            // ACTUALIZAR PANTALLA EXTERNA SI ESTÁ ABIERTA
+            if (window.externalScreenWindow && !window.externalScreenWindow.closed) {
+                setTimeout(() => {
+                    try {
+                        const requestedLanguage = appState.currentLanguage || 'es';
+                        const posicionesPorCategoria = calcularPosicionesPorCategoria(llegadasState.llegadas);
+                        const t = translations[requestedLanguage] || translations.es;
+                        
+                        const data = {
+                            type: 'updateExternalScreenData',
+                            llegadas: llegadasState.llegadas,
+                            raceName: appState.currentRace ? appState.currentRace.name : null,
+                            posicionesPorCategoria: posicionesPorCategoria,
+                            language: requestedLanguage,
+                            translations: {
+                                position: t.position || "Pos",
+                                bibNumber: t.bibNumber || "Dorsal",
+                                name: t.name || "Nombre",
+                                surname: t.surname || "Apellidos",
+                                posCat: t.posCatHeader || "Pos. Cat.",
+                                category: t.category || "Categoría",
+                                team: t.team || "Equipo",
+                                timeFinal: t.timeFinal || "Tiempo Final",
+                                difference: t.difference || "Diferencia",
+                                classification: t.classification || "Clasificación",
+                                totalRiders: t.totalRiders || "Total",
+                                date: t.date || "Fecha",
+                                location: t.location || "Lugar",
+                                raceWithoutName: t.raceWithoutName || "Sin nombre",
+                                unspecifiedLocation: t.unspecifiedLocation || "No especificado",
+                                unspecifiedCategory: t.unspecifiedCategory || "No especificada",
+                                noDataToExport: t.noDataToExport || "No hay datos para exportar",
+                                pause: "Pausar",
+                                resume: "Reanudar",
+                                restart: "Reiniciar",
+                                page: t.page || "Página",
+                                of: t.of || "de",
+                                scrollAuto: "Scroll automático",
+                                scrollPaused: "Scroll pausado",
+                                scrollRestarted: "Scroll reiniciado",
+                                moreRidersText: "Más clasificados aparecerán aquí...",
+                                closeScreen: "Cerrar pantalla"
+                            }
+                        };
+                        
+                        window.externalScreenWindow.postMessage(data, '*');
+                        console.log("✅ Pantalla externa actualizada automáticamente");
+                    } catch (error) {
+                        console.error("❌ Error actualizando pantalla externa automáticamente:", error);
+                    }
+                }, 300); // Pequeño delay para asegurar que los datos están guardados
+            }
+            
+            return result;
+        };
         
-        if (window.externalScreenWindow && !window.externalScreenWindow.closed) {
-            setTimeout(() => {
-                // ⭐ CALCULAR POSICIONES POR CATEGORÍA (actualización automática)
-                const posicionesPorCategoria = calcularPosicionesPorCategoria(llegadasState.llegadas);
-                
-                const data = {
-                    type: 'updateExternalScreenData',
-                    llegadas: llegadasState.llegadas,
-                    raceName: appState.currentRace ? appState.currentRace.name : null,
-                    // ⭐ NUEVO: Incluir posiciones por categoría
-                    posicionesPorCategoria: posicionesPorCategoria
-                };
-                window.externalScreenWindow.postMessage(data, '*');
-            }, 300);
+        console.log("✅ saveLlegadasState interceptado para actualización automática");
+    } else {
+        console.warn("⚠️ saveLlegadasState no encontrada, actualización automática no disponible");
+    }
+    
+    // 3. INTERCEPTAR CAMBIOS DE CARRERA
+    const originalHandleRaceChange = handleRaceChange;
+    if (typeof originalHandleRaceChange === 'function') {
+        window.handleRaceChange = function(raceId) {
+            console.log("🏁 Cambiando carrera y actualizando pantalla externa...");
+            const result = originalHandleRaceChange(raceId);
+            
+            // ACTUALIZAR PANTALLA EXTERNA SI ESTÁ ABIERTA
+            if (window.externalScreenWindow && !window.externalScreenWindow.closed) {
+                setTimeout(() => {
+                    try {
+                        const requestedLanguage = appState.currentLanguage || 'es';
+                        const posicionesPorCategoria = calcularPosicionesPorCategoria(llegadasState.llegadas);
+                        const t = translations[requestedLanguage] || translations.es;
+                        
+                        const data = {
+                            type: 'updateExternalScreenData',
+                            llegadas: llegadasState.llegadas,
+                            raceName: appState.currentRace ? appState.currentRace.name : null,
+                            posicionesPorCategoria: posicionesPorCategoria,
+                            language: requestedLanguage,
+                            translations: {
+                                position: t.position || "Pos",
+                                bibNumber: t.bibNumber || "Dorsal",
+                                name: t.name || "Nombre",
+                                surname: t.surname || "Apellidos",
+                                posCat: t.posCatHeader || "Pos. Cat.",
+                                category: t.category || "Categoría",
+                                team: t.team || "Equipo",
+                                timeFinal: t.timeFinal || "Tiempo Final",
+                                difference: t.difference || "Diferencia",
+                                classification: t.classification || "Clasificación",
+                                totalRiders: t.totalRiders || "Total",
+                                date: t.date || "Fecha",
+                                location: t.location || "Lugar",
+                                raceWithoutName: t.raceWithoutName || "Sin nombre",
+                                unspecifiedLocation: t.unspecifiedLocation || "No especificado",
+                                unspecifiedCategory: t.unspecifiedCategory || "No especificada",
+                                noDataToExport: t.noDataToExport || "No hay datos para exportar",
+                                pause: "Pausar",
+                                resume: "Reanudar",
+                                restart: "Reiniciar",
+                                page: t.page || "Página",
+                                of: t.of || "de",
+                                scrollAuto: "Scroll automático",
+                                scrollPaused: "Scroll pausado",
+                                scrollRestarted: "Scroll reiniciado",
+                                moreRidersText: "Más clasificados aparecerán aquí...",
+                                closeScreen: "Cerrar pantalla"
+                            }
+                        };
+                        
+                        window.externalScreenWindow.postMessage(data, '*');
+                        console.log("✅ Pantalla externa actualizada por cambio de carrera");
+                    } catch (error) {
+                        console.error("❌ Error actualizando pantalla externa por cambio de carrera:", error);
+                    }
+                }, 500);
+            }
+            
+            return result;
+        };
+        
+        console.log("✅ handleRaceChange interceptado para actualización automática");
+    }
+    
+    // 4. DETECTOR DE CIERRE DE VENTANA
+    function setupWindowCloseDetector() {
+        if (window.externalScreenWindow) {
+            const checkWindowClosed = setInterval(() => {
+                if (window.externalScreenWindow && window.externalScreenWindow.closed) {
+                    console.log("⚠️ Pantalla externa cerrada por el usuario");
+                    clearInterval(checkWindowClosed);
+                    window.externalScreenWindow = null;
+                    updateExternalScreenButtonText(false);
+                    showMessage("Pantalla externa cerrada", 'info');
+                }
+            }, 1000);
+            
+            console.log("✅ Detector de cierre de ventana configurado");
         }
-        
-        return result;
+    }
+    
+    // 5. ACTUALIZAR BOTÓN DE PANTALLA EXTERNA
+    function updateExternalScreenButtonText(isActive) {
+        try {
+            const externalScreenBtn = document.getElementById('external-screen-btn');
+            if (externalScreenBtn) {
+                const t = translations[appState.currentLanguage] || translations.es;
+                
+                if (isActive) {
+                    externalScreenBtn.innerHTML = '<i class="fas fa-times"></i> ' + (t.closeExternalScreen || "Cerrar Pantalla");
+                    externalScreenBtn.classList.add('active');
+                    externalScreenBtn.classList.remove('btn-primary');
+                    externalScreenBtn.classList.add('btn-warning');
+                } else {
+                    externalScreenBtn.innerHTML = '<i class="fas fa-external-link-alt"></i> ' + (t.externalScreen || "Pantalla Externa");
+                    externalScreenBtn.classList.remove('active');
+                    externalScreenBtn.classList.remove('btn-warning');
+                    externalScreenBtn.classList.add('btn-primary');
+                }
+                
+                console.log("✅ Botón de pantalla externa actualizado:", isActive ? "ACTIVO" : "INACTIVO");
+            }
+        } catch (error) {
+            console.error("❌ Error actualizando botón de pantalla externa:", error);
+        }
+    }
+    
+    // 6. FUNCIÓN PARA ENVIAR CIERRE A PANTALLA EXTERNA
+    function sendCloseToExternalScreen() {
+        if (window.externalScreenWindow && !window.externalScreenWindow.closed) {
+            try {
+                window.externalScreenWindow.postMessage({
+                    type: 'closeExternalScreen'
+                }, '*');
+                console.log("✅ Señal de cierre enviada a pantalla externa");
+            } catch (error) {
+                console.error("❌ Error enviando señal de cierre:", error);
+            }
+        }
+    }
+    
+    // 7. EXPORTAR FUNCIONES PARA USO EXTERNO
+    window.setupExternalScreenCommunication = setupExternalScreenCommunication;
+    window.updateExternalScreenButtonText = updateExternalScreenButtonText;
+    window.setupWindowCloseDetector = setupWindowCloseDetector;
+    window.sendCloseToExternalScreen = sendCloseToExternalScreen;
+    
+    console.log("✅ Comunicación con pantalla externa configurada completamente");
+    
+    // Devolver funciones para uso externo si es necesario
+    return {
+        updateExternalScreenButtonText,
+        setupWindowCloseDetector,
+        sendCloseToExternalScreen
     };
 }
 
