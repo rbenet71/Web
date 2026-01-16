@@ -26,7 +26,7 @@ if (typeof llegadasState === 'undefined') {
 }
 
 // ============================================
-// FORMATEAR TIEMPO PARA EXCEL - NUEVO 3.7.1
+// FORMATEAR TIEMPO PARA EXCEL - NUEVO 3.7.2
 // ============================================
 function formatTimeForExcel(timeValue, esPrimerCorredor = false) {
     // Si es null/undefined/vacío → celda vacía
@@ -1825,8 +1825,8 @@ function showExternalScreen() {
             console.log("📍 Estrategia 5: Usando posición por defecto (2020,100)");
         }
         
-        const windowWidth = 1200;
-        const windowHeight = 800;
+        const windowWidth = 1400;
+        const windowHeight = 900;
         
         const windowFeatures = `
             width=${windowWidth},
@@ -1843,7 +1843,7 @@ function showExternalScreen() {
         
         console.log(`📍 Abriendo ventana: ${windowWidth}x${windowHeight} en (${windowLeft},${windowTop})`);
         
-        // HTML COMPLETO CON DISEÑO MODERNO
+        // HTML COMPLETO CON DISEÑO MODERNO Y NUEVAS COLUMNAS
         const content = `<!DOCTYPE html>
 <html>
 <head>
@@ -1862,95 +1862,97 @@ function showExternalScreen() {
         
         .header { 
             background: linear-gradient(135deg, #1a237e, #0d47a1);
-            padding: 30px 25px;
+            padding: 15px 25px; /* ⭐ REDUCIDO */
             text-align: center;
             box-shadow: 0 4px 20px rgba(0,0,0,0.4);
         }
         
-        .header h1 { 
-            font-size: 2.8em; 
-            margin: 0 0 10px 0; 
+        .race-name { 
+            font-size: 1.8em; /* ⭐ NUEVO: Nombre de prueba más grande */
+            margin: 0 0 5px 0;
             color: white;
-            text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
-            letter-spacing: 1px;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
         }
         
-        .subtitle {
-            font-size: 1.3em;
-            opacity: 0.9;
+        .header h1 { 
+            font-size: 1.6em; /* ⭐ REDUCIDO de 2.2em */
+            margin: 0;
+            color: #ffcc00; /* ⭐ AMARILLO para destacar */
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            letter-spacing: 0.5px;
         }
         
         .external-indicator {
             position: absolute;
             top: 15px;
             right: 20px;
-            font-size: 0.9em;
+            font-size: 0.8em;
             opacity: 0.7;
         }
         
         .content {
-            height: calc(100vh - 160px);
+            height: calc(100vh - 130px); /* ⭐ AJUSTADO */
             overflow-y: auto;
-            padding: 20px;
+            padding: 12px; /* ⭐ REDUCIDO de 15px */
         }
         
         .table-container {
-            max-width: 95%;
+            max-width: 98%;
             margin: 0 auto;
             background: white;
-            border-radius: 12px;
+            border-radius: 8px; /* ⭐ REDUCIDO */
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 1.5em;
+            font-size: 1em; /* ⭐ REDUCIDO de 1.1em */
         }
         
         th {
             background: linear-gradient(135deg, #2c3e50, #34495e);
             color: white;
-            padding: 25px 15px;
+            padding: 12px 6px; /* ⭐ REDUCIDO de 15px 8px */
             text-align: center;
             font-weight: bold;
-            font-size: 1.1em;
+            font-size: 0.9em; /* ⭐ REDUCIDO de 0.95em */
             position: sticky;
             top: 0;
             z-index: 10;
         }
         
         td {
-            padding: 20px 15px;
+            padding: 10px 6px; /* ⭐ REDUCIDO de 12px 8px */
             text-align: center;
             border-bottom: 1px solid #eee;
             color: #333;
+            font-size: 0.9em; /* ⭐ REDUCIDO */
         }
         
         tr:nth-child(even) { background: #f8f9fa; }
         tr:hover { background: #e9ecef; }
         
-        .gold { 
-            background: linear-gradient(135deg, #ffd700, #ffecb3) !important; 
+        /* ⭐ NUEVO: Clases para podium general - SOLO FONDO */
+        .gold-bg { 
+            background: linear-gradient(135deg, #fff9c4, #fff59d) !important; /* ⭐ FONDO AMARILLO CLARO */
             font-weight: bold;
-            color: #333;
         }
         
-        .silver { 
-            background: linear-gradient(135deg, #c0c0c0, #e0e0e0) !important; 
-            color: #333;
+        .silver-bg { 
+            background: linear-gradient(135deg, #f5f5f5, #eeeeee) !important; /* ⭐ FONDO GRIS CLARO */
         }
         
-        .bronze { 
-            background: linear-gradient(135deg, #cd7f32, #e0b880) !important; 
-            color: #333;
+        .bronze-bg { 
+            background: linear-gradient(135deg, #ffecb3, #ffe082) !important; /* ⭐ FONDO NARANJA CLARO */
         }
         
         .time-cell {
             font-family: 'Courier New', monospace;
             font-weight: bold;
-            font-size: 1.1em;
+            font-size: 0.9em; /* ⭐ REDUCIDO de 0.95em */
         }
         
         .status-bar {
@@ -1960,9 +1962,9 @@ function showExternalScreen() {
             right: 0;
             background: rgba(21, 101, 192, 0.95);
             color: white;
-            padding: 12px 20px;
+            padding: 8px 12px; /* ⭐ REDUCIDO */
             text-align: center;
-            font-size: 1em;
+            font-size: 0.85em; /* ⭐ REDUCIDO de 0.9em */
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -1971,16 +1973,57 @@ function showExternalScreen() {
         
         .loading {
             text-align: center;
-            padding: 60px;
-            font-size: 1.8em;
+            padding: 30px; /* ⭐ REDUCIDO de 40px */
+            font-size: 1.2em; /* ⭐ REDUCIDO de 1.4em */
             color: #666;
+        }
+        
+        /* ⭐ NUEVO: Estilo para posición por categoría - SOLO MEDALLAS (sin color de texto) */
+        .cat-pos-cell {
+            font-weight: bold;
+            position: relative;
+        }
+        
+        /* ⭐ NUEVO: Pictogramas de medallas para posición por categoría */
+        .cat-pos-1::before {
+            content: "🥇 ";
+        }
+        
+        .cat-pos-2::before {
+            content: "🥈 ";
+        }
+        
+        .cat-pos-3::before {
+            content: "🥉 ";
+        }
+        
+        /* ⭐ NUEVO: Categoría */
+        .categoria-cell {
+            font-weight: 600;
+            color: #2e7d32;
+        }
+        
+        /* ⭐ NUEVO: Equipo */
+        .equipo-cell {
+            text-align: left;
+            padding-left: 12px; /* ⭐ REDUCIDO */
+            color: #5d4037;
+            font-weight: 500;
+        }
+        
+        /* ⭐ NUEVO: Nombre y apellidos en una sola columna */
+        .nombre-cell {
+            text-align: left;
+            padding-left: 12px; /* ⭐ REDUCIDO */
+            color: #1a237e;
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>🏁 CLASIFICACIÓN EN DIRECTO</h1>
-        <div class="subtitle" id="race-title">Crono CRI - Modo Llegadas</div>
+        <div class="race-name" id="race-name">Nombre de la Prueba</div> <!-- ⭐ NUEVO: Nombre de prueba primero -->
+        <h1>🏁 Clasificación en Directo</h1> <!-- ⭐ CAMBIADO a minúsculas -->
         <div class="external-indicator">🖥️ Pantalla Externa</div>
     </div>
     
@@ -1989,16 +2032,19 @@ function showExternalScreen() {
             <table id="ranking-table">
                 <thead>
                     <tr>
-                        <th style="width: 100px;">POS</th>
-                        <th style="width: 120px;">DORSAL</th>
-                        <th>NOMBRE</th>
-                        <th style="width: 200px;">TIEMPO FINAL</th>
-                        <th style="width: 200px;">DIFERENCIA</th>
+                        <th style="width: 55px;">Pos</th> <!-- ⭐ FORMATO TÍTULO -->
+                        <th style="width: 70px;">Dorsal</th> <!-- ⭐ FORMATO TÍTULO -->
+                        <th style="width: 180px;">Nombre</th> <!-- ⭐ FORMATO TÍTULO -->
+                        <th style="width: 75px;">Pos. Cat.</th> <!-- ⭐ FORMATO TÍTULO -->
+                        <th style="width: 90px;">Categoría</th> <!-- ⭐ FORMATO TÍTULO -->
+                        <th style="width: 140px;">Equipo</th> <!-- ⭐ FORMATO TÍTULO -->
+                        <th style="width: 130px;">Tiempo Final</th> <!-- ⭐ FORMATO TÍTULO -->
+                        <th style="width: 130px;">Diferencia</th> <!-- ⭐ FORMATO TÍTULO -->
                     </tr>
                 </thead>
                 <tbody id="table-body">
                     <tr>
-                        <td colspan="5" class="loading">🕒 Cargando clasificación...</td>
+                        <td colspan="8" class="loading">🕒 Cargando clasificación...</td>
                     </tr>
                 </tbody>
             </table>
@@ -2013,6 +2059,96 @@ function showExternalScreen() {
     
     <script>
         let lastUpdate = null;
+        let mapaPosicionesPorCategoria = {};
+        let currentLanguage = 'es'; // ⭐ NUEVO: Para traducciones
+        
+        // ⭐ NUEVO: Traducciones para cabeceras
+        const translations = {
+            es: {
+                position: "Pos",
+                bibNumber: "Dorsal",
+                name: "Nombre",
+                surname: "Apellidos",
+                posCat: "Pos. Cat.",
+                category: "Categoría",
+                team: "Equipo",
+                timeFinal: "Tiempo Final",
+                difference: "Diferencia",
+                page: "Página",
+                of: "de",
+                classification: "Clasificación",
+                totalRiders: "Total",
+                date: "Fecha",
+                location: "Lugar",
+                raceWithoutName: "Sin nombre",
+                unspecifiedLocation: "No especificado",
+                unspecifiedCategory: "No especificada",
+                noDataToExport: "No hay datos para exportar"
+            },
+            ca: {
+                position: "Pos",
+                bibNumber: "Dorsal",
+                name: "Nom",
+                surname: "Cognoms",
+                posCat: "Pos. Cat.",
+                category: "Categoria",
+                team: "Equip",
+                timeFinal: "Temps Final",
+                difference: "Diferència",
+                page: "Pàgina",
+                of: "de",
+                classification: "Classificació",
+                totalRiders: "Total",
+                date: "Data",
+                location: "Lloc",
+                raceWithoutName: "Sense nom",
+                unspecifiedLocation: "No especificat",
+                unspecifiedCategory: "No especificada",
+                noDataToExport: "No hi ha dades per exportar"
+            },
+            en: {
+                position: "Pos",
+                bibNumber: "Bib",
+                name: "Name",
+                surname: "Surname",
+                posCat: "Cat. Pos.",
+                category: "Category",
+                team: "Team",
+                timeFinal: "Final Time",
+                difference: "Difference",
+                page: "Page",
+                of: "of",
+                classification: "Classification",
+                totalRiders: "Total",
+                date: "Date",
+                location: "Location",
+                raceWithoutName: "Unnamed",
+                unspecifiedLocation: "Unspecified",
+                unspecifiedCategory: "Unspecified",
+                noDataToExport: "No data to export"
+            },
+            fr: {
+                position: "Pos",
+                bibNumber: "Dossard",
+                name: "Prénom",
+                surname: "Nom",
+                posCat: "Pos. Cat.",
+                category: "Catégorie",
+                team: "Équipe",
+                timeFinal: "Temps Final",
+                difference: "Différence",
+                page: "Page",
+                of: "de",
+                classification: "Classement",
+                totalRiders: "Total",
+                date: "Date",
+                location: "Lieu",
+                raceWithoutName: "Sans nom",
+                unspecifiedLocation: "Non spécifié",
+                unspecifiedCategory: "Non spécifiée",
+                noDataToExport: "Aucune donnée à exporter"
+            }
+        };
         
         function formatTime(seconds) {
             if (!seconds && seconds !== 0) return '00:00:00.000';
@@ -2026,55 +2162,156 @@ function showExternalScreen() {
                    ms.toString().padStart(3, '0');
         }
         
+        // ⭐ NUEVA: Función para formato de tiempo compacto
+        function formatTimeCompact(seconds) {
+            if (!seconds && seconds !== 0) return '0.000';
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            const ms = Math.round((seconds - Math.floor(seconds)) * 1000);
+            
+            let timeString = '';
+            if (hours > 0) {
+                timeString += hours + ':';
+                timeString += minutes.toString().padStart(2, '0') + ':';
+                timeString += secs.toString().padStart(2, '0') + '.';
+            } else if (minutes > 0) {
+                timeString += minutes + ':';
+                timeString += secs.toString().padStart(2, '0') + '.';
+            } else {
+                timeString += secs + '.';
+            }
+            
+            timeString += ms.toString().padStart(3, '0');
+            return timeString;
+        }
+        
+        // ⭐ NUEVO: Función para convertir a formato título (primera mayúscula)
+        function toTitleCase(str) {
+            if (!str || typeof str !== 'string') return '';
+            return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+        }
+        
+        // ⭐ NUEVO: Función para actualizar cabeceras según idioma
+        function updateTableHeaders(lang = 'es') {
+            const t = translations[lang] || translations.es;
+            const headers = [
+                toTitleCase(t.position || "Pos"),
+                toTitleCase(t.bibNumber || "Dorsal"),
+                toTitleCase(t.name || "Nombre"),
+                toTitleCase(t.posCat || "Pos. Cat."),
+                toTitleCase(t.category || "Categoría"),
+                toTitleCase(t.team || "Equipo"),
+                toTitleCase(t.timeFinal || "Tiempo Final"),
+                toTitleCase(t.difference || "Diferencia")
+            ];
+            
+            const thElements = document.querySelectorAll('#ranking-table th');
+            headers.forEach((header, index) => {
+                if (thElements[index]) {
+                    thElements[index].textContent = header;
+                }
+            });
+            
+            // Actualizar título de clasificación
+            const titleElement = document.querySelector('.header h1');
+            if (titleElement) {
+                titleElement.innerHTML = '🏁 ' + toTitleCase(t.classification || "Clasificación") + ' en Directo';
+            }
+        }
+        
         function updateContent(data) {
             if (!data || !data.llegadas) return;
             
             try {
+                // Actualizar idioma si viene en los datos
+                if (data.language && translations[data.language]) {
+                    currentLanguage = data.language;
+                    updateTableHeaders(currentLanguage);
+                }
+                
                 const llegadasConTiempo = data.llegadas
                     .filter(l => l.dorsal && l.tiempoFinalWithMs && l.tiempoFinalWithMs > 0)
                     .sort((a, b) => a.tiempoFinalWithMs - b.tiempoFinalWithMs);
+                
+                // ⭐ NUEVO: Calcular posiciones por categoría si están disponibles
+                if (data.posicionesPorCategoria) {
+                    mapaPosicionesPorCategoria = data.posicionesPorCategoria;
+                }
                 
                 const tbody = document.getElementById('table-body');
                 let html = '';
                 let mejorTiempo = null;
                 
                 llegadasConTiempo.forEach((llegada, index) => {
+                    // Calcular diferencia
                     let diferencia = '0.000';
+                    let diferenciaCompact = '0.000';
                     if (mejorTiempo === null) {
                         mejorTiempo = llegada.tiempoFinalWithMs;
                     } else {
                         const diffSegundos = llegada.tiempoFinalWithMs - mejorTiempo;
                         diferencia = formatTime(diffSegundos);
+                        diferenciaCompact = formatTimeCompact(diffSegundos);
                     }
                     
+                    // ⭐ CAMBIADO: Clases para podium general - SOLO FONDO (no texto)
                     let rowClass = '';
-                    if (index === 0) rowClass = 'gold';
-                    else if (index === 1) rowClass = 'silver';
-                    else if (index === 2) rowClass = 'bronze';
+                    if (index === 0) rowClass = 'gold-bg';
+                    else if (index === 1) rowClass = 'silver-bg';
+                    else if (index === 2) rowClass = 'bronze-bg';
                     
-                    const nombreCompleto = (llegada.nombre || '') + ' ' + (llegada.apellidos || '');
+                    // ⭐ NUEVO: Clase para posición por categoría - SOLO MEDALLAS
+                    const posCat = mapaPosicionesPorCategoria[llegada.id] || "";
+                    let catPosClass = 'cat-pos-cell';
+                    if (posCat === 1 || posCat === '1') catPosClass += ' cat-pos-1';
+                    else if (posCat === 2 || posCat === '2') catPosClass += ' cat-pos-2';
+                    else if (posCat === 3 || posCat === '3') catPosClass += ' cat-pos-3';
+                    
+                    const nombre = (llegada.nombre || '').substring(0, 15);
+                    const apellidos = (llegada.apellidos || '').substring(0, 15);
+                    const categoria = (llegada.categoria || '').substring(0, 10);
+                    const equipo = (llegada.equipo || '').substring(0, 20);
+                    const nombreCompleto = (nombre + ' ' + apellidos).trim();
                     
                     html += '<tr class="' + rowClass + '">' +
-                        '<td style="font-weight: ' + (index < 3 ? 'bold' : 'normal') + '; font-size: 1.3em">' + (index + 1) + '</td>' +
-                        '<td style="font-weight: bold; font-size: 1.4em">' + llegada.dorsal + '</td>' +
-                        '<td style="text-align: left; padding-left: 30px; font-size: 1.2em">' + (nombreCompleto.trim() || '---') + '</td>' +
-                        '<td class="time-cell">' + formatTime(llegada.tiempoFinalWithMs) + '</td>' +
-                        '<td class="time-cell" style="color: ' + (index === 0 ? '#2e7d32' : '#d32f2f') + '">' + 
-                        (index === 0 ? '---' : '+' + diferencia) + '</td>' +
+                        '<td style="font-weight: ' + (index < 3 ? 'bold' : 'normal') + '; font-size: 1em">' + (index + 1) + '</td>' +
+                        '<td style="font-weight: bold; font-size: 1em">' + llegada.dorsal + '</td>' +
+                        '<td class="nombre-cell" style="font-size: 0.95em">' + (nombreCompleto || '---') + '</td>' +
+                        '<td class="' + catPosClass + '" style="font-size: 1em">' + (posCat || '--') + '</td>' + // ⭐ MEDALLAS
+                        '<td class="categoria-cell" style="font-size: 0.9em">' + (categoria || '--') + '</td>' +
+                        '<td class="equipo-cell" style="font-size: 0.9em">' + (equipo || '--') + '</td>' +
+                        '<td class="time-cell" style="font-size: 0.9em">' + formatTimeCompact(llegada.tiempoFinalWithMs) + '</td>' +
+                        '<td class="time-cell" style="color: ' + (index === 0 ? '#2e7d32' : '#d32f2f') + '; font-size: 0.9em">' + 
+                        (index === 0 ? '---' : '+' + diferenciaCompact) + '</td>' +
                         '</tr>';
                 });
                 
                 if (llegadasConTiempo.length === 0) {
-                    html = '<tr><td colspan="5" style="padding: 60px; text-align: center; color: #666; font-size: 1.8em">🕒 Esperando llegadas...</td></tr>';
+                    const t = translations[currentLanguage];
+                    html = '<tr><td colspan="8" style="padding: 30px; text-align: center; color: #666; font-size: 1.2em">🕒 ' + 
+                           (t.noDataToExport || 'Esperando llegadas...') + '</td></tr>';
                 }
                 
                 tbody.innerHTML = html;
                 
-                document.getElementById('update-time').textContent = 'Última actualización: ' + new Date().toLocaleTimeString();
-                document.getElementById('participant-count').textContent = llegadasConTiempo.length + ' participantes';
+                // Actualizar información de pie de página
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString(currentLanguage === 'en' ? 'en-US' : 'es-ES', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false
+                });
                 
+                const t = translations[currentLanguage];
+                document.getElementById('update-time').textContent = 
+                    (t.date || 'Fecha') + ': ' + now.toLocaleDateString() + ' ' + timeStr;
+                document.getElementById('participant-count').textContent = 
+                    llegadasConTiempo.length + ' ' + (t.totalRiders || 'participantes');
+                
+                // Actualizar nombre de la carrera
                 if (data.raceName) {
-                    document.getElementById('race-title').textContent = data.raceName;
+                    document.getElementById('race-name').textContent = data.raceName;
                 }
                 
                 lastUpdate = Date.now();
@@ -2086,7 +2323,10 @@ function showExternalScreen() {
         
         function requestData() {
             if (window.opener && !window.opener.closed) {
-                window.opener.postMessage({ type: 'requestExternalScreenData' }, '*');
+                window.opener.postMessage({ 
+                    type: 'requestExternalScreenData',
+                    language: currentLanguage // ⭐ NUEVO: Enviar idioma actual
+                }, '*');
             }
         }
         
@@ -2097,6 +2337,8 @@ function showExternalScreen() {
         });
         
         window.addEventListener('load', function() {
+            // Inicializar cabeceras en español
+            updateTableHeaders('es');
             requestData();
             setInterval(requestData, 2000);
         });
@@ -2176,10 +2418,16 @@ function setupWindowCloseDetector() {
 function setupExternalScreenCommunication() {
     window.addEventListener('message', function(event) {
         if (event.data.type === 'requestExternalScreenData') {
+            // ⭐ CALCULAR POSICIONES POR CATEGORÍA con TODAS las llegadas
+            // La función calcularPosicionesPorCategoria ya filtra internamente las que tienen tiempo
+            const posicionesPorCategoria = calcularPosicionesPorCategoria(llegadasState.llegadas);
+            
             const data = {
                 type: 'updateExternalScreenData',
                 llegadas: llegadasState.llegadas,
-                raceName: appState.currentRace ? appState.currentRace.name : null
+                raceName: appState.currentRace ? appState.currentRace.name : null,
+                // ⭐ NUEVO: Incluir posiciones por categoría
+                posicionesPorCategoria: posicionesPorCategoria
             };
             
             if (window.externalScreenWindow && !window.externalScreenWindow.closed) {
@@ -2194,10 +2442,15 @@ function setupExternalScreenCommunication() {
         
         if (window.externalScreenWindow && !window.externalScreenWindow.closed) {
             setTimeout(() => {
+                // ⭐ CALCULAR POSICIONES POR CATEGORÍA (actualización automática)
+                const posicionesPorCategoria = calcularPosicionesPorCategoria(llegadasState.llegadas);
+                
                 const data = {
                     type: 'updateExternalScreenData',
                     llegadas: llegadasState.llegadas,
-                    raceName: appState.currentRace ? appState.currentRace.name : null
+                    raceName: appState.currentRace ? appState.currentRace.name : null,
+                    // ⭐ NUEVO: Incluir posiciones por categoría
+                    posicionesPorCategoria: posicionesPorCategoria
                 };
                 window.externalScreenWindow.postMessage(data, '*');
             }, 300);

@@ -296,7 +296,7 @@ en el modulo orden de salida al añadir un corredor, falta que se pidan y se gua
 3.3.5.1 He añadido campos y no coincide el titular de la columna con los nuevos datos que hay.
 3_3.5.1 Al añadir un corredor, en la opcion en una posición nueva, el campo posicion no deja borrar todos los caracteres. Me gustaria que funcionase igual que el dorsal.Eso si al añadir ese corredor hemos de comprobar que esa posición existe
 3_3.6 borradas funciones repetidas.
-3_3.7.1 Al eliminar importar lo pregunta dos veces.
+3_3.7.2 Al eliminar importar lo pregunta dos veces.
 3_3.8 revisar los ficheros offline (banderas)
 
 3_4 En la tabla de llegadas y en la Clasificacion quiero crear un campo que sea la posicion de ese corredor según su categoria.
@@ -319,10 +319,11 @@ Nom app
 3_6 añadir tiempo manual
 3_7 Proximos dorsales a llegar.En la cabecera de llegadas me gustaría que indicase cual es el último dorsal que ha llegado, y segun la tabla de salida que 3 dorsales seran los prómixos en llegar. Ejemplo: Último: 125 Próximos: 126,127 y 128.
 3_7.1 Grabacion Tiempo Manual Corregida
+3_7.2  Mejorar diseño pantalla resultados 
 --------------------------
 
 -------------------------------
 
-3. Mejorar diseño pantalla resultados 
+3.7.2  Mejorar diseño pantalla resultados 
 pantalla externa de resultados
 revisar los tiempos de salida
