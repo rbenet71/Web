@@ -22,7 +22,7 @@
 // ============================================
 
 // 🔥 CONFIGURACIÓN DE VERSIÓN - ACTUALIZAR AQUÍ AL CAMBIAR VERSIÓN
-const APP_VERSION = '3.1.1';
+const APP_VERSION = '3.7.1';
 const CACHE_NAME = `crono-cri-v${APP_VERSION}`;
 
 // 🔥 LISTA DE RECURSOS A CACHEAR
@@ -44,6 +44,7 @@ const urlsToCache = [
     'Crono_CRI_js_Salidas_4.js?v=' + APP_VERSION,
     'Crono_CRI_js_Llegadas.js?v=' + APP_VERSION,
     'Crono_CRI_js_Cuenta_Atras.js?v=' + APP_VERSION,
+    'Crono_CRI_ayuda.html?v=' + APP_VERSION,
     
     // Recursos estáticos
     'Crono_CRI_192x192.png',
