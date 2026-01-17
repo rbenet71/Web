@@ -1175,7 +1175,7 @@
 
         <footer class="footer">
             <p>
-                <span id="copyright-text">2025 © Copyright</span>
+                <span id="copyright-text">2026 © Copyright</span>
                 <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
                     Roberto Benet - rbenet71@gmail.com - V_18_01_2026
                 </a>
@@ -1495,15 +1495,6 @@
 
     <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
   </video>
-        <video
-        id="keep-alive-video"
-        muted
-        loop
-        playsinline
-        preload="auto"
-        style="position:fixed; width:1px; height:1px; opacity:0; pointer-events:none;">
-        <source src="keep-alive.mp4" type="video/mp4">
-        </video>
     </div>
     <script>
         // Variables globales para el sistema de idiomas
@@ -1978,8 +1969,6 @@
         const lcdTime = document.getElementById('lcd-time');
         var btnStart = document.getElementById('btn-start');
         btnStart.addEventListener('click', function () {
-            const v = document.getElementById('keep-alive-video');
-            v.play().catch(() => {});
             toggleChrono();
         });
         const btnSetTime = document.getElementById('btn-set-time');
