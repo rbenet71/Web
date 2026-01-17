@@ -26,7 +26,7 @@ if (typeof llegadasState === 'undefined') {
 }
 
 // ============================================
-// FORMATEAR TIEMPO PARA EXCEL - NUEVO 3.7.3
+// FORMATEAR TIEMPO PARA EXCEL - NUEVO 3.7.4
 // ============================================
 function formatTimeForExcel(timeValue, esPrimerCorredor = false) {
     // Si es null/undefined/vacío → celda vacía
@@ -329,14 +329,37 @@ function actualizarDorsal(index, nuevoDorsal) {
         return;
     }
     
-    // Verificar si dorsal ya existe (PERMITIR DUPLICADOS PARA PRUEBAS)
+    // ✅ NUEVO: Verificar si dorsal ya existe (BLOQUEAR DUPLICADOS)
     const dorsalExistente = llegadasState.llegadas.find((l, i) => 
         i !== index && l.dorsal === dorsal);
     
     if (dorsalExistente) {
-        // Mostrar advertencia pero PERMITIR igualmente
-        showMessage(`⚠️ Dorsal ${dorsal} ya registrado - se mantendrá igual`, 'warning');
-        // Continuar igualmente sin resetear
+        // ❌ DETENER PROCESO - Dorsal duplicado NO PERMITIDO
+        showMessage(`❌ Dorsal ${dorsal} ya está registrado en otra llegada. Usa un dorsal diferente.`, 'error');
+        
+        // Restaurar el valor anterior del campo (si lo había) o dejarlo vacío
+        const llegadaActual = llegadasState.llegadas[index];
+        if (llegadaActual && llegadaActual.dorsal) {
+            // Restaurar el dorsal anterior si existía
+            const celda = document.querySelector(`#llegadas-table-body tr[data-index="${index}"] td:first-child`);
+            if (celda) {
+                celda.textContent = llegadaActual.dorsal;
+            }
+        } else {
+            // Si no tenía dorsal anterior, dejar vacío
+            const celda = document.querySelector(`#llegadas-table-body tr[data-index="${index}"] td:first-child`);
+            if (celda) {
+                celda.textContent = '';
+            }
+            // Asegurar que el estado también se mantiene vacío
+            if (llegadaActual) {
+                llegadaActual.dorsal = null;
+                llegadaActual.pendiente = true;
+            }
+        }
+        
+        // ❌ SALIR DE LA FUNCIÓN - NO continuar con el procesamiento
+        return;
     }
     
     // Buscar datos en tabla de salida (SIEMPRE devuelve algo)
