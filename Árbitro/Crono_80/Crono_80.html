@@ -26,6 +26,8 @@
     <link rel="icon" type="image/png" sizes="512x512" href="https://rbenet71.github.io/Web/Árbitro/Crono_80/Crono_80_192x192.png?v=2">
     <link rel="apple-touch-icon" sizes="192x192" href="https://rbenet71.github.io/Web/Árbitro/Crono_80/Crono_80_192x192.png?v=2">
     <meta name="msapplication-TileImage" content="https://rbenet71.github.io/Web/Árbitro/Crono_80/Crono_80_192x192.png?v=2">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 
     <!-- Configuración para PWA (Progressive Web App) -->
     <meta name="theme-color" content="#2c3e50">
@@ -1129,13 +1131,14 @@
     </div>
     
     <div class="languages-section">
-        <div class="help-icon" id="help-icon-header" title="Ayuda">❓</div>
+        
         <div class="languages-label">Idioma / Language</div>
         <div class="language-selector">
             <img src="https://flagcdn.com/w40/es.png" class="flag active" id="flag-es" data-lang="es" title="Español">
-            <div class="flag flag-catalunya" id="flag-ca" data-lang="ca" title="Català"></div>
+            <img class="flag" src="https://upload.wikimedia.org/wikipedia/commons/c/ce/Flag_of_Catalonia.svg" id="flag-ca" data-lang="ca" style="width:25px">
             <img src="https://flagcdn.com/w40/gb.png" class="flag" id="flag-en" data-lang="en" title="English">
             <img src="https://flagcdn.com/w40/fr.png" class="flag" id="flag-fr" data-lang="fr" title="Français">
+            <i class="fas fa-question-circle help-icon" id="help-icon-header" title="Ayuda"></i>
         </div>
         
     </div>
@@ -1240,7 +1243,7 @@
             <p>
                 <span id="copyright-text">2025 © Copyright</span>
                 <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                    Roberto Benet - rbenet71@gmail.com - V_18_12_2025
+                    Roberto Benet - rbenet71@gmail.com - V_17_01_2026
                 </a>
             </p>
         </footer>
@@ -1554,6 +1557,9 @@
                 </div>
             </form>
         </div>
+          <video id="keep-alive-video" style="display: none;" muted playsinline>
+            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+        </video>
     </div>
     <script>
         // Variables globales para el sistema de idiomas
