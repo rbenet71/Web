@@ -615,6 +615,27 @@ const translations = {
         nextDorsalsTwoFormat: "{d1} y {d2}",
         nextDorsalsOneFormat: "{d1}",
         nextDorsalsNone: "ninguno",
+
+        cronoLlegadaHeader: "Crono Llegada",
+        tiempoFinalHeader: "Tiempo Final",
+        horaLlegadaHeader: "Hora Llegada",
+        positionHeader: "Posición",
+        posCatHeader: "Pos. Cat.",
+        
+        dorsalHeaderLlegadas: "Dorsal",
+        cronoLlegadaHeaderLlegadas: "Crono Llegada",
+        tiempoFinalHeaderLlegadas: "Tiempo Final",
+        positionHeaderLlegadas: "Posición",
+        nombreHeaderLlegadas: "Nombre",
+        apellidosHeaderLlegadas: "Apellidos",
+        posCatHeaderLlegadas: "Pos. Cat.",
+        categoriaHeaderLlegadas: "Categoría",
+        cronoSalidaHeaderLlegadas: "Crono Salida",
+        horaLlegadaHeaderLlegadas: "Hora Llegada",
+        horaSalidaHeaderLlegadas: "Hora Salida",
+        chipHeaderLlegadas: "Chip",
+        equipoHeaderLlegadas: "Equip0",
+        licenciaHeaderLlegadas: "Licencia",
     },
 
     ca: {
@@ -1240,6 +1261,27 @@ const translations = {
         nextDorsalsOneFormat: "{d1}",
         nextDorsalsNone: "cap",
 
+        cronoLlegadaHeader: "Crono Arribada",
+        tiempoFinalHeader: "Temps Final",
+        horaLlegadaHeader: "Hora Arribada",
+        positionHeader: "Posició",
+        posCatHeader: "Pos. Cat.",
+        llegadasListTitle: "Arribades Registrades",
+
+        dorsalHeaderLlegadas: "Dorsal",
+        cronoLlegadaHeaderLlegadas: "Crono Arribada",
+        tiempoFinalHeaderLlegadas: "Temps Final",
+        positionHeaderLlegadas: "Posició",
+        nombreHeaderLlegadas: "Nom",
+        apellidosHeaderLlegadas: "Cognoms",
+        posCatHeaderLlegadas: "Pos. Cat.",
+        categoriaHeaderLlegadas: "Categoria",
+        cronoSalidaHeaderLlegadas: "Crono Sortida",
+        horaLlegadaHeaderLlegadas: "Hora Arribada",
+        horaSalidaHeaderLlegadas: "Hora Sortida",
+        chipHeaderLlegadas: "Xip",
+        equipoHeaderLlegadas: "Equip",
+        licenciaHeaderLlegadas: "Llicència",
     },
 
     en: {
@@ -1858,6 +1900,27 @@ const translations = {
         nextDorsalsTwoFormat: "{d1} and {d2}",
         nextDorsalsOneFormat: "{d1}",
         nextDorsalsNone: "none",
+
+        cronoLlegadaHeader: "Finish Chrono",
+        tiempoFinalHeader: "Final Time",
+        horaLlegadaHeader: "Finish Time",
+        positionHeader: "Position",
+        posCatHeader: "Cat. Pos.",
+        llegadasListTitle: "Registered Finishes",
+        dorsalHeaderLlegadas: "Number",
+        cronoLlegadaHeaderLlegadas: "Finish Chrono",
+        tiempoFinalHeaderLlegadas: "Final Time",
+        positionHeaderLlegadas: "Position",
+        nombreHeaderLlegadas: "First Name",
+        apellidosHeaderLlegadas: "Last Name",
+        posCatHeaderLlegadas: "Cat. Pos.",
+        categoriaHeaderLlegadas: "Category",
+        cronoSalidaHeaderLlegadas: "Start Chrono",
+        horaLlegadaHeaderLlegadas: "Finish Time",
+        horaSalidaHeaderLlegadas: "Start Time",
+        chipHeaderLlegadas: "Chip",
+        equipoHeaderLlegadas: "Team",
+        licenciaHeaderLlegadas: "License",
 
     },
 
@@ -2499,6 +2562,29 @@ const translations = {
         nextDorsalsOneFormat: "{d1}",
         nextDorsalsNone: "aucun",
 
+        cronoLlegadaHeader: "Chrono Arrivée",
+        tiempoFinalHeader: "Temps Final",
+        horaLlegadaHeader: "Heure d’Arrivée",
+        positionHeader: "Position",
+        posCatHeader: "Pos. Cat.",
+        llegadasListTitle: "Arrivées Enregistrées",
+
+        dorsalHeaderLlegadas: "Dossard",
+        cronoLlegadaHeaderLlegadas: "Chrono Arrivée",
+        tiempoFinalHeaderLlegadas: "Temps Final",
+        positionHeaderLlegadas: "Position",
+        nombreHeaderLlegadas: "Prénom",
+        apellidosHeaderLlegadas: "Nom",
+        posCatHeaderLlegadas: "Pos. Cat.",
+        categoriaHeaderLlegadas: "Catégorie",
+        cronoSalidaHeaderLlegadas: "Chrono Départ",
+        horaLlegadaHeaderLlegadas: "Heure d’Arrivée",
+        horaSalidaHeaderLlegadas: "Heure Départ",
+        chipHeaderLlegadas: "Puce",
+        equipoHeaderLlegadas: "Équipe",
+        licenciaHeaderLlegadas: "Licence",
+
+
     }
 };
 
@@ -2655,9 +2741,10 @@ function updateStartOrderCard(t) {
         'delete-order-text': t.deleteOrderText,
         'export-order-text': t.exportOrderText,
         'add-rider-text': t.addRiderText,
+        'delete-rider-text': t.deleteRiderText,
         'order-table-label': t.orderTableLabel,
         'no-start-order-text': t.noStartOrderText,
-        'export-pdf-btn': t.exportPDF || 'Exportar PDF'
+        'export-order-pdf-text': t.exportPDF || 'Exportar PDF'
     };
     
     Object.keys(elements).forEach(id => {
@@ -2709,7 +2796,7 @@ function updateModeContent(t) {
     setTextIfExists('stop-llegadas-text', t.stopLlegadasText);
     setTextIfExists('register-llegada-text', t.registerLlegadaText);
     setTextIfExists('import-llegadas-text', t.importLlegadasText);
-    setTextIfExists('llegadasListTitle', t.llegadasListTitle);
+    setTextIfExists('llegadas-list-title-static', t.llegadasListTitle);
     setTextIfExists('llegadasCounterTemplate', t.llegadasCounterTemplate);
     setTextIfExists('clear-llegadas-text', t.clearLlegadasText);
     setTextIfExists('export-llegadas-text', t.exportLlegadasText);
@@ -2847,7 +2934,28 @@ function updateTableHeaders(t) {
         'equipoHeader', 'licenciaHeader', 'chipHeader',                           // ✅ NUEVO 3.2.1
         'horaRealHeader', 'cronoRealHeader', 'horaPrevistaHeader', 'cronoPrevistaHeader',
         'horaImportadoHeader', 'cronoImportadoHeader', 'cronoSegundosHeader',
-        'horaSegundosHeader', 'cronoRealSegundosHeader', 'horaRealSegundosHeader'
+        'horaSegundosHeader', 'cronoRealSegundosHeader', 'horaRealSegundosHeader', 
+        'cronoLlegadaHeader',
+        'tiempoFinalHeader',
+        'positionHeader',
+        'posCatHeader',
+        'horaLlegadaHeader',
+        // === CABECERAS TABLA LLEGADAS (con sufijo) ===
+        'dorsalHeaderLlegadas',
+        'cronoLlegadaHeaderLlegadas',
+        'tiempoFinalHeaderLlegadas',
+        'positionHeaderLlegadas',
+        'nombreHeaderLlegadas',
+        'apellidosHeaderLlegadas',
+        'posCatHeaderLlegadas',
+        'categoriaHeaderLlegadas',
+        'cronoSalidaHeaderLlegadas',
+        'horaLlegadaHeaderLlegadas',
+        'horaSalidaHeaderLlegadas',
+        'chipHeaderLlegadas',
+        'equipoHeaderLlegadas',
+        'licenciaHeaderLlegadas',
+
     ];
     
     let updated = 0;
