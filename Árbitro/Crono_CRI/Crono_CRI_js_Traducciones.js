@@ -4,7 +4,7 @@
 const translations = {
     es: {
         // Títulos generales
-        appTitle: "Crono CRI - 3.7.5",
+        appTitle: "Crono CRI - 3.7.5.1",
         languagesLabel: "Idioma / Language",
         
         // Tarjetas
@@ -619,7 +619,7 @@ const translations = {
 
     ca: {
         // Títulos generales
-        appTitle: "Crono CRI - 3.7.5",
+        appTitle: "Crono CRI - 3.7.5.1",
         languagesLabel: "Idioma / Language",
         
         // Tarjetas
@@ -1243,7 +1243,7 @@ const translations = {
     },
 
     en: {
-        appTitle: "TT Crono - 3.7.5",
+        appTitle: "TT Crono - 3.7.5.1",
         languagesLabel: "Language / Idioma",
         
         // Tarjetas
@@ -1862,7 +1862,7 @@ const translations = {
     },
 
     fr: {
-        appTitle: "Crono CRI - 3.7.5",
+        appTitle: "Crono CRI - 3.7.5.1",
         languagesLabel: "Langue / Language",
         
         // Tarjetas
@@ -2840,7 +2840,7 @@ function updateTableHeaders(t) {
     // ✅ USAR SISTEMA DE LOGGING OPTIMIZADO
     log(LOG_LEVEL.DEBUG, "Actualizando cabeceras de tabla...");
     
-    // Lista COMPLETA de IDs (21 columnas - versión 3.7.5)
+    // Lista COMPLETA de IDs (21 columnas - versión 3.7.5.1)
     const headerIds = [
         'orderHeader', 'dorsalHeader', 'cronoSalidaHeader', 'horaSalidaHeader',
         'diferenciaHeader', 'nombreHeader', 'apellidosHeader', 'categoriaHeader', // ✅ NUEVO 3.2.1

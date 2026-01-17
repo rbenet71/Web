@@ -1427,7 +1427,8 @@ function calcularTiempoCuentaAtras(corredor) {
     let tiempo = 0;
     
     if (!esPrimerCorredor) {
-        tiempo = segundosCronoSalida - cronoCarreraSegundos - 1;
+        // tiempo = segundosCronoSalida - cronoCarreraSegundos - 1;
+        tiempo = segundosCronoSalida - cronoCarreraSegundos ;
         console.log("  - Tiempo calculado (NO primer corredor, -1s):", segundosCronoSalida, "-", cronoCarreraSegundos, "- 1s =", tiempo, "segundos");
     } else {
         tiempo = segundosCronoSalida - cronoCarreraSegundos;
