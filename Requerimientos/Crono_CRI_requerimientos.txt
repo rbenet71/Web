@@ -296,7 +296,7 @@ en el modulo orden de salida al añadir un corredor, falta que se pidan y se gua
 3.3.5.1 He añadido campos y no coincide el titular de la columna con los nuevos datos que hay.
 3_3.5.1 Al añadir un corredor, en la opcion en una posición nueva, el campo posicion no deja borrar todos los caracteres. Me gustaria que funcionase igual que el dorsal.Eso si al añadir ese corredor hemos de comprobar que esa posición existe
 3_3.6 borradas funciones repetidas.
-3_3.7.4 Al eliminar importar lo pregunta dos veces.
+3_3.7.5 Al eliminar importar lo pregunta dos veces.
 3_3.8 revisar los ficheros offline (banderas)
 
 3_4 En la tabla de llegadas y en la Clasificacion quiero crear un campo que sea la posicion de ese corredor según su categoria.
@@ -322,9 +322,11 @@ Nom app
 3_7.2  Mejorar diseño pantalla resultados 
 3_7.3 Scroll auto y cierre ventana
 3_7.4 no permitir entrar dorsal repetido
+no se puede pantalla externa de resultados decir donde se abre, ha de ser manual por limitaciones del navegador.
+3_7.5 actulizar hora cuenta atras
 --------------------------
 
 -------------------------------
 
-pantalla externa de resultados
+
 revisar los tiempos de salida

@@ -341,6 +341,7 @@ function ejecutarReinicioCompleto() {
     
     // 5. Actualizar cronómetro display
     actualizarCronoDisplay();
+    actualizarHoraDisplay();
     
     // 🔥🔥🔥 CORRECCIÓN: Usar updateStartOrderTableImmediate() en lugar de updateStartOrderTable()
     console.log("🔄 Actualizando tabla de orden de salida (INMEDIATO)...");
@@ -1298,6 +1299,7 @@ function iniciarCuentaAtrasManual(dorsal = null) {
     
     // Actualizar displays
     actualizarCronoDisplay();
+    actualizarHoraDisplay();
     updateCountdownDisplay();
     actualizarDisplayProximoCorredor();
     
@@ -1552,6 +1554,7 @@ function iniciarCronoDeCarrera(tiempoInicialSegundos = null) {
         const elapsedMs = Date.now() - startTime;
         cronoCarreraSegundos = Math.floor(elapsedMs / 1000);
         actualizarCronoDisplay();
+        actualizarHoraDisplay();
         
         // 🔥 VERIFICAR SI HAY QUE PREPARAR SIGUIENTE CORREDOR
         const siguiente = obtenerProximoCorredor();
