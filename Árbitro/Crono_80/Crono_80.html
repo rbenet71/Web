@@ -1557,13 +1557,21 @@
                 </div>
             </form>
         </div>
-          <video id="keep-alive-video" style="display: none;" muted playsinline>
-            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+        <video 
+        id="keep-alive-video"
+        muted
+        loop
+        playsinline
+        preload="auto"
+        style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;">
+        <source src="keep-alive.mp4" type="video/mp4">
         </video>
+
     </div>
     <script>
         // Variables globales para el sistema de idiomas
         let currentLanguage = 'es';
+        v.play().catch(() => {});
         
         // Textos en diferentes idiomas
         const translations = {
