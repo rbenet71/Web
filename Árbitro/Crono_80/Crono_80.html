@@ -1504,7 +1504,7 @@
     <script>
         // Variables globales para el sistema de idiomas
         let currentLanguage = 'es';
-        
+                
         // Textos en diferentes idiomas
         const translations = {
             es: {
@@ -1974,7 +1974,8 @@
         const lcdTime = document.getElementById('lcd-time');
         var btnStart = document.getElementById('btn-start');
         btnStart.addEventListener('click', function () {
-            enableKeepAlive();
+            const v = document.getElementById('keep-alive-video');
+            v.play().catch(() => {});
             toggleChrono();
         });
         const btnSetTime = document.getElementById('btn-set-time');
@@ -2023,15 +2024,6 @@
         const editRiderModal = document.getElementById('edit-rider-modal');
         const resumeOptionsModal = document.getElementById('resume-options-modal');
         const suggestionsModal = document.getElementById('suggestions-modal');
-
-        function enableKeepAlive() {
-            const video = document.getElementById('keep-alive-video');
-            if (!video) return;
-
-            video.play().catch(() => {
-                console.log("Keep-alive bloqueado hasta interacción del usuario");
-            });
-        }
 
         // Funciones de sonido
         function playButtonSound() {
