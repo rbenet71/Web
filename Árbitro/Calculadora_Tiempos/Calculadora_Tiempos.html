@@ -772,6 +772,7 @@
         <div class="special-buttons">
             <button class="special-btn" id="averageBtn">Cálculo Promedio</button>
             <button class="special-btn" id="lapsBtn">Número de Vueltas</button>
+            <button class="special-btn" id="durationBtn">Duración</button>
         </div>
         
         <button class="btn-help" id="btn-help">Ayuda</button>
@@ -782,7 +783,7 @@
             <p>
                 <span id="copyright-text">2025 © Copyright</span>
                 <a href="https://rbenet71.github.io/Web/" target="_blank" id="copyright-link">
-                    Roberto Benet - rbenet71@gmail.com - V_18_12_2025
+                    Roberto Benet - rbenet71@gmail.com - V_17_01_2026
                 </a>
             </p>
         </div>
@@ -813,6 +814,25 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal para Cálculo de Duración -->
+    <div class="modal" id="durationModal">
+        <div class="modal-content">
+            <div class="modal-title" id="durationModalTitle">Cálculo de Duración</div>
+
+            <input type="number" class="modal-input" id="durationDistanceInput"
+                placeholder="Distancia en km" step="0.1">
+
+            <input type="number" class="modal-input" id="durationSpeedInput"
+                placeholder="Velocidad media (km/h)" step="0.1">
+
+            <div class="modal-buttons">
+                <button class="modal-btn modal-cancel" id="cancelDuration">Cancelar</button>
+                <button class="modal-btn modal-calculate" id="calculateDuration">Calcular</button>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Modal para Instalación -->
     <div class="install-modal" id="installModal">
@@ -949,7 +969,12 @@
                 invalidCity: "Ciudad no válida",
                 enterEmail: "Ingresa tu email",
                 enterCity: "Escribe tu ciudad",
-                cityExamples: "Madrid, Barcelona, Valencia, etc."
+                cityExamples: "Madrid, Barcelona, Valencia, etc.",
+                durationCalc: "Duración",
+                durationModalTitle: "Cálculo de Duración",
+                durationDistancePlaceholder: "Distancia en km",
+                durationSpeedPlaceholder: "Velocidad media (km/h)",
+
             },
             ca: {
                 appTitle: "Calculadora de Temps",
@@ -1015,7 +1040,12 @@
                 invalidCity: "Ciutat no vàlida",
                 enterEmail: "Introdueix el teu email",
                 enterCity: "Escriu la teva ciutat",
-                cityExamples: "Madrid, Barcelona, València, etc."
+                cityExamples: "Madrid, Barcelona, València, etc.",
+                durationCalc: "Durada",
+                durationModalTitle: "Càlcul de Durada",
+                durationDistancePlaceholder: "Distància en km",
+                durationSpeedPlaceholder: "Velocitat mitjana (km/h)",
+
             },
             en: {
                 appTitle: "Time Calculator",
@@ -1081,7 +1111,12 @@
                 invalidCity: "Invalid city",
                 enterEmail: "Enter your email",
                 enterCity: "Write your city",
-                cityExamples: "Madrid, Barcelona, Valencia, etc."
+                cityExamples: "Madrid, Barcelona, Valencia, etc.",
+                durationCalc: "Duration",
+                durationModalTitle: "Duration Calculation",
+                durationDistancePlaceholder: "Distance in km",
+                durationSpeedPlaceholder: "Average speed (km/h)",
+
             },
             fr: {
                 appTitle: "Calculateur de Temps",
@@ -1147,7 +1182,11 @@
                 invalidCity: "Ville non valide",
                 enterEmail: "Entrez votre email",
                 enterCity: "Écrivez votre ville",
-                cityExamples: "Paris, Lyon, Marseille, etc."
+                cityExamples: "Paris, Lyon, Marseille, etc.",
+                durationCalc: "Durée",
+                durationModalTitle: "Calcul de Durée",
+                durationDistancePlaceholder: "Distance en km",
+                durationSpeedPlaceholder: "Vitesse moyenne (km/h)",
             }
         };
 
@@ -1160,6 +1199,7 @@
             document.getElementById('displayModeIndicator').textContent = translations[lang].modeDecimal;
             document.getElementById('averageBtn').textContent = translations[lang].averageCalc;
             document.getElementById('lapsBtn').textContent = translations[lang].lapsCalc;
+            document.getElementById('durationBtn').textContent = translations[lang].durationCalc;
             document.getElementById('btn-help').textContent = translations[lang].helpButton;
             document.getElementById('btn-install').textContent = translations[lang].installButton;
             document.getElementById('btn-suggestions').textContent = translations[lang].suggestionsButton;
@@ -1182,6 +1222,11 @@
             document.getElementById('minuteBtn').textContent = translations[lang].minuteButton;
             document.getElementById('secondBtn').textContent = translations[lang].secondButton;
             document.getElementById('decimalBtn').textContent = translations[lang].decimalButton;
+
+            document.getElementById('durationModalTitle').textContent = translations[lang].durationModalTitle;
+            document.getElementById('durationDistanceInput').placeholder = translations[lang].durationDistancePlaceholder;
+            document.getElementById('durationSpeedInput').placeholder = translations[lang].durationSpeedPlaceholder;
+
             
             // Actualizar banderas activas
             document.querySelectorAll('.flag').forEach(flag => {
@@ -1795,7 +1840,19 @@ IDList=`;
                 document.getElementById('calculateLaps').addEventListener('click', () => {
                     this.calculateLaps();
                 });
-                
+                // Duración
+                document.getElementById('durationBtn').addEventListener('click', () => {
+                    this.showDurationModal();
+                });
+
+                document.getElementById('cancelDuration').addEventListener('click', () => {
+                    this.hideDurationModal();
+                });
+
+                document.getElementById('calculateDuration').addEventListener('click', () => {
+                    this.calculateDuration();
+                });
+
                 // Eventos para ayuda
                 document.getElementById('btn-help').addEventListener('click', openHelpFile);
                 document.getElementById('help-icon-header').addEventListener('click', openHelpFile);
@@ -1817,6 +1874,10 @@ IDList=`;
                     }
                     if (e.target === this.lapsModal) {
                         this.hideLapsModal();
+                    }
+                    const durationModal = document.getElementById('durationModal');
+                    if (e.target === durationModal) {
+                        this.hideDurationModal();
                     }
                 });
             }
@@ -1919,7 +1980,48 @@ IDList=`;
                 this.updateDisplay();
                 this.hideAverageModal();
             }
-            
+
+            calculateDuration() {
+                const distance = parseFloat(document.getElementById('durationDistanceInput').value);
+                const speed = parseFloat(document.getElementById('durationSpeedInput').value);
+
+                if (!distance || !speed) {
+                    alert(currentLanguage === 'fr' ? 'Veuillez remplir tous les champs' :
+                        currentLanguage === 'en' ? 'Please fill in all fields' :
+                        currentLanguage === 'ca' ? 'Si us plau, ompliu tots els camps' :
+                        'Por favor, complete todos los campos');
+                    return;
+                }
+
+                // Tiempo en horas y en segundos
+                const timeInHours = distance / speed;
+                const timeInSeconds = Math.round(timeInHours * 3600);
+
+                // Formato tiempo EXACTO como usa Promedio (formatTime)
+                const formattedTime = this.formatTime(timeInSeconds);
+
+                // 👉 Igual que Promedio: escribir operación completa en el HISTORIAL
+                this.addToHistory(
+                    `${translations[currentLanguage].durationCalc}: ${distance}km / ${speed.toFixed(2)} km/h = ${formattedTime}`
+                );
+
+                // Display grande: solo el tiempo
+                this.currentInput = formattedTime;
+                this.waitingForNewInput = true;
+                this.updateDisplay();
+                this.hideDurationModal();
+            }
+
+
+            showDurationModal() {
+                document.getElementById('durationDistanceInput').value = '';
+                document.getElementById('durationSpeedInput').value = '';
+                document.getElementById('durationModal').style.display = 'flex';
+            }
+
+            hideDurationModal() {
+                document.getElementById('durationModal').style.display = 'none';
+            }
             calculateLaps() {
                 const lapTimeStr = document.getElementById('lapTimeInput').value;
                 const targetTimeStr = document.getElementById('targetTimeInput').value;
