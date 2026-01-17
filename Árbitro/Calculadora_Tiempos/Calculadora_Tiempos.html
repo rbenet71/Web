@@ -18,6 +18,9 @@
 	<!-- Iconos para la aplicación -->
 	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos_192x192.png">
 	<link rel="apple-touch-icon" href="https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos_192x192.png">
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 
 	<!-- Iconos para PWA -->
 	<link rel="icon" type="image/png" href="https://rbenet71.github.io/Web/Árbitro/Calculadora_Tiempos/Calculadora_Tiempos_192x192.png?v=2">
@@ -318,23 +321,7 @@
             opacity: 1;
             border: 2px solid #3498db;
         }
-        
-        .flag-catalunya {
-            background: linear-gradient(
-                to bottom,
-                #ffcd00 0%, #ffcd00 10%,
-                #da121a 10%, #da121a 20%,
-                #ffcd00 20%, #ffcd00 30%,
-                #da121a 30%, #da121a 40%,
-                #ffcd00 40%, #ffcd00 50%,
-                #da121a 50%, #da121a 60%,
-                #ffcd00 60%, #ffcd00 70%,
-                #da121a 70%, #da121a 80%,
-                #ffcd00 80%, #ffcd00 90%,
-                #da121a 90%, #da121a 100%
-            );
-        }
-        
+                
         .help-icon {
             font-size: 1rem; /* Reducido de 1.2rem */
             cursor: pointer;
@@ -718,10 +705,11 @@
     </div>
             <div class="language-selector">
                 <img src="https://flagcdn.com/w40/es.png" class="flag active" id="flag-es" data-lang="es">
-                <div class="flag flag-catalunya" id="flag-ca" data-lang="ca"></div>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/Flag_of_Catalonia.svg"
+         class="flag" id="flag-ca" data-lang="ca" style="width:25px">
                 <img src="https://flagcdn.com/w40/gb.png" class="flag" id="flag-en" data-lang="en">
                 <img src="https://flagcdn.com/w40/fr.png" class="flag" id="flag-fr" data-lang="fr">
-                <span class="help-icon" id="help-icon-header" title="Ayuda">❓</span>
+                <i class="fas fa-question-circle help-icon" id="help-icon-header" title="Ayuda"></i>
             </div>
         </div>
         <div class="display">
