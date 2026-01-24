@@ -3,14 +3,6 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- PWA -->
-  <meta name="theme-color" content="#111827" />
-  <link rel="manifest" href="VRM_manifest.json" />
-  <link rel="icon" href="logo.jpg" />
-  <link rel="apple-touch-icon" href="logo.jpg" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-
   <title>Video Race Mapping (VRM)</title>
 
   <!-- Leaflet -->
@@ -419,6 +411,74 @@
   display:inline-flex;align-items:center;justify-content:center;
   cursor:pointer;
 }
+
+
+#appHeader .headerRight{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+#appHeader .headerAction{
+  height:34px;
+  border-radius:10px;
+  border:1px solid rgba(0,0,0,.22);
+  background:#fff;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 10px;
+  font-size:14px;
+  line-height:1;
+  white-space:nowrap;
+}
+#appHeader .headerAction:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+/* PWA install help modal */
+#installHelp{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  z-index:2000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  box-sizing:border-box;
+}
+#installHelp .panel{
+  max-width:520px;
+  width:100%;
+  background:#fff;
+  border-radius:14px;
+  padding:16px 16px 14px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+  font-size:14px;
+}
+#installHelp .panel h3{
+  margin:0 0 10px 0;
+  font-size:18px;
+}
+#installHelp .panel ol{
+  margin:8px 0 0 18px;
+  padding:0;
+}
+#installHelp .panel .row{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  margin-top:12px;
+}
+#installHelp .panel button{
+  border:1px solid rgba(0,0,0,.22);
+  background:#fff;
+  border-radius:10px;
+  padding:6px 10px;
+  cursor:pointer;
+}
 #controls.collapsed{ display:none; }
 
 
@@ -494,32 +554,35 @@
       </div>
 
       
-      <div class="headerRight">
-        <button id="toggleOpsBtn" class="headerToggle" title="Ocultar/mostrar operaciones" aria-label="Ocultar/mostrar operaciones">
+<div class="headerRight">
+  <button id="pwaInstallBtn" class="headerAction" title="Instalar VRM" aria-label="Instalar VRM" style="display:none">⬇︎ Instalar</button>
+  <button id="pwaUpdateBtn" class="headerAction" title="Actualizar VRM" aria-label="Actualizar VRM" style="display:none">⟳ Actualizar</button>
+<button id="toggleOpsBtn" class="headerToggle" title="Ocultar/mostrar operaciones" aria-label="Ocultar/mostrar operaciones">
         <span id="toggleOpsIcon">▾</span>
       </button>
-        <button id="installBtn" class="headerBtn" title="Instalar VRM" aria-label="Instalar VRM" style="display:none">⬇︎ Instalar</button>
-        <button id="updateBtn" class="headerBtn" title="Actualizar VRM" aria-label="Actualizar VRM" style="display:none">⟳ Actualizar</button>
-        <button id="shareBtn" class="headerBtn" title="Compartir" aria-label="Compartir">↗︎ Compartir</button>
       </div>
+
     </div>
     <div class="raceName" id="raceName">Video: —</div>
-  </div>
+  
 
-  <!-- PWA: Install help (iOS / browsers without prompt) -->
-  <div id="installHelp" class="modalOverlay" style="display:none">
-    <div class="modalCard">
-      <div class="modalTitle">Instalar VRM</div>
-      <div class="modalBody">
-        <p><b>iPhone/iPad (Safari):</b> pulsa <b>Compartir</b> (icono de cuadrado con flecha) y luego <b>Añadir a pantalla de inicio</b>.</p>
-        <p><b>Otros navegadores:</b> si no aparece el botón de instalación, abre el menú del navegador y busca <b>Instalar</b> o <b>Add to Home Screen</b>.</p>
-        <p class="muted">Nota: para que VRM sea instalable y funcione offline como PWA, debe servirse por <b>HTTPS</b> (por ejemplo GitHub Pages). Abrir el HTML como <code>file://</code> no permite Service Worker.</p>
-      </div>
-      <div class="modalActions">
-        <button id="closeInstallHelp" class="btn">Cerrar</button>
-      </div>
+<div id="installHelp" role="dialog" aria-modal="true" aria-label="Instalar VRM">
+  <div class="panel">
+    <h3>Instalar VRM</h3>
+    <div id="installHelpText">
+      <p><b>iPhone/iPad (Safari):</b></p>
+      <ol>
+        <li>Abre esta página en <b>Safari</b> (no dentro de otra app).</li>
+        <li>Pulsa el botón <b>Compartir</b> (cuadrado con flecha ↑).</li>
+        <li>Elige <b>Añadir a pantalla de inicio</b>.</li>
+      </ol>
+      <p style="margin-top:10px"><b>Android/PC (Chrome/Edge):</b> usa el botón <b>Instalar</b> cuando aparezca.</p>
+    </div>
+    <div class="row">
+      <button id="closeInstallHelp">Cerrar</button>
     </div>
   </div>
+</div></div>
 
   <div id="layout">
 
@@ -2431,120 +2494,97 @@ Luego abre VRM y selecciona:
 
 <script>
 /* ===========================
-   PWA (install / update / share)
+   PWA install/update (VRM)
    =========================== */
 (function(){
-  const $ = (id)=>document.getElementById(id);
+  const installBtn = document.getElementById('pwaInstallBtn');
+  const updateBtn  = document.getElementById('pwaUpdateBtn');
+  const installHelp = document.getElementById('installHelp');
+  const closeInstallHelp = document.getElementById('closeInstallHelp');
 
-  const installBtn = $('installBtn');
-  const updateBtn  = $('updateBtn');
-  const shareBtn   = $('shareBtn');
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = () =>
+    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+    (window.navigator && window.navigator.standalone === true);
 
-  const installHelp = $('installHelp');
-  const closeInstallHelp = $('closeInstallHelp');
-
-  // ---- Web Share (WS)
-  if (shareBtn){
-    shareBtn.addEventListener('click', async ()=>{
-      const title = document.title || 'VRM';
-      const url = location.href;
-      try{
-        if (navigator.share){
-          await navigator.share({ title, text: title, url });
-        }else{
-          await navigator.clipboard.writeText(url);
-          alert('Enlace copiado al portapapeles');
-        }
-      }catch(e){
-        // user cancelled or clipboard denied
-        console.debug(e);
-      }
-    });
+  function showInstallHelp(){
+    if (installHelp) installHelp.style.display = 'flex';
   }
+  function hideInstallHelp(){
+    if (installHelp) installHelp.style.display = 'none';
+  }
+  if (closeInstallHelp) closeInstallHelp.addEventListener('click', hideInstallHelp);
+  if (installHelp) installHelp.addEventListener('click', (ev)=>{ if (ev.target === installHelp) hideInstallHelp(); });
 
-  // ---- Install prompt (Chromium)
+  // If already installed, hide install button.
+  function refreshInstallVisibility(){
+    if (!installBtn) return;
+    if (isStandalone()){
+      installBtn.style.display = 'none';
+      return;
+    }
+    // iOS: always show install button (it opens help)
+    if (isIOS){
+      installBtn.style.display = '';
+      installBtn.onclick = showInstallHelp;
+    }
+  }
+  refreshInstallVisibility();
+
+  // Chromium install prompt
   let deferredPrompt = null;
   window.addEventListener('beforeinstallprompt', (e)=>{
     e.preventDefault();
     deferredPrompt = e;
-    if (installBtn) installBtn.style.display = '';
-  });
-
-  if (installBtn){
-    installBtn.addEventListener('click', async ()=>{
+    if (!installBtn) return;
+    if (isStandalone()) return;
+    installBtn.style.display = '';
+    installBtn.onclick = async ()=>{
       if (!deferredPrompt){
-        // likely iOS Safari or already installed
-        if (installHelp) installHelp.style.display = '';
+        showInstallHelp();
         return;
       }
       deferredPrompt.prompt();
-      try{
-        await deferredPrompt.userChoice;
-      }catch(_){}
+      try { await deferredPrompt.userChoice; } catch(_){}
       deferredPrompt = null;
       installBtn.style.display = 'none';
-    });
-  }
+    };
+  });
 
-  // Show help when install button isn't available (iOS)
-  if (!('BeforeInstallPromptEvent' in window)){
-    // keep button hidden; user can still use the modal via long-press? We'll show by clicking app name? no.
-    // We'll allow click on appShort to open help.
-    const appShort = document.querySelector('.appShort');
-    if (appShort){
-      appShort.title = 'Instalar (ayuda)';
-      appShort.style.cursor = 'pointer';
-      appShort.addEventListener('click', ()=>{ if (installHelp) installHelp.style.display=''; });
-    }
-  }
-
-  if (closeInstallHelp){
-    closeInstallHelp.addEventListener('click', ()=>{ if (installHelp) installHelp.style.display='none'; });
-  }
-  if (installHelp){
-    installHelp.addEventListener('click', (ev)=>{ if (ev.target === installHelp) installHelp.style.display='none'; });
-  }
-
-  // ---- Service Worker (update button)
-  // Requirements: HTTPS (or localhost). Not available on file://
+  // Service worker (optional). If a SW exists, we can offer an update button when a new one is waiting.
   if ('serviceWorker' in navigator && location.protocol !== 'file:'){
     window.addEventListener('load', async ()=>{
       try{
-        const reg = await navigator.serviceWorker.register('./vrm_sw.js');
-        // If there's an updated SW waiting, show Update button.
+        // Try register in same folder (recommended). If your SW lives elsewhere, adjust the path.
+        const reg = await navigator.serviceWorker.register('./unified-sw.js');
         function showUpdate(){
           if (!updateBtn) return;
           updateBtn.style.display = '';
           updateBtn.onclick = ()=>{
-            if (reg.waiting){
-              reg.waiting.postMessage({ type:'SKIP_WAITING' });
-            }
+            if (reg.waiting) reg.waiting.postMessage({ type:'SKIP_WAITING' });
           };
         }
-
         if (reg.waiting) showUpdate();
-
         reg.addEventListener('updatefound', ()=>{
-          const newWorker = reg.installing;
-          if (!newWorker) return;
-          newWorker.addEventListener('statechange', ()=>{
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller){
+          const sw = reg.installing;
+          if (!sw) return;
+          sw.addEventListener('statechange', ()=>{
+            if (sw.state === 'installed' && navigator.serviceWorker.controller){
               showUpdate();
             }
           });
         });
-
         navigator.serviceWorker.addEventListener('controllerchange', ()=>{
-          // New SW activated -> reload to get latest assets.
-          location.reload();
+          // Reload so the new version takes effect.
+          window.location.reload();
         });
-      }catch(err){
-        console.warn('SW register failed:', err);
+      }catch(e){
+        // SW not available in this path; ignore.
+        console.debug('SW register failed', e);
       }
     });
   }
 })();
 </script>
-
 </body>
 </html>
