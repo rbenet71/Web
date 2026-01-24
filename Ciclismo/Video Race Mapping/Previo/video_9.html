@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Garmin dashcam - vídeo + mapa + perfil + WMS/KMZ (offline)</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+  <style>
+    html, body { margin:0; padding:0; height:100%; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#fff; }
+    #layout{ display:grid; grid-template-columns:50% 50%; grid-template-rows:auto 1fr auto; height:100%; gap:0; }
+
+    #controls{
+      grid-column:1/3; padding:8px; background:#f2f2f2; display:flex; flex-wrap:wrap;
+      gap:10px; align-items:center; border-bottom:1px solid #ddd;
+    }
+    label{
+      background:#fff; padding:6px 10px; border-radius:8px; border:1px solid #ccc;
+      cursor:pointer; user-select:none; display:inline-flex; align-items:center; gap:8px;
+    }
+    select, button{
+      padding:6px 10px; border-radius:8px; border:1px solid #ccc; background:#fff; cursor:pointer; font-size:14px;
+    }
+    button:active{ transform: translateY(1px); }
+    #status{
+      margin-left:auto; font-size:.9em; opacity:.85; padding-right:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:48vw;
+    }
+
+    #videoWrap{ position:relative; width:100%; height:100%; background:#000; overflow:hidden; border-right:1px solid #ddd; }
+    video{ width:100%; height:100%; background:#000; object-fit:contain; outline:none; }
+
+    #hud{
+      position:absolute; left:10px; top:10px; background:rgba(0,0,0,.55); color:#fff; padding:6px 8px;
+      border-radius:10px; font-size:12px; pointer-events:none; z-index:20; max-width:calc(100% - 20px);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+
+    #videoTools{ position:absolute; right:10px; top:10px; display:flex; gap:8px; z-index:25; pointer-events:auto; }
+    .iconBtn{
+      width:38px; height:38px; border-radius:10px; border:1px solid rgba(255,255,255,.25);
+      background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; cursor:pointer;
+    }
+    .iconBtn:hover{ background: rgba(0,0,0,.65); }
+    .iconBtn svg{ width:22px; height:22px; fill:#fff; opacity:.95; pointer-events:none; display:block; }
+
+    #map{ width:100%; height:100%; }
+
+    #profileBar{ grid-column:1/3; padding:6px 8px; background:#fafafa; border-top:1px solid #ddd; }
+    #elevCanvas{ width:100%; height:175px; display:block; background:#fff; border:1px solid #ddd; border-radius:10px; }
+
+    @media (max-width:980px){
+      #layout{ grid-template-columns:1fr; grid-template-rows:auto 42vh 42vh auto; }
+      #controls{ grid-column:1/2; }
+      #profileBar{ grid-column:1/2; }
+      #videoWrap{ border-right:none; border-bottom:1px solid #ddd; }
+      #status{ max-width:92vw; }
+    }
+  </style>
+</head>
+
+<body>
+<div id="layout">
+
+  <div id="controls">
+    <label title="Selecciona una carpeta que contenga MP4 y GPX (misma base de nombre)">
+      📁 Carpeta
+      <input id="dirInput" type="file" webkitdirectory hidden>
+    </label>
+
+    <label title="Selecciona el MP4 dentro de la carpeta">
+      🎬 MP4
+      <select id="mp4Select">
+        <option value="">(elige carpeta primero)</option>
+      </select>
+    </label>
+
+    <label title="Capa base del mapa">
+      🗺️ Mapa
+      <select id="baseMapSelect">
+        <option value="osm">OSM (tiles)</option>
+        <option value="google_road">Google (XYZ road)</option>
+        <option value="icgc_topo_wms">ICGC Topo (WMS)</option>
+        <option value="ign_baseorto_wms">IGN Base Orto (WMS)</option>
+        <option value="icc_orto_wms">ICC Orto (WMS)</option>
+        <option value="gencat_viari_wms">Gencat Viari (WMS)</option>
+      </select>
+    </label>
+
+    <button id="fitBtn" title="Ajustar mapa al track">Ajustar</button>
+
+    <label title="Velocidad de reproducción">
+      ⏩ Velocidad
+      <select id="rateSelect">
+        <option value="1">1x</option>
+        <option value="2">2x</option>
+        <option value="8">8x</option>
+        <option value="16">16x</option>
+      </select>
+    </label>
+
+    <label title="Importar KML o KMZ (se dibuja en el mapa)">
+      🧩 KML/KMZ
+      <input id="kmlKmzInput" type="file" accept=".kml,.kmz" hidden>
+    </label>
+
+    <span id="status">Esperando carpeta…</span>
+  </div>
+
+  <div id="videoWrap">
+    <div id="hud">—</div>
+
+    <div id="videoTools">
+      <div class="iconBtn" id="btnGoogleMaps" title="Abrir en Google Maps">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5c-1.4 0-2.5-1.1-2.5-2.5S10.6 6.5 12 6.5s2.5 1.1 2.5 2.5S13.4 11.5 12 11.5z"/></svg>
+      </div>
+      <div class="iconBtn" id="btnStreetView" title="Abrir en Street View (pano)">
+        <svg viewBox="0 0 24 24"><path d="M12 2a4 4 0 100 8 4 4 0 000-8zm0 9c-4.4 0-8 2.2-8 5v4h16v-4c0-2.8-3.6-5-8-5z"/></svg>
+      </div>
+      <div class="iconBtn" id="btnSnapshot" title="Capturar frame (PNG)">
+        <svg viewBox="0 0 24 24"><path d="M9 2l1.8 2H15l1.8-2H20c1.1 0 2 .9 2 2v16c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h5zm3 6a6 6 0 100 12 6 6 0 000-12zm0 2a4 4 0 110 8 4 4 0 010-8z"/></svg>
+      </div>
+    </div>
+
+    <video id="video" controls playsinline></video>
+  </div>
+
+  <div id="map"></div>
+
+  <div id="profileBar">
+    <canvas id="elevCanvas"></canvas>
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://unpkg.com/@tmcw/togeojson@5.8.1/dist/togeojson.umd.js"></script>
+
+<script>
+/* =========================
+   UI
+========================= */
+const dirInput      = document.getElementById("dirInput");
+const mp4Select     = document.getElementById("mp4Select");
+const baseMapSelect = document.getElementById("baseMapSelect");
+const fitBtn        = document.getElementById("fitBtn");
+const rateSelect    = document.getElementById("rateSelect");
+const statusEl      = document.getElementById("status");
+const kmlKmzInput   = document.getElementById("kmlKmzInput");
+
+const video         = document.getElementById("video");
+const hud           = document.getElementById("hud");
+
+const elevCanvas    = document.getElementById("elevCanvas");
+const ctx           = elevCanvas.getContext("2d");
+
+const btnGoogleMaps = document.getElementById("btnGoogleMaps");
+const btnStreetView = document.getElementById("btnStreetView");
+const btnSnapshot   = document.getElementById("btnSnapshot");
+
+/* =========================
+   ESTADO
+========================= */
+const mp4Files = new Map();
+const gpxFiles = new Map();
+
+let overlayLayer = null;
+
+let points = [];
+let firstAbsTime = null;
+let hasEle = false;
+
+let polyline = null;
+let marker   = null;
+
+let lastCenterTs = 0;
+let draggingProfile = false;
+let lastSeekTs = 0;
+let lastBearingDeg = 0;
+
+/* =========================
+   MAPA
+========================= */
+const map = L.map("map", { zoomControl:true }).setView([0,0], 2);
+
+const baseLayers = {
+  osm: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution:"© OpenStreetMap", maxZoom:19 }),
+  google_road: L.tileLayer("https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}", { attribution:"© Google", maxZoom:20 }),
+  icgc_topo_wms: L.tileLayer.wms("https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wms/service", { layers:"topo", format:"image/png", transparent:false, attribution:"ICGC (WMS)" }),
+  ign_baseorto_wms: L.tileLayer.wms("http://www.ign.es/wms-inspire/ign-base", { layers:"IGNBaseOrto", format:"image/png", transparent:false, attribution:"IGN (WMS)" }),
+  icc_orto_wms: L.tileLayer.wms("http://mapcache.icc.cat/map/bases/service", { layers:"orto", format:"image/png", transparent:false, attribution:"ICC (WMS)" }),
+  gencat_viari_wms: L.tileLayer.wms("https://sig.gencat.cat/ows/XARXES_TRANSPORT/wms", { layers:"XT_VIARI_PK_CARRETERES", format:"image/png", transparent:true, attribution:"Gencat (WMS)" }),
+};
+
+let currentBaseLayer = baseLayers.osm;
+currentBaseLayer.addTo(map);
+
+baseMapSelect.addEventListener("change", () => {
+  const key = baseMapSelect.value;
+  if (!baseLayers[key]) return;
+  if (currentBaseLayer) map.removeLayer(currentBaseLayer);
+  currentBaseLayer = baseLayers[key];
+  currentBaseLayer.addTo(map);
+  setStatus(`Mapa base: ${baseMapSelect.options[baseMapSelect.selectedIndex].text}`);
+});
+
+/* =========================
+   UTIL
+========================= */
+function setStatus(msg){ statusEl.textContent = msg; }
+function basenameNoExt(name){ return name.replace(/\.[^.]+$/, ""); }
+
+function readFileAsText(file){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result));
+    r.onerror = reject;
+    r.readAsText(file);
+  });
+}
+
+function pad2(n){ return String(n).padStart(2,"0"); }
+function fmtTimeHMS(seconds){
+  if (!Number.isFinite(seconds)) return "—";
+  seconds = Math.max(0, seconds);
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  return `${h}:${pad2(m)}:${pad2(s)}`;
+}
+
+function haversineMeters(a, b){
+  const R = 6371000;
+  const toRad = x => x * Math.PI / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLon = toRad(b.lon - a.lon);
+  const s1 = Math.sin(dLat/2), s2 = Math.sin(dLon/2);
+  const q = s1*s1 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*s2*s2;
+  return 2 * R * Math.asin(Math.sqrt(q));
+}
+
+function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+
+function computeBearingDeg(a, b){
+  const toRad = x => x * Math.PI/180;
+  const toDeg = x => x * 180/Math.PI;
+  const lat1 = toRad(a.lat), lat2 = toRad(b.lat);
+  const dLon = toRad(b.lon - a.lon);
+  const y = Math.sin(dLon) * Math.cos(lat2);
+  const x = Math.cos(lat1)*Math.sin(lat2) - Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLon);
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[c]));
+}
+
+/* =========================
+   GPX
+========================= */
+function parseGpx(xmlText){
+  const xml = new DOMParser().parseFromString(xmlText, "application/xml");
+  const trkpts = [...xml.querySelectorAll("trkpt")];
+
+  const out = trkpts.map(pt => {
+    const lat = +pt.getAttribute("lat");
+    const lon = +pt.getAttribute("lon");
+
+    const tNode = pt.querySelector("time");
+    if (!tNode || !tNode.textContent) return null;
+
+    const eleNode = pt.querySelector("ele");
+    const ele = eleNode ? +eleNode.textContent : null;
+
+    const t = new Date(tNode.textContent);
+    return { lat, lon, ele, tAbs: t.getTime(), tOffset: 0, dist: 0 };
+  }).filter(Boolean);
+
+  out.sort((a,b)=>a.tAbs - b.tAbs);
+  return out;
+}
+
+function computeOffsetsAndDist(){
+  if (!points.length) return;
+  for (const p of points){
+    p.tOffset = (p.tAbs - firstAbsTime) / 1000;
+  }
+  let d = 0;
+  points[0].dist = 0;
+  for (let i=1;i<points.length;i++){
+    d += haversineMeters(points[i-1], points[i]);
+    points[i].dist = d;
+  }
+  hasEle = points.some(p => Number.isFinite(p.ele));
+}
+
+/* =========================
+   TRACK
+========================= */
+function clearAll(){
+  if (polyline) map.removeLayer(polyline);
+  if (marker) map.removeLayer(marker);
+  polyline = null;
+  marker = null;
+  points = [];
+  firstAbsTime = null;
+  hasEle = false;
+  drawElevationProfile(null);
+  hud.textContent = "—";
+  lastBearingDeg = 0;
+}
+
+function drawTrack(){
+  if (!points.length) return;
+
+  computeOffsetsAndDist();
+
+  polyline = L.polyline(points.map(p => [p.lat, p.lon]), { color:"blue", weight:4 }).addTo(map);
+
+  marker = L.circleMarker([points[0].lat, points[0].lon], {
+    radius: 7, color:"#b00000", weight:2, fillColor:"#ff0000", fillOpacity:1.0
+  }).addTo(map);
+
+  map.fitBounds(polyline.getBounds(), { padding:[20,20] });
+
+  polyline.on("click", (e) => {
+    const p = nearestPoint(e.latlng.lat, e.latlng.lng);
+    if (!p) return;
+    syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+  });
+
+  enableMarkerDragScrub();
+  drawElevationProfile(0);
+}
+
+function nearestPoint(lat, lon){
+  let best = null, bestDist = Infinity;
+  for (const p of points){
+    const d = (p.lat-lat)**2 + (p.lon-lon)**2;
+    if (d < bestDist){ bestDist = d; best = p; }
+  }
+  return best;
+}
+
+function pointAtTime(t){
+  let p = points[0];
+  for (const q of points){
+    if (q.tOffset <= t) p = q;
+    else break;
+  }
+  return p;
+}
+
+function findPointIndex(p){
+  for (let i=0;i<points.length;i++){
+    if (points[i] === p) return i;
+  }
+  return -1;
+}
+
+function syncToPoint(p, opts){
+  const { seekVideo=false, centerMap=true, redrawProfile=true } = (opts || {});
+  if (!p || !marker) return;
+
+  marker.setLatLng([p.lat, p.lon]);
+
+  const idx = findPointIndex(p);
+  if (idx !== -1){
+    const a = points[Math.max(0, idx-1)];
+    const b = points[Math.min(points.length-1, idx+1)];
+    if (a && b && a !== b){
+      lastBearingDeg = computeBearingDeg(a, b);
+    }
+  }
+
+  if (centerMap){
+    const now = performance.now();
+    if (now - lastCenterTs > 60){
+      lastCenterTs = now;
+      map.panTo([p.lat, p.lon], { animate:false });
+    }
+  }
+
+  if (seekVideo) safeSeek(p.tOffset);
+  if (redrawProfile) drawElevationProfile(video.currentTime);
+
+  const distKm = (p.dist || 0) / 1000;
+  hud.textContent = `t=${fmtTimeHMS(p.tOffset)} · ${distKm.toFixed(2)} km · lat=${p.lat.toFixed(5)} lon=${p.lon.toFixed(5)}`;
+}
+
+async function safeSeek(targetTime){
+  if (!Number.isFinite(targetTime)) return;
+  const now = performance.now();
+  if (now - lastSeekTs < 35) return;
+  lastSeekTs = now;
+
+  targetTime = Math.max(0, targetTime);
+  if (Math.abs(video.currentTime - targetTime) < 0.04) return;
+
+  video.currentTime = targetTime;
+
+  if (typeof video.requestVideoFrameCallback === "function"){
+    await new Promise(resolve => video.requestVideoFrameCallback(() => resolve()));
+  } else {
+    await new Promise(resolve => {
+      const onSeeked = () => {
+        video.removeEventListener("seeked", onSeeked);
+        resolve();
+      };
+      video.addEventListener("seeked", onSeeked, { once:true });
+    });
+  }
+
+  drawElevationProfile(video.currentTime);
+}
+
+/* video -> mapa */
+video.addEventListener("timeupdate", () => {
+  if (!points.length) return;
+  const p = pointAtTime(video.currentTime);
+  syncToPoint(p, { seekVideo:false, centerMap:true, redrawProfile:true });
+});
+
+/* mapa -> video */
+map.on("click", (e) => {
+  if (!points.length) return;
+  const p = nearestPoint(e.latlng.lat, e.latlng.lng);
+  if (!p) return;
+  syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+});
+
+function enableMarkerDragScrub(){
+  let dragging = false;
+
+  function distPx(latlngA, latlngB){
+    const a = map.latLngToContainerPoint(latlngA);
+    const b = map.latLngToContainerPoint(latlngB);
+    return a.distanceTo(b);
+  }
+
+  map.on("mousedown", (e) => {
+    if (!marker) return;
+    const m = marker.getLatLng();
+    if (distPx(m, e.latlng) < 18){
+      dragging = true;
+      map.dragging.disable();
+    }
+  });
+
+  map.on("mousemove", (e) => {
+    if (!dragging) return;
+    const p = nearestPoint(e.latlng.lat, e.latlng.lng);
+    if (!p) return;
+    syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+  });
+
+  function stopDrag(){
+    if (!dragging) return;
+    dragging = false;
+    map.dragging.enable();
+  }
+
+  map.on("mouseup", stopDrag);
+  map.on("mouseleave", stopDrag);
+}
+
+/* =========================
+   PERFIL
+========================= */
+function resizeCanvasToCSS(){
+  const r = elevCanvas.getBoundingClientRect();
+  const w = Math.max(1, Math.round(r.width));
+  const h = Math.max(1, Math.round(r.height));
+  if (elevCanvas.width !== w) elevCanvas.width = w;
+  if (elevCanvas.height !== h) elevCanvas.height = h;
+}
+
+window.addEventListener("resize", () => {
+  resizeCanvasToCSS();
+  drawElevationProfile(video.currentTime);
+});
+
+function drawElevationProfile(cursorTime){
+  resizeCanvasToCSS();
+  const W = elevCanvas.width;
+  const H = elevCanvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  ctx.font = "14px system-ui";
+  ctx.fillStyle = "#000";
+
+  if (!points.length){
+    ctx.fillText("Carga un MP4 con su GPX (misma base de nombre)", 10, 24);
+    return;
+  }
+  if (!hasEle){
+    ctx.fillText("GPX sin <ele> (sin perfil de elevación)", 10, 24);
+    return;
+  }
+
+  const pad = 14;
+  const distMax = points[points.length-1].dist || 1;
+
+  const eles = points.filter(p => Number.isFinite(p.ele)).map(p => p.ele);
+  const eMin = Math.min(...eles);
+  const eMax = Math.max(...eles);
+  const eSpan = (eMax - eMin) || 1;
+
+  const linePts = [];
+  for (const p of points){
+    if (!Number.isFinite(p.ele)) continue;
+    const x = pad + (p.dist / distMax) * (W - pad*2);
+    const y = pad + (1 - (p.ele - eMin)/eSpan) * (H - pad*2);
+    linePts.push({x,y, p});
+  }
+  if (linePts.length < 2){
+    ctx.fillText("Perfil insuficiente", 10, 24);
+    return;
+  }
+
+  ctx.beginPath();
+  ctx.moveTo(linePts[0].x, linePts[0].y);
+  for (let i=1;i<linePts.length;i++) ctx.lineTo(linePts[i].x, linePts[i].y);
+  ctx.lineTo(linePts[linePts.length-1].x, H - pad);
+  ctx.lineTo(linePts[0].x, H - pad);
+  ctx.closePath();
+
+  const grad = ctx.createLinearGradient(0, pad, 0, H - pad);
+  grad.addColorStop(0.0, "rgba(255, 0, 0, 0.45)");
+  grad.addColorStop(1.0, "rgba(255, 140, 0, 0.25)");
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(linePts[0].x, linePts[0].y);
+  for (let i=1;i<linePts.length;i++) ctx.lineTo(linePts[i].x, linePts[i].y);
+  ctx.strokeStyle = "rgba(120,0,0,0.9)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(0,0,0,0.8)";
+  ctx.font = "12px system-ui";
+  ctx.fillText(`${Math.round(eMax)} m`, pad, pad + 12);
+  ctx.fillText(`${Math.round(eMin)} m`, pad, H - pad);
+
+  const totalKm = distMax / 1000;
+  const txtKm = `${totalKm.toFixed(2)} km`;
+  const twKm = ctx.measureText(txtKm).width;
+  ctx.fillText(txtKm, W - pad - twKm, H - pad);
+
+  if (Number.isFinite(cursorTime)){
+    const p = pointAtTime(cursorTime);
+    const x = pad + (p.dist / distMax) * (W - pad*2);
+
+    ctx.strokeStyle = "rgba(0,0,0,0.75)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x, pad);
+    ctx.lineTo(x, H - pad);
+    ctx.stroke();
+
+    const distKmCur = (p.dist || 0) / 1000;
+    const eleTxt = Number.isFinite(p.ele) ? `${Math.round(p.ele)} m` : "—";
+    const label = `${fmtTimeHMS(p.tOffset)} · ${distKmCur.toFixed(2)} km · ${eleTxt}`;
+
+    ctx.font = "12px system-ui";
+    const tw = ctx.measureText(label).width;
+    const bx = clamp(x - tw/2 - 6, pad, W - pad - tw - 12);
+    const by = pad;
+
+    ctx.fillStyle = "rgba(0,0,0,0.65)";
+    ctx.fillRect(bx, by, tw + 12, 18);
+    ctx.fillStyle = "#fff";
+    ctx.fillText(label, bx + 6, by + 13);
+  }
+}
+
+function nearestPointByDist(targetDist){
+  let best = points[0], bestD = Infinity;
+  for (const p of points){
+    const d = Math.abs(p.dist - targetDist);
+    if (d < bestD){ bestD = d; best = p; }
+  }
+  return best;
+}
+
+function scrubFromCanvas(clientX){
+  if (!points.length) return;
+  const rect = elevCanvas.getBoundingClientRect();
+  const xCss = clientX - rect.left;
+
+  const pad = 14;
+  const W = elevCanvas.width;
+  const usable = Math.max(1, W - pad*2);
+
+  const f = clamp((xCss - pad) / usable, 0, 1);
+  const distMax = points[points.length-1].dist || 1;
+  const targetDist = f * distMax;
+
+  const p = nearestPointByDist(targetDist);
+  syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+}
+
+elevCanvas.addEventListener("mousedown", (e) => { draggingProfile = true; scrubFromCanvas(e.clientX); });
+window.addEventListener("mousemove", (e) => { if (!draggingProfile) return; scrubFromCanvas(e.clientX); });
+window.addEventListener("mouseup", () => { draggingProfile = false; });
+elevCanvas.addEventListener("click", (e) => scrubFromCanvas(e.clientX));
+
+/* =========================
+   CARGA CARPETA
+========================= */
+dirInput.addEventListener("change", () => {
+  mp4Files.clear();
+  gpxFiles.clear();
+  mp4Select.innerHTML = `<option value="">(elige MP4)</option>`;
+
+  for (const f of dirInput.files){
+    const low = f.name.toLowerCase();
+    if (low.endsWith(".mp4")) mp4Files.set(f.name, f);
+    if (low.endsWith(".gpx")) gpxFiles.set(basenameNoExt(f.name), f);
+  }
+
+  const names = [...mp4Files.keys()].sort((a,b)=>a.localeCompare(b,"es",{numeric:true}));
+  for (const name of names){
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    mp4Select.appendChild(opt);
+  }
+
+  setStatus(`Carpeta cargada: ${mp4Files.size} mp4, ${gpxFiles.size} gpx`);
+});
+
+mp4Select.addEventListener("change", async () => {
+  const name = mp4Select.value;
+  if (!name) return;
+
+  clearAll();
+  const mp4 = mp4Files.get(name);
+  video.src = URL.createObjectURL(mp4);
+
+  const gpx = gpxFiles.get(basenameNoExt(name));
+  if (!gpx){
+    setStatus("MP4 cargado (sin GPX con mismo nombre)");
+    drawElevationProfile(null);
+    return;
+  }
+
+  const text = await readFileAsText(gpx);
+  points = parseGpx(text);
+
+  if (!points.length){
+    setStatus("GPX vacío o sin puntos válidos");
+    drawElevationProfile(null);
+    return;
+  }
+
+  firstAbsTime = points[0].tAbs;
+  drawTrack();
+  setStatus("Listo: vídeo + mapa + perfil (si hay ele)");
+});
+
+/* =========================
+   CONTROLES
+========================= */
+fitBtn.addEventListener("click", () => { if (polyline) map.fitBounds(polyline.getBounds(), { padding:[20,20] }); });
+
+rateSelect.addEventListener("change", () => {
+  const r = +rateSelect.value;
+  video.playbackRate = r;
+  setStatus(`Velocidad: ${r}x`);
+});
+video.playbackRate = +rateSelect.value;
+video.addEventListener("loadedmetadata", () => { video.playbackRate = +rateSelect.value; });
+
+video.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  const delta = Math.sign(e.deltaY);
+  const step = (delta > 0) ? +1 : -1;
+  video.currentTime = Math.max(0, video.currentTime + step);
+}, { passive:false });
+
+video.addEventListener("click", () => video.focus());
+document.addEventListener("keydown", (e) => {
+  if (document.activeElement !== video) return;
+  if (e.key === "ArrowLeft"){ e.preventDefault(); video.currentTime = Math.max(0, video.currentTime - 1); }
+  if (e.key === "ArrowRight"){ e.preventDefault(); video.currentTime = Math.max(0, video.currentTime + 1); }
+});
+
+/* =========================
+   GOOGLE
+========================= */
+function getCurrentLatLon(){
+  if (!points.length || !marker) return null;
+  const ll = marker.getLatLng();
+  return { lat: ll.lat, lon: ll.lng };
+}
+
+btnGoogleMaps.addEventListener("click", () => {
+  const pos = getCurrentLatLon();
+  if (!pos) return;
+  window.open(`https://www.google.com/maps?q=${pos.lat},${pos.lon}&z=18`, "_blank", "noopener");
+});
+
+btnStreetView.addEventListener("click", () => {
+  const pos = getCurrentLatLon();
+  if (!pos) return;
+  const heading = Number.isFinite(lastBearingDeg) ? lastBearingDeg : 0;
+  window.open(`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${pos.lat},${pos.lon}&heading=${heading}&pitch=0`, "_blank", "noopener");
+});
+
+/* =========================
+   SNAPSHOT
+========================= */
+btnSnapshot.addEventListener("click", () => {
+  if (!video.videoWidth || !video.videoHeight){
+    setStatus("No hay frame para capturar (reproduce el vídeo un momento)");
+    return;
+  }
+  const c = document.createElement("canvas");
+  c.width = video.videoWidth;
+  c.height = video.videoHeight;
+  c.getContext("2d").drawImage(video, 0, 0, c.width, c.height);
+
+  const pos = getCurrentLatLon();
+  const t = fmtTimeHMS(video.currentTime).replaceAll(":","-");
+  const lat = pos ? pos.lat.toFixed(5) : "NA";
+  const lon = pos ? pos.lon.toFixed(5) : "NA";
+
+  c.toBlob((blob) => {
+    if (!blob) return;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `frame_${t}_${lat}_${lon}.png`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setStatus("Snapshot descargado (PNG)");
+  }, "image/png");
+});
+
+/* =========================
+   KML / KMZ con pictos
+========================= */
+function clearOverlay(){
+  if (overlayLayer){
+    map.removeLayer(overlayLayer);
+    overlayLayer = null;
+  }
+}
+
+function bindPopupIfAny(layer, name, descriptionHtml){
+  const title = name ? `<b>${escapeHtml(name)}</b>` : "";
+  const desc  = descriptionHtml ? `<div style="max-width:320px">${descriptionHtml}</div>` : "";
+  if (title || desc){
+    layer.bindPopup(`${title}${desc ? "<br/>"+desc : ""}`);
+  }
+}
+
+kmlKmzInput.addEventListener("change", async () => {
+  const f = kmlKmzInput.files && kmlKmzInput.files[0];
+  if (!f) return;
+
+  try{
+    clearOverlay();
+
+    const low = f.name.toLowerCase();
+
+    if (low.endsWith(".kml")){
+      const txt = await readFileAsText(f);
+      loadKmlUsingToGeoJSON(txt, f.name);
+      return;
+    }
+
+    if (low.endsWith(".kmz")){
+      const ab = await f.arrayBuffer();
+      const zip = await JSZip.loadAsync(ab);
+
+      // extrae iconos embebidos
+      const iconBlobs = {};
+      const iconExts = [".png",".jpg",".jpeg",".gif",".svg"];
+      for (const relPath of Object.keys(zip.files)){
+        const pl = relPath.toLowerCase();
+        if (!iconExts.some(ext => pl.endsWith(ext))) continue;
+        const blob = await zip.files[relPath].async("blob");
+        iconBlobs[pl] = URL.createObjectURL(blob);
+      }
+
+      // busca primer KML
+      let kmlRel = null;
+      for (const relPath of Object.keys(zip.files)){
+        if (relPath.toLowerCase().endsWith(".kml")) { kmlRel = relPath; break; }
+      }
+      if (!kmlRel){ setStatus("KMZ sin .kml"); return; }
+
+      const kmlText = await zip.files[kmlRel].async("text");
+
+      // NUEVO: parser directo de Placemarks => iconos
+      loadKmzKmlDirect(kmlText, iconBlobs, f.name);
+      return;
+    }
+
+    setStatus("Formato no soportado");
+  } catch(err){
+    console.error(err);
+    setStatus("Error importando KML/KMZ");
+  } finally {
+    kmlKmzInput.value = "";
+  }
+});
+
+// KML simple: toGeoJSON (sin iconos embebidos)
+function loadKmlUsingToGeoJSON(kmlText, filename){
+  const xml = new DOMParser().parseFromString(kmlText, "application/xml");
+  const gj = toGeoJSON.kml(xml);
+
+  overlayLayer = L.geoJSON(gj, {
+    style: () => ({ color:"#cc00cc", weight:3, opacity:0.85 }),
+    pointToLayer: (feature, latlng) => {
+      const props = feature.properties || {};
+      const m = L.circleMarker(latlng, { radius:5, color:"#cc00cc", fillColor:"#cc00cc", fillOpacity:.8, weight:1 });
+      bindPopupIfAny(m, props.name, props.description);
+      return m;
+    },
+    onEachFeature: (feature, layer) => {
+      if (feature.geometry?.type !== "Point"){
+        const props = feature.properties || {};
+        bindPopupIfAny(layer, props.name, props.description);
+      }
+    }
+  }).addTo(map);
+
+  try{ map.fitBounds(overlayLayer.getBounds(), { padding:[20,20] }); } catch(_){}
+  setStatus(`Overlay KML cargado: ${filename}`);
+}
+
+// KMZ: parse KML directo para sacar styleUrl + IconStyle href
+function loadKmzKmlDirect(kmlText, iconBlobs, filename){
+  const xml = new DOMParser().parseFromString(kmlText, "application/xml");
+
+  // Helpers namespace-insensitive
+  const qAll = (tag) => [...xml.getElementsByTagName(tag)];
+
+  // 1) Style id => href
+  const styleHref = new Map(); // "#id" => "files/icon.png"
+  for (const st of qAll("Style")){
+    const id = st.getAttribute("id");
+    if (!id) continue;
+    const hrefEl = st.getElementsByTagName("href")[0];
+    if (hrefEl && hrefEl.textContent){
+      styleHref.set("#"+id, hrefEl.textContent.trim());
+    }
+  }
+
+  // 2) StyleMap id => normal styleUrl
+  const styleMap = new Map(); // "#id" => "#styleId"
+  for (const sm of qAll("StyleMap")){
+    const id = sm.getAttribute("id");
+    if (!id) continue;
+    const pairs = [...sm.getElementsByTagName("Pair")];
+    let url = "";
+    for (const pair of pairs){
+      const keyEl = pair.getElementsByTagName("key")[0];
+      const urlEl = pair.getElementsByTagName("styleUrl")[0];
+      const key = keyEl ? keyEl.textContent.trim() : "";
+      if ((key === "normal" || key === "") && urlEl && urlEl.textContent){
+        url = urlEl.textContent.trim();
+        if (key === "normal") break;
+      }
+    }
+    if (url) styleMap.set("#"+id, url);
+  }
+
+  // 3) Parse Placemarks
+  const group = L.featureGroup();
+
+  const placemarks = qAll("Placemark");
+  for (const pm of placemarks){
+    const name = pm.getElementsByTagName("name")[0]?.textContent?.trim() || "";
+    const desc = pm.getElementsByTagName("description")[0]?.textContent || "";
+    let styleUrl = pm.getElementsByTagName("styleUrl")[0]?.textContent?.trim() || "";
+
+    // resolve styleMap
+    if (styleMap.has(styleUrl)) styleUrl = styleMap.get(styleUrl);
+
+    // inline Style dentro de Placemark
+    let href = "";
+    const inlineStyle = pm.getElementsByTagName("Style")[0];
+    if (inlineStyle){
+      const hrefEl = inlineStyle.getElementsByTagName("href")[0];
+      if (hrefEl && hrefEl.textContent) href = hrefEl.textContent.trim();
+    }
+    if (!href && styleUrl) href = styleHref.get(styleUrl) || "";
+
+    // coords: Point / LineString / Polygon
+    const pointEl = pm.getElementsByTagName("Point")[0];
+    const lineEl  = pm.getElementsByTagName("LineString")[0];
+    const polyEl  = pm.getElementsByTagName("Polygon")[0];
+
+    if (pointEl){
+      const coordText = pointEl.getElementsByTagName("coordinates")[0]?.textContent?.trim() || "";
+      const [lon, lat] = coordText.split(",").map(v => parseFloat(v));
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+
+      const iconUrl = resolveKmzIconUrl(href, iconBlobs);
+
+      let m;
+      if (iconUrl){
+        const icon = L.icon({ iconUrl, iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-28] });
+        m = L.marker([lat, lon], { icon });
+      } else {
+        m = L.circleMarker([lat, lon], { radius:5, color:"#cc00cc", fillColor:"#cc00cc", fillOpacity:.8, weight:1 });
+      }
+
+      bindPopupIfAny(m, name, desc);
+      group.addLayer(m);
+      continue;
+    }
+
+    if (lineEl){
+      const coords = parseKmlCoordinates(lineEl.getElementsByTagName("coordinates")[0]?.textContent || "");
+      if (coords.length >= 2){
+        const pl = L.polyline(coords, { color:"#cc00cc", weight:3, opacity:0.85 });
+        bindPopupIfAny(pl, name, desc);
+        group.addLayer(pl);
+      }
+      continue;
+    }
+
+    if (polyEl){
+      const outer = polyEl.getElementsByTagName("outerBoundaryIs")[0];
+      const coordsText = outer?.getElementsByTagName("coordinates")[0]?.textContent || "";
+      const coords = parseKmlCoordinates(coordsText);
+      if (coords.length >= 3){
+        const pg = L.polygon(coords, { color:"#cc00cc", weight:2, opacity:0.85, fillOpacity:0.15 });
+        bindPopupIfAny(pg, name, desc);
+        group.addLayer(pg);
+      }
+      continue;
+    }
+  }
+
+  overlayLayer = group.addTo(map);
+  try{ map.fitBounds(group.getBounds(), { padding:[20,20] }); } catch(_){}
+  setStatus(`Overlay KMZ cargado (pictos): ${filename}`);
+}
+
+function parseKmlCoordinates(text){
+  // "lon,lat,alt lon,lat,alt ..."
+  const parts = String(text).trim().split(/\s+/).filter(Boolean);
+  const out = [];
+  for (const p of parts){
+    const [lonS, latS] = p.split(",");
+    const lat = parseFloat(latS), lon = parseFloat(lonS);
+    if (Number.isFinite(lat) && Number.isFinite(lon)) out.push([lat, lon]);
+  }
+  return out;
+}
+
+function resolveKmzIconUrl(href, iconBlobs){
+  if (!href) return "";
+  let key = href.trim().toLowerCase().replace(/^\.\/+/, "");
+
+  // a veces vienen como "files/icon.png" o "icon.png"
+  if (iconBlobs[key]) return iconBlobs[key];
+
+  // buscar por suffix si no coincide exacto
+  const candidates = Object.keys(iconBlobs).filter(k => k.endsWith("/"+key) || k.endsWith(key));
+  if (candidates.length) return iconBlobs[candidates[0]];
+
+  // si el href es URL externa, úsala
+  if (/^https?:\/\//i.test(href)) return href;
+
+  return "";
+}
+
+/* =========================
+   FIN
+========================= */
+</script>
+</body>
+</html>

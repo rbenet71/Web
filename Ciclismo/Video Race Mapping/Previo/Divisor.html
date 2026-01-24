@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4 Paneles con Divisores Cruzados</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #1e1e2e;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: #2d2d44;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #444;
+        }
+        
+        .instructions {
+            background: #2a2a3e;
+            padding: 10px;
+            font-size: 0.9rem;
+            text-align: center;
+            color: #a0a0c0;
+            border-bottom: 1px solid #444;
+        }
+        
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .top-row, .bottom-row {
+            flex: 1;
+            display: flex;
+            position: relative;
+        }
+        
+        .panel {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: bold;
+            color: white;
+            overflow: hidden;
+            transition: background 0.2s;
+        }
+        
+        .panel:hover {
+            filter: brightness(1.1);
+        }
+        
+        /* Colores de los paneles */
+        .panel-1 { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .panel-2 { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .panel-3 { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .panel-4 { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+        
+        /* Divisores */
+        .vertical-divider {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 8px;
+            background: #555;
+            cursor: col-resize;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+        
+        .vertical-divider:hover {
+            background: #3498db;
+        }
+        
+        .vertical-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 2px;
+            height: 40px;
+            background: white;
+            opacity: 0.7;
+        }
+        
+        .horizontal-divider {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: #555;
+            cursor: row-resize;
+            z-index: 100;
+            transition: background 0.2s;
+        }
+        
+        .horizontal-divider:hover {
+            background: #3498db;
+        }
+        
+        .horizontal-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 2px;
+            background: white;
+            opacity: 0.7;
+        }
+        
+        .size-info {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        
+        .controls {
+            background: #2d2d44;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            border-top: 1px solid #444;
+        }
+        
+        .control-btn {
+            padding: 8px 15px;
+            background: #444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .control-btn:hover {
+            background: #555;
+        }
+        
+        .reset-btn {
+            background: #e74c3c;
+        }
+        
+        .reset-btn:hover {
+            background: #c0392b;
+        }
+        
+        /* Responsive para pantallas pequeñas */
+        @media (max-width: 768px) {
+            .panel {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>4 Paneles con Divisores Cruzados</h1>
+    </div>
+    
+    <div class="instructions">
+        <p>🔸 Arrastra el <strong>divisor vertical</strong> para cambiar el ancho de los paneles 1+3 y 2+4</p>
+        <p>🔸 Arrastra el <strong>divisor horizontal</strong> para cambiar el alto de los paneles 1+2 y 3+4</p>
+    </div>
+    
+    <div class="container" id="container">
+        <!-- Fila superior -->
+        <div class="top-row" id="topRow">
+            <div class="panel panel-1" id="panel1">
+                <div class="size-info" id="size1">100%</div>
+                1
+            </div>
+            <div class="panel panel-2" id="panel2">
+                <div class="size-info" id="size2">100%</div>
+                2
+            </div>
+        </div>
+        
+        <!-- Divisor horizontal -->
+        <div class="horizontal-divider" id="horizontalDivider"></div>
+        
+        <!-- Fila inferior -->
+        <div class="bottom-row" id="bottomRow">
+            <div class="panel panel-3" id="panel3">
+                <div class="size-info" id="size3">100%</div>
+                3
+            </div>
+            <div class="panel panel-4" id="panel4">
+                <div class="size-info" id="size4">100%</div>
+                4
+            </div>
+        </div>
+        
+        <!-- Divisor vertical -->
+        <div class="vertical-divider" id="verticalDivider"></div>
+    </div>
+    
+    <div class="controls">
+        <button class="control-btn" onclick="setEqualSizes()">Cuadrícula Equitativa</button>
+        <button class="control-btn" onclick="focusVertical()">Ventanas 1+3 Anchas</button>
+        <button class="control-btn" onclick="focusHorizontal()">Ventanas 1+2 Altas</button>
+        <button class="control-btn reset-btn" onclick="resetSizes()">Restablecer</button>
+    </div>
+
+    <script>
+        // Estado inicial
+        let verticalPosition = 50; // Porcentaje del divisor vertical (0-100)
+        let horizontalPosition = 50; // Porcentaje del divisor horizontal (0-100)
+        let isDraggingVertical = false;
+        let isDraggingHorizontal = false;
+        
+        // Elementos del DOM
+        const container = document.getElementById('container');
+        const verticalDivider = document.getElementById('verticalDivider');
+        const horizontalDivider = document.getElementById('horizontalDivider');
+        const panel1 = document.getElementById('panel1');
+        const panel2 = document.getElementById('panel2');
+        const panel3 = document.getElementById('panel3');
+        const panel4 = document.getElementById('panel4');
+        const size1 = document.getElementById('size1');
+        const size2 = document.getElementById('size2');
+        const size3 = document.getElementById('size3');
+        const size4 = document.getElementById('size4');
+        
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            updateLayout();
+            setupEventListeners();
+            updateSizeInfo();
+        });
+        
+        function setupEventListeners() {
+            // Divisor vertical
+            verticalDivider.addEventListener('mousedown', startVerticalDrag);
+            document.addEventListener('mousemove', handleVerticalDrag);
+            document.addEventListener('mouseup', stopVerticalDrag);
+            
+            // Divisor horizontal
+            horizontalDivider.addEventListener('mousedown', startHorizontalDrag);
+            document.addEventListener('mousemove', handleHorizontalDrag);
+            document.addEventListener('mouseup', stopHorizontalDrag);
+            
+            // Para dispositivos táctiles
+            verticalDivider.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                startVerticalDrag(e.touches[0]);
+            });
+            
+            horizontalDivider.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                startHorizontalDrag(e.touches[0]);
+            });
+            
+            document.addEventListener('touchmove', (e) => {
+                if (isDraggingVertical) handleVerticalDrag(e.touches[0]);
+                if (isDraggingHorizontal) handleHorizontalDrag(e.touches[0]);
+            });
+            
+            document.addEventListener('touchend', () => {
+                stopVerticalDrag();
+                stopHorizontalDrag();
+            });
+        }
+        
+        // Funciones para el divisor vertical
+        function startVerticalDrag(e) {
+            isDraggingVertical = true;
+            e.preventDefault();
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+        }
+        
+        function handleVerticalDrag(e) {
+            if (!isDraggingVertical) return;
+            
+            const containerRect = container.getBoundingClientRect();
+            const x = e.clientX - containerRect.left;
+            
+            // Calcular porcentaje (con límites del 10% al 90%)
+            const newPosition = Math.max(10, Math.min(90, (x / containerRect.width) * 100));
+            
+            // Actualizar solo si hay un cambio significativo
+            if (Math.abs(newPosition - verticalPosition) > 0.5) {
+                verticalPosition = newPosition;
+                updateLayout();
+                updateSizeInfo();
+            }
+        }
+        
+        function stopVerticalDrag() {
+            isDraggingVertical = false;
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        }
+        
+        // Funciones para el divisor horizontal
+        function startHorizontalDrag(e) {
+            isDraggingHorizontal = true;
+            e.preventDefault();
+            document.body.style.cursor = 'row-resize';
+            document.body.style.userSelect = 'none';
+        }
+        
+        function handleHorizontalDrag(e) {
+            if (!isDraggingHorizontal) return;
+            
+            const containerRect = container.getBoundingClientRect();
+            const y = e.clientY - containerRect.top;
+            
+            // Calcular porcentaje (con límites del 10% al 90%)
+            const newPosition = Math.max(10, Math.min(90, (y / containerRect.height) * 100));
+            
+            // Actualizar solo si hay un cambio significativo
+            if (Math.abs(newPosition - horizontalPosition) > 0.5) {
+                horizontalPosition = newPosition;
+                updateLayout();
+                updateSizeInfo();
+            }
+        }
+        
+        function stopHorizontalDrag() {
+            isDraggingHorizontal = false;
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        }
+        
+        // Actualizar el layout
+        function updateLayout() {
+            // Ancho de los paneles izquierdos (1 y 3)
+            const leftWidth = verticalPosition;
+            const rightWidth = 100 - verticalPosition;
+            
+            // Alto de los paneles superiores (1 y 2)
+            const topHeight = horizontalPosition;
+            const bottomHeight = 100 - horizontalPosition;
+            
+            // Aplicar estilos
+            panel1.style.width = `${leftWidth}%`;
+            panel1.style.height = `${topHeight}%`;
+            
+            panel2.style.width = `${rightWidth}%`;
+            panel2.style.height = `${topHeight}%`;
+            
+            panel3.style.width = `${leftWidth}%`;
+            panel3.style.height = `${bottomHeight}%`;
+            
+            panel4.style.width = `${rightWidth}%`;
+            panel4.style.height = `${bottomHeight}%`;
+            
+            // Posicionar los divisores
+            verticalDivider.style.left = `${leftWidth}%`;
+            horizontalDivider.style.top = `${topHeight}%`;
+            
+            // Ajustar el divisor vertical para que esté centrado
+            verticalDivider.style.transform = `translateX(-50%)`;
+            
+            // Ajustar el divisor horizontal para que esté centrado
+            horizontalDivider.style.transform = `translateY(-50%)`;
+        }
+        
+        // Actualizar la información de tamaño
+        function updateSizeInfo() {
+            const leftWidth = Math.round(verticalPosition);
+            const rightWidth = 100 - leftWidth;
+            const topHeight = Math.round(horizontalPosition);
+            const bottomHeight = 100 - topHeight;
+            
+            size1.textContent = `${leftWidth}% × ${topHeight}%`;
+            size2.textContent = `${rightWidth}% × ${topHeight}%`;
+            size3.textContent = `${leftWidth}% × ${bottomHeight}%`;
+            size4.textContent = `${rightWidth}% × ${bottomHeight}%`;
+        }
+        
+        // Funciones de control
+        function setEqualSizes() {
+            verticalPosition = 50;
+            horizontalPosition = 50;
+            updateLayout();
+            updateSizeInfo();
+        }
+        
+        function focusVertical() {
+            verticalPosition = 70; // Paneles izquierdos más anchos
+            horizontalPosition = 50;
+            updateLayout();
+            updateSizeInfo();
+        }
+        
+        function focusHorizontal() {
+            verticalPosition = 50;
+            horizontalPosition = 70; // Paneles superiores más altos
+            updateLayout();
+            updateSizeInfo();
+        }
+        
+        function resetSizes() {
+            verticalPosition = 50;
+            horizontalPosition = 50;
+            updateLayout();
+            updateSizeInfo();
+        }
+        
+        // Hacer la cuadrícula responsive
+        window.addEventListener('resize', updateLayout);
+        
+        // Inicializar con un tamaño interesante
+        setTimeout(() => {
+            verticalPosition = 60;
+            horizontalPosition = 40;
+            updateLayout();
+            updateSizeInfo();
+        }, 100);
+    </script>
+</body>
+</html>

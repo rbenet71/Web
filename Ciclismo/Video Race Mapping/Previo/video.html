@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Dashcam vídeo + mapa + perfil altura (offline)</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+html, body { margin:0; padding:0; height:100%; font-family:system-ui, sans-serif; }
+
+#layout{
+  display:grid;
+  grid-template-columns: 50% 50%;
+  grid-template-rows: auto 1fr 180px;
+  height:100%;
+}
+
+#controls{
+  grid-column: 1 / 3;
+  padding:8px;
+  background:#f2f2f2;
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+#map{ width:100%; height:100%; }
+video{
+  width:100%;
+  height:100%;
+  background:black;
+  position:relative;
+  z-index:1; /* evita overlays raros */
+}
+
+label{
+  background:white;
+  padding:6px 10px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  cursor:pointer;
+}
+
+select, button{ padding:6px; }
+
+#status{ margin-left:auto; font-size:0.9em; }
+
+#profileWrap{
+  grid-column: 1 / 3;
+  border-top:1px solid #ddd;
+  background:#fff;
+  position:relative;
+}
+
+#profile{
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+#profileHint{
+  position:absolute;
+  left:10px;
+  top:8px;
+  font-size:12px;
+  color:#555;
+  background:rgba(255,255,255,0.85);
+  padding:4px 8px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  pointer-events:none;
+}
+
+#profileTooltip{
+  position:absolute;
+  right:10px;
+  top:8px;
+  font-size:12px;
+  color:#111;
+  background:rgba(255,255,255,0.9);
+  padding:4px 8px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  pointer-events:none;
+  display:none;
+  white-space:nowrap;
+}
+</style>
+</head>
+
+<body>
+<div id="layout">
+  <div id="controls">
+    <label>
+      📁 Carpeta (mp4 + gpx)
+      <input id="dirInput" type="file" webkitdirectory hidden>
+    </label>
+
+    <label>
+      🎬 MP4
+      <select id="mp4Select">
+        <option value="">(elige carpeta primero)</option>
+      </select>
+    </label>
+
+    <button id="fitBtn">Ajustar mapa</button>
+
+    <span id="status">Esperando carpeta…</span>
+  </div>
+
+  <video id="video" controls playsinline></video>
+  <div id="map"></div>
+
+  <div id="profileWrap">
+    <canvas id="profile"></canvas>
+    <div id="profileHint">Perfil: click/arrastrar para “scrub”.</div>
+    <div id="profileTooltip"></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+/* =========================
+   VARIABLES GLOBALES
+========================= */
+const video = document.getElementById("video");
+const map = L.map("map").setView([0,0], 2);
+
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: "© OpenStreetMap"
+}).addTo(map);
+
+let polyline = null;
+let marker = null;
+let points = [];
+let firstAbsTime = null;
+
+// Perfil
+const profileCanvas = document.getElementById("profile");
+const profileWrap   = document.getElementById("profileWrap");
+const profileHint   = document.getElementById("profileHint");
+const profileTip    = document.getElementById("profileTooltip");
+
+let hasEle = false;
+let profileBounds = null; // {tMin,tMax, eleMin, eleMax}
+let isProfileDragging = false;
+
+/* =========================
+   UI
+========================= */
+const dirInput  = document.getElementById("dirInput");
+const mp4Select = document.getElementById("mp4Select");
+const fitBtn    = document.getElementById("fitBtn");
+const statusEl  = document.getElementById("status");
+
+function setStatus(msg){ statusEl.textContent = msg; }
+function basenameNoExt(name){ return name.replace(/\.[^.]+$/, ""); }
+function readFileAsText(file){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result));
+    r.onerror = reject;
+    r.readAsText(file);
+  });
+}
+
+/* =========================
+   GPX
+========================= */
+function parseGpx(xmlText){
+  const xml = new DOMParser().parseFromString(xmlText, "application/xml");
+  const trkpts = [...xml.querySelectorAll("trkpt")];
+
+  return trkpts.map(pt => {
+    const lat = +pt.getAttribute("lat");
+    const lon = +pt.getAttribute("lon");
+    const tNode = pt.querySelector("time");
+    const eNode = pt.querySelector("ele");
+    const t = tNode ? new Date(tNode.textContent) : null;
+    const ele = eNode ? parseFloat(eNode.textContent) : NaN;
+
+    return {
+      lat, lon,
+      ele,
+      tAbs: t ? t.getTime() : NaN,
+      tOffset: 0
+    };
+  }).filter(p => Number.isFinite(p.lat) && Number.isFinite(p.lon) && Number.isFinite(p.tAbs));
+}
+
+/* =========================
+   MAPA
+========================= */
+function clearTrack(){
+  if (polyline) map.removeLayer(polyline);
+  if (marker) map.removeLayer(marker);
+  polyline = null;
+  marker = null;
+  points = [];
+  firstAbsTime = null;
+
+  // perfil
+  hasEle = false;
+  profileBounds = null;
+  drawProfile(); // limpia
+}
+
+function drawTrack(){
+  // offsets en segundos
+  points.forEach(p => p.tOffset = (p.tAbs - firstAbsTime) / 1000);
+
+  polyline = L.polyline(points.map(p => [p.lat, p.lon]), {
+    color:"blue", weight:4
+  }).addTo(map);
+
+  marker = L.marker([points[0].lat, points[0].lon], { draggable:true }).addTo(map);
+
+  map.fitBounds(polyline.getBounds());
+
+  attachPolylineClick();
+  setupMarkerDragScrub();
+}
+
+/* =========================
+   SINCRONIZACIÓN / BÚSQUEDAS
+========================= */
+function nearestPoint(lat, lon){
+  let best = null, bestDist = Infinity;
+  for (const p of points){
+    const d = (p.lat-lat)**2 + (p.lon-lon)**2;
+    if (d < bestDist){ bestDist = d; best = p; }
+  }
+  return best;
+}
+
+function pointAtTime(t){
+  // t en segundos, devuelve último p.tOffset <= t
+  if (!points.length) return null;
+  let p = points[0];
+  for (const q of points){
+    if (q.tOffset <= t) p = q;
+    else break;
+  }
+  return p;
+}
+
+// Seek “robusto” sin play/pause (evita glitches de “doble vídeo”)
+let pendingSeek = false;
+let lastTargetTime = null;
+
+async function seekVideo(targetTime){
+  if (targetTime == null || Number.isNaN(targetTime)) return;
+  lastTargetTime = targetTime;
+  if (pendingSeek) return;
+  pendingSeek = true;
+
+  try{
+    video.currentTime = Math.max(0, targetTime);
+
+    await new Promise(resolve => {
+      const onSeeked = () => resolve();
+      video.addEventListener("seeked", onSeeked, { once:true });
+    });
+  } finally {
+    pendingSeek = false;
+    if (lastTargetTime !== targetTime) seekVideo(lastTargetTime);
+  }
+}
+
+function syncAllToTime(t){
+  // Mueve marker + perfil al tiempo t
+  const p = pointAtTime(t);
+  if (!p) return;
+
+  if (marker) marker.setLatLng([p.lat, p.lon]);
+  drawProfile(t);
+}
+
+/* --- vídeo → mapa + perfil --- */
+video.addEventListener("timeupdate", () => {
+  if (!points.length || !marker) return;
+  const t = video.currentTime;
+
+  const p = pointAtTime(t);
+  if (!p) return;
+
+  marker.setLatLng([p.lat, p.lon]);
+  drawProfile(t);
+});
+
+/* --- click mapa --- */
+map.on("click", async e => {
+  if (!points.length || !marker) return;
+  const p = nearestPoint(e.latlng.lat, e.latlng.lng);
+  if (!p) return;
+
+  marker.setLatLng([p.lat, p.lon]);
+  await seekVideo(p.tOffset);
+  drawProfile(video.currentTime);
+});
+
+function attachPolylineClick(){
+  if (!polyline) return;
+  polyline.on("click", async e => {
+    const p = nearestPoint(e.latlng.lat, e.latlng.lng);
+    if (!p) return;
+
+    marker.setLatLng([p.lat, p.lon]);
+    await seekVideo(p.tOffset);
+    drawProfile(video.currentTime);
+  });
+}
+
+/* --- marker drag → scrub vídeo --- */
+function setupMarkerDragScrub(){
+  if (!marker) return;
+
+  const SCRUB_MS = 50; // throttle
+  let lastScrubTs = 0;
+
+  marker.on("dragstart", () => {
+    map.dragging.disable();
+  });
+
+  marker.on("drag", async e2 => {
+    const pos = e2.target.getLatLng();
+    const p = nearestPoint(pos.lat, pos.lng);
+    if (!p) return;
+
+    marker.setLatLng([p.lat, p.lon]);
+
+    const now = performance.now();
+    if (now - lastScrubTs < SCRUB_MS) return;
+    lastScrubTs = now;
+
+    await seekVideo(p.tOffset);
+    drawProfile(video.currentTime);
+  });
+
+  marker.on("dragend", async e2 => {
+    map.dragging.enable();
+    const pos = e2.target.getLatLng();
+    const p = nearestPoint(pos.lat, pos.lng);
+    if (!p) return;
+
+    marker.setLatLng([p.lat, p.lon]);
+    await seekVideo(p.tOffset);
+    drawProfile(video.currentTime);
+  });
+}
+
+/* =========================
+   PERFIL ALTURA (CANVAS)
+========================= */
+function resizeCanvasToCss(){
+  const rect = profileWrap.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  profileCanvas.width  = Math.max(1, Math.floor(rect.width * dpr));
+  profileCanvas.height = Math.max(1, Math.floor(rect.height * dpr));
+  profileCanvas.style.width  = rect.width + "px";
+  profileCanvas.style.height = rect.height + "px";
+}
+
+function computeProfileBounds(){
+  // bounds sobre tiempo (tOffset) y ele
+  const tMin = 0;
+  const tMax = points.length ? points[points.length-1].tOffset : 1;
+
+  const eles = points.map(p => p.ele).filter(v => Number.isFinite(v));
+  if (!eles.length) return null;
+
+  let eleMin = Math.min(...eles);
+  let eleMax = Math.max(...eles);
+  if (eleMin === eleMax){ eleMin -= 1; eleMax += 1; } // evita división por 0
+  return { tMin, tMax, eleMin, eleMax };
+}
+
+function drawProfile(cursorTimeSec = null){
+  resizeCanvasToCss();
+  const ctx = profileCanvas.getContext("2d");
+  const w = profileCanvas.width;
+  const h = profileCanvas.height;
+
+  // limpia
+  ctx.clearRect(0,0,w,h);
+
+  // padding en px “reales”
+  const padL = 50, padR = 15, padT = 18, padB = 28;
+
+  // fondo
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0,0,w,h);
+
+  // si no hay datos
+  if (!points.length){
+    profileHint.textContent = "Perfil: (carga un MP4 con GPX)";
+    profileTip.style.display = "none";
+    return;
+  }
+
+  // ¿hay ele?
+  hasEle = points.some(p => Number.isFinite(p.ele));
+  if (!hasEle){
+    profileHint.textContent = "Perfil: sin <ele> en el GPX (no hay altura).";
+    profileTip.style.display = "none";
+    // dibuja solo eje tiempo para que se vea “algo”
+    ctx.strokeStyle = "#ddd";
+    ctx.beginPath();
+    ctx.moveTo(padL, h-padB);
+    ctx.lineTo(w-padR, h-padB);
+    ctx.stroke();
+    return;
+  }
+
+  profileHint.textContent = "Perfil: click/arrastrar para “scrub” (igual que el track).";
+
+  profileBounds = computeProfileBounds();
+  const b = profileBounds;
+
+  const plotW = (w - padL - padR);
+  const plotH = (h - padT - padB);
+
+  function xFromT(t){
+    const u = (t - b.tMin) / (b.tMax - b.tMin);
+    return padL + u * plotW;
+  }
+  function yFromEle(ele){
+    const u = (ele - b.eleMin) / (b.eleMax - b.eleMin);
+    return padT + (1-u) * plotH;
+  }
+
+  // ejes
+  ctx.strokeStyle = "#e5e5e5";
+  ctx.beginPath();
+  ctx.moveTo(padL, padT);
+  ctx.lineTo(padL, h-padB);
+  ctx.lineTo(w-padR, h-padB);
+  ctx.stroke();
+
+  // ticks Y (4)
+  ctx.fillStyle = "#666";
+  ctx.font = "12px system-ui, sans-serif";
+  for (let i=0;i<=4;i++){
+    const ele = b.eleMin + (i/4)*(b.eleMax-b.eleMin);
+    const y = yFromEle(ele);
+    ctx.strokeStyle = "#f0f0f0";
+    ctx.beginPath();
+    ctx.moveTo(padL, y);
+    ctx.lineTo(w-padR, y);
+    ctx.stroke();
+    ctx.fillStyle = "#666";
+    ctx.fillText(ele.toFixed(0)+" m", 8, y+4);
+  }
+
+  // línea perfil
+  ctx.strokeStyle = "#2563eb";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  let started = false;
+  for (const p of points){
+    if (!Number.isFinite(p.ele)) continue;
+    const x = xFromT(p.tOffset);
+    const y = yFromEle(p.ele);
+    if (!started){ ctx.moveTo(x,y); started=true; }
+    else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // cursor por tiempo actual
+  if (cursorTimeSec != null && Number.isFinite(cursorTimeSec)){
+    const x = xFromT(Math.min(b.tMax, Math.max(b.tMin, cursorTimeSec)));
+    ctx.strokeStyle = "#111";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, padT);
+    ctx.lineTo(x, h-padB);
+    ctx.stroke();
+  }
+
+  // etiqueta X (tiempo)
+  ctx.fillStyle = "#666";
+  const total = b.tMax;
+  ctx.fillText("0s", padL, h-8);
+  ctx.fillText(total.toFixed(0)+"s", w-padR-30, h-8);
+}
+
+// coord canvas->time
+function timeFromCanvasX(clientX){
+  if (!profileBounds) return null;
+  const rect = profileCanvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const x = (clientX - rect.left) * dpr;
+
+  const padL = 50, padR = 15;
+  const w = profileCanvas.width;
+  const plotW = (w - padL - padR);
+
+  const u = (x - padL) / plotW;
+  const clamped = Math.min(1, Math.max(0, u));
+
+  return profileBounds.tMin + clamped * (profileBounds.tMax - profileBounds.tMin);
+}
+
+// tooltip y scrub
+function updateProfileTooltip(clientX, show){
+  if (!hasEle || !profileBounds) { profileTip.style.display = "none"; return; }
+  if (!show) { profileTip.style.display = "none"; return; }
+
+  const t = timeFromCanvasX(clientX);
+  const p = pointAtTime(t);
+  if (!p) return;
+
+  profileTip.style.display = "block";
+  const mm = Math.floor(p.tOffset / 60);
+  const ss = Math.floor(p.tOffset % 60);
+  const hh = Math.floor(p.tOffset / 3600);
+  const timeStr = hh>0 ? `${hh}:${String(mm).padStart(2,"0")}:${String(ss).padStart(2,"0")}` : `${mm}:${String(ss).padStart(2,"0")}`;
+
+  const eleStr = Number.isFinite(p.ele) ? `${p.ele.toFixed(0)} m` : "—";
+  profileTip.textContent = `t=${timeStr}  ·  ele=${eleStr}`;
+}
+
+profileCanvas.addEventListener("mousemove", e => {
+  updateProfileTooltip(e.clientX, true);
+  if (isProfileDragging && hasEle){
+    const t = timeFromCanvasX(e.clientX);
+    if (t != null){
+      syncAllToTime(t);
+    }
+  }
+});
+
+profileCanvas.addEventListener("mouseleave", () => {
+  updateProfileTooltip(0, false);
+  isProfileDragging = false;
+});
+
+profileCanvas.addEventListener("mousedown", async e => {
+  if (!hasEle) return;
+  isProfileDragging = true;
+  const t = timeFromCanvasX(e.clientX);
+  if (t == null) return;
+
+  // Scrub inmediato
+  syncAllToTime(t);
+  await seekVideo(t);
+  drawProfile(video.currentTime);
+});
+
+window.addEventListener("mouseup", async () => {
+  if (!isProfileDragging) return;
+  isProfileDragging = false;
+
+  // asegura el último frame (ya está seeked, pero reforzamos)
+  drawProfile(video.currentTime);
+});
+
+window.addEventListener("resize", () => drawProfile(video.currentTime));
+
+/* =========================
+   CARPETA → MP4 → GPX
+========================= */
+const mp4Files = new Map();
+const gpxFiles = new Map();
+
+dirInput.addEventListener("change", () => {
+  mp4Files.clear();
+  gpxFiles.clear();
+  mp4Select.innerHTML = `<option value="">(elige MP4)</option>`;
+
+  for (const f of dirInput.files){
+    const low = f.name.toLowerCase();
+    if (low.endsWith(".mp4")) mp4Files.set(f.name, f);
+    if (low.endsWith(".gpx")) gpxFiles.set(basenameNoExt(f.name), f);
+  }
+
+  for (const name of mp4Files.keys()){
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    mp4Select.appendChild(opt);
+  }
+
+  setStatus("Carpeta cargada");
+  drawProfile(); // refresca hint
+});
+
+mp4Select.addEventListener("change", async () => {
+  const name = mp4Select.value;
+  if (!name) return;
+
+  clearTrack();
+
+  const mp4 = mp4Files.get(name);
+  video.src = URL.createObjectURL(mp4);
+
+  const gpx = gpxFiles.get(basenameNoExt(name));
+  if (!gpx){
+    setStatus("MP4 cargado (sin GPX)");
+    return;
+  }
+
+  const text = await readFileAsText(gpx);
+  points = parseGpx(text);
+
+  if (!points.length){
+    setStatus("GPX vacío");
+    drawProfile();
+    return;
+  }
+
+  firstAbsTime = points[0].tAbs;
+  drawTrack();
+
+  // Perfil
+  drawProfile(0);
+
+  setStatus("Listo: vídeo + mapa + perfil sincronizados");
+});
+
+/* ========================= */
+fitBtn.addEventListener("click", () => {
+  if (polyline) map.fitBounds(polyline.getBounds());
+});
+</script>
+</body>
+</html>

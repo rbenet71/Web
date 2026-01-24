@@ -1,0 +1,35 @@
+Quiero crear una serie de apps pwa que me permitan tener un vídeo que al hacer click sobre su recorrido en un mapa me muestre ese punto del vídeo. Además necesito crear imágenes de ese vídeo georeferenciadas
+
+El vídeo lo podré generar de dos formas:
+1 con una Garmin Dashcam cuyo formato es.. * **El MP4 SÍ tiene GPS** * Está en **metadata propietaria Ambarella**  **ExifTool lo lee**
+2 con una app que yo me he hecho.
+
+Por tanto para mi hay que hacer las siguientes apps
+1.- Dashcam que ya está creada, graba un vídeo con las coordenadas gps
+2.- una app que me permita unir o cortar los vídeos que provengan de mi app o de la Garmin , y que puede ser que durante la grabación hubiese unas obras y se tuvo que ir por otro lado y hay que corregirlo. Ademas se ha de poder generar un jpg cada segundo georeferenciado.
+3.- una app que permita poner información en la imagen del vídeo, como el km de ea tapa que es, la altimetría, en que punto del track está ese vídeo
+4.- la app final que es la que permite ver el vídeo y mientras se ve va mostrando en que lugar del mapa está, y al revés que al hacer click en el mapa me lleve a ese punto del vídeo. ( casi en mi app ya lo hace Mostar el punto del vídeo en el mapa)
+
+Antes de empezar a hacer todas estas app hemos de determinar cómo se va a grabar la información gps en los vídeos, y que despues de cortar y unir, solo enviando el mp4 se pueda ver toda esta información gps.
+
+por tanto dime cual seria la lógica de todo esto y que formato de archivos usariamos
+
+
+anexo fmt para extraer gps del mp4 Garmin
+#[HEAD]<?xml version="1.0" encoding="utf-8"?>
+#[HEAD]<gpx version="1.0"
+#[HEAD] creator="ExifTool $ExifToolVersion"
+#[HEAD] xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+#[HEAD] xmlns="http://www.topografix.com/GPX/1/0"
+#[HEAD] xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd">
+#[HEAD]<trk>
+#[HEAD]<number>1</number>
+#[HEAD]<trkseg>
+#[IF]  $gpslatitude $gpslongitude
+#[BODY]<trkpt lat="$gpslatitude#" lon="$gpslongitude#">
+#[BODY]  <ele>$gpsaltitude#</ele>
+#[BODY]  <time>${gpsdatetime#;my ($ss)=/\.\d+/g;DateFmt("%Y-%m-%dT%H:%M:%SZ");s/Z/${ss}Z/ if $ss}</time>
+#[BODY]</trkpt>
+#[TAIL]</trkseg>
+#[TAIL]</trk>
+#[TAIL]</gpx>

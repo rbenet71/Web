@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Garmin dashcam - vídeo + mapa + perfil + WMS/KMZ (offline)</title>
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+  <style>
+    /* ============================================================
+       LAYOUT
+       ============================================================ */
+    html, body {
+      margin:0;
+      padding:0;
+      height:100%;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background:#fff;
+    }
+
+    #layout{
+      display:grid;
+      grid-template-columns: 50% 50%;
+      grid-template-rows: auto 1fr auto;
+      height:100%;
+      gap:0;
+    }
+
+    #controls{
+      grid-column: 1 / 3;
+      padding: 8px;
+      background: #f2f2f2;
+      display:flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items:center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    label{
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      user-select:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    select, button, input[type="text"]{
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background:#fff;
+      cursor:pointer;
+      font-size: 14px;
+    }
+
+    button:active{
+      transform: translateY(1px);
+    }
+
+    #status{
+      margin-left:auto;
+      font-size: 0.9em;
+      opacity: 0.85;
+      padding-right: 4px;
+    }
+
+    /* ============================================================
+       VIDEO PANEL
+       ============================================================ */
+    #videoWrap{
+      position:relative;
+      width:100%;
+      height:100%;
+      background:#000;
+      overflow:hidden;
+      border-right: 1px solid #ddd;
+    }
+
+    video{
+      width:100%;
+      height:100%;
+      background:#000;
+      object-fit: contain; /* importante para centrar sin recortar */
+      outline: none;
+    }
+
+    /* HUD (no debe tapar controles del video) */
+    #hud{
+      position:absolute;
+      left:10px;
+      top:10px;
+      background: rgba(0,0,0,0.55);
+      color:#fff;
+      padding: 6px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+      pointer-events:none; /* clave: no roba clicks => no desaparecen controles */
+      z-index: 20;
+      max-width: calc(100% - 20px);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Floating toolbar over video (icons) */
+    #videoTools{
+      position:absolute;
+      right:10px;
+      top:10px;
+      display:flex;
+      gap:8px;
+      z-index: 25;
+      pointer-events:auto; /* importante */
+    }
+
+    .iconBtn{
+      width:36px;
+      height:36px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(0,0,0,0.45);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      padding:0;
+    }
+    .iconBtn:hover{
+      background: rgba(0,0,0,0.65);
+    }
+
+    /* iconos SVG inline */
+    .iconBtn svg{
+      width:20px;
+      height:20px;
+      fill:#fff;
+      display:block;
+      pointer-events:none;
+      opacity:0.95;
+    }
+
+    /* ============================================================
+       MAP PANEL
+       ============================================================ */
+    #map{
+      width:100%;
+      height:100%;
+    }
+
+    /* ============================================================
+       ELEVATION PROFILE
+       ============================================================ */
+    #profileBar{
+      grid-column: 1 / 3;
+      padding: 6px 8px;
+      background: #fafafa;
+      border-top: 1px solid #ddd;
+    }
+
+    #elevCanvas{
+      width:100%;
+      height: 175px;
+      display:block;
+      background:#fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+    }
+
+    /* ============================================================
+       MOBILE
+       ============================================================ */
+    @media (max-width: 980px){
+      #layout{
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 42vh 42vh auto;
+      }
+      #controls{ grid-column: 1 / 2; }
+      #profileBar{ grid-column: 1 / 2; }
+      #videoWrap{
+        border-right:none;
+        border-bottom: 1px solid #ddd;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="layout">
+
+    <!-- =========================================================
+         CONTROLS
+         ========================================================= -->
+    <div id="controls">
+      <label id="dirLabel" title="Selecciona una carpeta que contenga MP4 y GPX (misma base de nombre)">
+        📁 Carpeta
+        <input id="dirInput" type="file" webkitdirectory hidden>
+      </label>
+
+      <label title="Selecciona el MP4 dentro de la carpeta">
+        🎬 MP4
+        <select id="mp4Select">
+          <option value="">(elige carpeta primero)</option>
+        </select>
+      </label>
+
+      <label title="Capa base del mapa">
+        🗺️ Mapa
+        <select id="baseMapSelect">
+          <option value="osm">OSM (tiles)</option>
+          <option value="google_road">Google (XYZ road)</option>
+          <option value="icgc_topo_wms">ICGC Topo (WMS)</option>
+          <option value="ign_baseorto_wms">IGN Base Orto (WMS)</option>
+          <option value="icc_orto_wms">ICC Orto (WMS)</option>
+          <option value="gencat_viari_wms">Gencat Viari (WMS)</option>
+        </select>
+      </label>
+
+      <button id="fitBtn" title="Ajustar mapa al track">Ajustar</button>
+
+      <label title="Velocidad de reproducción">
+        ⏩ Velocidad
+        <select id="rateSelect">
+          <option value="1">1x</option>
+          <option value="2">2x</option>
+          <option value="8">8x</option>
+          <option value="16">16x</option>
+        </select>
+      </label>
+
+      <label id="kmlLabel" title="Importar KML o KMZ (se dibuja en el mapa)">
+        🧩 KML/KMZ
+        <input id="kmlKmzInput" type="file" accept=".kml,.kmz" hidden>
+      </label>
+
+      <span id="status">Esperando carpeta…</span>
+    </div>
+
+    <!-- =========================================================
+         VIDEO
+         ========================================================= -->
+    <div id="videoWrap">
+      <div id="hud">—</div>
+
+      <!-- Tools: Google Maps + Street View + Snapshot -->
+      <div id="videoTools">
+        <button class="iconBtn" id="btnGoogleMaps" title="Abrir en Google Maps" aria-label="Google Maps">
+          <!-- pin -->
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5c-1.4 0-2.5-1.1-2.5-2.5S10.6 6.5 12 6.5s2.5 1.1 2.5 2.5S13.4 11.5 12 11.5z"/>
+          </svg>
+        </button>
+
+        <button class="iconBtn" id="btnStreetView" title="Abrir en Street View (pano)" aria-label="Street View">
+          <!-- persona -->
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2a4 4 0 100 8 4 4 0 000-8zm0 9c-4.4 0-8 2.2-8 5v4h16v-4c0-2.8-3.6-5-8-5z"/>
+          </svg>
+        </button>
+
+        <button class="iconBtn" id="btnSnapshot" title="Capturar frame (PNG)" aria-label="Capturar">
+          <!-- cámara -->
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 2l1.8 2H15l1.8-2H20c1.1 0 2 .9 2 2v16c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h5zm3 6a6 6 0 100 12 6 6 0 000-12zm0 2a4 4 0 110 8 4 4 0 010-8z"/>
+          </svg>
+        </button>
+      </div>
+
+      <video id="video" controls playsinline tabindex="0"></video>
+    </div>
+
+    <!-- =========================================================
+         MAP
+         ========================================================= -->
+    <div id="map"></div>
+
+    <!-- =========================================================
+         ELEVATION PROFILE
+         ========================================================= -->
+    <div id="profileBar">
+      <canvas id="elevCanvas"></canvas>
+    </div>
+
+  </div>
+
+  <!-- ===========================================================
+       LIBS
+       =========================================================== -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- KMZ = ZIP => JSZip -->
+  <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
+
+  <!-- KML -> GeoJSON -->
+  <script src="https://unpkg.com/@tmcw/togeojson@5.8.1/dist/togeojson.umd.js"></script>
+
+  <script>
+  /* ###########################################################################
+     Garmin dashcam - vídeo + mapa + perfil + WMS/KMZ
+     --------------------------------------------------------------------------
+     Funciones incluidas:
+       - Carga carpeta con MP4 y GPX (mismo nombre base)
+       - Ordenación de ficheros por nombre
+       - Click en mapa/track => seek del vídeo al punto más cercano
+       - Scrub arrastrando en el mapa (drag manual sobre el marcador)
+       - Scrub desde el perfil de elevación (click+drag)
+       - Perfil con relleno degradado rojo->naranja (vertical) + cursor
+       - Distancia en km
+       - Formato de tiempo HH:MM:SS
+       - Marcador rojo relleno (círculo)
+       - Centrado SIEMPRE del mapa en el punto (panTo sin animación, con throttle)
+       - Selector de mapa base (tiles / WMS)
+       - Botones icono: Google Maps y Street View (con heading/bearing)
+       - Importación KML/KMZ para pintar overlays (sin iconos de KMZ, solo geometrías)
+       - Captura frame PNG (descarga; el navegador no puede escribir en la carpeta)
+       - Rueda del ratón sobre el vídeo para +-1s
+       - Flechas izq/der cuando el vídeo tiene foco para +-1s
+     ########################################################################### */
+
+  /* ============================================================
+     ELEMENTOS UI
+     ============================================================ */
+  const dirLabel      = document.getElementById("dirLabel");
+  const dirInput      = document.getElementById("dirInput");
+  const mp4Select     = document.getElementById("mp4Select");
+  const baseMapSelect = document.getElementById("baseMapSelect");
+  const fitBtn        = document.getElementById("fitBtn");
+  const rateSelect    = document.getElementById("rateSelect");
+  const statusEl      = document.getElementById("status");
+
+  const kmlLabel      = document.getElementById("kmlLabel");
+  const kmlKmzInput   = document.getElementById("kmlKmzInput");
+
+  const video         = document.getElementById("video");
+  const hud           = document.getElementById("hud");
+
+  const elevCanvas    = document.getElementById("elevCanvas");
+  const ctx           = elevCanvas.getContext("2d");
+
+  const btnGoogleMaps = document.getElementById("btnGoogleMaps");
+  const btnStreetView = document.getElementById("btnStreetView");
+  const btnSnapshot   = document.getElementById("btnSnapshot");
+
+  /* ============================================================
+     ESTADO GLOBAL
+     ============================================================ */
+  const mp4Files = new Map(); // name -> File
+  const gpxFiles = new Map(); // base -> File
+
+  // Overlay importado (KML/KMZ)
+  let overlayLayer = null;
+
+  // Track
+  let points = [];           // [{lat, lon, ele, tAbs, tOffset, dist}]
+  let firstAbsTime = null;
+  let hasEle = false;
+
+  // Leaflet layers
+  let polyline = null;
+  let marker   = null;
+
+  // Throttle para centrar
+  let lastCenterTs = 0;
+
+  // Perfil drag
+  let draggingProfile = false;
+
+  // Video seek throttle
+  let lastSeekTs = 0;
+
+  // Bearing (heading) para Street View
+  let lastBearingDeg = 0;
+
+  /* ============================================================
+     MAPA (Leaflet)
+     ============================================================ */
+  const map = L.map("map", { zoomControl:true }).setView([0,0], 2);
+
+  // --- base layers config ---
+  // OJO: Leaflet trabaja en EPSG:3857. Algunos WMS no soportan 3857.
+  const baseLayers = {
+    osm: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap",
+      maxZoom: 19
+    }),
+
+    google_road: L.tileLayer("https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}", {
+      attribution: "© Google",
+      maxZoom: 20
+    }),
+
+    icgc_topo_wms: L.tileLayer.wms("https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wms/service", {
+      layers: "topo",
+      format: "image/png",
+      transparent: false,
+      attribution: "ICGC (WMS)"
+    }),
+
+    ign_baseorto_wms: L.tileLayer.wms("http://www.ign.es/wms-inspire/ign-base", {
+      layers: "IGNBaseOrto",
+      format: "image/png",
+      transparent: false,
+      attribution: "IGN (WMS)"
+    }),
+
+    icc_orto_wms: L.tileLayer.wms("http://mapcache.icc.cat/map/bases/service", {
+      layers: "orto",
+      format: "image/png",
+      transparent: false,
+      attribution: "ICC (WMS)"
+    }),
+
+    gencat_viari_wms: L.tileLayer.wms("https://sig.gencat.cat/ows/XARXES_TRANSPORT/wms", {
+      layers: "XT_VIARI_PK_CARRETERES",
+      format: "image/png",
+      transparent: true,
+      attribution: "Gencat (WMS)"
+    })
+  };
+
+  let currentBaseLayer = baseLayers.osm;
+  currentBaseLayer.addTo(map);
+
+  baseMapSelect.addEventListener("change", () => {
+    const key = baseMapSelect.value;
+    if (!baseLayers[key]) return;
+
+    if (currentBaseLayer) map.removeLayer(currentBaseLayer);
+    currentBaseLayer = baseLayers[key];
+    currentBaseLayer.addTo(map);
+
+    setStatus(`Mapa base: ${baseMapSelect.options[baseMapSelect.selectedIndex].text}`);
+  });
+
+  /* ============================================================
+     UTILIDADES
+     ============================================================ */
+  function setStatus(msg){ statusEl.textContent = msg; }
+
+  function basenameNoExt(name){ return name.replace(/\.[^.]+$/, ""); }
+
+  function readFileAsText(file){
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result));
+      r.onerror = reject;
+      r.readAsText(file);
+    });
+  }
+
+  function pad2(n){ return String(n).padStart(2,"0"); }
+
+  function fmtTimeHMS(seconds){
+    if (!Number.isFinite(seconds)) return "—";
+    seconds = Math.max(0, seconds);
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    return `${h}:${pad2(m)}:${pad2(s)}`;
+  }
+
+  function haversineMeters(a, b){
+    const R = 6371000;
+    const toRad = x => x * Math.PI / 180;
+    const dLat = toRad(b.lat - a.lat);
+    const dLon = toRad(b.lon - a.lon);
+    const s1 = Math.sin(dLat/2), s2 = Math.sin(dLon/2);
+    const q = s1*s1 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*s2*s2;
+    return 2 * R * Math.asin(Math.sqrt(q));
+  }
+
+  function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+
+  function computeBearingDeg(a, b){
+    const toRad = x => x * Math.PI/180;
+    const toDeg = x => x * 180/Math.PI;
+    const lat1 = toRad(a.lat), lat2 = toRad(b.lat);
+    const dLon = toRad(b.lon - a.lon);
+
+    const y = Math.sin(dLon) * Math.cos(lat2);
+    const x = Math.cos(lat1)*Math.sin(lat2) - Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLon);
+    let brng = toDeg(Math.atan2(y, x));
+    brng = (brng + 360) % 360;
+    return brng;
+  }
+
+  /* ============================================================
+     GPX PARSER
+     ============================================================ */
+  function parseGpx(xmlText){
+    const xml = new DOMParser().parseFromString(xmlText, "application/xml");
+    const trkpts = [...xml.querySelectorAll("trkpt")];
+
+    const out = trkpts.map(pt => {
+      const lat = +pt.getAttribute("lat");
+      const lon = +pt.getAttribute("lon");
+      const tNode = pt.querySelector("time");
+      if (!tNode || !tNode.textContent) return null;
+
+      const eleNode = pt.querySelector("ele");
+      const ele = eleNode ? +eleNode.textContent : null;
+
+      const t = new Date(tNode.textContent);
+
+      return { lat, lon, ele, tAbs: t.getTime(), tOffset:0, dist:0 };
+    }).filter(Boolean);
+
+    out.sort((a,b)=>a.tAbs - b.tAbs);
+    return out;
+  }
+
+  /* ============================================================
+     TRACK: COMPUTE OFFSETS + DIST
+     ============================================================ */
+  function computeOffsetsAndDist(){
+    if (!points.length) return;
+
+    for (const p of points){
+      p.tOffset = (p.tAbs - firstAbsTime) / 1000;
+    }
+
+    let d = 0;
+    points[0].dist = 0;
+    for (let i=1;i<points.length;i++){
+      d += haversineMeters(points[i-1], points[i]);
+      points[i].dist = d;
+    }
+
+    hasEle = points.some(p => Number.isFinite(p.ele));
+  }
+
+  /* ============================================================
+     LIMPIAR
+     ============================================================ */
+  function clearAll(){
+    if (polyline) map.removeLayer(polyline);
+    if (marker) map.removeLayer(marker);
+
+    polyline = null;
+    marker = null;
+
+    points = [];
+    firstAbsTime = null;
+    hasEle = false;
+
+    drawElevationProfile(null);
+
+    hud.textContent = "—";
+    lastBearingDeg = 0;
+  }
+
+  /* ============================================================
+     DRAW TRACK + MARKER
+     ============================================================ */
+  function drawTrack(){
+    if (!points.length) return;
+
+    computeOffsetsAndDist();
+
+    polyline = L.polyline(points.map(p => [p.lat, p.lon]), {
+      color: "blue",
+      weight: 4
+    }).addTo(map);
+
+    marker = L.circleMarker([points[0].lat, points[0].lon], {
+      radius: 7,
+      color: "#b00000",
+      weight: 2,
+      fillColor: "#ff0000",
+      fillOpacity: 1.0
+    }).addTo(map);
+
+    map.fitBounds(polyline.getBounds(), { padding: [20,20] });
+
+    polyline.on("click", (e) => {
+      const p = nearestPoint(e.latlng.lat, e.latlng.lng);
+      if (!p) return;
+      syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+    });
+
+    enableMarkerDragScrub();
+
+    drawElevationProfile(0);
+  }
+
+  /* ============================================================
+     NEAREST POINT
+     ============================================================ */
+  function nearestPoint(lat, lon){
+    let best = null;
+    let bestDist = Infinity;
+    for (const p of points){
+      const d = (p.lat - lat) ** 2 + (p.lon - lon) ** 2;
+      if (d < bestDist){
+        bestDist = d;
+        best = p;
+      }
+    }
+    return best;
+  }
+
+  function pointAtTime(t){
+    let p = points[0];
+    for (const q of points){
+      if (q.tOffset <= t) p = q;
+      else break;
+    }
+    return p;
+  }
+
+  /* ============================================================
+     SYNC CENTRAL
+     ============================================================ */
+  function syncToPoint(p, opts){
+    const { seekVideo=false, centerMap=true, redrawProfile=true } = (opts || {});
+    if (!p || !marker) return;
+
+    marker.setLatLng([p.lat, p.lon]);
+
+    const idx = findPointIndex(p);
+    if (idx !== -1){
+      const a = points[Math.max(0, idx-1)];
+      const b = points[Math.min(points.length-1, idx+1)];
+      if (a && b && (a !== b)){
+        lastBearingDeg = computeBearingDeg(a, b);
+      }
+    }
+
+    if (centerMap){
+      const now = performance.now();
+      if (now - lastCenterTs > 60){
+        lastCenterTs = now;
+        map.panTo([p.lat, p.lon], { animate:false });
+      }
+    }
+
+    if (seekVideo){
+      safeSeek(p.tOffset);
+    }
+
+    if (redrawProfile){
+      drawElevationProfile(video.currentTime);
+    }
+
+    const distKm = (p.dist || 0) / 1000;
+    hud.textContent = `t=${fmtTimeHMS(p.tOffset)} · ${distKm.toFixed(2)} km · lat=${p.lat.toFixed(5)} lon=${p.lon.toFixed(5)}`;
+  }
+
+  function findPointIndex(p){
+    for (let i=0;i<points.length;i++){
+      if (points[i] === p) return i;
+    }
+    return -1;
+  }
+
+  async function safeSeek(targetTime){
+    if (!Number.isFinite(targetTime)) return;
+
+    const now = performance.now();
+    if (now - lastSeekTs < 35) return;
+    lastSeekTs = now;
+
+    targetTime = Math.max(0, targetTime);
+
+    if (Math.abs(video.currentTime - targetTime) < 0.04) return;
+
+    video.currentTime = targetTime;
+
+    if (typeof video.requestVideoFrameCallback === "function"){
+      await new Promise(resolve => {
+        video.requestVideoFrameCallback(() => resolve());
+      });
+    } else {
+      await new Promise(resolve => {
+        const onSeeked = () => {
+          video.removeEventListener("seeked", onSeeked);
+          resolve();
+        };
+        video.addEventListener("seeked", onSeeked, { once:true });
+      });
+    }
+
+    drawElevationProfile(video.currentTime);
+  }
+
+  /* ============================================================
+     VIDEO -> MAP + PROFILE
+     ============================================================ */
+  video.addEventListener("timeupdate", () => {
+    if (!points.length) return;
+    const p = pointAtTime(video.currentTime);
+    syncToPoint(p, { seekVideo:false, centerMap:true, redrawProfile:true });
+  });
+
+  /* ============================================================
+     MAP -> VIDEO (click on map)
+     ============================================================ */
+  map.on("click", (e) => {
+    if (!points.length) return;
+    const p = nearestPoint(e.latlng.lat, e.latlng.lng);
+    if (!p) return;
+    syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+  });
+
+  /* ============================================================
+     DRAG SCRUB ON MAP (manual)
+     ============================================================ */
+  function enableMarkerDragScrub(){
+    let dragging = false;
+
+    function distPx(latlngA, latlngB){
+      const a = map.latLngToContainerPoint(latlngA);
+      const b = map.latLngToContainerPoint(latlngB);
+      return a.distanceTo(b);
+    }
+
+    map.on("mousedown", (e) => {
+      if (!marker) return;
+      const m = marker.getLatLng();
+      if (distPx(m, e.latlng) < 18){
+        dragging = true;
+        map.dragging.disable();
+      }
+    });
+
+    map.on("mousemove", (e) => {
+      if (!dragging) return;
+      const p = nearestPoint(e.latlng.lat, e.latlng.lng);
+      if (!p) return;
+      syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+    });
+
+    function stopDrag(){
+      if (!dragging) return;
+      dragging = false;
+      map.dragging.enable();
+    }
+
+    map.on("mouseup", stopDrag);
+    map.on("mouseleave", stopDrag);
+  }
+
+  /* ============================================================
+     ELEVATION PROFILE (canvas)
+     ============================================================ */
+  function resizeCanvasToCSS(){
+    const r = elevCanvas.getBoundingClientRect();
+    const w = Math.max(1, Math.round(r.width));
+    const h = Math.max(1, Math.round(r.height));
+    if (elevCanvas.width !== w) elevCanvas.width = w;
+    if (elevCanvas.height !== h) elevCanvas.height = h;
+  }
+
+  window.addEventListener("resize", () => {
+    resizeCanvasToCSS();
+    drawElevationProfile(video.currentTime);
+  });
+
+  function drawElevationProfile(cursorTime){
+    resizeCanvasToCSS();
+
+    const W = elevCanvas.width;
+    const H = elevCanvas.height;
+
+    ctx.clearRect(0,0,W,H);
+
+    ctx.font = "14px system-ui";
+    ctx.fillStyle = "#000";
+
+    if (!points.length){
+      ctx.fillText("Carga un MP4 con su GPX (misma base de nombre)", 10, 24);
+      return;
+    }
+
+    if (!hasEle){
+      ctx.fillText("GPX sin <ele> (sin perfil de elevación)", 10, 24);
+      return;
+    }
+
+    const pad = 14;
+    const distMax = points[points.length-1].dist || 1;
+
+    const eles = points.filter(p => Number.isFinite(p.ele)).map(p => p.ele);
+    const eMin = Math.min(...eles);
+    const eMax = Math.max(...eles);
+    const eSpan = (eMax - eMin) || 1;
+
+    const linePts = [];
+    for (const p of points){
+      if (!Number.isFinite(p.ele)) continue;
+      const x = pad + (p.dist / distMax) * (W - pad*2);
+      const y = pad + (1 - (p.ele - eMin)/eSpan) * (H - pad*2);
+      linePts.push({x,y, p});
+    }
+
+    if (linePts.length < 2){
+      ctx.fillText("Perfil insuficiente", 10, 24);
+      return;
+    }
+
+    // relleno con degradado vertical rojo->naranja
+    ctx.beginPath();
+    ctx.moveTo(linePts[0].x, linePts[0].y);
+    for (let i=1;i<linePts.length;i++) ctx.lineTo(linePts[i].x, linePts[i].y);
+    ctx.lineTo(linePts[linePts.length-1].x, H - pad);
+    ctx.lineTo(linePts[0].x, H - pad);
+    ctx.closePath();
+
+    const grad = ctx.createLinearGradient(0, pad, 0, H - pad);
+    grad.addColorStop(0.0, "rgba(255, 0, 0, 0.45)");
+    grad.addColorStop(1.0, "rgba(255, 140, 0, 0.25)");
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // línea del perfil
+    ctx.beginPath();
+    ctx.moveTo(linePts[0].x, linePts[0].y);
+    for (let i=1;i<linePts.length;i++) ctx.lineTo(linePts[i].x, linePts[i].y);
+    ctx.strokeStyle = "rgba(120,0,0,0.9)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // etiquetas
+    ctx.fillStyle = "rgba(0,0,0,0.8)";
+    ctx.font = "12px system-ui";
+    ctx.fillText(`${Math.round(eMax)} m`, pad, pad + 12);
+    ctx.fillText(`${Math.round(eMin)} m`, pad, H - pad);
+
+    const totalKm = distMax / 1000;
+    const txtKm = `${totalKm.toFixed(2)} km`;
+    const twKm = ctx.measureText(txtKm).width;
+    ctx.fillText(txtKm, W - pad - twKm, H - pad);
+
+    // cursor
+    if (Number.isFinite(cursorTime)){
+      const p = pointAtTime(cursorTime);
+      const x = pad + (p.dist / distMax) * (W - pad*2);
+
+      ctx.strokeStyle = "rgba(0,0,0,0.75)";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x, pad);
+      ctx.lineTo(x, H - pad);
+      ctx.stroke();
+
+      const distKmCur = (p.dist || 0) / 1000;
+      const eleTxt = Number.isFinite(p.ele) ? `${Math.round(p.ele)} m` : "—";
+      const label = `${fmtTimeHMS(p.tOffset)} · ${distKmCur.toFixed(2)} km · ${eleTxt}`;
+
+      ctx.font = "12px system-ui";
+      const tw = ctx.measureText(label).width;
+
+      const bx = clamp(x - tw/2 - 6, pad, W - pad - tw - 12);
+      const by = pad;
+
+      ctx.fillStyle = "rgba(0,0,0,0.65)";
+      ctx.fillRect(bx, by, tw + 12, 18);
+
+      ctx.fillStyle = "#fff";
+      ctx.fillText(label, bx + 6, by + 13);
+    }
+  }
+
+  function nearestPointByDist(targetDist){
+    let best = points[0];
+    let bestD = Infinity;
+    for (const p of points){
+      const d = Math.abs(p.dist - targetDist);
+      if (d < bestD){ bestD = d; best = p; }
+    }
+    return best;
+  }
+
+  function scrubFromCanvas(clientX){
+    if (!points.length) return;
+    const rect = elevCanvas.getBoundingClientRect();
+    const xCss = clientX - rect.left;
+
+    const pad = 14;
+    const W = elevCanvas.width;
+    const usable = Math.max(1, W - pad*2);
+
+    const f = clamp((xCss - pad) / usable, 0, 1);
+    const distMax = points[points.length-1].dist || 1;
+    const targetDist = f * distMax;
+
+    const p = nearestPointByDist(targetDist);
+    syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+  }
+
+  elevCanvas.addEventListener("mousedown", (e) => {
+    draggingProfile = true;
+    scrubFromCanvas(e.clientX);
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!draggingProfile) return;
+    scrubFromCanvas(e.clientX);
+  });
+
+  window.addEventListener("mouseup", () => { draggingProfile = false; });
+
+  elevCanvas.addEventListener("click", (e) => scrubFromCanvas(e.clientX));
+
+  /* ============================================================
+     CARGA DE CARPETA / MP4 / GPX
+     ============================================================ */
+
+  dirInput.addEventListener("change", () => {
+    mp4Files.clear();
+    gpxFiles.clear();
+    mp4Select.innerHTML = `<option value="">(elige MP4)</option>`;
+
+    for (const f of dirInput.files){
+      const low = f.name.toLowerCase();
+      if (low.endsWith(".mp4")) mp4Files.set(f.name, f);
+      if (low.endsWith(".gpx")) gpxFiles.set(basenameNoExt(f.name), f);
+    }
+
+    const names = [...mp4Files.keys()].sort((a,b)=>a.localeCompare(b, "es", { numeric:true }));
+    for (const name of names){
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      mp4Select.appendChild(opt);
+    }
+
+    setStatus(`Carpeta cargada: ${mp4Files.size} mp4, ${gpxFiles.size} gpx`);
+  });
+
+  mp4Select.addEventListener("change", async () => {
+    const name = mp4Select.value;
+    if (!name) return;
+
+    clearAll();
+
+    const mp4 = mp4Files.get(name);
+    video.src = URL.createObjectURL(mp4);
+
+    const gpx = gpxFiles.get(basenameNoExt(name));
+    if (!gpx){
+      setStatus("MP4 cargado (sin GPX con mismo nombre)");
+      drawElevationProfile(null);
+      return;
+    }
+
+    const text = await readFileAsText(gpx);
+    points = parseGpx(text);
+
+    if (!points.length){
+      setStatus("GPX vacío o sin puntos válidos");
+      drawElevationProfile(null);
+      return;
+    }
+
+    firstAbsTime = points[0].tAbs;
+    drawTrack();
+
+    setStatus("Listo: vídeo + mapa + perfil (si hay ele)");
+  });
+
+  /* ============================================================
+     BOTONES / CONTROLES
+     ============================================================ */
+  fitBtn.addEventListener("click", () => {
+    if (polyline) map.fitBounds(polyline.getBounds(), { padding:[20,20] });
+  });
+
+  rateSelect.addEventListener("change", () => {
+    const r = +rateSelect.value;
+    video.playbackRate = r;
+    setStatus(`Velocidad: ${r}x`);
+  });
+
+  video.playbackRate = +rateSelect.value;
+
+  video.addEventListener("loadedmetadata", () => {
+    video.playbackRate = +rateSelect.value;
+  });
+
+  /* ============================================================
+     SCRUB +/- 1s con rueda sobre el vídeo
+     ============================================================ */
+  video.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const delta = Math.sign(e.deltaY);
+    const step = (delta > 0) ? +1 : -1;
+    video.currentTime = Math.max(0, video.currentTime + step);
+  }, { passive:false });
+
+  /* ============================================================
+     SCRUB +/- 1s con flechas cuando el video tiene foco
+     ============================================================ */
+  video.addEventListener("click", () => video.focus());
+
+  document.addEventListener("keydown", (e) => {
+    if (document.activeElement !== video) return;
+
+    if (e.key === "ArrowLeft"){
+      e.preventDefault();
+      video.currentTime = Math.max(0, video.currentTime - 1);
+    }
+    if (e.key === "ArrowRight"){
+      e.preventDefault();
+      video.currentTime = Math.max(0, video.currentTime + 1);
+    }
+  });
+
+  /* ============================================================
+     GOOGLE MAPS / STREET VIEW
+     ============================================================ */
+  function getCurrentLatLon(){
+    if (!points.length || !marker) return null;
+    const ll = marker.getLatLng();
+    return { lat: ll.lat, lon: ll.lng };
+  }
+
+  btnGoogleMaps.addEventListener("click", () => {
+    const pos = getCurrentLatLon();
+    if (!pos) return;
+    const url = `https://www.google.com/maps?q=${pos.lat},${pos.lon}&z=18`;
+    window.open(url, "_blank", "noopener");
+  });
+
+  btnStreetView.addEventListener("click", () => {
+    const pos = getCurrentLatLon();
+    if (!pos) return;
+    const heading = Number.isFinite(lastBearingDeg) ? lastBearingDeg : 0;
+    const url = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${pos.lat},${pos.lon}&heading=${heading}&pitch=0`;
+    window.open(url, "_blank", "noopener");
+  });
+
+  /* ============================================================
+     SNAPSHOT (PNG)
+     ============================================================ */
+  btnSnapshot.addEventListener("click", () => {
+    if (!video.videoWidth || !video.videoHeight){
+      setStatus("No hay frame para capturar (reproduce el vídeo un momento)");
+      return;
+    }
+
+    const c = document.createElement("canvas");
+    c.width = video.videoWidth;
+    c.height = video.videoHeight;
+    const cctx = c.getContext("2d");
+    cctx.drawImage(video, 0, 0, c.width, c.height);
+
+    const pos = getCurrentLatLon();
+    const t = fmtTimeHMS(video.currentTime).replaceAll(":","-");
+    const lat = pos ? pos.lat.toFixed(5) : "NA";
+    const lon = pos ? pos.lon.toFixed(5) : "NA";
+
+    c.toBlob((blob) => {
+      if (!blob) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `frame_${t}_${lat}_${lon}.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setStatus("Snapshot descargado (PNG)");
+    }, "image/png");
+  });
+
+  /* ============================================================
+     IMPORT KML / KMZ
+     ============================================================ */
+  kmlKmzInput.addEventListener("change", async () => {
+    const f = kmlKmzInput.files && kmlKmzInput.files[0];
+    if (!f) return;
+
+    try {
+      if (overlayLayer){
+        map.removeLayer(overlayLayer);
+        overlayLayer = null;
+      }
+
+      const low = f.name.toLowerCase();
+      if (low.endsWith(".kml")){
+        const txt = await readFileAsText(f);
+        loadKmlText(txt, f.name);
+      } else if (low.endsWith(".kmz")){
+        const ab = await f.arrayBuffer();
+        const zip = await JSZip.loadAsync(ab);
+
+        let kmlFile = null;
+        zip.forEach((relPath, file) => {
+          if (!kmlFile && relPath.toLowerCase().endsWith(".kml")){
+            kmlFile = file;
+          }
+        });
+
+        if (!kmlFile){
+          setStatus("KMZ sin KML внутри (no encontrado .kml)");
+          return;
+        }
+
+        const kmlText = await kmlFile.async("text");
+        loadKmlText(kmlText, f.name);
+      } else {
+        setStatus("Formato no soportado");
+      }
+    } catch (err){
+      console.error(err);
+      setStatus("Error importando KML/KMZ");
+    }
+  });
+
+  function loadKmlText(kmlText, filename){
+    const xml = new DOMParser().parseFromString(kmlText, "application/xml");
+    const gj = toGeoJSON.kml(xml);
+
+    overlayLayer = L.geoJSON(gj, {
+      style: () => ({
+        color: "#cc00cc",
+        weight: 3,
+        opacity: 0.85
+      }),
+      pointToLayer: (feature, latlng) => {
+        // muestra nombre/desc en popup
+        const props = (feature && feature.properties) ? feature.properties : {};
+        const name = props.name ? String(props.name) : "Punto";
+        const desc = props.description ? String(props.description) : "";
+        const html = `<b>${escapeHtml(name)}</b>${desc ? `<br>${desc}` : ""}`;
+
+        const m = L.circleMarker(latlng, {
+          radius: 5,
+          color: "#cc00cc",
+          fillColor: "#cc00cc",
+          fillOpacity: 0.8,
+          weight: 1
+        });
+        m.bindPopup(html);
+        return m;
+      }
+    }).addTo(map);
+
+    try { map.fitBounds(overlayLayer.getBounds(), { padding:[20,20] }); } catch (_) {}
+
+    setStatus(`Overlay cargado: ${filename}`);
+  }
+
+  function escapeHtml(s){
+    return s.replace(/[&<>"']/g, (c) => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+
+  /* ============================================================
+     FIN
+     ============================================================ */
+  </script>
+</body>
+</html>

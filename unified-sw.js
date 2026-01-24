@@ -17,6 +17,7 @@ const APP_CACHES = {
   'tetris': 'Tetris-v1.0', 
   'index': 'index-page-v1.0',
   'dashcam': 'dashcam-iphone-pro-cache-v4.11',
+  'vrm': 'vrm-v2.2',
 };
 
 const APP_RESOURCES = {
@@ -194,6 +195,15 @@ const APP_RESOURCES = {
     'https://rbenet71.github.io/Web/Ciclismo/Dashcam/recursos/Picto_Color_192x192.png',
     'https://rbenet71.github.io/Web/Ciclismo/Dashcam/recursos/Picto_Color_512x512.png'
   ]
+
+  'vrm': [
+    'https://rbenet71.github.io/Web/Ciclismo/VRM/VRM.html',
+    'https://rbenet71.github.io/Web/Ciclismo/VRM/VRM_logo_claro.png',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+    'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
+  ],
 };
 
 // 🔥 VERSIÓN DEL SW UNIFICADO
@@ -300,6 +310,8 @@ self.addEventListener('fetch', event => {
     targetApp = 'tetris';
   } else if (url.pathname.includes('Dashcam')) {
     targetApp = 'dashcam';
+  } else if (url.pathname.includes('/VRM/') || url.pathname.includes('VRM.html') || url.pathname.includes('Video_Race_Mapping') || url.pathname.includes('VRM_video')) {
+    targetApp = 'vrm';
   } else if (url.pathname.includes('index.html') || 
              url.pathname === '/Web/' || 
              url.pathname === '/Web' ||

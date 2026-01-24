@@ -1,0 +1,53 @@
+
+Altimetría con km y relleno
+Cursor avanza retrocede un segundo
+4 Botonera y combo 
+5 Directorio ordenar por nombre
+6 Capas de mapas wms
+7 Captura imagen geo referenciada
+8 Importar kml
+9 Sincronizar rutometro 
+10Ventanas movibles y ajustables
+11 ancho columnas tabla 
+box
+Logo App 
+12 Al abrir busca kmz, xlsx y gpx con el nombre del video
+LTR 
+
+****************
+en el boton de importar excel importar poner el picto de excel
+13 El nombre de la app es Video Race Mapping, abreviado VRM
+Crea una cabecera fija en la parte superior, que sea logo.jpg y el nombre de la app, y una linea inferior con nombre de carrera.
+14 que el picto del ciclista sea un gif o lo que tu creas conveniente, de un ciclista pedaleando
+15 que cuando se importe el track se mantenga el color que esta en el gpx 
+que se carguen ficheros automaticamente del sitio donde arranca la app - NO SE PUEDE HACER
+16 Crear un pie de app con el 2026 copyrght Roberto Benet - rbenet71@gmail.com, y si puede ser que se quede fijo, y el contenido de la pagina este entre cabecera y el pie. (no se queda fijo da problemas)
+Version 17 - Arregalar el diseño botones operaciones que estan un poco diferentes los unos de los otros. Poner una flecha que para ocultar o mostrar toda la zona de operaciones de operaciones
+Version 18d - poner nuevos mapas que te adjutno. Actualmente uno de los de ICC funciona, el primnero y el segundo no. Ahora te paso nuevas URL y cuando te lo pasé en otra ocasion los de ICC no funcionaron, Vigila
+
+LTR
+
+Version 19 - En el excel que importas hay los datos de la carrera, que deberemos mostrar en la cabecera de la app. En la pestaña cabecera tienes los siguientes campos a utilizar: Codi_Num_Etapa, Nom_Etapa, km, Sortida_Neutralitzada_Km,  Sortida_Neutralitzada_Hora,  Sortida_Real_Hora, Velocitat_2
+Debajo del titular de la app pondemos, si el excel nos dio los datos, Carrera: [Codi_Num_Etapa]ª Etapa - [Nom_Etapa] ([km]km) - (Neutralizada: [Sortida_Neutralitzada_Km]) - Salida: [Sortida_Neutralitzada_Hora] / [Sortida_Real_Hora] - Promedio Previsto: [Velocitat_2]km/h
+Guarda el valor de Sortida_Neutralitzada_Km, porque en el calculo de los km del track restaremos este valor para saber el km real de la etapa (el track acumula un tramo de recorrido que le llamamos neutralziado y que no forma parte del kilometraje de la etapa y por tanto lo hemos de restar para saber el km real de la etapa)
+19d- Se arreglo pie fijo
+19f - km negativos Neutralizada
+v20 cabecera cuerpo mas grande (proporcion mismo entre titulo y subtitulo ) y con la version actual 
+2.1 Centrar tabla en el punto del video
+2.2 Ver qué tipo de vídeo es y usa o no el GPX
+2.3 mapas offline - cataluña o con descarga previa
+
+
+Encriptar o empaquetar
+NIVEL 2 — Ofuscar la app (recomendado +1)
+👉 Nadie entiende el código aunque abra el HTML.
+
+Minificas y ofuscas el JS
+Dejas el HTML funcional pero ilegible
+
+Ejemplos de herramientas:
+terser
+javascript-obfuscator
+
+n Logo en base64 para que este dentro del html y crea ese logo que refleje un video que es mostrado en un mapa para una carrera de bicis. Intenta que ocupe lo minimo para que el html no se haga muy grande.
+

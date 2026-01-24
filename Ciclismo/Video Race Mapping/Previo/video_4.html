@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Garmin dashcam - vídeo + mapa + perfil (offline)</title>
+
+  <!--
+    ==========================================================================================
+    GARMIN DASHCAM - APP OFFLINE (HTML ÚNICO)
+
+    OBJETIVO
+    - Cargar una carpeta local con MP4 + GPX (mismo nombre base).
+    - Ver vídeo y mapa sincronizados (vídeo -> mapa y mapa -> vídeo).
+    - Scrub:
+        - Click en mapa o en el track -> salta el vídeo al punto.
+        - Arrastrar el marcador sobre el track -> “scrub” continuo del vídeo.
+        - Scrub en el perfil (si hay elevación) -> salta vídeo + mapa.
+        - Rueda del ratón encima del vídeo -> +/- 1 segundo.
+    - El mapa se centra SIEMPRE en el punto actual (con throttle para no ir a trompicones).
+    - Selector de mapas de fondo:
+        - XYZ / OSM
+        - WMS (las URLs que has pasado; si algún WMS no soporta EPSG:3857, puede no verse)
+    - Velocidad de reproducción: combobox 1x / 2x / 8x / 16x.
+
+    NOTAS IMPORTANTES
+    - “Offline”: el HTML abre archivos locales (carpeta) sin servidor.
+      Pero los mapas de fondo (OSM/WMS/Google XYZ) requieren internet si los usas.
+      Si no hay internet, el vídeo + GPX seguirá funcionando, solo que sin fondo de mapa.
+    - Leaflet por defecto trabaja en EPSG:3857. Muchos WMS aceptan EPSG:3857.
+      Los URIs de QGIS que has pegado usan EPSG:4326 o EPSG:25831.
+      Aquí pedimos EPSG:3857 para la mayoría; si un WMS no lo soporta, se verá en blanco.
+
+    PERFIL ELEVACIÓN
+    - Solo se dibuja si el GPX contiene <ele>.
+    - (Como dijiste, por ahora NO calculamos elevación desde DEM en esta app HTML).
+
+    ESTRUCTURA (para mantenerlo mantenible aunque sea largo)
+    1) Estilos
+    2) Layout
+    3) Leaflet map + capas base (XYZ/WMS)
+    4) Carga carpeta: MP4 + GPX
+    5) Parse GPX
+    6) Sync vídeo <-> mapa
+    7) Scrub:
+       - click mapa/track
+       - drag “manual” del marcador
+       - wheel en vídeo para +/- 1s
+    8) Perfil:
+       - área rellena + línea suave
+       - distancias en km
+       - cursor de tiempo
+       - scrub por click + drag en canvas
+
+    ==========================================================================================
+  -->
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+  <style>
+    :root{
+      --bg-controls: #f2f2f2;
+      --border: #d0d0d0;
+      --panel: #ffffff;
+      --panel2: #fafafa;
+      --text: #111;
+      --muted: #666;
+      --shadow: 0 6px 18px rgba(0,0,0,.08);
+      --radius: 10px;
+    }
+
+    html, body{
+      margin:0;
+      padding:0;
+      height:100%;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      background: #fff;
+    }
+
+    /* ==========================
+       LAYOUT PRINCIPAL
+    ========================== */
+    #layout{
+      display:grid;
+      grid-template-columns: 50% 50%;
+      grid-template-rows: auto 1fr auto;
+      height:100%;
+      gap:0;
+    }
+
+    /* ==========================
+       CONTROLES
+    ========================== */
+    #controls{
+      grid-column: 1 / 3;
+      padding: 8px;
+      background: var(--bg-controls);
+      display:flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items:center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    label{
+      background: var(--panel);
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+      box-shadow: var(--shadow);
+    }
+
+    select, button{
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+
+    button:active{
+      transform: translateY(1px);
+    }
+
+    .group{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .muted{
+      color: var(--muted);
+      font-size: .92em;
+    }
+
+    #status{
+      margin-left:auto;
+      font-size: 0.92em;
+      color: var(--muted);
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.7);
+      border: 1px dashed rgba(0,0,0,.12);
+    }
+
+    /* ==========================
+       VIDEO
+    ========================== */
+    #videoWrap{
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+      border-right: 1px solid var(--border);
+    }
+
+    /* Mantener controles nativos */
+    video{
+      width: 100%;
+      height: 100%;
+      background: #000;
+      object-fit: contain;
+      display:block;
+    }
+
+    /* HUD: no debe bloquear controles del vídeo */
+    #hud{
+      position:absolute;
+      left: 10px;
+      top: 10px;
+      background: rgba(0,0,0,.55);
+      color: #fff;
+      padding: 6px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+      pointer-events: none; /* MUY importante: no tapar los controles */
+      user-select:none;
+      max-width: 90%;
+      line-height: 1.3;
+    }
+
+    /* Ayuda overlay discreta */
+    #help{
+      position:absolute;
+      left: 10px;
+      bottom: 10px;
+      background: rgba(255,255,255,.85);
+      color: #111;
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      box-shadow: var(--shadow);
+      max-width: 90%;
+    }
+    #help b{ font-weight: 650; }
+
+    /* ==========================
+       MAPA
+    ========================== */
+    #map{
+      width: 100%;
+      height: 100%;
+      background:#fff;
+    }
+
+    /* ==========================
+       PERFIL
+    ========================== */
+    #profileBar{
+      grid-column: 1 / 3;
+      padding: 8px;
+      background: var(--panel2);
+      border-top: 1px solid var(--border);
+    }
+
+    #elevCanvas{
+      width: 100%;
+      height: 170px;
+      display:block;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      cursor: crosshair;
+    }
+
+    /* ==========================
+       RESPONSIVE
+    ========================== */
+    @media (max-width: 980px){
+      #layout{
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 44vh 44vh auto;
+      }
+      #controls{ grid-column: 1 / 2; }
+      #profileBar{ grid-column: 1 / 2; }
+      #videoWrap{ border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="layout">
+
+    <!-- ==========================
+         CONTROLES
+    =========================== -->
+    <div id="controls">
+
+      <label title="Selecciona una carpeta local con MP4 + GPX (mismo nombre base)">
+        📁 Carpeta (mp4 + gpx)
+        <input id="dirInput" type="file" webkitdirectory hidden>
+      </label>
+
+      <div class="group">
+        <span class="muted">🎬 MP4</span>
+        <select id="mp4Select">
+          <option value="">(elige carpeta primero)</option>
+        </select>
+      </div>
+
+      <div class="group">
+        <span class="muted">🗺️ Mapa</span>
+        <select id="baseMapSelect" title="Elige capa base (XYZ/WMS)">
+          <option value="osm">OSM (XYZ)</option>
+          <option value="google_road">Google Road (XYZ)</option>
+          <option value="icgc_topo_wms">ICGC Topo (WMS)</option>
+          <option value="ign_orto_wms">IGN Orto (WMS)</option>
+          <option value="icc_orto_wms">ICC Orto (WMS)</option>
+          <option value="gencat_viari_wms">Gencat Viari (WMS)</option>
+        </select>
+      </div>
+
+      <button id="fitBtn" title="Ajusta el mapa al track">Ajustar mapa</button>
+
+      <div class="group">
+        <span class="muted">⏩ Velocidad</span>
+        <select id="rateSelect" title="Velocidad de reproducción">
+          <option value="1">1x</option>
+          <option value="2">2x</option>
+          <option value="8">8x</option>
+          <option value="16">16x</option>
+        </select>
+      </div>
+
+      <span id="status">Esperando carpeta…</span>
+    </div>
+
+    <!-- ==========================
+         VIDEO
+    =========================== -->
+    <div id="videoWrap">
+      <div id="hud">—</div>
+
+      <video id="video" controls playsinline></video>
+
+      <div id="help">
+        <b>Atajos:</b>
+        Click mapa/track → ir al punto · Arrastrar punto → scrub ·
+        Perfil (si hay elevación) → scrub ·
+        Rueda en vídeo → ±1s
+      </div>
+    </div>
+
+    <!-- ==========================
+         MAPA
+    =========================== -->
+    <div id="map"></div>
+
+    <!-- ==========================
+         PERFIL
+    =========================== -->
+    <div id="profileBar">
+      <canvas id="elevCanvas"></canvas>
+    </div>
+
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    /* ==========================================================================================
+       0) ELEMENTOS / ESTADO GLOBAL
+    ========================================================================================== */
+
+    const video        = document.getElementById("video");
+    const hud          = document.getElementById("hud");
+    const elevCanvas   = document.getElementById("elevCanvas");
+    const ctx          = elevCanvas.getContext("2d");
+
+    const dirInput     = document.getElementById("dirInput");
+    const mp4Select    = document.getElementById("mp4Select");
+    const fitBtn       = document.getElementById("fitBtn");
+    const statusEl     = document.getElementById("status");
+    const rateSelect   = document.getElementById("rateSelect");
+    const baseMapSelect= document.getElementById("baseMapSelect");
+
+    // Leaflet map
+    const map = L.map("map", {
+      zoomControl: true,
+      preferCanvas: false
+    }).setView([0,0], 2);
+
+    // Track layers
+    let polyline = null;
+    let marker   = null;
+
+    // Datos GPX
+    let points = [];           // [{lat,lon,ele,tAbs,tOffset,dist}]
+    let firstAbsTime = null;
+    let hasEle = false;
+
+    // Control de centrar SIEMPRE (throttle)
+    let lastCenterTs = 0;
+
+    // Control de seek (evitar tormenta)
+    let seekPending = false;
+    let seekWanted = null;
+
+    // Para evitar bucles de eventos cuando el seek viene del usuario
+    let internalSeeking = false;
+
+    // Helpers de rendimiento
+    const CENTER_THROTTLE_MS = 80;   // throttle panTo
+    const SEEK_MIN_DELTA_S   = 0.04; // si ya está cerca, no re-seek
+
+    /* ==========================================================================================
+       1) UTILIDADES
+    ========================================================================================== */
+
+    function setStatus(msg){
+      statusEl.textContent = msg;
+    }
+
+    function basenameNoExt(name){
+      return name.replace(/\.[^.]+$/, "");
+    }
+
+    function readFileAsText(file){
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result));
+        r.onerror = reject;
+        r.readAsText(file);
+      });
+    }
+
+    function fmtTime(seconds){
+      if (!Number.isFinite(seconds)) return "—";
+      seconds = Math.max(0, seconds);
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      const s = Math.floor(seconds % 60);
+      if (h > 0) return `${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+      return `${m}:${String(s).padStart(2,"0")}`;
+    }
+
+    function fmtKm(meters){
+      if (!Number.isFinite(meters)) return "—";
+      return (meters/1000).toFixed(2) + " km";
+    }
+
+    // Distancia Haversine (metros)
+    function haversine(a, b){
+      const R = 6371000;
+      const toRad = x => x * Math.PI / 180;
+      const dLat = toRad(b.lat - a.lat);
+      const dLon = toRad(b.lon - a.lon);
+      const s1 = Math.sin(dLat/2), s2 = Math.sin(dLon/2);
+      const q  = s1*s1 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*s2*s2;
+      return 2 * R * Math.asin(Math.sqrt(q));
+    }
+
+    // Clamp simple
+    function clamp(v, a, b){
+      return Math.max(a, Math.min(b, v));
+    }
+
+    /* ==========================================================================================
+       2) CAPAS BASE (XYZ + WMS)
+       - OJO: Leaflet está en EPSG:3857.
+       - Muchos WMS aceptan CRS=EPSG:3857 (recomendado aquí).
+       - Si alguno no soporta 3857, se verá blanco.
+    ========================================================================================== */
+
+    // 2.1 XYZ (OSM)
+    const baseOSM = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "© OpenStreetMap"
+    });
+
+    // 2.2 XYZ Google Road (usuario lo pidió; depende de internet)
+    const baseGoogleRoad = L.tileLayer("https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}", {
+      maxZoom: 18,
+      attribution: "Google"
+    });
+
+    // 2.3 WMS: ICGC topo (URL del usuario)
+    // url: https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wms/service
+    // layers=topo
+    const baseICGCTopoWMS = L.tileLayer.wms("https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wms/service", {
+      layers: "topo",
+      format: "image/png",
+      transparent: false,
+      version: "1.1.1",
+      attribution: "ICGC (WMS)",
+      crs: L.CRS.EPSG3857
+    });
+
+    // 2.4 WMS: IGN base orto (URL del usuario)
+    // url: http://www.ign.es/wms-inspire/ign-base
+    // layers=IGNBaseOrto
+    const baseIGNOrtoWMS = L.tileLayer.wms("http://www.ign.es/wms-inspire/ign-base", {
+      layers: "IGNBaseOrto",
+      format: "image/png",
+      transparent: false,
+      version: "1.3.0",
+      attribution: "IGN (WMS)",
+      crs: L.CRS.EPSG3857
+    });
+
+    // 2.5 WMS: ICC orto (URL usuario)
+    // url: http://mapcache.icc.cat/map/bases/service
+    // layers=orto
+    const baseICCOrtoWMS = L.tileLayer.wms("http://mapcache.icc.cat/map/bases/service", {
+      layers: "orto",
+      format: "image/png",
+      transparent: false,
+      version: "1.1.1",
+      attribution: "ICC (WMS)",
+      crs: L.CRS.EPSG3857
+    });
+
+    // 2.6 WMS: Gencat viari (URL usuario)
+    // url: https://sig.gencat.cat/ows/XARXES_TRANSPORT/wms
+    // layers=XT_VIARI_PK_CARRETERES
+    const baseGencatViariWMS = L.tileLayer.wms("https://sig.gencat.cat/ows/XARXES_TRANSPORT/wms", {
+      layers: "XT_VIARI_PK_CARRETERES",
+      format: "image/png",
+      transparent: true,
+      version: "1.3.0",
+      attribution: "Gencat (WMS)",
+      crs: L.CRS.EPSG3857
+    });
+
+    // Registro de capas
+    const baseLayers = {
+      osm: baseOSM,
+      google_road: baseGoogleRoad,
+      icgc_topo_wms: baseICGCTopoWMS,
+      ign_orto_wms: baseIGNOrtoWMS,
+      icc_orto_wms: baseICCOrtoWMS,
+      gencat_viari_wms: baseGencatViariWMS
+    };
+
+    // Capa base activa
+    let activeBaseLayer = null;
+
+    function setBaseLayer(key){
+      const layer = baseLayers[key] || baseOSM;
+      if (activeBaseLayer) map.removeLayer(activeBaseLayer);
+      activeBaseLayer = layer;
+      activeBaseLayer.addTo(map);
+      setStatus(`Mapa: ${baseMapSelect.options[baseMapSelect.selectedIndex].text}`);
+    }
+
+    // Inicial
+    setBaseLayer("osm");
+
+    baseMapSelect.addEventListener("change", () => {
+      setBaseLayer(baseMapSelect.value);
+    });
+
+    /* ==========================================================================================
+       3) PARSE GPX
+       - Lee trkpt lat/lon/time y opcional ele
+       - Ordena por tiempo
+    ========================================================================================== */
+
+    function parseGpx(xmlText){
+      const xml = new DOMParser().parseFromString(xmlText, "application/xml");
+      const trkpts = [...xml.querySelectorAll("trkpt")];
+
+      const out = trkpts.map(pt => {
+        const lat = +pt.getAttribute("lat");
+        const lon = +pt.getAttribute("lon");
+
+        const tNode = pt.querySelector("time");
+        if (!tNode || !tNode.textContent) return null;
+        const t = new Date(tNode.textContent);
+        if (Number.isNaN(t.getTime())) return null;
+
+        const eleNode = pt.querySelector("ele");
+        const ele = eleNode && eleNode.textContent ? +eleNode.textContent : null;
+
+        return { lat, lon, ele, tAbs: t.getTime(), tOffset: 0, dist: 0 };
+      }).filter(Boolean);
+
+      out.sort((a,b)=>a.tAbs-b.tAbs);
+      return out;
+    }
+
+    /* ==========================================================================================
+       4) TRACK / MAPA: limpiar, dibujar, offsets y distancias
+    ========================================================================================== */
+
+    function clearAll(){
+      if (polyline) map.removeLayer(polyline);
+      if (marker) map.removeLayer(marker);
+      polyline = null;
+      marker = null;
+
+      points = [];
+      firstAbsTime = null;
+      hasEle = false;
+
+      hud.textContent = "—";
+      drawElevationProfile(null);
+
+      // resetea seek control
+      seekPending = false;
+      seekWanted = null;
+      internalSeeking = false;
+    }
+
+    function computeOffsetsAndDist(){
+      // offsets tiempo (segundos desde primer punto)
+      for (const p of points){
+        p.tOffset = (p.tAbs - firstAbsTime) / 1000;
+      }
+
+      // dist acumulada
+      let d = 0;
+      points[0].dist = 0;
+      for (let i=1;i<points.length;i++){
+        d += haversine(points[i-1], points[i]);
+        points[i].dist = d;
+      }
+
+      hasEle = points.some(p => Number.isFinite(p.ele));
+    }
+
+    function drawTrack(){
+      computeOffsetsAndDist();
+
+      polyline = L.polyline(points.map(p => [p.lat, p.lon]), {
+        color: "blue",
+        weight: 4
+      }).addTo(map);
+
+      // Usamos circleMarker para que se vea bien y sea ligero
+      marker = L.circleMarker([points[0].lat, points[0].lon], {
+        radius: 7,
+        weight: 2
+      }).addTo(map);
+
+      // Ajuste inicial
+      map.fitBounds(polyline.getBounds(), { padding:[20,20] });
+
+      // Click en track
+      polyline.on("click", (e) => {
+        const p = nearestPoint(e.latlng.lat, e.latlng.lng);
+        if (!p) return;
+        syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+      });
+
+      // Drag marker -> scrub
+      enableMarkerDragScrub();
+
+      // Perfil inicial
+      drawElevationProfile(video.currentTime);
+    }
+
+    /* ==========================================================================================
+       5) LOCALIZAR PUNTO
+    ========================================================================================== */
+
+    function nearestPoint(lat, lon){
+      let best = null;
+      let bestDist = Infinity;
+      for (const p of points){
+        const d = (p.lat - lat)**2 + (p.lon - lon)**2;
+        if (d < bestDist){
+          bestDist = d;
+          best = p;
+        }
+      }
+      return best;
+    }
+
+    function pointAtTime(t){
+      // points ordenados por tOffset
+      let p = points[0];
+      for (const q of points){
+        if (q.tOffset <= t) p = q;
+        else break;
+      }
+      return p;
+    }
+
+    function nearestPointByDist(targetDist){
+      let best = points[0];
+      let bestD = Infinity;
+      for (const p of points){
+        const d = Math.abs(p.dist - targetDist);
+        if (d < bestD){
+          bestD = d;
+          best = p;
+        }
+      }
+      return best;
+    }
+
+    /* ==========================================================================================
+       6) SYNC CENTRAL
+       - syncToPoint(): mueve marker, centra mapa, seek vídeo, redibuja perfil, actualiza HUD
+    ========================================================================================== */
+
+    function syncToPoint(p, opts){
+      const { seekVideo=false, centerMap=true, redrawProfile=true } = (opts||{});
+      if (!p || !marker) return;
+
+      // Marker
+      marker.setLatLng([p.lat, p.lon]);
+
+      // Centrar SIEMPRE (throttle)
+      if (centerMap){
+        const now = performance.now();
+        if (now - lastCenterTs > CENTER_THROTTLE_MS){
+          lastCenterTs = now;
+          map.panTo([p.lat, p.lon], { animate:false });
+        }
+      }
+
+      // Seek vídeo (si toca)
+      if (seekVideo){
+        scheduleSeek(p.tOffset);
+      }
+
+      // Perfil
+      if (redrawProfile){
+        drawElevationProfile(video.currentTime);
+      }
+
+      // HUD
+      const eleTxt = Number.isFinite(p.ele) ? `${Math.round(p.ele)} m` : "—";
+      hud.textContent =
+        `t=${fmtTime(p.tOffset)}  ·  dist=${fmtKm(p.dist)}  ·  ele=${eleTxt}\n` +
+        `lat=${p.lat.toFixed(5)}  lon=${p.lon.toFixed(5)}`;
+    }
+
+    /* ==========================================================================================
+       7) SEEK ROBUSTO (evitar tormenta)
+       - scheduleSeek(t) guarda el último pedido y ejecuta uno por uno.
+       - Esto hace que el scrub por drag sea suave.
+    ========================================================================================== */
+
+    function scheduleSeek(targetTime){
+      if (!Number.isFinite(targetTime)) return;
+      targetTime = Math.max(0, targetTime);
+
+      // Si ya estamos suficientemente cerca, no hagas nada
+      if (Math.abs(video.currentTime - targetTime) < SEEK_MIN_DELTA_S) return;
+
+      seekWanted = targetTime;
+
+      if (seekPending) return; // ya hay uno en curso
+      seekPending = true;
+
+      runSeekLoop().catch(()=>{ /* silent */ });
+    }
+
+    async function runSeekLoop(){
+      while (seekWanted != null){
+        const t = seekWanted;
+        seekWanted = null;
+
+        // Si ya estamos cerca, saltamos
+        if (Math.abs(video.currentTime - t) < SEEK_MIN_DELTA_S) continue;
+
+        internalSeeking = true;
+        try{
+          video.currentTime = t;
+
+          // Esperar a que el navegador pinte el frame
+          await waitFramePaint();
+        } finally {
+          internalSeeking = false;
+        }
+
+        // Redibuja perfil con el nuevo tiempo
+        drawElevationProfile(video.currentTime);
+      }
+      seekPending = false;
+    }
+
+    function waitFramePaint(){
+      // Si existe requestVideoFrameCallback, es lo mejor
+      if (typeof video.requestVideoFrameCallback === "function"){
+        return new Promise(resolve => {
+          video.requestVideoFrameCallback(() => resolve());
+        });
+      }
+      // Fallback: seeked
+      return new Promise(resolve => {
+        const onSeeked = () => {
+          video.removeEventListener("seeked", onSeeked);
+          resolve();
+        };
+        video.addEventListener("seeked", onSeeked, { once:true });
+      });
+    }
+
+    /* ==========================================================================================
+       8) VIDEO -> MAPA + PERFIL
+       - En cada timeupdate: marker + centrar + perfil
+    ========================================================================================== */
+
+    video.addEventListener("timeupdate", () => {
+      if (!points.length) return;
+
+      // Si el timeupdate viene de un seek interno, igual queremos actualizar marker, sí.
+      // Pero NO queremos auto-seek otra vez.
+      const p = pointAtTime(video.currentTime);
+      syncToPoint(p, { seekVideo:false, centerMap:true, redrawProfile:true });
+    });
+
+    /* ==========================================================================================
+       9) MAPA -> VIDEO (click)
+    ========================================================================================== */
+
+    map.on("click", (e) => {
+      if (!points.length) return;
+      const p = nearestPoint(e.latlng.lat, e.latlng.lng);
+      if (!p) return;
+      syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+    });
+
+    /* ==========================================================================================
+       10) SCRUB POR DRAG (marker “manual”)
+       - circleMarker no es draggable por defecto, así que hacemos drag detectando proximidad
+       - Al arrastrar: busca nearestPoint y hace sync (con seek)
+    ========================================================================================== */
+
+    function enableMarkerDragScrub(){
+      let dragging = false;
+
+      function distPx(latlngA, latlngB){
+        const a = map.latLngToContainerPoint(latlngA);
+        const b = map.latLngToContainerPoint(latlngB);
+        return a.distanceTo(b);
+      }
+
+      map.on("mousedown", (e) => {
+        if (!marker) return;
+        const m = marker.getLatLng();
+        if (distPx(m, e.latlng) < 18){
+          dragging = true;
+          map.dragging.disable();
+        }
+      });
+
+      map.on("mousemove", (e) => {
+        if (!dragging) return;
+        const p = nearestPoint(e.latlng.lat, e.latlng.lng);
+        if (!p) return;
+        syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+      });
+
+      map.on("mouseup", (e) => {
+        if (!dragging) return;
+        dragging = false;
+        map.dragging.enable();
+
+        // Asegura un seek final exacto
+        const p = nearestPoint(e.latlng.lat, e.latlng.lng);
+        if (!p) return;
+        syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+      });
+
+      map.on("mouseleave", () => {
+        if (!dragging) return;
+        dragging = false;
+        map.dragging.enable();
+      });
+    }
+
+    /* ==========================================================================================
+       11) RUEDA DEL RATÓN SOBRE VÍDEO -> +/- 1s
+       - Esto permite avance/retroceso fino sin click
+    ========================================================================================== */
+
+    const videoWrap = document.getElementById("videoWrap");
+    videoWrap.addEventListener("wheel", (ev) => {
+      // Solo si hay vídeo cargado
+      if (!video.src) return;
+
+      // Evita scroll de la página
+      ev.preventDefault();
+
+      // deltaY: positivo -> rueda hacia abajo
+      const dir = ev.deltaY > 0 ? +1 : -1;
+
+      // +- 1 segundo
+      const target = clamp(video.currentTime + dir * 1.0, 0, isFinite(video.duration) ? video.duration : video.currentTime + 1);
+      scheduleSeek(target);
+    }, { passive:false });
+
+    /* ==========================================================================================
+       12) PERFIL ELEVACIÓN (si hay <ele>)
+       - Área rellena
+       - Línea suave (sin “cuadriculado”)
+       - Distancia en km
+       - Cursor vertical + etiqueta
+       - Scrub por click + drag
+    ========================================================================================== */
+
+    function resizeCanvasToCSS(){
+      const r = elevCanvas.getBoundingClientRect();
+      const w = Math.max(1, Math.round(r.width));
+      const h = Math.max(1, Math.round(r.height));
+      if (elevCanvas.width !== w) elevCanvas.width = w;
+      if (elevCanvas.height !== h) elevCanvas.height = h;
+    }
+
+    window.addEventListener("resize", () => {
+      resizeCanvasToCSS();
+      drawElevationProfile(video.currentTime);
+    });
+
+    function drawElevationProfile(cursorTime){
+      resizeCanvasToCSS();
+
+      const W = elevCanvas.width;
+      const H = elevCanvas.height;
+      ctx.clearRect(0,0,W,H);
+
+      // Mensajes
+      if (!points.length){
+        ctx.font = "14px system-ui";
+        ctx.fillStyle = "#111";
+        ctx.fillText("Carga una carpeta con MP4 + GPX (mismo nombre base)", 12, 24);
+        return;
+      }
+
+      if (!hasEle){
+        ctx.font = "14px system-ui";
+        ctx.fillStyle = "#111";
+        ctx.fillText("GPX sin <ele> (sin perfil de elevación)", 12, 24);
+        ctx.fillStyle = "#666";
+        ctx.fillText("Cuando exista elevación, aquí verás el perfil + scrub.", 12, 46);
+        return;
+      }
+
+      const pad = 14;
+      const innerW = W - pad*2;
+      const innerH = H - pad*2;
+
+      // Rango distancias
+      const distMax = points[points.length-1].dist || 1;
+
+      // Rango elevación
+      const valid = points.filter(p => Number.isFinite(p.ele));
+      const eles = valid.map(p => p.ele);
+      const eMin = Math.min(...eles);
+      const eMax = Math.max(...eles);
+      const eSpan = (eMax - eMin) || 1;
+
+      // Helper: mapea punto -> coords canvas
+      function toX(p){
+        return pad + (p.dist / distMax) * innerW;
+      }
+      function toY(p){
+        return pad + (1 - (p.ele - eMin)/eSpan) * innerH;
+      }
+
+      // Fondo suave (sin cuadricula “dura”)
+      // Dibujamos 3 líneas horizontales discretas
+      ctx.save();
+      ctx.globalAlpha = 0.12;
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 1;
+
+      for (let i=0; i<=2; i++){
+        const y = pad + (innerH * i / 2);
+        ctx.beginPath();
+        ctx.moveTo(pad, y);
+        ctx.lineTo(W-pad, y);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Perfil: área rellena
+      ctx.save();
+      ctx.globalAlpha = 0.25;
+      ctx.fillStyle = "#000";
+
+      ctx.beginPath();
+      let started = false;
+
+      // Inicia en base
+      // Para área: desde primer punto válido al último, y cerrar al suelo (H-pad)
+      for (const p of valid){
+        const x = toX(p);
+        const y = toY(p);
+        if (!started){
+          ctx.moveTo(x, H-pad);
+          ctx.lineTo(x, y);
+          started = true;
+        }else{
+          ctx.lineTo(x, y);
+        }
+      }
+      ctx.lineTo(toX(valid[valid.length-1]), H-pad);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      // Perfil: línea superior (más opaca)
+      ctx.save();
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 2;
+
+      // Línea suave: usamos quadratic bezier simple
+      // (No es spline perfecto, pero evita “dientes”)
+      ctx.beginPath();
+      for (let i=0; i<valid.length; i++){
+        const p = valid[i];
+        const x = toX(p);
+        const y = toY(p);
+
+        if (i === 0){
+          ctx.moveTo(x,y);
+        }else{
+          const prev = valid[i-1];
+          const px = toX(prev);
+          const py = toY(prev);
+          const cx = (px + x) / 2;
+          const cy = (py + y) / 2;
+          ctx.quadraticCurveTo(px, py, cx, cy);
+        }
+      }
+      // último tramo
+      const last = valid[valid.length-1];
+      ctx.lineTo(toX(last), toY(last));
+      ctx.stroke();
+      ctx.restore();
+
+      // Ejes / etiquetas mínimas
+      ctx.save();
+      ctx.fillStyle = "#111";
+      ctx.font = "12px system-ui";
+
+      const labelLeft  = `${Math.round(eMin)} m`;
+      const labelRight = `${Math.round(eMax)} m`;
+
+      ctx.fillText(labelRight, pad, pad+12);
+      ctx.fillText(labelLeft,  pad, H - pad + 12);
+
+      const labelDist = `Distancia: ${fmtKm(distMax)}`;
+      const tw = ctx.measureText(labelDist).width;
+      ctx.fillText(labelDist, W - pad - tw, H - pad + 12);
+      ctx.restore();
+
+      // Cursor vertical según tiempo
+      if (Number.isFinite(cursorTime)){
+        const p = pointAtTime(cursorTime);
+        const x = toX(p);
+
+        ctx.save();
+        ctx.globalAlpha = 0.85;
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 1;
+
+        ctx.beginPath();
+        ctx.moveTo(x, pad);
+        ctx.lineTo(x, H-pad);
+        ctx.stroke();
+        ctx.restore();
+
+        // Tooltip
+        const eleTxt = Number.isFinite(p.ele) ? `${Math.round(p.ele)} m` : "—";
+        const info = `${fmtTime(p.tOffset)} · ${fmtKm(p.dist)} · ${eleTxt}`;
+
+        ctx.save();
+        ctx.font = "12px system-ui";
+        const w = ctx.measureText(info).width;
+        const bx = clamp(x - w/2 - 6, pad, W - pad - w - 12);
+        const by = pad + 2;
+
+        ctx.globalAlpha = 0.78;
+        ctx.fillStyle = "#000";
+        ctx.fillRect(bx, by, w + 12, 18);
+
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = "#fff";
+        ctx.fillText(info, bx + 6, by + 13);
+
+        ctx.restore();
+      }
+    }
+
+    // Scrub perfil (click + drag)
+    let draggingProfile = false;
+
+    function scrubFromCanvas(clientX){
+      if (!points.length) return;
+      if (!hasEle) return;
+
+      const rect = elevCanvas.getBoundingClientRect();
+      const xCss = clientX - rect.left;
+
+      const pad = 14;
+      const usable = Math.max(1, rect.width - pad*2);
+
+      const f = clamp((xCss - pad) / usable, 0, 1);
+      const distMax = points[points.length-1].dist || 1;
+      const targetDist = f * distMax;
+
+      const p = nearestPointByDist(targetDist);
+      syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+    }
+
+    elevCanvas.addEventListener("mousedown", (e) => {
+      draggingProfile = true;
+      scrubFromCanvas(e.clientX);
+    });
+    window.addEventListener("mousemove", (e) => {
+      if (!draggingProfile) return;
+      scrubFromCanvas(e.clientX);
+    });
+    window.addEventListener("mouseup", () => { draggingProfile = false; });
+    elevCanvas.addEventListener("click", (e) => scrubFromCanvas(e.clientX));
+
+    /* ==========================================================================================
+       13) CARGA DE CARPETA (MP4 + GPX)
+       - Ordenar ficheros por nombre
+       - GPX por basename
+    ========================================================================================== */
+
+    const mp4Files = new Map(); // name -> File
+    const gpxFiles = new Map(); // basename -> File
+
+    dirInput.addEventListener("change", () => {
+      mp4Files.clear();
+      gpxFiles.clear();
+      mp4Select.innerHTML = `<option value="">(elige MP4)</option>`;
+
+      // Recoger archivos
+      for (const f of dirInput.files){
+        const low = f.name.toLowerCase();
+        if (low.endsWith(".mp4")) mp4Files.set(f.name, f);
+        if (low.endsWith(".gpx")) gpxFiles.set(basenameNoExt(f.name), f);
+      }
+
+      // Ordenar por nombre (usuario lo pidió)
+      const mp4Names = [...mp4Files.keys()].sort((a,b)=>a.localeCompare(b, "es", { numeric:true, sensitivity:"base" }));
+
+      for (const name of mp4Names){
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        mp4Select.appendChild(opt);
+      }
+
+      setStatus(`Carpeta cargada: ${mp4Names.length} MP4 / ${gpxFiles.size} GPX`);
+    });
+
+    mp4Select.addEventListener("change", async () => {
+      const name = mp4Select.value;
+      if (!name) return;
+
+      clearAll();
+
+      const mp4 = mp4Files.get(name);
+      if (!mp4){
+        setStatus("MP4 no encontrado en carpeta");
+        return;
+      }
+
+      // Carga vídeo
+      video.src = URL.createObjectURL(mp4);
+
+      // Carga GPX (si existe)
+      const gpx = gpxFiles.get(basenameNoExt(name));
+      if (!gpx){
+        setStatus("MP4 cargado (sin GPX con mismo nombre base)");
+        drawElevationProfile(null);
+        return;
+      }
+
+      const text = await readFileAsText(gpx);
+      points = parseGpx(text);
+
+      if (!points.length){
+        setStatus("GPX vacío o sin puntos válidos");
+        drawElevationProfile(null);
+        return;
+      }
+
+      firstAbsTime = points[0].tAbs;
+      drawTrack();
+
+      // Sitúa todo al primer punto
+      const p0 = points[0];
+      syncToPoint(p0, { seekVideo:true, centerMap:true, redrawProfile:true });
+
+      setStatus("Listo: vídeo + mapa sincronizados (perfil si existe)");
+    });
+
+    /* ==========================================================================================
+       14) BOTONES / CONTROLES
+    ========================================================================================== */
+
+    fitBtn.addEventListener("click", () => {
+      if (polyline) map.fitBounds(polyline.getBounds(), { padding:[20,20] });
+    });
+
+    // Velocidad por combobox
+    rateSelect.addEventListener("change", () => {
+      const r = +rateSelect.value;
+      video.playbackRate = r;
+      setStatus(`Velocidad: ${r}x`);
+    });
+
+    // Inicial playback rate
+    video.playbackRate = +rateSelect.value;
+
+    /* ==========================================================================================
+       15) PEQUEÑAS MEJORAS DE UX
+       - Cuando el vídeo hace "loadedmetadata", si hay track ya centrado, redibuja perfil
+    ========================================================================================== */
+
+    video.addEventListener("loadedmetadata", () => {
+      drawElevationProfile(video.currentTime);
+    });
+
+    video.addEventListener("pause", () => {
+      drawElevationProfile(video.currentTime);
+    });
+
+    video.addEventListener("play", () => {
+      drawElevationProfile(video.currentTime);
+    });
+
+    /* ==========================================================================================
+       16) FIN
+    ========================================================================================== */
+
+    // Primer dibujado canvas
+    resizeCanvasToCSS();
+    drawElevationProfile(null);
+
+  </script>
+</body>
+</html>

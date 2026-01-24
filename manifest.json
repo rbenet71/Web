@@ -63,7 +63,9 @@
     "marcianitos", 
     "solitario", 
     "sudoku", 
-    "tetris"
+    "tetris",
+    "vrm"
+  
   ],
   
   "shortcuts": [
@@ -115,5 +117,19 @@
         }
       ]
     }
+    ,
+    {
+      "name": "VRM - Video Race Mapping",
+      "short_name": "VRM",
+      "description": "Video + mapa + track (VRM)",
+      "url": "https://rbenet71.github.io/Web/Ciclismo/VRM/VRM.html",
+      "icons": [
+        {
+          "src": "https://rbenet71.github.io/Web/Ciclismo/VRM/VRM_logo_claro.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+
   ]
 }

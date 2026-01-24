@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Garmin dashcam - vídeo + mapa + elevación (offline)</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+  html, body { margin:0; padding:0; height:100%; font-family:system-ui, sans-serif; }
+  #layout{
+    display:grid;
+    grid-template-columns: 50% 50%;
+    grid-template-rows: auto 1fr auto;
+    height:100%;
+    gap:0;
+  }
+
+  #controls{
+    grid-column:1 / 3;
+    padding:8px;
+    background:#f2f2f2;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+  }
+
+  label{
+    background:#fff;
+    padding:6px 10px;
+    border-radius:6px;
+    border:1px solid #ccc;
+    cursor:pointer;
+    user-select:none;
+  }
+
+  select, button{
+    padding:6px 10px;
+    border-radius:6px;
+    border:1px solid #ccc;
+    background:#fff;
+    cursor:pointer;
+  }
+
+  #status{
+    margin-left:auto;
+    font-size:0.9em;
+    opacity:0.85;
+  }
+
+  /* panel vídeo */
+  #videoWrap{
+    position:relative;
+    width:100%;
+    height:100%;
+    background:#000;
+    overflow:hidden;
+  }
+  video{
+    width:100%;
+    height:100%;
+    background:#000;
+    object-fit:contain;
+    display:block;
+  }
+
+  /* mapa */
+  #map{
+    width:100%;
+    height:100%;
+  }
+
+  /* perfil */
+  #profileBar{
+    grid-column:1 / 3;
+    padding:6px 8px;
+    background:#fafafa;
+    border-top:1px solid #ddd;
+  }
+  #elevCanvas{
+    width:100%;
+    height:160px;
+    display:block;
+    background:#fff;
+    border:1px solid #ddd;
+    border-radius:8px;
+  }
+
+  /* pequeño badge */
+  #hud{
+    position:absolute;
+    left:10px;
+    top:10px;
+    background:rgba(0,0,0,0.55);
+    color:#fff;
+    padding:6px 8px;
+    border-radius:8px;
+    font-size:12px;
+    pointer-events:none;
+  }
+
+  @media (max-width: 980px){
+    #layout{
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 40vh 40vh auto;
+    }
+    #controls{ grid-column:1 / 2; }
+    #profileBar{ grid-column:1 / 2; }
+  }
+</style>
+</head>
+
+<body>
+<div id="layout">
+
+  <div id="controls">
+    <label>
+      📁 Carpeta (mp4 + gpx)
+      <input id="dirInput" type="file" webkitdirectory hidden>
+    </label>
+
+    <label>
+      🎬 MP4
+      <select id="mp4Select">
+        <option value="">(elige carpeta primero)</option>
+      </select>
+    </label>
+
+    <button id="fitBtn">Ajustar mapa</button>
+
+    <span style="display:flex; gap:6px; align-items:center;">
+      <span style="opacity:.8;">Velocidad:</span>
+      <select id="rateSelect" title="Velocidad de reproducción">
+        <option value="1">1x</option>
+        <option value="2">2x</option>
+        <option value="8">8x</option>
+        <option value="16">16x</option>
+      </select>
+    </span>
+
+    <span id="status">Esperando carpeta…</span>
+  </div>
+
+  <div id="videoWrap">
+    <div id="hud">—</div>
+    <video id="video" controls playsinline></video>
+  </div>
+
+  <div id="map"></div>
+
+  <div id="profileBar">
+    <canvas id="elevCanvas"></canvas>
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+/* =========================
+   ELEMENTOS / ESTADO
+========================= */
+
+const video      = document.getElementById("video");
+const hud        = document.getElementById("hud");
+const elevCanvas = document.getElementById("elevCanvas");
+const ctx        = elevCanvas.getContext("2d");
+
+const dirInput   = document.getElementById("dirInput");
+const mp4Select  = document.getElementById("mp4Select");
+const fitBtn     = document.getElementById("fitBtn");
+const statusEl   = document.getElementById("status");
+const rateSelect = document.getElementById("rateSelect");
+
+const map = L.map("map", { zoomControl:true }).setView([0,0], 2);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: "© OpenStreetMap"
+}).addTo(map);
+
+let polyline = null;
+let marker   = null;
+
+let points = [];
+let firstAbsTime = null;
+let hasEle = false;
+
+// throttle para centrar mapa
+let lastCenterTs = 0;
+
+/* =========================
+   UTILIDADES
+========================= */
+
+function setStatus(msg){ statusEl.textContent = msg; }
+
+function basenameNoExt(name){ return name.replace(/\.[^.]+$/, ""); }
+
+function readFileAsText(file){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result));
+    r.onerror = reject;
+    r.readAsText(file);
+  });
+}
+
+function fmtTime(s){
+  if (!Number.isFinite(s)) return "—";
+  const m = Math.floor(s/60);
+  const ss = Math.floor(s%60);
+  return `${m}:${String(ss).padStart(2,"0")}`;
+}
+
+function haversine(a, b){
+  const R = 6371000;
+  const toRad = x => x * Math.PI / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLon = toRad(b.lon - a.lon);
+  const s1 = Math.sin(dLat/2), s2 = Math.sin(dLon/2);
+  const q = s1*s1 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*s2*s2;
+  return 2 * R * Math.asin(Math.sqrt(q));
+}
+
+function clamp(x, a, b){ return Math.max(a, Math.min(b, x)); }
+
+/* =========================
+   GPX
+========================= */
+
+function parseGpx(xmlText){
+  const xml = new DOMParser().parseFromString(xmlText, "application/xml");
+  const trkpts = [...xml.querySelectorAll("trkpt")];
+
+  const out = trkpts.map(pt => {
+    const lat = +pt.getAttribute("lat");
+    const lon = +pt.getAttribute("lon");
+    const tNode = pt.querySelector("time");
+    if (!tNode || !tNode.textContent) return null;
+
+    const eleNode = pt.querySelector("ele");
+    const ele = eleNode ? +eleNode.textContent : null;
+
+    const t = new Date(tNode.textContent);
+
+    return { lat, lon, ele, tAbs: t.getTime(), tOffset:0, dist:0 };
+  }).filter(Boolean);
+
+  out.sort((a,b)=>a.tAbs-b.tAbs);
+  return out;
+}
+
+/* =========================
+   MAPA
+========================= */
+
+function clearAll(){
+  if (polyline) map.removeLayer(polyline);
+  if (marker) map.removeLayer(marker);
+  polyline = null;
+  marker = null;
+  points = [];
+  firstAbsTime = null;
+  hasEle = false;
+  drawElevationProfile(null);
+  hud.textContent = "—";
+}
+
+function computeOffsetsAndDist(){
+  for (const p of points){
+    p.tOffset = (p.tAbs - firstAbsTime) / 1000;
+  }
+
+  let d = 0;
+  points[0].dist = 0;
+  for (let i=1;i<points.length;i++){
+    d += haversine(points[i-1], points[i]);
+    points[i].dist = d;
+  }
+
+  hasEle = points.some(p => Number.isFinite(p.ele));
+}
+
+function drawTrack(){
+  computeOffsetsAndDist();
+
+  polyline = L.polyline(points.map(p => [p.lat, p.lon]), {
+    color:"blue",
+    weight:4
+  }).addTo(map);
+
+  marker = L.circleMarker([points[0].lat, points[0].lon], {
+    radius:7,
+    weight:2
+  }).addTo(map);
+
+  map.fitBounds(polyline.getBounds(), { padding:[20,20] });
+
+  polyline.on("click", (e) => {
+    const p = nearestPoint(e.latlng.lat, e.latlng.lng);
+    if (!p) return;
+    syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+  });
+
+  enableMarkerDragScrub();
+
+  drawElevationProfile(0);
+}
+
+/* =========================
+   BUSCAR PUNTO MÁS CERCANO
+========================= */
+
+function nearestPoint(lat, lon){
+  let best = null;
+  let bestDist = Infinity;
+  for (const p of points){
+    const d = (p.lat-lat)**2 + (p.lon-lon)**2;
+    if (d < bestDist){ bestDist = d; best = p; }
+  }
+  return best;
+}
+
+function pointAtTime(t){
+  let p = points[0];
+  for (const q of points){
+    if (q.tOffset <= t) p = q;
+    else break;
+  }
+  return p;
+}
+
+/* =========================
+   SYNC CENTRAL
+========================= */
+
+function syncToPoint(p, opts){
+  const { seekVideo=false, centerMap=true, redrawProfile=true } = (opts||{});
+  if (!p || !marker) return;
+
+  marker.setLatLng([p.lat, p.lon]);
+
+  // centrar SIEMPRE, throttle para evitar mareo/perf
+  if (centerMap){
+    const now = performance.now();
+    if (now - lastCenterTs > 80){
+      lastCenterTs = now;
+      map.panTo([p.lat, p.lon], { animate:false });
+    }
+  }
+
+  if (seekVideo){
+    safeSeek(p.tOffset);
+  }
+
+  if (redrawProfile){
+    drawElevationProfile(video.currentTime);
+  }
+
+  hud.textContent = `t=${fmtTime(p.tOffset)}  lat=${p.lat.toFixed(5)} lon=${p.lon.toFixed(5)}`;
+}
+
+async function safeSeek(targetTime){
+  if (!Number.isFinite(targetTime)) return;
+  targetTime = Math.max(0, targetTime);
+
+  if (Math.abs(video.currentTime - targetTime) < 0.04) return;
+
+  video.currentTime = targetTime;
+
+  if (typeof video.requestVideoFrameCallback === "function"){
+    await new Promise(resolve => video.requestVideoFrameCallback(() => resolve()));
+  } else {
+    await new Promise(resolve => {
+      const onSeeked = () => {
+        video.removeEventListener("seeked", onSeeked);
+        resolve();
+      };
+      video.addEventListener("seeked", onSeeked, { once:true });
+    });
+  }
+
+  drawElevationProfile(video.currentTime);
+}
+
+/* =========================
+   VIDEO -> MAPA + PERFIL
+========================= */
+
+video.addEventListener("timeupdate", () => {
+  if (!points.length) return;
+  const p = pointAtTime(video.currentTime);
+  syncToPoint(p, { seekVideo:false, centerMap:true, redrawProfile:true });
+});
+
+/* =========================
+   MAPA -> VIDEO
+========================= */
+
+map.on("click", (e) => {
+  if (!points.length) return;
+  const p = nearestPoint(e.latlng.lat, e.latlng.lng);
+  if (!p) return;
+  syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+});
+
+function enableMarkerDragScrub(){
+  let dragging = false;
+
+  function distPx(latlngA, latlngB){
+    const a = map.latLngToContainerPoint(latlngA);
+    const b = map.latLngToContainerPoint(latlngB);
+    return a.distanceTo(b);
+  }
+
+  map.on("mousedown", (e) => {
+    if (!marker) return;
+    const m = marker.getLatLng();
+    if (distPx(m, e.latlng) < 18){
+      dragging = true;
+      map.dragging.disable();
+    }
+  });
+
+  map.on("mousemove", (e) => {
+    if (!dragging) return;
+    const p = nearestPoint(e.latlng.lat, e.latlng.lng);
+    if (!p) return;
+    syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+  });
+
+  map.on("mouseup", () => {
+    if (!dragging) return;
+    dragging = false;
+    map.dragging.enable();
+  });
+
+  map.on("mouseleave", () => {
+    if (!dragging) return;
+    dragging = false;
+    map.dragging.enable();
+  });
+}
+
+/* =========================
+   PERFIL ELEVACIÓN
+========================= */
+
+function resizeCanvasToCSS(){
+  const r = elevCanvas.getBoundingClientRect();
+  const w = Math.max(1, Math.round(r.width));
+  const h = Math.max(1, Math.round(r.height));
+  if (elevCanvas.width !== w) elevCanvas.width = w;
+  if (elevCanvas.height !== h) elevCanvas.height = h;
+}
+
+window.addEventListener("resize", () => {
+  resizeCanvasToCSS();
+  drawElevationProfile(video.currentTime);
+});
+
+function drawElevationProfile(cursorTime){
+  resizeCanvasToCSS();
+  ctx.clearRect(0,0,elevCanvas.width,elevCanvas.height);
+
+  if (!points.length){
+    ctx.font = "14px system-ui";
+    ctx.fillStyle = "#000";
+    ctx.fillText("Carga un MP4 con su GPX (misma base de nombre)", 10, 24);
+    return;
+  }
+
+  if (!hasEle){
+    ctx.font = "14px system-ui";
+    ctx.fillStyle = "#000";
+    ctx.fillText("GPX sin <ele> (sin perfil de elevación)", 10, 24);
+    return;
+  }
+
+  const W = elevCanvas.width, H = elevCanvas.height;
+  const pad = 12;
+
+  const distMax = points[points.length-1].dist || 1;
+
+  const eles = points.filter(p => Number.isFinite(p.ele)).map(p => p.ele);
+  const eMin = Math.min(...eles);
+  const eMax = Math.max(...eles);
+  const eSpan = (eMax - eMin) || 1;
+
+  // ==== rejilla suave (para que no se vea "cuadriculado" fuerte)
+  ctx.save();
+  ctx.globalAlpha = 0.12;
+  ctx.beginPath();
+  const gridN = 4; // 4 líneas horizontales
+  for (let i=0;i<=gridN;i++){
+    const y = pad + (i/gridN)*(H - pad*2);
+    ctx.moveTo(pad, y);
+    ctx.lineTo(W-pad, y);
+  }
+  ctx.stroke();
+  ctx.restore();
+
+  // ==== path perfil
+  const ptsXY = [];
+  for (const p of points){
+    if (!Number.isFinite(p.ele)) continue;
+    const x = pad + (p.dist / distMax) * (W - pad*2);
+    const y = pad + (1 - (p.ele - eMin)/eSpan) * (H - pad*2);
+    ptsXY.push([x,y,p]);
+  }
+  if (!ptsXY.length) return;
+
+  // ==== relleno (área) bajo la curva
+  ctx.save();
+  ctx.globalAlpha = 0.20; // relleno suave
+  ctx.beginPath();
+  ctx.moveTo(ptsXY[0][0], H-pad);
+  for (const [x,y] of ptsXY) ctx.lineTo(x,y);
+  ctx.lineTo(ptsXY[ptsXY.length-1][0], H-pad);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+
+  // ==== línea del perfil (sin aspecto "cuadriculado": redondeo + antialias)
+  ctx.save();
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(ptsXY[0][0], ptsXY[0][1]);
+  for (let i=1;i<ptsXY.length;i++) ctx.lineTo(ptsXY[i][0], ptsXY[i][1]);
+  ctx.stroke();
+  ctx.restore();
+
+  // ==== cursor
+  if (Number.isFinite(cursorTime)){
+    const p = pointAtTime(cursorTime);
+    const x = pad + (p.dist / distMax) * (W - pad*2);
+
+    ctx.save();
+    ctx.globalAlpha = 0.9;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x, pad);
+    ctx.lineTo(x, H-pad);
+    ctx.stroke();
+    ctx.restore();
+
+    // etiqueta (distancia en KM)
+    const km = (p.dist/1000);
+    const label = `${fmtTime(p.tOffset)} · ${km.toFixed(2)} km · ${Number.isFinite(p.ele)?Math.round(p.ele):"—"} m`;
+
+    ctx.font = "12px system-ui";
+    const tw = ctx.measureText(label).width;
+    const bx = Math.min(W - pad - tw - 10, Math.max(pad, x - tw/2 - 5));
+    const by = pad;
+
+    ctx.save();
+    ctx.globalAlpha = 0.75;
+    ctx.fillRect(bx, by, tw + 10, 18);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "#fff";
+    ctx.fillText(label, bx+5, by+13);
+    ctx.restore();
+
+    ctx.fillStyle = "#000";
+  }
+}
+
+// scrub por perfil (click + drag)
+function nearestPointByDist(targetDist){
+  let best = points[0], bestD = Infinity;
+  for (const p of points){
+    const d = Math.abs(p.dist - targetDist);
+    if (d < bestD){ bestD = d; best = p; }
+  }
+  return best;
+}
+
+function scrubFromCanvas(clientX){
+  if (!points.length) return;
+
+  const rect = elevCanvas.getBoundingClientRect();
+  const xCss = clientX - rect.left;
+
+  const pad = 12;
+  const W = elevCanvas.width;
+  const usable = Math.max(1, W - pad*2);
+
+  const f = clamp((xCss - pad) / usable, 0, 1);
+  const distMax = points[points.length-1].dist || 1;
+  const targetDist = f * distMax;
+
+  const p = nearestPointByDist(targetDist);
+  syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+}
+
+let draggingProfile = false;
+elevCanvas.addEventListener("mousedown", (e) => {
+  draggingProfile = true;
+  scrubFromCanvas(e.clientX);
+});
+window.addEventListener("mousemove", (e) => {
+  if (!draggingProfile) return;
+  scrubFromCanvas(e.clientX);
+});
+window.addEventListener("mouseup", () => { draggingProfile = false; });
+elevCanvas.addEventListener("click", (e) => scrubFromCanvas(e.clientX));
+
+/* =========================
+   TECLADO: flechas = +/- 1s cuando el vídeo está pausado
+   (y solo si el foco NO está en un input/select)
+========================= */
+
+document.addEventListener("keydown", (e) => {
+  const tag = (document.activeElement && document.activeElement.tagName || "").toLowerCase();
+  if (tag === "input" || tag === "select" || tag === "textarea") return;
+
+  // solo cuando está pausado (como pediste)
+  if (!video.paused) return;
+
+  if (e.key === "ArrowLeft"){
+    e.preventDefault();
+    safeSeek(Math.max(0, video.currentTime - 1));
+  } else if (e.key === "ArrowRight"){
+    e.preventDefault();
+    safeSeek(Math.min(video.duration || Infinity, video.currentTime + 1));
+  }
+});
+
+/* =========================
+   CARGA DE CARPETA / MP4 / GPX
+========================= */
+
+const mp4Files = new Map();
+const gpxFiles = new Map();
+
+dirInput.addEventListener("change", () => {
+  mp4Files.clear();
+  gpxFiles.clear();
+  mp4Select.innerHTML = `<option value="">(elige MP4)</option>`;
+
+  for (const f of dirInput.files){
+    const low = f.name.toLowerCase();
+    if (low.endsWith(".mp4")) mp4Files.set(f.name, f);
+    if (low.endsWith(".gpx")) gpxFiles.set(basenameNoExt(f.name), f);
+  }
+
+  // ordenar por nombre
+  const names = [...mp4Files.keys()].sort((a,b)=>a.localeCompare(b, "es", { numeric:true, sensitivity:"base" }));
+  for (const name of names){
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    mp4Select.appendChild(opt);
+  }
+
+  setStatus("Carpeta cargada");
+});
+
+mp4Select.addEventListener("change", async () => {
+  const name = mp4Select.value;
+  if (!name) return;
+
+  clearAll();
+
+  const mp4 = mp4Files.get(name);
+  video.src = URL.createObjectURL(mp4);
+
+  const gpx = gpxFiles.get(basenameNoExt(name));
+  if (!gpx){
+    setStatus("MP4 cargado (sin GPX con mismo nombre)");
+    drawElevationProfile(null);
+    return;
+  }
+
+  const text = await readFileAsText(gpx);
+  points = parseGpx(text);
+
+  if (!points.length){
+    setStatus("GPX vacío o sin puntos válidos");
+    drawElevationProfile(null);
+    return;
+  }
+
+  firstAbsTime = points[0].tAbs;
+  drawTrack();
+
+  setStatus("Listo: vídeo + mapa (y elevación si existe)");
+});
+
+/* =========================
+   CONTROLES
+========================= */
+
+fitBtn.addEventListener("click", () => {
+  if (polyline) map.fitBounds(polyline.getBounds(), { padding:[20,20] });
+});
+
+rateSelect.addEventListener("change", () => {
+  const r = +rateSelect.value;
+  video.playbackRate = r;
+  setStatus(`Velocidad: ${r}x`);
+});
+
+// valor por defecto
+video.playbackRate = +rateSelect.value;
+</script>
+</body>
+</html>
