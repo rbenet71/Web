@@ -197,8 +197,8 @@ const APP_RESOURCES = {
   ]
 
   'vrm': [
-    'https://rbenet71.github.io/Web/Ciclismo/VRM/VRM.html',
-    'https://rbenet71.github.io/Web/Ciclismo/VRM/VRM_logo_claro.png',
+    'https://rbenet71.github.io/Web/Ciclismo/Video_Race_Mapping/VRM.html',
+    'https://rbenet71.github.io/Web/Ciclismo/Video_Race_Mapping/VRM_logo_claro.png',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
     'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
