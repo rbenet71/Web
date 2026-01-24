@@ -549,7 +549,7 @@
         <img src="logo.jpg" alt="logo" />
         <div class="title">
           <div class="appName">Video Race Mapping</div>
-          <div class="appShort">VRM 2.3</div>
+          <div class="appShort">VRM 2.4</div>
         </div>
       </div>
 
@@ -1086,6 +1086,7 @@ baseMapSelect.addEventListener("change", () => {
   let overlayLayer = null;
 
   let points = [];
+  let visualTracks = []; // [{name,color,segments:[[ [lat,lon],... ], ...]}] from GPX (trk/trkseg)
   let firstAbsTime = null;
   let hasEle = false;
 
@@ -1108,37 +1109,136 @@ let lastCenterTs = 0;
      GPX
      ============================================================ */
   
-  function parseGpx(xmlText){
+  function gpxDisplayColorToHex(name){
+  const n = String(name||"").trim().toLowerCase();
+  const map = {
+    black:"#000000", darkgray:"#444444", darkgrey:"#444444", gray:"#808080", grey:"#808080",
+    white:"#ffffff",
+    red:"#e53935", darkred:"#b71c1c",
+    green:"#43a047", darkgreen:"#1b5e20",
+    blue:"#1e88e5", darkblue:"#0d47a1",
+    cyan:"#00bcd4",
+    magenta:"#e91e63",
+    yellow:"#fdd835",
+    orange:"#fb8c00",
+    purple:"#8e24aa",
+    brown:"#6d4c41"
+  };
+  return map[n] || null;
+}
+
+function parseGpx(xmlText){
   const xml = new DOMParser().parseFromString(xmlText, "application/xml");
 
-  // GPX suele venir con namespace por defecto (1.0/1.1). querySelectorAll("trkpt")
-  // NO encuentra nada en XML con namespaces. Usamos getElementsByTagNameNS.
-  let trkpts = Array.from(xml.getElementsByTagNameNS("*", "trkpt"));
-  if (!trkpts.length) trkpts = Array.from(xml.getElementsByTagName("trkpt"));
+  // Reset visual tracks
+  visualTracks = [];
 
-  const out = trkpts.map(pt => {
-    const latAttr = pt.getAttribute("lat");
-    const lonAttr = pt.getAttribute("lon");
-    const lat = latAttr != null ? +latAttr : NaN;
-    const lon = lonAttr != null ? +lonAttr : NaN;
+  // Get tracks (<trk>) and segments (<trkseg>) preserving order
+  let trks = Array.from(xml.getElementsByTagNameNS("*", "trk"));
+  if (!trks.length) trks = Array.from(xml.getElementsByTagName("trk"));
 
-    let tNode = pt.getElementsByTagNameNS("*", "time")[0];
-    if (!tNode) tNode = pt.getElementsByTagName("time")[0];
-    if (!tNode || !tNode.textContent) return null;
+  const out = [];
+  let firstPoint = true;
 
-    let eleNode = pt.getElementsByTagNameNS("*", "ele")[0];
-    if (!eleNode) eleNode = pt.getElementsByTagName("ele")[0];
-    const ele = (eleNode && eleNode.textContent !== "") ? +eleNode.textContent : null;
+  for (const trk of trks){
+    // Track name (optional)
+    let nameNode = trk.getElementsByTagNameNS("*","name")[0];
+    if (!nameNode) nameNode = trk.getElementsByTagName("name")[0];
+    const trkName = nameNode ? (nameNode.textContent||"").trim() : "";
 
-    const t = new Date(tNode.textContent.trim());
-    if (!Number.isFinite(t.getTime())) return null;
+    // Garmin DisplayColor inside gpxx:TrackExtension
+    let colorNode = trk.getElementsByTagNameNS("*","DisplayColor")[0];
+    if (!colorNode) colorNode = trk.getElementsByTagName("gpxx:DisplayColor")[0];
+    const trkColor = gpxDisplayColorToHex(colorNode ? colorNode.textContent : null) || "blue";
 
-    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+    // Segments
+    let segs = Array.from(trk.getElementsByTagNameNS("*","trkseg"));
+    if (!segs.length) segs = Array.from(trk.getElementsByTagName("trkseg"));
 
-    return { lat, lon, ele, tAbs: t.getTime(), tOffset:0, dist:0 };
-  }).filter(Boolean);
+    const trkVis = { name: trkName || "Track", color: trkColor, segments: [] };
 
+    for (const seg of segs){
+      let pts = Array.from(seg.getElementsByTagNameNS("*","trkpt"));
+      if (!pts.length) pts = Array.from(seg.getElementsByTagName("trkpt"));
+
+      const segLatLngs = [];
+
+      let segFirst = true;
+      for (const pt of pts){
+        const latAttr = pt.getAttribute("lat");
+        const lonAttr = pt.getAttribute("lon");
+        const lat = latAttr != null ? +latAttr : NaN;
+        const lon = lonAttr != null ? +lonAttr : NaN;
+
+        let tNode = pt.getElementsByTagNameNS("*", "time")[0];
+        if (!tNode) tNode = pt.getElementsByTagName("time")[0];
+        if (!tNode || !tNode.textContent) continue;
+
+        let eleNode = pt.getElementsByTagNameNS("*", "ele")[0];
+        if (!eleNode) eleNode = pt.getElementsByTagName("ele")[0];
+        const ele = (eleNode && eleNode.textContent !== "") ? +eleNode.textContent : null;
+
+        const t = new Date(tNode.textContent.trim());
+        if (!Number.isFinite(t.getTime())) continue;
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+
+        const p = { lat, lon, ele, tAbs: t.getTime(), tOffset:0, dist:0 };
+
+        // Mark segment breaks so we DON'T draw a straight line across segments/tracks
+        if (!firstPoint && segFirst){
+          p.break = true; // used in distance calc + drawing
+        }
+
+        out.push(p);
+        segLatLngs.push([lat, lon]);
+
+        firstPoint = false;
+        segFirst = false;
+      }
+
+      if (segLatLngs.length) trkVis.segments.push(segLatLngs);
+    }
+
+    if (trkVis.segments.length) visualTracks.push(trkVis);
+  }
+
+  // If GPX has no <trk> (rare), fall back to all <trkpt> flat
+  if (!out.length){
+    let trkpts = Array.from(xml.getElementsByTagNameNS("*", "trkpt"));
+    if (!trkpts.length) trkpts = Array.from(xml.getElementsByTagName("trkpt"));
+
+    for (const pt of trkpts){
+      const latAttr = pt.getAttribute("lat");
+      const lonAttr = pt.getAttribute("lon");
+      const lat = latAttr != null ? +latAttr : NaN;
+      const lon = lonAttr != null ? +lonAttr : NaN;
+
+      let tNode = pt.getElementsByTagNameNS("*", "time")[0];
+      if (!tNode) tNode = pt.getElementsByTagName("time")[0];
+      if (!tNode || !tNode.textContent) continue;
+
+      let eleNode = pt.getElementsByTagNameNS("*", "ele")[0];
+      if (!eleNode) eleNode = pt.getElementsByTagName("ele")[0];
+      const ele = (eleNode && eleNode.textContent !== "") ? +eleNode.textContent : null;
+
+      const t = new Date(tNode.textContent.trim());
+      if (!Number.isFinite(t.getTime())) continue;
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+
+      out.push({ lat, lon, ele, tAbs: t.getTime(), tOffset:0, dist:0 });
+    }
+
+    if (out.length){
+      visualTracks = [{ name:"Track", color:"blue", segments:[ out.map(p=>[p.lat,p.lon]) ] }];
+    }
+  }
+
+  // Ensure time order (Garmin is already ordered); keep stable if equal
   out.sort((a,b)=>a.tAbs - b.tAbs);
+
+  // NOTE: sorting may move break markers slightly, but for Garmin exports it's safe.
+  // If you ever import mixed-order tracks, distance will still be safe across breaks.
+
   return out;
 }
 
@@ -1150,11 +1250,33 @@ let lastCenterTs = 0;
       p.tOffset = (p.tAbs - firstAbsTime) / 1000;
     }
 
-    let d=0;
-    points[0].dist = 0;
+    // Distancia absoluta (para perfil/orden) y distancia por tramo (contador que se reinicia)
+    let dAbs = 0;
+    let dSeg = 0;
+    let segId = 0;
+
+    points[0].distAbs = 0;
+    points[0].distSeg = 0;
+    points[0].segId = 0;
+    points[0].dist = 0; // compat: dist = distancia absoluta
+
     for (let i=1;i<points.length;i++){
-      d += haversineMeters(points[i-1], points[i]);
-      points[i].dist = d;
+      // Si este punto marca inicio de un nuevo tramo, reiniciamos el contador del tramo
+      if (points[i].break){
+        segId += 1;
+        dSeg = 0;
+      } else {
+        const inc = haversineMeters(points[i-1], points[i]);
+        dAbs += inc;
+        dSeg += inc;
+      }
+
+      points[i].segId = segId;
+      points[i].distAbs = dAbs;
+      points[i].distSeg = dSeg;
+
+      // compat: dist se usa en varias rutinas como "distancia para ordenar/perfil"
+      points[i].dist = dAbs;
     }
 
     hasEle = points.some(p => Number.isFinite(p.ele));
@@ -1167,6 +1289,7 @@ let lastCenterTs = 0;
     marker = null;
 
     points = [];
+    visualTracks = [];
     firstAbsTime = null;
     hasEle = false;
 
@@ -1198,11 +1321,42 @@ let lastCenterTs = 0;
   function drawTrack(){
     computeOffsetsAndDist();
 
-    polyline = L.polyline(points.map(p => [p.lat, p.lon]), { color:"blue", weight:4 }).addTo(map);
+    // Remove previous polylines
+    if (polyline){
+      try { map.removeLayer(polyline); } catch(_) {}
+      polyline = null;
+    }
 
-    
+    // Build colored multi-segment polylines from GPX tracks (if any)
+    const layers = [];
+    const clickHandler = (e) => {
+      const p = nearestPoint(e.latlng.lat, e.latlng.lng);
+      if (p) syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+    };
+
+    if (visualTracks && visualTracks.length){
+      for (const trk of visualTracks){
+        const color = trk.color || "blue";
+        for (const seg of (trk.segments || [])){
+          if (!seg || seg.length < 2) continue;
+          const pl = L.polyline(seg, { color, weight:4, opacity:0.95 });
+          pl.on("click", clickHandler);
+          layers.push(pl);
+        }
+      }
+    } else {
+      // Fallback
+      const pl = L.polyline(points.map(p => [p.lat, p.lon]), { color:"blue", weight:4 });
+      pl.on("click", clickHandler);
+      layers.push(pl);
+    }
+
+    // Group reference (for clearTrack compatibility)
+    polyline = L.featureGroup(layers).addTo(map);
+
     if (polyline && polyline.bringToBack) polyline.bringToBack();
-marker = L.marker([points[0].lat, points[0].lon], {
+
+    marker = L.marker([points[0].lat, points[0].lon], {
       icon: bikeIcon,
       interactive: false,
       keyboard: false,
@@ -1211,12 +1365,12 @@ marker = L.marker([points[0].lat, points[0].lon], {
 
     // keep marker above everything
     try { marker.setZIndexOffset(1000); } catch(_) {}
-map.fitBounds(polyline.getBounds(), { padding:[20,20] });
 
-    polyline.on("click", (e) => {
-      const p = nearestPoint(e.latlng.lat, e.latlng.lng);
-      if (p) syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
-    });
+    // Fit bounds safely
+    try {
+      const b = polyline.getBounds();
+      if (b && b.isValid && b.isValid()) map.fitBounds(b, { padding:[20,20] });
+    } catch(_) {}
 
     enableMarkerDragScrub();
 
@@ -1301,7 +1455,7 @@ const idx = findPointIndex(p);
     if (seekVideo) safeSeek(p.tOffset);
     if (redrawProfile) drawElevationProfile(video.currentTime);
 
-    const distKm = adjustedDistKm(p.dist||0);
+    const distKm = adjustedDistKm((p.distSeg ?? p.dist) || 0);
     hud.classList.toggle('km-negative', distKm < 0);
     const negFlag = distKm < 0 ? `<span class="km-neg-flag">N</span>` : ``;
     hud.innerHTML = `t=${fmtTimeHMS(p.tOffset)} · ${negFlag}${distKm.toFixed(2)} km · lat=${p.lat.toFixed(5)} lon=${p.lon.toFixed(5)}`;
@@ -1474,7 +1628,7 @@ const idx = findPointIndex(p);
       ctx.lineTo(x, H - pad);
       ctx.stroke();
 
-      const distKmCur = adjustedDistKm(p.dist||0);
+      const distKmCur = adjustedDistKm((p.distSeg ?? p.dist) || 0);
       const eleTxt = Number.isFinite(p.ele) ? `${Math.round(p.ele)} m` : "—";
       const label = `${fmtTimeHMS(p.tOffset)} · ${distKmCur.toFixed(2)} km · ${eleTxt}`;
 
@@ -1495,7 +1649,7 @@ const idx = findPointIndex(p);
   function nearestPointByDist(targetDist){
     let best = points[0], bestD = Infinity;
     for (const p of points){
-      const d = Math.abs(p.dist - targetDist);
+      const d = Math.abs((p.distAbs ?? p.dist) - targetDist);
       if (d < bestD){ bestD = d; best = p; }
     }
     return best;
@@ -1863,7 +2017,7 @@ const idx = findPointIndex(p);
       wpts.push({
         rowIndex: i,
         tOffset: near.tOffset,
-        dist: adjustedDistMeters(near.dist),
+        dist: adjustedDistMeters((near.distSeg ?? near.dist)),
         Describe_Es: row.Describe_Es || ""
       });
       ok++;
@@ -2416,7 +2570,7 @@ const idx = findPointIndex(p);
   <div id="appFooter">© 2026 Roberto Benet - rbenet71@gmail.com</div>
 <!--
 ====================================================================
-ICGC OFFLINE MAPS (VRM 2.3) - PASO A PASO
+ICGC OFFLINE MAPS (VRM 2.4) - PASO A PASO
 ====================================================================
 
 OBJETIVO

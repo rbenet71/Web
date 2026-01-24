@@ -4,15 +4,15 @@
     <link href="http://www.garmin.com">
       <text>Garmin International</text>
     </link>
-    <time>2026-01-24T21:14:32Z</time>
+    <time>2026-01-24T12:05:21Z</time>
     <bounds maxlat="41.818615542724729" maxlon="2.514896923676133" minlat="41.816952237859368" minlon="2.509781615808606" />
   </metadata>
 
   <trk>
-    <name>Neutra</name>
+    <name>Track 001</name>
     <extensions>
       <gpxx:TrackExtension>
-        <gpxx:DisplayColor>Cyan</gpxx:DisplayColor>
+        <gpxx:DisplayColor>Magenta</gpxx:DisplayColor>
       </gpxx:TrackExtension>
     </extensions>
     <trkseg>
@@ -116,21 +116,6 @@
         <ele>297.6640625</ele>
         <time>2025-11-19T15:21:22Z</time>
       </trkpt>
-      <trkpt lat="41.817580126225948" lon="2.512454856187105">
-        <ele>297.875</ele>
-        <time>2025-11-19T15:21:23Z</time>
-      </trkpt>
-    </trkseg>
-  </trk>
-
-  <trk>
-    <name>Track</name>
-    <extensions>
-      <gpxx:TrackExtension>
-        <gpxx:DisplayColor>Magenta</gpxx:DisplayColor>
-      </gpxx:TrackExtension>
-    </extensions>
-    <trkseg>
       <trkpt lat="41.817580126225948" lon="2.512454856187105">
         <ele>297.875</ele>
         <time>2025-11-19T15:21:23Z</time>
