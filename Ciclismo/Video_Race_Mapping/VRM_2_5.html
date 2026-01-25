@@ -507,6 +507,14 @@
 
 #offlineHelp{cursor:help; font-size:14px; margin-left:6px; opacity:.85;}
 </style>
+
+  <!-- PWA -->
+  <link rel="manifest" href="VRM_manifest.json">
+  <meta name="theme-color" content="#111827">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="logo.jpg">
 </head>
 
 <body>
@@ -2488,7 +2496,9 @@ Luego abre VRM y selecciona:
   installBtn.addEventListener('click', async () => {
     if(!deferredPrompt){
       // Si el navegador no ofrece prompt, damos pista sin molestar
-      alert('Instalación no disponible todavía.Asegúrate de abrir VRM por HTTPS y que el navegador cumpla los requisitos de instalación.');
+      alert(`Instalación no disponible todavía.
+
+Asegúrate de abrir VRM por HTTPS y que el navegador cumpla los requisitos de instalación.`);
       return;
     }
     installBtn.style.display = 'none';
