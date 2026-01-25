@@ -1,7 +1,7 @@
 {
   "name": "Video Race Mapping",
   "short_name": "VRM",
-  "start_url": "./VRM_actualizado_PWA.html",
+  "start_url": "./VRM.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#111827",
@@ -20,5 +20,6 @@
       "type": "image/jpeg",
       "purpose": "any"
     }
-  ]
+  ],
+  "id": "vrm"
 }

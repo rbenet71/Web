@@ -50,5 +50,6 @@ terser
 javascript-obfuscator
 
 Instalable en windows
+boton ayuda
 Datos externos - fijar ficheros previos
 Cuadricula prinicipal, una tabla?

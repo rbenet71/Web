@@ -2,7 +2,7 @@
    - App Shell cache + runtime cache
    - Update flow: postMessage {type:'SKIP_WAITING'}
 */
-const CACHE_VERSION = 'vrm-cache-v1';
+const CACHE_VERSION = 'vrm-cache-v2';
 const APP_SHELL = [
   './VRM.html',
   './VRM_manifest.json',
