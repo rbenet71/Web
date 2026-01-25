@@ -2651,150 +2651,55 @@ Luego abre VRM y selecciona:
 /* ===========================
    PWA install/update (VRM)
    =========================== */
-(function(){
-  const installBtn = document.getElementById('pwaInstallBtn');
-  const updateBtn  = document.getElementById('pwaUpdateBtn');
-  const installHelp = document.getElementById('installHelp');
-  const closeInstallHelp = document.getElementById('closeInstallHelp');
+(function(){const installBtn = document.getElementById("pwaInstallBtn");
+  const installHelp = document.getElementById("installHelp");
+  const closeHelp = document.getElementById("closeInstallHelp");
+
+  if (!installBtn) return;
 
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isStandalone = () =>
-    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
-    (window.navigator && window.navigator.standalone === true);
+  const isStandalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
 
-  function showInstallHelp(){
-    if (installHelp) installHelp.style.display = 'flex';
-  }
-  function hideInstallHelp(){
-    if (installHelp) installHelp.style.display = 'none';
-  }
-  if (closeInstallHelp) closeInstallHelp.addEventListener('click', hideInstallHelp);
-  if (installHelp) installHelp.addEventListener('click', (ev)=>{ if (ev.target === installHelp) hideInstallHelp(); });
-
-  // If already installed, hide install button.
-  function refreshInstallVisibility(){
-    if (!installBtn) return;
-    if (isStandalone()){
-      installBtn.style.display = 'none';
-      return;
-    }
-    // iOS: always show install button (it opens help)
-    if (isIOS){
-      installBtn.style.display = '';
-      installBtn.onclick = showInstallHelp;
-    }
-  }
-  refreshInstallVisibility();
-
-  // Chromium install prompt
   let deferredPrompt = null;
-  window.addEventListener('beforeinstallprompt', (e)=>{
-    e.preventDefault();
-    deferredPrompt = e;
-    if (!installBtn) return;
-    if (isStandalone()) return;
-    installBtn.style.display = '';
-    installBtn.onclick = async ()=>{
-      if (!deferredPrompt){
-        showInstallHelp();
-        return;
-      }
-      deferredPrompt.prompt();
-      try { await deferredPrompt.userChoice; } catch(_){}
-      deferredPrompt = null;
-      installBtn.style.display = 'none';
-    };
+
+  /* ---------- helpers ---------- */
+  const showHelp = () => installHelp && (installHelp.style.display = "flex");
+  const hideHelp = () => installHelp && (installHelp.style.display = "none");
+
+  closeHelp?.addEventListener("click", hideHelp);
+  installHelp?.addEventListener("click", e => {
+    if (e.target === installHelp) hideHelp();
   });
 
-  // Service worker (optional). If a SW exists, we can offer an update button when a new one is waiting.
-  if ('serviceWorker' in navigator && location.protocol !== 'file:'){
-    window.addEventListener('load', async ()=>{
-      try{
-        // Try register in same folder (recommended). If your SW lives elsewhere, adjust the path.
-        const reg = await navigator.serviceWorker.register('./unified-sw.js');
-        function showUpdate(){
-          if (!updateBtn) return;
-          updateBtn.style.display = '';
-          updateBtn.onclick = ()=>{
-            if (reg.waiting) reg.waiting.postMessage({ type:'SKIP_WAITING' });
-          };
-        }
-        if (reg.waiting) showUpdate();
-        reg.addEventListener('updatefound', ()=>{
-          const sw = reg.installing;
-          if (!sw) return;
-          sw.addEventListener('statechange', ()=>{
-            if (sw.state === 'installed' && navigator.serviceWorker.controller){
-              showUpdate();
-            }
-          });
-        });
-        navigator.serviceWorker.addEventListener('controllerchange', ()=>{
-          // Reload so the new version takes effect.
-          window.location.reload();
-        });
-      }catch(e){
-        // SW not available in this path; ignore.
-        console.debug('SW register failed', e);
-      }
-    });
-  }
-})();
-/* ============================================================
-   PWA INSTALL — SAFE FOR VRM 2.4
-   ============================================================ */
-
-let deferredPrompt = null;
-const installBtn = document.getElementById("pwaInstallBtn");
-
-const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-const isStandalone =
-  window.matchMedia("(display-mode: standalone)").matches ||
-  window.navigator.standalone === true;
-
-/* ---- Service Worker ---- */
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./vrm_sw.js", { scope: "./" })
-    .catch(err => console.warn("SW error", err));
-}
-
-/* ---- Windows / Android ---- */
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-
-  if (!isStandalone) {
+  /* ---------- iOS ---------- */
+  if (isIOS && !isStandalone) {
     installBtn.style.display = "inline-flex";
-  }
-});
-
-/* ---- Click Instalar ---- */
-installBtn.addEventListener("click", async () => {
-
-  /* iOS → solo ayuda */
-  if (isIOS) {
-    document.getElementById("installHelp").style.display = "flex";
+    installBtn.onclick = showHelp;
     return;
   }
 
-  /* Desktop / Android → instalación real */
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
+  /* ---------- Desktop / Android ---------- */
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.style.display = "inline-flex";
+
+    installBtn.onclick = async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installBtn.style.display = "none";
+    };
+  });
+
+  window.addEventListener("appinstalled", () => {
     installBtn.style.display = "none";
-  }
-});
+  });
+})();
 
-/* ---- App instalada ---- */
-window.addEventListener("appinstalled", () => {
-  installBtn.style.display = "none";
-});
-
-/* ---- iOS: mostrar botón manual ---- */
-if (isIOS && !isStandalone) {
-  installBtn.style.display = "inline-flex";
-}
 </script>
 </body>
 </html>
