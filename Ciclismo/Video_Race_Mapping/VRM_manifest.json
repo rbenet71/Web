@@ -8,15 +8,15 @@
   "description": "Video Race Mapping (VRM): sincroniza vídeo con GPX/KML y mapa.",
   "icons": [
     {
-      "src": "logo.jpg",
+      "src": "assets/logo_192x192.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "logo.jpg",
+      "src": "assets/logo_512x512.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any"
     }
   ],

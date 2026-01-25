@@ -37,6 +37,7 @@ v20 cabecera cuerpo mas grande (proporcion mismo entre titulo y subtitulo ) y co
 2.2 Ver qué tipo de vídeo es y usa o no el GPX
 2.3 mapas offline - cataluña o con descarga previa
 2.4 gpx en dos partes color y calcular kkm
+2.5 Instalable en windows
 
 Encriptar o empaquetar
 NIVEL 2 — Ofuscar la app (recomendado +1)
@@ -49,7 +50,7 @@ Ejemplos de herramientas:
 terser
 javascript-obfuscator
 
-Instalable en windows
+
 boton ayuda
 Datos externos - fijar ficheros previos
 Cuadricula prinicipal, una tabla?
