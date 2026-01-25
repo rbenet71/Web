@@ -68,7 +68,6 @@
        ============================================================ */
     #layout{
       height: calc(100vh - 84px);
-      height: calc(90vh - 84px);
       margin-top: 84px;
       display:grid;
       grid-template-rows: auto 1fr;
@@ -2733,7 +2732,7 @@ Luego abre VRM y selecciona:
     window.addEventListener('load', async ()=>{
       try{
         // Try register in same folder (recommended). If your SW lives elsewhere, adjust the path.
-        const reg = await navigator.serviceWorker.register('vrm_sw.js');
+        const reg = await navigator.serviceWorker.register('./unified-sw.js');
         function showUpdate(){
           if (!updateBtn) return;
           updateBtn.style.display = '';

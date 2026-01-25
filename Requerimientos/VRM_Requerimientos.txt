@@ -53,3 +53,4 @@ Instalable en windows
 boton ayuda
 Datos externos - fijar ficheros previos
 Cuadricula prinicipal, una tabla?
+obtener ubicacion real

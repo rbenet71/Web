@@ -68,7 +68,6 @@
        ============================================================ */
     #layout{
       height: calc(100vh - 84px);
-      height: calc(90vh - 84px);
       margin-top: 84px;
       display:grid;
       grid-template-rows: auto 1fr;
@@ -396,147 +395,149 @@
     }
     @keyframes vrmSpin{ to{ transform: rotate(360deg); } }
 
+}
+
+}
 
 
+/* ============================================================
+   HEADER toggle (show/hide operations bar)
+   ============================================================ */
 
-    /* ============================================================
-      HEADER toggle (show/hide operations bar)
-      ============================================================ */
-
-    #appHeader .headerLeft{ display:flex; align-items:center; gap:10px; }
-    #appHeader .headerToggle{
-      width:34px;height:34px;border-radius:10px;
-      border:1px solid rgba(0,0,0,.22); background:#fff;
-      display:inline-flex;align-items:center;justify-content:center;
-      cursor:pointer;
-    }
-
-
-    #appHeader .headerRight{
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    #appHeader .headerAction{
-      height:34px;
-      border-radius:10px;
-      border:1px solid rgba(0,0,0,.22);
-      background:#fff;
-      cursor:pointer;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:0 10px;
-      font-size:14px;
-      line-height:1;
-      white-space:nowrap;
-    }
-    #appHeader .headerAction:disabled{
-      opacity:.5;
-      cursor:not-allowed;
-    }
-
-    /* PWA install help modal */
-    #installHelp{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.55);
-      z-index:2000;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-      box-sizing:border-box;
-    }
-    #installHelp .panel{
-      max-width:520px;
-      width:100%;
-      background:#fff;
-      border-radius:14px;
-      padding:16px 16px 14px;
-      box-shadow:0 10px 30px rgba(0,0,0,.25);
-      font-size:14px;
-    }
-    #installHelp .panel h3{
-      margin:0 0 10px 0;
-      font-size:18px;
-    }
-    #installHelp .panel ol{
-      margin:8px 0 0 18px;
-      padding:0;
-    }
-    #installHelp .panel .row{
-      display:flex;
-      justify-content:flex-end;
-      gap:10px;
-      margin-top:12px;
-    }
-    #installHelp .panel button{
-      border:1px solid rgba(0,0,0,.22);
-      background:#fff;
-      border-radius:10px;
-      padding:6px 10px;
-      cursor:pointer;
-    }
-    #controls.collapsed{ display:none; }
+#appHeader .headerLeft{ display:flex; align-items:center; gap:10px; }
+#appHeader .headerToggle{
+  width:34px;height:34px;border-radius:10px;
+  border:1px solid rgba(0,0,0,.22); background:#fff;
+  display:inline-flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
 
 
-    #appHeader .headerMain{
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-    }
-    #appHeader .headerLeft{
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
+#appHeader .headerRight{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+#appHeader .headerAction{
+  height:34px;
+  border-radius:10px;
+  border:1px solid rgba(0,0,0,.22);
+  background:#fff;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 10px;
+  font-size:14px;
+  line-height:1;
+  white-space:nowrap;
+}
+#appHeader .headerAction:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
 
-    /* ============================================================
-      FOOTER (fixed)
-      ============================================================ */
-    #appFooter{
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 34px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      border-top: 1px solid rgba(0,0,0,.15);
-      background: #fff;
-      z-index: 1200;
-    }
+/* PWA install help modal */
+#installHelp{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  z-index:2000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  box-sizing:border-box;
+}
+#installHelp .panel{
+  max-width:520px;
+  width:100%;
+  background:#fff;
+  border-radius:14px;
+  padding:16px 16px 14px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+  font-size:14px;
+}
+#installHelp .panel h3{
+  margin:0 0 10px 0;
+  font-size:18px;
+}
+#installHelp .panel ol{
+  margin:8px 0 0 18px;
+  padding:0;
+}
+#installHelp .panel .row{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  margin-top:12px;
+}
+#installHelp .panel button{
+  border:1px solid rgba(0,0,0,.22);
+  background:#fff;
+  border-radius:10px;
+  padding:6px 10px;
+  cursor:pointer;
+}
+#controls.collapsed{ display:none; }
 
-    /* keep app content between header and footer */
-    :root{
-      --appFooterH: 34px;
-    }
-    #layout{
-      padding-bottom: var(--appFooterH);
-    }
 
-    /* ============================================================
-      NEGATIVE KM VISUAL MARK
-      ============================================================ */
-    #hud.km-negative{
-      color:#b00020;
-      font-weight:700;
-    }
-    #hud .km-neg-flag{
-      display:inline-block;
-      padding:0 6px;
-      margin-right:4px;
-      border-radius:999px;
-      border:1px solid rgba(176,0,32,.35);
-      background:rgba(176,0,32,.06);
-      font-weight:800;
-    }
+#appHeader .headerMain{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+}
+#appHeader .headerLeft{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
 
-    #offlineHelp{cursor:help; font-size:14px; margin-left:6px; opacity:.85;}
-  </style>
+/* ============================================================
+   FOOTER (fixed)
+   ============================================================ */
+#appFooter{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  border-top: 1px solid rgba(0,0,0,.15);
+  background: #fff;
+  z-index: 1200;
+}
+
+/* keep app content between header and footer */
+:root{
+  --appFooterH: 34px;
+}
+#layout{
+  padding-bottom: var(--appFooterH);
+}
+
+/* ============================================================
+   NEGATIVE KM VISUAL MARK
+   ============================================================ */
+#hud.km-negative{
+  color:#b00020;
+  font-weight:700;
+}
+#hud .km-neg-flag{
+  display:inline-block;
+  padding:0 6px;
+  margin-right:4px;
+  border-radius:999px;
+  border:1px solid rgba(176,0,32,.35);
+  background:rgba(176,0,32,.06);
+  font-weight:800;
+}
+
+#offlineHelp{cursor:help; font-size:14px; margin-left:6px; opacity:.85;}
+</style>
 </head>
 
 <body>
@@ -548,40 +549,40 @@
         <img src="logo.jpg" alt="logo" />
         <div class="title">
           <div class="appName">Video Race Mapping</div>
-          <div class="appShort">VRM 2.4 b</div>
+          <div class="appShort">VRM 2.4</div>
         </div>
       </div>
 
-      <div class="headerRight">
-        <button id="pwaInstallBtn" class="headerAction" title="Instalar VRM" aria-label="Instalar VRM" style="display:none">⬇︎ Instalar</button>
-        <button id="pwaUpdateBtn" class="headerAction" title="Actualizar VRM" aria-label="Actualizar VRM" style="display:none">⟳ Actualizar</button>
-        <button id="toggleOpsBtn" class="headerToggle" title="Ocultar/mostrar operaciones" aria-label="Ocultar/mostrar operaciones">
-                <span id="toggleOpsIcon">▾</span>
-          </button>
+      
+<div class="headerRight">
+  <button id="pwaInstallBtn" class="headerAction" title="Instalar VRM" aria-label="Instalar VRM" style="display:none">⬇︎ Instalar</button>
+  <button id="pwaUpdateBtn" class="headerAction" title="Actualizar VRM" aria-label="Actualizar VRM" style="display:none">⟳ Actualizar</button>
+<button id="toggleOpsBtn" class="headerToggle" title="Ocultar/mostrar operaciones" aria-label="Ocultar/mostrar operaciones">
+        <span id="toggleOpsIcon">▾</span>
+      </button>
       </div>
 
     </div>
     <div class="raceName" id="raceName">Video: —</div>
   
 
-    <div id="installHelp" role="dialog" aria-modal="true" aria-label="Instalar VRM">
-      <div class="panel">
-        <h3>Instalar VRM</h3>
-        <div id="installHelpText">
-          <p><b>iPhone/iPad (Safari):</b></p>
-          <ol>
-            <li>Abre esta página en <b>Safari</b> (no dentro de otra app).</li>
-            <li>Pulsa el botón <b>Compartir</b> (cuadrado con flecha ↑).</li>
-            <li>Elige <b>Añadir a pantalla de inicio</b>.</li>
-          </ol>
-          <p style="margin-top:10px"><b>Android/PC (Chrome/Edge):</b> usa el botón <b>Instalar</b> cuando aparezca.</p>
-        </div>
-        <div class="row">
-          <button id="closeInstallHelp">Cerrar</button>
-        </div>
-      </div>
+<div id="installHelp" role="dialog" aria-modal="true" aria-label="Instalar VRM">
+  <div class="panel">
+    <h3>Instalar VRM</h3>
+    <div id="installHelpText">
+      <p><b>iPhone/iPad (Safari):</b></p>
+      <ol>
+        <li>Abre esta página en <b>Safari</b> (no dentro de otra app).</li>
+        <li>Pulsa el botón <b>Compartir</b> (cuadrado con flecha ↑).</li>
+        <li>Elige <b>Añadir a pantalla de inicio</b>.</li>
+      </ol>
+      <p style="margin-top:10px"><b>Android/PC (Chrome/Edge):</b> usa el botón <b>Instalar</b> cuando aparezca.</p>
+    </div>
+    <div class="row">
+      <button id="closeInstallHelp">Cerrar</button>
     </div>
   </div>
+</div></div>
 
   <div id="layout">
 
@@ -1030,12 +1031,7 @@ const baseLayers = {
     waze: L.tileLayer("https://worldtiles3.waze.com/tiles/{z}/{x}/{y}.png", {
       attribution: "© Waze",
       maxZoom: 20
-    }),
-    
-    OFFLINE_ICGC_TOPO:  L.tileLayer("./mapas%20offline/icgc_topo/{z}/{x}/{y}.png", { maxZoom: 19 }),
-    
-    OFFLINE_ICGC_ORTO: L.tileLayer("./mapas%20offline/icgc_orto/{z}/{x}/{y}.jpg", { maxZoom: 19 })
-
+    })
   };
 
   let currentBaseLayer = baseLayers.osm;
@@ -2201,25 +2197,6 @@ const idx = findPointIndex(p);
     setStatus(`Overlay cargado: ${file.name}`);
   }
 
-  function kmlToLeafletLayer(kmlText){
-    const xml = new DOMParser().parseFromString(kmlText, "application/xml");
-    const gj = toGeoJSON.kml(xml);
-    return L.geoJSON(gj, {
-      style: () => ({ color:"#cc00cc", weight:3, opacity:0.85 }),
-      pointToLayer: (feature, latlng) => {
-        const name = feature?.properties?.name || "";
-        const desc = feature?.properties?.description || "";
-        return L.circleMarker(latlng, {
-          radius: 5,
-          color: "#cc00cc",
-          fillColor: "#cc00cc",
-          fillOpacity: 0.8,
-          weight: 1
-        }).bindPopup(`<b>${escapeHtml(name)}</b><br>${desc}`);
-      }
-    });
-  }
-
   
   async function loadKmzFile(file){
     const ab = await file.arrayBuffer();
@@ -2733,7 +2710,7 @@ Luego abre VRM y selecciona:
     window.addEventListener('load', async ()=>{
       try{
         // Try register in same folder (recommended). If your SW lives elsewhere, adjust the path.
-        const reg = await navigator.serviceWorker.register('vrm_sw.js');
+        const reg = await navigator.serviceWorker.register('./unified-sw.js');
         function showUpdate(){
           if (!updateBtn) return;
           updateBtn.style.display = '';
