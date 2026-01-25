@@ -63,6 +63,43 @@
       text-overflow:ellipsis;
       box-sizing:border-box;
     }
+
+    #appHeader .headerMain{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:8px 12px;
+      gap:12px;
+      box-sizing:border-box;
+    }
+    #appHeader .headerLeft{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+    #appHeader .title{min-width:0;}
+    #appHeader .headerRight{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+    }
+    .headerAction{
+      border:1px solid #cfcfcf;
+      background:#ffffff;
+      border-radius:10px;
+      padding:8px 12px;
+      font-weight:600;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      box-shadow:0 1px 2px rgba(0,0,0,.06);
+    }
+    .headerAction:hover{background:#f6f6f6;}
+    .headerAction:active{transform:translateY(1px);}
+
 /* ============================================================
        TOP LAYOUT
        ============================================================ */
@@ -411,76 +448,6 @@
   display:inline-flex;align-items:center;justify-content:center;
   cursor:pointer;
 }
-
-
-#appHeader .headerRight{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-#appHeader .headerAction{
-  height:34px;
-  border-radius:10px;
-  border:1px solid rgba(0,0,0,.22);
-  background:#fff;
-  cursor:pointer;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:0 10px;
-  font-size:14px;
-  line-height:1;
-  white-space:nowrap;
-}
-
-.pwaDisabled{opacity:.65; filter:saturate(.7);} 
-#appHeader .headerAction:disabled{
-  opacity:.5;
-  cursor:not-allowed;
-}
-
-/* PWA install help modal */
-#installHelp{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.55);
-  z-index:2000;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:18px;
-  box-sizing:border-box;
-}
-#installHelp .panel{
-  max-width:520px;
-  width:100%;
-  background:#fff;
-  border-radius:14px;
-  padding:16px 16px 14px;
-  box-shadow:0 10px 30px rgba(0,0,0,.25);
-  font-size:14px;
-}
-#installHelp .panel h3{
-  margin:0 0 10px 0;
-  font-size:18px;
-}
-#installHelp .panel ol{
-  margin:8px 0 0 18px;
-  padding:0;
-}
-#installHelp .panel .row{
-  display:flex;
-  justify-content:flex-end;
-  gap:10px;
-  margin-top:12px;
-}
-#installHelp .panel button{
-  border:1px solid rgba(0,0,0,.22);
-  background:#fff;
-  border-radius:10px;
-  padding:6px 10px;
-  cursor:pointer;
-}
 #controls.collapsed{ display:none; }
 
 
@@ -554,37 +521,17 @@
           <div class="appShort">VRM 2.5</div>
         </div>
       </div>
-
-      
-<div class="headerRight">
-  <button id="pwaInstallBtn" class="headerAction" title="Instalar VRM" aria-label="Instalar VRM" style="display:none">⬇︎ Instalar</button>
-  <button id="pwaUpdateBtn" class="headerAction" title="Actualizar VRM" aria-label="Actualizar VRM" style="display:none">⟳ Actualizar</button>
-<button id="toggleOpsBtn" class="headerToggle" title="Ocultar/mostrar operaciones" aria-label="Ocultar/mostrar operaciones">
-        <span id="toggleOpsIcon">▾</span>
-      </button>
+      <div class="headerRight">
+        <button id="pwaInstallBtn" class="headerAction" title="Instalar VRM" aria-label="Instalar VRM" style="display:none">
+          ⬇︎ Instalar
+        </button>
+        <button id="toggleOpsBtn" class="headerToggle" title="Ocultar/mostrar operaciones" aria-label="Ocultar/mostrar operaciones">
+          <span id="toggleOpsIcon">▾</span>
+        </button>
       </div>
-
-    </div>
+</div>
     <div class="raceName" id="raceName">Video: —</div>
-  
-
-<div id="installHelp" role="dialog" aria-modal="true" aria-label="Instalar VRM">
-  <div class="panel">
-    <h3>Instalar VRM</h3>
-    <div id="installHelpText">
-      <p><b>iPhone/iPad (Safari):</b></p>
-      <ol>
-        <li>Abre esta página en <b>Safari</b> (no dentro de otra app).</li>
-        <li>Pulsa el botón <b>Compartir</b> (cuadrado con flecha ↑).</li>
-        <li>Elige <b>Añadir a pantalla de inicio</b>.</li>
-      </ol>
-      <p style="margin-top:10px"><b>Android/PC (Chrome/Edge):</b> usa el botón <b>Instalar</b> cuando aparezca.</p>
-    </div>
-    <div class="row">
-      <button id="closeInstallHelp">Cerrar</button>
-    </div>
   </div>
-</div></div>
 
   <div id="layout">
 
@@ -1088,7 +1035,6 @@ baseMapSelect.addEventListener("change", () => {
   let overlayLayer = null;
 
   let points = [];
-  let visualTracks = []; // [{name,color,segments:[[ [lat,lon],... ], ...]}] from GPX (trk/trkseg)
   let firstAbsTime = null;
   let hasEle = false;
 
@@ -1111,136 +1057,37 @@ let lastCenterTs = 0;
      GPX
      ============================================================ */
   
-  function gpxDisplayColorToHex(name){
-  const n = String(name||"").trim().toLowerCase();
-  const map = {
-    black:"#000000", darkgray:"#444444", darkgrey:"#444444", gray:"#808080", grey:"#808080",
-    white:"#ffffff",
-    red:"#e53935", darkred:"#b71c1c",
-    green:"#43a047", darkgreen:"#1b5e20",
-    blue:"#1e88e5", darkblue:"#0d47a1",
-    cyan:"#00bcd4",
-    magenta:"#e91e63",
-    yellow:"#fdd835",
-    orange:"#fb8c00",
-    purple:"#8e24aa",
-    brown:"#6d4c41"
-  };
-  return map[n] || null;
-}
-
-function parseGpx(xmlText){
+  function parseGpx(xmlText){
   const xml = new DOMParser().parseFromString(xmlText, "application/xml");
 
-  // Reset visual tracks
-  visualTracks = [];
+  // GPX suele venir con namespace por defecto (1.0/1.1). querySelectorAll("trkpt")
+  // NO encuentra nada en XML con namespaces. Usamos getElementsByTagNameNS.
+  let trkpts = Array.from(xml.getElementsByTagNameNS("*", "trkpt"));
+  if (!trkpts.length) trkpts = Array.from(xml.getElementsByTagName("trkpt"));
 
-  // Get tracks (<trk>) and segments (<trkseg>) preserving order
-  let trks = Array.from(xml.getElementsByTagNameNS("*", "trk"));
-  if (!trks.length) trks = Array.from(xml.getElementsByTagName("trk"));
+  const out = trkpts.map(pt => {
+    const latAttr = pt.getAttribute("lat");
+    const lonAttr = pt.getAttribute("lon");
+    const lat = latAttr != null ? +latAttr : NaN;
+    const lon = lonAttr != null ? +lonAttr : NaN;
 
-  const out = [];
-  let firstPoint = true;
+    let tNode = pt.getElementsByTagNameNS("*", "time")[0];
+    if (!tNode) tNode = pt.getElementsByTagName("time")[0];
+    if (!tNode || !tNode.textContent) return null;
 
-  for (const trk of trks){
-    // Track name (optional)
-    let nameNode = trk.getElementsByTagNameNS("*","name")[0];
-    if (!nameNode) nameNode = trk.getElementsByTagName("name")[0];
-    const trkName = nameNode ? (nameNode.textContent||"").trim() : "";
+    let eleNode = pt.getElementsByTagNameNS("*", "ele")[0];
+    if (!eleNode) eleNode = pt.getElementsByTagName("ele")[0];
+    const ele = (eleNode && eleNode.textContent !== "") ? +eleNode.textContent : null;
 
-    // Garmin DisplayColor inside gpxx:TrackExtension
-    let colorNode = trk.getElementsByTagNameNS("*","DisplayColor")[0];
-    if (!colorNode) colorNode = trk.getElementsByTagName("gpxx:DisplayColor")[0];
-    const trkColor = gpxDisplayColorToHex(colorNode ? colorNode.textContent : null) || "blue";
+    const t = new Date(tNode.textContent.trim());
+    if (!Number.isFinite(t.getTime())) return null;
 
-    // Segments
-    let segs = Array.from(trk.getElementsByTagNameNS("*","trkseg"));
-    if (!segs.length) segs = Array.from(trk.getElementsByTagName("trkseg"));
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
 
-    const trkVis = { name: trkName || "Track", color: trkColor, segments: [] };
+    return { lat, lon, ele, tAbs: t.getTime(), tOffset:0, dist:0 };
+  }).filter(Boolean);
 
-    for (const seg of segs){
-      let pts = Array.from(seg.getElementsByTagNameNS("*","trkpt"));
-      if (!pts.length) pts = Array.from(seg.getElementsByTagName("trkpt"));
-
-      const segLatLngs = [];
-
-      let segFirst = true;
-      for (const pt of pts){
-        const latAttr = pt.getAttribute("lat");
-        const lonAttr = pt.getAttribute("lon");
-        const lat = latAttr != null ? +latAttr : NaN;
-        const lon = lonAttr != null ? +lonAttr : NaN;
-
-        let tNode = pt.getElementsByTagNameNS("*", "time")[0];
-        if (!tNode) tNode = pt.getElementsByTagName("time")[0];
-        if (!tNode || !tNode.textContent) continue;
-
-        let eleNode = pt.getElementsByTagNameNS("*", "ele")[0];
-        if (!eleNode) eleNode = pt.getElementsByTagName("ele")[0];
-        const ele = (eleNode && eleNode.textContent !== "") ? +eleNode.textContent : null;
-
-        const t = new Date(tNode.textContent.trim());
-        if (!Number.isFinite(t.getTime())) continue;
-        if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
-
-        const p = { lat, lon, ele, tAbs: t.getTime(), tOffset:0, dist:0 };
-
-        // Mark segment breaks so we DON'T draw a straight line across segments/tracks
-        if (!firstPoint && segFirst){
-          p.break = true; // used in distance calc + drawing
-        }
-
-        out.push(p);
-        segLatLngs.push([lat, lon]);
-
-        firstPoint = false;
-        segFirst = false;
-      }
-
-      if (segLatLngs.length) trkVis.segments.push(segLatLngs);
-    }
-
-    if (trkVis.segments.length) visualTracks.push(trkVis);
-  }
-
-  // If GPX has no <trk> (rare), fall back to all <trkpt> flat
-  if (!out.length){
-    let trkpts = Array.from(xml.getElementsByTagNameNS("*", "trkpt"));
-    if (!trkpts.length) trkpts = Array.from(xml.getElementsByTagName("trkpt"));
-
-    for (const pt of trkpts){
-      const latAttr = pt.getAttribute("lat");
-      const lonAttr = pt.getAttribute("lon");
-      const lat = latAttr != null ? +latAttr : NaN;
-      const lon = lonAttr != null ? +lonAttr : NaN;
-
-      let tNode = pt.getElementsByTagNameNS("*", "time")[0];
-      if (!tNode) tNode = pt.getElementsByTagName("time")[0];
-      if (!tNode || !tNode.textContent) continue;
-
-      let eleNode = pt.getElementsByTagNameNS("*", "ele")[0];
-      if (!eleNode) eleNode = pt.getElementsByTagName("ele")[0];
-      const ele = (eleNode && eleNode.textContent !== "") ? +eleNode.textContent : null;
-
-      const t = new Date(tNode.textContent.trim());
-      if (!Number.isFinite(t.getTime())) continue;
-      if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
-
-      out.push({ lat, lon, ele, tAbs: t.getTime(), tOffset:0, dist:0 });
-    }
-
-    if (out.length){
-      visualTracks = [{ name:"Track", color:"blue", segments:[ out.map(p=>[p.lat,p.lon]) ] }];
-    }
-  }
-
-  // Ensure time order (Garmin is already ordered); keep stable if equal
   out.sort((a,b)=>a.tAbs - b.tAbs);
-
-  // NOTE: sorting may move break markers slightly, but for Garmin exports it's safe.
-  // If you ever import mixed-order tracks, distance will still be safe across breaks.
-
   return out;
 }
 
@@ -1252,33 +1099,11 @@ function parseGpx(xmlText){
       p.tOffset = (p.tAbs - firstAbsTime) / 1000;
     }
 
-    // Distancia absoluta (para perfil/orden) y distancia por tramo (contador que se reinicia)
-    let dAbs = 0;
-    let dSeg = 0;
-    let segId = 0;
-
-    points[0].distAbs = 0;
-    points[0].distSeg = 0;
-    points[0].segId = 0;
-    points[0].dist = 0; // compat: dist = distancia absoluta
-
+    let d=0;
+    points[0].dist = 0;
     for (let i=1;i<points.length;i++){
-      // Si este punto marca inicio de un nuevo tramo, reiniciamos el contador del tramo
-      if (points[i].break){
-        segId += 1;
-        dSeg = 0;
-      } else {
-        const inc = haversineMeters(points[i-1], points[i]);
-        dAbs += inc;
-        dSeg += inc;
-      }
-
-      points[i].segId = segId;
-      points[i].distAbs = dAbs;
-      points[i].distSeg = dSeg;
-
-      // compat: dist se usa en varias rutinas como "distancia para ordenar/perfil"
-      points[i].dist = dAbs;
+      d += haversineMeters(points[i-1], points[i]);
+      points[i].dist = d;
     }
 
     hasEle = points.some(p => Number.isFinite(p.ele));
@@ -1291,7 +1116,6 @@ function parseGpx(xmlText){
     marker = null;
 
     points = [];
-    visualTracks = [];
     firstAbsTime = null;
     hasEle = false;
 
@@ -1323,42 +1147,11 @@ function parseGpx(xmlText){
   function drawTrack(){
     computeOffsetsAndDist();
 
-    // Remove previous polylines
-    if (polyline){
-      try { map.removeLayer(polyline); } catch(_) {}
-      polyline = null;
-    }
+    polyline = L.polyline(points.map(p => [p.lat, p.lon]), { color:"blue", weight:4 }).addTo(map);
 
-    // Build colored multi-segment polylines from GPX tracks (if any)
-    const layers = [];
-    const clickHandler = (e) => {
-      const p = nearestPoint(e.latlng.lat, e.latlng.lng);
-      if (p) syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
-    };
-
-    if (visualTracks && visualTracks.length){
-      for (const trk of visualTracks){
-        const color = trk.color || "blue";
-        for (const seg of (trk.segments || [])){
-          if (!seg || seg.length < 2) continue;
-          const pl = L.polyline(seg, { color, weight:4, opacity:0.95 });
-          pl.on("click", clickHandler);
-          layers.push(pl);
-        }
-      }
-    } else {
-      // Fallback
-      const pl = L.polyline(points.map(p => [p.lat, p.lon]), { color:"blue", weight:4 });
-      pl.on("click", clickHandler);
-      layers.push(pl);
-    }
-
-    // Group reference (for clearTrack compatibility)
-    polyline = L.featureGroup(layers).addTo(map);
-
+    
     if (polyline && polyline.bringToBack) polyline.bringToBack();
-
-    marker = L.marker([points[0].lat, points[0].lon], {
+marker = L.marker([points[0].lat, points[0].lon], {
       icon: bikeIcon,
       interactive: false,
       keyboard: false,
@@ -1367,12 +1160,12 @@ function parseGpx(xmlText){
 
     // keep marker above everything
     try { marker.setZIndexOffset(1000); } catch(_) {}
+map.fitBounds(polyline.getBounds(), { padding:[20,20] });
 
-    // Fit bounds safely
-    try {
-      const b = polyline.getBounds();
-      if (b && b.isValid && b.isValid()) map.fitBounds(b, { padding:[20,20] });
-    } catch(_) {}
+    polyline.on("click", (e) => {
+      const p = nearestPoint(e.latlng.lat, e.latlng.lng);
+      if (p) syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+    });
 
     enableMarkerDragScrub();
 
@@ -1457,7 +1250,7 @@ const idx = findPointIndex(p);
     if (seekVideo) safeSeek(p.tOffset);
     if (redrawProfile) drawElevationProfile(video.currentTime);
 
-    const distKm = adjustedDistKm((p.distSeg ?? p.dist) || 0);
+    const distKm = adjustedDistKm(p.dist||0);
     hud.classList.toggle('km-negative', distKm < 0);
     const negFlag = distKm < 0 ? `<span class="km-neg-flag">N</span>` : ``;
     hud.innerHTML = `t=${fmtTimeHMS(p.tOffset)} · ${negFlag}${distKm.toFixed(2)} km · lat=${p.lat.toFixed(5)} lon=${p.lon.toFixed(5)}`;
@@ -1630,7 +1423,7 @@ const idx = findPointIndex(p);
       ctx.lineTo(x, H - pad);
       ctx.stroke();
 
-      const distKmCur = adjustedDistKm((p.distSeg ?? p.dist) || 0);
+      const distKmCur = adjustedDistKm(p.dist||0);
       const eleTxt = Number.isFinite(p.ele) ? `${Math.round(p.ele)} m` : "—";
       const label = `${fmtTimeHMS(p.tOffset)} · ${distKmCur.toFixed(2)} km · ${eleTxt}`;
 
@@ -1651,7 +1444,7 @@ const idx = findPointIndex(p);
   function nearestPointByDist(targetDist){
     let best = points[0], bestD = Infinity;
     for (const p of points){
-      const d = Math.abs((p.distAbs ?? p.dist) - targetDist);
+      const d = Math.abs(p.dist - targetDist);
       if (d < bestD){ bestD = d; best = p; }
     }
     return best;
@@ -2019,7 +1812,7 @@ const idx = findPointIndex(p);
       wpts.push({
         rowIndex: i,
         tOffset: near.tOffset,
-        dist: adjustedDistMeters((near.distSeg ?? near.dist)),
+        dist: adjustedDistMeters(near.dist),
         Describe_Es: row.Describe_Es || ""
       });
       ok++;
@@ -2572,7 +2365,7 @@ const idx = findPointIndex(p);
   <div id="appFooter">© 2026 Roberto Benet - rbenet71@gmail.com</div>
 <!--
 ====================================================================
-ICGC OFFLINE MAPS (VRM 2.4) - PASO A PASO
+ICGC OFFLINE MAPS (VRM 2.3) - PASO A PASO
 ====================================================================
 
 OBJETIVO
@@ -2649,104 +2442,72 @@ Luego abre VRM y selecciona:
 -->
 
 <script>
-/* ===========================
-   PWA install/update (VRM)
-   =========================== */
 (function(){
   const installBtn = document.getElementById('pwaInstallBtn');
-  const updateBtn  = document.getElementById('pwaUpdateBtn');
-  const installHelp = document.getElementById('installHelp');
-  const closeInstallHelp = document.getElementById('closeInstallHelp');
+  if(!installBtn) return;
 
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isStandalone = () =>
-    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
-    (window.navigator && window.navigator.standalone === true);
-
-  function showInstallHelp(){
-    if (installHelp) installHelp.style.display = 'flex';
-  }
-  function hideInstallHelp(){
-    if (installHelp) installHelp.style.display = 'none';
-  }
-  if (closeInstallHelp) closeInstallHelp.addEventListener('click', hideInstallHelp);
-  if (installHelp) installHelp.addEventListener('click', (ev)=>{ if (ev.target === installHelp) hideInstallHelp(); });
-
-  // If already installed, hide install button.
-  function refreshInstallVisibility(){
-    if (!installBtn) return;
-    if (isStandalone()){
-      installBtn.style.display = 'none';
-      return;
-    }
-    // iOS: hide install button (iOS uses 'Add to Home Screen' from Safari share menu)
-    if (isIOS){
-      installBtn.style.display = 'none';
-      return;
-    }
-
-    // Desktop/Android: show a fallback install button that explains requirements.
-    installBtn.style.display = '';
-    installBtn.classList.add('pwaDisabled');
-    installBtn.onclick = ()=>showInstallHelp();
-  }
-  refreshInstallVisibility();
-
-  // Chromium install prompt
   let deferredPrompt = null;
-  window.addEventListener('beforeinstallprompt', (e)=>{
+
+  const ua = navigator.userAgent.toLowerCase();
+  const isIOS = /iphone|ipad|ipod/.test(ua);
+  const isStandalone = () =>
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+
+  // Nunca mostrar instalar en file:// o contextos no seguros (no es instalable)
+  const isFile = location.protocol === 'file:';
+  const isSecure = window.isSecureContext && !isFile;
+
+  // iOS: mostrar botón tipo "Instalar" que abre instrucciones (Add to Home Screen)
+  if(isIOS && !isStandalone()){
+    installBtn.style.display = 'inline-flex';
+    installBtn.addEventListener('click', () => {
+      alert('iOS: Para instalar VRM
+
+1) Abre en Safari
+2) Pulsa el botón Compartir (cuadrado con flecha)
+3) "Añadir a pantalla de inicio"');
+    });
+    return;
+  }
+
+  // Desktop/Android: solo si puede ser instalable
+  if(!isSecure || !('serviceWorker' in navigator)) {
+    installBtn.style.display = 'none';
+    return;
+  }
+
+  window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    if (!installBtn) return;
-    if (isStandalone()) return;
-    installBtn.style.display = '';
-    installBtn.classList.remove('pwaDisabled');
-    installBtn.onclick = async ()=>{
-      if (!deferredPrompt){
-        showInstallHelp();
-        return;
-      }
-      deferredPrompt.prompt();
-      try { await deferredPrompt.userChoice; } catch(_){}
-      deferredPrompt = null;
-      installBtn.style.display = 'none';
-    };
+    if(!isStandalone()){
+      installBtn.style.display = 'inline-flex';
+    }
   });
 
-  // Service worker (optional). If a SW exists, we can offer an update button when a new one is waiting.
-  if ('serviceWorker' in navigator && location.protocol !== 'file:'){
-    window.addEventListener('load', async ()=>{
-      try{
-        // Try register in same folder (recommended). If your SW lives elsewhere, adjust the path.
-        const reg = await navigator.serviceWorker.register('./unified-sw.js');
-        function showUpdate(){
-          if (!updateBtn) return;
-          updateBtn.style.display = '';
-          updateBtn.onclick = ()=>{
-            if (reg.waiting) reg.waiting.postMessage({ type:'SKIP_WAITING' });
-          };
-        }
-        if (reg.waiting) showUpdate();
-        reg.addEventListener('updatefound', ()=>{
-          const sw = reg.installing;
-          if (!sw) return;
-          sw.addEventListener('statechange', ()=>{
-            if (sw.state === 'installed' && navigator.serviceWorker.controller){
-              showUpdate();
-            }
-          });
-        });
-        navigator.serviceWorker.addEventListener('controllerchange', ()=>{
-          // Reload so the new version takes effect.
-          window.location.reload();
-        });
-      }catch(e){
-        // SW not available in this path; ignore.
-        console.debug('SW register failed', e);
-      }
-    });
+  installBtn.addEventListener('click', async () => {
+    if(!deferredPrompt){
+      // Si el navegador no ofrece prompt, damos pista sin molestar
+      alert('Instalación no disponible todavía.
+
+Asegúrate de abrir VRM por HTTPS y que el navegador cumpla los requisitos de instalación.');
+      return;
+    }
+    installBtn.style.display = 'none';
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+  });
+
+  window.addEventListener('appinstalled', () => {
+    installBtn.style.display = 'none';
+  });
+
+  if(isStandalone()){
+    installBtn.style.display = 'none';
   }
 })();
 </script>
+
 </body>
 </html>
