@@ -321,3 +321,250 @@ Para Catalunya completa y máximo detalle:
 ### 13.6 iOS / iPad notas
 - El uso offline consiste en abrir el HTML y cargar imágenes locales.
 - Dependiendo del método de apertura, iOS puede ser restrictivo con rutas locales. Si Safari con `file://` limita, suele funcionar mejor abrir el HTML desde una app tipo **Documents** (WebView).
+Sí 👍, buena idea dejar todo esto **consolidado en el MD**, porque aquí hay muchos *aprendizajes reales de PWA* que no son obvios hasta que te pegas con ello.
+
+He revisado el `estructura_vrm.md` que has subido  y **no recoge todavía** todo lo que hemos aprendido sobre:
+
+* instalación PWA real
+* `beforeinstallprompt`
+* manifest mínimo válido
+* favicon
+* Service Worker separado
+* avisos “engañosos” de Chrome DevTools
+
+Te propongo **añadir un nuevo capítulo completo**, sin tocar lo existente, algo así:
+
+---
+
+# 14. PWA (instalación como aplicación)
+
+Este capítulo recoge **aprendizajes reales tras depurar la instalación PWA en Windows / Chrome / Edge e iOS**.
+
+---
+
+## 14.1 Requisitos mínimos para que VRM sea instalable
+
+Para que Chrome/Edge ofrezcan *Instalar aplicación* se necesitan **todos**:
+
+1. Servido por **HTTP/HTTPS** (no `file://`)
+2. `manifest.json` válido
+3. `Service Worker` registrado y activo
+4. `display: "standalone"` en el manifest
+5. Icono válido **existente**
+6. `start_url` accesible
+7. **No errores JS en carga**
+
+---
+
+## 14.2 Manifest.json (caso real VRM)
+
+### Estado final correcto
+
+```json
+{
+  "name": "Video Race Mapping",
+  "short_name": "VRM",
+  "id": "vrm",
+  "start_url": "/VRM.html",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "description": "Video Race Mapping (VRM): sincroniza vídeo con GPX/KML y mapa.",
+  "icons": [
+    {
+      "src": "logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}
+```
+
+### Aprendizajes clave
+
+* **No inventar iconos**: si solo existe `logo.jpg`, usarlo.
+* Chrome acepta JPG como icono.
+* `id` ayuda a evitar duplicados de instalación.
+* `start_url` debe coincidir con la ruta real servida.
+
+---
+
+## 14.3 `<head>` correcto para PWA (HTML)
+
+Estado final recomendado en `VRM.html`:
+
+```html
+<link rel="manifest" href="VRM_manifest.json">
+
+<meta name="theme-color" content="#111111">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<link rel="apple-touch-icon" href="logo.jpg" />
+<link rel="icon" href="logo.jpg">
+```
+
+### Notas importantes
+
+* `<meta name="apple-mobile-web-app-capable">` **está deprecado**
+* Chrome muestra warning si no existe:
+
+  ```html
+  <meta name="mobile-web-app-capable" content="yes">
+  ```
+* Las etiquetas **NO necesitan “barras de cierre” obligatorias**, pero es buena práctica usar:
+
+  ```html
+  <link ... />
+  ```
+
+---
+
+## 14.4 Favicon (error 404 explicado)
+
+### Problema visto
+
+```
+favicon.ico 404 (File not found)
+```
+
+### Solución simple
+
+Opción A (recomendada):
+
+```html
+<link rel="icon" href="logo.jpg">
+```
+
+Opción B:
+
+* Crear `favicon.ico`
+* O copiar `logo.jpg` como `favicon.ico`
+
+> Este error **no impide la instalación PWA**, solo es ruido de consola.
+
+---
+
+## 14.5 Service Worker (archivo separado)
+
+### Regla de oro
+
+➡️ **El Service Worker debe estar en un archivo independiente**
+Ejemplo correcto:
+
+```
+/VRM.html
+/vrm_sw.js
+/VRM_manifest.json
+/logo.jpg
+```
+
+Nunca concatenar el SW dentro del HTML.
+
+---
+
+## 14.6 Registro del Service Worker
+
+Código final funcional:
+
+```js
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  navigator.serviceWorker.register('vrm_sw.js');
+}
+```
+
+### Aprendizajes
+
+* No funciona en `file://`
+* DevTools → *Update on reload* provoca **spam de reinstalaciones**
+* Cada recarga forzada genera:
+
+  ```
+  Service Worker was updated because "Update on reload" was checked
+  ```
+
+Esto **no es un bug de VRM**, es DevTools.
+
+---
+
+## 14.7 beforeinstallprompt (aviso engañoso explicado)
+
+Mensaje visto:
+
+```
+Banner not shown: beforeinstallpromptevent.preventDefault() called.
+```
+
+### Qué significa realmente
+
+* **NO es un error**
+* Significa:
+
+  * Has capturado el evento
+  * Chrome **no muestra el banner automático**
+  * Espera que tú llames a `.prompt()`
+
+### Implementación correcta (la que tienes)
+
+```js
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBtn.style.display = '';
+});
+```
+
+Y luego, **solo al hacer clic**:
+
+```js
+await deferredPrompt.prompt();
+```
+
+### Conclusión
+
+✔ Comportamiento correcto
+✔ UX controlada
+✔ El warning se puede ignorar
+
+---
+
+## 14.8 iOS (Safari) – realidades
+
+* iOS **NO usa** `beforeinstallprompt`
+* No hay banner automático
+* Instalación solo vía:
+
+  ```
+  Compartir → Añadir a pantalla de inicio
+  ```
+* Correcto mostrar **modal de ayuda manual**, como hace VRM.
+
+---
+
+## 14.9 Checklist rápido (cuando algo no se instala)
+
+1. ¿Está servido por `http://`?
+2. ¿El manifest carga sin error?
+3. ¿El icono existe?
+4. ¿Hay SW activo en *Application → Service Workers*?
+5. ¿No estás en modo incógnito?
+6. ¿DevTools no tiene “Update on reload” activado?
+7. ¿No hay errores JS en consola?
+
+---
+
+## 14.10 Estado actual de VRM
+
+✔ Instalable en **Windows (Chrome / Edge)**
+✔ Instalable en **Android**
+✔ Añadible a inicio en **iOS**
+✔ Control manual del botón instalar
+✔ Actualización por SW funcional
+
