@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Video Race Mapping (VRM)</title>
+  <link rel="manifest" href="VRM_manifest.json">
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -432,6 +433,8 @@
   line-height:1;
   white-space:nowrap;
 }
+
+.pwaDisabled{opacity:.65; filter:saturate(.7);} 
 #appHeader .headerAction:disabled{
   opacity:.5;
   cursor:not-allowed;
@@ -549,7 +552,7 @@
         <img src="logo.jpg" alt="logo" />
         <div class="title">
           <div class="appName">Video Race Mapping</div>
-          <div class="appShort">VRM 2.4</div>
+          <div class="appShort">VRM 2.5</div>
         </div>
       </div>
 
@@ -2677,11 +2680,16 @@ Luego abre VRM y selecciona:
       installBtn.style.display = 'none';
       return;
     }
-    // iOS: always show install button (it opens help)
+    // iOS: hide install button (iOS uses 'Add to Home Screen' from Safari share menu)
     if (isIOS){
-      installBtn.style.display = '';
-      installBtn.onclick = showInstallHelp;
+      installBtn.style.display = 'none';
+      return;
     }
+
+    // Desktop/Android: show a fallback install button that explains requirements.
+    installBtn.style.display = '';
+    installBtn.classList.add('pwaDisabled');
+    installBtn.onclick = ()=>showInstallHelp();
   }
   refreshInstallVisibility();
 
@@ -2693,6 +2701,7 @@ Luego abre VRM y selecciona:
     if (!installBtn) return;
     if (isStandalone()) return;
     installBtn.style.display = '';
+    installBtn.classList.remove('pwaDisabled');
     installBtn.onclick = async ()=>{
       if (!deferredPrompt){
         showInstallHelp();
@@ -2740,5 +2749,84 @@ Luego abre VRM y selecciona:
   }
 })();
 </script>
+
+<script>
+/* === VRM PWA bootstrap (v2.5) === */
+(function(){
+  // Hide legacy share button if present
+  const shareBtn = document.getElementById('shareBtn');
+  if (shareBtn) shareBtn.style.display = 'none';
+
+  // Install button (create if missing)
+  let installBtn = document.getElementById('pwaInstallBtn') || document.getElementById('installBtn');
+  if (!installBtn){
+    // try to attach to header actions if exists
+    const header = document.getElementById('appHeader') || document.querySelector('header') || document.body;
+    installBtn = document.createElement('button');
+    installBtn.id = 'pwaInstallBtn';
+    installBtn.textContent = '⬇︎ Instalar';
+    installBtn.title = 'Instalar VRM';
+    installBtn.style.display = 'none';
+    installBtn.style.marginLeft = '8px';
+    header.appendChild(installBtn);
+  }
+
+  let deferredPrompt = null;
+
+  function isStandalone(){
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  }
+  function isIOS(){
+    const ua = navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test(ua);
+  }
+
+  // iOS: show "install help" style action (optional)
+  if (isIOS() && !isStandalone()){
+    installBtn.style.display = 'inline-flex';
+    installBtn.onclick = () => {
+      const msg = `Instalar en iPhone/iPad (Safari):
+1) Abre esta página en Safari.
+2) Pulsa Compartir (cuadrado con flecha ↑).
+3) Elige “Añadir a pantalla de inicio”.`;
+      alert(msg);
+    };
+  }
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!isStandalone() && !isIOS()){
+      installBtn.style.display = 'inline-flex';
+    }
+  });
+
+  installBtn.addEventListener('click', async () => {
+    if (isIOS()) return; // iOS handled above
+    if (!deferredPrompt) return;
+    installBtn.style.display = 'none';
+    deferredPrompt.prompt();
+    try { await deferredPrompt.userChoice; } catch(_){}
+    deferredPrompt = null;
+  });
+
+  window.addEventListener('appinstalled', () => {
+    installBtn.style.display = 'none';
+  });
+
+  // Service Worker registration (must be HTTPS or localhost)
+  if ('serviceWorker' in navigator){
+    window.addEventListener('load', async () => {
+      try{
+        const reg = await navigator.serviceWorker.register('./vrm_sw.js', { scope: './' });
+        // console.log('SW registered', reg.scope);
+      }catch(err){
+        console.warn('SW register failed:', err);
+      }
+    });
+  }
+})();
+</script>
+
 </body>
 </html>
