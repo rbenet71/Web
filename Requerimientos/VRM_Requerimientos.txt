@@ -49,5 +49,6 @@ Ejemplos de herramientas:
 terser
 javascript-obfuscator
 
-n Logo en base64 para que este dentro del html y crea ese logo que refleje un video que es mostrado en un mapa para una carrera de bicis. Intenta que ocupe lo minimo para que el html no se haga muy grande.
-
+Instalable en windows
+Datos externos - fijar ficheros previos
+Cuadricula prinicipal, una tabla?

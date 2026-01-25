@@ -33,3 +33,7 @@ anexo fmt para extraer gps del mp4 Garmin
 #[TAIL]</trkseg>
 #[TAIL]</trk>
 #[TAIL]</gpx>
+
+ejecutar codigo python
+que ese python ejecute el exe
+al operar videos se pone la mismo info que en Dashcam
