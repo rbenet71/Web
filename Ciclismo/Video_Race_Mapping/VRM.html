@@ -3,7 +3,6 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="manifest" href="VRM_manifest.json">
   <title>Video Race Mapping (VRM)</title>
 
   <!-- Leaflet -->
@@ -396,6 +395,10 @@
     }
     @keyframes vrmSpin{ to{ transform: rotate(360deg); } }
 
+}
+
+}
+
 
 /* ============================================================
    HEADER toggle (show/hide operations bar)
@@ -546,7 +549,7 @@
         <img src="logo.jpg" alt="logo" />
         <div class="title">
           <div class="appName">Video Race Mapping</div>
-          <div class="appShort">VRM 2.5</div>
+          <div class="appShort">VRM 2.4</div>
         </div>
       </div>
 
@@ -579,7 +582,7 @@
       <button id="closeInstallHelp">Cerrar</button>
     </div>
   </div>
-</div>
+</div></div>
 
   <div id="layout">
 
@@ -619,9 +622,8 @@
         <option value="OFFLINE_ICGC_TOPO">ICGC Topo (offline)</option>
         <option value="OFFLINE_ICGC_ORTO">ICGC Orto (offline)</option>
       </optgroup>
-    </select> 
-      <span id="offlineHelp" title="Mapas offline ICGC: crea tiles en PC/Mac y copia a la carpeta 'mapas offline' (ver instrucciones al final del HTML).">ℹ️</span>
-  </label>
+    </select> <span id="offlineHelp" title="Mapas offline ICGC: crea tiles en PC/Mac y copia a la carpeta 'mapas offline' (ver instrucciones al final del HTML).">ℹ️</span>
+      </label>
 
       <button id="fitBtn" title="Ajustar mapa al track">Ajustar</button>
 
@@ -2648,55 +2650,95 @@ Luego abre VRM y selecciona:
 /* ===========================
    PWA install/update (VRM)
    =========================== */
-(function(){const installBtn = document.getElementById("pwaInstallBtn");
-  const installHelp = document.getElementById("installHelp");
-  const closeHelp = document.getElementById("closeInstallHelp");
-
-  if (!installBtn) return;
+(function(){
+  const installBtn = document.getElementById('pwaInstallBtn');
+  const updateBtn  = document.getElementById('pwaUpdateBtn');
+  const installHelp = document.getElementById('installHelp');
+  const closeInstallHelp = document.getElementById('closeInstallHelp');
 
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isStandalone =
-    window.matchMedia("(display-mode: standalone)").matches ||
-    window.navigator.standalone === true;
+  const isStandalone = () =>
+    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+    (window.navigator && window.navigator.standalone === true);
 
-  let deferredPrompt = null;
-
-  /* ---------- helpers ---------- */
-  const showHelp = () => installHelp && (installHelp.style.display = "flex");
-  const hideHelp = () => installHelp && (installHelp.style.display = "none");
-
-  closeHelp?.addEventListener("click", hideHelp);
-  installHelp?.addEventListener("click", e => {
-    if (e.target === installHelp) hideHelp();
-  });
-
-  /* ---------- iOS ---------- */
-  if (isIOS && !isStandalone) {
-    installBtn.style.display = "inline-flex";
-    installBtn.onclick = showHelp;
-    return;
+  function showInstallHelp(){
+    if (installHelp) installHelp.style.display = 'flex';
   }
+  function hideInstallHelp(){
+    if (installHelp) installHelp.style.display = 'none';
+  }
+  if (closeInstallHelp) closeInstallHelp.addEventListener('click', hideInstallHelp);
+  if (installHelp) installHelp.addEventListener('click', (ev)=>{ if (ev.target === installHelp) hideInstallHelp(); });
 
-  /* ---------- Desktop / Android ---------- */
-  window.addEventListener("beforeinstallprompt", (e) => {
+  // If already installed, hide install button.
+  function refreshInstallVisibility(){
+    if (!installBtn) return;
+    if (isStandalone()){
+      installBtn.style.display = 'none';
+      return;
+    }
+    // iOS: always show install button (it opens help)
+    if (isIOS){
+      installBtn.style.display = '';
+      installBtn.onclick = showInstallHelp;
+    }
+  }
+  refreshInstallVisibility();
+
+  // Chromium install prompt
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e)=>{
     e.preventDefault();
     deferredPrompt = e;
-    installBtn.style.display = "inline-flex";
-
-    installBtn.onclick = async () => {
-      if (!deferredPrompt) return;
+    if (!installBtn) return;
+    if (isStandalone()) return;
+    installBtn.style.display = '';
+    installBtn.onclick = async ()=>{
+      if (!deferredPrompt){
+        showInstallHelp();
+        return;
+      }
       deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
+      try { await deferredPrompt.userChoice; } catch(_){}
       deferredPrompt = null;
-      installBtn.style.display = "none";
+      installBtn.style.display = 'none';
     };
   });
 
-  window.addEventListener("appinstalled", () => {
-    installBtn.style.display = "none";
-  });
+  // Service worker (optional). If a SW exists, we can offer an update button when a new one is waiting.
+  if ('serviceWorker' in navigator && location.protocol !== 'file:'){
+    window.addEventListener('load', async ()=>{
+      try{
+        // Try register in same folder (recommended). If your SW lives elsewhere, adjust the path.
+        const reg = await navigator.serviceWorker.register('./unified-sw.js');
+        function showUpdate(){
+          if (!updateBtn) return;
+          updateBtn.style.display = '';
+          updateBtn.onclick = ()=>{
+            if (reg.waiting) reg.waiting.postMessage({ type:'SKIP_WAITING' });
+          };
+        }
+        if (reg.waiting) showUpdate();
+        reg.addEventListener('updatefound', ()=>{
+          const sw = reg.installing;
+          if (!sw) return;
+          sw.addEventListener('statechange', ()=>{
+            if (sw.state === 'installed' && navigator.serviceWorker.controller){
+              showUpdate();
+            }
+          });
+        });
+        navigator.serviceWorker.addEventListener('controllerchange', ()=>{
+          // Reload so the new version takes effect.
+          window.location.reload();
+        });
+      }catch(e){
+        // SW not available in this path; ignore.
+        console.debug('SW register failed', e);
+      }
+    });
+  }
 })();
-
 </script>
 </body>
 </html>
