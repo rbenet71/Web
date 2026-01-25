@@ -2469,11 +2469,11 @@ Luego abre VRM y selecciona:
   if(isIOS && !isStandalone()){
     installBtn.style.display = 'inline-flex';
     installBtn.addEventListener('click', () => {
-      alert('iOS: Para instalar VRM
+      alert(`iOS: Para instalar VRM
 
 1) Abre en Safari
 2) Pulsa el botón Compartir (cuadrado con flecha)
-3) "Añadir a pantalla de inicio"');
+3) "Añadir a pantalla de inicio"`);
     });
     return;
   }
