@@ -38,6 +38,14 @@ v20 cabecera cuerpo mas grande (proporcion mismo entre titulo y subtitulo ) y co
 2.3 mapas offline - cataluña o con descarga previa
 2.4 gpx en dos partes color y calcular kkm
 2.5 Instalable en windows
+2.6 
+La pantalla principal no se está trabajando bien.
+Como ves hacer que sea todo una tabla.
+Te digo de forma esquemática los contenidos, hay que respetar el contenido y la zona que hay actaualmente Fila 1 - cabecera con picto y título app y subtítulo vrm versión, botón ocultar fila 2 Fila 2 - zona de operaciones que se puede ocultar,.
+Fila 3 - Columna 1 vídeo y columna 2 mapa Fila 4 - columna 1 tabla y columna 2 perfil Fila 5 pie de la app
+
+Al ser una tabla que el usuario pueda redimensionar las celdas/filas/columnas 
+
 
 Encriptar o empaquetar
 NIVEL 2 — Ofuscar la app (recomendado +1)

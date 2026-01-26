@@ -20,10 +20,11 @@
 
   <style>
     :root{
-      /* panel splitter sizes (in px) */
       --splitter: 8px;
       --colLeft: 50%;
       --rowTop: 50%;
+      --appFooterH: 34px;
+      --appHeaderH: 84px;
     }
 
     html, body{
@@ -77,13 +78,13 @@
        TOP LAYOUT
        ============================================================ */
     #layout{
-      height: calc(100vh - 84px);
-      height: calc(90vh - 84px);
-      margin-top: 84px;
-      display:grid;
-      grid-template-rows: auto 1fr;
-      min-height:0;
+      margin-top: var(--appHeaderH);
+      height: calc(100vh - var(--appHeaderH) - var(--appFooterH));
+      display: grid;
+      grid-template-rows: auto 1fr; /* controls + main */
+      min-height: 0;
     }
+
 
     #controls{
       padding:8px 10px;
@@ -139,16 +140,13 @@
       min-height:0;
       display:grid;
 
-      /* 3 cols: left / splitter / right */
       grid-template-columns: var(--colLeft) var(--splitter) 1fr;
-
-      /* 3 rows: top / splitter / bottom */
       grid-template-rows: var(--rowTop) var(--splitter) 1fr;
 
       grid-template-areas:
-        "video vSplit map"
-        "hSplit hSplit hSplit"
-        "table . profile";
+        "video  .  map"
+        ".      .  ."
+        "table  .  profile";
     }
 
     .panel{
@@ -173,8 +171,19 @@
       z-index: 50;
     }
     .splitter:hover{ background: rgba(0,0,0,0.16); }
-    #vSplit{ grid-area: vSplit; cursor: col-resize; }
-    #hSplit{ grid-area: hSplit; cursor: row-resize; }
+
+    #vSplit{
+      grid-column: 2;
+      grid-row: 1 / 4;   /* <- ocupa las 3 filas (arriba, splitter, abajo) */
+      cursor: col-resize;
+    }
+
+    #hSplit{
+      grid-column: 1 / 4; /* <- ocupa las 3 columnas */
+      grid-row: 2;
+      cursor: row-resize;
+    }
+
 
     /* ============================================================
        VIDEO
@@ -524,9 +533,6 @@
     :root{
       --appFooterH: 34px;
     }
-    #layout{
-      padding-bottom: var(--appFooterH);
-    }
 
     /* ============================================================
       NEGATIVE KM VISUAL MARK
@@ -558,7 +564,7 @@
         <img src="logo.jpg" alt="logo" />
         <div class="title">
           <div class="appName">Video Race Mapping</div>
-          <div class="appShort">VRM 2.5</div>
+          <div class="appShort">VRM 2.6</div>
         </div>
       </div>
 
@@ -862,12 +868,20 @@
   const toggleOpsIcon = document.getElementById("toggleOpsIcon");
 
   if (toggleOpsBtn && controlsEl){
-    toggleOpsBtn.addEventListener("click", () => {
+      toggleOpsBtn.addEventListener("click", () => {
       controlsEl.classList.toggle("collapsed");
       toggleOpsIcon.textContent = controlsEl.classList.contains("collapsed") ? "▸" : "▾";
-      try{ map.invalidateSize(false); }catch(_){}
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          try{ map.invalidateSize(false); }catch(_){}
+          drawElevationProfile(video.currentTime);
+        });
+      });
     });
   }
+
+
 
   function basenameNoExt(name){ return name.replace(/\.[^.]+$/, ""); }
   function pad2(n){ return String(n).padStart(2,"0"); }
