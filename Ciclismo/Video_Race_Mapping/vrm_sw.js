@@ -1,7 +1,7 @@
 // ============================================
 // SERVICE WORKER PARA PWA - VRM (robusto)
 // ============================================
-// VERSIÓN: VRM 2.6
+// VERSIÓN: VRM 2.7
 // - Cache de recursos esenciales
 // - Instalación PWA
 // - Update control (SKIP_WAITING)
@@ -10,7 +10,7 @@
 // ============================================
 
 // 🔥 CONFIGURACIÓN DE VERSIÓN
-const APP_VERSION = "VRM 2.6";
+const APP_VERSION = "VRM 2.7";
 const CACHE_NAME = `vrm-v${APP_VERSION}`;
 
 // 🔥 RECURSOS A CACHEAR (mínimos y seguros)

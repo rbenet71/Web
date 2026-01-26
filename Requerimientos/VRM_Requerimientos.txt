@@ -38,7 +38,7 @@ v20 cabecera cuerpo mas grande (proporcion mismo entre titulo y subtitulo ) y co
 2.3 mapas offline - cataluña o con descarga previa
 2.4 gpx en dos partes color y calcular kkm
 2.5 Instalable en windows
-2.6 
+2.6 Cuadricula prinicipal, una tabla?
 La pantalla principal no se está trabajando bien.
 Como ves hacer que sea todo una tabla.
 Te digo de forma esquemática los contenidos, hay que respetar el contenido y la zona que hay actaualmente Fila 1 - cabecera con picto y título app y subtítulo vrm versión, botón ocultar fila 2 Fila 2 - zona de operaciones que se puede ocultar,.
@@ -46,6 +46,7 @@ Fila 3 - Columna 1 vídeo y columna 2 mapa Fila 4 - columna 1 tabla y columna 2 
 
 Al ser una tabla que el usuario pueda redimensionar las celdas/filas/columnas 
 
+2.7 me gustaria un checkbox que este desactivado y que si el usuario lo acitva, mueva la bicicleta a la posicion gps que en ese momento tiene y cada segundo,  esa posición del mapa y por tanto se actualice, ubicacion del video, tabla y perfil.
 
 Encriptar o empaquetar
 NIVEL 2 — Ofuscar la app (recomendado +1)
@@ -60,6 +61,7 @@ javascript-obfuscator
 
 
 boton ayuda
-Datos externos - fijar ficheros previos
-Cuadricula prinicipal, una tabla?
-obtener ubicacion real
+
+
+Datos externos - me gustaria que la app al abrirse, mirase si en data/ hay un fichero que sea carrera.json. En esta arhivo se encuentra el nombre de la carrera,logo carrera y los arhivos de video que se encuentran dentro de data y que deberian ser cargados ya en el menu de la app. 
+el nombre de la carrera sustituira el nombre de la app (Video Race Mapping) y el campo logo sustituira el logo de la app.Ademas de hacer este cambio me haces un ejemplo de json: nombre carrera -> Volta Ciclista a catalunya,logo-> volta.png, y los ficheros e1.mp4,e2.mp4,e3.mp4 hasta e7.mp4 
