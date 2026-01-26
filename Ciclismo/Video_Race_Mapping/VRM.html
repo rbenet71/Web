@@ -1202,20 +1202,42 @@ baseMapSelect.addEventListener("change", () => {
     // Cada segundo → mover bici + sincronizar TODO
     liveGpsTimerId = setInterval(() => {
       if (!lastGpsFix) return;
-      if (!points.length) return;
-      if (!marker) return;
 
       const lat = lastGpsFix.coords.latitude;
       const lon = lastGpsFix.coords.longitude;
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
 
-      const p = nearestPoint(lat, lon);
-      if (!p) return;
+      // ===== Caso 1: HAY GPX → snap al track y sincroniza todo (como antes)
+      if (points.length){
+        if (!marker) return; // el marker lo crea drawTrack()
+        const p = nearestPoint(lat, lon);
+        if (!p) return;
 
-      syncToPoint(p, {
-        seekVideo:true,
-        centerMap:true,
-        redrawProfile:true
-      });
+        syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true });
+        return;
+      }
+
+      // ===== Caso 2: NO hay GPX → modo GPS libre (solo bici+mapa)
+      if (!marker){
+        // crea marker temporal si no existe (usa el mismo icono de bici)
+        marker = L.marker([lat, lon], {
+          icon: bikeIcon,
+          interactive: false,
+          keyboard: false,
+          zIndexOffset: 1000
+        }).addTo(map);
+
+        try { marker.setZIndexOffset(1000); } catch(_) {}
+      } else {
+        marker.setLatLng([lat, lon]);
+      }
+
+      // centra el mapa (sin animación)
+      map.panTo([lat, lon], { animate:false });
+
+      // HUD mínimo (sin tocar vídeo/perfil/rutómetro)
+      hud.textContent = `GPS libre · lat=${lat.toFixed(5)} lon=${lon.toFixed(5)}`;
+
     }, 1000);
   }
 
