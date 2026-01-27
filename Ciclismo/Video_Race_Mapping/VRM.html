@@ -69,10 +69,18 @@
       padding:2px 12px 4px;
       border-top:1px solid #eee;
       background:#fafafa;
+      box-sizing:border-box;
+
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      min-height: 28px;
+    }
+    #raceName{
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-      box-sizing:border-box;
     }
 /* ============================================================
        TOP LAYOUT
@@ -84,6 +92,11 @@
       grid-template-rows: auto 1fr; /* controls + main */
       min-height: 0;
     }
+
+    /* Fix: keep main in row 2 even when #controls is display:none */
+    #controls{ grid-row: 1; grid-column: 1; }
+    #main{ grid-row: 2; grid-column: 1; min-height: 0; }
+
 
 
     #controls{
@@ -577,20 +590,21 @@
         <img src="logo.jpg" alt="logo" />
         <div class="title">
           <div class="appName">Video Race Mapping</div>
-          <div class="appShort">VRM 2.6</div>
+          <div class="appShort">VRM 2.8</div>
         </div>
       </div>
 
       <div class="headerRight">
         <button id="pwaInstallBtn" class="headerAction" title="Instalar VRM" aria-label="Instalar VRM" style="display:none">⬇︎ Instalar</button>
         <button id="pwaUpdateBtn" class="headerAction" title="Actualizar VRM" aria-label="Actualizar VRM" style="display:none">⟳ Actualizar</button>
-        <button id="toggleOpsBtn" class="headerToggle" title="Ocultar/mostrar operaciones" aria-label="Ocultar/mostrar operaciones">
-                <span id="toggleOpsIcon">▾</span>
-          </button>
-      </div>
+</div>
 
     </div>
-    <div class="raceName" id="raceName">Video: —</div>
+    <div class="raceName"><span id="raceName">Video: —</span>
+      <button id="toggleOpsBtn" class="headerToggle" title="Ocultar/mostrar operaciones" aria-label="Ocultar/mostrar operaciones">
+        <span id="toggleOpsIcon">▾</span>
+      </button>
+    </div>
   
 
     <div id="installHelp" role="dialog" aria-modal="true" aria-label="Instalar VRM">

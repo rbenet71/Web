@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PWA Layout</title>
+
+  <style>
+    :root{
+      --h-title: 56px;
+      --h-subtitle: 40px;
+      --h-ops: 56px;
+      --h-footer: 48px;
+
+      --ops-collapsed: 0px;
+
+      --min-pane: 120px;
+      --splitter: 8px;
+
+      --col-left: 50%;
+      --row-top: 50%;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body{ font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+
+    /* ===== GRID PRINCIPAL ===== */
+    .app{
+      height: 100vh;
+      display: grid;
+      grid-template-rows:
+        var(--h-title)
+        var(--h-subtitle)
+        calc(var(--h-ops) - var(--ops-collapsed))
+        1fr
+        var(--h-footer);
+      overflow: hidden;
+    }
+
+    /* FIJAMOS FILAS (CLAVE PARA QUE NO SE “MUEVAN” SI .ops ES display:none) */
+    header   { grid-row: 1; grid-column: 1; }
+    .subtitle{ grid-row: 2; grid-column: 1; }
+    .ops     { grid-row: 3; grid-column: 1; }
+    main     { grid-row: 4; grid-column: 1; }
+    footer   { grid-row: 5; grid-column: 1; }
+
+    header, .subtitle, .ops, footer{
+      display:flex;
+      align-items:center;
+      padding: 0 12px;
+      background: #fafafa;
+      border-bottom: 1px solid #ddd;
+    }
+
+    header{
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .subtitle{
+      font-size: 14px;
+      color:#444;
+      justify-content: space-between;
+    }
+
+    footer{
+      border-top: 1px solid #ddd;
+      border-bottom: none;
+      background:#f3f3f3;
+    }
+
+    /* ===== Flecha ===== */
+    .toggle-ops{
+      appearance: none;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 6px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .toggle-ops:hover{ opacity: 0.7; }
+    .toggle-ops.collapsed{ transform: rotate(-90deg); }
+
+    /* ===== Barra operaciones ===== */
+    .ops{
+      gap: 8px;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .ops button{
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+
+    /* ===== Zona central ===== */
+    .workspace{
+      overflow: hidden;
+      background: #fff;
+      min-height: 0; /* importante en grids anidados */
+    }
+
+    .grid4{
+      height: 100%;
+      display: grid;
+
+      grid-template-columns:
+        minmax(var(--min-pane), var(--col-left))
+        var(--splitter)
+        minmax(var(--min-pane), calc(100% - var(--col-left) - var(--splitter)));
+
+      grid-template-rows:
+        minmax(var(--min-pane), var(--row-top))
+        var(--splitter)
+        minmax(var(--min-pane), calc(100% - var(--row-top) - var(--splitter)));
+    }
+
+    .pane{
+      display:flex;
+      flex-direction: column;
+      border: 1px solid #e5e5e5;
+      background:#fff;
+      overflow:hidden;
+      min-width: var(--min-pane);
+      min-height: var(--min-pane);
+    }
+    .pane-title{
+      padding: 8px 10px;
+      font-weight: 600;
+      border-bottom: 1px solid #eee;
+      background:#fcfcfc;
+    }
+    .pane-body{
+      padding: 10px;
+      overflow:auto;
+      flex: 1 1 auto;
+    }
+
+    #video  { grid-column: 1; grid-row: 1; }
+    #mapa   { grid-column: 3; grid-row: 1; }
+    #ruto   { grid-column: 1; grid-row: 3; }
+    #perfil { grid-column: 3; grid-row: 3; }
+
+    /* ===== Splitters ===== */
+    .split-v{
+      grid-column: 2;
+      grid-row: 1 / 4;
+      cursor: col-resize;
+      background: #f0f0f0;
+      position: relative;
+    }
+    .split-h{
+      grid-column: 1 / 4;
+      grid-row: 2;
+      cursor: row-resize;
+      background: #f0f0f0;
+      position: relative;
+    }
+    .split-v::after, .split-h::after{
+      content:"";
+      position:absolute;
+      inset: 2px;
+      border-radius: 6px;
+      background: #f7f7f7;
+      border: 1px solid #e0e0e0;
+    }
+
+    .dragging, .dragging *{ user-select:none; }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header>Mi App (Título)</header>
+
+    <div class="subtitle">
+      <span>Subtítulo / estado / conexión…</span>
+      <button id="toggleOps" class="toggle-ops" aria-label="Mostrar u ocultar opciones">▼</button>
+    </div>
+
+    <div class="ops">
+      <button>Operación 1</button>
+      <button>Operación 2</button>
+      <button>Operación 3</button>
+    </div>
+
+    <main class="workspace">
+      <div class="grid4" id="grid4">
+        <section class="pane" id="video">
+          <div class="pane-title">1.1 Vídeo</div>
+          <div class="pane-body">Vídeo</div>
+        </section>
+
+        <div class="split-v" id="splitV"></div>
+
+        <section class="pane" id="mapa">
+          <div class="pane-title">1.2 Mapa</div>
+          <div class="pane-body">Mapa</div>
+        </section>
+
+        <div class="split-h" id="splitH"></div>
+
+        <section class="pane" id="ruto">
+          <div class="pane-title">2.1 Rutómetro</div>
+          <div class="pane-body">Rutómetro</div>
+        </section>
+
+        <section class="pane" id="perfil">
+          <div class="pane-title">2.2 Perfil</div>
+          <div class="pane-body">Perfil</div>
+        </section>
+      </div>
+    </main>
+
+    <footer>Pie de página fijo</footer>
+  </div>
+
+  <script>
+    const root = document.documentElement;
+    const btnToggle = document.getElementById('toggleOps');
+    const opsEl = document.querySelector('.ops');
+
+    let opsHidden = false;
+
+    btnToggle.addEventListener('click', () => {
+      opsHidden = !opsHidden;
+
+      root.style.setProperty(
+        '--ops-collapsed',
+        opsHidden
+          ? getComputedStyle(root).getPropertyValue('--h-ops')
+          : '0px'
+      );
+
+      // ahora ya es seguro usar display:none porque las filas están fijadas
+      opsEl.style.display = opsHidden ? 'none' : 'flex';
+      btnToggle.classList.toggle('collapsed', opsHidden);
+    });
+
+    const grid = document.getElementById('grid4');
+    const splitV = document.getElementById('splitV');
+    const splitH = document.getElementById('splitH');
+
+    function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+    function startDrag(onMove){
+      document.body.classList.add('dragging');
+      const move = e => onMove(e);
+      const up = () => {
+        document.removeEventListener('pointermove', move);
+        document.removeEventListener('pointerup', up);
+        document.body.classList.remove('dragging');
+      };
+      document.addEventListener('pointermove', move);
+      document.addEventListener('pointerup', up, { once:true });
+    }
+
+    splitV.addEventListener('pointerdown', () => {
+      const rect = grid.getBoundingClientRect();
+      const min = parseFloat(getComputedStyle(root).getPropertyValue('--min-pane'));
+      const sp  = parseFloat(getComputedStyle(root).getPropertyValue('--splitter'));
+
+      startDrag(e => {
+        const x = e.clientX - rect.left;
+        const px = clamp(x, min, rect.width - min - sp);
+        root.style.setProperty('--col-left', (px / rect.width * 100) + '%');
+      });
+    });
+
+    splitH.addEventListener('pointerdown', () => {
+      const rect = grid.getBoundingClientRect();
+      const min = parseFloat(getComputedStyle(root).getPropertyValue('--min-pane'));
+      const sp  = parseFloat(getComputedStyle(root).getPropertyValue('--splitter'));
+
+      startDrag(e => {
+        const y = e.clientY - rect.top;
+        const px = clamp(y, min, rect.height - min - sp);
+        root.style.setProperty('--row-top', (px / rect.height * 100) + '%');
+      });
+    });
+  </script>
+</body>
+</html>

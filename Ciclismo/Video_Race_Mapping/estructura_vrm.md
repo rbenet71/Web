@@ -568,3 +568,101 @@ await deferredPrompt.prompt();
 ✔ Control manual del botón instalar
 ✔ Actualización por SW funcional
 
+Hecho: te dejo **exactamente qué líneas del MD cambiar** y el **capítulo nuevo** para pegar (sin tocar lo demás). Tu `estructura_vrm.md` ahora mismo llega hasta **14.10** y no tiene nada del “GPS en vivo” (solo GPS embebido en MP4).
+
+---
+
+## 1) Actualiza el baseline (Sección 1.1)
+
+En **1.1 Estado actual (baseline)** cambia estas 3 líneas: 
+
+**Antes**
+
+* Fecha de esta documentación: **2026-01-24**
+* Baseline funcional reciente: **VRM 2.2** (HTML v22)
+* Último cambio relevante: **VRM 2.3** (mapas offline ICGC mediante tiles locales)
+
+**Después**
+
+* Fecha de esta documentación: **2026-01-27**
+* Baseline funcional reciente: **VRM 2.7** (GPS en vivo + modo libre sin GPX)
+* Último cambio relevante: **VRM 2.7** (checkbox GPS: snap a track si hay GPX; modo libre si no hay GPX)
+
+---
+
+## 2) Añade un capítulo nuevo: “15. GPS en vivo (posición del dispositivo)”
+
+Pégalo **al final del archivo**, justo después de **14.10 Estado actual de VRM**. 
+
+```md
+## 15. GPS en vivo (posición del dispositivo)
+
+### 15.1 Objetivo
+Permitir que el usuario active un **checkbox GPS** para:
+- Leer la **geolocalización del dispositivo**.
+- Actualizar **cada 1 segundo** la posición:
+  - Si hay track cargado → sincronización completa (mapa + bici + vídeo + tabla + perfil).
+  - Si NO hay track cargado → **modo GPS libre** (solo mapa + bici), sin mover vídeo/tabla/perfil.
+
+> Nota: esto es **independiente** del “GPS embebido en MP4” (capítulo 12).
+
+---
+
+### 15.2 UI (Zona de operaciones #controls)
+Se añade un checkbox (no botón) con tooltip explicativo en la barra de controles. (No se modifica el layout global).  
+Ubicación típica: antes del `status`.  
+
+---
+
+### 15.3 Modelo de funcionamiento (2 modos)
+
+#### Modo A — Snap a track (hay GPX / track en `points[]`)
+Condición:
+- `points.length > 0` y existe `marker` (bici creada al dibujar el track).
+
+Comportamiento cada 1s:
+1. Se obtiene `lat/lon` del GPS del dispositivo.
+2. Se calcula el punto del track más cercano:
+   - `nearestPoint(lat, lon)` :contentReference[oaicite:3]{index=3}
+3. Se sincroniza todo con:
+   - `syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true })` :contentReference[oaicite:4]{index=4}
+
+Resultado:
+- Se actualiza **bici + mapa + vídeo + tabla + perfil**.
+
+#### Modo B — GPS libre (NO hay GPX / `points[]` vacío)
+Condición:
+- `points.length === 0`
+
+Comportamiento cada 1s:
+1. Se obtiene `lat/lon` del GPS.
+2. Se crea un marker temporal si no existe (usando el `bikeIcon`) y se mueve a `[lat, lon]`.
+3. Se centra el mapa con `map.panTo([lat, lon])`.
+4. **No** se llama a `syncToPoint()` (no hay track ⇒ no hay índice/tiempo).  
+
+Resultado:
+- Se actualiza **solo bici + mapa**.
+
+---
+
+### 15.4 Gestión del ciclo de vida (start/stop)
+Variables típicas:
+- `liveGpsWatchId` (watchPosition)
+- `liveGpsTimerId` (setInterval 1s)
+- `lastGpsFix` (último fix recibido)
+
+Al desactivar el checkbox:
+- Se limpia el `setInterval`.
+- Se llama a `navigator.geolocation.clearWatch(...)`.
+
+Al limpiar track (`clearTrack()`):
+- Se detiene el GPS y se desmarca el checkbox para evitar estados incoherentes.
+
+---
+
+### 15.5 Restricciones y pruebas (muy importante)
+- En ejecución `file://` pueden aparecer restricciones/políticas (origin `null`) y comportamientos inconsistentes.
+- Para PWA / pruebas estables: usar **http(s)** (localhost / servidor local).
+- Para probar en PC sin GPS físico:
+  - Chrome DevTools → **More tools → Sensors → Geolocation** (ubicación simulada).
+```

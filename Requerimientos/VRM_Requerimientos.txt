@@ -48,7 +48,7 @@ Al ser una tabla que el usuario pueda redimensionar las celdas/filas/columnas
 
 2.7 me gustaria un checkbox que este desactivado y que si el usuario lo acitva, mueva la bicicleta a la posicion gps que en ese momento tiene y cada segundo,  esa posición del mapa y por tanto se actualice, ubicacion del video, tabla y perfil.
 2.7.1 mostrar posicion real en mapa
-
+2.8 Pantalla Cuadriculada
 
 Encriptar o empaquetar
 NIVEL 2 — Ofuscar la app (recomendado +1)
