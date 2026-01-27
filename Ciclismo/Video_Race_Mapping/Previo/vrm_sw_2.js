@@ -2,7 +2,7 @@
 // SERVICE WORKER PARA PWA - VRM
 // ============================================
 // DESCRIPCIÓN: Service Worker específico para VRM
-// VERSIÓN: VRM 2.8
+// VERSIÓN: VRM 2.9
 // RESPONSABILIDADES:
 // 1. Cache de recursos estáticos para funcionamiento offline
 // 2. Instalación como aplicación PWA
@@ -22,7 +22,7 @@
 // ============================================
 
 // 🔥 CONFIGURACIÓN DE VERSIÓN - ACTUALIZAR AQUÍ AL CAMBIAR VERSIÓN
-const APP_VERSION = 'VRM 2.8';
+const APP_VERSION = 'VRM 2.9';
 const CACHE_NAME = `vrm-v${APP_VERSION}`;
 
 

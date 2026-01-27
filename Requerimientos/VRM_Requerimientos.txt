@@ -50,6 +50,8 @@ Al ser una tabla que el usuario pueda redimensionar las celdas/filas/columnas
 2.7.1 mostrar posicion real en mapa
 2.8 Pantalla Cuadriculada
 
+2.9 Botón ayuda
+
 Encriptar o empaquetar
 NIVEL 2 — Ofuscar la app (recomendado +1)
 👉 Nadie entiende el código aunque abra el HTML.
@@ -61,8 +63,7 @@ Ejemplos de herramientas:
 terser
 javascript-obfuscator
 
-
-boton ayuda
+si detecta track neutra, que no reste distancia.
 
 
 Datos externos - me gustaria que la app al abrirse, mirase si en data/ hay un fichero que sea carrera.json. En esta arhivo se encuentra el nombre de la carrera,logo carrera y los arhivos de video que se encuentran dentro de data y que deberian ser cargados ya en el menu de la app. 
