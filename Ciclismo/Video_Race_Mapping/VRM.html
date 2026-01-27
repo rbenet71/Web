@@ -721,7 +721,7 @@
         <img src="logo.jpg" alt="logo" />
         <div class="title">
           <div class="appName">Video Race Mapping</div>
-          <div class="appShort">VRM 2.6</div>
+          <div class="appShort">VRM 2.11</div>
         </div>
       </div>
 
@@ -3241,6 +3241,38 @@ Luego abre VRM y selecciona:
       installBtn.style.display = 'none';
     };
   });
+
+  (function loadCarreraConfig(){
+    const script = document.createElement("script");
+    script.src = "data/carrera.js";
+    script.defer = true;
+
+    script.onload = () => {
+      const cfg = window.CARRERA_CONFIG;
+      if (!cfg) return;
+
+      // Cambiar nombre de la app
+      if (cfg.nombre){
+        const nameEl = document.querySelector("#appHeader .appName");
+        if (nameEl) nameEl.textContent = cfg.nombre;
+
+        // También el title del navegador
+        document.title = cfg.nombre;
+      }
+
+      // Cambiar logo
+      if (cfg.logo){
+        const logoEl = document.querySelector("#appHeader img");
+        if (logoEl) logoEl.src = "data/" + cfg.logo;
+      }
+    };
+
+    // Si no existe el fichero → no pasa nada
+    script.onerror = () => {};
+
+    document.head.appendChild(script);
+  })();
+
 
   // Service worker (optional). If a SW exists, we can offer an update button when a new one is waiting.
   if ('serviceWorker' in navigator && location.protocol !== 'file:'){

@@ -1,4 +1,4 @@
-window.CARRERA = {
+window.CARRERA_CONFIG = {
   nombre: "Volta Ciclista a Catalunya",
   logo: "volta.png",
   videos: [

@@ -51,7 +51,10 @@ Al ser una tabla que el usuario pueda redimensionar las celdas/filas/columnas
 2.8 Pantalla Cuadriculada
 
 2.9 Botón ayuda
-2.10 No resta Neutralizda
+2.10 No resta Neutralizda - si detecta track neutra, que no reste distancia.
+2.11 Datos externos - me gustaria que la app al abrirse, mirase si en data/ hay un fichero que sea carrera.js. En esta arhivo se encuentra el nombre de la carrera,logo carrera y los arhivos de video que se encuentran dentro de data y que deberian ser cargados ya en el menu de la app. 
+
+
 
 Encriptar o empaquetar
 NIVEL 2 — Ofuscar la app (recomendado +1)
@@ -64,8 +67,6 @@ Ejemplos de herramientas:
 terser
 javascript-obfuscator
 
-si detecta track neutra, que no reste distancia.
 
 
-Datos externos - me gustaria que la app al abrirse, mirase si en data/ hay un fichero que sea carrera.json. En esta arhivo se encuentra el nombre de la carrera,logo carrera y los arhivos de video que se encuentran dentro de data y que deberian ser cargados ya en el menu de la app. 
 el nombre de la carrera sustituira el nombre de la app (Video Race Mapping) y el campo logo sustituira el logo de la app.Ademas de hacer este cambio me haces un ejemplo de json: nombre carrera -> Volta Ciclista a catalunya,logo-> volta.png, y los ficheros e1.mp4,e2.mp4,e3.mp4 hasta e7.mp4 
