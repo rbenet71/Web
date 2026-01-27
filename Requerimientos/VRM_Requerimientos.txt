@@ -54,6 +54,7 @@ Al ser una tabla que el usuario pueda redimensionar las celdas/filas/columnas
 2.10 No resta Neutralizda - si detecta track neutra, que no reste distancia.
 2.11 Datos externos - me gustaria que la app al abrirse, mirase si en data/ hay un fichero que sea carrera.js. En esta arhivo se encuentra el nombre de la carrera,logo carrera y los arhivos de video que se encuentran dentro de data y que deberian ser cargados ya en el menu de la app. 
 
+2.12 carga automatica carreras
 
 
 Encriptar o empaquetar

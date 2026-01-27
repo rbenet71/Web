@@ -721,7 +721,7 @@
         <img src="logo.jpg" alt="logo" />
         <div class="title">
           <div class="appName">Video Race Mapping</div>
-          <div class="appShort">VRM 2.11</div>
+          <div class="appShort">VRM 2.12</div>
         </div>
       </div>
 
@@ -976,6 +976,12 @@
   const video         = document.getElementById("video");
   const hud           = document.getElementById("hud");
 
+  // Evita romper si en esta versión no existe resetVideoSync()
+  function maybeResetVideoSync(){
+    if (typeof resetVideoSync === "function") resetVideoSync();
+  }
+
+
   const elevCanvas    = document.getElementById("elevCanvas");
   const ctx           = elevCanvas.getContext("2d");
 
@@ -991,6 +997,43 @@
   const mainEl        = document.getElementById("main");
   const vSplit        = document.getElementById("vSplit");
   const hSplit        = document.getElementById("hSplit");
+
+  // ============================================================
+  // CARRERA CONFIG (data/carrera.js) - compatible file://
+  // ============================================================
+  window.carreraVideoOrder = null;
+
+  (function loadCarreraConfig(){
+    const script = document.createElement("script");
+    script.src = "data/carrera.js";
+    script.defer = true;
+
+    script.onload = () => {
+      const cfg = window.CARRERA_CONFIG;
+      if (!cfg) return;
+
+      if (cfg.nombre){
+        const nameEl = document.querySelector("#appHeader .appName");
+        if (nameEl) nameEl.textContent = cfg.nombre;
+        document.title = cfg.nombre;
+      }
+
+      if (cfg.logo){
+        const logoEl = document.querySelector("#appHeader img");
+        if (logoEl) logoEl.src = "data/" + cfg.logo;
+      }
+
+      if (Array.isArray(cfg.videos)){
+        window.carreraVideoOrder = cfg.videos
+          .map(v => String(v || "").trim().toLowerCase())
+          .filter(Boolean);
+      }
+    };
+
+    script.onerror = () => {};
+    document.head.appendChild(script);
+  })();
+
 
   function setStatus(msg){ statusEl.textContent = msg; }
 
@@ -1560,6 +1603,18 @@ baseMapSelect.addEventListener("change", () => {
 
     }, 1000);
   }
+
+  function fileFromBase64(name, mime, b64){
+    const bin = atob(b64);
+    const len = bin.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++){
+      bytes[i] = bin.charCodeAt(i);
+    }
+    return new File([bytes], name, { type: mime || "application/octet-stream" });
+  }
+
+
 
   /* ============================================================
      GPX
@@ -2193,7 +2248,21 @@ const idx = findPointIndex(p);
       if (low.endsWith(".xlsx")) xlsxFiles.set(base.toLowerCase(), f);
     }
 
-    const names = [...mp4Files.keys()].sort((a,b)=>a.localeCompare(b, "es", { numeric:true }));
+    
+    let names = [...mp4Files.keys()];
+
+    if (Array.isArray(window.carreraVideoOrder) && window.carreraVideoOrder.length){
+      const ord = window.carreraVideoOrder;
+      const idx = (n) => {
+        const p = ord.indexOf(String(n).toLowerCase());
+        return p === -1 ? 999999 : p;
+      };
+      names.sort((a,b) => idx(a) - idx(b) || a.localeCompare(b, "es", { numeric:true }));
+    } else {
+      names.sort((a,b)=>a.localeCompare(b, "es", { numeric:true }));
+    }
+
+
     for (const name of names){
       const opt = document.createElement("option");
       opt.value = name;
@@ -2205,62 +2274,109 @@ const idx = findPointIndex(p);
     setStatus(`Carpeta cargada: ${mp4Files.size} mp4, ${gpxFiles.size} gpx, ${kmzFiles.size} kmz, ${xlsxFiles.size} xlsx`);
   });
 
-  mp4Select.addEventListener("change", async () => {
-    const name = mp4Select.value;
-    if (!name) return;
 
-    clearTrack();
-    clearOverlay();
-    clearRutometre();
 
-    const mp4 = mp4Files.get(name);
-    video.src = URL.createObjectURL(mp4);
 
-    const base = basenameNoExt(name);
-    const baseKey = base.toLowerCase();
-    if (raceNameEl) raceNameEl.textContent = `Video: ${base}`;
-    // 1) Try embedded GPS inside the MP4 (Dashcam_App.js)
-    const embedded = await extractEmbeddedGpsFromMp4(mp4);
-    if (embedded){
-      points = embedded.points;
-      firstAbsTime = points[0].tAbs;
-      drawTrack();
-      setStatus(`MP4 con GPS embebido: ${points.length} puntos`);
-    } else {
-      // 2) Fallback to GPX file with same base name
-      const gpx = gpxFiles.get(baseKey);
-      if (gpx){
-        const text = await readFileAsText(gpx);
+mp4Select.addEventListener("change", async () => {
+
+  const name = mp4Select.value;
+  if (!name) return;
+
+  clearTrack();
+  clearOverlay();
+  clearRutometre();
+
+  const base = basenameNoExt(name).toLowerCase();
+
+  // =========================================================
+  // CASO A: MODO PAQUETE (carrera.js con Base64)
+  // =========================================================
+  if (window.carreraEtapasByVideo){
+    const etapa = window.carreraEtapasByVideo.get(name.toLowerCase());
+    if (etapa && (etapa.gpx_b64 || etapa.xlsx_b64 || etapa.kmz_b64 || etapa.kml_b64)){
+
+      // vídeo (SIEMPRE desde data/)
+      currentVideoName = name;
+      currentVideoFile = null;
+      video.src = "data/" + name;
+      video.load();
+      maybeResetVideoSync();
+
+      // GPX
+      if (etapa.gpx_b64){
+        const gpxFile = fileFromBase64(
+          etapa.gpx_name || base + ".gpx",
+          etapa.gpx_mime,
+          etapa.gpx_b64
+        );
+        const text = await gpxFile.text();
         points = parseGpx(text);
         if (points.length){
           firstAbsTime = points[0].tAbs;
           drawTrack();
-        } else {
-          setStatus("GPX vacío o sin puntos válidos");
         }
-      } else {
-        setStatus("MP4 cargado (sin GPS embebido y sin GPX con mismo nombre)");
       }
-    }
 
+      // KMZ / KML
+      if (etapa.kmz_b64){
+        const kmzFile = fileFromBase64(
+          etapa.kmz_name || base + ".kmz",
+          etapa.kmz_mime,
+          etapa.kmz_b64
+        );
+        await loadKmzFile(kmzFile, { fit:false });
+      } else if (etapa.kml_b64){
+        const kmlFile = fileFromBase64(
+          etapa.kml_name || base + ".kml",
+          etapa.kml_mime,
+          etapa.kml_b64
+        );
+        await loadKmlFile(kmlFile, { fit:false });
+      }
 
-    const kmz = kmzFiles.get(baseKey);
-    const kml = kmlFiles.get(baseKey);
-    if (kmz){
-      try { await loadKmzFile(kmz, { fit:false }); } catch(e){ console.error(e); }
-    } else if (kml){
-      try { await loadKmlFile(kml, { fit:false }); } catch(e){ console.error(e); }
-    }
+      // Excel
+      if (etapa.xlsx_b64){
+        const xlsxFile = fileFromBase64(
+          etapa.xlsx_name || base + ".xlsx",
+          etapa.xlsx_mime,
+          etapa.xlsx_b64
+        );
+        await loadExcelFile(xlsxFile);
+      } else if (etapa.xls_b64){
+        const xlsFile = fileFromBase64(
+          etapa.xls_name || base + ".xls",
+          etapa.xls_mime,
+          etapa.xls_b64
+        );
+        await loadExcelFile(xlsFile);
+      }
 
-    const xlsx = xlsxFiles.get(baseKey);
-    if (xlsx){
-      try { await loadExcelFile(xlsx); } catch(e){ console.error(e); }
+      return; // 🔴 NO seguir al modo antiguo
+    } else {
+      // Si estás en modo “paquete” pero esa etapa no trae b64 todavía
+      // (te evita que parezca que “no hace nada”)
+      setStatus("Esta etapa no tiene GPX/XLSX/KMZ embebidos en carrera.js");
     }
+  }
 
-    if (points.length){
-      setStatus(`Listo: ${name} (GPX${(kmz||kml)?", KMZ/KML":""}${xlsx?", Excel":""})`);
-    }
-  });
+  // =========================================================
+  // CASO B: MODO ANTIGUO (carpeta, FILE API) → intacto
+  // =========================================================
+  const mp4 = mp4Files.get(name);
+  if (!mp4) return;
+
+  currentVideoFile = mp4;
+  currentVideoName = mp4.name;
+
+  video.src = URL.createObjectURL(mp4);
+  video.load();
+  maybeResetVideoSync();
+
+  autoLoadRelatedFilesFromFolder(mp4.name);
+});
+
+  
+
 
   /* ============================================================
      MANUAL IMPORTS
@@ -3242,36 +3358,83 @@ Luego abre VRM y selecciona:
     };
   });
 
-  (function loadCarreraConfig(){
-    const script = document.createElement("script");
-    script.src = "data/carrera.js";
-    script.defer = true;
+(function loadCarreraConfig(){
+  const script = document.createElement("script");
+  script.src = "data/carrera.js";
+  script.defer = true;
 
-    script.onload = () => {
-      const cfg = window.CARRERA_CONFIG;
-      if (!cfg) return;
+  script.onload = () => {
+    const cfg = window.CARRERA_CONFIG;
+    if (!cfg) return;
 
-      // Cambiar nombre de la app
-      if (cfg.nombre){
-        const nameEl = document.querySelector("#appHeader .appName");
-        if (nameEl) nameEl.textContent = cfg.nombre;
+    // Cambiar nombre cabecera + title
+    if (cfg.nombre){
+      const nameEl = document.querySelector("#appHeader .appName");
+      if (nameEl) nameEl.textContent = cfg.nombre;
+      document.title = cfg.nombre;
+    }
 
-        // También el title del navegador
-        document.title = cfg.nombre;
+    // Cambiar logo (dentro de /data)
+    if (cfg.logo){
+      const logoEl = document.querySelector("#appHeader img");
+      if (logoEl) logoEl.src = "data/" + cfg.logo;
+    }
+
+    // Index por vídeo (para autocarga GPX/KMZ/XLSX cuando el usuario elija mp4)
+    window.carreraEtapasByVideo = null;
+    if (Array.isArray(cfg.etapas)){
+      window.carreraEtapasByVideo = new Map();
+      for (const e of cfg.etapas){
+        if (e && e.video){
+          window.carreraEtapasByVideo.set(String(e.video).toLowerCase(), e);
+        }
+      }
+    }
+
+    // Orden recomendado (para cuando el usuario cargue carpeta)
+    window.carreraVideoOrder = null;
+    if (Array.isArray(cfg.videos)){
+      window.carreraVideoOrder = cfg.videos
+        .map(v => String(v || "").trim().toLowerCase())
+        .filter(Boolean);
+    } else if (Array.isArray(cfg.etapas)){
+      window.carreraVideoOrder = cfg.etapas
+        .map(e => String(e?.video || "").trim().toLowerCase())
+        .filter(Boolean);
+    }
+
+    // Rellenar selector de vídeos SIN carpeta (e1..e7) + "Elige MP4"
+    if (typeof mp4Select !== "undefined" && mp4Select){
+      let list = [];
+      if (Array.isArray(cfg.etapas) && cfg.etapas.length){
+        list = cfg.etapas.map(e => e.video).filter(Boolean);
+      } else if (Array.isArray(cfg.videos) && cfg.videos.length){
+        list = cfg.videos.slice();
       }
 
-      // Cambiar logo
-      if (cfg.logo){
-        const logoEl = document.querySelector("#appHeader img");
-        if (logoEl) logoEl.src = "data/" + cfg.logo;
+      if (list.length){
+        mp4Select.innerHTML = "";
+
+        const opt0 = document.createElement("option");
+        opt0.value = "";
+        opt0.textContent = "Elige MP4";
+        opt0.disabled = true;
+        opt0.selected = true;
+        mp4Select.appendChild(opt0);
+
+        for (let i = 0; i < list.length; i++){
+          const opt = document.createElement("option");
+          opt.value = list[i];
+          opt.textContent = list[i];
+          mp4Select.appendChild(opt);
+        }
       }
-    };
+    }
+  };
 
-    // Si no existe el fichero → no pasa nada
-    script.onerror = () => {};
-
-    document.head.appendChild(script);
-  })();
+  script.onerror = () => {}; // si no existe, no pasa nada
+  document.head.appendChild(script);
+})();
 
 
   // Service worker (optional). If a SW exists, we can offer an update button when a new one is waiting.
