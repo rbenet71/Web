@@ -51,6 +51,7 @@ Al ser una tabla que el usuario pueda redimensionar las celdas/filas/columnas
 2.8 Pantalla Cuadriculada
 
 2.9 Botón ayuda
+2.10 No resta Neutralizda
 
 Encriptar o empaquetar
 NIVEL 2 — Ofuscar la app (recomendado +1)

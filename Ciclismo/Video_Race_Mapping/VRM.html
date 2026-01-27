@@ -1045,16 +1045,20 @@
     return true;
   }
 
+  function neutralizedOffsetEffectiveKm(){
+    const off = (typeof neutralizedKmOffset === "number") ? neutralizedKmOffset : 0;
+    return neutralizedKmHandledByGpx ? 0 : off;
+  }
+
   function adjustedDistKm(meters){
     const km = (meters || 0) / 1000;
-    const off = (typeof neutralizedKmOffset === "number") ? neutralizedKmOffset : 0;
-    return (km - off);
-}
+    return km - neutralizedOffsetEffectiveKm();
+  }
 
   function adjustedDistMeters(meters){
-    const off = (typeof neutralizedKmOffset === "number") ? neutralizedKmOffset : 0;
-    return ((meters || 0) - off * 1000);
-}
+    return (meters || 0) - neutralizedOffsetEffectiveKm() * 1000;
+  }
+
 
 
   const controlsEl    = document.getElementById("controls");
@@ -1469,6 +1473,8 @@ baseMapSelect.addEventListener("change", () => {
   let stageHeader = null;
   let neutralizedKmOffset = 0; // km to subtract from track distance (neutralized segment)
   let activeRutometreIndex = -1;
+  let neutralizedKmHandledByGpx = false; // si el GPX ya separa el tramo neutralizado
+
 
 
   // ===== LIVE GPS FOLLOW =====
@@ -1732,6 +1738,47 @@ function parseGpx(xmlText){
     hasEle = points.some(p => Number.isFinite(p.ele));
   }
 
+  function detectNeutralizedSegmentInGpx(){
+    // Reset
+    neutralizedKmHandledByGpx = false;
+
+    // Solo aplica si Excel tiene km neutralizada
+    const off = (typeof neutralizedKmOffset === "number") ? neutralizedKmOffset : 0;
+    if (!points.length || off <= 0) return;
+
+    // 1) Garmin típico: tramo neutralizado como OTRO <trk> con name "Neutra"
+    // parseGpx() ya rellena visualTracks con {name,color,segments:[]}
+    if (Array.isArray(visualTracks) && visualTracks.length){
+      const re = /\b(neutra|neutral|neutraliz|neutralizad|neutralized)\b/i;
+      const hasNeutralTrack = visualTracks.some(t => re.test(String(t?.name || "")));
+      if (hasNeutralTrack){
+        neutralizedKmHandledByGpx = true;
+        return;
+      }
+    }
+
+    // 2) Fallback (tu lógica anterior): por segmentos y distancia del primer tramo
+    //    Útil cuando no hay nombre pero sí separación por trkseg.
+    const maxSegId = Math.max(...points.map(p => p.segId ?? 0));
+    if (maxSegId < 1) return;
+
+    let seg0MaxMeters = 0;
+    for (const p of points){
+      if ((p.segId ?? 0) === 0){
+        const d = (p.distSeg ?? 0);
+        if (d > seg0MaxMeters) seg0MaxMeters = d;
+      }
+    }
+
+    const seg0Km = seg0MaxMeters / 1000;
+    const tol = Math.max(0.25, off * 0.10);
+
+    if (Math.abs(seg0Km - off) <= tol){
+      neutralizedKmHandledByGpx = true;
+    }
+  }
+
+
   function clearTrack(){
     stopLiveGps();
     if (polyline) map.removeLayer(polyline);
@@ -1771,6 +1818,8 @@ function parseGpx(xmlText){
 
   function drawTrack(){
     computeOffsetsAndDist();
+    detectNeutralizedSegmentInGpx();
+
 
     // Remove previous polylines
     if (polyline){
@@ -2287,6 +2336,7 @@ const idx = findPointIndex(p);
         if (obj){
           stageHeader = obj;
           setNeutralizedKmOffset(getField(obj, 'Sortida_Neutralitzada_Km'));
+          if (points.length) detectNeutralizedSegmentInGpx();
           updateRaceHeaderFromExcel();
         }
       }
