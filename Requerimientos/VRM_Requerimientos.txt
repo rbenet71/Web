@@ -55,6 +55,10 @@ Al ser una tabla que el usuario pueda redimensionar las celdas/filas/columnas
 2.11 Datos externos - me gustaria que la app al abrirse, mirase si en data/ hay un fichero que sea carrera.js. En esta arhivo se encuentra el nombre de la carrera,logo carrera y los arhivos de video que se encuentran dentro de data y que deberian ser cargados ya en el menu de la app. 
 
 2.12 carga automatica carreras
+2.12.1 dos maneras de carga funcionando
+
+el nombre de la carrera sustituira el nombre de la app (Video Race Mapping) y el campo logo sustituira el logo de la app.Ademas de hacer este cambio me haces un ejemplo de json: nombre carrera -> Volta Ciclista a catalunya,logo-> volta.png, y los ficheros e1.mp4,e2.mp4,e3.mp4 hasta e7.mp4 
+
 
 
 Encriptar o empaquetar
@@ -70,4 +74,3 @@ javascript-obfuscator
 
 
 
-el nombre de la carrera sustituira el nombre de la app (Video Race Mapping) y el campo logo sustituira el logo de la app.Ademas de hacer este cambio me haces un ejemplo de json: nombre carrera -> Volta Ciclista a catalunya,logo-> volta.png, y los ficheros e1.mp4,e2.mp4,e3.mp4 hasta e7.mp4 

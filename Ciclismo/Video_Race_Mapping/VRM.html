@@ -721,7 +721,7 @@
         <img src="logo.jpg" alt="logo" />
         <div class="title">
           <div class="appName">Video Race Mapping</div>
-          <div class="appShort">VRM 2.12</div>
+          <div class="appShort">VRM 2.12.1</div>
         </div>
       </div>
 
@@ -2275,107 +2275,151 @@ const idx = findPointIndex(p);
   });
 
 
+  mp4Select.addEventListener("change", async () => {
 
+    const name = mp4Select.value;
+    if (!name) return;
 
-mp4Select.addEventListener("change", async () => {
+    clearTrack();
+    clearOverlay();
+    clearRutometre();
 
-  const name = mp4Select.value;
-  if (!name) return;
+    const base = basenameNoExt(name);
+    const baseKey = base.toLowerCase();
+    if (raceNameEl) raceNameEl.textContent = `Video: ${base}`;
 
-  clearTrack();
-  clearOverlay();
-  clearRutometre();
+    // =========================================================
+    // CASO A: MODO PAQUETE (carrera.js con Base64)
+    // =========================================================
+    if (window.carreraEtapasByVideo){
+      const etapa = window.carreraEtapasByVideo.get(String(name).toLowerCase());
+      if (etapa && (etapa.gpx_b64 || etapa.xlsx_b64 || etapa.kmz_b64 || etapa.kml_b64)){
 
-  const base = basenameNoExt(name).toLowerCase();
+        currentVideoName = name;
+        currentVideoFile = null;
 
-  // =========================================================
-  // CASO A: MODO PAQUETE (carrera.js con Base64)
-  // =========================================================
-  if (window.carreraEtapasByVideo){
-    const etapa = window.carreraEtapasByVideo.get(name.toLowerCase());
-    if (etapa && (etapa.gpx_b64 || etapa.xlsx_b64 || etapa.kmz_b64 || etapa.kml_b64)){
+        // Vídeo: en modo paquete se sirve desde data/
+        video.src = "data/" + name;
+        video.load();
+        maybeResetVideoSync();
 
-      // vídeo (SIEMPRE desde data/)
-      currentVideoName = name;
-      currentVideoFile = null;
-      video.src = "data/" + name;
-      video.load();
-      maybeResetVideoSync();
+        // GPX
+        if (etapa.gpx_b64){
+          const gpxFile = fileFromBase64(
+            etapa.gpx_name || baseKey + ".gpx",
+            etapa.gpx_mime,
+            etapa.gpx_b64
+          );
+          const text = await gpxFile.text();
+          points = parseGpx(text);
+          if (points.length){
+            firstAbsTime = points[0].tAbs;
+            drawTrack();
+          }
+        }
 
-      // GPX
-      if (etapa.gpx_b64){
-        const gpxFile = fileFromBase64(
-          etapa.gpx_name || base + ".gpx",
-          etapa.gpx_mime,
-          etapa.gpx_b64
-        );
-        const text = await gpxFile.text();
+        // KMZ / KML
+        if (etapa.kmz_b64){
+          const kmzFile = fileFromBase64(
+            etapa.kmz_name || baseKey + ".kmz",
+            etapa.kmz_mime,
+            etapa.kmz_b64
+          );
+          await loadKmzFile(kmzFile, { fit:false });
+        } else if (etapa.kml_b64){
+          const kmlFile = fileFromBase64(
+            etapa.kml_name || baseKey + ".kml",
+            etapa.kml_mime,
+            etapa.kml_b64
+          );
+          await loadKmlFile(kmlFile, { fit:false });
+        }
+
+        // Excel
+        if (etapa.xlsx_b64){
+          const xlsxFile = fileFromBase64(
+            etapa.xlsx_name || baseKey + ".xlsx",
+            etapa.xlsx_mime,
+            etapa.xlsx_b64
+          );
+          await loadExcelFile(xlsxFile);
+        } else if (etapa.xls_b64){
+          const xlsFile = fileFromBase64(
+            etapa.xls_name || baseKey + ".xls",
+            etapa.xls_mime,
+            etapa.xls_b64
+          );
+          await loadExcelFile(xlsFile);
+        }
+
+        setStatus(`Listo (paquete): ${name}`);
+        return; // ✅ no seguir al modo carpeta
+      }
+    }
+
+    // =========================================================
+    // CASO B: MODO CARPETA (antiguo) — RESTAURADO
+    // =========================================================
+    const mp4 = mp4Files.get(name);
+    if (!mp4){
+      setStatus("No existe ese MP4 en la carpeta cargada");
+      return;
+    }
+
+    currentVideoFile = mp4;
+    currentVideoName = mp4.name;
+
+    video.src = URL.createObjectURL(mp4);
+    video.load();
+    maybeResetVideoSync();
+
+    // 1) GPS embebido en MP4
+    const embedded = await extractEmbeddedGpsFromMp4(mp4);
+    if (embedded){
+      points = embedded.points;
+      firstAbsTime = points[0].tAbs;
+      drawTrack();
+      setStatus(`MP4 con GPS embebido: ${points.length} puntos`);
+    } else {
+      // 2) GPX con mismo base
+      const gpx = gpxFiles.get(baseKey);
+      if (gpx){
+        const text = await readFileAsText(gpx);
         points = parseGpx(text);
         if (points.length){
           firstAbsTime = points[0].tAbs;
           drawTrack();
+        } else {
+          setStatus("GPX vacío o sin puntos válidos");
         }
+      } else {
+        setStatus("MP4 cargado (sin GPS embebido y sin GPX con mismo nombre)");
       }
-
-      // KMZ / KML
-      if (etapa.kmz_b64){
-        const kmzFile = fileFromBase64(
-          etapa.kmz_name || base + ".kmz",
-          etapa.kmz_mime,
-          etapa.kmz_b64
-        );
-        await loadKmzFile(kmzFile, { fit:false });
-      } else if (etapa.kml_b64){
-        const kmlFile = fileFromBase64(
-          etapa.kml_name || base + ".kml",
-          etapa.kml_mime,
-          etapa.kml_b64
-        );
-        await loadKmlFile(kmlFile, { fit:false });
-      }
-
-      // Excel
-      if (etapa.xlsx_b64){
-        const xlsxFile = fileFromBase64(
-          etapa.xlsx_name || base + ".xlsx",
-          etapa.xlsx_mime,
-          etapa.xlsx_b64
-        );
-        await loadExcelFile(xlsxFile);
-      } else if (etapa.xls_b64){
-        const xlsFile = fileFromBase64(
-          etapa.xls_name || base + ".xls",
-          etapa.xls_mime,
-          etapa.xls_b64
-        );
-        await loadExcelFile(xlsFile);
-      }
-
-      return; // 🔴 NO seguir al modo antiguo
-    } else {
-      // Si estás en modo “paquete” pero esa etapa no trae b64 todavía
-      // (te evita que parezca que “no hace nada”)
-      setStatus("Esta etapa no tiene GPX/XLSX/KMZ embebidos en carrera.js");
     }
-  }
 
-  // =========================================================
-  // CASO B: MODO ANTIGUO (carpeta, FILE API) → intacto
-  // =========================================================
-  const mp4 = mp4Files.get(name);
-  if (!mp4) return;
+    // KMZ / KML
+    const kmz = kmzFiles.get(baseKey);
+    const kml = kmlFiles.get(baseKey);
+    if (kmz){
+      try { await loadKmzFile(kmz, { fit:false }); } catch(e){ console.error(e); }
+    } else if (kml){
+      try { await loadKmlFile(kml, { fit:false }); } catch(e){ console.error(e); }
+    }
 
-  currentVideoFile = mp4;
-  currentVideoName = mp4.name;
+    // Excel
+    const xlsx = xlsxFiles.get(baseKey);
+    if (xlsx){
+      try { await loadExcelFile(xlsx); } catch(e){ console.error(e); }
+    }
 
-  video.src = URL.createObjectURL(mp4);
-  video.load();
-  maybeResetVideoSync();
+    if (points.length){
+      setStatus(`Listo (carpeta): ${name} (GPX${(kmz||kml)?", KMZ/KML":""}${xlsx?", Excel":""})`);
+    } else {
+      setStatus(`Listo (carpeta): ${name}`);
+    }
+  });
 
-  autoLoadRelatedFilesFromFolder(mp4.name);
-});
 
-  
 
 
   /* ============================================================
