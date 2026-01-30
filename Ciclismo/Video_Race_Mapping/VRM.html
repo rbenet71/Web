@@ -721,7 +721,7 @@
         <img src="logo.jpg" alt="logo" />
         <div class="title">
           <div class="appName">Video Race Mapping</div>
-          <div class="appShort">VRM 2.13</div>
+          <div class="appShort">VRM 2.14</div>
         </div>
       </div>
 
@@ -805,23 +805,23 @@
         <select id="baseMapSelect">
 
           <option value="osm">OSM (tiles)</option>
-          <option value="icgc_topo">ICGC Topo (WMS 3857)</option>
-          <option value="icgc_orto">ICGC Orto (WMS 3857)</option>
+          <option value="icgc_topo">ICGC Mapa (WMS 3857)</option>
+          <option value="icgc_orto">ICGC Foto Satelite (WMS 3857)</option>
 
           <option value="google_road">Google Road (XYZ)</option>
           <option value="google_terrain">Google Terrain (XYZ)</option>
           <option value="google_sat">Google Sat (XYZ)</option>
 
           <option value="ign_base_todo">IGN BaseTodo (WMS)</option>
-          <option value="esri_topo">ESRI World Topo (XYZ)</option>
+          <option value="esri_topo">ESRI World Mapa (XYZ)</option>
           <option value="waze">Waze (XYZ)</option>
         
 
-      <optgroup label="Offline (carpeta 'mapas offline')">
+      <optgroup label="Offline (carpeta 'mapas_offline')">
         <option value="OFFLINE_ICGC_TOPO">ICGC Topo (offline)</option>
-        <option value="OFFLINE_ICGC_ORTO">ICGC Orto (offline)</option>
+        <option value="OFFLINE_ICGC_ORTO">ICGC Foto Satelite(offline)</option>
       </optgroup>
-    </select> <span id="offlineHelp" title="Mapas offline ICGC: crea tiles en PC/Mac y copia a la carpeta 'mapas offline' (ver instrucciones al final del HTML).">ℹ️</span>
+    </select> <span id="offlineHelp" title="Mapas offline ICGC: crea tiles en PC/Mac y copia a la carpeta 'mapas_offline' (ver instrucciones al final del HTML).">ℹ️</span>
       </label>
 
       <button id="fitBtn" title="Ajustar mapa al track">Ajustar</button>
@@ -1440,9 +1440,9 @@ const baseLayers = {
       maxZoom: 20
     }),
     
-    OFFLINE_ICGC_TOPO:  L.tileLayer("./mapas%20offline/icgc_topo/{z}/{x}/{y}.png", { maxZoom: 19 }),
+    OFFLINE_ICGC_TOPO:  L.tileLayer("./mapas_offline/icgc_topo/{z}/{x}/{y}.png", { maxZoom: 19 }),
     
-    OFFLINE_ICGC_ORTO: L.tileLayer("./mapas%20offline/icgc_orto/{z}/{x}/{y}.jpg", { maxZoom: 19 })
+    OFFLINE_ICGC_ORTO: L.tileLayer("./mapas_offline/icgc_orto/{z}/{x}/{y}.png", { maxZoom: 19 })
 
   };
 
@@ -3282,9 +3282,9 @@ OBJETIVO
 --------
 Crear tiles offline de ICGC (Topo y Orto) y copiarlos a la carpeta:
 
-  ./mapas offline/
+  ./mapas_offline/
 
-De este modo VRM puede cargar los mapas offline (sin internet) usando
+De este modo VRM puede cargar los mapas_offline (sin internet) usando
 las opciones del selector:
   - ICGC Topo (offline)
   - ICGC Orto (offline)
@@ -3310,7 +3310,7 @@ ESTRUCTURA DE CARPETAS
 ----------------------
 Dentro de la carpeta donde está este HTML:
 
-  mapas offline/
+  mapas_offline/
     icgc_topo/
       {z}/{x}/{y}.png
     icgc_orto/
@@ -3324,14 +3324,14 @@ A) Crear TOPO (PNG)  Zoom 6-18
 
     gdal2tiles.py -z 6-18 -r bilinear -w none \
       "https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wms/service?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=topo&CRS=EPSG:3857&FORMAT=image/png" \
-      "mapas offline/icgc_topo"
+      "mapas_offline/icgc_topo"
 
 B) Crear ORTO (JPG)  Zoom 6-19
     1) Ejecuta:
 
     gdal2tiles.py -z 6-19 -r bilinear -w none \
       "https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wms/service?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=orto&CRS=EPSG:3857&FORMAT=image/jpeg" \
-      "mapas offline/icgc_orto"
+      "mapas_offline/icgc_orto"
 
 RECOMENDACIONES
 ---------------
@@ -3342,8 +3342,8 @@ RECOMENDACIONES
 VERIFICACIÓN
 ------------
 Comprueba que existen archivos como:
-  mapas offline/icgc_topo/12/2068/1521.png
-  mapas offline/icgc_orto/12/2068/1521.jpg
+  mapas_offline/icgc_topo/12/2068/1521.png
+  mapas_offline/icgc_orto/12/2068/1521.jpg
 
 Luego abre VRM y selecciona:
   Offline -> ICGC Topo (offline) / ICGC Orto (offline)
