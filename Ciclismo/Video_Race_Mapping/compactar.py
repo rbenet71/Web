@@ -12,6 +12,7 @@ from datetime import datetime
 
 EXTS = {
     ".mp4": "mp4",
+    ".vrm": "mp4",
     ".gpx": "gpx",
     ".kmz": "kmz",
     ".kml": "kml",
@@ -81,14 +82,18 @@ def main():
 
     for base in sorted(by_base.keys(), key=natural_key):
         entry = by_base[base]
-        if ".mp4" not in entry:
+        if ".mp4" not in entry and ".vrm" not in entry:
             continue
+
+
+        video_file = entry.get(".vrm") or entry.get(".mp4")
 
         etapa = {
             "id": base,
-            "video": entry[".mp4"]
+            "video": video_file
         }
-        videos.append(entry[".mp4"])
+        videos.append(video_file)
+
 
         for ext in [".gpx", ".kmz", ".kml", ".xlsx", ".xls"]:
             if ext in entry:

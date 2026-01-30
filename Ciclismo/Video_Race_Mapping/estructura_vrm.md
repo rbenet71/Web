@@ -10,14 +10,14 @@
 - Regla acordada: cuando se hace un cambio, se parte de una base (p.ej. v22) y se publica como **VRM 2.X**.
 - Convención para variantes: si se prueban alternativas, se usan sufijos **a, b, c…** sobre la misma base.
 
+---
+
 ## 1. Descripción general
 
 ### 1.1 Estado actual (baseline)
-- Fecha de esta documentación: **2026-01-24**
-- Baseline funcional reciente: **VRM 2.2** (HTML v22)
-- Último cambio relevante: **VRM 2.3** (mapas offline ICGC mediante tiles locales)
-- Importante: el proyecto conserva el historial interno por “vXX” y el nombre visible por “2.X”.
-
+- Fecha de esta documentación: **2026-01-30**
+- Baseline funcional reciente: **VRM 2.10+** (según cabecera del HTML actual)
+- Último cambio relevante: **Modo paquete (carrera.js embebido Base64) + compatibilidad file:// + restauración modo carpeta**
 
 **Video Race Mapping (VRM)** es una aplicación web en un único archivo HTML diseñada para sincronizar:
 
@@ -39,185 +39,246 @@ El objetivo principal es permitir el análisis de una etapa ciclista sincronizan
 - El usuario debe seleccionar una carpeta mediante:
   ```html
   <input type="file" webkitdirectory>
-  ```
-- Todos los archivos deben cargarse desde esa selección.
+````
 
-### 2.2 Autocarga condicional
-- Sí es posible autocargar archivos **solo si el usuario ya expuso la carpeta**.
-- Se usa el basename del vídeo para buscar GPX / Excel asociados.
+* Todos los archivos del modo carpeta deben cargarse desde esa selección.
+
+### 2.2 CORS en ejecución local (`file://`)
+
+* En `file://` el navegador **bloquea `fetch()`** hacia archivos locales (`*.gpx`, `*.xlsx`, `*.kmz`, etc.).
+* Por tanto:
+
+  * ✅ Leer archivos como `File` (vía `<input webkitdirectory>`) funciona.
+  * ❌ `fetch("data/e1.gpx")` desde `file://` falla por CORS.
+* Implicación: para soportar “paquete” en `file://`, los datos deben ir **embebidos** (Base64 / texto) o servirse por HTTP.
+
+### 2.3 Autocarga condicional
+
+* Sí es posible autocargar archivos **solo si el usuario ya expuso la carpeta**.
+* Se usa el basename del vídeo para buscar GPX / Excel asociados.
 
 ---
 
 ## 3. Estructura visual (layout)
 
 ### 3.1 Cabecera (header fijo)
+
 Contiene:
-- Logo (`logo.jpg`)
-- Nombre de la app: **Video Race Mapping (VRM)**
-- Botón para ocultar/mostrar la zona de operaciones
-- Línea secundaria con:
-  - `Video: <nombre>`
-  - o `Carrera: <datos>` si hay Excel de cabecera
+
+* Logo (`logo.jpg` o `data/<logo>` si hay carrera externa)
+* Nombre de la app: **Video Race Mapping (VRM)** o nombre de carrera si existe `data/carrera.js`
+* Botón para ocultar/mostrar la zona de operaciones
+* Línea secundaria con:
+
+  * `Video: <nombre>`
+  * o `Carrera: <datos>` si hay Excel de cabecera
 
 ### 3.1.1 Elementos de cabecera (detalles)
-- A la derecha: botón/chevron para **ocultar/mostrar** la zona de operaciones.
-- Se muestra el **nombre de versión** (ej: *VRM 2.2* / *VRM 2.3*).
-- La línea secundaria muestra **Carrera:** con datos del Excel (si existe), o **Video:** si no.
+
+* A la derecha: botón/chevron para **ocultar/mostrar** la zona de operaciones.
+* Se muestra el **nombre de versión** (ej: *VRM 2.2* / *VRM 2.3*).
+* La línea secundaria muestra **Carrera:** con datos del Excel (si existe), o **Video:** si no.
 
 ### 3.2 Zona de operaciones (`#controls`)
-- Botones, selectores y acciones
-- Puede colapsarse
-- **NO tocar layout global sin permiso explícito**
+
+* Botones, selectores y acciones
+* Puede colapsarse
+* **NO tocar layout global sin permiso explícito**
 
 ### 3.3 Área principal
+
 Incluye:
-- Vídeo
-- Mapa Leaflet
-- Tabla de rutómetro
-- Perfil de elevación (canvas)
+
+* Vídeo
+* Mapa Leaflet
+* Tabla de rutómetro
+* Perfil de elevación (canvas)
 
 ### 3.4 Pie fijo (footer)
+
 ```
 © 2026 Roberto Benet - rbenet71@gmail.com
 ```
-- Posición fija
-- El contenido reserva espacio para no quedar oculto
+
+* Posición fija
+* El contenido reserva espacio para no quedar oculto
 
 ---
 
-## 4. Flujo principal de la aplicación
+## 4. Flujo principal de la aplicación (dos modos)
+
+### 4.1 Modo A — Carpeta (modo clásico)
 
 1. Usuario selecciona una carpeta
 2. Se indexan archivos por extensión y basename
 3. Usuario selecciona un MP4
 4. Se carga el vídeo
 5. Autocarga opcional de:
-   - GPX/KML/KMZ
-   - Excel
+
+   * GPX/KML/KMZ
+   * Excel
 6. Se dibuja el track, el mapa y el perfil
 7. Se sincronizan:
-   - Vídeo ↔ Track ↔ Tabla ↔ Perfil
+
+   * Vídeo ↔ Track ↔ Tabla ↔ Perfil
+
+### 4.2 Modo B — Paquete (carrera.js embebido, compatible file://)
+
+1. Existe `data/carrera.js`
+2. VRM carga `carrera.js` por `<script src="data/carrera.js">` (compatible con `file://`)
+3. El selector de vídeos se rellena (e1…e7) con una opción inicial: **"Elige MP4"**
+4. Usuario elige un vídeo desde el selector
+5. VRM reproduce el MP4 desde `data/<video>.mp4`
+6. VRM crea `File` en memoria desde Base64 (`gpx_b64`, `xlsx_b64`, `kmz_b64`) y reutiliza el pipeline clásico:
+
+   * parse GPX
+   * load Excel con `xlsx`
+   * load KMZ/KML
+7. Se sincronizan:
+
+   * Vídeo ↔ Track ↔ Tabla ↔ Perfil
 
 ---
 
 ## 5. Modelos de datos internos
 
 ### 5.1 Track (`trackPts[]`)
+
 Cada punto contiene:
-- lat, lon
-- ele (opcional)
-- time / tOffset
-- dist (metros acumulados)
+
+* lat, lon
+* ele (opcional)
+* time / tOffset
+* dist (metros acumulados)
 
 ### 5.2 Rutómetro (`rutometreWpts[]`)
-- Distancia (ajustada)
-- Tiempo
-- Texto / observaciones
+
+* Distancia (ajustada)
+* Tiempo
+* Texto / observaciones
 
 ### 5.3 Cabecera de carrera (`stageHeader`)
+
 Objeto con campos Excel:
-- Codi_Num_Etapa
-- Nom_Etapa
-- km
-- Sortida_Neutralitzada_Km
-- Sortida_Neutralitzada_Hora
-- Sortida_Real_Hora
-- Velocitat_2
+
+* Codi_Num_Etapa
+* Nom_Etapa
+* km
+* Sortida_Neutralitzada_Km
+* Sortida_Neutralitzada_Hora
+* Sortida_Real_Hora
+* Velocitat_2
 
 ---
 
 ## 6. Neutralización de kilómetros
 
 ### Concepto
+
 El track incluye un tramo neutralizado previo al km 0 real.
 
 ### Implementación
-- Se lee `Sortida_Neutralitzada_Km` del Excel
-- Se guarda en:
+
+* Se lee `Sortida_Neutralitzada_Km` del Excel
+* Se guarda en:
+
   ```js
   neutralizedKmOffset
   ```
 
 ### Cálculo correcto (v19f+)
+
 ```js
 adjustedKm = (distMeters / 1000) - neutralizedKmOffset
 ```
 
-- Se **permiten km negativos**
-- km < 0 → tramo neutralizado
-- km = 0 → inicio real
-- km > 0 → carrera
+* Se **permiten km negativos**
+* km < 0 → tramo neutralizado
+* km = 0 → inicio real
+* km > 0 → carrera
 
 ### Visualización
-- Km negativos se muestran en rojo
-- Etiqueta `N` (neutralizada) en HUD y perfil
+
+* Km negativos se muestran en rojo
+* Etiqueta `N` (neutralizada) en HUD y perfil
 
 ---
 
 ## 7. Funciones críticas
 
 ### loadExcelFile(file)
-- Lee Excel con `xlsx`
-- Detecta hoja de cabecera por nombre que **contenga** "cabecera"
-- Soporta dos formatos:
-  - Fila cabecera + fila datos
-  - Clave / valor en dos columnas
-- Guarda offset de neutralización
-- Renderiza titular de carrera
-- Carga rutómetro
+
+* Lee Excel con `xlsx`
+* Detecta hoja de cabecera por nombre que **contenga** "cabecera"
+* Soporta dos formatos:
+
+  * Fila cabecera + fila datos
+  * Clave / valor en dos columnas
+* Guarda offset de neutralización
+* Renderiza titular de carrera
+* Carga rutómetro
 
 ### loadTrackFile(file)
-- Parse GPX / KML / KMZ
-- Calcula distancias acumuladas
-- Dibuja track en mapa
-- Dibuja perfil de elevación
+
+* Parse GPX / KML / KMZ
+* Calcula distancias acumuladas
+* Dibuja track en mapa
+* Dibuja perfil de elevación
 
 ### syncToPoint(point)
-- Centra mapa
-- Actualiza marcador
-- Actualiza HUD
-- Actualiza perfil
-- Marca fila activa del rutómetro
+
+* Centra mapa
+* Actualiza marcador
+* Actualiza HUD
+* Actualiza perfil
+* Marca fila activa del rutómetro
 
 ### drawElevationProfile()
-- Dibuja perfil
-- Cursor sincronizado
-- Cambio de color si km < 0
+
+* Dibuja perfil
+* Cursor sincronizado
+* Cambio de color si km < 0
 
 ---
 
 ## 8. Sincronización
 
 ### Desde el vídeo
+
 Evento:
+
 ```js
 video.addEventListener('timeupdate', ...)
 ```
 
-- Busca punto de track más cercano
-- Llama a `syncToPoint()`
-- Resalta fila
+* Busca punto de track más cercano
+* Llama a `syncToPoint()`
+* Resalta fila
 
 ### Desde la tabla
-- Click en fila → salto a vídeo + mapa
+
+* Click en fila → salto a vídeo + mapa
 
 ---
 
 ## 9. Mapas base
 
 ### 9.1 Online (como hasta ahora)
-- OpenStreetMap (OSM)
-- Google (online)
-- Google Terrain (online)
-- ESRI
-- ICGC Topo (online)
-- ICGC Orto (online)
+
+* OpenStreetMap (OSM)
+* Google (online)
+* Google Terrain (online)
+* ESRI
+* ICGC Topo (online)
+* ICGC Orto (online)
 
 ### 9.2 Offline (ICGC)
-- A partir de **VRM 2.3** se soporta un modo **Offline (carpeta `mapas offline/`)** con:
-  - `ICGC Topo (offline)` → `mapas offline/icgc_topo/{z}/{x}/{y}.png` (maxZoom 18)
-  - `ICGC Orto (offline)` → `mapas offline/icgc_orto/{z}/{x}/{y}.jpg` (maxZoom 19)
-- **Google NO** se usa offline (por permisos/licencia).
+
+* A partir de **VRM 2.3** se soporta un modo **Offline (carpeta `mapas offline/`)** con:
+
+  * `ICGC Topo (offline)` → `mapas offline/icgc_topo/{z}/{x}/{y}.png` (maxZoom 18)
+  * `ICGC Orto (offline)` → `mapas offline/icgc_orto/{z}/{x}/{y}.jpg` (maxZoom 19)
+* **Google NO** se usa offline (por permisos/licencia).
 
 ---
 
@@ -226,51 +287,60 @@ video.addEventListener('timeupdate', ...)
 1. **Un solo cambio cada vez**
 2. **Nunca tocar layout sin pedir permiso**
 3. No mezclar:
-   - header + footer + grid + flex en el mismo paso
-4. Siempre devolver **HTML completo**
+
+   * header + footer + grid + flex en el mismo paso
+4. Siempre devolver **HTML completo** (si se solicita)
 5. Si algo rompe sincronía → rollback inmediato
+6. **Un solo handler** para `mp4Select.change` (evitar duplicados que “pisen” el modo carpeta o el modo paquete)
 
 ---
 
 ## 11. Filosofía del proyecto
 
 VRM es:
-- Herramienta técnica
-- Pensada para análisis real de carrera
-- Flexible, no “bonita primero”
-- La sincronización manda sobre el diseño
+
+* Herramienta técnica
+* Pensada para análisis real de carrera
+* Flexible, no “bonita primero”
+* La sincronización manda sobre el diseño
 
 ---
-
-Fin de documentación.
-
 
 ## 12. GPS embebido en MP4 (Dashcam / móvil)
 
 ### 12.1 Objetivo
+
 Soportar vídeos que **incluyen GPS embebido al final del MP4** (p.ej. grabaciones de móvil/dashcam), de forma que:
-- Si el vídeo trae GPS embebido → se usa ese GPS.
-- Si no trae GPS embebido → se usa el **GPX/KML/KMZ** seleccionado o autocargado.
+
+* Si el vídeo trae GPS embebido → se usa ese GPS.
+* Si no trae GPS embebido → se usa el **GPX/KML/KMZ** seleccionado o autocargado.
 
 ### 12.2 Flujo
+
 1. Usuario selecciona el MP4.
 2. VRM analiza el final del archivo (cola) buscando el bloque GPS (según formato de la app de grabación).
 3. Si se encuentra y parsea correctamente:
-   - Se construye `trackPts[]` con esos puntos.
-   - Se recalcula distancia acumulada y elevación si existe.
+
+   * Se construye `trackPts[]` con esos puntos.
+   * Se recalcula distancia acumulada y elevación si existe.
 4. Si no se encuentra:
-   - Se mantiene el flujo clásico con GPX/KML/KMZ.
+
+   * Se mantiene el flujo clásico con GPX/KML/KMZ.
 
 ### 12.3 Archivos de referencia
-- Ejemplo MP4 con GPS embebido: `RBB_20260102_1342_S01.mp4`
-- Código de la app de grabación: `Dashcam_App.js` (sirve para entender el formato y la firma del bloque GPS).
-- Baseline web: a partir de **VRM 2.2** este comportamiento está integrado.
 
+* Ejemplo MP4 con GPS embebido: `RBB_20260102_1342_S01.mp4`
+* Código de la app de grabación: `Dashcam_App.js` (sirve para entender el formato y la firma del bloque GPS).
+* Baseline web: a partir de **VRM 2.2** este comportamiento está integrado.
+
+---
 
 ## 13. Mapas offline (ICGC)
 
 ### 13.1 Estructura esperada por VRM
+
 En la misma carpeta donde está el HTML de VRM:
+
 ```
 mapas offline/
 ├── icgc_topo/
@@ -280,21 +350,26 @@ mapas offline/
 ```
 
 ### 13.2 Método A (recomendado) — QGIS exportando XYZ tiles
+
 1. En QGIS, asegúrate de trabajar en **EPSG:3857**.
 2. Añade las capas ICGC como **XYZ Tiles** (Topo y Orto).
 3. Define la extensión a exportar (ideal: polígono de Catalunya) para no generar tiles de más.
 4. Menú: **Proyecto → Importar/Exportar → Generar teselas XYZ (MBTiles)**.
 5. Elige **salida en estructura XYZ (carpetas)** y carpeta destino:
-   - `mapas offline/icgc_topo`
-   - `mapas offline/icgc_orto`
+
+   * `mapas offline/icgc_topo`
+   * `mapas offline/icgc_orto`
 6. Zooms recomendados:
-   - Topo: **6–18**
-   - Orto: **6–19**
+
+   * Topo: **6–18**
+   * Orto: **6–19**
 
 ### 13.3 Método B — GDAL (gdal2tiles.py) generando estructura XYZ
+
 Herramientas: GDAL (Windows: OSGeo4W; macOS: `brew install gdal`).
 
 **Topo (PNG) Z6–18**
+
 ```bash
 gdal2tiles.py -z 6-18 -r bilinear -w none \
 "https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wms/service?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=topo&CRS=EPSG:3857&FORMAT=image/png" \
@@ -302,6 +377,7 @@ gdal2tiles.py -z 6-18 -r bilinear -w none \
 ```
 
 **Orto (JPG) Z6–19**
+
 ```bash
 gdal2tiles.py -z 6-19 -r bilinear -w none \
 "https://geoserveis.icgc.cat/icc_mapesmultibase/utm/wms/service?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=orto&CRS=EPSG:3857&FORMAT=image/jpeg" \
@@ -309,360 +385,82 @@ gdal2tiles.py -z 6-19 -r bilinear -w none \
 ```
 
 ### 13.4 Método C (futuro/ideal) — PMTiles
+
 PMTiles empaqueta todo en un solo archivo (más cómodo de copiar), pero requiere integrar lector PMTiles en el HTML.
 En el roadmap se planteó como opción ideal, pero el modo implementado en **VRM 2.3** es el de **tiles en carpeta**.
 
 ### 13.5 Tamaño esperado
+
 Para Catalunya completa y máximo detalle:
-- Topo Z6–18: ~**6–10 GB**
-- Orto Z6–19: ~**25–40 GB**
-- Total típico: **30–50 GB** (varía por compresión y cobertura real exportada).
+
+* Topo Z6–18: ~**6–10 GB**
+* Orto Z6–19: ~**25–40 GB**
+* Total típico: **30–50 GB** (varía por compresión y cobertura real exportada).
 
 ### 13.6 iOS / iPad notas
-- El uso offline consiste en abrir el HTML y cargar imágenes locales.
-- Dependiendo del método de apertura, iOS puede ser restrictivo con rutas locales. Si Safari con `file://` limita, suele funcionar mejor abrir el HTML desde una app tipo **Documents** (WebView).
-Sí 👍, buena idea dejar todo esto **consolidado en el MD**, porque aquí hay muchos *aprendizajes reales de PWA* que no son obvios hasta que te pegas con ello.
 
-He revisado el `estructura_vrm.md` que has subido  y **no recoge todavía** todo lo que hemos aprendido sobre:
-
-* instalación PWA real
-* `beforeinstallprompt`
-* manifest mínimo válido
-* favicon
-* Service Worker separado
-* avisos “engañosos” de Chrome DevTools
-
-Te propongo **añadir un nuevo capítulo completo**, sin tocar lo existente, algo así:
+* El uso offline consiste en abrir el HTML y cargar imágenes locales.
+* Dependiendo del método de apertura, iOS puede ser restrictivo con rutas locales. Si Safari con `file://` limita, suele funcionar mejor abrir el HTML desde una app tipo **Documents** (WebView).
 
 ---
 
-# 14. PWA (instalación como aplicación)
+## 14. Modo paquete (carrera.js embebido Base64)
 
-Este capítulo recoge **aprendizajes reales tras depurar la instalación PWA en Windows / Chrome / Edge e iOS**.
+### 14.1 Objetivo
 
----
+Permitir entregar a un usuario un paquete “listo para usar”:
 
-## 14.1 Requisitos mínimos para que VRM sea instalable
+* `VRM.html`
+* `data/`
 
-Para que Chrome/Edge ofrezcan *Instalar aplicación* se necesitan **todos**:
+  * `e1.mp4 ... e7.mp4`
+  * `carrera.js` (con GPX/KMZ/XLSX embebidos Base64)
+* Ejecutable incluso desde `file://` sin CORS.
 
-1. Servido por **HTTP/HTTPS** (no `file://`)
-2. `manifest.json` válido
-3. `Service Worker` registrado y activo
-4. `display: "standalone"` en el manifest
-5. Icono válido **existente**
-6. `start_url` accesible
-7. **No errores JS en carga**
-
----
-
-## 14.2 Manifest.json (caso real VRM)
-
-### Estado final correcto
-
-```json
-{
-  "name": "Video Race Mapping",
-  "short_name": "VRM",
-  "id": "vrm",
-  "start_url": "/VRM.html",
-  "display": "standalone",
-  "background_color": "#111827",
-  "theme_color": "#111827",
-  "description": "Video Race Mapping (VRM): sincroniza vídeo con GPX/KML y mapa.",
-  "icons": [
-    {
-      "src": "logo.jpg",
-      "sizes": "192x192",
-      "type": "image/jpeg",
-      "purpose": "any"
-    },
-    {
-      "src": "logo.jpg",
-      "sizes": "512x512",
-      "type": "image/jpeg",
-      "purpose": "any"
-    }
-  ]
-}
-```
-
-### Aprendizajes clave
-
-* **No inventar iconos**: si solo existe `logo.jpg`, usarlo.
-* Chrome acepta JPG como icono.
-* `id` ayuda a evitar duplicados de instalación.
-* `start_url` debe coincidir con la ruta real servida.
-
----
-
-## 14.3 `<head>` correcto para PWA (HTML)
-
-Estado final recomendado en `VRM.html`:
-
-```html
-<link rel="manifest" href="VRM_manifest.json">
-
-<meta name="theme-color" content="#111111">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<link rel="apple-touch-icon" href="logo.jpg" />
-<link rel="icon" href="logo.jpg">
-```
-
-### Notas importantes
-
-* `<meta name="apple-mobile-web-app-capable">` **está deprecado**
-* Chrome muestra warning si no existe:
-
-  ```html
-  <meta name="mobile-web-app-capable" content="yes">
-  ```
-* Las etiquetas **NO necesitan “barras de cierre” obligatorias**, pero es buena práctica usar:
-
-  ```html
-  <link ... />
-  ```
-
----
-
-## 14.4 Favicon (error 404 explicado)
-
-### Problema visto
+### 14.2 Estructura esperada
 
 ```
-favicon.ico 404 (File not found)
+VRM.html
+data/
+  carrera.js
+  e1.mp4 e1.gpx e1.xlsx e1.kmz
+  e2.mp4 e2.gpx e2.xlsx ...
 ```
 
-### Solución simple
+### 14.3 Formato de `carrera.js`
 
-Opción A (recomendada):
+`window.CARRERA_CONFIG` contiene:
 
-```html
-<link rel="icon" href="logo.jpg">
-```
+* `nombre`, `logo`
+* `videos` (orden)
+* `etapas[]` (por base del mp4) con:
 
-Opción B:
+  * `id`, `video`
+  * `gpx_b64` / `kmz_b64` / `kml_b64` / `xlsx_b64` (y `_mime`, `_name`)
 
-* Crear `favicon.ico`
-* O copiar `logo.jpg` como `favicon.ico`
+### 14.4 Generación automática (Python)
 
-> Este error **no impide la instalación PWA**, solo es ruido de consola.
+Se usa un script tipo `compactar.py` / `build_carrera.py`:
 
----
+* Lee el directorio `data/`
+* Agrupa por basename
+* **No embebe mp4**
+* Embebe en Base64: GPX/KMZ/KML/XLSX/XLS
+* Genera `data/carrera.js`
 
-## 14.5 Service Worker (archivo separado)
+### 14.5 Reglas de compatibilidad
 
-### Regla de oro
+* En modo paquete se evita `fetch()` y se crean `File` en memoria desde Base64.
+* Para no romper el modo carpeta:
 
-➡️ **El Service Worker debe estar en un archivo independiente**
-Ejemplo correcto:
+  * Debe existir **un único** `mp4Select.addEventListener("change", ...)`
+  * El handler decide:
 
-```
-/VRM.html
-/vrm_sw.js
-/VRM_manifest.json
-/logo.jpg
-```
-
-Nunca concatenar el SW dentro del HTML.
-
----
-
-## 14.6 Registro del Service Worker
-
-Código final funcional:
-
-```js
-if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-  navigator.serviceWorker.register('vrm_sw.js');
-}
-```
-
-### Aprendizajes
-
-* No funciona en `file://`
-* DevTools → *Update on reload* provoca **spam de reinstalaciones**
-* Cada recarga forzada genera:
-
-  ```
-  Service Worker was updated because "Update on reload" was checked
-  ```
-
-Esto **no es un bug de VRM**, es DevTools.
+    * “paquete” si la etapa trae `_b64`
+    * “carpeta” si existe `mp4Files.get(name)` y cargas GPX/KMZ/XLSX desde los `File` de la carpeta
 
 ---
 
-## 14.7 beforeinstallprompt (aviso engañoso explicado)
+Fin de documentación.
 
-Mensaje visto:
-
-```
-Banner not shown: beforeinstallpromptevent.preventDefault() called.
-```
-
-### Qué significa realmente
-
-* **NO es un error**
-* Significa:
-
-  * Has capturado el evento
-  * Chrome **no muestra el banner automático**
-  * Espera que tú llames a `.prompt()`
-
-### Implementación correcta (la que tienes)
-
-```js
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  installBtn.style.display = '';
-});
-```
-
-Y luego, **solo al hacer clic**:
-
-```js
-await deferredPrompt.prompt();
-```
-
-### Conclusión
-
-✔ Comportamiento correcto
-✔ UX controlada
-✔ El warning se puede ignorar
-
----
-
-## 14.8 iOS (Safari) – realidades
-
-* iOS **NO usa** `beforeinstallprompt`
-* No hay banner automático
-* Instalación solo vía:
-
-  ```
-  Compartir → Añadir a pantalla de inicio
-  ```
-* Correcto mostrar **modal de ayuda manual**, como hace VRM.
-
----
-
-## 14.9 Checklist rápido (cuando algo no se instala)
-
-1. ¿Está servido por `http://`?
-2. ¿El manifest carga sin error?
-3. ¿El icono existe?
-4. ¿Hay SW activo en *Application → Service Workers*?
-5. ¿No estás en modo incógnito?
-6. ¿DevTools no tiene “Update on reload” activado?
-7. ¿No hay errores JS en consola?
-
----
-
-## 14.10 Estado actual de VRM
-
-✔ Instalable en **Windows (Chrome / Edge)**
-✔ Instalable en **Android**
-✔ Añadible a inicio en **iOS**
-✔ Control manual del botón instalar
-✔ Actualización por SW funcional
-
-Hecho: te dejo **exactamente qué líneas del MD cambiar** y el **capítulo nuevo** para pegar (sin tocar lo demás). Tu `estructura_vrm.md` ahora mismo llega hasta **14.10** y no tiene nada del “GPS en vivo” (solo GPS embebido en MP4).
-
----
-
-## 1) Actualiza el baseline (Sección 1.1)
-
-En **1.1 Estado actual (baseline)** cambia estas 3 líneas: 
-
-**Antes**
-
-* Fecha de esta documentación: **2026-01-24**
-* Baseline funcional reciente: **VRM 2.2** (HTML v22)
-* Último cambio relevante: **VRM 2.3** (mapas offline ICGC mediante tiles locales)
-
-**Después**
-
-* Fecha de esta documentación: **2026-01-27**
-* Baseline funcional reciente: **VRM 2.7** (GPS en vivo + modo libre sin GPX)
-* Último cambio relevante: **VRM 2.7** (checkbox GPS: snap a track si hay GPX; modo libre si no hay GPX)
-
----
-
-## 2) Añade un capítulo nuevo: “15. GPS en vivo (posición del dispositivo)”
-
-Pégalo **al final del archivo**, justo después de **14.10 Estado actual de VRM**. 
-
-```md
-## 15. GPS en vivo (posición del dispositivo)
-
-### 15.1 Objetivo
-Permitir que el usuario active un **checkbox GPS** para:
-- Leer la **geolocalización del dispositivo**.
-- Actualizar **cada 1 segundo** la posición:
-  - Si hay track cargado → sincronización completa (mapa + bici + vídeo + tabla + perfil).
-  - Si NO hay track cargado → **modo GPS libre** (solo mapa + bici), sin mover vídeo/tabla/perfil.
-
-> Nota: esto es **independiente** del “GPS embebido en MP4” (capítulo 12).
-
----
-
-### 15.2 UI (Zona de operaciones #controls)
-Se añade un checkbox (no botón) con tooltip explicativo en la barra de controles. (No se modifica el layout global).  
-Ubicación típica: antes del `status`.  
-
----
-
-### 15.3 Modelo de funcionamiento (2 modos)
-
-#### Modo A — Snap a track (hay GPX / track en `points[]`)
-Condición:
-- `points.length > 0` y existe `marker` (bici creada al dibujar el track).
-
-Comportamiento cada 1s:
-1. Se obtiene `lat/lon` del GPS del dispositivo.
-2. Se calcula el punto del track más cercano:
-   - `nearestPoint(lat, lon)` :contentReference[oaicite:3]{index=3}
-3. Se sincroniza todo con:
-   - `syncToPoint(p, { seekVideo:true, centerMap:true, redrawProfile:true })` :contentReference[oaicite:4]{index=4}
-
-Resultado:
-- Se actualiza **bici + mapa + vídeo + tabla + perfil**.
-
-#### Modo B — GPS libre (NO hay GPX / `points[]` vacío)
-Condición:
-- `points.length === 0`
-
-Comportamiento cada 1s:
-1. Se obtiene `lat/lon` del GPS.
-2. Se crea un marker temporal si no existe (usando el `bikeIcon`) y se mueve a `[lat, lon]`.
-3. Se centra el mapa con `map.panTo([lat, lon])`.
-4. **No** se llama a `syncToPoint()` (no hay track ⇒ no hay índice/tiempo).  
-
-Resultado:
-- Se actualiza **solo bici + mapa**.
-
----
-
-### 15.4 Gestión del ciclo de vida (start/stop)
-Variables típicas:
-- `liveGpsWatchId` (watchPosition)
-- `liveGpsTimerId` (setInterval 1s)
-- `lastGpsFix` (último fix recibido)
-
-Al desactivar el checkbox:
-- Se limpia el `setInterval`.
-- Se llama a `navigator.geolocation.clearWatch(...)`.
-
-Al limpiar track (`clearTrack()`):
-- Se detiene el GPS y se desmarca el checkbox para evitar estados incoherentes.
-
----
-
-### 15.5 Restricciones y pruebas (muy importante)
-- En ejecución `file://` pueden aparecer restricciones/políticas (origin `null`) y comportamientos inconsistentes.
-- Para PWA / pruebas estables: usar **http(s)** (localhost / servidor local).
-- Para probar en PC sin GPS físico:
-  - Chrome DevTools → **More tools → Sensors → Geolocation** (ubicación simulada).
 ```

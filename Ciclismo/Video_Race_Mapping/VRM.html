@@ -721,7 +721,7 @@
         <img src="logo.jpg" alt="logo" />
         <div class="title">
           <div class="appName">Video Race Mapping</div>
-          <div class="appShort">VRM 2.12.1</div>
+          <div class="appShort">VRM 2.13</div>
         </div>
       </div>
 
@@ -793,8 +793,8 @@
         <input id="dirInput" type="file" webkitdirectory hidden>
       </label>
 
-      <label title="Selecciona el MP4 dentro de la carpeta">
-        🎬 MP4
+      <label title="Selecciona el Video dentro de la carpeta">
+        🎬 Video
         <select id="mp4Select">
           <option value="">(elige carpeta primero)</option>
         </select>
@@ -2236,7 +2236,7 @@ const idx = findPointIndex(p);
      ============================================================ */
   dirInput.addEventListener("change", () => {
     mp4Files.clear(); gpxFiles.clear(); kmzFiles.clear(); kmlFiles.clear(); xlsxFiles.clear();
-    mp4Select.innerHTML = `<option value="">(elige MP4)</option>`;
+    mp4Select.innerHTML = `<option value="">(elige Video)</option>`;
 
     for (const f of dirInput.files){
       const low = f.name.toLowerCase();
@@ -2266,14 +2266,13 @@ const idx = findPointIndex(p);
     for (const name of names){
       const opt = document.createElement("option");
       opt.value = name;
-      opt.textContent = name;
+      opt.textContent = basenameNoExt(name);
       mp4Select.appendChild(opt);
     }
 
     if (raceNameEl) raceNameEl.textContent = "Video: —";
     setStatus(`Carpeta cargada: ${mp4Files.size} mp4, ${gpxFiles.size} gpx, ${kmzFiles.size} kmz, ${xlsxFiles.size} xlsx`);
   });
-
 
   mp4Select.addEventListener("change", async () => {
 
@@ -2286,6 +2285,8 @@ const idx = findPointIndex(p);
 
     const base = basenameNoExt(name);
     const baseKey = base.toLowerCase();
+
+    // Mostrar nombre SIN extensión
     if (raceNameEl) raceNameEl.textContent = `Video: ${base}`;
 
     // =========================================================
@@ -2298,8 +2299,16 @@ const idx = findPointIndex(p);
         currentVideoName = name;
         currentVideoFile = null;
 
-        // Vídeo: en modo paquete se sirve desde data/
-        video.src = "data/" + name;
+        const src = "data/" + name;
+        video.src = src;
+
+        // Forzar tipo MP4 si la extensión es .vrm
+        if (name.toLowerCase().endsWith(".vrm")) {
+          video.setAttribute("type", "video/mp4");
+        } else {
+          video.removeAttribute("type");
+        }
+
         video.load();
         maybeResetVideoSync();
 
@@ -2352,7 +2361,7 @@ const idx = findPointIndex(p);
           await loadExcelFile(xlsFile);
         }
 
-        setStatus(`Listo (paquete): ${name}`);
+        setStatus(`Listo (paquete): ${base}`);
         return; // ✅ no seguir al modo carpeta
       }
     }
@@ -2362,7 +2371,7 @@ const idx = findPointIndex(p);
     // =========================================================
     const mp4 = mp4Files.get(name);
     if (!mp4){
-      setStatus("No existe ese MP4 en la carpeta cargada");
+      setStatus("No existe ese vídeo en la carpeta cargada");
       return;
     }
 
@@ -2393,7 +2402,7 @@ const idx = findPointIndex(p);
           setStatus("GPX vacío o sin puntos válidos");
         }
       } else {
-        setStatus("MP4 cargado (sin GPS embebido y sin GPX con mismo nombre)");
+        setStatus("Vídeo cargado (sin GPS embebido y sin GPX con mismo nombre)");
       }
     }
 
@@ -2413,12 +2422,11 @@ const idx = findPointIndex(p);
     }
 
     if (points.length){
-      setStatus(`Listo (carpeta): ${name} (GPX${(kmz||kml)?", KMZ/KML":""}${xlsx?", Excel":""})`);
+      setStatus(`Listo (carpeta): ${base} (GPX${(kmz||kml)?", KMZ/KML":""}${xlsx?", Excel":""})`);
     } else {
-      setStatus(`Listo (carpeta): ${name}`);
+      setStatus(`Listo (carpeta): ${base}`);
     }
   });
-
 
 
 
@@ -3461,17 +3469,19 @@ Luego abre VRM y selecciona:
 
         const opt0 = document.createElement("option");
         opt0.value = "";
-        opt0.textContent = "Elige MP4";
+        opt0.textContent = "Elige Video";
         opt0.disabled = true;
         opt0.selected = true;
         mp4Select.appendChild(opt0);
 
         for (let i = 0; i < list.length; i++){
+          const filename = String(list[i] || "");
           const opt = document.createElement("option");
-          opt.value = list[i];
-          opt.textContent = list[i];
+          opt.value = filename;                    // valor real con extensión
+          opt.textContent = basenameNoExt(filename); // texto visible SIN extensión
           mp4Select.appendChild(opt);
         }
+
       }
     }
   };
