@@ -18,6 +18,8 @@ const APP_CACHES = {
   'index': 'index-page-v1.0',
   'dashcam': 'dashcam-iphone-pro-cache-v4.11',
   'vrm': 'vrm-v2.2',
+  'bikesnake': 'BikeSnake-v1.0',
+
 };
 
 const APP_RESOURCES = {
@@ -204,6 +206,13 @@ const APP_RESOURCES = {
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
   ],
+  'bikesnake': [
+    'https://rbenet71.github.io/Web/Entretenimiento/BikeSnake/Bikesnake.html',
+    'https://rbenet71.github.io/Web/Entretenimiento/BikeSnake/Bikesnake_manifest.json',
+    'https://rbenet71.github.io/Web/Entretenimiento/BikeSnake/Bikesnake_192x192.png',
+    'https://rbenet71.github.io/Web/Entretenimiento/BikeSnake/Bikesnake_512x512.png'
+  ],
+
 };
 
 // 🔥 VERSIÓN DEL SW UNIFICADO

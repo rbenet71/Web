@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>BikeSnake</title>
+<meta name="theme-color" content="#0b1220">
+
+<!-- PWA -->
+<link rel="manifest" href="Bikesnake_manifest.json">
+<link rel="apple-touch-icon" href="Bikesnake_192x192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<style>
+  :root{
+    --bg:#0b1220;
+    --panel:#0f1b33;
+    --text:#e6f1ff;
+    --accent:#41ffb5;
+  }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:system-ui,Segoe UI,Roboto,Arial;
+    display:flex;
+    justify-content:center;
+  }
+  .wrap{
+    width:min(820px, 96vw);
+    padding:14px;
+  }
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  h1{ margin:0; font-size:22px; }
+  .hud{
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:12px;
+    padding:10px 14px;
+    display:flex;
+    gap:16px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .hud b{ color:var(--accent); }
+
+  canvas{
+    margin:12px auto;
+    display:block;
+    background:#000;
+    border-radius:14px;
+    border:2px solid rgba(65,255,181,.45);
+    max-width:100%;
+    touch-action:none;
+  }
+
+  button{
+    background:rgba(65,255,181,.18);
+    border:1px solid rgba(65,255,181,.4);
+    color:var(--text);
+    padding:8px 12px;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  button:hover{
+    background:rgba(65,255,181,.28);
+  }
+
+  .hint{
+    text-align:center;
+    opacity:.85;
+    font-size:14px;
+  }
+
+  #installBtn{
+    position:fixed;
+    right:14px;
+    bottom:14px;
+    display:none;
+    z-index:10;
+  }
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <header>
+    <h1>🚴‍♂️ BikeSnake</h1>
+    <div class="hud">
+      <div>Puntos: <b id="score">0</b></div>
+      <div>Mejor: <b id="best">0</b></div>
+      <div>Vel: <b id="speed">8</b></div>
+      <button onclick="startGame()">▶️ Iniciar</button>
+      <button onclick="togglePause()">⏸️ Pausa</button>
+      <button onclick="resetGame()">↻ Reiniciar</button>
+    </div>
+  </header>
+
+  <canvas id="game" width="600" height="600"></canvas>
+
+  <div class="hint">
+    Flechas / WASD · Swipe táctil · ESPACIO = Pausa
+  </div>
+</div>
+
+<button id="installBtn">📲 Instalar BikeSnake</button>
+
+<script>
+/* ======================
+   CONFIG
+====================== */
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+const GRID = 24;
+const CELL = canvas.width / GRID;
+
+let snake, dir, nextDir, food;
+let score = 0;
+let best = Number(localStorage.getItem('bikesnake_best') || 0);
+let running = false;
+let paused = false;
+
+let speed = 8;
+let stepMs = 1000 / speed;
+let acc = 0;
+let lastTime = 0;
+
+// pedaleo
+let pedal = 0;
+let pedalAcc = 0;
+
+/* ======================
+   INIT
+====================== */
+function resetGame(){
+  snake = [
+    {x:12,y:12},
+    {x:11,y:12},
+    {x:10,y:12},
+  ];
+  dir = {x:1,y:0};
+  nextDir = {x:1,y:0};
+  score = 0;
+  speed = 8;
+  stepMs = 1000 / speed;
+  placeFood();
+  updateHud();
+  running = false;
+  paused = false;
+  draw();
+}
+
+function startGame(){
+  if(!running){
+    running = true;
+    lastTime = performance.now();
+    requestAnimationFrame(loop);
+  }
+}
+
+function togglePause(){
+  if(running) paused = !paused;
+}
+
+function updateHud(){
+  scoreEl.textContent = score;
+  bestEl.textContent = best;
+  speedEl.textContent = speed;
+}
+
+function placeFood(){
+  while(true){
+    const fx = Math.floor(Math.random()*GRID);
+    const fy = Math.floor(Math.random()*GRID);
+    if(!snake.some(s=>s.x===fx&&s.y===fy)){
+      food = {x:fx,y:fy};
+      return;
+    }
+  }
+}
+
+/* ======================
+   INPUT
+====================== */
+const blockKeys = ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '];
+window.addEventListener('keydown',e=>{
+  if(blockKeys.includes(e.key)) e.preventDefault();
+  if(e.key===' ') togglePause();
+  if(!running) return;
+
+  if(e.key==='ArrowLeft'||e.key==='a') setDir(-1,0);
+  if(e.key==='ArrowRight'||e.key==='d') setDir(1,0);
+  if(e.key==='ArrowUp'||e.key==='w') setDir(0,-1);
+  if(e.key==='ArrowDown'||e.key==='s') setDir(0,1);
+},{passive:false});
+
+function setDir(x,y){
+  if(x===-dir.x && y===-dir.y) return;
+  nextDir={x,y};
+}
+
+// Swipe táctil
+let ts=null;
+canvas.addEventListener('pointerdown',e=>{
+  ts={x:e.clientX,y:e.clientY};
+});
+canvas.addEventListener('pointerup',e=>{
+  if(!ts||!running) return;
+  const dx=e.clientX-ts.x;
+  const dy=e.clientY-ts.y;
+  ts=null;
+  if(Math.abs(dx)>Math.abs(dy)){
+    setDir(dx>0?1:-1,0);
+  }else{
+    setDir(0,dy>0?1:-1);
+  }
+});
+
+/* ======================
+   LOOP
+====================== */
+function loop(t){
+  const dt=t-lastTime;
+  lastTime=t;
+
+  if(!paused){
+    acc+=dt;
+    pedalAcc+=dt;
+    if(pedalAcc>120){pedal^=1;pedalAcc=0;}
+
+    while(acc>=stepMs){
+      acc-=stepMs;
+      step();
+    }
+  }
+  draw();
+  if(running) requestAnimationFrame(loop);
+}
+
+function step(){
+  dir=nextDir;
+  const h=snake[0];
+  const nx=(h.x+dir.x+GRID)%GRID;
+  const ny=(h.y+dir.y+GRID)%GRID;
+
+  if(snake.some((s,i)=>i&&s.x===nx&&s.y===ny)){
+    running=false;
+    best=Math.max(best,score);
+    localStorage.setItem('bikesnake_best',best);
+    updateHud();
+    return;
+  }
+
+  snake.unshift({x:nx,y:ny});
+
+  if(nx===food.x && ny===food.y){
+    score+=10;
+    if(score%50===0){
+      speed=Math.min(18,speed+1);
+      stepMs=1000/speed;
+    }
+    placeFood();
+  }else{
+    snake.pop();
+  }
+  updateHud();
+}
+
+/* ======================
+   DRAW
+====================== */
+function draw(){
+  ctx.fillStyle='#000';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // comida (bidón)
+  drawBottle(food.x,food.y);
+
+  // snake ciclistas
+  for(let i=snake.length-1;i>=0;i--){
+    const s=snake[i];
+    const isHead=i===0;
+    const d=i===0?dir:{
+      x:snake[i-1].x-s.x,
+      y:snake[i-1].y-s.y
+    };
+    drawCyclist(s.x,s.y,d,isHead);
+  }
+
+  if(!running){
+    overlay('Pulsa ▶️ Iniciar');
+  }else if(paused){
+    overlay('Pausa');
+  }
+}
+
+function overlay(t){
+  ctx.fillStyle='rgba(0,0,0,.6)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#fff';
+  ctx.font='bold 28px system-ui';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText(t,canvas.width/2,canvas.height/2);
+}
+
+/* ====== DRAW HELPERS ====== */
+function px(x){return x*CELL;}
+
+function drawBottle(x,y){
+  ctx.fillStyle='#ffd166';
+  ctx.fillRect(px(x)+8,px(y)+10,CELL-16,CELL-14);
+  ctx.fillStyle='#fca311';
+  ctx.fillRect(px(x)+CELL*0.35,px(y)+4,CELL*0.3,8);
+}
+
+function drawCyclist(x,y,d,isHead){
+  const cx=px(x)+CELL/2;
+  const cy=px(y)+CELL/2;
+
+  let ang=0;
+  if(d.x===1)ang=0;
+  else if(d.x===-1)ang=Math.PI;
+  else if(d.y===-1)ang=-Math.PI/2;
+  else if(d.y===1)ang=Math.PI/2;
+
+  ctx.save();
+  ctx.translate(cx,cy);
+  ctx.rotate(ang);
+  ctx.translate(-cx,-cy);
+
+  // ruedas
+  ctx.strokeStyle='#41ffb5';
+  ctx.lineWidth=3;
+  ctx.beginPath();ctx.arc(cx-8,cy+6,6,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.arc(cx+8,cy+6,6,0,Math.PI*2);ctx.stroke();
+
+  // cuadro
+  ctx.beginPath();
+  ctx.moveTo(cx-8,cy+6);
+  ctx.lineTo(cx,cy);
+  ctx.lineTo(cx+8,cy+6);
+  ctx.stroke();
+
+  // cuerpo
+  ctx.fillStyle=isHead?'#7dd3fc':'#60a5fa';
+  ctx.fillRect(cx-3,cy-8,8,10);
+
+  // cabeza
+  ctx.fillStyle=isHead?'#a78bfa':'#8b5cf6';
+  ctx.beginPath();ctx.arc(cx+5,cy-10,4,0,Math.PI*2);ctx.fill();
+
+  // piernas
+  ctx.strokeStyle='#fff';
+  ctx.beginPath();
+  ctx.moveTo(cx,cy);
+  ctx.lineTo(cx+(pedal?5:-5),cy+8);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+/* ======================
+   DOM refs + start
+====================== */
+const scoreEl=document.getElementById('score');
+const bestEl=document.getElementById('best');
+const speedEl=document.getElementById('speed');
+
+resetGame();
+
+/* ======================
+   PWA
+====================== */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js');
+}
+
+let deferredPrompt;
+const installBtn=document.getElementById('installBtn');
+
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  installBtn.style.display='block';
+});
+
+installBtn.addEventListener('click',async()=>{
+  installBtn.style.display='none';
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt=null;
+});
+</script>
+</body>
+</html>
