@@ -2,7 +2,7 @@
 // SERVICE WORKER PARA PWA - VRM
 // ============================================
 // DESCRIPCIÓN: Service Worker específico para VRM
-// VERSIÓN: VRM 2.14
+// VERSIÓN: VRM 2.15
 // RESPONSABILIDADES:
 // 1. Cache de recursos estáticos para funcionamiento offline
 // 2. Instalación como aplicación PWA

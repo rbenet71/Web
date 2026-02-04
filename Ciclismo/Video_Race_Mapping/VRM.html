@@ -721,7 +721,7 @@
         <img src="logo.jpg" alt="logo" />
         <div class="title">
           <div class="appName">Video Race Mapping</div>
-          <div class="appShort">VRM 2.14</div>
+          <div class="appShort">VRM 2.15</div>
         </div>
       </div>
 
@@ -1369,6 +1369,14 @@
      MAP
      ============================================================ */
   const map = L.map("map", { zoomControl:true }).setView([0,0], 2);
+  // Capas que EMPIEZAN desactivadas si el nombre las contiene
+const DISABLED_TEXT_MATCH = ["KM Etapa","Recorregut","Rutometre","Level: 2","Level: 1","Level: 0"];
+
+  function layerStartsDisabled(layerName){
+    const n = String(layerName || "").toLowerCase();
+    return DISABLED_TEXT_MATCH.some(txt => n.includes(String(txt||"").toLowerCase()));
+  }
+
 
       
   // ============================================================
@@ -1496,6 +1504,11 @@ baseMapSelect.addEventListener("change", () => {
      TRACK / VIDEO STATE
      ============================================================ */
   let overlayLayer = null;
+  let overlayControl = null;
+  let overlayGroups = null; // { "carpeta": L.FeatureGroup }
+  let kmzObjectUrls = []; // ObjectURLs for KMZ icons (revoke on reload)
+  let gpxTrackGroups = null; // { "Track name": L.FeatureGroup }
+
 
   let points = [];
   let visualTracks = []; // [{name,color,segments:[[ [lat,lon],... ], ...]}] from GPX (trk/trkseg)
@@ -1621,7 +1634,10 @@ baseMapSelect.addEventListener("change", () => {
      ============================================================ */
   
   function gpxDisplayColorToHex(name){
-  const n = String(name||"").trim().toLowerCase();
+    const n = String(name||"")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, "");   // 👈 clave: "dark red" -> "darkred"
   const map = {
     black:"#000000", darkgray:"#444444", darkgrey:"#444444", gray:"#808080", grey:"#808080",
     white:"#ffffff",
@@ -1853,13 +1869,40 @@ function parseGpx(xmlText){
     rutometreWpts = [];
     activeRutometreIndex = -1;
     updateRutometreActive(-1);
+	if (gpxTrackGroups){
+	  for (const k in gpxTrackGroups){
+		try { map.removeLayer(gpxTrackGroups[k]); } catch(_){}
+	  }
+	  gpxTrackGroups = null;
+	}
+
   }
 
   function clearOverlay(){
+    // remove grouped overlays
+    if (overlayGroups){
+      for (const k of Object.keys(overlayGroups)){
+        try { map.removeLayer(overlayGroups[k]); } catch(_){}
+      }
+      overlayGroups = null;
+    }
+    if (overlayControl){
+      try { map.removeControl(overlayControl); } catch(_){}
+      overlayControl = null;
+    }
+    // legacy single layer (if any)
     if (overlayLayer){
-      map.removeLayer(overlayLayer);
+      try { map.removeLayer(overlayLayer); } catch(_){}
       overlayLayer = null;
     }
+    // revoke KMZ icon object URLs to avoid memory leaks
+    if (kmzObjectUrls && kmzObjectUrls.length){
+      for (const u of kmzObjectUrls){
+        try { URL.revokeObjectURL(u); } catch(_){}
+      }
+      kmzObjectUrls = [];
+    }
+
   }
 
   function clearRutometre(){
@@ -1890,15 +1933,31 @@ function parseGpx(xmlText){
     };
 
     if (visualTracks && visualTracks.length){
-      for (const trk of visualTracks){
-        const color = trk.color || "blue";
-        for (const seg of (trk.segments || [])){
-          if (!seg || seg.length < 2) continue;
-          const pl = L.polyline(seg, { color, weight:4, opacity:0.95 });
-          pl.on("click", clickHandler);
-          layers.push(pl);
-        }
-      }
+		gpxTrackGroups = {};
+
+		for (const trk of visualTracks){
+		  const name = trk.name || "Track";
+		  const color = trk.color || "blue";
+
+		  const group = L.featureGroup();
+
+		  for (const seg of (trk.segments || [])){
+			if (!seg || seg.length < 2) continue;
+			const pl = L.polyline(seg, {
+			  color,
+			  weight: 4,
+			  opacity: 0.95
+			});
+			pl.on("click", clickHandler);
+			group.addLayer(pl);
+		  }
+
+		  if (group.getLayers().length){
+			gpxTrackGroups[name] = group;
+			group.addTo(map); // visible por defecto (puedes cambiarlo)
+		  }
+		}
+
     } else {
       // Fallback
       const pl = L.polyline(points.map(p => [p.lat, p.lon]), { color:"blue", weight:4 });
@@ -2120,7 +2179,30 @@ const idx = findPointIndex(p);
     drawElevationProfile(video.currentTime);
   });
 
-  function drawElevationProfile(cursorTime){
+  
+  // ========= PERFIL: SUAVIZADO =========
+  function smoothLinePtsMovingAverage(linePts, windowSize){
+    const n = linePts.length;
+    if (n < 3) return linePts;
+
+    const w = Math.max(3, Math.floor(windowSize));
+    const half = Math.floor(w / 2);
+    const out = new Array(n);
+
+    const pref = new Float64Array(n + 1);
+    pref[0] = 0;
+    for (let i = 0; i < n; i++) pref[i + 1] = pref[i] + linePts[i].y;
+
+    for (let i = 0; i < n; i++){
+      const a = Math.max(0, i - half);
+      const b = Math.min(n - 1, i + half);
+      const sum = pref[b + 1] - pref[a];
+      out[i] = { ...linePts[i], y: sum / (b - a + 1) };
+    }
+    return out;
+  }
+
+function drawElevationProfile(cursorTime){
     resizeCanvasToCSS();
     const W = elevCanvas.width, H = elevCanvas.height;
     ctx.clearRect(0,0,W,H);
@@ -2151,12 +2233,19 @@ const idx = findPointIndex(p);
       linePts.push({x,y,p});
     }
     if (linePts.length < 2) return;
+    // ---- aplicar suavizado (media móvil en Y) ----
+    // fuerza relativa: 0.008 (muy fiel) → 0.02 (muy suave)
+    const smoothStrength = 0.012;
+    const win = Math.max(3, Math.round(linePts.length * smoothStrength));
+    const winOdd = win % 2 ? win : (win + 1);
+    const linePtsSm = smoothLinePtsMovingAverage(linePts, winOdd);
+
 
     ctx.beginPath();
-    ctx.moveTo(linePts[0].x, linePts[0].y);
-    for (let i=1;i<linePts.length;i++) ctx.lineTo(linePts[i].x, linePts[i].y);
-    ctx.lineTo(linePts[linePts.length-1].x, H - pad);
-    ctx.lineTo(linePts[0].x, H - pad);
+    ctx.moveTo(linePtsSm[0].x, linePtsSm[0].y);
+    for (let i=1;i<linePtsSm.length;i++) ctx.lineTo(linePtsSm[i].x, linePtsSm[i].y);
+    ctx.lineTo(linePtsSm[linePtsSm.length-1].x, H - pad);
+    ctx.lineTo(linePtsSm[0].x, H - pad);
     ctx.closePath();
 
     const grad = ctx.createLinearGradient(0, pad, 0, H - pad);
@@ -2166,8 +2255,8 @@ const idx = findPointIndex(p);
     ctx.fill();
 
     ctx.beginPath();
-    ctx.moveTo(linePts[0].x, linePts[0].y);
-    for (let i=1;i<linePts.length;i++) ctx.lineTo(linePts[i].x, linePts[i].y);
+    ctx.moveTo(linePtsSm[0].x, linePtsSm[0].y);
+    for (let i=1;i<linePtsSm.length;i++) ctx.lineTo(linePtsSm[i].x, linePtsSm[i].y);
     ctx.strokeStyle = "rgba(120,0,0,0.9)";
     ctx.lineWidth = 2;
     ctx.stroke();
@@ -2904,6 +2993,7 @@ const idx = findPointIndex(p);
 
   
   async function loadKmzFile(file){
+    clearOverlay();
     const ab = await file.arrayBuffer();
     const zip = await JSZip.loadAsync(ab);
 
@@ -2933,6 +3023,7 @@ const idx = findPointIndex(p);
       if (!iconExts.some(ext => pl.endsWith(ext))) continue;
       const blob = await zip.files[relPath].async("blob");
       const url = URL.createObjectURL(blob);
+      kmzObjectUrls.push(url);
       addIconKey(relPath, url);
     }
 
@@ -2947,10 +3038,33 @@ const idx = findPointIndex(p);
     }
 
     const kmlText = await zip.files[kmlRel].async("text");
-    overlayLayer = loadKmzKmlDirect(kmlText, iconBlobs, file.name);
-    overlayLayer.addTo(map);
+
+    const res = loadKmzKmlDirect(kmlText, iconBlobs, file.name);
+    overlayLayer = res.allGroup;
+    overlayGroups = res.overlays;
+
+    // add only those that should start enabled
+    // (Leaflet marks checkboxes as checked only for layers currently on the map)
+    for (const k of Object.keys(overlayGroups)){
+      if (!layerStartsDisabled(k)){
+        overlayGroups[k].addTo(map);
+      }
+    }
+
+    // layer control (checkboxes)
+	const allOverlays = {
+	  ...(gpxTrackGroups || {}),
+	  ...(overlayGroups || {})
+	  
+	};
+
+	overlayControl = L.control.layers(null, allOverlays, {
+	  collapsed: true,
+	  position: "topright"
+	}).addTo(map);
+
     try { map.fitBounds(overlayLayer.getBounds(), { padding:[20,20] }); } catch(_){}
-    setStatus(`Overlay KMZ cargado (pictos): ${file.name}`);
+    setStatus(`KMZ cargado: ${file.name} (capas: ${Object.keys(overlayGroups).length})`);
   }
 
   function bindPopupIfAny(layer, name, descriptionHtml){
@@ -2999,9 +3113,60 @@ const idx = findPointIndex(p);
   }
 
   // KMZ: parse KML directly for styleUrl + IconStyle href + Point/Line/Polygon
-  function loadKmzKmlDirect(kmlText, iconBlobs, filename){
-    const xml = new DOMParser().parseFromString(kmlText, "application/xml");
+  
+// ============================================================
+// KML style helpers (KMZ/KML line & polygon colors)
+// ============================================================
+function kmlColorToCss(kml){
+  // KML uses aabbggrr (hex). Example: ff0000ff = red (alpha=ff, bb=00, gg=00, rr=ff)
+  const s = String(kml || "").trim().replace(/^#/, "");
+  if (!/^[0-9a-fA-F]{8}$/.test(s)) return null;
 
+  const a = parseInt(s.slice(0,2), 16) / 255;
+  const b = parseInt(s.slice(2,4), 16);
+  const g = parseInt(s.slice(4,6), 16);
+  const r = parseInt(s.slice(6,8), 16);
+
+  return { color: `rgb(${r},${g},${b})`, opacity: a };
+}
+
+function parseLineStyle(styleEl){
+  const ls = styleEl?.getElementsByTagName("LineStyle")?.[0];
+  if (!ls) return null;
+
+  const col = ls.getElementsByTagName("color")?.[0]?.textContent;
+  const w   = ls.getElementsByTagName("width")?.[0]?.textContent;
+
+  const c = kmlColorToCss(col);
+  const out = {};
+  if (c){ out.color = c.color; out.opacity = c.opacity; }
+
+  const width = parseFloat(String(w || "").replace(",", "."));
+  if (Number.isFinite(width)) out.weight = width;
+
+  return Object.keys(out).length ? out : null;
+}
+
+function parsePolyStyle(styleEl){
+  const ps = styleEl?.getElementsByTagName("PolyStyle")?.[0];
+  if (!ps) return null;
+
+  const col = ps.getElementsByTagName("color")?.[0]?.textContent;
+  const fill = ps.getElementsByTagName("fill")?.[0]?.textContent;
+  const outline = ps.getElementsByTagName("outline")?.[0]?.textContent;
+
+  const c = kmlColorToCss(col);
+  const out = {};
+  if (c){ out.fillColor = c.color; out.fillOpacity = c.opacity; }
+
+  if (String(fill||"").trim() === "0"){ out.fillOpacity = 0; }
+  if (String(outline||"").trim() === "0"){ out.weight = 0; } // no stroke
+
+  return Object.keys(out).length ? out : null;
+}
+
+function loadKmzKmlDirect(kmlText, iconBlobs, filename){
+    const xml = new DOMParser().parseFromString(kmlText, "application/xml");
     const qAll = (tag) => [...xml.getElementsByTagName(tag)];
 
     // 1) Style id => href (IconStyle/href)
@@ -3014,6 +3179,22 @@ const idx = findPointIndex(p);
         styleHref.set("#"+id, hrefEl.textContent.trim());
       }
     }
+
+// 1b) Style id => LineStyle / PolyStyle (colors, widths)
+const styleLine = new Map(); // "#id" => {color, opacity, weight}
+const stylePoly = new Map(); // "#id" => {fillColor, fillOpacity, weight?}
+
+for (const st of qAll("Style")){
+  const id = st.getAttribute("id");
+  if (!id) continue;
+  const key = "#"+id;
+
+  const ls = parseLineStyle(st);
+  if (ls) styleLine.set(key, ls);
+
+  const ps = parsePolyStyle(st);
+  if (ps) stylePoly.set(key, ps);
+}
 
     // 2) StyleMap id => normal styleUrl
     const styleMap = new Map(); // "#id" => "#styleId"
@@ -3028,79 +3209,195 @@ const idx = findPointIndex(p);
         const key = keyEl ? keyEl.textContent.trim() : "";
         if ((key === "normal" || key === "") && urlEl && urlEl.textContent){
           url = urlEl.textContent.trim();
-          if (key === "normal") break;
+          break;
         }
       }
       if (url) styleMap.set("#"+id, url);
     }
 
-    const group = L.featureGroup();
-    const placemarks = qAll("Placemark");
+    const overlays = {}; // "Folder/Subfolder" => L.FeatureGroup
+    const allGroup = L.featureGroup();
 
-    for (const pm of placemarks){
+    const baseName = (filename || "Overlay").replace(/\.(kmz|kml)$/i, "");
+
+    const getChildEls = (parent, tag) => [...(parent?.children || [])].filter(e => e.tagName === tag);
+    const getFirstChildText = (parent, tag) => {
+      const el = getChildEls(parent, tag)[0];
+      return el ? (el.textContent || "").trim() : "";
+    };
+    const ensureGroup = (key) => {
+      if (!overlays[key]) overlays[key] = L.featureGroup();
+      return overlays[key];
+    };
+
+    // Add one Placemark to a group (reuses your existing helpers)
+    function addPlacemark(pm, group, layerKey){
       const name = pm.getElementsByTagName("name")[0]?.textContent?.trim() || "";
       const desc = pm.getElementsByTagName("description")[0]?.textContent || "";
-      let styleUrl = pm.getElementsByTagName("styleUrl")[0]?.textContent?.trim() || "";
 
-      // resolve styleMap indirection
-      if (styleMap.has(styleUrl)) styleUrl = styleMap.get(styleUrl);
-
-      // inline Style inside Placemark
+      // resolve icon href if any
       let href = "";
+
+      // styleUrl can point to StyleMap or Style
+      let styleUrl = pm.getElementsByTagName("styleUrl")[0]?.textContent?.trim() || "";
+      if (styleUrl && styleMap.has(styleUrl)) styleUrl = styleMap.get(styleUrl);
+      if (styleUrl && styleHref.has(styleUrl)) href = styleHref.get(styleUrl);
+
+      // KML style options for LineString / Polygon
+      let resolvedStyleUrl = styleUrl;
+      if (resolvedStyleUrl && styleMap.has(resolvedStyleUrl)) resolvedStyleUrl = styleMap.get(resolvedStyleUrl);
+
+      let lineOpts = (resolvedStyleUrl && styleLine.get(resolvedStyleUrl)) ? { ...styleLine.get(resolvedStyleUrl) } : {};
+      let polyOpts = (resolvedStyleUrl && stylePoly.get(resolvedStyleUrl)) ? { ...stylePoly.get(resolvedStyleUrl) } : {};
+
       const inlineStyle = pm.getElementsByTagName("Style")[0];
       if (inlineStyle){
-        const hrefEl = inlineStyle.getElementsByTagName("href")[0];
-        if (hrefEl && hrefEl.textContent) href = hrefEl.textContent.trim();
-      }
-      if (!href && styleUrl) href = styleHref.get(styleUrl) || "";
+        const ils = parseLineStyle(inlineStyle);
+        if (ils) lineOpts = { ...lineOpts, ...ils };
 
-      // geometry
-      const pointEl = pm.getElementsByTagName("Point")[0];
-      const lineEl  = pm.getElementsByTagName("LineString")[0];
-      const polyEl  = pm.getElementsByTagName("Polygon")[0];
-
-      if (pointEl){
-        const coordText = pointEl.getElementsByTagName("coordinates")[0]?.textContent?.trim() || "";
-        const [lon, lat] = coordText.split(",").map(v => parseFloat(v));
-        if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
-
-        const iconUrl = resolveKmzIconUrl(href, iconBlobs);
-        let m;
-        if (iconUrl){
-          const icon = L.icon({ iconUrl, iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-28] });
-          m = L.marker([lat, lon], { icon });
-        } else {
-          m = L.circleMarker([lat, lon], { radius:5, color:"#cc00cc", fillColor:"#cc00cc", fillOpacity:.8, weight:1 });
-        }
-        bindPopupIfAny(m, name, desc);
-        group.addLayer(m);
-        continue;
+        const ips = parsePolyStyle(inlineStyle);
+        if (ips) polyOpts = { ...polyOpts, ...ips };
       }
 
-      if (lineEl){
-        const coords = parseKmlCoordinates(lineEl.getElementsByTagName("coordinates")[0]?.textContent || "");
+      // Defaults if no style is provided
+      if (!lineOpts.color) lineOpts.color = "#cc00cc";
+      if (lineOpts.opacity == null) lineOpts.opacity = 0.85;
+      if (lineOpts.weight == null) lineOpts.weight = 3;
+
+      if (polyOpts.fillOpacity == null) polyOpts.fillOpacity = 0.15;
+      if (!polyOpts.fillColor && lineOpts.color) polyOpts.fillColor = lineOpts.color;
+
+      // inline IconStyle/href
+      const inlineHref = pm.getElementsByTagName("IconStyle")[0]?.getElementsByTagName("href")[0]?.textContent?.trim() || "";
+      if (inlineHref) href = inlineHref;
+
+      const iconUrl = href ? resolveKmzIconUrl(href, iconBlobs) : "";
+
+      const keyLow = String(layerKey || "").toLowerCase();
+
+      // ---------- helpers ----------
+      function addPolylineFromCoords(coords){
         if (coords.length >= 2){
-          const pl = L.polyline(coords, { color:"#cc00cc", weight:3, opacity:0.85 });
+          const pl = L.polyline(coords, lineOpts);
           bindPopupIfAny(pl, name, desc);
-          group.addLayer(pl);
+          group.addLayer(pl); allGroup.addLayer(pl);
         }
-        continue;
+      }
+      function parseGxTrackCoords(trackEl){
+        // gx:coord has "lon lat alt"
+        const coordEls = [...trackEl.getElementsByTagName("gx:coord"), ...trackEl.getElementsByTagName("coord")];
+        const out = [];
+        for (const ce of coordEls){
+          const parts = String(ce.textContent || "").trim().split(/\s+/);
+          if (parts.length >= 2){
+            const lon = parseFloat(parts[0]);
+            const lat = parseFloat(parts[1]);
+            if (Number.isFinite(lat) && Number.isFinite(lon)) out.push([lat, lon]);
+          }
+        }
+        return out;
       }
 
-      if (polyEl){
-        const outer = polyEl.getElementsByTagName("outerBoundaryIs")[0];
-        const coordsText = outer?.getElementsByTagName("coordinates")[0]?.textContent || "";
+      // Point
+      const point = pm.getElementsByTagName("Point")[0];
+      if (point){
+        const coordsText = point.getElementsByTagName("coordinates")[0]?.textContent || "";
+        const coords = parseKmlCoordinates(coordsText);
+        if (coords.length){
+          const ll = coords[0];
+
+          // "KM Etapa" como en versión antigua: marcador simple (sin icono)
+          if (keyLow.includes("km etapa")){
+            const cm = L.circleMarker(ll, {
+              radius: 6,
+              color: lineOpts.color,
+              weight: 2,
+              opacity: lineOpts.opacity,
+              fillColor: lineOpts.color,
+              fillOpacity: 0.9
+            });
+            bindPopupIfAny(cm, name, desc);
+            group.addLayer(cm); allGroup.addLayer(cm);
+          } else {
+            const mk = iconUrl
+              ? L.marker(ll, { icon: L.icon({ iconUrl, iconSize:[28,28], iconAnchor:[14,28] }) })
+              : L.marker(ll);
+            bindPopupIfAny(mk, name, desc);
+            group.addLayer(mk); allGroup.addLayer(mk);
+          }
+        }
+        return;
+      }
+
+      // gx:Track (muy común en KMZ de Google Earth)
+      const gxTrack = pm.getElementsByTagName("gx:Track")[0] || pm.getElementsByTagName("Track")[0];
+      if (gxTrack){
+        const coords = parseGxTrackCoords(gxTrack);
+        addPolylineFromCoords(coords);
+        return;
+      }
+
+      // MultiGeometry (puede contener varios LineString)
+      const lineStrings = [...pm.getElementsByTagName("LineString")];
+      if (lineStrings.length){
+        for (const line of lineStrings){
+          const coordsText = line.getElementsByTagName("coordinates")[0]?.textContent || "";
+          const coords = parseKmlCoordinates(coordsText);
+          addPolylineFromCoords(coords);
+        }
+        return;
+      }
+
+      // Polygon
+      const poly = pm.getElementsByTagName("Polygon")[0];
+      if (poly){
+        const outer = poly.getElementsByTagName("outerBoundaryIs")[0];
+        const ring = outer ? outer.getElementsByTagName("LinearRing")[0] : null;
+        const coordsText = ring ? (ring.getElementsByTagName("coordinates")[0]?.textContent || "") : "";
         const coords = parseKmlCoordinates(coordsText);
         if (coords.length >= 3){
-          const pg = L.polygon(coords, { color:"#cc00cc", weight:2, opacity:0.85, fillOpacity:0.15 });
+          const pg = L.polygon(coords, { ...lineOpts, ...polyOpts });
           bindPopupIfAny(pg, name, desc);
-          group.addLayer(pg);
+          group.addLayer(pg); allGroup.addLayer(pg);
         }
-        continue;
+        return;
       }
     }
 
-    return group;
+    // Walk folders recursively (Document + Folder)
+    function walk(containerEl, pathParts){
+      // Placemarks directly under this container
+      for (const pm of getChildEls(containerEl, "Placemark")){
+        const key = pathParts.length ? pathParts.join(" / ") : baseName;
+        const grp = ensureGroup(key);
+        addPlacemark(pm, grp, key);
+      }
+      // Nested folders
+      for (const folder of getChildEls(containerEl, "Folder")){
+        const folderName = getFirstChildText(folder, "name") || "Sin nombre";
+        walk(folder, [...pathParts, folderName]);
+      }
+    }
+
+    // Entry points: Document and/or root Folder(s)
+    const docs = qAll("Document");
+    if (docs.length){
+      for (const doc of docs){
+        // If Document has a name, you can include it; I keep it as baseName to avoid duplicar niveles
+        walk(doc, []);
+      }
+    } else {
+      // Some KMLs have Folder directly under <kml>
+      const root = xml.documentElement;
+      walk(root, []);
+    }
+
+    // If no folders were detected but we still have features, keep a single overlay
+    if (!Object.keys(overlays).length && allGroup.getLayers().length){
+      overlays[baseName] = allGroup;
+    }
+
+    return { allGroup, overlays };
   }
 /* ============================================================
      GOOGLE + SNAPSHOT
