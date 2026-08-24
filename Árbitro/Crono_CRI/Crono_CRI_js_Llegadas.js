@@ -89,9 +89,8 @@ function getFirstStartTimeInSeconds() {
 function obtenerDatosCorredor(dorsal) {
     console.log(`🔍 Buscando dorsal ${dorsal} en startOrderData...`);
     
-    const corredor = startOrderData.find(r => r.dorsal === dorsal);
+    const corredor = startOrderData.find(r => parseInt(r.dorsal) === dorsal);
     
-    // SI NO ENCUENTRA EL DORSAL, DEVOLVER OBJETO VACÍO PERO NO NULL
     if (!corredor) {
         console.log(`⚠️ Dorsal ${dorsal} no encontrado - datos vacíos`);
         return {
@@ -99,67 +98,69 @@ function obtenerDatosCorredor(dorsal) {
             nombre: '',
             apellidos: '',
             chip: '',
-            // VERSIÓN 3.2.1 - CAMPOS NUEVOS
             categoria: '',
             equipo: '',
             licencia: '',
             horaSalida: '',
-            cronoSalida: '',  // VACÍO si no se encuentra
-            cronoSalidaSegundos: 0,  // CERO si no se encuentra
+            cronoSalida: '',
+            cronoSalidaSegundos: 0,
             orden: 0
         };
     }
     
-    // SISTEMA 3.2.1 - PRIORIDAD MEJORADA
-    // 1. Verificar horaSalidaReal (si existe y es válida)
+    const esPrimerCorredor = corredor.order && corredor.order === 1;
+    
     let horaSalidaSeleccionada = '';
     let cronoSalidaSeleccionada = '';
     
-    const tieneHoraSalidaRealValida = corredor.horaSalidaReal && 
-                                     corredor.horaSalidaReal !== '--:--:--' && 
-                                     corredor.horaSalidaReal.trim() !== '';
+    // Hora real válida:
+    // - no vacía
+    // - no '--:--:--'
+    // - si es '00:00:00', solo válida para el primer corredor
+    const tieneHoraSalidaRealValida =
+        corredor.horaSalidaReal &&
+        corredor.horaSalidaReal !== '--:--:--' &&
+        corredor.horaSalidaReal.trim() !== '' &&
+        (esPrimerCorredor || corredor.horaSalidaReal !== '00:00:00');
     
+    // Crono real válido:
+    // - no vacío
+    // - no '--:--:--'
+    // - si es '00:00:00', solo válido para el primer corredor
+    const tieneCronoRealValido =
+        corredor.cronoSalidaReal &&
+        corredor.cronoSalidaReal !== '--:--:--' &&
+        corredor.cronoSalidaReal.trim() !== '' &&
+        (esPrimerCorredor || corredor.cronoSalidaReal !== '00:00:00');
+    
+    // Selección independiente de hora y crono
     if (tieneHoraSalidaRealValida) {
-        // USAR HORA SALIDA REAL (sistema 3.2.1)
         horaSalidaSeleccionada = corredor.horaSalidaReal;
-        
-        // Verificar también cronoSalidaReal (si existe y es válida)
-        const tieneCronoRealValido = corredor.cronoSalidaReal && 
-                                    corredor.cronoSalidaReal !== '--:--:--' && 
-                                    corredor.cronoSalidaReal.trim() !== '';
-        
-        if (tieneCronoRealValido) {
-            cronoSalidaSeleccionada = corredor.cronoSalidaReal;
-        } else {
-            // Si cronoSalidaReal no es válido, usar cronoSalida
-            cronoSalidaSeleccionada = corredor.cronoSalida || '';
-        }
     } else {
-        // USAR HORA SALIDA PREVISTA (sistema anterior)
         horaSalidaSeleccionada = corredor.horaSalida || '';
+    }
+    
+    if (tieneCronoRealValido) {
+        cronoSalidaSeleccionada = corredor.cronoSalidaReal;
+    } else {
         cronoSalidaSeleccionada = corredor.cronoSalida || '';
     }
     
-    // OBTENER CRONO SALIDA - LÓGICA ESPECIAL PARA PRIMER CORREDOR
     let cronoSalida = '';
     let cronoSalidaSegundos = 0;
     
-    const esPrimerCorredor = corredor.order && corredor.order === 1;
-    
     if (esPrimerCorredor) {
-        // PRIMER CORREDOR: Aceptar crono salida incluso si es "00:00:00"
         cronoSalida = cronoSalidaSeleccionada;
         
-        // Convertir a segundos (acepta 00:00:00 como válido para primer corredor)
         if (cronoSalida && cronoSalida !== '--:--:--') {
             cronoSalidaSegundos = timeToSeconds(cronoSalida);
         }
     } else {
-        // RESTO DE CORREDORES: Solo traer cronoSalida si tiene valor válido
         cronoSalida = cronoSalidaSeleccionada;
         
-        // Convertir a segundos solo si hay valor y no es "00:00:00" o "--:--:--"
-        if (cronoSalida && cronoSalida !== '00:00:00' && cronoSalida !== '--:--:--') {
+        if (cronoSalida &&
+            cronoSalida !== '00:00:00' &&
+            cronoSalida !== '--:--:--') {
             cronoSalidaSegundos = timeToSeconds(cronoSalida);
         }
     }
@@ -169,16 +170,16 @@ function obtenerDatosCorredor(dorsal) {
         nombre: corredor.nombre || '',
         apellidos: corredor.apellidos || '',
         chip: corredor.chip || '',
-        // VERSIÓN 3.2.1 - CAMPOS NUEVOS DESCOMENTADOS
         categoria: corredor.categoria || '',
         equipo: corredor.equipo || '',
         licencia: corredor.licencia || '',
         horaSalida: horaSalidaSeleccionada,
         cronoSalida: cronoSalida,
         cronoSalidaSegundos: cronoSalidaSegundos,
-        orden: corredor.order || 0  // CORRECCIÓN: usar 'order' no 'orden'
+        orden: corredor.order || 0
     };
 }
+
 
 // ============================================
 // CRONÓMETRO DE LLEGADAS
